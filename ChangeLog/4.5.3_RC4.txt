@@ -1,2 +1,2 @@
 [main] Fix POCO materialization when subqueries are used
-[sqlserver] Improve detection of serialization failure errors for SQL Server
+[main] Fix translation of multiple aggregate subqueries when calculated columns are used

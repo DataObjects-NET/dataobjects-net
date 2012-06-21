@@ -13,7 +13,7 @@ using Xtensive.Linq;
 
 namespace Xtensive.Orm.Tests.Linq
 {
-  namespace SubqueryWithVirtualFieldsTestModel
+  namespace SubqueryWithCalculatedFieldTestModel
   {
     [HierarchyRoot]
     public class Subqueried : Entity
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Linq
         return MyEntTextExpression.BindParameters(assignmentExpression);
       }
 
-      public class SubqueryWithVirtualFieldsTest : AutoBuildTest
+      public class SubqueryWithCalculatedFieldTest : AutoBuildTest
       {
         protected override Configuration.DomainConfiguration BuildConfiguration()
         {
@@ -54,8 +54,7 @@ namespace Xtensive.Orm.Tests.Linq
           return configuration;
         }
 
-        [Test]
-        public void MainTest()
+        protected override void PopulateData()
         {
           using (var session = Domain.OpenSession())
           using (var tx = session.OpenTransaction()) {
@@ -63,7 +62,11 @@ namespace Xtensive.Orm.Tests.Linq
             new Subqueried {Money = 3, Price = 2, Amount = 1};
             tx.Complete();
           }
+        }
 
+        [Test]
+        public void AggregateWithCustomCompilerTest()
+        {
           using (var session = Domain.OpenSession())
           using (var tx = session.OpenTransaction()) {
             var query =
@@ -75,6 +78,30 @@ namespace Xtensive.Orm.Tests.Linq
               from item in query
               select new {
                 SumTotal = item.Sum(b => b.Item.Total),
+                SumMoney = item.Sum(b => b.Item.Money)
+              };
+
+            var result = aggregateQuery.ToArray()[0];
+
+            Assert.That(result.SumTotal, Is.EqualTo(10m));
+            Assert.That(result.SumMoney, Is.EqualTo(8m));
+          }
+        }
+
+        [Test]
+        public void AggregateWithoutCustomCompilerTest()
+        {
+          using (var session = Domain.OpenSession())
+          using (var tx = session.OpenTransaction()) {
+            var query =
+              from item in session.Query.All<Subqueried>()
+              select new {Item = item, FakeKey = 0}
+              into i group i by i.FakeKey;
+
+            var aggregateQuery =
+              from item in query
+              select new {
+                SumTotal = item.Sum(b => b.Item.Amount * b.Item.Price),
                 SumMoney = item.Sum(b => b.Item.Money)
               };
 

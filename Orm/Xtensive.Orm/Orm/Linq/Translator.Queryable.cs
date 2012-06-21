@@ -595,142 +595,167 @@ namespace Xtensive.Orm.Linq
       return new ProjectionExpression(result.Type, itemProjector, result.TupleParameterBindings);
     }
 
-    /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     private Expression VisitAggregate(Expression source, MethodInfo method, LambdaExpression argument, bool isRoot, MethodCallExpression expressionPart)
     {
-      int aggregateColumn;
-      AggregateType aggregateType;
-      ProjectionExpression innerProjection;
+      var aggregateType = ExtractAggregateType(expressionPart);
+      var origin = VisitAggregateSource(source, argument, aggregateType, expressionPart);
+      var originProjection = origin.First;
+      var originColumnIndex = origin.Second;
+      var aggregateDescriptor = new AggregateColumnDescriptor(context.GetNextColumnAlias(), originColumnIndex, aggregateType);
+      var originDataSource = originProjection.ItemProjector.DataSource;
+      var resultDataSource = originDataSource.Aggregate(null, aggregateDescriptor);
 
-      switch (method.Name) {
-      case Xtensive.Reflection.WellKnown.Queryable.Count:
-        aggregateType = AggregateType.Count;
-        break;
-      case Xtensive.Reflection.WellKnown.Queryable.LongCount:
-        aggregateType = AggregateType.Count;
-        break;
-      case Xtensive.Reflection.WellKnown.Queryable.Min:
-        aggregateType = AggregateType.Min;
-        break;
-      case Xtensive.Reflection.WellKnown.Queryable.Max:
-        aggregateType = AggregateType.Max;
-        break;
-      case Xtensive.Reflection.WellKnown.Queryable.Sum:
-        aggregateType = AggregateType.Sum;
-        break;
-      case Xtensive.Reflection.WellKnown.Queryable.Average:
-        aggregateType = AggregateType.Avg;
-        break;
-      default:
-        throw new NotSupportedException(String.Format(Strings.ExAggregateMethodXIsNotSupported, expressionPart, method.Name));
-      }
+      // Some aggregate method change type of the column
+      // We should take this into account when translating them
+      // Types could be promoted to their nullable equivalent (i.e. double -> double?)
+      // or promoted to wider types (i.e. single -> double)
 
-      if (aggregateType==AggregateType.Count) {
-        aggregateColumn = 0;
-        innerProjection = argument!=null
-          ? VisitWhere(source, argument)
-          : VisitSequence(source);
-      }
-      else {
-        innerProjection = VisitSequence(source);
-        List<int> columnList;
-
-        if (argument==null) {
-          if (!innerProjection.ItemProjector.IsPrimitive)
-            throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, expressionPart));
-          // Default
-          columnList = innerProjection.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
-        }
-        else {
-          using (context.Bindings.Add(argument.Parameters[0], innerProjection))
-          using (state.CreateScope()) {
-            state.CalculateExpressions = true;
-            var result = (ItemProjectorExpression) VisitLambda(argument);
-            if (!result.IsPrimitive)
-              throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, expressionPart));
-            // Default
-            columnList = result.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
-            innerProjection = context.Bindings[argument.Parameters[0]];
-          }
-        }
-
-        if (columnList.Count!=1)
-          throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, expressionPart));
-        aggregateColumn = columnList[0];
-      }
-
-
-      var aggregateColumnDescriptor = new AggregateColumnDescriptor(context.GetNextColumnAlias(), aggregateColumn, aggregateType);
-      var dataSource = innerProjection.ItemProjector.DataSource
-        .Aggregate(null, aggregateColumnDescriptor);
       var resultType = method.ReturnType;
-      var columnType = dataSource.Header.TupleDescriptor[0];
-      if (!isRoot) {
-        // Optimization. Use grouping AggregateProvider.
-        // TODO: Fix following code. Should use provider tree rewriting
-        if (source is ParameterExpression) {
-          var groupingParameter = (ParameterExpression) source;
-          var groupingProjection = context.Bindings[groupingParameter];
-          var groupingDataSource = groupingProjection.ItemProjector.DataSource;
-          var supportedAggregate = !(aggregateType == AggregateType.Count && argument != null);
-          var groupingProvider = groupingDataSource as AggregateProvider;
-          var oldApplyParameter = context.GetApplyParameter(groupingProjection.ItemProjector.DataSource);
-          if (groupingProjection.ItemProjector.Item.IsGroupingExpression() && groupingProvider != null && supportedAggregate) {
-            var filterRemover = new SubqueryFilterRemover(oldApplyParameter);
-            var newSourñe = filterRemover.VisitCompilable(innerProjection.ItemProjector.DataSource);
-            var newRecordSet = new AggregateProvider(
-              newSourñe, 
-              groupingProvider.GroupColumnIndexes, 
-              groupingProvider.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateColumnDescriptor).ToArray());
-            var newItemProjector = groupingProjection.ItemProjector.Remap(newRecordSet, 0);
+      var columnType = resultDataSource.Header.TupleDescriptor[0];
+      var correctResultType = resultType!=columnType && !resultType.IsNullable();
+      if (!correctResultType) // Adjust column type so we always use nullable of T instead of T
+        columnType = resultType;
+
+      if (isRoot) {
+        var projectorBody = (Expression) ColumnExpression.Create(columnType, 0);
+        if (correctResultType)
+          projectorBody = Expression.Convert(projectorBody, resultType);
+        var itemProjector = new ItemProjectorExpression(projectorBody, resultDataSource, context);
+        return new ProjectionExpression(resultType, itemProjector, originProjection.TupleParameterBindings, ResultType.First);
+      }
+
+      // Optimization. Use grouping AggregateProvider.
+
+      var groupingParameter = source as ParameterExpression;
+      if (groupingParameter!=null) {
+        var groupingProjection = context.Bindings[groupingParameter];
+        var groupingDataSource = groupingProjection.ItemProjector.DataSource as AggregateProvider;
+        if (groupingDataSource!=null && groupingProjection.ItemProjector.Item.IsGroupingExpression()) {
+          var groupingFilterParameter = context.GetApplyParameter(groupingDataSource);
+          var commonOriginDataSource = ChooseSourceForAggregate(groupingDataSource.Source,
+            SubqueryFilterRemover.Process(originDataSource, groupingFilterParameter));
+          if (commonOriginDataSource!=null) {
+            resultDataSource = new AggregateProvider(
+              commonOriginDataSource, groupingDataSource.GroupColumnIndexes,
+              groupingDataSource.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateDescriptor).ToArray());
+            var optimizedItemProjector = groupingProjection.ItemProjector.Remap(resultDataSource, 0);
             groupingProjection = new ProjectionExpression(
-              groupingProjection.Type, 
-              newItemProjector, 
-              groupingProjection.TupleParameterBindings, 
-              groupingProjection.ResultType);
+              groupingProjection.Type, optimizedItemProjector,
+              groupingProjection.TupleParameterBindings, groupingProjection.ResultType);
             context.Bindings.ReplaceBound(groupingParameter, groupingProjection);
             var isSubqueryParameter = state.OuterParameters.Contains(groupingParameter);
             if (isSubqueryParameter) {
-              var newApplyParameter = context.GetApplyParameter(newRecordSet);
+              var newApplyParameter = context.GetApplyParameter(resultDataSource);
               foreach (var innerParameter in state.Parameters) {
                 var projectionExpression = context.Bindings[innerParameter];
                 var newProjectionExpression = new ProjectionExpression(
-                  projectionExpression.Type, 
-                  projectionExpression.ItemProjector.RewriteApplyParameter(oldApplyParameter, newApplyParameter), 
-                  projectionExpression.TupleParameterBindings, 
+                  projectionExpression.Type,
+                  projectionExpression.ItemProjector.RewriteApplyParameter(groupingFilterParameter, newApplyParameter),
+                  projectionExpression.TupleParameterBindings,
                   projectionExpression.ResultType);
                 context.Bindings.ReplaceBound(innerParameter, newProjectionExpression);
               }
             }
-            if (resultType!=columnType && !resultType.IsNullable()) {
-              var columnExpression = ColumnExpression.Create(columnType, newRecordSet.Header.Length - 1);
-              if (isSubqueryParameter)
-                columnExpression = (ColumnExpression) columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
-              return Expression.Convert(columnExpression, resultType);
-            }
-            else {
-              var columnExpression = ColumnExpression.Create(resultType, newRecordSet.Header.Length - 1);
-              if (isSubqueryParameter)
-                columnExpression = (ColumnExpression) columnExpression.BindParameter(groupingParameter, new Dictionary<Expression, Expression>());
-              return columnExpression;
-            }
+            var resultColumn = ColumnExpression.Create(columnType, resultDataSource.Header.Length - 1);
+            if (isSubqueryParameter)
+              resultColumn = (ColumnExpression) resultColumn.BindParameter(groupingParameter);
+            if (correctResultType)
+              return Expression.Convert(resultColumn, resultType);
+            return resultColumn;
           }
         }
-        return resultType!=columnType && !resultType.IsNullable()
-          ? Expression.Convert(AddSubqueryColumn(columnType, dataSource), resultType)
-          : AddSubqueryColumn(method.ReturnType, dataSource);
       }
 
-      var projectorBody = resultType!=columnType && !resultType.IsNullable()
-        ? Expression.Convert(ColumnExpression.Create(columnType, 0), resultType)
-        : (Expression) ColumnExpression.Create(resultType, 0);
+      var result = AddSubqueryColumn(columnType, resultDataSource);
+      if (correctResultType)
+        return Expression.Convert(result, resultType);
+      return result;
+    }
 
-      var itemProjector = new ItemProjectorExpression(projectorBody, dataSource, context);
-      return new ProjectionExpression(
-        resultType, 
-        itemProjector, 
-        innerProjection.TupleParameterBindings, 
-        ResultType.First);
+    private CompilableProvider ChooseSourceForAggregate(CompilableProvider left, CompilableProvider right)
+    {
+      // Choose best available RSE provider when folding aggregate subqueries.
+      // Currently we support 2 scenarios:
+      // 1) Both origins (for main part and for subquery) are the same provider -> that provider is used.
+      // 2) One of the providers is Calculate upon other provider -> Calculate provider is used.
+
+      if (left==right)
+        return left;
+
+      if (left.Type==ProviderType.Calculate && left.Sources[0]==right)
+        return left;
+
+      if (right.Type==ProviderType.Calculate && right.Sources[0]==left)
+        return right;
+
+      // No provider matches our criteria -> don't fold aggregate providers.
+      return null;
+    }
+
+    private Pair<ProjectionExpression, int> VisitAggregateSource(
+      Expression source, LambdaExpression aggregateParameter, AggregateType aggregateType, Expression visitedExpression)
+    {
+      // Process any selectors or filters specified via parameter to aggregating method.
+      // This effectively substitutes source.Count(filter) -> source.Where(filter).Count()
+      // and source.Sum(selector) -> source.Select(selector).Sum()
+      // If parameterless method is called this method simply processes source.
+      // This method returns project for source expression and index of a column in RSE provider
+      // to which aggregate function should be applied.
+
+      ProjectionExpression sourceProjection;
+      int aggregatedColumnIndex;
+
+      if (aggregateType==AggregateType.Count) {
+        aggregatedColumnIndex = 0;
+        sourceProjection = aggregateParameter!=null ? VisitWhere(source, aggregateParameter) : VisitSequence(source);
+        return new Pair<ProjectionExpression, int>(sourceProjection, aggregatedColumnIndex);
+      }
+
+      List<int> columnList;
+      sourceProjection = VisitSequence(source);
+      if (aggregateParameter==null) {
+        if (!sourceProjection.ItemProjector.IsPrimitive)
+          throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
+        columnList = sourceProjection.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+      }
+      else {
+        using (context.Bindings.Add(aggregateParameter.Parameters[0], sourceProjection))
+        using (state.CreateScope()) {
+          state.CalculateExpressions = true;
+          var result = (ItemProjectorExpression) VisitLambda(aggregateParameter);
+          if (!result.IsPrimitive)
+            throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
+          columnList = result.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+          sourceProjection = context.Bindings[aggregateParameter.Parameters[0]];
+        }
+      }
+
+      if (columnList.Count!=1)
+        throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
+
+      aggregatedColumnIndex = columnList[0];
+      return new Pair<ProjectionExpression, int>(sourceProjection, aggregatedColumnIndex);
+    }
+
+    private static AggregateType ExtractAggregateType(MethodCallExpression aggregateCall)
+    {
+      var methodName = aggregateCall.Method.Name;
+      switch (methodName) {
+      case Reflection.WellKnown.Queryable.Count:
+        return AggregateType.Count;
+      case Reflection.WellKnown.Queryable.LongCount:
+        return AggregateType.Count;
+      case Reflection.WellKnown.Queryable.Min:
+        return AggregateType.Min;
+      case Reflection.WellKnown.Queryable.Max:
+        return AggregateType.Max;
+      case Reflection.WellKnown.Queryable.Sum:
+        return AggregateType.Sum;
+      case Reflection.WellKnown.Queryable.Average:
+        return AggregateType.Avg;
+      default:
+        throw new NotSupportedException(string.Format(Strings.ExAggregateMethodXIsNotSupported, aggregateCall, methodName));
+      }
     }
 
     private ProjectionExpression VisitGroupBy(Type returnType, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
@@ -1274,7 +1299,6 @@ namespace Xtensive.Orm.Linq
       }
 
       var tupleParameterBindings = outer.TupleParameterBindings.Union(inner.TupleParameterBindings).ToDictionary(pair => pair.Key, pair => pair.Value);
-
       var itemProjector = outerItemProjector.Remap(recordSet, outerColumns);
       return new ProjectionExpression(outer.Type, itemProjector, tupleParameterBindings);
     }
@@ -1282,27 +1306,20 @@ namespace Xtensive.Orm.Linq
     private Expression AddSubqueryColumn(Type columnType, CompilableProvider subquery)
     {
       if (subquery.Header.Length!=1)
-        throw Exceptions.InternalError(String.Format(Strings.SubqueryXHeaderMustHaveOnlyOneColumn, subquery), Log.Instance);
-      ParameterExpression lambdaParameter = state.Parameters[0];
+        throw Exceptions.InternalError(string.Format(Strings.SubqueryXHeaderMustHaveOnlyOneColumn, subquery), Log.Instance);
+      var lambdaParameter = state.Parameters[0];
       var oldResult = context.Bindings[lambdaParameter];
       var dataSource = oldResult.ItemProjector.DataSource;
       var applyParameter = context.GetApplyParameter(oldResult.ItemProjector.DataSource);
-      int columnIndex = dataSource.Header.Length;
+      var columnIndex = dataSource.Header.Length;
       var newRecordSet = dataSource.Apply(
-        applyParameter,
-        subquery,
-        !state.BuildingProjection,
-        ApplySequenceType.Single,
-        JoinType.Inner);
-      ItemProjectorExpression newItemProjector = oldResult.ItemProjector.Remap(newRecordSet, 0);
+        applyParameter, subquery, !state.BuildingProjection, ApplySequenceType.Single, JoinType.Inner);
+      var newItemProjector = oldResult.ItemProjector.Remap(newRecordSet, 0);
       var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
       context.Bindings.ReplaceBound(lambdaParameter, newResult);
-
       return ColumnExpression.Create(columnType, columnIndex);
     }
 
-
-    /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     private ProjectionExpression VisitSequence(Expression sequenceExpression)
     {
       return VisitSequence(sequenceExpression, sequenceExpression);
