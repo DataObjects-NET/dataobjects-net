@@ -351,8 +351,8 @@ namespace Xtensive.Orm
 
         var types = Session.Domain.Model.Types;
         if (value == null) {
-          for (int i = field.MappingInfo.Offset; i <= field.MappingInfo.EndOffset; i++)
-            Tuple.SetValue(i, null);
+          for (int i = 0; i < field.MappingInfo.Length; i++)
+            Tuple.SetValue(field.MappingInfo.Offset + i, null);
           return;
         }
         var type = types[field.ValueType];
