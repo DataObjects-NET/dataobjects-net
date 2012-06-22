@@ -15,11 +15,9 @@ namespace Xtensive.Orm.Linq.Rewriters
 {
   internal sealed class SubqueryFilterRemover : CompilableProviderVisitor
   {
-    private readonly SubqueryFilterChecker checker;
-
-    class SubqueryFilterChecker : ExpressionVisitor
+    private class SubqueryFilterChecker : ExpressionVisitor
     {
-      private readonly ApplyParameter applyParameter;
+      private readonly ApplyParameter filterParameter;
       private bool @continue;
       private bool matchFound;
 
@@ -33,24 +31,24 @@ namespace Xtensive.Orm.Linq.Rewriters
 
       protected override Expression VisitConstant(ConstantExpression c)
       {
-        if (c.Value == applyParameter)
+        if (c.Value==filterParameter)
           matchFound = true;
         return c;
       }
 
       protected override Expression VisitBinary(BinaryExpression b)
       {
-        if (b.NodeType == ExpressionType.Equal) {
+        if (b.NodeType==ExpressionType.Equal) {
           var leftAccess = b.Left.AsTupleAccess();
-          var rightAccess =b.Right.AsTupleAccess();
-          @continue &= leftAccess != null && rightAccess != null;
+          var rightAccess = b.Right.AsTupleAccess();
+          @continue &= leftAccess!=null && rightAccess!=null;
           if (@continue) {
-            var leftIsParameterBound = leftAccess.Object.NodeType == ExpressionType.Parameter;
-            var rightIsParameterBound = rightAccess.Object.NodeType == ExpressionType.Parameter;
-            @continue = leftIsParameterBound != rightIsParameterBound;
+            var leftIsParameterBound = leftAccess.Object.NodeType==ExpressionType.Parameter;
+            var rightIsParameterBound = rightAccess.Object.NodeType==ExpressionType.Parameter;
+            @continue = leftIsParameterBound!=rightIsParameterBound;
           }
         }
-        else if (b.NodeType == ExpressionType.AndAlso) {
+        else if (b.NodeType==ExpressionType.AndAlso) {
           @continue &= b.Left is BinaryExpression && b.Right is BinaryExpression;
         }
         else
@@ -65,25 +63,32 @@ namespace Xtensive.Orm.Linq.Rewriters
 
       // Constructors
 
-      public SubqueryFilterChecker(ApplyParameter applyParameter)
+      public SubqueryFilterChecker(ApplyParameter filterParameter)
       {
-        this.applyParameter = applyParameter;
+        this.filterParameter = filterParameter;
       }
     }
 
+    private readonly SubqueryFilterChecker checker;
+
     protected override Provider VisitFilter(FilterProvider provider)
     {
-      return checker.Check(provider.Predicate.Body) 
-        ? provider.Source 
+      return checker.Check(provider.Predicate.Body)
+        ? provider.Source
         : base.VisitFilter(provider);
+    }
+
+    public static CompilableProvider Process(CompilableProvider target, ApplyParameter filterParameter)
+    {
+      return new SubqueryFilterRemover(filterParameter).VisitCompilable(target);
     }
 
 
     // Constructors
 
-    public SubqueryFilterRemover(ApplyParameter applyParameter)
+    private SubqueryFilterRemover(ApplyParameter filterParameter)
     {
-      checker = new SubqueryFilterChecker(applyParameter);
+      checker = new SubqueryFilterChecker(filterParameter);
     }
   }
 }

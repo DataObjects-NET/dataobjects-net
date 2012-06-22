@@ -13,21 +13,21 @@ namespace Xtensive.Orm.Tests.Model
   namespace StructureWithCustomConstructorTestModel
   {
     [HierarchyRoot]
-    public class MyEntity : Entity
+    public class EntityWithStructure : Entity
     {
       [Field, Key]
       public int Id { get; private set; }
 
       [Field]
-      public MyStructure MyStructureProperty { get; private set; }
+      public StructureWithConstructor Value { get; private set; }
 
-      public MyEntity()
+      public EntityWithStructure()
       {
-        MyStructureProperty = new MyStructure("This is new");
+        Value = new StructureWithConstructor("This is new");
       }
     }
 
-    public class MyStructure : Structure
+    public class StructureWithConstructor : Structure
     {
       [Field]
       [NotNullOrEmptyConstraint]
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Model
         Value = value ?? string.Empty;
       }
 
-      public MyStructure(string value)
+      public StructureWithConstructor(string value)
       {
         Set(value);
       }
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Tests.Model
     protected override Configuration.DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (MyEntity));
+      configuration.Types.Register(typeof (EntityWithStructure));
       return configuration;
     }
 
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Tests.Model
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new MyEntity();
+        new EntityWithStructure();
         tx.Complete();
       }
     }

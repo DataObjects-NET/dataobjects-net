@@ -33,6 +33,11 @@ namespace Xtensive.Orm.Linq.Expressions
       return new ColumnExpression(Type, mapping, OuterParameter, DefaultIfEmpty);
     }
 
+    public Expression BindParameter(ParameterExpression parameter)
+    {
+      return BindParameter(parameter, new Dictionary<Expression, Expression>());
+    }
+
     public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       return new ColumnExpression(Type, Mapping, parameter, DefaultIfEmpty);
