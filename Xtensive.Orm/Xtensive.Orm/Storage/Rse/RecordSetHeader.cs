@@ -28,7 +28,7 @@ namespace Xtensive.Storage.Rse
     private static readonly ThreadSafeDictionary<IndexInfo, RecordSetHeader> headers =
       ThreadSafeDictionary<IndexInfo, RecordSetHeader>.Create(new object());
 
-    private TupleDescriptor orderTupleDescriptor;
+    private volatile TupleDescriptor orderTupleDescriptor;
 
     /// <summary>
     /// Gets the length of this instance.
@@ -67,7 +67,7 @@ namespace Xtensive.Storage.Rse
         if (Order.Count==0)
           return null;
         if (orderTupleDescriptor==null) lock(this) if (orderTupleDescriptor==null)
-          orderTupleDescriptor = Xtensive.Tuples.TupleDescriptor.Create(Order.Select(p => Columns[p.Key].Type));
+          orderTupleDescriptor = TupleDescriptor.Create(Order.Select(p => Columns[p.Key].Type));
         return orderTupleDescriptor;
       }
     }
