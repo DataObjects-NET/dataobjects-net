@@ -210,8 +210,8 @@ namespace Xtensive.Storage.Rse
     /// <param name="indexInfo">The index info to get the header for.</param>
     /// <returns>The <see cref="RecordSetHeader"/> object.</returns>
     public static RecordSetHeader GetHeader(IndexInfo indexInfo)
-    {      
-      return headers.GetValue(indexInfo, CreateHeader);
+    {
+      return CreateHeader(indexInfo);
     }
 
     private static RecordSetHeader CreateHeader(IndexInfo indexInfo)
