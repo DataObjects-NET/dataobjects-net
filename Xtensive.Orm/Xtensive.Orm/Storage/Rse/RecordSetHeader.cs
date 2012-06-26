@@ -25,9 +25,6 @@ namespace Xtensive.Storage.Rse
   [Serializable]
   public sealed class RecordSetHeader
   {
-    private static readonly ThreadSafeDictionary<IndexInfo, RecordSetHeader> headers =
-      ThreadSafeDictionary<IndexInfo, RecordSetHeader>.Create(new object());
-
     private volatile TupleDescriptor orderTupleDescriptor;
 
     /// <summary>
