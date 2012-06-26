@@ -62,21 +62,24 @@ namespace Xtensive.Orm.Validation
       List<Exception> exceptions = null;
       HashSet<Pair<IValidationAware, Action<IValidationAware>>> invalidItems = null;
       try {
-        foreach (var pair in (IEnumerable<Pair<IValidationAware, Action<IValidationAware>>>) registry) {
-          try {
-            if (pair.Second==null)
-              pair.First.OnValidate();
-            else
-              if (!registry.Contains(new Pair<IValidationAware, Action<IValidationAware>>(pair.First, null)))
-                pair.Second.Invoke(pair.First);
-          }
-          catch (Exception e) {
-            if (exceptions==null)
-              exceptions = new List<Exception>();
-            exceptions.Add(e);
-            if (invalidItems==null)
-              invalidItems = new HashSet<Pair<IValidationAware, Action<IValidationAware>>>();
-            invalidItems.Add(pair);
+        while (registry!=null) {
+          var currentRegistry = registry;
+          registry = null;
+          foreach (var item in (IEnumerable<Pair<IValidationAware, Action<IValidationAware>>>) currentRegistry) {
+            try {
+              if (item.Second==null)
+                item.First.OnValidate();
+              else if (!currentRegistry.Contains(new Pair<IValidationAware, Action<IValidationAware>>(item.First, null)))
+                item.Second.Invoke(item.First);
+            }
+            catch (Exception e) {
+              if (exceptions==null)
+                exceptions = new List<Exception>();
+              exceptions.Add(e);
+              if (invalidItems==null)
+                invalidItems = new HashSet<Pair<IValidationAware, Action<IValidationAware>>>();
+              invalidItems.Add(item);
+            }
           }
         }
       }
