@@ -83,6 +83,19 @@ namespace Xtensive.Tests.Linq
       Assert.AreEqual(x.GetHashCode(), y.GetHashCode());
     }
 
+    [Test]
+    public void UnboundParametersTest()
+    {
+      Expression<Func<int, int>> i1 = x => x + 1;
+      Expression<Func<int, int>> i2 = x => x + 1;
+
+      var p1 = i1.Parameters[0].ToExpressionTree();
+      var p2 = i2.Parameters[0].ToExpressionTree();
+
+      Assert.AreEqual(p1, p2);
+      Assert.AreEqual(p1.GetHashCode(), p2.GetHashCode());
+    }
+
     private static Expression<Func<int, int, int>> CreateProduct()
     {
       return (a, b) => a * b;

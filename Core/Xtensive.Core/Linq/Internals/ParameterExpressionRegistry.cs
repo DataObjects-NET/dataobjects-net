@@ -6,20 +6,20 @@
 
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Core;
 
 namespace Xtensive.Linq
 {
-  internal sealed class ParameterCollection
+  internal sealed class ParameterExpressionRegistry
   {
     private readonly List<ParameterExpression> indexes = new List<ParameterExpression>();
 
     public int GetIndex(ParameterExpression parameter)
     {
       int result = indexes.IndexOf(parameter);
-      if (result < 0)
-        throw Exceptions.LambdaParameterIsOutOfScope(parameter);
-      return result;
+      if (result >= 0)
+        return result;
+      indexes.Add(parameter);
+      return indexes.Count - 1;
     }
     
     public void Add(ParameterExpression parameter)

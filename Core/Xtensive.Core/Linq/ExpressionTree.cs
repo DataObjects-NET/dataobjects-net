@@ -59,7 +59,6 @@ namespace Xtensive.Linq
     {
       return new ExpressionComparer().AreEqual(expression, other.expression);
     }
-
     /// <summary>
     /// Implements the operator ==.
     /// </summary>
@@ -87,6 +86,28 @@ namespace Xtensive.Linq
     }
 
     #endregion
+
+    /// <summary>
+    /// Compares specified <see cref="Expression"/>s by value.
+    /// </summary>
+    /// <param name="left">First expression to compare.</param>
+    /// <param name="right">Second expression to compare.</param>
+    /// <returns>true, if <paramref name="left"/> and <paramref name="right"/>
+    /// are equal by value, otherwise false.</returns>
+    public static bool Equals(Expression left, Expression right)
+    {
+      return new ExpressionComparer().AreEqual(left, right);
+    }
+
+    /// <summary>
+    /// Calculates hash code by value for the specified <paramref name="expression"/>.
+    /// </summary>
+    /// <param name="expression">Expression to calculate hash code for.</param>
+    /// <returns>Hash code for <paramref name="expression"/>.</returns>
+    public static int GetHashCode(Expression expression)
+    {
+      return new ExpressionHashCodeCalculator().CalculateHashCode(expression);
+    }
 
 
     // Constructors

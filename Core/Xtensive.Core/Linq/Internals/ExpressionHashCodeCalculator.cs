@@ -15,7 +15,7 @@ namespace Xtensive.Linq
   internal sealed class ExpressionHashCodeCalculator : ExpressionVisitor<int>
   {
     private const int NullHashCode = 0x7abf3456;
-    private readonly ParameterCollection parameters = new ParameterCollection();
+    private readonly ParameterExpressionRegistry parameters = new ParameterExpressionRegistry();
 
     public int CalculateHashCode(Expression expression)
     {

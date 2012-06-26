@@ -12,10 +12,10 @@ using Xtensive.Core;
 
 namespace Xtensive.Linq
 {
-  public sealed class ExpressionComparer
+  internal sealed class ExpressionComparer
   {
-    private readonly ParameterCollection leftParameters = new ParameterCollection();
-    private readonly ParameterCollection rightParameters = new ParameterCollection();
+    private readonly ParameterExpressionRegistry leftParameters = new ParameterExpressionRegistry();
+    private readonly ParameterExpressionRegistry rightParameters = new ParameterExpressionRegistry();
 
     public bool AreEqual(Expression x, Expression y)
     {

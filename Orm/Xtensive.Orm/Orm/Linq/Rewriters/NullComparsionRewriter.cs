@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Linq.Rewriters
           var memberAccessPart = c.Test.NodeType==ExpressionType.Equal ? ifFalse : ifTrue;
           if (IsNull(nullPart) && memberAccessPart.StripCasts().NodeType==ExpressionType.MemberAccess) {
             var memberAccess = (MemberExpression) memberAccessPart.StripCasts();
-            if (new ExpressionComparer().AreEqual(memberAccess.Expression, IsNull(right) ? left : right))
+            if (ExpressionTree.Equals(memberAccess.Expression, IsNull(right) ? left : right))
               return memberAccessPart;
           }
         }
