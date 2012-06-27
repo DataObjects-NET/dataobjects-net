@@ -12,7 +12,6 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm;
-using Xtensive.Serialization.Binary;
 using Xtensive.Testing;
 using Xtensive.Orm.Configuration;
 using Xtensive.Storage.DisconnectedTests.Model;

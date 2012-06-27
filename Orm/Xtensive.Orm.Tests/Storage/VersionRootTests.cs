@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Serialization.Binary;
 using Xtensive.Orm.Configuration;
 using System.Linq;
 using Xtensive.Collections;
