@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Building.Builders
         BuildTypes(GetTypeBuildSequence());
         BuildAssociations();
         IndexBuilder.BuildIndexes(context);
-        context.Model.UpdateState(true);
+        context.Model.UpdateState();
         ValidateMappingConfiguration();
         BuildDatabaseDependencies();
         BuildPrefetchActions();

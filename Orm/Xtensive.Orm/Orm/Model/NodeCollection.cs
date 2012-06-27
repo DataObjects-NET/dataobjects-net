@@ -74,15 +74,13 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public virtual void UpdateState(bool recursive)
+    public virtual void UpdateState()
     {
       if (this==Empty)
         return;
       this.EnsureNotLocked();
-      if (!recursive)
-        return;
       foreach (TNode node in this)
-        node.UpdateState(true);
+        node.UpdateState();
     }
 
     /// <summary>

@@ -200,9 +200,9 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override void UpdateState(bool recursive)
+    public override void UpdateState()
     {
-      base.UpdateState(recursive);
+      base.UpdateState();
 
       switch (Multiplicity) {
         case Multiplicity.ZeroToOne:

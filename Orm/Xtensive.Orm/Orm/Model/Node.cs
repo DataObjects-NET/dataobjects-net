@@ -87,18 +87,9 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Updates the internal state of this instance.
     /// </summary>
-    /// <param name="recursive"><see langword="True"/> if all dependent objects should be updated as well.</param>
-    public virtual void UpdateState(bool recursive)
+    public virtual void UpdateState()
     {
       this.EnsureNotLocked();
-    }
-
-    /// <summary>
-    /// Updates the internal state of this instance.
-    /// </summary>
-    public void UpdateState()
-    {
-      UpdateState(false);
     }
 
     /// <inheritdoc/>

@@ -545,9 +545,9 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override void UpdateState(bool recursive)
+    public override void UpdateState()
     {
-      base.UpdateState(recursive);
+      base.UpdateState();
 
       ancestors = new ReadOnlyList<TypeInfo>(GetAncestors());
       targetAssociations = new ReadOnlyList<AssociationInfo>(GetTargetAssociations());
@@ -558,16 +558,14 @@ namespace Xtensive.Orm.Model
         if (field.IsStructure || field.IsEntitySet)
           field.AdapterIndex = adapterIndex++;
 
-      if (recursive) {
-        affectedIndexes.UpdateState(true);
-        indexes.UpdateState(true);
-        columns.UpdateState(true);
-      }
+      affectedIndexes.UpdateState();
+      indexes.UpdateState();
+      columns.UpdateState();
 
       CreateTupleDescriptor();
 
-      columns.UpdateState(true);
-      fields.UpdateState(true);
+      columns.UpdateState();
+      fields.UpdateState();
 
       structureFieldMapping = BuildStructureFieldMapping();
 

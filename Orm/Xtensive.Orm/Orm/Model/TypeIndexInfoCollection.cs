@@ -81,9 +81,9 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override void UpdateState(bool recursive)
+    public override void UpdateState()
     {
-      base.UpdateState(recursive);
+      base.UpdateState();
       primaryIndex = FindPrimaryIndex();
       realPrimaryIndexes = new ReadOnlyList<IndexInfo>(FindRealPrimaryIndexes(primaryIndex));
       indexesContainingAllData = new ReadOnlyList<IndexInfo>(FindIndexesContainingAllData());

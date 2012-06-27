@@ -321,17 +321,15 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override void UpdateState(bool recursive)
+    public override void UpdateState()
     {
-      base.UpdateState(recursive);
+      base.UpdateState();
       CreateColumns();
-      if (!recursive)
-        return;
-      valueColumns.UpdateState(true);
+      valueColumns.UpdateState();
       foreach (IndexInfo baseIndex in underlyingIndexes)
-        baseIndex.UpdateState(true);
+        baseIndex.UpdateState();
       if (filter!=null)
-        filter.UpdateState(true);
+        filter.UpdateState();
       CreateTupleDescriptors();
 
       if (!IsPrimary)

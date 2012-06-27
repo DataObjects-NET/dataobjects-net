@@ -45,10 +45,10 @@ namespace Xtensive.Orm.Model
     public TypeDiscriminatorMap TypeDiscriminatorMap { get; private set; }
 
     /// <inheritdoc/>
-    public override void UpdateState(bool recursive)
+    public override void UpdateState()
     {
-      base.UpdateState(recursive);
-      Key.UpdateState(recursive);
+      base.UpdateState();
+      Key.UpdateState();
       var list = new List<TypeInfo> {Root};
       list.AddRange(Root.GetDescendants(true));
       Types = new ReadOnlyList<TypeInfo>(list);

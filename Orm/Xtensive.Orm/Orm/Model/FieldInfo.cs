@@ -569,14 +569,12 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override void UpdateState(bool recursive)
+    public override void UpdateState()
     {
-      base.UpdateState(recursive);
-      if (!recursive)
-        return;
-      Fields.UpdateState(true);
+      base.UpdateState();
+      Fields.UpdateState();
       if (column!=null) 
-        column.UpdateState(true);
+        column.UpdateState();
       columns = new ColumnInfoCollection(this, "Columns");
       GetColumns(columns);
 

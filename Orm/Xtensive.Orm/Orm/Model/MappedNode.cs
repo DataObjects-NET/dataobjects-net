@@ -34,11 +34,11 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override void UpdateState(bool recursive)
+    public override void UpdateState()
     {
       if (MappingName.IsNullOrEmpty())
         mappingName = Name;
-      base.UpdateState(recursive);
+      base.UpdateState();
     }
 
 

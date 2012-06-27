@@ -50,15 +50,14 @@ namespace Xtensive.Orm.Model
     public NodeCollection<DatabaseInfo> Databases { get; private set; }
 
     /// <inheritdoc/>
-    public override void UpdateState(bool recursive)
+    public override void UpdateState()
     {
-      base.UpdateState(recursive);
-      if (!recursive)
-        return;
-      Hierarchies.UpdateState(true);
-      Types.UpdateState(true);
-      RealIndexes.UpdateState(true);
-      Associations.UpdateState(true);
+      base.UpdateState();
+
+      Hierarchies.UpdateState();
+      Types.UpdateState();
+      RealIndexes.UpdateState();
+      Associations.UpdateState();
     }
 
     /// <inheritdoc/>

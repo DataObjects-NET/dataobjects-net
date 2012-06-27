@@ -47,11 +47,11 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override void UpdateState(bool recursive)
+    public override void UpdateState()
     {
       if (this==Empty)
         return;
-      base.UpdateState(recursive);
+      base.UpdateState();
     }
 
     protected override string GetExceptionMessage(string key)

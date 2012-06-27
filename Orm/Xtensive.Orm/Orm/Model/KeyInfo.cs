@@ -160,13 +160,11 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override void UpdateState(bool recursive)
+    public override void UpdateState()
     {
-      base.UpdateState(recursive);
-      if (!recursive)
-        return;
+      base.UpdateState();
       if (Sequence!=null)
-        Sequence.UpdateState(true);
+        Sequence.UpdateState();
     }
  
     /// <inheritdoc/>
