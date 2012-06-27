@@ -25,10 +25,7 @@ namespace Xtensive.Orm.Rse
   [Serializable]
   public sealed class RecordSetHeader
   {
-    private static readonly ThreadSafeDictionary<IndexInfo, RecordSetHeader> headers =
-      ThreadSafeDictionary<IndexInfo, RecordSetHeader>.Create(new object());
-
-    private TupleDescriptor orderTupleDescriptor;
+    private volatile TupleDescriptor orderTupleDescriptor;
 
     /// <summary>
     /// Gets the length of this instance.
@@ -67,7 +64,7 @@ namespace Xtensive.Orm.Rse
         if (Order.Count==0)
           return null;
         if (orderTupleDescriptor==null) lock(this) if (orderTupleDescriptor==null)
-          orderTupleDescriptor = Xtensive.Tuples.TupleDescriptor.Create(Order.Select(p => Columns[p.Key].Type));
+          orderTupleDescriptor = TupleDescriptor.Create(Order.Select(p => Columns[p.Key].Type));
         return orderTupleDescriptor;
       }
     }
@@ -210,8 +207,8 @@ namespace Xtensive.Orm.Rse
     /// <param name="indexInfo">The index info to get the header for.</param>
     /// <returns>The <see cref="RecordSetHeader"/> object.</returns>
     public static RecordSetHeader GetHeader(IndexInfo indexInfo)
-    {      
-      return headers.GetValue(indexInfo, CreateHeader);
+    {
+      return CreateHeader(indexInfo);
     }
 
     private static RecordSetHeader CreateHeader(IndexInfo indexInfo)
