@@ -12,7 +12,6 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Disposing;
-using Xtensive.Serialization.Binary;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Resources;

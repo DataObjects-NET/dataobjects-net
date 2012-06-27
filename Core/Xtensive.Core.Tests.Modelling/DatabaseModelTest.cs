@@ -71,7 +71,7 @@ namespace Xtensive.Core.Tests.Modelling
     [Ignore("TODO: AY check it ASAP")]
     public void SerializationTest()
     {
-      var clone = (Server) LegacyBinarySerializer.Instance.Clone(srv);
+      var clone = Cloner.Clone(srv);
 //      clone.Dump();
       clone.Validate();
     }

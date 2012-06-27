@@ -6,12 +6,10 @@
 
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Serialization.Binary;
 using Xtensive.Testing;
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Tests.Serialization
+namespace Xtensive.Tests.Tuples
 {
   [TestFixture]
   public class TupleSerializationTest
@@ -20,7 +18,7 @@ namespace Xtensive.Tests.Serialization
     public void BaseTest()
     {
       var tuple = Tuple.Create(1, false);
-      var clone = LegacyBinarySerializer.Instance.Clone(tuple);
+      var clone = CloneBySerialization(tuple);
       Assert.IsFalse(clone==null);
       Assert.AreEqual(tuple, clone);
     }
@@ -68,9 +66,9 @@ namespace Xtensive.Tests.Serialization
       Assert.AreEqual(2, dt2Clone.GetValue(0));
     }
 
-    private static Xtensive.Tuples.Tuple CloneBySerialization(Xtensive.Tuples.Tuple source)
+    private static Tuple CloneBySerialization(Tuple source)
     {
-      return (Xtensive.Tuples.Tuple) LegacyBinarySerializer.Instance.Clone(source);
+      return Cloner.Clone(source);
     }
   }
 }

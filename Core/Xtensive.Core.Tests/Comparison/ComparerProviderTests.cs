@@ -30,8 +30,7 @@ namespace Xtensive.Tests.Comparison
     {
       AdvancedComparer<short> comparer = AdvancedComparer<short>.Default;
       Assert.IsNotNull(comparer.Compare);
-      var deserializedComparer = 
-        (AdvancedComparer<short>)LegacyBinarySerializer.Instance.Clone(comparer);
+      var deserializedComparer = Cloner.Clone(comparer);
       Assert.IsNotNull(deserializedComparer.Compare);
     }
 
