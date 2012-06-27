@@ -1366,7 +1366,7 @@ namespace Xtensive.Orm.Tests.Storage
       // Save data to storage
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-          var logCopy = Cloner.Default.Clone(log);
+          var logCopy = Cloner.Clone(log);
           logCopy.Replay(session);
           transactionScope.Complete();
         }

@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Storage.RefTest
         tx.Complete();
       }
 
-      authorRef = Cloner.Default.Clone(authorRef);
+      authorRef = Cloner.Clone(authorRef);
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {

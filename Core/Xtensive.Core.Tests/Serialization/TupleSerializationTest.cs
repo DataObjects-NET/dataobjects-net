@@ -56,7 +56,7 @@ namespace Xtensive.Tests.Serialization
       dt1.SetValue(1,4);
       var all = new[] {dt1, dt2};
       
-      var clone = Cloner.Default.Clone(all);
+      var clone = Cloner.Clone(all);
       AssertEx.AreEqual(all, clone);
 
       var dt1Clone = clone[0];

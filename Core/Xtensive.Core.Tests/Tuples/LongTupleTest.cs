@@ -26,7 +26,6 @@ namespace Xtensive.Tests.Tuples
       var generator = InstanceGeneratorProvider.Default.GetInstanceGenerator<int>();
       for (int i = 0; i < iterationCount; i++) {
         int count = rnd.Next(maxLength - minLength);
-        var cloner = Cloner.Default;
 
         // Preparing data for test
         var fields = new Type[count];
@@ -45,7 +44,7 @@ namespace Xtensive.Tests.Tuples
           for (int j = 0; j < count; j++)
             Assert.AreEqual(data[j], tuple.GetValue(j));
           // Testing serialization 
-          var tuple2 = cloner.Clone(tuple);
+          var tuple2 = Cloner.Clone(tuple);
           Assert.AreEqual(tuple, tuple2);
           Assert.AreEqual(tuple.Descriptor, tuple2.Descriptor);
           // Testing reads (untyped));

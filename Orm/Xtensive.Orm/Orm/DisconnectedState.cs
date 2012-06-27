@@ -347,7 +347,7 @@ namespace Xtensive.Orm
     public DisconnectedState Clone()
     {
       EnsureNoTransaction();
-      return Cloner.Default.Clone(this);
+      return Cloner.Clone(this);
     }
 
     /// <summary>
