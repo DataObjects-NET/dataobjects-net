@@ -1,0 +1,58 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+// Copyright (C) 2008 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Gamzov
+// Created:    2008.01.22
+
+using System;
+
+namespace Xtensive.Indexing.SizeCalculators
+{
+<#
+var types = new[] { 
+  typeof(bool), 
+  typeof(byte), 
+  typeof(sbyte), 
+  typeof(char),
+  typeof(short),
+  typeof(ushort),
+  typeof(int),
+  typeof(uint),
+  typeof(long),
+  typeof(ulong),
+  typeof(float),
+  typeof(double),
+  };
+foreach (var type in types) {
+  var primitiveName = type.Name;
+  var className = type.Name + "SizeCalculator";
+#>
+  [Serializable]
+  internal class <#= className #> : SizeCalculatorBase<<#= primitiveName #>>
+  {
+    public override int GetDefaultSize()
+    {
+      return sizeof (<#= primitiveName #>);
+    }
+
+    public override int GetValueSize(<#= primitiveName #> value)
+    {
+      return sizeof (<#= primitiveName #>);
+    }
+
+
+    // Constructors
+
+    public <#= className #>(ISizeCalculatorProvider provider)
+      : base(provider)
+    {
+    }
+  }
+  
+<#
+  }
+#>
+}

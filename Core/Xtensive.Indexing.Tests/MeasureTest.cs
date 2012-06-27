@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Collections;
-using Xtensive.SizeCalculators;
+using Xtensive.Indexing.SizeCalculators;
 using Xtensive.Testing;
 using Xtensive.Indexing.Measures;
 

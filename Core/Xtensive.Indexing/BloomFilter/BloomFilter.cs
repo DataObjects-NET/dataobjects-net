@@ -9,7 +9,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using Xtensive.Core;
-using Xtensive.Hashing;
+using Xtensive.Indexing.Hashing;
 using Xtensive.Serialization;
 using Xtensive.Serialization.Binary;
 using Xtensive.Serialization.Implementation;

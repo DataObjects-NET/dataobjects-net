@@ -5,7 +5,7 @@
 // Created:    2008.01.09
 
 using System.IO;
-using Xtensive.Hashing;
+using Xtensive.Indexing.Hashing;
 
 namespace Xtensive.Indexing.BloomFilter
 {

@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.SizeCalculators;
+using Xtensive.Indexing.SizeCalculators;
 
 namespace Xtensive.Indexing.Measures
 {

@@ -246,4 +246,16 @@
   <data name="ExSpecifiedKeyCouldNotBeFound" xml:space="preserve">
     <value>Specified key could not be found.</value>
   </data>
+  <data name="ExArgumentShouldBeInRange" xml:space="preserve">
+    <value>Argument should be in range [{0}...{1}].</value>
+  </data>
+  <data name="LogCantFindAssociateFor" xml:space="preserve">
+    <value>Can't find {0} ('{1}') for type '{2}'.</value>
+  </data>
+  <data name="LogGenericAssociateIsUsedFor" xml:space="preserve">
+    <value>'{0}&lt;{1}, {2}&gt;' was used for '{3}'.</value>
+  </data>
+  <data name="LogGenericAssociateCreationHasFailedFor" xml:space="preserve">
+    <value>'{0}&lt;{1}, {2}&gt;' creation has failed for '{3}'.</value>
+  </data>
 </root>

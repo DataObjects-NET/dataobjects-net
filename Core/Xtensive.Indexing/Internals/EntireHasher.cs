@@ -4,7 +4,7 @@
 // Created by: Alex Gamzov
 // Created:    2008.01.23
 
-using Xtensive.Hashing;
+using Xtensive.Indexing.Hashing;
 
 namespace Xtensive.Indexing
 {

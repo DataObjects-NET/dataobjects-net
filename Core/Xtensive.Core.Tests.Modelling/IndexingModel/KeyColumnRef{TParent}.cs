@@ -39,7 +39,7 @@ namespace Xtensive.Core.Tests.Modelling.IndexingModel
 
     /// <inheritdoc/>
     /// <exception cref="ValidationException">Invalid <see cref="Direction"/> value 
-    /// (<see cref="Xtensive.Direction.None"/>).</exception>
+    /// (<see cref="Core.Direction.None"/>).</exception>
     protected override void ValidateState()
     {
       using (var ea = new ExceptionAggregator()) {
