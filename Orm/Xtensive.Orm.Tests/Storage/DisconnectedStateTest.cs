@@ -1440,7 +1440,7 @@ namespace Xtensive.Orm.Tests.Storage
       
       // Serialize, deserialize
       using (var session = Domain.OpenSession()) {
-        state = LegacyBinarySerializer.Instance.Clone(state) as DisconnectedState;
+        state = Cloner.Clone(state);
         Assert.IsNotNull(state);
       }
       
@@ -1506,7 +1506,7 @@ namespace Xtensive.Orm.Tests.Storage
       // Clone DisconnectedState
       DisconnectedState stateClone;
       using (var session = Domain.OpenSession())
-        stateClone = (DisconnectedState) LegacyBinarySerializer.Instance.Clone(state);
+        stateClone = Cloner.Clone(state);
 
       // Modify instance in cache and check version
       using (var session = Domain.OpenSession()) {

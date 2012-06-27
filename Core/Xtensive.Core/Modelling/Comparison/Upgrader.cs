@@ -137,7 +137,7 @@ namespace Xtensive.Modelling.Comparison
         throw new ArgumentOutOfRangeException("hints.SourceModel");
       if (Hints.TargetModel!=TargetModel)
         throw new ArgumentOutOfRangeException("hints.TargetModel");
-      CurrentModel = (IModel) LegacyBinarySerializer.Instance.Clone(SourceModel);
+      CurrentModel = Cloner.Clone(SourceModel);
       Difference = difference;
       var previous = current;
       current = this;

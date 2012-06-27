@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Tests.Storage
         .Skip(0);
 
       var serializableExpression = query.Expression.ToSerializableExpression();
-      var serializedExpression = LegacyBinarySerializer.Instance.Clone(serializableExpression) as SerializableExpression;
+      var serializedExpression = Cloner.Clone(serializableExpression);
 
       var deserializedExpression = serializedExpression.ToExpression();
       var deserializedQuery = new Queryable<Category>((QueryProvider) query.Provider, deserializedExpression);

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Serialization.Binary;
 using Xtensive.Orm.Configuration;
 using System.Linq;
@@ -255,7 +256,7 @@ namespace Xtensive.Orm.Tests.Storage
         }
       }
       Assert.IsFalse(itemVersion.IsVoid);
-      var clone = (VersionInfo) LegacyBinarySerializer.Instance.Clone(itemVersion);
+      var clone = Cloner.Clone(itemVersion);
       Assert.IsFalse(clone.IsVoid);
       Assert.IsTrue(itemVersion==clone);
     }
