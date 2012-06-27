@@ -5,12 +5,9 @@
 // Created:    2007.06.04
 
 using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-using Xtensive.Collections;
 using NUnit.Framework;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Serialization.Binary;
 
 namespace Xtensive.Tests.Collections
 {

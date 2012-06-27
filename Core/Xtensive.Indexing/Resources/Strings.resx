@@ -258,4 +258,46 @@
   <data name="LogGenericAssociateCreationHasFailedFor" xml:space="preserve">
     <value>'{0}&lt;{1}, {2}&gt;' creation has failed for '{3}'.</value>
   </data>
+  <data name="ExReferenceIsNull" xml:space="preserve">
+    <value>Reference points to null.</value>
+  </data>
+  <data name="ExReferenceIsAlreadyDefined" xml:space="preserve">
+    <value>Reference '{0}' is already defined.</value>
+  </data>
+  <data name="ExInvalidObjectSerializerSimilarValueSerializerExists" xml:space="preserve">
+    <value>Object serializer is invalid, since similar value serializer exists.</value>
+  </data>
+  <data name="ExCantFindAssociate" xml:space="preserve">
+    <value>Can't find associated {0} of type '{1}' for type '{2}'.</value>
+  </data>
+  <data name="ExReferenceIsNotResolvedYet" xml:space="preserve">
+    <value>Reference '{0}' is not resolved yet.</value>
+  </data>
+  <data name="ReferenceFormat" xml:space="preserve">
+    <value>#({0})</value>
+  </data>
+  <data name="ExValueWithNameXAlreadyExists" xml:space="preserve">
+    <value>Value with name '{0}' already exists.</value>
+  </data>
+  <data name="ExValueWithNameXIsNotFound" xml:space="preserve">
+    <value>Value with name '{0}' is not found.</value>
+  </data>
+  <data name="ExInvalidSerializerType" xml:space="preserve">
+    <value>Generic parameter T is resolved to associated '{0}', although '{1}' is expected.</value>
+  </data>
+  <data name="LogAttemptToUseDisposedInstance" xml:space="preserve">
+    <value>Attempt to use disposed instance of type '{0}'.</value>
+  </data>
+  <data name="ExInvalidFormatterProcessType" xml:space="preserve">
+    <value>'{0}' formatter process type is invalid for the current operation.</value>
+  </data>
+  <data name="ExInvalidSerializerBehaviorMustNotBeReferable" xml:space="preserve">
+    <value>'{0}' can't be an IsReferable serializer, since it serializes IReference type.</value>
+  </data>
+  <data name="ExDeserializationErrorUnrecognizedSlotsAreFound" xml:space="preserve">
+    <value>Deserialization error: some SerializationData slots were not recognized, thus the format of the serialized data differs from the supported one.</value>
+  </data>
+  <data name="SerializationDataFormat" xml:space="preserve">
+    <value>Type='{0}', #='{1}' ({2})</value>
+  </data>
 </root>

@@ -106,11 +106,29 @@ namespace Xtensive.Indexing.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t find associated {0} of type &apos;{1}&apos; for type &apos;{2}&apos;..
+        /// </summary>
+        internal static string ExCantFindAssociate {
+            get {
+                return ResourceManager.GetString("ExCantFindAssociate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to InfinityType.None can&apos;t be passed to this constructor..
         /// </summary>
         internal static string ExCantPassNoInfinityToThisConstructor {
             get {
                 return ResourceManager.GetString("ExCantPassNoInfinityToThisConstructor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deserialization error: some SerializationData slots were not recognized, thus the format of the serialized data differs from the supported one..
+        /// </summary>
+        internal static string ExDeserializationErrorUnrecognizedSlotsAreFound {
+            get {
+                return ResourceManager.GetString("ExDeserializationErrorUnrecognizedSlotsAreFound", resourceCulture);
             }
         }
         
@@ -223,11 +241,47 @@ namespace Xtensive.Indexing.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; formatter process type is invalid for the current operation..
+        /// </summary>
+        internal static string ExInvalidFormatterProcessType {
+            get {
+                return ResourceManager.GetString("ExInvalidFormatterProcessType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Object serializer is invalid, since similar value serializer exists..
+        /// </summary>
+        internal static string ExInvalidObjectSerializerSimilarValueSerializerExists {
+            get {
+                return ResourceManager.GetString("ExInvalidObjectSerializerSimilarValueSerializerExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid IndexConfiguration.PageSize property value. Should be greater than 0, less then 65536 and must be an even value..
         /// </summary>
         internal static string ExInvalidPageSize {
             get {
                 return ResourceManager.GetString("ExInvalidPageSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; can&apos;t be an IsReferable serializer, since it serializes IReference type..
+        /// </summary>
+        internal static string ExInvalidSerializerBehaviorMustNotBeReferable {
+            get {
+                return ResourceManager.GetString("ExInvalidSerializerBehaviorMustNotBeReferable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Generic parameter T is resolved to associated &apos;{0}&apos;, although &apos;{1}&apos; is expected..
+        /// </summary>
+        internal static string ExInvalidSerializerType {
+            get {
+                return ResourceManager.GetString("ExInvalidSerializerType", resourceCulture);
             }
         }
         
@@ -295,6 +349,33 @@ namespace Xtensive.Indexing.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Reference &apos;{0}&apos; is already defined..
+        /// </summary>
+        internal static string ExReferenceIsAlreadyDefined {
+            get {
+                return ResourceManager.GetString("ExReferenceIsAlreadyDefined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reference &apos;{0}&apos; is not resolved yet..
+        /// </summary>
+        internal static string ExReferenceIsNotResolvedYet {
+            get {
+                return ResourceManager.GetString("ExReferenceIsNotResolvedYet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reference points to null..
+        /// </summary>
+        internal static string ExReferenceIsNull {
+            get {
+                return ResourceManager.GetString("ExReferenceIsNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Specified key could not be found..
         /// </summary>
         internal static string ExSpecifiedKeyCouldNotBeFound {
@@ -349,6 +430,24 @@ namespace Xtensive.Indexing.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Value with name &apos;{0}&apos; already exists..
+        /// </summary>
+        internal static string ExValueWithNameXAlreadyExists {
+            get {
+                return ResourceManager.GetString("ExValueWithNameXAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Value with name &apos;{0}&apos; is not found..
+        /// </summary>
+        internal static string ExValueWithNameXIsNotFound {
+            get {
+                return ResourceManager.GetString("ExValueWithNameXIsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0}{1}d.
         /// </summary>
         internal static string InfinitesimalFormat {
@@ -363,6 +462,15 @@ namespace Xtensive.Indexing.Resources {
         internal static string Infinity {
             get {
                 return ResourceManager.GetString("Infinity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Attempt to use disposed instance of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string LogAttemptToUseDisposedInstance {
+            get {
+                return ResourceManager.GetString("LogAttemptToUseDisposedInstance", resourceCulture);
             }
         }
         
@@ -457,6 +565,15 @@ namespace Xtensive.Indexing.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to #({0}).
+        /// </summary>
+        internal static string ReferenceFormat {
+            get {
+                return ResourceManager.GetString("ReferenceFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Reversed({0}).
         /// </summary>
         internal static string ReversedFormat {
@@ -480,6 +597,15 @@ namespace Xtensive.Indexing.Resources {
         internal static string SeekResultPointerFormat {
             get {
                 return ResourceManager.GetString("SeekResultPointerFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type=&apos;{0}&apos;, #=&apos;{1}&apos; ({2}).
+        /// </summary>
+        internal static string SerializationDataFormat {
+            get {
+                return ResourceManager.GetString("SerializationDataFormat", resourceCulture);
             }
         }
     }

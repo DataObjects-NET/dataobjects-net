@@ -6,16 +6,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Core.Tests.Modelling.DatabaseModel;
 using Xtensive.Modelling;
-using Xtensive.Serialization.Binary;
-using Xtensive.Testing;
 using Xtensive.Modelling.Actions;
-using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Modelling.Comparison;
-using System.Linq;
+using Xtensive.Modelling.Comparison.Hints;
+using Xtensive.Testing;
 
 namespace Xtensive.Core.Tests.Modelling
 {

@@ -10,9 +10,9 @@ using System.Diagnostics;
 using System.IO;
 using Xtensive.Core;
 using Xtensive.Indexing.Hashing;
-using Xtensive.Serialization;
-using Xtensive.Serialization.Binary;
-using Xtensive.Serialization.Implementation;
+using Xtensive.Indexing.Serialization;
+using Xtensive.Indexing.Serialization.Binary;
+using Xtensive.Indexing.Serialization.Implementation;
 using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing.BloomFilter

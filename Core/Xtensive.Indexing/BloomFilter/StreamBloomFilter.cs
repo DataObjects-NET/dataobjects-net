@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using Xtensive.Core;
-using Xtensive.IO;
+using Xtensive.Indexing.IO;
 using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing.BloomFilter

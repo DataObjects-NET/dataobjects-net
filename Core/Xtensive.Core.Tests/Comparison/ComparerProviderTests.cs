@@ -10,7 +10,6 @@ using NUnit.Framework;
 using Xtensive.Comparison;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
-using Xtensive.Serialization.Binary;
 using Xtensive.Testing;
 
 namespace Xtensive.Tests.Comparison
