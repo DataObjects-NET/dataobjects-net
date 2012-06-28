@@ -527,11 +527,6 @@ namespace Xtensive.Orm.Configuration
       isMultidatabase = multidatabase;
     }
 
-    /// <inheritdoc/>
-    public override void Validate()
-    {
-    }
-
     private void ValidateMappingConfiguration(bool multischema, bool multidatabase)
     {
       if (multischema && string.IsNullOrEmpty(DefaultSchema))

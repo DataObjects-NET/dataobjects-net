@@ -22,8 +22,7 @@ namespace Xtensive.Core
   /// Aggregates a set of caught exceptions.
   /// </summary>
   [Serializable]
-  public class AggregateException : Exception,
-    IHasExceptions<Exception>
+  public class AggregateException : Exception
   {
     private ReadOnlyList<Exception> exceptions;
 
@@ -34,20 +33,6 @@ namespace Xtensive.Core
     {
       [DebuggerStepThrough]
       get { return exceptions; }
-    }
-
-    /// <inheritdoc/>
-    IEnumerable<Exception> IHasExceptions.Exceptions
-    {
-      [DebuggerStepThrough]
-      get { return Exceptions; }
-    }
-
-    /// <inheritdoc/>
-    IEnumerable<Exception> IHasExceptions<Exception>.Exceptions
-    {
-      [DebuggerStepThrough]
-      get { return Exceptions; }
     }
 
     /// <summary>

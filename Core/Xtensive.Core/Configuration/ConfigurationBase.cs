@@ -11,17 +11,22 @@ using Xtensive.Internals.DocTemplates;
 namespace Xtensive.Configuration
 {
   /// <summary>
-  /// Base class for <see cref="IConfiguration"/> implementors.
+  /// Base class for configuration.
   /// </summary>
   /// <remarks>
   /// <para id="Ctor"><see cref="ParameterlessCtorClassDocTemplate"/></para>
   /// </remarks>
   [Serializable]
-  public abstract class ConfigurationBase: LockableBase,
-    IConfiguration
+  public abstract class ConfigurationBase: LockableBase, ICloneable
   {
-    /// <inheritdoc/>
-    public abstract void Validate();
+    /// <summary>
+    /// Validates the configuration.
+    /// Should always be invoked by <see cref="ILockable.Lock(bool)"/> method 
+    /// before actually locking the configuration.
+    /// </summary>
+    public virtual void Validate()
+    {
+    }
 
     /// <inheritdoc/>
     public override void Lock(bool recursive)
@@ -29,8 +34,6 @@ namespace Xtensive.Configuration
       Validate();
       base.Lock(recursive);
     }
-
-    #region Clone method implementation
 
     /// <inheritdoc/>
     public virtual object Clone()
@@ -57,7 +60,5 @@ namespace Xtensive.Configuration
     {
       // Does nothing in this class.
     }
-
-    #endregion
   }
 }

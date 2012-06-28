@@ -155,5 +155,22 @@ namespace Xtensive.Core
           return true;
       return false;
     }
+
+    /// <summary>
+    /// Gets the value from the dictionary by its key.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key.</typeparam>
+    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <param name="dictionary">The dictionary.</param>
+    /// <param name="key">The key.</param>
+    /// <returns>Found value.
+    /// <see langword="default(T)" />, if there is no value corresponding to specified key.</returns>
+    public static TValue GetValueOrDefault<TKey,TValue>(this IDictionary<TKey,TValue> dictionary, TKey key)
+    {
+      TValue value;
+      if (dictionary.TryGetValue(key, out value))
+        return value;
+      return default(TValue);
+    }
   }
 }
