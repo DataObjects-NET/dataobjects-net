@@ -10,7 +10,7 @@ using System.Diagnostics;
 using Xtensive.Caching;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Disposing;
+
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;

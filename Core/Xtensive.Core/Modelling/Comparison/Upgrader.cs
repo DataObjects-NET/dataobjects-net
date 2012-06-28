@@ -11,7 +11,6 @@ using System.Text;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
-using Xtensive.Disposing;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Resources;

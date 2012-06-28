@@ -5,7 +5,7 @@
 // Created:    2010.08.03
 
 using System;
-using Xtensive.Disposing;
+using Xtensive.Core;
 
 namespace Xtensive.Orm
 {

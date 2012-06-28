@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using System.Reflection;
-using Xtensive.Disposing;
+
 using Xtensive.Core;
 using Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version2;
 using M1 = Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version1;

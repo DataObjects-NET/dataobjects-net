@@ -145,10 +145,10 @@ namespace Xtensive.Tests.DotNetFramework
 
     private void Test(int count)
     {
-      using (warmup ? new Disposing.Disposable(delegate { }) :
+      using (warmup ? new Core.Disposable(delegate { }) :
         Log.InfoRegion("With boxing"))
         TestTupleAccess(new BoxingTuple(), count);
-      using (warmup ? new Disposing.Disposable(delegate { }) :
+      using (warmup ? new Core.Disposable(delegate { }) :
         Log.InfoRegion("Without boxing"))
         TestTupleAccess(new NonBoxingTuple(), count);
     }
@@ -158,7 +158,7 @@ namespace Xtensive.Tests.DotNetFramework
       object[] pressure;
       TestHelper.CollectGarbage();
       pressure = new object[count / MemoryPressureFactor];
-      using (warmup ? (IDisposable)new Disposing.Disposable(delegate { }) : 
+      using (warmup ? (IDisposable)new Core.Disposable(delegate { }) : 
         new Measurement("Setter", count)) {
         for (long i = 0; i < count; i++) {
           tuple.SetValue<long>(0, i);
@@ -170,7 +170,7 @@ namespace Xtensive.Tests.DotNetFramework
       TestHelper.CollectGarbage();
       pressure = new object[count / MemoryPressureFactor];
       TupleFieldState fieldState;
-      using (warmup ? (IDisposable)new Disposing.Disposable(delegate { }) : 
+      using (warmup ? (IDisposable)new Core.Disposable(delegate { }) : 
         new Measurement("Getter", count)) {
         for (long i = 0; i < count; i++) {
           tuple.GetValue<long>(0, out fieldState);

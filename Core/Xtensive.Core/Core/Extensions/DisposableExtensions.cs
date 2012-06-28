@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Disposing;
 
 namespace Xtensive.Core
 {

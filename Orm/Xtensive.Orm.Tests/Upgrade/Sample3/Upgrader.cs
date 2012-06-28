@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Collections;
-using Xtensive.Disposing;
+
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version2;

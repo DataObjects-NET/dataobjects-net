@@ -7,7 +7,6 @@
 using System;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Disposing;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
 

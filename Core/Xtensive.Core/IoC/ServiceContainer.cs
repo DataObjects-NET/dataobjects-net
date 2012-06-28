@@ -13,7 +13,6 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Reflection;
-using Xtensive.Disposing;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC.Configuration;
 using Xtensive.Resources;

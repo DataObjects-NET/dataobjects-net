@@ -7,8 +7,6 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Disposing;
-
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Providers.Compilable;

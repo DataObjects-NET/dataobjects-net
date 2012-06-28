@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Disposing;
+
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Tests.Upgrade.IgnoreHints.Model;

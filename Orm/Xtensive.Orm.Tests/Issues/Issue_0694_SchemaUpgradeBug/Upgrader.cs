@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Collections;
-using Xtensive.Disposing;
 using Xtensive.Orm.Upgrade;
 using M1 = Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version1;
 using M2 = Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version2;

@@ -8,8 +8,6 @@ using System;
 using System.Transactions;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Disposing;
-
 using Xtensive.Orm.Validation;
 using Xtensive.Orm.Rse.Providers;
 

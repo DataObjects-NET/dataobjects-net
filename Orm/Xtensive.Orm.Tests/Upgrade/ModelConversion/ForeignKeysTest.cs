@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Disposing;
+
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;

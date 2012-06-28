@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Disposing;
+
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
 using Xtensive.Tuples;

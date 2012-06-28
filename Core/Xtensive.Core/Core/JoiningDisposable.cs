@@ -9,7 +9,7 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Disposing
+namespace Xtensive.Core
 {
   /// <summary>
   /// Disposes two <see cref="IDisposable"/> objects.

@@ -6,7 +6,7 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Disposing;
+
 using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Orm.Configuration;

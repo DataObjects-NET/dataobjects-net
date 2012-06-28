@@ -8,7 +8,7 @@ using System.Data.SqlClient;
 using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Disposing;
+
 using Xtensive.Testing;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;

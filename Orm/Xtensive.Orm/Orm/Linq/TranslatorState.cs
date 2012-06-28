@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
-using Xtensive.Disposing;
+using Xtensive.Core;
 using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Linq
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Linq
       var currentState = translator.state;
       var newState = new TranslatorState(currentState);
       newState.OuterParameters = newState.OuterParameters.Concat(newState.Parameters).ToArray();
-      newState.Parameters = le.Parameters.ToArray();
+      newState.Parameters = Enumerable.ToArray(le.Parameters);
       newState.CurrentLambda = le;
       newState.IncludeAlgorithm = IncludeAlgorithm;
       newState.IsTailMethod = IsTailMethod;

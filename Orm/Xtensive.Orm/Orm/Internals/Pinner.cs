@@ -7,8 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Disposing;
-
+using Xtensive.Core;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals

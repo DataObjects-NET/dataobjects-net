@@ -13,7 +13,7 @@ using System.Threading;
 using System.Transactions;
 using Xtensive.Aspects;
 using Xtensive.Core;
-using Xtensive.Disposing;
+
 using Xtensive.IoC;
 using Xtensive.Orm.Validation;
 using Xtensive.Reflection;

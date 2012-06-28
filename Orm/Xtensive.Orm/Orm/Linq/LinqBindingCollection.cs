@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using Xtensive.Collections;
-using Xtensive.Disposing;
+using Xtensive.Core;
 using Xtensive.Orm.Linq.Expressions;
 using System.Linq;
 

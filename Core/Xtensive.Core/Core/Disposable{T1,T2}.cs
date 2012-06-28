@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Disposing
+namespace Xtensive.Core
 {
   /// <summary>
   /// A disposable type allowing to execute custom

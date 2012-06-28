@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Disposing;
+
 using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Orm.Rse.Providers;
 

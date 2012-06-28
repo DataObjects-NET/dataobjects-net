@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Aspects;
-using Xtensive.Disposing;
+using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Providers;
 

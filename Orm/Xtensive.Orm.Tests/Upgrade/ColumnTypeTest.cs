@@ -9,7 +9,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Disposing;
+
 using Xtensive.Orm;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Definitions;

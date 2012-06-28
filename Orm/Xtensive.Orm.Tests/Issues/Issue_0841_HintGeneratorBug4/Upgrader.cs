@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Disposing;
+
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Services;
 using Xtensive.Orm.Upgrade;

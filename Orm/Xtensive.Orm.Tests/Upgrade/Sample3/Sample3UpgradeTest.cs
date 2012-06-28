@@ -9,7 +9,7 @@ using System.Linq;
 using NUnit.Framework;
 using System.Reflection;
 using Xtensive.Collections;
-using Xtensive.Disposing;
+
 using Xtensive.Core;
 using Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version2;
 using M1 = Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version1;

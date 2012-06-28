@@ -5,7 +5,7 @@
 // Created:    2008.08.30
 
 using System;
-using Xtensive.Disposing;
+
 using Xtensive.Orm.Rse.Providers;
 using RseEnumerationScope = Xtensive.Orm.Rse.Providers.EnumerationScope;
 using RseEnumerationContext = Xtensive.Orm.Rse.Providers.EnumerationContext;

@@ -13,8 +13,6 @@ using System.Threading;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
-using Xtensive.Disposing;
-
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;

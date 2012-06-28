@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Collections;
-using Xtensive.Disposing;
+
 using Xtensive.Core;
 using Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1;
 using Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version2PerformSafely;

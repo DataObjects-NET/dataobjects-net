@@ -7,7 +7,7 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Collections;
-using Xtensive.Disposing;
+using Xtensive.Core;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;

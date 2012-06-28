@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Notifications;
-using Xtensive.Disposing;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Collections

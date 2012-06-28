@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Collections;
-using Xtensive.Disposing;
+
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Tests.Upgrade.Model.SimpleVersion2;
 using Xtensive.Orm.Upgrade;

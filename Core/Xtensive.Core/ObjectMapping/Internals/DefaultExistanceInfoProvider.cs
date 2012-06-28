@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Disposing;
 
 namespace Xtensive.ObjectMapping
 {

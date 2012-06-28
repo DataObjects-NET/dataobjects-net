@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Disposing;
+
 using Xtensive.Linq;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Providers;

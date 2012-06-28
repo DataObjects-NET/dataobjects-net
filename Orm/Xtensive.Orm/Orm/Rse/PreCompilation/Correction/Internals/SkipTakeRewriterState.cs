@@ -5,7 +5,8 @@
 // Created:    2010.01.21
 
 using System;
-using Xtensive.Disposing;
+using Xtensive.Core;
+
 
 namespace Xtensive.Orm.Rse.PreCompilation.Correction
 {

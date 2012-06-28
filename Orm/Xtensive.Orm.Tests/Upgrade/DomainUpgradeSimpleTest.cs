@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Disposing;
+
 using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Upgrade.Model.SimpleVersion1;

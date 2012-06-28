@@ -3,7 +3,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Disposing;
+
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;

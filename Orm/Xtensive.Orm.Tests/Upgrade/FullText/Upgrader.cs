@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Collections;
-using Xtensive.Disposing;
+using Xtensive.Core;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Upgrade;
 

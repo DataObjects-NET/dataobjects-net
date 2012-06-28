@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Aspects;
 using Xtensive.Collections;
-using Xtensive.Disposing;
+
 using Xtensive.IoC;
 using Xtensive.Core;
 using Xtensive.Orm;

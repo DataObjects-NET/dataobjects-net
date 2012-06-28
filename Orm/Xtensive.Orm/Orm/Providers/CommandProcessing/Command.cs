@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using Xtensive.Core;
-using Xtensive.Disposing;
+
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers

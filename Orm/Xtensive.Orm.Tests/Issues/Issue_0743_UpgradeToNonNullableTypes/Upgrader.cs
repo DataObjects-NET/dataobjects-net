@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Disposing;
+
 using Xtensive.Orm.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes.Model.Version2;
 using Xtensive.Orm.Upgrade;
 using M1 = Xtensive.Orm.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes.Model.Version1;

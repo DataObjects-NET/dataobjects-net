@@ -8,9 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Collections;
-using Xtensive.Disposing;
+using Xtensive.Core;
 using Xtensive.Orm.Internals;
-
 
 namespace Xtensive.Orm.Operations
 {

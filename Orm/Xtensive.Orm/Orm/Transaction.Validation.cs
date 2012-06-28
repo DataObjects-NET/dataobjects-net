@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Disposing;
+
 
 using AggregateException = Xtensive.Core.AggregateException;
 

@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Disposing;
+
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Model.Stored;

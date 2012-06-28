@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using NUnit.Framework;
-using Xtensive.Disposing;
+
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;

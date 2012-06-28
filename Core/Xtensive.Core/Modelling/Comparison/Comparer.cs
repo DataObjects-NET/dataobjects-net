@@ -11,7 +11,6 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Disposing;
 using Xtensive.Reflection;
 using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Comparison.Hints;

@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Disposing;
+
 
 
 namespace Xtensive.Orm.Operations

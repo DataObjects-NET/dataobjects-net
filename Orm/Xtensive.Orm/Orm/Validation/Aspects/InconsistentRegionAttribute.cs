@@ -14,7 +14,7 @@ using PostSharp.Extensibility;
 using Xtensive.Core;
 using Xtensive.Aspects;
 using Xtensive.Aspects.Helpers;
-using Xtensive.Disposing;
+
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Validation
