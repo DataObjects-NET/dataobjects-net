@@ -33,25 +33,10 @@ namespace Xtensive.Caching
       get { return keyExtractor; }
     }
 
-    /// <summary>
-    /// <inheritdoc/>
-    /// This method always returns <see langword="null" /> in this type.
-    /// </summary>
-    public ICache<TKey, TItem> ChainedCache
-    {
-      get { return null; }
-    }
-
     /// <inheritdoc/>
     public int Count
     {
       get { return items.Count; }
-    }
-
-    /// <inheritdoc/>
-    long ICountable.Count
-    {
-      get { return Count; }
     }
 
     /// <inheritdoc/>

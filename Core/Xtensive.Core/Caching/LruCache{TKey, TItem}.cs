@@ -50,7 +50,9 @@ namespace Xtensive.Caching
     }
 
 
-    /// <inheritdoc/>
+    /// <summary>
+    /// Gets chained cache.
+    /// </summary>
     public ICache<TKey, TItem> ChainedCache {
       [DebuggerStepThrough]
       get { return chainedCache; }
@@ -64,12 +66,6 @@ namespace Xtensive.Caching
 
     /// <inheritdoc/>
     public int Count {
-      [DebuggerStepThrough]
-      get { return deque.Count; }
-    }
-
-    /// <inheritdoc/>
-    long ICountable.Count {
       [DebuggerStepThrough]
       get { return deque.Count; }
     }

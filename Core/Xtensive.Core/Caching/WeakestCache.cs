@@ -191,14 +191,6 @@ namespace Xtensive.Caching
     }
 
     /// <summary>
-    /// Always <see langword="null" /> in this class.
-    /// </summary>
-    public ICache<TKey, TItem> ChainedCache {
-      [DebuggerStepThrough]
-      get { return null; }
-    }
-
-    /// <summary>
     /// Gets a value indicating whether this cache tracks key resurrection.
     /// </summary>
     public bool TrackKeyResurrection {
@@ -216,12 +208,6 @@ namespace Xtensive.Caching
 
     /// <inheritdoc/>
     public int Count {
-      [DebuggerStepThrough]
-      get { return items.Count; }
-    }
-
-    /// <inheritdoc/>
-    long ICountable.Count {
       [DebuggerStepThrough]
       get { return items.Count; }
     }

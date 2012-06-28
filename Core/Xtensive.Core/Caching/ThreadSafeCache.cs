@@ -24,6 +24,16 @@ namespace Xtensive.Caching
     private readonly ICache<TKey, TItem> chainedCache;
     private readonly object syncRoot;
     
+    /// <summary>
+    /// Gets sync root for this instance.
+    /// </summary>
+    public object SyncRoot { get { return syncRoot; } }
+
+    /// <summary>
+    /// Gets chained cache.
+    /// </summary>
+    public ICache<TKey, TItem> ChainedCache { get { return chainedCache; } }
+
     #region IEnumerable
 
     /// <inheritdoc/>
@@ -41,20 +51,6 @@ namespace Xtensive.Caching
     {
       return GetEnumerator();
     }
-
-    #endregion
-
-    #region IHasSyncRoot
-
-    /// <inheritdoc/>
-    public object SyncRoot { get { return syncRoot; } }
-    
-    #endregion
-
-    #region ICountable
-
-    /// <inheritdoc/>
-    long ICountable.Count { get { return Count; } }
 
     #endregion
 
@@ -77,9 +73,6 @@ namespace Xtensive.Caching
 
     /// <inheritdoc/>
     public Converter<TItem, TKey> KeyExtractor { get { return chainedCache.KeyExtractor; } }
-
-    /// <inheritdoc/>
-    public ICache<TKey, TItem> ChainedCache { get { return chainedCache; } }
 
     /// <inheritdoc/>
     public TItem this[TKey key, bool markAsHit] {

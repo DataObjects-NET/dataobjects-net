@@ -5,7 +5,7 @@
 // Created:    2007.05.25
 
 using System;
-using Xtensive.Collections;
+using System.Collections.Generic;
 
 namespace Xtensive.Caching
 {
@@ -14,23 +14,17 @@ namespace Xtensive.Caching
   /// </summary>
   /// <typeparam name="TKey">The type of the cache key.</typeparam>
   /// <typeparam name="TItem">The type of the item to cached.</typeparam>
-  public interface ICache<TKey, TItem> : IInvalidatable,
-    ICountable<TItem>
+  public interface ICache<TKey, TItem> : IEnumerable<TItem>, IInvalidatable
   {
     /// <summary>
     /// Gets the count of cached items.
     /// </summary>
-    new int Count { get; }
+    int Count { get; }
 
     /// <summary>
     /// Gets the item key extractor.
     /// </summary>
     Converter<TItem, TKey> KeyExtractor { get; }
-
-    /// <summary>
-    /// Gets the chained cache, if any.
-    /// </summary>
-    ICache<TKey, TItem> ChainedCache { get; }
 
     /// <summary>
     /// Gets cached item by its <paramref name="key"/>.
