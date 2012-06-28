@@ -5,7 +5,7 @@
 // Created:    2009.12.15
 
 using System.Configuration;
-using Xtensive.Configuration;
+using Xtensive.Core;
 
 namespace Xtensive.IoC.Configuration
 {

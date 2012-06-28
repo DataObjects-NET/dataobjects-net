@@ -6,7 +6,6 @@
 
 using System;
 using System.Configuration;
-using Xtensive.Configuration;
 using Xtensive.Core;
 
 namespace Xtensive.IoC.Configuration

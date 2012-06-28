@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Collections;
+using Xtensive.Core;
 
 namespace Xtensive.IoC
 {

@@ -5,9 +5,8 @@
 // Created:    2008.08.07
 
 using System.Configuration;
-using Xtensive.Core;
 
-namespace Xtensive.Configuration
+namespace Xtensive.Core
 {
   /// <summary>
   /// Abstract base class for a configuration element within a configuration file

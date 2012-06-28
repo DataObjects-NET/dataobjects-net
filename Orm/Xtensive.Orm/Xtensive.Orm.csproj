@@ -121,6 +121,7 @@
     <Compile Include="Orm\Building\FixupActions\MakeTypeNonAbstractAction.cs" />
     <Compile Include="Orm\Building\Builders\IModelFilter.cs" />
     <Compile Include="Orm\Building\PrefetchActionContainer.cs" />
+    <Compile Include="Orm\Configuration\ConfigurationBase.cs" />
     <Compile Include="Orm\Internals\CompletableScope{T}.cs" />
     <Compile Include="Orm\Configuration\Interfaces\IDatabaseConfigurationFlow.cs" />
     <Compile Include="Orm\Configuration\Internals\DatabaseConfigurationFlow.cs" />

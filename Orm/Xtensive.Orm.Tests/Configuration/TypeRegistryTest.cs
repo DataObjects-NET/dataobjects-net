@@ -8,10 +8,9 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Collections;
-using Xtensive.Testing;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.RegistryModel1;
+using Xtensive.Testing;
 
 namespace Xtensive.Orm.Tests.RegistryModel1
 {

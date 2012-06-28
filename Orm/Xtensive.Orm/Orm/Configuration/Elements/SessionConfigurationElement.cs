@@ -8,7 +8,6 @@ using System;
 using System.Configuration;
 using System.IO;
 using System.Transactions;
-using Xtensive.Configuration;
 using Xtensive.Core;
 
 

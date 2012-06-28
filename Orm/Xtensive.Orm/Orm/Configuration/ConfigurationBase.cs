@@ -8,7 +8,7 @@ using System;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Configuration
+namespace Xtensive.Orm.Configuration
 {
   /// <summary>
   /// Base class for configuration.

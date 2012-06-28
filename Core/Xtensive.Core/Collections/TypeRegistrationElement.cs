@@ -4,12 +4,10 @@
 // Created by: Alexey Gamzov
 // Created:    2008.08.07
 
-using System;
 using System.Configuration;
-using Xtensive.Configuration;
 using Xtensive.Core;
 
-namespace Xtensive.Collections.Configuration
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Type registration element within a configuration file.

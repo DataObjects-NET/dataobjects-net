@@ -6,7 +6,6 @@
 
 using System;
 using System.Transactions;
-using Xtensive.Configuration;
 using Xtensive.Core;
 
 

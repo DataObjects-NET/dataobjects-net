@@ -5,7 +5,7 @@
 // Created:    2008.08.11
 
 using System.Configuration;
-using Xtensive.Configuration;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Configuration.Elements
 {

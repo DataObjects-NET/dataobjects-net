@@ -6,10 +6,8 @@
 
 using System;
 using System.Configuration;
-using Xtensive.Collections.Configuration;
-using Xtensive.Configuration;
+using Xtensive.Collections;
 using Xtensive.Core;
-
 
 namespace Xtensive.Orm.Configuration.Elements
 {

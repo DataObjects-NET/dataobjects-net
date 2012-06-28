@@ -5,7 +5,7 @@
 // Created:    2009.10.14
 
 using System.Configuration;
-using Xtensive.Configuration;
+using Xtensive.Core;
 
 namespace Xtensive.Diagnostics.Configuration
 {

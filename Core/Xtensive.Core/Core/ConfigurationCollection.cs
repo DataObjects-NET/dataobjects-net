@@ -7,14 +7,13 @@
 using System.Collections.Generic;
 using System.Configuration;
 
-namespace Xtensive.Configuration
+namespace Xtensive.Core
 {
   /// <summary>
   /// A typed version of <see cref="ConfigurationElementCollection"/>.
   /// </summary>
   /// <typeparam name="T">The type of the collection item.</typeparam>
-  public class ConfigurationCollection<T> : ConfigurationElementCollection,
-    IEnumerable<T>
+  public class ConfigurationCollection<T> : ConfigurationElementCollection, IEnumerable<T>
     where T : ConfigurationCollectionElementBase, new()
   {
     /// <inheritdoc/>
