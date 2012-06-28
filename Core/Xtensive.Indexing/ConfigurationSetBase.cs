@@ -8,12 +8,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Collections;
+using Xtensive.Configuration;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Resources;
 
-namespace Xtensive.Configuration
+namespace Xtensive.Indexing
 {
   /// <summary>
   /// Base class for a configuration described by a set of named configurations 
@@ -89,7 +88,7 @@ namespace Xtensive.Configuration
       string name = GetItemName(item);
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "item.Name");
       if (this[name]!=null)
-        throw new InvalidOperationException(Strings.ExCollectionAlreadyContainsItemWithSpecifiedKey);
+        throw new InvalidOperationException(Resources.Strings.ExCollectionAlreadyContainsItemWithSpecifiedKey);
       items.Add(item);
     }
 
@@ -100,7 +99,7 @@ namespace Xtensive.Configuration
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       TItem item = this[name];
       if (item==null)
-        throw new InvalidOperationException(string.Format(Strings.ExItemWithNameWasNotFound, name));
+        throw new InvalidOperationException(string.Format(Resources.Strings.ExItemWithNameWasNotFound, name));
       items.Remove(item);
     }
 

@@ -124,6 +124,15 @@ namespace Xtensive.Indexing.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Collection already contains item with the specified key..
+        /// </summary>
+        internal static string ExCollectionAlreadyContainsItemWithSpecifiedKey {
+            get {
+                return ResourceManager.GetString("ExCollectionAlreadyContainsItemWithSpecifiedKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Deserialization error: some SerializationData slots were not recognized, thus the format of the serialized data differs from the supported one..
         /// </summary>
         internal static string ExDeserializationErrorUnrecognizedSlotsAreFound {
@@ -282,6 +291,15 @@ namespace Xtensive.Indexing.Resources {
         internal static string ExInvalidSerializerType {
             get {
                 return ResourceManager.GetString("ExInvalidSerializerType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Item with name &apos;{0}&apos; was not found..
+        /// </summary>
+        internal static string ExItemWithNameWasNotFound {
+            get {
+                return ResourceManager.GetString("ExItemWithNameWasNotFound", resourceCulture);
             }
         }
         

@@ -9,7 +9,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Collections
+namespace Xtensive.Indexing
 {
   /// <summary>
   /// A configuration described by a set of named configurations 

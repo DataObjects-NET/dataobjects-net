@@ -300,4 +300,10 @@
   <data name="SerializationDataFormat" xml:space="preserve">
     <value>Type='{0}', #='{1}' ({2})</value>
   </data>
+  <data name="ExCollectionAlreadyContainsItemWithSpecifiedKey" xml:space="preserve">
+    <value>Collection already contains item with the specified key.</value>
+  </data>
+  <data name="ExItemWithNameWasNotFound" xml:space="preserve">
+    <value>Item with name '{0}' was not found.</value>
+  </data>
 </root>
