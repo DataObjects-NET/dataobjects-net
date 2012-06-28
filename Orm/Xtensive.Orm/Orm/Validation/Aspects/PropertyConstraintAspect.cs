@@ -15,10 +15,8 @@ using PostSharp.Extensibility;
 using Xtensive.Aspects;
 using Xtensive.Aspects.Helpers;
 using Xtensive.Collections;
-
+using Xtensive.Core;
 using Xtensive.Reflection;
-using Xtensive.Orm.Validation;
-using Xtensive.Threading;
 
 namespace Xtensive.Orm.Validation
 {

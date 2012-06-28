@@ -9,7 +9,6 @@ using System.Diagnostics;
 using Xtensive.Collections;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;
-using Xtensive.Threading;
 
 namespace Xtensive.Testing
 {

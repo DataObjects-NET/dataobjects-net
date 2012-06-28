@@ -9,9 +9,9 @@ using System.Collections;
 using System.Diagnostics;
 using System.Threading;
 using Xtensive.Core;
-using Xtensive.Threading;
 
-namespace Xtensive.Threading
+
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Thread-safe dictionary. Any operation on it is atomic.

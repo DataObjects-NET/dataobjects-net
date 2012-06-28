@@ -17,7 +17,7 @@ using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
 using Xtensive.Resources;
-using Xtensive.Threading;
+
 
 namespace Xtensive.IoC
 {

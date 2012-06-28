@@ -8,8 +8,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
+using Xtensive.Collections;
 using Xtensive.Diagnostics;
-using Xtensive.Threading;
 
 namespace Xtensive.Tests.Collections
 {

@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
@@ -14,7 +15,6 @@ using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 using Xtensive.Sorting;
-using Xtensive.Threading;
 using TypeHelper = Xtensive.Reflection.TypeHelper;
 
 namespace Xtensive.Orm.Building.Builders

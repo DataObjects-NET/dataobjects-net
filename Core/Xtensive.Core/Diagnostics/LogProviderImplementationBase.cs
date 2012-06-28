@@ -7,7 +7,8 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using Xtensive.Threading;
+using Xtensive.Core;
+
 
 namespace Xtensive.Diagnostics
 {

@@ -10,10 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-
 using Xtensive.Orm.Model;
-using Xtensive.Threading;
-using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Rse
 {

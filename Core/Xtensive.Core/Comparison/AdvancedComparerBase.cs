@@ -9,9 +9,10 @@ using System.Collections;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Arithmetic;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Threading;
+
 
 namespace Xtensive.Comparison
 {

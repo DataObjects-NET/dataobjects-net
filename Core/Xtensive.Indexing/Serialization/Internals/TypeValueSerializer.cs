@@ -8,7 +8,8 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters;
-using Xtensive.Threading;
+using Xtensive.Collections;
+
 
 namespace Xtensive.Indexing.Serialization
 {

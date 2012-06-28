@@ -7,12 +7,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.ObjectMapping.Model;
 using Xtensive.Reflection;
 using Xtensive.Resources;
-using Xtensive.Threading;
+
 
 namespace Xtensive.ObjectMapping
 {

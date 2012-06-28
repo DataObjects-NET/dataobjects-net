@@ -9,8 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Collections;
 using Xtensive.Reflection;
-using Xtensive.Threading;
+
 using Factory = System.Func<
   System.Linq.Expressions.Expression,
   System.Collections.Generic.IEnumerable<System.Linq.Expressions.ParameterExpression>,

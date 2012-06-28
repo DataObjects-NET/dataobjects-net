@@ -7,11 +7,10 @@
 using System;
 using System.Diagnostics;
 using System.Threading;
-using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Threading;
 
-namespace Xtensive.Threading
+
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Thread-safe list. Any operation on it is atomic.

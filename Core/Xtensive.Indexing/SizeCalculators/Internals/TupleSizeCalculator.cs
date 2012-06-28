@@ -5,11 +5,12 @@
 // Created:    2008.05.13
 
 using System;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;
 using Xtensive.Reflection;
-using Xtensive.Threading;
+
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 

@@ -16,7 +16,7 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.Indexing.IO;
 using Xtensive.Indexing.Serialization;
 using Xtensive.Indexing.Serialization.Binary;
-using Xtensive.Threading;
+
 using Xtensive.Indexing.BloomFilter;
 using Xtensive.Indexing.Implementation;
 using Xtensive.Indexing.Providers.Internals;

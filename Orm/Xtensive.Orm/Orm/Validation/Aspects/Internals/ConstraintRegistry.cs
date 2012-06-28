@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Xtensive.Threading;
+using Xtensive.Collections;
 
 namespace Xtensive.Orm.Validation
 {

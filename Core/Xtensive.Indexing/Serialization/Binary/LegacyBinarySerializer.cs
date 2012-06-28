@@ -8,9 +8,10 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using Xtensive.Core;
 using Xtensive.Indexing.Serialization.Implementation;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Threading;
+
 
 namespace Xtensive.Indexing.Serialization.Binary
 {

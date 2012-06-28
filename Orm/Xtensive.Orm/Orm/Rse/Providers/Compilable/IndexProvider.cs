@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Collections;
 using Xtensive.Orm.Model;
-using Xtensive.Threading;
 using Xtensive.Orm.Rse.Compilation;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 

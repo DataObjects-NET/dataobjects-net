@@ -11,7 +11,6 @@ using Xtensive.Core;
 
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Threading;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using System.Linq;

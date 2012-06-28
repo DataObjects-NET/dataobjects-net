@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections;
-using Xtensive.Threading;
+
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Conversion

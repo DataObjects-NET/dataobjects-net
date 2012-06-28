@@ -20,7 +20,6 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Upgrade.Model;
-using Xtensive.Threading;
 
 namespace Xtensive.Orm
 {

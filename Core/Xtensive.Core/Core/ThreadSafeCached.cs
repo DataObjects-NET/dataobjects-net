@@ -8,11 +8,10 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using Xtensive.Comparison;
-using Xtensive.Core;
-using Xtensive.Threading;
 using Xtensive.Resources;
 
-namespace Xtensive.Threading
+
+namespace Xtensive.Core
 {
   /// <summary>
   /// A structure caching a single value of type <typeparamref name="T"/>.

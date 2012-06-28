@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Threading;
+
 
 namespace Xtensive.Collections
 {

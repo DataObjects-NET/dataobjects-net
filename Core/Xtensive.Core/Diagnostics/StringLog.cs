@@ -7,7 +7,7 @@
 using System.Diagnostics;
 using System.Text;
 using System;
-using Xtensive.Threading;
+
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Diagnostics

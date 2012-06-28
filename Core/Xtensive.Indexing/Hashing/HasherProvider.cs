@@ -14,7 +14,7 @@ using Xtensive.Reflection;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;
 using Xtensive.Indexing.Resources;
-using Xtensive.Threading;
+
 
 //using Xtensive.SizeCalculators;
 

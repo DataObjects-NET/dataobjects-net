@@ -9,15 +9,15 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Xtensive.ObjectMapping.Model;
-using Xtensive.Threading;
+
 
 namespace Xtensive.ObjectMapping.Comparison
 {
   internal sealed class NotifyingAboutCreatedObjectsState : ProcessingCollectionState
   {
-    private static ThreadSafeDictionary<TargetTypeDescription, ReadOnlyCollection<TargetPropertyDescription>>
+    private static Collections.ThreadSafeDictionary<TargetTypeDescription, ReadOnlyCollection<TargetPropertyDescription>>
       mutableNonStructureProperties =
-      ThreadSafeDictionary<TargetTypeDescription, ReadOnlyCollection<TargetPropertyDescription>>
+      Collections.ThreadSafeDictionary<TargetTypeDescription, ReadOnlyCollection<TargetPropertyDescription>>
         .Create(new object());
 
     public void Notify(IEnumerable<object> createdObjects)

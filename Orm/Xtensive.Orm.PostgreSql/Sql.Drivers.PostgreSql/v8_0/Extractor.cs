@@ -14,7 +14,6 @@ using Xtensive.Core;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Dml;
-using Xtensive.Threading;
 using System.Linq;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_0

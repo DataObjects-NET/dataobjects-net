@@ -12,7 +12,7 @@ using PostSharp.Aspects.Dependencies;
 using Xtensive.Aspects;
 using Xtensive.Collections;
 using Xtensive.Comparison;
-using Xtensive.Threading;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Validation
 {

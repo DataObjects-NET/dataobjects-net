@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Orm.Configuration;
@@ -16,7 +17,6 @@ using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
-using Xtensive.Threading;
 using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Providers

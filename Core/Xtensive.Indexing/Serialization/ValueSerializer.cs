@@ -8,9 +8,10 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.Serialization;
+using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Threading;
+
 
 namespace Xtensive.Indexing.Serialization
 {

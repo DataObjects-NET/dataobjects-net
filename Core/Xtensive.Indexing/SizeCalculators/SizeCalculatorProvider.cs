@@ -8,10 +8,11 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;
-using Xtensive.Threading;
+
 
 namespace Xtensive.Indexing.SizeCalculators
 {

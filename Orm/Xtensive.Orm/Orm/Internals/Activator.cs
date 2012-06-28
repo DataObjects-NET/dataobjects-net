@@ -5,8 +5,8 @@
 // Created:    2008.11.01
 
 using System;
+using Xtensive.Collections;
 using Xtensive.Reflection;
-using Xtensive.Threading;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using FieldInfo=Xtensive.Orm.Model.FieldInfo;

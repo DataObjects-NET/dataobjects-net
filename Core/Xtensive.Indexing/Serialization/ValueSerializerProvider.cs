@@ -12,7 +12,7 @@ using Xtensive.Core;
 using Xtensive.Indexing.Serialization.Binary;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;
-using Xtensive.Threading;
+
 
 namespace Xtensive.Indexing.Serialization
 {

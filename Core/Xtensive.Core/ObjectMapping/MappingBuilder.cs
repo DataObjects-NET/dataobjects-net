@@ -9,10 +9,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.ObjectMapping.Model;
 using Xtensive.Resources;
-using Xtensive.Threading;
+
 
 namespace Xtensive.ObjectMapping
 {

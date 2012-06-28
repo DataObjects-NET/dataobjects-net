@@ -10,7 +10,7 @@ using System.Threading;
 using Xtensive.Collections;
 using Xtensive.Caching;
 using Xtensive.Core;
-using Xtensive.Threading;
+
 using System.Linq;
 
 namespace Xtensive.Tuples.Internals

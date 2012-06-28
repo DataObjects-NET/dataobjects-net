@@ -7,10 +7,11 @@
 using System;
 using System.Reflection;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Indexing.Serialization.Internals;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;
-using Xtensive.Threading;
+
 
 namespace Xtensive.Indexing.Serialization
 {

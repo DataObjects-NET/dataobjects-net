@@ -2,8 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-
-namespace Xtensive.Threading
+namespace Xtensive.Core
 {
   /// <summary>
   /// Describes an object that has <see cref="SyncRoot"/> property.

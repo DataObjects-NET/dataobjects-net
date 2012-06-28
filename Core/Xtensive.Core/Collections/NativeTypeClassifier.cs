@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Threading;
+
 using Xtensive.Reflection;
 using System.Linq;
 using Xtensive.Internals.DocTemplates;

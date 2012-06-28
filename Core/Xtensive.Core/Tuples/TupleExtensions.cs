@@ -11,7 +11,7 @@ using Xtensive.Core;
 using Xtensive.Tuples;
 using Xtensive.Reflection;
 using Xtensive.Resources;
-using Xtensive.Threading;
+
 using Xtensive.Tuples.Transform;
 using Tuple = Xtensive.Tuples.Tuple;
 

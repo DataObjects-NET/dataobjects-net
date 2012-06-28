@@ -6,7 +6,6 @@
 
 using Xtensive.Core;
 using Xtensive.Orm;
-using Xtensive.Threading;
 
 namespace Xtensive.Sql
 {

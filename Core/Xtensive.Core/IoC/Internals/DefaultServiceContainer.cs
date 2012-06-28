@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Collections;
-using Xtensive.Threading;
+
 
 namespace Xtensive.IoC
 {

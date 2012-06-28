@@ -14,7 +14,7 @@ using System.Threading;
 using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Threading;
+
 
 namespace Xtensive.Comparison
 {

@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2007.06.13
 
-namespace Xtensive.Threading
+namespace Xtensive.Core
 {
   /// <summary>
   /// Describes an object that supports synchronized access to it.

@@ -14,7 +14,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Threading;
+
 using Xtensive.Resources;
 
 namespace Xtensive.Modelling.Comparison.Hints

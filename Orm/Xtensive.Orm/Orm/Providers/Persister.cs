@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Collections;
 using Xtensive.Orm.Internals;
-using Xtensive.Threading;
 using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Providers

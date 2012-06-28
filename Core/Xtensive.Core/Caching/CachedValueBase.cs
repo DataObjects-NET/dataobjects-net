@@ -7,7 +7,7 @@
 using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Threading;
+
 
 namespace Xtensive.Caching
 {

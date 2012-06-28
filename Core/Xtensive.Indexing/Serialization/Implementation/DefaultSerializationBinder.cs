@@ -9,9 +9,10 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Security;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.Threading;
+
 
 namespace Xtensive.Indexing.Serialization.Implementation
 {

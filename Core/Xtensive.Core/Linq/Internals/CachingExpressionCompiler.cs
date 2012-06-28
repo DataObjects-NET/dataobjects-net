@@ -6,8 +6,9 @@
 
 using System;
 using System.Linq.Expressions;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Threading;
+
 
 namespace Xtensive.Linq
 {
