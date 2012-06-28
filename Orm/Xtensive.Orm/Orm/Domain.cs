@@ -30,15 +30,14 @@ namespace Xtensive.Orm
   /// <code lang="cs" source="..\Xtensive.Orm\Xtensive.Orm.Manual\DomainAndSession\DomainAndSessionSample.cs" region="Domain sample"></code>
   /// </sample>
   public sealed class Domain :
-    IDisposableContainer,
+    IDisposable,
     IHasExtensions
   {
-    private readonly object _lock = new object();
+    private readonly object disposelock = new object();
+    private bool isDisposed;
 
     private volatile ExtensionCollection extensions;
 
-    private DisposingState disposingState;
-    
     /// <summary>
     /// Occurs when new <see cref="Session"/> is open and activated.
     /// </summary>
@@ -88,14 +87,6 @@ namespace Xtensive.Orm
     /// Gets the prefetch action map.
     /// </summary>
     internal Dictionary<Model.TypeInfo, Action<SessionHandler, IEnumerable<Key>>> PrefetchActionMap { get; private set; }
-
-    /// <summary>
-    /// Gets the disposing state of the domain.
-    /// </summary>
-    DisposingState IDisposableContainer.DisposingState
-    {
-      get { return disposingState; }
-    }
 
     /// <summary>
     /// Gets the domain model.
@@ -284,16 +275,13 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public void Dispose()
     {
-      if (disposingState==DisposingState.None) lock (_lock) if (disposingState==DisposingState.None) {
-        disposingState = DisposingState.Disposing;
-        try {
-          OrmLog.Debug(Strings.LogDomainIsDisposing);
-          NotifyDisposing();
-          Services.DisposeSafely();
-        }
-        finally {
-          disposingState = DisposingState.Disposed;
-        }
+      lock (disposelock) {
+        if (isDisposed)
+          return;
+        isDisposed = true;
+        OrmLog.Debug(Strings.LogDomainIsDisposing);
+        NotifyDisposing();
+        Services.DisposeSafely();
       }
     }
   }

@@ -101,30 +101,5 @@ namespace Xtensive.Core
       if (firstError!=null)
         throw firstError;
     }
-
-    /// <summary>
-    /// Checks ability of the item to be disposed.
-    /// </summary>
-    /// <param name="container">The disposable container that contains the item.</param>
-    /// <returns>
-    /// <see langword="true"/> when <paramref name="container"/> has <see cref="IDisposableContainer.DisposingState"/> is <see cref="DisposingState.Disposing"/>;
-    /// <see langword="false"/> when <paramref name="container"/> has <see cref="IDisposableContainer.DisposingState"/> is <see cref="DisposingState.Disposed"/>.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">The <paramref name="container"/> is null.</exception>
-    /// <exception cref="InvalidOperationException">Unable to dispose the item when <paramref name="container"/>'s <see cref="IDisposableContainer.DisposingState"/> is <see cref="DisposingState.None"/>.</exception>
-    public static bool CheckItemDisposing(this IDisposableContainer container)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(container, "container");
-      switch (container.DisposingState) {
-      case DisposingState.None:
-        throw new InvalidOperationException(Strings.UnableToDisposeItemWhenContainerIsNotDisposed);
-      case DisposingState.Disposing:
-        return true;
-      case DisposingState.Disposed:
-        return false;
-      default:
-        throw new ArgumentOutOfRangeException();
-      }
-    }
   }
 }

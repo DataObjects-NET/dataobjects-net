@@ -7,7 +7,7 @@
 using System;
 using System.Collections;
 
-namespace Xtensive.Core
+namespace Xtensive.Indexing
 {
   /// <summary>
   /// Describes possible enumeration states.
