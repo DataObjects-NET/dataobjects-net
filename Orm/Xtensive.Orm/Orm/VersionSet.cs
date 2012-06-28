@@ -12,15 +12,13 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
 
-
-
 namespace Xtensive.Orm
 {
   /// <summary>
   /// Describes a set of key-version pairs used to validate versions.
   /// </summary>
   [Serializable]
-  public sealed class VersionSet : ICountable<KeyValuePair<Key, VersionInfo>>
+  public sealed class VersionSet : IEnumerable<KeyValuePair<Key, VersionInfo>>
   {
     private Dictionary<Ref<Entity>, VersionInfo> versions = 
       new Dictionary<Ref<Entity>, VersionInfo>();

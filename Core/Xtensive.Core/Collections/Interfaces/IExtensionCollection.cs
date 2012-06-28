@@ -12,8 +12,13 @@ namespace Xtensive.Collections
   /// <summary>
   /// A collection of type-based extensions.
   /// </summary>
-  public interface IExtensionCollection: ICountable<Type>
+  public interface IExtensionCollection: IEnumerable<Type>
   {
+    /// <summary>
+    /// Gets the number of elements contained in a collection.
+    /// </summary>
+    long Count { get; }
+
     /// <summary>
     /// Gets the extension of type <typeparamref name="T"/> from the collection.
     /// </summary>

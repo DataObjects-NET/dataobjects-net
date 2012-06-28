@@ -45,11 +45,6 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    long ICountable.Count {
-      get { return Count; }
-    }
-
-    /// <inheritdoc/>
     public int ClassCount {
       get { return classified.Keys.Count; }
     }

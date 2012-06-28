@@ -27,7 +27,7 @@ namespace Xtensive.Core
 
     /// <summary>
     /// Indicates whether enumerable is empty or not 
-    /// by attempting to cast it to <see cref="ICollection{T}"/>, <see cref="ICountable{TItem}"/> and <see cref="IQueryable{T}"/>.
+    /// by attempting to cast it to <see cref="ICollection{T}"/> and <see cref="IQueryable{T}"/>.
     /// May return false negative response.
     /// </summary>
     /// <typeparam name="TItem">The type of item.</typeparam>
@@ -50,7 +50,7 @@ namespace Xtensive.Core
 
     /// <summary>
     /// Gets the count of items (as <see cref="long"/>) of <see cref="IEnumerable{T}"/>, if it is actually
-    /// <see cref="ICollection{T}"/>, <see cref="ICountable{TItem}"/> or <see cref="IQueryable{T}"/>.
+    /// <see cref="ICollection{T}"/> or <see cref="IQueryable{T}"/>.
     /// Otherwise returns <see langword="null"/>.
     /// </summary>
     /// <typeparam name="TItem">The type of item.</typeparam>
@@ -65,11 +65,6 @@ namespace Xtensive.Core
           return c1.Count;
       }
       {
-        var c1 = items as ICountable<TItem>;
-        if (c1 != null)
-          return c1.Count;
-      }
-      {
         var c1 = items as IQueryable<TItem>;
         if (c1 != null)
           return c1.LongCount();
@@ -79,7 +74,7 @@ namespace Xtensive.Core
 
     /// <summary>
     /// Gets the count of items of <see cref="IEnumerable{T}"/>, if it is actually
-    /// <see cref="ICollection{T}"/>, <see cref="ICountable{TItem}"/> or <see cref="IQueryable{T}"/>.
+    /// <see cref="ICollection{T}"/> or <see cref="IQueryable{T}"/>.
     /// Otherwise returns <see langword="null"/>.
     /// </summary>
     /// <typeparam name="TItem">The type of item.</typeparam>
@@ -92,11 +87,6 @@ namespace Xtensive.Core
         var c1 = items as ICollection<TItem>;
         if (c1 != null)
           return c1.Count;
-      }
-      {
-        var c1 = items as ICountable<TItem>;
-        if (c1 != null)
-          return (int)c1.Count;
       }
       {
         var c1 = items as IQueryable<TItem>;

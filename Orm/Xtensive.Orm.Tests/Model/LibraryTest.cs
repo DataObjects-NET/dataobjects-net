@@ -402,7 +402,7 @@ namespace Xtensive.Orm.Tests.Model
       Assert.AreEqual(types[typeof (BookReview)].GetAncestor(), null);
       Assert.AreEqual(types[typeof (Author)].GetAncestor(), types[typeof (Person)]);
 
-      ICountable<TypeInfo> collection = types.Structures;
+      ICollection<TypeInfo> collection = types.Structures;
       Assert.IsTrue(collection.Count > 0);
       foreach (TypeInfo item in collection) {
         Assert.IsTrue(item.IsStructure);

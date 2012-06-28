@@ -17,9 +17,14 @@ namespace Xtensive.Collections
   /// <typeparam name="T"><see cref="Type"/> of items to be stored in queue.</typeparam>
   /// <typeparam name="TPriority"><see cref="Type"/> of priority value.</typeparam>
   public interface IPriorityQueue<T, TPriority> : 
-    ICountable<T>, ICloneable
+    IEnumerable<T>, ICloneable
     where TPriority : IComparable<TPriority>
   {
+    /// <summary>
+    /// Gets number of elements.
+    /// </summary>
+    long Count { get; }
+
     /// <summary>
     /// Gets direction of items stored in the queue
     /// </summary>
@@ -66,7 +71,7 @@ namespace Xtensive.Collections
     /// </summary>
     /// <remarks>
     /// <para>
-    /// <see cref="ICountable.Count"/> is set to zero, and references to other objects 
+    /// <see cref="Count"/> is set to zero, and references to other objects 
     /// from elements of the queue are also released.
     /// </para>
     /// <para>
@@ -75,7 +80,7 @@ namespace Xtensive.Collections
     /// of the queue to the default capacity.
     /// </para>
     /// <para>
-    /// This method is an O(n) operation, where n is <see cref="ICountable.Count"/>.
+    /// This method is an O(n) operation, where n is <see cref="Count"/>.
     /// </para>
     /// </remarks>
     void Clear();
@@ -105,7 +110,7 @@ namespace Xtensive.Collections
     /// </para>
     /// <para>
     /// This method performs a linear search; therefore, this method is an O(n) operation,
-    /// where n is <see cref="ICountable.Count"/>.
+    /// where n is <see cref="Count"/>.
     /// </para>
     /// </remarks>
     bool Contains(T item);

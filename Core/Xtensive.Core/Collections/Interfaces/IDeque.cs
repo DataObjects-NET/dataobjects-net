@@ -14,7 +14,7 @@ namespace Xtensive.Collections
   /// Double-ended queue contract.
   /// </summary>
   /// <typeparam name="T">The type of queued elements.</typeparam>
-  public interface IDeque<T> : IList<T>, IList, ICountable<T>
+  public interface IDeque<T> : IList<T>
   {
     /// <summary>
     /// Gets or sets the size of an internal array.
@@ -42,7 +42,7 @@ namespace Xtensive.Collections
     /// This avoids incurring a large reallocation cost for a relatively small gain.
     /// </para>
     /// <para>
-    /// This method is an O(n) operation, where n is <see cref="ICountable.Count"/>.
+    /// This method is an O(n) operation, where n is <see cref="ICollection{T}.Count"/>.
     /// </para>
     /// To reset a <see cref="IDeque{T}"/> to its initial state, call the <see cref="IList.Clear"/> method
     /// before calling <see cref="IDeque{T}.TrimExcess"/> method. 
@@ -80,16 +80,16 @@ namespace Xtensive.Collections
     /// </param>
     /// <remarks>
     /// <para>
-    /// If <see cref="ICountable.Count"/> already equals the <see cref="IDeque{T}.Capacity"/>,
+    /// If <see cref="ICollection{T}.Count"/> already equals the <see cref="IDeque{T}.Capacity"/>,
     /// the <see cref="IDeque{T}.Capacity"/> of the <see cref="IDeque{T}"/> is increased by 
     /// automatically reallocating the internal array, and the existing elements 
     /// are copied to the new array before the new element is added.
     /// </para>
     /// <para>
-    /// If <see cref="ICountable.Count"/> is less than the <see cref="IDeque{T}.Capacity"/> of the internal array,
+    /// If <see cref="ICollection{T}.Count"/> is less than the <see cref="IDeque{T}.Capacity"/> of the internal array,
     /// this method is an O(1) operation. 
     /// If the internal array needs to be reallocated to accommodate the new element,
-    /// this method becomes an O(n) operation, where n is <see cref="ICountable.Count"/>.
+    /// this method becomes an O(n) operation, where n is <see cref="ICollection{T}.Count"/>.
     /// </para>
     /// </remarks>
     void AddHead(T element);
@@ -103,16 +103,16 @@ namespace Xtensive.Collections
     /// </param>
     /// <remarks>
     /// <para>
-    /// If <see cref="ICountable.Count"/> already equals the <see cref="IDeque{T}.Capacity"/>,
+    /// If <see cref="ICollection{T}.Count"/> already equals the <see cref="IDeque{T}.Capacity"/>,
     /// the <see cref="IDeque{T}.Capacity"/> of the <see cref="IDeque{T}"/> is increased by 
     /// automatically reallocating the internal array, and the existing elements 
     /// are copied to the new array before the new element is added.
     /// </para>
     /// <para>
-    /// If <see cref="ICountable.Count"/> is less than the <see cref="IDeque{T}.Capacity"/> of the internal array,
+    /// If <see cref="ICollection{T}.Count"/> is less than the <see cref="IDeque{T}.Capacity"/> of the internal array,
     /// this method is an O(1) operation. 
     /// If the internal array needs to be reallocated to accommodate the new element,
-    /// this method becomes an O(n) operation, where n is <see cref="ICountable.Count"/>.
+    /// this method becomes an O(n) operation, where n is <see cref="ICollection{T}.Count"/>.
     /// </para>
     /// </remarks>
     void AddTail(T element);

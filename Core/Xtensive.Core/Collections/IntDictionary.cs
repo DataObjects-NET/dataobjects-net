@@ -21,8 +21,7 @@ namespace Xtensive.Collections
   /// <typeparam name="TValue">The type of a value.</typeparam>
   [Serializable]
   [DebuggerDisplay("Count = {Count}")]
-  public sealed class IntDictionary<TValue> :
-    ICountable<KeyValuePair<int, TValue>>
+  public sealed class IntDictionary<TValue> : IEnumerable<KeyValuePair<int, TValue>>
   {
     private const int NonExistingKeyIndex = int.MinValue;
     private const int ExistingKeyIndex = int.MinValue + 1;
@@ -38,10 +37,6 @@ namespace Xtensive.Collections
     /// Gets the number of elements contained in a collection.
     /// </summary>
     public int Count {
-      get { return count; }
-    }
-
-    long ICountable.Count {
       get { return count; }
     }
 

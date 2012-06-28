@@ -34,13 +34,6 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    long ICountable.Count
-    {
-      [DebuggerStepThrough]
-      get { return Count; }
-    }
-
-    /// <inheritdoc/>
     /// <exception cref="KeyNotFoundException">There is no specified key.</exception>
     public V this[K key] {
       get {

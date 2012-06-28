@@ -24,7 +24,6 @@ namespace Xtensive.Collections
   public class ReadOnlyCollection<T> : 
     ICollection,
     ICollection<T>,
-    ICountable<T>,
     IReadOnly
   {
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
@@ -35,13 +34,6 @@ namespace Xtensive.Collections
     {
       [DebuggerStepThrough]
       get { return innerCollection.Count; }
-    }
-
-    /// <inheritdoc/>
-    long ICountable.Count
-    {
-      [DebuggerStepThrough]
-      get { return Count; }
     }
 
     /// <inheritdoc/>

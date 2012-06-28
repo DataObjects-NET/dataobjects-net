@@ -4,6 +4,8 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.26
 
+using System.Collections.Generic;
+
 namespace Xtensive.Collections
 {
   /// <summary>
@@ -12,12 +14,12 @@ namespace Xtensive.Collections
   /// </summary>
   /// <typeparam name="K">The type of the key.</typeparam>
   /// <typeparam name="V">The type of the value.</typeparam>
-  public interface ITopDeque<K,V> : ICountable<V>
+  public interface ITopDeque<K,V> : IEnumerable<V>
   {
     /// <summary>
     /// Gets the count of items.
     /// </summary>
-    new int Count { get; }
+    int Count { get; }
 
     /// <summary>
     /// Gets or sets the item with the specified key.

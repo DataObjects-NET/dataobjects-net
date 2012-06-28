@@ -5,16 +5,14 @@
 // Created:    2010.03.01
 
 using System;
-using Xtensive.Collections;
-using Xtensive.Orm.Operations;
+using System.Collections.Generic;
 
 namespace Xtensive.Orm
 {
   /// <summary>
   /// Operation sequence contract.
   /// </summary>
-  public interface IOperationSequence : ICountable<IOperation>,
-    Xtensive.Core.IOperationSequence
+  public interface IOperationSequence : IEnumerable<IOperation>, Core.IOperationSequence
   {
     /// <summary>
     /// Applies this operation sequence to the <see cref="Session.Current"/> session.

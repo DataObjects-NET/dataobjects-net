@@ -23,9 +23,7 @@ namespace Xtensive.Collections
     /// <see cref="DictionaryBaseSlim{TKey,TValue}"/>.
     /// </summary>
     /// <typeparam name="T">The type of stored item.</typeparam>
-    protected abstract class KeyOrValueCollectionBase<T>: 
-      ICollection<T>,
-      ICountable<T>
+    protected abstract class KeyOrValueCollectionBase<T> : ICollection<T>
     {
       /// <summary>
       /// Inner dictionary.
@@ -38,13 +36,6 @@ namespace Xtensive.Collections
       {
         [DebuggerStepThrough]
         get { return dictionary.Count; }
-      }
-
-      /// <inheritdoc/>
-      long ICountable.Count
-      {
-        [DebuggerStepThrough]
-        get { return Count; }
       }
 
       /// <inheritdoc/>

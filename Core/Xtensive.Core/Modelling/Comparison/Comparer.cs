@@ -5,6 +5,7 @@
 // Created:    2009.04.07
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -367,14 +368,18 @@ namespace Xtensive.Modelling.Comparison
 
         // Inlining 2 below lines leads to error in PEVerify.exe!
         // (well-known issue with null coalescing operator + cast)
-        var sourceAsCountable = (ICountable) source;
-        var targetAsCountable = (ICountable) target;
-        var src = sourceAsCountable ?? new ReadOnlyList<Node>(new Node[] {});
-        var tgt = targetAsCountable ?? new ReadOnlyList<Node>(new Node[] {});
+        var sourceItems = (IEnumerable) source;
+        var targetItems = (IEnumerable) target;
 
-        if (src.Count==0 && tgt.Count==0)
+        var src = sourceItems ?? new ReadOnlyList<Node>(new Node[] {});
+        var tgt = targetItems ?? new ReadOnlyList<Node>(new Node[] {});
+
+        var srcCount = source!=null ? source.Count : 0;
+        var tgtCount = target!=null ? target.Count : 0;
+
+        if (srcCount==0 && tgtCount==0)
           return null;
-        var someItems = src.Count!=0 ? src : tgt;
+        var someItems = srcCount!=0 ? src : tgt;
         var someItem = someItems.Cast<Node>().First();
 
         Func<Node, Pair<Node, string>> keyExtractor = 

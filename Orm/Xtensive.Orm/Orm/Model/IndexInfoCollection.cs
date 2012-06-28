@@ -5,6 +5,7 @@
 // Created:    2008.05.16
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -23,7 +24,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     /// <param name="criteria">The criteria.</param>
     /// <returns>A sequence of found objects.</returns>
-    public ICountable<IndexInfo> Find(IndexAttributes criteria)
+    public ICollection<IndexInfo> Find(IndexAttributes criteria)
     {
       return Find(criteria, MatchType.Full);
     }
@@ -34,20 +35,19 @@ namespace Xtensive.Orm.Model
     /// <param name="criteria">The criteria.</param>
     /// <param name="matchType">Type of the match.</param>
     /// <returns>A sequence of found objects.</returns>
-    public ICountable<IndexInfo> Find(IndexAttributes criteria, MatchType matchType)
+    public ICollection<IndexInfo> Find(IndexAttributes criteria, MatchType matchType)
     {
       if (criteria == IndexAttributes.None)
-        return new EmptyCountable<IndexInfo>();
+        return ArrayUtils<IndexInfo>.EmptyArray;
 
-      switch (matchType)
-      {
+      switch (matchType) {
         case MatchType.Partial:
-          return new BufferedEnumerable<IndexInfo>(this.Where(f => (f.Attributes & criteria) > 0));
+          return this.Where(f => (f.Attributes & criteria) > 0).ToList();
         case MatchType.Full:
-          return new BufferedEnumerable<IndexInfo>(this.Where(f => (f.Attributes & criteria) == criteria));
+          return this.Where(f => (f.Attributes & criteria) == criteria).ToList();
         case MatchType.None:
         default:
-          return new BufferedEnumerable<IndexInfo>(this.Where(f => (f.Attributes & criteria) == 0));
+          return this.Where(f => (f.Attributes & criteria) == 0).ToList();
       }
     }
 

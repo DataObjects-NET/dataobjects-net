@@ -17,7 +17,7 @@ namespace Xtensive.Collections
   /// </summary>
   /// <typeparam name="T">The type of elements.</typeparam>
   [Serializable]
-  public sealed class LinkedList<T> : ICountable<T>
+  public sealed class LinkedList<T> : IEnumerable<T>
   {
     /// <summary>
     /// Gets the empty <see cref="LinkedList{T}"/>.

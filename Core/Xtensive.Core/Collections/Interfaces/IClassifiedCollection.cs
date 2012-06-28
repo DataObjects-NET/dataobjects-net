@@ -16,9 +16,7 @@ namespace Xtensive.Collections
   /// </summary>
   /// <typeparam name="TClass">The type of the class.</typeparam>
   /// <typeparam name="TItem">The type of the item.</typeparam>
-  public interface IClassifiedCollection<TClass, TItem> : 
-    ICountable<TItem>,
-    ICollection<TItem>
+  public interface IClassifiedCollection<TClass, TItem> : ICollection<TItem>
   {
     /// <summary>
     /// Gets a value indicating whether this instance behaves like a set.

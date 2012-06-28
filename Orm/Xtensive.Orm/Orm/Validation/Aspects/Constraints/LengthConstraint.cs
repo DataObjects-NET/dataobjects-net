@@ -49,8 +49,6 @@ namespace Xtensive.Orm.Validation
 
       if (value is string)
         length = ((string) value).Length;
-      else if (value is ICountable)
-        length = ((ICountable) value).Count;
       else 
         length = ((ICollection)value).Count;
 
@@ -60,10 +58,7 @@ namespace Xtensive.Orm.Validation
     /// <inheritdoc/>
     public override bool IsSupported(Type valueType)
     {
-      return
-        valueType==typeof (string) ||
-          typeof (ICountable).IsAssignableFrom(valueType) ||
-            typeof (ICollection).IsAssignableFrom(valueType);
+      return valueType==typeof (string) || typeof (ICollection).IsAssignableFrom(valueType);
     }
 
     /// <inheritdoc/>

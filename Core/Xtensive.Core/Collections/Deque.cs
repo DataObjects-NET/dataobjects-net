@@ -69,13 +69,6 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    long ICountable.Count
-    {
-      [DebuggerStepThrough]
-      get { return count; }
-    }
-
-    /// <inheritdoc/>
     public T this[int index] {
       get {
         ArgumentValidator.EnsureArgumentIsInRange(index, 0, count-1, "index");
@@ -446,72 +439,12 @@ namespace Xtensive.Collections
 
     #endregion
 
-
-    #region IList members
-
-    object IList.this[int index]
-    {
-      get { return this[index]; }
-      set { this[index] = (T)value; }
-    }
-
-    int IList.Add(object value)
-    {
-      AddTail((T)value);
-      return count - 1;
-    }
-
-    bool IList.Contains(object value)
-    {
-      return Contains((T)value);
-    }
-
-    int IList.IndexOf(object value)
-    {
-      return IndexOf((T)value);
-    }
-
-    void IList.Insert(int index, object value)
-    {
-      Insert(index, (T)value);
-    }
-
-    void IList.Remove(object value)
-    {
-      Remove((T)value);
-    }
-
-    bool IList.IsFixedSize
-    {
-      get { return false; }
-    }
-
-    /// <inheritdoc/>
-    bool IList.IsReadOnly
-    {
-      get { return false; }
-    }
-
-    #endregion
-
     #region ICollection<T>, ICollection members
 
     /// <inheritdoc/>
     void ICollection<T>.Add(T item)
     {
       AddTail(item);
-    }
-
-    /// <inheritdoc/>
-    object ICollection.SyncRoot
-    {
-      get { return this; }
-    }
-
-    /// <inheritdoc/>
-    bool ICollection.IsSynchronized
-    {
-      get { return false; }
     }
 
     /// <inheritdoc/>

@@ -26,25 +26,25 @@ namespace Xtensive.Orm.Model
 
     #region IFilterable<ColumnAttributes,ColumnInfo> Members
 
-    public ICountable<ColumnInfo> Find(ColumnAttributes criteria)
+    public ICollection<ColumnInfo> Find(ColumnAttributes criteria)
     {
       return Find(criteria, MatchType.Partial);
     }
 
-    public ICountable<ColumnInfo> Find(ColumnAttributes criteria, MatchType matchType)
+    public ICollection<ColumnInfo> Find(ColumnAttributes criteria, MatchType matchType)
     {
       // We don't have any instance that has attributes == FieldAttributes.None
       if (criteria == ColumnAttributes.None)
-        return new EmptyCountable<ColumnInfo>();
+        return ArrayUtils<ColumnInfo>.EmptyArray;
 
       switch (matchType) {
         case MatchType.Partial:
-          return new BufferedEnumerable<ColumnInfo>(this.Where(f => (f.Attributes & criteria) > 0));
+          return this.Where(f => (f.Attributes & criteria) > 0).ToList();
         case MatchType.Full:
-          return new BufferedEnumerable<ColumnInfo>(this.Where(f => (f.Attributes & criteria) == criteria));
+          return this.Where(f => (f.Attributes & criteria) == criteria).ToList();
         case MatchType.None:
         default:
-          return new BufferedEnumerable<ColumnInfo>(this.Where(f => (f.Attributes & criteria) == 0));
+          return this.Where(f => (f.Attributes & criteria) == 0).ToList();
       }
     }
 

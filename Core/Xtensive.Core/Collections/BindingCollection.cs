@@ -22,7 +22,7 @@ namespace Xtensive.Collections
   /// </summary>
   [Serializable]
   [DebuggerDisplay("Count = {Count}")]
-  public class BindingCollection<TKey, TValue> : ICountable<KeyValuePair<TKey, TValue>>
+  public class BindingCollection<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
   {
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     protected readonly Dictionary<TKey, TValue> bindings = new Dictionary<TKey, TValue>();
@@ -34,12 +34,6 @@ namespace Xtensive.Collections
     public virtual int Count {
       [DebuggerStepThrough]
       get { return bindings.Count; }
-    }
-
-    /// <inheritdoc/>
-    long ICountable.Count {
-      [DebuggerStepThrough]
-      get { return Count; }
     }
 
     /// <summary>

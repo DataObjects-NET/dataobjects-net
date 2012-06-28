@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Services
   /// (see <see cref="DirectStateAccessor"/>).
   /// </summary>
   [DebuggerDisplay("Count = {Count}")]
-  public struct EntitySetStateAccessor : ICountable<Key>
+  public struct EntitySetStateAccessor : IEnumerable<Key>
   {
     private readonly EntitySetBase entitySet;
 

@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.17
 
+using System.Collections;
 using System.Collections.Specialized;
 using Xtensive.Collections;
 
@@ -13,13 +14,12 @@ namespace Xtensive.Modelling
   /// <see cref="Node"/> collection.
   /// </summary>
   public interface INodeCollection : IPathNode, 
-    ICountable, 
-    INotifyCollectionChanged
+    IEnumerable, INotifyCollectionChanged
   {
     /// <summary>
     /// Gets the count of items.
     /// </summary>
-    new int Count { get; }
+    int Count { get; }
 
     /// <summary>
     /// An indexer that provides access to collection items by their index.

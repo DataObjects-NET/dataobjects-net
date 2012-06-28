@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the structures that are contained in this collection.
     /// </summary>
-    public ICountable<TypeInfo> Structures
+    public ICollection<TypeInfo> Structures
     {
       get { return Find(TypeAttributes.Structure); }
     }
@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the entities that are contained in this collection.
     /// </summary>
-    public ICountable<TypeInfo> Entities
+    public ICollection<TypeInfo> Entities
     {
       get { return Find(TypeAttributes.Entity); }
     }
@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the interfaces that are contained in this collection.
     /// </summary>
-    public ICountable<TypeInfo> Interfaces
+    public ICollection<TypeInfo> Interfaces
     {
       get { return Find(TypeAttributes.Interface); }
     }
@@ -347,28 +347,28 @@ namespace Xtensive.Orm.Model
     /// Finds all <see cref="TypeInfo"/> instances according to specified criteria.
     /// </summary>
     /// <param name="criteria">The attributes.</param>
-    /// <returns><see cref="ICountable{TItem}"/> that contains all found instances.</returns>
-    public ICountable<TypeInfo> Find(TypeAttributes criteria)
+    /// <returns><see cref="ICollection{TItem}"/> that contains all found instances.</returns>
+    public ICollection<TypeInfo> Find(TypeAttributes criteria)
     {
       // We don't have any instance that has attributes == TypeAttributes.None
       if (criteria == TypeAttributes.None)
-        return new EmptyCountable<TypeInfo>();
+        return ArrayUtils<TypeInfo>.EmptyArray;
 
       return Find(criteria, MatchType.Partial);
     }
 
-    public ICountable<TypeInfo> Find(TypeAttributes criteria, MatchType matchType)
+    public ICollection<TypeInfo> Find(TypeAttributes criteria, MatchType matchType)
     {
       if (criteria == TypeAttributes.None)
-        return new EmptyCountable<TypeInfo>();
+        return ArrayUtils<TypeInfo>.EmptyArray;
 
       switch (matchType) {
       case MatchType.Partial:
-        return new BufferedEnumerable<TypeInfo>(this.Where(f => (f.Attributes & criteria) > 0));
+        return this.Where(f => (f.Attributes & criteria) > 0).ToList();
       case MatchType.Full:
-        return new BufferedEnumerable<TypeInfo>(this.Where(f => (f.Attributes & criteria) == criteria));
+        return this.Where(f => (f.Attributes & criteria) == criteria).ToList();
       default:
-        return new BufferedEnumerable<TypeInfo>(this.Where(f => (f.Attributes & criteria) == 0));
+        return this.Where(f => (f.Attributes & criteria) == 0).ToList();
       }
 
     }

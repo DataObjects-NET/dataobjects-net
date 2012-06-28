@@ -30,7 +30,6 @@ namespace Xtensive.Tuples
     IIdentified<int>,
     IEquatable<TupleDescriptor>,
     IComparable<TupleDescriptor>,
-    ICountable<Type>,
     IList<Type>
   {
     private static int totalCount;
@@ -235,13 +234,6 @@ namespace Xtensive.Tuples
 
     /// <inheritdoc/>
     public int Count {
-      [DebuggerStepThrough]
-      get { return fieldCount; }
-    }
-
-    /// <inheritdoc/>
-    long ICountable.Count
-    {
       [DebuggerStepThrough]
       get { return fieldCount; }
     }

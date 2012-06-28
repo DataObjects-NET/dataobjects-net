@@ -96,12 +96,6 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    long ICountable.Count {
-      [DebuggerStepThrough]
-      get { return Count; }
-    }
-
-    /// <inheritdoc/>
     public int Count {
       [DebuggerStepThrough]
       get { return list.Count; }

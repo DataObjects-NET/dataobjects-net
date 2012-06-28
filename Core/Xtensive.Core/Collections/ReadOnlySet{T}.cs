@@ -37,13 +37,6 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    long ICountable.Count
-    {
-      [DebuggerStepThrough]
-      get { return innerSet.Count; }
-    }
-
-    /// <inheritdoc/>
     public bool IsReadOnly
     {
       [DebuggerStepThrough]

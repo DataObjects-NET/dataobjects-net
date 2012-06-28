@@ -22,7 +22,6 @@ namespace Xtensive.Collections
   public class ReadOnlyDictionary<TKey, TValue> :
     IDictionary<TKey, TValue>,
     IDictionary,
-    ICountable<KeyValuePair<TKey, TValue>>,
     IReadOnly
   {
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
@@ -38,12 +37,6 @@ namespace Xtensive.Collections
     public int Count {
       [DebuggerStepThrough]
       get { return innerDictionary.Count; }
-    }
-
-    /// <inheritdoc/>
-    long ICountable.Count {
-      [DebuggerStepThrough]
-      get { return Count; }
     }
 
     /// <inheritdoc/>

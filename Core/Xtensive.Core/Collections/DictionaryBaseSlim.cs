@@ -23,8 +23,7 @@ namespace Xtensive.Collections
   [DebuggerDisplay("Count = {Count}")]
   [DebuggerTypeProxy(PREFIX + "DictionaryDebugView`2" + SUFFIX)]
   public abstract partial class DictionaryBaseSlim<TKey, TValue> : 
-    IDictionary<TKey, TValue>,
-    ICountable<KeyValuePair<TKey, TValue>>
+    IDictionary<TKey, TValue>
   {
     internal const string PREFIX = "System.Collections.Generic.Mscorlib_";
     internal const string SUFFIX = ",mscorlib,Version=2.0.0.0,Culture=neutral,PublicKeyToken=b77a5c561934e089";
@@ -35,13 +34,6 @@ namespace Xtensive.Collections
 
     /// <inheritdoc/>
     public abstract int Count { get; }
-
-    /// <inheritdoc/>
-    long ICountable.Count
-    {
-      [DebuggerStepThrough]
-      get { return Count; }
-    }
 
     /// <inheritdoc/>
     public abstract void Clear();

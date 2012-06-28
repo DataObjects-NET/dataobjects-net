@@ -5,6 +5,7 @@
 // Created:    2007.11.26
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -23,26 +24,26 @@ namespace Xtensive.Orm.Model
     internal new static FieldInfoCollection Empty;
 
     /// <inheritdoc/>
-    public ICountable<FieldInfo> Find(FieldAttributes criteria)
+    public ICollection<FieldInfo> Find(FieldAttributes criteria)
     {
       return Find(criteria, MatchType.Partial);
     }
 
     /// <inheritdoc/>
-    public ICountable<FieldInfo> Find(FieldAttributes criteria, MatchType matchType)
+    public ICollection<FieldInfo> Find(FieldAttributes criteria, MatchType matchType)
     {
       // We don't have any instance that has attributes == FieldAttributes.None
       if (criteria == FieldAttributes.None)
-        return new EmptyCountable<FieldInfo>();
+        return ArrayUtils<FieldInfo>.EmptyArray;
 
       switch (matchType) {
         case MatchType.Partial:
-          return new BufferedEnumerable<FieldInfo>(this.Where(f => (f.Attributes & criteria) > 0));
+          return this.Where(f => (f.Attributes & criteria) > 0).ToList();
         case MatchType.Full:
-          return new BufferedEnumerable<FieldInfo>(this.Where(f => (f.Attributes & criteria) == criteria));
+          return this.Where(f => (f.Attributes & criteria) == criteria).ToList();
         case MatchType.None:
         default:
-          return new BufferedEnumerable<FieldInfo>(this.Where(f => (f.Attributes & criteria) == 0));
+          return this.Where(f => (f.Attributes & criteria) == 0).ToList();
       }
     }
 

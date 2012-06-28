@@ -20,7 +20,7 @@ namespace Xtensive.Core
   [Serializable]
   public class ExceptionAggregator : 
     IDisposable, 
-    ICountable<Exception>
+    IEnumerable<Exception>
   {
     private Action<Exception> exceptionHandler;
     private List<Exception> exceptions;
@@ -43,7 +43,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets the number of caught exceptions.
     /// </summary>
-    public long Count {
+    public int Count {
       [DebuggerStepThrough]
       get { return exceptions!=null ? exceptions.Count : 0; }
     }

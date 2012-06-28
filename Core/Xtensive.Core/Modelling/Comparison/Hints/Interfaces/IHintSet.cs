@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.03.26
 
+using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Collections;
 
@@ -12,13 +13,12 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// <summary>
   /// <see cref="Hint"/> collection contract.
   /// </summary>
-  public interface IHintSet : ICountable<Hint>,
-    ILockable
+  public interface IHintSet : IEnumerable<Hint>, ILockable
   {
     /// <summary>
     /// Gets the count of contained hints.
     /// </summary>
-    new int Count { get; }
+    int Count { get; }
 
     /// <summary>
     /// Gets or sets the source model.

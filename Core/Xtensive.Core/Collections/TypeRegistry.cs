@@ -20,7 +20,7 @@ namespace Xtensive.Collections
   /// </summary>
   [Serializable]
   public class TypeRegistry : LockableBase,
-    ICountable<Type>,
+    IEnumerable<Type>,
     ICloneable
   {
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
@@ -179,8 +179,6 @@ namespace Xtensive.Collections
 
     #endregion
 
-    #region ICountable<Type> Members
-
     /// <summary>
     /// Gets the number of types registered in this instance.
     /// </summary>
@@ -190,19 +188,6 @@ namespace Xtensive.Collections
         return types.Count;
       }
     }
-
-    /// <summary>
-    /// Gets the number of types registered in this instance.
-    /// </summary>
-    long ICountable.Count {
-      get {
-        ProcessPendingActions();
-        return types.Count;
-      }
-    }
-
-    #endregion
-
 
     // Constructors
 

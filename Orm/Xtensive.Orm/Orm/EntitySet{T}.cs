@@ -62,7 +62,6 @@ namespace Xtensive.Orm
   /// <seealso cref="AssociationAttribute.PairTo">Using EntitySets with paired associations</seealso>
   public class EntitySet<TItem> : EntitySetBase,
     ICollection<TItem>, 
-    ICountable<TItem>, 
     IQueryable<TItem>
     where TItem : IEntity
   {

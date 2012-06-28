@@ -60,11 +60,6 @@ namespace Xtensive.Modelling.Comparison.Hints
     }
 
     /// <inheritdoc/>
-    long ICountable.Count {
-      get { return Count; }
-    }
-
-    /// <inheritdoc/>
     public IModel SourceModel { get; private set; }
 
     /// <inheritdoc/>

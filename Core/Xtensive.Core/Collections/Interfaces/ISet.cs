@@ -10,18 +10,12 @@ namespace Xtensive.Collections
   /// <summary>
   /// Set of items.
   /// </summary>
-  public interface ISet: ICollection, ICountable
+  public interface ISet: ICollection
   {
     /// <summary>
     /// Gets the <see cref="System.Object"/> with the specified item.
     /// </summary>
     object this[object item] { get; }
-
-    /// <summary>
-    /// Gets the number of elements contained in set.
-    /// </summary>
-    /// <value>The number of elements contained in set.</value>
-    new int Count { get; }
 
     /// <summary>
     /// Gets the <see cref="IEqualityComparer"/> object that is used to determine equality for the values in this instance.

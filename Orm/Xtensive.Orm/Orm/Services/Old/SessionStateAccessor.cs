@@ -11,7 +11,6 @@ using System.Diagnostics;
 using System.Linq;
 using Xtensive.Aspects;
 using Xtensive.Caching;
-using Xtensive.Collections;
 
 namespace Xtensive.Orm.Services
 {
@@ -20,7 +19,7 @@ namespace Xtensive.Orm.Services
   /// (see <see cref="DirectStateAccessor"/>).
   /// </summary>
   [DebuggerDisplay("Count = {Count}")]
-  public struct SessionStateAccessor : ICountable<Entity>
+  public struct SessionStateAccessor : IEnumerable<Entity>
   {
     private readonly Session session;
 
@@ -39,17 +38,6 @@ namespace Xtensive.Orm.Services
     /// </summary>
     [Infrastructure]
     public int Count {
-      get { return EntityStateCache.Count; }
-    }
-
-    /// <summary>
-    /// Gets the number of cached entities.
-    /// Note that it can differ from the number of entities
-    /// returned by <see cref="GetEnumerator"/> methods
-    /// (cache can be week, etc.).
-    /// </summary>
-    [Infrastructure]
-    long ICountable.Count {
       get { return EntityStateCache.Count; }
     }
 

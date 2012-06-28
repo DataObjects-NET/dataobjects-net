@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.07.15
 
+using System.Collections;
 using Xtensive.Collections;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -14,8 +15,13 @@ namespace Xtensive.Orm.Rse.Providers
   /// Returned as service (see <see cref="ExecutableProvider.GetService{T}"/>) 
   /// by providers supporting random access to their items.
   /// </summary>
-  public interface IListProvider: ICountable
+  public interface IListProvider: IEnumerable
   {
+    /// <summary>
+    /// Gets number of items.
+    /// </summary>
+    long Count { get; }
+
     /// <summary>
     /// Gets the item by its index.
     /// </summary>

@@ -13,8 +13,7 @@ namespace Xtensive.Modelling
   /// Typed <see cref="Node"/> collection.
   /// </summary>
   /// <typeparam name="TNode">The type of the collection item.</typeparam>
-  public interface INodeCollection<TNode> : INodeCollection,
-    ICountable<TNode>
+  public interface INodeCollection<TNode> : INodeCollection, IEnumerable<TNode>
     where TNode : Node
   {
     /// <summary>

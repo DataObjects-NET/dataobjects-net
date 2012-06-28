@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2010.03.01
 
+using System.Collections;
 using Xtensive.Collections;
 
 namespace Xtensive.Core
@@ -12,8 +13,13 @@ namespace Xtensive.Core
   /// General operation sequence contract.
   /// Allows to replay the operations contained in it later.
   /// </summary>
-  public interface IOperationSequence : ICountable
+  public interface IOperationSequence : IEnumerable
   {
+    /// <summary>
+    /// Gets the number of elements contained in a collection.
+    /// </summary>
+    long Count { get; }
+
     /// <summary>
     /// Replays the operations contained in sequence on <paramref name="target"/> object.
     /// </summary>

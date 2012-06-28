@@ -14,19 +14,13 @@ namespace Xtensive.Collections
   /// Generic set of items.
   /// </summary>
   /// <typeparam name="TItem">The type of the item.</typeparam>
-  public interface ISet<TItem>: ICollection<TItem>, ICountable<TItem>
+  public interface ISet<TItem>: ICollection<TItem>
   {
     /// <summary>
     /// Gets the specified item.
     /// </summary>
     /// <value>The item.</value>
     TItem this[TItem item] { get; }
-
-    /// <summary>
-    /// Gets the number of elements contained in set.
-    /// </summary>
-    /// <value>The number of elements contained in set.</value>
-    new int Count { get; }
 
     /// <summary>
     /// Gets the <see cref="IEqualityComparer{T}"/> object 

@@ -46,13 +46,6 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    long ICountable.Count
-    {
-      [DebuggerStepThrough]
-      get {return Count;}
-    }
-
-    /// <inheritdoc/>
     public virtual void Clear()
     {
       this.EnsureNotLocked();

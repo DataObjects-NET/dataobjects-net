@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.11.13
 
+using System.Collections.Generic;
 using Xtensive.Core;
 
 namespace Xtensive.Collections
@@ -19,15 +20,15 @@ namespace Xtensive.Collections
     /// Finds the items from initial collection according to specified filter <paramref name="criteria"/>.
     /// </summary>
     /// <param name="criteria">The object to filter initial collection with.</param>
-    /// <returns><see cref="ICountable{TItem}"/> object.</returns>
-    ICountable<TItem> Find(TFilter criteria);
+    /// <returns><see cref="ICollection{TItem}"/> object.</returns>
+    ICollection<TItem> Find(TFilter criteria);
 
     /// <summary>
     /// Finds the items from initial collection according to specified filter <paramref name="criteria"/>.
     /// </summary>
     /// <param name="criteria">The object to filter initial collection with.</param>
     /// <param name="matchType">Type of the match.</param>
-    /// <returns><see cref="ICountable{TItem}"/> object.</returns>
-    ICountable<TItem> Find(TFilter criteria, MatchType matchType);
+    /// <returns><see cref="ICollection{TItem}"/> object.</returns>
+    ICollection<TItem> Find(TFilter criteria, MatchType matchType);
   }
 }
