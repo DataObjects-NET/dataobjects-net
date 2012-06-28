@@ -9,7 +9,7 @@ using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Configuration
+namespace Xtensive.Indexing
 {
   /// <summary>
   /// Base class for <see cref="IConfigurable{TConfiguration}"/> implementors.
