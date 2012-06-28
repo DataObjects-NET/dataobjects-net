@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Collections;
 
-namespace Xtensive.Notifications
+namespace Xtensive.Collections
 {
   /// <summary>
   /// An object exposing change related events contract.

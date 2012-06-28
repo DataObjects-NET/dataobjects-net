@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Notifications
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Represents a set of information describing <see cref="IChangeNotifier"/> change.

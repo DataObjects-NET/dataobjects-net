@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Notifications
+namespace Xtensive.Collections
 {
   /// <summary>
   /// Represents class that contains <see cref="ICollectionChangeNotifier{TItem}"/> related event data.

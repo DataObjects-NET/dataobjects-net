@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Notifications;
+using Xtensive.Collections;
 
 namespace Xtensive.Collections
 {
