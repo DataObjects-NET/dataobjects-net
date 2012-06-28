@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.07.04
 
-using System;
-using Xtensive.Core;
 using Xtensive.Resources;
 
 namespace Xtensive.Core
@@ -46,28 +44,6 @@ namespace Xtensive.Core
       ArgumentValidator.EnsureArgumentNotNull(lockable, "lockable");
       if (lockable.IsLocked)
         throw new InstanceIsLockedException(Strings.ExInstanceIsLocked);
-    }
-
-    /// <summary>
-    /// Clones <paramref name="lockable"/> if it is not locked
-    /// otherwise returns <paramref name="lockable"/> itself.
-    /// </summary>
-    /// <param name="lockable"><see cref="ILockable"/> to clone.</param>
-    /// <returns><paramref name="lockable"/> if it is locked;
-    /// clone of <paramref name="lockable"/> if it is not locked and
-    /// is <see cref="ICloneable"/>;
-    /// <see langword="null"/> otherwise.
-    /// </returns>
-    public static ILockable CloneIfNotLocked(this ILockable lockable)
-    {
-      if (lockable.IsLocked)
-        return lockable;
-
-      var cloneable = lockable as ICloneable;
-      if (cloneable == null)
-        return null;
-      
-      return (ILockable)cloneable.Clone();
     }
   }
 }

@@ -54,7 +54,6 @@ namespace Xtensive.Orm.Manual.Caching
     private class TotalPriceServices { }
 
     private TransactionalValue<double> totalPriceCached;
-    private Expiring<double> totalPriceExpiring;
 
     [Key, Field]
     public int Id { get; private set; }
@@ -98,14 +97,6 @@ namespace Xtensive.Orm.Manual.Caching
       }
     }
 
-    public double TotalPriceExpiring {
-      get {
-        if (totalPriceExpiring==null)
-          totalPriceExpiring = new Expiring<double>(TimeSpan.FromSeconds(1), () => TotalPrice);
-        return totalPriceExpiring.Value;
-      }
-    }
-    
     public override string ToString()
     {
       return string.Format("Order #{0}, Product={1}, Quantity={2}",
@@ -159,25 +150,20 @@ namespace Xtensive.Orm.Manual.Caching
           
           // First time calculation
           CheckTotalPrice(appleOrder);
-          var expiringPrice = appleOrder.TotalPriceExpiring;
-          Assert.AreEqual(appleOrder.TotalPrice, expiringPrice);
 
           using (session.OpenTransaction(TransactionOpenMode.New)) {
             appleOrder.Quantity = 3;
             apple.Price = 3;
             // Automatic update
             CheckTotalPrice(appleOrder);
-            Assert.AreEqual(expiringPrice, appleOrder.TotalPriceExpiring); // Not changed!
             // No transactionScope.Complete(), so here we get a rollback
           }
 
           // Recovery after rollback
           CheckTotalPrice(appleOrder);
-          Assert.AreEqual(expiringPrice, appleOrder.TotalPriceExpiring); // Not changed!
 
           Console.WriteLine("Sleeping for 1 sec.");
           Thread.Sleep(TimeSpan.FromSeconds(1.1));
-          Assert.AreEqual(appleOrder.TotalPrice, appleOrder.TotalPriceExpiring); // Changed!
         }
       }
     }
@@ -185,8 +171,6 @@ namespace Xtensive.Orm.Manual.Caching
     private void CheckTotalPrice(Order order)
     {
       var totalPrice = order.TotalPrice;
-      Console.WriteLine("Order: {0}, expected TotalPrice={1}, TotalPriceExpiring={2}",
-        order, totalPrice, order.TotalPriceExpiring);
 
       // Checking cached value
       Assert.AreEqual(totalPrice, order.TotalPriceCached);

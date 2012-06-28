@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Tuples;
@@ -182,21 +183,29 @@ namespace Xtensive.Tuples
     }
 
     /// <summary>
-    /// Cuts out <paramref name="segment"/> from <paramref name="left"/> <see cref="Tuple"/>.
+    /// Cuts out <paramref name="segment"/> from <paramref name="tuple"/> <see cref="Tuple"/>.
     /// </summary>
-    /// <param name="left">The <see cref="Tuple"/> to get segment from.</param>
+    /// <param name="tuple">The <see cref="Tuple"/> to get segment from.</param>
     /// <param name="segment">The <see cref="Segment{T}"/> to cut off.</param>
     /// <returns></returns>
-    public static Tuple GetSegment(this Tuple left, Segment<int> segment)
+    public static Tuple GetSegment(this Tuple tuple, Segment<int> segment)
     {
       var map = new int[segment.Length];
       for (int i = 0; i < segment.Length; i++)
         map[i] = segment.Offset + i;
 
-      var types = new ArraySegment<Type>(left.Descriptor.fieldTypes, segment.Offset, segment.Length);
+      var types = new ArraySegment<Type>(tuple.Descriptor.fieldTypes, segment.Offset, segment.Length);
       var descriptor = TupleDescriptor.Create(types.AsEnumerable());
       var transform = new MapTransform(false, descriptor, map);
-      return transform.Apply(TupleTransformType.TransformedTuple, left);
+      return transform.Apply(TupleTransformType.TransformedTuple, tuple);
+    }
+
+    private static IEnumerable<T> AsEnumerable<T>(this ArraySegment<T> segment)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(segment, "segment");
+      int lastPosition = segment.Offset + segment.Count;
+      for (int i = segment.Offset; i < lastPosition; i++)
+        yield return segment.Array[i];
     }
 
     #endregion
