@@ -32,8 +32,12 @@ namespace Xtensive.Orm.Validation
     internal static void RegisterConstraint(Type targetType, PropertyConstraintAspect constraint)
     {
       var entry = registry.GetValue(targetType, _targetType => new TypeEntry());
-      using (entry.Lock.WriteRegion()) {
+      entry.Lock.EnterWriteLock();
+      try {
         entry.Constraints.Add(constraint);
+      }
+      finally {
+        entry.Lock.ExitWriteLock();
       }
     }
 
@@ -52,12 +56,12 @@ namespace Xtensive.Orm.Validation
           type = type.BaseType;
           continue;
         }
-        entry.Lock.BeginRead();
+        entry.Lock.EnterReadLock();
         try {
           result.AddRange(entry.Constraints);
         }
         finally {
-          entry.Lock.EndRead();
+          entry.Lock.ExitReadLock();
         }
         type = type.BaseType;
       }

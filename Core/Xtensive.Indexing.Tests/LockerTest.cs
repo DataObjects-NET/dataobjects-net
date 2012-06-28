@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Threading;
 
-namespace Xtensive.Tests.Threading
+namespace Xtensive.Indexing.Tests
 {
   [TestFixture]
   public class LockerTest
@@ -20,27 +19,27 @@ namespace Xtensive.Tests.Threading
         get {
           T tmpValue = default(T);
           string threadName = Thread.CurrentThread.Name;
-          Log.Info("{0}{1} waits for read lock...", indent, threadName);
+          Indexing.Log.Info("{0}{1} waits for read lock...", indent, threadName);
           _lock.ExecuteReader(delegate {
             string oldIndent = indent;
             indent = oldIndent + "  ";
             tmpValue = value;
-            Log.Info("{0}{1} reads {2}.", indent, threadName, tmpValue);
+            Indexing.Log.Info("{0}{1} reads {2}.", indent, threadName, tmpValue);
             int toSleep = random.Next(5);
             Thread.Sleep(toSleep);
             toSleep = random.Next(5);
-            Log.Info("{0}{1} suspends for {2}...", indent, threadName, toSleep);
+            Indexing.Log.Info("{0}{1} suspends for {2}...", indent, threadName, toSleep);
             _lock.ExecuteSuspender(delegate { Thread.Sleep(toSleep); });
-            Log.Info("{0}{1} continues.", indent, threadName);
+            Indexing.Log.Info("{0}{1} continues.", indent, threadName);
             if (indent.Length>=2)
               indent = indent.Substring(0, indent.Length-2);
-            Log.Info("{0}{1} has released read lock.", indent, threadName, tmpValue);
+            Indexing.Log.Info("{0}{1} has released read lock.", indent, threadName, tmpValue);
           });
           return tmpValue;
         }
         set {
           string threadName = Thread.CurrentThread.Name;
-          Log.Info("{0}{1} waits for write lock...", indent, threadName);
+          Indexing.Log.Info("{0}{1} waits for write lock...", indent, threadName);
           Thread.Sleep(10);
           _lock.ExecuteWriter(delegate
           {
@@ -51,17 +50,17 @@ namespace Xtensive.Tests.Threading
             string oldIndent = indent;
             indent = oldIndent + "* ";
             this.value = value;
-            Log.Info("{0}{1} writes {2}.", indent, threadName, value);
+            Indexing.Log.Info("{0}{1} writes {2}.", indent, threadName, value);
             int toSleep = random.Next(20);
             Thread.Sleep(toSleep);
             toSleep = random.Next(20);
             indent = oldIndent + "  ";
-            Log.Info("{0}{1} suspends for {2}...", indent, threadName, toSleep);
+            Indexing.Log.Info("{0}{1} suspends for {2}...", indent, threadName, toSleep);
             _lock.ExecuteSuspender(delegate { Thread.Sleep(toSleep); });
-            Log.Info("{0}{1} continues.", indent, threadName);
+            Indexing.Log.Info("{0}{1} continues.", indent, threadName);
             if (indent.Length>=2)
               indent = indent.Substring(0, indent.Length-2);
-            Log.Info("{0}{1} has released write lock.", indent, threadName);
+            Indexing.Log.Info("{0}{1} has released write lock.", indent, threadName);
           });
         }
       }
@@ -81,29 +80,29 @@ namespace Xtensive.Tests.Threading
         {
           T tmpValue = default(T);
           string threadName = Thread.CurrentThread.Name;
-          Log.Info("{0}{1} waits for read lock...", indent, threadName);
+          Indexing.Log.Info("{0}{1} waits for read lock...", indent, threadName);
           Locker.Execute(this, delegate
           {
             string oldIndent = indent;
             indent = oldIndent + "  ";
             tmpValue = value;
-            Log.Info("{0}{1} reads {2}.", indent, threadName, tmpValue);
+            Indexing.Log.Info("{0}{1} reads {2}.", indent, threadName, tmpValue);
             int toSleep = random.Next(5);
             Thread.Sleep(toSleep);
             toSleep = random.Next(5);
-            Log.Info("{0}{1} suspends for {2}...", indent, threadName, toSleep);
+            Indexing.Log.Info("{0}{1} suspends for {2}...", indent, threadName, toSleep);
             Monitor.Wait(this, toSleep); 
-            Log.Info("{0}{1} continues.", indent, threadName);
+            Indexing.Log.Info("{0}{1} continues.", indent, threadName);
             if (indent.Length >= 2)
               indent = indent.Substring(0, indent.Length - 2);
-            Log.Info("{0}{1} has released read lock.", indent, threadName, tmpValue);
+            Indexing.Log.Info("{0}{1} has released read lock.", indent, threadName, tmpValue);
           });
           return tmpValue;
         }
         set
         {
           string threadName = Thread.CurrentThread.Name;
-          Log.Info("{0}{1} waits for write lock...", indent, threadName);
+          Indexing.Log.Info("{0}{1} waits for write lock...", indent, threadName);
           Thread.Sleep(10);
           Locker.Execute(this, delegate
           {
@@ -114,16 +113,16 @@ namespace Xtensive.Tests.Threading
             string oldIndent = indent;
             indent = oldIndent + "* ";
             this.value = value;
-            Log.Info("{0}{1} writes {2}.", indent, threadName, value);
+            Indexing.Log.Info("{0}{1} writes {2}.", indent, threadName, value);
             int toSleep = random.Next(20);
             Thread.Sleep(toSleep);
             toSleep = random.Next(20);
             indent = oldIndent + "  ";
-            Log.Info("{0}{1} suspends for {2}...", indent, threadName, toSleep);
-            Log.Info("{0}{1} continues.", indent, threadName);
+            Indexing.Log.Info("{0}{1} suspends for {2}...", indent, threadName, toSleep);
+            Indexing.Log.Info("{0}{1} continues.", indent, threadName);
             if (indent.Length >= 2)
               indent = indent.Substring(0, indent.Length - 2);
-            Log.Info("{0}{1} has released write lock.", indent, threadName);
+            Indexing.Log.Info("{0}{1} has released write lock.", indent, threadName);
           });
         }
       }
@@ -147,14 +146,14 @@ namespace Xtensive.Tests.Threading
             int tmp;
             if (random.Next(2)==0) {
               tmp = random.Next(1000);
-              Log.Info("{0}: Value = {1}; // Trying...", threadName, tmp);
+              Indexing.Log.Info("{0}: Value = {1}; // Trying...", threadName, tmp);
               safeInt.Value = tmp;
-              Log.Info("{0}: Value = {1}; // Done.", threadName, tmp);
+              Indexing.Log.Info("{0}: Value = {1}; // Done.", threadName, tmp);
             }
             else {
-              Log.Info("{0}: get Value; // Trying...", threadName);
+              Indexing.Log.Info("{0}: get Value; // Trying...", threadName);
               tmp = safeInt.Value;
-              Log.Info("{0}: get Value; // Done ({1}).", threadName, tmp);
+              Indexing.Log.Info("{0}: get Value; // Done ({1}).", threadName, tmp);
             }
           }
         });
@@ -186,14 +185,14 @@ namespace Xtensive.Tests.Threading
             int tmp;
             if (random.Next(2) == 0) {
               tmp = random.Next(1000);
-              Log.Info("{0}: Value = {1}; // Trying...", threadName, tmp);
+              Indexing.Log.Info("{0}: Value = {1}; // Trying...", threadName, tmp);
               safeInt1.Value = tmp;
-              Log.Info("{0}: Value = {1}; // Done.", threadName, tmp);
+              Indexing.Log.Info("{0}: Value = {1}; // Done.", threadName, tmp);
             }
             else {
-              Log.Info("{0}: get Value; // Trying...", threadName);
+              Indexing.Log.Info("{0}: get Value; // Trying...", threadName);
               tmp = safeInt1.Value;
-              Log.Info("{0}: get Value; // Done ({1}).", threadName, tmp);
+              Indexing.Log.Info("{0}: get Value; // Done ({1}).", threadName, tmp);
             }
           }
         });

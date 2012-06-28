@@ -16,7 +16,7 @@ namespace Xtensive.Diagnostics
   /// </summary>
   public abstract class LogProviderImplementationBase : ISynchronizable, ILogProvider
   {
-    private readonly object syncRoot = new ReaderWriterLockSlim();
+    private readonly object syncRoot = new object();
     private readonly Dictionary<string, ILog> logs = new Dictionary<string, ILog>();
 
     /// <inheritdoc/>
@@ -40,7 +40,7 @@ namespace Xtensive.Diagnostics
     /// <returns>The <see cref="ILog"/> object.</returns>
     public ILog GetLog(string key)
     {
-      using (Locker.ReadRegion((object) SyncRoot)) {
+      lock (syncRoot) {
         ILog log;
         if (!logs.TryGetValue(key, out log)) {
           log = CreateLog(key);
