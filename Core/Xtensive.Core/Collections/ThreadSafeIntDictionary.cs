@@ -19,8 +19,7 @@ namespace Xtensive.Collections
   /// </summary>
   /// <typeparam name="TValue">Value type.</typeparam>
   [Serializable]
-  public struct ThreadSafeIntDictionary<TValue> :
-    ISynchronizable
+  public struct ThreadSafeIntDictionary<TValue>
   {
     private IntDictionary<TValue> implementation;
     private object syncRoot;
@@ -29,13 +28,6 @@ namespace Xtensive.Collections
     public object SyncRoot {
       [DebuggerStepThrough]
       get { return syncRoot; }
-    }
-
-    /// <inheritdoc/>
-    public bool IsSynchronized
-    {
-      [DebuggerStepThrough]
-      get { return true; }
     }
 
     /// <summary>

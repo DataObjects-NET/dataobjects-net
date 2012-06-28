@@ -5,34 +5,16 @@
 // Created:    2009.10.12
 
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
-using Xtensive.Core;
-
 
 namespace Xtensive.Diagnostics
 {
   /// <summary>
   /// Base type for log providers.
   /// </summary>
-  public abstract class LogProviderImplementationBase : ISynchronizable, ILogProvider
+  public abstract class LogProviderImplementationBase : ILogProvider
   {
     private readonly object syncRoot = new object();
     private readonly Dictionary<string, ILog> logs = new Dictionary<string, ILog>();
-
-    /// <inheritdoc/>
-    public bool IsSynchronized
-    {
-      [DebuggerStepThrough]
-      get { return true; }
-    }
-
-    /// <inheritdoc/>
-    public object SyncRoot
-    {
-      [DebuggerStepThrough]
-      get { return syncRoot; }
-    }
 
     /// <summary>
     /// Gets the <see cref="ILog"/> object by its <paramref name="key"/>.

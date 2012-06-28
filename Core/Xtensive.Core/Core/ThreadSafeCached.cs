@@ -21,8 +21,7 @@ namespace Xtensive.Core
   [DebuggerDisplay("{value}")]
   public struct ThreadSafeCached<T> : 
     IEquatable<ThreadSafeCached<T>>,
-    IComparable<ThreadSafeCached<T>>,
-    ISynchronizable
+    IComparable<ThreadSafeCached<T>>
   {
     private T cachedValue;
     private volatile bool isCached;
@@ -32,13 +31,6 @@ namespace Xtensive.Core
     public object SyncRoot {
       [DebuggerStepThrough]
       get { return syncRoot; }
-    }
-
-    /// <inheritdoc/>
-    public bool IsSynchronized
-    {
-      [DebuggerStepThrough]
-      get { return true; }
     }
 
     #region GetValue methods

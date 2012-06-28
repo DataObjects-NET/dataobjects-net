@@ -19,8 +19,7 @@ namespace Xtensive.Caching
   /// </summary>
   /// <typeparam name="TKey">The type of the key.</typeparam>
   /// <typeparam name="TItem">The type of the item.</typeparam>
-  public sealed class ThreadSafeCache<TKey, TItem> : ICache<TKey, TItem>,
-    ISynchronizable
+  public sealed class ThreadSafeCache<TKey, TItem> : ICache<TKey, TItem>
   {
     private readonly ICache<TKey, TItem> chainedCache;
     private readonly object syncRoot;
@@ -50,13 +49,6 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public object SyncRoot { get { return syncRoot; } }
     
-    #endregion
-
-    #region ISynchronizable
-
-    /// <inheritdoc/>
-    public bool IsSynchronized { get { return true; } }
-
     #endregion
 
     #region ICountable

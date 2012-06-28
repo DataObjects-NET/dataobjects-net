@@ -23,7 +23,6 @@ namespace Xtensive.Collections
     IDictionary<TKey, TValue>,
     IDictionary,
     ICountable<KeyValuePair<TKey, TValue>>,
-    ISynchronizable,
     IReadOnly
   {
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]

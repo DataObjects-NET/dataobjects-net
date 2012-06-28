@@ -21,26 +21,17 @@ namespace Xtensive.Collections
   /// <typeparam name="TKey">Key type.</typeparam>
   /// <typeparam name="TItem">Value type.</typeparam>
   [Serializable]
-  public struct ThreadSafeDictionary<TKey, TItem> :
-    ISynchronizable
+  public struct ThreadSafeDictionary<TKey, TItem>
   {
     private readonly static TItem defaultItem = default(TItem);
     private Hashtable implementation;
     private object syncRoot;
     private static object nullObject = new object();
 
-
     /// <inheritdoc/>
     public object SyncRoot {
       [DebuggerStepThrough]
       get { return syncRoot; }
-    }
-
-    /// <inheritdoc/>
-    public bool IsSynchronized
-    {
-      [DebuggerStepThrough]
-      get { return true; }
     }
 
     #region GetValue methods with generator

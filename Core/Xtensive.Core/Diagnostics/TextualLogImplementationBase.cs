@@ -17,8 +17,7 @@ namespace Xtensive.Diagnostics
   /// Base class for logs producing textual output.
   /// </summary>
   [Serializable]
-  public abstract class TextualLogImplementationBase : RealLogImplementationBase,
-    IHasSyncRoot
+  public abstract class TextualLogImplementationBase : RealLogImplementationBase
   {
     private readonly static DateTime zeroTime = HighResolutionTime.Now;
     private LogFormat format;
@@ -69,11 +68,6 @@ namespace Xtensive.Diagnostics
           formatString = value;
         }
       }
-    }
-
-    /// <inheritdoc/>
-    public object SyncRoot {
-      get { return this; }
     }
 
     /// <inheritdoc/>

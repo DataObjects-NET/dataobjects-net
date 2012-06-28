@@ -25,7 +25,6 @@ namespace Xtensive.Collections
     ICollection,
     ICollection<T>,
     ICountable<T>,
-    ISynchronizable,
     IReadOnly
   {
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]

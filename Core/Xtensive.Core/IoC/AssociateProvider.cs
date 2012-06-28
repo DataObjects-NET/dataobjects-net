@@ -230,12 +230,6 @@ namespace Xtensive.IoC
       try {
         var associate = TypeHelper.CreateAssociate<TAssociate>(
           typeof (TKey), out foundFor, TypeSuffixes, constructorParams, highPriorityLocations);
-        var substitutable = associate as ISubstitutable<TAssociate>;
-        if (substitutable!=null) {
-          var substitution = substitutable.Substitution;
-          if (substitution!=null)
-            return substitution;
-        }
         return associate;
       }
       finally {

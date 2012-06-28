@@ -21,8 +21,7 @@ namespace Xtensive.Collections
   [DebuggerDisplay("Count = {Count}")]
   public class CollectionBaseSlim<TItem>: LockableBase,
     IList<TItem>,
-    ICollection,
-    IHasSyncRoot
+    ICollection
   {
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly List<TItem> items;

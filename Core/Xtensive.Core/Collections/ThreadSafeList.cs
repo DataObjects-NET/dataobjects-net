@@ -5,7 +5,6 @@
 // Created:    2008.02.06
 
 using System;
-using System.Diagnostics;
 using System.Threading;
 using Xtensive.Core;
 
@@ -18,8 +17,7 @@ namespace Xtensive.Collections
   /// </summary>
   /// <typeparam name="TItem">Value type.</typeparam>
   [Serializable]
-  public struct ThreadSafeList<TItem> :
-    ISynchronizable
+  public struct ThreadSafeList<TItem>
   {
     private const int InitialSize = 16;
     private readonly static TItem defaultItem = default(TItem);    
@@ -27,13 +25,6 @@ namespace Xtensive.Collections
 
     /// <inheritdoc/>
     public object SyncRoot { get; private set; }
-
-    /// <inheritdoc/>
-    public bool IsSynchronized
-    {
-      [DebuggerStepThrough]
-      get { return true; }
-    }
 
     #region GetValue methods with generator
 

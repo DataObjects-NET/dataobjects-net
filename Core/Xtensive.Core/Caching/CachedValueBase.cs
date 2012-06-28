@@ -17,7 +17,6 @@ namespace Xtensive.Caching
   /// <typeparam name="TValue">The type of <see cref="Value"/>.</typeparam>
   [DebuggerDisplay("{State.First}, (IsActual: {IsActual}")]
   public abstract class CachedValueBase<TValue, TActualizationInfo> : 
-    IHasSyncRoot,
     ICachedValue<TValue>
   {
     /// <summary>

@@ -22,7 +22,6 @@ namespace Xtensive.Collections
   public class ReadOnlyList<T>: 
     IList<T>, 
     ICountable<T>,
-    ISynchronizable,
     IReadOnly
   {
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
