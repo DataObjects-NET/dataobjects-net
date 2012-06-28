@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Notifications;
 using Xtensive.Reflection;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Model;

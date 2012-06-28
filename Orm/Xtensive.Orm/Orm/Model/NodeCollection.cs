@@ -10,9 +10,6 @@ using System.Diagnostics;
 using Xtensive.Collections;
 using Xtensive.Core;
 
-using Xtensive.Notifications;
-
-
 namespace Xtensive.Orm.Model
 {
   /// <summary>

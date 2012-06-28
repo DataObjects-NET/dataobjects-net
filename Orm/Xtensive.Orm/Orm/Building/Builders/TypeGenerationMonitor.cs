@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.13
 
-using Xtensive.Notifications;
+using Xtensive.Collections;
 using Xtensive.Orm.Building.Definitions;
 
 namespace Xtensive.Orm.Building.Builders
