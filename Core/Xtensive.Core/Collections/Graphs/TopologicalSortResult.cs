@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 
-namespace Xtensive.Graphs
+namespace Xtensive.Collections.Graphs
 {
   /// <summary>
   /// Topological sorter result.

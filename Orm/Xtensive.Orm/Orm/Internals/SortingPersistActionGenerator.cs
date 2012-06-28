@@ -6,8 +6,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections.Graphs;
 using Xtensive.Core;
-using Xtensive.Graphs;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals

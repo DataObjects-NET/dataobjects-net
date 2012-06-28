@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Xtensive.Graphs
+namespace Xtensive.Collections.Graphs
 {
   /// <summary>
   /// Topological sorter.

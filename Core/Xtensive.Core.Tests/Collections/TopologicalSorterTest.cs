@@ -7,15 +7,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
-using Xtensive.Graphs;
+using Xtensive.Collections.Graphs;
 using Xtensive.Testing;
 
-namespace Xtensive.Tests.Graphs
+namespace Xtensive.Tests.Collections
 {
     [TestFixture]
     public class TopologicalSorterTest

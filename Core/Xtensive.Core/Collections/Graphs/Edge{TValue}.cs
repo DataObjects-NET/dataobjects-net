@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Graphs
+namespace Xtensive.Collections.Graphs
 {
   /// <summary>
   /// A connection between two graph <see cref="Node"/>s with value.

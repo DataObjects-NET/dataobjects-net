@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Graphs
+namespace Xtensive.Collections.Graphs
 {
   /// <summary>
   /// Graph node with value. 

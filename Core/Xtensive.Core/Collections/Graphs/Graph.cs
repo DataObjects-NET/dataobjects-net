@@ -10,7 +10,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Graphs
+namespace Xtensive.Collections.Graphs
 {
   /// <summary>
   /// A graph.
