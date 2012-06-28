@@ -4,18 +4,16 @@
 // Created by: Alex Yakunin
 // Created:    2010.08.05
 
-using System;
-using Xtensive.Disposing;
-
 namespace Xtensive.Orm.Operations
 {
-  internal sealed class BlockingOperationRegistrationScope : CompletableScope
+  internal sealed class BlockingOperationRegistrationScope : ICompletableScope
   {
     private OperationRegistry owner;
-    
-    public override void Complete()
+
+    public bool IsCompleted { get; private set; }
+
+    public void Complete()
     {
-      return;
     }
 
     
@@ -28,7 +26,7 @@ namespace Xtensive.Orm.Operations
 
     // Disposal
 
-    public override void Dispose()
+    public void Dispose()
     {
       owner.RemoveCurrentScope(this);
     }

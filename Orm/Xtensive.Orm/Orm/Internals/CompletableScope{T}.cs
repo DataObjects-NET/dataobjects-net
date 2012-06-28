@@ -5,51 +5,54 @@
 // Created:    2010.08.04
 
 using System;
-using System.Diagnostics;
-using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Disposing
+namespace Xtensive.Orm.Internals
 {
   /// <summary>
-  /// A <see cref="CompletableScope"/> implementation allowing to use delegates
+  /// A <see cref="ICompletableScope"/> implementation allowing to use delegates
   /// to define its logic.
   /// </summary>
   /// <typeparam name="T">The type of data passed between calls.</typeparam>
-  public sealed class CompletableScope<T> : CompletableScope
+  internal sealed class CompletableScope<T> : ICompletableScope
   {
-    private T data;
-    private Action<T> onComplete;
-    private Action<T, bool> onDispose;
+    private readonly T data;
+    private readonly Action<T> onComplete;
+    private readonly Action<T, bool> onDispose;
     private bool isDisposed;
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is <see cref="Complete"/>d.
+    /// </summary>
+    public bool IsCompleted { get; private set; }
 
     /// <summary>
     /// Completes this scope by invoking "on Complete" action, if it was provided on construction.
     /// </summary>
-    public override void Complete()
+    public void Complete()
     {
       if (IsCompleted)
         return;
+      IsCompleted = true;
       if (onComplete!=null)
         onComplete.Invoke(data);
-      base.Complete();
     }
 
 
     // Constructors
 
     /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="data">The data.</param>
     /// <param name="onDispose">"On <see cref="Dispose"/>" handler. 
-    /// Boolean argument there is value of <see cref="CompletableScope.IsCompleted"/> flag.</param>
+    /// Boolean argument there is value of <see cref="ICompletableScope.IsCompleted"/> flag.</param>
     public CompletableScope(T data, Action<T, bool> onDispose)
       : this(data, null, onDispose)
     {
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="data">The data.</param>
     /// <param name="onComplete">"On <see cref="Complete"/>" handler.</param>
@@ -66,7 +69,7 @@ namespace Xtensive.Disposing
     /// <summary>
     /// Disposes this scope by invoking "on Dispose" action, if it was provided on construction.
     /// </summary>
-    public override void Dispose()
+    public void Dispose()
     {
       if (isDisposed)
         return;

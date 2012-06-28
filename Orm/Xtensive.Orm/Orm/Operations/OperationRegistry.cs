@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Collections;
 using Xtensive.Disposing;
+using Xtensive.Orm.Internals;
 
 
 namespace Xtensive.Orm.Operations
@@ -18,11 +19,11 @@ namespace Xtensive.Orm.Operations
   /// </summary>
   public sealed class OperationRegistry
   {
-    private CompletableScope blockingScope;
+    private ICompletableScope blockingScope;
     private bool isOperationRegistrationEnabled = true;
     private bool isUndoOperationRegistrationEnabled = true;
     private bool isSystemOperationRegistrationEnabled = true;
-    private Deque<CompletableScope> scopes = new Deque<CompletableScope>();
+    private Deque<ICompletableScope> scopes = new Deque<ICompletableScope>();
 
     /// <summary>
     /// Gets the session this instance is bound to.
@@ -249,14 +250,14 @@ namespace Xtensive.Orm.Operations
     /// </summary>
     /// <param name="operationType">Type of the operation.</param>
     /// <returns></returns>
-    public CompletableScope BeginRegistration(OperationType operationType)
+    public ICompletableScope BeginRegistration(OperationType operationType)
     {
       // Let's see if any kind of operation (incl. undo) is enabled for registration
       bool isRegistrationEnabled = IsOutermostOperationRegistrationEnabled; 
       if (!isRegistrationEnabled)
         return SetCurrentScope(blockingScope);
       
-      CompletableScope currentScope;
+      ICompletableScope currentScope;
       bool isSystemOperation = (operationType & OperationType.System)==OperationType.System;
       if (isSystemOperation) {
         if (!IsSystemOperationRegistrationEnabled)
@@ -383,7 +384,7 @@ namespace Xtensive.Orm.Operations
 
     #region Private \ internal methods
 
-    internal CompletableScope GetCurrentScope()
+    internal ICompletableScope GetCurrentScope()
     {
       return scopes.TailOrDefault;
     }
@@ -404,7 +405,7 @@ namespace Xtensive.Orm.Operations
       var result = scope as OperationRegistrationScope;
       if (result!=null)
         return result;
-      var list = new CompletableScope[scopes.Count];
+      var list = new ICompletableScope[scopes.Count];
       scopes.CopyTo(list, 0);
       for (int i = list.Length - 2; i>=0; i--) {
         result = list[i] as OperationRegistrationScope;
@@ -414,13 +415,13 @@ namespace Xtensive.Orm.Operations
       throw new InvalidOperationException(Strings.ExNoOperationRegistrationScope);
     }
 
-    internal CompletableScope SetCurrentScope(CompletableScope scope)
+    internal ICompletableScope SetCurrentScope(ICompletableScope scope)
     {
       scopes.AddTail(scope);
       return scope;
     }
 
-    internal void RemoveCurrentScope(CompletableScope scope)
+    internal void RemoveCurrentScope(ICompletableScope scope)
     {
       if (scopes.TailOrDefault!=scope)
         throw new InvalidOperationException(Strings.ExInvalidScopeDisposalOrder);

@@ -21,7 +21,7 @@ namespace Xtensive.Orm
     /// </summary>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     [Obsolete("Use Session.OpenTransaction() method instead")]
@@ -37,7 +37,7 @@ namespace Xtensive.Orm
     /// <param name="isolationLevel">The isolation level.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     [Obsolete("Use Session.OpenTransaction() method instead")]
@@ -53,7 +53,7 @@ namespace Xtensive.Orm
     /// <param name="mode">The mode.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     [Obsolete("Use Session.OpenTransaction() method instead")]
@@ -70,7 +70,7 @@ namespace Xtensive.Orm
     /// <param name="isolationLevel">The isolation level.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     [Obsolete("Use Session.OpenTransaction() method instead")]
@@ -86,7 +86,7 @@ namespace Xtensive.Orm
     /// <param name="session">The session.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(Session session)
@@ -102,7 +102,7 @@ namespace Xtensive.Orm
     /// <param name="isolationLevel">The isolation level.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(Session session, IsolationLevel isolationLevel)
@@ -118,7 +118,7 @@ namespace Xtensive.Orm
     /// <param name="mode">The mode.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(Session session, TransactionOpenMode mode)
@@ -135,7 +135,7 @@ namespace Xtensive.Orm
     /// <param name="isolationLevel">The isolation level.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(Session session, TransactionOpenMode mode, IsolationLevel isolationLevel)
@@ -153,7 +153,7 @@ namespace Xtensive.Orm
     /// </summary>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     [Obsolete("Use Session.OpenAutoTransaction() method instead")]
@@ -170,7 +170,7 @@ namespace Xtensive.Orm
     /// <param name="behavior">The automatic transaction behavior.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     [Obsolete("Use Session.OpenAutoTransaction() method instead")]
@@ -187,7 +187,7 @@ namespace Xtensive.Orm
     /// <param name="isolationLevel">The isolation level.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     [Obsolete("Use Session.OpenAutoTransaction() method instead")]
@@ -205,7 +205,7 @@ namespace Xtensive.Orm
     /// <param name="isolationLevel">The isolation level.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     [Obsolete("Use Session.OpenAutoTransaction() method instead")]
@@ -222,7 +222,7 @@ namespace Xtensive.Orm
     /// <param name="session">The session.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     [Obsolete("Use Session.OpenAutoTransaction() method instead")]
     public static TransactionScope OpenAuto(Session session)
@@ -238,7 +238,7 @@ namespace Xtensive.Orm
     /// <param name="behavior">The automatic transaction behavior.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     [Obsolete("Use Session.OpenAutoTransaction() method instead")]
     public static TransactionScope OpenAuto(Session session, TransactionalBehavior behavior)
@@ -254,7 +254,7 @@ namespace Xtensive.Orm
     /// <param name="isolationLevel">The isolation level.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     [Obsolete("Use Session.OpenAutoTransaction() method instead")]
     public static TransactionScope OpenAuto(Session session, IsolationLevel isolationLevel)
@@ -271,7 +271,7 @@ namespace Xtensive.Orm
     /// <param name="isolationLevel">The isolation level.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="CompletableScope.IsCompleted"/> flag.
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     [Obsolete("Use Session.OpenAutoTransaction() method instead")]
     public static TransactionScope OpenAuto(Session session, TransactionalBehavior behavior, IsolationLevel isolationLevel)

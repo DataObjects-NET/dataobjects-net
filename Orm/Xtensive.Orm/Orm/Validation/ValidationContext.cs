@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Disposing;
-
+using Xtensive.Orm.Internals;
 using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Orm.Validation

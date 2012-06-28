@@ -121,6 +121,7 @@
     <Compile Include="Orm\Building\FixupActions\MakeTypeNonAbstractAction.cs" />
     <Compile Include="Orm\Building\Builders\IModelFilter.cs" />
     <Compile Include="Orm\Building\PrefetchActionContainer.cs" />
+    <Compile Include="Orm\Internals\CompletableScope{T}.cs" />
     <Compile Include="Orm\Configuration\Interfaces\IDatabaseConfigurationFlow.cs" />
     <Compile Include="Orm\Configuration\Internals\DatabaseConfigurationFlow.cs" />
     <Compile Include="Orm\Configuration\SchemaSyncExceptionFormat.cs" />
@@ -142,6 +143,7 @@
     <Compile Include="Orm\Exceptions\StorageExceptionInfo.cs" />
     <Compile Include="Orm\Configuration\LinqExtensionRegistration.cs" />
     <Compile Include="Orm\Configuration\LinqExtensionRegistry.cs" />
+    <Compile Include="Orm\Interfaces\ICompletableScope.cs" />
     <Compile Include="Orm\Interfaces\IKeyGenerator.cs" />
     <Compile Include="Orm\Interfaces\ITemporaryKeyGenerator.cs" />
     <Compile Include="Orm\Interfaces\IQueryRootBuilder.cs" />

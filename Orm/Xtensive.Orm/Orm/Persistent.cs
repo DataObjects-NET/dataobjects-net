@@ -59,7 +59,7 @@ namespace Xtensive.Orm
       // public int Id;
       public TransactionScope TransactionScope;
       public ICompletableScope InconsistentRegion;
-      public CompletableScope OperationScope;
+      public ICompletableScope OperationScope;
       public CtorTransactionInfo Previous;
 
       public CtorTransactionInfo()
@@ -979,7 +979,7 @@ namespace Xtensive.Orm
       };
     }
 
-    internal void BindCtorTransactionScopeToOperationScope(CompletableScope scope)
+    internal void BindCtorTransactionScopeToOperationScope(ICompletableScope scope)
     {
       var ctorTransactionInfo = CtorTransactionInfo.Current;
       ctorTransactionInfo.OperationScope = scope;

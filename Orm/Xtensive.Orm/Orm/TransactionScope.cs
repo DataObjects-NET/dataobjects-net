@@ -6,19 +6,23 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Disposing;
 
 namespace Xtensive.Orm
 {
   /// <summary>
   /// Transaction scope suitable for storage.
   /// </summary>
-  public class TransactionScope : CompletableScope
+  public sealed class TransactionScope : ICompletableScope
   {
     private static readonly TransactionScope VoidScope = new TransactionScope();
 
-    protected IDisposable disposable;
-    protected bool isDisposed;
+    private IDisposable disposable;
+    private bool isDisposed;
+
+    /// <summary>
+    /// Gets a value indicating whether this instance is <see cref="Complete"/>d.
+    /// </summary>
+    public bool IsCompleted { get; private set; }
 
     /// <summary>
     /// <see cref="TransactionScope"/> instance that is used for all <see cref="IsVoid">nested</see> scopes.
@@ -37,8 +41,17 @@ namespace Xtensive.Orm
     /// </summary>
     public bool IsVoid { get { return this==VoidScopeInstance; } }
 
+    /// <summary>
+    /// Completes this scope. 
+    /// This method can be called multiple times; if so, only the first call makes sense.
+    /// </summary>
+    public void Complete()
+    {
+      IsCompleted = true;
+    }
+
     /// <inheritdoc/>
-    public override void Dispose()
+    public void Dispose()
     {
       if (isDisposed)
         return;

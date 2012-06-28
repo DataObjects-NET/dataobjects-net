@@ -12,7 +12,7 @@ using Xtensive.Disposing;
 
 namespace Xtensive.Orm.Operations
 {
-  internal sealed class OperationRegistrationScope : CompletableScope
+  internal sealed class OperationRegistrationScope : ICompletableScope
   {
     private bool isDisposed;
 
@@ -28,6 +28,13 @@ namespace Xtensive.Orm.Operations
     public Dictionary<Key, string> IdentifierByKey;
     public long CurrentIdentifier;
     private bool oldIsSystemOperationRegistrationEnabled;
+
+    public bool IsCompleted { get; private set; }
+
+    public void Complete()
+    {
+      IsCompleted = true;
+    }
 
     /// <inheritdoc/>
     public void RegisterEntityIdentifier(Key key, string identifier)
@@ -64,7 +71,7 @@ namespace Xtensive.Orm.Operations
     
     // Constructors
 
-    public OperationRegistrationScope(OperationRegistry owner, OperationType operationType, CompletableScope currentScope)
+    public OperationRegistrationScope(OperationRegistry owner, OperationType operationType, ICompletableScope currentScope)
     {
       Owner = owner;
       OperationType = operationType;
@@ -77,7 +84,7 @@ namespace Xtensive.Orm.Operations
 
     // Disposal
 
-    public override void Dispose()
+    public void Dispose()
     {
       if (isDisposed)
         return;

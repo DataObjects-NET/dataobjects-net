@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Disposing
+namespace Xtensive.Orm
 {
   /// <summary>
   /// Contract for <see cref="IDisposable"/> implementation providing <see cref="Complete"/> method.
