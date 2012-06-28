@@ -5,8 +5,6 @@
 // Created:    2007.10.03
 
 using System;
-using System.Collections;
-
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Conversion

@@ -231,10 +231,6 @@ namespace Xtensive.Tests.Reflection
       Assert.IsNotNull(o);
       Assert.AreEqual(typeof(EnumerableInterfaceTestHandler<int>), o.GetType());
 
-      o = TypeHelper.CreateAssociate<ITestHandler>(typeof(EnumerableEnumerable<IEnumerable<int>,int>), out foundFor, testHandlerSuffix, null, locations);
-      Assert.IsNotNull(o);
-      Assert.AreEqual(typeof(EnumerableInterfaceTestHandler<int>), o.GetType());
-
       o = TypeHelper.CreateAssociate<ITestHandler>(typeof(SomeEnumerable), out foundFor, testHandlerSuffix, null, locations);
       Assert.IsNotNull(o);
       Assert.AreEqual(typeof(EnumerableInterfaceTestHandler), o.GetType());

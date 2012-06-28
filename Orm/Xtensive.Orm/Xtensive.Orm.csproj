@@ -404,9 +404,6 @@
     <Compile Include="Orm\Validation\ValidationAwareExtensions.cs" />
     <Compile Include="Orm\Validation\ValidationContext.cs" />
     <Compile Include="Orm\Validation\ValidationMode.cs" />
-    <Compile Include="Orm\Internals\RecordSetMapping.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Orm\Linq\Expressions\Visitors\EnumRewriter.cs" />
     <Compile Include="Orm\Operations\EntityInitializeOperation.cs" />
     <Compile Include="Orm\Operations\Internals\BlockingOperationRegistrationScope.cs" />
@@ -581,7 +578,6 @@
     <Compile Include="Orm\EntityState.cs" />
     <Compile Include="Orm\Exceptions\ReferentialIntegrityException.cs" />
     <Compile Include="Orm\IndexInfoExtensions.cs" />
-    <Compile Include="Orm\Internals\ColumnGroupMapping.cs" />
     <Compile Include="Orm\Internals\TupleExtensions.cs" />
     <Compile Include="Orm\Internals\TypeMapping.cs" />
     <Compile Include="Orm\Internals\ReferentialIntegrity\CascadeActionProcessor.cs" />

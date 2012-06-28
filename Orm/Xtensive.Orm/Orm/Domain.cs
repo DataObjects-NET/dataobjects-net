@@ -119,7 +119,7 @@ namespace Xtensive.Orm
 
     internal HandlerAccessor Handlers { get; private set; }
 
-    internal ThreadSafeIntDictionary<GenericKeyTypeInfo> GenericKeyTypes { get; private set; }
+    internal ThreadSafeDictionary<int, GenericKeyTypeInfo> GenericKeyTypes { get; private set; }
 
     internal KeyGeneratorRegistry KeyGenerators { get; private set; }
 
@@ -261,7 +261,7 @@ namespace Xtensive.Orm
     {
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
-      GenericKeyTypes = ThreadSafeIntDictionary<GenericKeyTypeInfo>.Create(new object());
+      GenericKeyTypes = ThreadSafeDictionary<int, GenericKeyTypeInfo>.Create(new object());
       RecordSetReader = new RecordSetReader(this);
       KeyGenerators = new KeyGeneratorRegistry();
       Cache = ThreadSafeDictionary<object, object>.Create(new object());
