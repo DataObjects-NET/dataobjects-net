@@ -13,7 +13,6 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Comparison;

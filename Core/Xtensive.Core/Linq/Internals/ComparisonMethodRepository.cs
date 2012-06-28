@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Helpers;
 
 namespace Xtensive.Linq
 {

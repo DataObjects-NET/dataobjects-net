@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Core.Tests.Modelling.IndexingModel.Resources;
-using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling.Attributes;
 

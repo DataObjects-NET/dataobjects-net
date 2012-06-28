@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Helpers;
 
 namespace Xtensive.Orm.Configuration
 {

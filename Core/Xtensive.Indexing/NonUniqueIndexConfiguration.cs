@@ -8,7 +8,6 @@ using System;
 using System.Diagnostics;
 using Xtensive.Configuration;
 using Xtensive.Core;
-using Xtensive.Helpers;
 
 namespace Xtensive.Indexing
 {

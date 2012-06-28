@@ -5,10 +5,7 @@
 // Created:    2007.09.21
 
 using System;
-using Xtensive.Helpers;
-
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Rse
 {

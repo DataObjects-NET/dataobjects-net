@@ -8,7 +8,6 @@ using System;
 using System.Configuration;
 using Xtensive.Configuration;
 using Xtensive.Core;
-using Xtensive.Helpers;
 
 namespace Xtensive.IoC.Configuration
 {

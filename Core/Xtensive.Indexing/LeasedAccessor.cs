@@ -9,7 +9,7 @@ using System.Diagnostics;
 using Xtensive.Disposing;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Helpers
+namespace Xtensive.Indexing
 {
   /// <summary>
   /// Provides access to some <see cref="Leased"/> object of type <typeparamref name="T"/>

@@ -5,9 +5,6 @@
 // Created:    2008.08.11
 
 using System;
-using System.Linq.Expressions;
-
-using Xtensive.Helpers;
 
 namespace Xtensive.Orm.Rse.Providers.Compilable
 {

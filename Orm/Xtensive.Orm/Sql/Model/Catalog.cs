@@ -3,10 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using System;
-using System.Linq;
 using Xtensive.Core;
-using Xtensive.Helpers;
-using Xtensive.Notifications;
 
 namespace Xtensive.Sql.Model
 {

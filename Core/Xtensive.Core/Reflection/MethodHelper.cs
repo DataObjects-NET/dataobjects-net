@@ -10,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Helpers;
 
 namespace Xtensive.Reflection
 {

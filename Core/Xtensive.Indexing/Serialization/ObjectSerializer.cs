@@ -7,8 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-
-using Xtensive.Helpers;
+using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Indexing.Serialization

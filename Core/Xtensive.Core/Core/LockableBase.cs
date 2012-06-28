@@ -6,10 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Helpers
+namespace Xtensive.Core
 {
   /// <summary>
   /// Base class for <see cref="ILockable"/> implementors.

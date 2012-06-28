@@ -7,12 +7,8 @@
 using System;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Helpers;
-
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
-
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Model
 {

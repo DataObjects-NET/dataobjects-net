@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Collections;
-using Xtensive.Helpers;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;

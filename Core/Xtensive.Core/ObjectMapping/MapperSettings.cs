@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.ObjectMapping

@@ -8,7 +8,6 @@ using System;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Linq;
 
 namespace Xtensive.Tests.Linq

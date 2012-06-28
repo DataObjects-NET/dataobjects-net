@@ -12,8 +12,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Helpers;
-
 
 namespace Xtensive.Orm.Configuration
 {

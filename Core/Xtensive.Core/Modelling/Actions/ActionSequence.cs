@@ -9,7 +9,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Modelling.Actions

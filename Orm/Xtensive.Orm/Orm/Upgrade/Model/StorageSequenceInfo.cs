@@ -6,8 +6,6 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Helpers;
-
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
 

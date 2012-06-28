@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Indexing.Resources;
 
 namespace Xtensive.Indexing.Serialization

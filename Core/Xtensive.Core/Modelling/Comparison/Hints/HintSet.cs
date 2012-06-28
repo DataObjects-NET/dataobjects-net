@@ -12,7 +12,6 @@ using System.Reflection;
 using Xtensive.Collections;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 
 using Xtensive.Resources;

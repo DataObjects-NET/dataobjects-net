@@ -7,12 +7,9 @@
 using System;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Helpers;
-
 using Xtensive.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
-using Xtensive.Collections;
 
 namespace Xtensive.Orm.Upgrade.Model
 {

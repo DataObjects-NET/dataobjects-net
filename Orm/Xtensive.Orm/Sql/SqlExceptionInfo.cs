@@ -6,7 +6,6 @@
 
 using System.Text;
 using Xtensive.Core;
-using Xtensive.Helpers;
 
 namespace Xtensive.Sql
 {

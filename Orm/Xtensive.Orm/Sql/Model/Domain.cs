@@ -5,9 +5,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Sql.Dml;
-using Xtensive.Collections;
 
 namespace Xtensive.Sql.Model
 {

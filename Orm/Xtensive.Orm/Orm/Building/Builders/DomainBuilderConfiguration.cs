@@ -5,7 +5,6 @@
 // Created:    2009.05.01
 
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;
 

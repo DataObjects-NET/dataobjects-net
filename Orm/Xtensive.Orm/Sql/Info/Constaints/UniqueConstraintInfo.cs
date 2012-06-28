@@ -4,10 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.20
 
-using System;
-using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Helpers;
 
 namespace Xtensive.Sql.Info
 {

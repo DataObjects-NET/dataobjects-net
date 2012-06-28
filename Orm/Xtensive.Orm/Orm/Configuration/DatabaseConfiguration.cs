@@ -5,7 +5,6 @@
 // Created:    2012.02.08
 
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Configuration

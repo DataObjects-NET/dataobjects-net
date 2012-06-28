@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Resources;
 
 namespace Xtensive.ObjectMapping.Model

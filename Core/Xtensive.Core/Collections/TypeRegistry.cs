@@ -11,7 +11,6 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Collections

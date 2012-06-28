@@ -7,7 +7,6 @@
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 

@@ -4,7 +4,6 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Helpers;
 
 namespace Xtensive.Sql.Model
 {

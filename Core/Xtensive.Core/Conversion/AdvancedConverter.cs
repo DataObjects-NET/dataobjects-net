@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 
 

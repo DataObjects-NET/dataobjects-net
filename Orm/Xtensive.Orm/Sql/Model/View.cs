@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Collections;
-using Xtensive.Helpers;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Model

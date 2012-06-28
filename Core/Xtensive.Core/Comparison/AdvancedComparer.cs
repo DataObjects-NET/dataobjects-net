@@ -12,7 +12,6 @@ using System.Security;
 using System.Security.Permissions;
 using System.Threading;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 
 

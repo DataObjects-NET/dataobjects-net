@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Resources;
 

@@ -7,10 +7,8 @@
 using System;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Notifications;
 using Xtensive.Reflection;
-
 
 namespace Xtensive.Orm.Model
 {

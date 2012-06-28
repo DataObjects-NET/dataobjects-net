@@ -10,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Reflection;
-using Xtensive.Helpers;
 using Xtensive.Resources;
 using AttributeSearchOptions = Xtensive.Reflection.AttributeSearchOptions;
 using DelegateHelper = Xtensive.Reflection.DelegateHelper;

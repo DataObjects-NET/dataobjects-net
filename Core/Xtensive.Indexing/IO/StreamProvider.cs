@@ -14,8 +14,6 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Disposing;
 using Xtensive.Reflection;
-
-using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Indexing.Resources;
 

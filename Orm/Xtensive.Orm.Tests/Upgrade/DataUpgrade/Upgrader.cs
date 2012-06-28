@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Collections;
 using Xtensive.Disposing;
-using Xtensive.Helpers;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Tests.Upgrade.DataUpgrade.Model.Version2;
 using Xtensive.Orm.Upgrade;

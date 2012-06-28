@@ -9,8 +9,6 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Helpers;
-using Xtensive.Collections;
 
 namespace Xtensive.Orm.Manual.FutureQueries
 {

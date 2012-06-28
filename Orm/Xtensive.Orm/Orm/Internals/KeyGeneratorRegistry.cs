@@ -6,7 +6,6 @@
 
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals

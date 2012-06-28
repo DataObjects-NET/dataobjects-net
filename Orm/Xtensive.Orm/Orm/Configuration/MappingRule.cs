@@ -6,7 +6,6 @@
 
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Helpers;
 
 namespace Xtensive.Orm.Configuration
 {

@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see license.
 
 using Xtensive.Core;
-using Xtensive.Helpers;
 
 namespace Xtensive.Sql.Info
 {

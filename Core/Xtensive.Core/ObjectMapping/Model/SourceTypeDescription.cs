@@ -7,7 +7,6 @@
 using System;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.ObjectMapping.Model

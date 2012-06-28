@@ -5,7 +5,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Helpers;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Info
 {

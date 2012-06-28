@@ -9,7 +9,6 @@ using System.IO;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Testing.Resources;
 
 namespace Xtensive.Testing

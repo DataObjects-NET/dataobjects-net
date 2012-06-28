@@ -12,7 +12,6 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling.Actions;
 using Xtensive.Resources;
 using Xtensive.Reflection;
-using Xtensive.Helpers;
 
 namespace Xtensive.Modelling.Comparison
 {

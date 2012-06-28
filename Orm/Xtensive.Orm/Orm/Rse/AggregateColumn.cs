@@ -6,10 +6,6 @@
 
 using System;
 
-using Xtensive.Helpers;
-using Xtensive.Orm.Rse;
-
-
 namespace Xtensive.Orm.Rse
 {
   /// <summary>

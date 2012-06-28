@@ -9,7 +9,6 @@ using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
 using Xtensive.Configuration;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Indexing.Serialization.Implementation;
 
 namespace Xtensive.Indexing.Serialization

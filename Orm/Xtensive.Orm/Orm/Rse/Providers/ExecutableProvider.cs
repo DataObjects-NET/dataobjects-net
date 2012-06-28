@@ -9,10 +9,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Xtensive.Core;
-using Xtensive.Helpers;
-
-using Xtensive.Orm.Rse.Compilation;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using IEnumerable = System.Collections.IEnumerable;
 

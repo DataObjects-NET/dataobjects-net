@@ -15,7 +15,6 @@ using System.Security;
 using System.Security.Permissions;
 using Xtensive.Conversion;
 using Xtensive.Core;
-using Xtensive.Helpers;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Resources;
 
