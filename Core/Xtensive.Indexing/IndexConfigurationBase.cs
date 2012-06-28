@@ -36,12 +36,12 @@ namespace Xtensive.Indexing
     [NonSerialized]
     private Func<Entire<TKey>, TKey, int> asymmetricKeyCompare;
     private IMeasureSet<TItem> measures = new MeasureSet<TItem>();
-    private UrlInfo location;
+    private string location;
 
     /// <summary>
     /// Gets or sets the location of the index.
     /// </summary>
-    public UrlInfo Location
+    public string Location
     {
       [DebuggerStepThrough]
       get { return location; }

@@ -79,7 +79,7 @@ namespace Xtensive.Indexing.Tests.Index
       }
 
       IndexConfiguration<T, T> configuration = GetConfiguration<T>();
-      configuration.Location = UrlInfo.Parse(fileLoction);
+      configuration.Location = fileLoction;
 
       try {
         using (Index<T, T> serializedIndex = new Index<T, T>(configuration)) {
@@ -167,7 +167,7 @@ namespace Xtensive.Indexing.Tests.Index
       }
 
       IndexConfiguration<T, T> configuration = GetConfiguration<T>();
-      configuration.Location = UrlInfo.Parse(fileLoction);
+      configuration.Location = fileLoction;
 
       try {
         using (Index<T, T> serializedIndex = new Index<T, T>(configuration)) {
@@ -241,7 +241,7 @@ namespace Xtensive.Indexing.Tests.Index
       }
 
       IndexConfiguration<T, T> configuration = GetConfiguration<T>();
-      configuration.Location = UrlInfo.Parse(fileLoction);
+      configuration.Location = fileLoction;
       if (File.Exists(fileName)) {
         File.Delete(fileName);
       }

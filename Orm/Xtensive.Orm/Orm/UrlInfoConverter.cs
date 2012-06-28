@@ -6,7 +6,7 @@
 
 using System.ComponentModel;
 
-namespace Xtensive.Core
+namespace Xtensive.Orm
 {
   /// <summary>
   /// Provides a type converter to convert <see cref="UrlInfo"/> objects to and from other representations.

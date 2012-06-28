@@ -5,6 +5,7 @@
 // Created:    2009.06.23
 
 using Xtensive.Core;
+using Xtensive.Orm;
 using Xtensive.Threading;
 
 namespace Xtensive.Sql

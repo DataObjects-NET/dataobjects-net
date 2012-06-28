@@ -137,6 +137,7 @@
     <Compile Include="Orm\Configuration\Elements\DatabaseConfigurationElement.cs" />
     <Compile Include="Orm\Configuration\Elements\MappingRuleElement.cs" />
     <Compile Include="Orm\Configuration\Interfaces\IMappingRuleConstructionFlow.cs" />
+    <Compile Include="Orm\ConnectionInfo.cs" />
     <Compile Include="Orm\DbCommandEventArgs.cs" />
     <Compile Include="Orm\Exceptions\StorageExceptionInfo.cs" />
     <Compile Include="Orm\Configuration\LinqExtensionRegistration.cs" />
@@ -381,6 +382,8 @@
     <Compile Include="Orm\Upgrade\Internals\UpgradeActionSequenceBuilder.cs" />
     <Compile Include="Orm\Upgrade\Internals\UpgradeServiceAccessor.cs" />
     <Compile Include="Orm\Upgrade\UpgradeActionSequence.cs" />
+    <Compile Include="Orm\UrlInfo.cs" />
+    <Compile Include="Orm\UrlInfoConverter.cs" />
     <Compile Include="Orm\Validation\Aspects\Constraints\EmailConstraint.cs" />
     <Compile Include="Orm\Validation\Aspects\Constraints\FutureConstraint.cs" />
     <Compile Include="Orm\Validation\Aspects\Constraints\LengthConstraint.cs" />

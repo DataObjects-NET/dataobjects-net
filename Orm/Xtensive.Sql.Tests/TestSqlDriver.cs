@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Orm;
 
 namespace Xtensive.Sql.Tests
 {

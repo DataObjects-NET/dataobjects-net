@@ -7,6 +7,7 @@
 using System;
 using FirebirdSql.Data.FirebirdClient;
 using Xtensive.Core;
+using Xtensive.Orm;
 using Xtensive.Sql.Drivers.Firebird.Resources;
 using Xtensive.Sql.Info;
 

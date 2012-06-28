@@ -9,6 +9,7 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
+using Xtensive.Orm;
 using Xtensive.Sql.Drivers.Sqlite.Resources;
 using Xtensive.Sql.Info;
 

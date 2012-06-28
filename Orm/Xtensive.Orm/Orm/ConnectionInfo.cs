@@ -8,7 +8,7 @@ using System;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core
+namespace Xtensive.Orm
 {
   /// <summary>
   /// A wrapper representing connection information.

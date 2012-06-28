@@ -8,6 +8,7 @@ using System;
 using System.Security;
 using MySql.Data.MySqlClient;
 using Xtensive.Core;
+using Xtensive.Orm;
 using Xtensive.Sql.Drivers.MySql.Resources;
 using Xtensive.Sql.Info;
 

@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Orm;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Drivers.SqlServerCe

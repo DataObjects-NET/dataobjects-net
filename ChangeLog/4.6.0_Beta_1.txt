@@ -2,6 +2,7 @@
 [main] Key generators API are heavily reworked
 [main] Added option to build Domain in parallel where possible
 [main] Reduced number of stages when performing upgrade
+[main] ConnectionInfo and UrlInfo types moved from Xtensive.Core to Xtensive.Orm
 [sqlite] Added provider for SQLite database
 [sqlserver] Use sequences for key generators for SQL Server 2012
 [sqlserver] Use native paging operators for SQL Server 2012

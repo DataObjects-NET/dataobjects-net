@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Info;
 

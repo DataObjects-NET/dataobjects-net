@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using Oracle.DataAccess.Client;
 using Xtensive.Core;
+using Xtensive.Orm;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Drivers.Oracle.Resources;
 

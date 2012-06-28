@@ -216,7 +216,7 @@ namespace Xtensive.Indexing
       if (indexConfiguration.Location==null)
         provider = new MemoryPageProvider<TKey, TItem>();
       else
-        provider = new StreamPageProvider<TKey, TItem>(indexConfiguration.Location.Resource, indexConfiguration.CacheSize);
+        provider = new StreamPageProvider<TKey, TItem>(indexConfiguration.Location, indexConfiguration.CacheSize);
       provider.Index = this;
       descriptorPage = new DescriptorPage<TKey, TItem>(indexConfiguration, provider);
       descriptorPage.Initialize(); // Ensures it is created as well

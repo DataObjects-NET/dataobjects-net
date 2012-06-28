@@ -8,6 +8,7 @@ using System;
 using System.Security;
 using Npgsql;
 using Xtensive.Core;
+using Xtensive.Orm;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Drivers.PostgreSql.Resources;
 

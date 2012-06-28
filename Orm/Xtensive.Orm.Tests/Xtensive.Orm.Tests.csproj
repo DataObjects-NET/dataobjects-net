@@ -301,6 +301,7 @@
     <Compile Include="Upgrade\UpgradeToStructure\ModelVersion2.cs" />
     <Compile Include="Upgrade\UpgradeToStructure\Upgrader.cs" />
     <Compile Include="Upgrade\UpgradeToStructure\UpgradeTest.cs" />
+    <Compile Include="UrlInfoTest.cs" />
     <Compile Include="_Manual\Validation\Person.cs" />
     <Compile Include="_Manual\Validation\PhoneNumberConstraint.cs" />
     <Compile Include="_Manual\Validation\TestFixture.cs" />

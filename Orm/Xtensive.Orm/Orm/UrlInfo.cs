@@ -18,7 +18,7 @@ using Xtensive.Core;
 using Xtensive.Comparison;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Core
+namespace Xtensive.Orm
 {
   /// <summary>
   /// Holds an URL and provides easy access to its different parts.

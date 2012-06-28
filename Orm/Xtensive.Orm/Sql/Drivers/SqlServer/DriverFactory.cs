@@ -10,6 +10,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
+using Xtensive.Orm;
 using Xtensive.Sql.Info;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
