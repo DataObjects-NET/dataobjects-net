@@ -24,7 +24,6 @@ namespace Xtensive.Collections
   /// <typeparam name="TValue">The type of the value.</typeparam>
   [Serializable]
   [DebuggerDisplay("Count = {Count}, Changes = {Changes}")]
-  [DebuggerTypeProxy(DictionaryBaseSlim<TKey, TValue>.PREFIX + "DictionaryDebugView`2" + DictionaryBaseSlim<TKey, TValue>.SUFFIX)]
   public sealed class DifferentialDictionary<TKey, TValue> : IDictionary<TKey, TValue>
   {
     private readonly static Dictionary<TKey, TValue> emptyDictionary = new Dictionary<TKey, TValue>();
