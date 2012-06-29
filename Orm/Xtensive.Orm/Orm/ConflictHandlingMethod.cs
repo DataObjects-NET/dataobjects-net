@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.02.09
 
+using Xtensive.Orm.Linq.MemberCompilation;
+
 namespace Xtensive.Orm
 {
   /// <summary>
