@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 
 namespace Xtensive.Collections.Graphs
 {
@@ -81,6 +82,8 @@ namespace Xtensive.Collections.Graphs
       where TNode: Node
       where TEdge: Edge
     {
+      ArgumentValidator.EnsureArgumentNotNull(graph, "graph");
+
       var result = new TopologicalSortResult<TNode, TEdge>();
 
       HashSet<TNode> sortedNodes;
@@ -98,7 +101,6 @@ namespace Xtensive.Collections.Graphs
         breakableEdges = null;
       }
       var nodesWithoutIncomingEdges = new Queue<TNode>(graph.Nodes.Where(n => !n.HasIncomingEdges));
-
 
     restart:
       // Sorting

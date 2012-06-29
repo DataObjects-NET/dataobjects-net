@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Xtensive.Collections;
+using Xtensive.Collections.Graphs;
 using Xtensive.Comparison;
 using Xtensive.Core;
 using Xtensive.Resources;
@@ -658,6 +659,25 @@ namespace Xtensive.Core
           --numberOfElements;
         return numberOfElements >= 0;
       }
+    }
+
+    /// <summary>
+    /// Sorts <paramref name="values"/> in topological order according to <paramref name="edgeTester"/>.
+    /// </summary>
+    /// <typeparam name="TValue">Type of a value to sort.</typeparam>
+    /// <param name="values">Values to sort.</param>
+    /// <param name="edgeTester">A predicate for testing edge presence.</param>
+    /// <returns>Topologically sorted <paramref name="values"/> if no cycles exist, otherwise null.</returns>
+    public static List<TValue> SortTopologically<TValue>(this IEnumerable<TValue> values, Func<TValue, TValue, bool> edgeTester)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(values, "values");
+      ArgumentValidator.EnsureArgumentNotNull(edgeTester, "edgeTester");
+
+      var graph = new Graph<Node<TValue>, Edge>();
+      graph.Nodes.AddRange(values.Select(p => new Node<TValue>(p)));
+      graph.AddEdges((left, right) => edgeTester.Invoke(left.Value, right.Value) ? new Edge() : null);
+      var result = TopologicalSorter.Sort(graph);
+      return result.HasLoops ? null : result.SortedNodes.Select(node => node.Value).ToList();
     }
   }
 }

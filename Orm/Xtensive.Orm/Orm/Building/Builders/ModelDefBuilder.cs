@@ -43,10 +43,10 @@ namespace Xtensive.Orm.Building.Builders
       }
       closedGenericTypes = closedGenericTypes.Where(t => !t.FullName.IsNullOrEmpty()).ToList();
       List<Node<Type, object>> loops;
-      closedGenericTypes = TopologicalSorter.Sort(
-        closedGenericTypes,
-        (first, second) => second.GetGenericArguments().Any(argument => argument.IsAssignableFrom(first)),
-        out loops);
+      closedGenericTypes = closedGenericTypes.SortTopologically(
+        (first, second) => second.GetGenericArguments().Any(argument => argument.IsAssignableFrom(first)));
+      if (closedGenericTypes==null)
+        throw Exceptions.InternalError("Cyclic dependecy in closed generics graph", BuildLog.Instance);
       foreach (var type in closedGenericTypes)
         ProcessType(type);
       foreach (var type in openGenericTypes)

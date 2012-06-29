@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Sorting;
 using Xtensive.Orm.Model.Stored;
 
@@ -43,7 +44,7 @@ namespace Xtensive.Orm.Model
     /// <returns>A reordered sequence.</returns>
     public static IEnumerable<AssociationInfo> Reorder(this IEnumerable<AssociationInfo> origin)
     {
-      return TopologicalSorter.Sort(origin,
+      return origin.SortTopologically(
         (f, s) => s.TargetType != f.TargetType && s.TargetType.UnderlyingType.IsAssignableFrom(f.TargetType.UnderlyingType));
     }
   }

@@ -6,17 +6,14 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.IoC;
-using Xtensive.Linq;
+using Xtensive.Core;
 using Xtensive.Orm.Building.Builders;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Linq.MemberCompilation;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.PreCompilation.Correction;
 using Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection;
 using Xtensive.Orm.Rse.PreCompilation.Optimization;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Sorting;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
@@ -169,7 +166,7 @@ namespace Xtensive.Orm.Providers
     private void BuildQueryPreprocessors()
     {
       var unordered = Domain.Services.GetAll<IQueryPreprocessor>();
-      var ordered = TopologicalSorter.Sort(unordered, (first, second) => second.IsDependentOn(first));
+      var ordered = unordered.SortTopologically((first, second) => second.IsDependentOn(first));
       if (ordered==null)
         throw new InvalidOperationException(Strings.ExCyclicDependencyInQueryPreprocessorGraphIsDetected);
       QueryPreprocessors = ordered;
