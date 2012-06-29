@@ -8,7 +8,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
@@ -25,8 +24,8 @@ namespace Xtensive.Collections
   public class BindingCollection<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
   {
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-    protected readonly Dictionary<TKey, TValue> bindings = new Dictionary<TKey, TValue>();
-    protected readonly HashSet<TKey> permanentBindings = new HashSet<TKey>();
+    private readonly Dictionary<TKey, TValue> bindings = new Dictionary<TKey, TValue>();
+    private readonly HashSet<TKey> permanentBindings = new HashSet<TKey>();
 
     /// <summary>
     /// Gets the number of currently bound items.
@@ -52,19 +51,20 @@ namespace Xtensive.Collections
     /// <param name="value">The value to bind.</param>
     /// <returns>Disposable object that will 
     /// destroy the binding on its disposal.</returns>
-    public virtual Disposable Add(TKey key, TValue value)
+    public virtual IDisposable Add(TKey key, TValue value)
     {
       TValue previous;
+
       if (bindings.TryGetValue(key, out previous)) {
         bindings[key] = value;
-        return new Disposable((isDisposing) => {
+        return new Disposable(isDisposing => {
           if (!permanentBindings.Contains(key))
             bindings[key] = previous;
         });
       }
       else {
         bindings.Add(key, value);
-        return new Disposable((isDisposing) => {
+        return new Disposable(isDisposing => {
           if (!permanentBindings.Contains(key))
             bindings.Remove(key);
         });
@@ -77,12 +77,11 @@ namespace Xtensive.Collections
     /// <param name="key">The key to bind to.</param>
     /// <param name="value">The value to bind.</param>
     /// <returns><see langword="null" />, so this binding will not be removed.</returns>
-    public virtual Disposable PermanentAdd(TKey key, TValue value)
+    public virtual void PermanentAdd(TKey key, TValue value)
     {
       bindings[key] = value;
       if (!permanentBindings.Contains(key))
         permanentBindings.Add(key);
-      return null;
     }
 
     /// <summary>

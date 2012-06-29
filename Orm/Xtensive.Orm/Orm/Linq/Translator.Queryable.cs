@@ -757,16 +757,15 @@ namespace Xtensive.Orm.Linq
       var sequence = VisitSequence(source);
 
       ProjectionExpression groupingSourceProjection;
-      using (context.Bindings.PermanentAdd(keySelector.Parameters[0], sequence)) {
-        using (state.CreateScope()) {
-          state.CalculateExpressions = true;
-          state.GroupingKey = true;
-          var itemProjector = (ItemProjectorExpression) VisitLambda(keySelector);
-          groupingSourceProjection = new ProjectionExpression(
-            typeof (IQueryable<>).MakeGenericType(keySelector.Body.Type),
-            itemProjector,
-            sequence.TupleParameterBindings);
-        }
+      context.Bindings.PermanentAdd(keySelector.Parameters[0], sequence);
+      using (state.CreateScope()) {
+        state.CalculateExpressions = true;
+        state.GroupingKey = true;
+        var itemProjector = (ItemProjectorExpression) VisitLambda(keySelector);
+        groupingSourceProjection = new ProjectionExpression(
+          typeof (IQueryable<>).MakeGenericType(keySelector.Body.Type),
+          itemProjector,
+          sequence.TupleParameterBindings);
       }
 
       var keyColumns = groupingSourceProjection.ItemProjector.GetColumns(
@@ -949,8 +948,8 @@ namespace Xtensive.Orm.Linq
       outer = new ProjectionExpression(outer.Type, outer.ItemProjector.Remap(recordQuery, 0), tupleParameterBindings);
       inner = new ProjectionExpression(inner.Type, inner.ItemProjector.Remap(recordQuery, outerLength), tupleParameterBindings);
 
-      using (context.Bindings.PermanentAdd(resultSelector.Parameters[0], outer))
-      using (context.Bindings.PermanentAdd(resultSelector.Parameters[1], inner))
+      context.Bindings.PermanentAdd(resultSelector.Parameters[0], outer);
+      context.Bindings.PermanentAdd(resultSelector.Parameters[1], inner);
       using (context.Bindings.LinkParameters(resultSelector.Parameters))
         return BuildProjection(resultSelector);
     }
@@ -994,7 +993,7 @@ namespace Xtensive.Orm.Linq
       var visitedSource = Visit(source);
       var sequence = VisitSequence(visitedSource);
 
-      Disposable indexBinding = null;
+      IDisposable indexBinding = null;
       if (collectionSelector.Parameters.Count==2) {
         var indexProjection = GetIndexBinding(collectionSelector, ref sequence);
         indexBinding = context.Bindings.Add(collectionSelector.Parameters[1], indexProjection);
@@ -1083,18 +1082,15 @@ namespace Xtensive.Orm.Linq
     private ProjectionExpression VisitSelect(Expression expression, LambdaExpression le)
     {
       var sequence = VisitSequence(expression);
-      Disposable indexBinding = null;
       if (le.Parameters.Count==2) {
         var indexProjection = GetIndexBinding(le, ref sequence);
-        indexBinding = context.Bindings.PermanentAdd(le.Parameters[1], indexProjection);
+        context.Bindings.PermanentAdd(le.Parameters[1], indexProjection);
       }
-      using (indexBinding)
-      using (context.Bindings.PermanentAdd(le.Parameters[0], sequence)) {
-        using (state.CreateScope()) {
-          state.CalculateExpressions = state.SetOperationProjection || state.SelectManyProjection;
-          state.SelectManyProjection = false;
-          return BuildProjection(le);
-        }
+      context.Bindings.PermanentAdd(le.Parameters[0], sequence);
+      using (state.CreateScope()) {
+        state.CalculateExpressions = state.SetOperationProjection || state.SelectManyProjection;
+        state.SelectManyProjection = false;
+        return BuildProjection(le);
       }
     }
 
@@ -1114,7 +1110,7 @@ namespace Xtensive.Orm.Linq
     {
       var parameter = le.Parameters[0];
       ProjectionExpression visitedSource = VisitSequence(expression);
-      Disposable indexBinding = null;
+      IDisposable indexBinding = null;
       if (le.Parameters.Count==2) {
         var indexProjection = GetIndexBinding(le, ref visitedSource);
         indexBinding = context.Bindings.Add(le.Parameters[1], indexProjection);
