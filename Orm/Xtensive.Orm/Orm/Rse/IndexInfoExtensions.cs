@@ -5,10 +5,9 @@
 // Created:    2008.08.14
 
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers.Compilable;
 
-namespace Xtensive.Orm
+namespace Xtensive.Orm.Rse
 {
   /// <summary>
   /// <see cref="IndexInfo"/> related extension methods.

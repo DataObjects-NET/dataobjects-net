@@ -4,13 +4,12 @@
 // Created by: Alexis Kochetov
 // Created:    2010.10.01
 
-using System;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.Storage.SingleTableTestModel;
-using System.Linq;
-using Node = Xtensive.Orm.Model.Node;
 
 namespace Xtensive.Orm.Tests.Storage
 {

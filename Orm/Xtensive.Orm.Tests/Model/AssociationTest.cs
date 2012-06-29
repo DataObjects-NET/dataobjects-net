@@ -7,6 +7,7 @@
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Orm.Rse;
 using Xtensive.Testing;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;

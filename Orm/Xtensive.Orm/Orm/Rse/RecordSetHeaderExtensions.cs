@@ -4,15 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2008.08.12
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Core;
-using Xtensive.Collections;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
-using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Rse
 {

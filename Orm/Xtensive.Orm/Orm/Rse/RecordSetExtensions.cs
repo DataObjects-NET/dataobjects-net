@@ -4,15 +4,12 @@
 // Created by: Alexey Kochetov
 // Created:    2008.06.09
 
-using System;
 using System.Collections.Generic;
-using Xtensive.Tuples;
 using Xtensive.Orm.Providers;
-using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Rse;
 using System.Linq;
+using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Orm
+namespace Xtensive.Orm.Rse
 {
   /// <summary>
   /// <see cref="RecordSet"/> related extension methods.

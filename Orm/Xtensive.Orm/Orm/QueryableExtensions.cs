@@ -12,8 +12,6 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 
-using Xtensive.Orm.Rse;
-
 namespace Xtensive.Orm
 {
   /// <summary>
@@ -262,12 +260,13 @@ namespace Xtensive.Orm
       }
     }
 
-    #region Private \ internal members
+    #region Private / internal members
 
-    /// <exception cref="NotSupportedException">Queryable is not a <see cref="Xtensive.Orm.Linq"/> query.</exception>
-// ReSharper disable UnusedMember.Local
+    // ReSharper disable UnusedMember.Local
+
     private static IQueryable<TSource> CallTranslator<TSource>(MethodInfo methodInfo, IQueryable source, Expression fieldSelector, string errorMessage)
     {
+      
       var providerType = source.Provider.GetType();
       if (providerType!=typeof (QueryProvider))
         throw new NotSupportedException(String.Format(errorMessage, providerType));
@@ -276,7 +275,8 @@ namespace Xtensive.Orm
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, fieldSelector});
       return source.Provider.CreateQuery<TSource>(expression);
     }
-// ReSharper restore UnusedMember.Local
+
+    // ReSharper restore UnusedMember.Local
 
     private static Expression GetSourceExpression<TSource>(IEnumerable<TSource> source)
     {

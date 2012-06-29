@@ -91,7 +91,6 @@
     <Compile Include="Sql.Drivers.Firebird\Constants.cs" />
     <Compile Include="Sql.Drivers.Firebird\Driver.cs" />
     <Compile Include="Sql.Drivers.Firebird\DriverFactory.cs" />
-    <Compile Include="Sql.Drivers.Firebird\Helpers.cs" />
     <Compile Include="Sql.Drivers.Firebird\v2_5\Compiler.cs" />
     <Compile Include="Sql.Drivers.Firebird\v2_5\Driver.cs" />
     <Compile Include="Sql.Drivers.Firebird\v2_5\Extractor.cs" />

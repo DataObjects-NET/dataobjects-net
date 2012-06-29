@@ -462,7 +462,7 @@
     <Compile Include="Orm\Operations\KeyGenerateOperation.cs" />
     <Compile Include="Orm\Operations\OperationCapturer.cs" />
     <Compile Include="Orm\Operations\ValidateVersionOperation.cs" />
-    <Compile Include="Orm\ProviderExtensions.cs" />
+    <Compile Include="Orm\Rse\ProviderExtensions.cs" />
     <Compile Include="Orm\Services\DirectEntityAccessor.cs" />
     <Compile Include="Orm\Services\DirectSqlAccessor.cs" />
     <Compile Include="Orm\Services\Old\DirectStateAccessor.cs" />
@@ -593,14 +593,14 @@
     <Compile Include="Orm\DomainBound.cs" />
     <Compile Include="Orm\EntityState.cs" />
     <Compile Include="Orm\Exceptions\ReferentialIntegrityException.cs" />
-    <Compile Include="Orm\IndexInfoExtensions.cs" />
+    <Compile Include="Orm\Rse\IndexInfoExtensions.cs" />
     <Compile Include="Orm\Internals\TupleExtensions.cs" />
     <Compile Include="Orm\Internals\TypeMapping.cs" />
     <Compile Include="Orm\Internals\ReferentialIntegrity\CascadeActionProcessor.cs" />
     <Compile Include="Orm\Internals\ReferentialIntegrity\ActionProcessor.cs" />
     <Compile Include="Orm\Internals\ReferentialIntegrity\DenyActionProcessor.cs" />
     <Compile Include="Orm\Internals\ReferentialIntegrity\ClearActionProcessor.cs" />
-    <Compile Include="Orm\RecordSetExtensions.cs" />
+    <Compile Include="Orm\Rse\RecordSetExtensions.cs" />
     <Compile Include="Orm\Interfaces\IFieldValueAdapter.cs" />
     <Compile Include="Orm\Internals\FieldAccessors\EnumFieldAccessor.cs" />
     <Compile Include="Orm\Internals\FieldAccessors\EntityFieldAccessor.cs" />

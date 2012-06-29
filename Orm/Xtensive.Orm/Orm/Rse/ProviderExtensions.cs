@@ -4,14 +4,11 @@
 // Created by: Alexis Kochetov
 // Created:    2010.09.13
 
-using System;
-using System.Diagnostics;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
 
-namespace Xtensive.Orm
+namespace Xtensive.Orm.Rse
 {
   /// <summary>
   /// <see cref="CompilableProvider"/> and <see cref="ExecutableProvider"/> related extension methods.
@@ -44,17 +41,6 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       return new RecordSet(session.CreateEnumerationContext(), provider);
-    }
-
-    /// <summary>
-    /// Compiles the specified query.
-    /// </summary>
-    /// <param name="provider">The provider.</param>
-    /// <param name="session">The session.</param>
-    /// <returns>Compiled <see cref="ExecutableProvider"/>.</returns>
-    public static ExecutableProvider Compile(this CompilableProvider provider, Session session)
-    {
-      return session.CompilationService.Compile(provider);
     }
 
     /// <summary>
