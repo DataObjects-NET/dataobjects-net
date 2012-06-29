@@ -22,7 +22,8 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     public static IMemberCompilerProvider Create(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      return (IMemberCompilerProvider) Activator.CreateInstance(typeof (MemberCompilerProvider<>));
+      var concreteType = typeof (MemberCompilerProvider<>).MakeGenericType(type);
+      return (IMemberCompilerProvider) Activator.CreateInstance(concreteType);
     }
 
     /// <summary>
