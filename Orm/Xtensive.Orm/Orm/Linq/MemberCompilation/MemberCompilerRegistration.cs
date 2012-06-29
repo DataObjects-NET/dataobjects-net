@@ -8,7 +8,7 @@ using System;
 using System.Reflection;
 using Xtensive.Core;
 
-namespace Xtensive.Linq
+namespace Xtensive.Orm.Linq.MemberCompilation
 {
   internal sealed class MemberCompilerRegistration
   {

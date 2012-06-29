@@ -9,10 +9,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Linq;
+using Xtensive.Orm.Linq.MemberCompilation;
 using Xtensive.Reflection;
 
-namespace Xtensive.Tests.Linq
+namespace Xtensive.Orm.Tests.Linq
 {
   [TestFixture]
   public partial class MemberCompilerProviderTest
@@ -81,7 +81,7 @@ namespace Xtensive.Tests.Linq
       provider.RegisterCompilers(typeof(PropertyCompiler));
 
       foreach (var t in new[]{typeof(NonGenericTarget), typeof(GenericTarget<>)})
-        foreach (string s1 in new[]{WellKnown.GetterPrefix, WellKnown.SetterPrefix})
+        foreach (string s1 in new[]{Reflection.WellKnown.GetterPrefix, Reflection.WellKnown.SetterPrefix})
           foreach (string s2 in new[] { "InstanceProperty", "StaticProperty", "Item" }) {
             string method = s1 + s2;
             var d = GetCompilerForMethod(provider, t, method);
@@ -109,7 +109,7 @@ namespace Xtensive.Tests.Linq
       provider.RegisterCompilers(typeof(CtorCompiler));
       foreach (var t in new[]{typeof(NonGenericTarget), typeof(GenericTarget<>)}) {
         var d = GetCompilerForCtor(provider, t);
-        Assert.AreEqual(t.Name + WellKnown.CtorName, d(null, dummy));
+        Assert.AreEqual(t.Name + Reflection.WellKnown.CtorName, d(null, dummy));
       }
     }
 

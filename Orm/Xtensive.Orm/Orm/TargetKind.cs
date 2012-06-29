@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Linq {
+namespace Xtensive.Orm {
 
   /// <summary>
   /// Flags for specifying kind of compilable members.

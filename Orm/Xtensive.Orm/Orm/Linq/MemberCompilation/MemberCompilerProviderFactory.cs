@@ -5,14 +5,15 @@
 // Created:    2009.03.27
 
 using System;
-using System.Diagnostics;
-using System.Globalization;
-using System.Reflection;
+using Xtensive.Core;
+using Activator = System.Activator;
 
-namespace Xtensive.Linq
+namespace Xtensive.Orm.Linq.MemberCompilation
 {
-  [Serializable]
-  public class MemberCompilerProviderFactory
+  /// <summary>
+  /// Factory for <see cref="IMemberCompilerProvider" /> implementation.
+  /// </summary>
+  public static class MemberCompilerProviderFactory
   {
     /// <summary>
     /// Creates new instance of <see cref="IMemberCompilerProvider"/>.
@@ -20,8 +21,8 @@ namespace Xtensive.Linq
     /// <param name="type">The type.</param>
     public static IMemberCompilerProvider Create(Type type)
     {
-      return (IMemberCompilerProvider) Activator.CreateInstance(typeof(MemberCompilerProvider<>)
-             .MakeGenericType(type), BindingFlags.NonPublic | BindingFlags.Instance, null, new object[0], null);
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      return (IMemberCompilerProvider) Activator.CreateInstance(typeof (MemberCompilerProvider<>));
     }
 
     /// <summary>

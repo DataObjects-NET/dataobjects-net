@@ -10,6 +10,7 @@ using Xtensive.IoC;
 using Xtensive.Linq;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Linq.MemberCompilation;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.PreCompilation.Correction;
 using Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection;

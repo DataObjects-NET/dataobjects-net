@@ -10,25 +10,17 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Reflection;
-using Xtensive.Resources;
 using AttributeSearchOptions = Xtensive.Reflection.AttributeSearchOptions;
 using DelegateHelper = Xtensive.Reflection.DelegateHelper;
-using WellKnown = Xtensive.Reflection.WellKnown;
 
-namespace Xtensive.Linq
+namespace Xtensive.Orm.Linq.MemberCompilation
 {
-  /// <summary>
-  /// Default implementation of <see cref="IMemberCompilerProvider{T}"/>.
-  /// </summary>
-  /// <typeparam name="T"><inheritdoc/></typeparam>
-  public partial class MemberCompilerProvider<T> : LockableBase, IMemberCompilerProvider<T>
+  internal partial class MemberCompilerProvider<T> : LockableBase, IMemberCompilerProvider<T>
   {
     private MemberCompilerCollection compilers = new MemberCompilerCollection();
 
-    /// <inheritdoc/>
     public Type ExpressionType { get { return typeof(T); } }
 
-    /// <inheritdoc/>
     public Delegate GetUntypedCompiler(MemberInfo target)
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
@@ -42,20 +34,17 @@ namespace Xtensive.Linq
       return registration.CompilerInvoker;
     }
 
-    /// <inheritdoc/>
     public Func<T, T[], T> GetCompiler(MemberInfo target)
     {
       var compiler = (Func<MemberInfo, T, T[], T>) GetUntypedCompiler(target);
       return compiler.Bind(target);
     }
 
-    /// <inheritdoc/>
     public void RegisterCompilers(Type compilerContainer)
     {
       RegisterCompilers(compilerContainer, ConflictHandlingMethod.Default);
     }
 
-    /// <inheritdoc/>
     public void RegisterCompilers(Type compilerContainer, ConflictHandlingMethod conflictHandlingMethod)
     {
       ArgumentValidator.EnsureArgumentNotNull(compilerContainer, "compilerContainer");
@@ -77,13 +66,11 @@ namespace Xtensive.Linq
       UpdateRegistry(compilersToRegister, conflictHandlingMethod);
     }
 
-    /// <inheritdoc/>
     public void RegisterCompilers(IEnumerable<KeyValuePair<MemberInfo, Func<MemberInfo, T, T[], T>>> compilerDefinitions)
     {
       RegisterCompilers(compilerDefinitions, ConflictHandlingMethod.Default);
     }
 
-    /// <inheritdoc/>
     public void RegisterCompilers(IEnumerable<KeyValuePair<MemberInfo, Func<MemberInfo, T, T[], T>>> compilerDefinitions, ConflictHandlingMethod conflictHandlingMethod)
     {
       ArgumentValidator.EnsureArgumentNotNull(compilerDefinitions, "compilerDefinitions");
@@ -210,9 +197,9 @@ namespace Xtensive.Linq
 
       if (memberName.IsNullOrEmpty())
         if (isPropertyGetter || isPropertySetter)
-          memberName = WellKnown.IndexerPropertyName;
+          memberName = Reflection.WellKnown.IndexerPropertyName;
         else if (isCtor)
-          memberName = WellKnown.CtorName;
+          memberName = Reflection.WellKnown.CtorName;
         else
           throw new InvalidOperationException(string.Format(
             Strings.ExCompilerXHasInvalidTargetType, compiler.GetFullName(true)));
@@ -237,19 +224,19 @@ namespace Xtensive.Linq
 
       if (isPropertyGetter) {
         bindingFlags |= BindingFlags.GetProperty;
-        memberName = WellKnown.GetterPrefix + memberName;
+        memberName = Reflection.WellKnown.GetterPrefix + memberName;
       }
 
       if (isPropertySetter) {
         bindingFlags |= BindingFlags.SetProperty;
-        memberName = WellKnown.SetterPrefix + memberName;
+        memberName = Reflection.WellKnown.SetterPrefix + memberName;
       }
 
       MemberInfo targetMember = null;
       bool specialCase = false;
 
       // handle stupid cast operator that may be overloaded by return type
-      if (memberName == WellKnown.Operator.Explicit || memberName == WellKnown.Operator.Implicit) {
+      if (memberName == Reflection.WellKnown.Operator.Explicit || memberName == Reflection.WellKnown.Operator.Implicit) {
         var returnTypeAttribute = compiler.ReturnTypeCustomAttributes
           .GetCustomAttributes(typeof (TypeAttribute), false)
           .Cast<TypeAttribute>()
@@ -352,12 +339,5 @@ namespace Xtensive.Linq
     }
 
     #endregion
-
-
-    // Constructors
-
-    internal MemberCompilerProvider()
-    {
-    }
   }
 }

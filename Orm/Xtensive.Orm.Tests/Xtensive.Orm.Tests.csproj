@@ -266,6 +266,8 @@
     <Compile Include="Issues\KeyFormatBug.cs" />
     <Compile Include="Issues\LocalCollectionsTest.cs" />
     <Compile Include="Issues\NotEqualsForNullableColumnTest.cs" />
+    <Compile Include="Linq\MemberCompilerProviderTest.Classes.cs" />
+    <Compile Include="Linq\MemberCompilerProviderTest.cs" />
     <Compile Include="Storage\AbstractGenericsTest.cs" />
     <Compile Include="Storage\ByteFieldStorageTest.cs" />
     <Compile Include="Storage\ClientProfileSessionTest.cs" />

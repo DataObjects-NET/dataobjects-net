@@ -90,7 +90,10 @@
     <Compile Include="Orm\Aspects\StructureAspect.cs" />
     <Compile Include="Orm\Aspects\TransactionalBehavior.cs" />
     <Compile Include="Orm\Aspects\TransactionalTypeAttribute.cs" />
+    <Compile Include="Orm\Attributes\CompilerAttribute.cs" />
+    <Compile Include="Orm\Attributes\CompilerContainerAttribute.cs" />
     <Compile Include="Orm\Attributes\KeyGeneratorKind.cs" />
+    <Compile Include="Orm\Attributes\TypeAttribute.cs" />
     <Compile Include="Orm\Attributes\TypeDiscriminatorAttribute.cs" />
     <Compile Include="Orm\Attributes\MaterializedViewAttribute.cs" />
     <Compile Include="Orm\Attributes\HierarchyRootAttribute.cs" />
@@ -122,6 +125,7 @@
     <Compile Include="Orm\Building\Builders\IModelFilter.cs" />
     <Compile Include="Orm\Building\PrefetchActionContainer.cs" />
     <Compile Include="Orm\Configuration\ConfigurationBase.cs" />
+    <Compile Include="Orm\ConflictHandlingMethod.cs" />
     <Compile Include="Orm\Internals\CompletableScope{T}.cs" />
     <Compile Include="Orm\Configuration\Interfaces\IDatabaseConfigurationFlow.cs" />
     <Compile Include="Orm\Configuration\Internals\DatabaseConfigurationFlow.cs" />
@@ -149,11 +153,22 @@
     <Compile Include="Orm\Interfaces\ITemporaryKeyGenerator.cs" />
     <Compile Include="Orm\Interfaces\IQueryRootBuilder.cs" />
     <Compile Include="Orm\Internals\CompiledQueryRunner.cs" />
+    <Compile Include="Orm\Linq\MemberCompilation\Interfaces\IMemberCompilerProvider.cs" />
+    <Compile Include="Orm\Linq\MemberCompilation\Interfaces\IMemberCompilerProvider{T}.cs" />
     <Compile Include="Orm\Internals\KeyGeneratorRegistry.cs" />
     <Compile Include="Orm\Internals\KeyGenerators\Caching\CachingSequence.cs" />
     <Compile Include="Orm\Internals\KeyGenerators\Caching\ICachingSequenceProvider.cs" />
     <Compile Include="Orm\Internals\KeyGenerators\Caching\DomainCachingSequenceProvider.cs" />
     <Compile Include="Orm\Internals\KeyGenerators\Caching\SessionCachingSequenceProvider.cs" />
+    <Compile Include="Orm\Linq\MemberCompilation\MemberCompilerCollection.cs" />
+    <Compile Include="Orm\Linq\MemberCompilation\MemberCompilerProvider-CreateCompiler.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MemberCompilerProvider-CreateCompiler.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Orm\Linq\MemberCompilation\MemberCompilerProvider.cs" />
+    <Compile Include="Orm\Linq\MemberCompilation\MemberCompilerProviderFactory.cs" />
+    <Compile Include="Orm\Linq\MemberCompilation\MemberCompilerRegistration.cs" />
     <Compile Include="Orm\Internals\PersistActionGenerator.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\BaseFieldNode.cs" />
     <Compile Include="Orm\Internals\Prefetch\Nodes\ExpressionMap.cs" />
@@ -183,6 +198,7 @@
     <Compile Include="Orm\Providers\TemporaryTables\EmulatedTemporaryTableBackEnd.cs" />
     <Compile Include="Orm\Providers\TemporaryTables\RealTemporaryTableBackEnd.cs" />
     <Compile Include="Orm\Providers\TemporaryTables\TemporaryTableBackend.cs" />
+    <Compile Include="Orm\TargetKind.cs" />
     <Compile Include="Orm\Upgrade\Internals\FutureResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\AssemblyMetadata.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\ExtensionMetadata.cs" />
@@ -1276,6 +1292,11 @@
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <None Include="DelegateGenerator.ttinclude" />
+    <None Include="Orm\Linq\MemberCompilation\MemberCompilerProvider-CreateCompiler.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>MemberCompilerProvider-CreateCompiler.cs</LastGenOutput>
+    </None>
     <None Include="Orm\Model\_Diagrams\Storage-Model-BaseTypes.cd" />
     <None Include="Orm\Validation\_Diagrams\Integrity-ValidationAspects.cd" />
     <None Include="Orm\_Diagrams\Storage-Class-Attributes.cd" />

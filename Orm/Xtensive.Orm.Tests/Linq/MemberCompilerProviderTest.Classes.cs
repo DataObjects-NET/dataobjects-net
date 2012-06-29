@@ -7,10 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Xtensive.Linq;
 using Xtensive.Reflection;
 
-namespace Xtensive.Tests.Linq
+namespace Xtensive.Orm.Tests.Linq
 {
   partial class MemberCompilerProviderTest
   {

@@ -5,11 +5,10 @@
 // Created:    2009.03.27
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Core;
 
-namespace Xtensive.Linq
+namespace Xtensive.Orm.Linq.MemberCompilation
 {
   /// <summary>
   /// Base interface for compiler providers.

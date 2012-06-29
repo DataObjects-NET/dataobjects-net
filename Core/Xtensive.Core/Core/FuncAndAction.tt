@@ -3,7 +3,7 @@
 #><#@ assembly name="System.Core"
 #><#@ import namespace="System"
 #><#@ import namespace="System.Linq"
-#><#@ include file="DelegateGenerator.ttinclude"
+#><#@ include file="..\DelegateGenerator.ttinclude"
 #>
 #if! NET40
 // Copyright (C) 2003-2010 Xtensive LLC.

@@ -7,13 +7,11 @@
 using System;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Linq
+namespace Xtensive.Orm
 {
   /// <summary>
   /// Attribute for specifying method which acts as compiler
   /// for desired <see cref="TargetMember"/> of type with specified <see cref="TargetTypeAssemblyQualifiedName"/>.
-  /// <see cref="MemberCompilerProvider{T}"/> scans for this attributes
-  /// via <see cref="MemberCompilerProvider{T}.RegisterCompilers(Type)"/>  method and registers them.
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]

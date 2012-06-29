@@ -1030,6 +1030,78 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Compiler for {0} is already registered..
+        /// </summary>
+        internal static string ExCompilerForXIsAlreadyRegistered {
+            get {
+                return ResourceManager.GetString("ExCompilerForXIsAlreadyRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compiler {0} has invalid target member..
+        /// </summary>
+        internal static string ExCompilerXHasInvalidTargetMember {
+            get {
+                return ResourceManager.GetString("ExCompilerXHasInvalidTargetMember", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compiler {0} has invalid target type: target type should be either non-generic or generic type definition..
+        /// </summary>
+        internal static string ExCompilerXHasInvalidTargetType {
+            get {
+                return ResourceManager.GetString("ExCompilerXHasInvalidTargetType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compiler {0} has too many parameters..
+        /// </summary>
+        internal static string ExCompilerXHasTooManyParameters {
+            get {
+                return ResourceManager.GetString("ExCompilerXHasTooManyParameters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compiler {0} should have first parameter of type MemberInfo.
+        /// </summary>
+        internal static string ExCompilerXShouldHaveMemberInfoParameter {
+            get {
+                return ResourceManager.GetString("ExCompilerXShouldHaveMemberInfoParameter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compiler {0} should have parameter {1} of type {2}.
+        /// </summary>
+        internal static string ExCompilerXShouldHaveParameterYOfTypeZ {
+            get {
+                return ResourceManager.GetString("ExCompilerXShouldHaveParameterYOfTypeZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compiler {0} should have &quot;this&quot; parameter..
+        /// </summary>
+        internal static string ExCompilerXShouldHaveThisParameter {
+            get {
+                return ResourceManager.GetString("ExCompilerXShouldHaveThisParameter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Compiler {0} should return {1}..
+        /// </summary>
+        internal static string ExCompilerXShouldReturnY {
+            get {
+                return ResourceManager.GetString("ExCompilerXShouldReturnY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Complete method must be called just once..
         /// </summary>
         internal static string ExCompleteMustBeCalledJustOnce {
@@ -4088,6 +4160,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Target member is not found for compiler {0}.
+        /// </summary>
+        internal static string ExTargetMemberIsNotFoundForCompilerX {
+            get {
+                return ResourceManager.GetString("ExTargetMemberIsNotFoundForCompilerX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Temporary tables are not supported by current storage.
         /// </summary>
         internal static string ExTemporaryTablesAreNotSupportedByCurrentStorage {
@@ -4607,6 +4688,15 @@ namespace Xtensive {
         internal static string ExTypeXMustBelongToHierarchy {
             get {
                 return ResourceManager.GetString("ExTypeXMustBelongToHierarchy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type {0} should not be generic..
+        /// </summary>
+        internal static string ExTypeXShouldNotBeGeneric {
+            get {
+                return ResourceManager.GetString("ExTypeXShouldNotBeGeneric", resourceCulture);
             }
         }
         

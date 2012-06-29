@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.02.09
 
-namespace Xtensive.Linq
+namespace Xtensive.Orm
 {
   /// <summary>
   /// Possible ways of handling conflicts (i.e. multiple compilers for same method)

@@ -3,7 +3,7 @@
 #><#@ assembly name="System.Core"
 #><#@ import namespace="System"
 #><#@ import namespace="System.Linq"
-#><#@ include file="DelegateGenerator.ttinclude"
+#><#@ include file="..\..\DelegateGenerator.ttinclude"
 #>// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
@@ -12,7 +12,6 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core;
 using Xtensive.Linq;
 
 namespace Xtensive.Core

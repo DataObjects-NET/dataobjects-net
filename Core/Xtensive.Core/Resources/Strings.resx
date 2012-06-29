@@ -567,33 +567,6 @@
   <data name="ExUnknownExpressionType" xml:space="preserve">
     <value>Unknown expression type: '{0} ({1})'</value>
   </data>
-  <data name="ExCompilerXHasTooManyParameters" xml:space="preserve">
-    <value>Compiler {0} has too many parameters.</value>
-  </data>
-  <data name="ExCompilerXShouldHaveMemberInfoParameter" xml:space="preserve">
-    <value>Compiler {0} should have first parameter of type MemberInfo</value>
-  </data>
-  <data name="ExCompilerXShouldReturnY" xml:space="preserve">
-    <value>Compiler {0} should return {1}.</value>
-  </data>
-  <data name="ExCompilerXShouldHaveParameterYOfTypeZ" xml:space="preserve">
-    <value>Compiler {0} should have parameter {1} of type {2}</value>
-  </data>
-  <data name="ExCompilerXHasInvalidTargetType" xml:space="preserve">
-    <value>Compiler {0} has invalid target type: target type should be either non-generic or generic type definition.</value>
-  </data>
-  <data name="ExCompilerXHasInvalidTargetMember" xml:space="preserve">
-    <value>Compiler {0} has invalid target member.</value>
-  </data>
-  <data name="ExCompilerXShouldHaveThisParameter" xml:space="preserve">
-    <value>Compiler {0} should have "this" parameter.</value>
-  </data>
-  <data name="ExTargetMemberIsNotFoundForCompilerX" xml:space="preserve">
-    <value>Target member is not found for compiler {0}</value>
-  </data>
-  <data name="ExCompilerForXIsAlreadyRegistered" xml:space="preserve">
-    <value>Compiler for {0} is already registered.</value>
-  </data>
   <data name="ExTypeXShouldNotBeGeneric" xml:space="preserve">
     <value>Type {0} should not be generic.</value>
   </data>

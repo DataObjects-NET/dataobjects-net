@@ -5,7 +5,6 @@
 // Created:    2009.05.06
 
 using System;
-using Xtensive.Core;
 
 namespace Xtensive.Core
 {

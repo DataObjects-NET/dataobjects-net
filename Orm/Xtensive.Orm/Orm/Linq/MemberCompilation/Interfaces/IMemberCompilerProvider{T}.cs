@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Xtensive.Linq
+namespace Xtensive.Orm.Linq.MemberCompilation
 {
   /// <summary>
   /// Interface for compiler providers.

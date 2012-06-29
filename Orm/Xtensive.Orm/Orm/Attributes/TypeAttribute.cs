@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Linq
+namespace Xtensive.Orm
 {
   /// <summary>
   /// Attribute for specifying parameter types of compiled method.

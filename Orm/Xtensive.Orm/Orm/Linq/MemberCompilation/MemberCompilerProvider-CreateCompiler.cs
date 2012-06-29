@@ -6,10 +6,9 @@
 
 using System;
 using System.Reflection;
-using Xtensive.Core;
 using Xtensive.Reflection;
 
-namespace Xtensive.Linq
+namespace Xtensive.Orm.Linq.MemberCompilation
 {
   partial class MemberCompilerProvider<T>
   {

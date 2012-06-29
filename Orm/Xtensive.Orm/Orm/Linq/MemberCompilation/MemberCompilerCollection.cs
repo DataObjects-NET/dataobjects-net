@@ -7,15 +7,14 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Resources;
 using Xtensive.Reflection;
 
-namespace Xtensive.Linq
+namespace Xtensive.Orm.Linq.MemberCompilation
 {
   internal sealed class MemberCompilerCollection
   {
-    private readonly Dictionary<MemberInfo, MemberCompilerRegistration> items = new Dictionary<MemberInfo, MemberCompilerRegistration>();
+    private readonly Dictionary<MemberInfo, MemberCompilerRegistration> items
+      = new Dictionary<MemberInfo, MemberCompilerRegistration>();
 
     public int Count { get { return items.Count; } }
 
@@ -36,7 +35,8 @@ namespace Xtensive.Linq
       if (failOnDuplicate) {
         foreach (var key in otherSource.items.Keys)
           if (items.ContainsKey(key))
-            throw new InvalidOperationException(string.Format(Strings.ExCompilerForXIsAlreadyRegistered, key.GetFullName(true)));
+            throw new InvalidOperationException(string.Format(
+              Strings.ExCompilerForXIsAlreadyRegistered, key.GetFullName(true)));
       }
 
       foreach (var registration in otherSource.items.Values)

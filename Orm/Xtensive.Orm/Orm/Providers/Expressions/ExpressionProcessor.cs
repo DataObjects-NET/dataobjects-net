@@ -10,15 +10,14 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Linq;
+using Xtensive.Orm.Linq.MemberCompilation;
+using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Helpers;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Orm.Linq;
-using Xtensive.Orm.Upgrade.Model;
-using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Compilation;
-using Xtensive.Orm.Rse.Helpers;
-using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers
 {

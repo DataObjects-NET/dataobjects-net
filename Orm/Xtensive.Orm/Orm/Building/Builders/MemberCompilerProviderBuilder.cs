@@ -10,9 +10,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Linq;
 using Xtensive.Orm.Configuration;
-
+using Xtensive.Orm.Linq.MemberCompilation;
 
 namespace Xtensive.Orm.Building.Builders
 {
