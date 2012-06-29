@@ -10,9 +10,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
-
-using Xtensive.Reflection;
 using Xtensive.Orm.Rse;
+using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq
@@ -20,7 +19,7 @@ namespace Xtensive.Orm.Linq
   /// <summary>
   /// Expression visitor that checks ability to evaluate expression to <see cref="ConstantExpression"/>.
   /// </summary>
-  public sealed class ExpressionEvaluator : ExpressionVisitor
+  internal sealed class ExpressionEvaluator : ExpressionVisitor
   {
     private readonly HashSet<Expression> candidates = new HashSet<Expression>();
     private bool couldBeEvaluated;

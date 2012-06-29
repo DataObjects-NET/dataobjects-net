@@ -6,8 +6,6 @@
 
 using System;
 using System.Linq.Expressions;
-
-using Xtensive.Linq;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq
@@ -15,7 +13,7 @@ namespace Xtensive.Orm.Linq
   /// <summary>
   /// Expression visitor that determines whether <see cref="Expression"/> could be parameter.
   /// </summary>
-  public sealed class ParameterExtractor : ExpressionVisitor
+  internal sealed class ParameterExtractor : ExpressionVisitor
   {
     private readonly ExpressionEvaluator evaluator;
     private bool isParameter;

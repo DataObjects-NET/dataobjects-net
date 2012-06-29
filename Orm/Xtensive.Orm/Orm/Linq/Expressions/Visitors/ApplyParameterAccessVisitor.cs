@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
   /// Apply parameter access visitor. 
   /// This type is used internally by DataObjects.Net.
   /// </summary>
-  public class ApplyParameterAccessVisitor : ExpressionVisitor
+  internal class ApplyParameterAccessVisitor : ExpressionVisitor
   {
     private readonly ApplyParameter applyParameter;
     private readonly Func<MethodCallExpression, int, Expression> processor;
