@@ -6,11 +6,10 @@
 
 using System;
 using System.Linq;
-using Xtensive.Parameters;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Core;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Materialization;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq
 {

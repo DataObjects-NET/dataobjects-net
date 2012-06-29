@@ -8,10 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.IoC;
 using Xtensive.Resources;
 
-namespace Xtensive.Parameters
+namespace Xtensive.Core
 {
   /// <summary>
   /// Provides storing context-specific <see cref="Parameter{TValue}"/>'s values.

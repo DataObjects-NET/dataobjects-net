@@ -7,7 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Parameters;
+using Xtensive.Core;
 using Xtensive.Orm.Linq;
 
 namespace Xtensive.Orm.Internals

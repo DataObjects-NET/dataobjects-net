@@ -7,12 +7,11 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Parameters;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.Providers.Sql.BooleanHandlingTestModel;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql.BooleanHandlingTestModel
 {

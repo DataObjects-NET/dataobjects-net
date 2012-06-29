@@ -7,17 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Parameters;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
 {

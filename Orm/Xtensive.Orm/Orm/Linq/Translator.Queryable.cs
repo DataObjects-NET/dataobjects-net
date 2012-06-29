@@ -11,22 +11,16 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
-
 using Xtensive.Linq;
-using Xtensive.Orm.Model;
-using Xtensive.Orm.Rse.Providers;
-using Xtensive.Parameters;
-using Xtensive.Reflection;
-using Xtensive.Orm.Providers;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions;
-using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Providers.Compilable;
-using Xtensive.Orm.Linq.Rewriters;
-
 using Xtensive.Orm.Linq.Expressions.Visitors;
+using Xtensive.Orm.Linq.Rewriters;
+using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Rse.Providers.Compilable;
+using Xtensive.Reflection;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq
 {

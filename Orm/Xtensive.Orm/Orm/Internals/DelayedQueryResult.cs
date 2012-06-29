@@ -6,14 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Aspects;
-
-using Xtensive.Parameters;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Core;
 using Xtensive.Orm.Linq;
-using Xtensive.Orm.Providers;
-
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {

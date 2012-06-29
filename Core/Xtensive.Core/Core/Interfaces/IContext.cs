@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.IoC
+namespace Xtensive.Core
 {
   /// <summary>
   /// Base interface for any <see cref="IContext{TScope}"/> contract.

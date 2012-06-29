@@ -6,10 +6,9 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Parameters
+namespace Xtensive.Core
 {
   /// <summary>
   /// Parameter - an object identifying its value in active <see cref="ParameterContext"/>.

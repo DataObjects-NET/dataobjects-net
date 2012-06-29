@@ -5,11 +5,11 @@
 // Created:    2009.04.24
 
 using System.Linq.Expressions;
+using Xtensive.Core;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Parameters;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Rewriters

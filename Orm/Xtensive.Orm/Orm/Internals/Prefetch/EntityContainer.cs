@@ -7,10 +7,9 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Parameters;
+using Xtensive.Orm.Model;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {

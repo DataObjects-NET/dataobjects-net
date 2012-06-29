@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.09.18
 
-using Xtensive.IoC;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers
 {

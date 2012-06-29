@@ -5,16 +5,12 @@
 // Created:    2009.05.27
 
 using System;
-using Xtensive.Core;
-using Xtensive.Collections;
-
-using Xtensive.Parameters;
-using Xtensive.Tuples;
-using Xtensive.Orm.Rse.Providers;
-using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Rse;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
+using Xtensive.Core;
+using Xtensive.Orm.Rse.Providers;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq
 {

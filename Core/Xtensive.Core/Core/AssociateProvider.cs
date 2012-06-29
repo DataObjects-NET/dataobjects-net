@@ -13,13 +13,11 @@ using System.Text;
 using System.Threading;
 using Xtensive.Collections;
 using Xtensive.Comparison;
-using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
 using Xtensive.Resources;
 
-
-namespace Xtensive.IoC
+namespace Xtensive.Core
 {
   /// <summary>
   /// Implements base functionality for associate provider.

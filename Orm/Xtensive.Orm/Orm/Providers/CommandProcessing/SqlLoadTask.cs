@@ -6,8 +6,6 @@
 
 using System.Collections.Generic;
 using Xtensive.Core;
-
-using Xtensive.Parameters;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers

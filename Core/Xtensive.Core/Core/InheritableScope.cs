@@ -9,7 +9,7 @@ using System.Security;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Resources;
 
-namespace Xtensive.IoC
+namespace Xtensive.Core
 {
   /// <summary>
   /// Inheritable <see cref="Scope{TContext}"/> version.

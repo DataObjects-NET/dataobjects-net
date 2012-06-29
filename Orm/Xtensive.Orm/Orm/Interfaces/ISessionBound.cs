@@ -5,8 +5,7 @@
 // Created:    2009.12.14
 
 using Xtensive.Aspects;
-using Xtensive.IoC;
-using Xtensive.Orm;
+using Xtensive.Core;
 
 namespace Xtensive.Orm
 {

@@ -6,7 +6,7 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Parameters;
+using Xtensive.Core;
 using Xtensive.Testing;
 
 namespace Xtensive.Tests.Parameters

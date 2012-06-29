@@ -10,14 +10,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Orm.Rse.Providers;
-using Xtensive.Parameters;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
-using FieldInfo=Xtensive.Orm.Model.FieldInfo;
+using Xtensive.Orm.Rse.Providers;
+using FieldInfo = Xtensive.Orm.Model.FieldInfo;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {

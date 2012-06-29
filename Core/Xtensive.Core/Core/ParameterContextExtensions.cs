@@ -4,8 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.21
 
-
-namespace Xtensive.Parameters
+namespace Xtensive.Core
 {
   /// <summary>
   /// Various extension methods related to this namespace.

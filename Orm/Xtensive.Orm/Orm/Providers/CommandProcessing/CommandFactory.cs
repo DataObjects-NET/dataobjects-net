@@ -6,9 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using Xtensive.Core;
-using Xtensive.Parameters;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Tuple = Xtensive.Tuples.Tuple;

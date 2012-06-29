@@ -4,7 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.08.10
 
-namespace Xtensive.IoC
+namespace Xtensive.Core
 {
   /// <summary>
   /// Interface for all objects that are bound to some <see cref="Context"/>

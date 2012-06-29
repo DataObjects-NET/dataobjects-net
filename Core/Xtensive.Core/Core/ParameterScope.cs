@@ -6,12 +6,10 @@
 
 using System;
 using System.Diagnostics;
-using System.Linq;
 using Xtensive.Internals.DocTemplates;
-using Xtensive.IoC;
 using Xtensive.Resources;
 
-namespace Xtensive.Parameters
+namespace Xtensive.Core
 {
   /// <summary>
   /// <see cref="ParameterContext"/> activation scope.

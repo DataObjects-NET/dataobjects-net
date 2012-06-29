@@ -5,11 +5,7 @@
 // Created:    2009.05.27
 
 using System;
-using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Parameters;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq
 {

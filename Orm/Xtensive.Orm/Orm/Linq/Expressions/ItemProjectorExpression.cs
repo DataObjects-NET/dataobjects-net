@@ -4,22 +4,16 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.06
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Orm.Model;
-using Xtensive.Orm.Rse.Providers;
-using Xtensive.Parameters;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Orm.Linq.Rewriters;
 using Xtensive.Orm.Rse;
-using Xtensive.Linq;
-using Xtensive.Orm.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse.Providers;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Expressions
 {

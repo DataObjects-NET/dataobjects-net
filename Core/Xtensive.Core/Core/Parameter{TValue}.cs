@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Internals.DocTemplates;
 
-namespace Xtensive.Parameters
+namespace Xtensive.Core
 {
   /// <summary>
   /// Parameter - an object identifying its value in active <see cref="ParameterContext"/>.
@@ -17,7 +17,6 @@ namespace Xtensive.Parameters
   public sealed class Parameter<TValue> : Parameter
   {
     private readonly Action<TValue> onOutOfScope;
-    
 
     /// <summary>
     /// Gets or sets the parameter value.

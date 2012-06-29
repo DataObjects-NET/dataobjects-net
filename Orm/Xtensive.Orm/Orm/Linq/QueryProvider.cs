@@ -10,11 +10,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Orm.Rse.Compilation;
-using Xtensive.Parameters;
-using Xtensive.Reflection;
-using Xtensive.Linq;
 using Xtensive.Orm.Internals;
+using Xtensive.Orm.Rse.Compilation;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Linq
 {

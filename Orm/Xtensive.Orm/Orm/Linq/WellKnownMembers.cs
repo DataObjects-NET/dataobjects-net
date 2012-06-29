@@ -9,14 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Core;
 using Xtensive.Collections;
-using Xtensive.Parameters;
-using Xtensive.Reflection;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
+using Xtensive.Reflection;
+using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Linq
 {

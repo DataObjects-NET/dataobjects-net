@@ -8,13 +8,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
-
-using Xtensive.Parameters;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
-
-using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {

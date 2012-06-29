@@ -12,15 +12,13 @@ using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
-using Xtensive.Orm.Rse.Compilation;
-using Xtensive.Parameters;
-using Xtensive.Reflection;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers.Compilable;
+using Xtensive.Reflection;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq
 {

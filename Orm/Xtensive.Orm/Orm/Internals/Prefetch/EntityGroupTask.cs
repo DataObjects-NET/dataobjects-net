@@ -9,13 +9,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Orm.Rse.Providers;
-using Xtensive.Parameters;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {

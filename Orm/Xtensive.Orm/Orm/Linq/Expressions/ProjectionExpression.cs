@@ -6,8 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Parameters;
-using Xtensive.Tuples;
+using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Expressions

@@ -6,10 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.IoC;
-using Xtensive.Parameters;
 using Xtensive.Orm.Linq;
-using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Expressions.Visitors;
 
 namespace Xtensive.Orm.Internals

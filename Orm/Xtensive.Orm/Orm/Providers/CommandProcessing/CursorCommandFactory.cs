@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.18
 
-using Xtensive.Parameters;
+using Xtensive.Core;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers

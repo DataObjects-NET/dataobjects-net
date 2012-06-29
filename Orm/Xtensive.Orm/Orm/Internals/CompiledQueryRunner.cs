@@ -8,12 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Caching;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions.Visitors;
-
-using Xtensive.Parameters;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Internals

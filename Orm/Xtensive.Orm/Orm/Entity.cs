@@ -16,27 +16,21 @@ using Xtensive.Aspects;
 using Xtensive.Caching;
 using Xtensive.Collections;
 using Xtensive.Core;
-
-using Xtensive.Parameters;
-using Xtensive.Reflection;
-using Xtensive.Orm.Validation;
-using Xtensive.Tuples;
-using Xtensive.Orm.Rse.Providers;
-using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Tuples.Transform;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
-using Xtensive.Orm.PairIntegrity;
-
 using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Serialization;
-using Xtensive.Orm.Services;
-using FieldInfo=Xtensive.Orm.Model.FieldInfo;
+using Xtensive.Orm.Validation;
+using Xtensive.Reflection;
+using Xtensive.Tuples;
+using Xtensive.Tuples.Transform;
+using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 using OperationType = Xtensive.Orm.Operations.OperationType;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm
 {
