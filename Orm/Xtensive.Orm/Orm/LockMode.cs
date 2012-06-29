@@ -2,33 +2,33 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexander Nikolaev
-// Created:    2009.08.25
+// Created:    2009.08.24
 
-namespace Xtensive.Orm.Rse
+namespace Xtensive.Orm
 {
   /// <summary>
-  /// Lock behavior.
+  /// Lock mode.
   /// </summary>
-  public enum LockBehavior
+  public enum LockMode
   {
     /// <summary>
-    /// Default lock behavior. Equals to <see cref="Wait"/>.
+    /// Shared lock.
     /// </summary>
-    Default = 0,
+    Shared = 0,
 
     /// <summary>
-    /// Wait until a lock is released.
+    /// Lock for the following update.
     /// </summary>
-    Wait = 0,
+    Update,
 
     /// <summary>
-    /// Throw exception if a lock is occupied.
+    /// Exclusive lock.
     /// </summary>
-    ThrowIfLocked,
+    Exclusive,
 
     /// <summary>
-    /// Skip locked records.
+    /// Default lock mode. Equals to <see cref="Shared"/>.
     /// </summary>
-    Skip
+    Default = Shared,
   }
 }

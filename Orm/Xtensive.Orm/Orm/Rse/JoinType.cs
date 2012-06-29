@@ -12,11 +12,6 @@ namespace Xtensive.Orm.Rse
   public enum JoinType
   {
     /// <summary>
-    /// Default join operation type.
-    /// </summary>
-    Default = Inner,
-
-    /// <summary>
     /// Inner join.
     /// </summary>
     Inner = 0,
@@ -24,6 +19,11 @@ namespace Xtensive.Orm.Rse
     /// <summary>
     /// Left outer join.
     /// </summary>
-    LeftOuter
+    LeftOuter,
+
+    /// <summary>
+    /// Default join operation type.
+    /// </summary>
+    Default = Inner,
   }
 }

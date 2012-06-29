@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.12
 
-namespace Xtensive.Orm.Rse
+namespace Xtensive.Orm
 {
   /// <summary>
   /// Include algorithm.

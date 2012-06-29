@@ -1206,10 +1206,10 @@
     <Compile Include="Orm\Rse\Helpers\TupleAccessGatherer.cs" />
     <Compile Include="Orm\Rse\Helpers\TupleAccessRewriter.cs" />
     <Compile Include="Orm\Rse\Helpers\TupleExpressionHelper.cs" />
-    <Compile Include="Orm\Rse\IncludeAlgorithm.cs" />
+    <Compile Include="Orm\IncludeAlgorithm.cs" />
     <Compile Include="Orm\Rse\JoinType.cs" />
-    <Compile Include="Orm\Rse\LockBehavior.cs" />
-    <Compile Include="Orm\Rse\LockMode.cs" />
+    <Compile Include="Orm\LockBehavior.cs" />
+    <Compile Include="Orm\LockMode.cs" />
     <Compile Include="Orm\Rse\MappedColumn.cs" />
     <Compile Include="Orm\Rse\Compilation\CompositePreCompiler.cs" />
     <Compile Include="Orm\Rse\PreCompilation\Correction\ApplyProviderCorrection\ApplyProviderCorrector.cs" />
