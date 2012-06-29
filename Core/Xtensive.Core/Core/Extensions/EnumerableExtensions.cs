@@ -675,7 +675,10 @@ namespace Xtensive.Core
 
       var graph = new Graph<Node<TValue>, Edge>();
       graph.Nodes.AddRange(values.Select(p => new Node<TValue>(p)));
-      graph.AddEdges((left, right) => edgeTester.Invoke(left.Value, right.Value) ? new Edge() : null);
+      foreach (var left in graph.Nodes)
+        foreach (var right in graph.Nodes)
+          if (edgeTester.Invoke(left.Value, right.Value))
+            new Edge(left, right);
       var result = TopologicalSorter.Sort(graph);
       return result.HasLoops ? null : result.SortedNodes.Select(node => node.Value).ToList();
     }
