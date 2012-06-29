@@ -182,11 +182,9 @@ namespace Xtensive.Orm.Upgrade
       var dependencies = handlers.Keys.ToDictionary(
         assembly => assembly,
         assembly => assembly.GetReferencedAssemblies().Select(assemblyName => assemblyName.ToString()).ToHashSet());
-      var sortedHandlers =
-        from pair in 
-          TopologicalSorter.Sort(handlers, 
-            (a0, a1) => dependencies[a1.Key].Contains(a0.Key.GetName().ToString()))
-        select pair.Value;
+      var sortedHandlers = handlers
+        .SortTopologically((a0, a1) => dependencies[a1.Key].Contains(a0.Key.GetName().ToString()))
+        .Select(pair => pair.Value);
 
       // Storing the result
       serviceAccessor.UpgradeHandlers = 
