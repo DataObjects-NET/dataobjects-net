@@ -19,7 +19,6 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
-using Xtensive.Sorting;
 using Xtensive.Sql;
 using ModelTypeInfo = Xtensive.Orm.Model.TypeInfo;
 
@@ -53,10 +52,16 @@ namespace Xtensive.Orm.Upgrade
 
       if (!configuration.IsLocked)
         configuration.Lock();
+
       var context = new UpgradeContext(configuration);
 
       using (context.Activate()) {
-        return new UpgradingDomainBuilder(context).Run();
+        try {
+          return new UpgradingDomainBuilder(context).Run();
+        }
+        finally {
+          context.Services.DisposeSafely();
+        }
       }
     }
 
@@ -109,7 +114,7 @@ namespace Xtensive.Orm.Upgrade
       var handlerFactory = (HandlerFactory) Activator.CreateInstance(descriptor.HandlerFactory);
       var driver = StorageDriver.Create(driverFactory, configuration);
 
-      var serviceAccessor = new UpgradeServiceAccessor {
+      var serviceAccessor = context.Services = new UpgradeServiceAccessor {
         Configuration = configuration,
         HandlerFactory = handlerFactory,
         Driver = driver,
@@ -118,6 +123,15 @@ namespace Xtensive.Orm.Upgrade
         Resolver = MappingResolver.Get(configuration, driver.ProviderInfo),
       };
 
+      BuildExternalServices(serviceAccessor, configuration);
+
+      serviceAccessor.Lock();
+
+      context.TypeIdProvider = new TypeIdProvider(context);
+    }
+
+    private void BuildExternalServices(UpgradeServiceAccessor serviceAccessor, DomainConfiguration configuration)
+    {
       var standardRegistrations = new[] {
         new ServiceRegistration(typeof (DomainConfiguration), configuration),
         new ServiceRegistration(typeof (UpgradeContext), context)
@@ -125,26 +139,22 @@ namespace Xtensive.Orm.Upgrade
 
       var modules = configuration.Types.Modules
         .Select(type => new ServiceRegistration(typeof (IModule), type, false));
-
       var handlers = configuration.Types.UpgradeHandlers
         .Select(type => new ServiceRegistration(typeof (IUpgradeHandler), type, false));
 
-      var registrations = standardRegistrations
-        .Concat(modules)
-        .Concat(handlers);
+      var registrations = standardRegistrations.Concat(modules).Concat(handlers);
+      var serviceContainer = new ServiceContainer(registrations);
+      serviceAccessor.RegisterResource(serviceContainer);
 
-      using (var serviceContainer = new ServiceContainer(registrations)) {
-        serviceAccessor.Modules = new ReadOnlyList<IModule>(serviceContainer.GetAll<IModule>().ToList());
-        BuildUpgradeHandlers(serviceAccessor, serviceContainer);
-      }
-
-      serviceAccessor.Lock();
-
-      context.Services = serviceAccessor;
-      context.TypeIdProvider = new TypeIdProvider(context);
+      BuildModules(serviceAccessor, serviceContainer);
+      BuildUpgradeHandlers(serviceAccessor, serviceContainer);
     }
 
-    /// <exception cref="DomainBuilderException">More then one enabled handler is provided for some assembly.</exception>
+    private static void BuildModules(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
+    {
+      serviceAccessor.Modules = new ReadOnlyList<IModule>(serviceContainer.GetAll<IModule>().ToList());
+    }
+
     private static void BuildUpgradeHandlers(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
     {
       // Getting user handlers

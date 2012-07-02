@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.14
 
+using System;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -12,8 +13,10 @@ using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Upgrade
 {
-  internal sealed class UpgradeServiceAccessor : LockableBase
+  internal sealed class UpgradeServiceAccessor : LockableBase, IDisposable
   {
+    private readonly DisposableSet resources = new DisposableSet();
+
     private DomainConfiguration configuration;
     private StorageDriver driver;
     private NameBuilder nameBuilder;
@@ -114,6 +117,18 @@ namespace Xtensive.Orm.Upgrade
         this.EnsureNotLocked();
         upgradeHandlers = value;
       }
+    }
+
+    public void RegisterResource(IDisposable resource)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(resource, "resource");
+      this.EnsureNotLocked();
+      resources.Add(resource);
+    }
+
+    public void Dispose()
+    {
+      resources.DisposeSafely();
     }
   }
 }
