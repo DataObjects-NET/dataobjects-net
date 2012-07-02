@@ -16,6 +16,8 @@
 
 :process
 @set version=%~n1:
+@set version=%version:_Z=%
+@set version=%version:_= %
 @echo Changes in %version:_= %>> "%output_file%"
 @echo.>> "%output_file%"
 @for /F "usebackq delims==" %%I in ("%1") do @echo %%I>> "%output_file%"
