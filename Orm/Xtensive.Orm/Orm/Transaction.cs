@@ -123,11 +123,6 @@ namespace Xtensive.Orm
     public bool IsNested { get { return Outer!=null; } }
     
     /// <summary>
-    /// Gets the transaction-level temporary data.
-    /// </summary>
-    public TransactionTemporaryData TemporaryData { get; private set; }
-
-    /// <summary>
     /// Gets the validation context of this <see cref="Transaction"/>.
     /// </summary>    
     public ValidationContext ValidationContext { get; private set; }
@@ -253,7 +248,6 @@ namespace Xtensive.Orm
       IsAutomatic = isAutomatic;
       IsDisconnected = session.IsDisconnected;
       TimeStamp = DateTime.UtcNow;
-      TemporaryData = new TransactionTemporaryData();
       ValidationContext = new ValidationContext();
       
       if (outer!=null) {

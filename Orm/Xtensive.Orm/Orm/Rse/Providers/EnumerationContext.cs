@@ -44,16 +44,6 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <summary>
-    /// Gets the global temporary data.
-    /// </summary>
-    public abstract GlobalTemporaryData GlobalTemporaryData { get; }
-
-    /// <summary>
-    /// Gets the transaction temporary data.
-    /// </summary>
-    public abstract TransactionTemporaryData TransactionTemporaryData { get; }
-
-    /// <summary>
     /// Caches the value in the current <see cref="EnumerationContext"/>.
     /// </summary>
     /// <typeparam name="T">The type of the value.</typeparam>

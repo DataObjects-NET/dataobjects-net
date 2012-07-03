@@ -96,8 +96,6 @@ namespace Xtensive.Orm
     
     internal StorageModel StorageModel { get; set; }
 
-    internal GlobalTemporaryData TemporaryData { get; private set; }
-
     internal DomainHandler Handler { get { return Handlers.DomainHandler; } }
 
     internal HandlerAccessor Handlers { get; private set; }
@@ -252,7 +250,6 @@ namespace Xtensive.Orm
       Cache = ThreadSafeDictionary<object, object>.Create(new object());
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(Configuration.QueryCacheSize, k => k.First);
-      TemporaryData = new GlobalTemporaryData();
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
       Extensions = new ExtensionCollection();
     }

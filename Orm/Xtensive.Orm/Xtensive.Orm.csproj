@@ -1202,7 +1202,6 @@
     <Compile Include="Orm\Rse\Compilation\Interfaces\IPostCompiler.cs" />
     <Compile Include="Orm\Rse\Compilation\Interfaces\IPreCompiler.cs" />
     <Compile Include="Orm\Rse\Providers\Executable\RawProvider.cs" />
-    <Compile Include="Orm\Rse\Providers\GlobalTemporaryData.cs" />
     <Compile Include="Orm\Rse\Helpers\TupleAccessGatherer.cs" />
     <Compile Include="Orm\Rse\Helpers\TupleAccessRewriter.cs" />
     <Compile Include="Orm\Rse\Helpers\TupleExpressionHelper.cs" />
@@ -1280,7 +1279,6 @@
     <Compile Include="Orm\Rse\RecordSetHeaderExtensions.cs" />
     <Compile Include="Orm\Rse\SystemColumn.cs" />
     <Compile Include="Orm\Rse\TemporaryDataScope.cs" />
-    <Compile Include="Orm\Rse\Providers\TransactionTemporaryData.cs" />
     <Compile Include="Orm\Session.SystemLogic.cs" />
     <Compile Include="Strings.Designer.cs">
       <AutoGen>True</AutoGen>

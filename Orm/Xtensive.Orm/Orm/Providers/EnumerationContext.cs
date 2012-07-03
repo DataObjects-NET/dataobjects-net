@@ -74,22 +74,6 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public override GlobalTemporaryData GlobalTemporaryData {
-      get {
-        var domain = Domain.Current;
-        return domain!=null ? domain.TemporaryData : null;
-      }
-    }
-
-    /// <inheritdoc/>
-    public override TransactionTemporaryData TransactionTemporaryData {
-      get {
-        var transaction = Transaction.Current;
-        return transaction!=null ? transaction.TemporaryData : null;
-      }
-    }
-
-    /// <inheritdoc/>
     protected override Rse.Providers.EnumerationScope CreateActiveScope()
     {
       return new EnumerationScope(this);
