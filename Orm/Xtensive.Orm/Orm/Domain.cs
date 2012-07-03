@@ -10,7 +10,6 @@ using System.Diagnostics;
 using Xtensive.Caching;
 using Xtensive.Collections;
 using Xtensive.Core;
-
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
@@ -29,14 +28,10 @@ namespace Xtensive.Orm
   /// <sample>
   /// <code lang="cs" source="..\Xtensive.Orm\Xtensive.Orm.Manual\DomainAndSession\DomainAndSessionSample.cs" region="Domain sample"></code>
   /// </sample>
-  public sealed class Domain :
-    IDisposable,
-    IHasExtensions
+  public sealed class Domain : IDisposable, IHasExtensions
   {
     private readonly object disposelock = new object();
     private bool isDisposed;
-
-    private volatile ExtensionCollection extensions;
 
     /// <summary>
     /// Occurs when new <see cref="Session"/> is open and activated.
@@ -71,22 +66,12 @@ namespace Xtensive.Orm
     public static Domain Demand()
     {
       return Session.Demand().Domain;
-    }    
+    }
     
     /// <summary>
     /// Gets the domain configuration.
     /// </summary>
     public DomainConfiguration Configuration { get; private set; }
-
-    /// <summary>
-    /// Gets the <see cref="RecordSetReader"/> instance.
-    /// </summary>
-    internal RecordSetReader RecordSetReader { get; private set; }
-
-    /// <summary>
-    /// Gets the prefetch action map.
-    /// </summary>
-    internal Dictionary<Model.TypeInfo, Action<SessionHandler, IEnumerable<Key>>> PrefetchActionMap { get; private set; }
 
     /// <summary>
     /// Gets the domain model.
@@ -105,14 +90,12 @@ namespace Xtensive.Orm
 
     #region Private / internal members
 
-    /// <summary>
-    /// Gets the storage model that was build from <see cref="Model"/>.
-    /// </summary>
+    internal RecordSetReader RecordSetReader { get; private set; }
+
+    internal Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>> PrefetchActionMap { get; private set; }
+    
     internal StorageModel StorageModel { get; set; }
 
-    /// <summary>
-    /// Gets the domain-level temporary data.
-    /// </summary>
     internal GlobalTemporaryData TemporaryData { get; private set; }
 
     internal DomainHandler Handler { get { return Handlers.DomainHandler; } }
@@ -124,7 +107,9 @@ namespace Xtensive.Orm
     internal KeyGeneratorRegistry KeyGenerators { get; private set; }
 
     internal ThreadSafeDictionary<object, object> Cache { get; private set; }
+    
     internal ICache<object, Pair<object, TranslatedQuery>> QueryCache { get; private set; }
+
     internal ICache<Key, Key> KeyCache { get; private set; }
 
     internal IServiceContainer CreateSystemServices()
@@ -240,7 +225,7 @@ namespace Xtensive.Orm
     #region IHasExtensions members
 
     /// <inheritdoc/>
-    public IExtensionCollection Extensions { get { return extensions; } }
+    public IExtensionCollection Extensions { get; private set; }
     
     #endregion
 
@@ -269,7 +254,7 @@ namespace Xtensive.Orm
       QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(Configuration.QueryCacheSize, k => k.First);
       TemporaryData = new GlobalTemporaryData();
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
-      extensions = new ExtensionCollection();
+      Extensions = new ExtensionCollection();
     }
 
     /// <inheritdoc/>
@@ -281,7 +266,7 @@ namespace Xtensive.Orm
         isDisposed = true;
         OrmLog.Debug(Strings.LogDomainIsDisposing);
         NotifyDisposing();
-        Services.DisposeSafely();
+        Services.Dispose();
       }
     }
   }
