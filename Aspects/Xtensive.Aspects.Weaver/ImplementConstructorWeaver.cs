@@ -103,37 +103,7 @@ namespace Xtensive.Aspects.Weaver
       public override void Implement(TransformationContext context)
       {
         var typeDef = (TypeDefDeclaration) context.TargetElement;
-        var currentLicense = PlugIn.CurrentLicense;
-        if (currentLicense != null && new []{LicenseType.Basic, LicenseType.Trial}.Contains(currentLicense.LicenseType)) {
-          var severityType = currentLicense.LicenseType == LicenseType.Trial 
-            ? SeverityType.Info 
-            : SeverityType.Error;
-          if (typeDef.GenericParameters.Count > 0) {
-            var genericMessage = GetErrorForGenericPersistentType(typeDef, currentLicense);
-            if (!PlugIn.ErrorMessages.Contains(genericMessage)) {
-              PlugIn.ErrorMessages.Add(genericMessage);
-              ErrorLog.Write(MessageLocation.Of(typeDef), severityType, genericMessage);
-            }
-          }
 
-          var interfaces = typeDef.GetInterfacesRecursive();
-          if (interfaces.Count > 0) {
-            var iEntity = interfaces
-                            .OfType<NamedMetadataDeclaration>()
-                            .FirstOrDefault(n => n.Name=="Xtensive.Orm.IEntity") as ITypeSignature;
-            if (iEntity!=null) {
-              var persistentInterface = interfaces
-                .FirstOrDefault(i => !i.MatchesReference(iEntity) && i.IsAssignableTo(iEntity));
-              if (persistentInterface != null) {
-                var interfaceMessage = GetErrorForPersistentInterface(persistentInterface, currentLicense);
-                if (!PlugIn.ErrorMessages.Contains(interfaceMessage)) {
-                  PlugIn.ErrorMessages.Add(interfaceMessage);
-                  ErrorLog.Write(MessageLocation.Of(typeDef), severityType, interfaceMessage);
-                }
-              }
-            }
-          }
-        }
         var baseType = typeDef.BaseType;
         var module = AspectWeaver.Module;
         var helper = new WeavingHelper(module);
