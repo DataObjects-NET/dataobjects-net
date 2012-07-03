@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers
     private new IncludeProvider Origin { get { return (IncludeProvider) base.Origin; } }
 
     /// <inheritdoc/>
-    public override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
+    protected override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
       switch (Origin.Algorithm) {
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
+    protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
     {
       ClearAndUnlock(context);
       base.OnAfterEnumerate(context);

@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Providers
     protected Providers.DomainHandler DomainHandler { get { return handlers.DomainHandler; } }
 
     /// <inheritdoc/>
-    public override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
+    protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
     {
       var storageContext = (EnumerationContext) context;
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
