@@ -4,22 +4,15 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.05
 
-using System;
-using System.Collections.Generic;
-using Xtensive.Core;
-using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Providers.Compilable;
-using Xtensive.Orm.Services;
-using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// Default implementation of SQL temporary data provider.
   /// </summary>
-  public class SqlStoreProvider : SqlTemporaryDataProvider,
-    IHasNamedResult
+  public class SqlStoreProvider : SqlTemporaryDataProvider
   {
     private new StoreProvider Origin
     {
@@ -30,22 +23,6 @@ namespace Xtensive.Orm.Providers
     {
       get { return (ExecutableProvider) Sources[0]; }
     }
-
-    #region IHasNamedResult members
-
-    /// <inheritdoc/>
-    public TemporaryDataScope Scope
-    {
-      get { return Origin.Scope; }
-    }
-
-    /// <inheritdoc/>
-    public string Name
-    {
-      get { return Origin.Name; }
-    }
-
-    #endregion
 
     /// <inheritdoc/>
     public override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
@@ -76,7 +53,6 @@ namespace Xtensive.Orm.Providers
       StoreProvider origin, ExecutableProvider source)
       : base(handlers, request, descriptor, origin, new[] {source})
     {
-      AddService<IHasNamedResult>();
     }
   }
 }

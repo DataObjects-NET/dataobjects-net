@@ -331,8 +331,6 @@ namespace Xtensive.Orm.Providers
           ?? (provider.Source is RawProvider
             ? (ExecutableProvider) (new Rse.Providers.Executable.RawProvider((RawProvider) provider.Source))
             : Compile((CompilableProvider) provider.Source));
-      if (provider.Scope!=TemporaryDataScope.Enumeration)
-        throw new NotSupportedException(string.Format(Strings.ExXIsNotSupported, provider.Scope));
       var columnNames = provider.Header.Columns.Select(column => column.Name).ToArray();
       var descriptor = DomainHandler.TemporaryTableManager
         .BuildDescriptor(provider.Name, provider.Header.TupleDescriptor, columnNames);

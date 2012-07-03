@@ -128,9 +128,9 @@ namespace Xtensive.Orm.Rse
       return new StoreProvider(source);
     }
 
-    public static CompilableProvider Save(this CompilableProvider source, TemporaryDataScope scope, string name)
+    public static CompilableProvider Save(this CompilableProvider source, string name)
     {
-      return new StoreProvider(source, scope, name);
+      return new StoreProvider(source, name);
     }
 
     public static CompilableProvider ToRecordSet(this IEnumerable<Tuple> tuples, RecordSetHeader header)

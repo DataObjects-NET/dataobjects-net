@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse.Providers.Executable
@@ -47,7 +46,6 @@ namespace Xtensive.Orm.Rse.Providers.Executable
     public RawProvider(Compilable.RawProvider origin)
       : base(origin)
     {
-      AddService<IListProvider>();
     }
   }
 }

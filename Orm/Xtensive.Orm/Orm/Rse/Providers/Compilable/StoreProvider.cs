@@ -5,10 +5,7 @@
 // Created:    2008.09.05
 
 using System;
-using Xtensive.Collections;
 using Xtensive.Core;
-
-using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Rse.Providers.Compilable
 {
@@ -19,14 +16,7 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
   [Serializable]
   public sealed class StoreProvider : CompilableProvider
   {
-    private const string ToStringFormat = "{0}, '{1}'";
-
     private readonly RecordSetHeader header;
-
-    /// <summary>
-    /// Gets the scope of saved data.
-    /// </summary>
-    public TemporaryDataScope Scope { get; private set; }
 
     /// <summary>
     /// Gets the name of saved data.
@@ -44,11 +34,10 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
       return header;
     }
 
-   
     /// <inheritdoc/>
     protected override string ParametersToString()
     {
-      return string.Format(ToStringFormat, Scope, Name);
+      return Name;
     }
 
 
@@ -58,32 +47,32 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
-    /// <param name="scope">The <see cref="Scope"/> property value.</param>
     /// <param name="name">The <see cref="Name"/> property value.</param>
-    public StoreProvider(RecordSetHeader header, TemporaryDataScope scope, string name)
+    public StoreProvider(RecordSetHeader header, string name)
       : base (ProviderType.Store)
     {
       ArgumentValidator.EnsureArgumentNotNull(header, "header");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      this.header = header;
-      Scope = scope;
+
       Name = name;
+
+      this.header = header;
     }
 
     /// <summary>
     ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
-    /// <param name="scope">The <see cref="Scope"/> property value.</param>
     /// <param name="name">The <see cref="Name"/> property value.</param>
-    public StoreProvider(Provider source, TemporaryDataScope scope, string name)
+    public StoreProvider(Provider source, string name)
       : base(ProviderType.Store, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      Scope = scope;
+
       Name = name;
       Source = source;
+
       header = source.Header;
     }
 
@@ -95,9 +84,10 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
       : base(ProviderType.Store, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      Scope = TemporaryDataScope.Enumeration;
+
       Name = Guid.NewGuid().ToString();
       Source = source;
+
       header = source.Header;
     }
   }

@@ -1266,10 +1266,7 @@
     <Compile Include="Orm\Rse\Providers\ExecutableProvider.cs" />
     <Compile Include="Orm\Rse\Providers\ExecutableProvider{TOrigin}.cs" />
     <Compile Include="Orm\Rse\Providers\Interfaces\ICachingProvider.cs" />
-    <Compile Include="Orm\Rse\Providers\Interfaces\IHasNamedResult.cs" />
     <Compile Include="Orm\Rse\Providers\Interfaces\IInlinableProvider.cs" />
-    <Compile Include="Orm\Rse\Providers\Interfaces\IListProvider.cs" />
-    <Compile Include="Orm\Rse\Providers\Interfaces\IOrderedProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Provider.cs" />
     <Compile Include="Orm\Rse\Providers\ProviderType.cs" />
     <Compile Include="Orm\Rse\Providers\ProviderVisitor.cs" />
@@ -1278,7 +1275,6 @@
     <Compile Include="Orm\Rse\RecordSetHeader.cs" />
     <Compile Include="Orm\Rse\RecordSetHeaderExtensions.cs" />
     <Compile Include="Orm\Rse\SystemColumn.cs" />
-    <Compile Include="Orm\Rse\TemporaryDataScope.cs" />
     <Compile Include="Orm\Session.SystemLogic.cs" />
     <Compile Include="Strings.Designer.cs">
       <AutoGen>True</AutoGen>

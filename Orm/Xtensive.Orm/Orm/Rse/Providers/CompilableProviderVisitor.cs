@@ -6,14 +6,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Linq;
 using Xtensive.Orm.Rse.Providers.Compilable;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using System.Linq;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -213,7 +211,7 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionExit(provider);
       if (source == compilableSource)
         return provider;
-      return new StoreProvider(source, provider.Scope, provider.Name);
+      return new StoreProvider(source, provider.Name);
     }
 
     /// <inheritdoc/>
