@@ -24,9 +24,19 @@ namespace Xtensive.Orm.Upgrade
 
     public void Extract(MetadataSet output)
     {
-      ExtractAssemblies(output.Assemblies);
-      ExtractTypes(output.Types);
-      ExtractExtensions(output.Extensions);
+      // Make sure we fill output only when all records has been read.
+
+      var assemblies = new List<AssemblyMetadata>();
+      var types = new List<TypeMetadata>();
+      var extensions = new List<ExtensionMetadata>();
+
+      ExtractAssemblies(assemblies);
+      ExtractTypes(types);
+      ExtractExtensions(extensions);
+
+      output.Assemblies.AddRange(assemblies);
+      output.Types.AddRange(types);
+      output.Extensions.AddRange(extensions);
     }
 
     #region Private / internal methods

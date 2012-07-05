@@ -2422,4 +2422,7 @@ Error: {1}</value>
   <data name="ExTypeXShouldNotBeGeneric" xml:space="preserve">
     <value>Type {0} should not be generic.</value>
   </data>
+  <data name="LogFailedToExtractMetadataFromXYZ">
+    <value xml:space="preserve">Failed to extract metadata from '{0}.{1}': {2}</value>
+  </data>
 </root>

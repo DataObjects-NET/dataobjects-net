@@ -5859,6 +5859,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to extract metadata from &apos;{0}.{1}&apos;: {2}.
+        /// </summary>
+        internal static string LogFailedToExtractMetadataFromXYZ {
+            get {
+                return ResourceManager.GetString("LogFailedToExtractMetadataFromXYZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Field: &apos;{0}&apos;.
         /// </summary>
         internal static string LogFieldX {

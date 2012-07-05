@@ -42,7 +42,12 @@ namespace Xtensive.Orm.Upgrade
       var mapping = new MetadataMapping(services.Driver, services.NameBuilder);
       var set = new MetadataSet();
       foreach (var task in services.Resolver.GetMetadataTasks())
-        new MetadataExtractor(mapping, task, executor).Extract(set);
+        try {
+          new MetadataExtractor(mapping, task, executor).Extract(set);
+        }
+        catch (Exception exception) {
+          UpgradeLog.Warning(Strings.LogFailedToExtractMetadataFromXYZ, task.Catalog, task.Schema, exception);
+        }
       result.Metadata = set;
     }
 
