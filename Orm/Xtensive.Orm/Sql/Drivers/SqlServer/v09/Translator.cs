@@ -317,13 +317,18 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var result = new StringBuilder();
       var table = action.Column.Table;
 
-      if (context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects))
-        result.AppendFormat("USE {0}; ", QuoteIdentifier(table.Schema.Catalog.DbName));
+      AddUseStatement(context, table.Schema.Catalog, result);
 
       result.AppendFormat("EXEC sp_rename '{0}', '{1}', 'COLUMN'",
         QuoteIdentifier(table.Schema.DbName, table.DbName, action.Column.DbName), action.NewName);
 
       return result.ToString();
+    }
+
+    protected void AddUseStatement(SqlCompilerContext context, Catalog catalog, StringBuilder output)
+    {
+      if (context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects))
+        output.AppendFormat("USE [{0}]; ", catalog.DbName);
     }
     
     public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)

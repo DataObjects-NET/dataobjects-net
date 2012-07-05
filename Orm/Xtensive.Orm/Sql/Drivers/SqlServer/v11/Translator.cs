@@ -67,8 +67,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       // but it's OK because we always use database qualified objects in all other statements.
 
       var result = new StringBuilder();
-      if (context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects))
-        result.AppendFormat("USE {0}; ", QuoteIdentifier(sequence.Schema.Catalog.Name));
+      AddUseStatement(context, sequence.Schema.Catalog, result);
       result.AppendFormat("{0} SEQUENCE {1}", action, QuoteIdentifier(sequence.Schema.Name, sequence.Name));
       return result.ToString();
     }
