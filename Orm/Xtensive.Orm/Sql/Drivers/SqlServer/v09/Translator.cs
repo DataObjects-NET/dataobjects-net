@@ -246,7 +246,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     public override string Translate(SqlCompilerContext context, SqlQueryExpression node, QueryExpressionSection section)
     {
-      if (node.All && section == QueryExpressionSection.All && (node.NodeType == SqlNodeType.Except || node.NodeType == SqlNodeType.Intersect))
+      if (node.All && section==QueryExpressionSection.All && (node.NodeType==SqlNodeType.Except || node.NodeType==SqlNodeType.Intersect))
         return string.Empty;
       return base.Translate(context, node, section);
     }
@@ -314,11 +314,16 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     public virtual string Translate(SqlCompilerContext context, SqlRenameColumn action)
     {
-      string schemaName = action.Column.Table.Schema.DbName;
-      string tableName = action.Column.Table.DbName;
-      string columnName = action.Column.DbName;
-      return string.Format("EXEC sp_rename '{0}', '{1}', 'COLUMN'",
-        QuoteIdentifier(schemaName, tableName, columnName), action.NewName);
+      var result = new StringBuilder();
+      var table = action.Column.Table;
+
+      if (context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects))
+        result.AppendFormat("USE {0}; ", QuoteIdentifier(table.Schema.Catalog.DbName));
+
+      result.AppendFormat("EXEC sp_rename '{0}', '{1}', 'COLUMN'",
+        QuoteIdentifier(table.Schema.DbName, table.DbName, action.Column.DbName), action.NewName);
+
+      return result.ToString();
     }
     
     public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
