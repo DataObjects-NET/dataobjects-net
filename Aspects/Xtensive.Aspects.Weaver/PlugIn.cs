@@ -98,7 +98,7 @@ namespace Xtensive.Aspects.Weaver
     private static DateTime GetAssemblyBuildDate(Assembly assembly)
     {
       const string format = "yyyy-MM-dd";
-      var fallback = new DateTime(2010, 01, 01);
+      var fallback = new DateTime(2010, 01, 01, 0, 0, 0, DateTimeKind.Utc);
       var attribute = assembly
         .GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false)
         .Cast<AssemblyInformationalVersionAttribute>()
@@ -137,7 +137,9 @@ namespace Xtensive.Aspects.Weaver
 
     private void OnlineCheck(LicenseInfo licenseInfo)
     {
-      var companyLicenseData = licenseInfo.EvaluationMode ? null : licenseValidator.GetCompanyLicenseData();
+      var companyLicenseData = licenseInfo.LicenseType==LicenseType.Trial
+        ? null
+        : licenseValidator.GetCompanyLicenseData();
       var request = new InternetCheckRequest(
         companyLicenseData, licenseInfo.ExpireOn, licenseValidator.ProductVersion, licenseValidator.HardwareId);
       var result = InternetActivator.Check(request);
