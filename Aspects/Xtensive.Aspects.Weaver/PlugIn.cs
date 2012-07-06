@@ -158,7 +158,7 @@ namespace Xtensive.Aspects.Weaver
     private static void RunLicenseManager()
     {
       var managerDirectory = Path.GetDirectoryName(GetWeaverAssemblyLocation());
-      var managerExecutable = Path.Combine(managerDirectory, "Xtensive.Licensing.Manager.exe");
+      var managerExecutable = Path.Combine(managerDirectory, "LicenseManager.exe");
       var canRunManager =
         Environment.UserInteractive
         && Environment.OSVersion.Platform==PlatformID.Win32NT
