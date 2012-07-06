@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.07.31
 
-using System;
-
 namespace Xtensive.Aspects.Helpers
 {
   /// <summary>

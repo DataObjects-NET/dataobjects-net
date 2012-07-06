@@ -16,10 +16,7 @@ using PostSharp.Sdk.AspectWeaver.Transformations;
 using PostSharp.Sdk.CodeModel;
 using PostSharp.Sdk.CodeWeaver;
 using PostSharp.Sdk.Collections;
-using Xtensive.Aspects;
 using Xtensive.Aspects.Helpers;
-using Xtensive.Licensing;
-using LicenseType = Xtensive.Licensing.LicenseType;
 
 namespace Xtensive.Aspects.Weaver
 {
@@ -48,7 +45,8 @@ namespace Xtensive.Aspects.Weaver
 
     public ImplementConstructorWeaver()
       : base(null, MulticastTargets.Class)
-    { }
+    {
+    }
 
 
     // Nested class
@@ -97,7 +95,8 @@ namespace Xtensive.Aspects.Weaver
 
     private class Instance : StructuralTransformationInstance
     {
-      private const string parameterNamePrefix = "arg";
+      private const string ParameterNamePrefix = "arg";
+
       private readonly ITypeSignature[] argumentTypes;
 
       public override void Implement(TransformationContext context)
@@ -119,7 +118,7 @@ namespace Xtensive.Aspects.Weaver
         ctorDef.ReturnParameter.Attributes = ParameterAttributes.Retval;
   
         for (int i = 0; i < argumentTypes.Length; i++)
-          ctorDef.Parameters.Add(new ParameterDeclaration(i, parameterNamePrefix + i, argumentTypes[i].TranslateType(module)));
+          ctorDef.Parameters.Add(new ParameterDeclaration(i, ParameterNamePrefix + i, argumentTypes[i].TranslateType(module)));
         ctorDef.MethodBody = new MethodBodyDeclaration();
         ctorDef.MethodBody.RootInstructionBlock = ctorDef.MethodBody.CreateInstructionBlock();
         IMethod baseConstructor = null;
@@ -155,25 +154,6 @@ namespace Xtensive.Aspects.Weaver
           writer.DetachInstructionSequence();
         }
       }
-
-      private static string GetErrorForPersistentInterface(ITypeSignature persistentInterface, LicenseInfo currentLicense)
-      {
-        return string.Format(
-          "Unsupported type \"{1}\". DataObjects.Net {0} edition does not support persistent interfaces. " +
-          "Please acquire at least Standard edition.",
-          currentLicense.LicenseType,
-          ((NamedMetadataDeclaration) persistentInterface).Name);
-      }
-
-      private static string GetErrorForGenericPersistentType(TypeDefDeclaration typeDef, LicenseInfo currentLicense)
-      {
-        return string.Format(
-          "Unsupported type \"{1}\". DataObjects.Net {0} edition does not support generic types. " +
-          "Please acquire at least Standard edition.",
-          currentLicense.LicenseType,
-          typeDef.Name);
-      }
-
 
       // Constructors
 
