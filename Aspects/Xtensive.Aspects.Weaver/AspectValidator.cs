@@ -82,7 +82,7 @@ namespace Xtensive.Aspects.Weaver
       var maxAssemblyDate = referencesToXtensiveAssemblies.Select(r => GetAssemblyBuildDate(r.GetSystemAssembly())).Max();
       if (licenseInfo.ExpireOn < maxAssemblyDate) {
         FatalLicenseError("Your subscription expired {0} and is not valid for this release of {1}.",
-          licenseInfo.ExpireOn.ToShortDateString(), ThisAssembly.ProductName);
+          licenseInfo.ExpireOn.ToLongDateString(), ThisAssembly.ProductName);
         return false;
       }
 
