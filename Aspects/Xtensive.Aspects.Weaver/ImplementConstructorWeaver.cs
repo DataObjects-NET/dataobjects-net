@@ -78,7 +78,7 @@ namespace Xtensive.Aspects.Weaver
     public AspectWeaverTransformationInstance CreateInstance(AspectWeaverInstance aspectWeaverInstance)
     {
       var module = AspectWeaver.Module;
-      var aspect = (ImplementConstructor)aspectWeaverInstance.Aspect;
+      var aspect = (ImplementConstructor) aspectWeaverInstance.Aspect;
       var argumentTypes = aspect.ParameterTypes.Select(t => module.Cache.GetType(t)).ToArray();
       return new Instance(this, aspectWeaverInstance, argumentTypes);
     }
@@ -101,6 +101,8 @@ namespace Xtensive.Aspects.Weaver
 
       public override void Implement(TransformationContext context)
       {
+        AspectValidator.Current.EnforceAspectLimit();
+
         var typeDef = (TypeDefDeclaration) context.TargetElement;
 
         var baseType = typeDef.BaseType;
