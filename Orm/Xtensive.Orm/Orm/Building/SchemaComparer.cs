@@ -119,13 +119,6 @@ namespace Xtensive.Orm.Building
         unsafeActions);
     }
 
-    private static IList<GroupingNodeAction> GetSystemTableActions(ActionSequence actions, HashSet<string> systemTableNames)
-    {
-      return actions.OfType<GroupingNodeAction>().Flatten(
-        action => action.Actions.OfType<GroupingNodeAction>(), ga => { }, false)
-        .Where(action => systemTableNames.Contains(action.Comment, StringComparer.OrdinalIgnoreCase)).ToList();
-    }
-    
     private static IList<NodeAction> GetUnsafeActions(ActionSequence upgradeActions)
     {
       var unsafeActions = new List<NodeAction>();
