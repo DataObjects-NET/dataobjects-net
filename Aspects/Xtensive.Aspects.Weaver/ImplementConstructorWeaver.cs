@@ -16,10 +16,7 @@ using PostSharp.Sdk.AspectWeaver.Transformations;
 using PostSharp.Sdk.CodeModel;
 using PostSharp.Sdk.CodeWeaver;
 using PostSharp.Sdk.Collections;
-using Xtensive.Aspects;
 using Xtensive.Aspects.Helpers;
-using Xtensive.Licensing;
-using LicenseType = Xtensive.Licensing.LicenseType;
 
 namespace Xtensive.Aspects.Weaver
 {
@@ -48,7 +45,8 @@ namespace Xtensive.Aspects.Weaver
 
     public ImplementConstructorWeaver()
       : base(null, MulticastTargets.Class)
-    { }
+    {
+    }
 
 
     // Nested class
@@ -80,7 +78,7 @@ namespace Xtensive.Aspects.Weaver
     public AspectWeaverTransformationInstance CreateInstance(AspectWeaverInstance aspectWeaverInstance)
     {
       var module = AspectWeaver.Module;
-      var aspect = (ImplementConstructor)aspectWeaverInstance.Aspect;
+      var aspect = (ImplementConstructor) aspectWeaverInstance.Aspect;
       var argumentTypes = aspect.ParameterTypes.Select(t => module.Cache.GetType(t)).ToArray();
       return new Instance(this, aspectWeaverInstance, argumentTypes);
     }
@@ -97,43 +95,16 @@ namespace Xtensive.Aspects.Weaver
 
     private class Instance : StructuralTransformationInstance
     {
-      private const string parameterNamePrefix = "arg";
+      private const string ParameterNamePrefix = "arg";
+
       private readonly ITypeSignature[] argumentTypes;
 
       public override void Implement(TransformationContext context)
       {
-        var typeDef = (TypeDefDeclaration) context.TargetElement;
-        var currentLicense = PlugIn.CurrentLicense;
-        if (currentLicense != null && new []{LicenseType.Basic, LicenseType.Trial}.Contains(currentLicense.LicenseType)) {
-          var severityType = currentLicense.LicenseType == LicenseType.Trial 
-            ? SeverityType.Info 
-            : SeverityType.Error;
-          if (typeDef.GenericParameters.Count > 0) {
-            var genericMessage = GetErrorForGenericPersistentType(typeDef, currentLicense);
-            if (!PlugIn.ErrorMessages.Contains(genericMessage)) {
-              PlugIn.ErrorMessages.Add(genericMessage);
-              ErrorLog.Write(MessageLocation.Of(typeDef), severityType, genericMessage);
-            }
-          }
+        AspectValidator.Current.EnforceAspectLimit();
 
-          var interfaces = typeDef.GetInterfacesRecursive();
-          if (interfaces.Count > 0) {
-            var iEntity = interfaces
-                            .OfType<NamedMetadataDeclaration>()
-                            .FirstOrDefault(n => n.Name=="Xtensive.Orm.IEntity") as ITypeSignature;
-            if (iEntity!=null) {
-              var persistentInterface = interfaces
-                .FirstOrDefault(i => !i.MatchesReference(iEntity) && i.IsAssignableTo(iEntity));
-              if (persistentInterface != null) {
-                var interfaceMessage = GetErrorForPersistentInterface(persistentInterface, currentLicense);
-                if (!PlugIn.ErrorMessages.Contains(interfaceMessage)) {
-                  PlugIn.ErrorMessages.Add(interfaceMessage);
-                  ErrorLog.Write(MessageLocation.Of(typeDef), severityType, interfaceMessage);
-                }
-              }
-            }
-          }
-        }
+        var typeDef = (TypeDefDeclaration) context.TargetElement;
+
         var baseType = typeDef.BaseType;
         var module = AspectWeaver.Module;
         var helper = new WeavingHelper(module);
@@ -149,7 +120,7 @@ namespace Xtensive.Aspects.Weaver
         ctorDef.ReturnParameter.Attributes = ParameterAttributes.Retval;
   
         for (int i = 0; i < argumentTypes.Length; i++)
-          ctorDef.Parameters.Add(new ParameterDeclaration(i, parameterNamePrefix + i, argumentTypes[i].TranslateType(module)));
+          ctorDef.Parameters.Add(new ParameterDeclaration(i, ParameterNamePrefix + i, argumentTypes[i].TranslateType(module)));
         ctorDef.MethodBody = new MethodBodyDeclaration();
         ctorDef.MethodBody.RootInstructionBlock = ctorDef.MethodBody.CreateInstructionBlock();
         IMethod baseConstructor = null;
@@ -185,25 +156,6 @@ namespace Xtensive.Aspects.Weaver
           writer.DetachInstructionSequence();
         }
       }
-
-      private static string GetErrorForPersistentInterface(ITypeSignature persistentInterface, LicenseInfo currentLicense)
-      {
-        return string.Format(
-          "Unsupported type \"{1}\". DataObjects.Net {0} edition does not support persistent interfaces. " +
-          "Please acquire at least Standard edition.",
-          currentLicense.LicenseType,
-          ((NamedMetadataDeclaration) persistentInterface).Name);
-      }
-
-      private static string GetErrorForGenericPersistentType(TypeDefDeclaration typeDef, LicenseInfo currentLicense)
-      {
-        return string.Format(
-          "Unsupported type \"{1}\". DataObjects.Net {0} edition does not support generic types. " +
-          "Please acquire at least Standard edition.",
-          currentLicense.LicenseType,
-          typeDef.Name);
-      }
-
 
       // Constructors
 

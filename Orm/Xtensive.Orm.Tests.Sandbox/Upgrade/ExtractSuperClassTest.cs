@@ -110,9 +110,10 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
   }
 
+  [TestFixture]
   public class ExtractSuperClassTest
   {
-    public Domain BuildDomain(Type sampleType, DomainUpgradeMode mode)
+    private Domain BuildDomain(Type sampleType, DomainUpgradeMode mode)
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = mode;

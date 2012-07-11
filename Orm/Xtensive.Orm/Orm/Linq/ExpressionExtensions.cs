@@ -10,25 +10,28 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
-using Xtensive.Linq;
-using Xtensive.Reflection;
 using Xtensive.Orm.Linq.Expressions;
-
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Linq
 {
   internal static class ExpressionExtensions
   {
-    public static void EnsureKeyExpressionCompatible(this KeyExpression leftKeyExpression, KeyExpression rightKeyExpression, Expression expressionPart)
+    public static void EnsureKeyExpressionCompatible(this KeyExpression left, KeyExpression right, Expression expressionPart)
     {
-        if (leftKeyExpression!=null && rightKeyExpression!=null) {
-          if (leftKeyExpression.EntityType.IsInterface || rightKeyExpression.EntityType.IsInterface) {
-            if (leftKeyExpression.EntityType.Key!=rightKeyExpression.EntityType.Key)
-              throw new InvalidOperationException(String.Format(Strings.ExKeysOfXAndXNotCompatible, expressionPart.ToString(true), leftKeyExpression.EntityType, rightKeyExpression.EntityType));
-          }
-          else if (leftKeyExpression.EntityType.Hierarchy!=rightKeyExpression.EntityType.Hierarchy)
-            throw new InvalidOperationException(String.Format(Strings.ExEntitiesXAndXBelongToDifferentHierarchies, expressionPart.ToString(true), leftKeyExpression.EntityType, rightKeyExpression.EntityType));
-        }
+      if (left==null || right==null)
+        return;
+
+      if (left.EntityType.IsInterface || right.EntityType.IsInterface) {
+        if (left.EntityType.Key.EqualityIdentifier!=right.EntityType.Key.EqualityIdentifier)
+          throw new InvalidOperationException(string.Format(
+            Strings.ExKeysOfXAndXNotCompatible, expressionPart.ToString(true), left.EntityType, right.EntityType));
+      }
+      else {
+        if (left.EntityType.Hierarchy!=right.EntityType.Hierarchy)
+          throw new InvalidOperationException(string.Format(
+            Strings.ExEntitiesXAndXBelongToDifferentHierarchies, expressionPart.ToString(true), left.EntityType, right.EntityType));
+      }
     }
 
     public static bool IsAnonymousConstructor(this Expression expression)

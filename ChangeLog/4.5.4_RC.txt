@@ -1,0 +1,3 @@
+[main] Fixed comparion of Key fields in interaces in LINQ queries under certains scenarios
+[main] Visual experience of License Manager has been improved
+
