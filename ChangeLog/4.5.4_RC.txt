@@ -1,3 +1,3 @@
-[main] Fixed comparion of Key fields in interaces in LINQ queries under certains scenarios
+[main] Fixed comparion of Key fields in interaces in LINQ queries under certain scenarios
 [main] Visual experience of License Manager has been improved
-
+[main] Fixed incorrect handling of RemoveFieldHint under certain scenarios

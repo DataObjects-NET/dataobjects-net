@@ -61,7 +61,10 @@ namespace Xtensive.Orm.Building
       var actionList = actions.Flatten().ToList().AsReadOnly();
       var comparisonStatus = GetComparisonStatus(actionList, schemaUpgradeMode);
       var unsafeActions = GetUnsafeActions(actionList);
-      var columnTypeChangeActions = GetTypeChangeActions(actions);
+      var columnTypeChangeActions = actionList
+        .OfType<PropertyChangeAction>()
+        .Where(IsTypeChangeAction)
+        .ToList();
       
       if (schemaUpgradeMode!=SchemaUpgradeMode.ValidateLegacy)
         return new SchemaComparisonResult(
@@ -77,27 +80,34 @@ namespace Xtensive.Orm.Building
         .Where(type => type.IsSystem)
         .Select(type => type.MappingName)
         .ToHashSet();
-      
+
       var createTableActions = actions.Flatten()
         .OfType<CreateNodeAction>()
-        .Where(action => {
-          var table = action.Difference.Target as TableInfo;
-          return table!=null && !systemTables.Contains(table.Name, StringComparer.OrdinalIgnoreCase);
-        }).ToList();
+        .Where(
+          action => {
+            var table = action.Difference.Target as TableInfo;
+            return table!=null && !systemTables.Contains(table.Name, StringComparer.OrdinalIgnoreCase);
+          })
+        .ToList();
+
       var createColumnActions = actions.Flatten()
         .OfType<CreateNodeAction>()
-        .Where(action => {
-          var column = action.Difference.Target as StorageColumnInfo;
-          return column!=null && !systemTables.Contains(column.Parent.Name, StringComparer.OrdinalIgnoreCase);
-        }).ToList();
-      columnTypeChangeActions = columnTypeChangeActions.Where(action => {
-        var sourceType = action.Difference.Source as StorageTypeInfo;
-        var targetType = action.Difference.Target as StorageTypeInfo;
-        return sourceType==null 
-          || targetType==null
-          || sourceType.IsTypeUndefined 
-          || sourceType.Type.ToNullable()!=targetType.Type.ToNullable();
-      });
+        .Where(
+          action => {
+            var column = action.Difference.Target as StorageColumnInfo;
+            return column!=null && !systemTables.Contains(column.Parent.Name, StringComparer.OrdinalIgnoreCase);
+          })
+        .ToList();
+
+      columnTypeChangeActions = columnTypeChangeActions
+        .Where(
+          action => {
+            var sourceType = action.Difference.Source as StorageTypeInfo;
+            var targetType = action.Difference.Target as StorageTypeInfo;
+            return sourceType==null || targetType==null || sourceType.IsTypeUndefined
+              || sourceType.Type.ToNullable()!=targetType.Type.ToNullable();
+          })
+        .ToList();
 
       var isCompatibleInLegacyMode = 
         !createTableActions.Any() && 
@@ -134,32 +144,85 @@ namespace Xtensive.Orm.Building
       return unsafeActions;
     }
 
-    private static void GetUnsafeColumnTypeChanges(IEnumerable<NodeAction> actions, IEnumerable<UpgradeHint> hints, ICollection<NodeAction> output)
+    private static void GetUnsafeColumnTypeChanges(
+      IEnumerable<NodeAction> actions, IEnumerable<UpgradeHint> hints, ICollection<NodeAction> output)
     {
-      var typeChangeAction = GetTypeChangeActions(actions);
-      var safeColumnTypeChanges = hints
-        .OfType<ChangeFieldTypeHint>()
-        .SelectMany(hint => hint.AffectedColumns)
-        .ToHashSet();
+       var columnsWithHints = hints.OfType<ChangeFieldTypeHint>().SelectMany(hint => hint.AffectedColumns);
 
-      typeChangeAction
-        .Where(a => !TypeConversionVerifier.CanConvertSafely(a.Difference.Source as StorageTypeInfo, a.Difference.Target as StorageTypeInfo))
-        .Where(a => !safeColumnTypeChanges.Contains(a.Path, StringComparer.OrdinalIgnoreCase))
-        .ForEach(output.Add);
+      // The following code will not work because HintGenerator generates node paths
+      // inconsistent with RemoveFieldHint:
+
+      // GetUnsafeColumnActions(actions, columnsWithHints, IsUnsafeTypeChangeAction, output);
+
+      var safeColumns = new HashSet<string>(columnsWithHints, StringComparer.OrdinalIgnoreCase);
+
+      var unsafeActions = actions
+        .Where(IsUnsafeTypeChangeAction)
+        .Where(action => !safeColumns.Contains(action.Path));
+
+      foreach (var action in unsafeActions)
+        output.Add(action);
     }
 
-    private static void GetUnsafeColumnRemovals(IEnumerable<NodeAction> actions, IEnumerable<UpgradeHint> hints, ICollection<NodeAction> output)
+    private static void GetUnsafeColumnRemovals(
+      IEnumerable<NodeAction> actions, IEnumerable<UpgradeHint> hints, ICollection<NodeAction> output)
     {
-      var safeColumnRemovals = hints
-        .OfType<RemoveFieldHint>()
-        .SelectMany(hint => hint.AffectedColumns)
-        .ToHashSet();
+      var columnsWithHints = hints.OfType<RemoveFieldHint>().SelectMany(hint => hint.AffectedColumns);
+      GetUnsafeColumnActions(actions, columnsWithHints, a => IsColumnAction(a) && a is RemoveNodeAction, output);
+    }
 
-      actions
-        .OfType<RemoveNodeAction>()
-        .Where(IsColumnAction)
-        .Where(a => !safeColumnRemovals.Contains(a.Path, StringComparer.OrdinalIgnoreCase))
-        .ForEach(output.Add);
+    private static void GetUnsafeColumnActions(
+      IEnumerable<NodeAction> actions, IEnumerable<string> columnsWithHints,
+      Func<NodeAction, bool> unsafeActionFilter, ICollection<NodeAction> output)
+    {
+      var safeColumns = new HashSet<string>(columnsWithHints, StringComparer.OrdinalIgnoreCase);
+      var tableMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+      var reverseTableMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+      foreach (var action in actions) {
+        if (IsTableAction(action)) {
+          var moveAction = action as MoveNodeAction;
+          if (moveAction==null)
+            continue;
+          string originalPath;
+          if (reverseTableMapping.TryGetValue(moveAction.Path, out originalPath)) {
+            tableMapping.Remove(originalPath);
+            reverseTableMapping.Remove(moveAction.Path);
+            tableMapping.Add(originalPath, moveAction.NewPath);
+            reverseTableMapping.Add(moveAction.NewPath, originalPath);
+          }
+          else {
+            tableMapping.Add(moveAction.Path, moveAction.NewPath);
+            reverseTableMapping.Add(moveAction.NewPath, moveAction.Path);
+          }
+          continue;
+        }
+
+        if (!unsafeActionFilter.Invoke(action))
+          continue;
+
+        var columnPath = action.Path;
+
+        // Adjust column path if table was renamed
+
+        var pathItems = columnPath.Split('/');
+        if (pathItems.Length!=4) {
+          // Should not happen, but need to know if this happens
+          output.Add(action);
+          continue;
+        }
+
+        var tablePath = string.Format("Tables/{0}", pathItems[1]);
+        var columnName = pathItems[3];
+
+        string originalTablePath;
+
+        if (reverseTableMapping.TryGetValue(tablePath, out originalTablePath))
+          columnPath = string.Format("{0}/Columns/{1}", originalTablePath, columnName);
+
+        if (!safeColumns.Contains(columnPath))
+          output.Add(action);
+      }
     }
 
     private static void GetUnsafeTableRemovals(IEnumerable<NodeAction> actions, IEnumerable<UpgradeHint> hints, ICollection<NodeAction> output)
@@ -176,14 +239,25 @@ namespace Xtensive.Orm.Building
         .ForEach(output.Add);
     }
 
-    private static IEnumerable<PropertyChangeAction> GetTypeChangeActions(IEnumerable<NodeAction> actions)
+    private static bool IsTypeChangeAction(PropertyChangeAction action)
     {
-      return actions
-        .OfType<PropertyChangeAction>()
-        .Where(action =>
-          action.Properties.ContainsKey("Type")
-            && action.Difference.Parent.Source is StorageColumnInfo
-            && action.Difference.Parent.Target is StorageColumnInfo);
+      return action.Properties.ContainsKey("Type")
+        && action.Difference.Parent.Source is StorageColumnInfo
+        && action.Difference.Parent.Target is StorageColumnInfo;
+    }
+
+    private static bool IsUnsafeTypeChangeAction(NodeAction action)
+    {
+      var propertyChangeAction = action as PropertyChangeAction;
+      if (propertyChangeAction==null)
+        return false;
+
+      if (!IsTypeChangeAction(propertyChangeAction))
+        return false;
+
+      return !TypeConversionVerifier.CanConvertSafely(
+        (StorageTypeInfo) propertyChangeAction.Difference.Source,
+        (StorageTypeInfo) propertyChangeAction.Difference.Target);
     }
 
     private static bool IsTableAction(NodeAction action)
