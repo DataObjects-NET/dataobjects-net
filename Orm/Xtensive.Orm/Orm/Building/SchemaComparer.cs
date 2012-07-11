@@ -175,34 +175,36 @@ namespace Xtensive.Orm.Building
 
     private static IEnumerable<NodeAction> GetColumnActions(ActionSequence upgradeActions)
     {
-      Func<NodeAction, bool> isColumnAction = (action) => {
-        var diff = action.Difference as NodeDifference;
-        if (diff==null)
-          return false;
-        var item = diff.Source ?? diff.Target;
-        return item is StorageColumnInfo;
-      };
-
       return upgradeActions
         .Flatten()
         .OfType<NodeAction>()
-        .Where(isColumnAction);
+        .Where(IsColumnAction);
     }
 
     private static IEnumerable<NodeAction> GetTableActions(ActionSequence upgradeActions)
     {
-      Func<NodeAction, bool> isTableAction = (action) => {
-        var diff = action.Difference as NodeDifference;
-        if (diff==null)
-          return false;
-        var item = diff.Source ?? diff.Target;
-        return item is TableInfo;
-      };
-
       return upgradeActions
         .Flatten()
         .OfType<NodeAction>()
-        .Where(isTableAction);
+        .Where(IsTableAction);
+    }
+
+    private static bool IsTableAction(NodeAction action)
+    {
+      var diff = action.Difference as NodeDifference;
+      if (diff==null)
+        return false;
+      var item = diff.Source ?? diff.Target;
+      return item is TableInfo;
+    }
+
+    private static bool IsColumnAction(NodeAction action)
+    {
+      var diff = action.Difference as NodeDifference;
+      if (diff == null)
+        return false;
+      var item = diff.Source ?? diff.Target;
+      return item is StorageColumnInfo;
     }
 
     private static SchemaComparisonStatus GetComparisonStatus(ActionSequence actions, SchemaUpgradeMode schemaUpgradeMode)
