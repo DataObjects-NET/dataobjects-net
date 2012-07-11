@@ -1265,7 +1265,6 @@
     <Compile Include="Orm\Rse\Providers\EnumerationScope.cs" />
     <Compile Include="Orm\Rse\Providers\ExecutableProvider.cs" />
     <Compile Include="Orm\Rse\Providers\ExecutableProvider{TOrigin}.cs" />
-    <Compile Include="Orm\Rse\Providers\Interfaces\ICachingProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Interfaces\IInlinableProvider.cs" />
     <Compile Include="Orm\Rse\Providers\Provider.cs" />
     <Compile Include="Orm\Rse\Providers\ProviderType.cs" />
