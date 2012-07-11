@@ -57,8 +57,10 @@ namespace Xtensive.Orm.Building
         ? EnumerableUtils<NodeAction>.Empty 
         : new Upgrader().GetUpgradeSequence(difference, hints, comparer)
       };
-      var comparisonStatus = GetComparisonStatus(actions, schemaUpgradeMode);
-      var unsafeActions = GetUnsafeActions(actions);
+
+      var actionList = actions.Flatten().ToList().AsReadOnly();
+      var comparisonStatus = GetComparisonStatus(actionList, schemaUpgradeMode);
+      var unsafeActions = GetUnsafeActions(actionList);
       var columnTypeChangeActions = GetTypeChangeActions(actions);
       
       if (schemaUpgradeMode!=SchemaUpgradeMode.ValidateLegacy)
@@ -119,74 +121,59 @@ namespace Xtensive.Orm.Building
         unsafeActions);
     }
 
-    private static IList<NodeAction> GetUnsafeActions(ActionSequence upgradeActions)
+    private static IList<NodeAction> GetUnsafeActions(ICollection<NodeAction> actions)
     {
       var unsafeActions = new List<NodeAction>();
       var upgradeContext = UpgradeContext.Demand();
       var hints = upgradeContext.Hints;
       
       // Unsafe type changes
-      var typeChangeAction = GetTypeChangeActions(upgradeActions);
-      var columnsWithHint = hints
+      var typeChangeAction = GetTypeChangeActions(actions);
+      var safeColumnTypeChanges = hints
         .OfType<ChangeFieldTypeHint>()
         .SelectMany(hint => hint.AffectedColumns)
         .ToHashSet();
+
       typeChangeAction
-        .Where(action => !TypeConversionVerifier.CanConvertSafely(
-          action.Difference.Source as StorageTypeInfo, action.Difference.Target as StorageTypeInfo))
-        .Where(action1 => !columnsWithHint.Contains(action1.Path, StringComparer.OrdinalIgnoreCase))
+        .Where(a => !TypeConversionVerifier.CanConvertSafely(a.Difference.Source as StorageTypeInfo, a.Difference.Target as StorageTypeInfo))
+        .Where(a => !safeColumnTypeChanges.Contains(a.Path, StringComparer.OrdinalIgnoreCase))
         .ForEach(unsafeActions.Add);
 
       // Unsafe column removes
-      var columnActions = GetColumnActions(upgradeActions).ToList();
-      columnsWithHint = hints
+      var safeColumnRemovals = hints
         .OfType<RemoveFieldHint>()
         .SelectMany(hint => hint.AffectedColumns)
         .ToHashSet();
-      columnActions
+
+      actions
         .OfType<RemoveNodeAction>()
-        .Where(action => !columnsWithHint.Contains(action.Path, StringComparer.OrdinalIgnoreCase))
+        .Where(IsColumnAction)
+        .Where(a => !safeColumnRemovals.Contains(a.Path, StringComparer.OrdinalIgnoreCase))
         .ForEach(unsafeActions.Add);
       
       // Unsafe type removes
-      var tableActions = GetTableActions(upgradeActions);
       var tableWithHints = hints
         .OfType<RemoveTypeHint>()
         .SelectMany(hint => hint.AffectedTables)
         .ToHashSet();
-      tableActions
+
+      actions
         .OfType<RemoveNodeAction>()
-        .Where(action => !tableWithHints.Contains(action.Path, StringComparer.OrdinalIgnoreCase))
+        .Where(IsTableAction)
+        .Where(a => !tableWithHints.Contains(a.Path, StringComparer.OrdinalIgnoreCase))
         .ForEach(unsafeActions.Add);
 
       return unsafeActions;
     }
 
-    private static IEnumerable<PropertyChangeAction> GetTypeChangeActions(ActionSequence upgradeActions)
+    private static IEnumerable<PropertyChangeAction> GetTypeChangeActions(IEnumerable<NodeAction> actions)
     {
-      return upgradeActions
-        .Flatten()
+      return actions
         .OfType<PropertyChangeAction>()
         .Where(action =>
           action.Properties.ContainsKey("Type")
             && action.Difference.Parent.Source is StorageColumnInfo
             && action.Difference.Parent.Target is StorageColumnInfo);
-    }
-
-    private static IEnumerable<NodeAction> GetColumnActions(ActionSequence upgradeActions)
-    {
-      return upgradeActions
-        .Flatten()
-        .OfType<NodeAction>()
-        .Where(IsColumnAction);
-    }
-
-    private static IEnumerable<NodeAction> GetTableActions(ActionSequence upgradeActions)
-    {
-      return upgradeActions
-        .Flatten()
-        .OfType<NodeAction>()
-        .Where(IsTableAction);
     }
 
     private static bool IsTableAction(NodeAction action)
@@ -201,28 +188,26 @@ namespace Xtensive.Orm.Building
     private static bool IsColumnAction(NodeAction action)
     {
       var diff = action.Difference as NodeDifference;
-      if (diff == null)
+      if (diff==null)
         return false;
       var item = diff.Source ?? diff.Target;
       return item is StorageColumnInfo;
     }
 
-    private static SchemaComparisonStatus GetComparisonStatus(ActionSequence actions, SchemaUpgradeMode schemaUpgradeMode)
+    private static SchemaComparisonStatus GetComparisonStatus(ICollection<NodeAction> actions, SchemaUpgradeMode schemaUpgradeMode)
     {
-      var actionList = actions.Flatten().ToList();
-      
-      var filter = schemaUpgradeMode != SchemaUpgradeMode.ValidateCompatible
+      var filter = schemaUpgradeMode!=SchemaUpgradeMode.ValidateCompatible
         ? (Func<Type, bool>) (targetType => true)
-        : targetType => targetType.In(typeof(TableInfo), typeof(StorageColumnInfo));
-      var hasCreateActions = actionList
+        : targetType => targetType.In(typeof (TableInfo), typeof (StorageColumnInfo));
+      var hasCreateActions = actions
         .OfType<CreateNodeAction>()
         .Select(action => action.Difference.Target.GetType())
         .Any(filter);
-      var hasRemoveActions = actionList
+      var hasRemoveActions = actions
         .OfType<RemoveNodeAction>()
         .Select(action => action.Difference.Source.GetType())
-        .Any(sourceType => sourceType.In(typeof(TableInfo), typeof(StorageColumnInfo)));
-      
+        .Any(sourceType => sourceType.In(typeof (TableInfo), typeof (StorageColumnInfo)));
+
       if (hasCreateActions && hasRemoveActions)
         return SchemaComparisonStatus.NotEqual;
       if (hasCreateActions)
