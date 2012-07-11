@@ -1,0 +1,1 @@
+[main] ServiceContainerBase no longer has finalizer
