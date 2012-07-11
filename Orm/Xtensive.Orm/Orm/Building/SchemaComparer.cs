@@ -127,7 +127,15 @@ namespace Xtensive.Orm.Building
       var upgradeContext = UpgradeContext.Demand();
       var hints = upgradeContext.Hints;
       
-      // Unsafe type changes
+      GetUnsafeColumnTypeChanges(actions, hints, unsafeActions);
+      GetUnsafeColumnRemovals(actions, hints, unsafeActions);
+      GetUnsafeTableRemovals(actions, hints, unsafeActions);
+
+      return unsafeActions;
+    }
+
+    private static void GetUnsafeColumnTypeChanges(IEnumerable<NodeAction> actions, IEnumerable<UpgradeHint> hints, ICollection<NodeAction> output)
+    {
       var typeChangeAction = GetTypeChangeActions(actions);
       var safeColumnTypeChanges = hints
         .OfType<ChangeFieldTypeHint>()
@@ -137,9 +145,11 @@ namespace Xtensive.Orm.Building
       typeChangeAction
         .Where(a => !TypeConversionVerifier.CanConvertSafely(a.Difference.Source as StorageTypeInfo, a.Difference.Target as StorageTypeInfo))
         .Where(a => !safeColumnTypeChanges.Contains(a.Path, StringComparer.OrdinalIgnoreCase))
-        .ForEach(unsafeActions.Add);
+        .ForEach(output.Add);
+    }
 
-      // Unsafe column removes
+    private static void GetUnsafeColumnRemovals(IEnumerable<NodeAction> actions, IEnumerable<UpgradeHint> hints, ICollection<NodeAction> output)
+    {
       var safeColumnRemovals = hints
         .OfType<RemoveFieldHint>()
         .SelectMany(hint => hint.AffectedColumns)
@@ -149,10 +159,12 @@ namespace Xtensive.Orm.Building
         .OfType<RemoveNodeAction>()
         .Where(IsColumnAction)
         .Where(a => !safeColumnRemovals.Contains(a.Path, StringComparer.OrdinalIgnoreCase))
-        .ForEach(unsafeActions.Add);
-      
-      // Unsafe type removes
-      var tableWithHints = hints
+        .ForEach(output.Add);
+    }
+
+    private static void GetUnsafeTableRemovals(IEnumerable<NodeAction> actions, IEnumerable<UpgradeHint> hints, ICollection<NodeAction> output)
+    {
+      var safeTableRemovals = hints
         .OfType<RemoveTypeHint>()
         .SelectMany(hint => hint.AffectedTables)
         .ToHashSet();
@@ -160,10 +172,8 @@ namespace Xtensive.Orm.Building
       actions
         .OfType<RemoveNodeAction>()
         .Where(IsTableAction)
-        .Where(a => !tableWithHints.Contains(a.Path, StringComparer.OrdinalIgnoreCase))
-        .ForEach(unsafeActions.Add);
-
-      return unsafeActions;
+        .Where(a => !safeTableRemovals.Contains(a.Path, StringComparer.OrdinalIgnoreCase))
+        .ForEach(output.Add);
     }
 
     private static IEnumerable<PropertyChangeAction> GetTypeChangeActions(IEnumerable<NodeAction> actions)
