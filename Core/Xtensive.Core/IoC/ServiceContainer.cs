@@ -357,7 +357,7 @@ namespace Xtensive.IoC
 
     // Dispose implementation
 
-    protected override void Dispose(bool disposing)
+    public override void Dispose()
     {
       using (var toDispose = new DisposableSet()) {
         foreach (var pair in instances) {

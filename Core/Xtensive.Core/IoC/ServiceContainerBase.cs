@@ -167,22 +167,9 @@ namespace Xtensive.IoC
 
     // IDisposable implementation
 
-    /// <see cref="DisposableDocTemplate.Dispose(bool)"/>
-    protected virtual void Dispose(bool disposing)
-    {
-    }
-
     /// <see cref="DisposableDocTemplate.Dispose()"/>
-    public void Dispose()
+    public virtual void Dispose()
     {
-      Dispose(true);
-      GC.SuppressFinalize(this);
-    }
-
-    /// <see cref="DisposableDocTemplate.Dtor()"/>
-    ~ServiceContainerBase()
-    {
-      Dispose(false);
     }
   }
 }
