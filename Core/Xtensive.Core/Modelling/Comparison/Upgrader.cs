@@ -611,7 +611,7 @@ namespace Xtensive.Modelling.Comparison
       var path = node.Path;
       return !path.Contains(Node.PathDelimiter) 
         ? string.Empty 
-        : path.Substring(0, path.LastIndexOf(Node.PathDelimiter));
+        : path.Substring(0, path.LastIndexOf(Node.PathDelimiter) + 1);
     }
 
     #region Helper methods
