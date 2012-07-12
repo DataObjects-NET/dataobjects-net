@@ -36,66 +36,42 @@ namespace Xtensive.Orm.Building
     public static SchemaComparisonResult Compare(StorageModel sourceSchema, StorageModel targetSchema, 
       HintSet hints, SchemaUpgradeMode schemaUpgradeMode, DomainModel model, bool briefExceptionFormat)
     {
-      if (hints == null)
+      if (hints==null)
         hints = new HintSet(sourceSchema, targetSchema);
-
-      // Nothing must be done in Skip mode
-      if (schemaUpgradeMode==SchemaUpgradeMode.Skip)
-        return new SchemaComparisonResult(
-          SchemaComparisonStatus.NotEqual, 
-          false, 
-          null, 
-          hints, 
-          null, 
-          new ActionSequence(), 
-          new List<NodeAction>());
 
       var comparer = new Comparer();
       var difference = comparer.Compare(sourceSchema, targetSchema, hints);
-      var actions = new ActionSequence() {
-        difference==null 
-        ? EnumerableUtils<NodeAction>.Empty 
-        : new Upgrader().GetUpgradeSequence(difference, hints, comparer)
-      };
-
-      var actionList = actions.Flatten().ToList().AsReadOnly();
+      var actions = GetUpgradeActions(comparer, difference, hints);
+      var actionList = actions.Flatten().ToList();
       var comparisonStatus = GetComparisonStatus(actionList, schemaUpgradeMode);
       var unsafeActions = GetUnsafeActions(actionList);
-      var columnTypeChangeActions = actionList
-        .OfType<PropertyChangeAction>()
-        .Where(IsTypeChangeAction)
-        .ToList();
-      
+      var columnTypeChangeActions = actionList.OfType<PropertyChangeAction>().Where(IsTypeChangeAction).ToList();
+
       if (schemaUpgradeMode!=SchemaUpgradeMode.ValidateLegacy)
         return new SchemaComparisonResult(
-          comparisonStatus, 
-          columnTypeChangeActions.Any(), 
-          null, 
-          hints, 
-          difference, 
-          actions, 
-          unsafeActions);
+          comparisonStatus, columnTypeChangeActions.Count > 0, null,
+          hints, difference, actions, unsafeActions);
 
-      var systemTables = model.Types
-        .Where(type => type.IsSystem)
-        .Select(type => type.MappingName)
-        .ToHashSet();
+      // Legacy comparison
 
-      var createTableActions = actions.Flatten()
+      var systemTablesSequence = model.Types.Where(type => type.IsSystem).Select(type => type.MappingName);
+      var systemTables = new HashSet<string>(systemTablesSequence, StringComparer.OrdinalIgnoreCase);
+
+      var createTableActions = actionList
         .OfType<CreateNodeAction>()
         .Where(
           action => {
             var table = action.Difference.Target as TableInfo;
-            return table!=null && !systemTables.Contains(table.Name, StringComparer.OrdinalIgnoreCase);
+            return table!=null && !systemTables.Contains(table.Name);
           })
         .ToList();
 
-      var createColumnActions = actions.Flatten()
+      var createColumnActions = actionList
         .OfType<CreateNodeAction>()
         .Where(
           action => {
             var column = action.Difference.Target as StorageColumnInfo;
-            return column!=null && !systemTables.Contains(column.Parent.Name, StringComparer.OrdinalIgnoreCase);
+            return column!=null && !systemTables.Contains(column.Parent.Name);
           })
         .ToList();
 
@@ -109,10 +85,10 @@ namespace Xtensive.Orm.Building
           })
         .ToList();
 
-      var isCompatibleInLegacyMode = 
-        !createTableActions.Any() && 
-        !createColumnActions.Any() && 
-        !columnTypeChangeActions.Any();
+      var isCompatibleInLegacyMode =
+        createTableActions.Count==0
+        && createColumnActions.Count==0
+        && columnTypeChangeActions.Count==0;
 
       if (briefExceptionFormat)
         unsafeActions =
@@ -122,13 +98,16 @@ namespace Xtensive.Orm.Building
             .ToList();
 
       return new SchemaComparisonResult(
-        comparisonStatus, 
-        columnTypeChangeActions.Any(), 
-        isCompatibleInLegacyMode, 
-        hints, 
-        difference, 
-        actions, 
-        unsafeActions);
+        comparisonStatus, columnTypeChangeActions.Count > 0, isCompatibleInLegacyMode,
+        hints, difference, actions, unsafeActions);
+    }
+
+    private static ActionSequence GetUpgradeActions(Comparer comparer, Difference difference, HintSet hints)
+    {
+      var actions = difference!=null
+        ? new Upgrader().GetUpgradeSequence(difference, hints, comparer)
+        : EnumerableUtils<NodeAction>.Empty;
+      return new ActionSequence {actions};
     }
 
     private static IList<NodeAction> GetUnsafeActions(ICollection<NodeAction> actions)
