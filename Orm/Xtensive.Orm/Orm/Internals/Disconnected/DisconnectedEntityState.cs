@@ -108,18 +108,19 @@ namespace Xtensive.Orm.Disconnected
         return Origin.UpdateOrigin(difference, mergeBehavior);
 
       bool wasChanged = false;
-      var origin = tuple.Origin;
+      var target = tuple.Origin;
       if (mergeBehavior==MergeBehavior.PreferOrigin) {
-        for (int i = 0; i < origin.Count; i++)
-          if (!origin.GetFieldState(i).IsAvailable() && difference.GetFieldState(i).IsAvailable()) {
-            origin.SetValue(i, difference.GetValue(i));
+        for (int i = 0; i < target.Count; i++)
+          if (!target.GetFieldState(i).IsAvailable() && difference.GetFieldState(i).IsAvailable()) {
+            target.SetValue(i, difference.GetValue(i));
             wasChanged = true;
           }
       }
       else { // PreferDifference
-        for (int i = 0; i < origin.Count; i++)
+        target = tuple.Difference ?? tuple.Origin;
+        for (int i = 0; i < target.Count; i++)
           if (difference.GetFieldState(i).IsAvailable()) {
-            origin.SetValue(i, difference.GetValue(i));
+            target.SetValue(i, difference.GetValue(i));
             wasChanged = true;
           }
       }
