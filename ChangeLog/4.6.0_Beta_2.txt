@@ -1,1 +1,2 @@
+[main] Fixed incorrect processing of column rename for non-default database
 [main] ServiceContainerBase no longer has finalizer
