@@ -182,7 +182,10 @@ namespace Xtensive.IoC
     /// <see cref="DisposableDocTemplate.Dtor()"/>
     ~ServiceContainerBase()
     {
-      Dispose(false);
+      try {
+        Dispose(false);
+      }
+      catch {};
     }
   }
 }
