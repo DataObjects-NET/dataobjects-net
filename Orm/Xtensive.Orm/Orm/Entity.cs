@@ -972,12 +972,16 @@ namespace Xtensive.Orm
     {
       try {
         State = state;
+        IsMaterializing = true;
         SystemBeforeInitialize(true);
         InitializeOnMaterialize();
       }
       catch (Exception error) {
         InitializationErrorOnMaterialize(error);
         throw;
+      }
+      finally {
+        IsMaterializing = false;
       }
     }
 
