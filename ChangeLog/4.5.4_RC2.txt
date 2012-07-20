@@ -1,0 +1,3 @@
+[main] Exceptions on IoC container finalization (usually they appear because dependent objects are already finilized) are now suppressed
+[main] Fixed NullReferenceException in EnsureIsFetched method in SessionOptions.ReadRemovedObjects mode
+[main] Entity.IsMaterializing property wasn't handled properly

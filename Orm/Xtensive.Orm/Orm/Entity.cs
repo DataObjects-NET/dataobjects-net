@@ -416,6 +416,10 @@ namespace Xtensive.Orm
         return;
 
       var tuple = state.Tuple;
+      // tuple is already cleared
+      if (tuple == null && (Session.Configuration.Options & SessionOptions.ReadRemovedObjects)==SessionOptions.ReadRemovedObjects)
+        return;
+
       if (tuple.GetFieldState(field.MappingInfo.Offset).IsAvailable())
         return;
 
@@ -957,12 +961,16 @@ namespace Xtensive.Orm
     {
       try {
         State = state;
+        IsMaterializing = true;
         SystemBeforeInitialize(true);
         InitializeOnMaterialize();
       }
       catch (Exception error) {
         InitializationErrorOnMaterialize(error);
         throw;
+      }
+      finally {
+        IsMaterializing = false;
       }
     }
 
