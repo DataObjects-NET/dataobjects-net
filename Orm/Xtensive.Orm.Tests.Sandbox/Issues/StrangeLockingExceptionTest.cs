@@ -6,11 +6,11 @@
 
 using System;
 using System.Linq;
-using System.Threading.Tasks;
-using NUnit.Framework;
 #if NET40
-using Xtensive.Orm.Configuration;
+using System.Threading.Tasks;
 #endif
+using NUnit.Framework;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.StrangeLockingExceptionModel;
 
 namespace Xtensive.Orm.Tests.Issues
