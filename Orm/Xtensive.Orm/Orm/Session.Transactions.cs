@@ -193,7 +193,7 @@ namespace Xtensive.Orm
 
     internal void BeginDisconnectedTransaction()
     {
-      disconnectedTransaction = OpenTransaction();
+      disconnectedTransaction = OpenAutoTransaction(TransactionalBehavior.Open);
     }
 
     internal void EndDisconnectedTransaction(bool commit)
