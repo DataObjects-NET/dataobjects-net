@@ -8,7 +8,9 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
+#if NET40
 using Xtensive.Orm.Configuration;
+#endif
 using Xtensive.Orm.Tests.Issues.StrangeLockingExceptionModel;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -111,7 +113,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
     }
-
+#if NET40
     [Test]
     public void Test4()
     {
@@ -144,5 +146,6 @@ namespace Xtensive.Orm.Tests.Issues
       };
       Parallel.Invoke(action, action, action, action, action, action);
     }
+#endif
   }
 }
