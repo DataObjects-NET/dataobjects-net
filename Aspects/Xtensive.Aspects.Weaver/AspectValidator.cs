@@ -39,7 +39,7 @@ namespace Xtensive.Aspects.Weaver
       if (!enableAspectLimit)
         return;
       numberOfAspects++;
-      if (numberOfAspects <= 90)
+      if (numberOfAspects <= 60)
         return;
       const string errorMessage =
         "Number of persistent types in assembly exceeds the maximal available types per assembly for Community Edition. " +

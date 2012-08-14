@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Configuration
     ReadRemovedObjects = 1 << 9,
 
     /// <summary>
-    /// Enables suppression of any exception occured during transaction rollback.
+    /// Enables suppression of any exception occurred during transaction rollback.
     /// This option is useful if exception hiding occurs due to exceptions in <see cref="TransactionScope.Dispose"/>.
     /// Any exception thrown in <see cref="SessionEventAccessor.TransactionRollbacking"/> event
     /// will not be affected by this option.
