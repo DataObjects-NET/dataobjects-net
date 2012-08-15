@@ -3,8 +3,12 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using System.Collections.Concurrent;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
 
@@ -16,7 +20,20 @@ namespace Xtensive.Sql
   public abstract class SqlConnection : SqlDriverBound,
     IDisposable
   {
+    private static readonly ConcurrentDictionary<SqlConnection, string> activeConnections = new ConcurrentDictionary<SqlConnection, string>();
+
     private int? commandTimeout;
+
+    public static void DumpConnections()
+    {
+      var connections = activeConnections.ToArray();
+
+      if (connections.Length==0)
+        return;
+
+      var lines = connections.AsEnumerable().Select(c => c.Value).Concat(new[] {string.Empty});
+      File.AppendAllLines("D:\\connections.log", lines);
+    }
 
     /// <summary>
     /// Gets the underlying connection.
@@ -211,6 +228,9 @@ namespace Xtensive.Sql
     /// <inheritdoc/>
     public void Dispose()
     {
+      string dummy;
+      activeConnections.TryRemove(this, out dummy);
+
       if (ActiveTransaction!=null) {
         ActiveTransaction.Dispose();
         ClearActiveTransaction();
@@ -256,6 +276,7 @@ namespace Xtensive.Sql
     protected SqlConnection(SqlDriver driver, string connectionString)
       : base(driver)
     {
+      activeConnections.TryAdd(this, new StackTrace().ToString());
     }
   }
 }
