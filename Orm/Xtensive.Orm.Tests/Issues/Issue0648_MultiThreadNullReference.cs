@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Issues
       WaitHandle.WaitAll(completionEvents);
 
       foreach (var item in completionEvents)
-        item.Dispose();
+        item.Close();
     }
   }
 }
