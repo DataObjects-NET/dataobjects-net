@@ -24,38 +24,40 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var config = DomainConfigurationFactory.Create();
       config.Sessions[WellKnown.Sessions.Default].Options = SessionOptions.ServerProfile;
-      var domain = Domain.Build(config);
-      var session = domain.OpenSession();
 
-      bool isSessionActive = false;
-      int resolveCount = 0;
+      using (var domain = Domain.Build(config))
+      using (var session = domain.OpenSession()) {
 
-      Session.Resolver = () => {
-        resolveCount++;
-        return isSessionActive ? session : null;
-      };
+        bool isSessionActive = false;
+        int resolveCount = 0;
 
-      Assert.IsNull(Session.Current);
+        Session.Resolver = () => {
+          resolveCount++;
+          return isSessionActive ? session : null;
+        };
 
-      Assert.AreEqual(1, resolveCount);
-      Assert.IsFalse(session.IsActive);
-      Assert.AreEqual(2, resolveCount);
+        Assert.IsNull(Session.Current);
 
-      isSessionActive = true;
+        Assert.AreEqual(1, resolveCount);
+        Assert.IsFalse(session.IsActive);
+        Assert.AreEqual(2, resolveCount);
 
-      Assert.AreEqual(session, Session.Current);
-      Assert.AreEqual(3, resolveCount);
-      Assert.IsTrue(session.IsActive);
-      Assert.AreEqual(4, resolveCount);
+        isSessionActive = true;
 
-      isSessionActive = false;
-
-      using (session.Activate()) {
         Assert.AreEqual(session, Session.Current);
+        Assert.AreEqual(3, resolveCount);
         Assert.IsTrue(session.IsActive);
-      }
+        Assert.AreEqual(4, resolveCount);
 
-      Assert.AreEqual(4, resolveCount);
+        isSessionActive = false;
+
+        using (session.Activate()) {
+          Assert.AreEqual(session, Session.Current);
+          Assert.IsTrue(session.IsActive);
+        }
+
+        Assert.AreEqual(4, resolveCount);
+      }
     }
   }
 }
