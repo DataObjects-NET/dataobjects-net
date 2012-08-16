@@ -66,24 +66,27 @@ namespace Xtensive.Orm.Tests.Storage
     public void ConcurrentUpdateTest()
     {
       var clientProfile = new SessionConfiguration(SessionOptions.ClientProfile);
-      var session1 = Domain.OpenSession(clientProfile);
-      session1.DisconnectedState.MergeMode = MergeMode.PreferNew;
-      var options = session1.DisconnectedState.VersionsUsageOptions;
-      session1.DisconnectedState.VersionsUsageOptions = options & ~VersionsUsageOptions.Update;
-      var item1 = session1.Query.All<MyEntity>().OrderBy(e => e.Id).Take(1).First();
-      item1.Title = "Hello from session 1";
-      session1.SaveChanges();
       
-      var session2 = Domain.OpenSession(clientProfile);
-      session2.DisconnectedState.MergeMode = MergeMode.PreferNew;
-      session2.DisconnectedState.VersionsUsageOptions = options & ~VersionsUsageOptions.Update;
-      var item2 = session2.Query.All<MyEntity>().OrderBy(e => e.Id).Take(1).First();
-      Assert.AreEqual("Hello from session 1", item2.Title);
-      item2.Title = "Hello from session 2";
-      session2.SaveChanges();
+      using (var session1 = Domain.OpenSession(clientProfile)) {
+        session1.DisconnectedState.MergeMode = MergeMode.PreferNew;
+        var options = session1.DisconnectedState.VersionsUsageOptions;
+        session1.DisconnectedState.VersionsUsageOptions = options & ~VersionsUsageOptions.Update;
+        var item1 = session1.Query.All<MyEntity>().OrderBy(e => e.Id).Take(1).First();
+        item1.Title = "Hello from session 1";
+        session1.SaveChanges();
 
-      item1 = session1.Query.All<MyEntity>().OrderBy(e => e.Id).Take(1).First();
-      Assert.AreEqual("Hello from session 2", item1.Title);
+        using (var session2 = Domain.OpenSession(clientProfile)) {
+          session2.DisconnectedState.MergeMode = MergeMode.PreferNew;
+          session2.DisconnectedState.VersionsUsageOptions = options & ~VersionsUsageOptions.Update;
+          var item2 = session2.Query.All<MyEntity>().OrderBy(e => e.Id).Take(1).First();
+          Assert.AreEqual("Hello from session 1", item2.Title);
+          item2.Title = "Hello from session 2";
+          session2.SaveChanges();
+        }
+
+        item1 = session1.Query.All<MyEntity>().OrderBy(e => e.Id).Take(1).First();
+        Assert.AreEqual("Hello from session 2", item1.Title);
+      }
     }
   }
 }
