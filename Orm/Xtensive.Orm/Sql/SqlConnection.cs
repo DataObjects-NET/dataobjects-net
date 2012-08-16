@@ -31,13 +31,19 @@ namespace Xtensive.Sql
     public static void DumpConnections()
     {
 #if NET40
-      var connections = activeConnections.ToArray();
+      lock (activeConnections) {
+        var connections = activeConnections.ToArray();
+        activeConnections.Clear();
 
-      if (connections.Length==0)
-        return;
+        if (connections.Length==0)
+          return;
 
-      var lines = connections.AsEnumerable().Select(c => c.Value).Concat(new[] {string.Empty});
-      File.AppendAllLines("D:\\connections.log", lines);
+        var lines =
+          new[] {"Dump from:", new StackTrace(4).ToString(), "Active connections:"}
+            .Concat(connections.AsEnumerable().Select(c => c.Value))
+            .Concat(new[] {string.Empty, string.Empty});
+        File.AppendAllLines("D:\\connections.log", lines);
+      }
 #endif
     }
 
@@ -285,7 +291,7 @@ namespace Xtensive.Sql
       : base(driver)
     {
 #if NET40
-      activeConnections.TryAdd(this, new StackTrace().ToString());
+      activeConnections.TryAdd(this, new StackTrace(4).ToString());
 #endif
     }
   }
