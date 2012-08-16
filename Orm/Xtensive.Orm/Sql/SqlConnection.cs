@@ -31,19 +31,15 @@ namespace Xtensive.Sql
     public static void DumpConnections()
     {
 #if NET40
-      lock (activeConnections) {
-        var connections = activeConnections.ToArray();
-        activeConnections.Clear();
+      var connections = activeConnections.ToArray();
+      if (connections.Length==0)
+        return;
 
-        if (connections.Length==0)
-          return;
-
-        var lines =
-          new[] {"Dump from:", new StackTrace(4).ToString(), "Active connections:"}
-            .Concat(connections.AsEnumerable().Select(c => c.Value))
-            .Concat(new[] {string.Empty, string.Empty});
-        File.AppendAllLines("D:\\connections.log", lines);
-      }
+      var lines =
+        new[] {"Dump from:", new StackTrace(2).ToString(), "Active connections:"}
+          .Concat(connections.AsEnumerable().Select(c => c.Value))
+          .Concat(new[] {string.Empty, string.Empty});
+      File.AppendAllLines("D:\\connections.log", lines);
 #endif
     }
 
