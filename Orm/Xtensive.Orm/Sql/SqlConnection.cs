@@ -3,14 +3,9 @@
 // For conditions of distribution and use, see license.
 
 using System;
-#if NET40
-using System.Collections.Concurrent;
-#endif
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
 
@@ -22,26 +17,7 @@ namespace Xtensive.Sql
   public abstract class SqlConnection : SqlDriverBound,
     IDisposable
   {
-#if NET40
-    private static readonly ConcurrentDictionary<SqlConnection, string> activeConnections = new ConcurrentDictionary<SqlConnection, string>();
-#endif
-
     private int? commandTimeout;
-
-    public static void DumpConnections()
-    {
-#if NET40
-      var connections = activeConnections.ToArray();
-      if (connections.Length==0)
-        return;
-
-      var lines =
-        new[] {"Dump from:", new StackTrace(2).ToString(), "Active connections:"}
-          .Concat(connections.AsEnumerable().Select(c => c.Value))
-          .Concat(new[] {string.Empty, string.Empty});
-      File.AppendAllLines("D:\\connections.log", lines);
-#endif
-    }
 
     /// <summary>
     /// Gets the underlying connection.
@@ -236,11 +212,6 @@ namespace Xtensive.Sql
     /// <inheritdoc/>
     public void Dispose()
     {
-#if NET40
-      string dummy;
-      activeConnections.TryRemove(this, out dummy);
-#endif
-
       if (ActiveTransaction!=null) {
         ActiveTransaction.Dispose();
         ClearActiveTransaction();
@@ -286,9 +257,6 @@ namespace Xtensive.Sql
     protected SqlConnection(SqlDriver driver, string connectionString)
       : base(driver)
     {
-#if NET40
-      activeConnections.TryAdd(this, new StackTrace(4).ToString());
-#endif
     }
   }
 }

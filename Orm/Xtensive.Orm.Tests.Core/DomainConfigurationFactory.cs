@@ -4,9 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.05
 
-using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Sql;
 
 namespace Xtensive.Orm.Tests
 {
@@ -19,7 +17,6 @@ namespace Xtensive.Orm.Tests
 
     public static DomainConfiguration Create(bool useConnectionString)
     {
-      SqlConnection.DumpConnections();
       var storageType = EnvironmentConfiguration.Storage;
       if (useConnectionString)
         storageType += "cs";
