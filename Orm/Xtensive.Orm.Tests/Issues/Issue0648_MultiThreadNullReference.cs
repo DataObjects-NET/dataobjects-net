@@ -36,6 +36,10 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
+      const int threadCount = 10;
+
+      var completionEvents = new ManualResetEvent[threadCount];
+
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
           new Simple();
@@ -44,19 +48,26 @@ namespace Xtensive.Orm.Tests.Issues
           new Simple();
           new Simple();
 
-          for (int i = 0; i < 10; i++) {
+          for (int i = 0; i < threadCount; i++) {
+            var completionEvent = completionEvents[i] = new ManualResetEvent(false);
             ThreadPool.QueueUserWorkItem(state => {
-                                             using (var session2 = Domain.OpenSession())
-                                             using (var t = session2.OpenTransaction()) {
-                                               var count = session2.Query.All<Simple>().Count();
-                                             }
-                                           });
+              using (var session2 = Domain.OpenSession())
+              using (var t = session2.OpenTransaction()) {
+                var count = session2.Query.All<Simple>().Count();
+              }
+              completionEvent.Set();
+            });
           }
 
           // Committing transaction
           transactionScope.Complete();
         }
       }
+
+      WaitHandle.WaitAll(completionEvents);
+
+      foreach (var item in completionEvents)
+        item.Dispose();
     }
   }
 }

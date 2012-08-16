@@ -11,6 +11,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Testing;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Tests.ObjectModel;
@@ -23,7 +24,7 @@ namespace Xtensive.Orm.Tests.Storage.EntitySetModel
   public class Publisher : Entity
   {
     [Field, Key]
-    public int ID { get; private set; }
+    public int Id { get; private set; }
 
     [Field]
     public EntitySet<Book> Books { get; private set; }
@@ -34,7 +35,7 @@ namespace Xtensive.Orm.Tests.Storage.EntitySetModel
   public class Book : Entity
   {
     [Field, Key]
-    public int ID { get; private set; }
+    public int Id { get; private set; }
 
     [Field]
     public int Name { get; set; }
@@ -48,7 +49,7 @@ namespace Xtensive.Orm.Tests.Storage.EntitySetModel
   public class Author : Entity
   {
     [Field, Key]
-    public int ID { get; private set; }
+    public int Id { get; private set; }
 
     [Field]
     public int Name { get; set; }
@@ -62,7 +63,7 @@ namespace Xtensive.Orm.Tests.Storage
 {
   public class EntitySetTest : NorthwindDOModelTest
   {
-    protected override Xtensive.Orm.Configuration.DomainConfiguration BuildConfiguration()
+    protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
       config.Types.Register(Assembly.GetExecutingAssembly(), typeof (Book).Namespace);
@@ -72,31 +73,31 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void SessionActivationTest()
     {
-      var session = Domain.OpenSession();
+      using (var session = Domain.OpenSession()) {
+        Author author;
+        TransactionScope transactionScope;
 
-      Author author;
+        using (session.Activate()) {
+          using (transactionScope = session.OpenTransaction()) {
+            author = new Author();
+            transactionScope.Complete();
+          }
 
-      TransactionScope transactionScope;
+          transactionScope = session.OpenTransaction();
+        }
 
-      using (session.Activate()) {
-        using (transactionScope = session.OpenTransaction()) {
-          author = new Author();
+        // Requires manual Session switching, since NorthwindDOModelTest.SetUp 
+        // automatically activates a background Session.
+
+        using (Session.Deactivate()) {
+          foreach (var book in author.Books) {
+          }
+        }
+
+        using (session.Activate()) {
           transactionScope.Complete();
+          transactionScope.Dispose();
         }
-
-        transactionScope = session.OpenTransaction();
-      }
-
-      // Requires manual Session switching, since NorthwindDOModelTest.SetUp 
-      // automatically activates a background Session.
-      using (Session.Deactivate()) {
-        foreach (var book in author.Books) {        
-        }
-      }
-
-      using (session.Activate()) {
-        transactionScope.Complete();
-        transactionScope.Dispose();
       }
     }
 
