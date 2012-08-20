@@ -10,102 +10,107 @@ using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
+using Model1 = Xtensive.Orm.Tests.Upgrade.ExtractSuperClassTestModel.Model1;
+using Model2 = Xtensive.Orm.Tests.Upgrade.ExtractSuperClassTestModel.Model2;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {
-  namespace Model1
+  namespace ExtractSuperClassTestModel
   {
-    [HierarchyRoot]
-    public class Client : Entity
+    namespace Model1
     {
-      [Field, Key]
-      public int Id { get; private set; }
-
-      [Field]
-      public string Name { get; set; }
-
-      [Field]
-      public DateTime RegistrationDate { get; set; }
-    }
-
-    public class RefStruct : Structure
-    {
-      [Field]
-      public Client Client { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class ClientRef : Entity
-    {
-      [Field, Key]
-      public int Id { get; set; }
-
-      [Field]
-      public RefStruct Ref { get; set; }
-    }
-
-    public class Upgrader : UpgradeHandler
-    {
-      protected override string DetectAssemblyVersion()
+      [HierarchyRoot]
+      public class Client : Entity
       {
-        return "1";
-      }
-    }
-  }
+        [Field, Key]
+        public int Id { get; private set; }
 
-  namespace Model2
-  {
-    [HierarchyRoot(InheritanceSchema = InheritanceSchema.ConcreteTable)]
-    public class Client : Entity
-    {
-      [Field, Key]
-      public int Id { get; private set; }
+        [Field]
+        public string Name { get; set; }
 
-      [Field]
-      public string Name { get; set; }
-    }
-
-    public class Contractor : Client
-    {
-      [Field]
-      public DateTime RegistrationDate { get; set; }
-    }
-
-    public class RefStruct : Structure
-    {
-      [Field]
-      public Client Client { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class ClientRef : Entity
-    {
-      [Field, Key]
-      public int Id { get; set; }
-
-      [Field]
-      public RefStruct Ref { get; set; }
-    }
-
-    public class Upgrader : UpgradeHandler
-    {
-      protected override string DetectAssemblyVersion()
-      {
-        return "2";
+        [Field]
+        public DateTime RegistrationDate { get; set; }
       }
 
-      protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+      public class RefStruct : Structure
       {
-        var oldClientType = typeof (Model1.Client).FullName;
-        var oldClientRefType = typeof (Model1.ClientRef).FullName;
-
-        hints.Add(RenameTypeHint.Create<Contractor>(oldClientType));
-        hints.Add(RenameTypeHint.Create<ClientRef>(oldClientRefType));
+        [Field]
+        public Client Client { get; set; }
       }
 
-      public override bool CanUpgradeFrom(string oldVersion)
+      [HierarchyRoot]
+      public class ClientRef : Entity
       {
-        return true;
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public RefStruct Ref { get; set; }
+      }
+
+      public class Upgrader : UpgradeHandler
+      {
+        protected override string DetectAssemblyVersion()
+        {
+          return "1";
+        }
+      }
+    }
+
+    namespace Model2
+    {
+      [HierarchyRoot(InheritanceSchema = InheritanceSchema.ConcreteTable)]
+      public class Client : Entity
+      {
+        [Field, Key]
+        public int Id { get; private set; }
+
+        [Field]
+        public string Name { get; set; }
+      }
+
+      public class Contractor : Client
+      {
+        [Field]
+        public DateTime RegistrationDate { get; set; }
+      }
+
+      public class RefStruct : Structure
+      {
+        [Field]
+        public Client Client { get; set; }
+      }
+
+      [HierarchyRoot]
+      public class ClientRef : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public RefStruct Ref { get; set; }
+      }
+
+      public class Upgrader : UpgradeHandler
+      {
+        protected override string DetectAssemblyVersion()
+        {
+          return "2";
+        }
+
+        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+        {
+          var oldClientType = typeof (Model1.Client).FullName;
+          var oldClientRefType = typeof (Model1.ClientRef).FullName;
+
+          hints.Add(RenameTypeHint.Create<Contractor>(oldClientType));
+          hints.Add(RenameTypeHint.Create<ClientRef>(oldClientRefType));
+        }
+
+        public override bool CanUpgradeFrom(string oldVersion)
+        {
+          return true;
+        }
       }
     }
   }
