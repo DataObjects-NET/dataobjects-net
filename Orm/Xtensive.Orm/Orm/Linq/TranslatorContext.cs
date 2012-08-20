@@ -110,21 +110,26 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
+    private Expression ApplyPreprocessor(IQueryPreprocessor preprocessor, Session session, Expression query)
+    {
+      var newPreprocessor = preprocessor as QueryPreprocessor;
+      return newPreprocessor!=null ? newPreprocessor.Apply(session, query) : preprocessor.Apply(query);
+    }
 
     // Constructors
 
-    public TranslatorContext(Domain domain, CompilerConfiguration rseCompilerConfiguration, Expression query)
+    public TranslatorContext(Session session, CompilerConfiguration rseCompilerConfiguration, Expression query)
     {
-      ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
       ArgumentValidator.EnsureArgumentNotNull(rseCompilerConfiguration, "rseCompilerConfiguration");
       ArgumentValidator.EnsureArgumentNotNull(query, "query");
 
-      Domain = domain;
+      Domain = session.Domain;
       RseCompilerConfiguration = rseCompilerConfiguration;
 
       // Applying query preprocessors
-      query = domain.Handler.QueryPreprocessors
-        .Aggregate(query, (current, preprocessor) => preprocessor.Apply(current));
+      query = Domain.Handler.QueryPreprocessors
+        .Aggregate(query, (current, preprocessor) => ApplyPreprocessor(preprocessor, session, current));
 
       // Built-in preprocessors
       query = ClosureAccessRewriter.Rewrite(query);
@@ -136,9 +141,9 @@ namespace Xtensive.Orm.Linq
 
       resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
       columnAliasGenerator = AliasGenerator.Create(new[] {"c01umn"});
-      CustomCompilerProvider = domain.Handler.GetMemberCompilerProvider<Expression>();
-      Model = domain.Model;
-      ProviderInfo = domain.Handlers.ProviderInfo;
+      CustomCompilerProvider = Domain.Handler.GetMemberCompilerProvider<Expression>();
+      Model = Domain.Model;
+      ProviderInfo = Domain.Handlers.ProviderInfo;
       Translator = new Translator(this);
       ParameterExtractor = new ParameterExtractor(Evaluator);
       Bindings = new LinqBindingCollection();

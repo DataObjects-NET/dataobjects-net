@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Linq
     internal TranslatedQuery<TResult> Translate<TResult>(Expression expression, CompilerConfiguration compilerConfiguration)
     {
       try {
-        var context = new TranslatorContext(session.Domain, compilerConfiguration, expression);
+        var context = new TranslatorContext(session, compilerConfiguration, expression);
         return context.Translator.Translate<TResult>();
       }
       catch (Exception ex) {

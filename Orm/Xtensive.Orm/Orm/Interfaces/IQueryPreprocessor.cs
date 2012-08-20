@@ -10,6 +10,7 @@ namespace Xtensive.Orm
 {
   /// <summary>
   /// LINQ query preprocessor contract.
+  /// Consider inheriting from <see cref="QueryPreprocessor"/> instead.
   /// </summary>
   public interface IQueryPreprocessor : IDomainService
   {

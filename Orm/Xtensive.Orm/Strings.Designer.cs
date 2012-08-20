@@ -4259,6 +4259,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This method should not be called, use Apply(Session, Expression) instead.
+        /// </summary>
+        internal static string ExThisMethodShouldNotBeCalledUseApplySessionExpressionInstead {
+            get {
+                return ResourceManager.GetString("ExThisMethodShouldNotBeCalledUseApplySessionExpressionInstead", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to This storage does not support &apos;{0}&apos;..
         /// </summary>
         internal static string ExThisStorageDoesNotSupportX {

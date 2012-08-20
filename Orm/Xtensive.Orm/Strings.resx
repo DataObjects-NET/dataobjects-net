@@ -2425,4 +2425,7 @@ Error: {1}</value>
   <data name="LogFailedToExtractMetadataFromXYZ">
     <value xml:space="preserve">Failed to extract metadata from '{0}.{1}': {2}</value>
   </data>
+  <data name="ExThisMethodShouldNotBeCalledUseApplySessionExpressionInstead">
+    <value xml:space="preserve">This method should not be called, use Apply(Session, Expression) instead</value>
+  </data>
 </root>

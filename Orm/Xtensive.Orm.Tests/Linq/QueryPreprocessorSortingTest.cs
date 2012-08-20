@@ -18,6 +18,18 @@ namespace Xtensive.Orm.Tests.Linq
   [TestFixture]
   public class QueryPreprocessorSortingTest
   {
+    [Service(typeof (IQueryPreprocessor))]
+    public class NewPreprocessor : QueryPreprocessor
+    {
+      public static int CallCount = 0;
+
+      public override Expression Apply(Session session, Expression query)
+      {
+        CallCount++;
+        return query;
+      }
+    }
+
     public class PreprocessorBase : IQueryPreprocessor
     {
       private static bool Enabled;
@@ -122,6 +134,21 @@ namespace Xtensive.Orm.Tests.Linq
       configuration.Types.Register(typeof (PreprocessorC));
 
       AssertEx.ThrowsInvalidOperationException(() => Domain.Build(configuration));
+    }
+
+    [Test]
+    public void NewPreprocessorTest()
+    {
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.Types.Register(typeof (NewPreprocessor));
+
+      using (var domain = Domain.Build(configuration))
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        NewPreprocessor.CallCount = 0;
+        var q = session.Query.All<Metadata.Assembly>().ToList();
+        Assert.That(NewPreprocessor.CallCount, Is.EqualTo(1));
+      }
     }
   }
 }
