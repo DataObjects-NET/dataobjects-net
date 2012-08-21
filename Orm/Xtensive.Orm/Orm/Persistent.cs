@@ -355,8 +355,7 @@ namespace Xtensive.Orm
             Tuple.SetValue(field.MappingInfo.Offset + i, null);
           return;
         }
-        var type = types[field.ValueType];
-        if (!(type == value.TypeInfo || type.GetDescendants().Contains(value.TypeInfo)))
+        if (!field.ValueType.IsAssignableFrom(value.TypeInfo.UnderlyingType))
           throw new InvalidOperationException(string.Format("Key of {0} type is not assignable to field of {1} type", value.TypeInfo.Name, field.ValueType.Name));
 
         value.Value.CopyTo(Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
