@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
   internal static class ProviderInitializer
   {
     private const string NativeModuleResourceNameFormat = "Xtensive.Sql.Drivers.Sqlite.NativeModules.{0}_{1}.SQLite.Interop.dll";
-    private const string NativeModuleFileNameFormat = @"Xtensive\{0}\Native\{1}\SQLite.Interop.dll";
+    private const string NativeModuleFileNameFormat = @"{0}\Native\{1}\SQLite.Interop.dll";
 
 #if NET40
     private const string FrameworkName = "Net40";
