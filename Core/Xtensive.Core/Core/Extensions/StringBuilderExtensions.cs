@@ -73,7 +73,8 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <param name="values">The values.</param>
-    public static void AppendHexArray(this StringBuilder builder, byte[] values)
+    /// <returns>Original <paramref name="builder"/>.</returns>
+    public static StringBuilder AppendHexArray(this StringBuilder builder, byte[] values)
     {
       ArgumentValidator.EnsureArgumentNotNull(builder, "builder");
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
@@ -83,6 +84,7 @@ namespace Xtensive.Core
         builder.Append(Convert.ToString(hi, 16));
         builder.Append(Convert.ToString(low, 16));
       }
+      return builder;
     }
   }
 }
