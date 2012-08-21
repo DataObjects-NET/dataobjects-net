@@ -132,4 +132,7 @@
   <data name="ExUnboundColumn" xml:space="preserve">
     <value>ExUnboundColumn {0}</value>
   </data>
+  <data name="ResourceXIsMissing">
+    <value xml:space="preserve">Resource '{0}' is missing</value>
+  </data>
 </root>

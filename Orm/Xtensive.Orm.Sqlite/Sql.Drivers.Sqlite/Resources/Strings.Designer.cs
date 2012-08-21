@@ -104,5 +104,14 @@ namespace Xtensive.Sql.Drivers.Sqlite.Resources {
                 return ResourceManager.GetString("ExUnboundColumn", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resource &apos;{0}&apos; is missing.
+        /// </summary>
+        internal static string ResourceXIsMissing {
+            get {
+                return ResourceManager.GetString("ResourceXIsMissing", resourceCulture);
+            }
+        }
     }
 }

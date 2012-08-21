@@ -95,6 +95,7 @@
     <Compile Include="Sql.Drivers.Sqlite\Connection.cs" />
     <Compile Include="Sql.Drivers.Sqlite\Driver.cs" />
     <Compile Include="Sql.Drivers.Sqlite\DriverFactory.cs" />
+    <Compile Include="Sql.Drivers.Sqlite\ProviderInitializer.cs" />
     <Compile Include="Sql.Drivers.Sqlite\Resources\Strings.Designer.cs">
       <DependentUpon>Strings.resx</DependentUpon>
       <DesignTime>True</DesignTime>
@@ -132,6 +133,14 @@
     <Content Include="Sql.Drivers.Sqlite\Issues.txt" />
     <Content Include="Sql.Drivers.Sqlite\Progression.txt" />
     <Content Include="Sql.Drivers.Sqlite\readme.txt" />
+  </ItemGroup>
+  <ItemGroup Condition="$(Configuration.StartsWith('Net35'))">
+    <EmbeddedResource Include="Sql.Drivers.Sqlite\NativeModules\Net35_32\SQLite.Interop.dll" />
+    <EmbeddedResource Include="Sql.Drivers.Sqlite\NativeModules\Net35_64\SQLite.Interop.dll" />
+  </ItemGroup>
+  <ItemGroup Condition="$(Configuration.StartsWith('Net40'))">
+    <EmbeddedResource Include="Sql.Drivers.Sqlite\NativeModules\Net40_32\SQLite.Interop.dll" />
+    <EmbeddedResource Include="Sql.Drivers.Sqlite\NativeModules\Net40_64\SQLite.Interop.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
