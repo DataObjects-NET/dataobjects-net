@@ -5,6 +5,7 @@
 // Created:    2011.02.25
 
 using System;
+using System.Linq;
 using System.Security;
 using MySql.Data.MySqlClient;
 using Xtensive.Core;
@@ -34,23 +35,31 @@ namespace Xtensive.Sql.Drivers.MySql
 
       // host, port, database
       builder.Server = url.Host;
-      if (url.Port != 0)
+      if (url.Port!=0)
         builder.Port = (uint) url.Port;
       builder.Database = url.Resource ?? string.Empty;
 
       // user, password
-      if (!String.IsNullOrEmpty(url.User)) {
-        builder.UserID = url.User;
-        builder.Password = url.Password;
-      }
-      else
+      if (string.IsNullOrEmpty(url.User))
         throw new Exception(Strings.ExUserNameRequired);
+
+      builder.UserID = url.User;
+      builder.Password = url.Password;
 
       // custom options
       foreach (var param in url.Params)
         builder[param.Key] = param.Value;
 
       return builder.ToString();
+    }
+
+    private static Version ParseVersion(string version)
+    {
+      // For pre-release versions characters might be used in addition to digits
+      // Skip any non-supported chars before creating Version
+
+      var fixedVersion = new string(version.Where(ch => char.IsDigit(ch) || ch=='.').ToArray());
+      return new Version(fixedVersion);
     }
 
     /// <inheritdoc/>
@@ -61,25 +70,24 @@ namespace Xtensive.Sql.Drivers.MySql
     {
       using (var connection = new MySqlConnection(connectionString)) {
         connection.Open();
-        var version = new Version(forcedVersion ?? connection.ServerVersion);
+        var version = ParseVersion(forcedVersion ?? connection.ServerVersion);
 
         var builder = new MySqlConnectionStringBuilder(connectionString);
         string dataSource = string.Format(DataSourceFormat, builder.Server, builder.Port, builder.Database);
-        var coreServerInfo = new CoreServerInfo
-                               {
-                                 ServerVersion = version,
-                                 ConnectionString = connectionString,
-                                 MultipleActiveResultSets = false,
-                               };
+        var coreServerInfo = new CoreServerInfo {
+          ServerVersion = version,
+          ConnectionString = connectionString,
+          MultipleActiveResultSets = false,
+        };
 
         SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
         if (version.Major < 5)
           throw new NotSupportedException(Strings.ExMySqlBelow50IsNotSupported);
-        if (version.Major == 5 && version.Minor == 0)
+        if (version.Major==5 && version.Minor==0)
           return new v5_0.Driver(coreServerInfo);
-        if (version.Major == 5 && version.Minor == 1)
+        if (version.Major==5 && version.Minor==1)
           return new v5_1.Driver(coreServerInfo);
-        if (version.Major == 5 && version.Minor == 5)
+        if (version.Major==5 && version.Minor==5)
           return new v5_5.Driver(coreServerInfo);
         return new v5_0.Driver(coreServerInfo);
       }

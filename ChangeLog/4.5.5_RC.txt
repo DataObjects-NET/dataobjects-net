@@ -1,0 +1,1 @@
+[mysql] Correctly parse pre-release versions of MySQL (e.g. 5.5.25a)
