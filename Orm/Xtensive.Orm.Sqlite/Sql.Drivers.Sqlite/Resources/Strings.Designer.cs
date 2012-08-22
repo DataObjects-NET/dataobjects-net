@@ -61,6 +61,15 @@ namespace Xtensive.Sql.Drivers.Sqlite.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to load native module &apos;{0}&apos;.
+        /// </summary>
+        internal static string ExFailedToLoadNativeModuleX {
+            get {
+                return ResourceManager.GetString("ExFailedToLoadNativeModuleX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid boolean string &apos;{0}&apos;..
         /// </summary>
         internal static string ExInvalidBooleanStringX {
@@ -75,6 +84,15 @@ namespace Xtensive.Sql.Drivers.Sqlite.Resources {
         internal static string ExOperationXIsNotSupported {
             get {
                 return ResourceManager.GetString("ExOperationXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Resource &apos;{0}&apos; is missing.
+        /// </summary>
+        internal static string ExResourceXIsMissing {
+            get {
+                return ResourceManager.GetString("ExResourceXIsMissing", resourceCulture);
             }
         }
         
@@ -102,15 +120,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.Resources {
         internal static string ExUnboundColumn {
             get {
                 return ResourceManager.GetString("ExUnboundColumn", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Resource &apos;{0}&apos; is missing.
-        /// </summary>
-        internal static string ResourceXIsMissing {
-            get {
-                return ResourceManager.GetString("ResourceXIsMissing", resourceCulture);
             }
         }
     }

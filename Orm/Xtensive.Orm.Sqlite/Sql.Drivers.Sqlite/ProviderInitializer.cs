@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using Xtensive.Core;
 using Xtensive.Sql.Drivers.Sqlite.Resources;
 
@@ -17,8 +18,9 @@ namespace Xtensive.Sql.Drivers.Sqlite
 {
   internal static class ProviderInitializer
   {
-    private const string NativeModuleResourceNameFormat = "Xtensive.Sql.Drivers.Sqlite.NativeModules.{0}_{1}.SQLite.Interop.dll";
-    private const string NativeModuleFileNameFormat = @"{0}\Native\{1}\SQLite.Interop.dll";
+    private const string LibraryResourceNameFormat = @"Xtensive.Sql.Drivers.Sqlite.NativeModules.{0}_{1}.SQLite.Interop.dll";
+    private const string LibraryFileNameFormat = @"{0}\Native\{1}\SQLite.Interop.dll";
+    private const string LibraryMutexFormat = @"{0}_Native_{1}";
 
 #if NET40
     private const string FrameworkName = "Net40";
@@ -37,70 +39,92 @@ namespace Xtensive.Sql.Drivers.Sqlite
         if (IsInitialized)
           return;
         IsInitialized = true;
-        LoadNativeModule();
+        ExtractAndLoadNativeLibrary();
         RegisterCollations();
       }
     }
 
-    private static Stream GetNativeModuleStream()
+    private static Stream GetLibraryStream()
     {
-      var resourceName = string.Format(NativeModuleResourceNameFormat, FrameworkName, IntPtr.Size * 8);
+      var resourceName = string.Format(LibraryResourceNameFormat, FrameworkName, IntPtr.Size * 8);
       var result = typeof (ProviderInitializer).Assembly.GetManifestResourceStream(resourceName);
       if (result==null)
-        throw new InvalidOperationException(string.Format(Strings.ResourceXIsMissing, resourceName));
+        throw new InvalidOperationException(string.Format(Strings.ExResourceXIsMissing, resourceName));
       return result;
     }
 
-    private static string GetNativeModuleHash()
+    private static string GetLibraryHash()
     {
       using (var hashProvider = new SHA1Managed()) {
         hashProvider.Initialize();
-        using (var stream = GetNativeModuleStream())
+        using (var stream = GetLibraryStream())
           hashProvider.ComputeHash(stream);
         var hash = hashProvider.Hash.Take(8).ToArray();
         return new StringBuilder().AppendHexArray(hash).ToString();
       }
     }
 
-    private static string GetNativeModuleFileName()
+    private static string GetLibraryFileName(string moduleHash)
     {
       return Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        string.Format(NativeModuleFileNameFormat, ThisAssembly.ProductName, GetNativeModuleHash()));
+        string.Format(LibraryFileNameFormat, ThisAssembly.ProductName, moduleHash));
     }
 
-    private static void WriteNativeModuleToFile(string moduleFileName)
+    private static void ExtractLibrary(string moduleFileName)
     {
+      if (File.Exists(moduleFileName))
+        return;
+
       var moduleDirName = Path.GetDirectoryName(moduleFileName);
+
       if (!Directory.Exists(moduleDirName))
         Directory.CreateDirectory(moduleDirName);
-      using (var resourceStream = GetNativeModuleStream())
-      using (var fileStream = File.Create(moduleFileName))
-        CopyStream(resourceStream, fileStream);
+
+      try {
+        using (var fileStream = new FileStream(moduleFileName, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+        using (var resourceStream = GetLibraryStream()) {
+          var buffer = new byte[1024 * 32];
+          int bytesRead;
+          while ((bytesRead = resourceStream.Read(buffer, 0, buffer.Length)) > 0)
+            fileStream.Write(buffer, 0, bytesRead);
+        }
+      }
+      catch {
+        File.Delete(moduleFileName);
+        throw;
+      }
     }
 
-    private static void CopyStream(Stream source, Stream target)
+    private static void ExtractAndLoadNativeLibrary()
     {
-      var buffer = new byte[1024 * 32];
-      int count;
-      while ((count = source.Read(buffer, 0, buffer.Length)) > 0)
-        target.Write(buffer, 0, count);
-    }
+      var hash = GetLibraryHash();
+      var moduleFileName = GetLibraryFileName(hash);
+      var mutexName = string.Format(LibraryMutexFormat, ThisAssembly.ProductName, hash);
 
-    private static void LoadNativeModule()
-    {
-      var moduleFileName = GetNativeModuleFileName();
+      using (var mutex = new Mutex(false, mutexName)) {
+        mutex.WaitOne();
+        try {
+          ExtractLibrary(moduleFileName);
+        }
+        finally {
+          mutex.ReleaseMutex();
+        }
+      }
 
-      if (!File.Exists(moduleFileName))
-        WriteNativeModuleToFile(moduleFileName);
-
-      // LOAD_WITH_ALTERED_SEARCH_PATH = 0x00000008
-
-      LoadLibraryEx(moduleFileName, IntPtr.Zero, 0x00000008);
+      LoadNativeLibrary(moduleFileName);
     }
 
     [System.Runtime.InteropServices.DllImport("kernel32.dll")]
     private static extern IntPtr LoadLibraryEx(string lpFileName, IntPtr hFile, uint dwFlags);
+
+    private static void LoadNativeLibrary(string moduleFileName)
+    {
+      const uint loadWithAlteredSearchPath = 0x00000008;
+      var result = LoadLibraryEx(moduleFileName, IntPtr.Zero, loadWithAlteredSearchPath);
+      if (result==IntPtr.Zero)
+        throw new InvalidOperationException(string.Format(Strings.ExFailedToLoadNativeModuleX, moduleFileName));
+    }
 
     private static void RegisterCollations()
     {

@@ -132,7 +132,10 @@
   <data name="ExUnboundColumn" xml:space="preserve">
     <value>ExUnboundColumn {0}</value>
   </data>
-  <data name="ResourceXIsMissing">
+  <data name="ExResourceXIsMissing">
     <value xml:space="preserve">Resource '{0}' is missing</value>
+  </data>
+  <data name="ExFailedToLoadNativeModuleX">
+    <value xml:space="preserve">Failed to load native module '{0}'</value>
   </data>
 </root>
