@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Providers
       }
 
       var left = Compile(provider.Left);
-      var shouldUseQueryReference = true;
+      bool shouldUseQueryReference;
       var sourceSelect = left.Request.Statement;
 
       if (processViaCrossApply) {
@@ -65,10 +65,10 @@ namespace Xtensive.Orm.Providers
         });
         var providerVisitor = new CompilableProviderVisitor((p, e) => visitor.Visit(e));
         providerVisitor.VisitCompilable(provider.Right);
-        shouldUseQueryReference = usedOuterColumns.Any(calculatedColumnIndexes.Contains) 
-          || groupByIsUsed 
+        shouldUseQueryReference = usedOuterColumns.Any(calculatedColumnIndexes.Contains)
+          || groupByIsUsed
           || provider.Left.Type.In(ProviderType.Store, ProviderType.Include)
-          || left.Header.Columns.Count != left.Request.Statement.From.Columns.Count;
+          || left.Header.Columns.Count!=left.Request.Statement.Columns.Count;
       }
       if (!shouldUseQueryReference)
         left = new SqlProvider(left, sourceSelect.From);

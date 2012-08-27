@@ -206,7 +206,6 @@ namespace Xtensive.Orm.Providers
       var filterIsUsed = !sourceSelect.Where.IsNullReference();
       if (sourceSelect.From == null)
         return false;
-      var columnCountIsNotSame = sourceSelect.From.Columns.Count!=sourceSelect.Columns.Count;
 
       if (origin.Type==ProviderType.Filter) {
         var filterProvider = (FilterProvider) origin;
@@ -230,7 +229,7 @@ namespace Xtensive.Orm.Providers
           usedColumnIndexes.AddRange(
             columnGatherer.Gather(column.Expression.Body, column.Expression.Parameters[0]));
 
-        return usedColumnIndexes.Any(calculatedColumnIndexes.Contains) || columnCountIsNotSame;
+        return usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
       }
 
       if (origin.Type == ProviderType.Aggregate) {
