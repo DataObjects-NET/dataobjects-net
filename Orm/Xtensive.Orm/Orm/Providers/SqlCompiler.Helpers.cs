@@ -191,6 +191,8 @@ namespace Xtensive.Orm.Providers
     private static bool ShouldUseQueryReference(CompilableProvider origin, SqlProvider compiledSource)
     {
       var sourceSelect = compiledSource.Request.Statement;
+      if (sourceSelect.From==null)
+        return false;
 
       var calculatedColumnIndexes = sourceSelect.Columns
         .Select((c, i) => IsCalculatedColumn(c) ? i : -1)
@@ -204,8 +206,6 @@ namespace Xtensive.Orm.Providers
       var groupByIsUsed = sourceSelect.GroupBy.Count > 0;
       var distinctIsUsed = sourceSelect.Distinct;
       var filterIsUsed = !sourceSelect.Where.IsNullReference();
-      if (sourceSelect.From == null)
-        return false;
 
       if (origin.Type==ProviderType.Filter) {
         var filterProvider = (FilterProvider) origin;
