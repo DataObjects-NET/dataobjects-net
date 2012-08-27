@@ -67,12 +67,12 @@ namespace Xtensive.Orm.Tests.Linq
             .Where(l => l.Product==p && l.Culture==culture)
             .Select(l => l.Name)
             .FirstOrDefault() ?? p.Name,
-          Desription = session.Query.All<ProductLocalization>()
+          Description = session.Query.All<ProductLocalization>()
             .Where(l => l.Product==p && l.Culture==culture)
             .Select(l => l.Description)
             .FirstOrDefault() ?? p.Description
         })
-        .OrderBy(i => i.Name).ThenBy(i => i.Desription);
+        .OrderBy(i => i.Name).ThenBy(i => i.Description);
 
       return query.AsEnumerable().Select(i => new Pair<Product, string>(i.Product, i.Name)).ToList();
     }
