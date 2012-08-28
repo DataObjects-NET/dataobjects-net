@@ -95,46 +95,49 @@ namespace Xtensive.Orm.Providers
 
     private SqlSelect BuildJoinQuery(IndexInfo index)
     {
-      SqlTable result = null;
+      SqlTable resultTable = null;
       SqlTable rootTable = null;
+
       int keyColumnCount = index.KeyColumns.Count;
-      var baseQueries = index.UnderlyingIndexes
-        .Select(i => BuildProviderQuery(i))
-        .ToList();
-      var queryRefs = new List<SqlTable>();
-      for (int j = 0; j < baseQueries.Count; j++) {
-        var baseQuery = baseQueries[j];
-        if (result == null) {
-          result = SqlDml.QueryRef(baseQuery);
-          rootTable = result;
-          queryRefs.Add(result);
-        }
+      var underlyingQueries = index.UnderlyingIndexes.Select(BuildProviderQuery);
+
+      var sourceTables = index.UnderlyingIndexes.Any(i => i.IsVirtual)
+        ? underlyingQueries.Select(SqlDml.QueryRef).Cast<SqlTable>().ToList()
+        : underlyingQueries.Select(q => q.From).ToList();
+
+      foreach (var table in sourceTables) {
+        if (resultTable==null)
+          resultTable = rootTable = table;
         else {
-          var queryRef = SqlDml.QueryRef(baseQuery);
-          queryRefs.Add(queryRef);
           SqlExpression joinExpression = null;
           for (int i = 0; i < keyColumnCount; i++) {
-            var binary = (queryRef.Columns[i] == rootTable.Columns[i]);
+            var binary = (table.Columns[i]==rootTable.Columns[i]);
             if (joinExpression.IsNullReference())
               joinExpression = binary;
             else
               joinExpression &= binary;
           }
-          result = result.InnerJoin(queryRef, joinExpression);
+          resultTable = resultTable.InnerJoin(table, joinExpression);
         }
       }
+
       var columns = new List<SqlColumn>();
       foreach (var map in index.ValueColumnsMap) {
-        var queryRef = queryRefs[map.First];
-        if (columns.Count == 0)
-          columns.AddRange(Enumerable.Range(0, keyColumnCount)
-            .Select(i => queryRef.Columns[i])
-            .Cast<SqlColumn>());
-        foreach (var columnIndex in map.Second)
-          columns.Add(queryRef.Columns[columnIndex + keyColumnCount]);
+        var table = sourceTables[map.First];
+        if (columns.Count==0) {
+          var keyColumns = Enumerable
+            .Range(0, keyColumnCount)
+            .Select(i => table.Columns[i])
+            .Cast<SqlColumn>();
+          columns.AddRange(keyColumns);
+        }
+        var valueColumns = map.Second
+          .Select(columnIndex => table.Columns[columnIndex + keyColumnCount])
+          .Cast<SqlColumn>();
+        columns.AddRange(valueColumns);
       }
 
-      var query = SqlDml.Select(result);
+      var query = SqlDml.Select(resultTable);
       query.Columns.AddRange(columns);
 
       return query;
