@@ -143,7 +143,11 @@ namespace Xtensive.Orm.Providers
       var strictJoinWorkAround = provider.JoinType==JoinType.LeftOuter
         && providerInfo.Supports(ProviderFeatures.StrictJoinSyntax);
 
-      var leftShouldUseReference = strictJoinWorkAround || ShouldUseQueryReference(provider, left);
+      var leftStrictJoinWorkAround = strictJoinWorkAround
+        && left.Request.Statement.From!=null
+        && left.Request.Statement.From is SqlJoinedTable;
+
+      var leftShouldUseReference = leftStrictJoinWorkAround || ShouldUseQueryReference(provider, left);
       var leftTable = leftShouldUseReference
         ? left.PermanentReference
         : left.Request.Statement.From;
@@ -154,7 +158,11 @@ namespace Xtensive.Orm.Providers
         ? leftTable.Columns.Cast<SqlExpression>().ToList()
         : ExtractColumnExpressions(left.Request.Statement, provider.Left);
 
-      var rightShouldUseReference = strictJoinWorkAround || ShouldUseQueryReference(provider, right);
+      var rightStrictJoinWorkAround = strictJoinWorkAround
+        && right.Request.Statement.From!=null
+        && right.Request.Statement.From is SqlJoinedTable;
+
+      var rightShouldUseReference = rightStrictJoinWorkAround || ShouldUseQueryReference(provider, right);
       var rightTable = rightShouldUseReference
         ? right.PermanentReference
         : right.Request.Statement.From;
