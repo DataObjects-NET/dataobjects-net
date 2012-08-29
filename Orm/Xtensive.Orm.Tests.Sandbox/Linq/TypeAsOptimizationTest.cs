@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.08.28
 
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Linq.TypeAsOptimizationTestModel;
@@ -34,9 +35,16 @@ namespace Xtensive.Orm.Tests.Linq
       public string StringValue { get; set; }
     }
 
+    public class OtherChild : Parent
+    {
+      [Field]
+      public DateTime DateValue { get; set; }
+    }
+
     public class UniversalResult
     {
-      public Child2 Child { get; set; }
+      public Child2 Child2 { get; set; }
+      public OtherChild Other { get; set; }
     }
   }
 
@@ -57,8 +65,8 @@ namespace Xtensive.Orm.Tests.Linq
         new Child1 {Name = "Child1", IntValue = 10};
         new Child2 {Name = "Child2", StringValue = "Hello"};
         var result = session.Query.All<Parent>()
-          .Select(p => new UniversalResult {Child = p as Child2})
-          .Where(i => i.Child.IntValue==10)
+          .Select(p => new UniversalResult {Child2 = p as Child2, Other = p as OtherChild})
+          .Where(i => i.Child2.IntValue==10)
           .ToList();
         tx.Complete();
       }

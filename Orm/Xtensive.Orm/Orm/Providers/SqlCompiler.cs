@@ -138,16 +138,14 @@ namespace Xtensive.Orm.Providers
       var right = Compile(provider.Right);
 
       // SQLite does not allow certain join combinations
-      // To work around this any left outer join should be performed on QueryRef'd sources
+      // Any right part of join expression should not be join itself
       // See IssueA363_WrongInnerJoin for example of such query
-      var strictJoinWorkAround = provider.JoinType==JoinType.LeftOuter
-        && providerInfo.Supports(ProviderFeatures.StrictJoinSyntax);
 
-      var leftStrictJoinWorkAround = strictJoinWorkAround
-        && left.Request.Statement.From!=null
-        && left.Request.Statement.From is SqlJoinedTable;
+      var strictJoinWorkAround =
+        providerInfo.Supports(ProviderFeatures.StrictJoinSyntax)
+        && right.Request.Statement.From is SqlJoinedTable;
 
-      var leftShouldUseReference = leftStrictJoinWorkAround || ShouldUseQueryReference(provider, left);
+      var leftShouldUseReference = ShouldUseQueryReference(provider, left);
       var leftTable = leftShouldUseReference
         ? left.PermanentReference
         : left.Request.Statement.From;
@@ -158,11 +156,7 @@ namespace Xtensive.Orm.Providers
         ? leftTable.Columns.Cast<SqlExpression>().ToList()
         : ExtractColumnExpressions(left.Request.Statement, provider.Left);
 
-      var rightStrictJoinWorkAround = strictJoinWorkAround
-        && right.Request.Statement.From!=null
-        && right.Request.Statement.From is SqlJoinedTable;
-
-      var rightShouldUseReference = rightStrictJoinWorkAround || ShouldUseQueryReference(provider, right);
+      var rightShouldUseReference = strictJoinWorkAround || ShouldUseQueryReference(provider, right);
       var rightTable = rightShouldUseReference
         ? right.PermanentReference
         : right.Request.Statement.From;
