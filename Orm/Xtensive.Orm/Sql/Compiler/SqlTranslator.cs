@@ -1237,25 +1237,30 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string Translate(SqlCompilerContext context, SqlUnary node, NodeSection section)
     {
-      string result = string.Empty;
+      var omitParenthesis =
+        node.NodeType==SqlNodeType.Exists
+        || node.NodeType==SqlNodeType.All
+        || node.NodeType==SqlNodeType.Some
+        || node.NodeType==SqlNodeType.Any;
+
+      var isNullCheck = node.NodeType==SqlNodeType.IsNull || node.NodeType==SqlNodeType.IsNotNull;
+      var result = string.Empty;
+
       switch (section) {
       case NodeSection.Entry:
-        if (
-          !(node.NodeType == SqlNodeType.Exists || node.NodeType == SqlNodeType.All ||
-            node.NodeType == SqlNodeType.Some || node.NodeType == SqlNodeType.Any))
+        if (!omitParenthesis)
           result += "(";
-        if (node.NodeType != SqlNodeType.IsNull && node.NodeType != SqlNodeType.IsNotNull)
+        if (!isNullCheck)
           result += Translate(node.NodeType);
         break;
       case NodeSection.Exit:
-        if (node.NodeType == SqlNodeType.IsNull || node.NodeType == SqlNodeType.IsNotNull)
+        if (isNullCheck)
           result += Translate(node.NodeType);
-        if (
-          !(node.NodeType == SqlNodeType.Exists || node.NodeType == SqlNodeType.All ||
-            node.NodeType == SqlNodeType.Some || node.NodeType == SqlNodeType.Any))
+        if (!omitParenthesis)
           result += ")";
         break;
       }
+
       return result;
     }
 

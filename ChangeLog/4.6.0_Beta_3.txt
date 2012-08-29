@@ -1,3 +1,4 @@
 [main] Added advanced version of LINQ query preprocessor
 [main] Fixed redundant query nesting under certain conditions
-[sqlite] Add support for using SQLite provider in 64-bit processes
+[main] Improved formatting of SQL when chains of AND/OR operators are used
+[sqlite] Added support for using SQLite provider in 64-bit processes

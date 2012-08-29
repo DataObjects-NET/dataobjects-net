@@ -848,6 +848,7 @@
     <Compile Include="Sql\Compiler\Internals\Nodes\VariantNode.cs" />
     <Compile Include="Sql\Compiler\Internals\NodeVisitor.cs" />
     <Compile Include="Sql\Compiler\Internals\PostCompiler.cs" />
+    <Compile Include="Sql\Compiler\Internals\RecursiveBinaryLogicExtractor.cs" />
     <Compile Include="Sql\Compiler\SqlCompilationResult.cs" />
     <Compile Include="Sql\Compiler\SqlCompiler.cs" />
     <Compile Include="Sql\Compiler\SqlCompilerConfiguration.cs" />

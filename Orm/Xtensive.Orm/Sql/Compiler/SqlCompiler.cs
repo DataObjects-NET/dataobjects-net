@@ -253,13 +253,25 @@ namespace Xtensive.Sql.Compiler
       if (node.NodeType==SqlNodeType.In || node.NodeType==SqlNodeType.NotIn) {
         var row = node.Right as SqlRow;
         var array = node.Right as SqlArray;
-        bool emptyIn =
-          !row.IsNullReference() && row.Count==0 ||
-          !array.IsNullReference() && array.Length==0;
-        if (emptyIn) {
+        bool isEmptyIn = !row.IsNullReference() && row.Count==0 || !array.IsNullReference() && array.Length==0;
+        if (isEmptyIn) {
           SqlDml.Literal(node.NodeType==SqlNodeType.NotIn).AcceptVisitor(this);
           return;
         }
+      }
+
+      if (node.NodeType==SqlNodeType.Or || node.NodeType==SqlNodeType.And) {
+        var expressions = RecursiveBinaryLogicExtractor.Extract(node);
+        using (context.EnterScope(node)) {
+          context.Output.AppendText(translator.Translate(context, node, NodeSection.Entry));
+          expressions[0].AcceptVisitor(this);
+          foreach (var operand in expressions.Skip(1)) {
+            context.Output.AppendText(translator.Translate(node.NodeType));
+            operand.AcceptVisitor(this);
+          }
+          context.Output.AppendText(translator.Translate(context, node, NodeSection.Exit));
+        }
+        return;
       }
 
       using (context.EnterScope(node)) {
