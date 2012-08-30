@@ -9,7 +9,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Linq
 {
@@ -17,21 +16,21 @@ namespace Xtensive.Orm.Linq
   {
     private readonly Translator translator;
 
+    public ParameterExpression[] Parameters { get; set; }
+
+    public ParameterExpression[] OuterParameters { get; set; }
+
+    public LambdaExpression CurrentLambda { get; set; }
+
     public IncludeAlgorithm IncludeAlgorithm { get; set; }
 
     public bool JoinLocalCollectionEntity { get; set; }
 
     public bool AllowCalculableColumnCombine { get; set; }
 
-    public ParameterExpression[] Parameters { get; set; }
-
-    public ParameterExpression[] OuterParameters { get; set; }
-
     public bool BuildingProjection { get; set; }
 
     public bool CalculateExpressions { get; set; }
-
-    public LambdaExpression CurrentLambda { get; set; }
 
     public bool GroupingKey { get; set; }
 
@@ -40,6 +39,8 @@ namespace Xtensive.Orm.Linq
     public bool SetOperationProjection { get; set; }
 
     public bool SelectManyProjection { get; set; }
+
+    public bool ScalarSubqueryProjection { get; set; }
 
     public IDisposable CreateScope()
     {
@@ -89,6 +90,7 @@ namespace Xtensive.Orm.Linq
       GroupingKey = currentState.GroupingKey;
       SelectManyProjection = currentState.SelectManyProjection;
       SetOperationProjection = currentState.SetOperationProjection;
+      ScalarSubqueryProjection = currentState.ScalarSubqueryProjection;
     }
   }
 }

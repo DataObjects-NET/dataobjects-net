@@ -398,32 +398,38 @@ namespace Xtensive.Orm.Linq
     {
       var markerType = MarkerType.None;
       var applySequenceType = ApplySequenceType.All;
-      var projection = predicate!=null
-        ? VisitWhere(source, predicate)
-        : VisitSequence(source);
+
+      ProjectionExpression projection;
+      using (state.CreateScope()) {
+        state.ScalarSubqueryProjection =
+          !isRoot && WellKnown.SupportedPrimitiveAndNullableTypes.Contains(method.ReturnType);
+        projection = predicate!=null ? VisitWhere(source, predicate) : VisitSequence(source);
+      }
+
       CompilableProvider rightDataSource = null;
       switch (method.Name) {
-      case Xtensive.Reflection.WellKnown.Queryable.First:
+      case Reflection.WellKnown.Queryable.First:
         applySequenceType = ApplySequenceType.First;
         markerType = MarkerType.First;
         rightDataSource = projection.ItemProjector.DataSource.Take(1);
         break;
-      case Xtensive.Reflection.WellKnown.Queryable.FirstOrDefault:
+      case Reflection.WellKnown.Queryable.FirstOrDefault:
         applySequenceType = ApplySequenceType.FirstOrDefault;
         markerType = MarkerType.First | MarkerType.Default;
         rightDataSource = projection.ItemProjector.DataSource.Take(1);
         break;
-      case Xtensive.Reflection.WellKnown.Queryable.Single:
+      case Reflection.WellKnown.Queryable.Single:
         applySequenceType = ApplySequenceType.Single;
         markerType = MarkerType.Single;
         rightDataSource = projection.ItemProjector.DataSource.Take(2);
         break;
-      case Xtensive.Reflection.WellKnown.Queryable.SingleOrDefault:
+      case Reflection.WellKnown.Queryable.SingleOrDefault:
         applySequenceType = ApplySequenceType.SingleOrDefault;
         markerType = MarkerType.Single | MarkerType.Default;
         rightDataSource = projection.ItemProjector.DataSource.Take(2);
         break;
       }
+
       var resultType = (ResultType) Enum.Parse(typeof (ResultType), method.Name);
       if (isRoot) {
         var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, rightDataSource, context);
@@ -1088,7 +1094,10 @@ namespace Xtensive.Orm.Linq
       }
       context.Bindings.PermanentAdd(le.Parameters[0], sequence);
       using (state.CreateScope()) {
-        state.CalculateExpressions = state.SetOperationProjection || state.SelectManyProjection;
+        state.CalculateExpressions =
+          state.SetOperationProjection ||
+          state.SelectManyProjection ||
+          state.ScalarSubqueryProjection;
         state.SelectManyProjection = false;
         return BuildProjection(le);
       }
