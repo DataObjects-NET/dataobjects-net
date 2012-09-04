@@ -10,11 +10,10 @@ using System.Data.Common;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using Xtensive.Sql.Info;
-using Xtensive.Sql;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
-  public class TypeMapper : Sql.TypeMapper
+  internal class TypeMapper : Sql.TypeMapper
   {
     private ValueRange<DateTime> dateTimeRange;
 

@@ -10,7 +10,7 @@ using System.Data.Common;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
-  public class TypeMapper : v09.TypeMapper
+  internal class TypeMapper : v09.TypeMapper
   {
     public override void BindDateTime(DbParameter parameter, object value)
     {
