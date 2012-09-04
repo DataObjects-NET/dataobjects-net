@@ -14,9 +14,9 @@ using Xtensive.Sql;
 namespace Xtensive.Orm.Building.Builders
 {
   /// <summary>
-  /// Provider search result.
+  /// Provider descriptor.
   /// </summary>
-  public sealed class ProviderDescriptor
+  internal sealed class ProviderDescriptor
   {
     /// <summary>
     /// Gets <see cref="HandlerFactory"/> type.
