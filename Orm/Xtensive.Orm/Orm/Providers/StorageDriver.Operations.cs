@@ -7,7 +7,6 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Sql;
 
@@ -24,7 +23,7 @@ namespace Xtensive.Orm.Providers
 
       try {
         var connection = underlyingDriver.CreateConnection(connectionInfo);
-        connection.CommandTimeout = GetConfiguartion(session).DefaultCommandTimeout;
+        connection.CommandTimeout = GetConfiguration(session).DefaultCommandTimeout;
         return connection;
       }
       catch (Exception exception) {
@@ -66,13 +65,16 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    public void BeginTransaction(Session session, SqlConnection connection, IsolationLevel isolationLevel)
+    public void BeginTransaction(Session session, SqlConnection connection, IsolationLevel? isolationLevel)
     {
       if (isLoggingEnabled)
         SqlLog.Info(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, session.ToStringSafely(), isolationLevel);
 
+      if (isolationLevel==null)
+        isolationLevel = IsolationLevelConverter.Convert(GetConfiguration(session).DefaultIsolationLevel);
+
       try {
-        connection.BeginTransaction(isolationLevel);
+        connection.BeginTransaction(isolationLevel.Value);
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -187,14 +189,14 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    private SessionConfiguration GetConfiguartion(Session session)
+    private SessionConfiguration GetConfiguration(Session session)
     {
       return session!=null ? session.Configuration : configuration.Sessions.System;
     }
 
     private ConnectionInfo GetConnectionInfo(Session session)
     {
-      return GetConfiguartion(session).ConnectionInfo ?? configuration.ConnectionInfo;
+      return GetConfiguration(session).ConnectionInfo ?? configuration.ConnectionInfo;
     }
   }
 }

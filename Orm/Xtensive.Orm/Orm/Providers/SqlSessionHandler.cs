@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.IoC;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Sql;
@@ -25,6 +26,7 @@ namespace Xtensive.Orm.Providers
     private readonly StorageDriver driver;
     private readonly DomainHandler domainHandler;
     private readonly SqlConnection connection;
+    private readonly bool connectionIsExternal;
     private readonly CommandProcessor commandProcessor;
 
     private Transaction pendingTransaction;
@@ -69,13 +71,16 @@ namespace Xtensive.Orm.Providers
     public override void BeginTransaction(Transaction transaction)
     {
       pendingTransaction = transaction;
+
+      if (Session.Configuration.Type!=SessionType.User)
+        Prepare();
     }
 
     /// <inheritdoc/>
     public override void CommitTransaction(Transaction transaction)
     {
       pendingTransaction = null;
-      if (connection.ActiveTransaction!=null)
+      if (connection.ActiveTransaction!=null && !connectionIsExternal)
         driver.CommitTransaction(Session, connection);
     }
 
@@ -83,7 +88,7 @@ namespace Xtensive.Orm.Providers
     public override void RollbackTransaction(Transaction transaction)
     {
       pendingTransaction = null;
-      if (connection.ActiveTransaction!=null)
+      if (connection.ActiveTransaction!=null && !connectionIsExternal)
         driver.RollbackTransaction(Session, connection);
     }
 
@@ -131,7 +136,8 @@ namespace Xtensive.Orm.Providers
         return;
       var transaction = pendingTransaction;
       pendingTransaction = null;
-      driver.BeginTransaction(Session, connection, IsolationLevelConverter.Convert(transaction.IsolationLevel));
+      if (connection.ActiveTransaction==null) // Handle external transactions
+        driver.BeginTransaction(Session, connection, IsolationLevelConverter.Convert(transaction.IsolationLevel));
     }
 
     #endregion
@@ -185,13 +191,15 @@ namespace Xtensive.Orm.Providers
       if (isDisposed)
         return;
       isDisposed = true;
-      driver.CloseConnection(Session, connection);
+      if (!connectionIsExternal)
+        driver.CloseConnection(Session, connection);
     }
 
-    public SqlSessionHandler(Session session, SqlConnection connection)
+    internal SqlSessionHandler(Session session, SqlConnection connection, bool connectionIsExternal)
       : base(session)
     {
       this.connection = connection;
+      this.connectionIsExternal = connectionIsExternal;
 
       domainHandler = Handlers.DomainHandler;
       driver = Handlers.StorageDriver;

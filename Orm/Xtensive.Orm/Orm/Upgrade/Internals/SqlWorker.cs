@@ -23,17 +23,13 @@ namespace Xtensive.Orm.Upgrade
     private static SqlWorkerResult Run(UpgradeServiceAccessor services, SqlWorkerTask task)
     {
       var result = new SqlWorkerResult();
-      using (var connection = services.Driver.CreateConnection(null)) {
-        connection.Open();
-        var executor = new SqlExecutor(services.Driver, connection);
-        if ((task & SqlWorkerTask.DropSchema) > 0)
-          DropSchema(services, executor);
-        if ((task & SqlWorkerTask.ExtractSchema) > 0)
-          result.Schema = ExtractSchema(services, executor);
-        if ((task & SqlWorkerTask.ExtractMetadata) > 0)
-          ExtractMetadata(services, executor, result);
-        connection.Close();
-      }
+      var executor = new SqlExecutor(services.Driver, services.Connection);
+      if ((task & SqlWorkerTask.DropSchema) > 0)
+        DropSchema(services, executor);
+      if ((task & SqlWorkerTask.ExtractSchema) > 0)
+        result.Schema = ExtractSchema(services, executor);
+      if ((task & SqlWorkerTask.ExtractMetadata) > 0)
+        ExtractMetadata(services, executor, result);
       return result;
     }
 

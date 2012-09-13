@@ -10,6 +10,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
+using Xtensive.Sql;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -26,6 +27,7 @@ namespace Xtensive.Orm.Upgrade
     private ReadOnlyList<IModule> modules;
     private ReadOnlyList<IUpgradeHandler> orderedUpgradeHandlers;
     private ReadOnlyDictionary<Assembly, IUpgradeHandler> upgradeHandlers;
+    private SqlConnection connection;
 
     public DomainConfiguration Configuration
     {
@@ -116,6 +118,16 @@ namespace Xtensive.Orm.Upgrade
       {
         this.EnsureNotLocked();
         upgradeHandlers = value;
+      }
+    }
+
+    public SqlConnection Connection
+    {
+      get { return connection; }
+      set
+      {
+        this.EnsureNotLocked();
+        connection = value;
       }
     }
 

@@ -23,6 +23,8 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.ReferentialIntegrity;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Upgrade;
+using Xtensive.Sql;
 using EnumerationContext = Xtensive.Orm.Rse.Providers.EnumerationContext;
 
 namespace Xtensive.Orm
@@ -383,6 +385,14 @@ namespace Xtensive.Orm
         : string.Format(FullNameFormat, name, identifier);
     }
 
+    private SessionHandler CreateSessionHandler()
+    {
+      var upgradeContext = UpgradeContext.Current;
+      var connection = upgradeContext!=null
+        ? upgradeContext.Services.Connection
+        : Handlers.StorageDriver.CreateConnection(this);
+      return new SqlSessionHandler(this, connection, upgradeContext!=null);
+    }
 
     // Constructors
 
@@ -401,8 +411,7 @@ namespace Xtensive.Orm
 
       // Handlers
       Handlers = domain.Handlers;
-      var connection = Handlers.StorageDriver.CreateConnection(this);
-      Handler = new SqlSessionHandler(this, connection);
+      Handler = CreateSessionHandler();
 
       // Caches, registry
       EntityStateCache = CreateSessionCache(configuration);

@@ -19,15 +19,15 @@ namespace Xtensive.Orm.Upgrade
   /// <summary>
   /// Upgrades storage schema.
   /// </summary>
-  internal sealed class SchemaUpgrader : IDisposable
+  internal sealed class SchemaUpgrader
   {
     private readonly UpgradeContext context;
     private readonly Session session;
     private readonly UpgradeServiceAccessor services;
     private readonly ISqlExecutor executor;
     private readonly Action<IEnumerable<string>> statementProcessor;
-
-    private TransactionScope transactionScope;
+    private readonly StorageDriver driver;
+    private readonly SqlConnection connection;
 
     public void UpgradeSchema(SqlExtractionResult extractedSchema,
       StorageModel sourceModel, StorageModel targetModel, ActionSequence upgradeActions)
@@ -59,9 +59,9 @@ namespace Xtensive.Orm.Upgrade
 
     private void ExecuteNonTransactionally(IEnumerable<string> batch)
     {
-      Complete();
+      driver.CommitTransaction(null, connection);
       executor.ExecuteMany(batch);
-      Start();
+      driver.BeginTransaction(null, connection, null);
     }
 
     private void ExecuteTransactionally(IEnumerable<string> batch)
@@ -74,31 +74,7 @@ namespace Xtensive.Orm.Upgrade
       SqlLog.Info(
         Strings.LogSessionXSchemaUpgradeScriptY,
         session.ToStringSafely(),
-        services.Driver.BuildBatch(statements.ToArray()).Trim());
-    }
-
-    public void Dispose()
-    {
-      if (transactionScope==null)
-        return;
-      try {
-        transactionScope.Dispose();
-      }
-      finally {
-        transactionScope = null;
-      }
-    }
-
-    private void Start()
-    {
-      transactionScope = session.OpenTransaction();
-    }
-
-    public void Complete()
-    {
-      transactionScope.Complete();
-      transactionScope.Dispose();
-      transactionScope = null;
+        driver.BuildBatch(statements.ToArray()).Trim());
     }
 
     #endregion
@@ -111,14 +87,14 @@ namespace Xtensive.Orm.Upgrade
       this.session = session;
 
       services = context.Services;
+      connection = context.Services.Connection;
       executor = session.Services.Demand<ISqlExecutor>();
 
-      if (services.Driver.ProviderInfo.Supports(ProviderFeatures.TransactionalDdl))
+      driver = services.Driver;
+      if (driver.ProviderInfo.Supports(ProviderFeatures.TransactionalDdl))
         statementProcessor = ExecuteTransactionally;
       else
         statementProcessor = ExecuteNonTransactionally;
-
-      Start();
     }
   }
 }

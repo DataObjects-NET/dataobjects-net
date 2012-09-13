@@ -71,13 +71,31 @@ namespace Xtensive.Orm.Upgrade
 
       workerResult = CreateResult(SqlWorker.Create(context.Services, upgradeMode.GetSqlWorkerTask()));
 
+      Domain domain;
       using (workerResult) {
-        var domain = upgradeMode.IsMultistage()
-          ? BuildMultistageDomain()
-          : BuildSingleStageDomain();
+        domain = upgradeMode.IsMultistage() ? BuildMultistageDomain() : BuildSingleStageDomain();
         foreach (var module in context.Modules)
           module.OnBuilt(domain);
-        return domain;
+      }
+
+      CompleteUpgradeTransaction();
+      return domain;
+    }
+
+    private void CompleteUpgradeTransaction()
+    {
+      var connection = context.Services.Connection;
+      var driver = context.Services.Driver;
+
+      if (connection.ActiveTransaction==null)
+        return;
+
+      try {
+        driver.CommitTransaction(null, connection);
+      }
+      catch {
+        driver.RollbackTransaction(null, connection);
+        throw;
       }
     }
 
@@ -124,10 +142,29 @@ namespace Xtensive.Orm.Upgrade
       };
 
       BuildExternalServices(serviceAccessor, configuration);
+      CreateConnection(serviceAccessor);
 
       serviceAccessor.Lock();
 
       context.TypeIdProvider = new TypeIdProvider(context);
+    }
+
+    private void CreateConnection(UpgradeServiceAccessor serviceAccessor)
+    {
+      var driver = serviceAccessor.Driver;
+      var connection = driver.CreateConnection(null);
+
+      try {
+        driver.OpenConnection(null, connection);
+        driver.BeginTransaction(null, connection, null);
+      }
+      catch {
+        connection.Dispose();
+        throw;
+      }
+
+      serviceAccessor.RegisterResource(connection);
+      serviceAccessor.Connection = connection;
     }
 
     private void BuildExternalServices(UpgradeServiceAccessor serviceAccessor, DomainConfiguration configuration)
@@ -212,12 +249,13 @@ namespace Xtensive.Orm.Upgrade
 
       using (var session = domain.OpenSession(SessionType.System))
       using (session.Activate())
-      using (var upgrader = new SchemaUpgrader(context, session)) {
+      using (var transaction = session.OpenTransaction()) {
+        var upgrader = new SchemaUpgrader(context, session);
         var extractor = new SchemaExtractor(context, session);
         SynchronizeSchema(domain, upgrader, extractor, GetUpgradeMode(stage));
         domain.Handler.BuildMapping(extractor.GetSqlSchema());
         OnStage();
-        upgrader.Complete();
+        transaction.Complete();
       }
     }
 
