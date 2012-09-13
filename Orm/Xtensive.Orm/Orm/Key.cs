@@ -421,15 +421,13 @@ namespace Xtensive.Orm
     /// </summary>
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
     /// <param name="value">Key value.</param>
-    /// <returns>
-    /// A newly created or existing <see cref="Key"/> instance.
-    /// </returns>
+    /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
     /// <remarks>This method requires activated <see cref="Session"/> instance.</remarks>
     [Obsolete("Use Create<T>(Domain, Tuple) method instead.")]
     public static Key Create<T>(Tuple value)
       where T : IEntity
     {
-      return Create(typeof(T), value);
+      return Create(typeof (T), value);
     }
 
     /// <summary>
@@ -437,6 +435,7 @@ namespace Xtensive.Orm
     /// for the specified <see cref="Entity"/> <paramref name="type"/>
     /// and with specified <paramref name="value"/>.
     /// </summary>
+    /// <param name="type">Entity type.</param>
     /// <param name="value">Key value.</param>
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     /// <remarks>This method requires active <see cref="Session"/> instance.</remarks>
@@ -452,6 +451,7 @@ namespace Xtensive.Orm
     /// and with specified <paramref name="value"/>.
     /// </summary>
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
+    /// <param name="domain">Domain to use.</param>
     /// <param name="value">Key value.</param>
     /// <returns>
     /// A newly created or existing <see cref="Key"/> instance.
@@ -511,9 +511,7 @@ namespace Xtensive.Orm
     /// </summary>
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
     /// <param name="values">Key values.</param>
-    /// <returns>
-    /// A newly created or existing <see cref="Key"/> instance.
-    /// </returns>
+    /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
     /// <remarks>This method requires active <see cref="Session"/> instance.</remarks>
     [Obsolete("Use Create<T>(Domain, params object[]) method instead.")]
     public static Key Create<T>(params object[] values)
@@ -527,8 +525,9 @@ namespace Xtensive.Orm
     /// for the specified <see cref="Entity"/> <paramref name="type"/>
     /// and with specified <paramref name="values"/>.
     /// </summary>
+    /// <param name="type">Entity type.</param>
     /// <param name="values">Key values.</param>
-    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
     /// <remarks>This method requires active <see cref="Session"/> instance.</remarks>
     [Obsolete("Use Create(Domain, Type, params object[]) method instead.")]
     public static Key Create(Type type, params object[] values)
@@ -544,9 +543,7 @@ namespace Xtensive.Orm
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
     /// <param name="domain">Domain to use.</param>
     /// <param name="values">Key values.</param>
-    /// <returns>
-    /// A newly created or existing <see cref="Key"/> instance.
-    /// </returns>
+    /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
     public static Key Create<T>(Domain domain, params object[] values)
       where T : IEntity
     {
@@ -559,9 +556,9 @@ namespace Xtensive.Orm
     /// and with specified <paramref name="values"/>.
     /// </summary>
     /// <param name="domain">Domain to use.</param>
-    /// <param name="type">Entity type</param>
+    /// <param name="type">Entity type.</param>
     /// <param name="values">Key values.</param>
-    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
     public static Key Create(Domain domain, Type type, params object[] values)
     {
       return Create(domain, type, TypeReferenceAccuracy.BaseType, values);
