@@ -137,7 +137,7 @@ namespace Xtensive.Orm.ObjectMapping
           TypeReferenceAccuracy.ExactType, customKeyFieldValues);
       }
       else
-        result = Key.Create(session, sourceType.SystemType);
+        result = Key.Generate(session, sourceType.SystemType);
       newObjectKeys[dtoKey] = result;
       return result;
     }

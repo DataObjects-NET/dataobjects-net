@@ -2,4 +2,7 @@
 [main] Fixed redundant query nesting under certain conditions
 [main] Fixed redundant subqueries under certain conditions
 [main] Improved formatting of SQL when chains of AND/OR operators are used
+[main] Key.Create(Session) method has been renamed to Key.Generate(Session)
+[main] Added Key.Create() overload that allows to specify TypeReferenceAccuracy
+[main] Added DirectSessionAccessor.GetChangedEntities() method
 [sqlite] Added support for using SQLite provider in 64-bit processes

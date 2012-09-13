@@ -769,7 +769,7 @@ namespace Xtensive.Orm
     protected Entity()
     {
       try {
-        var key = Key.Create(Session, GetType());
+        var key = Key.Generate(Session, GetType());
         State = Session.CreateEntityState(key, true);
         SystemBeforeInitialize(false);
       }
@@ -791,7 +791,7 @@ namespace Xtensive.Orm
     {
       try
       {
-        var key = Key.Create(Session, GetType());
+        var key = Key.Generate(Session, GetType());
         State = Session.CreateEntityState(key, true);
         SystemBeforeInitialize(false);
       }

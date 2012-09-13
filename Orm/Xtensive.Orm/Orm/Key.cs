@@ -308,7 +308,7 @@ namespace Xtensive.Orm
 
     #endregion
 
-    #region Create next key methods
+    #region Generate key methods
 
     /// <summary>
     /// Creates <see cref="Key"/> instance 
@@ -318,11 +318,11 @@ namespace Xtensive.Orm
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
     /// <returns>A newly created <see cref="Key"/> instance .</returns>
     /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
-    [Obsolete("Use Create<T>(Session) method instead.")]
+    [Obsolete("Use Generate<T>(Session) method instead.")]
     public static Key Create<T>()
       where T : Entity
     {
-      return Create(typeof (T));
+      return Generate(Session.Demand(), typeof (T));
     }
 
     /// <summary>
@@ -332,10 +332,10 @@ namespace Xtensive.Orm
     /// </summary>
     /// <returns>A newly created <see cref="Key"/> instance .</returns>
     /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
-    [Obsolete("Use Create(Session, Type) method instead.")]
+    [Obsolete("Use Generate(Session, Type) method instead.")]
     public static Key Create(Type type)
     {
-      return Create(Session.Demand(), type);
+      return Generate(Session.Demand(), type);
     }
 
     /// <summary>
@@ -348,10 +348,11 @@ namespace Xtensive.Orm
     /// <returns>
     /// A newly created <see cref="Key"/> instance .
     /// </returns>
+    [Obsolete("Use Generate<T>(Session) method instead.")]
     public static Key Create<T>(Session session)
       where T : Entity
     {
-      return Create(session, typeof (T));
+      return Generate(session, typeof (T));
     }
 
     /// <summary>
@@ -364,12 +365,49 @@ namespace Xtensive.Orm
     /// <returns>
     /// A newly created <see cref="Key"/> instance .
     /// </returns>
+    [Obsolete("Use Generate(Session, Type) method instead.")]
     public static Key Create(Session session, Type type)
+    {
+      return Generate(session, type);
+    }
+
+    /// <summary>
+    /// Creates <see cref="Key"/> instance
+    /// for the specified <see cref="Entity"/> type <typeparamref name="T"/>
+    /// with newly generated value.
+    /// </summary>
+    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
+    /// <param name="session">The session.</param>
+    /// <returns>
+    /// A newly created <see cref="Key"/> instance .
+    /// </returns>
+    public static Key Generate<T>(Session session)
+      where T : Entity
+    {
+      return Generate(session, typeof (T));
+    }
+
+    /// <summary>
+    /// Creates <see cref="Key"/> instance
+    /// for the specified <see cref="Entity"/> <paramref name="type"/>
+    /// with newly generated value.
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <param name="type">The type.</param>
+    /// <returns>
+    /// A newly created <see cref="Key"/> instance .
+    /// </returns>
+    public static Key Generate(Session session, Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
-      return KeyFactory.Generate(session, session.Domain.Model.Types[type]);
+      return Generate(session, session.Domain.Model.Types[type]);
+    }
+
+    internal static Key Generate(Session session, TypeInfo type)
+    {
+      return KeyFactory.Generate(session, type);
     }
 
     #endregion
@@ -389,7 +427,7 @@ namespace Xtensive.Orm
     /// <remarks>This method requires activated <see cref="Session"/> instance.</remarks>
     [Obsolete("Use Create<T>(Domain, Tuple) method instead.")]
     public static Key Create<T>(Tuple value)
-      where T : IEntity  
+      where T : IEntity
     {
       return Create(typeof(T), value);
     }
@@ -419,7 +457,7 @@ namespace Xtensive.Orm
     /// A newly created or existing <see cref="Key"/> instance.
     /// </returns>
     public static Key Create<T>(Domain domain, Tuple value)
-      where T : IEntity  
+      where T : IEntity
     {
       return Create(domain, typeof(T), value);
     }
@@ -429,20 +467,37 @@ namespace Xtensive.Orm
     /// for the specified <see cref="Entity"/> <paramref name="type"/>
     /// and with specified <paramref name="value"/>.
     /// </summary>
+    /// <param name="domain">Domain to use.</param>
+    /// <param name="type">Entity type.</param>
     /// <param name="value">Key value.</param>
-    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
+    /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
     public static Key Create(Domain domain, Type type, Tuple value)
+    {
+      return Create(domain, type, TypeReferenceAccuracy.BaseType, value);
+    }
+
+    /// <summary>
+    /// Creates <see cref="Key"/> instance
+    /// for the specified <see cref="Entity"/> <paramref name="type"/>,
+    /// with specified <paramref name="value"/> and <paramref name="accuracy"/>.
+    /// </summary>
+    /// <param name="domain">Domain to use.</param>
+    /// <param name="type">Entity type.</param>
+    /// <param name="accuracy">Key accuracy.</param>
+    /// <param name="value">Key values.</param>
+    /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
+    public static Key Create(Domain domain, Type type, TypeReferenceAccuracy accuracy, Tuple value)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
 
-      return Create(domain, domain.Model.Types[type], TypeReferenceAccuracy.BaseType, value);
+      return Create(domain, domain.Model.Types[type], accuracy, value);
     }
 
-    internal static Key Create(Domain domain, TypeInfo typeInfo, TypeReferenceAccuracy accuracy, Tuple value)
+    internal static Key Create(Domain domain, TypeInfo type, TypeReferenceAccuracy accuracy, Tuple value)
     {
-      return KeyFactory.Materialize(domain, typeInfo, value, accuracy, false, null);
+      return KeyFactory.Materialize(domain, type, value, accuracy, false, null);
     }
 
     #endregion
@@ -487,6 +542,7 @@ namespace Xtensive.Orm
     /// and with specified <paramref name="values"/>.
     /// </summary>
     /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
+    /// <param name="domain">Domain to use.</param>
     /// <param name="values">Key values.</param>
     /// <returns>
     /// A newly created or existing <see cref="Key"/> instance.
@@ -494,7 +550,7 @@ namespace Xtensive.Orm
     public static Key Create<T>(Domain domain, params object[] values)
       where T : IEntity
     {
-      return Create(domain, typeof(T), values);
+      return Create(domain, typeof (T), values);
     }
 
     /// <summary>
@@ -502,20 +558,37 @@ namespace Xtensive.Orm
     /// for the specified <see cref="Entity"/> <paramref name="type"/>
     /// and with specified <paramref name="values"/>.
     /// </summary>
+    /// <param name="domain">Domain to use.</param>
+    /// <param name="type">Entity type</param>
     /// <param name="values">Key values.</param>
     /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
     public static Key Create(Domain domain, Type type, params object[] values)
+    {
+      return Create(domain, type, TypeReferenceAccuracy.BaseType, values);
+    }
+
+    /// <summary>
+    /// Creates <see cref="Key"/> instance
+    /// for the specified <see cref="Entity"/> <paramref name="type"/>,
+    /// with specified <paramref name="values"/> and <paramref name="accuracy"/>.
+    /// </summary>
+    /// <param name="domain">Domain to use.</param>
+    /// <param name="type">Entity type.</param>
+    /// <param name="accuracy">Key accuracy.</param>
+    /// <param name="values">Key values.</param>
+    /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
+    public static Key Create(Domain domain, Type type, TypeReferenceAccuracy accuracy, params object[] values)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
 
-      return Create(domain, domain.Model.Types[type], TypeReferenceAccuracy.BaseType, values);
+      return Create(domain, domain.Model.Types[type], accuracy, values);
     }
 
-    internal static Key Create(Domain domain, TypeInfo typeInfo, TypeReferenceAccuracy accuracy, params object[] values)
+    internal static Key Create(Domain domain, TypeInfo type, TypeReferenceAccuracy accuracy, params object[] values)
     {
-      return KeyFactory.Materialize(domain, typeInfo, accuracy, values);
+      return KeyFactory.Materialize(domain, type, accuracy, values);
     }
 
     #endregion
@@ -531,6 +604,7 @@ namespace Xtensive.Orm
     protected Key(TypeInfo type, TypeReferenceAccuracy accuracy, Tuple value)
     {
       TypeReference = new TypeReference(type, accuracy);
+
       this.value = value;
     }
   }

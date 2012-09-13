@@ -5,6 +5,7 @@
 // Created:    2008.11.05
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.IoC;
@@ -69,6 +70,17 @@ namespace Xtensive.Orm.Services
         (disposing, session, oldTransaction) => session.SetTransaction(oldTransaction));
       Session.SetTransaction(null);
       return result;
+    }
+
+    /// <summary>
+    /// Gets entities that were changed in the current session, but were not
+    /// saved to the database yet.
+    /// </summary>
+    /// <param name="persistenceState">Type of entity change.</param>
+    /// <returns><see cref="EntityState"/>s with the specified <paramref name="persistenceState"/>.</returns>
+    public IEnumerable<EntityState> GetChangedEntities(PersistenceState persistenceState)
+    {
+      return Session.EntityChangeRegistry.GetItems(persistenceState);
     }
 
 
