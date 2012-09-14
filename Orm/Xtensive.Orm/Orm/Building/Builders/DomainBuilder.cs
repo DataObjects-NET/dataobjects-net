@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Building.Builders
     private void CreateDomain()
     {
       using (BuildLog.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
-        context.Domain = new Domain(context.Configuration);
+        context.Domain = new Domain(context.Configuration, context.BuilderConfiguration.UpgradeContextCookie);
       }
     }
 

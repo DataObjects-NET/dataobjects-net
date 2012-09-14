@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.IoC;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
@@ -121,6 +120,10 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     public ReadOnlyList<IModule> Modules { get { return Services.Modules; } }
 
+    #region Private / internal members
+
+    internal object Cookie { get; private set; }
+
     internal UpgradeServiceAccessor Services { get; set; }
 
     internal StorageModel ExtractedModelCache { get; set; }
@@ -131,6 +134,14 @@ namespace Xtensive.Orm.Upgrade
 
     internal ITypeIdProvider TypeIdProvider { get; set; }
 
+    internal static UpgradeContext GetCurrent(object cookie)
+    {
+      var current = Current;
+      return current!=null && current.Cookie==cookie ? current : null;
+    }
+
+    #endregion
+
     // Constructors.
 
     internal UpgradeContext(DomainConfiguration configuration)
@@ -140,6 +151,7 @@ namespace Xtensive.Orm.Upgrade
       Configuration = configuration;
       Stage = UpgradeStage.Initializing;
       Hints = new SetSlim<UpgradeHint>();
+      Cookie = new object();
     }
   }
 }

@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Providers
 
     private long Execute(SequenceQuery query, Session session)
     {
-      var compartment = UpgradeContext.Current!=null
+      var compartment = UpgradeContext.GetCurrent(session.Domain.UpgradeContextCookie)!=null
         ? SequenceQueryCompartment.SameSession
         : query.Compartment;
 

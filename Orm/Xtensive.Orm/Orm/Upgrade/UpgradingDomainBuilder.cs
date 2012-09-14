@@ -265,7 +265,8 @@ namespace Xtensive.Orm.Upgrade
         DomainConfiguration = context.Configuration,
         Stage = stage,
         Services = context.Services,
-        ModelFilter = new StageModelFilter(context.UpgradeHandlers, stage)
+        ModelFilter = new StageModelFilter(context.UpgradeHandlers, stage),
+        UpgradeContextCookie = context.Cookie,
       };
       configuration.Lock();
       Func<DomainBuilderConfiguration, Domain> builder = DomainBuilder.Run;

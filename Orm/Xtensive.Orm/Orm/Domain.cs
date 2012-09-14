@@ -110,6 +110,8 @@ namespace Xtensive.Orm
 
     internal ICache<Key, Key> KeyCache { get; private set; }
 
+    internal object UpgradeContextCookie { get; private set; }
+
     internal IServiceContainer CreateSystemServices()
     {
       var registrations = new List<ServiceRegistration>{
@@ -240,7 +242,7 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    internal Domain(DomainConfiguration configuration)
+    internal Domain(DomainConfiguration configuration, object upgradeContextCookie)
     {
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
@@ -252,6 +254,7 @@ namespace Xtensive.Orm
       QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(Configuration.QueryCacheSize, k => k.First);
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
       Extensions = new ExtensionCollection();
+      UpgradeContextCookie = upgradeContextCookie;
     }
 
     /// <inheritdoc/>

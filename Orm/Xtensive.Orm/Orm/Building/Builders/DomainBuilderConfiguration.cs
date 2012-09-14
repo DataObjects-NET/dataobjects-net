@@ -16,6 +16,7 @@ namespace Xtensive.Orm.Building.Builders
     private DomainConfiguration domainConfiguration;
     private UpgradeStage stage;
     private IModelFilter modelFilter;
+    private object upgradeContextCookie;
 
     /// <summary>
     /// Gets <see cref="DomainConfiguration"/> for domain.
@@ -60,6 +61,16 @@ namespace Xtensive.Orm.Building.Builders
       {
         this.EnsureNotLocked();
         services = value;
+      }
+    }
+
+    internal object UpgradeContextCookie
+    {
+      get { return upgradeContextCookie; }
+      set
+      {
+        this.EnsureNotLocked();
+        upgradeContextCookie = value;
       }
     }
 

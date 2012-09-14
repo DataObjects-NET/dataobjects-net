@@ -387,7 +387,7 @@ namespace Xtensive.Orm
 
     private SessionHandler CreateSessionHandler()
     {
-      var upgradeContext = UpgradeContext.Current;
+      var upgradeContext = UpgradeContext.GetCurrent(Domain.UpgradeContextCookie);
       var connection = upgradeContext!=null
         ? upgradeContext.Services.Connection
         : Handlers.StorageDriver.CreateConnection(this);
