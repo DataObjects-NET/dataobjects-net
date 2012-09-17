@@ -10,7 +10,7 @@ using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Compiler
 {
-  internal sealed class SqlJoinSequence
+  internal sealed class JoinSequence
   {
     public SqlTable Pivot { get; private set; }
 
@@ -20,12 +20,12 @@ namespace Xtensive.Sql.Compiler
 
     public IList<SqlExpression> Conditions { get; private set; }
 
-    public static SqlJoinSequence Build(SqlJoinedTable root)
+    public static JoinSequence Build(SqlJoinedTable root)
     {
       var joins = new List<SqlJoinExpression>();
       Traverse(root, joins);
 
-      var result = new SqlJoinSequence();
+      var result = new JoinSequence();
 
       foreach (var item in joins) {
         if (!(item.Left is SqlJoinedTable))
@@ -65,7 +65,7 @@ namespace Xtensive.Sql.Compiler
 
     // Constructors
 
-    private SqlJoinSequence()
+    private JoinSequence()
     {
       Tables = new List<SqlTable>();
       JoinTypes = new List<SqlJoinType>();

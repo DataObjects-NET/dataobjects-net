@@ -1182,7 +1182,7 @@ namespace Xtensive.Sql.Compiler
         return;
       }
 
-      var joinSequence = SqlJoinSequence.Build(joinedFrom);
+      var joinSequence = JoinSequence.Build(joinedFrom);
       var previous = joinSequence.Pivot;
       previous.AcceptVisitor(this);
 
