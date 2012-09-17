@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Model
     private ReadOnlyList<ColumnInfo> columns;
     private TupleDescriptor tupleDescriptor;
     private TupleDescriptor keyTupleDescriptor;
-    private IEnumerable<TypeInfo> filterByTypes;
+    private IList<TypeInfo> filterByTypes;
     private IList<int> selectColumns;
     private List<Pair<int, List<int>>> valueColumnsMap;
     private LambdaExpression filterExpression;
@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the types for <see cref="IndexAttributes.Filtered"/> index.
     /// </summary>
-    public IEnumerable<TypeInfo> FilterByTypes
+    public IList<TypeInfo> FilterByTypes
     {
       get { return filterByTypes; }
       set

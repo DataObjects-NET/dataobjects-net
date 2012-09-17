@@ -532,7 +532,9 @@ namespace Xtensive.Orm.Building.Builders
       var attributes = indexToFilter.Attributes
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.Filtered | IndexAttributes.Virtual;
-      var result = new IndexInfo(reflectedType, attributes, indexToFilter, ArrayUtils<IndexInfo>.EmptyArray) {FilterByTypes = filterByTypes.ToList()};
+      var result = new IndexInfo(reflectedType, attributes, indexToFilter, ArrayUtils<IndexInfo>.EmptyArray) {
+        FilterByTypes = filterByTypes.ToList().AsReadOnly()
+      };
 
       // Adding key columns
       foreach (KeyValuePair<ColumnInfo, Direction> pair in indexToFilter.KeyColumns) {
@@ -759,7 +761,7 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       result.ValueColumns.AddRange(valueColumns);
-      result.SelectColumns = columnMap;
+      result.SelectColumns = columnMap.AsReadOnly();
       result.Name = nameBuilder.BuildIndexName(reflectedType, result);
       result.Group = BuildColumnGroup(result);
 
