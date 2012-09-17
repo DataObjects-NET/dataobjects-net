@@ -10,27 +10,27 @@ using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Compiler
 {
-  internal class RecursiveBinaryLogicExtractor
+  internal static class RecursiveBinaryLogicExtractor
   {
-     public static List<SqlExpression> Extract(SqlBinary input)
-     {
-       var operatorType = input.NodeType;
-       if (operatorType!=SqlNodeType.Or && operatorType!=SqlNodeType.And)
-         throw new NotSupportedException();
-       var result = new List<SqlExpression>();
-       Traverse(input, operatorType, result);
-       return result;
-     }
+    public static List<SqlExpression> Extract(SqlBinary input)
+    {
+      var operatorType = input.NodeType;
+      if (operatorType!=SqlNodeType.Or && operatorType!=SqlNodeType.And)
+        throw new NotSupportedException();
+      var result = new List<SqlExpression>();
+      Traverse(input, operatorType, result);
+      return result;
+    }
 
-     private static void Traverse(SqlExpression expression, SqlNodeType operatorType, List<SqlExpression> output)
-     {
-       if (expression.NodeType==operatorType) {
-         var binary = (SqlBinary) expression;
-         Traverse(binary.Left, operatorType, output);
-         Traverse(binary.Right, operatorType, output);
-       }
-       else
-         output.Add(expression);
-     }
+    private static void Traverse(SqlExpression expression, SqlNodeType operatorType, List<SqlExpression> output)
+    {
+      if (expression.NodeType==operatorType) {
+        var binary = (SqlBinary) expression;
+        Traverse(binary.Left, operatorType, output);
+        Traverse(binary.Right, operatorType, output);
+      }
+      else
+        output.Add(expression);
+    }
   }
 }

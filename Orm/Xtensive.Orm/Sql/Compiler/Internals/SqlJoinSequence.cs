@@ -5,18 +5,20 @@
 // Created:    2012.05.18
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using Xtensive.Sql.Dml;
 
-namespace Xtensive.Sql.Dml
+namespace Xtensive.Sql.Compiler
 {
-  public sealed class SqlJoinSequence
+  internal sealed class SqlJoinSequence
   {
-    public SqlTable Pivot { get; set; }
+    public SqlTable Pivot { get; private set; }
 
-    public IList<SqlTable> Tables { get; set; }
+    public IList<SqlTable> Tables { get; private set; }
 
-    public IList<SqlJoinType> JoinTypes { get; set; }
+    public IList<SqlJoinType> JoinTypes { get; private set; }
 
-    public IList<SqlExpression> Conditions { get; set; }
+    public IList<SqlExpression> Conditions { get; private set; }
 
     public static SqlJoinSequence Build(SqlJoinedTable root)
     {
@@ -37,6 +39,10 @@ namespace Xtensive.Sql.Dml
       var pivot = result.Tables[0];
       result.Pivot = pivot;
       result.Tables.RemoveAt(0);
+
+      result.Tables = new ReadOnlyCollection<SqlTable>(result.Tables);
+      result.JoinTypes = new ReadOnlyCollection<SqlJoinType>(result.JoinTypes);
+      result.Conditions = new ReadOnlyCollection<SqlExpression>(result.Conditions);
 
       return result;
     }
@@ -59,7 +65,7 @@ namespace Xtensive.Sql.Dml
 
     // Constructors
 
-    public SqlJoinSequence()
+    private SqlJoinSequence()
     {
       Tables = new List<SqlTable>();
       JoinTypes = new List<SqlJoinType>();
