@@ -1,1 +1,2 @@
+[main] Omit redundant parentheses in generated SQL for chains of set operations
 [mysql] Correctly parse pre-release versions of MySQL (e.g. 5.5.25a)

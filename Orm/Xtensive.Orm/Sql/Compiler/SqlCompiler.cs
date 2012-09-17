@@ -1003,11 +1003,14 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlQueryExpression node)
     {
+      var leftIsQueryExpression = node.Left is SqlQueryExpression;
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Entry));
-        context.Output.AppendText("(");
+        if (!leftIsQueryExpression)
+          context.Output.AppendText("(");
         node.Left.AcceptVisitor(this);
-        context.Output.AppendText(")");
+        if (!leftIsQueryExpression)
+          context.Output.AppendText(")");
         context.Output.AppendText(translator.Translate(node.NodeType));
         context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.All));
         context.Output.AppendText("(");
