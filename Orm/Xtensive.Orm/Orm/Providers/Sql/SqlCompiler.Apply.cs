@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -83,6 +84,7 @@ namespace Xtensive.Orm.Providers.Sql
         return CreateProvider(query, provider, left, right);
       }
     }
+
     private SqlSelect ProcessApplyViaSubqueries(ApplyProvider provider, SqlProvider left, SqlProvider right, bool shouldUseQueryReference)
     {
       var rightQuery = right.Request.Statement;
@@ -95,7 +97,11 @@ namespace Xtensive.Orm.Providers.Sql
       else
         query = left.Request.Statement.ShallowClone();
 
-      if (provider.Right.Type==ProviderType.Existence) {
+      var isApplyExistence =
+        provider.Right.Type==ProviderType.Existence ||
+        provider.Right.Type==ProviderType.Select && provider.Right.Sources[0].Type==ProviderType.Existence;
+
+      if (isApplyExistence) {
         var column = rightQuery.Columns[0];
         if (provider.IsInlined) {
           var columnStub = SqlDml.ColumnStub(column);
