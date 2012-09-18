@@ -496,11 +496,11 @@ namespace Xtensive.Orm.Upgrade
           && targetHierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable
         select pair.Key;
       foreach (var type in types) {
-        var typeIdField = type.Fields.SingleOrDefault(f => f.IsTypeId);
+        var typeIdField = type.AllFields.SingleOrDefault(f => f.IsTypeId);
         if (typeIdField==null) // Table of old type may not contain TypeId
           continue;
         var targetType = typeMapping[type];
-        var targetTypeIdField = targetType.Fields.SingleOrDefault(f => f.IsTypeId);
+        var targetTypeIdField = targetType.AllFields.SingleOrDefault(f => f.IsTypeId);
         if (targetTypeIdField==null)
           continue;
         if (targetTypeIdField.IsPrimaryKey)

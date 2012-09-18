@@ -180,7 +180,6 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void AllAndNotAllTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result =
         from o in Session.Query.All<Order>()
         where Session.Query.All<Customer>()
@@ -207,7 +206,6 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void AllOrAllTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result =
         from o in Session.Query.All<Order>()
         where Session.Query.All<Customer>()
@@ -234,7 +232,6 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void NotAnyAndAnyTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result =
         from o in Session.Query.All<Order>()
         where !Session.Query.All<Customer>()
@@ -260,7 +257,6 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void AnyOrAnyTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result =
         from o in Session.Query.All<Order>()
         where Session.Query.All<Customer>()
@@ -286,7 +282,6 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void AnyAndNotAllTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result =
         from o in Session.Query.All<Order>()
         where Session.Query.All<Customer>()
@@ -312,7 +307,6 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void NotAnyOrAllTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result =
         from o in Session.Query.All<Order>()
         where !Session.Query.All<Customer>()
@@ -338,7 +332,6 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SelectAnyTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result =
         (from c in Session.Query.All<Customer>()
         select new {
@@ -362,7 +355,6 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SelectAllTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result =
         from c in Session.Query.All<Customer>()
         select new {
@@ -386,7 +378,6 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SelectContainsTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result =
         from c in Session.Query.All<Customer>()
         select new {
