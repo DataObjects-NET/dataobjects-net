@@ -3314,6 +3314,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Option &apos;{0}&apos; is mutually exclusive with option &apos;{1}&apos;.
+        /// </summary>
+        internal static string ExOptionXIsMutuallyExclusiveWithOptionY {
+            get {
+                return ResourceManager.GetString("ExOptionXIsMutuallyExclusiveWithOptionY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The ordering of records is not specified for RowNumberProvider..
         /// </summary>
         internal static string ExOrderingOfRecordsIsNotSpecifiedForRowNumberProvider {

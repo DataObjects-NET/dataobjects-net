@@ -2428,4 +2428,7 @@ Error: {1}</value>
   <data name="ExThisMethodShouldNotBeCalledUseApplySessionExpressionInstead">
     <value xml:space="preserve">This method should not be called, use Apply(Session, Expression) instead</value>
   </data>
+  <data name="ExOptionXIsMutuallyExclusiveWithOptionY">
+    <value xml:space="preserve">Option '{0}' is mutually exclusive with option '{1}'</value>
+  </data>
 </root>

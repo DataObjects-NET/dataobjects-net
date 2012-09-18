@@ -1,0 +1,1 @@
+[main] Added NamingRules.RemoveDots and NamingRules.RemoveHyphens

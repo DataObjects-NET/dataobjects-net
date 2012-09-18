@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2008.08.06
 
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Linq;
@@ -137,6 +138,25 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(alias2.RealName, Is.EqualTo("Other-DO40-Tests"));
 
       configuration.Lock(); // ensure configuration is correct
+    }
+
+    [Test]
+    public void DotsAndHypensExclusiveOptionsTest()
+    {
+      var configuration = new DomainConfiguration();
+
+      const NamingRules invalidRules1 = NamingRules.UnderscoreDots | NamingRules.UnderscoreHyphens | NamingRules.RemoveDots;
+      const NamingRules invalidRules2 = NamingRules.RemoveDots | NamingRules.RemoveHyphens | NamingRules.UnderscoreHyphens;
+      const NamingRules validRules1 = NamingRules.UnderscoreHyphens | NamingRules.UnderscoreDots;
+      const NamingRules validRules2 = NamingRules.RemoveDots | NamingRules.RemoveHyphens;
+
+      var convention = configuration.NamingConvention;
+
+      AssertEx.ThrowsArgumentException(() => convention.NamingRules = invalidRules1);
+      AssertEx.ThrowsArgumentException(() => convention.NamingRules = invalidRules2);
+
+      convention.NamingRules = validRules1;
+      convention.NamingRules = validRules2;
     }
   }
 }

@@ -59,8 +59,16 @@ namespace Xtensive.Orm.Configuration
       set
       {
         this.EnsureNotLocked();
+        Validate(value, NamingRules.UnderscoreDots, NamingRules.RemoveDots);
+        Validate(value, NamingRules.UnderscoreHyphens, NamingRules.RemoveHyphens);
         namingRules = value;
       }
+    }
+
+    private void Validate(NamingRules value, NamingRules option1, NamingRules option2)
+    {
+      if ((value & option1)==option1 && (value & option2)==option2)
+        throw new ArgumentException(string.Format(Strings.ExOptionXIsMutuallyExclusiveWithOptionY, option1, option2));
     }
 
     /// <summary>
@@ -88,7 +96,7 @@ namespace Xtensive.Orm.Configuration
     public object Clone()
     {
       this.EnsureNotLocked();
-      NamingConvention result = new NamingConvention();
+      var result = new NamingConvention();
       result.letterCasePolicy = letterCasePolicy;
       result.namespacePolicy = namespacePolicy;
       result.namingRules = namingRules;

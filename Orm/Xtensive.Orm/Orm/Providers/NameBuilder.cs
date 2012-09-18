@@ -553,6 +553,7 @@ namespace Xtensive.Orm.Providers
     public string ApplyNamingRules(string name)
     {
       string result = name;
+
       result = result.Replace('+', '.');
       result = result.Replace('[', '(');
       result = result.Replace(']', ')');
@@ -566,9 +567,14 @@ namespace Xtensive.Orm.Providers
         result = result.Replace('.', '_');
       if ((namingConvention.NamingRules & NamingRules.UnderscoreHyphens) > 0)
         result = result.Replace('-', '_');
+      if ((namingConvention.NamingRules & NamingRules.RemoveDots) > 0)
+        result = result.Replace(".", string.Empty);
+      if ((namingConvention.NamingRules & NamingRules.RemoveHyphens) > 0)
+        result = result.Replace("-", string.Empty);
 
       if (result.Length <= maxIdentifierLength)
         return result;
+
       string hash = GetHash(result);
       return result.Substring(0, maxIdentifierLength - hash.Length) + hash;
     }
