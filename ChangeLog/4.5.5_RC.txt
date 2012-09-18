@@ -1,3 +1,4 @@
 [main] Omit redundant parentheses in generated SQL for chains of set operations
+[main] Correctly handle hierarchy split when doing upgrade
 [sqlserverce] Fixed translation of Contains/Any/All under certain scenarios
 [mysql] Correctly parse pre-release versions of MySQL (e.g. 5.5.25a)
