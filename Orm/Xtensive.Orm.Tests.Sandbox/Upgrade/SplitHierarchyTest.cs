@@ -91,6 +91,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
   }
 
+  [TestFixture]
   public class SplitHierarchyTest
   {
     [Test]
