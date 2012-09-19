@@ -1,4 +1,10 @@
-﻿using System;
+﻿// Copyright (C) <YEAR> Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: <AUTHOR>
+// Created:    <YYYY.MM.DD>
+
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Upgrade;
