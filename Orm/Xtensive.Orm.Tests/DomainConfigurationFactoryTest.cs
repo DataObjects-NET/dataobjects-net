@@ -23,9 +23,11 @@ namespace Xtensive.Orm.Tests
     {
       var urlConnectionInfo = DomainConfigurationFactory.Create().ConnectionInfo;
       Console.WriteLine("ConnectionURL: " + urlConnectionInfo);
+      Console.WriteLine();
 
       var stringConnectionInfo = DomainConfigurationFactory.CreateForConnectionStringTest().ConnectionInfo;
       Console.WriteLine("ConnectionString: " + stringConnectionInfo);
+      Console.WriteLine();
 
       var providerDescriptor = ProviderDescriptor.Get(urlConnectionInfo.Provider);
       var driverFactory = (SqlDriverFactory) Activator.CreateInstance(providerDescriptor.DriverFactory);
