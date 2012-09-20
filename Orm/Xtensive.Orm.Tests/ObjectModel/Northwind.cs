@@ -358,7 +358,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.Northwind
   {
     public static void Fill(Domain domain)
     {
-      var con = new SqlConnection(EnvironmentConfiguration.NorthwindConnectionString);
+      var con = new SqlConnection(TestConfiguration.Instance.NorthwindConnectionString);
       con.Open();
       SqlTransaction transaction = con.BeginTransaction();
       SqlCommand cmd = con.CreateCommand();
