@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tests
       var urlConnectionInfo = DomainConfigurationFactory.Create().ConnectionInfo;
       Console.WriteLine("ConnectionURL: " + urlConnectionInfo);
 
-      var stringConnectionInfo = DomainConfigurationFactory.Create(true).ConnectionInfo;
+      var stringConnectionInfo = DomainConfigurationFactory.CreateForConnectionStringTest().ConnectionInfo;
       Console.WriteLine("ConnectionString: " + stringConnectionInfo);
 
       var providerDescriptor = ProviderDescriptor.Get(urlConnectionInfo.Provider);
