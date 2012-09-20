@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Tests
     {
       var storageFile = GetEnvironmentVariable(StorageFileKey);
       if (storageFile!=null && File.Exists(storageFile))
-        return File.ReadAllLines(storageFile).Select(l => l.Trim()).FirstOrDefault();
+        return File.ReadAllLines(storageFile).Select(l => l.Trim()).FirstOrDefault(l => !string.IsNullOrEmpty(l));
       return null;
     }
 
