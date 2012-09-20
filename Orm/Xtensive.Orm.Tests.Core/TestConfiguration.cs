@@ -27,8 +27,6 @@ namespace Xtensive.Orm.Tests
 
     private readonly Dictionary<string, string> configuration;
 
-    private readonly string provider;
-
     public static TestConfiguration Instance
     {
       get
