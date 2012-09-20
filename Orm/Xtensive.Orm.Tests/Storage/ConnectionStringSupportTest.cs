@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Tests.Storage
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      return DomainConfigurationFactory.Create(true);
+      return DomainConfigurationFactory.CreateForConnectionStringTest();
     }
 
     [Test]

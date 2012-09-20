@@ -12,33 +12,34 @@ namespace Xtensive.Orm.Tests
   {
     public static DomainConfiguration Create()
     {
-      return Create(false);
+      return Create(TestConfiguration.Instance.Storage, false, true);
     }
 
-    public static DomainConfiguration Create(bool useConnectionString)
+    public static DomainConfiguration CreateForConnectionStringTest()
     {
-      var testConfiguration = TestConfiguration.Instance;
-      var storageType = testConfiguration.Storage;
-      if (useConnectionString)
-        storageType += "cs";
-      var config = DomainConfiguration.Load(storageType);
-      var customConnectionInfo = testConfiguration.GetConnectionInfo(storageType);
-      if (customConnectionInfo!=null)
-        config.ConnectionInfo = customConnectionInfo;
-      var defaultConfiguration = new SessionConfiguration(
-        WellKnown.Sessions.Default, SessionOptions.ServerProfile | SessionOptions.AutoActivation);
-      config.Sessions.Add(defaultConfiguration);
-      return config;
+      return Create(TestConfiguration.Instance.Storage, true, true);
     }
 
-    /// <summary>
-    /// Do not use for regular tests! Use Require.ProviderIs to require specific storage.
-    /// </summary>
-    /// <param name="provider">The provider.</param>
-    /// <returns>Configuration.</returns>
     public static DomainConfiguration CreateForCrudTest(string provider)
     {
-      return DomainConfiguration.Load(provider);
+      return Create(provider, false, false);
+    }
+
+    private static DomainConfiguration Create(string storage, bool useConnectionString, bool addSessionConfiguration)
+    {
+      if (useConnectionString)
+        storage += "cs";
+      var configuration = DomainConfiguration.Load(storage);
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      var customConnectionInfo = TestConfiguration.Instance.GetConnectionInfo(storage);
+      if (customConnectionInfo!=null)
+        configuration.ConnectionInfo = customConnectionInfo;
+      if (addSessionConfiguration) {
+        var defaultConfiguration = new SessionConfiguration(
+          WellKnown.Sessions.Default, SessionOptions.ServerProfile | SessionOptions.AutoActivation);
+        configuration.Sessions.Add(defaultConfiguration);
+      }
+      return configuration;
     }
   }
 }
