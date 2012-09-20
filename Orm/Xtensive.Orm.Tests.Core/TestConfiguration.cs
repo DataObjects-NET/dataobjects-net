@@ -62,13 +62,9 @@ namespace Xtensive.Orm.Tests
 
     private string GetEnvironmentVariable(string key)
     {
-      string result = Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.Process);
-      if (!string.IsNullOrEmpty(result))
-        return result;
-      result = Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.User);
-      if (!string.IsNullOrEmpty(result))
-        return result;
-      return null;
+      return new[] {EnvironmentVariableTarget.Process, EnvironmentVariableTarget.User, EnvironmentVariableTarget.Machine}
+        .Select(target => Environment.GetEnvironmentVariable(key, target))
+        .FirstOrDefault(result => !string.IsNullOrEmpty(result));
     }
 
     private string GetConfigurationVariable(string key)
