@@ -27,8 +27,6 @@ namespace Xtensive.Orm.Tests
 
     private readonly Dictionary<string, string> configuration;
 
-    private readonly string provider;
-
     public static TestConfiguration Instance
     {
       get
@@ -62,13 +60,9 @@ namespace Xtensive.Orm.Tests
 
     private string GetEnvironmentVariable(string key)
     {
-      string result = Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.Process);
-      if (!string.IsNullOrEmpty(result))
-        return result;
-      result = Environment.GetEnvironmentVariable(key, EnvironmentVariableTarget.User);
-      if (!string.IsNullOrEmpty(result))
-        return result;
-      return null;
+      return new[] {EnvironmentVariableTarget.Process, EnvironmentVariableTarget.User, EnvironmentVariableTarget.Machine}
+        .Select(target => Environment.GetEnvironmentVariable(key, target))
+        .FirstOrDefault(result => !string.IsNullOrEmpty(result));
     }
 
     private string GetConfigurationVariable(string key)
@@ -104,7 +98,7 @@ namespace Xtensive.Orm.Tests
     {
       var storageFile = GetEnvironmentVariable(StorageFileKey);
       if (storageFile!=null && File.Exists(storageFile))
-        return File.ReadAllLines(storageFile).Select(l => l.Trim()).FirstOrDefault();
+        return File.ReadAllLines(storageFile).Select(l => l.Trim()).FirstOrDefault(l => !string.IsNullOrEmpty(l));
       return null;
     }
 
