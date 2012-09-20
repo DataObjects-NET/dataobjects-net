@@ -94,7 +94,7 @@
     <Compile Include="DomainConfigurationFactory.cs" />
     <Compile Include="DomainModelExtensions.cs" />
     <Compile Include="Dynamic.cs" />
-    <Compile Include="EnvironmentConfiguration.cs" />
+    <Compile Include="TestConfiguration.cs" />
     <Compile Include="IndexInfoExtensions.cs" />
     <Compile Include="InheritanceSchemaModifier.cs" />
     <Compile Include="Log.cs" />

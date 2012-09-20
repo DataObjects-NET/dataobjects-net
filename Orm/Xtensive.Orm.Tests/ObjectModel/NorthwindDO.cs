@@ -445,7 +445,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.NorthwindDO
   {
     public static void Fill(Domain domain)
     {
-      var con = new SqlConnection(EnvironmentConfiguration.NorthwindConnectionString);
+      var con = new SqlConnection(TestConfiguration.Instance.NorthwindConnectionString);
       con.Open();
       try
       {

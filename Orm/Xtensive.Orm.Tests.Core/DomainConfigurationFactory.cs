@@ -17,34 +17,18 @@ namespace Xtensive.Orm.Tests
 
     public static DomainConfiguration Create(bool useConnectionString)
     {
-      var storageType = EnvironmentConfiguration.Storage;
+      var testConfiguration = TestConfiguration.Instance;
+      var storageType = testConfiguration.Storage;
       if (useConnectionString)
         storageType += "cs";
       var config = DomainConfiguration.Load(storageType);
-      var customConnectionInfo = GetCustomConnectionInfo(useConnectionString);
+      var customConnectionInfo = testConfiguration.GetConnectionInfo(storageType);
       if (customConnectionInfo!=null)
         config.ConnectionInfo = customConnectionInfo;
       var defaultConfiguration = new SessionConfiguration(
         WellKnown.Sessions.Default, SessionOptions.ServerProfile | SessionOptions.AutoActivation);
       config.Sessions.Add(defaultConfiguration);
       return config;
-    }
-
-    private static ConnectionInfo GetCustomConnectionInfo(bool useConnectionString)
-    {
-      ConnectionInfo customConnectionInfo = null;
-      if (useConnectionString) {
-        var provider = EnvironmentConfiguration.Provider;
-        var connectionString = EnvironmentConfiguration.ConnectionString;
-        if (provider!=null && connectionString!=null)
-          customConnectionInfo = new ConnectionInfo(provider, connectionString);
-      }
-      else {
-        var connectionUrl = EnvironmentConfiguration.ConnectionUrl;
-        if (connectionUrl!=null)
-          customConnectionInfo = new ConnectionInfo(connectionUrl);
-      }
-      return customConnectionInfo;
     }
 
     /// <summary>
