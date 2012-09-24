@@ -67,18 +67,21 @@ namespace Xtensive.Orm.Upgrade
 
     private Domain Run()
     {
+      Domain domain;
+
       BuildServices();
 
       workerResult = CreateResult(SqlWorker.Create(context.Services, upgradeMode.GetSqlWorkerTask()));
 
-      Domain domain;
       using (workerResult) {
         domain = upgradeMode.IsMultistage() ? BuildMultistageDomain() : BuildSingleStageDomain();
-        foreach (var module in context.Modules)
-          module.OnBuilt(domain);
       }
 
+      foreach (var module in context.Modules)
+        module.OnBuilt(domain);
+
       CompleteUpgradeTransaction();
+
       return domain;
     }
 
