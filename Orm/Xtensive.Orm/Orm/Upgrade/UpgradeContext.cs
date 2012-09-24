@@ -164,7 +164,7 @@ namespace Xtensive.Orm.Upgrade
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
       Configuration = configuration;
-      Stage = UpgradeStage.Initializing;
+      Stage = configuration.UpgradeMode.IsMultistage() ? UpgradeStage.Upgrading : UpgradeStage.Final;
       Hints = new SetSlim<UpgradeHint>();
       Cookie = new object();
     }

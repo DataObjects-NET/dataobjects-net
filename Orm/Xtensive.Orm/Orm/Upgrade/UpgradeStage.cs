@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.04.30
 
-using Xtensive.Orm.Building;
+using System;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -14,11 +14,9 @@ namespace Xtensive.Orm.Upgrade
   public enum UpgradeStage
   {
     /// <summary>
-    /// The very fist upgrade stage.
-    /// Only system types are visible;
-    /// schema isn't upgraded, but only checked for compatibility with
-    /// the model containing system types only (<see cref="SchemaUpgradeMode.ValidateCompatible"/>).
+    /// This stage no longer occurs. It's kept for compatibility with previous versions.
     /// </summary>
+    [Obsolete("This stage no longer occurs")]
     Initializing = 0x0,
     /// <summary>
     /// The second upgrade stage.

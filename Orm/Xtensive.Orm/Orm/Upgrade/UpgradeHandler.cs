@@ -76,8 +76,6 @@ namespace Xtensive.Orm.Upgrade
     {
       var context = UpgradeContext;
       switch (context.Stage) {
-        case UpgradeStage.Initializing:
-          break;
         case UpgradeStage.Upgrading:
           AddUpgradeHints(context.Hints);
           AddAutoHints(context.Hints);
@@ -100,8 +98,6 @@ namespace Xtensive.Orm.Upgrade
     {
       var context = UpgradeContext;
       switch (context.Stage) {
-        case UpgradeStage.Initializing:
-          break;
         case UpgradeStage.Upgrading:
           OnUpgrade();
           break;
@@ -130,8 +126,6 @@ namespace Xtensive.Orm.Upgrade
       if (type.Assembly!=Assembly)
         throw new ArgumentOutOfRangeException("type");
       switch (upgradeStage) {
-      case UpgradeStage.Initializing:
-        return type.GetAttribute<SystemTypeAttribute>()!=null;
       case UpgradeStage.Upgrading:
         return true;
       case UpgradeStage.Final:

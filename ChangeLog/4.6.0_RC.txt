@@ -1,2 +1,4 @@
 [main] Added NamingRules.RemoveDots and NamingRules.RemoveHyphens
 [main] Added Connection and Transaction properties to UpgradeContext
+[main] UpgradeStage.Initializing is marked obsolete
+

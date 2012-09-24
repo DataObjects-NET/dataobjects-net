@@ -108,8 +108,6 @@ namespace Xtensive.Orm.Tests.Model.Hierarchies
     {
       if (!IsEnabled)
         return;
-      if (context.BuilderConfiguration.Stage==UpgradeStage.Initializing)
-        return;
 
       TypeDef type;
       type = model.Types[typeof (A)];
