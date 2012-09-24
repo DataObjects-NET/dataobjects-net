@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -119,6 +120,20 @@ namespace Xtensive.Orm.Upgrade
     /// Gets the ordered collection of upgrade handlers.
     /// </summary>
     public ReadOnlyList<IModule> Modules { get { return Services.Modules; } }
+
+    /// <summary>
+    /// Gets <see cref="DbConnection"/> that is used for upgrade.
+    /// You should not modify connection state by calling <see cref="DbConnection.Open"/>,
+    /// <see cref="DbConnection.Close"/> or similar methods. Connection state is controlled by DataObjects.Net.
+    /// </summary>
+    public DbConnection Connection { get { return Services.Connection.UnderlyingConnection; } }
+
+    /// <summary>
+    /// Gets <see cref="DbTransaction"/> that is used for upgrade.
+    /// You should not modify transaction state by calling <see cref="DbTransaction.Commit"/>,
+    /// <see cref="DbTransaction.Rollback"/> or similar methods. Transaction state is controlled by DataObjects.Net.
+    /// </summary>
+    public DbTransaction Transaction { get { return Services.Connection.ActiveTransaction; } }
 
     #region Private / internal members
 
