@@ -8,10 +8,8 @@ using System;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
-
 using Xtensive.Reflection;
 using System.Linq;
-using Xtensive.Modelling.Comparison.Hints;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -68,7 +66,13 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
+    /// <inheritdoc/>
     public UpgradeContext UpgradeContext { get; private set; }
+
+    /// <inheritdoc/>
+    public virtual void OnPrepare()
+    {
+    }
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
@@ -93,7 +97,6 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
     public virtual void OnStage()
     {
       var context = UpgradeContext;
@@ -108,9 +111,14 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
+    /// <inheritdoc/>
+    public virtual void OnComplete(Domain domain)
+    {
+    }
+
+    /// <inheritdoc/>
     public virtual void OnBeforeExecuteActions(UpgradeActionSequence actions)
     {
-      // Doing nothing
     }
 
     /// <inheritdoc/>
@@ -147,14 +155,15 @@ namespace Xtensive.Orm.Upgrade
       return true;
     }
 
-    #region Protected methods
-
     /// <summary>
     /// Override this method to implement custom persistent data migration logic.
     /// </summary>
     public virtual void OnUpgrade()
     {
+      // OnUpgrade is public instead of protected, WTF?
     }
+
+    #region Protected methods
 
     /// <summary>
     /// Override this method to add upgrade hints to

@@ -69,18 +69,11 @@ namespace Xtensive.Orm.Upgrade
     {
       Domain domain;
 
-      BuildServices();
-
-      workerResult = CreateResult(SqlWorker.Create(context.Services, upgradeMode.GetSqlWorkerTask()));
-
-      using (workerResult) {
+      using (workerResult = OnPrepare()) {
         domain = upgradeMode.IsMultistage() ? BuildMultistageDomain() : BuildSingleStageDomain();
       }
 
-      foreach (var module in context.Modules)
-        module.OnBuilt(domain);
-
-      CompleteUpgradeTransaction();
+      OnComplete(domain);
 
       return domain;
     }
@@ -321,8 +314,7 @@ namespace Xtensive.Orm.Upgrade
 
         // Hints
         var hints = GetSchemaHints(extractedSchema, targetSchema);
-        foreach (var handler in context.OrderedUpgradeHandlers)
-          handler.OnSchemaReady();
+        OnSchemaReady();
 
         if (schemaUpgradeMode==SchemaUpgradeMode.Skip)
           return; // Skipping comparison completely
@@ -371,6 +363,22 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
+    private void OnSchemaReady()
+    {
+      foreach (var handler in context.OrderedUpgradeHandlers)
+        handler.OnSchemaReady();
+    }
+
+    private FutureResult<SqlWorkerResult> OnPrepare()
+    {
+      BuildServices();
+
+      foreach (var handler in context.OrderedUpgradeHandlers)
+        handler.OnPrepare();
+
+      return CreateResult(SqlWorker.Create(context.Services, upgradeMode.GetSqlWorkerTask()));
+    }
+
     private void OnBeforeStage()
     {
       if (workerResult.IsAvailable) {
@@ -387,6 +395,17 @@ namespace Xtensive.Orm.Upgrade
     {
       foreach (var handler in context.OrderedUpgradeHandlers)
         handler.OnStage();
+    }
+
+    private void OnComplete(Domain domain)
+    {
+      foreach (var handler in context.OrderedUpgradeHandlers)
+        handler.OnComplete(domain);
+
+      foreach (var module in context.Modules)
+        module.OnBuilt(domain);
+
+      CompleteUpgradeTransaction();
     }
 
     private StorageModel GetTargetModel(Domain domain)

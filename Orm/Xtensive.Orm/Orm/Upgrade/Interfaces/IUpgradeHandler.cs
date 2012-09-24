@@ -38,10 +38,16 @@ namespace Xtensive.Orm.Upgrade
     /// Gets the upgrade context this handler is bound to.
     /// </summary>
     UpgradeContext UpgradeContext { get; }
+
+    /// <summary>
+    /// Override this method to perform actions before any operation on database
+    /// is performed.
+    /// </summary>
+    void OnPrepare();
     
     /// <summary>
-    /// Override this method to modify the <see cref="Orm.Upgrade.UpgradeContext.Configuration"/>
-    /// before starting the next upgrade stage.
+    /// Override this method to perform actions before schemas are compared
+    /// and synchronized. Note that database schema and metadata are already extracted here.
     /// </summary>
     void OnBeforeStage();
 
@@ -52,14 +58,21 @@ namespace Xtensive.Orm.Upgrade
     void OnSchemaReady();
 
     /// <summary>
-    /// Override this method to handle "at upgrade stage" event.
-    /// </summary>
-    void OnStage();
-     
-    /// <summary>
     /// Override this method to make correction to upgrade action sequence.
     /// </summary>
     void OnBeforeExecuteActions(UpgradeActionSequence actions);
+
+    /// <summary>
+    /// Override this method to handle "at upgrade stage" event.
+    /// </summary>
+    void OnStage();
+
+    /// <summary>
+    /// Override this method to perform any actions after all database
+    /// operations are completed.
+    /// </summary>
+    /// <param name="domain">Domain that would be returned by <see cref="Domain.Build"/> method.</param>
+    void OnComplete(Domain domain);
 
     /// <summary>
     /// Determines whether this handler can upgrade the assembly
