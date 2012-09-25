@@ -14,7 +14,7 @@ namespace Xtensive.IoC
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
-  public class ServiceAttribute : Attribute
+  public sealed class ServiceAttribute : Attribute
   {
     private bool singleton = true;
 

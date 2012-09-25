@@ -14,7 +14,7 @@ namespace Xtensive.IoC
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
-  public class ServiceConstructorAttribute : Attribute
+  public sealed class ServiceConstructorAttribute : Attribute
   {
   }
 }

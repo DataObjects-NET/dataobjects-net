@@ -13,7 +13,7 @@ namespace Xtensive.Orm
   /// </summary>
   [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
   [Serializable]
-  public class NonTransactionalAttribute : Attribute
+  public sealed class NonTransactionalAttribute : Attribute
   {
   }
 }

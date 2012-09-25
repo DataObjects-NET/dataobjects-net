@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Upgrade
   [Serializable]
   [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Property, 
     AllowMultiple = false, Inherited = false)]
-  public class RecycledAttribute : Attribute
+  public sealed class RecycledAttribute : Attribute
   {
     /// <summary>
     /// Gets or sets the original name of the type or property.

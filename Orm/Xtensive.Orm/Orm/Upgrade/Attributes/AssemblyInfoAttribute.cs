@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Upgrade
   [Serializable]
   [AttributeUsage(AttributeTargets.Assembly | AttributeTargets.Class,
     AllowMultiple = false, Inherited = false)]
-  public class AssemblyInfoAttribute : Attribute
+  public sealed class AssemblyInfoAttribute : Attribute
   {
     /// <summary>
     /// Gets or sets the name of the assembly to use in <see cref="UpgradeHandler"/>.
