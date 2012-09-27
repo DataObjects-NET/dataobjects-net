@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
         ChangeType,
         EntityAsString,
         string.Empty,
-        Entity.IsRemoved() ? "removed " +EntityKey : Entity.ToString());
+        Entity==null || Entity.IsRemoved ? "removed " + EntityKey : Entity.ToString());
     }
 
     // Only this assmebly may create or modify this instance
@@ -278,7 +278,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
           session.Query.Many<Entity>(changedEntities).Run();
           foreach (var key in changedEntities) {
             var entity = session.Query.SingleOrDefault(key);
-            bool isRemoved = entity.IsRemoved();
+            bool isRemoved = entity==null || entity.IsRemoved;
             bool isCreated = info.CreatedEntities.Contains(key);
             if (isRemoved && isCreated)
               continue; // Nothing really happened ;)

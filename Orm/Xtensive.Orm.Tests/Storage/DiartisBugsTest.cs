@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Tests.Storage.DiartisBugsTest
           var author = new Author {Title = "Author"};
           using (ds.Attach(session))
           using (ds.Connect()) {
-            Assert.IsFalse(author.IsRemoved());
+            Assert.IsTrue(author!=null && !author.IsRemoved);
           }
           // tx.Complete();
         }

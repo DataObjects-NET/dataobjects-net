@@ -72,7 +72,7 @@ namespace Xtensive.Orm
             var key = triplet.First;
             var entityState = EntityStateCache[key, false];
             var sender = entityState!=null ? entityState.Entity : Query.SingleOrDefault(key);
-            if (skipRemovedEntities && sender.IsRemoved())
+            if (skipRemovedEntities && (sender==null || sender.IsRemoved))
               continue;
             handler.Invoke(sender, new PropertyChangedEventArgs(null));
           }
@@ -84,7 +84,7 @@ namespace Xtensive.Orm
             var key = triplet.First;
             var entityState = EntityStateCache[key, false];
             var owner = entityState!=null ? entityState.Entity : Query.SingleOrDefault(key);
-            var ownerIsRemoved = owner.IsRemoved();
+            var ownerIsRemoved = owner==null || owner.IsRemoved;
             if (skipRemovedEntities && ownerIsRemoved)
               continue;
             var sender = ownerIsRemoved ? null : owner.GetFieldValue(triplet.Second);

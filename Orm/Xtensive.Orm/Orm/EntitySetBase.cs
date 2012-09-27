@@ -494,7 +494,7 @@ namespace Xtensive.Orm
     /// </summary>
     [Infrastructure]
     protected internal virtual bool CanBeValidated {
-      get { return !Owner.IsRemoved();  }
+      get { return Owner!=null && !Owner.IsRemoved;  }
     }
 
     #endregion
