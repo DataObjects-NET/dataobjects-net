@@ -6,13 +6,12 @@
 
 using System.Collections.Generic;
 using Xtensive.Core;
-
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Providers;
-using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Tuples;
 
-namespace Xtensive.Orm.Internals
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// The base class for <see cref="SessionHandler"/>s which support the chaining 

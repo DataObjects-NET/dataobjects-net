@@ -737,7 +737,7 @@
     <Compile Include="Orm\Interfaces\IModule.cs" />
     <Compile Include="Orm\Internals\ReferentialActions.cs" />
     <Compile Include="Orm\Internals\FieldAccessors\CachingFieldAccessor.cs" />
-    <Compile Include="Orm\Internals\ChainingSessionHandler.cs" />
+    <Compile Include="Orm\Providers\ChainingSessionHandler.cs" />
     <Compile Include="Orm\Internals\PersistAction.cs" />
     <Compile Include="Orm\Internals\PairIntegrity\SyncAction.cs" />
     <Compile Include="Orm\Internals\PersistActionKind.cs" />
