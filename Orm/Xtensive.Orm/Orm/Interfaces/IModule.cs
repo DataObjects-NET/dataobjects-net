@@ -11,6 +11,7 @@ namespace Xtensive.Orm
 {
   /// <summary>
   /// <see cref="Domain"/>-level extension module contract.
+  /// Consider inheriting from <see cref="Module"/> instead.
   /// </summary>
   public interface IModule
   {

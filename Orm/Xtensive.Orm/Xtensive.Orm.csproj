@@ -102,6 +102,7 @@
     <Compile Include="Orm\Attributes\VersionAttribute.cs" />
     <Compile Include="Orm\Attributes\VersionMode.cs" />
     <Compile Include="Orm\Building\Builders\AssociationBuilder.cs" />
+    <Compile Include="Orm\Building\Builders\AutoGenericCombinator.cs" />
     <Compile Include="Orm\Building\Builders\DatabaseDependencyBuilder.cs" />
     <Compile Include="Orm\Building\Builders\ITypeIdProvider.cs" />
     <Compile Include="Orm\Building\Builders\KeyGeneratorFactory.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Orm\Building\Definitions\FullTextIndexDefCollection.cs" />
     <Compile Include="Orm\Building\DependencyGraph\Graph.cs" />
     <Compile Include="Orm\Building\DependencyGraph\Node.cs" />
+    <Compile Include="Orm\Building\Module.cs" />
     <Compile Include="Orm\Building\FixupActions\BuildImplementorListAction.cs" />
     <Compile Include="Orm\Building\FixupActions\CopyKeyFieldsAction.cs" />
     <Compile Include="Orm\Attributes\FullTextAttribute.cs" />
@@ -126,6 +128,7 @@
     <Compile Include="Orm\Building\PrefetchActionContainer.cs" />
     <Compile Include="Orm\Configuration\ConfigurationBase.cs" />
     <Compile Include="Orm\ConflictHandlingMethod.cs" />
+    <Compile Include="Orm\Interfaces\IModule2.cs" />
     <Compile Include="Orm\QueryPreprocessor.cs" />
     <Compile Include="Orm\Internals\CompletableScope{T}.cs" />
     <Compile Include="Orm\Configuration\Interfaces\IDatabaseConfigurationFlow.cs" />

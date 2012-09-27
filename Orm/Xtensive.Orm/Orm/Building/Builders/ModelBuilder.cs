@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.CustomDefinitions))
       using (new BuildingScope(context)) { // Activate context for compatibility with previous versions
-        foreach (var module in context.BuilderConfiguration.Services.Modules)
+        foreach (var module in context.Modules)
           module.OnDefinitionsBuilt(context, context.ModelDef);
       }
     }

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
@@ -75,9 +76,19 @@ namespace Xtensive.Orm.Building
     public DomainModelDef ModelDef { get; internal set; }
 
     /// <summary>
-    /// Gets domain  model.
+    /// Gets domain model.
     /// </summary>
     public DomainModel Model { get; internal set; }
+
+    /// <summary>
+    /// Gets all available <see cref="IModule"/>s.
+    /// </summary>
+    public ICollection<IModule> Modules { get; private set; }
+
+    /// <summary>
+    /// Gets all available <see cref="Module"/>s.
+    /// </summary>
+    public ICollection<IModule2> Modules2 { get; private set; }
 
     internal ModelDefBuilder ModelDefBuilder { get; set; }
 
@@ -92,6 +103,9 @@ namespace Xtensive.Orm.Building
       DiscardedAssociations = new HashSet<AssociationInfo>();
       ModelInspectionResult = new ModelInspectionResult();
       DependencyGraph = new Graph<TypeDef>();
+
+      Modules = BuilderConfiguration.Services.Modules.ToList().AsReadOnly();
+      Modules2 = Modules.OfType<IModule2>().ToList().AsReadOnly();
     }
   }
 }

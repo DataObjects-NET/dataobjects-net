@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Building.FixupActions;
@@ -16,47 +17,6 @@ namespace Xtensive.Orm.Building
 {
   internal sealed class FixupActionProcessor
   {
-    #region Nested type: GenericArgumentCombinator
-
-    private class GenericArgumentCombinator
-    {
-      private readonly Type[] current;
-      private readonly List<Type> result;
-      private readonly Type typeDefinition;
-      private readonly Type[][] candidateTypes;
-
-      public static List<Type> Generate(Type typeDefinition, Type[][] candidateTypes)
-      {
-        var combinator = new GenericArgumentCombinator(typeDefinition, candidateTypes);
-        combinator.Generate(0);
-        return combinator.result;
-      }
-
-      private void Generate(int argumentPosition)
-      {
-        if (argumentPosition < current.Length - 1)
-          foreach (var candidate in candidateTypes[argumentPosition]) {
-            current[argumentPosition] = candidate;
-            Generate(argumentPosition + 1);
-          }
-        else
-          foreach (var candidate in candidateTypes[argumentPosition]) {
-            current[argumentPosition] = candidate;
-            result.Add(typeDefinition.MakeGenericType(current));
-          }
-      }
-
-      private GenericArgumentCombinator(Type typeDefinition, Type[][] candidateTypes)
-      {
-        current = new Type[candidateTypes.Length];
-        result = new List<Type>();
-        this.typeDefinition = typeDefinition;
-        this.candidateTypes = candidateTypes;
-      }
-    }
-
-    #endregion
-
     private readonly BuildingContext context;
 
     public static void Run(BuildingContext context)
@@ -123,8 +83,8 @@ namespace Xtensive.Orm.Building
         .ToLookup(t => t.UnderlyingType.BaseType, t => t.UnderlyingType);
 
       // Remove hierarchy
-      var hierarchyToRemove = context.ModelDef.Hierarchies.SingleOrDefault(h => h.Root == type);
-      if (hierarchyToRemove != null) 
+      var hierarchyToRemove = context.ModelDef.Hierarchies.SingleOrDefault(h => h.Root==type);
+      if (hierarchyToRemove!=null)
         context.ModelDef.Hierarchies.Remove(hierarchyToRemove);
 
       // Building all possible generic argument substitutions
@@ -134,33 +94,35 @@ namespace Xtensive.Orm.Building
         var argument = arguments[i];
         var constraints = argument.GetGenericParameterConstraints()
           .ToList();
-        if (constraints.Count == 0 || !constraints.Any(c => typeof (IEntity).IsAssignableFrom(c)))
+        if (constraints.Count==0 || !constraints.Any(c => typeof (IEntity).IsAssignableFrom(c)))
           return; // No IEntity / Entity constraints
         var queue = new Queue<Type>(
           from hierarchy in hierarchies
           let root = hierarchy.Root
-          where 
-            !root.IsSystem && 
-            !root.IsAutoGenericInstance
-//            !root.IsAutoGenericInstance &&
-//            !root.IsAbstract
+          where !root.IsSystem && !root.IsAutoGenericInstance
           select root.UnderlyingType);
         var types = new List<Type>();
         while (queue.Count > 0) {
           var candidate = queue.Dequeue();
           if (constraints.All(ct => ct.IsAssignableFrom(candidate)))
             // First suitable descendant is found
-            types.Add(candidate); 
+            types.Add(candidate);
           else
             // Suitable descendant is not found, let's study its descendant
             foreach (var inheritor in inheritors[candidate])
               queue.Enqueue(inheritor);
         }
-        if (types.Count == 0)
+        if (types.Count==0)
           return; // One of arguments has no matching types, so nothing to register at all
         typeSubstitutions[i] = types.ToArray();
       }
-      foreach (var instanceType in GenericArgumentCombinator.Generate(type.UnderlyingType, typeSubstitutions)) {
+
+      var autoGenerics = AutoGenericCombinator.Generate(type.UnderlyingType, typeSubstitutions);
+
+      foreach (var builder in context.Modules2)
+        builder.OnAutoGenericsBuilt(context, autoGenerics);
+
+      foreach (var instanceType in autoGenerics) {
         var typeDef = context.ModelDefBuilder.ProcessType(instanceType);
         typeDef.Attributes |= TypeAttributes.AutoGenericInstance;
         // Copy schema/database from first generic argument
