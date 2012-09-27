@@ -14,7 +14,7 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Executes full-text search (free text query) against specified <see cref="PrimaryIndex"/>.

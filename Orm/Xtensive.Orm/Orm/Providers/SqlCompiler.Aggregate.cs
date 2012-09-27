@@ -10,7 +10,7 @@ using System.Linq;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers
 {

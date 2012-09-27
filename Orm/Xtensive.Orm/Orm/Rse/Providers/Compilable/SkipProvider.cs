@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Compilable provider that skips result records from <see cref="UnaryProvider.Source"/>. Skip amount is specified using <see cref="Count"/> property.

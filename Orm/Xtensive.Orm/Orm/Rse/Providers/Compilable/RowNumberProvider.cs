@@ -9,7 +9,7 @@ using Xtensive.Collections;
 
 using Xtensive.Tuples.Transform;
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Compilable provider that adds row number to <see cref="UnaryProvider.Source"/>.

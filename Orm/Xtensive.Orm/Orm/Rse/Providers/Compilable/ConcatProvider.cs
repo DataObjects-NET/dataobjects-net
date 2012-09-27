@@ -11,7 +11,7 @@ using Xtensive.Collections;
 
 using System.Linq;
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Produces concatenation between <see cref="BinaryProvider.Left"/> and 

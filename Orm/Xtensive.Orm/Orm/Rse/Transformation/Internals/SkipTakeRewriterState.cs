@@ -8,7 +8,7 @@ using System;
 using Xtensive.Core;
 
 
-namespace Xtensive.Orm.Rse.PreCompilation.Correction
+namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class SkipTakeRewriterState
   {

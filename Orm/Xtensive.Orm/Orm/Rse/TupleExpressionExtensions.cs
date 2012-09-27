@@ -8,16 +8,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Reflection;
 using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Orm.Rse.Helpers
+namespace Xtensive.Orm.Rse
 {
   /// <summary>
   /// Various extension methods for manipulating expressions with <see cref="Tuple"/>.
   /// </summary>
-  public static class TupleExpressionHelper
+  public static class TupleExpressionExtensions
   {
     /// <summary>
     /// Checks if expression is access to tuple.
@@ -25,7 +24,7 @@ namespace Xtensive.Orm.Rse.Helpers
     /// <param name="expression">Expression to check.</param>
     /// <param name="tupleParameter">Tuple parameter that access must be on.</param>
     /// <returns></returns>
-    public static  bool IsTupleAccess(this Expression expression, ParameterExpression tupleParameter)
+    public static bool IsTupleAccess(this Expression expression, ParameterExpression tupleParameter)
     {
       if (tupleParameter==null)
         return expression.AsTupleAccess()!=null;

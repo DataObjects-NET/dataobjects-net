@@ -5,12 +5,10 @@
 // Created:    2009.05.15
 
 using System;
-
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Rse.Providers.Compilable;
 
-namespace Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection
+namespace Xtensive.Orm.Rse.Transformation
 {
   /// <summary>
   /// Converts <see cref="ApplyProvider"/> to <see cref="PredicateJoinProvider"/>, if possible.

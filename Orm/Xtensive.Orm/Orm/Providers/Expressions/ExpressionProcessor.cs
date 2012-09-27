@@ -13,7 +13,6 @@ using Xtensive.Linq;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.MemberCompilation;
 using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Helpers;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
 using Xtensive.Sql;

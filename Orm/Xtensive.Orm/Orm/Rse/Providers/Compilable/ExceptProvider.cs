@@ -10,7 +10,7 @@ using Xtensive.Collections;
 
 
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Produces except operation between <see cref="BinaryProvider.Left"/> and 

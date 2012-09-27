@@ -12,7 +12,7 @@ using Xtensive.Linq;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Compilable provider that declares filtering operation 

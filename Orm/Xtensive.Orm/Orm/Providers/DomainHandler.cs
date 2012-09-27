@@ -10,9 +10,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Linq.MemberCompilation;
 using Xtensive.Orm.Rse.Compilation;
-using Xtensive.Orm.Rse.PreCompilation.Correction;
-using Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection;
-using Xtensive.Orm.Rse.PreCompilation.Optimization;
+using Xtensive.Orm.Rse.Transformation;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Sql;
 

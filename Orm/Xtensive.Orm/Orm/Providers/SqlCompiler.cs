@@ -13,7 +13,6 @@ using Xtensive.Core;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Rse.Providers.Compilable;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -331,7 +330,7 @@ namespace Xtensive.Orm.Providers
       var source =
         provider.Source as ExecutableProvider
           ?? (provider.Source is RawProvider
-            ? (ExecutableProvider) (new Rse.Providers.Executable.RawProvider((RawProvider) provider.Source))
+            ? (ExecutableProvider) (new Rse.Providers.ExecutableRawProvider((RawProvider) provider.Source))
             : Compile((CompilableProvider) provider.Source));
       var columnNames = provider.Header.Columns.Select(column => column.Name).ToArray();
       var descriptor = DomainHandler.TemporaryTableManager

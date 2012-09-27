@@ -7,9 +7,8 @@
 using System;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Rse.Providers.Compilable;
 
-namespace Xtensive.Orm.Rse.PreCompilation.Correction
+namespace Xtensive.Orm.Rse.Transformation
 {
   /// <summary>
   /// Corrects an using of <see cref="SkipProvider"/> and <see cref="TakeProvider"/>

@@ -5,7 +5,7 @@
 // Created:    2009.02.10
 
 using System;
-using Xtensive.Orm.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Compilation;
 
 

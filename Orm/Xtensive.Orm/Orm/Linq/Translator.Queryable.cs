@@ -18,7 +18,6 @@ using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Linq.Rewriters;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Rse.Providers.Compilable;
 using Xtensive.Reflection;
 using Tuple = Xtensive.Tuples.Tuple;
 

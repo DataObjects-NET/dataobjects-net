@@ -7,9 +7,8 @@
 using System;
 
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Rse.Providers.Compilable;
 
-namespace Xtensive.Orm.Rse.PreCompilation.Correction
+namespace Xtensive.Orm.Rse.Transformation
 {
   /// <summary>
   /// Descriptor of a provider's ordering behavior.

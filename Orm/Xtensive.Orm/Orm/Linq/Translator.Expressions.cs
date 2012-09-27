@@ -20,7 +20,7 @@ using Xtensive.Orm.Linq.Rewriters;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
 using FieldInfo = System.Reflection.FieldInfo;
 using Tuple = Xtensive.Tuples.Tuple;

@@ -8,13 +8,10 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Linq;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Rse.Helpers;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
-namespace Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection
+namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class ApplyFilterRewriter : ExpressionVisitor
   {

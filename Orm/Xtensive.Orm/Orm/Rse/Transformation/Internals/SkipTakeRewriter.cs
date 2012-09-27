@@ -9,11 +9,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Rse.Providers.Compilable;
-
 using Xtensive.Orm;
 
-namespace Xtensive.Orm.Rse.PreCompilation.Correction
+namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class SkipTakeRewriter : CompilableProviderVisitor
   {

@@ -14,7 +14,6 @@ using Xtensive.Sql.Dml;
 using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Providers
 {

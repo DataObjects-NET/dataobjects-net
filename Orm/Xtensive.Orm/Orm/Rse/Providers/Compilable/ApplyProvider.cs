@@ -11,7 +11,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Compilable provider that iterates over <see cref="BinaryProvider.Right"/> 

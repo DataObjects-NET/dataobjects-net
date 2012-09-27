@@ -8,7 +8,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Base class for unary operation provider over the <see cref="Source"/> provider.

@@ -7,7 +7,7 @@
 using System;
 
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Distinct provider

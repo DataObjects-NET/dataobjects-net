@@ -5,7 +5,7 @@
 // Created:    2009.11.13
 
 using System;
-using Xtensive.Orm.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers
 {

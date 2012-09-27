@@ -8,11 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
-
-using Xtensive.Linq;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
-namespace Xtensive.Orm.Rse.Helpers
+namespace Xtensive.Orm.Rse.Transformations
 {
   /// <summary>
   /// An expression visitor specialized for finding tuple access expressions.

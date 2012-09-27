@@ -7,9 +7,9 @@
 using System;
 using Xtensive.Collections;
 
-using Xtensive.Orm.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse.Providers;
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Aliases the <see cref="UnaryProvider.Source"/> with specified <see cref="Alias"/>.

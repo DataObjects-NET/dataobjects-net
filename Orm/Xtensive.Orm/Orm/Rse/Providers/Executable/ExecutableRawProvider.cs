@@ -8,13 +8,13 @@ using System;
 using System.Collections.Generic;
 using Tuple = Xtensive.Tuples.Tuple;
 
-namespace Xtensive.Orm.Rse.Providers.Executable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Enumerates specified array of <see cref="Tuple"/> instances.
   /// </summary>
   [Serializable]
-  public sealed class RawProvider : ExecutableProvider<Compilable.RawProvider>
+  public sealed class ExecutableRawProvider : ExecutableProvider<Providers.RawProvider>
   {
     #region Cached properties
 
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Rse.Providers.Executable
 
     // Constructors
 
-    public RawProvider(Compilable.RawProvider origin)
+    public ExecutableRawProvider(Providers.RawProvider origin)
       : base(origin)
     {
     }

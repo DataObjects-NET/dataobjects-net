@@ -10,12 +10,11 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Collections;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Rse.Providers.Compilable;
 using Tuple = Xtensive.Tuples.Tuple;
 
 using System.Linq;
 
-namespace Xtensive.Orm.Rse.PreCompilation.Correction
+namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class OrderingRewriter : CompilableProviderVisitor
   {

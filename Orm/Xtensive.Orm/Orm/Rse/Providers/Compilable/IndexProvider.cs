@@ -10,7 +10,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Compilation;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Gives access to the specified <see cref="Index"/>.

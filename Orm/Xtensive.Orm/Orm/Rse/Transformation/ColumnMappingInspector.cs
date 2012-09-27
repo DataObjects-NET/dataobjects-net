@@ -4,18 +4,16 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Orm.Rse.Helpers;
+using Xtensive.Orm.Rse.Transformations;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Rse.Providers.Compilable;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Tuples.Transform;
 
-namespace Xtensive.Orm.Rse.PreCompilation.Optimization
+namespace Xtensive.Orm.Rse.Transformation
 {
   internal abstract class ColumnMappingInspector : CompilableProviderVisitor
   {
     protected Dictionary<Provider, List<int>> mappings;
+
     private readonly TupleAccessGatherer mappingsGatherer;
     private readonly Dictionary<ApplyParameter, List<int>> outerColumnUsages;
     private readonly CompilableProviderVisitor outerColumnUsageVisitor;

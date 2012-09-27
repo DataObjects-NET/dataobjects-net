@@ -9,7 +9,7 @@ using Xtensive.Core;
 using Xtensive.Linq;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
-namespace Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection
+namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class ParameterRewriter : ExpressionVisitor
   {

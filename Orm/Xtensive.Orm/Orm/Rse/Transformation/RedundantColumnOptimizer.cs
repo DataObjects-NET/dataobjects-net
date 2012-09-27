@@ -7,9 +7,8 @@
 using System;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Rse.Providers.Compilable;
 
-namespace Xtensive.Orm.Rse.PreCompilation.Optimization
+namespace Xtensive.Orm.Rse.Transformation
 {
   /// <summary>
   /// <see cref="IPreCompiler"/> implementation that removes redundant columns in tree.

@@ -10,7 +10,7 @@ using Xtensive.Core;
 using Xtensive.Tuples.Transform;
 using Xtensive.Collections;
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Compilable provider that calculates columns from <see cref="UnaryProvider.Source"/>.

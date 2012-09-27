@@ -16,7 +16,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
 using System.Linq;
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Compilable provider that returns <see cref="bool"/> column. 

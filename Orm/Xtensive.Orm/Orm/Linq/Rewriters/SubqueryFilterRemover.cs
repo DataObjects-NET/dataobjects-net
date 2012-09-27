@@ -6,9 +6,7 @@
 
 using System.Linq.Expressions;
 using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Helpers;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Rse.Providers.Compilable;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters

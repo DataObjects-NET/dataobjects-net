@@ -11,12 +11,11 @@ using System.Linq.Expressions;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Rse.Providers.Compilable;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 
-namespace Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection
+namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class ApplyProviderCorrectorRewriter : CompilableProviderVisitor
   {

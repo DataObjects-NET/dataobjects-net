@@ -8,7 +8,7 @@ using System;
 using Xtensive.Core;
 
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Base class for binary operation provider over 

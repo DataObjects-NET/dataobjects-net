@@ -9,12 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Orm.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 
-namespace Xtensive.Orm.Rse.PreCompilation.Correction.ApplyProviderCorrection
+namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class ApplyPredicateCollector
   {

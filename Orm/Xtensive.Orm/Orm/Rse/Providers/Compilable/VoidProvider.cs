@@ -6,7 +6,7 @@
 
 using Xtensive.Core;
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   public class VoidProvider : CompilableProvider
   {

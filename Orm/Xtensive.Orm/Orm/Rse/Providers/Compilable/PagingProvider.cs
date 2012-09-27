@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Compilable provider that skips X result records and takes Y result records from <see cref="UnaryProvider.Source"/>.

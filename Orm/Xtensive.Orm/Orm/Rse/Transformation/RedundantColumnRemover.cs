@@ -3,20 +3,17 @@
 // For conditions of distribution and use, see license.
 // Created by: Alexey Gamzov
 // Created:    2009.10.12
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Rse.Providers.Compilable;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
-using Xtensive.Orm.Rse.Helpers;
 
-namespace Xtensive.Orm.Rse.PreCompilation.Optimization
+namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class RedundantColumnRemover : ColumnMappingInspector
   {

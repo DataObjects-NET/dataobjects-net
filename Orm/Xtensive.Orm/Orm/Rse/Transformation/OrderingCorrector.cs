@@ -10,7 +10,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 
-namespace Xtensive.Orm.Rse.PreCompilation.Correction
+namespace Xtensive.Orm.Rse.Transformation
 {
   /// <summary>
   /// Corrects an ordering of records.

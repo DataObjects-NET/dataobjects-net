@@ -7,7 +7,7 @@
 using System;
 
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Acquires the lock for a data in a source provider.

@@ -12,7 +12,7 @@ using Xtensive.Core;
 
 
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Produces equality join between <see cref="BinaryProvider.Left"/> and 

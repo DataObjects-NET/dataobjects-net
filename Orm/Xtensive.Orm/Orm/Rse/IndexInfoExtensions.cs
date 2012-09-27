@@ -5,7 +5,7 @@
 // Created:    2008.08.14
 
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Rse.Providers.Compilable;
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Rse
 {

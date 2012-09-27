@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Core;
 
-namespace Xtensive.Orm.Rse.Providers.Compilable
+namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
   /// Provides access to some previously stored named <see cref="Provider"/> 
