@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
-namespace Xtensive.Orm.Rse.Transformations
+namespace Xtensive.Orm.Rse.Transformation
 {
   /// <summary>
   /// An expression visitor specialized for finding tuple access expressions.

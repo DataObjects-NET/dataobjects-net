@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Transformations;
+using Xtensive.Orm.Rse.Transformation;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
