@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Disconnected
   /// <summary>
   /// Disconnected session handler.
   /// </summary>
-  public sealed class DisconnectedSessionHandler : ChainingSessionHandler
+  internal sealed class DisconnectedSessionHandler : ChainingSessionHandler
   {
     private readonly DisconnectedState disconnectedState;
     private readonly Stack<Transaction> virtualTransactions = new Stack<Transaction>();
