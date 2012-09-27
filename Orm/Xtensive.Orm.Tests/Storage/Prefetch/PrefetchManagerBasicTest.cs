@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(OrderType.Fields["Details"]));
         prefetchManager.ExecuteTasks();
 
-        var orderDetailsType = typeof (OrderDetail).GetTypeInfo();
+        var orderDetailsType = Domain.Model.Types[typeof (OrderDetail)];
         Assert.AreEqual(prevEntityStateCount + orderDetailKeys.Length + 1, session.EntityStateCache.Count);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(orderKey, OrderType, session, IsFieldKeyOrSystem);
         Assert.IsTrue(session.EntityStateCache.ContainsKey(orderKey));
@@ -185,7 +185,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       Key book5Key;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        authorType = typeof (Author).GetTypeInfo();
+        authorType = Domain.Model.Types[typeof (Author)];
 
         var book0 = new Book();
         bookKey = book0.Key;
@@ -511,8 +511,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         var titleField = bookKey.TypeInfo.Fields["Title"];
         var titleType = typeof (Title);
-        var textField = titleType.GetTypeInfo().Fields["Text"];
-        var bookField = titleType.GetTypeInfo().Fields["Book"];
+        var textField = Domain.Model.Types[titleType].Fields["Text"];
+        var bookField = Domain.Model.Types[titleType].Fields["Book"];
         prefetchManager.InvokePrefetch(bookKey, null, new PrefetchFieldDescriptor(titleField, true, true));
         prefetchManager.ExecuteTasks();
 
@@ -556,7 +556,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         Assert.IsTrue(session.Handler.LookupState(bookKey, translationTitlesField, out setState));
         Assert.IsTrue(setState.IsFullyLoaded);
         Assert.AreEqual(instanceCount, setState.TotalItemCount);
-        var iTitleType = typeof (ITitle).GetTypeInfo();
+        var iTitleType = Domain.Model.Types[typeof (ITitle)];
         foreach (var key in setState)
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, iTitleType, session, field => true);
       }
@@ -581,8 +581,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       TypeInfo publisherType;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        publisherType = typeof (Publisher).GetTypeInfo();
-        bookShopType = typeof (BookShop).GetTypeInfo();
+        publisherType = Domain.Model.Types[typeof (Publisher)];
+        bookShopType = Domain.Model.Types[typeof (BookShop)];
 
         CreatePublishersAndBookShops(out publisherKey0, out bookShopKey0, out bookShopKey1, out bookShopKey2,
           out bookShopKey3, out publisherKey1, out publisherKey2, out publisherKey3);
@@ -597,7 +597,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.InvokePrefetch(publisherKey0, null, new PrefetchFieldDescriptor(distributorsField));
         prefetchManager.ExecuteTasks();
 
-        var iBookShopType = typeof (IBookShop).GetTypeInfo();
+        var iBookShopType = Domain.Model.Types[typeof (IBookShop)];
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(publisherKey0, publisherType, session,
           IsFieldKeyOrSystem);
         var bookShopKeys = new[] {bookShopKey0, bookShopKey1, bookShopKey2, bookShopKey3};
@@ -621,7 +621,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         prefetchManager.InvokePrefetch(bookShopKey0, null, new PrefetchFieldDescriptor(suppliersField));
         prefetchManager.ExecuteTasks();
 
-        var iPublisherType = typeof (IBookShop).GetTypeInfo();
+        var iPublisherType = Domain.Model.Types[typeof (IBookShop)];
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(bookShopKey0, bookShopType, session,
           IsFieldKeyOrSystem);
         var publisherKeys = new[] {publisherKey0, publisherKey1, publisherKey2, publisherKey3};
@@ -759,7 +759,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var distributorsField = typeof (Publisher).GetTypeInfo().Fields["Distributors"];
+        var distributorsField = Domain.Model.Types[typeof (Publisher)].Fields["Distributors"];
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         var notificationCount = 0;
         prefetchManager.InvokePrefetch(publisherKey, null, new PrefetchFieldDescriptor(distributorsField, null,
@@ -776,8 +776,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         Assert.AreEqual(bookShopKeys.Count, notificationCount);
         EntitySetState setState;
         session.Handler.LookupState(publisherKey, distributorsField, out setState);
-        var bookShopType = typeof (BookShop).GetTypeInfo(Domain);
-        var iBookShopType = typeof (IBookShop).GetTypeInfo(Domain);
+        var bookShopType = Domain.Model.Types[typeof (BookShop)];
+        var iBookShopType = Domain.Model.Types[typeof (IBookShop)];
         Assert.AreEqual(bookShopKeys.Count, setState.TotalItemCount);
         var actualCount = 0;
         foreach (var key in setState) {
@@ -848,7 +848,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
         PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(book0Key, book0Key.TypeInfo, session);
         PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(bookShop0Key,
-          typeof (IBookShop).GetTypeInfo(Domain), session);
+          Domain.Model.Types[typeof (IBookShop)], session);
       }
     }
 
@@ -874,7 +874,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
         PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(book1Key, book1Key.TypeInfo, session);
         PrefetchTestHelper.AssertOnlyDefaultColumnsAreLoaded(bookShop1Key,
-          typeof (IBookShop).GetTypeInfo(Domain), session);
+          Domain.Model.Types[typeof (IBookShop)], session);
       }
     }
 

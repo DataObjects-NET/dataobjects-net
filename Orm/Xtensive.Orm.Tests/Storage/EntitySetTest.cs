@@ -12,6 +12,7 @@ using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Model;
 using Xtensive.Testing;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Tests.ObjectModel;
@@ -400,7 +401,7 @@ namespace Xtensive.Orm.Tests.Storage
         t.Complete();
       }
 
-      var booksField = typeof (Author).GetTypeInfo(Domain).Fields["Books"];
+      var booksField = Domain.Model.Types[typeof (Author)].Fields["Books"];
       TestAdd(bigKey, itemCountOfBigEntitySet, booksField);
       TestRemove(bigKey, itemCountOfBigEntitySet + 2, booksField);
       TestSmallEntitySet(smallKey, itemCountOfSmallEntitySet, booksField);

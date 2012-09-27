@@ -4,6 +4,7 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.10.26
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -60,8 +61,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       ProductType = Domain.Model.Types[typeof (Product)];
       BookType = Domain.Model.Types[typeof (Book)];
       TitleType = Domain.Model.Types[typeof (Title)];
-      ITitleType = typeof (ITitle).GetTypeInfo(Domain);
-      OfferContainerType = typeof (OfferContainer).GetTypeInfo(Domain);
+      ITitleType = Domain.Model.Types[typeof (ITitle)];
+      OfferContainerType = Domain.Model.Types[typeof (OfferContainer)];
       PersonIdField = Domain.Model.Types[typeof (Person)].Fields["Id"];
       OrderIdField = Domain.Model.Types[typeof (Order)].Fields["Id"];
       CityField = CustomerType.Fields["City"];

@@ -39,8 +39,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var transactionScope = session.OpenTransaction()) {
         for (int i = 0; i < 111; i++)
           PrefetchTestHelper.FillDataBase(session);
-        orderType = typeof (Order).GetTypeInfo();
-        customerType = typeof (Customer).GetTypeInfo();
+        orderType = Domain.Model.Types[typeof (Order)];
+        customerType = Domain.Model.Types[typeof (Customer)];
         transactionScope.Complete();
       }
     }
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var tx = session.OpenTransaction()) {
         var ordersField = customerType.Fields["Orders"];
         var employeeField = orderType.Fields["Employee"];
-        var employeeType = typeof (Employee).GetTypeInfo();
+        var employeeType = Domain.Model.Types[typeof (Employee)];
         session.Query.Many<Customer>(keys)
           .Prefetch(c => c.Orders.Prefetch(o => o.Employee))
           .Run();
@@ -248,9 +248,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         session.Query.Many<Book>(keys)
           .Prefetch(b => b.TranslationTitles)
           .Run();
-        var bookType = typeof (Book).GetTypeInfo();
+        var bookType = Domain.Model.Types[typeof (Book)];
         var translationTitlesField = bookType.Fields["TranslationTitles"];
-        var titleType = typeof (Title).GetTypeInfo();
+        var titleType = Domain.Model.Types[typeof (Title)];
         var isOneItemPresentAtLeast = false;
         foreach (var key in keys)
           AssertEntitySetItemsAreFullyLoaded(key, bookType, translationTitlesField, session, ref isOneItemPresentAtLeast);
@@ -267,8 +267,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       TypeInfo bookShopType;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        publisherType = typeof (Publisher).GetTypeInfo();
-        bookShopType = typeof (BookShop).GetTypeInfo();
+        publisherType = Domain.Model.Types[typeof (Publisher)];
+        bookShopType = Domain.Model.Types[typeof (BookShop)];
         Action<Publisher, int> titlesGenerator = (p, count) => {
           for (var i = 0; i < count; i++) {
             var bookShop = new BookShop {Url = "http://" + i.ToString(), Name = i.ToString()};
@@ -318,7 +318,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       var keys = new List<Key>();
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        referenceToSelfType = typeof (ReferenceToSelf).GetTypeInfo();
+        referenceToSelfType = Domain.Model.Types[typeof (ReferenceToSelf)];
         var reference = new ReferenceToSelf {AuxField = 3};
         keys.Add(reference.Key);
         reference.Reference = reference;
@@ -369,9 +369,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         session.Query.Many<Book>(keys)
           .Prefetch(b => b.Title)
           .Run();
-        var bookType = typeof (Book).GetTypeInfo();
+        var bookType = Domain.Model.Types[typeof (Book)];
         var titleField = bookType.Fields["Title"];
-        var titleType = typeof (Title).GetTypeInfo();
+        var titleType = Domain.Model.Types[typeof (Title)];
         foreach (var key in keys) {
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, bookType, session,
             PrefetchTestHelper.IsFieldToBeLoadedByDefault);

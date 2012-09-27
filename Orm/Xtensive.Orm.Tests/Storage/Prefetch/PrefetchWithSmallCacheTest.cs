@@ -11,6 +11,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Tests.Storage.Prefetch.Model;
 
 namespace Xtensive.Orm.Tests.Storage.Prefetch
@@ -55,8 +56,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (session.OpenTransaction()) {
         var orders = session.Query.Many<Order>(keys)
           .Prefetch(o => o.Employee);
-        var orderType = typeof (Order).GetTypeInfo();
-        var employeeType = typeof (Employee).GetTypeInfo();
+        var orderType = Domain.Model.Types[typeof (Order)];
+        var employeeType = Domain.Model.Types[typeof (Employee)];
         var employeeField = orderType.Fields["Employee"];
         foreach (var order in orders) {
           GC.Collect(2, GCCollectionMode.Forced);
@@ -110,7 +111,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var tx = session.OpenTransaction()) {
         var orders = session.Query.Many<Order>(keys)
           .Prefetch(o => o.Details);
-        var orderType = typeof (Order).GetTypeInfo();
+        var orderType = Domain.Model.Types[typeof (Order)];
         var detailsField = orderType.Fields["Details"];
         foreach (var order in orders) {
           CollectGarbadge();

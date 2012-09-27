@@ -128,15 +128,15 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var tx = session.OpenTransaction()) {
         var orders = session.Query.Many<Order>(keys)
           .Prefetch(o => o.Employee);
-        var orderType = typeof (Order).GetTypeInfo();
+        var orderType = Domain.Model.Types[typeof (Order)];
         var employeeField = orderType.Fields["Employee"];
-        var employeeType = typeof (Employee).GetTypeInfo();
+        var employeeType = Domain.Model.Types[typeof (Employee)];
         Func<FieldInfo, bool> fieldSelector = field => field.IsPrimaryKey || field.IsSystem
           || !field.IsLazyLoad && !field.IsEntitySet;
         foreach (var order in orders) {
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(order.Key, order.Key.TypeInfo, session, fieldSelector);
           var orderState = session.EntityStateCache[order.Key, true];
-          var employeeKey = Key.Create(Domain, typeof(Employee).GetTypeInfo(Domain),
+          var employeeKey = Key.Create(Domain, Domain.Model.Types[typeof(Employee)],
             TypeReferenceAccuracy.ExactType, employeeField.Associations.Last()
               .ExtractForeignKey(orderState.Type, orderState.Tuple));
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employeeKey, employeeType, session, fieldSelector);
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetcher = session.Query.All<Order>()
           .Prefetch(o => o.ProcessingTime)
           .Prefetch(o => o.OrderDetails);
-        var orderDetailsField = typeof (Order).GetTypeInfo().Fields["OrderDetails"];
+        var orderDetailsField = Domain.Model.Types[typeof (Order)].Fields["OrderDetails"];
         foreach (var order in prefetcher) {
           EntitySetState entitySetState;
           Assert.IsTrue(session.Handler.LookupState(order.Key, orderDetailsField, out entitySetState));
@@ -178,8 +178,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var employeesField = typeof (Territory).GetTypeInfo().Fields["Employees"];
-        var ordersField = typeof (Employee).GetTypeInfo().Fields["Orders"];
+        var employeesField = Domain.Model.Types[typeof (Territory)].Fields["Employees"];
+        var ordersField = Domain.Model.Types[typeof (Employee)].Fields["Orders"];
         var territories = session.Query.All<Territory>()
           .Prefetch(t => t.Employees.Prefetch(e => e.Orders));
         foreach (var territory in territories) {
@@ -196,8 +196,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var detailsField = typeof (Order).GetTypeInfo().Fields["OrderDetails"];
-        var productField = typeof (OrderDetails).GetTypeInfo().Fields["Product"];
+        var detailsField = Domain.Model.Types[typeof (Order)].Fields["OrderDetails"];
+        var productField = Domain.Model.Types[typeof (OrderDetails)].Fields["Product"];
         var orders = session.Query.All<Order>()
           .Take(500)
           .Prefetch(o => o.OrderDetails.Prefetch(od => od.Product));
@@ -224,10 +224,10 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var orderType = typeof (Order).GetTypeInfo();
-        var employeeType = typeof (Employee).GetTypeInfo();
-        var employeeField = typeof (Order).GetTypeInfo().Fields["Employee"];
-        var ordersField = typeof (Employee).GetTypeInfo().Fields["Orders"];
+        var orderType = Domain.Model.Types[typeof (Order)];
+        var employeeType = Domain.Model.Types[typeof (Employee)];
+        var employeeField = Domain.Model.Types[typeof (Order)].Fields["Employee"];
+        var ordersField = Domain.Model.Types[typeof (Employee)].Fields["Orders"];
         var orders = session.Query.Many<Order>(keys)
           .Prefetch(o => o.Employee.Orders);
         var count = 0;
@@ -352,8 +352,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         using (var tx = session.OpenTransaction()) {
           var books = session.Query.All<Model.Book>().AsEnumerable()
             .Concat(EnumerableUtils.One<Model.Book>(null)).Prefetch(b => b.Title);
-          var titleField = typeof (Model.Book).GetTypeInfo().Fields["Title"];
-          var titleType = typeof (Model.Title).GetTypeInfo();
+          var titleField = Domain.Model.Types[typeof (Model.Book)].Fields["Title"];
+          var titleType = Domain.Model.Types[typeof (Model.Title)];
           var count = 0;
           foreach (var book in books) {
             count++;
@@ -380,8 +380,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         using (var tx = session.OpenTransaction()) {
           var prefetcher = session.Query.All<Model.Book>()
             .Prefetch(b => b.Title.Book);
-          var titleField = typeof (Model.Book).GetTypeInfo().Fields["Title"];
-          var titleType = typeof (Model.Title).GetTypeInfo();
+          var titleField = Domain.Model.Types[typeof (Model.Book)].Fields["Title"];
+          var titleType = Domain.Model.Types[typeof (Model.Title)];
           foreach (var book in prefetcher) {
             var titleKey = book.GetReferenceKey(titleField);
             if (titleKey != null)
@@ -403,8 +403,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         using (var tx = session.OpenTransaction()) {
           var books = session.Query.All<Model.Book>().AsEnumerable().Concat(EnumerableUtils.One<Model.Book>(null))
             .Prefetch(b => b.Title.Book);
-          var titleField = typeof (Model.Book).GetTypeInfo().Fields["Title"];
-          var titleType = typeof (Model.Title).GetTypeInfo();
+          var titleField = Domain.Model.Types[typeof (Model.Book)].Fields["Title"];
+          var titleType = Domain.Model.Types[typeof (Model.Title)];
           var count = 0;
           foreach (var book in books) {
             count++;

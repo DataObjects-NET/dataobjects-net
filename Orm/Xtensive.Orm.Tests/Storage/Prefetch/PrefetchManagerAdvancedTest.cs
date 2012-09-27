@@ -11,6 +11,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Collections;
+using Xtensive.Orm.Model;
 using Xtensive.Testing;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -276,7 +277,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField, true, true));
           prefetchManager.ExecuteTasks(true);
           var orderState = session.EntityStateCache[orderKey, true];
-          var customerKey = Key.Create(Domain, typeof(Customer).GetTypeInfo(Domain),
+          var customerKey = Key.Create(Domain, Domain.Model.Types[typeof(Customer)],
             TypeReferenceAccuracy.ExactType, CustomerField.Associations.Last()
               .ExtractForeignKey(orderState.Type, orderState.Tuple));
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(customerKey, CustomerType, session,
@@ -427,7 +428,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
-        var numberField = typeof (Order).GetTypeInfo().Fields["Number"];
+        var numberField = Domain.Model.Types[typeof (Order)].Fields["Number"];
         prefetchManager.InvokePrefetch(orderKey0, null, new PrefetchFieldDescriptor(numberField));
         prefetchManager.InvokePrefetch(orderKey1, null, new PrefetchFieldDescriptor(numberField));
         prefetchManager.ExecuteTasks(true);
@@ -457,7 +458,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
-        var referenceField = typeof (ReferenceToSelf).GetTypeInfo().Fields["Reference"];
+        var referenceField = Domain.Model.Types[typeof (ReferenceToSelf)].Fields["Reference"];
         prefetchManager.InvokePrefetch(key, null, new PrefetchFieldDescriptor(referenceField, true, true));
         prefetchManager.ExecuteTasks(true);
         PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(key, key.TypeInfo, session,
@@ -619,9 +620,10 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       if (IncludeTypeIdModifier.IsEnabled)
         Assert.Ignore("This test is meaningless when TypeIds of entities are being included in the corresponding key values.");
       const int idValue = int.MaxValue - 1;
-      var key = Key.Create(Domain, typeof (Person).GetTypeInfo(Domain), TypeReferenceAccuracy.BaseType,
+      var key = Key.Create(Domain, Domain.Model.Types[typeof (Person)], TypeReferenceAccuracy.BaseType,
         idValue);
-      var personType = typeof (Person).GetTypeInfo(Domain);
+      Domain domain1 = Domain;
+      var personType = domain1.Model.Types[typeof (Person)];
       using (var session = Domain.OpenSession()) {
         EntityState previousState;
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
