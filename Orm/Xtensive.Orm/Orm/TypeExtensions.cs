@@ -20,6 +20,7 @@ namespace Xtensive.Orm
     /// <param name="type">The type.</param>
     /// <returns><see cref="TypeInfo"/> instance.</returns>
     /// <remarks>This method requires open <see cref="Session"/>.</remarks>
+    [Obsolete("Use Domain.Model.Types[Type] property instead")]
     public static TypeInfo GetTypeInfo(this Type type)
     {
       return GetTypeInfo(type, Domain.Demand());
@@ -31,6 +32,7 @@ namespace Xtensive.Orm
     /// <param name="type">The type.</param>
     /// <param name="domain">The domain to look for <see cref="TypeInfo"/> within.</param>
     /// <returns><see cref="TypeInfo"/> instance.</returns>
+    [Obsolete("Use Domain.Model.Types[Type] property instead")]
     public static TypeInfo GetTypeInfo(this Type type, Domain domain)
     {
       return domain.Model.Types[type];

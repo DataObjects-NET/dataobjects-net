@@ -23,6 +23,7 @@ namespace Xtensive.Orm
     /// <see langword="true"/> if the specified entity is removed; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
+    [Obsolete("Use null check and Entity.IsRemoved property instead")]
     public static bool IsRemoved(this IEntity entity)
     {
       return entity==null || entity.IsRemoved;
