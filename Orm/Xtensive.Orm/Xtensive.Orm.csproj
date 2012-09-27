@@ -554,7 +554,6 @@
     <Compile Include="Orm\EntityFieldValueGetCompletedEventArgs.cs" />
     <Compile Include="Orm\Interfaces\IHasVersionRoots.cs" />
     <Compile Include="Orm\Internals\Activator.cs" />
-    <Compile Include="Orm\Internals\DelegatingExpressionVisitor.cs" />
     <Compile Include="Orm\Internals\Prefetch\EntitySetTask.cs" />
     <Compile Include="Orm\Internals\Prefetch\Fetcher.cs" />
     <Compile Include="Orm\Internals\Prefetch\EntityGroupTask.cs" />
