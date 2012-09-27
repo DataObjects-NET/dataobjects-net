@@ -81,16 +81,16 @@ namespace Xtensive.Orm.Tests.Storage.ForeignKeys
     public string Country { get; set; }
   }
 
-  [Service(typeof (IKeyGenerator), "DualInt")]
-  public class DualIntKeyGenerator : IKeyGenerator
+  [Service(typeof (KeyGenerator), "DualInt")]
+  public class DualIntKeyGenerator : KeyGenerator
   {
     private int seed = 1;
 
-    public void Initialize(Domain ownerDomain, TupleDescriptor keyTupleDescriptor)
+    public override void Initialize(Domain ownerDomain, TupleDescriptor keyTupleDescriptor)
     {
     }
 
-    public Tuple GenerateKey(KeyInfo keyInfo, Session session)
+    public override Tuple GenerateKey(KeyInfo keyInfo, Session session)
     {
       return Tuple.Create(seed++, seed++);
     }

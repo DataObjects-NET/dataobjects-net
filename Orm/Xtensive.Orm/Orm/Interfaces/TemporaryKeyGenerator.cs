@@ -11,14 +11,14 @@ namespace Xtensive.Orm
   /// <summary>
   /// Temporary key generator contract for use with <see cref="DisconnectedState"/>.
   /// </summary>
-  public interface ITemporaryKeyGenerator : IKeyGenerator
+  public abstract class TemporaryKeyGenerator : KeyGenerator
   {
     /// <summary>
     /// Checks if the specified key is local.
     /// </summary>
     /// <param name="keyTuple">Key tuple to check</param>
-    /// <returns>true, if the specified <paramref name="keyTuple"/> represents local key;
+    /// <returns>true, if the specified <paramref name="keyTuple" /> represents local key;
     /// otherwise, false.</returns>
-    bool IsTemporaryKey(Tuple keyTuple);
+    public abstract bool IsTemporaryKey(Tuple keyTuple);
   }
 }

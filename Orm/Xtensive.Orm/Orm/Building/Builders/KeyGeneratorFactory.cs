@@ -59,9 +59,9 @@ namespace Xtensive.Orm.Building.Builders
     private static IEnumerable<ServiceRegistration> GetStandardRegistrations(string name, Type valueType)
     {
       yield return new ServiceRegistration(
-        typeof (IKeyGenerator), name, GetGeneratorType(valueType), true);
+        typeof (KeyGenerator), name, GetGeneratorType(valueType), true);
       yield return new ServiceRegistration(
-        typeof (ITemporaryKeyGenerator), name, GetTemporaryGeneratorType(valueType), true);
+        typeof (TemporaryKeyGenerator), name, GetTemporaryGeneratorType(valueType), true);
     }
 
     public static IEnumerable<ServiceRegistration> GetRegistrations(BuildingContext context)

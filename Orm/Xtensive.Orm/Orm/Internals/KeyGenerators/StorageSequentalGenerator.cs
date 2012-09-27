@@ -12,12 +12,12 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals.KeyGenerators
 {
-  public sealed class StorageSequentalGenerator<TValue> : IKeyGenerator
+  public sealed class StorageSequentalGenerator<TValue> : KeyGenerator
   {
     private Tuple prototype;
     private ICachingSequenceProvider<TValue> sequenceProvider;
 
-    public void Initialize(Domain ownerDomain, TupleDescriptor keyTupleDescriptor)
+    public override void Initialize(Domain ownerDomain, TupleDescriptor keyTupleDescriptor)
     {
       prototype = Tuple.Create(keyTupleDescriptor);
 
@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Internals.KeyGenerators
         sequenceProvider = new DomainCachingSequenceProvider<TValue>(accessor);
     }
 
-    public Tuple GenerateKey(KeyInfo keyInfo, Session session)
+    public override Tuple GenerateKey(KeyInfo keyInfo, Session session)
     {
       var sequence = sequenceProvider.GetSequence(session);
       var keyValue = sequence.GetNextValue(keyInfo.Sequence, session);

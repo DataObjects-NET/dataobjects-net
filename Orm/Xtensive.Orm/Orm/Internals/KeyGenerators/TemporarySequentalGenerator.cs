@@ -11,7 +11,7 @@ using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Internals.KeyGenerators
 {
-  public sealed class TemporarySequentalGenerator<TValue> : ITemporaryKeyGenerator
+  public sealed class TemporarySequentalGenerator<TValue> : TemporaryKeyGenerator
   {
     private static readonly Arithmetic<TValue> ValueArithmetic = Arithmetic<TValue>.Default;
     private static readonly AdvancedComparer<TValue> ValueComparer = AdvancedComparer<TValue>.Default;
@@ -21,12 +21,12 @@ namespace Xtensive.Orm.Internals.KeyGenerators
     private Tuple prototype;
     private TValue currentValue;
 
-    public void Initialize(Domain ownerDomain, TupleDescriptor keyTupleDescriptor)
+    public override void Initialize(Domain ownerDomain, TupleDescriptor keyTupleDescriptor)
     {
       prototype = Tuple.Create(keyTupleDescriptor);
     }
 
-    public Tuple GenerateKey(KeyInfo keyInfo, Session session)
+    public override Tuple GenerateKey(KeyInfo keyInfo, Session session)
     {
       var keyTuple = prototype.CreateNew();
       keyTuple.SetValue(0, GenerateValue());
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Internals.KeyGenerators
       return result;
     }
 
-    public bool IsTemporaryKey(Tuple keyTuple)
+    public override bool IsTemporaryKey(Tuple keyTuple)
     {
       var value = keyTuple.GetValue<TValue>(0);
 

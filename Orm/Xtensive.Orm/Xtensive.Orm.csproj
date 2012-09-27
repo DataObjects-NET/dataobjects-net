@@ -154,8 +154,8 @@
     <Compile Include="Orm\Configuration\LinqExtensionRegistration.cs" />
     <Compile Include="Orm\Configuration\LinqExtensionRegistry.cs" />
     <Compile Include="Orm\Interfaces\ICompletableScope.cs" />
-    <Compile Include="Orm\Interfaces\IKeyGenerator.cs" />
-    <Compile Include="Orm\Interfaces\ITemporaryKeyGenerator.cs" />
+    <Compile Include="Orm\Interfaces\KeyGenerator.cs" />
+    <Compile Include="Orm\Interfaces\TemporaryKeyGenerator.cs" />
     <Compile Include="Orm\Interfaces\IQueryRootBuilder.cs" />
     <Compile Include="Orm\Internals\CompiledQueryRunner.cs" />
     <Compile Include="Orm\Linq\MemberCompilation\Interfaces\IMemberCompilerProvider.cs" />

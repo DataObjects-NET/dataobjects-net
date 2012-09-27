@@ -18,16 +18,16 @@ namespace Xtensive.Orm.Manual.Attributes
   #region Custom key generator
 
   // Custom int key generator
-  [Service(typeof (IKeyGenerator), Name = "CustomInt32KeyGenerator")]
-  public class CustomInt32KeyGenerator : IKeyGenerator
+  [Service(typeof (KeyGenerator), Name = "CustomInt32KeyGenerator")]
+  public class CustomInt32KeyGenerator : KeyGenerator
   {
     private int counter;
 
-    public void Initialize(Domain ownerDomain, TupleDescriptor keyTupleDescriptor)
+    public override void Initialize(Domain ownerDomain, TupleDescriptor keyTupleDescriptor)
     {
     }
 
-    public Tuple GenerateKey(KeyInfo keyInfo, Session session)
+    public override Tuple GenerateKey(KeyInfo keyInfo, Session session)
     {
       return Tuple.Create(counter++);
     }

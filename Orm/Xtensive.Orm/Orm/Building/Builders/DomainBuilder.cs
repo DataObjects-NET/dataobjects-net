@@ -109,16 +109,16 @@ namespace Xtensive.Orm.Building.Builders
       using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.KeyGenerators)) {
         var domain = context.Domain;
         var generators = domain.KeyGenerators;
-        var initialized = new HashSet<IKeyGenerator>();
+        var initialized = new HashSet<KeyGenerator>();
         var keysToProcess = domain.Model.Hierarchies
           .Select(h => h.Key)
           .Where(k => k.GeneratorKind!=KeyGeneratorKind.None);
         foreach (var keyInfo in keysToProcess) {
-          var generator = domain.Services.Demand<IKeyGenerator>(keyInfo.GeneratorName);
+          var generator = domain.Services.Demand<KeyGenerator>(keyInfo.GeneratorName);
           generators.Register(keyInfo, generator);
           if (keyInfo.IsFirstAmongSimilarKeys)
             generator.Initialize(context.Domain, keyInfo.TupleDescriptor);
-          var temporaryGenerator = domain.Services.Get<ITemporaryKeyGenerator>(keyInfo.GeneratorName);
+          var temporaryGenerator = domain.Services.Get<TemporaryKeyGenerator>(keyInfo.GeneratorName);
           if (temporaryGenerator==null)
             continue; // Temporary key generators are optional
           generators.RegisterTemporary(keyInfo, temporaryGenerator);

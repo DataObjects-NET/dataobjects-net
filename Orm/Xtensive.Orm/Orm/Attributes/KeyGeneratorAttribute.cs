@@ -42,7 +42,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="type">The generator type. It should be type implmenting <see cref="IKeyGenerator"/>.</param>
+    /// <param name="type">The generator type. It should be type implmenting <see cref="KeyGenerator"/>.</param>
     /// <remarks><paramref name="type"/> can be null.</remarks>
     public KeyGeneratorAttribute(Type type)
     {

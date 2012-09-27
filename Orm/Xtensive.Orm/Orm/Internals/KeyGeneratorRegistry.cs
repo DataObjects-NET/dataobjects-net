@@ -12,41 +12,41 @@ namespace Xtensive.Orm.Internals
 {
   internal sealed class KeyGeneratorRegistry : LockableBase
   {
-    private readonly Dictionary<KeyInfo, IKeyGenerator> generators
-      = new Dictionary<KeyInfo, IKeyGenerator>();
+    private readonly Dictionary<KeyInfo, KeyGenerator> generators
+      = new Dictionary<KeyInfo, KeyGenerator>();
 
-    private readonly Dictionary<KeyInfo, ITemporaryKeyGenerator> temporaryGenerators
-      = new Dictionary<KeyInfo, ITemporaryKeyGenerator>();
+    private readonly Dictionary<KeyInfo, TemporaryKeyGenerator> temporaryGenerators
+      = new Dictionary<KeyInfo, TemporaryKeyGenerator>();
 
     // Compatibility indexer
-    public IKeyGenerator this[KeyInfo key] { get { return Get(key); } }
+    public KeyGenerator this[KeyInfo key] { get { return Get(key); } }
 
-    public IKeyGenerator Get(KeyInfo key)
+    public KeyGenerator Get(KeyInfo key)
     {
-      IKeyGenerator result;
+      KeyGenerator result;
       generators.TryGetValue(key, out result);
       return result;
     }
 
-    public IKeyGenerator Get(KeyInfo key, bool isTemporary)
+    public KeyGenerator Get(KeyInfo key, bool isTemporary)
     {
       return isTemporary ? GetTemporary(key) : Get(key);
     }
 
-    public ITemporaryKeyGenerator GetTemporary(KeyInfo key)
+    public TemporaryKeyGenerator GetTemporary(KeyInfo key)
     {
-      ITemporaryKeyGenerator result;
+      TemporaryKeyGenerator result;
       temporaryGenerators.TryGetValue(key, out result);
       return result;
     }
 
-    public void Register(KeyInfo key, IKeyGenerator generator)
+    public void Register(KeyInfo key, KeyGenerator generator)
     {
       this.EnsureNotLocked();
       generators.Add(key, generator);
     }
 
-    public void RegisterTemporary(KeyInfo key, ITemporaryKeyGenerator temporaryGenerator)
+    public void RegisterTemporary(KeyInfo key, TemporaryKeyGenerator temporaryGenerator)
     {
       this.EnsureNotLocked();
       temporaryGenerators.Add(key, temporaryGenerator);
