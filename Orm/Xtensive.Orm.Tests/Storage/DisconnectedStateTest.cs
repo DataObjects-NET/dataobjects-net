@@ -2078,14 +2078,14 @@ namespace Xtensive.Orm.Tests.Storage
       }
 
       using (var session = Domain.OpenSession())
-      using (serverData.Attach())
+      using (serverData.Attach(session))
       using (serverData.Connect())
       using (var transactionScope = session.OpenTransaction()) {
         session.Query.Single<ChangeSet>(childKey);
       }
       
       using (var session = Domain.OpenSession())
-      using (clientData.Attach()) {
+      using (clientData.Attach(session)) {
         clientData.Merge(serverData);
       }
     }

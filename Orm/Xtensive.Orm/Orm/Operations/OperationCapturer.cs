@@ -112,6 +112,7 @@ namespace Xtensive.Orm.Operations
     /// A newly created <see cref="OperationCapturer"/> attached
     /// to the current session.
     /// </returns>
+    [Obsolete("Use Attach(Session, IOperationLogger) instead")]
     public static OperationCapturer Attach(IOperationLogger operations)
     {
       return Attach(Session.Demand(), operations);

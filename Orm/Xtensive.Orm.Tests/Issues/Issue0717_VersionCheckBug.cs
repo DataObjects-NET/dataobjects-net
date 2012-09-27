@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Tests.Issues
           new KeyValuePair<Key, VersionInfo>(key, expectedVersion),
         });
 
-      using (VersionValidator.Attach(expectedVersions)) {
+      using (VersionValidator.Attach(Session.Demand(), expectedVersions)) {
         using (var tx = Session.Demand().OpenTransaction()) {
           var entity = Session.Demand().Query.Single<T>(key);
           using (var ir = Session.Demand().DisableValidation()) {

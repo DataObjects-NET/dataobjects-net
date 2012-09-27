@@ -51,6 +51,7 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
+    [Obsolete("Use Replay(Session) instead.")]
     public KeyMapping Replay()
     {
       return Replay(Session.Demand());

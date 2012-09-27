@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
         Book book2;
 
         var ds = new DisconnectedState();
-        using (ds.Attach()) {
+        using (ds.Attach(session)) {
           book1 = new Book() {Title = "Book 1"};
           book2 = new Book() {Title = "Book"};
           book1.RelatedBooks.CollectionChanged += RelatedBooks_CollectionChanged;

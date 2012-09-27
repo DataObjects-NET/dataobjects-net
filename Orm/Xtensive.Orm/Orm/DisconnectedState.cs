@@ -216,6 +216,7 @@ namespace Xtensive.Orm
     /// <returns>A disposable object that will detach the disconnected state
     /// on its disposal.</returns>
     /// <exception cref="InvalidOperationException">Transaction is running.</exception>
+    [Obsolete("Use Attach(Session) instead")]
     public IDisposable Attach()
     {
       return Attach(Session.Demand());
@@ -224,15 +225,15 @@ namespace Xtensive.Orm
     /// <summary>
     /// Attaches the disconnected state to the specified session.
     /// </summary>
-    /// <param name="session">The session to attach disconnected state to.</param>
+    /// <param name="targetSession">The session to attach disconnected state to.</param>
     /// <returns>A disposable object that will detach the disconnected state
     /// on its disposal.</returns>
     /// <exception cref="InvalidOperationException">Transaction is running.</exception>
-    public IDisposable Attach(Session session)
+    public IDisposable Attach(Session targetSession)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      ArgumentValidator.EnsureArgumentNotNull(targetSession, "session");
       EnsureNotAttached();
-      AttachInternal(session);
+      AttachInternal(targetSession);
       return new Disposable<DisconnectedState>(this, (b, _this) => _this.DetachInternal());
     }
 

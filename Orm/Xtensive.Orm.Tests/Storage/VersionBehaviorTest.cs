@@ -192,13 +192,13 @@ namespace Xtensive.Orm.Tests.Storage
         var versions = new VersionSet();
         var updatedVersions = new VersionSet();
         Default @default;
-        using (VersionCapturer.Attach(versions))
+        using (VersionCapturer.Attach(session, versions))
         using (var t = session.OpenTransaction()) {
           @default = new Default() { Name = "Name", Tag = "Tag", Version = 1};
           t.Complete();
         }
-        using (VersionCapturer.Attach(updatedVersions))
-        using (VersionValidator.Attach(versions))
+        using (VersionCapturer.Attach(session, updatedVersions))
+        using (VersionValidator.Attach(session, versions))
         using (var t = session.OpenTransaction()) {
           @default.Version = 2;
           @default.Name = "AnotherName";
@@ -206,13 +206,13 @@ namespace Xtensive.Orm.Tests.Storage
           t.Complete();
         }
         AssertEx.Throws<VersionConflictException>(() => {
-          using (VersionValidator.Attach(versions))
+          using (VersionValidator.Attach(session, versions))
           using (var t = session.OpenTransaction()) {
             @default.Tag = "AnotherTag";
             t.Complete();
           }});
 
-        using (VersionValidator.Attach(updatedVersions))
+        using (VersionValidator.Attach(session, updatedVersions))
         using (var t = session.OpenTransaction()) {
           @default.Tag = "AnotherTag";
           t.Complete();
@@ -220,8 +220,8 @@ namespace Xtensive.Orm.Tests.Storage
       }
       var allVersions = new VersionSet();
       using (var session = domain.OpenSession())
-      using (VersionCapturer.Attach(allVersions))
-      using (VersionValidator.Attach(allVersions)) {
+      using (VersionCapturer.Attach(session, allVersions))
+      using (VersionValidator.Attach(session, allVersions)) {
         Default @default;
         using (var t = session.OpenTransaction()) {
           @default = new Default() { Name = "Name", Tag = "Tag", Version = 1};
@@ -267,7 +267,7 @@ namespace Xtensive.Orm.Tests.Storage
         ManualInheritor manualInheritor;
         AnotherManual anotherManual;
         AnotherManualInheritor anotherManualInheritor;
-        using (VersionCapturer.Attach(versions))
+        using (VersionCapturer.Attach(session, versions))
         using (var t = session.OpenTransaction()) {
           manual = new Manual() { Tag = "Tag", Content = "Content", Version = 1};
           manualInheritor = new ManualInheritor() { Tag = "Tag", Content = "Content", Version = 1, Name = "Name"};
@@ -275,8 +275,8 @@ namespace Xtensive.Orm.Tests.Storage
           anotherManualInheritor = new AnotherManualInheritor() {Tag = "Tag", Content = "Content", Version = 1, SubVersion = 100, Name = "Name"};
           t.Complete();
         }
-        using (VersionCapturer.Attach(updatedVersions))
-        using (VersionValidator.Attach(versions))
+        using (VersionCapturer.Attach(session, updatedVersions))
+        using (VersionValidator.Attach(session, versions))
         using (var t = session.OpenTransaction()) {
           manual.Version = 2;
           manual.Tag = "AnotherTag";
@@ -290,7 +290,7 @@ namespace Xtensive.Orm.Tests.Storage
           t.Complete();
         }
         AssertEx.Throws<VersionConflictException>(() => {
-          using (VersionValidator.Attach(versions))
+          using (VersionValidator.Attach(session, versions))
           using (var t = session.OpenTransaction()) {
             manual.Tag = "YetAnotherTag";
             anotherManual.Tag = "YetAnotherTag";
@@ -300,7 +300,7 @@ namespace Xtensive.Orm.Tests.Storage
             t.Complete();
           }});
 
-        using (VersionValidator.Attach(updatedVersions))
+        using (VersionValidator.Attach(session, updatedVersions))
         using (var t = session.OpenTransaction()) {
           manual.Tag = "YetAnotherTag";
           anotherManual.Tag = "YetAnotherTag";
@@ -329,14 +329,14 @@ namespace Xtensive.Orm.Tests.Storage
         var updatedVersions = new VersionSet();
         Auto auto;
         AutoInheritor autoInheritor;
-        using (VersionCapturer.Attach(versions))
+        using (VersionCapturer.Attach(session, versions))
         using (var t = session.OpenTransaction()) {
           auto = new Auto() { Content = "Content", Tag = "Tag"};
           autoInheritor = new AutoInheritor() { Content = "Content", Tag = "Tag"};
           t.Complete();
         }
-        using (VersionCapturer.Attach(updatedVersions))
-        using (VersionValidator.Attach(versions))
+        using (VersionCapturer.Attach(session, updatedVersions))
+        using (VersionValidator.Attach(session, versions))
         using (var t = session.OpenTransaction()) {
           auto.Content = "AnotherContent";
           auto.Content = "AnotherContetnCorrect";
@@ -345,14 +345,14 @@ namespace Xtensive.Orm.Tests.Storage
           t.Complete();
         }
         AssertEx.Throws<VersionConflictException>(() => {
-          using (VersionValidator.Attach(versions))
+          using (VersionValidator.Attach(session, versions))
           using (var t = session.OpenTransaction()) {
             auto.Tag = "AnotherTag";
             autoInheritor.Tag = "AnotherTag";
             t.Complete();
           }});
 
-        using (VersionValidator.Attach(updatedVersions))
+        using (VersionValidator.Attach(session, updatedVersions))
         using (var t = session.OpenTransaction()) {
           auto.Tag = "AnotherTag";
           autoInheritor.Tag = "AnotherTag";
@@ -361,8 +361,8 @@ namespace Xtensive.Orm.Tests.Storage
       }
       var allVersions = new VersionSet();
       using (var session = domain.OpenSession())
-      using (VersionCapturer.Attach(allVersions))
-      using (VersionValidator.Attach(allVersions)) {
+      using (VersionCapturer.Attach(session, allVersions))
+      using (VersionValidator.Attach(session, allVersions)) {
         Auto auto;
         AutoInheritor autoInheritor;
         using (var t = session.OpenTransaction()) {
@@ -408,7 +408,7 @@ namespace Xtensive.Orm.Tests.Storage
         var updatedVersions = new VersionSet();
         Skip skip;
         HasVersion hasVersion;
-        using (VersionCapturer.Attach(versions))
+        using (VersionCapturer.Attach(session, versions))
         using (var t = session.OpenTransaction()) {
           skip = new Skip() { Content = "Content", Tag = "Tag", Description = "Desription", NotVersion = "NotVersion"};
           hasVersion = new HasVersion { 
@@ -417,8 +417,8 @@ namespace Xtensive.Orm.Tests.Storage
             Version = {Major = 10, Minor = 100, Meta = 1000 }};
           t.Complete();
         }
-        using (VersionCapturer.Attach(updatedVersions))
-        using (VersionValidator.Attach(versions))
+        using (VersionCapturer.Attach(session, updatedVersions))
+        using (VersionValidator.Attach(session, versions))
         using (var t = session.OpenTransaction()) {
           skip.Content = "AnotherContent";
           skip.Content = "AnotherContetnCorrect";
@@ -427,14 +427,14 @@ namespace Xtensive.Orm.Tests.Storage
           t.Complete();
         }
         AssertEx.Throws<VersionConflictException>(() => {
-          using (VersionValidator.Attach(versions))
+          using (VersionValidator.Attach(session, versions))
           using (var t = session.OpenTransaction()) {
             skip.Tag = "AnotherTag";
             hasVersion.Tag = "AnotherTag";
             t.Complete();
           }});
 
-        using (VersionValidator.Attach(updatedVersions))
+        using (VersionValidator.Attach(session, updatedVersions))
         using (var t = session.OpenTransaction()) {
           skip.Tag = "AnotherTag";
           hasVersion.Tag = "AnotherTag";
@@ -443,8 +443,8 @@ namespace Xtensive.Orm.Tests.Storage
       }
       var allVersions = new VersionSet();
       using (var session = domain.OpenSession())
-      using (VersionCapturer.Attach(allVersions))
-      using (VersionValidator.Attach(allVersions)) {
+      using (VersionCapturer.Attach(session, allVersions))
+      using (VersionValidator.Attach(session, allVersions)) {
         Skip skip;
         HasVersion hasVersion;
         using (var t = session.OpenTransaction()) {

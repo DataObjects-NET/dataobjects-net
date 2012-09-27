@@ -112,6 +112,7 @@ namespace Xtensive.Orm
     /// A newly created <see cref="VersionCapturer"/> attached
     /// to the current session.
     /// </returns>
+    [Obsolete("Use Attach(Session, VersionSet) instead")]
     public static VersionCapturer Attach(VersionSet versions)
     {
       return Attach(Session.Demand(), versions);
