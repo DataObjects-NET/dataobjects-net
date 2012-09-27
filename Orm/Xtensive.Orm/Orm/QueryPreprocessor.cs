@@ -32,6 +32,7 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="query">The query to apply the preprocessor to.</param>
     /// <returns>This method does not return.</returns>
+    [Obsolete("This method is not supported, use Apply(Session, Expression) instead")]
     public Expression Apply(Expression query)
     {
       throw new NotSupportedException(Strings.ExThisMethodShouldNotBeCalledUseApplySessionExpressionInstead);
