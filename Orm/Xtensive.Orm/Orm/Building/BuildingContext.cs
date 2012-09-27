@@ -81,12 +81,12 @@ namespace Xtensive.Orm.Building
     public DomainModel Model { get; internal set; }
 
     /// <summary>
-    /// Gets all available <see cref="IModule"/>s.
+    /// Gets all available <see cref="IModule"/> implementations.
     /// </summary>
     public ICollection<IModule> Modules { get; private set; }
 
     /// <summary>
-    /// Gets all available <see cref="Module"/>s.
+    /// Gets all available <see cref="IModule2"/> implementations.
     /// </summary>
     public ICollection<IModule2> Modules2 { get; private set; }
 
