@@ -10,7 +10,7 @@ using System.Linq.Expressions;
 namespace Xtensive.Orm.Linq
 {
   /// <summary>
-  /// Base class for LINQ query preprocessor.
+  /// Standard implementation of LINQ query preprocessor.
   /// </summary>
   public abstract class QueryPreprocessor : IQueryPreprocessor2
   {

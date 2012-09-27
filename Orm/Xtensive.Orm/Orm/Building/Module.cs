@@ -11,7 +11,7 @@ using Xtensive.Orm.Building.Definitions;
 namespace Xtensive.Orm.Building
 {
   /// <summary>
-  /// Default implementation of <see cref="IModule2"/>.
+  /// Standard implementation of domain builder module.
   /// </summary>
   public abstract class Module : IModule2
   {
