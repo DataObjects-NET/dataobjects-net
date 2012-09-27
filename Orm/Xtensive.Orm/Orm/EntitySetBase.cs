@@ -995,14 +995,15 @@ namespace Xtensive.Orm
       Field = field;
       State = new EntitySetState(this);
       var association = Field.Associations.Last();
-      if (association.AuxiliaryType != null && association.IsMaster) {
-        var itemType =  Field.ItemType.GetTypeInfo(Session.Domain);
+      if (association.AuxiliaryType!=null && association.IsMaster) {
+        Domain domain = Session.Domain;
+        var itemType = domain.Model.Types[Field.ItemType];
         auxilaryTypeKeyTransform = new CombineTransform(
-          false, 
-          owner.TypeInfo.Key.TupleDescriptor, 
+          false,
+          owner.TypeInfo.Key.TupleDescriptor,
           itemType.Key.TupleDescriptor);
       }
-      Initialize(typeof(EntitySetBase));
+      Initialize(typeof (EntitySetBase));
     }
 
     /// <summary>
