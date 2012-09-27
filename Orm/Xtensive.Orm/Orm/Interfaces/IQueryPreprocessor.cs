@@ -5,6 +5,7 @@
 // Created:    2009.12.15
 
 using System.Linq.Expressions;
+using Xtensive.Orm.Linq;
 
 namespace Xtensive.Orm
 {

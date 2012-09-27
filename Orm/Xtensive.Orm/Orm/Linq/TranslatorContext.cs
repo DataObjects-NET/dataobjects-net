@@ -112,8 +112,10 @@ namespace Xtensive.Orm.Linq
 
     private Expression ApplyPreprocessor(IQueryPreprocessor preprocessor, Session session, Expression query)
     {
-      var newPreprocessor = preprocessor as QueryPreprocessor;
-      return newPreprocessor!=null ? newPreprocessor.Apply(session, query) : preprocessor.Apply(query);
+      var preprocessor2 = preprocessor as IQueryPreprocessor2;
+      return preprocessor2!=null
+        ? preprocessor2.Apply(session, query)
+        : preprocessor.Apply(query);
     }
 
     // Constructors

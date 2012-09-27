@@ -7,12 +7,12 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Xtensive.Orm
+namespace Xtensive.Orm.Linq
 {
   /// <summary>
   /// Base class for LINQ query preprocessor.
   /// </summary>
-  public abstract class QueryPreprocessor : IQueryPreprocessor
+  public abstract class QueryPreprocessor : IQueryPreprocessor2
   {
     /// <summary>
     ///  Applies the preprocessor to the specified query.

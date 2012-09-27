@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.IoC;
+using Xtensive.Orm.Linq;
 using Xtensive.Testing;
 
 namespace Xtensive.Orm.Tests.Linq

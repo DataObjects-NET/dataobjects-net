@@ -129,7 +129,8 @@
     <Compile Include="Orm\Configuration\ConfigurationBase.cs" />
     <Compile Include="Orm\ConflictHandlingMethod.cs" />
     <Compile Include="Orm\Interfaces\IModule2.cs" />
-    <Compile Include="Orm\QueryPreprocessor.cs" />
+    <Compile Include="Orm\Interfaces\IQueryPreprocessor2.cs" />
+    <Compile Include="Orm\Linq\QueryPreprocessor.cs" />
     <Compile Include="Orm\Internals\CompletableScope{T}.cs" />
     <Compile Include="Orm\Configuration\Interfaces\IDatabaseConfigurationFlow.cs" />
     <Compile Include="Orm\Configuration\Internals\DatabaseConfigurationFlow.cs" />
