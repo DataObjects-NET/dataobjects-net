@@ -9,7 +9,8 @@ using Xtensive.Sql;
 namespace Xtensive.Orm.Providers
 {
   /// <summary>
-  /// Possible types of <see cref="PersistParameterBinding"/>.
+  /// Possible way of delivering parameter to server
+  /// for <see cref="QueryParameterBinding"/> and <see cref="PersistParameterBinding"/>.
   /// </summary>
   public enum ParameterTransmissionType
   {
