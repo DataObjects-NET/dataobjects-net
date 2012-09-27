@@ -9,7 +9,6 @@ using System.Transactions;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Validation;
-using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm
 {

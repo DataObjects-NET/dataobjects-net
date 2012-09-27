@@ -21,7 +21,8 @@ namespace Xtensive.Orm.Internals
   {
     private readonly Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer;
     private readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
-    protected readonly Transaction transaction;
+
+    protected readonly Transaction Transaction;
 
     /// <summary>
     /// Gets the task for this future.
@@ -35,7 +36,7 @@ namespace Xtensive.Orm.Internals
     /// <returns>The materialized result.</returns>
     protected TResult Materialize(Session session)
     {
-      if (transaction != session.Transaction)
+      if (Transaction!=session.Transaction)
         throw new InvalidOperationException(
           Strings.ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance);
       if (Task.Result==null)
@@ -54,11 +55,14 @@ namespace Xtensive.Orm.Internals
     /// <param name="parameterContext">The parameter context.</param>
     internal DelayedQueryResult(Session session, TranslatedQuery<TResult> translatedQuery, ParameterContext parameterContext)
     {
-      transaction = session.Transaction;
-      if (transaction == null)
+      if (session.Transaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
+
+      Transaction = session.Transaction;
+
       materializer = translatedQuery.Materializer;
       tupleParameterBindings = translatedQuery.TupleParameterBindings;
+
       using (parameterContext.ActivateSafely())
         Task = new QueryTask(translatedQuery.DataSource, parameterContext);
     }

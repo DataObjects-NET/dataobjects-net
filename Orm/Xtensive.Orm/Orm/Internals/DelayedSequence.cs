@@ -18,8 +18,7 @@ namespace Xtensive.Orm.Internals
   {
     public IEnumerator<T> GetEnumerator()
     {
-      var session = Session.Current ?? transaction.Session;
-      return Materialize(session).GetEnumerator();
+      return Materialize(Transaction.Session).GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
