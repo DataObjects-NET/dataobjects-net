@@ -730,7 +730,6 @@
     <Compile Include="Orm\Internals\Key{T1,T2,T3}.cs" />
     <Compile Include="Orm\EntityEventArgs.cs" />
     <Compile Include="Orm\EntityEventBroker.cs" />
-    <Compile Include="Orm\EnumerableExtensions.cs" />
     <Compile Include="Orm\Exceptions\SchemaSynchronizationException.cs" />
     <Compile Include="Orm\ForeignKeyMode.cs" />
     <Compile Include="Orm\Interfaces\IModule.cs" />
