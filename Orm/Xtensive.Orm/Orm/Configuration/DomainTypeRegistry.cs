@@ -19,13 +19,13 @@ namespace Xtensive.Orm.Configuration
   [Serializable]
   public class DomainTypeRegistry : TypeRegistry
   {
-    internal readonly static Type iEntityType = typeof (IEntity);
-    internal readonly static Type persistentType = typeof (Persistent);
-    internal readonly static Type iDomainServiceType = typeof (IDomainService);
-    internal readonly static Type iSessionServiceType = typeof (ISessionService);
-    internal readonly static Type iModuleType = typeof (IModule);
-    internal readonly static Type iUpgradeHandlerType = typeof (IUpgradeHandler);
-    internal readonly static Type keyGeneratorType = typeof (KeyGenerator);
+    private readonly static Type iEntityType = typeof (IEntity);
+    private readonly static Type persistentType = typeof (Persistent);
+    private readonly static Type iDomainServiceType = typeof (IDomainService);
+    private readonly static Type iSessionServiceType = typeof (ISessionService);
+    private readonly static Type iModuleType = typeof (IModule);
+    private readonly static Type iUpgradeHandlerType = typeof (IUpgradeHandler);
+    private readonly static Type keyGeneratorType = typeof (KeyGenerator);
 
     /// <summary>
     /// Gets all the registered persistent types.
