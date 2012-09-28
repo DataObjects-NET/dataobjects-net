@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     namespace Version1
     {
       [HierarchyRoot]
-      public abstract class MyEntity : Entity
+      public class MyEntity : Entity
       {
         [Key, Field]
         public long Id { get; private set; }
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     namespace Version2
     {
       [HierarchyRoot]
-      public abstract class MyEntity : Entity
+      public class MyEntity : Entity
       {
         [Key, Field]
         public long Id { get; private set; }
