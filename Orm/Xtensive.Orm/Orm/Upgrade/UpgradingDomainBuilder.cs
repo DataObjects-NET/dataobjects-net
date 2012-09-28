@@ -397,7 +397,8 @@ namespace Xtensive.Orm.Upgrade
       try {
         foreach (var handler in context.OrderedUpgradeHandlers)
           handler.OnStage();
-        CleanUpKeyGenerators(session);
+        if (context.Stage==UpgradeStage.Final)
+          CleanUpKeyGenerators(session);
       }
       finally {
         context.Session = null;
