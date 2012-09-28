@@ -1111,7 +1111,7 @@ namespace Xtensive.Orm.Upgrade
       var generatorNode = providerInfo.Supports(ProviderFeatures.Sequences)
         ? (SchemaNode) node.GetSequence()
         : node.GetTable();
-      return sequenceQueryBuilder.Build(generatorNode, 0).ExecuteWith(sqlExecutor);
+      return sequenceQueryBuilder.BuildNextValueQuery(generatorNode, 0).ExecuteWith(sqlExecutor);
     }
 
     private void ProcessActions(Modelling.Comparison.UpgradeStage modellingStage, SqlUpgradeStage stage)

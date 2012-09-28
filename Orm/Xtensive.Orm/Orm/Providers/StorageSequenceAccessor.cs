@@ -5,6 +5,8 @@
 // Created:    2010.09.13
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
@@ -30,7 +32,7 @@ namespace Xtensive.Orm.Providers
     public Segment<long> NextBulk(SequenceInfo sequenceInfo, Session session)
     {
       var generatorNode = GetGeneratorNode(sequenceInfo);
-      var query = queryBuilder.Build(generatorNode, sequenceInfo.Increment);
+      var query = queryBuilder.BuildNextValueQuery(generatorNode, sequenceInfo.Increment);
 
       long hiValue = Execute(query, session);
 
@@ -38,6 +40,17 @@ namespace Xtensive.Orm.Providers
       var current = hasArbitaryIncrement ? hiValue - increment : (hiValue - 1) * increment;
 
       return new Segment<long>(current + 1, increment);
+    }
+
+
+    /// <inheritdoc/>
+    public void CleanUp(IEnumerable<SequenceInfo> sequences, Session session)
+    {
+      if (hasSequences)
+        return;
+
+      var statements = sequences.Select(s => queryBuilder.BuildCleanUpQuery(GetGeneratorNode(s)));
+      session.Services.Demand<ISqlExecutor>().ExecuteMany(statements);
     }
 
     private long Execute(SequenceQuery query, Session session)

@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Providers
     private readonly bool hasInsertDefaultValues;
     private readonly SequenceQueryCompartment compartment;
 
-    public SequenceQuery Build(SchemaNode generatorNode, long increment)
+    public SequenceQuery BuildNextValueQuery(SchemaNode generatorNode, long increment)
     {
       var sqlNext = hasSequences
         ? GetSequenceBasedNextImplementation(generatorNode, increment)
@@ -37,6 +37,13 @@ namespace Xtensive.Orm.Providers
         driver.Compile((ISqlCompileUnit) batch[0]).GetCommandText(),
         driver.Compile((ISqlCompileUnit) batch[1]).GetCommandText(),
         compartment);
+    }
+
+    public string BuildCleanUpQuery(SchemaNode generatorNode)
+    {
+      var table = (Table) generatorNode;
+      var delete = SqlDml.Delete(SqlDml.TableRef(table));
+      return driver.Compile(delete).GetCommandText();
     }
 
     private ISqlCompileUnit GetSequenceBasedNextImplementation(SchemaNode generatorNode, long increment)

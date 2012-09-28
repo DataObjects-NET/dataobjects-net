@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2010.02.09
 
+using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 
@@ -21,5 +22,13 @@ namespace Xtensive.Orm.Providers
     /// <param name="session">Current session.</param>
     /// <returns>Next range of sequental value.</returns>
     Segment<long> NextBulk(SequenceInfo sequenceInfo, Session session);
+
+    /// <summary>
+    /// Performs clean up on the specified <paramref name="sequences"/>.
+    /// This method does nothing is storage does not use key generator tables.
+    /// </summary>
+    /// <param name="sequences">Sequences to clean up.</param>
+    /// <param name="session">Session to use.</param>
+    void CleanUp(IEnumerable<SequenceInfo> sequences, Session session);
   }
 }
