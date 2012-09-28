@@ -122,6 +122,14 @@ namespace Xtensive.Orm.Upgrade
     public ReadOnlyList<IModule> Modules { get { return Services.Modules; } }
 
     /// <summary>
+    /// Gets <see cref="Session"/> that is used for upgrade.
+    /// Session is available only in <see cref="UpgradeHandler.OnStage"/>
+    /// and <see cref="UpgradeHandler.OnUpgrade"/> methods.
+    /// You should not dispose upgrade session. Session lifetime is controlled by DataObjects.Net.
+    /// </summary>
+    public Session Session { get; internal set; }
+
+    /// <summary>
     /// Gets <see cref="DbConnection"/> that is used for upgrade.
     /// You should not modify connection state by calling <see cref="DbConnection.Open"/>,
     /// <see cref="DbConnection.Close"/> or similar methods. Connection state is controlled by DataObjects.Net.

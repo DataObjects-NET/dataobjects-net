@@ -250,7 +250,7 @@ namespace Xtensive.Orm.Upgrade
         var extractor = new SchemaExtractor(context, session);
         SynchronizeSchema(domain, upgrader, extractor, GetUpgradeMode(stage));
         domain.Handler.BuildMapping(extractor.GetSqlSchema());
-        OnStage();
+        OnStage(session);
         transaction.Complete();
       }
     }
@@ -391,10 +391,16 @@ namespace Xtensive.Orm.Upgrade
         handler.OnBeforeStage();
     }
 
-    private void OnStage()
+    private void OnStage(Session session)
     {
-      foreach (var handler in context.OrderedUpgradeHandlers)
-        handler.OnStage();
+      context.Session = session;
+      try {
+        foreach (var handler in context.OrderedUpgradeHandlers)
+          handler.OnStage();
+      }
+      finally {
+        context.Session = null;
+      }
     }
 
     private void OnComplete(Domain domain)

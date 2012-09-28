@@ -1,5 +1,6 @@
 [main] Added NamingRules.RemoveDots and NamingRules.RemoveHyphens
 [main] Added Connection and Transaction properties to UpgradeContext
+[main] Added Session property to UpgradeContext
 [main] UpgradeStage.Initializing is marked obsolete
 [main] Added OnPrepare and OnComplete methods to UpgradeHandler which are executed before and after any upgrade
 [main] Added advanced version of domain builder module
