@@ -5,3 +5,4 @@
 [main] Added OnPrepare and OnComplete methods to UpgradeHandler which are executed before and after any upgrade
 [main] Added advanced version of domain builder module
 [main] Correctly clean up key generator tables if entities are created in OnUpgrade() method
+[main] Several methods that implicitly use Session are marked as obsolete
