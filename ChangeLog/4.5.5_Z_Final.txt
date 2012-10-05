@@ -1,0 +1,1 @@
+[main] Temporary limit maximal PostSharp version to 2.1.7.16
