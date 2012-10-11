@@ -153,6 +153,15 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     }
 
     [Test]
+    public void WhereColumnEqualsNullTest()
+    {
+      TestQuery(() =>
+        from o in Session.Demand().Query.All<MyEntity>()
+        where o.Flag==null
+        select o);
+    }
+
+    [Test]
     public void WhereColumnNotEqualsColumnTest()
     {
       TestQuery(() =>
@@ -182,6 +191,8 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         );
     }
 
+
+
     [Test]
     public void WhereColumnEqualsExpressionTest()
     {
@@ -200,6 +211,15 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         where o.Flag != o.Name.StartsWith("No")
         select o
         );
+    }
+
+    [Test]
+    public void WhereColumnNotEqualsNullTest()
+    {
+      TestQuery(() =>
+        from o in Session.Demand().Query.All<MyEntity>()
+        where o.Flag!=null
+        select o);
     }
 
     [Test]
