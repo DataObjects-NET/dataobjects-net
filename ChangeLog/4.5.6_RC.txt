@@ -1,0 +1,1 @@
+[main] Fix translation of predicates similar to (object) NullableBool == (object) null
