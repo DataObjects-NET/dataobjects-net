@@ -1,1 +1,2 @@
 [main] Fix translation of predicates similar to (object) NullableBool == (object) null
+[sqlserver] Treat errors 3966 and 3971 as serialization failure
