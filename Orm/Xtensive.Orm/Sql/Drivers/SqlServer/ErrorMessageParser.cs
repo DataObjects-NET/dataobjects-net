@@ -144,7 +144,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private static PreparedTemplate PrepareEnglishTemplate(string template)
     {
       // English messages use '%ls' and '%.*ls' as format placeholders.
-      // They are not indexed. Index is taked from argument position.
+      // They are not indexed. Index is taken from argument position.
 
       const string shortPlaceholder = "%ls";
       const string longPlaceholder = "%.*ls";
@@ -153,8 +153,8 @@ namespace Xtensive.Sql.Drivers.SqlServer
       int offset = 0;
 
       var regexBuilder = new StringBuilder(template.Length);
-      var shortPlaceholderOffset = template.IndexOf(shortPlaceholder);
-      var longPlaceholderOffset = template.IndexOf(longPlaceholder);
+      var shortPlaceholderOffset = template.IndexOf(shortPlaceholder, StringComparison.InvariantCulture);
+      var longPlaceholderOffset = template.IndexOf(longPlaceholder, StringComparison.InvariantCulture);
 
       while (shortPlaceholderOffset >= 0 && longPlaceholderOffset >= 0) {
         int placeholderOffset;
@@ -170,22 +170,22 @@ namespace Xtensive.Sql.Drivers.SqlServer
         if (CollectChunk(regexBuilder, template, offset, placeholderOffset))
           count++;
         offset = placeholderOffset + placeholderLength;
-        shortPlaceholderOffset = template.IndexOf(shortPlaceholder, offset);
-        longPlaceholderOffset = template.IndexOf(longPlaceholder, offset);
+        shortPlaceholderOffset = template.IndexOf(shortPlaceholder, offset, StringComparison.InvariantCulture);
+        longPlaceholderOffset = template.IndexOf(longPlaceholder, offset, StringComparison.InvariantCulture);
       }
 
       while (longPlaceholderOffset >= 0) {
         if (CollectChunk(regexBuilder, template, offset, longPlaceholderOffset))
           count++;
         offset = longPlaceholderOffset + longPlaceholder.Length;
-        longPlaceholderOffset = template.IndexOf(longPlaceholder, offset);
+        longPlaceholderOffset = template.IndexOf(longPlaceholder, offset, StringComparison.InvariantCulture);
       }
 
       while (shortPlaceholderOffset >= 0) {
         if (CollectChunk(regexBuilder, template, offset, shortPlaceholderOffset))
           count++;
         offset = shortPlaceholderOffset + shortPlaceholder.Length;
-        shortPlaceholderOffset = template.IndexOf(shortPlaceholder, offset);
+        shortPlaceholderOffset = template.IndexOf(shortPlaceholder, offset, StringComparison.InvariantCulture);
       }
 
       CollectLastChunk(regexBuilder, template, offset);
