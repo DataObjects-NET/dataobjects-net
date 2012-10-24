@@ -295,11 +295,13 @@ namespace Xtensive.Orm.Providers.Sql.Expressions
           ? booleanExpressionConverter.IntToBoolean(SqlDml.Null)
           : SqlDml.Null;
       var type = expression.Type;
-      if (type==typeof(object))
+      if (type==typeof (object))
         type = expression.Value.GetType();
       type = type.StripNullable();
-      if (fixBooleanExpressions && type==typeof (bool))
-        return (bool) expression.Value ? booleanExpressionConverter.IntToBoolean(1) : booleanExpressionConverter.IntToBoolean(0);
+      if (fixBooleanExpressions && type==typeof (bool)) {
+        var literal = SqlDml.Literal((bool) expression.Value);
+        return booleanExpressionConverter.IntToBoolean(literal);
+      }
       return SqlDml.LiteralOrContainer(expression.Value);
     }
 
