@@ -32,6 +32,12 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql.BooleanHandlingTestModel
     [Field]
     public bool HasStupidName { get; set; }
   }
+
+  public class BoolContainer
+  {
+    public int Id { get; set; }
+    public bool Flag { get; set; }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql
@@ -391,6 +397,44 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
           where parameter!=o.Name.StartsWith("No")
           select o
         );
+    }
+
+    [Test]
+    public void UnionPropertyAndParameterTest()
+    {
+      var parameter = true;
+      TestQuery(
+        () =>
+          Session.Demand().Query.All<MyEntity>()
+          .Select(o => new BoolContainer {Id = o.Id, Flag = o.HasStupidName})
+          .Union(
+            Session.Demand().Query.All<MyEntity>()
+              .Select(o => new BoolContainer {Id = o.Id, Flag = parameter})));
+    }
+
+    [Test]
+    public void UnionConstantAndParameterTest()
+    {
+      var parameter = true;
+      TestQuery(
+        () =>
+          Session.Demand().Query.All<MyEntity>()
+          .Select(o => new BoolContainer {Id = o.Id, Flag = true})
+          .Union(
+            Session.Demand().Query.All<MyEntity>()
+              .Select(o => new BoolContainer {Id = o.Id, Flag = parameter})));
+    }
+
+    [Test]
+    public void UnionPropertyAndConstantTest()
+    {
+      TestQuery(
+        () =>
+          Session.Demand().Query.All<MyEntity>()
+          .Select(o => new BoolContainer {Id = o.Id, Flag = o.HasStupidName})
+          .Union(
+            Session.Demand().Query.All<MyEntity>()
+              .Select(o => new BoolContainer {Id = o.Id, Flag = true})));
     }
 
     [Test]
