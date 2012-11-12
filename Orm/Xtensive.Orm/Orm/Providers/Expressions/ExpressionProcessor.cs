@@ -159,13 +159,13 @@ namespace Xtensive.Orm.Providers
       SqlExpression left;
       SqlExpression right;
 
-      bool isEqualityCheck = expression.NodeType==ExpressionType.Equal
-                          || expression.NodeType==ExpressionType.NotEqual;
+      bool isEqualityCheck =
+        expression.NodeType==ExpressionType.Equal
+        || expression.NodeType==ExpressionType.NotEqual;
 
       bool isBooleanFixRequired = fixBooleanExpressions
         && (isEqualityCheck || expression.NodeType==ExpressionType.Coalesce)
-        && IsBooleanExpression(expression.Left)
-        && IsBooleanExpression(expression.Right);
+        && (IsBooleanExpression(expression.Left) || IsBooleanExpression(expression.Right));
 
       if (IsCharToIntConvert(expression.Left) && IsCharToIntConvert(expression.Right)) {
         // chars are compared as integers, but we store them as strings and should compare them like strings.
@@ -182,17 +182,22 @@ namespace Xtensive.Orm.Providers
         left = ConvertIntConstantToSingleCharString(expression.Left);
         right = Visit(GetOperand(expression.Right), isEqualityCheck);
       }
-      else if (isBooleanFixRequired) {
-        // boolean expressions should be compared as integers
-        left = booleanExpressionConverter.BooleanToInt(Visit(expression.Left, isEqualityCheck));
-        right = booleanExpressionConverter.BooleanToInt(Visit(expression.Right, isEqualityCheck));
-      }
-      else {
+      else  {
         // regular case
         left = Visit(expression.Left, isEqualityCheck);
         right = Visit(expression.Right, isEqualityCheck);
       }
-      
+
+      if (isBooleanFixRequired) {
+        // boolean expressions should be compared as integers.
+        // additional check is required because some type information might be lost.
+        // we assume they already have correct format in that case.
+        if (IsBooleanExpression(expression.Left))
+          left = booleanExpressionConverter.BooleanToInt(left);
+        if (IsBooleanExpression(expression.Right))
+          right = booleanExpressionConverter.BooleanToInt(right);
+      }
+
       // handle special cases
       result = TryTranslateBinaryExpressionSpecialCases(expression, left, right);
       if (!result.IsNullReference())
@@ -289,11 +294,13 @@ namespace Xtensive.Orm.Providers
           ? booleanExpressionConverter.IntToBoolean(SqlDml.Null)
           : SqlDml.Null;
       var type = expression.Type;
-      if (type==typeof(object))
+      if (type==typeof (object))
         type = expression.Value.GetType();
       type = type.StripNullable();
-      if (fixBooleanExpressions && type==typeof (bool))
-        return (bool) expression.Value ? booleanExpressionConverter.IntToBoolean(1) : booleanExpressionConverter.IntToBoolean(0);
+      if (fixBooleanExpressions && type==typeof (bool)) {
+        var literal = SqlDml.Literal((bool) expression.Value);
+        return booleanExpressionConverter.IntToBoolean(literal);
+      }
       return SqlDml.LiteralOrContainer(expression.Value);
     }
 

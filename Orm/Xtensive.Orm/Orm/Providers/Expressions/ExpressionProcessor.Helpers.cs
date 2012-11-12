@@ -199,7 +199,14 @@ namespace Xtensive.Orm.Providers
 
     private static bool IsBooleanExpression(Expression expression)
     {
-      return expression.Type.StripNullable()==typeof (bool);
+      return StripObjectCasts(expression).Type.StripNullable()==typeof (bool);
+    }
+
+    private static Expression StripObjectCasts(Expression expression)
+    {
+      while (expression.Type==typeof (object) && expression.NodeType==ExpressionType.Convert)
+        expression = GetOperand(expression);
+      return expression;
     }
 
     private static SqlExpression ConvertIntConstantToSingleCharString(Expression expression)

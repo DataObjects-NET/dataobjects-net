@@ -31,6 +31,12 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql.BooleanHandlingTestModel
     [Field]
     public bool HasStupidName { get; set; }
   }
+
+  public class BoolContainer
+  {
+    public int Id { get; set; }
+    public bool Flag { get; set; }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql
@@ -38,11 +44,6 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
   [TestFixture]
   public class BooleanHandlingTest : AutoBuildTest
   {
-    protected override void CheckRequirements()
-    {
-      Require.AllFeaturesNotSupported(ProviderFeatures.FullFeaturedBooleanExpressions);
-    }
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
@@ -68,156 +69,212 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void SelectParameterTest()
     {
       var value = true;
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        select value
-        );
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          select value);
     }
 
     [Test]
     public void SelectFieldTest()
     {
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        select o.Flag
-        );
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          select o.Flag);
     }
 
     [Test]
     public void SelectNotFieldTest()
     {
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        select !o.Flag
-        );
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          select !o.Flag);
     }
 
     [Test]
     public void SelectCalculatedTest()
     {
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        select new { value = o.Name.StartsWith("Yes") }
-        );
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          select new {value = o.Name.StartsWith("Yes")});
     }
 
     [Test]
     public void WhereColumnTest()
     {
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where o.Flag.Value
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where o.Flag.Value
+          select o
         );
     }
 
     [Test]
     public void WhereNotColumnTest()
     {
-      TestQuery(() => 
-        from o in Session.Demand().Query.All<MyEntity>()
-        where !o.Flag.Value
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where !o.Flag.Value
+          select o
         );
     }
 
     [Test]
     public void WhereColumnAndColumnTest()
     {
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where o.Flag.Value && o.HasStupidName
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where o.Flag.Value && o.HasStupidName
+          select o
         );
     }
 
     [Test]
     public void WhereColumnOrColumnTest()
     {
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where o.Flag.Value || o.HasStupidName
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where o.Flag.Value || o.HasStupidName
+          select o
         );
     }
 
     [Test]
     public void WhereColumnEqualsColumnTest()
     {
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where o.Flag==o.HasStupidName
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where o.Flag==o.HasStupidName
+          select o
+        );
+    }
+
+    [Test]
+    public void WhereColumnEqualsNullTest()
+    {
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where o.Flag==null
+          select o
+        );
+    }
+
+    [Test]
+    public void WhereColumnEqualsObjectNullTest()
+    {
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where (object) o.Flag==(object) null
+          select o
         );
     }
 
     [Test]
     public void WhereColumnNotEqualsColumnTest()
     {
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where o.Flag!=o.HasStupidName
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where o.Flag!=o.HasStupidName
+          select o
         );
     }
 
     [Test]
     public void WhereColumnOrExpressionTest()
     {
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where o.Flag.Value || (o.Id > 6)
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where o.Flag.Value || (o.Id > 6)
+          select o
         );
     }
 
     [Test]
     public void WhereColumnAndExpressionTest()
     {
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where o.Flag.Value && o.Name.StartsWith("Yes")
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where o.Flag.Value && o.Name.StartsWith("Yes")
+          select o
         );
     }
 
     [Test]
     public void WhereColumnEqualsExpressionTest()
     {
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where o.Flag == (o.Id == 5)
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where o.Flag==(o.Id==5)
+          select o
         );
     }
 
     [Test]
     public void WhereColumnNotEqualsExpressionTest()
     {
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where o.Flag != o.Name.StartsWith("No")
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where o.Flag!=o.Name.StartsWith("No")
+          select o
+        );
+    }
+
+    [Test]
+    public void WhereColumnNotEqualsNullTest()
+    {
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where o.Flag!=null
+          select o
+        );
+    }
+
+    [Test]
+    public void WhereColumnNotEqualsObjectNullTest()
+    {
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where (object) o.Flag!=(object) null
+          select o
         );
     }
 
     [Test]
     public void WhereExpressionEqualsExpressionTest()
     {
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where o.Name.StartsWith("Yes")==(o.Id==5)
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where o.Name.StartsWith("Yes")==(o.Id==5)
+          select o
         );
     }
 
     [Test]
     public void WhereExpressionNotEqualsExpressionTest()
     {
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where o.Name.StartsWith("Yes")!=(o.Id < 5)
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where o.Name.StartsWith("Yes")!=(o.Id < 5)
+          select o
         );
     }
 
@@ -225,10 +282,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void WhereParameterTest()
     {
       var parameter = true;
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where parameter
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where parameter
+          select o
         );
     }
 
@@ -236,10 +294,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void WhereNotParameterTest()
     {
       var parameter = true;
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where !parameter
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where !parameter
+          select o
         );
     }
 
@@ -247,10 +306,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void WhereParameterOrColumnTest()
     {
       var parameter = true;
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where parameter || o.Flag.Value
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where parameter || o.Flag.Value
+          select o
         );
     }
 
@@ -258,10 +318,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void WhereParameterAndColumnTest()
     {
       var parameter = true;
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where parameter && o.HasStupidName
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where parameter && o.HasStupidName
+          select o
         );
     }
 
@@ -269,10 +330,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void WhereParameterEqualsColumnTest()
     {
       var parameter = true;
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where parameter==o.Flag
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where parameter==o.Flag
+          select o
         );
     }
 
@@ -280,10 +342,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void WhereParameterNotEqualsColumnTest()
     {
       var parameter = true;
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where parameter!=o.Flag
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where parameter!=o.Flag
+          select o
         );
     }
 
@@ -291,10 +354,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void WhereParameterOrExpressionTest()
     {
       var parameter = true;
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where parameter || o.Name.EndsWith("Yes")
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where parameter || o.Name.EndsWith("Yes")
+          select o
         );
     }
 
@@ -302,10 +366,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void WhereParameterAndExpressionTest()
     {
       var parameter = true;
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where parameter && o.Name.EndsWith("No")
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where parameter && o.Name.EndsWith("No")
+          select o
         );
     }
 
@@ -313,10 +378,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void WhereParameterEqualsExpressionTest()
     {
       var parameter = true;
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where parameter==o.Name.EndsWith("Yes")
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where parameter==o.Name.EndsWith("Yes")
+          select o
         );
     }
 
@@ -324,32 +390,73 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void WhereParameterNotEqualsExpressionTest()
     {
       var parameter = true;
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where parameter!=o.Name.StartsWith("No")
-        select o
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where parameter!=o.Name.StartsWith("No")
+          select o
         );
+    }
+
+    [Test]
+    public void UnionPropertyAndParameterTest()
+    {
+      var parameter = true;
+      TestQuery(
+        () =>
+          Session.Demand().Query.All<MyEntity>()
+          .Select(o => new BoolContainer {Id = o.Id, Flag = o.HasStupidName})
+          .Union(
+            Session.Demand().Query.All<MyEntity>()
+              .Select(o => new BoolContainer {Id = o.Id, Flag = parameter})));
+    }
+
+    [Test]
+    public void UnionConstantAndParameterTest()
+    {
+      var parameter = true;
+      TestQuery(
+        () =>
+          Session.Demand().Query.All<MyEntity>()
+          .Select(o => new BoolContainer {Id = o.Id, Flag = true})
+          .Union(
+            Session.Demand().Query.All<MyEntity>()
+              .Select(o => new BoolContainer {Id = o.Id, Flag = parameter})));
+    }
+
+    [Test]
+    public void UnionPropertyAndConstantTest()
+    {
+      TestQuery(
+        () =>
+          Session.Demand().Query.All<MyEntity>()
+          .Select(o => new BoolContainer {Id = o.Id, Flag = o.HasStupidName})
+          .Union(
+            Session.Demand().Query.All<MyEntity>()
+              .Select(o => new BoolContainer {Id = o.Id, Flag = true})));
     }
 
     [Test]
     public void IifTest()
     {
-      TestQuery(() =>
-        from it in Session.Demand().Query.All<MyEntity>()
-        where
+      TestQuery(
+        () =>
+          from it in Session.Demand().Query.All<MyEntity>()
+          where
           (it.Name==null ? null : (bool?) it.Name.StartsWith("Y"))==null
             ? false
             : (it.Name==null ? null : (bool?) (it.Name.StartsWith("Y"))).Value
-        select it
+          select it
         );
     }
 
     [Test]
     public void CoalesceTest()
     {
-      TestQuery(() =>
-        from it in Session.Demand().Query.All<MyEntity>()
-        select it.Flag ?? it.HasStupidName
+      TestQuery(
+        () =>
+          from it in Session.Demand().Query.All<MyEntity>()
+          select it.Flag ?? it.HasStupidName
         );
     }
 
@@ -358,10 +465,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     {
       var parameter1 = true;
       var parameter2 = false;
-      TestQuery(() =>
-        from o in Session.Demand().Query.All<MyEntity>()
-        where (!o.Flag.Value && o.Name.StartsWith("No") || parameter1) && (o.HasStupidName || !parameter2)
-        select new {value = o.Id % 10 < 5, flag = o.Flag, notflag = !o.Flag}
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where (!o.Flag.Value && o.Name.StartsWith("No") || parameter1) && (o.HasStupidName || !parameter2)
+          select new {value = o.Id % 10 < 5, flag = o.Flag, notflag = !o.Flag}
         );
     }
 
@@ -371,10 +479,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       var parameter = new Parameter<Tuple>();
       using (new ParameterContext().Activate()) {
         parameter.Value = Tuple.Create(false);
-        TestQuery(() =>
-          from o in Session.Demand().Query.All<MyEntity>()
-          where o.HasStupidName==parameter.Value.GetValueOrDefault<bool>(0)
-          select o
+        TestQuery(
+          () =>
+            from o in Session.Demand().Query.All<MyEntity>()
+            where o.HasStupidName==parameter.Value.GetValueOrDefault<bool>(0)
+            select o
           );
       }
     }
@@ -382,7 +491,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void CastToObjectAndBackTest()
     {
-      TestQuery(() => Session.Demand().Query.All<MyEntity>().Select(e => (object)e.Flag).Where(f => (bool)f));
+      TestQuery(() => Session.Demand().Query.All<MyEntity>().Select(e => (object) e.Flag).Where(f => (bool) f));
     }
 
     private void TestQuery<T>(Func<IQueryable<T>> query)

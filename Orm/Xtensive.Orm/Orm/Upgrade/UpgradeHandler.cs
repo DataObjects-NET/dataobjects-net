@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><c>UpgradeContext.Stage</c> is out of range.</exception>
-    public bool IsFieldAvailable(PropertyInfo field, UpgradeStage upgradeStage)
+    public virtual bool IsFieldAvailable(PropertyInfo field, UpgradeStage upgradeStage)
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
       var type = field.DeclaringType;
