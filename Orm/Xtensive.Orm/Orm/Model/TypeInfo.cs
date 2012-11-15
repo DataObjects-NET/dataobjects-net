@@ -580,7 +580,18 @@ namespace Xtensive.Orm.Model
         }
         HasVersionFields = versionFields.Any(f => f.ManualVersion || f.AutoVersion);
       }
-        
+      
+      if (IsInterface) {
+        // Collect mapping information from the first implementor (if any)
+        // We'll check that all implementors are mapped to the same database later.
+        // MappingSchema is not important: it's copied for consistency.
+        var firstImplementor = GetImplementors().FirstOrDefault();
+        if (firstImplementor!=null) {
+          MappingDatabase = firstImplementor.MappingDatabase;
+          MappingSchema = firstImplementor.MappingSchema;
+        }
+      }
+
       // Selecting master parts from paired associations & single associations
       var associations = model.Associations.Find(this)
         .Where(a => a.IsMaster)
