@@ -530,7 +530,7 @@ namespace Xtensive.Orm.Configuration
     {
       if (multischema && string.IsNullOrEmpty(DefaultSchema))
         throw new InvalidOperationException(
-          Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaModeIsActive);
+          Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaOrMultidatabaseModeIsActive);
       
       if (multidatabase && (string.IsNullOrEmpty(DefaultDatabase) || string.IsNullOrEmpty(DefaultSchema)))
         throw new InvalidOperationException(

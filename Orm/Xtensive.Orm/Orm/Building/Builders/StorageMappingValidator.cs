@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Building.Builders
       if (configuration.IsMultischema) {
         if (!hasDefaultSchema)
           throw new InvalidOperationException(
-            Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaModeIsActive);
+            Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaOrMultidatabaseModeIsActive);
         Validator.ValidateName(configuration.DefaultSchema, ValidationRule.Schema);
       }
     }
