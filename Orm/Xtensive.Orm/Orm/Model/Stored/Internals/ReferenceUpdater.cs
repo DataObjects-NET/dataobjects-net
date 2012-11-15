@@ -73,6 +73,23 @@ namespace Xtensive.Orm.Model.Stored
           UpdateFieldDeclaringType(field, type);
         }
         foreach (var association in type.Associations) {
+          // Skip duplicated associations:
+          //
+          //   Due to some ugly code in ConverterToStored model
+          //   inherited interface associtations
+          //   might be assigned to a random implementor.
+          //
+          //   When dealing with multi-database configurations
+          //   this could lead to the single associtation
+          //   being mentioned in the metadata of different databases.
+          //   This will prevent stored model from loading during upgrade.
+          //
+          //   The only stable version that might get into such situation is 4.6.0.
+          //   we need to be able to upgrade from database created by this version.
+          //   Thus we skip duplicated associtations here.
+          //
+          if (associations.ContainsKey(association.Name))
+            continue;
           associations.Add(association.Name, association);
           UpdateAssociationMultiplicity(association);
           UpdateAssociationReferencingField(association);
