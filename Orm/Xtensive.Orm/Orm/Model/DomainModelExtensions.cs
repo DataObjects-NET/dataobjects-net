@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Model
     /// <returns>A result of conversion.</returns>
     public static StoredDomainModel ToStoredModel(this DomainModel model)
     {
-      return ConverterToStoredModel.Convert(model, null);
+      return new ConverterToStoredModel().Convert(model, null);
     }
 
     /// <summary>
@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Model
     /// <returns>A result of conversion.</returns>
     public static StoredDomainModel ToStoredModel(this DomainModel model, Func<TypeInfo, bool> filter)
     {
-      return ConverterToStoredModel.Convert(model, filter);
+      return new ConverterToStoredModel().Convert(model, filter);
     }
 
     /// <summary>

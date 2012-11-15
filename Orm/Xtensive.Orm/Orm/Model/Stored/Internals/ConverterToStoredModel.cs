@@ -11,21 +11,21 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Model.Stored
 {
-  internal static class ConverterToStoredModel
+  internal sealed class ConverterToStoredModel
   {
-    public static StoredDomainModel Convert(DomainModel model, Func<TypeInfo, bool> filter)
+    private HashSet<string> processedAssociations;
+
+    public StoredDomainModel Convert(DomainModel model, Func<TypeInfo, bool> filter)
     {
-      var associationNames = new HashSet<string>();
+      processedAssociations = new HashSet<string>();
       var typesToProcess = model.Types.AsEnumerable();
       if (filter!=null)
         typesToProcess = typesToProcess.Where(filter);
-      var processedTypes = typesToProcess
-        .Select(t => ConvertType(t, associationNames))
-        .ToArray();
+      var processedTypes = typesToProcess.Select(ConvertType).ToArray();
       return new StoredDomainModel {Types = processedTypes};
     }
 
-    private static StoredTypeInfo ConvertType(TypeInfo source, HashSet<string> associationNames)
+    private StoredTypeInfo ConvertType(TypeInfo source)
     {
       var inheritedAssociatedFields = new HashSet<string>();
       var declaredFields = source.Fields
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Model.Stored
         hierarchyRoot = source.Hierarchy.InheritanceSchema.ToString();
       var associations = source.GetOwnerAssociations()
         .Where(a => {
-          if (associationNames.Contains(a.Name))
+          if (processedAssociations.Contains(a.Name))
             return false;
           if (declaredFields.Contains(a.OwnerField))
             return true;
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Model.Stored
         .Select(ConvertAssociation)
         .ToArray();
       foreach (var association in associations)
-        associationNames.Add(association.Name);
+        processedAssociations.Add(association.Name);
 
       var fields = source.Fields
         .Where(field => (field.IsDeclared && !field.IsNested) || inheritedAssociatedFields.Contains(field.Name))
