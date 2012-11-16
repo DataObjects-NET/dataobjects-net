@@ -5,7 +5,7 @@
   <Major>4</Major>
   <Minor>5</Minor>
   <Patch>6</Patch>
-  <Modifier>RC</Modifier>
+  <Modifier>Final</Modifier>
   <BuildNumberBase>8828</BuildNumberBase>
 </PropertyGroup>
 
