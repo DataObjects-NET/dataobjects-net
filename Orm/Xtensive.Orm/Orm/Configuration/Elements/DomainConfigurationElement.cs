@@ -41,6 +41,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string ServiceContainerTypeElementName = "serviceContainerType";
     private const string IncludeSqlInExceptionsElementName = "includeSqlInExceptions";
     private const string BuildInParallelElementName = "buildInParallel";
+    private const string AllowCyclicDatabaseDependenciesElementName = "allowCyclicDatabaseDependencies";
     private const string ForcedServerVersionElementName = "forcedServerVersion";
     private const string SchemaSyncExceptionFormatElementName = "schemaSyncExceptionFormat";
 
@@ -293,6 +294,16 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.AllowCyclicDatabaseDependencies" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(AllowCyclicDatabaseDependenciesElementName, DefaultValue = false)]
+    public bool AllowCyclicDatabaseDependencies
+    {
+      get { return (bool) this[AllowCyclicDatabaseDependenciesElementName]; }
+      set { this[AllowCyclicDatabaseDependenciesElementName] = value; }
+    }
+
+    /// <summary>
     /// <see cref="DomainConfiguration.BuildInParallel" copy="true"/>
     /// </summary>
     [ConfigurationProperty(BuildInParallelElementName,
@@ -340,6 +351,7 @@ namespace Xtensive.Orm.Configuration.Elements
         ServiceContainerType = ServiceContainerType.IsNullOrEmpty() ? null : Type.GetType(ServiceContainerType),
         IncludeSqlInExceptions = IncludeSqlInExceptions,
         BuildInParallel = BuildInParallel,
+        AllowCyclicDatabaseDependencies = AllowCyclicDatabaseDependencies,
         ForcedServerVersion = ForcedServerVersion,
         Collation = Collation,
       };

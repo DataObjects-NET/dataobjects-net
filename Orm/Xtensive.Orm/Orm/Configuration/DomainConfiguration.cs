@@ -97,6 +97,7 @@ namespace Xtensive.Orm.Configuration
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
     private string forcedServerVersion;
     private bool buildInParallel = DefaultBuildInParallel;
+    private bool allowCyclicDatabaseDependencies;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseConfigurationCollection databases = new DatabaseConfigurationCollection();
@@ -411,7 +412,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets or sets indicating whether SQL text of a query
+    /// Gets or sets value indicating whether SQL text of a query
     /// that caused error should be included in exception message.
     /// </summary>
     public bool IncludeSqlInExceptions
@@ -421,6 +422,21 @@ namespace Xtensive.Orm.Configuration
       {
         this.EnsureNotLocked();
         includeSqlInExceptions = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets value indicating whether
+    /// cyclic database dependencies are allowed.
+    /// This option has no effect unless <see cref="IsMultidatabase"/> is true.
+    /// </summary>
+    public bool AllowCyclicDatabaseDependencies
+    {
+      get { return allowCyclicDatabaseDependencies; }
+      set
+      {
+        this.EnsureNotLocked();
+        allowCyclicDatabaseDependencies = value;
       }
     }
 
@@ -576,6 +592,7 @@ namespace Xtensive.Orm.Configuration
       includeSqlInExceptions = configuration.IncludeSqlInExceptions;
       forcedServerVersion = configuration.forcedServerVersion;
       buildInParallel = configuration.buildInParallel;
+      allowCyclicDatabaseDependencies = configuration.allowCyclicDatabaseDependencies;
       collation = configuration.collation;
       schemaSyncExceptionFormat = configuration.schemaSyncExceptionFormat;
       databases = (DatabaseConfigurationCollection) configuration.Databases.Clone();
