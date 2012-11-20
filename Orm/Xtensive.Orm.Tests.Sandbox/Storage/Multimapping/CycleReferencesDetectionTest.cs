@@ -82,7 +82,13 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
 
     private void BuildDomain(params int?[] databaseIndexes)
     {
+      BuildDomain(false, databaseIndexes);
+    }
+
+    private void BuildDomain(bool allowCycles, params int?[] databaseIndexes)
+    {
       var configuration = BuildConfiguration();
+      configuration.AllowCyclicDatabaseDependencies = allowCycles;
 
       var types = new[] {typeof (Type1), typeof (Type2), typeof (Type3), typeof (Type4)};
       var names = new string[types.Length];
@@ -153,6 +159,12 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
     public void Cycle1Test()
     {
       AssertEx.Throws<DomainBuilderException>(() => BuildDomain(1, 1, 2, 2));
+    }
+
+    [Test]
+    public void IgnoreCycles1Test()
+    {
+      BuildDomain(true, 1, 1, 2, 2);
     }
   }
 }

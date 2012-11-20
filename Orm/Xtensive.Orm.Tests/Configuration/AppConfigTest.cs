@@ -119,6 +119,7 @@ namespace Xtensive.Orm.Tests.Configuration
 
     private void ValidateAdvancedMappingConfiguration(DomainConfiguration configuration)
     {
+      Assert.That(configuration.AllowCyclicDatabaseDependencies, Is.True);
       Assert.That(configuration.DefaultDatabase, Is.EqualTo("main"));
 
       Assert.That(configuration.MappingRules.Count, Is.EqualTo(2));

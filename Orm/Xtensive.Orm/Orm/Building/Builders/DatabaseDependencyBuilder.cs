@@ -57,11 +57,12 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
+    private readonly bool allowCyclicDatabaseDependencies;
     private readonly DomainModel model;
     private readonly List<TypeInfo> typesToProcess;
     private readonly HashSet<string> visited = new HashSet<string>();
     private readonly Stack<DatabaseReference> visitSequence = new Stack<DatabaseReference>();
-    private Dictionary<string, DatabaseConfiguration> configurationMap;
+    private readonly Dictionary<string, DatabaseConfiguration> configurationMap;
     private readonly Dictionary<DatabaseReference, TypeReference> referenceRegistry
       = new Dictionary<DatabaseReference, TypeReference>();
 
@@ -83,11 +84,14 @@ namespace Xtensive.Orm.Building.Builders
           referenceRegistry.Add(dbReference, reference);
       }
 
-      // Use DFS to find cycles.
-      // Since number of databases is small, use very inefficient algorithm.
       var databases = typesToProcess.Select(t => t.MappingDatabase).Distinct().ToList();
-      foreach (var database in databases)
-        Visit(database);
+
+      if (!allowCyclicDatabaseDependencies) {
+        // Use DFS to find cycles.
+        // Since number of databases is small, use very inefficient algorithm.
+        foreach (var database in databases)
+          Visit(database);
+      }
 
       // Save calculated reference information in model.
       foreach (var db in databases)
@@ -143,6 +147,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private DatabaseDependencyBuilder(BuildingContext context)
     {
+      allowCyclicDatabaseDependencies = context.Configuration.AllowCyclicDatabaseDependencies;
       model = context.Model;
       typesToProcess = model.Types.Where(t => t.IsEntity).ToList();
       configurationMap = context.Configuration.Databases.ToDictionary(db => db.Name);
