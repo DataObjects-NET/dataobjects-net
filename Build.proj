@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+
+<PropertyGroup>
+  <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
+  <EnableBuildNumber Condition="'$(EnableBuildNumber)'==''">true</EnableBuildNumber>
+  <EnableBinariesZip Condition="'$(EnableBinariesZip)'==''">true</EnableBinariesZip>
+</PropertyGroup>
+
+<PropertyGroup Condition="'$(EnableAllDist)'=='true'">
+  <EnableBinariesZip>true</EnableBinariesZip>
+  <EnableSourcesZip>true</EnableSourcesZip>
+  <EnableDebugSymbolsZip>true</EnableDebugSymbolsZip>
+</PropertyGroup>
+
+<PropertyGroup Condition="'$(EnableAllDist)'=='true' and '$(Configuration)'=='Release'">
+  <EnableSetup>true</EnableSetup>
+  <EnableNuGet>true</EnableNuGet>
+</PropertyGroup>
+
+<ItemGroup>
+  <!-- ProductInfo -->
+  <ProductInfo Include="ProductInfo\ProductInfo.proj">
+    <Properties>EnableBuildNumber=$(EnableBuildNumber)</Properties>
+  </ProductInfo>
+  <!-- Templates -->
+  <TemplatesCS Include="Templates\Templates.proj">
+    <Properties>Language=CSharp</Properties>
+  </TemplatesCS>
+  <TemplatesVB Include="Templates\Templates.proj">
+    <Properties>Language=VisualBasic</Properties>
+  </TemplatesVB>
+  <!-- Binaries -->
+  <BinariesNet35 Include="BuildBinaries.proj">
+    <Properties>Framework=Net35;Configuration=$(Configuration)</Properties>
+  </BinariesNet35>
+  <BinariesNet40 Include="BuildBinaries.proj">
+    <Properties>Framework=Net40;Configuration=$(Configuration)</Properties>
+  </BinariesNet40>
+  <!-- Distribution -->
+  <Distributions Include="Dist\Setup.proj" Condition="'$(EnableSetup)'=='true'">
+    <Properties>Configuration=$(Configuration)</Properties>
+  </Distributions>
+  <Distributions Include="Dist\Zip.Binaries.proj" Condition="'$(EnableBinariesZip)'=='true'">
+    <Properties>Configuration=$(Configuration)</Properties>
+  </Distributions>
+  <Distributions Include="Dist\Zip.Sources.proj" Condition="'$(EnableSourcesZip)'=='true'">
+    <Properties>Configuration=$(Configuration)</Properties>
+  </Distributions>
+  <Distributions Include="Dist\Zip.DebugSymbols.proj" Condition="'$(EnableDebugSymbolsZip)'=='true'">
+    <Properties>Configuration=$(Configuration)</Properties>
+  </Distributions>
+  <Distributions Include="Dist\NuGet.All.proj" Condition="'$(EnableNuGet)'=='true'">
+    <Properties>Configuration=$(Configuration)</Properties>
+  </Distributions>
+</ItemGroup>
+
+<!-- ProductInfo -->
+<Target Name="BuildProductInfo">
+  <MSBuild Projects="@(ProductInfo)" />
+</Target>
+
+<!-- DataObjects.Net.targets -->
+<Target Name="CopyTargetsFile">
+  <Copy SourceFiles="MSBuild\DataObjects.Net.targets"
+        DestinationFolder="_Build\Binaries\$(Configuration)"
+        SkipUnchangedFiles="true" />
+</Target>
+
+<!-- Templates -->
+<Target Name="BuildTemplates" DependsOnTargets="BuildProductInfo">
+  <MSBuild Projects="@(TemplatesCS)" Targets="Build" />
+  <MSBuild Projects="@(TemplatesVB)" Targets="Build" />
+</Target>
+<Target Name="CleanTemplates" DependsOnTargets="BuildProductInfo">
+  <MSBuild Projects="@(TemplatesCS)" Targets="Clean" />
+  <MSBuild Projects="@(TemplatesVB)" Targets="Clean" />
+</Target>
+
+<!-- Binaries -->
+<Target Name="BuildBinaries" DependsOnTargets="BuildProductInfo">
+  <MSBuild Projects="@(BinariesNet35)" Targets="Build" />
+  <MSBuild Projects="@(BinariesNet40)" Targets="Build" />
+</Target>
+<Target Name="CleanBinaries">
+  <MSBuild Projects="@(BinariesNet35)" Targets="Clean" />
+  <MSBuild Projects="@(BinariesNet40)" Targets="Clean" />
+  <RemoveDir Directories="_Build\Binaries\$(Configuration)" />
+</Target>
+
+<!-- Distribution -->
+<Target Name="BuildDist"
+        DependsOnTargets="CopyTargetsFile;BuildProductInfo;BuildBinaries;BuildTemplates">
+  <MSBuild Projects="@(Distributions)" Targets="Build" />
+</Target>
+<Target Name="CleanDist" DependsOnTargets="BuildProductInfo">
+  <MSBuild Projects="@(Distributions)" Targets="Clean" />
+  <RemoveDir Directories="_Build\Dist\$(Configuration)" />
+</Target>
+
+<!-- All-in-one targets -->
+<Target Name="Build" DependsOnTargets="BuildDist" />
+<Target Name="Clean" DependsOnTargets="CleanBinaries;CleanDist;CleanTemplates" />
+<Target Name="Rebuild">
+  <CallTarget Targets="Clean" />
+  <CallTarget Targets="Build" />
+</Target>
+
+</Project>
