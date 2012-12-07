@@ -1,4 +1,10 @@
-﻿using System.Linq;
+﻿// Copyright (C) 2012 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Denis Krjuchkov
+// Created:    2012.12.06
+
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq.GroupByTwoEntitiesWithSameColumnsTestModel;
