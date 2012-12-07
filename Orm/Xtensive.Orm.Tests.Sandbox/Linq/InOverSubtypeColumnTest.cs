@@ -10,14 +10,14 @@ using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Linq;
-using Xtensive.Orm.Tests.Linq.InOverCalculatedFieldTestModel;
+using Xtensive.Orm.Tests.Linq.InOverSubtypeColumnTestModel;
 
 namespace Xtensive.Orm.Tests.Linq
 {
-  namespace InOverCalculatedFieldTestModel
+  namespace InOverSubtypeColumnTestModel
   {
     [HierarchyRoot]
-    public class EntityWithCalculatedField : Entity
+    public class MainEntity : Entity
     {
       [Key, Field]
       public long Id { get; set; }
@@ -53,38 +53,57 @@ namespace Xtensive.Orm.Tests.Linq
     [CompilerContainer(typeof (Expression))]
     public static class Container
     {
-      [Compiler(typeof (EntityWithCalculatedField), "Info", TargetKind.PropertyGet)]
+      [Compiler(typeof (MainEntity), "Info", TargetKind.PropertyGet)]
       public static Expression Info(Expression _this)
       {
-        Expression<Func<EntityWithCalculatedField, string>> expr = e => (e.Reference as Ref).Info;
+        Expression<Func<MainEntity, string>> expr = e => (e.Reference as Ref).Info;
         return expr.BindParameters(_this);
       }
     }
   }
 
-  public class InOverCalculatedFieldTest : AutoBuildTest
+  public class InOverSubtypeColumnTest : AutoBuildTest
   {
     protected override Configuration.DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (EntityWithCalculatedField).Assembly, typeof (EntityWithCalculatedField).Namespace);
+      configuration.Types.Register(typeof (MainEntity).Assembly, typeof (MainEntity).Namespace);
       return configuration;
     }
 
+    public override void TestFixtureSetUp()
+    {
+      base.TestFixtureSetUp();
+
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        new MainEntity {Reference = new RefBase()};
+        new MainEntity {Reference = new Ref {Info = "Don't know"}};
+        new MainEntity {Reference = new Ref {Info = "IDDQD"}};
+        tx.Complete();
+      }
+    }
+
     [Test]
-    public void MainTest()
+    public void CalculatedFieldTest()
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-
-        new EntityWithCalculatedField {Reference = new RefBase()};
-        new EntityWithCalculatedField {Reference = new Ref {Info = "Don't know"}};
-        new EntityWithCalculatedField {Reference = new Ref {Info = "IDDQD"}};
-
-        var result = session.Query.All<EntityWithCalculatedField>()
+        var result = session.Query.All<MainEntity>()
           .Where(e => e.Info.In("IDDQD", "IDFKA"))
           .ToList();
+        Assert.That(result.Count, Is.EqualTo(1));
+      }
+    }
 
+    [Test]
+    public void DirectExpressionTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var result = session.Query.All<MainEntity>()
+          .Where(e => (e.Reference as Ref).Info.In("IDDQD", "IDFKA"))
+          .ToList();
         Assert.That(result.Count, Is.EqualTo(1));
       }
     }
