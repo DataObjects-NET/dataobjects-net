@@ -1,1 +1,2 @@
 [main] Fixed translation of GroupBy() over columns with same name
+[main] Improved diagnostic message when more than one upgrade handler is provided
