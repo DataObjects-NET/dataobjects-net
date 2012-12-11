@@ -2,9 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 <PropertyGroup>
-  <Major>4</Major>
-  <Minor>6</Minor>
-  <Patch>3</Patch>
+  <Version>4.6.3</Version>
   <Modifier>RC</Modifier>
   <BuildNumberBase>8321</BuildNumberBase>
 </PropertyGroup>

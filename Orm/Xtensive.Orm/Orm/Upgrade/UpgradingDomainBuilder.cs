@@ -200,12 +200,12 @@ namespace Xtensive.Orm.Upgrade
       // Adding user handlers
       var handlers = new Dictionary<Assembly, IUpgradeHandler>();
       foreach (var group in userHandlers) {
-        var handler = group.SingleOrDefault();
-        if (handler==null)
+        var candidates = group.ToList();
+        if (candidates.Count > 1)
           throw new DomainBuilderException(
             Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY.FormatWith(
               typeof (IUpgradeHandler).GetShortName(), group.Key));
-        handlers.Add(group.Key, handler);
+        handlers.Add(group.Key, candidates[0]);
       }
 
       // Adding default handlers

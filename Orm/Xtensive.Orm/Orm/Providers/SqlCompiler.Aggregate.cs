@@ -34,11 +34,8 @@ namespace Xtensive.Orm.Providers
         var columnIndex = provider.GroupColumnIndexes[i];
         var column = columns[columnIndex];
         sqlSelect.GroupBy.Add(column);
-        if (!(column is SqlColumn)) {
-          var columnName = ProcessAliasedName(columnNames[columnIndex]);
-          column = SqlDml.ColumnRef(SqlDml.Column(column), columnName);
-        }
-        sqlSelect.Columns.Add(column);
+        var columnName = ProcessAliasedName(columnNames[columnIndex]);
+        sqlSelect.Columns.Add(column, columnName);
       }
 
       foreach (var column in provider.AggregateColumns) {
