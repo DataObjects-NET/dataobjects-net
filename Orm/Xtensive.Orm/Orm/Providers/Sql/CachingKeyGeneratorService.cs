@@ -160,8 +160,9 @@ namespace Xtensive.Orm.Providers.Sql
     /// <exception cref="InvalidOperationException">Required schema object is not found.</exception>
     protected virtual ISqlCompileUnit GetTableBasedNextImplementation(KeyGenerator generator, ProviderInfo providerInfo, Schema schema, string sequenceMappingName)
     {
+      var comparer = StringComparer.OrdinalIgnoreCase;
       var table = schema.Tables
-        .FirstOrDefault(t => StringComparer.OrdinalIgnoreCase.Equals(t.Name, sequenceMappingName));
+        .FirstOrDefault(t => comparer.Equals(t.Name, sequenceMappingName));
       if (table==null)
         throw new InvalidOperationException(
           string.Format(Strings.ExTableXIsNotFound, sequenceMappingName));

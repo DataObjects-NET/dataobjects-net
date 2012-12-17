@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Configuration
       get
       {
         foreach (var item in this)
-          if (Comparer.Compare(item.Name, name)==0)
+          if (Comparer.Equals(item.Name, name))
             return item;
         return IsLocked ? Default : null;
       }

@@ -44,9 +44,10 @@ namespace Xtensive.Orm.Upgrade
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return base.Equals(other) 
+      var comparer = StringComparer.OrdinalIgnoreCase;
+      return base.Equals(other)
         && other.Type==Type 
-        && StringComparer.OrdinalIgnoreCase.Equals(other.FieldName, FieldName);
+        && comparer.Equals(other.FieldName, FieldName);
     }
 
     /// <inheritdoc/>

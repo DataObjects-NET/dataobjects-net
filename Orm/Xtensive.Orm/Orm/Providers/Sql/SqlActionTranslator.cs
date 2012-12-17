@@ -970,7 +970,7 @@ namespace Xtensive.Orm.Providers.Sql
     {
       var tempName = string.Format(TemporaryNameFormat, column.Name);
       var counter = 0;
-      while (column.Table.Columns.Any(tableColumn => stringComparer.Compare(tableColumn.Name, tempName) == 0))
+      while (column.Table.Columns.Any(tableColumn => stringComparer.Equals(tableColumn.Name, tempName)))
         tempName = string.Format(TemporaryNameFormat, column.Name + ++counter);
 
       return tempName;
@@ -978,19 +978,19 @@ namespace Xtensive.Orm.Providers.Sql
 
     private Table FindTable(string name)
     {
-      return schema.Tables.FirstOrDefault(t => stringComparer.Compare(t.Name, name) == 0);
+      return schema.Tables.FirstOrDefault(t => stringComparer.Equals(t.Name, name));
     }
 
     private TableColumn FindColumn(Table table, string name)
     {
       return table.TableColumns.
-        FirstOrDefault(c => stringComparer.Compare(c.Name, name) == 0);
+        FirstOrDefault(c => stringComparer.Equals(c.Name, name));
     }
 
     private TableColumn FindColumn(string tableName, string columnName)
     {
       return FindTable(tableName).TableColumns.
-        FirstOrDefault(c => stringComparer.Compare(c.Name, columnName) == 0);
+        FirstOrDefault(c => stringComparer.Equals(c.Name, columnName));
     }
 
     private static SqlRefAction ConvertReferentialAction(ReferentialAction toConvert)
