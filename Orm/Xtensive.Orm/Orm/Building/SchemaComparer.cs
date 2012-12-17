@@ -26,6 +26,8 @@ namespace Xtensive.Orm.Building
   /// </summary>
   internal static class SchemaComparer
   {
+    private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
+
     /// <summary>
     /// Compares <paramref name="sourceSchema"/> and <paramref name="targetSchema"/>.
     /// </summary>
@@ -55,7 +57,7 @@ namespace Xtensive.Orm.Building
       // Legacy comparison
 
       var systemTablesSequence = model.Types.Where(type => type.IsSystem).Select(type => type.MappingName);
-      var systemTables = new HashSet<string>(systemTablesSequence, StringComparer.OrdinalIgnoreCase);
+      var systemTables = new HashSet<string>(systemTablesSequence, Comparer);
 
       var createTableActions = actionList
         .OfType<CreateNodeAction>()
@@ -133,7 +135,7 @@ namespace Xtensive.Orm.Building
 
       // GetUnsafeColumnActions(actions, columnsWithHints, IsUnsafeTypeChangeAction, output);
 
-      var safeColumns = new HashSet<string>(columnsWithHints, StringComparer.OrdinalIgnoreCase);
+      var safeColumns = new HashSet<string>(columnsWithHints, Comparer);
 
       var unsafeActions = actions
         .Where(IsUnsafeTypeChangeAction)
@@ -154,9 +156,9 @@ namespace Xtensive.Orm.Building
       IEnumerable<NodeAction> actions, IEnumerable<string> columnsWithHints,
       Func<NodeAction, bool> unsafeActionFilter, ICollection<NodeAction> output)
     {
-      var safeColumns = new HashSet<string>(columnsWithHints, StringComparer.OrdinalIgnoreCase);
-      var tableMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-      var reverseTableMapping = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+      var safeColumns = new HashSet<string>(columnsWithHints, Comparer);
+      var tableMapping = new Dictionary<string, string>(Comparer);
+      var reverseTableMapping = new Dictionary<string, string>(Comparer);
 
       foreach (var action in actions) {
         if (IsTableAction(action)) {
@@ -214,7 +216,7 @@ namespace Xtensive.Orm.Building
       actions
         .OfType<RemoveNodeAction>()
         .Where(IsTableAction)
-        .Where(a => !safeTableRemovals.Contains(a.Path, StringComparer.OrdinalIgnoreCase))
+        .Where(a => !safeTableRemovals.Contains(a.Path, Comparer))
         .ForEach(output.Add);
     }
 

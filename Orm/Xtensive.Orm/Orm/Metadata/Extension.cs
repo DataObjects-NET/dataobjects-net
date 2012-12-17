@@ -52,8 +52,8 @@ namespace Xtensive.Orm.Metadata
     /// </returns>
     protected override bool IsReadOnly()
     {
-      return base.IsReadOnly() 
-        && StringComparer.OrdinalIgnoreCase.Compare(Name, WellKnown.DomainModelExtensionName) == 0;
+      var comparer = StringComparer.OrdinalIgnoreCase;
+      return base.IsReadOnly() && comparer.Equals(Name, WellKnown.DomainModelExtensionName);
     }
 
 

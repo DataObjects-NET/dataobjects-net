@@ -63,6 +63,7 @@ namespace Xtensive.Orm.Providers.Sql
     private readonly List<Sequence> createdSequences = new List<Sequence>();
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
     private UpgradeStage currentUpgradeStage;
+
     private static StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
 
     private bool IsSequencesAllowed
@@ -802,7 +803,7 @@ namespace Xtensive.Orm.Providers.Sql
 
       // Copy values if possible to convert type
       if (TypeConversionVerifier.CanConvert(sourceColumn.Type, newTypeInfo)
-        || enforceChangedColumns.Contains(sourceColumn.Path, StringComparer.OrdinalIgnoreCase)) {
+        || enforceChangedColumns.Contains(sourceColumn.Path, stringComparer)) {
         var tableRef = SqlDml.TableRef(table);
         var copyValues = SqlDml.Update(tableRef);
         if (newTypeInfo.IsNullable) {

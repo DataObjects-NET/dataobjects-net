@@ -161,7 +161,7 @@ namespace Xtensive.Orm.Providers.Sql
     protected virtual ISqlCompileUnit GetTableBasedNextImplementation(KeyGenerator generator, ProviderInfo providerInfo, Schema schema, string sequenceMappingName)
     {
       var table = schema.Tables
-        .FirstOrDefault(t => StringComparer.OrdinalIgnoreCase.Compare(t.Name, sequenceMappingName) == 0);
+        .FirstOrDefault(t => StringComparer.OrdinalIgnoreCase.Equals(t.Name, sequenceMappingName));
       if (table==null)
         throw new InvalidOperationException(
           string.Format(Strings.ExTableXIsNotFound, sequenceMappingName));
