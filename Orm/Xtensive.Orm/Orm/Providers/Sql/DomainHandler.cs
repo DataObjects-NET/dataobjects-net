@@ -144,6 +144,7 @@ namespace Xtensive.Orm.Providers.Sql
       var context = UpgradeContext.Demand();
       Schema = (Schema) Handlers.SchemaUpgradeHandler.GetNativeExtractedSchema(); 
       var domainModel = Handlers.Domain.Model;
+      var comparer = StringComparer.OrdinalIgnoreCase;
 
       foreach (var type in domainModel.Types) {
         var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Real | IndexAttributes.Primary);
@@ -162,7 +163,7 @@ namespace Xtensive.Orm.Providers.Sql
         foreach (var column in primaryIndex.Columns) {
           var storageColumnName = Domain.Handlers.NameBuilder.BuildTableColumnName(column);
           var storageColumn = storageTable.TableColumns
-            .FirstOrDefault(dataTableColumn => dataTableColumn.Name==storageColumnName);
+            .FirstOrDefault(dataTableColumn => comparer.Equals(dataTableColumn.Name, storageColumnName));
           if (storageColumn==null)
             throw new DomainBuilderException(
               string.Format(Strings.ExColumnXIsNotFoundInTableY, storageColumnName, storageTableName));
