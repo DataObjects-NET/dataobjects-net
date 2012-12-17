@@ -2335,4 +2335,7 @@ Error: {1}</value>
     <data name="LogFullTextIndexesAreNotSupportedByCurrentStorageIgnoringIndexX">
         <value xml:space="preserve">Full text indexes are not supported by current storage, ignoring index '{0}'</value>
     </data>
+	<data name="ExExceptionHasBeenThrownByTheParameterValueAccessor">
+		<value xml:space="preserve">Exception has been thrown by the parameter value accessor.</value>
+	</data>
 </root>
