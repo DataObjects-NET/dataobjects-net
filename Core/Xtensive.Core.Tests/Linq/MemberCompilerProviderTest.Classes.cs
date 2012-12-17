@@ -41,6 +41,11 @@ namespace Xtensive.Tests.Linq
         return new T1();
       }
 
+      public int MethodWithBuggyCompiler()
+      {
+        return 0;
+      }
+
       public static int StaticProperty { get; set; }
 
       public string InstanceProperty { get; set; }
@@ -170,6 +175,12 @@ namespace Xtensive.Tests.Linq
       static public string C4(MemberInfo memberInfo, string this_)
       {
         return "NonGenericTarget.InstanceGenericMethod";
+      }
+
+      [Compiler(typeof (NonGenericTarget), "MethodWithBuggyCompiler")]
+      static public string CompilerWithException(string this_)
+      {
+        throw new NotImplementedException();
       }
 
       #endregion

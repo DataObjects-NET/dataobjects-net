@@ -918,4 +918,7 @@
   <data name="ExExpression0MustReferenceProperty">
     <value><![CDATA[Expression '{0}' must reference property.]]></value>
   </data>
+	<data name="ExExceptionHasBeenThrownByTheUserMemberCompiler">
+		<value xml:space="preserve">Exception has been thrown by the user member compiler.</value>
+	</data>
 </root>
