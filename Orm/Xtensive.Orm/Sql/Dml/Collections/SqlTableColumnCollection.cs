@@ -15,6 +15,8 @@ namespace Xtensive.Sql.Dml
   public class SqlTableColumnCollection
     : ReadOnlyCollection<SqlTableColumn>
   {
+    private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
+
     /// <summary>
     /// An indexer that provides access to collection items by their names.
     /// Returns <see langword="null"/> if there is no such item.
@@ -25,10 +27,9 @@ namespace Xtensive.Sql.Dml
       {
         if (string.IsNullOrEmpty(name))
           return null;
-        foreach (SqlTableColumn column in this) {
-          if (column.Name == name)
+        foreach (SqlTableColumn column in this)
+          if (Comparer.Equals(column.Name, name))
             return column;
-        }
         return null;
       }
     }

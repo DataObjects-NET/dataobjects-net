@@ -56,6 +56,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly List<Sequence> createdSequences = new List<Sequence>();
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
 
+
     private UpgradeActionSequenceBuilder currentOutput;
 
     private bool translated;
@@ -843,7 +844,7 @@ namespace Xtensive.Orm.Upgrade
 
       // Copy values if possible to convert type
       if (TypeConversionVerifier.CanConvert(sourceColumn.Type, newTypeInfo)
-        || enforceChangedColumns.Contains(sourceColumn.Path, StringComparer.OrdinalIgnoreCase)) {
+        || enforceChangedColumns.Contains(sourceColumn.Path, StringComparer)) {
         var tableRef = SqlDml.TableRef(table);
         var copyValues = SqlDml.Update(tableRef);
         if (newTypeInfo.IsNullable) {
@@ -1015,7 +1016,7 @@ namespace Xtensive.Orm.Upgrade
     {
       var tempName = string.Format(TemporaryNameFormat, column.Name);
       var counter = 0;
-      while (column.Table.Columns.Any(c => StringComparer.Compare(c.Name, tempName)==0))
+      while (column.Table.Columns.Any(tableColumn => StringComparer.Equals(tableColumn.Name, tempName)))
         tempName = string.Format(TemporaryNameFormat, column.Name + ++counter);
       return tempName;
     }

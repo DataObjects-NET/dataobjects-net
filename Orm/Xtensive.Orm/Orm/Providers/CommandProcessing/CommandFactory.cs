@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
@@ -99,7 +100,7 @@ namespace Xtensive.Orm.Providers
 
       using (parameterContext.ActivateSafely()) {
         foreach (var binding in request.ParameterBindings) {
-          object parameterValue = binding.ValueAccessor.Invoke();
+          object parameterValue = GetParameterValue(binding);
           switch (binding.BindingType) {
           case QueryParameterBindingType.Regular:
             break;
@@ -164,7 +165,17 @@ namespace Xtensive.Orm.Providers
       result.Statement = compilationResult.GetCommandText(configuration);
       return result;
     }
-    
+
+    private static object GetParameterValue(QueryParameterBinding binding)
+    {
+      try {
+        return binding.ValueAccessor.Invoke();
+      }
+      catch(Exception exception) {
+        throw new TargetInvocationException(Strings.ExExceptionHasBeenThrownByTheParameterValueAccessor, exception);
+      }
+    }
+
     private void AddRegularParameter(CommandPart commandPart, TypeMapping mapping, string name, object value)
     {
       var parameter = Connection.CreateParameter();

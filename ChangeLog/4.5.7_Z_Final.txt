@@ -1,2 +1,4 @@
 [main] Fixed translation of GroupBy() over columns with same name
 [main] Improved diagnostic message when more than one upgrade handler is provided
+[main] Fixed error after changing case of a persistent field
+[main] Wrap exceptions occured within user code with TargetInvocationException

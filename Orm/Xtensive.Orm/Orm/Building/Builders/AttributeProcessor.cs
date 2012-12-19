@@ -311,9 +311,8 @@ namespace Xtensive.Orm.Building.Builders
 
       Validator.ValidateName(mappingName, rule);
 
-      if (Comparer.Compare(node.MappingName, mappingName)==0)
-        BuildLog.Warning(
-          Strings.ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically, node.MappingName);
+      if (Comparer.Equals(node.MappingName, mappingName))
+        BuildLog.Warning(Strings.ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically, node.MappingName);
       else
         node.MappingName = mappingName;
     }

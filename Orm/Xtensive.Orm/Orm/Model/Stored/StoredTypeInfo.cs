@@ -161,13 +161,13 @@ namespace Xtensive.Orm.Model.Stored
       while (true) {
         var dotIndex = fieldName.IndexOf('.', startIndex);
         if (dotIndex < 0) {
-          return fields.SingleOrDefault(f => comparer.Compare(f.Name, fieldName) == 0);
+          return fields.SingleOrDefault(f => comparer.Equals(f.Name, fieldName));
         }
 
         startIndex = dotIndex + 1;
         var structureFieldName = fieldName.Substring(0, dotIndex);
-        var field = fields.SingleOrDefault(f => comparer.Compare(f.Name, structureFieldName) == 0);
-        if (field == null)
+        var field = fields.SingleOrDefault(f => comparer.Equals(f.Name, structureFieldName));
+        if (field==null)
           return null;
 
         fields = field.Fields;

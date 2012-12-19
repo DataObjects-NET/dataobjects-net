@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Configuration
   public class SessionConfigurationCollection : CollectionBaseSlim<SessionConfiguration>, 
     ICloneable
   {
-    private static readonly StringComparer comparer = StringComparer.OrdinalIgnoreCase;
+    private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
 
     private SessionConfiguration @default;
     private SessionConfiguration system;
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Configuration
       get
       {
         foreach (var item in this)
-          if (comparer.Compare(item.Name, name)==0)
+          if (Comparer.Equals(item.Name, name))
             return item;
         return IsLocked ? Default : null;
       }

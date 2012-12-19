@@ -19,6 +19,8 @@ namespace Xtensive.Sql.Model
   public class NodeCollection<TNode>: CollectionBaseSlim<TNode>
     where TNode: Node
   {
+    private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
+
     private readonly IDictionary<string, TNode> nameIndex;
 
     /// <summary>
@@ -80,7 +82,7 @@ namespace Xtensive.Sql.Model
     public NodeCollection(int capacity)
       : base(capacity)
     {
-      nameIndex = new Dictionary<string, TNode>(capacity, StringComparer.OrdinalIgnoreCase);
+      nameIndex = new Dictionary<string, TNode>(capacity, Comparer);
     }
   }
 }

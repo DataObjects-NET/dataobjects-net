@@ -270,8 +270,20 @@ namespace Xtensive.Orm.Linq.MemberCompilation
           Strings.ExTargetMemberIsNotFoundForCompilerX,
           compiler.GetFullName(true)));
 
-      var invoker = CreateInvoker(compiler, isStatic || isCtor, isGeneric);
+      var invoker = WrapInvoker(CreateInvoker(compiler, isStatic || isCtor, isGeneric));
       return new MemberCompilerRegistration(targetMember, invoker);
+    }
+
+    private static Func<MemberInfo, T, T[], T> WrapInvoker(Func<MemberInfo, T, T[], T> invoker)
+    {
+      return (member, instance, args) => {
+        try {
+          return invoker.Invoke(member, instance, args);
+        }
+        catch (Exception exception) {
+          throw new TargetInvocationException(Strings.ExExceptionHasBeenThrownByTheUserMemberCompiler, exception);
+        }
+      };
     }
 
     private static Func<MemberInfo, T, T[], T> CreateInvoker(MethodInfo compiler, bool targetIsStaticOrCtor, bool targetIsGeneric)

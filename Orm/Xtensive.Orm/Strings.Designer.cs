@@ -1689,6 +1689,24 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Exception has been thrown by the parameter value accessor..
+        /// </summary>
+        internal static string ExExceptionHasBeenThrownByTheParameterValueAccessor {
+            get {
+                return ResourceManager.GetString("ExExceptionHasBeenThrownByTheParameterValueAccessor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exception has been thrown by the user member compiler..
+        /// </summary>
+        internal static string ExExceptionHasBeenThrownByTheUserMemberCompiler {
+            get {
+                return ResourceManager.GetString("ExExceptionHasBeenThrownByTheUserMemberCompiler", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ExcludeFields does not support query provider of type &apos;{0}&apos;..
         /// </summary>
         internal static string ExExcludeFieldsDoesNotSupportQueryProviderOfTypeX {

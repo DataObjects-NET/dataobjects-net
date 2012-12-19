@@ -11,6 +11,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm.Linq.MemberCompilation;
 using Xtensive.Reflection;
+using Xtensive.Testing;
 
 namespace Xtensive.Orm.Tests.Linq
 {
@@ -190,6 +191,18 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.IsNotNull(property);
       var result = provider.GetCompiler(property);
       Assert.IsNull(result);
+    }
+
+    [Test]
+    public void ExceptionWrappingTest()
+    {
+      var provider = MemberCompilerProviderFactory.Create<string>();
+      provider.RegisterCompilers(typeof (MethodCompiler));
+      var method = typeof (NonGenericTarget).GetMethod("MethodWithBuggyCompiler", BindingFlags.Instance | BindingFlags.Public);
+      Assert.IsNotNull(method);
+      var compiler = provider.GetCompiler(method);
+      Assert.IsNotNull(compiler);
+      AssertEx.Throws<TargetInvocationException>(() => compiler.Invoke(null, new string[0]));
     }
   }
 }
