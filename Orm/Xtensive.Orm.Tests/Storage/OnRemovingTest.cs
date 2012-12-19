@@ -6,11 +6,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Storage;
-using Xtensive.Storage.Configuration;
-using Xtensive.Storage.Tests.Storage.OnRemovingTestModel;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Storage.OnRemovingTestModel;
 
-namespace Xtensive.Storage.Tests.Storage.OnRemovingTestModel
+namespace Xtensive.Orm.Tests.Storage.OnRemovingTestModel
 {
   [HierarchyRoot]
   public class Victim : Entity
@@ -62,7 +61,7 @@ namespace Xtensive.Storage.Tests.Storage.OnRemovingTestModel
   }
 }
 
-namespace Xtensive.Storage.Tests.Storage
+namespace Xtensive.Orm.Tests.Storage
 {
   public class OnRemovingTest : AutoBuildTest
   {
@@ -76,13 +75,13 @@ namespace Xtensive.Storage.Tests.Storage
     [Test]
     public void MainTest()
     {
-      using (Session.Open(Domain)) {
-        using (var t = Transaction.Open()) {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
 
           var k = new Killer("K");
           k.Victims.Add(new Victim("V"));
 
-          Session.Current.Persist();
+          session.SaveChanges();
 
           k.Remove();
           // Rollback

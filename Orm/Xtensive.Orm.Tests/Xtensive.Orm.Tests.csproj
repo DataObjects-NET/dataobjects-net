@@ -281,6 +281,7 @@
     <Compile Include="Storage\NonPersistentCompositeObjectTest.cs" />
     <Compile Include="Storage\NorthwindValidateTest.cs" />
     <Compile Include="Storage\NotifyXxxTest.cs" />
+    <Compile Include="Storage\OnRemovingTest.cs" />
     <Compile Include="Storage\OperationOrderTest.cs" />
     <Compile Include="Storage\ReadRemovedObjectTest.cs" />
     <Compile Include="Storage\RefTest.cs" />
