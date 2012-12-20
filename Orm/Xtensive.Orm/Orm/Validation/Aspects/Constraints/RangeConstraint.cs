@@ -6,11 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.Serialization;
 using PostSharp.Aspects.Dependencies;
 using Xtensive.Aspects;
-using Xtensive.Collections;
 using Xtensive.Comparison;
 using Xtensive.Threading;
 
@@ -22,15 +19,70 @@ namespace Xtensive.Orm.Validation
   [Serializable]
   [ProvideAspectRole(StandardRoles.Validation)]
   [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
-  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(InconsistentRegionAttribute))]
-  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
-  public sealed class RangeConstraint : PropertyConstraintAspect, IDeserializationCallback
+  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof (InconsistentRegionAttribute))]
+  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof (ReplaceAutoProperty))]
+  public sealed class RangeConstraint : PropertyConstraintAspect
   {
+    private abstract class RangeValidator
+    {
+      protected abstract void Initialize(object min, object max);
+
+      public abstract bool Validate(object value);
+
+      public static RangeValidator Create(Type valueType, object min, object max)
+      {
+        var validatorType = typeof (RangeValidatorImplementation<>).MakeGenericType(valueType);
+        var result = (RangeValidator) Activator.CreateInstance(validatorType);
+        result.Initialize(min, max);
+        return result;
+      }
+    }
+
+    private sealed class RangeValidatorImplementation<TValue> : RangeValidator
+    {
+      private Func<TValue, TValue, int> comparer;
+
+      private bool hasMin;
+      private bool hasMax;
+
+      private TValue min;
+      private TValue max;
+
+      protected override void Initialize(object minObj, object maxObj)
+      {
+        if (!typeof (IComparable<TValue>).IsAssignableFrom(typeof (TValue)))
+          throw new ArgumentException(string.Format(Strings.ExComparerForTypeXIsNotFound, typeof (TValue)));
+
+        comparer = AdvancedComparer<TValue>.System.Compare;
+
+        if (minObj!=null) {
+          min = (TValue) Convert.ChangeType(minObj, typeof (TValue));
+          hasMin = true;
+        }
+
+        if (maxObj!=null) {
+          max = (TValue) Convert.ChangeType(maxObj, typeof (TValue));
+          hasMax = true;
+        }
+      }
+
+      public override bool Validate(object value)
+      {
+        var typedValue = (TValue) value;
+
+        return (!hasMin || comparer.Invoke(typedValue, min) >= 0)
+          && (!hasMax || comparer.Invoke(typedValue, max) <= 0);
+      }
+    }
+
     private const string MinParameter = "Min";
     private const string MaxParameter = "Max";
+
     [NonSerialized]
-    private ThreadSafeCached<Func<object, object, int>> cachedComparer = 
-      ThreadSafeCached<Func<object, object, int>>.Create(new object());
+    private RangeValidator nonGenericValidator;
+
+    [NonSerialized]
+    private ThreadSafeDictionary<Type, RangeValidator> genericValidators;
 
     /// <summary>
     /// Gets or sets the minimal allowed value.
@@ -49,16 +101,19 @@ namespace Xtensive.Orm.Validation
     /// <inheritdoc/>
     public override bool CheckValue(object value)
     {
-      var comparer = GetCachedComparer();
-      return 
-        comparer.Invoke(value, Min) >= 0 && 
-          comparer.Invoke(value, Max) <= 0;
+      if (value==null)
+        return true;
+
+      var validator = nonGenericValidator
+        ?? genericValidators.GetValue(value.GetType(), RangeValidator.Create, Min, Max);
+
+      return validator.Validate(value);
     }
 
     /// <inheritdoc/>
     public override bool IsSupported(Type valueType)
     {
-      return valueType==Property.PropertyType;
+      return true;
     }
 
     /// <inheritdoc/>
@@ -66,32 +121,16 @@ namespace Xtensive.Orm.Validation
     {
       if (Max==null && Min==null)
         throw new ArgumentException(Strings.ExMaxOrMinPropertyMustBeSpecified);
-
-      if (Max!=null)
-        Convert.ChangeType(Max, Property.PropertyType);
-      if (Min!=null)
-        Convert.ChangeType(Min, Property.PropertyType);
-
-      // Checking if a comparer we need exists
-      Func<object, object, int> comparer = null;
-      try {
-        comparer = GetCachedComparer();
-      }
-      catch {}
-
-      if (comparer==null)
-        throw new ArgumentException(
-          string.Format(Strings.ExComparerForTypeXIsNotFound, Property.PropertyType));
     }
 
     /// <inheritdoc/>
     protected override string GetDefaultMessage()
     {
-      if (Max == null && Min == null)
+      if (Max==null && Min==null)
         return string.Empty;
-      if (Min == null)
+      if (Min==null)
         return Strings.ConstraintMessageValueCanNotBeGreaterThanMax;
-      if (Max == null)
+      if (Max==null)
         return Strings.ConstraintMessageValueCanNotBeLessThanMin;
       return Strings.ConstraintMessageValueCanNotBeLessThanMinOrGreaterThanMax;
     }
@@ -99,58 +138,20 @@ namespace Xtensive.Orm.Validation
     /// <inheritdoc/>
     protected override void AddCustomMessageParameters(Dictionary<string, object> parameters)
     {
-      if (Min != null)
+      if (Min!=null)
         parameters.Add(MinParameter, Min);
-      if (Max != null)
+      if (Max!=null)
         parameters.Add(MaxParameter, Max);
     }
-
-    #region Private \ internal methods
-
-    private Func<object, object, int> GetCachedComparer()
-    {
-      return cachedComparer.GetValue(
-        _this => _this
-          .GetType()
-          .GetMethod("GetComparer",
-            BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null)
-          .GetGenericMethodDefinition()
-          .MakeGenericMethod(new[] {_this.Property.PropertyType})
-          .Invoke(_this, null) as Func<object, object, int>, 
-        this);
-    }
-
-// ReSharper disable UnusedMember.Local
-    private Func<object, object, int> GetComparer<T>()
-// ReSharper restore UnusedMember.Local
-    {
-      if (!typeof(IComparable<T>).IsAssignableFrom(typeof(T)))
-        return null;
-      var compare = AdvancedComparer<T>.System.Compare;
-      if (compare==null)
-        return null;
-      return (l, r) => r==null ? 0 : compare((T) l, (T) r);
-    }
-
-    #endregion
 
     /// <inheritdoc/>
     protected override void Initialize()
     {
-      if (Max!=null)
-        Max = Convert.ChangeType(Max, Property.PropertyType);
-      if (Min!=null)
-        Min = Convert.ChangeType(Min, Property.PropertyType);
-    }
-
-
-    // Constructors
-
-    /// <inheritdoc/>
-    void IDeserializationCallback.OnDeserialization(object sender)
-    {
-      if (cachedComparer.SyncRoot==null)
-        cachedComparer = ThreadSafeCached<Func<object, object, int>>.Create(new object());
+      var targetType = Property.DeclaringType;
+      if (targetType.IsGenericType)
+        genericValidators = ThreadSafeDictionary<Type, RangeValidator>.Create(new object());
+      else
+        nonGenericValidator = RangeValidator.Create(Property.PropertyType, Min, Max);
     }
   }
 }

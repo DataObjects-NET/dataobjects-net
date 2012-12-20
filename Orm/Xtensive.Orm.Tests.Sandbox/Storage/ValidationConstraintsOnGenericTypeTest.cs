@@ -9,25 +9,19 @@ using NUnit.Framework;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Tests.Storage.ValidationConstraintsOnGenericTypeTestModel;
 using Xtensive.Orm.Validation;
-using Xtensive.Testing;
 
 namespace Xtensive.Orm.Tests.Storage
 {
   namespace ValidationConstraintsOnGenericTypeTestModel
   {
-    public sealed class Folder<T> : EntityBase
+    public sealed class GenericEntity<T> : EntityBase
     {
       [Field(Length = 255, DefaultValue = "")]
       [NotNullOrEmptyConstraint]
       public string Name { get; set; }
 
-      [Field]
-      [Association(PairTo = "Parent")]
-      public EntitySet<Folder<T>> Folders { get; set; }
-
-      [Field]
-      [Association(OnOwnerRemove = OnRemoveAction.Clear, OnTargetRemove = OnRemoveAction.Deny)]
-      public Folder<T> Parent { get; set; }
+      [Field, RangeConstraint(Min = 0, Max = 100)]
+      public T Value { get; set; }
     }
 
     [HierarchyRoot(InheritanceSchema = InheritanceSchema.ConcreteTable)]
@@ -44,16 +38,19 @@ namespace Xtensive.Orm.Tests.Storage
     protected override Configuration.DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Folder<int>));
+      configuration.Types.Register(typeof (GenericEntity<int>));
       return configuration;
     }
 
-    [Test, ExpectedException(typeof (Core.AggregateException))]
+    [Test]
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var entity = new Folder<int>();
+      using (var tx = session.OpenTransaction())
+      using (session.DisableValidation()) {
+        var entity = new GenericEntity<int>();
+        entity.Name = entity.Id.ToString();
+        entity.Value = 5;
         tx.Complete();
       }
     }
