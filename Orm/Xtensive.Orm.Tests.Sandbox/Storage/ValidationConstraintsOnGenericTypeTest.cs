@@ -38,19 +38,45 @@ namespace Xtensive.Orm.Tests.Storage
     protected override Configuration.DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (GenericEntity<int>));
+      configuration.Types.Register(typeof (GenericEntity<long>));
       return configuration;
     }
 
     [Test]
-    public void MainTest()
+    public void SuccessTest()
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction())
       using (session.DisableValidation()) {
-        var entity = new GenericEntity<int>();
+        var entity = new GenericEntity<long>();
         entity.Name = entity.Id.ToString();
         entity.Value = 5;
+        tx.Complete();
+      }
+    }
+
+    [Test, ExpectedException(typeof (Core.AggregateException))]
+    public void Failure1Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction())
+      using (session.DisableValidation()) {
+        var entity = new GenericEntity<long>();
+        entity.Name = entity.Id.ToString();
+        entity.Value = -1;
+        session.Validate();
+        tx.Complete();
+      }
+    }
+
+    [Test, ExpectedException(typeof (Core.AggregateException))]
+    public void Failure2Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction())
+      using (session.DisableValidation()) {
+        var entity = new GenericEntity<long>();
+        session.Validate();
         tx.Complete();
       }
     }
