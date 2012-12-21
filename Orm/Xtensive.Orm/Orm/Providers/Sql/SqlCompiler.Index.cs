@@ -62,16 +62,16 @@ namespace Xtensive.Orm.Providers.Sql
 
       SqlSelect query;
       if (!atRootPolicy) {
-        var tableRef = SqlDml.TableRef(table, index.Columns.Select(c => c.Name));
+        var tableRef = SqlDml.TableRef(table);
         query = SqlDml.Select(tableRef);
-        query.Columns.AddRange(tableRef.Columns.Cast<SqlColumn>());
+        query.Columns.AddRange(index.Columns.Select(c => tableRef[c.Name]));
       }
       else {
         var root = index.ReflectedType.GetRoot().AffectedIndexes.First(i => i.IsPrimary);
         var lookup = root.Columns.ToDictionary(c => c.Field, c => c.Name);
-        var tableRef = SqlDml.TableRef(table, index.Columns.Select(c => lookup[c.Field]));
+        var tableRef = SqlDml.TableRef(table);
         query = SqlDml.Select(tableRef);
-        query.Columns.AddRange(tableRef.Columns.Cast<SqlColumn>());
+        query.Columns.AddRange(index.Columns.Select(c => tableRef[lookup[c.Field]]));
       }
       return query;
     }
