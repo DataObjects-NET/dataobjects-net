@@ -14,8 +14,6 @@ using PostSharp.Aspects.Internals;
 using PostSharp.Extensibility;
 using Xtensive.Aspects;
 using Xtensive.Aspects.Helpers;
-using Xtensive.Collections;
-using Xtensive.Core;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Validation
@@ -25,25 +23,61 @@ namespace Xtensive.Orm.Validation
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = false)]
-  [MulticastAttributeUsage(MulticastTargets.Method, TargetMemberAttributes = MulticastAttributes.Instance, 
-    PersistMetaData = true)]
+  [MulticastAttributeUsage(MulticastTargets.Method, TargetMemberAttributes = MulticastAttributes.Instance, PersistMetaData = true)]
   [ProvideAspectRole(StandardRoles.Validation)]
   [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
-  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(InconsistentRegionAttribute))]
-  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
+  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof (InconsistentRegionAttribute))]
+  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof (ReplaceAutoProperty))]
   public abstract class PropertyConstraintAspect : OnMethodBoundaryAspect
   {
+    private abstract class PropertyGetter
+    {
+      protected abstract void Initialize(string propertyName);
+
+      public abstract object Invoke(object target);
+
+      public static PropertyGetter Create(Type targetType, string propertyName)
+      {
+        var property = targetType.GetProperty(propertyName);
+        var propertyType = property.PropertyType;
+        var getterType = typeof (PropertyGetterImplementation<,>)
+          .MakeGenericType(targetType, propertyType);
+        var result = (PropertyGetter) Activator.CreateInstance(getterType);
+        result.Initialize(propertyName);
+        return result;
+      }
+    }
+
+    private sealed class PropertyGetterImplementation<TOwner, TProperty> : PropertyGetter
+    {
+      private Func<TOwner, TProperty> getterDelegate;
+
+      protected override void Initialize(string propertyName)
+      {
+        getterDelegate = DelegateHelper.CreateGetMemberDelegate<TOwner, TProperty>(propertyName);
+      }
+
+      public override object Invoke(object target)
+      {
+        return getterDelegate.Invoke((TOwner) target);
+      }
+    }
+
     private const string MessageResourceNamePropertyName = "MessageResourceName";
     private const string MessageResourceTypePropertyName = "MessageResourceType";
     private const string MessageParameterFormat = "{{{0}}}";
     private const string PropertyNameParameter = "PropertyName";
     private const string ValueParameter = "value";
 
-    private ThreadSafeCached<Func<IValidationAware, object>> getter = ThreadSafeCached<Func<IValidationAware, object>>.Create(new object());
+    [NonSerialized]
+    private PropertyGetter nonGenericGetter;
+
+    [NonSerialized]
+    private ThreadSafeDictionary<Type, PropertyGetter> genericGetters;
 
     /// <summary>
     /// Gets the validated property.
-    /// </summary>    
+    /// </summary>
     public PropertyInfo Property { get; private set; }
 
     /// <summary>
@@ -82,7 +116,7 @@ namespace Xtensive.Orm.Validation
 
     /// <inheritdoc/>
     [MethodExecutionAdviceOptimization(MethodExecutionAdviceOptimizations.IgnoreAllEventArgsMembers & ~(MethodExecutionAdviceOptimizations.IgnoreGetInstance | MethodExecutionAdviceOptimizations.IgnoreGetArguments))]
-    public sealed override void OnEntry(MethodExecutionArgs args)
+    public override sealed void OnEntry(MethodExecutionArgs args)
     {
       var target = (IValidationAware) args.Instance;
       var context = target.Context;
@@ -91,7 +125,6 @@ namespace Xtensive.Orm.Validation
         CheckValue(target, args.Arguments[0]);
       else
         context.EnqueueValidate(target, Check);
-
     }
 
     /// <inheritdoc/>
@@ -100,9 +133,9 @@ namespace Xtensive.Orm.Validation
       var methodInfo = target as MethodInfo;
       Property = methodInfo.GetProperty();
       var setMethod = Property.GetSetMethod();
-      
+
       // Skip getters
-      if (methodInfo != setMethod)
+      if (methodInfo!=setMethod)
         return false;
 
       if (setMethod==null) {
@@ -110,25 +143,25 @@ namespace Xtensive.Orm.Validation
           MessageLocation.Of(Property),
           SeverityType.Error,
           string.Format(Strings.AspectExFieldConstraintCanNotBeAppliedToReadOnlyPropertyX,
-          AspectHelper.FormatMember(Property.DeclaringType, Property)));
+            AspectHelper.FormatMember(Property.DeclaringType, Property)));
         return false;
       }
 
       if (!AspectHelper.ValidateBaseType(this, SeverityType.Error, Property.DeclaringType, true, typeof (IValidationAware)))
         return false;
 
-      if (!IsSupported(Property.PropertyType)) { 
+      if (!IsSupported(Property.PropertyType)) {
         ErrorLog.Write(
           MessageLocation.Of(Property),
-          SeverityType.Error, 
-          Strings.AspectExXDoesNotSupportYValueTypeLocationZ, 
-          GetType().Name, 
-          Property.PropertyType.Name, 
+          SeverityType.Error,
+          Strings.AspectExXDoesNotSupportYValueTypeLocationZ,
+          GetType().Name,
+          Property.PropertyType.Name,
           AspectHelper.FormatMember(Property.DeclaringType, Property));
         return false;
       }
 
-      // Specifiec constraint properties validation.
+      // Specific constraint properties validation.
       try {
         ValidateSelf(true);
       }
@@ -147,21 +180,22 @@ namespace Xtensive.Orm.Validation
         ErrorLog.Write(
           MessageLocation.Of(Property),
           SeverityType.Error,
-          string.Format(Strings.AspectExXAndYPropertiesMustBeUsedTogetherLocationZ, 
-          MessageResourceNamePropertyName, 
-          MessageResourceTypePropertyName,
-          AspectHelper.FormatMember(Property.DeclaringType, Property)));
+          string.Format(Strings.AspectExXAndYPropertiesMustBeUsedTogetherLocationZ,
+            MessageResourceNamePropertyName,
+            MessageResourceTypePropertyName,
+            AspectHelper.FormatMember(Property.DeclaringType, Property)));
 
       if (!string.IsNullOrEmpty(Message) && !string.IsNullOrEmpty(MessageResourceName))
         ErrorLog.Write(
           MessageLocation.Of(Property),
-          SeverityType.Error, 
+          SeverityType.Error,
           Strings.AspectExBothLocalizableMessageResourceAndNotLocalizableMessageCanNotBeSpecifiedAtOnceLocationX,
           AspectHelper.FormatMember(Property.DeclaringType, Property));
 
       return true;
     }
 
+    /// <inheritdoc/>
     public override void RuntimeInitialize(MethodBase method)
     {
       OnRuntimeInitialize();
@@ -175,15 +209,6 @@ namespace Xtensive.Orm.Validation
     public abstract bool IsSupported(Type valueType);
 
     /// <summary>
-    /// Validates itself.
-    /// </summary>
-    /// <param name="compileTime">Indicates whether this method is invoked 
-    /// in compile time or in runtime.</param>
-    protected virtual void ValidateSelf(bool compileTime)
-    {
-    }
-
-    /// <summary>
     /// Validates the <paramref name="target"/> against this constraint.
     /// </summary>
     /// <param name="target">The validation target.</param>
@@ -191,8 +216,6 @@ namespace Xtensive.Orm.Validation
     {
       CheckValue(target, GetPropertyValue(target));
     }
-
-    #region Check value methods
 
     /// <summary>
     /// Validates the specified value. 
@@ -209,14 +232,16 @@ namespace Xtensive.Orm.Validation
       // We've got an error. Let's format its message.
       string message = Message;
       var parameters = new Dictionary<string, object> {
-        { PropertyNameParameter, Property.Name }, 
-        { ValueParameter, value }
+        {PropertyNameParameter, Property.Name},
+        {ValueParameter, value}
       };
+
       AddCustomMessageParameters(parameters);
-      foreach (var p in parameters)
-        message = message.Replace(
-          string.Format(MessageParameterFormat, p.Key), 
-          p.Value==null ? Strings.Null : p.Value.ToString());
+      foreach (var p in parameters) {
+        var oldValue = string.Format(MessageParameterFormat, p.Key);
+        var newValue = p.Value==null ? Strings.Null : p.Value.ToString();
+        message = message.Replace(oldValue, newValue);
+      }
 
       throw new ConstraintViolationException(message, target.GetType(), Property, value);
     }
@@ -231,8 +256,6 @@ namespace Xtensive.Orm.Validation
     /// </returns>
     public abstract bool CheckValue(object value);
 
-    #endregion
-
     /// <summary>
     /// Gets the property value.
     /// </summary>
@@ -240,21 +263,11 @@ namespace Xtensive.Orm.Validation
     /// <returns>Property value.</returns>
     protected object GetPropertyValue(IValidationAware target)
     {
-      return
-        getter.GetValue(
-          _this => _this
-            .GetType()
-            .GetMethod("GetPropertyGetter", 
-              BindingFlags.NonPublic | BindingFlags.Instance, null, ArrayUtils<Type>.EmptyArray, null)
-            .GetGenericMethodDefinition()
-            .MakeGenericMethod(new[] {_this.Property.DeclaringType, _this.Property.PropertyType})
-            .Invoke(_this, null)
-            as Func<IValidationAware, object>, 
-          this)
-          .Invoke(target);
-    }
+      var getter = nonGenericGetter
+        ?? genericGetters.GetValue(target.GetType(), PropertyGetter.Create, Property.Name);
 
-    #region Message related methods
+      return getter.Invoke(target);
+    }
 
     /// <summary>
     /// Gets the default message.
@@ -270,42 +283,48 @@ namespace Xtensive.Orm.Validation
     {
     }
 
-    #endregion
+    /// <summary>
+    /// Validates itself.
+    /// </summary>
+    /// <param name="compileTime">Indicates whether this method is invoked 
+    /// in compile time or in runtime.</param>
+    protected virtual void ValidateSelf(bool compileTime)
+    {
+    }
 
-    #region Private \ internal methods
+    /// <summary>
+    /// Initializes this instance in runtime.
+    /// </summary>
+    protected virtual void Initialize()
+    {
+    }
 
-    internal void OnRuntimeInitialize()
+    #region Private / internal methods
+
+    private void OnRuntimeInitialize()
     {
       ConstraintRegistry.RegisterConstraint(Property.ReflectedType, this);
+
       ValidateSelf(false);
       Initialize();
 
       // Getting message
       if (MessageResourceType!=null && !string.IsNullOrEmpty(MessageResourceName))
         Message = ResourceHelper.GetStringResource(MessageResourceType, MessageResourceName);
+
       if (string.IsNullOrEmpty(Message))
         Message = GetDefaultMessage();
-    }
 
-// ReSharper disable UnusedPrivateMember
-    internal Func<IValidationAware, object> GetPropertyGetter<TOwner, TProperty>()
-// ReSharper restore UnusedPrivateMember
-    {
-      var typedGetter = DelegateHelper.CreateGetMemberDelegate<TOwner, TProperty>(Property.Name);
-      return validationAware => (object) typedGetter.Invoke((TOwner) validationAware);
+      var targetType = Property.DeclaringType;
+      if (targetType.IsGenericType)
+        genericGetters = ThreadSafeDictionary<Type, PropertyGetter>.Create(new object());
+      else
+        nonGenericGetter = PropertyGetter.Create(targetType, Property.Name);
     }
 
     #endregion
 
-    /// <summary>
-    /// Initializes this instance in runtime.
-    /// </summary>
-    protected virtual void Initialize()
-    {      
-    }
-
-
-    // Constructor
+    // Constructors
 
     /// <summary>
     /// Initializes a new instance of this class.

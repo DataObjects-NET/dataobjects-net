@@ -20,14 +20,13 @@ namespace Xtensive.Orm.Validation
 
     private class TypeEntry
     {
-      public ReaderWriterLockSlim Lock = new ReaderWriterLockSlim();
-      public List<PropertyConstraintAspect> Constraints = new List<PropertyConstraintAspect>();
+      public readonly ReaderWriterLockSlim Lock = new ReaderWriterLockSlim();
+      public readonly List<PropertyConstraintAspect> Constraints = new List<PropertyConstraintAspect>();
     }
 
     #endregion
 
-    private static ThreadSafeDictionary<Type, TypeEntry> registry = 
-      ThreadSafeDictionary<Type, TypeEntry>.Create(new object());
+    private static ThreadSafeDictionary<Type, TypeEntry> registry = ThreadSafeDictionary<Type, TypeEntry>.Create(new object());
 
     internal static void RegisterConstraint(Type targetType, PropertyConstraintAspect constraint)
     {
@@ -51,6 +50,8 @@ namespace Xtensive.Orm.Validation
       var result = new List<PropertyConstraintAspect>();
       var type = targetType;
       while (type!=null) {
+        if (type.IsGenericType && !type.IsGenericTypeDefinition)
+          type = type.GetGenericTypeDefinition();
         TypeEntry entry;
         if (!registry.TryGetValue(type, out entry)) {
           type = type.BaseType;
