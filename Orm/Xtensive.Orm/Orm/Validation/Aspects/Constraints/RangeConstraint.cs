@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using PostSharp.Aspects.Dependencies;
 using Xtensive.Aspects;
+using Xtensive.Collections;
 using Xtensive.Comparison;
 using Xtensive.Core;
 
