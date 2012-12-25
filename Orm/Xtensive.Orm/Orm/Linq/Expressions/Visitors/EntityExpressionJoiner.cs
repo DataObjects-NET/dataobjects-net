@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
-  internal class EntityExpressionJoiner : ExtendedExpressionVisitor
+  internal sealed class EntityExpressionJoiner : ExtendedExpressionVisitor
   {
     private readonly Translator translator;
     private readonly ItemProjectorExpression itemProjectorExpression;

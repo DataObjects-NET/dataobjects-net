@@ -13,7 +13,7 @@ using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
-  internal class ColumnGatherer : PersistentExpressionVisitor
+  internal sealed class ColumnGatherer : PersistentExpressionVisitor
   {
     private readonly ColumnExtractionModes columnExtractionModes;
     private readonly List<Pair<int, Expression>> columns = new List<Pair<int, Expression>>();

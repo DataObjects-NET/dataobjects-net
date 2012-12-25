@@ -11,7 +11,7 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
-  internal class IncludeFilterMappingGatherer : ExtendedExpressionVisitor
+  internal sealed class IncludeFilterMappingGatherer : ExtendedExpressionVisitor
   {
     private readonly int[] mapping;
     private readonly Expression tupleExpression;

@@ -12,7 +12,7 @@ using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
-  internal class ExtendedExpressionReplacer : PersistentExpressionVisitor
+  internal sealed class ExtendedExpressionReplacer : PersistentExpressionVisitor
   {
     private readonly Func<Expression, Expression> replaceDelegate;
     private readonly CompilableProviderVisitor providerVisitor;

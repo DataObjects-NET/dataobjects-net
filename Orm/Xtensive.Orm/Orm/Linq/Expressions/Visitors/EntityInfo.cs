@@ -9,7 +9,7 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
-  internal class EntityInfo
+  internal sealed class EntityInfo
   {
     public TypeInfo EntityType { get; private set; }
     public int[] KeyColumns { get; private set; }

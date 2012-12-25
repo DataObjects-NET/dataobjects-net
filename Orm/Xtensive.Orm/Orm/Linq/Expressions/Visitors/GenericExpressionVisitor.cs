@@ -5,14 +5,12 @@
 // Created:    2009.05.21
 
 using System;
-using System.Diagnostics;
 using System.Linq.Expressions;
-using Xtensive.Linq;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
-  internal class GenericExpressionVisitor<T> : ExpressionVisitor
+  internal sealed class GenericExpressionVisitor<T> : ExpressionVisitor
     where T : class
   {
     private readonly Func<T, Expression> genericProcessor;
@@ -46,7 +44,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return base.VisitUnknown(e);
     }
 
-    protected virtual Expression VisitGenericExpression(T generic)
+    private Expression VisitGenericExpression(T generic)
     {
       if (genericProcessor!=null)
         return genericProcessor.Invoke(generic);
@@ -56,14 +54,9 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
     // Constructors
 
-    protected GenericExpressionVisitor()
-      : this(null)
+    private GenericExpressionVisitor(Func<T, Expression> mappingProcessor)
     {
-    }
-
-    protected GenericExpressionVisitor(Func<T, Expression> mappingProcessor)
-    {
-      this.genericProcessor = mappingProcessor;
+      genericProcessor = mappingProcessor;
     }
   }
 }
