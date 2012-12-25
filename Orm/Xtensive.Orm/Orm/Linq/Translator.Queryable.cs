@@ -1201,6 +1201,7 @@ namespace Xtensive.Orm.Linq
       using (state.CreateScope()) {
         state.CalculateExpressions = false;
         state.CurrentLambda = predicate;
+
         ItemProjectorExpression predicateExpression;
         using (state.CreateScope()) {
           state.IncludeAlgorithm = IncludeAlgorithm.Auto;
@@ -1211,13 +1212,12 @@ namespace Xtensive.Orm.Linq
         var parameterSource = context.Bindings[parameter];
         var parameterRecordSet = parameterSource.ItemProjector.DataSource;
         var rawProvider = ((RawProvider) ((StoreProvider) visitedSource.ItemProjector.DataSource).Source);
-        var tuples = rawProvider.Source;
         var mapping = IncludeFilterMappingGatherer.Visit(predicateLambda.Parameters[0], rawProvider.Header.Length, predicateLambda.Body);
 
         var outerResult = context.Bindings[outerParameter];
         var columnIndex = outerResult.ItemProjector.DataSource.Header.Length;
         var newDataSource = outerResult.ItemProjector.DataSource
-          .Include(state.IncludeAlgorithm, true, tuples, context.GetNextAlias(), mapping);
+          .Include(state.IncludeAlgorithm, true, rawProvider.Source, context.GetNextAlias(), mapping);
 
         var newItemProjector = outerResult.ItemProjector.Remap(newDataSource, 0);
         var newOuterResult = new ProjectionExpression(
