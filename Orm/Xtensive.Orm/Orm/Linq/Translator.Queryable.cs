@@ -1196,10 +1196,7 @@ namespace Xtensive.Orm.Linq
         visitedSource = VisitSequence(source);
       }
 
-      ParameterExpression outerParameter = state.Parameters[0];
-      var outerResult = context.Bindings[outerParameter];
-
-
+      var outerParameter = state.Parameters[0];
       using (context.Bindings.Add(parameter, visitedSource))
       using (state.CreateScope()) {
         state.CalculateExpressions = false;
@@ -1207,7 +1204,6 @@ namespace Xtensive.Orm.Linq
         ItemProjectorExpression predicateExpression;
         using (state.CreateScope()) {
           state.IncludeAlgorithm = IncludeAlgorithm.Auto;
-          state.CalculateExpressions = true;
           predicateExpression = (ItemProjectorExpression) VisitLambda(predicate);
         }
         var predicateLambda = predicateExpression.ToLambda(context);
@@ -1218,6 +1214,7 @@ namespace Xtensive.Orm.Linq
         var tuples = rawProvider.Source;
         var mapping = IncludeFilterMappingGatherer.Visit(predicateLambda.Parameters[0], rawProvider.Header.Length, predicateLambda.Body);
 
+        var outerResult = context.Bindings[outerParameter];
         var columnIndex = outerResult.ItemProjector.DataSource.Header.Length;
         var newDataSource = outerResult.ItemProjector.DataSource
           .Include(state.IncludeAlgorithm, true, tuples, context.GetNextAlias(), mapping);

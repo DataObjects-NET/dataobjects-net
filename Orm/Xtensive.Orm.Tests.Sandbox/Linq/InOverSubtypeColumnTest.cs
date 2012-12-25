@@ -78,6 +78,7 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         new MainEntity {Reference = new RefBase()};
+        new MainEntity {Reference = new Ref()};
         new MainEntity {Reference = new Ref {Info = "Don't know"}};
         new MainEntity {Reference = new Ref {Info = "IDDQD"}};
         tx.Complete();
@@ -105,6 +106,30 @@ namespace Xtensive.Orm.Tests.Linq
           .Where(e => (e.Reference as Ref).Info.In("IDDQD", "IDFKA"))
           .ToList();
         Assert.That(result.Count, Is.EqualTo(1));
+      }
+    }
+
+    [Test]
+    public void NullCheck1Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var result = session.Query.All<MainEntity>()
+          .Where(e => (e.Reference as Ref)==null)
+          .ToList();
+        Assert.That(result.Count, Is.EqualTo(1));
+      }
+    }
+
+    [Test]
+    public void NullCheck2Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var result = session.Query.All<MainEntity>()
+          .Where(e => (e.Reference as Ref).Info==null)
+          .ToList();
+        Assert.That(result.Count, Is.EqualTo(2));
       }
     }
   }

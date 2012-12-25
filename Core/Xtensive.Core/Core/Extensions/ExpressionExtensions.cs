@@ -269,8 +269,19 @@ namespace Xtensive.Core
     {
       if (expression.NodeType==ExpressionType.Lambda)
         return ((LambdaExpression) expression).Body;
-      else
-        return expression;
+      return expression;
+    }
+
+    /// <summary>
+    /// Strips the chain of <see cref="MemberExpression"/>s
+    /// </summary>
+    /// <param name="expression">Expression to process.</param>
+    /// <returns><paramref name="expression"/> with chain of <see cref="MemberExpression"/>s removed (if any).</returns>
+    public static Expression StripMemberAccessChain(this Expression expression)
+    {
+      while (expression.NodeType==ExpressionType.MemberAccess)
+        expression = ((MemberExpression) expression).Expression;
+      return expression;
     }
 
     #endregion
