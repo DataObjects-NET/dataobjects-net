@@ -670,8 +670,6 @@
     <Compile Include="Orm\Linq\Expressions\MarkerExpression.cs" />
     <Compile Include="Orm\Linq\Expressions\MarkerType.cs" />
     <Compile Include="Orm\Linq\Expressions\Visitors\ApplyParameterAccessVisitor.cs" />
-    <Compile Include="Orm\Linq\Expressions\Visitors\EntityInfo.cs" />
-    <Compile Include="Orm\Linq\Expressions\Visitors\FirstSingleInfo.cs" />
     <Compile Include="Orm\Linq\LinqBindingCollection.cs" />
     <Compile Include="Orm\Linq\Expressions\ColumnExpression.cs" />
     <Compile Include="Orm\Linq\Expressions\EntityFieldExpression.cs" />
@@ -706,7 +704,6 @@
     <Compile Include="Orm\Linq\RemapScope.cs" />
     <Compile Include="Orm\Linq\Rewriters\ApplyParameterRewriter.cs" />
     <Compile Include="Orm\Linq\Rewriters\ApplyParameterToTupleParameterRewriter.cs" />
-    <Compile Include="Orm\Linq\Expressions\Visitors\FirstSingleEntityVisitor.cs" />
     <Compile Include="Orm\Linq\Rewriters\ParameterRewriter.cs" />
     <Compile Include="Orm\Linq\Rewriters\SelectManySelectorRewriter.cs" />
     <Compile Include="Orm\Linq\SkipOwnerCheckScope.cs" />
