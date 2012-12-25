@@ -52,9 +52,9 @@ namespace Xtensive.Core
     public static bool IsNull(this Expression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      if (expression.NodeType == ExpressionType.Constant) {
-        var constantExpression = (ConstantExpression)expression;
-        return constantExpression.Value == null;
+      if (expression.NodeType==ExpressionType.Constant) {
+        var constantExpression = (ConstantExpression) expression;
+        return constantExpression.Value==null;
       }
       return false;
     }
@@ -71,7 +71,7 @@ namespace Xtensive.Core
     {
       if (lambdaExpression.Parameters.Count!=parameters.Length)
         throw new InvalidOperationException(String.Format(
-          Strings.ExUnableToBindParametersToLambdaXParametersCountIsIncorrect, 
+          Strings.ExUnableToBindParametersToLambdaXParametersCountIsIncorrect,
           lambdaExpression.ToString(true)));
       if (parameters.Length==0)
         return lambdaExpression;
@@ -84,8 +84,8 @@ namespace Xtensive.Core
             : Expression.Convert(parameters[i], expressionParameter.Type);
         else
           throw new InvalidOperationException(String.Format(
-            Strings.ExUnableToUseExpressionXAsXParameterOfLambdaXBecauseOfTypeMistmatch, 
-            parameters[i].ToString(true), i , lambdaExpression.Parameters[i].ToString(true)));
+            Strings.ExUnableToUseExpressionXAsXParameterOfLambdaXBecauseOfTypeMistmatch,
+            parameters[i].ToString(true), i, lambdaExpression.Parameters[i].ToString(true)));
       }
       return ExpressionReplacer.ReplaceAll(
         lambdaExpression.Body, lambdaExpression.Parameters.ToArray(), convertedParameters);
@@ -136,7 +136,7 @@ namespace Xtensive.Core
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       expression = expression.StripLambda().StripCasts();
       var me = expression as MemberExpression;
-      if (me == null)
+      if (me==null)
         throw new ArgumentException(
           Strings.ExInvalidArgumentType.FormatWith(typeof (MemberExpression)), "expression");
       return me.Member;
@@ -152,7 +152,7 @@ namespace Xtensive.Core
     {
       var mi = GetMember(expression);
       var fi = mi as FieldInfo;
-      if (fi == null)
+      if (fi==null)
         throw new ArgumentException(
           Strings.ExExpression0MustReferenceField.FormatWith(expression.ToString(true)));
       return fi;
@@ -168,7 +168,7 @@ namespace Xtensive.Core
     {
       var mi = GetMember(expression);
       var pi = mi as PropertyInfo;
-      if (pi == null)
+      if (pi==null)
         throw new ArgumentException(
           Strings.ExExpression0MustReferenceProperty.FormatWith(expression.ToString(true)));
       return pi;
@@ -185,7 +185,7 @@ namespace Xtensive.Core
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       expression = expression.StripLambda().StripCasts();
       var mce = expression as MethodCallExpression;
-      if (mce == null)
+      if (mce==null)
         throw new ArgumentException(
           Strings.ExInvalidArgumentType.FormatWith(typeof (MethodCallExpression)), "expression");
       return mce.Method;
@@ -203,7 +203,7 @@ namespace Xtensive.Core
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       expression = expression.StripLambda().StripCasts();
       var ie = expression as IndexExpression;
-      if (ie == null)
+      if (ie==null)
         throw new ArgumentException(
           Strings.ExInvalidArgumentType.FormatWith(typeof (IndexExpression)), "expression");
       return ie.Indexer;
@@ -221,7 +221,7 @@ namespace Xtensive.Core
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       expression = expression.StripLambda().StripCasts();
       var ne = expression as NewExpression;
-      if (ne == null)
+      if (ne==null)
         throw new ArgumentException(
           Strings.ExInvalidArgumentType.FormatWith(typeof (NewExpression)), "expression");
       return ne.Constructor;
@@ -237,13 +237,13 @@ namespace Xtensive.Core
     /// <param name="expression">The expression.</param>
     public static LambdaExpression StripQuotes(this Expression expression)
     {
-      while (expression.NodeType == ExpressionType.Quote)
-        expression = ((UnaryExpression)expression).Operand;
+      while (expression.NodeType==ExpressionType.Quote)
+        expression = ((UnaryExpression) expression).Operand;
       var lambda = expression as LambdaExpression;
-      if (lambda == null) {
-        if (!typeof(LambdaExpression).IsAssignableFrom(expression.Type))
+      if (lambda==null) {
+        if (!typeof (LambdaExpression).IsAssignableFrom(expression.Type))
           throw new InvalidOperationException(string.Format("Unable to process expression '{0}'", expression));
-        var typeAs = Expression.TypeAs(expression, typeof(LambdaExpression));
+        var typeAs = Expression.TypeAs(expression, typeof (LambdaExpression));
         return Expression.Lambda<Func<LambdaExpression>>(typeAs).CachingCompile()();
       }
       return lambda;
@@ -255,8 +255,7 @@ namespace Xtensive.Core
     /// <param name="expression">The expression.</param>
     public static Expression StripCasts(this Expression expression)
     {
-      while (expression.NodeType == ExpressionType.Convert
-             || expression.NodeType == ExpressionType.TypeAs)
+      while (expression.NodeType==ExpressionType.Convert || expression.NodeType==ExpressionType.TypeAs)
         expression = ((UnaryExpression) expression).Operand;
       return expression;
     }
@@ -268,7 +267,7 @@ namespace Xtensive.Core
     /// <returns></returns>
     public static Expression StripLambda(this Expression expression)
     {
-      if (expression.NodeType == ExpressionType.Lambda)
+      if (expression.NodeType==ExpressionType.Lambda)
         return ((LambdaExpression) expression).Body;
       else
         return expression;
