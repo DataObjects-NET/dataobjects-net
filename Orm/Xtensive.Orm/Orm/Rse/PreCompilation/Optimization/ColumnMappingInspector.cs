@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Rse.PreCompilation.Optimization
     protected override Provider VisitInclude(IncludeProvider provider)
     {
       int sourceLength = provider.Source.Header.Length;
-      mappings[provider.Source] = mappings[provider].Where(i => i < sourceLength).ToList();
+      mappings[provider.Source] = Merge(mappings[provider].Where(i => i < sourceLength), provider.FilteredColumns);
       var source = VisitCompilable(provider.Source);
       mappings[provider] = Merge(mappings[provider], mappings[provider.Source]);
       if (source==provider.Source)
