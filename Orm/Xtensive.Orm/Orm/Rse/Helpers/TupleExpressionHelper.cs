@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Rse.Helpers
     /// <param name="expression">Expression to check.</param>
     /// <param name="tupleParameter">Tuple parameter that access must be on.</param>
     /// <returns></returns>
-    public static  bool IsTupleAccess(this Expression expression, ParameterExpression tupleParameter)
+    public static bool IsTupleAccess(this Expression expression, ParameterExpression tupleParameter)
     {
       if (tupleParameter==null)
         return expression.AsTupleAccess()!=null;
@@ -51,10 +51,10 @@ namespace Xtensive.Orm.Rse.Helpers
     /// <returns></returns>
     public static MethodCallExpression AsTupleAccess(this Expression expression)
     {
-      if (expression.NodeType == ExpressionType.Call) {
-        var mc = (MethodCallExpression)expression;
-        if (mc.Object != null && mc.Object.Type == typeof(Tuple))
-          if (mc.Method.Name == Reflection.WellKnown.Tuple.GetValue || mc.Method.Name == Reflection.WellKnown.Tuple.GetValueOrDefault)
+      if (expression.NodeType==ExpressionType.Call) {
+        var mc = (MethodCallExpression) expression;
+        if (mc.Object!=null && mc.Object.Type==typeof (Tuple))
+          if (mc.Method.Name==Reflection.WellKnown.Tuple.GetValue || mc.Method.Name==Reflection.WellKnown.Tuple.GetValueOrDefault)
             return mc;
       }
       return null;
@@ -72,10 +72,10 @@ namespace Xtensive.Orm.Rse.Helpers
     public static MethodCallExpression AsTupleAccess(this Expression expression, ParameterExpression currentParameter)
     {
       var tupleAccess = expression.AsTupleAccess();
-      if (tupleAccess == null)
+      if (tupleAccess==null)
         return null;
       var target = tupleAccess.Object;
-      if (target == currentParameter || GetApplyParameterExpression(tupleAccess) != null)
+      if (target==currentParameter || GetApplyParameterExpression(tupleAccess)!=null)
         return tupleAccess;
       return null;
     }
@@ -92,10 +92,10 @@ namespace Xtensive.Orm.Rse.Helpers
     public static MethodCallExpression AsTupleAccess(this Expression expression, IEnumerable<ParameterExpression> currentParameters)
     {
       var tupleAccess = expression.AsTupleAccess();
-      if (tupleAccess == null)
+      if (tupleAccess==null)
         return null;
       var target = tupleAccess.Object as ParameterExpression;
-      if (target!=null && currentParameters.Contains(target) || GetApplyParameterExpression(tupleAccess) != null)
+      if (target!=null && currentParameters.Contains(target) || GetApplyParameterExpression(tupleAccess)!=null)
         return tupleAccess;
       return null;
     }
@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Rse.Helpers
     public static int GetTupleAccessArgument(this Expression expression)
     {
       var mc = expression.AsTupleAccess();
-      if (mc == null)
+      if (mc==null)
         throw new ArgumentException(string.Format(Strings.ExParameterXIsNotATupleAccessExpression, "expression"));
       return Evaluate<int>(mc.Arguments[0]);
     }
@@ -129,21 +129,21 @@ namespace Xtensive.Orm.Rse.Helpers
     private static Expression GetApplyParameterExpression(Expression expression)
     {
       var tupleAccess = expression.AsTupleAccess();
-      if (tupleAccess == null)
+      if (tupleAccess==null)
         return null;
-      if (tupleAccess.Object.NodeType != ExpressionType.MemberAccess)
+      if (tupleAccess.Object==null || tupleAccess.Object.NodeType!=ExpressionType.MemberAccess)
         return null;
-      var memberAccess = (MemberExpression)tupleAccess.Object;
-      if (memberAccess.Expression == null ||
-        memberAccess.Expression.Type != typeof(ApplyParameter) ||
-          memberAccess.Member.Name != "Value")
+      var memberAccess = (MemberExpression) tupleAccess.Object;
+      if (memberAccess.Expression==null ||
+        memberAccess.Expression.Type!=typeof (ApplyParameter) ||
+        memberAccess.Member.Name!="Value")
         return null;
       return memberAccess.Expression;
     }
 
-    private static T Evaluate<T> (Expression expression)
+    private static T Evaluate<T>(Expression expression)
     {
-      if (expression.NodeType == ExpressionType.Constant)
+      if (expression.NodeType==ExpressionType.Constant)
         return (T) ((ConstantExpression) expression).Value;
       return Expression.Lambda<Func<T>>(expression).CachingCompile().Invoke();
     }

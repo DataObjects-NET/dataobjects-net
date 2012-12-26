@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return expression;
     }
 
-    private Expression ExpressionTranslator(Provider provider, Expression original)
+    private Expression TranslateExpression(Provider provider, Expression original)
     {
       var result = Visit(original);
       return result ?? original;
@@ -156,7 +156,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     public ExtendedExpressionReplacer(Func<Expression, Expression> replaceDelegate)
     {
       this.replaceDelegate = replaceDelegate;
-      providerVisitor = new CompilableProviderVisitor(ExpressionTranslator);
+      providerVisitor = new CompilableProviderVisitor(TranslateExpression);
     }
   }
 }

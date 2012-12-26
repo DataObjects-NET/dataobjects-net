@@ -865,68 +865,83 @@ namespace Xtensive.Orm.Linq
     {
       var originalBodyType = body.Type;
       var reduceCastBody = body.StripCasts();
-      if (state.CalculateExpressions
-        && reduceCastBody.GetMemberType()==MemberType.Unknown
+
+      var canCalculate =
+        state.CalculateExpressions
+          && reduceCastBody.GetMemberType()==MemberType.Unknown
+          && reduceCastBody.NodeType!=ExpressionType.New
           && reduceCastBody.NodeType!=ExpressionType.ArrayIndex
-            && (ExtendedExpressionType) reduceCastBody.NodeType!=ExtendedExpressionType.Constructor
-              && reduceCastBody.NodeType!=ExpressionType.New) {
-        var found = false;
-        var entityFinder = new ExtendedExpressionReplacer(
-          e => {
-            if ((int) e.NodeType==(int) ExtendedExpressionType.Entity) {
-              found = true;
-              return e;
-            }
-            return null;
-          });
-        entityFinder.Replace(reduceCastBody);
-        if (found)
-          return body;
+          && (ExtendedExpressionType) reduceCastBody.NodeType!=ExtendedExpressionType.Constructor
+          && !ContainsEntityExpression(reduceCastBody);
 
-        body = new EnumRewriter().Visit(body);
-        var convertExpression = Expression.Convert(body, typeof (object));
+      if (!canCalculate)
+        return body;
 
-        var calculator = ExpressionMaterializer.MakeLambda(convertExpression, context);
-        var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type,
-          (Expression<Func<Tuple, object>>) calculator);
+      var lambdaParameter = state.Parameters[0];
+      var calculator = ExpressionMaterializer.MakeLambda(body, context);
+      var columnDescriptor = CreateCalculatedColumnDescriptor(calculator);
+      return AddCalculatedColumn(lambdaParameter, columnDescriptor, originalBodyType);
+    }
 
-        var lambdaParameter = state.Parameters[0];
-        var oldResult = context.Bindings[lambdaParameter];
-        var isInlined = !state.BuildingProjection && !state.GroupingKey;
+    private CalculatedColumnDescriptor CreateCalculatedColumnDescriptor(LambdaExpression expression)
+    {
+      var columnType = expression.Body.Type;
+      var newBody = EnumRewriter.Rewrite(expression.Body);
+      if (columnType!=typeof (object))
+        newBody = Expression.Convert(newBody, typeof (object));
+      var calculator = (Expression<Func<Tuple, object>>) FastExpression.Lambda(newBody, expression.Parameters);
+      return new CalculatedColumnDescriptor(context.GetNextColumnAlias(), columnType, calculator);
+    }
 
-        var dataSource = oldResult.ItemProjector.DataSource;
+    private ColumnExpression AddCalculatedColumn(ParameterExpression sourceParameter, CalculatedColumnDescriptor descriptor, Type originalColumnType)
+    {
+      var oldResult = context.Bindings[sourceParameter];
+      var isInlined = !state.BuildingProjection && !state.GroupingKey;
+      var dataSource = oldResult.ItemProjector.DataSource;
 
-        SortProvider sortProvider = null; 
-        if (dataSource is SortProvider) {
-          sortProvider = (SortProvider) dataSource;
-          dataSource = sortProvider.Source;
-        }
-
-        var columns = new List<CalculatedColumnDescriptor>();
-        if (state.AllowCalculableColumnCombine && dataSource is CalculateProvider && isInlined==((CalculateProvider) dataSource).IsInlined) {
-          var calculateProvider = ((CalculateProvider) dataSource);
-          var presentColumns = calculateProvider
-            .CalculatedColumns
-            .Select(cc => new CalculatedColumnDescriptor(cc.Name, cc.Type, cc.Expression));
-          columns.AddRange(presentColumns);
-          dataSource = calculateProvider.Source;
-        }
-        columns.Add(ccd);
-        dataSource = dataSource.Calculate(
-          isInlined,
-          columns.ToArray());
-
-        if (sortProvider!=null)
-          dataSource = dataSource.OrderBy(sortProvider.Order);
-
-        var newItemProjector = oldResult.ItemProjector.Remap(dataSource, 0);
-        var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
-        context.Bindings.ReplaceBound(lambdaParameter, newResult);
-
-        body = ColumnExpression.Create(originalBodyType, dataSource.Header.Length - 1);
-        state.AllowCalculableColumnCombine = true;
+      SortProvider sortProvider = null;
+      if (dataSource is SortProvider) {
+        sortProvider = (SortProvider) dataSource;
+        dataSource = sortProvider.Source;
       }
-      return body;
+
+      var columns = new List<CalculatedColumnDescriptor>();
+      if (state.AllowCalculableColumnCombine && dataSource is CalculateProvider && isInlined==((CalculateProvider) dataSource).IsInlined) {
+        var calculateProvider = ((CalculateProvider) dataSource);
+        var presentColumns = calculateProvider
+          .CalculatedColumns
+          .Select(cc => new CalculatedColumnDescriptor(cc.Name, cc.Type, cc.Expression));
+        columns.AddRange(presentColumns);
+        dataSource = calculateProvider.Source;
+      }
+      columns.Add(descriptor);
+      dataSource = dataSource.Calculate(isInlined, columns.ToArray());
+
+      if (sortProvider!=null)
+        dataSource = dataSource.OrderBy(sortProvider.Order);
+
+      var newItemProjector = oldResult.ItemProjector.Remap(dataSource, 0);
+      var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
+      context.Bindings.ReplaceBound(sourceParameter, newResult);
+
+      var result = ColumnExpression.Create(originalColumnType, dataSource.Header.Length - 1);
+      state.AllowCalculableColumnCombine = true;
+
+      return result;
+    }
+
+    private static bool ContainsEntityExpression(Expression expression)
+    {
+      var found = false;
+      var entityFinder = new ExtendedExpressionReplacer(e => {
+        if ((int) e.NodeType==(int) ExtendedExpressionType.Entity) {
+          found = true;
+          return e;
+        }
+        return null;
+      });
+      entityFinder.Replace(expression);
+      return found;
     }
 
     private Expression ConstructQueryable(MethodCallExpression mc)
