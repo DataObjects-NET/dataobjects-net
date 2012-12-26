@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
@@ -14,19 +15,17 @@ namespace Xtensive.Sql.Dml
   /// Represents collection of <see cref="SqlColumn"/>s.
   /// </summary>
   [Serializable]
-  public class SqlColumnCollection: Collection<SqlColumn>
+  public class SqlColumnCollection : Collection<SqlColumn>
   {
+    private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
+
     public SqlColumn this[string name]
     {
       get
       {
         if (string.IsNullOrEmpty(name))
           return null;
-        foreach (SqlColumn column in this) {
-          if (column.Name == name)
-            return column;
-        }
-        return null;
+        return this.FirstOrDefault(column => Comparer.Equals(column.Name, name));
       }
       set { throw new NotSupportedException(); }
     }
@@ -60,7 +59,7 @@ namespace Xtensive.Sql.Dml
       ArgumentValidator.EnsureArgumentNotNull(columnReference, "columnReference");
       base.Add(columnReference);
     }
-    
+
     public void Insert(int index, SqlExpression expression, string alias)
     {
       ArgumentValidator.EnsureArgumentNotNull(alias, "alias");
@@ -91,13 +90,15 @@ namespace Xtensive.Sql.Dml
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public SqlColumnCollection()
-    {}
+    {
+    }
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
     public SqlColumnCollection(IList<SqlColumn> list)
       : base(list)
-    {}
+    {
+    }
   }
 }
