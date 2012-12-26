@@ -709,23 +709,26 @@ namespace Xtensive.Orm.Linq
     private static bool IsConditionalOrWellknown(Expression expression, bool isRoot = true)
     {
       var conditionalExpression = expression as ConditionalExpression;
-      if (conditionalExpression != null)
+      if (conditionalExpression!=null)
         return IsConditionalOrWellknown(conditionalExpression.IfTrue, false)
-               && IsConditionalOrWellknown(conditionalExpression.IfFalse, false);
+          && IsConditionalOrWellknown(conditionalExpression.IfFalse, false);
+
       if (isRoot)
         return false;
-      if (expression.NodeType == ExpressionType.Constant)
+
+      if (expression.NodeType==ExpressionType.Constant)
         return true;
-      if (expression.NodeType == ExpressionType.Convert) {
-        var unary = (UnaryExpression)expression;
+
+      if (expression.NodeType==ExpressionType.Convert) {
+        var unary = (UnaryExpression) expression;
         return IsConditionalOrWellknown(unary.Operand, false);
       }
+
       if (!(expression is ExtendedExpression))
         return false;
 
       var memberType = expression.GetMemberType();
-      switch (memberType)
-      {
+      switch (memberType) {
         case MemberType.Primitive:
         case MemberType.Key:
         case MemberType.Structure:
@@ -1009,13 +1012,15 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private Expression GetMember(Expression expression, MemberInfo member, Expression sourceExpression)
     {
-      MarkerType markerType;
       if (expression==null)
         return null;
+
+      MarkerType markerType;
       expression = expression.StripCasts();
       bool isMarker = expression.TryGetMarker(out markerType);
       expression = expression.StripMarkers();
       expression = expression.StripCasts();
+
       if (expression.IsAnonymousConstructor()) {
         var newExpression = (NewExpression) expression;
 #if !NET40
@@ -1024,21 +1029,21 @@ namespace Xtensive.Orm.Linq
 #endif
         int memberIndex = newExpression.Members.IndexOf(member);
         if (memberIndex < 0)
-          throw new InvalidOperationException(
-            string.Format(Strings.ExCouldNotGetMemberXFromExpression,
-              member));
-        Expression argument = Visit(newExpression.Arguments[memberIndex]);
-        return isMarker
-          ? new MarkerExpression(argument, markerType)
-          : argument;
+          throw new InvalidOperationException(string.Format(Strings.ExCouldNotGetMemberXFromExpression, member));
+        var argument = Visit(newExpression.Arguments[memberIndex]);
+        return isMarker ? new MarkerExpression(argument, markerType) : argument;
       }
+
       var extendedExpression = expression as ExtendedExpression;
-      if (extendedExpression == null)
+      if (extendedExpression==null)
         return IsConditionalOrWellknown(expression)
           ? GetConditionalMember(expression, member, sourceExpression)
           : null;
+
       Expression result = null;
-      Func<PersistentFieldExpression, bool> propertyFilter = f => f.Name==context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) member);
+      Func<PersistentFieldExpression, bool> propertyFilter
+        = f => f.Name==context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) member);
+
       switch (extendedExpression.ExtendedType) {
       case ExtendedExpressionType.FullText:
         switch (member.Name) {
@@ -1053,8 +1058,16 @@ namespace Xtensive.Orm.Linq
           return ((GroupingExpression) expression).KeyExpression;
         break;
       case ExtendedExpressionType.Constructor:
-        if (!((ConstructorExpression) extendedExpression).Bindings.TryGetValue(member, out result))
-          throw new InvalidOperationException(String.Format(Strings.ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer, member.Name, member.ReflectedType.Name));
+        var bindings = ((ConstructorExpression) extendedExpression).Bindings;
+        if (!bindings.TryGetValue(member, out result)) {
+          // Key in bindings might be a property/field reflected from a base type
+          // but our member might be reflected from child type.
+          var baseMember = member.DeclaringType.GetMember(member.Name).FirstOrDefault();
+          if (baseMember==null || !bindings.TryGetValue(baseMember, out result))
+            throw new InvalidOperationException(string.Format(
+              Strings.ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer,
+              member.Name, member.ReflectedType.Name));
+        }
         result = Visit(result);
         break;
       case ExtendedExpressionType.Structure:
@@ -1076,7 +1089,7 @@ namespace Xtensive.Orm.Linq
         break;
       case ExtendedExpressionType.Field:
         if (isMarker && ((markerType & MarkerType.Single)==MarkerType.Single))
-          throw new InvalidOperationException(String.Format(Strings.ExUseMethodXOnFirstInsteadOfSingle, sourceExpression.ToString(true), member.Name));
+          throw new InvalidOperationException(string.Format(Strings.ExUseMethodXOnFirstInsteadOfSingle, sourceExpression.ToString(true), member.Name));
         return Expression.MakeMemberAccess(expression, member);
       case ExtendedExpressionType.EntityField:
         var entityFieldExpression = (EntityFieldExpression) expression;
@@ -1087,6 +1100,7 @@ namespace Xtensive.Orm.Linq
         }
         break;
       }
+
       return isMarker
         ? new MarkerExpression(result, markerType)
         : result;
