@@ -1,15 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 using Xtensive.Reflection;
+using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
   internal sealed class EnumRewriter : ExpressionVisitor
   {
+    public static Expression Rewrite(Expression target)
+    {
+      return new EnumRewriter().Visit(target);
+    }
+
     protected override Expression VisitUnknown(Expression e)
     {
       return ConvertEnum(e);
@@ -18,12 +20,6 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     protected override Expression VisitConstant(ConstantExpression c)
     {
       return ConvertEnum(c);
-    }
-
-    /// <inheritdoc/>
-    public new Expression Visit(Expression e)
-    {
-      return base.Visit(e);
     }
 
     private Expression ConvertEnum(Expression expression)
@@ -35,6 +31,10 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         return Expression.Convert(expression, underlyingType);
       }
       return expression;
+    }
+
+    private EnumRewriter()
+    {
     }
   }
 }

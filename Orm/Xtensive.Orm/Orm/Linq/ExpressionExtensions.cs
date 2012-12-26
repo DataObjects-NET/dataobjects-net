@@ -37,18 +37,18 @@ namespace Xtensive.Orm.Linq
     public static bool IsAnonymousConstructor(this Expression expression)
     {
       expression = expression.StripMarkers();
-      return expression.NodeType == ExpressionType.New && expression.GetMemberType() == MemberType.Anonymous;
+      return expression.NodeType==ExpressionType.New && expression.GetMemberType()==MemberType.Anonymous;
     }
 
     public static bool IsConversionOperation(this Expression expression)
     {
       expression = expression.StripMarkers();
-      return expression.NodeType == ExpressionType.Convert || expression.NodeType == ExpressionType.TypeAs;
+      return expression.NodeType==ExpressionType.Convert || expression.NodeType==ExpressionType.TypeAs;
     }
 
     public static bool IsQuery(this Expression expression)
     {
-      return expression.Type.IsOfGenericInterface(typeof(IQueryable<>));
+      return expression.Type.IsOfGenericInterface(typeof (IQueryable<>));
     }
 
     public static bool IsLocalCollection(this Expression expression, TranslatorContext context)
@@ -58,16 +58,16 @@ namespace Xtensive.Orm.Linq
         && !expression.IsGroupingExpression()
         && !expression.IsEntitySet()
         && !expression.IsSubqueryExpression()
-        && expression.Type!=typeof(string)
+        && expression.Type!=typeof (string)
         && !expression.Type.IsOfGenericInterface(typeof (IQueryable<>))
         && context.Evaluator.CanBeEvaluated(expression)
-          && expression.Type.IsOfGenericInterface(typeof (IEnumerable<>));
+        && expression.Type.IsOfGenericInterface(typeof (IEnumerable<>));
     }
 
     public static bool IsItemProjector(this Expression expression)
     {
       expression = expression.StripMarkers();
-      return (ExtendedExpressionType)expression.NodeType == ExtendedExpressionType.ItemProjector;
+      return (ExtendedExpressionType) expression.NodeType==ExtendedExpressionType.ItemProjector;
     }
 
     public static bool IsProjection(this Expression expression)
@@ -79,55 +79,55 @@ namespace Xtensive.Orm.Linq
     public static bool IsEntitySetProjection(this Expression expression)
     {
       expression = expression.StripMarkers();
-      return (ExtendedExpressionType)expression.NodeType == ExtendedExpressionType.EntitySet;
+      return (ExtendedExpressionType) expression.NodeType==ExtendedExpressionType.EntitySet;
     }
 
     public static bool IsGroupingExpression(this Expression expression)
     {
       expression = expression.StripMarkers();
-      return (ExtendedExpressionType)expression.NodeType==ExtendedExpressionType.Grouping;
+      return (ExtendedExpressionType) expression.NodeType==ExtendedExpressionType.Grouping;
     }
 
     public static bool IsSubqueryExpression(this Expression expression)
     {
       expression = expression.StripMarkers();
-      return (ExtendedExpressionType)expression.NodeType==ExtendedExpressionType.SubQuery;
+      return (ExtendedExpressionType) expression.NodeType==ExtendedExpressionType.SubQuery;
     }
 
     public static bool IsFullTextMatchExpression(this Expression expression)
     {
       expression = expression.StripMarkers();
-      return (ExtendedExpressionType)expression.NodeType == ExtendedExpressionType.FullText;
+      return (ExtendedExpressionType) expression.NodeType==ExtendedExpressionType.FullText;
     }
 
     public static bool IsEntityExpression(this Expression expression)
     {
       expression = expression.StripMarkers();
-      return (ExtendedExpressionType)expression.NodeType==ExtendedExpressionType.Entity;
+      return (ExtendedExpressionType) expression.NodeType==ExtendedExpressionType.Entity;
     }
 
     public static bool IsEntitySetExpression(this Expression expression)
     {
       expression = expression.StripMarkers();
-      return (ExtendedExpressionType)expression.NodeType==ExtendedExpressionType.EntitySet;
+      return (ExtendedExpressionType) expression.NodeType==ExtendedExpressionType.EntitySet;
     }
 
     public static bool IsEntitySet(this Expression expression)
     {
-      return expression.Type.IsGenericType 
-        && expression.Type.GetGenericTypeDefinition() == typeof(EntitySet<>);
+      return expression.Type.IsGenericType
+        && expression.Type.GetGenericTypeDefinition()==typeof (EntitySet<>);
     }
 
     public static Type GetGroupingKeyType(this Expression expression)
     {
-      var newExpression = (NewExpression)expression.StripCasts();
+      var newExpression = (NewExpression) expression.StripCasts();
       return newExpression.Type.GetGenericArguments()[0];
     }
 
     public static Expression StripMarkers(this Expression e)
     {
       var ee = e as ExtendedExpression;
-      if (ee != null && ee.ExtendedType == ExtendedExpressionType.Marker) {
+      if (ee!=null && ee.ExtendedType==ExtendedExpressionType.Marker) {
         var marker = (MarkerExpression) ee;
         return marker.Target;
       }
@@ -137,14 +137,14 @@ namespace Xtensive.Orm.Linq
     public static bool IsMarker(this Expression e)
     {
       e = e.StripCasts();
-      return (ExtendedExpressionType)e.NodeType == ExtendedExpressionType.Marker;
+      return (ExtendedExpressionType) e.NodeType==ExtendedExpressionType.Marker;
     }
 
     public static bool TryGetMarker(this Expression e, out MarkerType markerType)
     {
       e = e.StripCasts();
       markerType = MarkerType.None;
-      var result = (ExtendedExpressionType)e.NodeType == ExtendedExpressionType.Marker;
+      var result = (ExtendedExpressionType) e.NodeType==ExtendedExpressionType.Marker;
       if (result) {
         var marker = (MarkerExpression) e;
         markerType = marker.MarkerType;
@@ -175,8 +175,8 @@ namespace Xtensive.Orm.Linq
       if (type.IsArray)
         return MemberType.Array;
 
-      if ((ExtendedExpressionType)e.NodeType==ExtendedExpressionType.Field 
-        || (ExtendedExpressionType)e.NodeType==ExtendedExpressionType.Column)
+      if ((ExtendedExpressionType) e.NodeType==ExtendedExpressionType.Field
+        || (ExtendedExpressionType) e.NodeType==ExtendedExpressionType.Column)
         return MemberType.Primitive;
 
       return MemberType.Unknown;

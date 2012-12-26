@@ -4,15 +4,13 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.26
 
-using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
-  internal class OwnerRemover : PersistentExpressionVisitor
+  internal sealed class OwnerRemover : PersistentExpressionVisitor
   {
     public static Expression RemoveOwner(Expression target)
     {

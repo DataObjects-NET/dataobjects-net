@@ -33,8 +33,8 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       var memberExpression = tupleAccess.Object as MemberExpression;
       if (memberExpression!=null
         && memberExpression.Member==WellKnownMembers.ApplyParameterValue
-          && memberExpression.Expression.NodeType==ExpressionType.Constant
-            && ((ConstantExpression) memberExpression.Expression).Value==applyParameter) {
+        && memberExpression.Expression.NodeType==ExpressionType.Constant
+        && ((ConstantExpression) memberExpression.Expression).Value==applyParameter) {
         var index = (int) ((ConstantExpression) tupleAccess.Arguments[0]).Value;
         return processor.Invoke(mc, index);
       }
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    public ApplyParameterAccessVisitor(ApplyParameter applyParameter, Func<MethodCallExpression,int,Expression> processor )
+    public ApplyParameterAccessVisitor(ApplyParameter applyParameter, Func<MethodCallExpression, int, Expression> processor)
     {
       this.processor = processor;
       this.applyParameter = applyParameter;

@@ -43,6 +43,7 @@ namespace Xtensive.Orm.Tests.Issues
         new FilterTarget {Code = "BB321"};
         new FilterTarget {Code = "AA777"};
         new FilterTarget {Code = "BB777"};
+        tx.Complete();
       }
     }
 
@@ -53,7 +54,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var tx = session.OpenTransaction()) {
         var codes = new[] {"123", "321"};
         var q = Query.All<FilterTarget>()
-          .Select(t => new {Target = t, Subcode = t.Code.Substring(3, 2)})
+          .Select(t => new {Target = t, Subcode = t.Code.Substring(2, 3)})
           .Where(item => codes.Contains(item.Subcode))
           .ToList();
         Assert.That(q.Count, Is.EqualTo(4));
@@ -67,7 +68,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var tx = session.OpenTransaction()) {
         var codes = new[] {"123", "321"};
         var q = Query.All<FilterTarget>()
-          .Where(t => codes.Contains(t.Code.Substring(3, 2)))
+          .Where(t => codes.Contains(t.Code.Substring(2, 3)))
           .ToList();
         Assert.That(q.Count, Is.EqualTo(4));
       }
@@ -80,7 +81,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var tx = session.OpenTransaction()) {
         var codes = new[] {"123", "321"};
         var q = Query.All<FilterTarget>()
-          .Select(t => new {Target = t, Subcode = t.Code.Substring(3, 2)})
+          .Select(t => new {Target = t, Subcode = t.Code.Substring(2, 3)})
           .Where(item => item.Subcode.In(codes))
           .ToList();
         Assert.That(q.Count, Is.EqualTo(4));
@@ -94,7 +95,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var tx = session.OpenTransaction()) {
         var codes = new[] {"123", "321"};
         var q = Query.All<FilterTarget>()
-          .Where(t => t.Code.Substring(3, 2).In(codes))
+          .Where(t => t.Code.Substring(2, 3).In(codes))
           .ToList();
         Assert.That(q.Count, Is.EqualTo(4));
       }

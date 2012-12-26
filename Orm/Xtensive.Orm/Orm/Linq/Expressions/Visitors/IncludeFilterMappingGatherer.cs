@@ -4,63 +4,99 @@
 // Created by: Alexey Gamzov
 // Created:    2009.11.16
 
-using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Rse;
+using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Linq.Expressions.Visitors
 {
-  internal class IncludeFilterMappingGatherer :ExtendedExpressionVisitor
+  internal sealed class IncludeFilterMappingGatherer : ExtendedExpressionVisitor
   {
+    public sealed class MappingEntry
+    {
+      public int ColumnIndex { get; private set; }
+
+      public LambdaExpression CalculatedColumn { get; private set; }
+
+      public MappingEntry(int columnIndex)
+      {
+        ColumnIndex = columnIndex;
+      }
+
+      public MappingEntry(LambdaExpression calculatedColumn)
+      {
+        ColumnIndex = -1;
+        CalculatedColumn = calculatedColumn;
+      }
+    }
+
+    private readonly ParameterExpression calculatedColumnParameter;
+
+    private readonly Expression filterDataTuple;
+    private readonly ApplyParameter filteredTuple;
+    private readonly MappingEntry[] resultMapping;
+
     private int tupleIndex = -1;
     private int providerIndex = -1;
-    private readonly int[] mapping;
-    private readonly Expression tupleExpression;
 
-
-    public static int[] Visit(Expression tupleExpression, int length, Expression expression)
+    public static MappingEntry[] Gather(Expression filterExpression, Expression filterDataTuple, ApplyParameter filteredTuple, int columnCount)
     {
-      var mapping = Enumerable.Repeat(-1, length).ToArray();
-      new IncludeFilterMappingGatherer(tupleExpression, mapping).Visit(expression);
-      if (mapping.Contains(-1)) 
-        throw new InvalidOperationException();
+      var mapping = Enumerable.Repeat((MappingEntry) null, columnCount).ToArray();
+      var visitor = new IncludeFilterMappingGatherer(filterDataTuple, filteredTuple, mapping);
+      visitor.Visit(filterExpression);
+      if (mapping.Contains(null))
+        throw Exceptions.InternalError("Failed to gather mappings for IncludeProvider", OrmLog.Instance);
       return mapping;
     }
 
     protected override Expression VisitBinary(BinaryExpression b)
     {
-      if (tupleIndex!=-1 || providerIndex!=-1) 
-        throw new InvalidOperationException();
-      var result = base.VisitBinary(b);
-      if (tupleIndex*providerIndex<0) 
-        throw new InvalidOperationException();
-      if (tupleIndex >= 0)
-        mapping[tupleIndex] = providerIndex;
-      tupleIndex = -1;
-      providerIndex = -1;
+      var result = (BinaryExpression) base.VisitBinary(b);
+      var expressions = new[] {result.Left, result.Right};
+
+      var filterDataAccessor = expressions.FirstOrDefault(e => {
+        var tupleAccess = e.StripCasts().AsTupleAccess();
+        return tupleAccess!=null && tupleAccess.Object==filterDataTuple;
+      });
+      if (filterDataAccessor==null)
+        return result;
+
+      var filteredExpression = expressions.FirstOrDefault(e => e!=filterDataAccessor);
+      if (filteredExpression==null)
+        return result;
+
+      var filterDataIndex = filterDataAccessor.StripCasts().GetTupleAccessArgument();
+      resultMapping[filterDataIndex] = CreateMappingEntry(filteredExpression);
+
       return result;
     }
 
-    protected override Expression VisitMethodCall(MethodCallExpression mc)
+    protected override Expression VisitMemberAccess(MemberExpression m)
     {
-      if (mc.Method.IsGenericMethod 
-        && mc.Method.GetGenericMethodDefinition()==WellKnownMembers.Tuple.GenericAccessor 
-        && mc.Arguments[0].StripCasts().NodeType==ExpressionType.Constant) {
-        if (mc.Object==tupleExpression)
-          tupleIndex = (int) ((ConstantExpression) mc.Arguments[0].StripCasts()).Value;
-        else
-          providerIndex = (int) ((ConstantExpression) mc.Arguments[0].StripCasts()).Value;
-      }
-      return base.VisitMethodCall(mc);
+      var target = m.Expression;
+      if (target.NodeType==ExpressionType.Constant && ((ConstantExpression) target).Value==filteredTuple)
+        return calculatedColumnParameter;
+      return base.VisitMemberAccess(m);
     }
 
-    private IncludeFilterMappingGatherer(Expression tupleExpression, int[] mapping)
+    private MappingEntry CreateMappingEntry(Expression expression)
     {
-      this.tupleExpression = tupleExpression;
-      this.mapping = mapping;
+      var tupleAccess = expression.StripCasts().AsTupleAccess();
+      if (tupleAccess!=null)
+        return new MappingEntry(tupleAccess.GetTupleAccessArgument());
+      return new MappingEntry(FastExpression.Lambda(expression, calculatedColumnParameter));
+    }
+
+    private IncludeFilterMappingGatherer(Expression filterDataTuple, ApplyParameter filteredTuple, MappingEntry[] resultMapping)
+    {
+      calculatedColumnParameter = Expression.Parameter(typeof (Tuple), "filteredRow");
+
+      this.filterDataTuple = filterDataTuple;
+      this.filteredTuple = filteredTuple;
+      this.resultMapping = resultMapping;
     }
   }
 }

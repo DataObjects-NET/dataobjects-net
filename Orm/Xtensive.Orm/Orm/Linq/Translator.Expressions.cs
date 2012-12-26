@@ -705,23 +705,26 @@ namespace Xtensive.Orm.Linq
     private static bool IsConditionalOrWellknown(Expression expression, bool isRoot = true)
     {
       var conditionalExpression = expression as ConditionalExpression;
-      if (conditionalExpression != null)
+      if (conditionalExpression!=null)
         return IsConditionalOrWellknown(conditionalExpression.IfTrue, false)
-               && IsConditionalOrWellknown(conditionalExpression.IfFalse, false);
+          && IsConditionalOrWellknown(conditionalExpression.IfFalse, false);
+
       if (isRoot)
         return false;
-      if (expression.NodeType == ExpressionType.Constant)
+
+      if (expression.NodeType==ExpressionType.Constant)
         return true;
-      if (expression.NodeType == ExpressionType.Convert) {
-        var unary = (UnaryExpression)expression;
+
+      if (expression.NodeType==ExpressionType.Convert) {
+        var unary = (UnaryExpression) expression;
         return IsConditionalOrWellknown(unary.Operand, false);
       }
+
       if (!(expression is ExtendedExpression))
         return false;
 
       var memberType = expression.GetMemberType();
-      switch (memberType)
-      {
+      switch (memberType) {
         case MemberType.Primitive:
         case MemberType.Key:
         case MemberType.Structure:
@@ -861,68 +864,83 @@ namespace Xtensive.Orm.Linq
     {
       var originalBodyType = body.Type;
       var reduceCastBody = body.StripCasts();
-      if (state.CalculateExpressions
-        && reduceCastBody.GetMemberType()==MemberType.Unknown
+
+      var canCalculate =
+        state.CalculateExpressions
+          && reduceCastBody.GetMemberType()==MemberType.Unknown
+          && reduceCastBody.NodeType!=ExpressionType.New
           && reduceCastBody.NodeType!=ExpressionType.ArrayIndex
-            && (ExtendedExpressionType) reduceCastBody.NodeType!=ExtendedExpressionType.Constructor
-              && reduceCastBody.NodeType!=ExpressionType.New) {
-        var found = false;
-        var entityFinder = new ExtendedExpressionReplacer(
-          e => {
-            if ((int) e.NodeType==(int) ExtendedExpressionType.Entity) {
-              found = true;
-              return e;
-            }
-            return null;
-          });
-        entityFinder.Replace(reduceCastBody);
-        if (found)
-          return body;
+          && (ExtendedExpressionType) reduceCastBody.NodeType!=ExtendedExpressionType.Constructor
+          && !ContainsEntityExpression(reduceCastBody);
 
-        body = new EnumRewriter().Visit(body);
-        var convertExpression = Expression.Convert(body, typeof (object));
+      if (!canCalculate)
+        return body;
 
-        var calculator = ExpressionMaterializer.MakeLambda(convertExpression, context);
-        var ccd = new CalculatedColumnDescriptor(context.GetNextColumnAlias(), body.Type,
-          (Expression<Func<Tuple, object>>) calculator);
+      var lambdaParameter = state.Parameters[0];
+      var calculator = ExpressionMaterializer.MakeLambda(body, context);
+      var columnDescriptor = CreateCalculatedColumnDescriptor(calculator);
+      return AddCalculatedColumn(lambdaParameter, columnDescriptor, originalBodyType);
+    }
 
-        var lambdaParameter = state.Parameters[0];
-        var oldResult = context.Bindings[lambdaParameter];
-        var isInlined = !state.BuildingProjection && !state.GroupingKey;
+    private CalculatedColumnDescriptor CreateCalculatedColumnDescriptor(LambdaExpression expression)
+    {
+      var columnType = expression.Body.Type;
+      var newBody = EnumRewriter.Rewrite(expression.Body);
+      if (columnType!=typeof (object))
+        newBody = Expression.Convert(newBody, typeof (object));
+      var calculator = (Expression<Func<Tuple, object>>) FastExpression.Lambda(newBody, expression.Parameters);
+      return new CalculatedColumnDescriptor(context.GetNextColumnAlias(), columnType, calculator);
+    }
 
-        var dataSource = oldResult.ItemProjector.DataSource;
+    private ColumnExpression AddCalculatedColumn(ParameterExpression sourceParameter, CalculatedColumnDescriptor descriptor, Type originalColumnType)
+    {
+      var oldResult = context.Bindings[sourceParameter];
+      var isInlined = !state.BuildingProjection && !state.GroupingKey;
+      var dataSource = oldResult.ItemProjector.DataSource;
 
-        SortProvider sortProvider = null; 
-        if (dataSource is SortProvider) {
-          sortProvider = (SortProvider) dataSource;
-          dataSource = sortProvider.Source;
-        }
-
-        var columns = new List<CalculatedColumnDescriptor>();
-        if (state.AllowCalculableColumnCombine && dataSource is CalculateProvider && isInlined==((CalculateProvider) dataSource).IsInlined) {
-          var calculateProvider = ((CalculateProvider) dataSource);
-          var presentColumns = calculateProvider
-            .CalculatedColumns
-            .Select(cc => new CalculatedColumnDescriptor(cc.Name, cc.Type, cc.Expression));
-          columns.AddRange(presentColumns);
-          dataSource = calculateProvider.Source;
-        }
-        columns.Add(ccd);
-        dataSource = dataSource.Calculate(
-          isInlined,
-          columns.ToArray());
-
-        if (sortProvider!=null)
-          dataSource = dataSource.OrderBy(sortProvider.Order);
-
-        var newItemProjector = oldResult.ItemProjector.Remap(dataSource, 0);
-        var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
-        context.Bindings.ReplaceBound(lambdaParameter, newResult);
-
-        body = ColumnExpression.Create(originalBodyType, dataSource.Header.Length - 1);
-        state.AllowCalculableColumnCombine = true;
+      SortProvider sortProvider = null;
+      if (dataSource is SortProvider) {
+        sortProvider = (SortProvider) dataSource;
+        dataSource = sortProvider.Source;
       }
-      return body;
+
+      var columns = new List<CalculatedColumnDescriptor>();
+      if (state.AllowCalculableColumnCombine && dataSource is CalculateProvider && isInlined==((CalculateProvider) dataSource).IsInlined) {
+        var calculateProvider = ((CalculateProvider) dataSource);
+        var presentColumns = calculateProvider
+          .CalculatedColumns
+          .Select(cc => new CalculatedColumnDescriptor(cc.Name, cc.Type, cc.Expression));
+        columns.AddRange(presentColumns);
+        dataSource = calculateProvider.Source;
+      }
+      columns.Add(descriptor);
+      dataSource = dataSource.Calculate(isInlined, columns.ToArray());
+
+      if (sortProvider!=null)
+        dataSource = dataSource.OrderBy(sortProvider.Order);
+
+      var newItemProjector = oldResult.ItemProjector.Remap(dataSource, 0);
+      var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
+      context.Bindings.ReplaceBound(sourceParameter, newResult);
+
+      var result = ColumnExpression.Create(originalColumnType, dataSource.Header.Length - 1);
+      state.AllowCalculableColumnCombine = true;
+
+      return result;
+    }
+
+    private static bool ContainsEntityExpression(Expression expression)
+    {
+      var found = false;
+      var entityFinder = new ExtendedExpressionReplacer(e => {
+        if ((int) e.NodeType==(int) ExtendedExpressionType.Entity) {
+          found = true;
+          return e;
+        }
+        return null;
+      });
+      entityFinder.Replace(expression);
+      return found;
     }
 
     private Expression ConstructQueryable(MethodCallExpression mc)
@@ -990,13 +1008,15 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private Expression GetMember(Expression expression, MemberInfo member, Expression sourceExpression)
     {
-      MarkerType markerType;
       if (expression==null)
         return null;
+
+      MarkerType markerType;
       expression = expression.StripCasts();
       bool isMarker = expression.TryGetMarker(out markerType);
       expression = expression.StripMarkers();
       expression = expression.StripCasts();
+
       if (expression.IsAnonymousConstructor()) {
         var newExpression = (NewExpression) expression;
 #if !NET40
@@ -1005,21 +1025,21 @@ namespace Xtensive.Orm.Linq
 #endif
         int memberIndex = newExpression.Members.IndexOf(member);
         if (memberIndex < 0)
-          throw new InvalidOperationException(
-            string.Format(Strings.ExCouldNotGetMemberXFromExpression,
-              member));
-        Expression argument = Visit(newExpression.Arguments[memberIndex]);
-        return isMarker
-          ? new MarkerExpression(argument, markerType)
-          : argument;
+          throw new InvalidOperationException(string.Format(Strings.ExCouldNotGetMemberXFromExpression, member));
+        var argument = Visit(newExpression.Arguments[memberIndex]);
+        return isMarker ? new MarkerExpression(argument, markerType) : argument;
       }
+
       var extendedExpression = expression as ExtendedExpression;
-      if (extendedExpression == null)
+      if (extendedExpression==null)
         return IsConditionalOrWellknown(expression)
           ? GetConditionalMember(expression, member, sourceExpression)
           : null;
+
       Expression result = null;
-      Func<PersistentFieldExpression, bool> propertyFilter = f => f.Name==context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) member);
+      Func<PersistentFieldExpression, bool> propertyFilter
+        = f => f.Name==context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) member);
+
       switch (extendedExpression.ExtendedType) {
       case ExtendedExpressionType.FullText:
         switch (member.Name) {
@@ -1034,8 +1054,16 @@ namespace Xtensive.Orm.Linq
           return ((GroupingExpression) expression).KeyExpression;
         break;
       case ExtendedExpressionType.Constructor:
-        if (!((ConstructorExpression) extendedExpression).Bindings.TryGetValue(member, out result))
-          throw new InvalidOperationException(String.Format(Strings.ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer, member.Name, member.ReflectedType.Name));
+        var bindings = ((ConstructorExpression) extendedExpression).Bindings;
+        if (!bindings.TryGetValue(member, out result)) {
+          // Key in bindings might be a property/field reflected from a base type
+          // but our member might be reflected from child type.
+          var baseMember = member.DeclaringType.GetMember(member.Name).FirstOrDefault();
+          if (baseMember==null || !bindings.TryGetValue(baseMember, out result))
+            throw new InvalidOperationException(string.Format(
+              Strings.ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer,
+              member.Name, member.ReflectedType.Name));
+        }
         result = Visit(result);
         break;
       case ExtendedExpressionType.Structure:
@@ -1057,7 +1085,7 @@ namespace Xtensive.Orm.Linq
         break;
       case ExtendedExpressionType.Field:
         if (isMarker && ((markerType & MarkerType.Single)==MarkerType.Single))
-          throw new InvalidOperationException(String.Format(Strings.ExUseMethodXOnFirstInsteadOfSingle, sourceExpression.ToString(true), member.Name));
+          throw new InvalidOperationException(string.Format(Strings.ExUseMethodXOnFirstInsteadOfSingle, sourceExpression.ToString(true), member.Name));
         return Expression.MakeMemberAccess(expression, member);
       case ExtendedExpressionType.EntityField:
         var entityFieldExpression = (EntityFieldExpression) expression;
@@ -1068,6 +1096,7 @@ namespace Xtensive.Orm.Linq
         }
         break;
       }
+
       return isMarker
         ? new MarkerExpression(result, markerType)
         : result;
@@ -1123,7 +1152,14 @@ namespace Xtensive.Orm.Linq
       // Cast to subclass or interface.
       using (state.CreateScope()) {
         var targetTypeInfo = context.Model.Types[targetType];
-        var parameter = state.Parameters[0];
+        // Using of state.Parameter[0] is a very weak approach.
+        // `as` operator could be applied on expression that has no relation with current parameter
+        // thus the later code will fail.
+        // We can't easily find real parameter that need replacement.
+        // We work around this situation by supporting some known cases.
+        // The simplest (and the only at moment) case is a source being chain of MemberExpressions.
+        var currentParameter = state.Parameters[0];
+        var parameter = (source.StripMemberAccessChain() as ParameterExpression) ?? currentParameter;
         var entityExpression = visitedSource.StripCasts() as IEntityExpression;
 
         if (entityExpression==null)
@@ -1131,28 +1167,30 @@ namespace Xtensive.Orm.Linq
 
         // Replace original recordset. New recordset is left join with old recordset
         ProjectionExpression originalResultExpression = context.Bindings[parameter];
-        var originalRecordset = originalResultExpression.ItemProjector.DataSource;
-        int offset = originalRecordset.Header.Columns.Count;
+        var originalQuery = originalResultExpression.ItemProjector.DataSource;
+        int offset = originalQuery.Header.Columns.Count;
 
         // Join primary index of target type
-        IndexInfo joinedIndex = targetTypeInfo.Indexes.PrimaryIndex;
-        var joinedRs = joinedIndex.GetQuery().Alias(context.GetNextAlias());
-        IEnumerable<int> keySegment = entityExpression.Key.Mapping.GetItems();
-        Pair<int>[] keyPairs = keySegment
+        IndexInfo indexToJoin = targetTypeInfo.Indexes.PrimaryIndex;
+        var queryToJoin = indexToJoin.GetQuery().Alias(context.GetNextAlias());
+        var keySegment = entityExpression.Key.Mapping.GetItems();
+        var keyPairs = keySegment
           .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
           .ToArray();
 
         // Replace recordset.
-        var joinedRecordQuery = originalRecordset.LeftJoin(joinedRs, keyPairs);
-        var itemProjectorExpression = new ItemProjectorExpression(originalResultExpression.ItemProjector.Item,
-          joinedRecordQuery,
-          context);
-        var projectionExpression = new ProjectionExpression(originalResultExpression.Type, itemProjectorExpression, originalResultExpression.TupleParameterBindings);
+        var joinedRecordQuery = originalQuery.LeftJoin(queryToJoin, keyPairs);
+        var itemProjectorExpression = new ItemProjectorExpression(
+          originalResultExpression.ItemProjector.Item, joinedRecordQuery, context);
+        var projectionExpression = new ProjectionExpression(
+          originalResultExpression.Type, itemProjectorExpression, originalResultExpression.TupleParameterBindings);
         context.Bindings.ReplaceBound(parameter, projectionExpression);
 
         // return new EntityExpression
         var result = EntityExpression.Create(context.Model.Types[targetType], offset, false);
         result.IsNullable = true;
+        if (parameter!=currentParameter)
+          result = (EntityExpression) result.BindParameter(parameter, new Dictionary<Expression, Expression>());
         return result;
       }
     }

@@ -1161,52 +1161,8 @@ namespace Xtensive.Orm.Linq
 
     private Expression VisitExists(Expression source, LambdaExpression predicate, bool notExists)
     {
-      if (source.IsLocalCollection(context) && predicate!=null && predicate.Body.NodeType==ExpressionType.Equal) {
-        var parameter = predicate.Parameters[0];
-        ProjectionExpression visitedSource;
-        using (state.CreateScope()) {
-          state.IncludeAlgorithm = IncludeAlgorithm.Auto;
-          visitedSource = VisitSequence(source);
-        }
-
-        ParameterExpression outerParameter = state.Parameters[0];
-        var outerResult = context.Bindings[outerParameter];
-
-
-        using (context.Bindings.Add(parameter, visitedSource))
-        using (state.CreateScope()) {
-          state.CalculateExpressions = false;
-          state.CurrentLambda = predicate;
-          ItemProjectorExpression predicateExpression;
-          using (state.CreateScope()) {
-            state.IncludeAlgorithm = IncludeAlgorithm.Auto;
-            predicateExpression = (ItemProjectorExpression) VisitLambda(predicate);
-          }
-          var predicateLambda = predicateExpression.ToLambda(context);
-
-          var parameterSource = context.Bindings[parameter];
-          var parameterRecordSet = parameterSource.ItemProjector.DataSource;
-          var rawProvider = ((RawProvider) ((StoreProvider) visitedSource.ItemProjector.DataSource).Source);
-          var tuples = rawProvider.Source;
-          var mapping = IncludeFilterMappingGatherer.Visit(predicateLambda.Parameters[0], rawProvider.Header.Length, predicateLambda.Body);
-
-          var columnIndex = outerResult.ItemProjector.DataSource.Header.Length;
-          var newDataSource = outerResult.ItemProjector.DataSource
-            .Include(state.IncludeAlgorithm, true, tuples, context.GetNextAlias(), mapping);
-
-          var newItemProjector = outerResult.ItemProjector.Remap(newDataSource, 0);
-          var newOuterResult = new ProjectionExpression(
-            outerResult.Type, 
-            newItemProjector, 
-            outerResult.TupleParameterBindings, 
-            outerResult.ResultType);
-          context.Bindings.ReplaceBound(outerParameter, newOuterResult);
-          Expression columnExpression = ColumnExpression.Create(typeof (bool), columnIndex);
-          if (notExists)
-            columnExpression = Expression.Not(columnExpression);
-          return columnExpression;
-        }
-      }
+      if (source.IsLocalCollection(context) && predicate!=null && predicate.Body.NodeType==ExpressionType.Equal)
+        return VisitExistsAsInclude(source, predicate, notExists);
 
       ProjectionExpression subquery;
       using (state.CreateScope()) {
@@ -1225,6 +1181,72 @@ namespace Xtensive.Orm.Linq
       if (notExists)
         filter = Expression.Not(filter);
       return filter;
+    }
+
+    private Expression VisitExistsAsInclude(Expression source, LambdaExpression predicate, bool notExists)
+    {
+      // Translate localCollection.Any(item => item==outer) as outer.In(localCollection)
+
+      var parameter = predicate.Parameters[0];
+      ProjectionExpression visitedSource;
+      using (state.CreateScope()) {
+        state.IncludeAlgorithm = IncludeAlgorithm.Auto;
+        visitedSource = VisitSequence(source);
+      }
+
+      var outerParameter = state.Parameters[0];
+      using (context.Bindings.Add(parameter, visitedSource))
+      using (state.CreateScope()) {
+        state.CalculateExpressions = false;
+        state.CurrentLambda = predicate;
+
+        ItemProjectorExpression predicateExpression;
+        using (state.CreateScope()) {
+          state.IncludeAlgorithm = IncludeAlgorithm.Auto;
+          predicateExpression = (ItemProjectorExpression) VisitLambda(predicate);
+        }
+
+        var predicateLambda = predicateExpression.ToLambda(context);
+        var parameterSource = context.Bindings[parameter];
+        var parameterRecordSet = parameterSource.ItemProjector.DataSource;
+        var rawProvider = ((RawProvider) ((StoreProvider) visitedSource.ItemProjector.DataSource).Source);
+        var filterColumnCount = rawProvider.Header.Length;
+        var filteredTuple = context.GetApplyParameter(context.Bindings[outerParameter]);
+
+        // Mapping from filter data column to expression that requires filtering
+        var filteredColumnMappings = IncludeFilterMappingGatherer.Gather(
+          predicateLambda.Body, predicateLambda.Parameters[0], filteredTuple, filterColumnCount);
+
+        // Mapping from filter data column to filtered column
+        var filteredColumns = Enumerable.Repeat(-1, filterColumnCount).ToArray();
+        for (int i = 0; i < filterColumnCount; i++) {
+          var mapping = filteredColumnMappings[i];
+          if (mapping.ColumnIndex >= 0)
+            filteredColumns[i] = mapping.ColumnIndex;
+          else {
+            var descriptor = CreateCalculatedColumnDescriptor(mapping.CalculatedColumn);
+            var column = AddCalculatedColumn(outerParameter, descriptor, mapping.CalculatedColumn.Body.Type);
+            filteredColumns[i] = column.Mapping.Offset;
+          }
+        }
+
+        var outerResult = context.Bindings[outerParameter];
+        var columnIndex = outerResult.ItemProjector.DataSource.Header.Length;
+        var newDataSource = outerResult.ItemProjector.DataSource
+          .Include(state.IncludeAlgorithm, true, rawProvider.Source, context.GetNextAlias(), filteredColumns);
+
+        var newItemProjector = outerResult.ItemProjector.Remap(newDataSource, 0);
+        var newOuterResult = new ProjectionExpression(
+          outerResult.Type,
+          newItemProjector,
+          outerResult.TupleParameterBindings,
+          outerResult.ResultType);
+        context.Bindings.ReplaceBound(outerParameter, newOuterResult);
+        Expression resultExpression = ColumnExpression.Create(typeof (bool), columnIndex);
+        if (notExists)
+          resultExpression = Expression.Not(resultExpression);
+        return resultExpression;
+      }
     }
 
     private Expression VisitIn(MethodCallExpression mc)
