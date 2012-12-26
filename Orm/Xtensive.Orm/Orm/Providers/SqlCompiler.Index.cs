@@ -103,7 +103,10 @@ namespace Xtensive.Orm.Providers
 
       var sourceTables = index.UnderlyingIndexes.Any(i => i.IsVirtual)
         ? underlyingQueries.Select(SqlDml.QueryRef).Cast<SqlTable>().ToList()
-        : underlyingQueries.Select(q => q.From).ToList();
+        : underlyingQueries.Select(q => {
+          var tableRef = (SqlTableRef) q.From;
+          return (SqlTable) SqlDml.TableRef(tableRef.DataTable, tableRef.Name, q.Columns.Select(c => c.Name));
+        }).ToList();
 
       foreach (var table in sourceTables) {
         if (resultTable==null)
