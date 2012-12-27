@@ -105,7 +105,9 @@ namespace Xtensive.Orm.Configuration
 
     private bool? isMultidatabase;
     private bool? isMultischema;
+
     private string collation;
+    private string nativeLibraryCacheFolder;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -493,6 +495,23 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets native library cache folder.
+    /// <remarks>
+    /// This folder is used to store native libraries required for certain providers
+    /// (currently only SQLite).
+    /// </remarks>
+    /// </summary>
+    public string NativeLibraryCacheFolder
+    {
+      get { return nativeLibraryCacheFolder; }
+      set
+      {
+        this.EnsureNotLocked();
+        nativeLibraryCacheFolder = value;
+      }
+    }
+
+    /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
     /// </summary>
     public bool IsMultidatabase { get { return isMultidatabase ?? GetIsMultidatabase(); } }
@@ -594,6 +613,7 @@ namespace Xtensive.Orm.Configuration
       buildInParallel = configuration.buildInParallel;
       allowCyclicDatabaseDependencies = configuration.allowCyclicDatabaseDependencies;
       collation = configuration.collation;
+      nativeLibraryCacheFolder = configuration.nativeLibraryCacheFolder;
       schemaSyncExceptionFormat = configuration.schemaSyncExceptionFormat;
       databases = (DatabaseConfigurationCollection) configuration.Databases.Clone();
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();

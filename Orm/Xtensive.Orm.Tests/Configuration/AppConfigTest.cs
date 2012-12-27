@@ -93,6 +93,16 @@ namespace Xtensive.Orm.Tests.Configuration
       var clone = configuration.Clone();
       Assert.That(clone.SchemaSyncExceptionFormat, Is.EqualTo(SchemaSyncExceptionFormat.Brief));
     }
+
+    [Test]
+    public void NativeLibraryCacheFolderTest()
+    {
+      const string expected = @".\Native";
+      var configuration = DomainConfiguration.Load("AppConfigTest", "DomainWithCustomNativeLibraryCacheFolder");
+      Assert.That(configuration.NativeLibraryCacheFolder, Is.EqualTo(expected));
+      var clone = configuration.Clone();
+      Assert.That(clone.NativeLibraryCacheFolder, Is.EqualTo(expected));
+    }
     
     [Test]
     public void AdvancedMappingTest()

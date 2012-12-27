@@ -44,6 +44,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string AllowCyclicDatabaseDependenciesElementName = "allowCyclicDatabaseDependencies";
     private const string ForcedServerVersionElementName = "forcedServerVersion";
     private const string SchemaSyncExceptionFormatElementName = "schemaSyncExceptionFormat";
+    private const string NativeLibraryCacheFolderElementName = "nativeLibraryCacheFolder";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -325,6 +326,16 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.NativeLibraryCacheFolder" copy="true" />
+    /// </summary>
+    [ConfigurationProperty(NativeLibraryCacheFolderElementName)]
+    public string NativeLibraryCacheFolder
+    {
+      get { return (string) this[NativeLibraryCacheFolderElementName]; }
+      set { this[NativeLibraryCacheFolderElementName] = value; }
+    }
+
+    /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="DomainConfiguration"/> object.
     /// </summary>
@@ -354,6 +365,7 @@ namespace Xtensive.Orm.Configuration.Elements
         AllowCyclicDatabaseDependencies = AllowCyclicDatabaseDependencies,
         ForcedServerVersion = ForcedServerVersion,
         Collation = Collation,
+        NativeLibraryCacheFolder = NativeLibraryCacheFolder,
       };
 
       foreach (var element in Types)

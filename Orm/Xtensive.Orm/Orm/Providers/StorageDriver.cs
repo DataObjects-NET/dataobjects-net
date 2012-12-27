@@ -138,7 +138,12 @@ namespace Xtensive.Orm.Providers
       ArgumentValidator.EnsureArgumentNotNull(driverFactory, "driverFactory");
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
-      var driver = driverFactory.GetDriver(configuration.ConnectionInfo, configuration.ForcedServerVersion);
+      var driverConfiguration = new SqlDriverConfiguration {
+        ForcedServerVersion = configuration.ForcedServerVersion,
+        NativeLibraryCacheFolder = configuration.NativeLibraryCacheFolder,
+      };
+
+      var driver = driverFactory.GetDriver(configuration.ConnectionInfo, driverConfiguration);
       var providerInfo = ProviderInfoBuilder.Build(configuration.ConnectionInfo.Provider, driver);
 
       return new StorageDriver(driver, providerInfo, configuration, GetNullModel);
