@@ -62,11 +62,13 @@ namespace Xtensive.Sql.Drivers.Oracle
     }
     
     /// <inheritdoc/>
-    protected override SqlDriver CreateDriver(string connectionString, string forcedVersion)
+    protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       using (var connection = new OracleConnection(connectionString)) {
         connection.Open();
-        var version = forcedVersion!=null ? new Version(forcedVersion) : ParseVersion(connection.ServerVersion);
+        var version = configuration.ForcedServerVersion!=null
+          ? new Version(configuration.ForcedServerVersion)
+          : ParseVersion(connection.ServerVersion);
         var dataSource = new OracleConnectionStringBuilder(connectionString).DataSource;
         var coreServerInfo = new CoreServerInfo {
           ServerVersion = version,

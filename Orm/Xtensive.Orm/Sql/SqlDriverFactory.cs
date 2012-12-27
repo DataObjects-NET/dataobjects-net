@@ -21,7 +21,7 @@ namespace Xtensive.Sql
     /// <returns>Driver for <paramref name="connectionInfo"/>.</returns>
     public SqlDriver GetDriver(ConnectionInfo connectionInfo)
     {
-      return GetDriver(connectionInfo, null);
+      return GetDriver(connectionInfo, new SqlDriverConfiguration());
     }
 
     /// <summary>
@@ -32,14 +32,35 @@ namespace Xtensive.Sql
     /// <returns>Created driver.</returns>
     public SqlDriver GetDriver(ConnectionInfo connectionInfo, string forcedVersion)
     {
+      return GetDriver(connectionInfo, new SqlDriverConfiguration {ForcedServerVersion = forcedVersion});
+    }
+
+    /// <summary>
+    /// Create driver from the specified <paramref name="connectionInfo"/>
+    /// and <paramref name="configuration"/>.
+    /// </summary>
+    /// <param name="connectionInfo">The connection info to create driver from.</param>
+    /// <param name="configuration">Additional configuration options for the driver.</param>
+    /// <returns>Created driver.</returns>
+    public SqlDriver GetDriver(ConnectionInfo connectionInfo, SqlDriverConfiguration configuration)
+    {
       ArgumentValidator.EnsureArgumentNotNull(connectionInfo, "connectionInfo");
+      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+
       var connectionString = GetConnectionString(connectionInfo);
-      if (forcedVersion==string.Empty)
-        forcedVersion = null; // Simplify handling for all servers
-      var driver = CreateDriver(connectionString, forcedVersion);
+      configuration = configuration.Clone();
+
+      // Simplify handling for all servers
+      if (configuration.ForcedServerVersion==string.Empty)
+        configuration.ForcedServerVersion = null;
+      if (configuration.NativeLibraryCacheFolder==string.Empty)
+        configuration.NativeLibraryCacheFolder = null; 
+
+      var driver = CreateDriver(connectionString, configuration);
       driver.Initialize(this);
       return driver;
     }
+
     /// <summary>
     /// Gets connection string for the specified <see cref="ConnectionInfo"/>.
     /// </summary>
@@ -56,9 +77,9 @@ namespace Xtensive.Sql
     /// Creates the driver from the specified <paramref name="connectionString"/>.
     /// </summary>
     /// <param name="connectionString">The connection string to create driver from.</param>
-    /// <param name="forcedVersion"> </param>
+    /// <param name="configuration">Additional configuration for the driver.</param>
     /// <returns>Created driver.</returns>
-    protected abstract SqlDriver CreateDriver(string connectionString, string forcedVersion);
+    protected abstract SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration);
 
     /// <summary>
     /// Builds the connection string from the specified URL.

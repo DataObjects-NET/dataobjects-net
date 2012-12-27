@@ -18,8 +18,9 @@ namespace Xtensive.Sql.Drivers.Sqlite
 {
   internal static class ProviderInitializer
   {
+    private const string LibraryDirectory = "Native";
+    private const string LibraryFileName = "SQLite.Interop.dll";
     private const string LibraryResourceNameFormat = @"Xtensive.Sql.Drivers.Sqlite.NativeModules.{0}_{1}.SQLite.Interop.dll";
-    private const string LibraryFileNameFormat = @"{0}\Native\{1}\SQLite.Interop.dll";
     private const string LibraryMutexFormat = @"{0}_Native_{1}";
 
 #if NET40
@@ -31,7 +32,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
     private static volatile bool IsInitialized;
     private static readonly object SyncRoot = new object();
 
-    public static void Run()
+    public static void Run(string nativeLibraryCacheFolder)
     {
       if (IsInitialized)
         return;
@@ -39,7 +40,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
         if (IsInitialized)
           return;
         IsInitialized = true;
-        ExtractAndLoadNativeLibrary();
+        ExtractAndLoadNativeLibrary(nativeLibraryCacheFolder);
         RegisterCollations();
       }
     }
@@ -64,11 +65,21 @@ namespace Xtensive.Sql.Drivers.Sqlite
       }
     }
 
-    private static string GetLibraryFileName(string moduleHash)
+    private static string GetLibraryFileName(string nativeLibraryCacheFolder, string moduleHash)
     {
-      return Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        string.Format(LibraryFileNameFormat, ThisAssembly.ProductName, moduleHash));
+      string basePath;
+
+      if (nativeLibraryCacheFolder!=null) {
+        basePath = nativeLibraryCacheFolder;
+      }
+      else {
+        var localApplicationData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        if (string.IsNullOrEmpty(localApplicationData))
+          throw new InvalidOperationException(Strings.ExLocalApplicationDataIsNotAvailableSetDomainConfiguratioNativeLibraryCacheFolder);
+        basePath = Path.Combine(localApplicationData, ThisAssembly.ProductName, LibraryDirectory);
+      }
+
+      return Path.Combine(basePath, moduleHash, LibraryFileName);
     }
 
     private static void ExtractLibrary(string moduleFileName)
@@ -96,10 +107,10 @@ namespace Xtensive.Sql.Drivers.Sqlite
       }
     }
 
-    private static void ExtractAndLoadNativeLibrary()
+    private static void ExtractAndLoadNativeLibrary(string nativeLibraryCacheFolder)
     {
       var hash = GetLibraryHash();
-      var moduleFileName = GetLibraryFileName(hash);
+      var moduleFileName = GetLibraryFileName(nativeLibraryCacheFolder, hash);
       var mutexName = string.Format(LibraryMutexFormat, ThisAssembly.ProductName, hash);
 
       using (var mutex = new Mutex(false, mutexName)) {

@@ -129,11 +129,6 @@
       <Name>Xtensive.Orm</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Sql.Drivers.Sqlite\Issues.txt" />
-    <Content Include="Sql.Drivers.Sqlite\Progression.txt" />
-    <Content Include="Sql.Drivers.Sqlite\readme.txt" />
-  </ItemGroup>
   <ItemGroup Condition="$(Configuration.StartsWith('Net35'))">
     <EmbeddedResource Include="Sql.Drivers.Sqlite\NativeModules\Net35_32\SQLite.Interop.dll" />
     <EmbeddedResource Include="Sql.Drivers.Sqlite\NativeModules\Net35_64\SQLite.Interop.dll" />

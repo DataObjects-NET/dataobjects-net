@@ -32,7 +32,13 @@ namespace Xtensive.Sql.Drivers.Sqlite
     }
 
     /// <inheritdoc/>
-    protected override SqlDriver CreateDriver(string connectionString, string forcedVersion)
+    protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
+    {
+      ProviderInitializer.Run(configuration.NativeLibraryCacheFolder);
+      return DoCreateDriver(connectionString);
+    }
+
+    private SqlDriver DoCreateDriver(string connectionString)
     {
       using (var connection = new SQLiteConnection(connectionString)) {
         connection.Open();
@@ -62,11 +68,6 @@ namespace Xtensive.Sql.Drivers.Sqlite
         result += String.Format("; Password = '{0}'", url.Password);
 
       return result;
-    }
-
-    public DriverFactory()
-    {
-      ProviderInitializer.Run();
     }
   }
 }

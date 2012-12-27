@@ -133,9 +133,12 @@
     <value>ExUnboundColumn {0}</value>
   </data>
   <data name="ExResourceXIsMissing">
-    <value xml:space="preserve">Resource '{0}' is missing</value>
+    <value xml:space="preserve">Resource '{0}' is missing.</value>
   </data>
   <data name="ExFailedToLoadNativeModuleX">
-    <value xml:space="preserve">Failed to load native module '{0}'</value>
+    <value xml:space="preserve">Failed to load native module '{0}'.</value>
+  </data>
+  <data name="ExLocalApplicationDataIsNotAvailableSetDomainConfiguratioNativeLibraryCacheFolder">
+    <value xml:space="preserve">Local application data is not available for the current process. Please set DomainConfiguration.NativeLibraryCacheFolder setting.</value>
   </data>
 </root>

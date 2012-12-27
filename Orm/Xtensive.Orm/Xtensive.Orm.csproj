@@ -1130,6 +1130,7 @@
     <Compile Include="Sql\SqlDml.cs" />
     <Compile Include="Sql\SqlDriver.cs" />
     <Compile Include="Sql\SqlDriverBound.cs" />
+    <Compile Include="Sql\SqlDriverConfiguration.cs" />
     <Compile Include="Sql\SqlDriverFactory.cs" />
     <Compile Include="Sql\SqlExceptionInfo.cs" />
     <Compile Include="Sql\SqlExceptionType.cs" />

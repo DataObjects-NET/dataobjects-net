@@ -66,11 +66,11 @@ namespace Xtensive.Sql.Drivers.MySql
 #if NET40
     [SecuritySafeCritical]
 #endif
-    protected override SqlDriver CreateDriver(string connectionString, string forcedVersion)
+    protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       using (var connection = new MySqlConnection(connectionString)) {
         connection.Open();
-        var version = ParseVersion(forcedVersion ?? connection.ServerVersion);
+        var version = ParseVersion(configuration.ForcedServerVersion ?? connection.ServerVersion);
 
         var builder = new MySqlConnectionStringBuilder(connectionString);
         string dataSource = string.Format(DataSourceFormat, builder.Server, builder.Port, builder.Database);
