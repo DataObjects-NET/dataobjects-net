@@ -40,6 +40,11 @@ namespace Xtensive.Orm.Linq
       return expression.NodeType==ExpressionType.New && expression.GetMemberType()==MemberType.Anonymous;
     }
 
+    public static bool IsNewExpressionSupportedByStorage(this Expression expression)
+    {
+      return expression.NodeType==ExpressionType.New && (expression.Type==typeof (TimeSpan) || expression.Type==typeof (DateTime));
+    }
+
     public static bool IsConversionOperation(this Expression expression)
     {
       expression = expression.StripMarkers();
@@ -189,9 +194,11 @@ namespace Xtensive.Orm.Linq
       // when value type is created using default (parameterless) constructor
 
       // ReSharper disable ConditionIsAlwaysTrueOrFalse
+      // ReSharper disable HeuristicUnreachableCode
       if (expression.Constructor==null)
         return new ParameterInfo[0];
       // ReSharper restore ConditionIsAlwaysTrueOrFalse
+      // ReSharper restore HeuristicUnreachableCode
       return expression.Constructor.GetParameters();
     }
   }
