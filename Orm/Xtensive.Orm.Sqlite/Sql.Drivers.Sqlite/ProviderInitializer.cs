@@ -76,10 +76,10 @@ namespace Xtensive.Sql.Drivers.Sqlite
         var localApplicationData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         if (string.IsNullOrEmpty(localApplicationData))
           throw new InvalidOperationException(Strings.ExLocalApplicationDataIsNotAvailableSetDomainConfiguratioNativeLibraryCacheFolder);
-        basePath = Path.Combine(localApplicationData, ThisAssembly.ProductName, LibraryDirectory);
+        basePath = Path.Combine(Path.Combine(localApplicationData, ThisAssembly.ProductName), LibraryDirectory);
       }
 
-      return Path.Combine(basePath, moduleHash, LibraryFileName);
+      return Path.Combine(Path.Combine(basePath, moduleHash), LibraryFileName);
     }
 
     private static void ExtractLibrary(string moduleFileName)
