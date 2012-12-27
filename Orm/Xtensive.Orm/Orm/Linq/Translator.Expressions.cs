@@ -120,9 +120,11 @@ namespace Xtensive.Orm.Linq
           body = NullComparsionRewriter.Rewrite(body);
         body = Visit(body);
         ParameterExpression parameter = le.Parameters[0];
-        if (body.NodeType!=ExpressionType.New
+        var shouldTranslate =
+          (body.NodeType!=ExpressionType.New || body.IsNewExpressionSupportedByStorage())
           && body.NodeType!=ExpressionType.MemberInit
-            && !(body.NodeType==ExpressionType.Constant && state.BuildingProjection))
+          && !(body.NodeType==ExpressionType.Constant && state.BuildingProjection);
+        if (shouldTranslate)
           body = body.IsProjection()
             ? BuildSubqueryResult((ProjectionExpression) body, le.Body.Type)
             : ProcessProjectionElement(body);
@@ -451,22 +453,30 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     protected override Expression VisitNew(NewExpression newExpression)
     {
+      // ReSharper disable HeuristicUnreachableCode
+      // ReSharper disable ConditionIsAlwaysTrueOrFalse
+
       if (newExpression.Members==null) {
-        if (newExpression.IsGroupingExpression() ||
-          newExpression.IsSubqueryExpression() ||
-            newExpression.Type==typeof (TimeSpan) ||
-              newExpression.Type==typeof (DateTime))
+        if (newExpression.IsGroupingExpression()
+          || newExpression.IsSubqueryExpression()
+          || newExpression.IsNewExpressionSupportedByStorage())
           return base.VisitNew(newExpression);
       }
+
+      // ReSharper restore ConditionIsAlwaysTrueOrFalse
+      // ReSharper restore HeuristicUnreachableCode
+
       var arguments = VisitNewExpressionArguments(newExpression);
       if (newExpression.IsAnonymousConstructor()) {
         return newExpression.Members==null
           ? Expression.New(newExpression.Constructor, arguments)
           : Expression.New(newExpression.Constructor, arguments, newExpression.Members);
       }
+
       var constructorParameters = newExpression.GetConstructorParameters();
       if (constructorParameters.Length!=arguments.Count)
         throw Exceptions.InternalError(Strings.ExInvalidNumberOfParametersInNewExpression, OrmLog.Instance);
+
       var duplicateMembers = new SetSlim<MemberInfo>();
       var bindings = new Dictionary<MemberInfo, Expression>();
       for (int i = 0; i < constructorParameters.Length; i++) {
@@ -868,7 +878,7 @@ namespace Xtensive.Orm.Linq
       var canCalculate =
         state.CalculateExpressions
           && reduceCastBody.GetMemberType()==MemberType.Unknown
-          && reduceCastBody.NodeType!=ExpressionType.New
+          && (reduceCastBody.NodeType!=ExpressionType.New || reduceCastBody.IsNewExpressionSupportedByStorage())
           && reduceCastBody.NodeType!=ExpressionType.ArrayIndex
           && (ExtendedExpressionType) reduceCastBody.NodeType!=ExtendedExpressionType.Constructor
           && !ContainsEntityExpression(reduceCastBody);
