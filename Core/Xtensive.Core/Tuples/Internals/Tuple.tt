@@ -260,26 +260,26 @@ namespace Xtensive.Tuples.Internals
     }
   }
 }
-<#+  
+<#+
   string GetGenericArgumentsString(int count) {
-  return PackSequence("<", ">", ",", Enumerable.Range(0, count).Select(i => "T"+i));
+    return PackSequence("<", ">", ",", Enumerable.Range(0, count).Select(i => "T"+i));
   }
 
   string GetGenericTemplateString(int count) {
-  return PackSequence("<", ">", ",", Enumerable.Range(0, count).Select(i => " "));
+    return PackSequence("<", ">", ",", Enumerable.Range(0, count).Select(i => " "));
   }
 
   string PackSequence(string prologue, string epilogue, string delimiter, IEnumerable<string> items)
   {
     var builder = new StringBuilder();
-  if (prologue != null)
+    if (prologue != null)
       builder.Append(prologue);
     foreach (var item in items) {
       if (builder.Length > prologue.Length)
         builder.Append(delimiter);
       builder.Append(item);
     }
-  if (epilogue != null)
+    if (epilogue != null)
       builder.Append(epilogue);
     return builder.ToString();
   }
