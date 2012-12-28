@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Comparison;
@@ -55,7 +56,7 @@ namespace Xtensive.Tests.Tuples
       var s = t.Format();
       var tt = Xtensive.Tuples.Tuple.Parse(t.Descriptor, s);
 
-      Assert.AreEqual(t,tt);
+      Assert.AreEqual(t, tt);
     }
 
 
@@ -87,7 +88,7 @@ namespace Xtensive.Tests.Tuples
       Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(descriptor);
       using (new Measurement("Tuple.SetValue", iterationCount))
         for (int i = 0; i < iterationCount; i++)
-          tuple.SetValue(0, (object)i);
+          tuple.SetValue(0, (object) i);
       using (new Measurement("Tuple.GetValue(_,_)", iterationCount))
         for (int i = 0; i < iterationCount; i++) {
           TupleFieldState state;
@@ -120,7 +121,7 @@ namespace Xtensive.Tests.Tuples
       TupleDescriptor descriptor = TupleDescriptor.Create(shortFieldTypes);
       Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(descriptor);
       for (int i = 0; i < iterationCount; i++)
-        tuple.SetValue(0, (object)i);
+        tuple.SetValue(0, (object) i);
       for (int i = 0; i < iterationCount; i++) {
         TupleFieldState state;
         tuple.GetValue(0, out state);
@@ -144,7 +145,7 @@ namespace Xtensive.Tests.Tuples
           tuple.SetValue(0, null);
       using (new Measurement("Tuple.SetValue", iterationCount))
         for (int i = 0; i < iterationCount; i++)
-          tuple.SetValue(0, (object)i);
+          tuple.SetValue(0, (object) i);
       using (new Measurement("Tuple.GetValue", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.GetValue(0);
@@ -212,11 +213,11 @@ namespace Xtensive.Tests.Tuples
       Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(10, 20, 234.456f, 2345.34534d, "aaaaaaaaaaa", DateTime.Now);
       var hashCode = tuple.GetHashCode();
       var copy = tuple.CreateNew();
-      
+
       // Warmup
-      for (int i = 0; i < iterationCount/10; i++)
+      for (int i = 0; i < iterationCount / 10; i++)
         tuple.CopyTo(copy);
-      
+
       // Actual run
       TestHelper.CollectGarbage(true);
       // Log.Info("Get ready...");
@@ -249,7 +250,7 @@ namespace Xtensive.Tests.Tuples
       using (new Measurement("Comparing using AdvancedComparer tuples", MeasurementOptions.Log, iterationCount))
         for (int i = 0; i < iterationCount; i++)
           equals(tuple, clone);
-      using (new Measurement("Comparing using Equals tuples", MeasurementOptions.Log, iterationCount)) 
+      using (new Measurement("Comparing using Equals tuples", MeasurementOptions.Log, iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.Equals(clone);
     }
@@ -289,10 +290,10 @@ namespace Xtensive.Tests.Tuples
       tuple.SetValue(2, "hello");
 
       using (new Measurement("Format", iterationCount))
-      for (int i = 0; i < iterationCount; i++) {
-        var formatted = tuple.Format();
-        output.Add(formatted);
-      }
+        for (int i = 0; i < iterationCount; i++) {
+          var formatted = tuple.Format();
+          output.Add(formatted);
+        }
     }
 
     [Test]
@@ -309,10 +310,41 @@ namespace Xtensive.Tests.Tuples
       var source = tuple.Format();
 
       using (new Measurement("Parse", iterationCount))
-      for (int i = 0; i < iterationCount; i++) {
-        var parsed = descriptor.Parse(source);
-        output.Add(parsed);
-      }
+        for (int i = 0; i < iterationCount; i++) {
+          var parsed = descriptor.Parse(source);
+          output.Add(parsed);
+        }
+    }
+
+    [Test]
+    [Explicit, Category("Performance")]
+    public void StartupTest()
+    {
+      var types = new[] {
+        typeof (int),
+        typeof (long),
+        typeof (float),
+        typeof (double),
+        typeof (string),
+        typeof (DateTime),
+        typeof (TimeSpan),
+        typeof (byte[])
+      };
+
+      var sizeRandomizer = new Random();
+      var typeRandomizer = new Random();
+
+      const int maxSize = 30;
+      const int runCount = 10000;
+
+      using (new Measurement("Create tuple with random descriptor", runCount))
+        for (int i = 0; i < runCount; i++) {
+          var count = sizeRandomizer.Next(maxSize + 1);
+          var tupleTypes = Enumerable.Repeat(0, count)
+            .Select(_ => types[typeRandomizer.Next(types.Length)]);
+          var descriptor = TupleDescriptor.Create(tupleTypes);
+          var tuple = Tuple.Create(descriptor);
+        }
     }
   }
 }
