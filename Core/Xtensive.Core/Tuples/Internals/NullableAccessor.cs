@@ -21,6 +21,7 @@ namespace Xtensive.Tuples.Internals
   {
     private readonly GetValueDelegate<T> getValue;
     private readonly Action<Tuple,T> setValue;
+
     private int fieldIndex;
 
     public T? GetValue(Tuple tuple, out TupleFieldState fieldState)
