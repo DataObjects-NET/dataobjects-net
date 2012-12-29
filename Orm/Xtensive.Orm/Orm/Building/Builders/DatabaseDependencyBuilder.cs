@@ -16,10 +16,43 @@ namespace Xtensive.Orm.Building.Builders
 {
   internal sealed class DatabaseDependencyBuilder
   {
-    private struct DatabaseReference
+    private struct DatabaseReference : IEquatable<DatabaseReference>
     {
       public readonly string OwnerDatabase;
       public readonly string TargetDatabase;
+
+      #region Equality members
+
+      public bool Equals(DatabaseReference other)
+      {
+        return string.Equals(TargetDatabase, other.TargetDatabase) && string.Equals(OwnerDatabase, other.OwnerDatabase);
+      }
+
+      public override bool Equals(object obj)
+      {
+        if (ReferenceEquals(null, obj))
+          return false;
+        return obj is DatabaseReference && Equals((DatabaseReference) obj);
+      }
+
+      public override int GetHashCode()
+      {
+        unchecked {
+          return (TargetDatabase.GetHashCode() * 397) ^ OwnerDatabase.GetHashCode();
+        }
+      }
+
+      public static bool operator ==(DatabaseReference left, DatabaseReference right)
+      {
+        return left.Equals(right);
+      }
+
+      public static bool operator !=(DatabaseReference left, DatabaseReference right)
+      {
+        return !left.Equals(right);
+      }
+
+      #endregion
 
       public DatabaseReference(string ownerDatabase, string targetDatabase)
       {
