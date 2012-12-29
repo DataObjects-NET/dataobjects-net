@@ -16,10 +16,43 @@ namespace Xtensive.Orm.Building.Builders
 {
   internal sealed class StorageMappingBuilder
   {
-    private struct MappingRequest
+    private struct MappingRequest : IEquatable<MappingRequest>
     {
       public readonly Assembly Assembly;
       public readonly string Namespace;
+
+      #region Equality members
+
+      public bool Equals(MappingRequest other)
+      {
+        return Assembly.Equals(other.Assembly) && string.Equals(Namespace, other.Namespace);
+      }
+
+      public override bool Equals(object obj)
+      {
+        if (ReferenceEquals(null, obj))
+          return false;
+        return obj is MappingRequest && Equals((MappingRequest) obj);
+      }
+
+      public override int GetHashCode()
+      {
+        unchecked {
+          return (Assembly.GetHashCode() * 397) ^ Namespace.GetHashCode();
+        }
+      }
+
+      public static bool operator ==(MappingRequest left, MappingRequest right)
+      {
+        return left.Equals(right);
+      }
+
+      public static bool operator !=(MappingRequest left, MappingRequest right)
+      {
+        return !left.Equals(right);
+      }
+
+      #endregion
 
       public MappingRequest(Assembly assembly, string @namespace)
       {
