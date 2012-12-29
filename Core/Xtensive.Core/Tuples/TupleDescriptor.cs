@@ -37,13 +37,18 @@ namespace Xtensive.Tuples
     private static readonly string[] SetterNames;
 
     private static int totalCount;
+
     private int identifier;
     private int fieldCount;
+
     internal readonly Type[] fieldTypes;
+
     private readonly bool[] isValueTypeFlags;
+
     private ITupleFactory tupleFactory;
     private bool isInitialized;
     private int cachedHashCode;
+
     internal Delegate[] GetValueDelegates;
     internal Delegate[] GetNullableValueDelegates;
     internal Delegate[] SetValueDelegates;
