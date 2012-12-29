@@ -18,6 +18,7 @@ using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
 using Xtensive.Resources;
 using Xtensive.Tuples.Internals;
+using Xtensive.Tuples.Packed;
 using WellKnown = Xtensive.Reflection.WellKnown;
 
 namespace Xtensive.Tuples
@@ -211,7 +212,7 @@ namespace Xtensive.Tuples
           var getValueDelegateType = typeof (GetValueDelegate<>).MakeGenericType(type);
           var getValueMethod = methods[GetterNames[fieldIndex]];
           var getValueDelegate = Delegate.CreateDelegate(getValueDelegateType, getValueMethod, true);
-          var setValueDelegateType = typeof (Action<,>).MakeGenericType(typeof (Tuple), type);
+          var setValueDelegateType = typeof (Action<,,>).MakeGenericType(typeof (Tuple), typeof(int), type);
           var setValueMethod = methods[SetterNames[fieldIndex]];
           var setValueDelegate = Delegate.CreateDelegate(setValueDelegateType, setValueMethod, true);
           GetValueDelegates[fieldIndex] = getValueDelegate;
@@ -219,7 +220,7 @@ namespace Xtensive.Tuples
           if (isValueTypeFlags[fieldIndex]) {
             var nullableType = typeof (Nullable<>).MakeGenericType(type);
             var accessorType = typeof (NullableAccessor<>).MakeGenericType(type);
-            var accessor = (NullableAccessor) Activator.CreateInstance(accessorType, getValueDelegate, setValueDelegate, fieldIndex);
+            var accessor = (NullableAccessor) Activator.CreateInstance(accessorType, getValueDelegate, setValueDelegate);
             GetNullableValueDelegates[fieldIndex] = accessor.GetValueDelegate;
             SetNullableValueDelegates[fieldIndex] = accessor.SetValueDelegate;
           }
@@ -405,8 +406,9 @@ namespace Xtensive.Tuples
     public static TupleDescriptor Create(Type[] fieldTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(fieldTypes, "fieldTypes");
-      var descriptor = new TupleDescriptor(fieldTypes);
-      return TupleDescriptorCache.Register(descriptor);
+      //var descriptor = new TupleDescriptor(fieldTypes);
+      //return TupleDescriptorCache.Register(descriptor);
+      return new PackedTupleDescriptor(fieldTypes.ToList());
     }
 
     /// <summary>
@@ -419,8 +421,9 @@ namespace Xtensive.Tuples
     public static TupleDescriptor Create(IList<Type> fieldTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(fieldTypes, "fieldTypes");
-      var descriptor = new TupleDescriptor(fieldTypes);
-      return TupleDescriptorCache.Register(descriptor);
+      return new PackedTupleDescriptor(fieldTypes.ToList());
+      //var descriptor = new TupleDescriptor(fieldTypes);
+      //return TupleDescriptorCache.Register(descriptor);
     }
 
     /// <summary>

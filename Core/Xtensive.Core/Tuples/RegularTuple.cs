@@ -27,25 +27,25 @@ namespace Xtensive.Tuples
     }
 
     /// <inheritdoc/>
-    protected sealed override Delegate GetGetValueDelegate(int fieldIndex)
+    protected override Delegate GetGetValueDelegate(int fieldIndex)
     {
       return Descriptor.GetValueDelegates[fieldIndex];
     }
 
     /// <inheritdoc/>
-    protected sealed override Delegate GetGetNullableValueDelegate(int fieldIndex)
+    protected override Delegate GetGetNullableValueDelegate(int fieldIndex)
     {
       return Descriptor.GetNullableValueDelegates[fieldIndex];
     }
 
     /// <inheritdoc/>
-    protected sealed override Delegate GetSetValueDelegate(int fieldIndex)
+    protected override Delegate GetSetValueDelegate(int fieldIndex)
     {
       return Descriptor.SetValueDelegates[fieldIndex];
     }
 
     /// <inheritdoc/>
-    protected sealed override Delegate GetSetNullableValueDelegate(int fieldIndex)
+    protected override Delegate GetSetNullableValueDelegate(int fieldIndex)
     {
       return Descriptor.SetNullableValueDelegates[fieldIndex];
     }

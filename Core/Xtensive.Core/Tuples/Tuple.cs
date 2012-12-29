@@ -13,6 +13,7 @@ using Xtensive.Comparison;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Resources;
+using Xtensive.Tuples.Packed;
 
 namespace Xtensive.Tuples
 {
@@ -125,7 +126,7 @@ namespace Xtensive.Tuples
         ? GetGetNullableValueDelegate(fieldIndex)
         : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
       return getter!=null
-        ? getter.Invoke(this, out fieldState)
+        ? getter.Invoke(this, fieldIndex, out fieldState)
         : GetValueInternal<T>(isNullable, fieldIndex, out fieldState);
     }
 
@@ -151,7 +152,7 @@ namespace Xtensive.Tuples
         ? GetGetNullableValueDelegate(fieldIndex)
         : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
       if (getter!=null) {
-        var result = getter.Invoke(this, out fieldState);
+        var result = getter.Invoke(this, fieldIndex, out fieldState);
         if (fieldState.IsNull()) {
           if (isNullable)
             return default(T);
@@ -183,7 +184,7 @@ namespace Xtensive.Tuples
         : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
       if (getter!=null) {
         TupleFieldState fieldState;
-        var result = getter.Invoke(this, out fieldState);
+        var result = getter.Invoke(this, fieldIndex, out fieldState);
         return fieldState==TupleFieldState.Available
           ? result
           : default(T);
@@ -204,9 +205,9 @@ namespace Xtensive.Tuples
       var isNullable = null==default(T); // Is nullable value type or class
       var setter = (isNullable
         ? GetSetNullableValueDelegate(fieldIndex)
-        : GetSetValueDelegate(fieldIndex)) as Action<Tuple, T>;
+        : GetSetValueDelegate(fieldIndex)) as Action<Tuple, int, T>;
       if (setter!=null)
-        setter.Invoke(this, fieldValue);
+        setter.Invoke(this, fieldIndex, fieldValue);
       else
         SetValueInternal(isNullable, fieldIndex, fieldValue);
     }
@@ -224,7 +225,7 @@ namespace Xtensive.Tuples
           ? mappedContainer.First.GetGetNullableValueDelegate(mappedContainer.Second)
           : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>;
         if (getter!=null)
-          return getter.Invoke(mappedContainer.First, out fieldState);
+          return getter.Invoke(mappedContainer.First, fieldIndex, out fieldState);
       }
       var value = GetValue(fieldIndex, out fieldState);
       return value==null
@@ -243,7 +244,7 @@ namespace Xtensive.Tuples
         (getter = (isNullable
           ? mappedContainer.First.GetGetNullableValueDelegate(mappedContainer.Second)
           : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>)!=null) {
-        result = getter.Invoke(mappedContainer.First, out fieldState);
+        result = getter.Invoke(mappedContainer.First, mappedContainer.Second, out fieldState);
       }
       else {
         var value = GetValue(fieldIndex, out fieldState);
@@ -270,7 +271,7 @@ namespace Xtensive.Tuples
         (getter = (isNullable
           ? mappedContainer.First.GetGetNullableValueDelegate(mappedContainer.Second)
           : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>)!=null) {
-        result = getter.Invoke(mappedContainer.First, out fieldState);
+        result = getter.Invoke(mappedContainer.First, mappedContainer.Second, out fieldState);
       }
       else {
         var value = GetValue(fieldIndex, out fieldState);
@@ -286,13 +287,13 @@ namespace Xtensive.Tuples
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void SetValueInternal<T>(bool isNullable, int fieldIndex, T fieldValue)
     {
-      Action<Tuple, T> setter;
+      Action<Tuple, int, T> setter;
       var mappedContainer = GetMappedContainer(fieldIndex, true);
       if (mappedContainer.First!=null &&
         (setter = (isNullable
           ? mappedContainer.First.GetSetNullableValueDelegate(mappedContainer.Second)
-          : mappedContainer.First.GetSetValueDelegate(mappedContainer.Second)) as Action<Tuple, T>)!=null)
-        setter.Invoke(mappedContainer.First, fieldValue);
+          : mappedContainer.First.GetSetValueDelegate(mappedContainer.Second)) as Action<Tuple, int, T>)!=null)
+        setter.Invoke(mappedContainer.First, mappedContainer.Second, fieldValue);
       else
         SetValue(fieldIndex, (object) fieldValue);
     }
@@ -435,8 +436,9 @@ namespace Xtensive.Tuples
     {
       if (descriptor==null)
         throw new ArgumentNullException("descriptor");
-      descriptor.EnsureIsInitialized();
-      return (RegularTuple) descriptor.TupleFactory.CreateNew();
+//      descriptor.EnsureIsInitialized();
+//      return (RegularTuple) descriptor.TupleFactory.CreateNew();
+      return new PackedTuple(descriptor);
     }
 
     #endregion

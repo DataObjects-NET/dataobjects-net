@@ -18,44 +18,42 @@ namespace Xtensive.Tuples.Internals
   internal sealed class JoinedTupleAccessor<T> : JoinedTupleAccessor
   {
     private readonly GetValueDelegate<T> getValue;
-    private readonly Action<Tuple, T> setValue;
-    private int fieldIndex;
+    private readonly Action<Tuple, int, T> setValue;
 
-    public T GetValueFirst(Tuple tuple, out TupleFieldState fieldState)
+    public T GetValueFirst(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
     {
       var joinedTuple = (JoinedTuple) tuple;
-      return getValue(joinedTuple.First, out fieldState);
+      return getValue(joinedTuple.First, fieldIndex, out fieldState);
     }
 
-    public T GetValueSecond(Tuple tuple, out TupleFieldState fieldState)
+    public T GetValueSecond(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
     {
       var joinedTuple = (JoinedTuple) tuple;
-      return getValue(joinedTuple.Second, out fieldState);
+      return getValue(joinedTuple.Second, fieldIndex, out fieldState);
     }
 
-    public void SetValueFirst(Tuple tuple, T value)
+    public void SetValueFirst(Tuple tuple, int fieldIndex, T value)
     {
-      var joinedTuple = (JoinedTuple)tuple;
-      setValue(joinedTuple.First, value);
+      var joinedTuple = (JoinedTuple) tuple;
+      setValue(joinedTuple.First, fieldIndex, value);
     }
 
-    public void SetValueSecond(Tuple tuple, T value)
+    public void SetValueSecond(Tuple tuple, int fieldIndex, T value)
     {
-      var joinedTuple = (JoinedTuple)tuple;
-      setValue(joinedTuple.Second, value);
+      var joinedTuple = (JoinedTuple) tuple;
+      setValue(joinedTuple.Second, fieldIndex, value);
     }
 
 
     // Constructors
 
-    public JoinedTupleAccessor(GetValueDelegate<T> getValue, Action<Tuple, T> setValue, int fieldIndex)
+    public JoinedTupleAccessor(GetValueDelegate<T> getValue, Action<Tuple, int, T> setValue, int fieldIndex)
     {
       this.getValue = getValue;
       this.setValue = setValue;
-      this.fieldIndex = fieldIndex;
 
       GetValueDelegate<T> getValueDelegate;
-      Action<Tuple, T> setValueDelegate;
+      Action<Tuple, int, T> setValueDelegate;
       if (fieldIndex < JoinedTuple.FirstCount) {
         getValueDelegate = GetValueFirst;
         setValueDelegate = SetValueFirst;

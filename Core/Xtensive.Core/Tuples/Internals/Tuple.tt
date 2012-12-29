@@ -146,9 +146,10 @@ namespace Xtensive.Tuples.Internals
     /// Gets the value and state of field <#= j #>.
     /// </summary>
     /// <param name="tuple">The tuple to get field value and state for.</param>
+    /// <param name="fieldIndex">Index of the field to use.</param>
     /// <param name="fieldState">Field state associated with the field.</param>
     /// <returns>Field value, if it is available; otherwise, default value for field type.</returns>
-    public static T<#= j #> GetValue<#= j #>(Tuple tuple, out TupleFieldState fieldState)
+    public static T<#= j #> GetValue<#= j #>(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
     {
       var t = (Tuple<#= GetGenericArgumentsString(i + 1) #>)tuple;
       fieldState = (TupleFieldState) ((t.Flags >> (<#= j #> << 1)) & 3);
@@ -161,8 +162,9 @@ namespace Xtensive.Tuples.Internals
     /// Sets the value of field <#= j #>.
     /// </summary>
     /// <param name="tuple">The tuple to set field value for.</param>
+    /// <param name="fieldIndex">Index of the field to use.</param>
     /// <param name="value">The value to set.</param>
-    public static void SetValue<#= j #>(Tuple tuple, T<#= j #> value)
+    public static void SetValue<#= j #>(Tuple tuple, int fieldIndex, T<#= j #> value)
     {
       var t = (Tuple<#= GetGenericArgumentsString(i + 1) #>)tuple;
       const long mask = 3L << (<#= j #> << 1);

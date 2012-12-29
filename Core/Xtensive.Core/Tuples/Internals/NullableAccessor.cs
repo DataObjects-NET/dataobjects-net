@@ -20,22 +20,20 @@ namespace Xtensive.Tuples.Internals
     where T : struct
   {
     private readonly GetValueDelegate<T> getValue;
-    private readonly Action<Tuple,T> setValue;
+    private readonly Action<Tuple, int, T> setValue;
 
-    private int fieldIndex;
-
-    public T? GetValue(Tuple tuple, out TupleFieldState fieldState)
+    public T? GetValue(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
     {
-      var value = getValue(tuple, out fieldState);
+      var value = getValue(tuple, fieldIndex, out fieldState);
       if (fieldState == TupleFieldState.Available)
         return value;
       return null;
     }
 
-    public void SetValue(Tuple tuple, T? value)
+    public void SetValue(Tuple tuple, int fieldIndex, T? value)
     {
       if (value.HasValue)
-        setValue(tuple, value.Value);
+        setValue(tuple, fieldIndex, value.Value);
       else
         tuple.SetValue(fieldIndex, null);
     }
@@ -43,13 +41,14 @@ namespace Xtensive.Tuples.Internals
 
     // Constructors
 
-    public NullableAccessor(GetValueDelegate<T> getValue, Action<Tuple, T> setValue, int fieldIndex)
+    public NullableAccessor(GetValueDelegate<T> getValue, Action<Tuple, int, T> setValue)
     {
       this.getValue = getValue;
       this.setValue = setValue;
-      this.fieldIndex = fieldIndex;
+
       GetValueDelegate<T?> getValueDelegate = GetValue;
-      Action<Tuple, T?> setValueDelegate = SetValue;
+      Action<Tuple, int, T?> setValueDelegate = SetValue;
+
       GetValueDelegate = getValueDelegate;
       SetValueDelegate = setValueDelegate;
     }
