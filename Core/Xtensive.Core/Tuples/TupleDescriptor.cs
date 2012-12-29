@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 using Xtensive.Collections;
 using Xtensive.Comparison;
@@ -32,6 +33,9 @@ namespace Xtensive.Tuples
     IComparable<TupleDescriptor>,
     IList<Type>
   {
+    private static readonly string[] GetterNames;
+    private static readonly string[] SetterNames;
+
     private static int totalCount;
     private int identifier;
     private int fieldCount;
@@ -195,19 +199,22 @@ namespace Xtensive.Tuples
           }
         }
       }
-      else
+      else {
+        var methods = tupleType.GetMethods(BindingFlags.Public | BindingFlags.Static).ToDictionary(m => m.Name);
         for (int fieldIndex = 0; fieldIndex < Count; fieldIndex++) {
           var type = fieldTypes[fieldIndex];
           var getValueDelegateType = typeof (GetValueDelegate<>).MakeGenericType(type);
-          var getValueDelegate = Delegate.CreateDelegate(getValueDelegateType, tupleType.GetMethod(Reflection.WellKnown.Tuple.GetValueX.FormatWith(fieldIndex)), true);
-          var setValueDelegateType = typeof(Action<,>).MakeGenericType(typeof(Tuple), type);
-          var setValueDelegate = Delegate.CreateDelegate(setValueDelegateType, tupleType.GetMethod(Reflection.WellKnown.Tuple.SetValueX.FormatWith(fieldIndex)), true);
+          var getValueMethod = methods[GetterNames[fieldIndex]];
+          var getValueDelegate = Delegate.CreateDelegate(getValueDelegateType, getValueMethod, true);
+          var setValueDelegateType = typeof (Action<,>).MakeGenericType(typeof (Tuple), type);
+          var setValueMethod = methods[SetterNames[fieldIndex]];
+          var setValueDelegate = Delegate.CreateDelegate(setValueDelegateType, setValueMethod, true);
           GetValueDelegates[fieldIndex] = getValueDelegate;
           SetValueDelegates[fieldIndex] = setValueDelegate;
           if (isValueTypeFlags[fieldIndex]) {
             var nullableType = typeof (Nullable<>).MakeGenericType(type);
             var accessorType = typeof (NullableAccessor<>).MakeGenericType(type);
-            var accessor = (NullableAccessor)Activator.CreateInstance(accessorType, getValueDelegate, setValueDelegate, fieldIndex);
+            var accessor = (NullableAccessor) Activator.CreateInstance(accessorType, getValueDelegate, setValueDelegate, fieldIndex);
             GetNullableValueDelegates[fieldIndex] = accessor.GetValueDelegate;
             SetNullableValueDelegates[fieldIndex] = accessor.SetValueDelegate;
           }
@@ -216,6 +223,7 @@ namespace Xtensive.Tuples
             SetNullableValueDelegates[fieldIndex] = setValueDelegate;
           }
         }
+      }
     }
 
     #endregion
@@ -574,7 +582,19 @@ namespace Xtensive.Tuples
         this.fieldTypes[i] = t;
         isValueTypeFlags[i] = t.IsValueType;
       }
-      
+    }
+
+    static TupleDescriptor()
+    {
+      GetterNames = Enumerable
+        .Range(0, MaxGeneratedTupleLength.Value)
+        .Select(i => string.Format(WellKnown.Tuple.GetValueX, i))
+        .ToArray();
+
+      SetterNames = Enumerable
+        .Range(0, MaxGeneratedTupleLength.Value)
+        .Select(i => string.Format(WellKnown.Tuple.SetValueX, i))
+        .ToArray();
     }
   }
 }
