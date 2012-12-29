@@ -318,7 +318,7 @@ namespace Xtensive.Tests.Tuples
 
     [Test]
     [Explicit, Category("Performance")]
-    public void StartupTest()
+    public void GeneratorAdvancedTest()
     {
       var types = new[] {
         typeof (int),
