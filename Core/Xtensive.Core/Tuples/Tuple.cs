@@ -36,7 +36,8 @@ namespace Xtensive.Tuples
 
     /// <inheritdoc />
     [IgnoreDataMember]
-    public virtual int Count { 
+    public virtual int Count
+    {
       [DebuggerStepThrough]
       get { return Descriptor.Count; }
     }
@@ -79,7 +80,7 @@ namespace Xtensive.Tuples
 
     /// <inheritdoc />
     public abstract TupleFieldState GetFieldState(int fieldIndex);
-    
+
     protected internal abstract void SetFieldState(int fieldIndex, TupleFieldState fieldState);
 
     /// <inheritdoc/>
@@ -119,12 +120,12 @@ namespace Xtensive.Tuples
     /// <typeparam name="T">The type of value to get.</typeparam>
     public T GetValue<T>(int fieldIndex, out TupleFieldState fieldState)
     {
-      var isNullable = null == default(T); // Is nullable value type or class
-      var getter = (isNullable 
+      var isNullable = null==default(T); // Is nullable value type or class
+      var getter = (isNullable
         ? GetGetNullableValueDelegate(fieldIndex)
         : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
-      return getter != null 
-        ? getter.Invoke(this, out fieldState) 
+      return getter!=null
+        ? getter.Invoke(this, out fieldState)
         : GetValueInternal<T>(isNullable, fieldIndex, out fieldState);
     }
 
@@ -145,16 +146,16 @@ namespace Xtensive.Tuples
     public T GetValue<T>(int fieldIndex)
     {
       TupleFieldState fieldState;
-      var isNullable = null == default(T); // Is nullable value type or class
+      var isNullable = null==default(T); // Is nullable value type or class
       var getter = (isNullable
         ? GetGetNullableValueDelegate(fieldIndex)
         : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
-      if (getter != null) {
+      if (getter!=null) {
         var result = getter.Invoke(this, out fieldState);
         if (fieldState.IsNull()) {
           if (isNullable)
             return default(T);
-          throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof(T)));
+          throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof (T)));
         }
         return result;
       }
@@ -176,15 +177,15 @@ namespace Xtensive.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValueOrDefault<T>(int fieldIndex)
     {
-      var isNullable = null == default(T); // Is nullable value type or class
+      var isNullable = null==default(T); // Is nullable value type or class
       var getter = (isNullable
         ? GetGetNullableValueDelegate(fieldIndex)
         : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
-      if (getter != null) {
+      if (getter!=null) {
         TupleFieldState fieldState;
         var result = getter.Invoke(this, out fieldState);
-        return fieldState == TupleFieldState.Available 
-          ? result 
+        return fieldState==TupleFieldState.Available
+          ? result
           : default(T);
       }
       return GetValueOrDefaultInternal<T>(isNullable, fieldIndex);
@@ -200,11 +201,11 @@ namespace Xtensive.Tuples
     /// are incompatible.</exception>
     public void SetValue<T>(int fieldIndex, T fieldValue)
     {
-      var isNullable = null == default(T); // Is nullable value type or class
+      var isNullable = null==default(T); // Is nullable value type or class
       var setter = (isNullable
         ? GetSetNullableValueDelegate(fieldIndex)
         : GetSetValueDelegate(fieldIndex)) as Action<Tuple, T>;
-      if (setter != null)
+      if (setter!=null)
         setter.Invoke(this, fieldValue);
       else
         SetValueInternal(isNullable, fieldIndex, fieldValue);
@@ -218,16 +219,16 @@ namespace Xtensive.Tuples
     private T GetValueInternal<T>(bool isNullable, int fieldIndex, out TupleFieldState fieldState)
     {
       var mappedContainer = GetMappedContainer(fieldIndex, false);
-      if (mappedContainer.First != null) {
+      if (mappedContainer.First!=null) {
         var getter = (isNullable
           ? mappedContainer.First.GetGetNullableValueDelegate(mappedContainer.Second)
           : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>;
-        if (getter != null)
+        if (getter!=null)
           return getter.Invoke(mappedContainer.First, out fieldState);
       }
       var value = GetValue(fieldIndex, out fieldState);
-      return value == null 
-        ? default(T) 
+      return value==null
+        ? default(T)
         : (T) value;
     }
 
@@ -238,22 +239,22 @@ namespace Xtensive.Tuples
       TupleFieldState fieldState;
       GetValueDelegate<T> getter;
       var mappedContainer = GetMappedContainer(fieldIndex, false);
-      if (mappedContainer.First != null && 
+      if (mappedContainer.First!=null &&
         (getter = (isNullable
           ? mappedContainer.First.GetGetNullableValueDelegate(mappedContainer.Second)
-          : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>) != null) {
+          : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>)!=null) {
         result = getter.Invoke(mappedContainer.First, out fieldState);
       }
       else {
         var value = GetValue(fieldIndex, out fieldState);
-        result = value == null
+        result = value==null
           ? default(T)
           : (T) value;
       }
       if (fieldState.IsNull()) {
         if (isNullable)
           return default(T);
-        throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof(T)));
+        throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof (T)));
       }
       return result;
     }
@@ -265,19 +266,19 @@ namespace Xtensive.Tuples
       TupleFieldState fieldState;
       GetValueDelegate<T> getter;
       var mappedContainer = GetMappedContainer(fieldIndex, false);
-      if (mappedContainer.First != null && 
+      if (mappedContainer.First!=null &&
         (getter = (isNullable
           ? mappedContainer.First.GetGetNullableValueDelegate(mappedContainer.Second)
-          : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>) != null) {
+          : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>)!=null) {
         result = getter.Invoke(mappedContainer.First, out fieldState);
       }
       else {
         var value = GetValue(fieldIndex, out fieldState);
-        result = value == null
+        result = value==null
           ? default(T)
           : (T) value;
       }
-      return fieldState == TupleFieldState.Available
+      return fieldState==TupleFieldState.Available
         ? result
         : default(T);
     }
@@ -287,13 +288,13 @@ namespace Xtensive.Tuples
     {
       Action<Tuple, T> setter;
       var mappedContainer = GetMappedContainer(fieldIndex, true);
-      if (mappedContainer.First != null &&
-          (setter = (isNullable
-             ? mappedContainer.First.GetSetNullableValueDelegate(mappedContainer.Second)
-             : mappedContainer.First.GetSetValueDelegate(mappedContainer.Second)) as Action<Tuple, T>) != null)
+      if (mappedContainer.First!=null &&
+        (setter = (isNullable
+          ? mappedContainer.First.GetSetNullableValueDelegate(mappedContainer.Second)
+          : mappedContainer.First.GetSetValueDelegate(mappedContainer.Second)) as Action<Tuple, T>)!=null)
         setter.Invoke(mappedContainer.First, fieldValue);
       else
-        SetValue(fieldIndex, (object)fieldValue);
+        SetValue(fieldIndex, (object) fieldValue);
     }
 
     #endregion
@@ -331,7 +332,7 @@ namespace Xtensive.Tuples
     }
 
     #endregion
-    
+
     #region IComparable, IEquatable
 
     /// <inheritdoc/>
@@ -343,7 +344,7 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public int CompareTo(ITuple other)
     {
-      return CompareTo((Tuple)other);
+      return CompareTo((Tuple) other);
     }
 
     /// <inheritdoc/>
@@ -363,7 +364,7 @@ namespace Xtensive.Tuples
     #region Equals, GetHashCode
 
     /// <inheritdoc/>
-    public sealed override bool Equals(object obj)
+    public override sealed bool Equals(object obj)
     {
       return Equals(obj as Tuple);
     }
@@ -373,10 +374,10 @@ namespace Xtensive.Tuples
     {
       var count = Count;
       int result = 0;
-      for (int i = 0; i<count; i++) {
+      for (int i = 0; i < count; i++) {
         TupleFieldState state;
         object valueOrDefault = GetValue(i, out state);
-        result = HashCodeMultiplier * result ^ (valueOrDefault != null ? valueOrDefault.GetHashCode() : 0);
+        result = HashCodeMultiplier * result ^ (valueOrDefault!=null ? valueOrDefault.GetHashCode() : 0);
       }
       return result;
     }
@@ -398,8 +399,8 @@ namespace Xtensive.Tuples
           sb.Append(Strings.NotAvailable);
         else if (state.IsNull())
           sb.Append(Strings.Null);
-        else if (Descriptor[i] == typeof(string)) {
-          if (string.IsNullOrEmpty(value as  string))
+        else if (Descriptor[i]==typeof (string)) {
+          if (string.IsNullOrEmpty(value as string))
             sb.Append(Strings.EmptyString);
           else
             sb.Append(value);
@@ -432,10 +433,10 @@ namespace Xtensive.Tuples
     /// <returns>Newly created <see cref="RegularTuple"/> object.</returns>
     public static RegularTuple Create(TupleDescriptor descriptor)
     {
-      if (descriptor == null) 
+      if (descriptor==null)
         throw new ArgumentNullException("descriptor");
       descriptor.EnsureIsInitialized();
-      return (RegularTuple)descriptor.TupleFactory.CreateNew();
+      return (RegularTuple) descriptor.TupleFactory.CreateNew();
     }
 
     #endregion
@@ -451,8 +452,8 @@ namespace Xtensive.Tuples
     public static RegularTuple Create<T>(T value)
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(new[] {
-                                                                  typeof(T)
-                                                                });
+        typeof (T)
+      });
       return Create(descriptor, value);
     }
 
@@ -478,12 +479,12 @@ namespace Xtensive.Tuples
     /// <param name="value1">Value of the first tuple field.</param>
     /// <param name="value2">Value of the 2nd tuple field.</param>
     /// <returns>Newly created <see cref="RegularTuple"/> object.</returns>
-    public static RegularTuple Create<T1,T2>(T1 value1, T2 value2)
+    public static RegularTuple Create<T1, T2>(T1 value1, T2 value2)
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(new[] {
-                                                                  typeof(T1),
-                                                                  typeof(T2)
-                                                                });
+        typeof (T1),
+        typeof (T2)
+      });
       return Create(descriptor, value1, value2);
     }
 
@@ -496,7 +497,7 @@ namespace Xtensive.Tuples
     /// <param name="value1">Value of the first tuple field.</param>
     /// <param name="value2">Value of the 2nd tuple field.</param>
     /// <returns>Newly created <see cref="RegularTuple"/> object.</returns>
-    public static RegularTuple Create<T1,T2>(TupleDescriptor descriptor, T1 value1, T2 value2)
+    public static RegularTuple Create<T1, T2>(TupleDescriptor descriptor, T1 value1, T2 value2)
     {
       RegularTuple tuple = Create(descriptor);
       tuple.SetValue(0, value1);
@@ -514,13 +515,13 @@ namespace Xtensive.Tuples
     /// <param name="value2">Value of the 2nd tuple field.</param>
     /// <param name="value3">Value of the 3rd tuple field.</param>
     /// <returns>Newly created <see cref="RegularTuple"/> object.</returns>
-    public static RegularTuple Create<T1,T2,T3>(T1 value1, T2 value2, T3 value3)
+    public static RegularTuple Create<T1, T2, T3>(T1 value1, T2 value2, T3 value3)
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(new[] {
-                                                                  typeof(T1),
-                                                                  typeof(T2),
-                                                                  typeof(T3)
-                                                                });
+        typeof (T1),
+        typeof (T2),
+        typeof (T3)
+      });
       return Create(descriptor, value1, value2, value3);
     }
 
@@ -556,14 +557,14 @@ namespace Xtensive.Tuples
     /// <param name="value3">Value of the 3rd tuple field.</param>
     /// <param name="value4">Value of the 4th tuple field.</param>
     /// <returns>Newly created <see cref="RegularTuple"/> object.</returns>
-    public static RegularTuple Create<T1,T2,T3,T4>(T1 value1, T2 value2, T3 value3, T4 value4)
+    public static RegularTuple Create<T1, T2, T3, T4>(T1 value1, T2 value2, T3 value3, T4 value4)
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(new[] {
-                                                                  typeof(T1),
-                                                                  typeof(T2),
-                                                                  typeof(T3),
-                                                                  typeof(T4)
-                                                                });
+        typeof (T1),
+        typeof (T2),
+        typeof (T3),
+        typeof (T4)
+      });
       return Create(descriptor, value1, value2, value3, value4);
     }
 
@@ -604,15 +605,15 @@ namespace Xtensive.Tuples
     /// <param name="value4">Value of the 4th tuple field.</param>
     /// <param name="value5">Value of the 5th tuple field.</param>
     /// <returns>Newly created <see cref="RegularTuple"/> object.</returns>
-    public static RegularTuple Create<T1,T2,T3,T4,T5>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5)
+    public static RegularTuple Create<T1, T2, T3, T4, T5>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5)
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(new[] {
-                                                                  typeof(T1),
-                                                                  typeof(T2),
-                                                                  typeof(T3),
-                                                                  typeof(T4),
-                                                                  typeof(T5)
-                                                                });
+        typeof (T1),
+        typeof (T2),
+        typeof (T3),
+        typeof (T4),
+        typeof (T5)
+      });
       return Create(descriptor, value1, value2, value3, value4, value5);
     }
 
@@ -658,16 +659,16 @@ namespace Xtensive.Tuples
     /// <param name="value5">Value of the 5th tuple field.</param>
     /// <param name="value6">Value of the 6th tuple field.</param>
     /// <returns>Newly created <see cref="RegularTuple"/> object.</returns>
-    public static RegularTuple Create<T1,T2,T3,T4,T5,T6>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5, T6 value6)
+    public static RegularTuple Create<T1, T2, T3, T4, T5, T6>(T1 value1, T2 value2, T3 value3, T4 value4, T5 value5, T6 value6)
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(new[] {
-                                                                  typeof(T1),
-                                                                  typeof(T2),
-                                                                  typeof(T3),
-                                                                  typeof(T4),
-                                                                  typeof(T5),
-                                                                  typeof(T6)
-                                                                });
+        typeof (T1),
+        typeof (T2),
+        typeof (T3),
+        typeof (T4),
+        typeof (T5),
+        typeof (T6)
+      });
       return Create(descriptor, value1, value2, value3, value4, value5, value6);
     }
 
