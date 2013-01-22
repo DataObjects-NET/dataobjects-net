@@ -9,9 +9,9 @@ using System.Collections;
 
 namespace Xtensive.Tuples.Packed
 {
-  public sealed class PackedTuple : RegularTuple
+  internal sealed class PackedTuple : RegularTuple
   {
-    private new readonly PackedTupleDescriptor descriptor;
+    private readonly PackedTupleDescriptor descriptor;
     private readonly BitArray bits;
 
     private readonly long[] values;
@@ -118,18 +118,16 @@ namespace Xtensive.Tuples.Packed
       return descriptor.FieldDescriptors[fieldIndex].SetNullableValueDelegate;
     }
 
-    public PackedTuple(TupleDescriptor descriptorObj)
-      : base(descriptorObj)
+    public PackedTuple(PackedTupleDescriptor descriptor)
     {
-      descriptor = (PackedTupleDescriptor) descriptorObj;
+      this.descriptor = descriptor;
 
-      bits = new BitArray(descriptor.BitsLength);
-      values = new long[descriptor.ValuesLength];
-      objects = new object[descriptor.ObjectsLength];
+      bits = new BitArray(this.descriptor.BitsLength);
+      values = new long[this.descriptor.ValuesLength];
+      objects = new object[this.descriptor.ObjectsLength];
     }
 
     private PackedTuple(PackedTuple origin)
-      : base(origin.descriptor)
     {
       descriptor = origin.descriptor;
 

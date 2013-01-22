@@ -15,51 +15,15 @@ namespace Xtensive.Tuples
   /// </summary>
   [DataContract]
   [Serializable]
-  public abstract class RegularTuple: Tuple
+  public abstract class RegularTuple : Tuple
   {
-    [NonSerialized]
-    [IgnoreDataMember] 
-    protected TupleDescriptor descriptor;
-
-    public override TupleDescriptor Descriptor
-    {
-      get { return descriptor; }
-    }
-
-    /// <inheritdoc/>
-    protected override Delegate GetGetValueDelegate(int fieldIndex)
-    {
-      return Descriptor.GetValueDelegates[fieldIndex];
-    }
-
-    /// <inheritdoc/>
-    protected override Delegate GetGetNullableValueDelegate(int fieldIndex)
-    {
-      return Descriptor.GetNullableValueDelegates[fieldIndex];
-    }
-
-    /// <inheritdoc/>
-    protected override Delegate GetSetValueDelegate(int fieldIndex)
-    {
-      return Descriptor.SetValueDelegates[fieldIndex];
-    }
-
-    /// <inheritdoc/>
-    protected override Delegate GetSetNullableValueDelegate(int fieldIndex)
-    {
-      return Descriptor.SetNullableValueDelegates[fieldIndex];
-    }
-
-
     // Constructors
 
     /// <summary>
     /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
     /// </summary>
-    /// <param name="descriptor">The tuple descriptor.</param>
-    protected RegularTuple(TupleDescriptor descriptor)
+    protected RegularTuple()
     {
-      this.descriptor = descriptor;
     }
   }
 }

@@ -436,9 +436,7 @@ namespace Xtensive.Tuples
     {
       if (descriptor==null)
         throw new ArgumentNullException("descriptor");
-//      descriptor.EnsureIsInitialized();
-//      return (RegularTuple) descriptor.TupleFactory.CreateNew();
-      return new PackedTuple(descriptor);
+      return new PackedTuple((PackedTupleDescriptor) descriptor);
     }
 
     #endregion

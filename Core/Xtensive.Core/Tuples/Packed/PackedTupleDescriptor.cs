@@ -19,15 +19,15 @@ namespace Xtensive.Tuples.Packed
 
     private void Initialize()
     {
-      BitsLength = fieldTypes.Length * 2;
+      BitsLength = FieldCount * 2;
 
       var valueIndex = 0;
       var objectIndex = 0;
 
-      FieldDescriptors = new PackedTupleFieldDescriptor[fieldTypes.Length];
+      FieldDescriptors = new PackedTupleFieldDescriptor[FieldCount];
 
       int fieldIndex = 0;
-      foreach (var type in fieldTypes) {
+      foreach (var type in FieldTypes) {
         var descriptor = new PackedTupleFieldDescriptor();
         FieldDescriptors[fieldIndex++] = descriptor;
         if (PackedTupleAccessor.TryGetAccessors(type, descriptor)) {

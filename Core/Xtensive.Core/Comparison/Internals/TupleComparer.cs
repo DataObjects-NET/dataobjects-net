@@ -22,9 +22,6 @@ namespace Xtensive.Comparison
     private int nullHashCode;
     [NonSerialized]
     private AdvancedComparer<TupleDescriptor> descriptorComparer;
-    [NonSerialized]
-    private ThreadSafeList<Pair<int, Func<object,object,int>>[]> comparersInfo;
-
 
     protected override IAdvancedComparer<Tuples.Tuple> CreateNew(ComparisonRules rules)
     {
@@ -137,10 +134,10 @@ namespace Xtensive.Comparison
 
     private Pair<int, Func<object, object, int>>[] GetComparersInfo(TupleDescriptor descriptor)
     {
-      return comparersInfo.GetValue(descriptor.Identifier, Generator, this, descriptor);
+      return CreateComparerInfo(this, descriptor);
     }
 
-    private static Pair<int, Func<object, object, int>>[] Generator(int indentifier, TupleComparer tupleComparer, TupleDescriptor descriptor) 
+    private static Pair<int, Func<object, object, int>>[] CreateComparerInfo(TupleComparer tupleComparer, TupleDescriptor descriptor) 
     {
       var box = new Box<Pair<int, Func<object, object, int>>[]>(new Pair<int, Func<object, object, int>>[descriptor.Count]);
       ExecutionSequenceHandler<Box<Pair<int, Func<object, object, int>>[]>>[] initializers =
@@ -162,9 +159,8 @@ namespace Xtensive.Comparison
 
     private void Initialize()
     {
-      nullHashCode       = SystemComparerStruct<Tuples.Tuple>.Instance.GetHashCode(null);
+      nullHashCode = SystemComparerStruct<Tuples.Tuple>.Instance.GetHashCode(null);
       descriptorComparer = Provider.GetComparer<TupleDescriptor>().ApplyRules(ComparisonRules);
-      comparersInfo.Initialize(new object());
     }
 
 

@@ -31,7 +31,7 @@ namespace Xtensive.Comparison
       if (x==y)
         return 0;
       return results.GetValue(new Pair<TupleDescriptor>(x, y), 
-        (pair, _this) => _this.BaseComparer.Compare(pair.First.fieldTypes, pair.Second.fieldTypes), 
+        (pair, _this) => _this.BaseComparer.Compare(pair.First.FieldTypes, pair.Second.FieldTypes), 
         this);
     }
 

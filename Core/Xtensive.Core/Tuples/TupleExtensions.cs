@@ -9,13 +9,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Tuples;
 using Xtensive.Reflection;
 using Xtensive.Resources;
-
 using Xtensive.Tuples.Transform;
-using Tuple = Xtensive.Tuples.Tuple;
-
 
 namespace Xtensive.Tuples
 {
@@ -24,18 +20,6 @@ namespace Xtensive.Tuples
   /// </summary>
   public static class TupleExtensions
   {
-    private static ThreadSafeList<ExecutionSequenceHandler<PartCopyData>[]> partCopyDelegates = 
-      ThreadSafeList<ExecutionSequenceHandler<PartCopyData>[]>.Create(new object());
-    private static ThreadSafeList<ExecutionSequenceHandler<MapOneCopyData>[]> mapOneCopyDelegates =
-      ThreadSafeList<ExecutionSequenceHandler<MapOneCopyData>[]>.Create(new object());
-    private static ThreadSafeList<ExecutionSequenceHandler<MapCopyData>[]> mapCopyDelegates =
-      ThreadSafeList<ExecutionSequenceHandler<MapCopyData>[]>.Create(new object());
-    private static ThreadSafeList<ExecutionSequenceHandler<Map3CopyData>[]> map3CopyDelegates =
-      ThreadSafeList<ExecutionSequenceHandler<Map3CopyData>[]>.Create(new object());
-    private static ThreadSafeList<ExecutionSequenceHandler<MergeData>[]> mergeDelegates =
-      ThreadSafeList<ExecutionSequenceHandler<MergeData>[]>.Create(new object());
-
-
     #region Copy methods
 
     /// <summary>
@@ -53,12 +37,9 @@ namespace Xtensive.Tuples
     {
       var actionData = new PartCopyData(source, target, startIndex, targetStartIndex, length);
       var descriptor = target.Descriptor;
-      DelegateHelper.ExecuteDelegates(
-        partCopyDelegates.GetValue(
-          descriptor.Identifier, 
-          (_, _descriptor) => DelegateHelper.CreateDelegates<ExecutionSequenceHandler<PartCopyData>>(null, typeof(TupleExtensions), "PartCopyExecute", _descriptor), 
-          descriptor), 
-        ref actionData, Direction.Positive);
+      var delegates = DelegateHelper.CreateDelegates<ExecutionSequenceHandler<PartCopyData>>(
+        null, typeof (TupleExtensions), "PartCopyExecute", descriptor);
+      DelegateHelper.ExecuteDelegates(delegates, ref actionData, Direction.Positive);
     }
 
     /// <summary>
@@ -116,12 +97,9 @@ namespace Xtensive.Tuples
     {
       var actionData = new MapOneCopyData(source, target, map);
       var descriptor = target.Descriptor;
-      DelegateHelper.ExecuteDelegates(
-        mapOneCopyDelegates.GetValue(
-          descriptor.Identifier,
-          (_, _descriptor) => DelegateHelper.CreateDelegates<ExecutionSequenceHandler<MapOneCopyData>>(null, typeof(TupleExtensions), "MapOneCopyExecute", _descriptor),
-          descriptor),
-        ref actionData, Direction.Positive);
+      var delegates = DelegateHelper.CreateDelegates<ExecutionSequenceHandler<MapOneCopyData>>(
+        null, typeof (TupleExtensions), "MapOneCopyExecute", descriptor);
+      DelegateHelper.ExecuteDelegates(delegates, ref actionData, Direction.Positive);
     }
 
     /// <summary>
@@ -137,12 +115,9 @@ namespace Xtensive.Tuples
     {
       var actionData = new MapCopyData(source, target, map);
       var descriptor = target.Descriptor;
-      DelegateHelper.ExecuteDelegates(
-        mapCopyDelegates.GetValue(
-          descriptor.Identifier,
-          (_, _descriptor) => DelegateHelper.CreateDelegates<ExecutionSequenceHandler<MapCopyData>>(null, typeof(TupleExtensions), "MapCopyExecute", _descriptor),
-          descriptor),
-        ref actionData, Direction.Positive);
+      var delegates = DelegateHelper.CreateDelegates<ExecutionSequenceHandler<MapCopyData>>(
+        null, typeof (TupleExtensions), "MapCopyExecute", descriptor);
+      DelegateHelper.ExecuteDelegates(delegates, ref actionData, Direction.Positive);
     }
 
     /// <summary>
@@ -158,12 +133,9 @@ namespace Xtensive.Tuples
     {
       var actionData = new Map3CopyData(ref source, target, map);
       var descriptor = target.Descriptor;
-      DelegateHelper.ExecuteDelegates(
-        map3CopyDelegates.GetValue(
-          descriptor.Identifier,
-          (_, _descriptor) => DelegateHelper.CreateDelegates<ExecutionSequenceHandler<Map3CopyData>>(null, typeof(TupleExtensions), "Map3CopyExecute", _descriptor),
-          descriptor),
-        ref actionData, Direction.Positive);
+      var delegates = DelegateHelper.CreateDelegates<ExecutionSequenceHandler<Map3CopyData>>(
+        null, typeof (TupleExtensions), "Map3CopyExecute", descriptor);
+      DelegateHelper.ExecuteDelegates(delegates, ref actionData, Direction.Positive);
     }
 
     #endregion
@@ -194,7 +166,7 @@ namespace Xtensive.Tuples
       for (int i = 0; i < segment.Length; i++)
         map[i] = segment.Offset + i;
 
-      var types = new ArraySegment<Type>(tuple.Descriptor.fieldTypes, segment.Offset, segment.Length);
+      var types = new ArraySegment<Type>(tuple.Descriptor.FieldTypes, segment.Offset, segment.Length);
       var descriptor = TupleDescriptor.Create(types.AsEnumerable());
       var transform = new MapTransform(false, descriptor, map);
       return transform.Apply(TupleTransformType.TransformedTuple, tuple);
@@ -235,12 +207,9 @@ namespace Xtensive.Tuples
 
       var actionData = new MergeData(origin, difference, startIndex, endIndex, behavior);
       var descriptor = origin.Descriptor;
-      DelegateHelper.ExecuteDelegates(
-        mergeDelegates.GetValue(
-          descriptor.Identifier,
-          (_, _descriptor) => DelegateHelper.CreateDelegates<ExecutionSequenceHandler<MergeData>>(null, typeof(TupleExtensions), "MergeExecute", _descriptor),
-          descriptor),
-        ref actionData, Direction.Positive);
+      var delegates = DelegateHelper.CreateDelegates<ExecutionSequenceHandler<MergeData>>(
+        null, typeof (TupleExtensions), "MergeExecute", descriptor);
+      DelegateHelper.ExecuteDelegates(delegates, ref actionData, Direction.Positive);
     }
 
     /// <summary>
