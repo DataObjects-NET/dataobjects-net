@@ -76,10 +76,10 @@ namespace Xtensive.Tuples.Packed
         unpacker = (Func<long, T>) Delegate.CreateDelegate(typeof (Func<long, T>), unpackerMethod);
 
         Getter = (GetValueDelegate<T>) GetValue;
-        Setter = (Action<Tuple, int, T>) SetValue;
+        Setter = (SetValueDelegate<T>) SetValue;
 
         NullableGetter = (GetValueDelegate<T?>) GetNullableValue;
-        NullableSetter = (Action<Tuple, int, T?>) SetNullableValue;
+        NullableSetter = (SetValueDelegate<T?>) SetNullableValue;
 
         Boxer = Box;
         Unboxer = Unbox;

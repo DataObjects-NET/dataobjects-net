@@ -18,7 +18,7 @@ namespace Xtensive.Tuples.Internals
   internal sealed class JoinedTupleAccessor<T> : JoinedTupleAccessor
   {
     private readonly GetValueDelegate<T> getValue;
-    private readonly Action<Tuple, int, T> setValue;
+    private readonly SetValueDelegate<T> setValue;
 
     public T GetValueFirst(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
     {
@@ -47,13 +47,13 @@ namespace Xtensive.Tuples.Internals
 
     // Constructors
 
-    public JoinedTupleAccessor(GetValueDelegate<T> getValue, Action<Tuple, int, T> setValue, int fieldIndex)
+    public JoinedTupleAccessor(GetValueDelegate<T> getValue, SetValueDelegate<T> setValue, int fieldIndex)
     {
       this.getValue = getValue;
       this.setValue = setValue;
 
       GetValueDelegate<T> getValueDelegate;
-      Action<Tuple, int, T> setValueDelegate;
+      SetValueDelegate<T> setValueDelegate;
       if (fieldIndex < JoinedTuple.FirstCount) {
         getValueDelegate = GetValueFirst;
         setValueDelegate = SetValueFirst;

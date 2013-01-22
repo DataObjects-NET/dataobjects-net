@@ -205,7 +205,7 @@ namespace Xtensive.Tuples
       var isNullable = null==default(T); // Is nullable value type or class
       var setter = (isNullable
         ? GetSetNullableValueDelegate(fieldIndex)
-        : GetSetValueDelegate(fieldIndex)) as Action<Tuple, int, T>;
+        : GetSetValueDelegate(fieldIndex)) as SetValueDelegate<T>;
       if (setter!=null)
         setter.Invoke(this, fieldIndex, fieldValue);
       else
@@ -287,12 +287,12 @@ namespace Xtensive.Tuples
     [MethodImpl(MethodImplOptions.NoInlining)]
     private void SetValueInternal<T>(bool isNullable, int fieldIndex, T fieldValue)
     {
-      Action<Tuple, int, T> setter;
+      SetValueDelegate<T> setter;
       var mappedContainer = GetMappedContainer(fieldIndex, true);
       if (mappedContainer.First!=null &&
         (setter = (isNullable
           ? mappedContainer.First.GetSetNullableValueDelegate(mappedContainer.Second)
-          : mappedContainer.First.GetSetValueDelegate(mappedContainer.Second)) as Action<Tuple, int, T>)!=null)
+          : mappedContainer.First.GetSetValueDelegate(mappedContainer.Second)) as SetValueDelegate<T>)!=null)
         setter.Invoke(mappedContainer.First, mappedContainer.Second, fieldValue);
       else
         SetValue(fieldIndex, (object) fieldValue);

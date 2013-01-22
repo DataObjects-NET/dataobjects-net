@@ -20,7 +20,7 @@ namespace Xtensive.Tuples.Internals
     where T : struct
   {
     private readonly GetValueDelegate<T> getValue;
-    private readonly Action<Tuple, int, T> setValue;
+    private readonly SetValueDelegate<T> setValue;
 
     public T? GetValue(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
     {
@@ -41,13 +41,13 @@ namespace Xtensive.Tuples.Internals
 
     // Constructors
 
-    public NullableAccessor(GetValueDelegate<T> getValue, Action<Tuple, int, T> setValue)
+    public NullableAccessor(GetValueDelegate<T> getValue, SetValueDelegate<T> setValue)
     {
       this.getValue = getValue;
       this.setValue = setValue;
 
       GetValueDelegate<T?> getValueDelegate = GetValue;
-      Action<Tuple, int, T?> setValueDelegate = SetValue;
+      SetValueDelegate<T?> setValueDelegate = SetValue;
 
       GetValueDelegate = getValueDelegate;
       SetValueDelegate = setValueDelegate;

@@ -212,7 +212,7 @@ namespace Xtensive.Tuples
           var getValueDelegateType = typeof (GetValueDelegate<>).MakeGenericType(type);
           var getValueMethod = methods[GetterNames[fieldIndex]];
           var getValueDelegate = Delegate.CreateDelegate(getValueDelegateType, getValueMethod, true);
-          var setValueDelegateType = typeof (Action<,,>).MakeGenericType(typeof (Tuple), typeof(int), type);
+          var setValueDelegateType = typeof (SetValueDelegate<>).MakeGenericType(type);
           var setValueMethod = methods[SetterNames[fieldIndex]];
           var setValueDelegate = Delegate.CreateDelegate(setValueDelegateType, setValueMethod, true);
           GetValueDelegates[fieldIndex] = getValueDelegate;
