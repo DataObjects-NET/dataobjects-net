@@ -71,10 +71,8 @@ namespace Xtensive.Tuples.Packed
 
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      if (fieldValue==null) {
-        bits[2 * fieldIndex] = true;
-        bits[2 * fieldIndex + 1] = true;
-      }
+      bits[2 * fieldIndex] = true;
+      bits[2 * fieldIndex + 1] = fieldValue==null;
 
       var fieldDescriptor = descriptor.FieldDescriptors[fieldIndex];
       if (fieldDescriptor.IsObject)
@@ -84,6 +82,20 @@ namespace Xtensive.Tuples.Packed
           ? fieldDescriptor.Unboxer.Invoke(fieldValue)
           : 0L;
       }
+    }
+
+    internal long GetPackedValue(int fieldIndex)
+    {
+      var valueIndex = descriptor.FieldDescriptors[fieldIndex].ValueIndex;
+      return values[valueIndex];
+    }
+
+    internal void SetPackedValue(int fieldIndex, long value)
+    {
+      var valueIndex = descriptor.FieldDescriptors[fieldIndex].ValueIndex;
+      bits[2 * fieldIndex] = true;
+      bits[2 * fieldIndex + 1] = false;
+      values[valueIndex] = value;
     }
 
     protected override Delegate GetGetValueDelegate(int fieldIndex)
@@ -104,20 +116,6 @@ namespace Xtensive.Tuples.Packed
     protected override Delegate GetSetNullableValueDelegate(int fieldIndex)
     {
       return descriptor.FieldDescriptors[fieldIndex].SetNullableValueDelegate;
-    }
-
-    internal long GetPackedValue(int fieldIndex)
-    {
-      var valueIndex = descriptor.FieldDescriptors[fieldIndex].ValueIndex;
-      return values[valueIndex];
-    }
-
-    internal void SetPackedValue(int fieldIndex, long value)
-    {
-      var valueIndex = descriptor.FieldDescriptors[fieldIndex].ValueIndex;
-      values[valueIndex] = value;
-      bits[2 * fieldIndex] = true;
-      bits[2 * fieldIndex + 1] = false;
     }
 
     public PackedTuple(TupleDescriptor descriptorObj)
