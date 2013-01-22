@@ -216,9 +216,9 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public bool Equals(TupleDescriptor other)
     {
-      if (other==null)
+      if (ReferenceEquals(other, null))
         return false;
-      if (other==this)
+      if (ReferenceEquals(other, this))
         return true;
       if (FieldCount!=other.FieldCount)
         return false;
@@ -231,7 +231,7 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      return ReferenceEquals(this, obj) || Equals(obj as TupleDescriptor);
+      return Equals(obj as TupleDescriptor);
     }
 
     /// <inheritdoc/>
@@ -248,6 +248,20 @@ namespace Xtensive.Tuples
       return cachedHashCode;
     }
 
+    public static bool operator==(TupleDescriptor left, TupleDescriptor right)
+    {
+      if (ReferenceEquals(left, right))
+        return true;
+      if (ReferenceEquals(left, null))
+        return false;
+      return left.Equals(right);
+    }
+
+    public static bool operator !=(TupleDescriptor left, TupleDescriptor right)
+    {
+      return !(left==right);
+    }
+
     #endregion
 
     #region IComparable members
@@ -255,9 +269,9 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public int CompareTo(TupleDescriptor other)
     {
-      if (other==null)
+      if (ReferenceEquals(other, null))
         return 1;
-      if (other==this)
+      if (ReferenceEquals(other, this))
         return 0;
       return AdvancedComparerStruct<Type[]>.Default.Compare(FieldTypes, other.FieldTypes);
     }
