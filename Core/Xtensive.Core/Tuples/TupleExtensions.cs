@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -98,47 +99,81 @@ namespace Xtensive.Tuples
     /// Negative value in this map means "skip this element".</param>
     public static void CopyTo(this Tuple source, Tuple target, int[] map)
     {
-      var actionData = new MapOneCopyData(source, target, map);
-      var descriptor = target.Descriptor;
-      var delegates = DelegateHelper.CreateDelegates<ExecutionSequenceHandler<MapOneCopyData>>(
-        null, typeof (TupleExtensions), "MapOneCopyExecute", descriptor);
-      DelegateHelper.ExecuteDelegates(delegates, ref actionData, Direction.Positive);
+      var packedSource = source as PackedTuple;
+      var packedTarget = target as PackedTuple;
+
+      if (packedSource!=null && packedTarget!=null)
+        CopyTupleWithMappingFast(packedSource, packedTarget, map);
+      else
+        CopyTupleWithMappingSlow(source, target, map);
     }
 
     /// <summary>
-    /// Copies a set of elements from <paramref name="source"/> <see cref="Tuple"/>s
+    /// Copies a set of elements from <paramref name="sources"/> <see cref="Tuple"/>s
     /// to <paramref name="target"/> <see cref="Tuple"/> using 
     /// specified target-to-source field index <paramref name="map"/>.
     /// </summary>
-    /// <param name="source">Source tuples to copy.</param>
+    /// <param name="sources">Source tuples to copy.</param>
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="map">Target-to-source field index map.
     /// Negative value in this map means "skip this element".</param>
-    public static void CopyTo(this Tuple[] source, Tuple target, Pair<int, int>[] map)
+    public static void CopyTo(this Tuple[] sources, Tuple target, Pair<int, int>[] map)
     {
-      var actionData = new MapCopyData(source, target, map);
-      var descriptor = target.Descriptor;
-      var delegates = DelegateHelper.CreateDelegates<ExecutionSequenceHandler<MapCopyData>>(
-        null, typeof (TupleExtensions), "MapCopyExecute", descriptor);
-      DelegateHelper.ExecuteDelegates(delegates, ref actionData, Direction.Positive);
+      var haveSlowSource = false;
+      var packedSources = new PackedTuple[sources.Length];
+
+      for (int i = 0; i < sources.Length; i++) {
+        var packedSource = sources[i] as PackedTuple;
+        if (packedSource==null) {
+          haveSlowSource = true;
+          break;
+        }
+        packedSources[i] = packedSource;
+      }
+
+      if (!haveSlowSource) {
+        var packedTarget = target as PackedTuple;
+        if (packedTarget!=null) {
+          CopyTupleArrayWithMappingFast(packedSources, packedTarget, map);
+          return;
+        }
+      }
+
+      CopyTupleArrayWithMappingSlow(sources, target, map);
     }
 
     /// <summary>
-    /// Copies a set of elements from <paramref name="source"/> <see cref="Tuple"/>s
+    /// Copies a set of elements from <paramref name="sources"/> <see cref="Tuple"/>s
     /// to <paramref name="target"/> <see cref="Tuple"/> using 
     /// specified target-to-source field index <paramref name="map"/>.
     /// </summary>
-    /// <param name="source">Source tuples to copy.</param>
+    /// <param name="sources">Source tuples to copy.</param>
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="map">Target-to-source field index map.
     /// Negative value in this map means "skip this element".</param>
-    public static void CopyTo(this FixedList3<Tuple> source, Tuple target, Pair<int, int>[] map)
+    public static void CopyTo(this FixedList3<Tuple> sources, Tuple target, Pair<int, int>[] map)
     {
-      var actionData = new Map3CopyData(ref source, target, map);
-      var descriptor = target.Descriptor;
-      var delegates = DelegateHelper.CreateDelegates<ExecutionSequenceHandler<Map3CopyData>>(
-        null, typeof (TupleExtensions), "Map3CopyExecute", descriptor);
-      DelegateHelper.ExecuteDelegates(delegates, ref actionData, Direction.Positive);
+      var haveSlowSource = false;
+      var packedSources = new FixedList3<PackedTuple>();
+
+      for (int i = 0; i < sources.Count; i++) {
+        var packedSource = sources[i] as PackedTuple;
+        if (packedSource==null) {
+          haveSlowSource = true;
+          break;
+        }
+        packedSources.Push(packedSource);
+      }
+
+      if (!haveSlowSource) {
+        var packedTarget = target as PackedTuple;
+        if (packedTarget!=null) {
+          Copy3TuplesWithMappingFast(packedSources, packedTarget, map);
+          return;
+        }
+      }
+
+      Copy3TuplesWithMappingSlow(sources, target, map);
     }
 
     #endregion
@@ -376,151 +411,113 @@ namespace Xtensive.Tuples
       }
     }
 
+    private static void CopyValue(Tuple source, int sourceIndex, Tuple target, int targetIndex)
+    {
+      TupleFieldState fieldState;
+      var value = source.GetValue(sourceIndex, out fieldState);
+      if (!fieldState.IsAvailable())
+        return;
+      target.SetValue(targetIndex, fieldState.IsAvailableAndNull() ? null : value);
+    }
+
+    private static void CopyPackedValue(PackedTuple source, int sourceIndex, PackedTuple target, int targetIndex)
+    {
+      var sourceDescriptor = source.PackedDescriptor.FieldDescriptors[sourceIndex];
+      var targetDescriptor = target.PackedDescriptor.FieldDescriptors[targetIndex];
+
+      var fieldState = source.GetFieldState(sourceIndex);
+      if (!fieldState.IsAvailable())
+        return;
+
+      if (fieldState.IsAvailableAndNull()) {
+        target.SetValue(targetIndex, null);
+        return;
+      }
+
+      var accessor = sourceDescriptor.Accessor;
+      if (accessor!=targetDescriptor.Accessor)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExInvalidCast,
+          source.PackedDescriptor[sourceIndex],
+          target.PackedDescriptor[targetIndex]));
+
+      target.SetFieldState(targetIndex, TupleFieldState.Available);
+      accessor.CopyValue(source, sourceDescriptor, target, targetDescriptor);
+    }
+
     private static void PartiallyCopyTupleSlow(Tuple source, Tuple target, int sourceStartIndex, int targetStartIndex, int length)
     {
-      for (int i = 0; i < length; i++) {
-        TupleFieldState fieldState;
-        var value = source.GetValue(sourceStartIndex + i, out fieldState);
-        if (!fieldState.IsAvailable())
-          continue;
-        target.SetValue(targetStartIndex + i, fieldState.IsAvailableAndNull() ? null : value);
-      }
+      for (int i = 0; i < length; i++)
+        CopyValue(source, sourceStartIndex + i, target, targetStartIndex + i);
     }
 
     private static void PartiallyCopyTupleFast(PackedTuple source, PackedTuple target, int sourceStartIndex, int targetStartIndex, int length)
     {
-      for (int i = 0; i < length; i++) {
-        var sourceIndex = i + sourceStartIndex;
-        var targetIndex = i + targetStartIndex;
-        var sourceDescriptor = source.PackedDescriptor.FieldDescriptors[sourceIndex];
-        var targetDescriptor = source.PackedDescriptor.FieldDescriptors[targetIndex];
-        var accessor = sourceDescriptor.Accessor;
-        if (accessor!=targetDescriptor.Accessor)
-          throw new InvalidOperationException(string.Format(
-            Strings.ExInvalidCast,
-            source.PackedDescriptor[sourceIndex],
-            target.PackedDescriptor[targetIndex]));
-        var fieldState = source.GetFieldState(sourceIndex);
-        if (!fieldState.IsAvailable())
-          continue;
-        if (fieldState.IsAvailableAndNull())
-          target.SetValue(targetIndex, null);
-        else
-          accessor.CopyValue(source, sourceDescriptor, target, targetDescriptor);
+      for (int i = 0; i < length; i++)
+        CopyPackedValue(source, sourceStartIndex + i, target, targetStartIndex + i);
+    }
+
+    private static void CopyTupleWithMappingSlow(Tuple source, Tuple target, int[] map)
+    {
+      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+        var sourceIndex = map[targetIndex];
+        if (sourceIndex >= 0)
+          CopyValue(source, sourceIndex, target, targetIndex);
       }
     }
 
-    #region Private: MapOne copy: Data & Handler
-
-    private struct MapOneCopyData
+    private static void CopyTupleWithMappingFast(PackedTuple source, PackedTuple target, int[] map)
     {
-      public Tuple Source;
-      public Tuple Target;
-      public int[] Map;
-
-      public MapOneCopyData(Tuple source, Tuple target, int[] map)
-      {
-        Source = source;
-        Target = target;
-        Map = map;
+      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+        var sourceIndex = map[targetIndex];
+        if (sourceIndex >= 0)
+          CopyPackedValue(source, sourceIndex, target, targetIndex);
       }
     }
 
-    // ReSharper disable UnusedMember.Local
-    private static bool MapOneCopyExecute<TFieldType>(ref MapOneCopyData actionData, int fieldIndex)
+    private static void CopyTupleArrayWithMappingSlow(Tuple[] sources, Tuple target, Pair<int, int>[] map)
     {
-      int sourceFieldIndex = actionData.Map[fieldIndex];
-      if (sourceFieldIndex < 0)
-        return false;
-      if (sourceFieldIndex >= actionData.Source.Count)
-        return false;
-
-      TupleFieldState fieldState;
-      var value = actionData.Source.GetValue<TFieldType>(sourceFieldIndex, out fieldState);
-      if (fieldState.IsAvailable())
-        if (fieldState.IsAvailableAndNull())
-          actionData.Target.SetValue(fieldIndex, null);
-        else
-          actionData.Target.SetValue(fieldIndex, value);
-      return false;
-    }
-    // ReSharper restore UnusedMember.Local
-
-    #endregion
-
-    #region Private: Map copy: Data & Handler
-
-    private struct MapCopyData
-    {
-      public Tuple[] Source;
-      public Tuple Target;
-      public Pair<int, int>[] Map;
-
-      public MapCopyData(Tuple[] source, Tuple target, Pair<int, int>[] map)
-      {
-        Source = source;
-        Target = target;
-        Map = map;
+      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+        var sourceInfo = map[targetIndex];
+        var sourceTupleIndex = sourceInfo.First;
+        var sourceFieldIndex = sourceInfo.Second;
+        if (sourceTupleIndex >= 0 && sourceFieldIndex >= 0)
+          CopyValue(sources[sourceTupleIndex], sourceFieldIndex, target, targetIndex);
       }
     }
 
-    // ReSharper disable UnusedMember.Local
-    private static bool MapCopyExecute<TFieldType>(ref MapCopyData actionData, int fieldIndex)
+    private static void CopyTupleArrayWithMappingFast(PackedTuple[] sources, PackedTuple target, Pair<int, int>[] map)
     {
-      var mappedTo = actionData.Map[fieldIndex];
-      if (mappedTo.First < 0 | mappedTo.Second < 0)
-        return false;
-
-      TupleFieldState fieldState;
-      var sourceTuple = actionData.Source[mappedTo.First];
-      var value = sourceTuple.GetValue<TFieldType>(mappedTo.Second, out fieldState);
-      if (fieldState.IsAvailable())
-        if (fieldState.IsAvailableAndNull())
-          actionData.Target.SetValue(fieldIndex, null);
-        else
-          actionData.Target.SetValue(fieldIndex, value);
-      return false;
-    }
-    // ReSharper restore UnusedMember.Local
-
-    #endregion
-
-    #region Private: Map3 copy: Data & Handler
-
-    private struct Map3CopyData
-    {
-      public FixedList3<Tuple> Source;
-      public Tuple Target;
-      public Pair<int, int>[] Map;
-
-      public Map3CopyData(ref FixedList3<Tuple> source, Tuple target, Pair<int, int>[] map)
-      {
-        Source = source;
-        Target = target;
-        Map = map;
+      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+        var sourceInfo = map[targetIndex];
+        var sourceTupleIndex = sourceInfo.First;
+        var sourceFieldIndex = sourceInfo.Second;
+        if (sourceTupleIndex >= 0 && sourceFieldIndex >= 0)
+          CopyPackedValue(sources[sourceTupleIndex], sourceFieldIndex, target, targetIndex);
       }
     }
 
-    // ReSharper disable UnusedMember.Local
-    private static bool Map3CopyExecute<TFieldType>(ref Map3CopyData actionData, int fieldIndex)
+    private static void Copy3TuplesWithMappingSlow(FixedList3<Tuple> sources, Tuple target, Pair<int, int>[] map)
     {
-      Pair<int, int> mappedTo = actionData.Map[fieldIndex];
-      if (mappedTo.First < 0 | mappedTo.Second < 0)
-        return false;
-
-      TupleFieldState fieldState;
-      Tuple sourceTuple = actionData.Source[mappedTo.First];
-      var value = sourceTuple.GetValue<TFieldType>(mappedTo.Second, out fieldState);
-      if (fieldState.IsAvailable())
-        if (fieldState.IsAvailableAndNull())
-          actionData.Target.SetValue(fieldIndex, null);
-        else
-          actionData.Target.SetValue(fieldIndex, value);
-      return false;
+      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+        var sourceInfo = map[targetIndex];
+        var sourceTupleIndex = sourceInfo.First;
+        var sourceFieldIndex = sourceInfo.Second;
+        if (sourceTupleIndex >= 0 && sourceFieldIndex >= 0)
+          CopyValue(sources[sourceTupleIndex], sourceFieldIndex, target, targetIndex);
+      }
     }
-    // ReSharper restore UnusedMember.Local
 
-    #endregion
+    private static void Copy3TuplesWithMappingFast(FixedList3<PackedTuple> sources, PackedTuple target, Pair<int, int>[] map)
+    {
+      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+        var sourceInfo = map[targetIndex];
+        var sourceTupleIndex = sourceInfo.First;
+        var sourceFieldIndex = sourceInfo.Second;
+        if (sourceTupleIndex >= 0 && sourceFieldIndex >= 0)
+          CopyPackedValue(sources[sourceTupleIndex], sourceFieldIndex, target, targetIndex);
+      }
+    }
 
     #region Private: Merge: Data & Handler
 
