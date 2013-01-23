@@ -11,15 +11,14 @@ namespace Xtensive.Tuples.Packed
 {
   internal sealed class PackedTuple : RegularTuple
   {
-    private readonly PackedTupleDescriptor descriptor;
-    private readonly BitArray bits;
-
-    private readonly long[] values;
-    private readonly object[] objects;
+    internal readonly PackedTupleDescriptor PackedDescriptor;
+    internal readonly BitArray Flags;
+    internal readonly long[] Values;
+    internal readonly object[] Objects;
 
     public override TupleDescriptor Descriptor
     {
-      get { return descriptor; }
+      get { return PackedDescriptor; }
     }
 
     public override Tuple Clone()
@@ -29,32 +28,36 @@ namespace Xtensive.Tuples.Packed
 
     public override Tuple CreateNew()
     {
-      return new PackedTuple(descriptor);
+      return new PackedTuple(PackedDescriptor);
     }
 
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       var result = TupleFieldState.Default;
-      if (bits[2 * fieldIndex])
+      if (Flags[GetAvailableIndex(fieldIndex)])
         result |= TupleFieldState.Available;
-      if (bits[2 * fieldIndex + 1])
+      if (Flags[GetNullIndex(fieldIndex)])
         result |= TupleFieldState.Null;
       return result;
     }
 
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
-      bits[2 * fieldIndex] = (fieldState & TupleFieldState.Available)==TupleFieldState.Available;
-      bits[2 * fieldIndex + 1] = (fieldState & TupleFieldState.Null)==TupleFieldState.Null;
+      Flags[GetAvailableIndex(fieldIndex)] = (fieldState & TupleFieldState.Available)==TupleFieldState.Available;
+      Flags[GetNullIndex(fieldIndex)] = (fieldState & TupleFieldState.Null)==TupleFieldState.Null;
 
       if (fieldState.HasValue())
         return;
 
-      var fieldDescriptor = descriptor.FieldDescriptors[fieldIndex];
-      if (fieldDescriptor.IsObject)
-        objects[fieldDescriptor.ObjectIndex] = null;
-      else
-        values[fieldDescriptor.ValueIndex] = 0L;
+      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
+      if (descriptor.PackingType==FieldPackingType.Object)
+        Objects[descriptor.Index] = null;
+    }
+
+    internal void SetFieldAvailable(int fieldIndex, bool isNullable)
+    {
+      Flags[GetAvailableIndex(fieldIndex)] = true;
+      Flags[GetNullIndex(fieldIndex)] = isNullable;
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -63,77 +66,48 @@ namespace Xtensive.Tuples.Packed
       fieldState = state;
       if (!state.HasValue())
         return null;
-      var fieldDescriptor = descriptor.FieldDescriptors[fieldIndex];
-      if (fieldDescriptor.IsObject)
-        return objects[fieldDescriptor.ObjectIndex];
-      return fieldDescriptor.Boxer.Invoke(values[fieldDescriptor.ValueIndex]);
+      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
+      return descriptor.Accessor.GetUntypedValue(this, descriptor);
     }
 
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      bits[2 * fieldIndex] = true;
-      bits[2 * fieldIndex + 1] = fieldValue==null;
-
-      var fieldDescriptor = descriptor.FieldDescriptors[fieldIndex];
-      if (fieldDescriptor.IsObject)
-        objects[fieldDescriptor.ObjectIndex] = fieldValue;
-      else {
-        values[fieldDescriptor.ValueIndex] = fieldValue!=null
-          ? fieldDescriptor.Unboxer.Invoke(fieldValue)
-          : 0L;
-      }
+      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
+      descriptor.Accessor.SetUntypedValue(this, descriptor, fieldValue);
+      SetFieldAvailable(fieldIndex, fieldValue==null);
     }
 
-    internal long GetPackedValue(int fieldIndex)
+    protected internal override TupleFieldAccessor GetFieldAccessor(int fieldIndex)
     {
-      var valueIndex = descriptor.FieldDescriptors[fieldIndex].ValueIndex;
-      return values[valueIndex];
+      return PackedDescriptor.FieldDescriptors[fieldIndex].Accessor;
     }
 
-    internal void SetPackedValue(int fieldIndex, long value)
+    private static int GetAvailableIndex(int fieldIndex)
     {
-      var valueIndex = descriptor.FieldDescriptors[fieldIndex].ValueIndex;
-      bits[2 * fieldIndex] = true;
-      bits[2 * fieldIndex + 1] = false;
-      values[valueIndex] = value;
+      return fieldIndex * 2;
     }
 
-    protected override Delegate GetGetValueDelegate(int fieldIndex)
+    private static int GetNullIndex(int fieldIndex)
     {
-      return descriptor.FieldDescriptors[fieldIndex].GetValueDelegate;
-    }
-
-    protected override Delegate GetSetValueDelegate(int fieldIndex)
-    {
-      return descriptor.FieldDescriptors[fieldIndex].SetValueDelegate;
-    }
-
-    protected override Delegate GetGetNullableValueDelegate(int fieldIndex)
-    {
-      return descriptor.FieldDescriptors[fieldIndex].GetNullableValueDelegate;
-    }
-
-    protected override Delegate GetSetNullableValueDelegate(int fieldIndex)
-    {
-      return descriptor.FieldDescriptors[fieldIndex].SetNullableValueDelegate;
+      return fieldIndex * 2 + 1;
     }
 
     public PackedTuple(PackedTupleDescriptor descriptor)
     {
-      this.descriptor = descriptor;
+      PackedDescriptor = descriptor;
 
-      bits = new BitArray(this.descriptor.BitsLength);
-      values = new long[this.descriptor.ValuesLength];
-      objects = new object[this.descriptor.ObjectsLength];
+      Flags = new BitArray(PackedDescriptor.FlagsLength);
+      Values = new long[PackedDescriptor.ValuesLength];
+      Objects = new object[PackedDescriptor.ObjectsLength];
     }
 
     private PackedTuple(PackedTuple origin)
     {
-      descriptor = origin.descriptor;
+      PackedDescriptor = origin.PackedDescriptor;
 
-      bits = (BitArray) origin.bits.Clone();
-      values = (long[]) origin.values.Clone();
-      objects = (object[]) origin.objects.Clone();
+      Flags = (BitArray) origin.Flags.Clone();
+      Values = (long[]) origin.Values.Clone();
+      Objects = (object[]) origin.Objects.Clone();
     }
   }
 }

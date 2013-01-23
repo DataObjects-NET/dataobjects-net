@@ -11,36 +11,43 @@ namespace Xtensive.Tuples.Packed
 {
   internal sealed class PackedTupleDescriptor : TupleDescriptor
   {
-    public int BitsLength;
+    public int FlagsLength;
     public int ValuesLength;
     public int ObjectsLength;
 
-    public PackedTupleFieldDescriptor[] FieldDescriptors;
+    public PackedFieldDescriptor[] FieldDescriptors;
 
     private void Initialize()
     {
-      BitsLength = FieldCount * 2;
-
       var valueIndex = 0;
       var objectIndex = 0;
+      var flagIndex = FieldCount * 2;
 
-      FieldDescriptors = new PackedTupleFieldDescriptor[FieldCount];
+      FieldDescriptors = new PackedFieldDescriptor[FieldCount];
 
       int fieldIndex = 0;
       foreach (var type in FieldTypes) {
-        var descriptor = new PackedTupleFieldDescriptor();
+        var descriptor = new PackedFieldDescriptor();
         FieldDescriptors[fieldIndex++] = descriptor;
-        if (PackedTupleAccessor.TryGetAccessors(type, descriptor)) {
-          descriptor.ValueIndex = valueIndex++;
-        }
-        else {
-          descriptor.IsObject = true;
-          descriptor.ObjectIndex = objectIndex++;
+        PackedFieldAccessorFactory.ProvideAccessor(type, descriptor);
+        switch (descriptor.PackingType) {
+        case FieldPackingType.Object:
+          descriptor.Index = objectIndex++;
+          break;
+        case FieldPackingType.Flag:
+          descriptor.Index = flagIndex++;
+          break;
+        case FieldPackingType.Value:
+          descriptor.Index = valueIndex++;
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("descriptor.PackType");
         }
       }
 
       ValuesLength = valueIndex;
       ObjectsLength = objectIndex;
+      FlagsLength = flagIndex;
     }
 
     public PackedTupleDescriptor(IList<Type> fieldTypes)

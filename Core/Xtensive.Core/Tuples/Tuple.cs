@@ -43,8 +43,6 @@ namespace Xtensive.Tuples
       get { return Descriptor.Count; }
     }
 
-    #region CreateNew, Clone methods
-
     /// <inheritdoc/>
     Tuple ITupleFactory.CreateNew()
     {
@@ -75,10 +73,6 @@ namespace Xtensive.Tuples
       return (Tuple) MemberwiseClone();
     }
 
-    #endregion
-
-    #region GetFieldState (abstract), GetValue(int, out TupleFieldState) (asbtract), GetValue(int), SetValue methods
-
     /// <inheritdoc />
     public abstract TupleFieldState GetFieldState(int fieldIndex);
 
@@ -107,10 +101,6 @@ namespace Xtensive.Tuples
     /// <inheritdoc />
     public abstract void SetValue(int fieldIndex, object fieldValue);
 
-    #endregion
-
-    #region GetValue<T>(int, out TupleFieldState), GetValue<T>, SetValue<T> methods
-
     /// <summary>
     /// Gets the value field value by its index, if it is available;
     /// otherwise returns <see langword="default(T)"/>.
@@ -122,12 +112,13 @@ namespace Xtensive.Tuples
     public T GetValue<T>(int fieldIndex, out TupleFieldState fieldState)
     {
       var isNullable = null==default(T); // Is nullable value type or class
-      var getter = (isNullable
-        ? GetGetNullableValueDelegate(fieldIndex)
-        : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
-      return getter!=null
-        ? getter.Invoke(this, fieldIndex, out fieldState)
-        : GetValueInternal<T>(isNullable, fieldIndex, out fieldState);
+      var accessor = GetFieldAccessor(fieldIndex);
+      if (accessor!=null) {
+        var getter = accessor.GetGetter<T>(isNullable);
+        if (getter!=null)
+          return getter.Invoke(this, fieldIndex, out fieldState);
+      }
+      return GetValueFallback<T>(isNullable, fieldIndex, out fieldState);
     }
 
     /// <summary>
@@ -146,21 +137,22 @@ namespace Xtensive.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValue<T>(int fieldIndex)
     {
-      TupleFieldState fieldState;
       var isNullable = null==default(T); // Is nullable value type or class
-      var getter = (isNullable
-        ? GetGetNullableValueDelegate(fieldIndex)
-        : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
-      if (getter!=null) {
-        var result = getter.Invoke(this, fieldIndex, out fieldState);
-        if (fieldState.IsNull()) {
-          if (isNullable)
-            return default(T);
-          throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof (T)));
+      var accessor = GetFieldAccessor(fieldIndex);
+      if (accessor!=null) {
+        var getter = accessor.GetGetter<T>(isNullable);
+        if (getter!=null) {
+          TupleFieldState fieldState;
+          var result = getter.Invoke(this, fieldIndex, out fieldState);
+          if (fieldState.IsNull()) {
+            if (isNullable)
+              return default(T);
+            throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof (T)));
+          }
+          return result;
         }
-        return result;
       }
-      return GetValueInternal<T>(isNullable, fieldIndex);
+      return GetValueFallback<T>(isNullable, fieldIndex);
     }
 
     /// <summary>
@@ -179,17 +171,16 @@ namespace Xtensive.Tuples
     public T GetValueOrDefault<T>(int fieldIndex)
     {
       var isNullable = null==default(T); // Is nullable value type or class
-      var getter = (isNullable
-        ? GetGetNullableValueDelegate(fieldIndex)
-        : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
-      if (getter!=null) {
-        TupleFieldState fieldState;
-        var result = getter.Invoke(this, fieldIndex, out fieldState);
-        return fieldState==TupleFieldState.Available
-          ? result
-          : default(T);
+      var accessor = GetFieldAccessor(fieldIndex);
+      if (accessor!=null) {
+        var getter = accessor.GetGetter<T>(isNullable);
+        if (getter!=null) {
+          TupleFieldState fieldState;
+          var result = getter.Invoke(this, fieldIndex, out fieldState);
+          return fieldState==TupleFieldState.Available ? result : default(T);
+        }
       }
-      return GetValueOrDefaultInternal<T>(isNullable, fieldIndex);
+      return GetValueOrDefaultFallback<T>(isNullable, fieldIndex);
     }
 
     /// <summary>
@@ -203,136 +194,136 @@ namespace Xtensive.Tuples
     public void SetValue<T>(int fieldIndex, T fieldValue)
     {
       var isNullable = null==default(T); // Is nullable value type or class
-      var setter = (isNullable
-        ? GetSetNullableValueDelegate(fieldIndex)
-        : GetSetValueDelegate(fieldIndex)) as SetValueDelegate<T>;
-      if (setter!=null)
-        setter.Invoke(this, fieldIndex, fieldValue);
-      else
-        SetValueInternal(isNullable, fieldIndex, fieldValue);
+      var accessor = GetFieldAccessor(fieldIndex);
+      if (accessor!=null) {
+        var setter = accessor.GetSetter<T>(isNullable);
+        if (setter!=null) {
+          setter.Invoke(this, fieldIndex, fieldValue);
+          return;
+        }
+      }
+      SetValueFallback(isNullable, fieldIndex, fieldValue);
     }
 
-    #endregion
-
-    #region Private internal Get/Set Value methods
-
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private T GetValueInternal<T>(bool isNullable, int fieldIndex, out TupleFieldState fieldState)
+    private T GetValueFallback<T>(bool isNullable, int fieldIndex, out TupleFieldState fieldState)
     {
       var mappedContainer = GetMappedContainer(fieldIndex, false);
-      if (mappedContainer.First!=null) {
-        var getter = (isNullable
-          ? mappedContainer.First.GetGetNullableValueDelegate(mappedContainer.Second)
-          : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>;
-        if (getter!=null)
-          return getter.Invoke(mappedContainer.First, fieldIndex, out fieldState);
+      var mappedTuple = mappedContainer.First;
+      if (mappedTuple!=null) {
+        var mappedField = mappedContainer.Second;
+        var accessor = mappedTuple.GetFieldAccessor(mappedField);
+        if (accessor!=null) {
+          var getter = accessor.GetGetter<T>(isNullable);
+          if (getter!=null)
+            return getter.Invoke(mappedTuple, mappedField, out fieldState);
+        }
       }
       var value = GetValue(fieldIndex, out fieldState);
-      return value==null
-        ? default(T)
-        : (T) value;
+      return value==null ? default(T) : (T) value;
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private T GetValueInternal<T>(bool isNullable, int fieldIndex)
+    private T GetValueFallback<T>(bool isNullable, int fieldIndex)
     {
-      T result;
-      TupleFieldState fieldState;
-      GetValueDelegate<T> getter;
+      var hasResult = false;
+      var result = default(T);
+      var fieldState = TupleFieldState.Default;
+
       var mappedContainer = GetMappedContainer(fieldIndex, false);
-      if (mappedContainer.First!=null &&
-        (getter = (isNullable
-          ? mappedContainer.First.GetGetNullableValueDelegate(mappedContainer.Second)
-          : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>)!=null) {
-        result = getter.Invoke(mappedContainer.First, mappedContainer.Second, out fieldState);
+      var mappedTuple = mappedContainer.First;
+      if (mappedTuple!=null) {
+        var mappedField = mappedContainer.Second;
+        var accessor = mappedTuple.GetFieldAccessor(mappedField);
+        if (accessor!=null) {
+          var getter = accessor.GetGetter<T>(isNullable);
+          if (getter!=null) {
+            result = getter.Invoke(mappedTuple, mappedField, out fieldState);
+            hasResult = true;
+          }
+        }
       }
-      else {
+
+      if (!hasResult) {
         var value = GetValue(fieldIndex, out fieldState);
-        result = value==null
-          ? default(T)
-          : (T) value;
+        result = value==null ? default(T) : (T) value;
       }
+
       if (fieldState.IsNull()) {
         if (isNullable)
           return default(T);
         throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof (T)));
       }
+
       return result;
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private T GetValueOrDefaultInternal<T>(bool isNullable, int fieldIndex)
+    private T GetValueOrDefaultFallback<T>(bool isNullable, int fieldIndex)
     {
-      T result;
-      TupleFieldState fieldState;
-      GetValueDelegate<T> getter;
+      var result = default (T);
+      var fieldState = default(TupleFieldState);
+      var hasResult = false;
+
       var mappedContainer = GetMappedContainer(fieldIndex, false);
-      if (mappedContainer.First!=null &&
-        (getter = (isNullable
-          ? mappedContainer.First.GetGetNullableValueDelegate(mappedContainer.Second)
-          : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>)!=null) {
-        result = getter.Invoke(mappedContainer.First, mappedContainer.Second, out fieldState);
+      var mappedTuple = mappedContainer.First;
+      if (mappedTuple!=null) {
+        var mappedField = mappedContainer.Second;
+        var accessor = mappedTuple.GetFieldAccessor(mappedField);
+        if (accessor!=null) {
+          var getter = accessor.GetGetter<T>(isNullable);
+          result = getter.Invoke(mappedTuple, mappedField, out fieldState);
+          hasResult = true;
+        }
       }
-      else {
+
+      if (!hasResult) {
         var value = GetValue(fieldIndex, out fieldState);
-        result = value==null
-          ? default(T)
-          : (T) value;
+        result = value==null ? default(T) : (T) value;
       }
-      return fieldState==TupleFieldState.Available
-        ? result
-        : default(T);
+
+      return fieldState==TupleFieldState.Available ? result : default(T);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    private void SetValueInternal<T>(bool isNullable, int fieldIndex, T fieldValue)
+    private void SetValueFallback<T>(bool isNullable, int fieldIndex, T fieldValue)
     {
-      SetValueDelegate<T> setter;
       var mappedContainer = GetMappedContainer(fieldIndex, true);
-      if (mappedContainer.First!=null &&
-        (setter = (isNullable
-          ? mappedContainer.First.GetSetNullableValueDelegate(mappedContainer.Second)
-          : mappedContainer.First.GetSetValueDelegate(mappedContainer.Second)) as SetValueDelegate<T>)!=null)
-        setter.Invoke(mappedContainer.First, mappedContainer.Second, fieldValue);
-      else
-        SetValue(fieldIndex, (object) fieldValue);
+      var mappedTuple = mappedContainer.First;
+      if (mappedTuple!=null) {
+        var mappedField = mappedContainer.Second;
+        var accessor = mappedTuple.GetFieldAccessor(mappedField);
+        if (accessor!=null) {
+          var setter = accessor.GetSetter<T>(isNullable);
+          if (setter!=null) {
+            setter.Invoke(mappedTuple, mappedField, fieldValue);
+            return;
+          }
+        }
+      }
+
+      SetValue(fieldIndex, (object) fieldValue);
     }
-
-    #endregion
-
-    #region Get Delegate methods
 
     /// <summary>
     /// Gets the tuple containing actual value of the specified field.
     /// </summary>
     /// <param name="fieldIndex">Index of the field to get the value container for.</param>
     /// <returns>Tuple container and remapped field index.</returns>
-    public virtual Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
+    protected internal virtual Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
       return new Pair<Tuple, int>(this, fieldIndex);
     }
 
-    protected virtual Delegate GetGetValueDelegate(int fieldIndex)
+    /// <summary>
+    /// Gets <see cref="TupleFieldAccessor"/> for the specified field.
+    /// </summary>
+    /// <param name="fieldIndex">Index of a field to get accessor for.</param>
+    /// <returns><see cref="TupleFieldAccessor"/> for the field or null.</returns>
+    protected internal virtual TupleFieldAccessor GetFieldAccessor(int fieldIndex)
     {
       return null;
     }
-
-    protected virtual Delegate GetGetNullableValueDelegate(int fieldIndex)
-    {
-      return null;
-    }
-
-    protected virtual Delegate GetSetValueDelegate(int fieldIndex)
-    {
-      return null;
-    }
-
-    protected virtual Delegate GetSetNullableValueDelegate(int fieldIndex)
-    {
-      return null;
-    }
-
-    #endregion
 
     #region IComparable, IEquatable
 
