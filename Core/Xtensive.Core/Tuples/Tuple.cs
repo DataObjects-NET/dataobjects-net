@@ -22,9 +22,7 @@ namespace Xtensive.Tuples
   /// </summary>
   [DataContract]
   [Serializable]
-  public abstract class Tuple : ITuple,
-    IEquatable<Tuple>,
-    IComparable<Tuple>
+  public abstract class Tuple : ITuple, IEquatable<Tuple>
   {
     /// <summary>
     /// Per-field hash code multiplier used in <see cref="GetHashCode"/> calculation.
@@ -325,40 +323,18 @@ namespace Xtensive.Tuples
       return null;
     }
 
-    #region IComparable, IEquatable
-
-    /// <inheritdoc/>
-    public int CompareTo(Tuple other)
-    {
-      return AdvancedComparerStruct<Tuple>.System.Compare(this, other);
-    }
-
-    /// <inheritdoc/>
-    public int CompareTo(ITuple other)
-    {
-      return CompareTo((Tuple) other);
-    }
-
-    /// <inheritdoc/>
-    public virtual bool Equals(Tuple other)
-    {
-      return AdvancedComparerStruct<Tuple>.System.Equals(this, other);
-    }
-
-    /// <inheritdoc/>
-    public bool Equals(ITuple other)
-    {
-      return Equals((Tuple) other);
-    }
-
-    #endregion
-
     #region Equals, GetHashCode
 
     /// <inheritdoc/>
     public override sealed bool Equals(object obj)
     {
       return Equals(obj as Tuple);
+    }
+
+    /// <inheritdoc/>
+    public virtual bool Equals(Tuple other)
+    {
+      return AdvancedComparerStruct<Tuple>.System.Equals(this, other);
     }
 
     /// <inheritdoc/>

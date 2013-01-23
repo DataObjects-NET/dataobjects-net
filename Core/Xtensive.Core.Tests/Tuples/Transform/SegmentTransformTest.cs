@@ -73,24 +73,24 @@ namespace Xtensive.Tests.Tuples.Transform
       Xtensive.Tuples.Tuple ct2 = st.Apply(TupleTransformType.Tuple, t);
       int count = IterationCount;
 
-      comparer.Compare(ct1, ct2);
-      comparer.Compare(ct1, wt1);
-      comparer.Compare(wt1, wt2);
+      comparer.Equals(ct1, ct2);
+      comparer.Equals(ct1, wt1);
+      comparer.Equals(wt1, wt2);
 
       TestHelper.CollectGarbage();
       using (new Measurement("O&O", MeasurementOptions.Log, count))
         for (int i = 0; i<count; i++)
-          comparer.Compare(ct1, ct2);
+          comparer.Equals(ct1, ct2);
 
       TestHelper.CollectGarbage();
       using (new Measurement("O&W", MeasurementOptions.Log, count))
         for (int i = 0; i<count; i++)
-          comparer.Compare(ct1, wt1);
+          comparer.Equals(ct1, wt1);
       
       TestHelper.CollectGarbage();
       using (new Measurement("W&W", MeasurementOptions.Log, count))
         for (int i = 0; i<count; i++)
-          comparer.Compare(wt1, wt2);
+          comparer.Equals(wt1, wt2);
     }
   }
 }
