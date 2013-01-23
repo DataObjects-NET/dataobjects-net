@@ -241,13 +241,27 @@ namespace Xtensive.Tuples
         return;
       if (origin.Descriptor!=difference.Descriptor)
         throw new ArgumentException(string.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, origin.Descriptor), "difference");
-      var endIndex = startIndex + length;
 
-      var actionData = new MergeData(origin, difference, startIndex, endIndex, behavior);
-      var descriptor = origin.Descriptor;
-      var delegates = DelegateHelper.CreateDelegates<ExecutionSequenceHandler<MergeData>>(
-        null, typeof (TupleExtensions), "MergeExecute", descriptor);
-      DelegateHelper.ExecuteDelegates(delegates, ref actionData, Direction.Positive);
+      var packedOrigin = origin as PackedTuple;
+      var packedDifference = difference as PackedTuple;
+      var useFast = packedOrigin!=null && packedDifference!=null;
+
+      switch (behavior) {
+      case MergeBehavior.PreferOrigin:
+        if (useFast)
+          MergeTuplesPreferOriginFast(packedOrigin, packedDifference, startIndex, length);
+        else
+          MergeTuplesPreferOriginSlow(origin, difference, startIndex, length);
+        break;
+      case MergeBehavior.PreferDifference:
+        if (useFast)
+          PartiallyCopyTupleFast(packedDifference, packedOrigin, startIndex, startIndex, length);
+        else
+          PartiallyCopyTupleSlow(difference, origin, startIndex, startIndex, length);
+        break;
+      default:
+        throw new ArgumentOutOfRangeException("behavior");
+      }
     }
 
     /// <summary>
@@ -519,52 +533,24 @@ namespace Xtensive.Tuples
       }
     }
 
-    #region Private: Merge: Data & Handler
-
-    private struct MergeData
+    private static void MergeTuplesPreferOriginSlow(Tuple origin, Tuple difference, int startIndex, int length)
     {
-      public Tuple Origin;
-      public Tuple Difference;
-      public int StartIndex;
-      public int EndIndex;
-      public MergeBehavior Behavior;
-
-      public MergeData(Tuple origin, Tuple difference, int startIndex, int endIndex, MergeBehavior behavior)
-      {
-        Origin = origin;
-        Difference = difference;
-        StartIndex = startIndex;
-        EndIndex = endIndex;
-        Behavior = behavior;
+      var bound = startIndex + length;
+      for (int index = startIndex; index < bound; index++) {
+        TupleFieldState fieldState;
+        if (!origin.GetFieldState(index).IsAvailable())
+          CopyValue(difference, index, origin, index);
       }
     }
 
-    // ReSharper disable UnusedMember.Local
-    private static bool MergeExecute<TFieldType>(ref MergeData actionData, int fieldIndex)
+    private static void MergeTuplesPreferOriginFast(PackedTuple origin, PackedTuple difference, int startIndex, int length)
     {
-      if (fieldIndex < actionData.StartIndex)
-        return false;
-      if (fieldIndex > actionData.EndIndex)
-        return true;
-
-      var origin = actionData.Origin;
-      var difference = actionData.Difference;
-      var behavior = actionData.Behavior;
-
-      TupleFieldState fieldState;
-      var value = difference.GetValue<TFieldType>(fieldIndex, out fieldState);
-      if (fieldState.IsAvailable()) {
-        if (behavior == MergeBehavior.PreferOrigin && origin.GetFieldState(fieldIndex).IsAvailable())
-          return false;
-        if (fieldState.IsAvailableAndNull())
-          origin.SetValue(fieldIndex, null);
-        else
-          origin.SetValue(fieldIndex, value);
+      var bound = startIndex + length;
+      for (int index = startIndex; index < bound; index++) {
+        TupleFieldState fieldState;
+        if (!origin.GetFieldState(index).IsAvailable())
+          CopyPackedValue(difference, index, origin, index);
       }
-      return false;
     }
-    // ReSharper restore UnusedMember.Local
-
-    #endregion
   }
 }
