@@ -11,7 +11,11 @@ namespace Xtensive.Tuples.Packed
   internal abstract class PackedFieldAccessor : TupleFieldAccessor
   {
     public abstract object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor);
+
     public abstract void SetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, object value);
+
+    public abstract void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
+      PackedTuple target, PackedFieldDescriptor targetDescriptor);
   }
 
   internal sealed class ObjectFieldAccessor : PackedFieldAccessor
@@ -26,6 +30,12 @@ namespace Xtensive.Tuples.Packed
       // TODO: check type
       tuple.Objects[descriptor.Index] = value;
     }
+
+    public override void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
+      PackedTuple target, PackedFieldDescriptor targetDescriptor)
+    {
+      target.Objects[targetDescriptor.Index] = source.Objects[sourceDescriptor.Index];
+    }
   }
 
   internal sealed class BooleanFieldAccessor : PackedFieldAccessor
@@ -39,6 +49,12 @@ namespace Xtensive.Tuples.Packed
     {
       if (value!=null)
         tuple.Flags[descriptor.Index] = (bool) value;
+    }
+
+    public override void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
+      PackedTuple target, PackedFieldDescriptor targetDescriptor)
+    {
+      target.Flags[targetDescriptor.Index] = source.Flags[sourceDescriptor.Index];
     }
 
     private bool GetValue(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
@@ -109,6 +125,12 @@ namespace Xtensive.Tuples.Packed
     {
       if (value!=null)
         tuple.Values[descriptor.Index] = Encode((T) value);
+    }
+
+    public override void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
+      PackedTuple target, PackedFieldDescriptor targetDescriptor)
+    {
+      target.Values[targetDescriptor.Index] = source.Values[sourceDescriptor.Index];
     }
 
     private T GetValue(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)

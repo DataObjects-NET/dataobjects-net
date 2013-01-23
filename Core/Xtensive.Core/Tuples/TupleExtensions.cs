@@ -11,6 +11,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Resources;
+using Xtensive.Tuples.Packed;
 using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Tuples
@@ -35,11 +36,13 @@ namespace Xtensive.Tuples
     /// <param name="length">The number of elements to copy.</param>
     public static void CopyTo(this Tuple source, Tuple target, int startIndex, int targetStartIndex, int length)
     {
-      var actionData = new PartCopyData(source, target, startIndex, targetStartIndex, length);
-      var descriptor = target.Descriptor;
-      var delegates = DelegateHelper.CreateDelegates<ExecutionSequenceHandler<PartCopyData>>(
-        null, typeof (TupleExtensions), "PartCopyExecute", descriptor);
-      DelegateHelper.ExecuteDelegates(delegates, ref actionData, Direction.Positive);
+      var packedSource = source as PackedTuple;
+      var packedTarget = target as PackedTuple;
+
+      if (packedSource!=null && packedTarget!=null)
+        PartiallyCopyTupleFast(packedSource, packedTarget, startIndex, targetStartIndex, length);
+      else
+        PartiallyCopyTupleSlow(source, target, startIndex, targetStartIndex, length);
     }
 
     /// <summary>
@@ -373,48 +376,39 @@ namespace Xtensive.Tuples
       }
     }
 
-    #region Private: Part copy: Data & Handler
-
-    private struct PartCopyData
+    private static void PartiallyCopyTupleSlow(Tuple source, Tuple target, int sourceStartIndex, int targetStartIndex, int length)
     {
-      public Tuple Source;
-      public Tuple Target;
-      public int TargetStartFieldIndex;
-      public int TargetEndFieldIndex;
-      public int SourceFieldIndexDiff;
-
-      public PartCopyData(Tuple source, Tuple target, int startIndex, int targetStartIndex, int length)
-      {
-        Source = source;
-        Target = target;
-        TargetStartFieldIndex = targetStartIndex;
-        TargetEndFieldIndex = targetStartIndex + length - 1;
-        SourceFieldIndexDiff = startIndex - targetStartIndex;
+      for (int i = 0; i < length; i++) {
+        TupleFieldState fieldState;
+        var value = source.GetValue(sourceStartIndex + i, out fieldState);
+        if (!fieldState.IsAvailable())
+          continue;
+        target.SetValue(targetStartIndex + i, fieldState.IsAvailableAndNull() ? null : value);
       }
     }
 
-    // ReSharper disable UnusedMember.Local
-    private static bool PartCopyExecute<TFieldType>(ref PartCopyData actionData, int fieldIndex)
+    private static void PartiallyCopyTupleFast(PackedTuple source, PackedTuple target, int sourceStartIndex, int targetStartIndex, int length)
     {
-      if (fieldIndex < actionData.TargetStartFieldIndex)
-        return false;
-      if (fieldIndex > actionData.TargetEndFieldIndex)
-        return true;
-
-      var source = actionData.Source;
-      TupleFieldState fieldState;
-      var value = source.GetValue<TFieldType>(fieldIndex + actionData.SourceFieldIndexDiff, out fieldState);
-      if (fieldState.IsAvailable())
+      for (int i = 0; i < length; i++) {
+        var sourceIndex = i + sourceStartIndex;
+        var targetIndex = i + targetStartIndex;
+        var sourceDescriptor = source.PackedDescriptor.FieldDescriptors[sourceIndex];
+        var targetDescriptor = source.PackedDescriptor.FieldDescriptors[targetIndex];
+        var accessor = sourceDescriptor.Accessor;
+        if (accessor!=targetDescriptor.Accessor)
+          throw new InvalidOperationException(string.Format(
+            Strings.ExInvalidCast,
+            source.PackedDescriptor[sourceIndex],
+            target.PackedDescriptor[targetIndex]));
+        var fieldState = source.GetFieldState(sourceIndex);
+        if (!fieldState.IsAvailable())
+          continue;
         if (fieldState.IsAvailableAndNull())
-          actionData.Target.SetValue(fieldIndex, null);
+          target.SetValue(targetIndex, null);
         else
-          actionData.Target.SetValue(fieldIndex, value);
-      return false;
+          accessor.CopyValue(source, sourceDescriptor, target, targetDescriptor);
+      }
     }
-    // ReSharper restore UnusedMember.Local
-
-
-    #endregion
 
     #region Private: MapOne copy: Data & Handler
 
