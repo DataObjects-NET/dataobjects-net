@@ -10,8 +10,12 @@ namespace Xtensive.Tuples.Packed
   {
     public PackedFieldAccessor Accessor;
 
-    public int Index;
     public int FieldIndex;
+
+    public int ValueIndex;
+
+    public int StateIndex;
+    public int StateBitOffset;
 
     public FieldPackingType PackingType;
   }

@@ -9,7 +9,6 @@ namespace Xtensive.Tuples.Packed
   internal enum FieldPackingType
   {
      Object,
-     Flag,
      Value,
   }
 }

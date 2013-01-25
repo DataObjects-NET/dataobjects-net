@@ -439,7 +439,7 @@ namespace Xtensive.Tuples
       var sourceDescriptor = source.PackedDescriptor.FieldDescriptors[sourceIndex];
       var targetDescriptor = target.PackedDescriptor.FieldDescriptors[targetIndex];
 
-      var fieldState = source.GetFieldState(sourceIndex);
+      var fieldState = source.GetFieldState(sourceDescriptor);
       if (!fieldState.IsAvailable())
         return;
 

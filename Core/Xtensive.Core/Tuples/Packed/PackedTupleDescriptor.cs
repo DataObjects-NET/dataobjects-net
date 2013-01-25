@@ -11,7 +11,6 @@ namespace Xtensive.Tuples.Packed
 {
   internal sealed class PackedTupleDescriptor : TupleDescriptor
   {
-    public readonly int FlagsLength;
     public readonly int ValuesLength;
     public readonly int ObjectsLength;
 
@@ -20,35 +19,50 @@ namespace Xtensive.Tuples.Packed
     public PackedTupleDescriptor(IList<Type> fieldTypes)
       : base(fieldTypes)
     {
-      var valueIndex = 0;
+      const int longBits = 64;
+      const int stateBits = 2;
+      const int statesPerLong = longBits / stateBits;
+
+      var stateIndex = 0;
+      var stateOffset = 0;
+
+      var valueIndex = FieldCount / statesPerLong + Math.Min(1, FieldCount % statesPerLong);
       var objectIndex = 0;
-      var flagIndex = FieldCount * 2;
 
       FieldDescriptors = new PackedFieldDescriptor[FieldCount];
 
       int fieldIndex = 0;
       foreach (var type in FieldTypes) {
         var descriptor = new PackedFieldDescriptor {FieldIndex = fieldIndex};
-        FieldDescriptors[fieldIndex++] = descriptor;
+        FieldDescriptors[fieldIndex] = descriptor;
+
         PackedFieldAccessorFactory.ProvideAccessor(type, descriptor);
         switch (descriptor.PackingType) {
         case FieldPackingType.Object:
-          descriptor.Index = objectIndex++;
-          break;
-        case FieldPackingType.Flag:
-          descriptor.Index = flagIndex++;
+          descriptor.ValueIndex = objectIndex++;
           break;
         case FieldPackingType.Value:
-          descriptor.Index = valueIndex++;
+          descriptor.ValueIndex = valueIndex++;
           break;
         default:
           throw new ArgumentOutOfRangeException("descriptor.PackType");
         }
+
+        descriptor.StateIndex = stateIndex;
+        descriptor.StateBitOffset = stateOffset;
+
+        fieldIndex++;
+
+        if (stateOffset==longBits - stateBits) {
+          stateIndex++;
+          stateOffset = 0;
+        }
+        else
+          stateOffset += stateBits;
       }
 
       ValuesLength = valueIndex;
       ObjectsLength = objectIndex;
-      FlagsLength = flagIndex;
     }
   }
 }

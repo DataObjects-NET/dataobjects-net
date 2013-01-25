@@ -27,115 +27,31 @@ namespace Xtensive.Tuples.Packed
   {
     public override object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor)
     {
-      return tuple.Objects[descriptor.Index];
+      return tuple.Objects[descriptor.ValueIndex];
     }
 
     public override void SetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, object value)
     {
-      tuple.Objects[descriptor.Index] = value;
+      tuple.Objects[descriptor.ValueIndex] = value;
     }
 
     public override void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
       PackedTuple target, PackedFieldDescriptor targetDescriptor)
     {
-      target.Objects[targetDescriptor.Index] = source.Objects[sourceDescriptor.Index];
+      target.Objects[targetDescriptor.ValueIndex] = source.Objects[sourceDescriptor.ValueIndex];
     }
 
     public override bool ValueEquals(PackedTuple left, PackedFieldDescriptor leftDescriptor,
       PackedTuple right, PackedFieldDescriptor rightDescriptor)
     {
-      var leftValue = left.Objects[leftDescriptor.Index];
-      var rightValue = right.Objects[rightDescriptor.Index];
+      var leftValue = left.Objects[leftDescriptor.ValueIndex];
+      var rightValue = right.Objects[rightDescriptor.ValueIndex];
       return leftValue.Equals(rightValue);
     }
 
     public override int GetValueHashCode(PackedTuple tuple, PackedFieldDescriptor descriptor)
     {
-      return tuple.Objects[descriptor.Index].GetHashCode();
-    }
-  }
-
-  internal sealed class BooleanFieldAccessor : PackedFieldAccessor
-  {
-    public override object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor)
-    {
-      return tuple.Flags[descriptor.Index];
-    }
-
-    public override void SetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, object value)
-    {
-      if (value!=null)
-        tuple.Flags[descriptor.Index] = (bool) value;
-    }
-
-    public override void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
-      PackedTuple target, PackedFieldDescriptor targetDescriptor)
-    {
-      target.Flags[targetDescriptor.Index] = source.Flags[sourceDescriptor.Index];
-    }
-
-    public override bool ValueEquals(PackedTuple left, PackedFieldDescriptor leftDescriptor,
-      PackedTuple right, PackedFieldDescriptor rightDescriptor)
-    {
-      var leftValue = left.Flags[leftDescriptor.Index];
-      var rightValue = right.Flags[rightDescriptor.Index];
-      return leftValue==rightValue;
-    }
-
-    public override int GetValueHashCode(PackedTuple tuple, PackedFieldDescriptor descriptor)
-    {
-      return tuple.Flags[descriptor.Index] ? 1 : 0;
-    }
-
-    private bool GetValue(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
-    {
-      var packedTuple = (PackedTuple) tuple;
-      var state = packedTuple.GetFieldState(fieldIndex);
-      fieldState = state;
-      if (!state.HasValue())
-        return false;
-      var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-      return packedTuple.Flags[descriptor.Index];
-    }
-
-    private bool? GetNullableValue(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
-    {
-      var packedTuple = (PackedTuple) tuple;
-      var state = packedTuple.GetFieldState(fieldIndex);
-      fieldState = state;
-      if (state.IsNull())
-        return null;
-      var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-      return packedTuple.Flags[descriptor.Index];
-    }
-
-    private void SetValue(Tuple tuple, int fieldIndex, bool value)
-    {
-      var packedTuple = (PackedTuple) tuple;
-      var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-      packedTuple.Flags[descriptor.Index] = value;
-      packedTuple.SetFieldAvailable(fieldIndex, false);
-    }
-
-    private void SetNullableValue(Tuple tuple, int fieldIndex, bool? value)
-    {
-      var packedTuple = (PackedTuple) tuple;
-      if (value!=null) {
-        var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-        packedTuple.Flags[descriptor.Index] = value.Value;
-        packedTuple.SetFieldAvailable(fieldIndex, false);
-      }
-      else
-        packedTuple.SetFieldAvailable(fieldIndex, true);
-    }
-
-    public BooleanFieldAccessor()
-    {
-      Getter = (GetValueDelegate<bool>) GetValue;
-      Setter = (SetValueDelegate<bool>) SetValue;
-
-      NullableGetter = (GetValueDelegate<bool?>) GetNullableValue;
-      NullableSetter = (SetValueDelegate<bool?>) SetNullableValue;
+      return tuple.Objects[descriptor.ValueIndex].GetHashCode();
     }
   }
 
@@ -148,75 +64,75 @@ namespace Xtensive.Tuples.Packed
 
     public override object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor)
     {
-      return Decode(tuple.Values[descriptor.Index]);
+      return Decode(tuple.Values[descriptor.ValueIndex]);
     }
 
     public override void SetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, object value)
     {
       if (value!=null)
-        tuple.Values[descriptor.Index] = Encode((T) value);
+        tuple.Values[descriptor.ValueIndex] = Encode((T) value);
     }
 
     public override void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
       PackedTuple target, PackedFieldDescriptor targetDescriptor)
     {
-      target.Values[targetDescriptor.Index] = source.Values[sourceDescriptor.Index];
+      target.Values[targetDescriptor.ValueIndex] = source.Values[sourceDescriptor.ValueIndex];
     }
 
     public override bool ValueEquals(PackedTuple left, PackedFieldDescriptor leftDescriptor,
       PackedTuple right, PackedFieldDescriptor rightDescriptor)
     {
-      var leftValue = Decode(left.Values[leftDescriptor.Index]);
-      var rightValue = Decode(right.Values[rightDescriptor.Index]);
+      var leftValue = Decode(left.Values[leftDescriptor.ValueIndex]);
+      var rightValue = Decode(right.Values[rightDescriptor.ValueIndex]);
       return leftValue.Equals(rightValue);
     }
 
     public override int GetValueHashCode(PackedTuple tuple, PackedFieldDescriptor descriptor)
     {
-      var value = Decode(tuple.Values[descriptor.Index]);
+      var value = Decode(tuple.Values[descriptor.ValueIndex]);
       return value.GetHashCode();
     }
 
     private T GetValue(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
     {
       var packedTuple = (PackedTuple) tuple;
-      var state = packedTuple.GetFieldState(fieldIndex);
+      var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
+      var state = packedTuple.GetFieldState(descriptor);
       fieldState = state;
       if (!state.HasValue())
         return default (T);
-      var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-      return Decode(packedTuple.Values[descriptor.Index]);
+      return Decode(packedTuple.Values[descriptor.ValueIndex]);
     }
 
     private T? GetNullableValue(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
     {
       var packedTuple = (PackedTuple) tuple;
-      var state = packedTuple.GetFieldState(fieldIndex);
+      var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
+      var state = packedTuple.GetFieldState(descriptor);
       fieldState = state;
       if (state.IsNull())
         return null;
-      var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-      return Decode(packedTuple.Values[descriptor.Index]);
+      return Decode(packedTuple.Values[descriptor.ValueIndex]);
     }
 
     private void SetValue(Tuple tuple, int fieldIndex, T value)
     {
       var packedTuple = (PackedTuple) tuple;
       var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-      packedTuple.Values[descriptor.Index] = Encode(value);
-      packedTuple.SetFieldAvailable(fieldIndex, false);
+      packedTuple.Values[descriptor.ValueIndex] = Encode(value);
+      packedTuple.SetFieldState(descriptor, TupleFieldState.Available);
     }
 
     private void SetNullableValue(Tuple tuple, int fieldIndex, T? value)
     {
       var packedTuple = (PackedTuple) tuple;
+      var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
       if (value!=null) {
-        var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-        packedTuple.Values[descriptor.Index] = Encode(value.Value);
-        packedTuple.SetFieldAvailable(fieldIndex, false);
+        packedTuple.Values[descriptor.ValueIndex] = Encode(value.Value);
+        packedTuple.SetFieldState(descriptor, TupleFieldState.Available);
       }
       else {
-        packedTuple.SetFieldAvailable(fieldIndex, true);
+        packedTuple.SetFieldState(descriptor, TupleFieldState.Available | TupleFieldState.Null);
       }
     }
 
@@ -227,6 +143,19 @@ namespace Xtensive.Tuples.Packed
 
       NullableGetter = (GetValueDelegate<T?>) GetNullableValue;
       NullableSetter = (SetValueDelegate<T?>) SetNullableValue;
+    }
+  }
+
+  internal sealed class BooleanFieldAccessor : ValueFieldAccessor<bool>
+  {
+    protected override long Encode(bool value)
+    {
+      return value ? 1L : 0L;
+    }
+
+    protected override bool Decode(long value)
+    {
+      return value!=0;
     }
   }
 
