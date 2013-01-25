@@ -270,8 +270,10 @@ namespace Xtensive.Tuples
         var accessor = mappedTuple.GetFieldAccessor(mappedField);
         if (accessor!=null) {
           var getter = accessor.GetGetter<T>(isNullable);
-          result = getter.Invoke(mappedTuple, mappedField, out fieldState);
-          hasResult = true;
+          if (getter!=null) {
+            result = getter.Invoke(mappedTuple, mappedField, out fieldState);
+            hasResult = true;
+          }
         }
       }
 
