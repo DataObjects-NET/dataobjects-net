@@ -414,14 +414,20 @@ namespace Xtensive.Tuples
     /// <exception cref="ArgumentException">Tuple descriptor field count is not equal to <paramref name="nullableMap"/> count.</exception>
     public static void Initialize(this Tuple target, BitArray nullableMap)
     {
-      if (target.Descriptor.Count!=nullableMap.Count)
-        throw new ArgumentException(String.Format(Strings.ExInvalidFieldMapSizeExpectedX, target.Descriptor.Count));
+      var descriptor = target.Descriptor;
+      if (descriptor.Count!=nullableMap.Count)
+        throw new ArgumentException(String.Format(Strings.ExInvalidFieldMapSizeExpectedX, descriptor.Count));
 
       for (int i = 0; i < target.Count; i++) {
         if (nullableMap[i])
           target.SetFieldState(i, TupleFieldState.Available | TupleFieldState.Null);
-        else
-          target.SetFieldState(i, TupleFieldState.Available);
+        else {
+          var fieldType = descriptor[i];
+          if (fieldType.IsValueType)
+            target.SetValue(i, Activator.CreateInstance(fieldType));
+          else
+            target.SetFieldState(i, TupleFieldState.Available);
+        }
       }
     }
 
