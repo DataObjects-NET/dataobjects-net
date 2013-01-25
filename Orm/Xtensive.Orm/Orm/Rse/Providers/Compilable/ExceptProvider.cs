@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Rse.Providers
     {
       var left = Left.Header.TupleDescriptor;
       var right = Right.Header.TupleDescriptor;
-      if (left.CompareTo(right) != 0)
+      if (left!=right)
         throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Except operation"));
     }
 
