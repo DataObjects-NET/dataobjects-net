@@ -7,15 +7,24 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Xtensive.Tuples.Packed
 {
+  [Serializable]
   internal sealed class PackedTupleDescriptor : TupleDescriptor
   {
     public readonly PackedFieldDescriptor[] FieldDescriptors;
 
     public readonly int ValuesLength;
     public readonly int ObjectsLength;
+
+    [OnDeserialized]
+    private void OnDeserialized(StreamingContext context)
+    {
+      for (int i = 0; i < FieldCount; i++)
+        PackedFieldAccessorFactory.ProvideAccessor(FieldTypes[i], FieldDescriptors[i]);
+    }
 
     public PackedTupleDescriptor(IList<Type> fieldTypes)
       : base(fieldTypes)

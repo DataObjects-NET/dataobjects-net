@@ -8,9 +8,11 @@ using System;
 
 namespace Xtensive.Tuples.Packed
 {
+  [Serializable]
   internal sealed class PackedTuple : RegularTuple
   {
     internal readonly PackedTupleDescriptor PackedDescriptor;
+
     internal readonly long[] Values;
     internal readonly object[] Objects;
 

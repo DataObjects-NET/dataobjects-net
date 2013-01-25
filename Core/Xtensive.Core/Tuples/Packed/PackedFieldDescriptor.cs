@@ -4,11 +4,16 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.12.29
 
+using System;
+
 namespace Xtensive.Tuples.Packed
 {
+  [Serializable]
   internal sealed class PackedFieldDescriptor
   {
     public FieldPackingType PackingType;
+
+    [NonSerialized]
     public PackedFieldAccessor Accessor;
 
     public int FieldIndex;
