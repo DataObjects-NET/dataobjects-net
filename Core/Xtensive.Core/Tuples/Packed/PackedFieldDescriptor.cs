@@ -8,15 +8,18 @@ namespace Xtensive.Tuples.Packed
 {
   internal sealed class PackedFieldDescriptor
   {
+    public FieldPackingType PackingType;
     public PackedFieldAccessor Accessor;
 
     public int FieldIndex;
 
     public int ValueIndex;
+    public int ValueBitOffset;
+    public int ValueBitCount;
+
+    public long ValueBitMask;
 
     public int StateIndex;
     public int StateBitOffset;
-
-    public FieldPackingType PackingType;
   }
 }

@@ -88,20 +88,17 @@ namespace Xtensive.Tuples.Packed
         Objects[descriptor.ValueIndex] = null;
     }
 
-    public void SetFieldState(PackedFieldDescriptor descriptor, TupleFieldState fieldState)
+    public void SetFieldState(PackedFieldDescriptor d, TupleFieldState fieldState)
     {
       var bits = (long) fieldState;
-      var block = Values[descriptor.StateIndex];
-      Values[descriptor.StateIndex] =
-        (block & ~(3L << descriptor.StateBitOffset))
-        | (bits << descriptor.StateBitOffset);
+      var block = Values[d.StateIndex];
+      Values[d.StateIndex] = (block & ~(3L << d.StateBitOffset)) | (bits << d.StateBitOffset);
     }
 
-    public TupleFieldState GetFieldState(PackedFieldDescriptor descriptor)
+    public TupleFieldState GetFieldState(PackedFieldDescriptor d)
     {
-      // Avoid sign-extended right-shift
-      var block = Values[descriptor.StateIndex];
-      return (TupleFieldState) ((block >> descriptor.StateBitOffset) & 3);
+      var block = Values[d.StateIndex];
+      return (TupleFieldState) ((block >> d.StateBitOffset) & 3);
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)

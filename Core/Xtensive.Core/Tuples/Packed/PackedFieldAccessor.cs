@@ -55,7 +55,31 @@ namespace Xtensive.Tuples.Packed
     }
   }
 
-  internal abstract class ValueFieldAccessor<T> : PackedFieldAccessor
+  internal abstract class ValueFieldAccessor : PackedFieldAccessor
+  {
+    public readonly int BitCount;
+    public readonly long BitMask;
+
+    private static long GetMask(int bits)
+    {
+      long result = 0;
+
+      for (int i = 0; i < bits; i++) {
+        result <<= 1;
+        result |= 1;
+      }
+
+      return result;
+    }
+
+    protected ValueFieldAccessor(int bits)
+    {
+      BitCount = bits;
+      BitMask = GetMask(bits);
+    }
+  }
+
+  internal abstract class ValueFieldAccessor<T> : ValueFieldAccessor
     where T : struct, IEquatable<T>
   {
     protected abstract long Encode(T value);
@@ -64,33 +88,32 @@ namespace Xtensive.Tuples.Packed
 
     public override object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor)
     {
-      return Decode(tuple.Values[descriptor.ValueIndex]);
+      return Load(tuple, descriptor);
     }
 
     public override void SetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, object value)
     {
       if (value!=null)
-        tuple.Values[descriptor.ValueIndex] = Encode((T) value);
+        Store(tuple, descriptor, (T) value);
     }
 
     public override void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
       PackedTuple target, PackedFieldDescriptor targetDescriptor)
     {
-      target.Values[targetDescriptor.ValueIndex] = source.Values[sourceDescriptor.ValueIndex];
+      Store(target, targetDescriptor, Load(source, sourceDescriptor));
     }
 
     public override bool ValueEquals(PackedTuple left, PackedFieldDescriptor leftDescriptor,
       PackedTuple right, PackedFieldDescriptor rightDescriptor)
     {
-      var leftValue = Decode(left.Values[leftDescriptor.ValueIndex]);
-      var rightValue = Decode(right.Values[rightDescriptor.ValueIndex]);
+      var leftValue = Load(left, leftDescriptor);
+      var rightValue = Load(right, rightDescriptor);
       return leftValue.Equals(rightValue);
     }
 
     public override int GetValueHashCode(PackedTuple tuple, PackedFieldDescriptor descriptor)
     {
-      var value = Decode(tuple.Values[descriptor.ValueIndex]);
-      return value.GetHashCode();
+      return Load(tuple, descriptor).GetHashCode();
     }
 
     private T GetValue(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
@@ -101,7 +124,7 @@ namespace Xtensive.Tuples.Packed
       fieldState = state;
       if (!state.HasValue())
         return default (T);
-      return Decode(packedTuple.Values[descriptor.ValueIndex]);
+      return Load(packedTuple, descriptor);
     }
 
     private T? GetNullableValue(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
@@ -112,14 +135,14 @@ namespace Xtensive.Tuples.Packed
       fieldState = state;
       if (state.IsNull())
         return null;
-      return Decode(packedTuple.Values[descriptor.ValueIndex]);
+      return Load(packedTuple, descriptor);
     }
 
     private void SetValue(Tuple tuple, int fieldIndex, T value)
     {
       var packedTuple = (PackedTuple) tuple;
       var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-      packedTuple.Values[descriptor.ValueIndex] = Encode(value);
+      Store(packedTuple, descriptor, value);
       packedTuple.SetFieldState(descriptor, TupleFieldState.Available);
     }
 
@@ -128,7 +151,7 @@ namespace Xtensive.Tuples.Packed
       var packedTuple = (PackedTuple) tuple;
       var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
       if (value!=null) {
-        packedTuple.Values[descriptor.ValueIndex] = Encode(value.Value);
+        Store(packedTuple, descriptor, value.Value);
         packedTuple.SetFieldState(descriptor, TupleFieldState.Available);
       }
       else {
@@ -136,7 +159,21 @@ namespace Xtensive.Tuples.Packed
       }
     }
 
-    protected ValueFieldAccessor()
+    private void Store(PackedTuple tuple, PackedFieldDescriptor d, T value)
+    {
+      var encoded = Encode(value);
+      var block = tuple.Values[d.ValueIndex];
+      tuple.Values[d.ValueIndex] = (block & ~(d.ValueBitMask << d.ValueBitOffset)) | (encoded << d.ValueBitOffset);
+    }
+
+    private T Load(PackedTuple tuple, PackedFieldDescriptor d)
+    {
+      var encoded = (tuple.Values[d.ValueIndex] >> d.ValueBitOffset) & d.ValueBitMask;
+      return Decode(encoded);
+    }
+
+    protected ValueFieldAccessor(int bits)
+      : base(bits)
     {
       Getter = (GetValueDelegate<T>) GetValue;
       Setter = (SetValueDelegate<T>) SetValue;
@@ -157,6 +194,11 @@ namespace Xtensive.Tuples.Packed
     {
       return value!=0;
     }
+
+    public BooleanFieldAccessor()
+      : base(1)
+    {
+    }
   }
 
   internal sealed class FloatFieldAccessor : ValueFieldAccessor<float>
@@ -169,6 +211,11 @@ namespace Xtensive.Tuples.Packed
     protected override float Decode(long value)
     {
       return (float) BitConverter.Int64BitsToDouble(value);
+    }
+
+    public FloatFieldAccessor()
+      : base(sizeof(float) * 8)
+    {
     }
   }
 
@@ -183,6 +230,11 @@ namespace Xtensive.Tuples.Packed
     {
       return BitConverter.Int64BitsToDouble(value);
     }
+
+    public DoubleFieldAccessor()
+      : base(sizeof(double) * 8)
+    {
+    }
   }
 
   internal sealed class TimeSpanFieldAccessor : ValueFieldAccessor<TimeSpan>
@@ -195,6 +247,11 @@ namespace Xtensive.Tuples.Packed
     protected override TimeSpan Decode(long value)
     {
       return TimeSpan.FromTicks(value);
+    }
+
+    public TimeSpanFieldAccessor()
+      : base(sizeof(long) * 8)
+    {
     }
   }
 
@@ -209,6 +266,11 @@ namespace Xtensive.Tuples.Packed
     {
       return DateTime.FromBinary(value);
     }
+
+    public DateTimeFieldAccessor()
+      : base(sizeof(long) * 8)
+    {
+    }
   }
 
   internal sealed class ByteFieldAccessor : ValueFieldAccessor<byte>
@@ -221,6 +283,11 @@ namespace Xtensive.Tuples.Packed
     protected override byte Decode(long value)
     {
       return unchecked ((byte) value);
+    }
+
+    public ByteFieldAccessor()
+      : base(sizeof(byte) * 8)
+    {
     }
   }
 
@@ -235,6 +302,11 @@ namespace Xtensive.Tuples.Packed
     {
       return unchecked ((sbyte) value);
     }
+
+    public SByteFieldAccessor()
+      : base(sizeof(sbyte) * 8)
+    {
+    }
   }
   
   internal sealed class ShortFieldAccessor : ValueFieldAccessor<short>
@@ -247,6 +319,11 @@ namespace Xtensive.Tuples.Packed
     protected override short Decode(long value)
     {
       return unchecked ((short) value);
+    }
+
+    public ShortFieldAccessor()
+      : base(sizeof(short) * 8)
+    {
     }
   }
   
@@ -261,6 +338,11 @@ namespace Xtensive.Tuples.Packed
     {
       return unchecked ((ushort) value);
     }
+
+    public UShortFieldAccessor()
+      : base(sizeof(ushort) * 8)
+    {
+    }
   }
   
   internal sealed class IntFieldAccessor : ValueFieldAccessor<int>
@@ -273,6 +355,11 @@ namespace Xtensive.Tuples.Packed
     protected override int Decode(long value)
     {
       return unchecked ((int) value);
+    }
+
+    public IntFieldAccessor()
+      : base(sizeof(int) * 8)
+    {
     }
   }
   
@@ -287,6 +374,11 @@ namespace Xtensive.Tuples.Packed
     {
       return unchecked ((uint) value);
     }
+
+    public UIntFieldAccessor()
+      : base(sizeof(uint) * 8)
+    {
+    }
   }
   
   internal sealed class LongFieldAccessor : ValueFieldAccessor<long>
@@ -300,6 +392,11 @@ namespace Xtensive.Tuples.Packed
     {
       return value;
     }
+
+    public LongFieldAccessor()
+      : base(sizeof(long) * 4)
+    {
+    }
   }
   
   internal sealed class ULongFieldAccessor : ValueFieldAccessor<ulong>
@@ -312,6 +409,11 @@ namespace Xtensive.Tuples.Packed
     protected override ulong Decode(long value)
     {
       return unchecked((ulong) value);
+    }
+
+    public ULongFieldAccessor()
+      : base(sizeof(ulong) * 4)
+    {
     }
   }
 }

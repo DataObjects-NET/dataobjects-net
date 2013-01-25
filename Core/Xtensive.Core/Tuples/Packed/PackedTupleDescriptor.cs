@@ -5,16 +5,17 @@
 // Created:    2012.12.29
 
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Xtensive.Tuples.Packed
 {
   internal sealed class PackedTupleDescriptor : TupleDescriptor
   {
+    public readonly PackedFieldDescriptor[] FieldDescriptors;
+
     public readonly int ValuesLength;
     public readonly int ObjectsLength;
-
-    public readonly PackedFieldDescriptor[] FieldDescriptors;
 
     public PackedTupleDescriptor(IList<Type> fieldTypes)
       : base(fieldTypes)
@@ -23,45 +24,54 @@ namespace Xtensive.Tuples.Packed
       const int stateBits = 2;
       const int statesPerLong = longBits / stateBits;
 
+      var objectIndex = 0;
+
+      var valueIndex = FieldCount / statesPerLong + Math.Min(1, FieldCount % statesPerLong);
+      var valueOffset = 0;
+
       var stateIndex = 0;
       var stateOffset = 0;
 
-      var valueIndex = FieldCount / statesPerLong + Math.Min(1, FieldCount % statesPerLong);
-      var objectIndex = 0;
-
       FieldDescriptors = new PackedFieldDescriptor[FieldCount];
+      for (int i = 0; i < FieldCount; i++) {
+        var descriptor = new PackedFieldDescriptor {FieldIndex = i};
+        PackedFieldAccessorFactory.ProvideAccessor(FieldTypes[i], descriptor);
+        FieldDescriptors[i] = descriptor;
+      }
 
-      int fieldIndex = 0;
-      foreach (var type in FieldTypes) {
-        var descriptor = new PackedFieldDescriptor {FieldIndex = fieldIndex};
-        FieldDescriptors[fieldIndex] = descriptor;
+      var orderedDescriptors = FieldDescriptors
+        .OrderByDescending(d => d.ValueBitCount)
+        .ThenBy(d => d.FieldIndex);
 
-        PackedFieldAccessorFactory.ProvideAccessor(type, descriptor);
+      foreach (var descriptor in orderedDescriptors) {
         switch (descriptor.PackingType) {
         case FieldPackingType.Object:
           descriptor.ValueIndex = objectIndex++;
           break;
         case FieldPackingType.Value:
-          descriptor.ValueIndex = valueIndex++;
+          if (valueOffset + descriptor.ValueBitCount > longBits) {
+            valueIndex++;
+            valueOffset = 0;
+          }
+          descriptor.ValueIndex = valueIndex;
+          descriptor.ValueBitOffset = valueOffset;
+          valueOffset += descriptor.ValueBitCount;
           break;
         default:
           throw new ArgumentOutOfRangeException("descriptor.PackType");
         }
 
-        descriptor.StateIndex = stateIndex;
-        descriptor.StateBitOffset = stateOffset;
-
-        fieldIndex++;
-
-        if (stateOffset==longBits - stateBits) {
+        if (stateOffset + stateBits > longBits) {
           stateIndex++;
           stateOffset = 0;
         }
-        else
-          stateOffset += stateBits;
+
+        descriptor.StateIndex = stateIndex;
+        descriptor.StateBitOffset = stateOffset;
+        stateOffset += stateBits;
       }
 
-      ValuesLength = valueIndex;
+      ValuesLength = valueIndex + Math.Min(1, valueOffset);
       ObjectsLength = objectIndex;
     }
   }
