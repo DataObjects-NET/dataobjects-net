@@ -11,6 +11,7 @@ namespace Xtensive.Tuples.Packed
     public PackedFieldAccessor Accessor;
 
     public int Index;
+    public int FieldIndex;
 
     public FieldPackingType PackingType;
   }

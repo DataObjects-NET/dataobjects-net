@@ -5,63 +5,42 @@
 // Created:    2008.01.29
 
 using System;
-using Xtensive.Collections;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Comparison
 {
   [Serializable]
-  internal sealed class TupleComparer : AdvancedComparerBase<Tuples.Tuple>,
-    ISystemComparer<Tuples.Tuple>
+  internal sealed class TupleComparer : AdvancedComparerBase<Tuple>,
+    ISystemComparer<Tuple>
   {
     [NonSerialized]
     private int nullHashCode;
 
-    protected override IAdvancedComparer<Tuples.Tuple> CreateNew(ComparisonRules rules)
+    protected override IAdvancedComparer<Tuple> CreateNew(ComparisonRules rules)
     {
       return new TupleComparer(Provider, ComparisonRules.Combine(rules));
     }
 
-    public override int Compare(Tuples.Tuple x, Tuples.Tuple y)
+    public override int Compare(Tuple x, Tuple y)
     {
       throw new NotSupportedException();
     }
 
-    public override bool Equals(Tuples.Tuple x, Tuples.Tuple y)
+    public override bool Equals(Tuple x, Tuple y)
     {
-      if (x == null)
-        return y == null;
-      if (y == null)
-        return false;
-      if (x.Descriptor != y.Descriptor)
-        return false;
-      for (int fieldIndex = 0; fieldIndex < x.Count; fieldIndex++) {
-        TupleFieldState xState;
-        TupleFieldState yState;
-        var xValue = x.GetValue(fieldIndex, out xState);
-        var yValue = y.GetValue(fieldIndex, out yState);
-        if (xState != yState)
-          return false;
-        if (xState != TupleFieldState.Available)
-          continue;
-        if (!Equals(xValue, yValue))
-          return false;
-      }
-      return true;
+      return object.Equals(x, y);
     }
 
-    public override int GetHashCode(Tuples.Tuple obj)
+    public override int GetHashCode(Tuple obj)
     {
       return ReferenceEquals(obj, null) 
-        ? nullHashCode 
+        ? nullHashCode
         : obj.GetHashCode();
     }
 
-
     private void Initialize()
     {
-      nullHashCode = SystemComparerStruct<Tuples.Tuple>.Instance.GetHashCode(null);
+      nullHashCode = SystemComparerStruct<Tuple>.Instance.GetHashCode(null);
     }
 
 

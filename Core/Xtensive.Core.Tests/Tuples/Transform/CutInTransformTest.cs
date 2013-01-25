@@ -86,24 +86,24 @@ namespace Xtensive.Tests.Tuples.Transform
       int count = IterationCount;
 
       AdvancedComparerStruct<Xtensive.Tuples.Tuple> comparer = AdvancedComparerStruct<Xtensive.Tuples.Tuple>.Default;
-      comparer.Compare(tuple1, tuple2);
-      comparer.Compare(tuple1, tuple3);
-      comparer.Compare(tuple3, tuple4);
+      comparer.Equals(tuple1, tuple2);
+      comparer.Equals(tuple1, tuple3);
+      comparer.Equals(tuple3, tuple4);
 
       TestHelper.CollectGarbage();
       using (new Measurement("O&O", MeasurementOptions.Log, count))
         for (int i = 0; i < count; i++)
-          comparer.Compare(tuple1, tuple2);
+          comparer.Equals(tuple1, tuple2);
 
       TestHelper.CollectGarbage();
       using (new Measurement("O&W", MeasurementOptions.Log, count))
         for (int i = 0; i < count; i++)
-          comparer.Compare(tuple1, tuple3);
+          comparer.Equals(tuple1, tuple3);
 
       TestHelper.CollectGarbage();
       using (new Measurement("W&W", MeasurementOptions.Log, count))
         for (int i = 0; i < count; i++)
-          comparer.Compare(tuple3, tuple4);
+          comparer.Equals(tuple3, tuple4);
 
     }
   }

@@ -16,6 +16,11 @@ namespace Xtensive.Tuples.Packed
 
     public abstract void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
       PackedTuple target, PackedFieldDescriptor targetDescriptor);
+
+    public abstract bool ValueEquals(PackedTuple left, PackedFieldDescriptor leftDescriptor,
+      PackedTuple right, PackedFieldDescriptor rightDescriptor);
+
+    public abstract int GetValueHashCode(PackedTuple tuple, PackedFieldDescriptor descriptor);
   }
 
   internal sealed class ObjectFieldAccessor : PackedFieldAccessor
@@ -27,7 +32,6 @@ namespace Xtensive.Tuples.Packed
 
     public override void SetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, object value)
     {
-      // TODO: check type
       tuple.Objects[descriptor.Index] = value;
     }
 
@@ -35,6 +39,19 @@ namespace Xtensive.Tuples.Packed
       PackedTuple target, PackedFieldDescriptor targetDescriptor)
     {
       target.Objects[targetDescriptor.Index] = source.Objects[sourceDescriptor.Index];
+    }
+
+    public override bool ValueEquals(PackedTuple left, PackedFieldDescriptor leftDescriptor,
+      PackedTuple right, PackedFieldDescriptor rightDescriptor)
+    {
+      var leftValue = left.Objects[leftDescriptor.Index];
+      var rightValue = right.Objects[rightDescriptor.Index];
+      return leftValue.Equals(rightValue);
+    }
+
+    public override int GetValueHashCode(PackedTuple tuple, PackedFieldDescriptor descriptor)
+    {
+      return tuple.Objects[descriptor.Index].GetHashCode();
     }
   }
 
@@ -55,6 +72,19 @@ namespace Xtensive.Tuples.Packed
       PackedTuple target, PackedFieldDescriptor targetDescriptor)
     {
       target.Flags[targetDescriptor.Index] = source.Flags[sourceDescriptor.Index];
+    }
+
+    public override bool ValueEquals(PackedTuple left, PackedFieldDescriptor leftDescriptor,
+      PackedTuple right, PackedFieldDescriptor rightDescriptor)
+    {
+      var leftValue = left.Flags[leftDescriptor.Index];
+      var rightValue = right.Flags[rightDescriptor.Index];
+      return leftValue==rightValue;
+    }
+
+    public override int GetValueHashCode(PackedTuple tuple, PackedFieldDescriptor descriptor)
+    {
+      return tuple.Flags[descriptor.Index] ? 1 : 0;
     }
 
     private bool GetValue(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
@@ -99,7 +129,7 @@ namespace Xtensive.Tuples.Packed
         packedTuple.SetFieldAvailable(fieldIndex, true);
     }
 
-    public void Initialize()
+    public BooleanFieldAccessor()
     {
       Getter = (GetValueDelegate<bool>) GetValue;
       Setter = (SetValueDelegate<bool>) SetValue;
@@ -110,7 +140,7 @@ namespace Xtensive.Tuples.Packed
   }
 
   internal abstract class ValueFieldAccessor<T> : PackedFieldAccessor
-    where T : struct
+    where T : struct, IEquatable<T>
   {
     protected abstract long Encode(T value);
 
@@ -131,6 +161,20 @@ namespace Xtensive.Tuples.Packed
       PackedTuple target, PackedFieldDescriptor targetDescriptor)
     {
       target.Values[targetDescriptor.Index] = source.Values[sourceDescriptor.Index];
+    }
+
+    public override bool ValueEquals(PackedTuple left, PackedFieldDescriptor leftDescriptor,
+      PackedTuple right, PackedFieldDescriptor rightDescriptor)
+    {
+      var leftValue = Decode(left.Values[leftDescriptor.Index]);
+      var rightValue = Decode(right.Values[rightDescriptor.Index]);
+      return leftValue.Equals(rightValue);
+    }
+
+    public override int GetValueHashCode(PackedTuple tuple, PackedFieldDescriptor descriptor)
+    {
+      var value = Decode(tuple.Values[descriptor.Index]);
+      return value.GetHashCode();
     }
 
     private T GetValue(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
@@ -176,7 +220,7 @@ namespace Xtensive.Tuples.Packed
       }
     }
 
-    public void Initialize()
+    protected ValueFieldAccessor()
     {
       Getter = (GetValueDelegate<T>) GetValue;
       Setter = (SetValueDelegate<T>) SetValue;

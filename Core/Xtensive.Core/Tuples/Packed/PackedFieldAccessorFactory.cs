@@ -32,10 +32,9 @@ namespace Xtensive.Tuples.Packed
       descriptor.PackingType = FieldPackingType.Object;
     }
 
-    private static void RegisterValueAccessor<T>(ValueFieldAccessor<T> accessor)
-      where T : struct
+    private static void RegisterAccessor<T>(ValueFieldAccessor<T> accessor)
+      where T : struct, IEquatable<T>
     {
-      accessor.Initialize();
       ValueAccessors.Add(typeof (T), accessor);
     }
 
@@ -45,18 +44,18 @@ namespace Xtensive.Tuples.Packed
       ObjectAccessor = new ObjectFieldAccessor();
       BooleanAccessor = new BooleanFieldAccessor();
 
-      RegisterValueAccessor(new ByteFieldAccessor());
-      RegisterValueAccessor(new SByteFieldAccessor());
-      RegisterValueAccessor(new ShortFieldAccessor());
-      RegisterValueAccessor(new UShortFieldAccessor());
-      RegisterValueAccessor(new IntFieldAccessor());
-      RegisterValueAccessor(new UIntFieldAccessor());
-      RegisterValueAccessor(new LongFieldAccessor());
-      RegisterValueAccessor(new ULongFieldAccessor());
-      RegisterValueAccessor(new FloatFieldAccessor());
-      RegisterValueAccessor(new DoubleFieldAccessor());
-      RegisterValueAccessor(new DateTimeFieldAccessor());
-      RegisterValueAccessor(new TimeSpanFieldAccessor());
+      RegisterAccessor(new ByteFieldAccessor());
+      RegisterAccessor(new SByteFieldAccessor());
+      RegisterAccessor(new ShortFieldAccessor());
+      RegisterAccessor(new UShortFieldAccessor());
+      RegisterAccessor(new IntFieldAccessor());
+      RegisterAccessor(new UIntFieldAccessor());
+      RegisterAccessor(new LongFieldAccessor());
+      RegisterAccessor(new ULongFieldAccessor());
+      RegisterAccessor(new FloatFieldAccessor());
+      RegisterAccessor(new DoubleFieldAccessor());
+      RegisterAccessor(new DateTimeFieldAccessor());
+      RegisterAccessor(new TimeSpanFieldAccessor());
     }
   }
 }

@@ -24,15 +24,9 @@ namespace Xtensive.Tuples
   /// Provides information about <see cref="Tuple"/> structure.
   /// </summary>
   [Serializable]
-  public class TupleDescriptor :
-    IIdentified<int>,
-    IEquatable<TupleDescriptor>,
-    IComparable<TupleDescriptor>,
-    IList<Type>
+  public class TupleDescriptor : IEquatable<TupleDescriptor>, IList<Type>
   {
-    private static readonly TupleDescriptor empty = Create(new Type[0]);
-
-    private int cachedHashCode;
+    private static readonly TupleDescriptor EmptyDescriptor = Create(new Type[0]);
 
     internal readonly int FieldCount;
     internal readonly Type[] FieldTypes;
@@ -44,7 +38,7 @@ namespace Xtensive.Tuples
     public static TupleDescriptor Empty
     {
       [DebuggerStepThrough]
-      get { return empty; }
+      get { return EmptyDescriptor; }
     }
 
     /// <summary>
@@ -58,15 +52,8 @@ namespace Xtensive.Tuples
     }
 
     /// <inheritdoc/>
-    [Obsolete("This property always returns 0.")]
+    [Obsolete("Tuple descriptors no longer has unique indentifier. This property always returns 0.")]
     public int Identifier
-    {
-      [DebuggerStepThrough]
-      get { return 0; }
-    }
-
-    /// <inheritdoc/>
-    object IIdentified.Identifier
     {
       [DebuggerStepThrough]
       get { return 0; }
@@ -211,7 +198,7 @@ namespace Xtensive.Tuples
 
     #endregion
 
-    #region IEquatable members, GetHashCode 
+    #region IEquatable members, GetHashCode
 
     /// <inheritdoc/>
     public bool Equals(TupleDescriptor other)
@@ -222,10 +209,10 @@ namespace Xtensive.Tuples
         return true;
       if (FieldCount!=other.FieldCount)
         return false;
-      var result = true;
-      for (int i = FieldCount - 1; i >= 0 && result; i--)
-        result &= FieldTypes[i]==other.FieldTypes[i];
-      return result;
+      for (int i = 0; i < FieldCount; i++)
+        if (FieldTypes[i]!=other.FieldTypes[i])
+          return false;
+      return true;
     }
 
     /// <inheritdoc/>
@@ -237,15 +224,10 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      if (cachedHashCode==0) {
-        int hashCode = FieldCount;
-        for (int i = 0; i < FieldCount; i++)
-          hashCode = unchecked (FieldTypes[i].GetHashCode() + 29 * hashCode);
-        if (hashCode==0)
-          hashCode = -1;
-        cachedHashCode = hashCode;
-      }
-      return cachedHashCode;
+      int result = FieldCount;
+      for (int i = 0; i < FieldCount; i++)
+        result = unchecked (FieldTypes[i].GetHashCode() + 29 * result);
+      return result;
     }
 
     public static bool operator==(TupleDescriptor left, TupleDescriptor right)
@@ -260,20 +242,6 @@ namespace Xtensive.Tuples
     public static bool operator !=(TupleDescriptor left, TupleDescriptor right)
     {
       return !(left==right);
-    }
-
-    #endregion
-
-    #region IComparable members
-
-    /// <inheritdoc/>
-    public int CompareTo(TupleDescriptor other)
-    {
-      if (ReferenceEquals(other, null))
-        return 1;
-      if (ReferenceEquals(other, this))
-        return 0;
-      return AdvancedComparerStruct<Type[]>.Default.Compare(FieldTypes, other.FieldTypes);
     }
 
     #endregion

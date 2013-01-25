@@ -31,6 +31,49 @@ namespace Xtensive.Tuples.Packed
       return new PackedTuple(PackedDescriptor);
     }
 
+    public override bool Equals(Tuple other)
+    {
+      var packedOther = other as PackedTuple;
+      if (packedOther==null)
+        return base.Equals(other);
+
+      if (ReferenceEquals(packedOther, this))
+        return true;
+      if (Descriptor!=packedOther.Descriptor)
+        return false;
+
+      var count = Count;
+      for (int i = 0; i < count; i++) {
+        var thisState = GetFieldState(i);
+        var otherState = packedOther.GetFieldState(i);
+        if (thisState!=otherState)
+          return false;
+        if (thisState!=TupleFieldState.Available)
+          continue;
+        var descriptor = PackedDescriptor.FieldDescriptors[i];
+        if (!descriptor.Accessor.ValueEquals(this, descriptor, packedOther, descriptor))
+          return false;
+      }
+
+      return true;
+    }
+
+    public override int GetHashCode()
+    {
+      var count = Count;
+      int result = 0;
+      for (int i = 0; i < count; i++) {
+        int fieldHash = 0;
+        var state = GetFieldState(i);
+        if (state==TupleFieldState.Available) {
+          var descriptor = PackedDescriptor.FieldDescriptors[i];
+          fieldHash = descriptor.Accessor.GetValueHashCode(this, descriptor);
+        }
+        result = HashCodeMultiplier * result ^ fieldHash;
+      }
+      return result;
+    }
+
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       var result = TupleFieldState.Default;
@@ -54,10 +97,10 @@ namespace Xtensive.Tuples.Packed
         Objects[descriptor.Index] = null;
     }
 
-    internal void SetFieldAvailable(int fieldIndex, bool isNullable)
+    internal void SetFieldAvailable(int fieldIndex, bool isNull)
     {
       Flags[GetAvailableIndex(fieldIndex)] = true;
-      Flags[GetNullIndex(fieldIndex)] = isNullable;
+      Flags[GetNullIndex(fieldIndex)] = isNull;
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)

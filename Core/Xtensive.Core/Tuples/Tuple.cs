@@ -38,7 +38,7 @@ namespace Xtensive.Tuples
     public virtual int Count
     {
       [DebuggerStepThrough]
-      get { return Descriptor.Count; }
+      get { return Descriptor.FieldCount; }
     }
 
     /// <inheritdoc/>
@@ -334,7 +334,28 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public virtual bool Equals(Tuple other)
     {
-      return AdvancedComparerStruct<Tuple>.System.Equals(this, other);
+      if (ReferenceEquals(other, null))
+        return false;
+      if (ReferenceEquals(other, this))
+        return true;
+      if (Descriptor!=other.Descriptor)
+        return false;
+
+      var count = Count;
+      for (int i = 0; i < count; i++) {
+        TupleFieldState thisState;
+        TupleFieldState otherState;
+        var thisValue = GetValue(i, out thisState);
+        var otherValue = other.GetValue(i, out otherState);
+        if (thisState!=otherState)
+          return false;
+        if (thisState!=TupleFieldState.Available)
+          continue;
+        if (!Equals(thisValue, otherValue))
+          return false;
+      }
+
+      return true;
     }
 
     /// <inheritdoc/>
@@ -344,8 +365,8 @@ namespace Xtensive.Tuples
       int result = 0;
       for (int i = 0; i < count; i++) {
         TupleFieldState state;
-        object valueOrDefault = GetValue(i, out state);
-        result = HashCodeMultiplier * result ^ (valueOrDefault!=null ? valueOrDefault.GetHashCode() : 0);
+        object value = GetValue(i, out state);
+        result = HashCodeMultiplier * result ^ (value!=null ? value.GetHashCode() : 0);
       }
       return result;
     }
