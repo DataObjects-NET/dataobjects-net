@@ -122,11 +122,6 @@ namespace Xtensive.Tuples.Packed
         SetFieldState(descriptor, TupleFieldState.Available);
     }
 
-    protected internal override TupleFieldAccessor GetFieldAccessor(int fieldIndex)
-    {
-      return PackedDescriptor.FieldDescriptors[fieldIndex].Accessor;
-    }
-
     public PackedTuple(TupleDescriptor descriptor)
     {
       PackedDescriptor = descriptor;

@@ -110,9 +110,9 @@ namespace Xtensive.Tuples
     public T GetValue<T>(int fieldIndex, out TupleFieldState fieldState)
     {
       var isNullable = null==default(T); // Is nullable value type or class
-      var accessor = GetFieldAccessor(fieldIndex);
-      if (accessor!=null) {
-        var getter = accessor.GetGetter<T>(isNullable);
+      var descriptor = GetFieldDescriptor(fieldIndex);
+      if (descriptor!=null) {
+        var getter = descriptor.Accessor.GetGetter<T>(isNullable);
         if (getter!=null)
           return getter.Invoke(this, fieldIndex, out fieldState);
       }
@@ -136,9 +136,9 @@ namespace Xtensive.Tuples
     public T GetValue<T>(int fieldIndex)
     {
       var isNullable = null==default(T); // Is nullable value type or class
-      var accessor = GetFieldAccessor(fieldIndex);
-      if (accessor!=null) {
-        var getter = accessor.GetGetter<T>(isNullable);
+      var descriptor = GetFieldDescriptor(fieldIndex);
+      if (descriptor!=null) {
+        var getter = descriptor.Accessor.GetGetter<T>(isNullable);
         if (getter!=null) {
           TupleFieldState fieldState;
           var result = getter.Invoke(this, fieldIndex, out fieldState);
@@ -169,9 +169,9 @@ namespace Xtensive.Tuples
     public T GetValueOrDefault<T>(int fieldIndex)
     {
       var isNullable = null==default(T); // Is nullable value type or class
-      var accessor = GetFieldAccessor(fieldIndex);
-      if (accessor!=null) {
-        var getter = accessor.GetGetter<T>(isNullable);
+      var descriptor = GetFieldDescriptor(fieldIndex);
+      if (descriptor!=null) {
+        var getter = descriptor.Accessor.GetGetter<T>(isNullable);
         if (getter!=null) {
           TupleFieldState fieldState;
           var result = getter.Invoke(this, fieldIndex, out fieldState);
@@ -192,9 +192,9 @@ namespace Xtensive.Tuples
     public void SetValue<T>(int fieldIndex, T fieldValue)
     {
       var isNullable = null==default(T); // Is nullable value type or class
-      var accessor = GetFieldAccessor(fieldIndex);
+      var accessor = GetFieldDescriptor(fieldIndex);
       if (accessor!=null) {
-        var setter = accessor.GetSetter<T>(isNullable);
+        var setter = accessor.Accessor.GetSetter<T>(isNullable);
         if (setter!=null) {
           setter.Invoke(this, fieldIndex, fieldValue);
           return;
@@ -210,9 +210,9 @@ namespace Xtensive.Tuples
       var mappedTuple = mappedContainer.First;
       if (mappedTuple!=null) {
         var mappedField = mappedContainer.Second;
-        var accessor = mappedTuple.GetFieldAccessor(mappedField);
-        if (accessor!=null) {
-          var getter = accessor.GetGetter<T>(isNullable);
+        var descriptor = mappedTuple.GetFieldDescriptor(mappedField);
+        if (descriptor!=null) {
+          var getter = descriptor.Accessor.GetGetter<T>(isNullable);
           if (getter!=null)
             return getter.Invoke(mappedTuple, mappedField, out fieldState);
         }
@@ -232,9 +232,9 @@ namespace Xtensive.Tuples
       var mappedTuple = mappedContainer.First;
       if (mappedTuple!=null) {
         var mappedField = mappedContainer.Second;
-        var accessor = mappedTuple.GetFieldAccessor(mappedField);
-        if (accessor!=null) {
-          var getter = accessor.GetGetter<T>(isNullable);
+        var descriptor = mappedTuple.GetFieldDescriptor(mappedField);
+        if (descriptor!=null) {
+          var getter = descriptor.Accessor.GetGetter<T>(isNullable);
           if (getter!=null) {
             result = getter.Invoke(mappedTuple, mappedField, out fieldState);
             hasResult = true;
@@ -267,9 +267,9 @@ namespace Xtensive.Tuples
       var mappedTuple = mappedContainer.First;
       if (mappedTuple!=null) {
         var mappedField = mappedContainer.Second;
-        var accessor = mappedTuple.GetFieldAccessor(mappedField);
-        if (accessor!=null) {
-          var getter = accessor.GetGetter<T>(isNullable);
+        var descriptor = mappedTuple.GetFieldDescriptor(mappedField);
+        if (descriptor!=null) {
+          var getter = descriptor.Accessor.GetGetter<T>(isNullable);
           if (getter!=null) {
             result = getter.Invoke(mappedTuple, mappedField, out fieldState);
             hasResult = true;
@@ -292,9 +292,9 @@ namespace Xtensive.Tuples
       var mappedTuple = mappedContainer.First;
       if (mappedTuple!=null) {
         var mappedField = mappedContainer.Second;
-        var accessor = mappedTuple.GetFieldAccessor(mappedField);
-        if (accessor!=null) {
-          var setter = accessor.GetSetter<T>(isNullable);
+        var descriptor = mappedTuple.GetFieldDescriptor(mappedField);
+        if (descriptor!=null) {
+          var setter = descriptor.Accessor.GetSetter<T>(isNullable);
           if (setter!=null) {
             setter.Invoke(mappedTuple, mappedField, fieldValue);
             return;
@@ -315,14 +315,9 @@ namespace Xtensive.Tuples
       return new Pair<Tuple, int>(this, fieldIndex);
     }
 
-    /// <summary>
-    /// Gets <see cref="TupleFieldAccessor"/> for the specified field.
-    /// </summary>
-    /// <param name="fieldIndex">Index of a field to get accessor for.</param>
-    /// <returns><see cref="TupleFieldAccessor"/> for the field or null.</returns>
-    protected internal virtual TupleFieldAccessor GetFieldAccessor(int fieldIndex)
+    private PackedFieldDescriptor GetFieldDescriptor(int fieldIndex)
     {
-      return null;
+      return (this is PackedTuple) ? Descriptor.FieldDescriptors[fieldIndex] : null;
     }
 
     #region Equals, GetHashCode
