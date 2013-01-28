@@ -4,6 +4,8 @@
 // Created by: Alexis Kochetov
 // Created:    2009.09.17
 
+using Xtensive.Tuples.Packed;
+
 namespace Xtensive.Tuples
 {
   /// <summary>
@@ -11,17 +13,17 @@ namespace Xtensive.Tuples
   /// </summary>
   /// <typeparam name="TValue">Type of a value.</typeparam>
   /// <param name="tuple">Tuple to use.</param>
-  /// <param name="fieldIndex">Index of a field.</param>
+  /// <param name="descriptor">Field descriptor.</param>
   /// <param name="fieldState">State of a field.</param>
   /// <returns></returns>
-  public delegate TValue GetValueDelegate<TValue>(Tuple tuple, int fieldIndex, out TupleFieldState fieldState);
+  internal delegate TValue GetValueDelegate<TValue>(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState);
 
   /// <summary>
   /// Incapsulates <see cref="Tuple.SetValue{T}"/> method.
   /// </summary>
   /// <typeparam name="TValue">Type of a value.</typeparam>
   /// <param name="tuple">Tuple to use.</param>
-  /// <param name="fieldIndex">Index of a field.</param>
+  /// <param name="descriptor">Field descriptor.</param>
   /// <param name="value">A value.</param>
-  public delegate void SetValueDelegate<TValue>(Tuple tuple, int fieldIndex, TValue value);
+  internal delegate void SetValueDelegate<TValue>(PackedTuple tuple, PackedFieldDescriptor descriptor, TValue value);
 }

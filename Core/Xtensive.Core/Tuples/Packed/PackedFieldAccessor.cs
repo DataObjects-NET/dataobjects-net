@@ -30,29 +30,24 @@ namespace Xtensive.Tuples.Packed
     /// </summary>
     protected Delegate NullableSetter;
 
-    /// <summary>
-    /// Gets setter for the field.
-    /// </summary>
-    /// <typeparam name="T">Field type.</typeparam>
-    /// <param name="isNullable">Flag indicating if field type is nullable.</param>
-    /// <returns><see cref="GetValueDelegate{TValue}"/> for the field.</returns>
-    public GetValueDelegate<T> GetGetter<T>(bool isNullable)
+    public void SetValue<T>(PackedTuple tuple, PackedFieldDescriptor descriptor, bool isNullable, T value)
     {
-      return (isNullable ? NullableGetter : Getter) as GetValueDelegate<T>;
+      var setter = (isNullable ? NullableSetter : Setter) as SetValueDelegate<T>;
+      if (setter!=null)
+        setter.Invoke(tuple, descriptor, value);
+      else
+        SetUntypedValue(tuple, descriptor, value);
     }
 
-    /// <summary>
-    /// Gets setter for the field.
-    /// </summary>
-    /// <typeparam name="T">Field type.</typeparam>
-    /// <param name="isNullable">Flag indicating if field type is nullable.</param>
-    /// <returns><see cref="SetValueDelegate{TValue}"/> for the field.</returns>
-    public SetValueDelegate<T> GetSetter<T>(bool isNullable)
+    public T GetValue<T>(PackedTuple tuple, PackedFieldDescriptor descriptor, bool isNullable, out TupleFieldState fieldState)
     {
-      return (isNullable ? NullableSetter : Setter) as SetValueDelegate<T>;
+      var getter = (isNullable ? NullableGetter : Getter) as GetValueDelegate<T>;
+      if (getter!=null)
+        return getter.Invoke(tuple, descriptor, out fieldState);
+      return (T) GetUntypedValue(tuple, descriptor, out fieldState);
     }
 
-    public abstract object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor);
+    public abstract object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState);
 
     public abstract void SetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, object value);
 
@@ -67,14 +62,20 @@ namespace Xtensive.Tuples.Packed
 
   internal sealed class ObjectFieldAccessor : PackedFieldAccessor
   {
-    public override object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor)
+    public override object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
-      return tuple.Objects[descriptor.ValueIndex];
+      var state = tuple.GetFieldState(descriptor);
+      fieldState = state;
+      return state.HasValue() ? tuple.Objects[descriptor.ValueIndex] : null;
     }
 
     public override void SetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, object value)
     {
       tuple.Objects[descriptor.ValueIndex] = value;
+      if (value!=null)
+        tuple.SetFieldState(descriptor, TupleFieldState.Available);
+      else
+        tuple.SetFieldState(descriptor, TupleFieldState.Available | TupleFieldState.Null);
     }
 
     public override void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
@@ -128,15 +129,22 @@ namespace Xtensive.Tuples.Packed
 
     protected abstract T Decode(long value);
 
-    public override object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor)
+    public override object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
-      return Load(tuple, descriptor);
+      var state = tuple.GetFieldState(descriptor);
+      fieldState = state;
+      return state.HasValue() ? (object) Load(tuple, descriptor) : null;
     }
 
     public override void SetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, object value)
     {
-      if (value!=null)
+      if (value!=null) {
         Store(tuple, descriptor, (T) value);
+        tuple.SetFieldState(descriptor, TupleFieldState.Available);
+      }
+      else
+        tuple.SetFieldState(descriptor, TupleFieldState.Available | TupleFieldState.Null);
+        
     }
 
     public override void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
@@ -158,47 +166,34 @@ namespace Xtensive.Tuples.Packed
       return Load(tuple, descriptor).GetHashCode();
     }
 
-    private T GetValue(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
+    private T GetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
-      var packedTuple = (PackedTuple) tuple;
-      var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-      var state = packedTuple.GetFieldState(descriptor);
+      var state = tuple.GetFieldState(descriptor);
       fieldState = state;
-      if (!state.HasValue())
-        return default (T);
-      return Load(packedTuple, descriptor);
+      return state.HasValue() ? Load(tuple, descriptor) : default (T);
     }
 
-    private T? GetNullableValue(Tuple tuple, int fieldIndex, out TupleFieldState fieldState)
+    private T? GetNullableValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
-      var packedTuple = (PackedTuple) tuple;
-      var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-      var state = packedTuple.GetFieldState(descriptor);
+      var state = tuple.GetFieldState(descriptor);
       fieldState = state;
-      if (!state.HasValue())
-        return null;
-      return Load(packedTuple, descriptor);
+      return state.HasValue() ? Load(tuple, descriptor) : (T?) null;
     }
 
-    private void SetValue(Tuple tuple, int fieldIndex, T value)
+    private void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, T value)
     {
-      var packedTuple = (PackedTuple) tuple;
-      var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-      Store(packedTuple, descriptor, value);
-      packedTuple.SetFieldState(descriptor, TupleFieldState.Available);
+      Store(tuple, descriptor, value);
+      tuple.SetFieldState(descriptor, TupleFieldState.Available);
     }
 
-    private void SetNullableValue(Tuple tuple, int fieldIndex, T? value)
+    private void SetNullableValue(PackedTuple tuple, PackedFieldDescriptor descriptor, T? value)
     {
-      var packedTuple = (PackedTuple) tuple;
-      var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
       if (value!=null) {
-        Store(packedTuple, descriptor, value.Value);
-        packedTuple.SetFieldState(descriptor, TupleFieldState.Available);
+        Store(tuple, descriptor, value.Value);
+        tuple.SetFieldState(descriptor, TupleFieldState.Available);
       }
-      else {
-        packedTuple.SetFieldState(descriptor, TupleFieldState.Available | TupleFieldState.Null);
-      }
+      else
+        tuple.SetFieldState(descriptor, TupleFieldState.Available | TupleFieldState.Null);
     }
 
     private void Store(PackedTuple tuple, PackedFieldDescriptor d, T value)

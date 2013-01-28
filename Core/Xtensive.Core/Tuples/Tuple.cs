@@ -110,13 +110,22 @@ namespace Xtensive.Tuples
     public T GetValue<T>(int fieldIndex, out TupleFieldState fieldState)
     {
       var isNullable = null==default(T); // Is nullable value type or class
-      var descriptor = GetFieldDescriptor(fieldIndex);
-      if (descriptor!=null) {
-        var getter = descriptor.Accessor.GetGetter<T>(isNullable);
-        if (getter!=null)
-          return getter.Invoke(this, fieldIndex, out fieldState);
+
+      var packedTuple = this as PackedTuple;
+      if (packedTuple!=null) {
+        var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
+        return descriptor.Accessor.GetValue<T>(packedTuple, descriptor, isNullable, out fieldState);
       }
-      return GetValueFallback<T>(isNullable, fieldIndex, out fieldState);
+
+      var mappedContainer = GetMappedContainer(fieldIndex, false);
+      var mappedTuple = mappedContainer.First as PackedTuple;
+      if (mappedTuple!=null) {
+        var descriptor = mappedTuple.PackedDescriptor.FieldDescriptors[mappedContainer.Second];
+        return descriptor.Accessor.GetValue<T>(mappedTuple, descriptor, isNullable, out fieldState);
+      }
+
+      var value = GetValue(fieldIndex, out fieldState);
+      return value!=null ? (T) value : default(T);
     }
 
     /// <summary>
@@ -135,22 +144,16 @@ namespace Xtensive.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValue<T>(int fieldIndex)
     {
-      var isNullable = null==default(T); // Is nullable value type or class
-      var descriptor = GetFieldDescriptor(fieldIndex);
-      if (descriptor!=null) {
-        var getter = descriptor.Accessor.GetGetter<T>(isNullable);
-        if (getter!=null) {
-          TupleFieldState fieldState;
-          var result = getter.Invoke(this, fieldIndex, out fieldState);
-          if (fieldState.IsNull()) {
-            if (isNullable)
-              return default(T);
-            throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof (T)));
-          }
-          return result;
-        }
+      TupleFieldState fieldState;
+      var result = GetValue<T>(fieldIndex, out fieldState);
+
+      if (fieldState.IsNull()) {
+        if (default(T)!=null)
+          throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof (T)));
+        return default(T);
       }
-      return GetValueFallback<T>(isNullable, fieldIndex);
+
+      return result;
     }
 
     /// <summary>
@@ -168,17 +171,9 @@ namespace Xtensive.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValueOrDefault<T>(int fieldIndex)
     {
-      var isNullable = null==default(T); // Is nullable value type or class
-      var descriptor = GetFieldDescriptor(fieldIndex);
-      if (descriptor!=null) {
-        var getter = descriptor.Accessor.GetGetter<T>(isNullable);
-        if (getter!=null) {
-          TupleFieldState fieldState;
-          var result = getter.Invoke(this, fieldIndex, out fieldState);
-          return fieldState==TupleFieldState.Available ? result : default(T);
-        }
-      }
-      return GetValueOrDefaultFallback<T>(isNullable, fieldIndex);
+      TupleFieldState fieldState;
+      var result = GetValue<T>(fieldIndex, out fieldState);
+      return fieldState==TupleFieldState.Available ? result : default(T);
     }
 
     /// <summary>
@@ -192,114 +187,20 @@ namespace Xtensive.Tuples
     public void SetValue<T>(int fieldIndex, T fieldValue)
     {
       var isNullable = null==default(T); // Is nullable value type or class
-      var accessor = GetFieldDescriptor(fieldIndex);
-      if (accessor!=null) {
-        var setter = accessor.Accessor.GetSetter<T>(isNullable);
-        if (setter!=null) {
-          setter.Invoke(this, fieldIndex, fieldValue);
-          return;
-        }
-      }
-      SetValueFallback(isNullable, fieldIndex, fieldValue);
-    }
+      var packedTuple = this as PackedTuple;
 
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private T GetValueFallback<T>(bool isNullable, int fieldIndex, out TupleFieldState fieldState)
-    {
-      var mappedContainer = GetMappedContainer(fieldIndex, false);
-      var mappedTuple = mappedContainer.First;
-      if (mappedTuple!=null) {
-        var mappedField = mappedContainer.Second;
-        var descriptor = mappedTuple.GetFieldDescriptor(mappedField);
-        if (descriptor!=null) {
-          var getter = descriptor.Accessor.GetGetter<T>(isNullable);
-          if (getter!=null)
-            return getter.Invoke(mappedTuple, mappedField, out fieldState);
-        }
-      }
-      var value = GetValue(fieldIndex, out fieldState);
-      return value==null ? default(T) : (T) value;
-    }
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private T GetValueFallback<T>(bool isNullable, int fieldIndex)
-    {
-      var hasResult = false;
-      var result = default(T);
-      var fieldState = TupleFieldState.Default;
-
-      var mappedContainer = GetMappedContainer(fieldIndex, false);
-      var mappedTuple = mappedContainer.First;
-      if (mappedTuple!=null) {
-        var mappedField = mappedContainer.Second;
-        var descriptor = mappedTuple.GetFieldDescriptor(mappedField);
-        if (descriptor!=null) {
-          var getter = descriptor.Accessor.GetGetter<T>(isNullable);
-          if (getter!=null) {
-            result = getter.Invoke(mappedTuple, mappedField, out fieldState);
-            hasResult = true;
-          }
-        }
+      if (packedTuple!=null) {
+        var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
+        descriptor.Accessor.SetValue(packedTuple, descriptor, isNullable, fieldValue);
+        return;
       }
 
-      if (!hasResult) {
-        var value = GetValue(fieldIndex, out fieldState);
-        result = value==null ? default(T) : (T) value;
-      }
-
-      if (fieldState.IsNull()) {
-        if (isNullable)
-          return default(T);
-        throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof (T)));
-      }
-
-      return result;
-    }
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private T GetValueOrDefaultFallback<T>(bool isNullable, int fieldIndex)
-    {
-      var result = default (T);
-      var fieldState = default(TupleFieldState);
-      var hasResult = false;
-
-      var mappedContainer = GetMappedContainer(fieldIndex, false);
-      var mappedTuple = mappedContainer.First;
-      if (mappedTuple!=null) {
-        var mappedField = mappedContainer.Second;
-        var descriptor = mappedTuple.GetFieldDescriptor(mappedField);
-        if (descriptor!=null) {
-          var getter = descriptor.Accessor.GetGetter<T>(isNullable);
-          if (getter!=null) {
-            result = getter.Invoke(mappedTuple, mappedField, out fieldState);
-            hasResult = true;
-          }
-        }
-      }
-
-      if (!hasResult) {
-        var value = GetValue(fieldIndex, out fieldState);
-        result = value==null ? default(T) : (T) value;
-      }
-
-      return fieldState==TupleFieldState.Available ? result : default(T);
-    }
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private void SetValueFallback<T>(bool isNullable, int fieldIndex, T fieldValue)
-    {
       var mappedContainer = GetMappedContainer(fieldIndex, true);
-      var mappedTuple = mappedContainer.First;
+      var mappedTuple = mappedContainer.First as PackedTuple;
       if (mappedTuple!=null) {
-        var mappedField = mappedContainer.Second;
-        var descriptor = mappedTuple.GetFieldDescriptor(mappedField);
-        if (descriptor!=null) {
-          var setter = descriptor.Accessor.GetSetter<T>(isNullable);
-          if (setter!=null) {
-            setter.Invoke(mappedTuple, mappedField, fieldValue);
-            return;
-          }
-        }
+        var descriptor = mappedTuple.PackedDescriptor.FieldDescriptors[mappedContainer.Second];
+        descriptor.Accessor.SetValue(mappedTuple, descriptor, isNullable, fieldValue);
+        return;
       }
 
       SetValue(fieldIndex, (object) fieldValue);
@@ -313,11 +214,6 @@ namespace Xtensive.Tuples
     protected internal virtual Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
       return new Pair<Tuple, int>(this, fieldIndex);
-    }
-
-    private PackedFieldDescriptor GetFieldDescriptor(int fieldIndex)
-    {
-      return (this is PackedTuple) ? Descriptor.FieldDescriptors[fieldIndex] : null;
     }
 
     #region Equals, GetHashCode

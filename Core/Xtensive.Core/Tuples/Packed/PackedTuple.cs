@@ -74,7 +74,8 @@ namespace Xtensive.Tuples.Packed
 
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
-      return GetFieldState(PackedDescriptor.FieldDescriptors[fieldIndex]);
+      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
+      return GetFieldState(descriptor);
     }
 
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
@@ -89,6 +90,18 @@ namespace Xtensive.Tuples.Packed
         Objects[descriptor.ValueIndex] = null;
     }
 
+    public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
+    {
+      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
+      return descriptor.Accessor.GetUntypedValue(this, descriptor, out fieldState);
+    }
+
+    public override void SetValue(int fieldIndex, object fieldValue)
+    {
+      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
+      descriptor.Accessor.SetUntypedValue(this, descriptor, fieldValue);
+    }
+
     public void SetFieldState(PackedFieldDescriptor d, TupleFieldState fieldState)
     {
       var bits = (long) fieldState;
@@ -100,26 +113,6 @@ namespace Xtensive.Tuples.Packed
     {
       var block = Values[d.StateIndex];
       return (TupleFieldState) ((block >> d.StateBitOffset) & 3);
-    }
-
-    public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
-    {
-      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
-      var state = GetFieldState(descriptor);
-      fieldState = state;
-      if (state==TupleFieldState.Available)
-        return descriptor.Accessor.GetUntypedValue(this, descriptor);
-      return null;
-    }
-
-    public override void SetValue(int fieldIndex, object fieldValue)
-    {
-      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
-      descriptor.Accessor.SetUntypedValue(this, descriptor, fieldValue);
-      if (fieldValue==null)
-        SetFieldState(descriptor, TupleFieldState.Available | TupleFieldState.Null);
-      else
-        SetFieldState(descriptor, TupleFieldState.Available);
     }
 
     public PackedTuple(TupleDescriptor descriptor)

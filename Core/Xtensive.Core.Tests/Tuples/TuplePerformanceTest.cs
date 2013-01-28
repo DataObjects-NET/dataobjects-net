@@ -83,7 +83,7 @@ namespace Xtensive.Tests.Tuples
     [Explicit, Category("Profile")]
     public void ProfileFieldAccessTest()
     {
-      const int iterationCount = 10000000;
+      const int iterationCount = 100000000;
       TupleDescriptor descriptor = TupleDescriptor.Create(shortFieldTypes);
       Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(descriptor);
       using (new Measurement("Tuple.SetValue", iterationCount))
