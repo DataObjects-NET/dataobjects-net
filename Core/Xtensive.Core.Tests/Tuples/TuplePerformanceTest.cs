@@ -85,7 +85,7 @@ namespace Xtensive.Tests.Tuples
     {
       const int iterationCount = 10000000;
       TupleDescriptor descriptor = TupleDescriptor.Create(shortFieldTypes);
-      Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(descriptor);
+      Tuple tuple = Tuple.Create(descriptor);
       using (new Measurement("Tuple.SetValue", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.SetValue(0, (object) i);
@@ -98,6 +98,9 @@ namespace Xtensive.Tests.Tuples
       using (new Measurement("Tuple.SetValue<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.SetValue(0, i);
+      using (new Measurement("Tuple.SetValue<T?>", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.SetValue<int?>(0, i);
       using (new Measurement("Tuple.GetValue<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.GetValue<int>(0);
