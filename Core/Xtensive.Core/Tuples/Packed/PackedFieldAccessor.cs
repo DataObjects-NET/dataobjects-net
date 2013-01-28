@@ -125,6 +125,9 @@ namespace Xtensive.Tuples.Packed
   internal abstract class ValueFieldAccessor<T> : ValueFieldAccessor
     where T : struct, IEquatable<T>
   {
+    private static readonly T DefaultValue = default(T);
+    private static readonly T? NullValue = null;
+
     protected abstract long Encode(T value);
 
     protected abstract T Decode(long value);
@@ -144,7 +147,6 @@ namespace Xtensive.Tuples.Packed
       }
       else
         tuple.SetFieldState(descriptor, TupleFieldState.Available | TupleFieldState.Null);
-        
     }
 
     public override void CopyValue(PackedTuple source, PackedFieldDescriptor sourceDescriptor,
@@ -170,14 +172,14 @@ namespace Xtensive.Tuples.Packed
     {
       var state = tuple.GetFieldState(descriptor);
       fieldState = state;
-      return state==TupleFieldState.Available ? Load(tuple, descriptor) : default (T);
+      return state==TupleFieldState.Available ? Load(tuple, descriptor) : DefaultValue;
     }
 
     private T? GetNullableValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
       var state = tuple.GetFieldState(descriptor);
       fieldState = state;
-      return state==TupleFieldState.Available ? Load(tuple, descriptor) : (T?) null;
+      return state==TupleFieldState.Available ? Load(tuple, descriptor) : NullValue;
     }
 
     private void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, T value)
