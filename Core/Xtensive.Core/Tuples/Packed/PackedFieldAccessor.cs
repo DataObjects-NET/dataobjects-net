@@ -118,7 +118,9 @@ namespace Xtensive.Tuples.Packed
     protected ValueFieldAccessor(int bits)
     {
       BitCount = bits;
-      BitMask = GetMask(bits);
+
+      if (bits <= 64)
+        BitMask = GetMask(bits);
     }
   }
 
@@ -128,9 +130,25 @@ namespace Xtensive.Tuples.Packed
     private static readonly T DefaultValue = default(T);
     private static readonly T? NullValue = null;
 
-    protected abstract long Encode(T value);
+    protected virtual long Encode(T value)
+    {
+      throw new NotSupportedException();
+    }
 
-    protected abstract T Decode(long value);
+    protected virtual void Encode(T value, long[] values, int offset)
+    {
+      throw new NotSupportedException();
+    }
+
+    protected virtual T Decode(long value)
+    {
+      throw new NotSupportedException();
+    }
+
+    protected virtual T Decode(long[] values, int offset)
+    {
+      throw new NotSupportedException();
+    }
 
     public override object GetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
@@ -200,6 +218,11 @@ namespace Xtensive.Tuples.Packed
 
     private void Store(PackedTuple tuple, PackedFieldDescriptor d, T value)
     {
+      if (d.ValueBitCount > 64) {
+        Encode(value, tuple.Values, d.ValueIndex);
+        return;
+      }
+
       var encoded = Encode(value);
       var block = tuple.Values[d.ValueIndex];
       tuple.Values[d.ValueIndex] = (block & ~(d.ValueBitMask << d.ValueBitOffset)) | (encoded << d.ValueBitOffset);
@@ -207,6 +230,9 @@ namespace Xtensive.Tuples.Packed
 
     private T Load(PackedTuple tuple, PackedFieldDescriptor d)
     {
+      if (d.ValueBitCount > 64)
+        return Decode(tuple.Values, d.ValueIndex);
+
       var encoded = (tuple.Values[d.ValueIndex] >> d.ValueBitOffset) & d.ValueBitMask;
       return Decode(encoded);
     }
@@ -244,12 +270,17 @@ namespace Xtensive.Tuples.Packed
   {
     protected override long Encode(float value)
     {
-      return BitConverter.DoubleToInt64Bits(value);
+      unsafe {
+        return *(int*) &value;
+      }
     }
 
     protected override float Decode(long value)
     {
-      return (float) BitConverter.Int64BitsToDouble(value);
+      var intValue = unchecked ((int) value);
+      unsafe {
+        return *(float*) &intValue;
+      }
     }
 
     public FloatFieldAccessor()
@@ -452,6 +483,55 @@ namespace Xtensive.Tuples.Packed
 
     public ULongFieldAccessor()
       : base(sizeof(ulong) * 4)
+    {
+    }
+  }
+
+  internal sealed class GuidFieldAccessor : ValueFieldAccessor<Guid>
+  {
+    public const int GuidSize = 16;
+
+    protected override Guid Decode(long[] values, int offset)
+    {
+      unsafe {
+        fixed (long* valuePtr = &values[offset])
+          return *(Guid*) valuePtr;
+      }
+    }
+
+    protected override void Encode(Guid value, long[] values, int offset)
+    {
+      unsafe {
+        fixed (long* valuePtr = &values[offset])
+          *(Guid*) valuePtr = value;
+      }
+    }
+
+    public GuidFieldAccessor()
+      : base(GuidSize * 8)
+    {
+    }
+  }
+
+  internal sealed class DecimalFieldAccessor : ValueFieldAccessor<decimal>
+  {
+    protected override decimal Decode(long[] values, int offset)
+    {
+      unsafe {
+        fixed (long* valuePtr = &values[offset])
+          return *(decimal*) valuePtr;
+      }
+    }
+
+    protected override void Encode(decimal value, long[] values, int offset)
+    {
+      unsafe {
+        fixed (long* valuePtr = &values[offset])
+          *(decimal*) valuePtr = value;
+      }
+    }
+    public DecimalFieldAccessor()
+      : base(sizeof(decimal) * 8)
     {
     }
   }

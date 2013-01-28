@@ -458,10 +458,10 @@ namespace Xtensive.Tuples
       var objectIndex = 0;
 
       var valueIndex = FieldCount / statesPerLong + Math.Min(1, FieldCount % statesPerLong);
-      var valueOffset = 0;
+      var valueBitOffset = 0;
 
       var stateIndex = 0;
-      var stateOffset = 0;
+      var stateBitOffset = 0;
 
       for (int i = 0; i < FieldCount; i++) {
         var fieldType = fieldTypes[i].StripNullable();
@@ -483,29 +483,40 @@ namespace Xtensive.Tuples
           descriptor.ValueIndex = objectIndex++;
           break;
         case FieldPackingType.Value:
-          if (valueOffset + descriptor.ValueBitCount > longBits) {
-            valueIndex++;
-            valueOffset = 0;
+          if (descriptor.ValueBitCount > longBits) {
+            if (valueBitOffset > 0) {
+              valueIndex++;
+              valueBitOffset = 0;
+            }
+            descriptor.ValueIndex = valueIndex;
+            descriptor.ValueBitOffset = 0;
+            valueIndex += descriptor.ValueBitCount / longBits + Math.Min(1, descriptor.ValueBitCount % longBits);
           }
-          descriptor.ValueIndex = valueIndex;
-          descriptor.ValueBitOffset = valueOffset;
-          valueOffset += descriptor.ValueBitCount;
+          else {
+            if (valueBitOffset + descriptor.ValueBitCount > longBits) {
+              valueIndex++;
+              valueBitOffset = 0;
+            }
+            descriptor.ValueIndex = valueIndex;
+            descriptor.ValueBitOffset = valueBitOffset;
+            valueBitOffset += descriptor.ValueBitCount;
+          }
           break;
         default:
           throw new ArgumentOutOfRangeException("descriptor.PackType");
         }
 
-        if (stateOffset + stateBits > longBits) {
+        if (stateBitOffset + stateBits > longBits) {
           stateIndex++;
-          stateOffset = 0;
+          stateBitOffset = 0;
         }
 
         descriptor.StateIndex = stateIndex;
-        descriptor.StateBitOffset = stateOffset;
-        stateOffset += stateBits;
+        descriptor.StateBitOffset = stateBitOffset;
+        stateBitOffset += stateBits;
       }
 
-      ValuesLength = valueIndex + Math.Min(1, valueOffset);
+      ValuesLength = valueIndex + Math.Min(1, valueBitOffset);
       ObjectsLength = objectIndex;
     }
   }
