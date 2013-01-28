@@ -133,7 +133,7 @@ namespace Xtensive.Tuples.Packed
       var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
       var state = packedTuple.GetFieldState(descriptor);
       fieldState = state;
-      if (state.IsNull())
+      if (!state.HasValue())
         return null;
       return Load(packedTuple, descriptor);
     }
