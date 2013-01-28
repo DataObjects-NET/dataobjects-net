@@ -489,8 +489,6 @@ namespace Xtensive.Tuples.Packed
 
   internal sealed class GuidFieldAccessor : ValueFieldAccessor<Guid>
   {
-    public const int GuidSize = 16;
-
     protected override Guid Decode(long[] values, int offset)
     {
       unsafe {
@@ -507,8 +505,13 @@ namespace Xtensive.Tuples.Packed
       }
     }
 
+    private static unsafe int GetSize()
+    {
+      return sizeof (Guid);
+    }
+
     public GuidFieldAccessor()
-      : base(GuidSize * 8)
+      : base(GetSize() * 8)
     {
     }
   }

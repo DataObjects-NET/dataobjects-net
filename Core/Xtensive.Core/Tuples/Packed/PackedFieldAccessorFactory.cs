@@ -35,13 +35,6 @@ namespace Xtensive.Tuples.Packed
       ValueAccessors.Add(typeof (T), accessor);
     }
 
-    private static int GetGuidSize()
-    {
-      unsafe {
-        return sizeof (Guid);
-      }
-    }
-
     static PackedFieldAccessorFactory()
     {
       ObjectAccessor = new ObjectFieldAccessor();
@@ -62,9 +55,7 @@ namespace Xtensive.Tuples.Packed
       RegisterAccessor(new DateTimeFieldAccessor());
       RegisterAccessor(new TimeSpanFieldAccessor());
       RegisterAccessor(new DecimalFieldAccessor());
-
-      if (GetGuidSize()==GuidFieldAccessor.GuidSize)
-        RegisterAccessor(new GuidFieldAccessor());
+      RegisterAccessor(new GuidFieldAccessor());
     }
   }
 }
