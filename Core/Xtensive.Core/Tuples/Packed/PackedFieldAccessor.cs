@@ -66,7 +66,7 @@ namespace Xtensive.Tuples.Packed
     {
       var state = tuple.GetFieldState(descriptor);
       fieldState = state;
-      return state.HasValue() ? tuple.Objects[descriptor.ValueIndex] : null;
+      return state==TupleFieldState.Available ? tuple.Objects[descriptor.ValueIndex] : null;
     }
 
     public override void SetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, object value)
@@ -133,7 +133,7 @@ namespace Xtensive.Tuples.Packed
     {
       var state = tuple.GetFieldState(descriptor);
       fieldState = state;
-      return state.HasValue() ? (object) Load(tuple, descriptor) : null;
+      return state==TupleFieldState.Available ? (object) Load(tuple, descriptor) : null;
     }
 
     public override void SetUntypedValue(PackedTuple tuple, PackedFieldDescriptor descriptor, object value)
@@ -170,14 +170,14 @@ namespace Xtensive.Tuples.Packed
     {
       var state = tuple.GetFieldState(descriptor);
       fieldState = state;
-      return state.HasValue() ? Load(tuple, descriptor) : default (T);
+      return state==TupleFieldState.Available ? Load(tuple, descriptor) : default (T);
     }
 
     private T? GetNullableValue(PackedTuple tuple, PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
       var state = tuple.GetFieldState(descriptor);
       fieldState = state;
-      return state.HasValue() ? Load(tuple, descriptor) : (T?) null;
+      return state==TupleFieldState.Available ? Load(tuple, descriptor) : (T?) null;
     }
 
     private void SetValue(PackedTuple tuple, PackedFieldDescriptor descriptor, T value)

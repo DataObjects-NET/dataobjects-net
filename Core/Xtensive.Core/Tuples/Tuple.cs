@@ -93,7 +93,7 @@ namespace Xtensive.Tuples
     {
       TupleFieldState state;
       var value = GetValue(fieldIndex, out state);
-      return state.HasValue() ? value : null;
+      return state==TupleFieldState.Available ? value : null;
     }
 
     /// <inheritdoc />
