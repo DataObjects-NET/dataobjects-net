@@ -11,10 +11,9 @@ namespace Xtensive.Tuples.Packed
   [Serializable]
   internal sealed class PackedTuple : RegularTuple
   {
-    internal readonly PackedTupleDescriptor PackedDescriptor;
-
-    internal readonly long[] Values;
-    internal readonly object[] Objects;
+    public readonly TupleDescriptor PackedDescriptor;
+    public readonly long[] Values;
+    public readonly object[] Objects;
 
     public override TupleDescriptor Descriptor
     {
@@ -128,7 +127,7 @@ namespace Xtensive.Tuples.Packed
       return PackedDescriptor.FieldDescriptors[fieldIndex].Accessor;
     }
 
-    public PackedTuple(PackedTupleDescriptor descriptor)
+    public PackedTuple(TupleDescriptor descriptor)
     {
       PackedDescriptor = descriptor;
 

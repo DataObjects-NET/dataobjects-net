@@ -426,7 +426,7 @@ namespace Xtensive.Tuples
     {
       if (descriptor==null)
         throw new ArgumentNullException("descriptor");
-      return new PackedTuple((PackedTupleDescriptor) descriptor);
+      return new PackedTuple(descriptor);
     }
 
     #endregion

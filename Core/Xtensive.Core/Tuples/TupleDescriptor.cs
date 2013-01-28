@@ -9,10 +9,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
-using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Reflection;
 using Xtensive.Resources;
 using Xtensive.Tuples.Packed;
@@ -24,12 +23,16 @@ namespace Xtensive.Tuples
   /// Provides information about <see cref="Tuple"/> structure.
   /// </summary>
   [Serializable]
-  public class TupleDescriptor : IEquatable<TupleDescriptor>, IList<Type>
+  public sealed class TupleDescriptor : IEquatable<TupleDescriptor>, IList<Type>
   {
     private static readonly TupleDescriptor EmptyDescriptor = Create(new Type[0]);
 
     internal readonly int FieldCount;
+    internal readonly int ValuesLength;
+    internal readonly int ObjectsLength;
+
     internal readonly Type[] FieldTypes;
+    internal readonly PackedFieldDescriptor[] FieldDescriptors;
 
     /// <summary>
     /// Gets the empty tuple descriptor.
@@ -258,6 +261,14 @@ namespace Xtensive.Tuples
       return string.Format(Strings.TupleDescriptorFormat, sb);
     }
 
+    [OnDeserialized]
+    private void OnDeserialized(StreamingContext context)
+    {
+      for (int i = 0; i < FieldCount; i++)
+        PackedFieldAccessorFactory.ProvideAccessor(FieldTypes[i], FieldDescriptors[i]);
+    }
+
+
     #region Create methods (base)
 
     /// <summary>
@@ -270,7 +281,7 @@ namespace Xtensive.Tuples
     public static TupleDescriptor Create(Type[] fieldTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(fieldTypes, "fieldTypes");
-      return new PackedTupleDescriptor(fieldTypes.ToList());
+      return new TupleDescriptor(fieldTypes.ToList());
     }
 
     /// <summary>
@@ -283,7 +294,7 @@ namespace Xtensive.Tuples
     public static TupleDescriptor Create(IList<Type> fieldTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(fieldTypes, "fieldTypes");
-      return new PackedTupleDescriptor(fieldTypes.ToList());
+      return new TupleDescriptor(fieldTypes.ToList());
     }
 
     /// <summary>
@@ -432,21 +443,70 @@ namespace Xtensive.Tuples
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
-    /// </summary>
-    /// <param name="fieldTypes">The types of <see cref="TupleDescriptor"/> fields.</param>
-    protected TupleDescriptor(IList<Type> fieldTypes)
+    private TupleDescriptor(IList<Type> fieldTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(fieldTypes, "fieldTypes");
+
       FieldCount = fieldTypes.Count;
       FieldTypes = new Type[FieldCount];
+      FieldDescriptors = new PackedFieldDescriptor[FieldCount];
+
+      const int longBits = 64;
+      const int stateBits = 2;
+      const int statesPerLong = longBits / stateBits;
+
+      var objectIndex = 0;
+
+      var valueIndex = FieldCount / statesPerLong + Math.Min(1, FieldCount % statesPerLong);
+      var valueOffset = 0;
+
+      var stateIndex = 0;
+      var stateOffset = 0;
+
       for (int i = 0; i < FieldCount; i++) {
-        Type t = fieldTypes[i];
-        if (t.IsNullable())
-          t = t.GetGenericArguments()[0]; // Substituting Nullable<T> to T
-        FieldTypes[i] = t;
+        var fieldType = fieldTypes[i].StripNullable();
+        var descriptor = new PackedFieldDescriptor {FieldIndex = i};
+
+        PackedFieldAccessorFactory.ProvideAccessor(fieldType, descriptor);
+
+        FieldTypes[i] = fieldType;
+        FieldDescriptors[i] = descriptor;
       }
+
+      var orderedDescriptors = FieldDescriptors
+        .OrderByDescending(d => d.ValueBitCount)
+        .ThenBy(d => d.FieldIndex);
+
+      foreach (var descriptor in orderedDescriptors) {
+        switch (descriptor.PackingType) {
+        case FieldPackingType.Object:
+          descriptor.ValueIndex = objectIndex++;
+          break;
+        case FieldPackingType.Value:
+          if (valueOffset + descriptor.ValueBitCount > longBits) {
+            valueIndex++;
+            valueOffset = 0;
+          }
+          descriptor.ValueIndex = valueIndex;
+          descriptor.ValueBitOffset = valueOffset;
+          valueOffset += descriptor.ValueBitCount;
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("descriptor.PackType");
+        }
+
+        if (stateOffset + stateBits > longBits) {
+          stateIndex++;
+          stateOffset = 0;
+        }
+
+        descriptor.StateIndex = stateIndex;
+        descriptor.StateBitOffset = stateOffset;
+        stateOffset += stateBits;
+      }
+
+      ValuesLength = valueIndex + Math.Min(1, valueOffset);
+      ObjectsLength = objectIndex;
     }
   }
 }
