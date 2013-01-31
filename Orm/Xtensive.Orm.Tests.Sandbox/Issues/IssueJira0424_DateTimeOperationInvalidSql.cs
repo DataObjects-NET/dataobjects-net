@@ -39,29 +39,34 @@ namespace Xtensive.Orm.Tests.Issues
       return configuration;
     }
 
-    [Test]
-    public void MainTest()
+    protected override void PopulateData()
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         new EntityWithDate {Date = new DateTime(2013, 1, 30, 12, 0, 0)};
         new EntityWithDate {Date = new DateTime(2013, 1, 31, 5, 0, 0)};
-        new EntityWithDate();
+        tx.Complete();
+      }
+    }
+
+    [Test]
+    public void MainTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         var offset = TimeSpan.FromHours(6);
         var q =
           from t in session.Query.All<EntityWithDate>()
           group t by new {
-            Date = t.Date.TimeOfDay > offset
+            Date = t.Date.TimeOfDay < offset
               ? new DateTime(t.Date.Year, t.Date.Month, t.Date.Day)
               : new DateTime(t.Date.Year, t.Date.Month, t.Date.Day) + TimeSpan.FromDays(1),
             t.Type,
             Description = t.Type.StartsWith("XYZ") ? "" : t.Description
           };
         var result = q.ToList();
-        var expectedDate = new DateTime(2013, 1, 31);
         Assert.That(result.Count, Is.EqualTo(1));
-        foreach (var item in result[0])
-          Assert.That(item.Date, Is.EqualTo(expectedDate));
+        Assert.That(result[0].Key.Date, Is.EqualTo(new DateTime(2013, 1, 31)));
         tx.Complete();
       }
     }
