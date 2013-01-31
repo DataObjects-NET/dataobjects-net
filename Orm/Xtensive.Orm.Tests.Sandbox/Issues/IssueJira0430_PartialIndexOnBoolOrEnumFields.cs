@@ -7,6 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using NUnit.Framework;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.IssueJira0430_PartialIndexOnBoolOrEnumFieldsModel;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -59,6 +60,12 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   public class IssueJira0430_PartialIndexOnBoolOrEnumFields
   {
+    [TestFixtureSetUp]
+    public void TestFixtureSetUp()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.PartialIndexes);
+    }
+
     [Test]
     public void BoolTest()
     {
