@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Tests.Issues
     public interface IItemVersionBase : IEntity
     {
       [Field]
-      IItemBase ItemUntyped { get; set; }
+      IItemBase ItemObject { get; set; }
     }
 
     public class ItemItemVersionsEntitySet : EntitySet<IItemVersionBase>
@@ -50,13 +50,13 @@ namespace Xtensive.Orm.Tests.Issues
       public Guid Id { get; private set; }
 
       [Field]
-      public IItemBase ItemUntyped { get; set; }
+      public IItemBase ItemObject { get; set; }
     }
 
     public abstract class Item<TOwner, TChild> : ItemBase
     {
-      [Field, Association(PairTo = "ItemUntyped", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear)]
-      public ItemItemVersionsEntitySet ItemVersionsUntyped { get; private set; }
+      [Field, Association(PairTo = "ItemObject", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear)]
+      public ItemItemVersionsEntitySet ItemVersions { get; private set; }
     }
 
     public abstract class ItemVersion<TOwner, TChild> : ItemVersionBase
@@ -66,13 +66,31 @@ namespace Xtensive.Orm.Tests.Issues
     [HierarchyRoot(InheritanceSchema.SingleTable)]
     public class Line : Item<Line, LineVersion>
     {
-      //Some fields
     }
 
     [HierarchyRoot(InheritanceSchema.SingleTable)]
     public class LineVersion : ItemVersion<Line, LineVersion>
     {
-      //Some fields
+    }
+
+    [HierarchyRoot(InheritanceSchema.SingleTable)]
+    public class SimpleLine : Entity
+    {
+      [Key, Field]
+      public Guid Id { get; private set; }
+
+      [Field, Association(PairTo = "ItemObject", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear)]
+      public EntitySet<SimpleLineVersion> ItemVersions { get; private set; }
+    }
+
+    [HierarchyRoot(InheritanceSchema.SingleTable)]
+    public class SimpleLineVersion : Entity
+    {
+      [Key, Field]
+      public Guid Id { get; private set; }
+
+      [Field]
+      public SimpleLine ItemObject { get; set; }
     }
   }
 
@@ -91,9 +109,15 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var line = new Line();
-        line.ItemVersionsUntyped.Add(new LineVersion());
-        line.ItemVersionsUntyped.Add(new LineVersion());
+        line.ItemVersions.Add(new LineVersion());
+        line.ItemVersions.Add(new LineVersion());
         new LineVersion();
+
+        var simpleLine = new SimpleLine();
+        simpleLine.ItemVersions.Add(new SimpleLineVersion());
+        simpleLine.ItemVersions.Add(new SimpleLineVersion());
+        new SimpleLineVersion();
+        tx.Complete();
       }
     }
 
@@ -108,7 +132,7 @@ namespace Xtensive.Orm.Tests.Issues
           into g
           select new {
             g.Key,
-            Count = g.Key.ItemVersionsUntyped.Count(),
+            Count = g.Key.ItemVersions.Count(),
           };
         var result = query.ToList();
         Assert.That(result.Count, Is.EqualTo(1));
@@ -128,7 +152,47 @@ namespace Xtensive.Orm.Tests.Issues
           into g
           select new {
             g.Key,
-            g.Key.ItemVersionsUntyped.Count,
+            g.Key.ItemVersions.Count,
+          };
+        var result = query.ToList();
+        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result[0].Count, Is.EqualTo(2));
+        tx.Complete();
+      }
+    }
+
+    [Test]
+    public void CountLinqSimpleTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var query =
+          from e in session.Query.All<SimpleLine>()
+          group e by e
+          into g
+          select new {
+            g.Key,
+            Count = g.Key.ItemVersions.Count(),
+          };
+        var result = query.ToList();
+        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result[0].Count, Is.EqualTo(2));
+        tx.Complete();
+      }
+    }
+
+    [Test]
+    public void CountEntitySetSimpleTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var query =
+          from e in session.Query.All<SimpleLine>()
+          group e by e
+          into g
+          select new {
+            g.Key,
+            g.Key.ItemVersions.Count,
           };
         var result = query.ToList();
         Assert.That(result.Count, Is.EqualTo(1));
