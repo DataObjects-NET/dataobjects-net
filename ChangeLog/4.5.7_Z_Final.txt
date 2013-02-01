@@ -7,4 +7,5 @@
 [main] Fixed translation of In/Contains over arbitrary expressions
 [main] Fixed projection to DTO with inheritance
 [main] Fixed translation of DateTime properties access on certain expressions
-[sqlserver] Fixed implementation of "truncate" operation of DateTime expressions
+[main] Fixed accessing of IGrouping.Key in subqueries
+[sqlserver] Fixed implementation of "truncate" operation on DateTime expressions
