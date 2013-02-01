@@ -23,7 +23,9 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
   [Serializable]
   public sealed class AggregateProvider : UnaryProvider
   {
-    private const string ToStringFormat = "{0}, Group by ({1})";
+    private const string ToStringFormatGroupOnly = "Group by ({0})";
+    private const string ToStringFormatAggregateOnly = "{0}";
+    private const string ToStringFormatFull = "{0}, Group by ({1})";
 
     /// <summary>
     /// Gets the aggregate columns.
@@ -51,12 +53,20 @@ namespace Xtensive.Orm.Rse.Providers.Compilable
     /// <inheritdoc/>
     protected override string ParametersToString()
     {
-      if (GroupColumnIndexes.Length==0)
-        return AggregateColumns.ToCommaDelimitedString();
-      else
-        return string.Format(ToStringFormat,
-          AggregateColumns.ToCommaDelimitedString(), 
+      if (AggregateColumns.Length==0)
+        return string.Format(
+          ToStringFormatGroupOnly,
           GroupColumnIndexes.ToCommaDelimitedString());
+
+      if (GroupColumnIndexes.Length==0)
+        return string.Format(
+          ToStringFormatAggregateOnly,
+          AggregateColumns.ToCommaDelimitedString());
+
+      return string.Format(
+        ToStringFormatFull,
+        AggregateColumns.ToCommaDelimitedString(),
+        GroupColumnIndexes.ToCommaDelimitedString());
     }
 
     /// <inheritdoc/>
