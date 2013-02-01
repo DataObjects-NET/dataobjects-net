@@ -29,12 +29,12 @@ namespace Xtensive.Orm.Linq.Expressions
       get { throw new NotSupportedException(); }
     }
 
-    public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public virtual Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       return this;
     }
 
-    public Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
+    public virtual Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
       return this;
     }
