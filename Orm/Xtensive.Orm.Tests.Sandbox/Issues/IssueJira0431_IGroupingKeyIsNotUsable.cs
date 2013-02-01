@@ -162,6 +162,26 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    public void CountExplicitTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var query =
+          from e in session.Query.All<Line>()
+          group e by e
+          into g
+          select new {
+            g.Key,
+            Count = session.Query.All<IItemVersionBase>().Where(i => i.ItemObject==g.Key).LongCount(),
+          };
+        var result = query.ToList();
+        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result[0].Count, Is.EqualTo(2));
+        tx.Complete();
+      }
+    }
+
+    [Test]
     public void CountLinqSimpleTest()
     {
       using (var session = Domain.OpenSession())
@@ -193,6 +213,26 @@ namespace Xtensive.Orm.Tests.Issues
           select new {
             g.Key,
             g.Key.ItemVersions.Count,
+          };
+        var result = query.ToList();
+        Assert.That(result.Count, Is.EqualTo(1));
+        Assert.That(result[0].Count, Is.EqualTo(2));
+        tx.Complete();
+      }
+    }
+
+    [Test]
+    public void CountExplicitSimpleTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var query =
+          from e in session.Query.All<SimpleLine>()
+          group e by e
+          into g
+          select new {
+            g.Key,
+            Count = session.Query.All<SimpleLineVersion>().Where(i => i.ItemObject==g.Key).LongCount(),
           };
         var result = query.ToList();
         Assert.That(result.Count, Is.EqualTo(1));
