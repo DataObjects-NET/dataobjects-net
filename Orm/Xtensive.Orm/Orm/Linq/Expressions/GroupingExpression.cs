@@ -42,6 +42,34 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public SelectManyGroupingInfo SelectManyInfo { get; private set; }
 
+    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    {
+      Expression result;
+      if (processedExpressions.TryGetValue(this, out result))
+        return result;
+      var mappedKey = KeyExpression as IMappedExpression;
+      if (mappedKey==null)
+        return this;
+      var processedKey = mappedKey.BindParameter(parameter, processedExpressions);
+      result = new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter, processedKey, SelectManyInfo);
+      processedExpressions.Add(this, result);
+      return result;
+    }
+
+    public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
+    {
+      Expression result;
+      if (processedExpressions.TryGetValue(this, out result))
+        return result;
+      var mappedKey = KeyExpression as IMappedExpression;
+      if (mappedKey==null)
+        return this;
+      var processedKey = mappedKey.RemoveOuterParameter(processedExpressions);
+      result = new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter, processedKey, SelectManyInfo);
+      processedExpressions.Add(this, result);
+      return result;
+    }
+
     public override Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
     {
       var remappedSubquery = (SubQueryExpression) base.Remap(map, processedExpressions);

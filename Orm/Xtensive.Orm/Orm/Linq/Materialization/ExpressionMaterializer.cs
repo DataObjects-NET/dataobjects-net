@@ -24,8 +24,9 @@ namespace Xtensive.Orm.Linq.Materialization
   [Serializable]
   internal class ExpressionMaterializer : PersistentExpressionVisitor
   {
-    private static readonly MethodInfo BuildPersistentTupleMethodInfo;
-    private static readonly MethodInfo GetTupleSegmentMethodInfo;
+    private static readonly MethodInfo BuildPersistentTupleMethod;
+    private static readonly MethodInfo GetTupleSegmentMethod;
+
     private readonly TranslatorContext context;
     private readonly ParameterExpression tupleParameter;
     private readonly ParameterExpression itemMaterializationContextParameter;
@@ -227,7 +228,7 @@ namespace Xtensive.Orm.Linq.Materialization
         int[] columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
 
         var persistentTupleExpression = (Expression) Expression.Call(
-          BuildPersistentTupleMethodInfo,
+          BuildPersistentTupleMethod,
           tupleExpression,
           Expression.Constant(tuplePrototype),
           Expression.Constant(columnMap));
@@ -274,7 +275,7 @@ namespace Xtensive.Orm.Linq.Materialization
       int[] columnMap = MaterializationHelper.CreateSingleSourceMap(tuplePrototype.Count, mappingInfo);
 
       var persistentTupleExpression = (Expression) Expression.Call(
-        BuildPersistentTupleMethodInfo,
+        BuildPersistentTupleMethod,
         tupleExpression,
         Expression.Constant(tuplePrototype),
         Expression.Constant(columnMap));
@@ -291,7 +292,7 @@ namespace Xtensive.Orm.Linq.Materialization
     {
       // TODO: http://code.google.com/p/dataobjectsdotnet/issues/detail?id=336
       Expression tupleExpression = Expression.Call(
-        GetTupleSegmentMethodInfo,
+        GetTupleSegmentMethod,
         GetTupleExpression(expression),
         Expression.Constant(expression.Mapping));
       return Expression.Call(
@@ -421,7 +422,6 @@ namespace Xtensive.Orm.Linq.Materialization
       return MaterializeThroughOwner(target, tuple, false);
     }
 
-
     private Expression MaterializeThroughOwner(Expression target, Expression tuple, bool defaultIfEmpty)
     {
       var field = target as FieldExpression;
@@ -463,6 +463,7 @@ namespace Xtensive.Orm.Linq.Materialization
     }
 
     // ReSharper disable UnusedMember.Local
+
     private static Tuple BuildPersistentTuple(Tuple tuple, Tuple tuplePrototype, int[] mapping)
     {
       var result = tuplePrototype.CreateNew();
@@ -495,8 +496,8 @@ namespace Xtensive.Orm.Linq.Materialization
 
     static ExpressionMaterializer()
     {
-      BuildPersistentTupleMethodInfo = typeof (ExpressionMaterializer).GetMethod("BuildPersistentTuple", BindingFlags.NonPublic | BindingFlags.Static);
-      GetTupleSegmentMethodInfo = typeof (ExpressionMaterializer).GetMethod("GetTupleSegment", BindingFlags.NonPublic | BindingFlags.Static);
+      BuildPersistentTupleMethod = typeof (ExpressionMaterializer).GetMethod("BuildPersistentTuple", BindingFlags.NonPublic | BindingFlags.Static);
+      GetTupleSegmentMethod = typeof (ExpressionMaterializer).GetMethod("GetTupleSegment", BindingFlags.NonPublic | BindingFlags.Static);
     }
   }
 }
