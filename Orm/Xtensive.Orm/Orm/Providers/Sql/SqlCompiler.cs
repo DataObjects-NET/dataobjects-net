@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Providers.Sql
       else
         sqlSelect = ExtractSqlSelect(provider, source);
 
-      var sourceColumns = ExtractColumnExpressions(sqlSelect, provider);
+      var sourceColumns = ExtractColumnExpressions(sqlSelect);
       var allBindings = EnumerableUtils<QueryParameterBinding>.Empty;
       foreach (var column in provider.CalculatedColumns) {
         var result = ProcessExpression(column.Expression, sourceColumns);
@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Providers.Sql
 
       var query = ExtractSqlSelect(provider, source);
 
-      var sourceColumns = ExtractColumnExpressions(query, provider);
+      var sourceColumns = ExtractColumnExpressions(query);
       var result = ProcessExpression(provider.Predicate, sourceColumns);
       var predicate = result.First;
       var bindings = result.Second;
@@ -153,7 +153,7 @@ namespace Xtensive.Orm.Providers.Sql
         : left.Request.Statement.Columns;
       var leftExpressions = leftShouldUseReference
         ? leftTable.Columns.Cast<SqlExpression>().ToList()
-        : ExtractColumnExpressions(left.Request.Statement, provider.Left);
+        : ExtractColumnExpressions(left.Request.Statement);
 
       var rightShouldUseReference = ShouldUseQueryReference(provider, right);
       var rightTable = rightShouldUseReference
@@ -164,7 +164,7 @@ namespace Xtensive.Orm.Providers.Sql
         : right.Request.Statement.Columns;
       var rightExpressions = rightShouldUseReference
         ? rightTable.Columns.Cast<SqlExpression>().ToList()
-        : ExtractColumnExpressions(right.Request.Statement, provider.Right);
+        : ExtractColumnExpressions(right.Request.Statement);
 
       var joinType = provider.JoinType==JoinType.LeftOuter
         ? SqlJoinType.LeftOuterJoin
@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Providers.Sql
         : left.Request.Statement.Columns;
       var leftExpressions = leftShouldUseReference
         ? leftTable.Columns.Cast<SqlExpression>().ToList()
-        : ExtractColumnExpressions(left.Request.Statement, provider.Left);
+        : ExtractColumnExpressions(left.Request.Statement);
 
       var rightShouldUseReference = ShouldUseQueryReference(provider, right);
       var rightTable = rightShouldUseReference
@@ -216,7 +216,7 @@ namespace Xtensive.Orm.Providers.Sql
         : right.Request.Statement.Columns;
       var rightExpressions = rightShouldUseReference
         ? rightTable.Columns.Cast<SqlExpression>().ToList()
-        : ExtractColumnExpressions(right.Request.Statement, provider.Right);
+        : ExtractColumnExpressions(right.Request.Statement);
 
 
       var joinType = provider.JoinType==JoinType.LeftOuter ? SqlJoinType.LeftOuterJoin : SqlJoinType.InnerJoin;
@@ -307,7 +307,7 @@ namespace Xtensive.Orm.Providers.Sql
             query.OrderBy.Add(query.Columns[pair.Key], pair.Value == Direction.Positive);
         }
         else {
-          var columnExpressions = ExtractColumnExpressions(query, provider);
+          var columnExpressions = ExtractColumnExpressions(query);
           var shouldUseColumnPosition = provider.Header.Order.Any(o => o.Key >= columnExpressions.Count);
           if (shouldUseColumnPosition)
             foreach (var pair in provider.Header.Order) {
@@ -442,7 +442,7 @@ namespace Xtensive.Orm.Providers.Sql
       var query = ExtractSqlSelect(provider, source);
       var rowNumber = SqlDml.RowNumber();
       query.Columns.Add(rowNumber, provider.Header.Columns.Last().Name);
-      var columns = ExtractColumnExpressions(query, provider);
+      var columns = ExtractColumnExpressions(query);
       foreach (var order in directionCollection)
         rowNumber.OrderBy.Add(columns[order.Key], order.Value==Direction.Positive);
       return CreateProvider(query, provider, source);
