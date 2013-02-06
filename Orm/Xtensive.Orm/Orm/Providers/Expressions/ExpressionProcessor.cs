@@ -350,14 +350,12 @@ namespace Xtensive.Orm.Providers
       if (compiler==null)
         throw Exceptions.InternalError(Strings.ExOuterParameterReferenceFoundButNoSqlCompilerProvided, Orm.OrmLog.Instance);
 
-      ExecutableProvider provider = compiler.OuterReferences[parameter];
-
-      // TODO: Check out this sh..t
-      var sqlProvider = (SqlProvider) provider;
-      var permanentReference = sqlProvider.PermanentReference;
-      if (permanentReference.Columns.Count!=sqlProvider.Request.Statement.Columns.Count)
-        return compiler.ExtractColumnExpressions(sqlProvider.Request.Statement, sqlProvider.Origin)[columnIndex];
-      return permanentReference[columnIndex];
+      var sqlProvider = (SqlProvider) compiler.OuterReferences[parameter];
+      var sqlSelect = sqlProvider.Request.Statement;
+      var permamentReference = sqlProvider.PermanentReference;
+      if (permamentReference.Columns.Count!=sqlSelect.Columns.Count)
+        return compiler.ExtractColumnExpression(sqlSelect.Columns[columnIndex]);
+      return permamentReference[columnIndex];
     }
 
     protected override SqlExpression VisitLambda(LambdaExpression l)

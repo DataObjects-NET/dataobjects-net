@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Providers
     {
       var source = Compile(provider.Source);
       var resultQuery = ExtractSqlSelect(provider, source);
-      var sourceColumns = ExtractColumnExpressions(resultQuery, provider);
+      var sourceColumns = ExtractColumnExpressions(resultQuery);
       var bindings = source.Request.ParameterBindings;
       var filterDataSource = provider.FilterDataSource.CachingCompile();
       var requestOptions = QueryRequestOptions.Empty;
