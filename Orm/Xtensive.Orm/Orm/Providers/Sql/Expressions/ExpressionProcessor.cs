@@ -357,7 +357,7 @@ namespace Xtensive.Orm.Providers.Sql.Expressions
       var sqlProvider = (SqlProvider) provider;
       var permanentReference = sqlProvider.PermanentReference;
       if (permanentReference.Columns.Count!=sqlProvider.Request.Statement.Columns.Count)
-        return compiler.ExtractColumnExpressions(sqlProvider.Request.Statement, sqlProvider.Origin)[columnIndex];
+        return compiler.ExtractColumnExpressions(sqlProvider.Request.Statement)[columnIndex];
       return permanentReference[columnIndex];
     }
 

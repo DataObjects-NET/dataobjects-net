@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Providers.Sql
       return sourceSelect.ShallowClone();
     }
 
-    public List<SqlExpression> ExtractColumnExpressions(SqlSelect query, CompilableProvider origin)
+    public List<SqlExpression> ExtractColumnExpressions(SqlSelect query)
     {
       var result = new List<SqlExpression>(query.Columns.Count);
       foreach (var column in query.Columns) {

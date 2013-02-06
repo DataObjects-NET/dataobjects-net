@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Providers.Sql
 
       var sqlSelect = ExtractSqlSelect(provider, source);
 
-      var columns = ExtractColumnExpressions(sqlSelect, provider);
+      var columns = ExtractColumnExpressions(sqlSelect);
       var columnNames = columns.Select((c, i) =>
         i >= sqlSelect.Columns.Count
           ? sqlSelect.From.Columns[i].Name
