@@ -16,7 +16,6 @@ using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Helpers;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Providers.Compilable;
-using Xtensive.Orm;
 
 namespace Xtensive.Orm.Providers.Sql
 {
@@ -139,7 +138,7 @@ namespace Xtensive.Orm.Providers.Sql
         resultQuery.Columns.Add(columnStub);
       }
       else
-        resultQuery.Columns.Add(columnRef);      
+        resultQuery.Columns.Add(columnRef);
     }
 
     protected SqlExpression GetBooleanColumnExpression(SqlExpression originalExpression)
@@ -148,8 +147,6 @@ namespace Xtensive.Orm.Providers.Sql
         ? originalExpression
         : booleanExpressionConverter.BooleanToInt(originalExpression);
     }
-
-    #region Private methods
 
     private static bool IsCalculatedColumn(SqlColumn column)
     {
@@ -294,7 +291,5 @@ namespace Xtensive.Orm.Providers.Sql
 
       return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
     }
-
-    #endregion
   }
 }
