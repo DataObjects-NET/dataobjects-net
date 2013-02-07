@@ -85,14 +85,14 @@ namespace Xtensive.Orm.Providers.Sql
       return sourceSelect.ShallowClone();
     }
 
-    public List<SqlExpression> ExtractColumnExpressions(SqlSelect query)
+    protected List<SqlExpression> ExtractColumnExpressions(SqlSelect query)
     {
       var result = new List<SqlExpression>(query.Columns.Count);
       result.AddRange(query.Columns.Select(ExtractColumnExpression));
       return result;
     }
 
-    public SqlExpression ExtractColumnExpression(SqlColumn column)
+    protected SqlExpression ExtractColumnExpression(SqlColumn column)
     {
       SqlExpression expression;
       if (IsColumnStub(column)) {
@@ -290,6 +290,16 @@ namespace Xtensive.Orm.Providers.Sql
       }
 
       return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
+    }
+
+    public SqlExpression GetOuterExpression(ApplyParameter parameter, int columnIndex)
+    {
+      var reference = OuterReferences[parameter];
+      var sqlProvider = reference.First;
+      var useQueryReference = reference.Second;
+      return useQueryReference
+        ? sqlProvider.PermanentReference[columnIndex]
+        : ExtractColumnExpression(sqlProvider.Request.Statement.Columns[columnIndex]);
     }
   }
 }

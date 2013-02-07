@@ -50,6 +50,11 @@ namespace Xtensive.Orm.Providers.Sql
     /// </summary>
     protected HandlerAccessor Handlers { get; private set; }
 
+    /// <summary>
+    /// Gets collection of outer references.
+    /// </summary>
+    protected BindingCollection<ApplyParameter, Pair<SqlProvider, bool>> OuterReferences { get; private set; }
+
     /// <inheritdoc/>
     protected override SqlProvider VisitAlias(AliasProvider provider)
     {
@@ -491,8 +496,8 @@ namespace Xtensive.Orm.Providers.Sql
       if (!handlers.DomainHandler.ProviderInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
 
+      OuterReferences = new BindingCollection<ApplyParameter, Pair<SqlProvider, bool>>();
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;
-
       stubColumnMap = new Dictionary<SqlColumnStub, SqlExpression>();
     }
   }
