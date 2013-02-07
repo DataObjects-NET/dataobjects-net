@@ -83,14 +83,14 @@ namespace Xtensive.Orm.Providers
       return sourceSelect.ShallowClone();
     }
 
-    public List<SqlExpression> ExtractColumnExpressions(SqlSelect query)
+    protected List<SqlExpression> ExtractColumnExpressions(SqlSelect query)
     {
       var result = new List<SqlExpression>(query.Columns.Count);
       result.AddRange(query.Columns.Select(ExtractColumnExpression));
       return result;
     }
 
-    public SqlExpression ExtractColumnExpression(SqlColumn column)
+    protected SqlExpression ExtractColumnExpression(SqlColumn column)
     {
       SqlExpression expression;
       if (IsColumnStub(column)) {
@@ -136,7 +136,7 @@ namespace Xtensive.Orm.Providers
         resultQuery.Columns.Add(columnStub);
       }
       else
-        resultQuery.Columns.Add(columnRef);      
+        resultQuery.Columns.Add(columnRef);
     }
 
     protected SqlExpression GetBooleanColumnExpression(SqlExpression originalExpression)
@@ -145,8 +145,6 @@ namespace Xtensive.Orm.Providers
         ? originalExpression
         : booleanExpressionConverter.BooleanToInt(originalExpression);
     }
-
-    #region Private methods
 
     private static bool IsCalculatedColumn(SqlColumn column)
     {
@@ -291,6 +289,14 @@ namespace Xtensive.Orm.Providers
       return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
     }
 
-    #endregion
+    public SqlExpression GetOuterExpression(ApplyParameter parameter, int columnIndex)
+    {
+      var reference = OuterReferences[parameter];
+      var sqlProvider = reference.First;
+      var useQueryReference = reference.Second;
+      return useQueryReference
+        ? sqlProvider.PermanentReference[columnIndex]
+        : ExtractColumnExpression(sqlProvider.Request.Statement.Columns[columnIndex]);
+    }
   }
 }

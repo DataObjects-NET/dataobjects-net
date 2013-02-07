@@ -42,6 +42,11 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     protected HandlerAccessor Handlers { get; private set; }
 
+    /// <summary>
+    /// Gets collection of outer references.
+    /// </summary>
+    protected BindingCollection<ApplyParameter, Pair<SqlProvider, bool>> OuterReferences { get; private set; }
+
     /// <inheritdoc/>
     protected override SqlProvider VisitAlias(AliasProvider provider)
     {
@@ -491,6 +496,7 @@ namespace Xtensive.Orm.Providers
       if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
 
+      OuterReferences = new BindingCollection<ApplyParameter, Pair<SqlProvider, bool>>();
       stubColumnMap = new Dictionary<SqlColumnStub, SqlExpression>();
     }
   }

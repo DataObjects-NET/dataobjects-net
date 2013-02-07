@@ -333,29 +333,18 @@ namespace Xtensive.Orm.Providers
       int columnIndex = tupleAccess.GetTupleAccessArgument();
       SqlExpression result;
       var applyParameter = tupleAccess.GetApplyParameter();
-      if (applyParameter != null) {
-        result = VisitOuterParameterReference(columnIndex, applyParameter);
+      if (applyParameter!=null) {
+        if (compiler==null)
+          throw Exceptions.InternalError(Strings.ExOuterParameterReferenceFoundButNoSqlCompilerProvided, OrmLog.Instance);
+        result = compiler.GetOuterExpression(applyParameter, columnIndex);
       }
       else {
-        var queryRef = sourceMapping[(ParameterExpression)tupleAccess.Object];
+        var queryRef = sourceMapping[(ParameterExpression) tupleAccess.Object];
         result = queryRef[columnIndex];
       }
       if (fixBooleanExpressions && IsBooleanExpression(tupleAccess))
         result = booleanExpressionConverter.IntToBoolean(result);
       return result;
-    }
-
-    private SqlExpression VisitOuterParameterReference(int columnIndex, ApplyParameter parameter)
-    {
-      if (compiler==null)
-        throw Exceptions.InternalError(Strings.ExOuterParameterReferenceFoundButNoSqlCompilerProvided, Orm.OrmLog.Instance);
-
-      var sqlProvider = (SqlProvider) compiler.OuterReferences[parameter];
-      var sqlSelect = sqlProvider.Request.Statement;
-      var permamentReference = sqlProvider.PermanentReference;
-      if (permamentReference.Columns.Count!=sqlSelect.Columns.Count)
-        return compiler.ExtractColumnExpression(sqlSelect.Columns[columnIndex]);
-      return permamentReference[columnIndex];
     }
 
     protected override SqlExpression VisitLambda(LambdaExpression l)
