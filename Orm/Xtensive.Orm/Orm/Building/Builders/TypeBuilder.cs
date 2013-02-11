@@ -89,19 +89,20 @@ namespace Xtensive.Orm.Building.Builders
 
     public static void BuildTypeDiscriminatorMap(TypeDef typeDef, TypeInfo typeInfo)
     {
-        if (typeDef.TypeDiscriminatorValue != null) {
-          var targetField = typeInfo.Fields.SingleOrDefault(f => f.IsTypeDiscriminator && f.Parent == null);
-          if (targetField == null)
-            throw new DomainBuilderException(string.Format("Type discriminator field is not found for {0} type", typeInfo.Name));
-          if (targetField.IsEntity) {
-            targetField = targetField.Fields.First();
-            targetField.IsTypeDiscriminator = true;
-          }
-          typeInfo.TypeDiscriminatorValue = ValueTypeBuilder.AdjustValue(targetField, targetField.ValueType, typeDef.TypeDiscriminatorValue);
-          typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterTypeMapping(typeInfo, typeInfo.TypeDiscriminatorValue);
+      if (typeDef.TypeDiscriminatorValue!=null) {
+        var targetField = typeInfo.Fields.SingleOrDefault(f => f.IsTypeDiscriminator && f.Parent==null);
+        if (targetField==null)
+          throw new DomainBuilderException(string.Format(Strings.ExTypeDiscriminatorIsNotFoundForXType, typeInfo.Name));
+        if (targetField.IsEntity) {
+          targetField = targetField.Fields.First();
+          targetField.IsTypeDiscriminator = true;
         }
-        if (typeDef.IsDefaultTypeInHierarchy)
-          typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterDefaultType(typeInfo);
+        typeInfo.TypeDiscriminatorValue = ValueTypeBuilder.AdjustValue(targetField, targetField.ValueType, typeDef.TypeDiscriminatorValue);
+        typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterTypeMapping(typeInfo, typeInfo.TypeDiscriminatorValue);
+      }
+
+      if (typeDef.IsDefaultTypeInHierarchy)
+        typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterDefaultType(typeInfo);
     }
 
     /// <summary>

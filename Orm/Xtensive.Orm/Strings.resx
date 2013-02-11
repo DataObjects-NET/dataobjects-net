@@ -2338,4 +2338,7 @@ Error: {1}</value>
 	<data name="ExExceptionHasBeenThrownByTheParameterValueAccessor">
 		<value xml:space="preserve">Exception has been thrown by the parameter value accessor.</value>
 	</data>
+  <data name="ExTypeDiscriminatorIsNotFoundForXType">
+    <value xml:space="preserve">Type discriminator field is not found for '{0}' type</value>
+  </data>
 </root>
