@@ -7,7 +7,6 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.AdvancedDefaultAndTypeDiscriminatorTestModel;
 
@@ -90,10 +89,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var r = new Ref(new Guid(CodeRegistry.DefaultCode));
-        var d = new DiscriminatedByRef()
-                  {
-                    Ref = r
-                  };
+        var d = new DiscriminatedByRef {Ref = r};
         t.Complete();
       }
 
