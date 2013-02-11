@@ -158,13 +158,17 @@ namespace Xtensive.Orm.Providers.Sql
           .Single().i;
         var discriminatorColumn = baseQuery.From.Columns[discriminatorColumnIndex];
         var containsDefault = filterByTypes.Contains(discriminatorMap.Default);
-        var values = filterByTypes.Select(t => t.TypeDiscriminatorValue);
-        if (filterByTypes.Count == 1)
-          filter = discriminatorColumn == SqlDml.Literal(filterByTypes.First().TypeDiscriminatorValue);
+        var values = filterByTypes
+          .Select(t => GetDiscriminatorValue(discriminatorMap, t.TypeDiscriminatorValue));
+        if (filterByTypes.Count == 1) {
+          var discriminatorValue = GetDiscriminatorValue(discriminatorMap, filterByTypes.First().TypeDiscriminatorValue);
+          filter = discriminatorColumn == SqlDml.Literal(discriminatorValue);
+        }
         else {
           filter = SqlDml.In(discriminatorColumn, SqlDml.Array(values));
           if (containsDefault) {
-            var allValues = discriminatorMap.Select(p => p.First);
+            var allValues = discriminatorMap
+              .Select(p => GetDiscriminatorValue(discriminatorMap, p.First));
             filter |= SqlDml.NotIn(discriminatorColumn, SqlDml.Array(allValues));
           }
         }
@@ -212,8 +216,11 @@ namespace Xtensive.Orm.Providers.Sql
         var discriminatorColumnIndex = underlyingIndex.Columns.IndexOf(discriminatorMap.Column);
         var discriminatorColumn = baseQuery.From.Columns[discriminatorColumnIndex];
         var sqlCase = SqlDml.Case(discriminatorColumn);
-        foreach (var pair in discriminatorMap)
-          sqlCase.Add(SqlDml.Literal(pair.First), SqlDml.Literal(pair.Second.TypeId));
+        foreach (var pair in discriminatorMap) {
+          var discriminatorValue = GetDiscriminatorValue(discriminatorMap, pair.First);
+          var typeId = pair.Second.TypeId;
+          sqlCase.Add(SqlDml.Literal(discriminatorValue), SqlDml.Literal(typeId));
+        }
         if (discriminatorMap.Default != null)
           sqlCase.Else = SqlDml.Literal(discriminatorMap.Default.TypeId);
         typeIdColumn = SqlDml.ColumnRef(
@@ -223,6 +230,15 @@ namespace Xtensive.Orm.Providers.Sql
       baseColumns.Insert(typeIdColumnIndex, typeIdColumn);
       query.Columns.AddRange(baseColumns);
       return query;
+    }
+
+    private object GetDiscriminatorValue(TypeDiscriminatorMap discriminatorMap, object fieldValue)
+    {
+      var field = discriminatorMap.Field;
+      var column = discriminatorMap.Column;
+      return field.ValueType!=column.ValueType
+        ? Convert.ChangeType(fieldValue, column.ValueType)
+        : fieldValue;
     }
   }
 }
