@@ -391,7 +391,7 @@ namespace Xtensive.Orm
       var connection = upgradeContext!=null
         ? upgradeContext.Services.Connection
         : Handlers.StorageDriver.CreateConnection(this);
-      return new SqlSessionHandler(this, connection, upgradeContext!=null);
+      return new SqlSessionHandler(this, connection, upgradeContext!=null, upgradeContext!=null);
     }
 
     // Constructors
