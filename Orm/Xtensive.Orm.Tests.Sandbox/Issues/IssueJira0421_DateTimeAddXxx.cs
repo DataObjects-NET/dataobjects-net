@@ -46,7 +46,18 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    private void RunAllTests(Func<double, Expression<Func<EntityWithDate, bool>>> filterProvider)
+    private void RunAllTestsInt(Func<int, Expression<Func<EntityWithDate, bool>>> filterProvider)
+    {
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction()) {
+        RunTest(session, filterProvider.Invoke(1));
+        RunTest(session, filterProvider.Invoke(20));
+        RunTest(session, filterProvider.Invoke(-5));
+        RunTest(session, filterProvider.Invoke(0));
+      }
+    }
+
+    private void RunAllTestsDouble(Func<double, Expression<Func<EntityWithDate, bool>>> filterProvider)
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
@@ -64,33 +75,45 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    public void AddYearsTest()
+    {
+      RunAllTestsInt(value => e => e.Today.AddYears(value)==today.AddYears(value));
+    }
+
+    [Test]
+    public void AddMonthsTest()
+    {
+      RunAllTestsInt(value => e => e.Today.AddMonths(value)==today.AddMonths(value));
+    }
+
+    [Test]
     public void AddDaysTest()
     {
-      RunAllTests(value => e => e.Today.AddDays(value)==today.AddDays(value));
+      RunAllTestsDouble(value => e => e.Today.AddDays(value)==today.AddDays(value));
     }
 
     [Test]
     public void AddHoursTest()
     {
-      RunAllTests(value => e => e.Today.AddHours(value)==today.AddHours(value));
+      RunAllTestsDouble(value => e => e.Today.AddHours(value)==today.AddHours(value));
     }
 
     [Test]
     public void AddMinutesTest()
     {
-      RunAllTests(value => e => e.Today.AddMinutes(value)==today.AddMinutes(value));
+      RunAllTestsDouble(value => e => e.Today.AddMinutes(value)==today.AddMinutes(value));
     }
 
     [Test]
     public void AddSecondsTest()
     {
-      RunAllTests(value => e => e.Today.AddSeconds(value)==today.AddSeconds(value));
+      RunAllTestsDouble(value => e => e.Today.AddSeconds(value)==today.AddSeconds(value));
     }
 
     [Test]
     public void AddMillisecondsTest()
     {
-      RunAllTests(value => e => e.Today.AddMilliseconds(value)==today.AddMilliseconds(value));
+      RunAllTestsDouble(value => e => e.Today.AddMilliseconds(value)==today.AddMilliseconds(value));
     }
   }
 }
