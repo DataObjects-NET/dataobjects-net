@@ -2,3 +2,4 @@
 [main] Fixed querying for types with enum type discriminators
 [main] Added QueryEndpoint.Items() method for querying EntitySets within compiled queries
 [main] Fixed locking of entity that could not be persisted at the moment for some reason
+[main] Added support for DateTime.AddXxx() methods in LINQ translator
