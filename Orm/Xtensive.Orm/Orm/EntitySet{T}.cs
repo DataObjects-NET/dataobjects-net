@@ -225,8 +225,9 @@ namespace Xtensive.Orm
         if (expression==null) {
           // A hack making expression to look like regular parameter 
           // (ParameterExtractor.IsParameter => true)
-          var owner = Expression.Property(Expression.Constant(new {Owner}), "Owner");
-          expression = QueryHelper.CreateEntitySetQueryExpression(owner, Field);
+          expression = Expression.Property(
+            Expression.Property(Expression.Constant(new {EntitySetOwner = Owner}), "EntitySetOwner"),
+            Field.UnderlyingProperty);
         }
         return expression;
       }
