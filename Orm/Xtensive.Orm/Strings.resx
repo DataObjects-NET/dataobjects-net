@@ -2440,4 +2440,7 @@ Error: {1}</value>
   <data name="ExExceptionHasBeenThrownByTheUserMemberCompiler">
     <value xml:space="preserve">Exception has been thrown by the user member compiler.</value>
   </data>
+  <data name="ExSessionXStillUsesSharedConnection">
+    <value xml:space="preserve">Session '{0}' still uses shared connection.</value>
+  </data>
 </root>

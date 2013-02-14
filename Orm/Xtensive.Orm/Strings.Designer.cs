@@ -3927,6 +3927,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos; still uses shared connection..
+        /// </summary>
+        internal static string ExSessionXStillUsesSharedConnection {
+            get {
+                return ResourceManager.GetString("ExSessionXStillUsesSharedConnection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Single hierarchy is mapped to multiple databases: {0}, {1}.
         /// </summary>
         internal static string ExSingleHierarchyIsMappedToMultipleDatabasesXY {

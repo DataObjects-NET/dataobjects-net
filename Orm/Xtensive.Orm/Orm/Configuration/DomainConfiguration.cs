@@ -476,7 +476,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets or sets value indicating whether shared connection mode
     /// is enabled. In shared connection mode only one connection
-    /// is created for whole domain. This connection is reused for each
+    /// is created for the whole domain. This connection is reused for each
     /// created session. At most one session could be active in this mode.
     /// </summary>
     public bool SharedConnection

@@ -11,6 +11,7 @@ using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Reflection;
+using Xtensive.Sql;
 
 namespace Xtensive.Orm.Building.Builders
 {
@@ -49,7 +50,14 @@ namespace Xtensive.Orm.Building.Builders
     private void CreateDomain()
     {
       using (BuildLog.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
-        context.Domain = new Domain(context.Configuration, context.BuilderConfiguration.UpgradeContextCookie);
+        var sharedConnection =
+          context.Configuration.SharedConnection
+            ? context.BuilderConfiguration.Services.Connection
+            : null;
+        context.Domain = new Domain(
+          context.Configuration,
+          context.BuilderConfiguration.UpgradeContextCookie,
+          sharedConnection);
       }
     }
 

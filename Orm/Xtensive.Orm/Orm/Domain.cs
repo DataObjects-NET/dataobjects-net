@@ -19,6 +19,7 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Upgrade.Model;
+using Xtensive.Sql;
 
 namespace Xtensive.Orm
 {
@@ -30,8 +31,11 @@ namespace Xtensive.Orm
   /// </sample>
   public sealed class Domain : IDisposable, IHasExtensions
   {
-    private readonly object disposelock = new object();
+    private readonly object disposeGuard = new object();
+    private readonly object sharedConnectionGuard = new object();
+    
     private bool isDisposed;
+    private Session sharedConnectionOwner;
 
     /// <summary>
     /// Occurs when new <see cref="Session"/> is open and activated.
@@ -112,6 +116,8 @@ namespace Xtensive.Orm
 
     internal object UpgradeContextCookie { get; private set; }
 
+    internal SqlConnection SharedConnection { get; private set; }
+
     internal IServiceContainer CreateSystemServices()
     {
       var registrations = new List<ServiceRegistration>{
@@ -124,6 +130,13 @@ namespace Xtensive.Orm
       };
 
       return new ServiceContainer(registrations);
+    }
+
+    internal void ResetSharedSessionOwner()
+    {
+      if (Configuration.SharedConnection)
+        lock (sharedConnectionGuard)
+          sharedConnectionOwner = null;
     }
 
     private void NotifySessionOpen(Session session)
@@ -215,7 +228,22 @@ namespace Xtensive.Orm
 
       OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
 
-      var session = new Session(this, configuration, activate);
+      Session session;
+
+      if (Configuration.SharedConnection) {
+        // Ensure that we check shared connection availability
+        // and acquire connection atomically.
+        lock (sharedConnectionGuard) {
+          if (sharedConnectionOwner!=null)
+            throw new InvalidOperationException(string.Format(
+              Strings.ExSessionXStillUsesSharedConnection, sharedConnectionOwner));
+          session = new Session(this, configuration, activate);
+          sharedConnectionOwner = session;
+        }
+      }
+      else
+        session = new Session(this, configuration, activate);
+
       NotifySessionOpen(session);
       return session;
     }
@@ -242,7 +270,7 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    internal Domain(DomainConfiguration configuration, object upgradeContextCookie)
+    internal Domain(DomainConfiguration configuration, object upgradeContextCookie, SqlConnection sharedConnection)
     {
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
@@ -255,12 +283,13 @@ namespace Xtensive.Orm
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
       Extensions = new ExtensionCollection();
       UpgradeContextCookie = upgradeContextCookie;
+      SharedConnection = sharedConnection;
     }
 
     /// <inheritdoc/>
     public void Dispose()
     {
-      lock (disposelock) {
+      lock (disposeGuard) {
         if (isDisposed)
           return;
         isDisposed = true;
