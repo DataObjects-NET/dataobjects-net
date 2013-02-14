@@ -27,6 +27,7 @@ namespace Xtensive.Orm.Providers
     private readonly DomainHandler domainHandler;
     private readonly SqlConnection connection;
     private readonly bool transactionIsExternal;
+    private readonly bool connectionIsExternal;
     private readonly CommandProcessor commandProcessor;
 
     private Transaction pendingTransaction;
@@ -191,14 +192,15 @@ namespace Xtensive.Orm.Providers
       if (isDisposed)
         return;
       isDisposed = true;
-      if (!transactionIsExternal)
+      if (!connectionIsExternal)
         driver.CloseConnection(Session, connection);
     }
 
-    internal SqlSessionHandler(Session session, SqlConnection connection, bool transactionIsExternal)
+    internal SqlSessionHandler(Session session, SqlConnection connection, bool connectionIsExternal, bool transactionIsExternal)
       : base(session)
     {
       this.connection = connection;
+      this.connectionIsExternal = connectionIsExternal;
       this.transactionIsExternal = transactionIsExternal;
 
       domainHandler = Handlers.DomainHandler;
