@@ -57,6 +57,7 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo SingleArray;
       public static readonly MethodInfo SingleOrDefaultKey;
       public static readonly MethodInfo SingleOrDefaultArray;
+      public static readonly MethodInfo Items;
 
       static QueryEndpoint()
       {
@@ -70,6 +71,7 @@ namespace Xtensive.Orm.Linq
         var singleOrDefaultMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == "SingleOrDefault" && m.IsGenericMethod);
         SingleOrDefaultKey = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
         SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(object[]));
+        Items = typeof (Orm.QueryEndpoint).GetMethod("Items");
 #pragma warning restore 612,618
       }
     }

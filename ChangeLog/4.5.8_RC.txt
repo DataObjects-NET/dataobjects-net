@@ -1,2 +1,3 @@
 [main] Fixed incorrect column references in generated SQL for certain queries
 [main] Fixed querying for types with enum type discriminators
+[main] Added QueryEndpoint.Items() method for querying EntitySets within compiled queries

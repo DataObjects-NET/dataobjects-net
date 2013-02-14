@@ -357,6 +357,8 @@ namespace Xtensive.Orm.Linq
             WellKnownMembers.QueryEndpoint.SingleKey,
             WellKnownMembers.QueryEndpoint.SingleOrDefaultKey))
             return VisitQuerySingle(mc);
+          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()==WellKnownMembers.QueryEndpoint.Items)
+            return VisitSequence(mc.Arguments[0].StripQuotes().Body, mc);
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         }
 #pragma warning restore 612,618

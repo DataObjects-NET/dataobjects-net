@@ -24,6 +24,16 @@ namespace Xtensive.Orm.Linq
 {
   internal static class QueryHelper
   {
+    private sealed class OwnerWrapper<TOwner>
+    {
+      public TOwner Owner { get; set; }
+
+      public OwnerWrapper(TOwner owner)
+      {
+        Owner = owner;
+      }
+    }
+
     public static Expression<Func<Tuple,bool>> BuildFilterLambda(int startIndex, IList<Type> keyColumnTypes, Parameter<Tuple> keyParameter)
     {
       Expression filterExpression = null;
@@ -49,13 +59,37 @@ namespace Xtensive.Orm.Linq
       return Expression.Lambda<Func<Tuple, bool>>(filterExpression, tupleParameter);
     }
 
-    public static Expression CreateEntityQueryExpression(Type elementType)
+    private static Expression CreateEntityQuery(Type elementType)
     {
       var queryAll = WellKnownMembers.Query.All.MakeGenericMethod(elementType);
       return Expression.Call(null, queryAll);
     }
 
-    public static Expression CreateEntitySetQueryExpression(Expression ownerEntity, FieldInfo field)
+    public static bool IsDirectEntitySetQuery(Expression entitySet)
+    {
+      if (entitySet.NodeType!=ExpressionType.MemberAccess)
+        return false;
+      var owner = ((MemberExpression) entitySet).Expression;
+      if (owner.NodeType!=ExpressionType.MemberAccess)
+        return false;
+      var wrapper = ((MemberExpression) owner).Expression;
+      return wrapper.NodeType==ExpressionType.Constant
+        && wrapper.Type.IsGenericType
+        && wrapper.Type.GetGenericTypeDefinition()==typeof (OwnerWrapper<>);
+    }
+
+    public static Expression CreateDirectEntitySetQuery(EntitySetBase entitySet)
+    {
+      // A hack making expression to look like regular parameter 
+      // (ParameterExtractor.IsParameter => true)
+      var owner = entitySet.Owner;
+      var wrapper = Activator.CreateInstance(
+        typeof (OwnerWrapper<>).MakeGenericType(owner.GetType()), owner);
+      var wrappedOwner = Expression.Property(Expression.Constant(wrapper), "Owner");
+      return Expression.Property(wrappedOwner, entitySet.Field.UnderlyingProperty);
+    }
+
+    public static Expression CreateEntitySetQuery(Expression ownerEntity, FieldInfo field)
     {
       if (!field.UnderlyingProperty.PropertyType.IsOfGenericType(typeof(EntitySet<>)))
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, Log.Instance);
@@ -74,7 +108,7 @@ namespace Xtensive.Orm.Linq
           );
         return Expression.Call(
           WellKnownMembers.Queryable.Where.MakeGenericMethod(elementType),
-          CreateEntityQueryExpression(elementType),
+          CreateEntityQuery(elementType),
           FastExpression.Lambda(whereExpression, whereParameter)
           );
       }
@@ -99,7 +133,7 @@ namespace Xtensive.Orm.Linq
 
       var outerQuery = Expression.Call(
         WellKnownMembers.Queryable.Where.MakeGenericMethod(connectorType),
-        CreateEntityQueryExpression(connectorType),
+        CreateEntityQuery(connectorType),
         FastExpression.Lambda(filterExpression, filterParameter)
         );
 
@@ -111,7 +145,7 @@ namespace Xtensive.Orm.Linq
       var innerSelector = FastExpression.Lambda(innerSelectorParameter, innerSelectorParameter);
       var resultSelector = FastExpression.Lambda(innerSelectorParameter, outerSelectorParameter, innerSelectorParameter);
 
-      var innerQuery = CreateEntityQueryExpression(elementType);
+      var innerQuery = CreateEntityQuery(elementType);
       var joinMethodInfo = typeof (Queryable).GetMethods()
         .Single(mi => mi.Name == Xtensive.Reflection.WellKnown.Queryable.Join && mi.IsGenericMethod && mi.GetParameters().Length == 5)
         .MakeGenericMethod(new[] {

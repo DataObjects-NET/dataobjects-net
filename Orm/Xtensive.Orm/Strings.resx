@@ -2341,4 +2341,7 @@ Error: {1}</value>
   <data name="ExTypeDiscriminatorIsNotFoundForXType">
     <value xml:space="preserve">Type discriminator field is not found for '{0}' type</value>
   </data>
+  <data name="ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsInstead">
+    <value xml:space="preserve">Direct querying for entity set in compiled queries is not supported, use QueryEndpoint.Items() instead.</value>
+  </data>
 </root>

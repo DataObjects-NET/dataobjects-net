@@ -394,6 +394,21 @@ namespace Xtensive.Orm
       return Provider.CreateQuery<TElement>(expression);
     }
 
+    /// <summary>
+    /// Creates query for the <see cref="EntitySet{TItem}"/>
+    /// defined by <paramref name="provider"/> expression.
+    /// This method is suitable for usage within compiled queries.
+    /// For regular queries you can query <see cref="EntitySet{TItem}"/> directly.
+    /// </summary>
+    /// <typeparam name="TElement">Entity set element type.</typeparam>
+    /// <param name="provider">Expression that defines <see cref="EntitySet{TItem}"/>.</param>
+    /// <returns>Created query.</returns>
+    public IQueryable<TElement> Items<TElement>(Expression<Func<EntitySet<TElement>>> provider)
+      where TElement : IEntity
+    {
+      return Provider.CreateQuery<TElement>(provider.Body);
+    }
+
     #region Private / internal methods
 
     /// <exception cref="ArgumentException"><paramref name="keyValues"/> array is empty.</exception>

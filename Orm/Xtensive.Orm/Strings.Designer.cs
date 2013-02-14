@@ -1302,6 +1302,16 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Direct querying for entity set in compiled queries is not supported, use QueryEndpoint.Items() instead..
+        /// </summary>
+        internal static string ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsInstead {
+            get {
+                return ResourceManager.GetString("ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsI" +
+                        "nstead", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DisconnectedState is already attached to session..
         /// </summary>
         internal static string ExDisconnectedStateIsAlreadyAttachedToSession {
