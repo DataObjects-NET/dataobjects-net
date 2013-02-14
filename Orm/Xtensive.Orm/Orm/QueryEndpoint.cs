@@ -380,6 +380,13 @@ namespace Xtensive.Orm
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
     }
 
+    /// <summary>
+    /// Stores specified <paramref name="source"/> in the database
+    /// and provides a query for stored items.
+    /// </summary>
+    /// <typeparam name="TElement">Item type.</typeparam>
+    /// <param name="source">Items to store.</param>
+    /// <returns>Query for stored items.</returns>
     public IQueryable<TElement> Store<TElement>(IEnumerable<TElement> source)
     {
       var method = WellKnownMembers.Queryable.AsQueryable.MakeGenericMethod(typeof(TElement));
