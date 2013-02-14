@@ -292,7 +292,7 @@ namespace Xtensive.Orm
         };
         var source = (ExecutableProvider) domain.Cache.GetValue(key, generator);
         var recordSet = source.GetRecordSet(Session);
-        recordSet.First();
+        recordSet.FirstOrDefault();
       }
     }
 

@@ -30,6 +30,14 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public void LockNewlyCreatedEntity()
+    {
+      var product = new ActiveProduct();
+      using (Session.DisableSaveChanges())
+        product.Lock(LockMode.Exclusive, LockBehavior.ThrowIfLocked);
+    }
+
+    [Test]
     public void UpdateLockSkipTest()
     {
       Require.ProviderIs(StorageProvider.SqlServer);
@@ -42,12 +50,13 @@ namespace Xtensive.Orm.Tests.Linq
         try {
           using (var session = Domain.OpenSession())
           using (session.OpenTransaction())
-            countAfterSkip = session.Query.All<Customer>().Where(c => c.Key == key)
-              .Lock(LockMode.Update, LockBehavior.Skip).ToList().Count;
+            countAfterSkip = session.Query.All<Customer>()
+              .Where(c => c.Key == key)
+              .Lock(LockMode.Update, LockBehavior.Skip)
+              .ToList().Count;
         }
         catch(Exception e) {
           catchedException = e;
-          return;
         }
       });
       secondThread.Start();
