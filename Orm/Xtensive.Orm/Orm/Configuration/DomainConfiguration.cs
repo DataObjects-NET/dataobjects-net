@@ -98,6 +98,7 @@ namespace Xtensive.Orm.Configuration
     private string forcedServerVersion;
     private bool buildInParallel = DefaultBuildInParallel;
     private bool allowCyclicDatabaseDependencies;
+    private bool sharedConnection;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseConfigurationCollection databases = new DatabaseConfigurationCollection();
@@ -473,6 +474,22 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets value indicating whether shared connection mode
+    /// is enabled. In shared connection mode only one connection
+    /// is created for whole domain. This connection is reused for each
+    /// created session. At most one session could be active in this mode.
+    /// </summary>
+    public bool SharedConnection
+    {
+      get { return sharedConnection; }
+      set
+      {
+        this.EnsureNotLocked();
+        sharedConnection = value;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets collation for all columns.
     /// If provider does not utilize collations this setting is ignored.
     /// <remarks>
@@ -611,6 +628,7 @@ namespace Xtensive.Orm.Configuration
       includeSqlInExceptions = configuration.IncludeSqlInExceptions;
       forcedServerVersion = configuration.forcedServerVersion;
       buildInParallel = configuration.buildInParallel;
+      sharedConnection = configuration.sharedConnection;
       allowCyclicDatabaseDependencies = configuration.allowCyclicDatabaseDependencies;
       collation = configuration.collation;
       nativeLibraryCacheFolder = configuration.nativeLibraryCacheFolder;

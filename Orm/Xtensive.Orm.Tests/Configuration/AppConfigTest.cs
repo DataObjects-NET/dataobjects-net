@@ -103,6 +103,15 @@ namespace Xtensive.Orm.Tests.Configuration
       var clone = configuration.Clone();
       Assert.That(clone.NativeLibraryCacheFolder, Is.EqualTo(expected));
     }
+
+    [Test]
+    public void SharedConnectionTest()
+    {
+      var configuration = DomainConfiguration.Load("AppConfigTest", "SharedConnectionDomain");
+      Assert.That(configuration.SharedConnection);
+      var clone = configuration.Clone();
+      Assert.That(clone.SharedConnection);
+    }
     
     [Test]
     public void AdvancedMappingTest()
