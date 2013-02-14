@@ -1348,6 +1348,10 @@ namespace Xtensive.Orm.Linq
     private ProjectionExpression VisitSequence(Expression sequenceExpression, Expression expressionPart)
     {
       var sequence = sequenceExpression.StripCasts();
+
+      if (QueryCachingScope.Current!=null && QueryHelper.IsDirectEntitySetQuery(sequence))
+        throw new NotSupportedException(Strings.ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsInstead);
+
       if (sequence.GetMemberType()==MemberType.EntitySet) {
         if (sequence.NodeType==ExpressionType.MemberAccess) {
           var memberAccess = (MemberExpression) sequence;
@@ -1358,7 +1362,7 @@ namespace Xtensive.Orm.Linq
               .Model
               .Types[memberAccess.Expression.Type]
               .Fields[context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo)memberAccess.Member)];
-            sequenceExpression = QueryHelper.CreateEntitySetQueryExpression(memberAccess.Expression, field);
+            sequenceExpression = QueryHelper.CreateEntitySetQuery(memberAccess.Expression, field);
           }
         }
       }
@@ -1383,7 +1387,7 @@ namespace Xtensive.Orm.Linq
 
       if (visitedExpression.IsEntitySetExpression()) {
         var entitySetExpression = (EntitySetExpression) visitedExpression;
-        var entitySetQuery = QueryHelper.CreateEntitySetQueryExpression((Expression) entitySetExpression.Owner, entitySetExpression.Field);
+        var entitySetQuery = QueryHelper.CreateEntitySetQuery((Expression) entitySetExpression.Owner, entitySetExpression.Field);
         result = (ProjectionExpression) Visit(entitySetQuery);
       }
 

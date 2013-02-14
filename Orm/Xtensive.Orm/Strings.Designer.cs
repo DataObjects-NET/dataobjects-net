@@ -1419,6 +1419,16 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Direct querying for entity set in compiled queries is not supported, use QueryEndpoint.Items() instead..
+        /// </summary>
+        internal static string ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsInstead {
+            get {
+                return ResourceManager.GetString("ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsI" +
+                        "nstead", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DisconnectedState is already attached to session..
         /// </summary>
         internal static string ExDisconnectedStateIsAlreadyAttachedToSession {
@@ -4439,11 +4449,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type discriminator field is not found for {0} type.
+        ///   Looks up a localized string similar to Type discriminator field is not found for &apos;{0}&apos; type.
         /// </summary>
-        internal static string ExTypeDiscriminatorFieldIsNotFoundForXType {
+        internal static string ExTypeDiscriminatorIsNotFoundForXType {
             get {
-                return ResourceManager.GetString("ExTypeDiscriminatorFieldIsNotFoundForXType", resourceCulture);
+                return ResourceManager.GetString("ExTypeDiscriminatorIsNotFoundForXType", resourceCulture);
             }
         }
         

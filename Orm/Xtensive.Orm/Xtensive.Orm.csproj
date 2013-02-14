@@ -1284,8 +1284,8 @@
     </Compile>
     <EmbeddedResource Include="Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <None Include="DelegateGenerator.ttinclude" />
     <None Include="Orm\Linq\MemberCompilation\MemberCompilerProvider-CreateCompiler.tt">
