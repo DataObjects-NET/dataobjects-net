@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Tests.Linq
   {
     protected override void CheckRequirements()
     {
-      Require.AllFeaturesNotSupported(ProviderFeatures.SingleSessionAccess);
+      Require.AllFeaturesNotSupported(ProviderFeatures.ExclusiveWriterConnection);
     }
 
     [Test]

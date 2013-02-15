@@ -62,7 +62,7 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// Indicates whether RDBMS allows only one session to modify database.
     /// </summary>
-    SingleSessionAccess = 1 << 7,
+    ExclusiveWriterConnection = 1 << 7,
 
     /// <summary>
     /// Indicates whether RDBMS will perform well if regular tables are used
@@ -70,5 +70,11 @@ namespace Xtensive.Sql.Info
     /// local temporary tables.
     /// </summary>
     TemporaryTableEmulation = 1 << 8,
+
+    /// <summary>
+    /// Obsolete name for <see cref="ExclusiveWriterConnection"/>.
+    /// </summary>
+    [Obsolete("Use ServerFeatures.ExclusiveWriterSession instead.")]
+    SingleSessionAccess = ExclusiveWriterConnection,
   }
 }
