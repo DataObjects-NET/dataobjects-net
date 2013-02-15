@@ -50,9 +50,10 @@ namespace Xtensive.Orm.Building.Builders
     private void CreateDomain()
     {
       using (BuildLog.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
+        var services = context.BuilderConfiguration.Services;
         var sharedConnection =
-          context.Configuration.SharedConnection
-            ? context.BuilderConfiguration.Services.Connection
+          services.ProviderInfo.Supports(ProviderFeatures.SharedConnection)
+            ? services.Connection
             : null;
         context.Domain = new Domain(
           context.Configuration,

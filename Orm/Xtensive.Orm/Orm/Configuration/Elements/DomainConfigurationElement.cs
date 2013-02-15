@@ -41,7 +41,6 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string ServiceContainerTypeElementName = "serviceContainerType";
     private const string IncludeSqlInExceptionsElementName = "includeSqlInExceptions";
     private const string BuildInParallelElementName = "buildInParallel";
-    private const string SharedConnectionElementName = "sharedConnection";
     private const string AllowCyclicDatabaseDependenciesElementName = "allowCyclicDatabaseDependencies";
     private const string ForcedServerVersionElementName = "forcedServerVersion";
     private const string SchemaSyncExceptionFormatElementName = "schemaSyncExceptionFormat";
@@ -317,16 +316,6 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.SharedConnection" copy="true"/>
-    /// </summary>
-    [ConfigurationProperty(SharedConnectionElementName, DefaultValue = false)]
-    public bool SharedConnection
-    {
-      get { return (bool) this[SharedConnectionElementName]; }
-      set { this[SharedConnectionElementName] = value; }
-    }
-
-    /// <summary>
     /// <see cref="DomainConfiguration.ForcedServerVersion" copy="true" />
     /// </summary>
     [ConfigurationProperty(ForcedServerVersionElementName)]
@@ -373,7 +362,6 @@ namespace Xtensive.Orm.Configuration.Elements
         ServiceContainerType = ServiceContainerType.IsNullOrEmpty() ? null : Type.GetType(ServiceContainerType),
         IncludeSqlInExceptions = IncludeSqlInExceptions,
         BuildInParallel = BuildInParallel,
-        SharedConnection = SharedConnection,
         AllowCyclicDatabaseDependencies = AllowCyclicDatabaseDependencies,
         ForcedServerVersion = ForcedServerVersion,
         Collation = Collation,

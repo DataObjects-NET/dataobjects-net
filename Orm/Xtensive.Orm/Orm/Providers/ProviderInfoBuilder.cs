@@ -96,6 +96,8 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.ExclusiveWriterConnection;
       if (queryFeatures.Supports(QueryFeatures.StrictJoinSyntax))
         f |= ProviderFeatures.StrictJoinSyntax;
+      if (serverFeatures.Supports(ServerFeatures.SharedConnection))
+        f |= ProviderFeatures.SharedConnection;
 
       var temporaryTable = serverInfo.TemporaryTable;
       if (temporaryTable!=null && temporaryTable.Features.Supports(TemporaryTableFeatures.Local))

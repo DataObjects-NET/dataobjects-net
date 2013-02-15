@@ -134,7 +134,7 @@ namespace Xtensive.Orm
 
     internal void ResetSharedSessionOwner()
     {
-      if (Configuration.SharedConnection)
+      if (StorageProviderInfo.Supports(ProviderFeatures.SharedConnection))
         lock (sharedConnectionGuard)
           sharedConnectionOwner = null;
     }
@@ -230,7 +230,7 @@ namespace Xtensive.Orm
 
       Session session;
 
-      if (Configuration.SharedConnection) {
+      if (StorageProviderInfo.Supports(ProviderFeatures.SharedConnection)) {
         // Ensure that we check shared connection availability
         // and acquire connection atomically.
         lock (sharedConnectionGuard) {

@@ -105,15 +105,6 @@ namespace Xtensive.Orm.Tests.Configuration
     }
 
     [Test]
-    public void SharedConnectionTest()
-    {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "SharedConnectionDomain");
-      Assert.That(configuration.SharedConnection);
-      var clone = configuration.Clone();
-      Assert.That(clone.SharedConnection);
-    }
-    
-    [Test]
     public void AdvancedMappingTest()
     {
       var configuration = DomainConfiguration.Load("AppConfigTest", "AdvancedMappingTest");

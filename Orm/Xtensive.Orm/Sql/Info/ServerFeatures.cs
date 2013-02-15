@@ -72,6 +72,12 @@ namespace Xtensive.Sql.Info
     TemporaryTableEmulation = 1 << 8,
 
     /// <summary>
+    /// Indicates whether RDBMS requires exactly one connection to be created.
+    /// This is used for :memory: data source in SQLite provider.
+    /// </summary>
+    SharedConnection = 1 << 9,
+
+    /// <summary>
     /// Obsolete name for <see cref="ExclusiveWriterConnection"/>.
     /// </summary>
     [Obsolete("Use ServerFeatures.ExclusiveWriterSession instead.")]

@@ -65,7 +65,9 @@ namespace Xtensive.Orm.Upgrade
           // This means if error happens connection will leak.
           // To avoid that we dispose it here manually.
           var connection = context.Services.Connection;
-          if (configuration.SharedConnection && connection!=null)
+          var driver = context.Services.Driver;
+          if (driver!=null && connection!=null
+            && driver.ProviderInfo.Supports(ProviderFeatures.SharedConnection))
             connection.Dispose();
           throw;
         }
@@ -169,8 +171,9 @@ namespace Xtensive.Orm.Upgrade
         throw;
       }
 
-      if (!serviceAccessor.Configuration.SharedConnection)
+      if (!driver.ProviderInfo.Supports(ProviderFeatures.SharedConnection))
         serviceAccessor.RegisterResource(connection);
+
       serviceAccessor.Connection = connection;
     }
 
