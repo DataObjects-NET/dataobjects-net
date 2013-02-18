@@ -75,7 +75,7 @@ namespace Xtensive.Sql.Info
     /// Indicates whether RDBMS requires exactly one connection to be created.
     /// This is used for :memory: data source in SQLite provider.
     /// </summary>
-    SharedConnection = 1 << 9,
+    SingleConnection = 1 << 9,
 
     /// <summary>
     /// Obsolete name for <see cref="ExclusiveWriterConnection"/>.

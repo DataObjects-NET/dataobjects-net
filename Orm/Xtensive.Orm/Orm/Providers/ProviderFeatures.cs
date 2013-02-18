@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Providers
     ExclusiveWriterConnection = 1L << 44,
     TemporaryTableEmulation = 1L << 45,
     StrictJoinSyntax = 1L << 46,
-    SharedConnection = 1L << 47,
+    SingleConnection = 1L << 47,
 
     // Feature groups
     Paging = Take | Skip,

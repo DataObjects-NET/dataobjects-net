@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Upgrade
           var connection = context.Services.Connection;
           var driver = context.Services.Driver;
           if (driver!=null && connection!=null
-            && driver.ProviderInfo.Supports(ProviderFeatures.SharedConnection))
+            && driver.ProviderInfo.Supports(ProviderFeatures.SingleConnection))
             connection.Dispose();
           throw;
         }
@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Upgrade
         throw;
       }
 
-      if (!driver.ProviderInfo.Supports(ProviderFeatures.SharedConnection))
+      if (!driver.ProviderInfo.Supports(ProviderFeatures.SingleConnection))
         serviceAccessor.RegisterResource(connection);
 
       serviceAccessor.Connection = connection;

@@ -51,14 +51,14 @@ namespace Xtensive.Orm.Building.Builders
     {
       using (BuildLog.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
         var services = context.BuilderConfiguration.Services;
-        var sharedConnection =
-          services.ProviderInfo.Supports(ProviderFeatures.SharedConnection)
+        var singleConnection =
+          services.ProviderInfo.Supports(ProviderFeatures.SingleConnection)
             ? services.Connection
             : null;
         context.Domain = new Domain(
           context.Configuration,
           context.BuilderConfiguration.UpgradeContextCookie,
-          sharedConnection);
+          singleConnection);
       }
     }
 

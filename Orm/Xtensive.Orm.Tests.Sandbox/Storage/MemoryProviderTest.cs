@@ -62,14 +62,14 @@ namespace Xtensive.Orm.Tests.Storage
       configuration.UpgradeMode = DomainUpgradeMode.Perform;
 
       var domain = Domain.Build(configuration);
-      var sharedConnection = Upgrader.Connection;
+      var singleConnection = Upgrader.Connection;
 
-      Assert.That(domain.StorageProviderInfo.Supports(ProviderFeatures.SharedConnection));
+      Assert.That(domain.StorageProviderInfo.Supports(ProviderFeatures.SingleConnection));
 
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         new TheEntity {Value = "in-memory"};
-        CheckSharedConnection(session, sharedConnection);
+        CheckSingleConnection(session, singleConnection);
         tx.Complete();
       }
 
@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var tx = session.OpenTransaction()) {
         var theEntity = session.Query.All<TheEntity>().Single();
         Assert.That(theEntity.Value, Is.EqualTo("in-memory"));
-        CheckSharedConnection(session, sharedConnection);
+        CheckSingleConnection(session, singleConnection);
         tx.Complete();
       }
 
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        CheckSharedConnection(session, sharedConnection);
+        CheckSingleConnection(session, singleConnection);
       }
     }
 
@@ -97,10 +97,10 @@ namespace Xtensive.Orm.Tests.Storage
       Upgrader.Connection = null;
     }
 
-    private static void CheckSharedConnection(Session session, SqlConnection sharedConnection)
+    private static void CheckSingleConnection(Session session, SqlConnection singleConnection)
     {
       var dbConnection = session.Services.Demand<DirectSqlAccessor>().Connection;
-      Assert.That(dbConnection, Is.SameAs(sharedConnection.UnderlyingConnection));
+      Assert.That(dbConnection, Is.SameAs(singleConnection.UnderlyingConnection));
     }
   }
 }

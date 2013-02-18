@@ -32,10 +32,10 @@ namespace Xtensive.Orm
   public sealed class Domain : IDisposable, IHasExtensions
   {
     private readonly object disposeGuard = new object();
-    private readonly object sharedConnectionGuard = new object();
+    private readonly object singleConnectionGuard = new object();
     
     private bool isDisposed;
-    private Session sharedConnectionOwner;
+    private Session singleConnectionOwner;
 
     /// <summary>
     /// Occurs when new <see cref="Session"/> is open and activated.
@@ -116,7 +116,7 @@ namespace Xtensive.Orm
 
     internal object UpgradeContextCookie { get; private set; }
 
-    internal SqlConnection SharedConnection { get; private set; }
+    internal SqlConnection SingleConnection { get; private set; }
 
     internal IServiceContainer CreateSystemServices()
     {
@@ -132,11 +132,11 @@ namespace Xtensive.Orm
       return new ServiceContainer(registrations);
     }
 
-    internal void ResetSharedSessionOwner()
+    internal void ReleaseSingleConnection()
     {
-      if (StorageProviderInfo.Supports(ProviderFeatures.SharedConnection))
-        lock (sharedConnectionGuard)
-          sharedConnectionOwner = null;
+      if (StorageProviderInfo.Supports(ProviderFeatures.SingleConnection))
+        lock (singleConnectionGuard)
+          singleConnectionOwner = null;
     }
 
     private void NotifySessionOpen(Session session)
@@ -230,15 +230,15 @@ namespace Xtensive.Orm
 
       Session session;
 
-      if (StorageProviderInfo.Supports(ProviderFeatures.SharedConnection)) {
+      if (StorageProviderInfo.Supports(ProviderFeatures.SingleConnection)) {
         // Ensure that we check shared connection availability
         // and acquire connection atomically.
-        lock (sharedConnectionGuard) {
-          if (sharedConnectionOwner!=null)
+        lock (singleConnectionGuard) {
+          if (singleConnectionOwner!=null)
             throw new InvalidOperationException(string.Format(
-              Strings.ExSessionXStillUsesSharedConnection, sharedConnectionOwner));
+              Strings.ExSessionXStillUsesSingleAvailableConnection, singleConnectionOwner));
           session = new Session(this, configuration, activate);
-          sharedConnectionOwner = session;
+          singleConnectionOwner = session;
         }
       }
       else
@@ -270,7 +270,7 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    internal Domain(DomainConfiguration configuration, object upgradeContextCookie, SqlConnection sharedConnection)
+    internal Domain(DomainConfiguration configuration, object upgradeContextCookie, SqlConnection singleConnection)
     {
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
@@ -283,7 +283,7 @@ namespace Xtensive.Orm
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
       Extensions = new ExtensionCollection();
       UpgradeContextCookie = upgradeContextCookie;
-      SharedConnection = sharedConnection;
+      SingleConnection = singleConnection;
     }
 
     /// <inheritdoc/>
@@ -293,7 +293,9 @@ namespace Xtensive.Orm
         if (isDisposed)
           return;
         isDisposed = true;
+
         OrmLog.Debug(Strings.LogDomainIsDisposing);
+
         NotifyDisposing();
         Services.Dispose();
       }

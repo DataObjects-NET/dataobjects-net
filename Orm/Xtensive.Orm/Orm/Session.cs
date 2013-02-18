@@ -397,12 +397,13 @@ namespace Xtensive.Orm
         connectionIsExternal = true;
         transactionIsExternal = true;
       }
-      else if (Domain.SharedConnection!=null) {
-        connection = Domain.SharedConnection;
+      else if (Domain.SingleConnection!=null) {
+        connection = Domain.SingleConnection;
         connectionIsExternal = true;
       }
       else
         connection = Handlers.StorageDriver.CreateConnection(this);
+
       return new SqlSessionHandler(this, connection, connectionIsExternal, transactionIsExternal);
     }
 
@@ -478,7 +479,7 @@ namespace Xtensive.Orm
         Services.DisposeSafely();
         Handler.DisposeSafely();
 
-        Domain.ResetSharedSessionOwner();
+        Domain.ReleaseSingleConnection();
 
         disposableSet.DisposeSafely();
         disposableSet = null;

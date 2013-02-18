@@ -3927,11 +3927,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Session &apos;{0}&apos; still uses shared connection..
+        ///   Looks up a localized string similar to Session &apos;{0}&apos; still uses single available connection..
         /// </summary>
-        internal static string ExSessionXStillUsesSharedConnection {
+        internal static string ExSessionXStillUsesSingleAvailableConnection {
             get {
-                return ResourceManager.GetString("ExSessionXStillUsesSharedConnection", resourceCulture);
+                return ResourceManager.GetString("ExSessionXStillUsesSingleAvailableConnection", resourceCulture);
             }
         }
         

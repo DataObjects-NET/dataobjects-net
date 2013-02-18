@@ -184,7 +184,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         | ServerFeatures.ExclusiveWriterConnection;
       var dataSource = Driver.CoreServerInfo.DatabaseName.Trim().ToLowerInvariant();
       if (dataSource==":memory:")
-        result |= ServerFeatures.SharedConnection;
+        result |= ServerFeatures.SingleConnection;
       return result;
     }
 
