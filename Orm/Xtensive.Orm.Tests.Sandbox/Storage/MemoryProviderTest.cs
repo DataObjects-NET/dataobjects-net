@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+﻿// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
