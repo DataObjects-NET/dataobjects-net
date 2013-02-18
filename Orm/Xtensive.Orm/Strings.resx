@@ -2443,4 +2443,7 @@ Error: {1}</value>
   <data name="ExSessionXStillUsesSingleAvailableConnection">
     <value xml:space="preserve">Session '{0}' still uses single available connection.</value>
   </data>
+  <data name="LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX">
+    <value xml:space="preserve">Unable to close single available connection: it is still used by session '{0}'.</value>
+  </data>
 </root>

@@ -6465,6 +6465,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to close single available connection: it is still used by session &apos;{0}&apos;..
+        /// </summary>
+        internal static string LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX {
+            get {
+                return ResourceManager.GetString("LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to get default SQL comparer for type {0}..
         /// </summary>
         internal static string LogUnableToGetDefaultNodeComparerForTypeXxx {

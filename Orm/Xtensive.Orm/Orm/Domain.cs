@@ -134,7 +134,7 @@ namespace Xtensive.Orm
 
     internal void ReleaseSingleConnection()
     {
-      if (StorageProviderInfo.Supports(ProviderFeatures.SingleConnection))
+      if (SingleConnection!=null)
         lock (singleConnectionGuard)
           singleConnectionOwner = null;
     }
@@ -230,7 +230,7 @@ namespace Xtensive.Orm
 
       Session session;
 
-      if (StorageProviderInfo.Supports(ProviderFeatures.SingleConnection)) {
+      if (SingleConnection!=null) {
         // Ensure that we check shared connection availability
         // and acquire connection atomically.
         lock (singleConnectionGuard) {
@@ -298,6 +298,18 @@ namespace Xtensive.Orm
 
         NotifyDisposing();
         Services.Dispose();
+
+        if (SingleConnection==null)
+          return;
+
+        lock (singleConnectionGuard) {
+          if (singleConnectionOwner==null)
+            Handlers.StorageDriver.CloseConnection(null, SingleConnection);
+          else
+            OrmLog.Warning(
+              Strings.LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX,
+              singleConnectionOwner);
+        }
       }
     }
   }

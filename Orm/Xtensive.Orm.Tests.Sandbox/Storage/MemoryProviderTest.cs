@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.02.14
 
+using System;
+using System.Data;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -89,6 +91,10 @@ namespace Xtensive.Orm.Tests.Storage
       using (var tx = session.OpenTransaction()) {
         CheckSingleConnection(session, singleConnection);
       }
+
+      domain.Dispose();
+
+      AssertEx.Throws<ObjectDisposedException>(() => singleConnection.State.ToString());
     }
 
     [TearDown]

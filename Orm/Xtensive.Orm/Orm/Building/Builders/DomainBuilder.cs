@@ -10,6 +10,7 @@ using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 
@@ -51,14 +52,13 @@ namespace Xtensive.Orm.Building.Builders
     {
       using (BuildLog.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
         var services = context.BuilderConfiguration.Services;
-        var singleConnection =
+        var useSingleConnection =
           services.ProviderInfo.Supports(ProviderFeatures.SingleConnection)
-            ? services.Connection
-            : null;
+          && context.BuilderConfiguration.Stage==UpgradeStage.Final;
         context.Domain = new Domain(
           context.Configuration,
           context.BuilderConfiguration.UpgradeContextCookie,
-          singleConnection);
+          useSingleConnection ? services.Connection : null);
       }
     }
 
