@@ -382,5 +382,29 @@ namespace Xtensive.Orm.Tests.Storage.Validation
         var referrer = new Referrer(reference, "Test");
       }
     }
+
+    [Test]
+    public void ValidationFailedEvent()
+    {
+      using (var session = Domain.OpenSession()) {
+        var tx = session.OpenTransaction();
+        var handlerCalled = false;
+
+        session.Events.ValidationFailed += (sender, args) => {
+          handlerCalled = true;
+          args.Handled = true;
+          Assert.That(args.Exceptions.Count, Is.EqualTo(1));
+        };
+
+        var reference = new Reference();
+        Assert.That(handlerCalled);
+
+        tx.Complete();
+
+        handlerCalled = false;
+        AssertEx.Throws<InvalidOperationException>(tx.Dispose);
+        Assert.That(handlerCalled, Is.False);
+      }
+    }
   }
 }

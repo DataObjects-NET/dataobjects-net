@@ -424,6 +424,7 @@
     <Compile Include="Orm\Validation\Interfaces\IValidationAware.cs" />
     <Compile Include="Orm\Validation\ValidationAwareExtensions.cs" />
     <Compile Include="Orm\Validation\ValidationContext.cs" />
+    <Compile Include="Orm\Validation\ValidationFailedEventArgs.cs" />
     <Compile Include="Orm\Validation\ValidationMode.cs" />
     <Compile Include="Orm\Linq\Expressions\Visitors\EnumRewriter.cs" />
     <Compile Include="Orm\Operations\EntityInitializeOperation.cs" />

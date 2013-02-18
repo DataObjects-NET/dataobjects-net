@@ -5,6 +5,7 @@
 // Created:    2010.08.10
 
 using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Data.Common;
@@ -12,6 +13,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Validation;
 
 namespace Xtensive.Orm
 {
@@ -233,6 +235,12 @@ namespace Xtensive.Orm
     /// Occurs when <see cref="Transaction"/> is rolled back.
     /// </summary>
     public event EventHandler<TransactionEventArgs> TransactionRollbacked;
+
+    /// <summary>
+    /// Occurs when entity <see cref="Orm.Session.Validate"/>
+    /// failed. It is never raised for individual entity validation errors.
+    /// </summary>
+    public event EventHandler<ValidationFailedEventArgs> ValidationFailed;
 
     #endregion
 
@@ -475,6 +483,17 @@ namespace Xtensive.Orm
     {
       if (TransactionRollbacked!=null && AreNotificationsEnabled())
         TransactionRollbacked(this, new TransactionEventArgs(transaction));
+    }
+
+    internal bool NotifyValidationFailed(IEnumerable<Exception> exceptions)
+    {
+      if (ValidationFailed!=null && AreNotificationsEnabled()) {
+        var eventArgs = new ValidationFailedEventArgs(exceptions);
+        ValidationFailed.Invoke(this, eventArgs);
+        return eventArgs.Handled;
+      }
+
+      return false;
     }
 
     #endregion

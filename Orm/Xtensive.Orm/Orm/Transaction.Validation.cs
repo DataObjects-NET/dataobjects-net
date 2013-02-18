@@ -28,7 +28,8 @@ namespace Xtensive.Orm
         throw new InvalidOperationException(Strings.ExCanNotCommitATransactionValidationContextIsInInconsistentState);
 
       try {
-        Session.Validate();
+        using (Session.OpenSystemLogicOnlyRegion())
+          Session.Validate();
 
         if (region!=null) {
           inconsistentRegion = null;

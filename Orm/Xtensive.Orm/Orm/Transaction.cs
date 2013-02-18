@@ -247,7 +247,7 @@ namespace Xtensive.Orm
       IsAutomatic = isAutomatic;
       IsDisconnected = session.IsDisconnected;
       TimeStamp = DateTime.UtcNow;
-      ValidationContext = new ValidationContext();
+      ValidationContext = new ValidationContext(Session.Events);
       
       if (outer!=null) {
         Outer = outer;
