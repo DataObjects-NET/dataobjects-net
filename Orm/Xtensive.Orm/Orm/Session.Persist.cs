@@ -85,9 +85,7 @@ namespace Xtensive.Orm
 
     private void SaveLocalChanges()
     {
-      using (OpenSystemLogicOnlyRegion())
-        Validate();
-
+      Validate();
       EndDisconnectedTransaction(true);
       try {
         DisconnectedState.ApplyChanges();

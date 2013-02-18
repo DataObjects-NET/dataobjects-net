@@ -18,8 +18,6 @@ namespace Xtensive.Orm.Validation
   /// </summary>
   public class ValidationContext
   {
-    private readonly SessionEventAccessor eventAccessor;
-
     private HashSet<Pair<IValidationAware, Action<IValidationAware>>> registry;
 
     /// <summary>
@@ -87,10 +85,8 @@ namespace Xtensive.Orm.Validation
       }
       finally {
         registry = invalidItems;
-
         if (exceptions!=null && exceptions.Count > 0)
-          if (eventAccessor==null || !eventAccessor.NotifyValidationFailed(exceptions))
-            throw new AggregateException(Strings.ExValidationFailed, exceptions);
+          throw new AggregateException(Strings.ExValidationFailed, exceptions);
       }
     }
 
@@ -154,12 +150,6 @@ namespace Xtensive.Orm.Validation
     {
       registry = null;
       IsConsistent = true;
-    }
-
-    public ValidationContext(SessionEventAccessor eventAccessor)
-      : this()
-    {
-      this.eventAccessor = eventAccessor;
     }
   }
 }
