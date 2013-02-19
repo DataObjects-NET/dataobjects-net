@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 
 using Xtensive.Orm.Internals;
@@ -57,37 +58,19 @@ namespace Xtensive.Orm.Validation
     /// <exception cref="AggregateException">Validation failed.</exception>
     public void Validate()
     {
-      if (registry==null)
-        return;
-      List<Exception> exceptions = null;
-      HashSet<Pair<IValidationAware, Action<IValidationAware>>> invalidItems = null;
-      try {
-        while (registry!=null) {
-          var currentRegistry = registry;
-          registry = null;
-          foreach (var item in (IEnumerable<Pair<IValidationAware, Action<IValidationAware>>>) currentRegistry) {
-            try {
-              if (item.Second==null)
-                item.First.OnValidate();
-              else if (!currentRegistry.Contains(new Pair<IValidationAware, Action<IValidationAware>>(item.First, null)))
-                item.Second.Invoke(item.First);
-            }
-            catch (Exception e) {
-              if (exceptions==null)
-                exceptions = new List<Exception>();
-              exceptions.Add(e);
-              if (invalidItems==null)
-                invalidItems = new HashSet<Pair<IValidationAware, Action<IValidationAware>>>();
-              invalidItems.Add(item);
-            }
-          }
-        }
-      }
-      finally {
-        registry = invalidItems;
-        if (exceptions!=null && exceptions.Count > 0)
-          throw new AggregateException(Strings.ExValidationFailed, exceptions);
-      }
+      var exceptions = GetValidationErrors();
+      if (exceptions.Count > 0)
+        throw new AggregateException(Strings.ExValidationFailed, exceptions);
+    }
+
+    /// <summary>
+    /// Validates all registered instances and returns
+    /// all exceptions occured during validation.
+    /// </summary>
+    /// <returns>Exceptions thrown during validation.</returns>
+    public IList<Exception> ValidateAndGetErrors()
+    {
+      return GetValidationErrors();
     }
 
     #region Protected virtual methods (override, if necessary)
@@ -140,6 +123,38 @@ namespace Xtensive.Orm.Validation
 
     #endregion
 
+    private List<Exception> GetValidationErrors()
+    {
+      var exceptions = new List<Exception>();
+
+      if (registry==null)
+        return exceptions;
+
+      HashSet<Pair<IValidationAware, Action<IValidationAware>>> newRegistry = null;
+
+      while (registry!=null) {
+        var currentRegistry = registry;
+        registry = null;
+        foreach (var item in currentRegistry) {
+          try {
+            if (item.Second==null)
+              item.First.OnValidate();
+            else if (!currentRegistry.Contains(new Pair<IValidationAware, Action<IValidationAware>>(item.First, null)))
+              item.Second.Invoke(item.First);
+          }
+          catch (Exception e) {
+            exceptions.Add(e);
+            if (newRegistry==null)
+              newRegistry = new HashSet<Pair<IValidationAware, Action<IValidationAware>>>();
+            newRegistry.Add(item);
+          }
+        }
+      }
+
+      registry = newRegistry;
+
+      return exceptions;
+    }
 
     // Constructor
 
