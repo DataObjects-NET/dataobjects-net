@@ -583,7 +583,11 @@ namespace Xtensive.Orm.Linq
 
     private ProjectionExpression VisitDistinct(Expression expression)
     {
-      var result = VisitSequence(expression);
+      ProjectionExpression result;
+      using (state.CreateScope()) {
+        state.RequestCalculateExpressionsOnce = true;
+        result = VisitSequence(expression);
+      }
       var itemProjector = result.ItemProjector.RemoveOwner();
       var columnIndexes = itemProjector
         .GetColumns(ColumnExtractionModes.KeepSegment)
@@ -1038,7 +1042,7 @@ namespace Xtensive.Orm.Linq
             .Concat(collectionSelector.Parameters)
             .AddOne(outerParameter).ToArray();
           state.Parameters = ArrayUtils<ParameterExpression>.EmptyArray;
-          state.SelectManyProjection = true;
+          state.RequestCalculateExpressionsOnce = true;
           var visitedCollectionSelector = Visit(collectionSelector.Body);
 
           if (visitedCollectionSelector.IsGroupingExpression()) {
@@ -1110,8 +1114,9 @@ namespace Xtensive.Orm.Linq
       using (indexBinding)
       using (context.Bindings.PermanentAdd(le.Parameters[0], sequence)) {
         using (state.CreateScope()) {
-          state.CalculateExpressions = state.SetOperationProjection || state.SelectManyProjection;
-          state.SelectManyProjection = false;
+          state.CalculateExpressions =
+            state.RequestCalculateExpressions || state.RequestCalculateExpressionsOnce;
+          state.RequestCalculateExpressionsOnce = false;
           return BuildProjection(le);
         }
       }
@@ -1301,7 +1306,7 @@ namespace Xtensive.Orm.Linq
       using (state.CreateScope()) {
         state.JoinLocalCollectionEntity = true;
         state.CalculateExpressions = true;
-        state.SetOperationProjection = true;
+        state.RequestCalculateExpressions = true;
         outer = VisitSequence(outerSource);
         inner = VisitSequence(innerSource);
       }
