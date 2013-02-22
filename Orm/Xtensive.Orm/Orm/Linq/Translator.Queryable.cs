@@ -974,11 +974,14 @@ namespace Xtensive.Orm.Linq
       var groupingResultType = typeof (IQueryable<>).MakeGenericType(enumerableType);
       var innerGrouping = VisitGroupBy(groupingResultType, visitedInnerSource, innerKey, null, null);
 
-      if (innerGrouping.ItemProjector.Item.IsGroupingExpression()) {
+      if (innerGrouping.ItemProjector.Item.IsGroupingExpression()
+        && visitedInnerSource is ProjectionExpression
+        && visitedOuterSource is ProjectionExpression) {
         var groupingExpression = (GroupingExpression) innerGrouping.ItemProjector.Item;
         var selectManyInfo = new GroupingExpression.SelectManyGroupingInfo(
           (ProjectionExpression) visitedOuterSource,
-          (ProjectionExpression) visitedInnerSource, outerKey, innerKey);
+          (ProjectionExpression) visitedInnerSource,
+          outerKey, innerKey);
         var newGroupingExpression = new GroupingExpression(
           groupingExpression.Type, groupingExpression.OuterParameter,
           groupingExpression.DefaultIfEmpty, groupingExpression.ProjectionExpression,

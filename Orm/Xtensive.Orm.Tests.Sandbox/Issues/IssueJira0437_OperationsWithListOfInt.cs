@@ -49,14 +49,14 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var items = new List<int> {1, 2, 3};
+        var items = new List<int> {2, 3};
         var query =
           from o in session.Query.All<NamedObject>()
           join i in items on o.Id equals i
             into j
           select o;
-
-        Assert.That(query.Count(), Is.EqualTo(3));
+        var result = query.ToList();
+        Assert.That(result.Count, Is.EqualTo(3));
       }
     }
 
