@@ -54,6 +54,8 @@ namespace Xtensive.Orm.Providers.Sql
       if (!Supported)
         throw new NotSupportedException(Strings.ExTemporaryTablesAreNotSupportedByCurrentStorage);
 
+      var hasColumns = source.Count > 0;
+
       // TODO: split this method to a set of various simple virtual methods
       var driver = DomainHandler.Driver;
       var catalog = new Catalog(DomainHandler.Schema.Catalog.Name);
@@ -71,33 +73,44 @@ namespace Xtensive.Orm.Providers.Sql
       var typeMappings = source
         .Select(driver.GetTypeMapping)
         .ToArray();
-      int fieldIndex = 0;
-      foreach (var mapping in typeMappings) {
-        var column = table.CreateColumn(fieldNames[fieldIndex], mapping.MapType());
-        column.IsNullable = true;
-        // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
-        if (mapping.Type==typeof (string))
-           column.Collation = DomainHandler.Schema.Collations.FirstOrDefault();
-        fieldIndex++;
+
+      if (hasColumns) {
+        var fieldIndex = 0;
+        foreach (var mapping in typeMappings) {
+          var column = table.CreateColumn(fieldNames[fieldIndex], mapping.MapType());
+          column.IsNullable = true;
+          // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
+          if (mapping.Type==typeof (string))
+            column.Collation = DomainHandler.Schema.Collations.FirstOrDefault();
+          fieldIndex++;
+        }
       }
-      
+      else
+        table.CreateColumn("dummy", new SqlValueType(SqlType.Int32));
+
       // select statement
       var tableRef = SqlDml.TableRef(table);
       var queryStatement = SqlDml.Select(tableRef);
-      foreach (var column in tableRef.Columns)
-        queryStatement.Columns.Add(column);
+      if (hasColumns) {
+        foreach (var column in tableRef.Columns)
+          queryStatement.Columns.Add(column);
+      }
 
       // insert statement
       var insertStatement = SqlDml.Insert(tableRef);
       var storeRequestBindings = new List<PersistParameterBinding>();
-      fieldIndex = 0;
-      foreach (var column in tableRef.Columns) {
-        TypeMapping typeMapping = typeMappings[fieldIndex];
-        var binding = new PersistParameterBinding(fieldIndex, typeMapping);
-        insertStatement.Values[column] = binding.ParameterReference;
-        storeRequestBindings.Add(binding);
-        fieldIndex++;
+      if (hasColumns) {
+        var fieldIndex = 0;
+        foreach (var column in tableRef.Columns) {
+          TypeMapping typeMapping = typeMappings[fieldIndex];
+          var binding = new PersistParameterBinding(fieldIndex, typeMapping);
+          insertStatement.Values[column] = binding.ParameterReference;
+          storeRequestBindings.Add(binding);
+          fieldIndex++;
+        }
       }
+      else
+        insertStatement.Values[tableRef.Columns[0]] = SqlDml.Literal(0);
 
       var result = new TemporaryTableDescriptor(name) {
         TupleDescriptor = source,
