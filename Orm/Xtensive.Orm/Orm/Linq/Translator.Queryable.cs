@@ -965,18 +965,28 @@ namespace Xtensive.Orm.Linq
     {
       if (keyComparer!=null)
         throw new InvalidOperationException(String.Format(Strings.ExKeyComparerNotSupportedInGroupJoin, expressionPart));
+
       var visitedInnerSource = Visit(innerSource);
       var visitedOuterSource = Visit(outerSource);
-      var groupingType = typeof (IGrouping<,>).MakeGenericType(innerKey.Type, visitedInnerSource.Type.GetGenericArguments()[0]);
-      var enumerableType = typeof (IEnumerable<>).MakeGenericType(visitedInnerSource.Type.GetGenericArguments()[0]);
+      var innerItemType = visitedInnerSource.Type.GetGenericArguments()[0];
+      var groupingType = typeof (IGrouping<,>).MakeGenericType(innerKey.Type, innerItemType);
+      var enumerableType = typeof (IEnumerable<>).MakeGenericType(innerItemType);
       var groupingResultType = typeof (IQueryable<>).MakeGenericType(enumerableType);
       var innerGrouping = VisitGroupBy(groupingResultType, visitedInnerSource, innerKey, null, null);
 
       if (innerGrouping.ItemProjector.Item.IsGroupingExpression()) {
         var groupingExpression = (GroupingExpression) innerGrouping.ItemProjector.Item;
-        var selectManyInfo = new GroupingExpression.SelectManyGroupingInfo((ProjectionExpression) visitedOuterSource, (ProjectionExpression) visitedInnerSource, outerKey, innerKey);
-        var newGroupingExpression = new GroupingExpression(groupingExpression.Type, groupingExpression.OuterParameter, groupingExpression.DefaultIfEmpty, groupingExpression.ProjectionExpression, groupingExpression.ApplyParameter, groupingExpression.KeyExpression, selectManyInfo);
-        var newGroupingItemProjector = new ItemProjectorExpression(newGroupingExpression, innerGrouping.ItemProjector.DataSource, innerGrouping.ItemProjector.Context);
+        var selectManyInfo = new GroupingExpression.SelectManyGroupingInfo(
+          (ProjectionExpression) visitedOuterSource,
+          (ProjectionExpression) visitedInnerSource, outerKey, innerKey);
+        var newGroupingExpression = new GroupingExpression(
+          groupingExpression.Type, groupingExpression.OuterParameter,
+          groupingExpression.DefaultIfEmpty, groupingExpression.ProjectionExpression,
+          groupingExpression.ApplyParameter, groupingExpression.KeyExpression, selectManyInfo);
+        var newGroupingItemProjector = new ItemProjectorExpression(
+          newGroupingExpression,
+          innerGrouping.ItemProjector.DataSource,
+          innerGrouping.ItemProjector.Context);
         innerGrouping = new ProjectionExpression(
           innerGrouping.Type, 
           newGroupingItemProjector, 
@@ -987,8 +997,8 @@ namespace Xtensive.Orm.Linq
       var groupingKeyPropertyInfo = groupingType.GetProperty("Key");
       var groupingJoinParameter = Expression.Parameter(enumerableType, "groupingJoinParameter");
       var groupingKeyExpression = Expression.MakeMemberAccess(
-        Expression.Convert(groupingJoinParameter, groupingType)
-        , groupingKeyPropertyInfo);
+        Expression.Convert(groupingJoinParameter, groupingType),
+        groupingKeyPropertyInfo);
       var lambda = FastExpression.Lambda(groupingKeyExpression, groupingJoinParameter);
       var joinedResult = VisitJoin(visitedOuterSource, innerGrouping, outerKey, lambda, resultSelector, true, expressionPart);
       return joinedResult;
