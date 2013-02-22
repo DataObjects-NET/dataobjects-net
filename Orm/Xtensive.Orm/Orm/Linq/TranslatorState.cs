@@ -36,11 +36,9 @@ namespace Xtensive.Orm.Linq
 
     public bool IsTailMethod { get; set; }
 
-    public bool SetOperationProjection { get; set; }
+    public bool RequestCalculateExpressions { get; set; }
 
-    public bool SelectManyProjection { get; set; }
-
-    public bool ScalarSubqueryProjection { get; set; }
+    public bool RequestCalculateExpressionsOnce { get; set; }
 
     public IDisposable CreateScope()
     {
@@ -88,9 +86,8 @@ namespace Xtensive.Orm.Linq
       IncludeAlgorithm = currentState.IncludeAlgorithm;
       IsTailMethod = currentState.IsTailMethod;
       GroupingKey = currentState.GroupingKey;
-      SelectManyProjection = currentState.SelectManyProjection;
-      SetOperationProjection = currentState.SetOperationProjection;
-      ScalarSubqueryProjection = currentState.ScalarSubqueryProjection;
+      RequestCalculateExpressionsOnce = currentState.RequestCalculateExpressionsOnce;
+      RequestCalculateExpressions = currentState.RequestCalculateExpressions;
     }
   }
 }
