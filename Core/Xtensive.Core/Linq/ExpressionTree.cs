@@ -15,7 +15,7 @@ namespace Xtensive.Linq
   /// A wrapper for <see cref="System.Linq.Expressions.Expression"/>.
   /// that can be used for comparing expression trees and calculating their hash codes.
   /// </summary>
-  [DebuggerDisplay("{Expression}")]
+  [DebuggerDisplay("{expression}")]
   public sealed class ExpressionTree
     : IEquatable<ExpressionTree>
   {
@@ -48,17 +48,17 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      var other = obj as ExpressionTree;
-      if (ReferenceEquals(other, null))
-        return false;
-      return Equals(other);
+      return Equals(obj as ExpressionTree);
     }
 
     /// <inheritdoc/>
     public bool Equals(ExpressionTree other)
     {
+      if (ReferenceEquals(other, null))
+        return false;
       return new ExpressionComparer().AreEqual(expression, other.expression);
     }
+
     /// <summary>
     /// Implements the operator ==.
     /// </summary>
@@ -69,7 +69,7 @@ namespace Xtensive.Linq
     /// </returns>
     public static bool operator == (ExpressionTree left, ExpressionTree right)
     {
-      return left.Equals(right);
+      return Equals(left, right);
     }
     
     /// <summary>
@@ -82,7 +82,7 @@ namespace Xtensive.Linq
     /// </returns>
     public static bool operator != (ExpressionTree left, ExpressionTree right)
     {
-      return !left.Equals(right);
+      return !Equals(left, right);
     }
 
     #endregion
