@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Tests.Configuration
       var clone = configuration.Clone();
       Assert.That(clone.NativeLibraryCacheFolder, Is.EqualTo(expected));
     }
-    
+
     [Test]
     public void AdvancedMappingTest()
     {

@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Tests.Linq
   {
     protected override void CheckRequirements()
     {
-      Require.AllFeaturesNotSupported(ProviderFeatures.SingleSessionAccess);
+      Require.AllFeaturesNotSupported(ProviderFeatures.ExclusiveWriterConnection);
     }
 
     [Test]
@@ -32,6 +32,14 @@ namespace Xtensive.Orm.Tests.Linq
       var catchedException = ExecuteConcurrentQueries(LockMode.Update, LockBehavior.Wait,
         LockMode.Update, LockBehavior.ThrowIfLocked);
 //      Assert.AreEqual(typeof(StorageException), catchedException.GetType());
+    }
+
+    [Test]
+    public void LockNewlyCreatedEntity()
+    {
+      var product = new ActiveProduct();
+      using (Session.DisableSaveChanges())
+        product.Lock(LockMode.Exclusive, LockBehavior.ThrowIfLocked);
     }
 
     [Test]
@@ -47,12 +55,13 @@ namespace Xtensive.Orm.Tests.Linq
         try {
           using (var session = Domain.OpenSession())
           using (session.OpenTransaction())
-            countAfterSkip = session.Query.All<Customer>().Where(c => c.Key == key)
-              .Lock(LockMode.Update, LockBehavior.Skip).ToList().Count;
+            countAfterSkip = session.Query.All<Customer>()
+              .Where(c => c.Key == key)
+              .Lock(LockMode.Update, LockBehavior.Skip)
+              .ToList().Count;
         }
         catch(Exception e) {
           catchedException = e;
-          return;
         }
       });
       secondThread.Start();

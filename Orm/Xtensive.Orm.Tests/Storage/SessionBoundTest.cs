@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Storage
 
     protected override void CheckRequirements()
     {
-      Require.AllFeaturesNotSupported(ProviderFeatures.SingleSessionAccess);
+      Require.AllFeaturesNotSupported(ProviderFeatures.ExclusiveWriterConnection);
     }
 
     protected override DomainConfiguration BuildConfiguration()

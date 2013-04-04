@@ -5,6 +5,7 @@
 // Created:    2008.11.07
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Orm.Validation;
 
@@ -44,6 +45,16 @@ namespace Xtensive.Orm
     public void Validate()
     {
       ValidationContext.Validate();
+    }
+
+    /// <summary>
+    /// Validates all registered entities similar to <see cref="Validate"/> method
+    /// and returns all validation exceptions.
+    /// </summary>
+    /// <returns>List exceptions occured during validation.</returns>
+    public IList<Exception> ValidateAndGetErrors()
+    {
+      return ValidationContext.ValidateAndGetErrors();
     }
 
     /// <summary>

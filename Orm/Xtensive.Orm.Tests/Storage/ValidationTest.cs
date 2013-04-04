@@ -382,5 +382,21 @@ namespace Xtensive.Orm.Tests.Storage.Validation
         var referrer = new Referrer(reference, "Test");
       }
     }
+
+    [Test]
+    public void GetValidationErrorsTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (session.OpenTransaction())
+      using (session.DisableValidation()) {
+        var reference = new Reference("hello");
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors, Is.Empty);
+        reference.Title = string.Empty;
+        errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+        Assert.That(errors[0], Is.InstanceOf<AggregateException>());
+      }
+    }
   }
 }

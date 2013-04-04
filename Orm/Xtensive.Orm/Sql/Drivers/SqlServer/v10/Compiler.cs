@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
     protected override SqlExpression DateTimeTruncate(SqlExpression date)
     {
-      return SqlDml.Cast(date, new SqlValueType("Date"));
+      return SqlDml.Cast(SqlDml.Cast(date, new SqlValueType("Date")), new SqlValueType("DateTime2"));
     }
 
     protected override SqlExpression  DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)

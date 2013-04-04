@@ -149,6 +149,9 @@ namespace Xtensive.Sql
         case SqlNodeType.Extract:
         case SqlNodeType.Round:
         case SqlNodeType.Placeholder:
+        case SqlNodeType.DateTimeMinusInterval:
+        case SqlNodeType.DateTimePlusInterval:
+        case SqlNodeType.DateTimeMinusDateTime:
           return true;
         case SqlNodeType.Variant:
           var variant = (SqlVariant) node;

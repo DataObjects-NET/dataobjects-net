@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Tests.Issues
   {
     protected override void CheckRequirements()
     {
-      Require.AllFeaturesNotSupported(ProviderFeatures.SingleSessionAccess);
+      Require.AllFeaturesNotSupported(ProviderFeatures.ExclusiveWriterConnection);
     }
 
     protected override DomainConfiguration BuildConfiguration()

@@ -59,6 +59,18 @@ namespace Xtensive.Orm.Upgrade
         try {
           return new UpgradingDomainBuilder(context).Run();
         }
+        catch {
+          // If we running in shared connection mode
+          // connection would not be registered as an upgrade session.
+          // This means if error happens connection will leak.
+          // To avoid that we dispose it here manually.
+          var connection = context.Services.Connection;
+          var driver = context.Services.Driver;
+          if (driver!=null && connection!=null
+            && driver.ProviderInfo.Supports(ProviderFeatures.SingleConnection))
+            connection.Dispose();
+          throw;
+        }
         finally {
           context.Services.DisposeSafely();
         }
@@ -159,7 +171,9 @@ namespace Xtensive.Orm.Upgrade
         throw;
       }
 
-      serviceAccessor.RegisterResource(connection);
+      if (!driver.ProviderInfo.Supports(ProviderFeatures.SingleConnection))
+        serviceAccessor.RegisterResource(connection);
+
       serviceAccessor.Connection = connection;
     }
 

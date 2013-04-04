@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
@@ -22,26 +23,40 @@ namespace Xtensive.Orm.Linq.Rewriters
     {
       if (!IsEntitySet(mc.Object))
         return base.VisitMethodCall(mc);
-      if (mc.Method.Name == "Contains") {
-        var method = WellKnownMembers.Queryable.Contains
-          .MakeGenericMethod(mc.Object.Type.GetGenericArguments()[0]);
-        return Expression.Call(method, Visit(mc.Object), Visit(mc.Arguments[0]));
+
+      var method = mc.Method;
+      if (method.Name=="Contains" && mc.Object!=null) {
+        var elementType = GetEntitySetElementType(mc.Object.Type);
+        var actualMethod = WellKnownMembers.Queryable.Contains.MakeGenericMethod(elementType);
+        return Expression.Call(actualMethod, Visit(mc.Object), Visit(mc.Arguments[0]));
       }
-      throw new NotSupportedException(String.Format(Strings.ExMethodXIsntSupported, mc.Method.Name));
+
+      throw NotSupported(method);
     }
 
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
       if (!IsEntitySet(m.Expression))
         return base.VisitMemberAccess(m);
-      if (m.Member.Name == "Count") {
-        var method = WellKnownMembers.Queryable.LongCount
-          .MakeGenericMethod(m.Expression.Type.GetGenericArguments()[0]);
-        return Expression.Call(method, Visit(m.Expression));
+
+      var member = m.Member;
+      if (member.Name=="Count") {
+        var elementType = GetEntitySetElementType(m.Expression.Type);
+        var actualMethod = WellKnownMembers.Queryable.LongCount.MakeGenericMethod(elementType);
+        return Expression.Call(actualMethod, Visit(m.Expression));
       }
-      throw new NotSupportedException(IsEntitySet(m.Expression)
-        ? Strings.ExCantAccessMemberOfTypeEntitySet 
-        : String.Format(Strings.CantAccessMemberX, m.Member.Name));
+
+      throw NotSupported(member);
+    }
+
+    private static Type GetEntitySetElementType(Type entitySetType)
+    {
+      return entitySetType.GetGenericType(typeof (EntitySet<>)).GetGenericArguments()[0];
+    }
+
+    private static NotSupportedException NotSupported(MemberInfo member)
+    {
+      return new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, member.GetFullName(true)));
     }
 
     private static bool IsEntitySet(Expression expression)

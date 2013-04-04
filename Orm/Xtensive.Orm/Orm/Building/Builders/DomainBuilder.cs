@@ -10,7 +10,9 @@ using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;
+using Xtensive.Sql;
 
 namespace Xtensive.Orm.Building.Builders
 {
@@ -49,7 +51,14 @@ namespace Xtensive.Orm.Building.Builders
     private void CreateDomain()
     {
       using (BuildLog.InfoRegion(Strings.LogCreatingX, typeof (Domain).GetShortName())) {
-        context.Domain = new Domain(context.Configuration, context.BuilderConfiguration.UpgradeContextCookie);
+        var services = context.BuilderConfiguration.Services;
+        var useSingleConnection =
+          services.ProviderInfo.Supports(ProviderFeatures.SingleConnection)
+          && context.BuilderConfiguration.Stage==UpgradeStage.Final;
+        context.Domain = new Domain(
+          context.Configuration,
+          context.BuilderConfiguration.UpgradeContextCookie,
+          useSingleConnection ? services.Connection : null);
       }
     }
 

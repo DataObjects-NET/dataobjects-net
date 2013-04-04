@@ -221,6 +221,55 @@ namespace Xtensive.Orm.Providers
       return SqlDml.DateTimePlusInterval(_this, value);
     }
 
+    [Compiler(typeof(DateTime), "AddYears")]
+    public static SqlExpression DateTimeAddYears(SqlExpression _this,
+      [Type(typeof(int))] SqlExpression value)
+    {
+      return SqlDml.DateTimeAddYears(_this, value);
+    }
+
+    [Compiler(typeof(DateTime), "AddMonths")]
+    public static SqlExpression DateTimeAddMonths(SqlExpression _this,
+      [Type(typeof(int))] SqlExpression value)
+    {
+      return SqlDml.DateTimeAddMonths(_this, value);
+    }
+
+    [Compiler(typeof(DateTime), "AddDays")]
+    public static SqlExpression DateTimeAddDays(SqlExpression _this,
+      [Type(typeof(double))] SqlExpression value)
+    {
+      return SqlDml.DateTimePlusInterval(_this, TimeSpanCompilers.TimeSpanFromDays(value));
+    }
+
+    [Compiler(typeof(DateTime), "AddHours")]
+    public static SqlExpression DateTimeAddHours(SqlExpression _this,
+      [Type(typeof(double))] SqlExpression value)
+    {
+      return SqlDml.DateTimePlusInterval(_this, TimeSpanCompilers.TimeSpanFromHours(value));
+    }
+
+    [Compiler(typeof(DateTime), "AddMinutes")]
+    public static SqlExpression DateTimeAddMinutes(SqlExpression _this,
+      [Type(typeof(double))] SqlExpression value)
+    {
+      return SqlDml.DateTimePlusInterval(_this, TimeSpanCompilers.TimeSpanFromMinutes(value));
+    }
+
+    [Compiler(typeof(DateTime), "AddSeconds")]
+    public static SqlExpression DateTimeAddSeconds(SqlExpression _this,
+      [Type(typeof(double))] SqlExpression value)
+    {
+      return SqlDml.DateTimePlusInterval(_this, TimeSpanCompilers.TimeSpanFromSeconds(value));
+    }
+
+    [Compiler(typeof(DateTime), "AddMilliseconds")]
+    public static SqlExpression DateTimeAddMilliseconds(SqlExpression _this,
+      [Type(typeof(double))] SqlExpression value)
+    {
+      return SqlDml.DateTimePlusInterval(_this, TimeSpanCompilers.TimeSpanFromMilliseconds(value));
+    }
+
     [Compiler(typeof(DateTime), "Subtract")]
     public static SqlExpression DateTimeSubtractTimeSpan(SqlExpression _this,
       [Type(typeof(TimeSpan))] SqlExpression value)

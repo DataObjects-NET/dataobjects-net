@@ -1419,6 +1419,16 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Direct querying for entity set in compiled queries is not supported, use QueryEndpoint.Items() instead..
+        /// </summary>
+        internal static string ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsInstead {
+            get {
+                return ResourceManager.GetString("ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsI" +
+                        "nstead", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DisconnectedState is already attached to session..
         /// </summary>
         internal static string ExDisconnectedStateIsAlreadyAttachedToSession {
@@ -3917,6 +3927,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos; still uses single available connection..
+        /// </summary>
+        internal static string ExSessionXStillUsesSingleAvailableConnection {
+            get {
+                return ResourceManager.GetString("ExSessionXStillUsesSingleAvailableConnection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Single hierarchy is mapped to multiple databases: {0}, {1}.
         /// </summary>
         internal static string ExSingleHierarchyIsMappedToMultipleDatabasesXY {
@@ -4439,11 +4458,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type discriminator field is not found for {0} type.
+        ///   Looks up a localized string similar to Type discriminator field is not found for &apos;{0}&apos; type.
         /// </summary>
-        internal static string ExTypeDiscriminatorFieldIsNotFoundForXType {
+        internal static string ExTypeDiscriminatorIsNotFoundForXType {
             get {
-                return ResourceManager.GetString("ExTypeDiscriminatorFieldIsNotFoundForXType", resourceCulture);
+                return ResourceManager.GetString("ExTypeDiscriminatorIsNotFoundForXType", resourceCulture);
             }
         }
         
@@ -6442,6 +6461,15 @@ namespace Xtensive {
         internal static string LogTargetSchema {
             get {
                 return ResourceManager.GetString("LogTargetSchema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to close single available connection: it is still used by session &apos;{0}&apos;..
+        /// </summary>
+        internal static string LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX {
+            get {
+                return ResourceManager.GetString("LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX", resourceCulture);
             }
         }
         

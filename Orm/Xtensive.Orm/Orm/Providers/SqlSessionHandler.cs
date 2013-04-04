@@ -26,6 +26,7 @@ namespace Xtensive.Orm.Providers
     private readonly StorageDriver driver;
     private readonly DomainHandler domainHandler;
     private readonly SqlConnection connection;
+    private readonly bool transactionIsExternal;
     private readonly bool connectionIsExternal;
     private readonly CommandProcessor commandProcessor;
 
@@ -80,7 +81,7 @@ namespace Xtensive.Orm.Providers
     public override void CommitTransaction(Transaction transaction)
     {
       pendingTransaction = null;
-      if (connection.ActiveTransaction!=null && !connectionIsExternal)
+      if (connection.ActiveTransaction!=null && !transactionIsExternal)
         driver.CommitTransaction(Session, connection);
     }
 
@@ -88,7 +89,7 @@ namespace Xtensive.Orm.Providers
     public override void RollbackTransaction(Transaction transaction)
     {
       pendingTransaction = null;
-      if (connection.ActiveTransaction!=null && !connectionIsExternal)
+      if (connection.ActiveTransaction!=null && !transactionIsExternal)
         driver.RollbackTransaction(Session, connection);
     }
 
@@ -195,11 +196,12 @@ namespace Xtensive.Orm.Providers
         driver.CloseConnection(Session, connection);
     }
 
-    internal SqlSessionHandler(Session session, SqlConnection connection, bool connectionIsExternal)
+    internal SqlSessionHandler(Session session, SqlConnection connection, bool connectionIsExternal, bool transactionIsExternal)
       : base(session)
     {
       this.connection = connection;
       this.connectionIsExternal = connectionIsExternal;
+      this.transactionIsExternal = transactionIsExternal;
 
       domainHandler = Handlers.DomainHandler;
       driver = Handlers.StorageDriver;

@@ -179,9 +179,13 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     public override ServerFeatures GetServerFeatures()
     {
-      return ServerFeatures.Savepoints
+      var result = ServerFeatures.Savepoints
         | ServerFeatures.TransactionalKeyGenerators
-        | ServerFeatures.SingleSessionAccess;
+        | ServerFeatures.ExclusiveWriterConnection;
+      var dataSource = Driver.CoreServerInfo.DatabaseName.Trim().ToLowerInvariant();
+      if (dataSource==":memory:")
+        result |= ServerFeatures.SingleConnection;
+      return result;
     }
 
     public override IdentityInfo GetIdentityInfo()

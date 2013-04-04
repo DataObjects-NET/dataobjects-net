@@ -59,13 +59,18 @@ namespace Xtensive.Orm.Providers
     ZeroLimitIsError = 1L << 41,
     TransactionalKeyGenerators = 1L << 42,
     ColumnDrop = 1L << 43,
-    SingleSessionAccess = 1L << 44,
+    ExclusiveWriterConnection = 1L << 44,
     TemporaryTableEmulation = 1L << 45,
     StrictJoinSyntax = 1L << 46,
+    SingleConnection = 1L << 47,
 
     // Feature groups
     Paging = Take | Skip,
     NativePaging = NativeTake | NativeSkip,
     Batches = DdlBatches | DmlBatches,
+
+    // Obsolete features
+    [Obsolete("Use ProviderFeatures.SingleWriterSession instead.")]
+    SingleSessionAccess = ExclusiveWriterConnection,
   }
 }

@@ -92,10 +92,12 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.TransactionalKeyGenerators;
       if (serverInfo.Column.AllowedDdlStatements.Supports(DdlStatements.Drop))
         f |= ProviderFeatures.ColumnDrop;
-      if (serverFeatures.Supports(ServerFeatures.SingleSessionAccess))
-        f |= ProviderFeatures.SingleSessionAccess;
+      if (serverFeatures.Supports(ServerFeatures.ExclusiveWriterConnection))
+        f |= ProviderFeatures.ExclusiveWriterConnection;
       if (queryFeatures.Supports(QueryFeatures.StrictJoinSyntax))
         f |= ProviderFeatures.StrictJoinSyntax;
+      if (serverFeatures.Supports(ServerFeatures.SingleConnection))
+        f |= ProviderFeatures.SingleConnection;
 
       var temporaryTable = serverInfo.TemporaryTable;
       if (temporaryTable!=null && temporaryTable.Features.Supports(TemporaryTableFeatures.Local))

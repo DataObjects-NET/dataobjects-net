@@ -387,11 +387,24 @@ namespace Xtensive.Orm
 
     private SessionHandler CreateSessionHandler()
     {
+      SqlConnection connection;
+      var connectionIsExternal = false;
+      var transactionIsExternal = false;
+
       var upgradeContext = UpgradeContext.GetCurrent(Domain.UpgradeContextCookie);
-      var connection = upgradeContext!=null
-        ? upgradeContext.Services.Connection
-        : Handlers.StorageDriver.CreateConnection(this);
-      return new SqlSessionHandler(this, connection, upgradeContext!=null);
+      if (upgradeContext!=null) {
+        connection = upgradeContext.Services.Connection;
+        connectionIsExternal = true;
+        transactionIsExternal = true;
+      }
+      else if (Domain.SingleConnection!=null) {
+        connection = Domain.SingleConnection;
+        connectionIsExternal = true;
+      }
+      else
+        connection = Handlers.StorageDriver.CreateConnection(this);
+
+      return new SqlSessionHandler(this, connection, connectionIsExternal, transactionIsExternal);
     }
 
     // Constructors
@@ -459,12 +472,15 @@ namespace Xtensive.Orm
         return;
       try {
         OrmLog.Debug(Strings.LogSessionXDisposing, this);
-        
+
         SystemEvents.NotifyDisposing();
         Events.NotifyDisposing();
-        
+
         Services.DisposeSafely();
         Handler.DisposeSafely();
+
+        Domain.ReleaseSingleConnection();
+
         disposableSet.DisposeSafely();
         disposableSet = null;
 

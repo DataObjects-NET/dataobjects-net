@@ -2350,9 +2350,6 @@ Error: {1}</value>
   <data name="LogValidatingMappingConfiguration">
     <value xml:space="preserve">Validating mapping configuration</value>
   </data>
-  <data name="ExTypeDiscriminatorFieldIsNotFoundForXType">
-    <value xml:space="preserve">Type discriminator field is not found for {0} type</value>
-  </data>
   <data name="ExSingleHierarchyIsMappedToMultipleDatabasesXY">
     <value xml:space="preserve">Single hierarchy is mapped to multiple databases: {0}, {1}</value>
   </data>
@@ -2392,8 +2389,14 @@ Error: {1}</value>
   <data name="ExExceptionHasBeenThrownByTheParameterValueAccessor">
     <value xml:space="preserve">Exception has been thrown by the parameter value accessor.</value>
   </data>
+  <data name="ExTypeDiscriminatorIsNotFoundForXType">
+    <value xml:space="preserve">Type discriminator field is not found for '{0}' type</value>
+  </data>
   <data name="ExCurrentStorageDoesNotSupportChangingColumnTypes">
     <value xml:space="preserve">Current storage does not support changing column types</value>
+  </data>
+  <data name="ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsInstead">
+    <value xml:space="preserve">Direct querying for entity set in compiled queries is not supported, use QueryEndpoint.Items() instead.</value>
   </data>
   <data name="ExCompilerXHasTooManyParameters" xml:space="preserve">
     <value>Compiler {0} has too many parameters.</value>
@@ -2436,5 +2439,11 @@ Error: {1}</value>
   </data>
   <data name="ExExceptionHasBeenThrownByTheUserMemberCompiler">
     <value xml:space="preserve">Exception has been thrown by the user member compiler.</value>
+  </data>
+  <data name="ExSessionXStillUsesSingleAvailableConnection">
+    <value xml:space="preserve">Session '{0}' still uses single available connection.</value>
+  </data>
+  <data name="LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX">
+    <value xml:space="preserve">Unable to close single available connection: it is still used by session '{0}'.</value>
   </data>
 </root>

@@ -62,7 +62,7 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// Indicates whether RDBMS allows only one session to modify database.
     /// </summary>
-    SingleSessionAccess = 1 << 7,
+    ExclusiveWriterConnection = 1 << 7,
 
     /// <summary>
     /// Indicates whether RDBMS will perform well if regular tables are used
@@ -70,5 +70,17 @@ namespace Xtensive.Sql.Info
     /// local temporary tables.
     /// </summary>
     TemporaryTableEmulation = 1 << 8,
+
+    /// <summary>
+    /// Indicates whether RDBMS requires exactly one connection to be created.
+    /// This is used for :memory: data source in SQLite provider.
+    /// </summary>
+    SingleConnection = 1 << 9,
+
+    /// <summary>
+    /// Obsolete name for <see cref="ExclusiveWriterConnection"/>.
+    /// </summary>
+    [Obsolete("Use ServerFeatures.ExclusiveWriterSession instead.")]
+    SingleSessionAccess = ExclusiveWriterConnection,
   }
 }

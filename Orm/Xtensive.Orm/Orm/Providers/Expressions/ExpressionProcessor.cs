@@ -333,31 +333,18 @@ namespace Xtensive.Orm.Providers
       int columnIndex = tupleAccess.GetTupleAccessArgument();
       SqlExpression result;
       var applyParameter = tupleAccess.GetApplyParameter();
-      if (applyParameter != null) {
-        result = VisitOuterParameterReference(columnIndex, applyParameter);
+      if (applyParameter!=null) {
+        if (compiler==null)
+          throw Exceptions.InternalError(Strings.ExOuterParameterReferenceFoundButNoSqlCompilerProvided, OrmLog.Instance);
+        result = compiler.GetOuterExpression(applyParameter, columnIndex);
       }
       else {
-        var queryRef = sourceMapping[(ParameterExpression)tupleAccess.Object];
+        var queryRef = sourceMapping[(ParameterExpression) tupleAccess.Object];
         result = queryRef[columnIndex];
       }
       if (fixBooleanExpressions && IsBooleanExpression(tupleAccess))
         result = booleanExpressionConverter.IntToBoolean(result);
       return result;
-    }
-
-    private SqlExpression VisitOuterParameterReference(int columnIndex, ApplyParameter parameter)
-    {
-      if (compiler==null)
-        throw Exceptions.InternalError(Strings.ExOuterParameterReferenceFoundButNoSqlCompilerProvided, Orm.OrmLog.Instance);
-
-      ExecutableProvider provider = compiler.OuterReferences[parameter];
-
-      // TODO: Check out this sh..t
-      var sqlProvider = (SqlProvider) provider;
-      var permanentReference = sqlProvider.PermanentReference;
-      if (permanentReference.Columns.Count!=sqlProvider.Request.Statement.Columns.Count)
-        return compiler.ExtractColumnExpressions(sqlProvider.Request.Statement, sqlProvider.Origin)[columnIndex];
-      return permanentReference[columnIndex];
     }
 
     protected override SqlExpression VisitLambda(LambdaExpression l)

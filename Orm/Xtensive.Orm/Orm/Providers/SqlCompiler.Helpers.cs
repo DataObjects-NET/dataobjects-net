@@ -83,43 +83,46 @@ namespace Xtensive.Orm.Providers
       return sourceSelect.ShallowClone();
     }
 
-    public List<SqlExpression> ExtractColumnExpressions(SqlSelect query, CompilableProvider origin)
+    protected List<SqlExpression> ExtractColumnExpressions(SqlSelect query)
     {
       var result = new List<SqlExpression>(query.Columns.Count);
-      foreach (var column in query.Columns) {
-        SqlExpression expression;
-        if (IsColumnStub(column)) {
-          expression = stubColumnMap[ExtractColumnStub(column)];
-          var subQuery = expression as SqlSubQuery;
-          if (!subQuery.IsNullReference()) {
-            var subSelect = subQuery.Query as SqlSelect;
-            if (subSelect != null) {
-              if (subSelect.Columns.Count == 1 && subSelect.From == null) {
-                var userColumn = subSelect.Columns[0] as SqlUserColumn;
-                if (!userColumn.IsNullReference()) {
-                  var cast = userColumn.Expression as SqlCast;
-                  if (!cast.IsNullReference() &&  cast.Type.Type == SqlType.Boolean) {
-                    var sqlCase = cast.Operand as SqlCase;
-                    if(!sqlCase.IsNullReference() && sqlCase.Count == 1) {
-                      var pair = sqlCase.First();
-                      var key = pair.Key as SqlUnary;
-                      if (!key.IsNullReference() && pair.Value is SqlLiteral<int>)
-                        expression = cast;
-                    }
+      result.AddRange(query.Columns.Select(ExtractColumnExpression));
+      return result;
+    }
+
+    protected SqlExpression ExtractColumnExpression(SqlColumn column)
+    {
+      SqlExpression expression;
+      if (IsColumnStub(column)) {
+        expression = stubColumnMap[ExtractColumnStub(column)];
+        var subQuery = expression as SqlSubQuery;
+        if (!subQuery.IsNullReference()) {
+          var subSelect = subQuery.Query as SqlSelect;
+          if (subSelect!=null) {
+            if (subSelect.Columns.Count==1 && subSelect.From==null) {
+              var userColumn = subSelect.Columns[0] as SqlUserColumn;
+              if (!userColumn.IsNullReference()) {
+                var cast = userColumn.Expression as SqlCast;
+                if (!cast.IsNullReference() && cast.Type.Type==SqlType.Boolean) {
+                  var sqlCase = cast.Operand as SqlCase;
+                  if (!sqlCase.IsNullReference() && sqlCase.Count==1) {
+                    var pair = sqlCase.First();
+                    var key = pair.Key as SqlUnary;
+                    if (!key.IsNullReference() && pair.Value is SqlLiteral<int>)
+                      expression = cast;
                   }
                 }
               }
             }
           }
         }
-        else
-          expression = column;
-        var columnRef = expression as SqlColumnRef;
-        if (!columnRef.IsNullReference())
-          expression = columnRef.SqlColumn;
-        result.Add(expression);
       }
-      return result;
+      else
+        expression = column;
+      var columnRef = expression as SqlColumnRef;
+      if (!columnRef.IsNullReference())
+        expression = columnRef.SqlColumn;
+      return expression;
     }
 
     protected void AddInlinableColumn(IInlinableProvider provider,
@@ -133,7 +136,7 @@ namespace Xtensive.Orm.Providers
         resultQuery.Columns.Add(columnStub);
       }
       else
-        resultQuery.Columns.Add(columnRef);      
+        resultQuery.Columns.Add(columnRef);
     }
 
     protected SqlExpression GetBooleanColumnExpression(SqlExpression originalExpression)
@@ -142,8 +145,6 @@ namespace Xtensive.Orm.Providers
         ? originalExpression
         : booleanExpressionConverter.BooleanToInt(originalExpression);
     }
-
-    #region Private methods
 
     private static bool IsCalculatedColumn(SqlColumn column)
     {
@@ -288,6 +289,14 @@ namespace Xtensive.Orm.Providers
       return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
     }
 
-    #endregion
+    public SqlExpression GetOuterExpression(ApplyParameter parameter, int columnIndex)
+    {
+      var reference = OuterReferences[parameter];
+      var sqlProvider = reference.First;
+      var useQueryReference = reference.Second;
+      return useQueryReference
+        ? sqlProvider.PermanentReference[columnIndex]
+        : ExtractColumnExpression(sqlProvider.Request.Statement.Columns[columnIndex]);
+    }
   }
 }

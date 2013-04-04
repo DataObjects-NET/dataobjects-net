@@ -221,12 +221,8 @@ namespace Xtensive.Orm
     {
       get {
         EnsureOwnerIsNotRemoved();
-        if (expression==null) {
-          // A hack making expression to look like regular parameter 
-          // (ParameterExtractor.IsParameter => true)
-          var owner = Expression.Property(Expression.Constant(new {Owner}), "Owner");
-          expression = QueryHelper.CreateEntitySetQueryExpression(owner, Field);
-        }
+        if (expression==null)
+          expression = QueryHelper.CreateDirectEntitySetQuery(this);
         return expression;
       }
     }
@@ -252,7 +248,7 @@ namespace Xtensive.Orm
     {
       var owner = Expression.Property(Expression.Constant(ownerParameter), ownerParameter.GetType()
         .GetProperty("Value", typeof(Entity)));
-      var queryExpression = QueryHelper.CreateEntitySetQueryExpression(owner, field);
+      var queryExpression = QueryHelper.CreateEntitySetQuery(owner, field);
       return qe.Provider.CreateQuery<TItem>(queryExpression);
     }
 

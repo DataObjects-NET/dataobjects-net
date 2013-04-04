@@ -40,9 +40,6 @@ namespace Xtensive.Orm.Rse.Compilation
     protected CompilableProvider RootProvider { get { return rootProvider; } }
 
     /// <inheritdoc/>
-    public BindingCollection<ApplyParameter, ExecutableProvider> OuterReferences { get; private set; }
-
-    /// <inheritdoc/>
     ExecutableProvider ICompiler.Compile(CompilableProvider provider)
     {
       return Compile(provider);
@@ -54,9 +51,9 @@ namespace Xtensive.Orm.Rse.Compilation
     /// <param name="cp">The provider to compile.</param>
     public TResult Compile(CompilableProvider cp)
     {
-      if (cp == null)
+      if (cp==null)
         return null;
-      if (rootProvider == null)
+      if (rootProvider==null)
         rootProvider = cp;
       TResult result;
       traversalStack.Push(cp);
@@ -252,7 +249,6 @@ namespace Xtensive.Orm.Rse.Compilation
     /// <param name="provider">The provider.</param>
     protected abstract TResult VisitApply(ApplyProvider provider);
 
-
     /// <summary>
     /// Compiles <see cref="RowNumberProvider"/>.
     /// </summary>
@@ -311,11 +307,10 @@ namespace Xtensive.Orm.Rse.Compilation
     // Constructors
 
     /// <summary>
-    ///   Initializes a new instance of this class.
+    /// Initializes a new instance of this class.
     /// </summary>
     protected Compiler()
     {
-      OuterReferences = new BindingCollection<ApplyParameter, ExecutableProvider>();
     }
   }
 }

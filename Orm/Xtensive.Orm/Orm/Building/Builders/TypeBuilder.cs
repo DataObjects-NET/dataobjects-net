@@ -100,15 +100,15 @@ namespace Xtensive.Orm.Building.Builders
       if (typeDef.TypeDiscriminatorValue!=null) {
         var targetField = typeInfo.Fields.SingleOrDefault(f => f.IsTypeDiscriminator && f.Parent==null);
         if (targetField==null)
-          throw new DomainBuilderException(string.Format(Strings.ExTypeDiscriminatorFieldIsNotFoundForXType, typeInfo.Name));
+          throw new DomainBuilderException(string.Format(Strings.ExTypeDiscriminatorIsNotFoundForXType, typeInfo.Name));
         if (targetField.IsEntity) {
           targetField = targetField.Fields.First();
           targetField.IsTypeDiscriminator = true;
         }
-        typeInfo.TypeDiscriminatorValue = ValueTypeBuilder.AdjustValue(
-          targetField, targetField.ValueType, typeDef.TypeDiscriminatorValue);
+        typeInfo.TypeDiscriminatorValue = ValueTypeBuilder.AdjustValue(targetField, targetField.ValueType, typeDef.TypeDiscriminatorValue);
         typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterTypeMapping(typeInfo, typeInfo.TypeDiscriminatorValue);
       }
+
       if (typeDef.IsDefaultTypeInHierarchy)
         typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterDefaultType(typeInfo);
     }

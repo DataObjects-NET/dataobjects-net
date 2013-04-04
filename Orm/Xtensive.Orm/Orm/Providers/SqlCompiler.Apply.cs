@@ -70,10 +70,11 @@ namespace Xtensive.Orm.Providers
           || provider.Left.Type.In(ProviderType.Store, ProviderType.Include)
           || left.Header.Columns.Count!=left.Request.Statement.Columns.Count;
       }
-      if (!shouldUseQueryReference)
-        left = new SqlProvider(left, sourceSelect.From);
 
-      using (OuterReferences.Add(provider.ApplyParameter, left)) {
+      var binding = OuterReferences.Add(
+        provider.ApplyParameter, new Pair<SqlProvider, bool>(left, shouldUseQueryReference));
+
+      using (binding) {
         var right = Compile(provider.Right);
 
         var query = processViaCrossApply
