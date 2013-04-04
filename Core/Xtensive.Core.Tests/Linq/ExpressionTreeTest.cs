@@ -96,6 +96,28 @@ namespace Xtensive.Tests.Linq
       Assert.AreEqual(p1.GetHashCode(), p2.GetHashCode());
     }
 
+    [Test]
+    public void NullEqualityTest()
+    {
+      Expression<Func<int, int>> expression = x => x + 1;
+      var t = expression.ToExpressionTree();
+
+      Assert.That(!t.Equals(null));
+
+      Assert.That(null!=t);
+      Assert.That(t!=null);
+
+      Assert.That(!(t==null));
+      Assert.That(!(null==t));
+
+      t = null;
+
+      Assert.That(t==null);
+      Assert.That(null==t);
+      Assert.That(!(t!=null));
+      Assert.That(!(null!=t));
+    }
+
     private static Expression<Func<int, int, int>> CreateProduct()
     {
       return (a, b) => a * b;
