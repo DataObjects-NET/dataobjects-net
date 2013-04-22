@@ -28,7 +28,10 @@ namespace ValidateEntityVersionsOnPersistTestModel
   public class EntityWithVersion2 : EntityWithVersion1
   {
     [Field]
-    public int? Count { get; set; }
+    public int? Count1 { get; set; }
+
+    [Field]
+    public int? Count2 { get; set; }
   }
 }
 
@@ -57,6 +60,7 @@ namespace Xtensive.Orm.Tests.Storage
         new EntityWithVersion2 {
           Name = "2",
           Amount = 2,
+          Count1 = 1,
         };
         tx.Complete();
       }
@@ -71,6 +75,7 @@ namespace Xtensive.Orm.Tests.Storage
         var e2 = session.Query.All<EntityWithVersion2>().Single(e => e.Name=="2");
         e1.Name = e1.Name + "changed";
         e2.Name = e2.Name + "changed";
+        e2.Count1++;
         session.SaveChanges();
         tx.Complete();
       }
