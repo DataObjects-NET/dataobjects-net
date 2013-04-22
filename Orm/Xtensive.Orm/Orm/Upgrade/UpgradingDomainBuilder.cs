@@ -64,11 +64,12 @@ namespace Xtensive.Orm.Upgrade
           // connection would not be registered as an upgrade session.
           // This means if error happens connection will leak.
           // To avoid that we dispose it here manually.
-          var connection = context.Services.Connection;
-          var driver = context.Services.Driver;
-          if (driver!=null && connection!=null
-            && driver.ProviderInfo.Supports(ProviderFeatures.SingleConnection))
-            connection.Dispose();
+          if (context.Services!=null) {
+            var connection = context.Services.Connection;
+            var driver = context.Services.Driver;
+            if (driver!=null && connection!=null && driver.ProviderInfo.Supports(ProviderFeatures.SingleConnection))
+              connection.Dispose();
+          }
           throw;
         }
         finally {
