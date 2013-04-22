@@ -139,39 +139,38 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    private SqlExpression BuildKeyFilter(PersistRequestBuilderContext context,
-      SqlTableRef filteredTable, List<PersistParameterBinding> currentBindings)
-    {
-      return BuildColumnFilter(context, context.PrimaryIndex.KeyColumns.Keys,
-        filteredTable, currentBindings, context.ParameterBindings, false, PersistParameterBindingType.Regular);
-    }
-
-    private SqlExpression BuildVersionFilter(PersistRequestBuilderContext context,
-      SqlTableRef filteredTable, List<PersistParameterBinding> currentBindings)
-    {
-      return BuildColumnFilter(context, context.Type.GetVersionColumns(),
-        filteredTable, currentBindings, context.VersionParameterBindings, true, PersistParameterBindingType.VersionFilter);
-    }
-
-    private SqlExpression BuildColumnFilter(PersistRequestBuilderContext context, IEnumerable<ColumnInfo> columns,
-      SqlTableRef filteredTable, List<PersistParameterBinding> currentBindings,
-      Dictionary<ColumnInfo, PersistParameterBinding> knownBindings, bool allowNull, PersistParameterBindingType parameterBindingType)
+    private SqlExpression BuildKeyFilter(PersistRequestBuilderContext context, SqlTableRef filteredTable, List<PersistParameterBinding> currentBindings)
     {
       SqlExpression result = null;
-      foreach (var column in columns) {
+      foreach (var column in context.PrimaryIndex.KeyColumns.Keys) {
         var fieldIndex = GetFieldIndex(context.Type, column);
         PersistParameterBinding binding;
-        if (!knownBindings.TryGetValue(column, out binding)) {
+        if (!context.ParameterBindings.TryGetValue(column, out binding)) {
           var typeMapping = driver.GetTypeMapping(column);
-          binding = new PersistParameterBinding(typeMapping, fieldIndex, ParameterTransmissionType.Regular, parameterBindingType);
-          knownBindings.Add(column, binding);
+          binding = new PersistParameterBinding(typeMapping, fieldIndex);
+          context.ParameterBindings.Add(column, binding);
+        }
+        result &= filteredTable[column.Name]==binding.ParameterReference;
+        currentBindings.Add(binding);
+      }
+      return result;
+    }
+
+    private SqlExpression BuildVersionFilter(PersistRequestBuilderContext context, SqlTableRef filteredTable, List<PersistParameterBinding> currentBindings)
+    {
+      SqlExpression result = null;
+      foreach (var column in context.Type.GetVersionColumns()) {
+        var fieldIndex = GetFieldIndex(context.Type, column);
+        PersistParameterBinding binding;
+        if (!context.VersionParameterBindings.TryGetValue(column, out binding)) {
+          var typeMapping = driver.GetTypeMapping(column);
+          binding = new PersistParameterBinding(typeMapping, fieldIndex, ParameterTransmissionType.Regular, PersistParameterBindingType.VersionFilter);
+          context.VersionParameterBindings.Add(column, binding);
         }
         var filteredColumn = filteredTable[column.Name];
-        var filter = filteredColumn==binding.ParameterReference;
-        if (allowNull)
-          result &= SqlDml.Variant(binding, filter, SqlDml.IsNull(filteredColumn));
-        else
-          result &= filter;
+        if (filteredColumn.IsNullReference())
+          continue;
+        result &= SqlDml.Variant(binding, filteredColumn==binding.ParameterReference, SqlDml.IsNull(filteredColumn));
         currentBindings.Add(binding);
       }
       return result;
