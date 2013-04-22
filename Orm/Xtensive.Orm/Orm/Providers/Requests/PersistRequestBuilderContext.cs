@@ -26,6 +26,7 @@ namespace Xtensive.Orm.Providers
 
     public Dictionary<ColumnInfo, PersistParameterBinding> ParameterBindings { get; private set; }
 
+    public Dictionary<ColumnInfo, PersistParameterBinding> VersionParameterBindings { get; private set; }
 
     // Constructors
 
@@ -43,6 +44,8 @@ namespace Xtensive.Orm.Providers
       AffectedIndexes = new ReadOnlyList<IndexInfo>(affectedIndexes);
       PrimaryIndex = Task.Type.Indexes.PrimaryIndex;
       ParameterBindings = new Dictionary<ColumnInfo, PersistParameterBinding>();
+      if (task.ValidateVersion)
+        VersionParameterBindings = new Dictionary<ColumnInfo, PersistParameterBinding>();
     }
   }
 }

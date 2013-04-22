@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.20
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -28,6 +29,8 @@ namespace Xtensive.Orm.Providers
 
     void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
     {
+      if (task.ValidateRowCount)
+        throw new NotSupportedException(Strings.ExBatchingCommandProcessorDoesNotSupportValidationOfNumberOfAffectedRows);
       var sequence = Factory.CreatePersistParts(task, GetParameterPrefix());
       foreach (var part in sequence)
         activeCommand.AddPart(part);

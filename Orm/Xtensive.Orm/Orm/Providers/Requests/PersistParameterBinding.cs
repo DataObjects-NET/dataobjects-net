@@ -16,20 +16,27 @@ namespace Xtensive.Orm.Providers
   {
     public int FieldIndex { get; private set; }
 
+    public PersistParameterBindingType BindingType { get; private set; }
 
     // Constructors
 
-    public PersistParameterBinding(TypeMapping typeMapping, int fieldIndex, ParameterTransmissionType transmissionType)
+    public PersistParameterBinding(TypeMapping typeMapping, int fieldIndex, ParameterTransmissionType transmissionType, PersistParameterBindingType bindingType)
       : base(typeMapping, transmissionType)
     {
       ArgumentValidator.EnsureArgumentIsGreaterThan(fieldIndex, -1, "fieldIndex");
       ArgumentValidator.EnsureArgumentNotNull(typeMapping, "typeMapping");
 
       FieldIndex = fieldIndex;
+      BindingType = bindingType;
+    }
+
+    public PersistParameterBinding(TypeMapping typeMapping, int fieldIndex, ParameterTransmissionType transmissionType)
+      : this(typeMapping, fieldIndex, transmissionType, PersistParameterBindingType.Regular)
+    {
     }
 
     public PersistParameterBinding(TypeMapping typeMapping, int fieldIndex)
-      : this(typeMapping, fieldIndex, ParameterTransmissionType.Regular)
+      : this(typeMapping, fieldIndex, ParameterTransmissionType.Regular, PersistParameterBindingType.Regular)
     {
     }
   }

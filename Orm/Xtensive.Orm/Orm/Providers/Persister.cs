@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Tuples;
 
@@ -26,56 +27,67 @@ namespace Xtensive.Orm.Providers
         ? new SortingPersistActionGenerator()
         : new PersistActionGenerator();
 
+      var validateVersion = registry.Session.Configuration.Supports(SessionOptions.ValidateEntityVersions);
+
       var actions = actionGenerator.GetPersistSequence(registry);
       foreach (var action in actions)
-        processor.RegisterTask(CreatePersistTask(action));
+        processor.RegisterTask(CreatePersistTask(action, validateVersion));
     }
 
     #region Private / internal methods
 
-    private SqlPersistTask CreatePersistTask(PersistAction action)
+    private SqlPersistTask CreatePersistTask(PersistAction action, bool validateVersion)
     {
       switch (action.ActionKind) {
       case PersistActionKind.Insert:
-        return CreateInsertTask(action);
+        return CreateInsertTask(action, validateVersion);
       case PersistActionKind.Update:
-        return CreateUpdateTask(action);
+        return CreateUpdateTask(action, validateVersion);
       case PersistActionKind.Remove:
-        return CreateRemoveTask(action);
+        return CreateRemoveTask(action, validateVersion);
       default:
         throw new ArgumentOutOfRangeException("action.ActionKind");
       }
     }
     
-    private SqlPersistTask CreateInsertTask(PersistAction action)
+    private SqlPersistTask CreateInsertTask(PersistAction action, bool validateVersion)
     {
-      var task = new PersistRequestBuilderTask(PersistRequestKind.Insert, action.EntityState.Type);
-      var request = GetRequest(task);
+      var task = new PersistRequestBuilderTask(PersistRequestKind.Insert, action.EntityState.Type, null, validateVersion);
+      var request = GetOrBuildRequest(task);
       var tuple = action.EntityState.Tuple.ToRegular();
       return new SqlPersistTask(request, tuple);
     }
 
-    private SqlPersistTask CreateUpdateTask(PersistAction action)
+    private SqlPersistTask CreateUpdateTask(PersistAction action, bool validateVersion)
     {
       var entityState = action.EntityState;
       var dTuple = entityState.DifferentialTuple;
       var source = dTuple.Difference;
       var fieldStateMap = source.GetFieldStateMap(TupleFieldState.Available);
-      var task = new PersistRequestBuilderTask(PersistRequestKind.Update, entityState.Type, fieldStateMap);
-      var request = GetRequest(task);
+      var task = new PersistRequestBuilderTask(PersistRequestKind.Update, entityState.Type, fieldStateMap, validateVersion);
+      var request = GetOrBuildRequest(task);
       var tuple = entityState.Tuple.ToRegular();
+      if (validateVersion) {
+        var versionTuple = dTuple.Origin.ToRegular();
+        return new SqlPersistTask(request, tuple, versionTuple, true);
+      }
       return new SqlPersistTask(request, tuple);
     }
 
-    private SqlPersistTask CreateRemoveTask(PersistAction action)
+    private SqlPersistTask CreateRemoveTask(PersistAction action, bool validateVersion)
     {
-      var task = new PersistRequestBuilderTask(PersistRequestKind.Remove, action.EntityState.Type);
-      var request = GetRequest(task);
-      var tuple = action.EntityState.Key.Value;
+      var entityState = action.EntityState;
+      var task = new PersistRequestBuilderTask(PersistRequestKind.Remove, entityState.Type, null, validateVersion);
+      var request = GetOrBuildRequest(task);
+      var tuple = entityState.Key.Value;
+      if (validateVersion) {
+        var versionTuple = entityState.DifferentialTuple.Origin.ToRegular();
+        return new SqlPersistTask(request, tuple, versionTuple, true);
+      }
       return new SqlPersistTask(request, tuple);
     }
 
-    private IEnumerable<PersistRequest> GetRequest(PersistRequestBuilderTask task)
+    private IEnumerable<PersistRequest> GetOrBuildRequest(PersistRequestBuilderTask task)
     {
       return requestCache.GetValue(task, requestBuilder.Build);
     }
