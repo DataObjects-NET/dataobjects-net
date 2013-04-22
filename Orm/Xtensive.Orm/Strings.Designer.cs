@@ -569,6 +569,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to BatchingCommandProcessor does not support validation of number of affected rows..
+        /// </summary>
+        internal static string ExBatchingCommandProcessorDoesNotSupportValidationOfNumberOfAffectedRows {
+            get {
+                return ResourceManager.GetString("ExBatchingCommandProcessorDoesNotSupportValidationOfNumberOfAffectedRows", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Binary expressions with NodeType = &apos;ExpressionType.{0}&apos; aren&apos;t supported..
         /// </summary>
         internal static string ExBinaryExpressionsWithNodeTypeXAreNotSupported {
@@ -5248,6 +5257,15 @@ namespace Xtensive {
         internal static string ExUseMethodXOnFirstInsteadOfSingle {
             get {
                 return ResourceManager.GetString("ExUseMethodXOnFirstInsteadOfSingle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to validateVersion=true is incompatible with PersistRequestKind=Insert.
+        /// </summary>
+        internal static string ExValidateVersionEqTrueIsIncompatibleWithPersistRequestKindEqInsert {
+            get {
+                return ResourceManager.GetString("ExValidateVersionEqTrueIsIncompatibleWithPersistRequestKindEqInsert", resourceCulture);
             }
         }
         

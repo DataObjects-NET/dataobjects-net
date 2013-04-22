@@ -26,6 +26,8 @@ namespace Xtensive.Orm.Providers
 
     public IEnumerable<PersistParameterBinding> ParameterBindings { get; private set; }
 
+    public IEnumerable<PersistParameterBinding> VersionParameterBindings { get; private set; }
+
     public SqlCompilationResult GetCompiledStatement()
     {
       if (compiledStatement==null)

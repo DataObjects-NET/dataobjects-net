@@ -198,6 +198,7 @@
     <Compile Include="Orm\Providers\Interfaces\IPersistDescriptor.cs" />
     <Compile Include="Orm\Providers\MappingResolveResult.cs" />
     <Compile Include="Orm\Providers\Persister.cs" />
+    <Compile Include="Orm\Providers\Requests\PersistParameterBindingType.cs" />
     <Compile Include="Orm\Providers\SequenceQueryCompartment.cs" />
     <Compile Include="Orm\Providers\SessionHandler.Fetching.cs" />
     <Compile Include="Orm\Providers\TemporaryTables\EmulatedTemporaryTableBackEnd.cs" />

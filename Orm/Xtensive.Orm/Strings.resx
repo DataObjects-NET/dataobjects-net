@@ -2431,4 +2431,10 @@ Error: {1}</value>
   <data name="ExOptionXIsMutuallyExclusiveWithOptionY">
     <value xml:space="preserve">Option '{0}' is mutually exclusive with option '{1}'</value>
   </data>
+	<data name="ExValidateVersionEqTrueIsIncompatibleWithPersistRequestKindEqInsert">
+		<value xml:space="preserve">validateVersion=true is incompatible with PersistRequestKind=Insert</value>
+	</data>
+	<data name="ExBatchingCommandProcessorDoesNotSupportValidationOfNumberOfAffectedRows">
+		<value xml:space="preserve">BatchingCommandProcessor does not support validation of number of affected rows.</value>
+	</data>
 </root>

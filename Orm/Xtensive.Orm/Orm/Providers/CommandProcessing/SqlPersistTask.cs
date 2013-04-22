@@ -22,9 +22,19 @@ namespace Xtensive.Orm.Providers
     public readonly IEnumerable<PersistRequest> RequestSequence;
 
     /// <summary>
-    /// A tuple containing parameter for requests.
+    /// A tuple that stores changed column values.
     /// </summary>
     public readonly Tuple Tuple;
+
+    /// <summary>
+    /// A tuple that stored original column values.
+    /// </summary>
+    public readonly Tuple OriginalTuple;
+
+    /// <summary>
+    /// A value indicating if number of affected rows should be checked.
+    /// </summary>
+    public readonly bool ValidateRowCount;
 
     /// <inheritdoc/>
     public override void ProcessWith(ISqlTaskProcessor processor)
@@ -45,6 +55,14 @@ namespace Xtensive.Orm.Providers
     {
       RequestSequence = requestSequence;
       Tuple = tuple;
+    }
+
+    public SqlPersistTask(IEnumerable<PersistRequest> requestSequence, Tuple tuple, Tuple originalTuple, bool validateRowCount)
+    {
+      RequestSequence = requestSequence;
+      Tuple = tuple;
+      OriginalTuple = originalTuple;
+      ValidateRowCount = validateRowCount;
     }
   }
 }
