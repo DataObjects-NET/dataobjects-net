@@ -15,7 +15,6 @@ namespace Xtensive.Orm.Providers
   internal sealed class Persister
   {
     private readonly PersistRequestBuilder requestBuilder;
-
     private readonly bool sortingRequired;
 
     private ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>> requestCache
