@@ -127,18 +127,18 @@ namespace Xtensive.Orm.Providers
         if (query.Values.Count==0)
           continue;
 
-        SqlExpression expression = null;
-        foreach (ColumnInfo column1 in context.PrimaryIndex.KeyColumns.Keys) {
-          fieldIndex = GetFieldIndex(context.Task.Type, column1);
-          if (!context.ParameterBindings.TryGetValue(column1, out binding)) {
-            TypeMapping typeMapping1 = driver.GetTypeMapping(column1);
+        SqlExpression keyFilter = null;
+        foreach (ColumnInfo column in context.PrimaryIndex.KeyColumns.Keys) {
+          fieldIndex = GetFieldIndex(context.Task.Type, column);
+          if (!context.ParameterBindings.TryGetValue(column, out binding)) {
+            TypeMapping typeMapping1 = driver.GetTypeMapping(column);
             binding = new PersistParameterBinding(typeMapping1, fieldIndex);
-            context.ParameterBindings.Add(column1, binding);
+            context.ParameterBindings.Add(column, binding);
           }
-          expression &= tableRef[column1.Name]==binding.ParameterReference;
+          keyFilter &= tableRef[column.Name]==binding.ParameterReference;
           bindings.Add(binding);
         }
-        query.Where &= expression;
+        query.Where &= keyFilter;
         result.Add(new PersistRequest(driver, query, bindings));
       }
       return result;
