@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Providers
     {
       switch (action.ActionKind) {
       case PersistActionKind.Insert:
-        return CreateInsertTask(action, validateVersion);
+        return CreateInsertTask(action);
       case PersistActionKind.Update:
         return CreateUpdateTask(action, validateVersion);
       case PersistActionKind.Remove:
@@ -50,9 +50,9 @@ namespace Xtensive.Orm.Providers
       }
     }
     
-    private SqlPersistTask CreateInsertTask(PersistAction action, bool validateVersion)
+    private SqlPersistTask CreateInsertTask(PersistAction action)
     {
-      var task = new PersistRequestBuilderTask(PersistRequestKind.Insert, action.EntityState.Type, null, validateVersion);
+      var task = new PersistRequestBuilderTask(PersistRequestKind.Insert, action.EntityState.Type, null, false);
       var request = GetOrBuildRequest(task);
       var tuple = action.EntityState.Tuple.ToRegular();
       return new SqlPersistTask(request, tuple);
