@@ -33,6 +33,15 @@ namespace ValidateEntityVersionsOnPersistTestModel
     [Field]
     public int? Count2 { get; set; }
   }
+
+  public class EntityWithVersion3 : EntityWithVersion2
+  {
+    [Field]
+    public decimal Price1 { get; set; }
+
+    [Field]
+    public decimal? Price2 { get; set; }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Storage
@@ -60,7 +69,13 @@ namespace Xtensive.Orm.Tests.Storage
         new EntityWithVersion2 {
           Name = "2",
           Amount = 2,
-          Count1 = 1,
+          Count1 = 2,
+        };
+        new EntityWithVersion3 {
+          Name = "3",
+          Amount = 3,
+          Count1 = 3,
+          Price1 = 3,
         };
         tx.Complete();
       }
@@ -72,11 +87,20 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var e1 = session.Query.All<EntityWithVersion1>().Single(e => e.Name=="1");
-        var e2 = session.Query.All<EntityWithVersion2>().Single(e => e.Name=="2");
         e1.Name = e1.Name + "changed";
+        session.SaveChanges();
+
+        var e2 = session.Query.All<EntityWithVersion2>().Single(e => e.Name=="2");
         e2.Name = e2.Name + "changed";
         e2.Count1++;
         session.SaveChanges();
+
+        var e3 = session.Query.All<EntityWithVersion3>().Single(e => e.Name=="3");
+        e3.Name = e3.Name + "changed";
+        session.SaveChanges();
+
+        e1.Remove();
+        e2.Remove();
         tx.Complete();
       }
     }
