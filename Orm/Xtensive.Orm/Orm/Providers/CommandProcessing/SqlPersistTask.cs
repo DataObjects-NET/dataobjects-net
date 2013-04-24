@@ -17,6 +17,11 @@ namespace Xtensive.Orm.Providers
   public sealed class SqlPersistTask : SqlTask
   {
     /// <summary>
+    /// A key of an entity to persist (optional).
+    /// </summary>
+    public readonly Key EntityKey;
+
+    /// <summary>
     /// Requests to execute.
     /// </summary>
     public readonly IEnumerable<PersistRequest> RequestSequence;
@@ -51,14 +56,16 @@ namespace Xtensive.Orm.Providers
       Tuple = tuple;
     }
 
-    public SqlPersistTask(IEnumerable<PersistRequest> requestSequence, Tuple tuple)
+    public SqlPersistTask(Key key, IEnumerable<PersistRequest> requestSequence, Tuple tuple)
     {
+      EntityKey = key;
       RequestSequence = requestSequence;
       Tuple = tuple;
     }
 
-    public SqlPersistTask(IEnumerable<PersistRequest> requestSequence, Tuple tuple, Tuple originalTuple, bool validateRowCount)
+    public SqlPersistTask(Key key, IEnumerable<PersistRequest> requestSequence, Tuple tuple, Tuple originalTuple, bool validateRowCount)
     {
+      EntityKey = key;
       RequestSequence = requestSequence;
       Tuple = tuple;
       OriginalTuple = originalTuple;

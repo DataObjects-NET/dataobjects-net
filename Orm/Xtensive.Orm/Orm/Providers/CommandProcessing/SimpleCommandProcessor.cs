@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Providers
           var affectedRowsCount = command.ExecuteNonQuery();
           if (task.ValidateRowCount && affectedRowsCount==0)
             throw new VersionConflictException(string.Format(
-              Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.Tuple));
+              Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
         }
       }
     }

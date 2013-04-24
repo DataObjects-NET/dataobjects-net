@@ -52,39 +52,39 @@ namespace Xtensive.Orm.Providers
     
     private SqlPersistTask CreateInsertTask(PersistAction action)
     {
-      var task = new PersistRequestBuilderTask(PersistRequestKind.Insert, action.EntityState.Type, null, false);
-      var request = GetOrBuildRequest(task);
-      var tuple = action.EntityState.Tuple.ToRegular();
-      return new SqlPersistTask(request, tuple);
+      var entityState = action.EntityState;
+      var tuple = entityState.Tuple.ToRegular();
+      var request = GetOrBuildRequest(
+        new PersistRequestBuilderTask(PersistRequestKind.Insert, entityState.Type, null, false));
+      return new SqlPersistTask(entityState.Key, request, tuple);
     }
 
     private SqlPersistTask CreateUpdateTask(PersistAction action, bool validateVersion)
     {
       var entityState = action.EntityState;
       var dTuple = entityState.DifferentialTuple;
-      var source = dTuple.Difference;
-      var fieldStateMap = source.GetFieldStateMap(TupleFieldState.Available);
-      var task = new PersistRequestBuilderTask(PersistRequestKind.Update, entityState.Type, fieldStateMap, validateVersion);
-      var request = GetOrBuildRequest(task);
       var tuple = entityState.Tuple.ToRegular();
+      var fieldStateMap = dTuple.Difference.GetFieldStateMap(TupleFieldState.Available);
+      var request = GetOrBuildRequest(
+        new PersistRequestBuilderTask(PersistRequestKind.Update, entityState.Type, fieldStateMap, validateVersion));
       if (validateVersion) {
         var versionTuple = dTuple.Origin.ToRegular();
-        return new SqlPersistTask(request, tuple, versionTuple, true);
+        return new SqlPersistTask(entityState.Key, request, tuple, versionTuple, true);
       }
-      return new SqlPersistTask(request, tuple);
+      return new SqlPersistTask(entityState.Key, request, tuple);
     }
 
     private SqlPersistTask CreateRemoveTask(PersistAction action, bool validateVersion)
     {
       var entityState = action.EntityState;
-      var task = new PersistRequestBuilderTask(PersistRequestKind.Remove, entityState.Type, null, validateVersion);
-      var request = GetOrBuildRequest(task);
       var tuple = entityState.Key.Value;
+      var request = GetOrBuildRequest(
+        new PersistRequestBuilderTask(PersistRequestKind.Remove, entityState.Type, null, validateVersion));
       if (validateVersion) {
         var versionTuple = entityState.DifferentialTuple.Origin.ToRegular();
-        return new SqlPersistTask(request, tuple, versionTuple, true);
+        return new SqlPersistTask(entityState.Key, request, tuple, versionTuple, true);
       }
-      return new SqlPersistTask(request, tuple);
+      return new SqlPersistTask(entityState.Key, request, tuple);
     }
 
     private IEnumerable<PersistRequest> GetOrBuildRequest(PersistRequestBuilderTask task)

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -109,14 +110,22 @@ namespace Xtensive.Orm.Providers
           }
         }
 
-        // There is nothing to update in this table, skipping it
-        if (query.Values.Count==0)
+        // There is nothing to update in this table, skip update
+        // unless this table has version columns
+        // in this case we issue a dummy update that changes
+        // only version column(s).
+
+        var hasColumnUpdates = query.Values.Count > 0;
+        var requiresVersionValidation = context.Task.ValidateVersion;
+        var isValidRequest = hasColumnUpdates
+          || requiresVersionValidation && AddFakeVersionColumnUpdate(context, query, tableRef);
+
+        if (!isValidRequest)
           continue;
 
         query.Where = BuildKeyFilter(context, tableRef, bindings);
-        if (context.Task.ValidateVersion)
+        if (requiresVersionValidation)
           query.Where &= BuildVersionFilter(context, tableRef, bindings);
-
         result.Add(new PersistRequest(driver, query, bindings));
       }
 
@@ -174,6 +183,17 @@ namespace Xtensive.Orm.Providers
         currentBindings.Add(binding);
       }
       return result;
+    }
+
+    private bool AddFakeVersionColumnUpdate(PersistRequestBuilderContext context, SqlUpdate update, SqlTableRef filteredTable)
+    {
+      var column = context.Type.GetVersionColumns()
+        .Select(c => filteredTable[c.Name])
+        .FirstOrDefault(c => !c.IsNullReference());
+      if (column.IsNullReference())
+        return false;
+      update.Values.Add(column, column);
+      return true;
     }
 
     private PersistParameterBinding GetBinding(PersistRequestBuilderContext context, ColumnInfo column, Table table, int fieldIndex)
