@@ -1,0 +1,1 @@
+[main] Added version validation on persist via SessionOptions.ValidateEntityVersions
