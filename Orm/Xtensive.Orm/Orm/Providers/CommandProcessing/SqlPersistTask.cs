@@ -17,14 +17,29 @@ namespace Xtensive.Orm.Providers
   public sealed class SqlPersistTask : SqlTask
   {
     /// <summary>
+    /// A key of an entity to persist (optional).
+    /// </summary>
+    public readonly Key EntityKey;
+
+    /// <summary>
     /// Requests to execute.
     /// </summary>
     public readonly IEnumerable<PersistRequest> RequestSequence;
 
     /// <summary>
-    /// A tuple containing parameter for requests.
+    /// A tuple that stores changed column values.
     /// </summary>
     public readonly Tuple Tuple;
+
+    /// <summary>
+    /// A tuple that stored original column values.
+    /// </summary>
+    public readonly Tuple OriginalTuple;
+
+    /// <summary>
+    /// A value indicating if number of affected rows should be checked.
+    /// </summary>
+    public readonly bool ValidateRowCount;
 
     /// <inheritdoc/>
     public override void ProcessWith(ISqlTaskProcessor processor)
@@ -41,10 +56,20 @@ namespace Xtensive.Orm.Providers
       Tuple = tuple;
     }
 
-    public SqlPersistTask(IEnumerable<PersistRequest> requestSequence, Tuple tuple)
+    public SqlPersistTask(Key key, IEnumerable<PersistRequest> requestSequence, Tuple tuple)
     {
+      EntityKey = key;
       RequestSequence = requestSequence;
       Tuple = tuple;
+    }
+
+    public SqlPersistTask(Key key, IEnumerable<PersistRequest> requestSequence, Tuple tuple, Tuple originalTuple, bool validateRowCount)
+    {
+      EntityKey = key;
+      RequestSequence = requestSequence;
+      Tuple = tuple;
+      OriginalTuple = originalTuple;
+      ValidateRowCount = validateRowCount;
     }
   }
 }

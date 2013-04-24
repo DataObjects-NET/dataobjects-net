@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Collections;
-
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Providers
   {
     private bool useLargeObjects;
 
-    private Providers.DomainHandler domainHandler;
+    private DomainHandler domainHandler;
     private ProviderInfo providerInfo;
     private StorageDriver driver;
 
@@ -50,7 +50,8 @@ namespace Xtensive.Orm.Providers
       }
 
       // Merging requests for servers which support batching
-      if (providerInfo.Supports(ProviderFeatures.Batches) && result.Count > 1) {
+      // unless version validation is requested.
+      if (providerInfo.Supports(ProviderFeatures.Batches) && result.Count > 1 && !task.ValidateVersion) {
         var batch = SqlDml.Batch();
         var bindings = new HashSet<PersistParameterBinding>();
         foreach (var request in result) {
@@ -71,27 +72,21 @@ namespace Xtensive.Orm.Providers
     protected virtual List<PersistRequest> BuildInsertRequest(PersistRequestBuilderContext context)
     {
       var result = new List<PersistRequest>();
-      foreach (Orm.Model.IndexInfo index in context.AffectedIndexes) {
+      foreach (var index in context.AffectedIndexes) {
         var table = domainHandler.Mapping[index.ReflectedType];
         var tableRef = SqlDml.TableRef(table);
         var query = SqlDml.Insert(tableRef);
         var bindings = new List<PersistParameterBinding>();
 
-        for (int i = 0; i < index.Columns.Count; i++) {
-          var column = index.Columns[i];
+        foreach (var column in index.Columns) {
           int fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0) {
-            PersistParameterBinding binding;
-            if (!context.ParameterBindings.TryGetValue(column, out binding)) {
-              var typeMapping = driver.GetTypeMapping(column);
-              var bindingType = GetBindingType(table.TableColumns[column.Name]);
-              binding = new PersistParameterBinding(typeMapping, fieldIndex, bindingType);
-              context.ParameterBindings.Add(column, binding);
-            }
+            var binding = GetBinding(context, column, table, fieldIndex);
             query.Values[tableRef[column.Name]] = binding.ParameterReference;
             bindings.Add(binding);
           }
         }
+
         result.Add(new PersistRequest(driver, query, bindings));
       }
       return result;
@@ -100,47 +95,40 @@ namespace Xtensive.Orm.Providers
     protected virtual List<PersistRequest> BuildUpdateRequest(PersistRequestBuilderContext context)
     {
       var result = new List<PersistRequest>();
-      foreach (IndexInfo index in context.AffectedIndexes) {
+      foreach (var index in context.AffectedIndexes) {
         var table = domainHandler.Mapping[index.ReflectedType];
         var tableRef = SqlDml.TableRef(table);
         var query = SqlDml.Update(tableRef);
         var bindings = new List<PersistParameterBinding>();
 
-        PersistParameterBinding binding;
-        int fieldIndex;
-        for (int i = 0; i < index.Columns.Count; i++) {
-          ColumnInfo column = index.Columns[i];
-          fieldIndex = GetFieldIndex(context.Type, column);
+        foreach (var column in index.Columns) {
+          int fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0 && context.Task.FieldMap[fieldIndex]) {
-            if (!context.ParameterBindings.TryGetValue(column, out binding)) {
-              var typeMapping = driver.GetTypeMapping(column);
-              var bindingType = GetBindingType(table.TableColumns[column.Name]);
-              binding = new PersistParameterBinding(typeMapping, fieldIndex, bindingType);
-              context.ParameterBindings.Add(column, binding);
-            }
+            var binding = GetBinding(context, column, table, fieldIndex);
             query.Values[tableRef[column.Name]] = binding.ParameterReference;
             bindings.Add(binding);
           }
         }
 
-        // There is nothing to update in this table, skipping it
-        if (query.Values.Count==0)
+        // There is nothing to update in this table, skip update
+        // unless this table has version columns
+        // in this case we issue a dummy update that changes
+        // only version column(s).
+
+        var hasColumnUpdates = query.Values.Count > 0;
+        var requiresVersionValidation = context.Task.ValidateVersion;
+        var isValidRequest = hasColumnUpdates
+          || requiresVersionValidation && AddFakeVersionColumnUpdate(context, query, tableRef);
+
+        if (!isValidRequest)
           continue;
 
-        SqlExpression expression = null;
-        foreach (ColumnInfo column1 in context.PrimaryIndex.KeyColumns.Keys) {
-          fieldIndex = GetFieldIndex(context.Task.Type, column1);
-          if (!context.ParameterBindings.TryGetValue(column1, out binding)) {
-            TypeMapping typeMapping1 = driver.GetTypeMapping(column1);
-            binding = new PersistParameterBinding(typeMapping1, fieldIndex);
-            context.ParameterBindings.Add(column1, binding);
-          }
-          expression &= tableRef[column1.Name]==binding.ParameterReference;
-          bindings.Add(binding);
-        }
-        query.Where &= expression;
+        query.Where = BuildKeyFilter(context, tableRef, bindings);
+        if (requiresVersionValidation)
+          query.Where &= BuildVersionFilter(context, tableRef, bindings);
         result.Add(new PersistRequest(driver, query, bindings));
       }
+
       return result;
     }
 
@@ -152,26 +140,75 @@ namespace Xtensive.Orm.Providers
         var tableRef = SqlDml.TableRef(domainHandler.Mapping[index.ReflectedType]);
         var query = SqlDml.Delete(tableRef);
         var bindings = new List<PersistParameterBinding>();
-
-        SqlExpression expression = null;
-        foreach (ColumnInfo column in context.PrimaryIndex.KeyColumns.Keys) {
-          int fieldIndex = GetFieldIndex(context.Task.Type, column);
-          PersistParameterBinding binding;
-          if (!context.ParameterBindings.TryGetValue(column, out binding)) {
-            TypeMapping typeMapping = driver.GetTypeMapping(column);
-            binding = new PersistParameterBinding(typeMapping, fieldIndex);
-            context.ParameterBindings.Add(column, binding);
-          }
-          expression &= tableRef[column.Name]==binding.ParameterReference;
-          bindings.Add(binding);
-        }
-        query.Where &= expression;
+        query.Where = BuildKeyFilter(context, tableRef, bindings);
+        if (context.Task.ValidateVersion)
+          query.Where &= BuildVersionFilter(context, tableRef, bindings);
         result.Add(new PersistRequest(driver, query, bindings));
       }
       return result;
     }
 
-    protected virtual ParameterTransmissionType GetBindingType(TableColumn column)
+    private SqlExpression BuildKeyFilter(PersistRequestBuilderContext context, SqlTableRef filteredTable, List<PersistParameterBinding> currentBindings)
+    {
+      SqlExpression result = null;
+      foreach (var column in context.PrimaryIndex.KeyColumns.Keys) {
+        var fieldIndex = GetFieldIndex(context.Type, column);
+        PersistParameterBinding binding;
+        if (!context.ParameterBindings.TryGetValue(column, out binding)) {
+          var typeMapping = driver.GetTypeMapping(column);
+          binding = new PersistParameterBinding(typeMapping, fieldIndex);
+          context.ParameterBindings.Add(column, binding);
+        }
+        result &= filteredTable[column.Name]==binding.ParameterReference;
+        currentBindings.Add(binding);
+      }
+      return result;
+    }
+
+    private SqlExpression BuildVersionFilter(PersistRequestBuilderContext context, SqlTableRef filteredTable, List<PersistParameterBinding> currentBindings)
+    {
+      SqlExpression result = null;
+      foreach (var column in context.Type.GetVersionColumns()) {
+        var fieldIndex = GetFieldIndex(context.Type, column);
+        PersistParameterBinding binding;
+        if (!context.VersionParameterBindings.TryGetValue(column, out binding)) {
+          var typeMapping = driver.GetTypeMapping(column);
+          binding = new PersistParameterBinding(typeMapping, fieldIndex, ParameterTransmissionType.Regular, PersistParameterBindingType.VersionFilter);
+          context.VersionParameterBindings.Add(column, binding);
+        }
+        var filteredColumn = filteredTable[column.Name];
+        if (filteredColumn.IsNullReference())
+          continue;
+        result &= SqlDml.Variant(binding, filteredColumn==binding.ParameterReference, SqlDml.IsNull(filteredColumn));
+        currentBindings.Add(binding);
+      }
+      return result;
+    }
+
+    private bool AddFakeVersionColumnUpdate(PersistRequestBuilderContext context, SqlUpdate update, SqlTableRef filteredTable)
+    {
+      var column = context.Type.GetVersionColumns()
+        .Select(c => filteredTable[c.Name])
+        .FirstOrDefault(c => !c.IsNullReference());
+      if (column.IsNullReference())
+        return false;
+      update.Values.Add(column, column);
+      return true;
+    }
+
+    private PersistParameterBinding GetBinding(PersistRequestBuilderContext context, ColumnInfo column, Table table, int fieldIndex)
+    {
+      PersistParameterBinding binding;
+      if (!context.ParameterBindings.TryGetValue(column, out binding)) {
+        var typeMapping = driver.GetTypeMapping(column);
+        var bindingType = GetTransmissionType(table.TableColumns[column.Name]);
+        binding = new PersistParameterBinding(typeMapping, fieldIndex, bindingType);
+        context.ParameterBindings.Add(column, binding);
+      }
+      return binding;
+    }
+
+    private ParameterTransmissionType GetTransmissionType(TableColumn column)
     {
       if (!useLargeObjects)
         return ParameterTransmissionType.Regular;

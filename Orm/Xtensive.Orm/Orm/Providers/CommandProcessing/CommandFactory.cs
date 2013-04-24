@@ -56,10 +56,15 @@ namespace Xtensive.Orm.Providers
         var part = new CommandPart();
         
         foreach (var binding in request.ParameterBindings) {
-          var parameterValue = tuple.GetValueOrDefault(binding.FieldIndex);
-          string parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
-          configuration.PlaceholderValues.Add(binding, Driver.BuildParameterReference(parameterName));
-          AddParameter(part, binding, parameterName, parameterValue);
+          var parameterValue = GetParameterValue(task, binding);
+          if (binding.BindingType==PersistParameterBindingType.VersionFilter && IsHandledLikeNull(parameterValue)) {
+            configuration.AlternativeBranches.Add(binding);
+          }
+          else {
+            var parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
+            configuration.PlaceholderValues.Add(binding, Driver.BuildParameterReference(parameterName));
+            AddParameter(part, binding, parameterName, parameterValue);
+          }
         }
 
         part.Statement = compilationResult.GetCommandText(configuration);
@@ -106,7 +111,7 @@ namespace Xtensive.Orm.Providers
             break;
           case QueryParameterBindingType.SmartNull:
             // replacing "x = @p" with "x is null" when @p = null (or empty string in case of Oracle)
-            if (parameterValue==null || emptyStringIsNull && parameterValue.Equals(string.Empty)) {
+            if (IsHandledLikeNull(parameterValue)) {
               configuration.AlternativeBranches.Add(binding);
               continue;
             }
@@ -166,6 +171,11 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
+    private bool IsHandledLikeNull(object parameterValue)
+    {
+      return parameterValue==null || emptyStringIsNull && parameterValue.Equals(string.Empty);
+    }
+
     private static object GetParameterValue(QueryParameterBinding binding)
     {
       try {
@@ -173,6 +183,18 @@ namespace Xtensive.Orm.Providers
       }
       catch(Exception exception) {
         throw new TargetInvocationException(Strings.ExExceptionHasBeenThrownByTheParameterValueAccessor, exception);
+      }
+    }
+
+    private object GetParameterValue(SqlPersistTask task, PersistParameterBinding binding)
+    {
+      switch (binding.BindingType) {
+      case PersistParameterBindingType.Regular:
+        return task.Tuple.GetValueOrDefault(binding.FieldIndex);
+      case PersistParameterBindingType.VersionFilter:
+        return task.OriginalTuple.GetValueOrDefault(binding.FieldIndex);
+      default:
+        throw new ArgumentOutOfRangeException("binding.Source");
       }
     }
 

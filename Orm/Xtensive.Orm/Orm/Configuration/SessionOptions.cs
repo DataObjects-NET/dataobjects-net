@@ -83,6 +83,12 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     SuppressRollbackExceptions = 1 << 11,
 
+    /// <summary>
+    /// Enables validation of entity versions during save to the database.
+    /// This option disables any SQL statement batching.
+    /// </summary>
+    ValidateEntityVersions = 1 << 12,
+
     // Profiles
 
     /// <summary>

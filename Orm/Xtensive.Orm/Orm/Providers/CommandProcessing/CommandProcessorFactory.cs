@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.18
 
+using Xtensive.Orm.Configuration;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
@@ -24,9 +25,10 @@ namespace Xtensive.Orm.Providers
     /// <returns>Created command processor.</returns>
     public CommandProcessor CreateCommandProcessor(Session session, SqlConnection connection)
     {
-      int batchSize = session.Configuration.BatchSize;
-      bool useBatches = batchSize > 1
-        && providerInfo.Supports(ProviderFeatures.DmlBatches);
+      var configuration = session.Configuration;
+      bool useBatches = configuration.BatchSize > 1
+        && providerInfo.Supports(ProviderFeatures.DmlBatches)
+        && !configuration.Supports(SessionOptions.ValidateEntityVersions);
       bool useCursorParameters =
         providerInfo.Supports(ProviderFeatures.MultipleResultsViaCursorParameters);
 
@@ -35,7 +37,7 @@ namespace Xtensive.Orm.Providers
         : new CommandFactory(driver, session, connection);
 
       var processor = useBatches
-        ? new BatchingCommandProcessor(factory, batchSize)
+        ? new BatchingCommandProcessor(factory, configuration.BatchSize)
         : (CommandProcessor) new SimpleCommandProcessor(factory);
       return processor;
       

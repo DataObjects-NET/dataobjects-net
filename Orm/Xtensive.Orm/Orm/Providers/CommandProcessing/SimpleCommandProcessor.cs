@@ -50,24 +50,17 @@ namespace Xtensive.Orm.Providers
 
     void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
     {
-      ExecutePersist(task);
-    }
-
-    #region Private / internal methods
-
-    private void ExecutePersist(SqlPersistTask task)
-    {
       var sequence = Factory.CreatePersistParts(task);
       foreach (var part in sequence) {
         using (var command = Factory.CreateCommand()) {
           command.AddPart(part);
-          command.ExecuteNonQuery();
+          var affectedRowsCount = command.ExecuteNonQuery();
+          if (task.ValidateRowCount && affectedRowsCount==0)
+            throw new VersionConflictException(string.Format(
+              Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
         }
       }
     }
-
-    #endregion
-
 
     // Constructors
 
