@@ -1102,6 +1102,8 @@ namespace Xtensive.Orm.Linq
       case ExtendedExpressionType.Field:
         if (isMarker && ((markerType & MarkerType.Single)==MarkerType.Single))
           throw new InvalidOperationException(string.Format(Strings.ExUseMethodXOnFirstInsteadOfSingle, sourceExpression.ToString(true), member.Name));
+        if (member.DeclaringType.IsGenericType && member.DeclaringType.GetGenericTypeDefinition()==typeof (Nullable<>))
+          expression = Expression.Convert(expression, member.DeclaringType);
         return Expression.MakeMemberAccess(expression, member);
       case ExtendedExpressionType.EntityField:
         var entityFieldExpression = (EntityFieldExpression) expression;
