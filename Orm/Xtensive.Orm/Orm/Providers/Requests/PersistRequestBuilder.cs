@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Providers
 
         foreach (var column in index.Columns) {
           int fieldIndex = GetFieldIndex(context.Type, column);
-          if (fieldIndex >= 0 && context.Task.FieldMap[fieldIndex]) {
+          if (fieldIndex >= 0 && context.Task.ChangedFields[fieldIndex]) {
             var binding = GetBinding(context, column, table, fieldIndex);
             query.Values[tableRef[column.Name]] = binding.ParameterReference;
             bindings.Add(binding);
@@ -170,6 +170,8 @@ namespace Xtensive.Orm.Providers
       SqlExpression result = null;
       foreach (var column in context.Type.GetVersionColumns()) {
         var fieldIndex = GetFieldIndex(context.Type, column);
+        if (!context.Task.AvailableFields[fieldIndex])
+          continue;
         PersistParameterBinding binding;
         if (!context.VersionParameterBindings.TryGetValue(column, out binding)) {
           var typeMapping = driver.GetTypeMapping(column);
@@ -187,13 +189,17 @@ namespace Xtensive.Orm.Providers
 
     private bool AddFakeVersionColumnUpdate(PersistRequestBuilderContext context, SqlUpdate update, SqlTableRef filteredTable)
     {
-      var column = context.Type.GetVersionColumns()
-        .Select(c => filteredTable[c.Name])
-        .FirstOrDefault(c => !c.IsNullReference());
-      if (column.IsNullReference())
-        return false;
-      update.Values.Add(column, column);
-      return true;
+      foreach (var column in context.Type.GetVersionColumns()) {
+        var columnExpression = filteredTable[column.Name];
+        if (columnExpression.IsNullReference())
+          continue;
+        int index = GetFieldIndex(context.Type, column);
+        if (index < 0 || !context.Task.AvailableFields[index])
+          continue;
+        update.Values.Add(columnExpression, columnExpression);
+        return true;
+      }
+      return false;
     }
 
     private PersistParameterBinding GetBinding(PersistRequestBuilderContext context, ColumnInfo column, Table table, int fieldIndex)

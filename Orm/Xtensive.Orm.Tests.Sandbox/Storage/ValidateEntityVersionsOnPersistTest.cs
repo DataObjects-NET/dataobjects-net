@@ -103,6 +103,22 @@ namespace Xtensive.Orm.Tests.Storage
         e2.Remove();
         tx.Complete();
       }
+
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var e3 = session.Query.All<EntityWithVersion1>().Single(e => e.Name=="3changed");
+        e3.Name = "3changed2";
+        tx.Complete();
+      }
+
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var e3 = session.Query.All<EntityWithVersion2>().Single(e => e.Name=="3changed2");
+        e3.Count2 = 4;
+        session.SaveChanges();
+        e3.Remove();
+        tx.Complete();
+      }
     }
   }
 }
