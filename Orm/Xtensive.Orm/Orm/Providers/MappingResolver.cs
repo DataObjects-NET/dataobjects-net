@@ -81,6 +81,8 @@ namespace Xtensive.Orm.Providers
         var names = nodeName.Split(Separator);
         var schema = model.Catalogs.Single().Schemas[names[0]];
         var name = names[1];
+        if (schema==null)
+          throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveSchemaForNodeXPleaseVerifyThatThisSchemaExists, nodeName));
         return new MappingResolveResult(schema, name);
       }
 
@@ -149,7 +151,12 @@ namespace Xtensive.Orm.Providers
       public override MappingResolveResult Resolve(SqlExtractionResult model, string nodeName)
       {
         var names = nodeName.Split(Separator);
-        var schema = model.Catalogs[names[0]].Schemas[names[1]];
+        var catalog = model.Catalogs[names[0]];
+        if (catalog==null)
+          throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveDatabaseForNodeXPleaseVerifyThatThisDatabaseExists, nodeName));
+        var schema = catalog.Schemas[names[1]];
+        if (schema==null)
+          throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveSchemaForNodeXPleaseVerifyThatThisSchemaExists, nodeName));
         var name = names[2];
         return new MappingResolveResult(schema, name);
       }
