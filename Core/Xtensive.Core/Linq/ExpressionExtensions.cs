@@ -80,10 +80,7 @@ namespace Xtensive.Linq
 
     static ExpressionExtensions()
     {
-      TupleGenericAccessor = typeof (Tuples.Tuple)
-        .GetMethods()
-        .Where(mi => mi.Name==WellKnown.Tuple.GetValueOrDefault && mi.IsGenericMethod)
-        .Single();
+      TupleGenericAccessor = typeof (Tuple).GetMethods().Single(mi => mi.Name==WellKnown.Tuple.GetValueOrDefault && mi.IsGenericMethod);
     }
   }
 }
