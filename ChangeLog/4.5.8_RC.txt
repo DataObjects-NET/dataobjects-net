@@ -1,5 +1,6 @@
 [main] Added QueryEndpoint.Items() method for querying EntitySets within compiled queries
 [main] Added support for DateTime.AddXxx() methods in LINQ translator
+[main] Added support for System.Linq.EnumerableQuery<T> in LINQ translator
 [main] Fixed incorrect column references in generated SQL for certain queries
 [main] Fixed querying for types with enum type discriminators
 [main] Fixed locking of entity that could not be persisted at the moment for some reason
