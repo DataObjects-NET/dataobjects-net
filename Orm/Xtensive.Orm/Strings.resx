@@ -2344,4 +2344,7 @@ Error: {1}</value>
   <data name="ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsInstead">
     <value xml:space="preserve">Direct querying for entity set in compiled queries is not supported, use QueryEndpoint.Items() instead.</value>
   </data>
+  <data name="ExInvalidSortExpressionX">
+    <value xml:space="preserve">Invalid sort expression '{0}'</value>
+  </data>
 </root>

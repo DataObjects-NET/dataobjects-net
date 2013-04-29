@@ -178,11 +178,8 @@ namespace Xtensive.Orm.Linq
             false,
             mc);
         case QueryableMethodKind.OrderBy:
-          state.BuildingProjection = false;
-          return VisitOrderBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Positive);
         case QueryableMethodKind.OrderByDescending:
-          state.BuildingProjection = false;
-          return VisitOrderBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Negative);
+          return VisitSort(mc);
         case QueryableMethodKind.Select:
           return VisitSelect(mc.Arguments[0], mc.Arguments[1].StripQuotes());
         case QueryableMethodKind.SelectMany:
@@ -219,11 +216,8 @@ namespace Xtensive.Orm.Linq
             return VisitTake(mc.Arguments[0], mc.Arguments[1]);
           break;
         case QueryableMethodKind.ThenBy:
-          state.BuildingProjection = false;
-          return VisitThenBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Positive);
         case QueryableMethodKind.ThenByDescending:
-          state.BuildingProjection = false;
-          return VisitThenBy(mc.Arguments[0], mc.Arguments[1].StripQuotes(), Direction.Negative);
+          return VisitSort(mc);
         case QueryableMethodKind.Where:
           state.BuildingProjection = false;
           return VisitWhere(mc.Arguments[0], mc.Arguments[1].StripQuotes());
@@ -860,53 +854,42 @@ namespace Xtensive.Orm.Linq
       return resultProjection;
     }
 
-    private Expression VisitOrderBy(Expression expression, LambdaExpression le, Direction direction)
+    private Expression VisitSort(Expression expression)
     {
-      ProjectionExpression projectionExpression;
-      using (state.CreateScope()) {
-        state.CalculateExpressions = false;
-        projectionExpression = VisitSequence(expression);
-      }
-      using (context.Bindings.Add(le.Parameters[0], projectionExpression))
-      using (state.CreateScope()) {
-        state.CalculateExpressions = true;
-        var orderByProjector = (ItemProjectorExpression) VisitLambda(le);
-        var orderItems = orderByProjector
-          .GetColumns(ColumnExtractionModes.TreatEntityAsKey | ColumnExtractionModes.Distinct)
-          .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
-        var dc = new DirectionCollection<int>(orderItems);
-        var result = context.Bindings[le.Parameters[0]];
-        var dataSource = result.ItemProjector.DataSource.OrderBy(dc);
-        var itemProjector = new ItemProjectorExpression(result.ItemProjector.Item, dataSource, context);
-        return new ProjectionExpression(result.Type, itemProjector, result.TupleParameterBindings);
-      }
-    }
+      var extractor = new SortExpressionExtractor();
+      if (!extractor.Extract(expression))
+        throw new InvalidOperationException(string.Format(Strings.ExInvalidSortExpressionX, expression));
 
-    private Expression VisitThenBy(Expression expression, LambdaExpression le, Direction direction)
-    {
+      state.BuildingProjection = false;
+      ProjectionExpression projection;
       using (state.CreateScope()) {
         state.CalculateExpressions = false;
-        var projectionExpression = VisitSequence(expression);
-        using (context.Bindings.Add(le.Parameters[0], projectionExpression))
-        {
+        projection = VisitSequence(extractor.BaseExpression);
+      }
+
+      var sortColumns = new DirectionCollection<int>();
+
+      foreach (var item in extractor.SortExpressions) {
+        var sortExpression = item.Key;
+        var direction = item.Value;
+        var sortParameter = sortExpression.Parameters[0];
+        using (context.Bindings.Add(sortParameter, projection))
+        using (state.CreateScope()) {
           state.CalculateExpressions = true;
-          var orderByProjector = (ItemProjectorExpression) VisitLambda(le);
-          var orderItems = orderByProjector
-            .GetColumns(ColumnExtractionModes.TreatEntityAsKey | ColumnExtractionModes.Distinct)
-            .Select(ci => new KeyValuePair<int, Direction>(ci, direction));
-          var result = context.Bindings[le.Parameters[0]];
-          var sortProvider = (SortProvider) result.ItemProjector.DataSource;
-          var sortOrder = new DirectionCollection<int>(sortProvider.Order);
-          foreach (var item in orderItems) {
-            if (!sortOrder.ContainsKey(item.Key))
-              sortOrder.Add(item);
-          }
-          var recordSet = new SortProvider(sortProvider.Source, sortOrder);
-          var itemProjector = new ItemProjectorExpression(result.ItemProjector.Item, recordSet, context);
-          return new ProjectionExpression(result.Type, itemProjector, result.TupleParameterBindings);
+          var orderByProjector = (ItemProjectorExpression) VisitLambda(sortExpression);
+          var columns = orderByProjector
+            .GetColumns(ColumnExtractionModes.TreatEntityAsKey | ColumnExtractionModes.Distinct);
+          foreach (var c in columns)
+            if (!sortColumns.ContainsKey(c))
+              sortColumns.Add(c, direction);
+          projection = context.Bindings[sortParameter];
         }
+      }
+
+      var dataSource = projection.ItemProjector.DataSource.OrderBy(sortColumns);
+      var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, dataSource, context);
+      return new ProjectionExpression(projection.Type, itemProjector, projection.TupleParameterBindings);
     }
-  }
 
     private ProjectionExpression VisitJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, bool isLeftJoin, Expression expressionPart)
     {

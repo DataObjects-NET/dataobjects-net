@@ -2349,6 +2349,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid sort expression &apos;{0}&apos;.
+        /// </summary>
+        internal static string ExInvalidSortExpressionX {
+            get {
+                return ResourceManager.GetString("ExInvalidSortExpressionX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid upgrader version..
         /// </summary>
         internal static string ExInvalidUpgraderVersion {
