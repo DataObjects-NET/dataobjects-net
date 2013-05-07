@@ -42,6 +42,13 @@ namespace ValidateEntityVersionsOnPersistTestModel
     [Field]
     public decimal? Price2 { get; set; }
   }
+
+  [HierarchyRoot]
+  public class EntityWithoutVersion : Entity
+  {
+    [Key, Field]
+    public long Id { get; private set; }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Storage
@@ -77,6 +84,7 @@ namespace Xtensive.Orm.Tests.Storage
           Count1 = 3,
           Price1 = 3,
         };
+        new EntityWithoutVersion();
         tx.Complete();
       }
     }
@@ -99,8 +107,11 @@ namespace Xtensive.Orm.Tests.Storage
         e3.Name = e3.Name + "changed";
         session.SaveChanges();
 
+        var w = session.Query.All<EntityWithoutVersion>().Single();
+
         e1.Remove();
         e2.Remove();
+        w.Remove();
         tx.Complete();
       }
 

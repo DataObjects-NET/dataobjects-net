@@ -43,9 +43,9 @@ namespace Xtensive.Orm.Providers
       case PersistActionKind.Insert:
         return CreateInsertTask(action);
       case PersistActionKind.Update:
-        return CreateUpdateTask(action, validateVersion);
+        return CreateUpdateTask(action, validateVersion && action.EntityState.Type.HasVersionFields);
       case PersistActionKind.Remove:
-        return CreateRemoveTask(action, validateVersion);
+        return CreateRemoveTask(action, validateVersion && action.EntityState.Type.HasVersionFields);
       default:
         throw new ArgumentOutOfRangeException("action.ActionKind");
       }
