@@ -16,6 +16,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
   public class TypeMapper : Sql.TypeMapper
   {
+    private static readonly SqlDecimal MinDecimal = new SqlDecimal(decimal.MinValue);
+    private static readonly SqlDecimal MaxDecimal = new SqlDecimal(decimal.MaxValue);
+
     private ValueRange<DateTime> dateTimeRange;
 
     public override void BindSByte(DbParameter parameter, object value)
@@ -88,16 +91,19 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     public override object ReadDecimal(DbDataReader reader, int index)
     {
       var nativeReader = (SqlDataReader) reader;
-      // TODO: quickfix -- rewrite
-      try {
-        var value = SqlDecimal.ConvertToPrecScale(
-          nativeReader.GetSqlDecimal(index),
-          MaxDecimalPrecision.Value - 2, MaxDecimalPrecision.Value / 3);
-        return value.Value;
-      }
-      catch (SqlTruncateException e) {
-        return nativeReader.GetSqlDecimal(index).Value;
-      }
+      var sqlDecimal = nativeReader.GetSqlDecimal(index);
+      if (sqlDecimal > MaxDecimal)
+        return MaxDecimal;
+      if (sqlDecimal < MinDecimal)
+        return MinDecimal;
+      decimal result;
+      if (TryConvert(sqlDecimal, out result))
+        return result;
+      var reduced1 = ReducePrecision(sqlDecimal, 29);
+      if (TryConvert(reduced1, out result))
+        return result;
+      var reduced2 = ReducePrecision(sqlDecimal, 28);
+      return reduced2.Value;
     }
 
     public override object ReadTimeSpan(DbDataReader reader, int index)
@@ -118,6 +124,23 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       dateTimeRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
     }
 
+    private bool TryConvert(SqlDecimal sqlDecimal, out decimal result)
+    {
+      var data = sqlDecimal.Data;
+      if (data[3]==0 && sqlDecimal.Scale <= 28) {
+        result = new decimal(data[0], data[1], data[2], !sqlDecimal.IsPositive, sqlDecimal.Scale);
+        return true;
+      }
+      result = decimal.Zero;
+      return false;
+    }
+
+    private SqlDecimal ReducePrecision(SqlDecimal d, int newPrecision)
+    {
+      var newScale = newPrecision - d.Precision + d.Scale;
+      var truncated = SqlDecimal.Truncate(d, newScale);
+      return SqlDecimal.ConvertToPrecScale(truncated, newPrecision, newScale);
+    }
 
     // Constructors
 
