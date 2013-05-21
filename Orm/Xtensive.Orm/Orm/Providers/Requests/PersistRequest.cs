@@ -18,6 +18,7 @@ namespace Xtensive.Orm.Providers
   public sealed class PersistRequest
   {
     private readonly StorageDriver driver;
+
     private SqlCompilationResult compiledStatement;
 
     public SqlStatement Statement { get; private set; }
@@ -25,8 +26,6 @@ namespace Xtensive.Orm.Providers
     public ISqlCompileUnit CompileUnit { get; private set; }
 
     public IEnumerable<PersistParameterBinding> ParameterBindings { get; private set; }
-
-    public IEnumerable<PersistParameterBinding> VersionParameterBindings { get; private set; }
 
     public SqlCompilationResult GetCompiledStatement()
     {

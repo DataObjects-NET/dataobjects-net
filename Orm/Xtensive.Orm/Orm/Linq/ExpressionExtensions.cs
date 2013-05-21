@@ -64,9 +64,29 @@ namespace Xtensive.Orm.Linq
         && !expression.IsEntitySet()
         && !expression.IsSubqueryExpression()
         && expression.Type!=typeof (string)
-        && !expression.Type.IsOfGenericInterface(typeof (IQueryable<>))
-        && context.Evaluator.CanBeEvaluated(expression)
-        && expression.Type.IsOfGenericInterface(typeof (IEnumerable<>));
+        && expression.Type.IsOfGenericInterface(typeof (IEnumerable<>))
+        && (IsEvaluableCollection(context, expression) || IsForeignQuery(expression));
+    }
+
+    private static bool IsEvaluableCollection(TranslatorContext context, Expression expression)
+    {
+      return !expression.Type.IsOfGenericInterface(typeof (IQueryable<>)) && context.Evaluator.CanBeEvaluated(expression);
+    }
+
+    private static bool IsForeignQuery(Expression expression)
+    {
+      // Check for EnumerableQuery<T> and similar things
+      if (expression.NodeType==ExpressionType.Constant) {
+        var value = ((ConstantExpression) expression).Value as IQueryable;
+        if (value!=null) {
+          var type = value.GetType();
+          if (type.IsGenericType) {
+            var definition = type.GetGenericTypeDefinition();
+            return definition!=typeof (IQueryable<>) && definition!=typeof (Queryable<>);
+          }
+        }
+      }
+      return false;
     }
 
     public static bool IsItemProjector(this Expression expression)

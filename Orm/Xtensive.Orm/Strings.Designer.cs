@@ -2512,6 +2512,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid sort expression &apos;{0}&apos;.
+        /// </summary>
+        internal static string ExInvalidSortExpressionX {
+            get {
+                return ResourceManager.GetString("ExInvalidSortExpressionX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid upgrader version..
         /// </summary>
         internal static string ExInvalidUpgraderVersion {
@@ -4991,6 +5000,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to resolve database for node &apos;{0}&apos;. Please verify that this database exists..
+        /// </summary>
+        internal static string ExUnableToResolveDatabaseForNodeXPleaseVerifyThatThisDatabaseExists {
+            get {
+                return ResourceManager.GetString("ExUnableToResolveDatabaseForNodeXPleaseVerifyThatThisDatabaseExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to resolve owner of FieldExpression &apos;{0}&apos;..
         /// </summary>
         internal static string ExUnableToResolveOwnerOfFieldExpressionX {
@@ -5005,6 +5023,15 @@ namespace Xtensive {
         internal static string ExUnableToResolveOwnerOfStructureExpressionX {
             get {
                 return ResourceManager.GetString("ExUnableToResolveOwnerOfStructureExpressionX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to resolve schema for node &apos;{0}&apos;. Please verify that this schema exists..
+        /// </summary>
+        internal static string ExUnableToResolveSchemaForNodeXPleaseVerifyThatThisSchemaExists {
+            get {
+                return ResourceManager.GetString("ExUnableToResolveSchemaForNodeXPleaseVerifyThatThisSchemaExists", resourceCulture);
             }
         }
         

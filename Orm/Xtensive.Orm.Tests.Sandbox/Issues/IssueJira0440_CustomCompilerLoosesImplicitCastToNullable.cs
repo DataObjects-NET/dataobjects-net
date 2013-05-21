@@ -49,8 +49,15 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var query = session.Query.All<TestEntity2>()
-          .Where(e => e.VirtualDateTime.Value.Date==DateTime.Now.Date).ToList();
+        var query1 = session.Query.All<TestEntity2>()
+          .Where(e => e.VirtualDateTime.Value.Date==DateTime.Now.Date)
+          .ToList();
+        var query2 = session.Query.All<TestEntity2>()
+          .Where(e => e.VirtualDateTime.HasValue)
+          .ToList();
+        var query3 = session.Query.All<TestEntity2>()
+          .Where(e => e.VirtualDateTime!=null)
+          .ToList();
         tx.Complete();
       }
     }

@@ -2452,4 +2452,13 @@ Error: {1}</value>
 	<data name="ExBatchingCommandProcessorDoesNotSupportValidationOfNumberOfAffectedRows">
 		<value xml:space="preserve">BatchingCommandProcessor does not support validation of number of affected rows.</value>
 	</data>
+  <data name="ExUnableToResolveSchemaForNodeXPleaseVerifyThatThisSchemaExists">
+    <value xml:space="preserve">Unable to resolve schema for node '{0}'. Please verify that this schema exists.</value>
+  </data>
+  <data name="ExUnableToResolveDatabaseForNodeXPleaseVerifyThatThisDatabaseExists">
+    <value xml:space="preserve">Unable to resolve database for node '{0}'. Please verify that this database exists.</value>
+  </data>
+  <data name="ExInvalidSortExpressionX">
+    <value xml:space="preserve">Invalid sort expression '{0}'</value>
+  </data>
 </root>

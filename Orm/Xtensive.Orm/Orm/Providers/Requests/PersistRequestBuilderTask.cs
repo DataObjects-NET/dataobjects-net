@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed class PersistRequestBuilderTask
   {
-    private int hashCode;
+    private readonly int hashCode;
 
     /// <summary>
     /// Gets the type.
@@ -25,7 +25,12 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the field map that describes updated fields.
     /// </summary>
-    public BitArray FieldMap { get; private set; }
+    public BitArray ChangedFields { get; private set; }
+
+    /// <summary>
+    /// Gets the field map that describes available (fetched) fields.
+    /// </summary>
+    public BitArray AvailableFields { get; set; }
 
     /// <summary>
     /// Gets the <see cref="PersistRequestKind"/>.
@@ -53,41 +58,87 @@ namespace Xtensive.Orm.Providers
         return false;
       if (ValidateVersion!=other.ValidateVersion)
         return false;
-      if (FieldMap==null && other.FieldMap==null)
+      return CompareBits(AvailableFields, other.AvailableFields)
+        && CompareBits(ChangedFields, other.ChangedFields);
+    }
+
+    /// <inheritdoc/>
+    public override int GetHashCode()
+    {
+      return hashCode;
+    }
+
+    private int CalculateHashCode()
+    {
+      return Type.GetHashCode() ^ Kind.GetHashCode() ^ ValidateVersion.GetHashCode()
+        ^ HashBits(AvailableFields) ^ HashBits(ChangedFields);
+    }
+
+    private int HashBits(BitArray bits)
+    {
+      if (bits==null)
+        return int.MaxValue / 2;
+      var result = 0;
+      var max = Math.Min(bits.Count, 32);
+      for (var i = 0; i < max; i++)
+        result = (result << 1) | (bits[i] ? 1 : 0);
+      return result;
+    }
+
+    private bool CompareBits(BitArray left, BitArray right)
+    {
+      if (left==null && right==null)
         return true;
-      if (FieldMap!=null && other.FieldMap!=null && FieldMap.Count==other.FieldMap.Count) {
-        for (int i = 0; i < FieldMap.Count; i++)
-          if (FieldMap[i]!=other.FieldMap[i])
+      if (left!=null && right!=null && left.Count==right.Count) {
+        for (var i = 0; i < left.Count; i++)
+          if (left[i]!=right[i])
             return false;
         return true;
       }
       return false;
     }
 
-    /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      if (hashCode==0)
-        UpdateHashCode();
-      return hashCode;
-    }
-
-    private void UpdateHashCode()
-    {
-      hashCode = Type.GetHashCode() ^ Kind.GetHashCode();
-    }
-    
     // Constructors
 
-    internal PersistRequestBuilderTask(PersistRequestKind kind, TypeInfo type, BitArray fieldMap, bool validateVersion)
+    internal static PersistRequestBuilderTask Insert(TypeInfo type)
+    {
+      return new PersistRequestBuilderTask(PersistRequestKind.Insert, type, null, null, false);
+    }
+
+    internal static PersistRequestBuilderTask Update(TypeInfo type, BitArray changedFields)
+    {
+      return new PersistRequestBuilderTask(PersistRequestKind.Update, type, null, changedFields, false);
+    }
+
+    internal static PersistRequestBuilderTask UpdateWithVersionCheck(TypeInfo type, BitArray availableFields, BitArray changedField)
+    {
+      return new PersistRequestBuilderTask(PersistRequestKind.Update, type, availableFields, changedField, true);
+    }
+
+    internal static PersistRequestBuilderTask Remove(TypeInfo type)
+    {
+      return new PersistRequestBuilderTask(PersistRequestKind.Remove, type, null, null, false);
+    }
+
+    internal static PersistRequestBuilderTask RemoveWithVersionCheck(TypeInfo type, BitArray availableFields)
+    {
+      return new PersistRequestBuilderTask(PersistRequestKind.Remove, type, availableFields, null, true);
+    }
+
+    // Constructors
+
+    private PersistRequestBuilderTask(PersistRequestKind kind, TypeInfo type, BitArray availableFields, BitArray changedFields, bool validateVersion)
     {
       if (validateVersion && kind==PersistRequestKind.Insert)
         throw new ArgumentException(Strings.ExValidateVersionEqTrueIsIncompatibleWithPersistRequestKindEqInsert);
 
       Kind = kind;
       Type = type;
-      FieldMap = fieldMap;
+      ChangedFields = changedFields;
+      AvailableFields = availableFields;
       ValidateVersion = validateVersion;
+
+      hashCode = CalculateHashCode();
     }
   }
 }

@@ -5,6 +5,7 @@
 // Created:    2012.04.02
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Orm.Configuration;
@@ -42,9 +43,9 @@ namespace Xtensive.Orm.Providers
       case PersistActionKind.Insert:
         return CreateInsertTask(action);
       case PersistActionKind.Update:
-        return CreateUpdateTask(action, validateVersion);
+        return CreateUpdateTask(action, validateVersion && action.EntityState.Type.HasVersionFields);
       case PersistActionKind.Remove:
-        return CreateRemoveTask(action, validateVersion);
+        return CreateRemoveTask(action, validateVersion && action.EntityState.Type.HasVersionFields);
       default:
         throw new ArgumentOutOfRangeException("action.ActionKind");
       }
@@ -54,8 +55,7 @@ namespace Xtensive.Orm.Providers
     {
       var entityState = action.EntityState;
       var tuple = entityState.Tuple.ToRegular();
-      var request = GetOrBuildRequest(
-        new PersistRequestBuilderTask(PersistRequestKind.Insert, entityState.Type, null, false));
+      var request = GetOrBuildRequest(PersistRequestBuilderTask.Insert(entityState.Type));
       return new SqlPersistTask(entityState.Key, request, tuple);
     }
 
@@ -64,27 +64,34 @@ namespace Xtensive.Orm.Providers
       var entityState = action.EntityState;
       var dTuple = entityState.DifferentialTuple;
       var tuple = entityState.Tuple.ToRegular();
-      var fieldStateMap = dTuple.Difference.GetFieldStateMap(TupleFieldState.Available);
-      var request = GetOrBuildRequest(
-        new PersistRequestBuilderTask(PersistRequestKind.Update, entityState.Type, fieldStateMap, validateVersion));
+      var changedFields = dTuple.Difference.GetFieldStateMap(TupleFieldState.Available);
       if (validateVersion) {
+        var availableFields = dTuple.Origin.GetFieldStateMap(TupleFieldState.Available);
+        var request = GetOrBuildRequest(PersistRequestBuilderTask.UpdateWithVersionCheck(entityState.Type, availableFields, changedFields));
         var versionTuple = dTuple.Origin.ToRegular();
         return new SqlPersistTask(entityState.Key, request, tuple, versionTuple, true);
       }
-      return new SqlPersistTask(entityState.Key, request, tuple);
+      else {
+        var request = GetOrBuildRequest(PersistRequestBuilderTask.Update(entityState.Type, changedFields));
+        return new SqlPersistTask(entityState.Key, request, tuple);
+      }
     }
 
     private SqlPersistTask CreateRemoveTask(PersistAction action, bool validateVersion)
     {
       var entityState = action.EntityState;
       var tuple = entityState.Key.Value;
-      var request = GetOrBuildRequest(
-        new PersistRequestBuilderTask(PersistRequestKind.Remove, entityState.Type, null, validateVersion));
+      
       if (validateVersion) {
         var versionTuple = entityState.DifferentialTuple.Origin.ToRegular();
+        var availableFields = versionTuple.GetFieldStateMap(TupleFieldState.Available);
+        var request = GetOrBuildRequest(PersistRequestBuilderTask.RemoveWithVersionCheck(entityState.Type, availableFields));
         return new SqlPersistTask(entityState.Key, request, tuple, versionTuple, true);
       }
-      return new SqlPersistTask(entityState.Key, request, tuple);
+      else {
+        var request = GetOrBuildRequest(PersistRequestBuilderTask.Remove(entityState.Type));
+        return new SqlPersistTask(entityState.Key, request, tuple);
+      }
     }
 
     private IEnumerable<PersistRequest> GetOrBuildRequest(PersistRequestBuilderTask task)
