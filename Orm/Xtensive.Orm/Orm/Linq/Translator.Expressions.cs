@@ -844,11 +844,13 @@ namespace Xtensive.Orm.Linq
       return ee.Key.KeyFields[index].LiftToNullable();
     }
 
-    public static IList<Expression> GetKeyFields(Expression expression, IEnumerable<Type> keyFieldTypes)
+    private static IList<Expression> GetKeyFields(Expression expression, IEnumerable<Type> keyFieldTypes)
     {
       expression = expression.StripCasts();
-      if (expression is KeyExpression)
-        return ((KeyExpression) expression)
+
+      var keyExpression = expression as KeyExpression;
+      if (keyExpression!=null)
+        return keyExpression
           .KeyFields
           .Select(fieldExpression => (Expression) fieldExpression)
           .ToList();
@@ -857,17 +859,20 @@ namespace Xtensive.Orm.Linq
         return keyFieldTypes
           .Select(type => (Expression) Expression.Constant(null, type.ToNullable()))
           .ToList();
-      ConstantExpression nullExpression = Expression.Constant(null, expression.Type);
-      BinaryExpression isNullExpression = Expression.Equal(expression, nullExpression);
-      MemberExpression keyTupleExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.Key.Value);
+
+      var nullExpression = Expression.Constant(null, expression.Type);
+      var isNullExpression = Expression.Equal(expression, nullExpression);
+      var keyTupleExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.Key.Value);
 
       return keyFieldTypes
         .Select((type, index) => {
-          Type nullableType = type.ToNullable();
-          return (Expression) Expression.Condition(
-            isNullExpression,
-            Expression.Constant(null, nullableType),
-            keyTupleExpression.MakeTupleAccess(nullableType, index));
+          var resultType = type.ToNullable();
+          var baseType = type.StripNullable();
+          var fieldType = (baseType.IsEnum ? Enum.GetUnderlyingType(baseType) : baseType).ToNullable();
+          var tupleAccess = (Expression) keyTupleExpression.MakeTupleAccess(fieldType, index);
+          if (fieldType!=resultType)
+            tupleAccess = Expression.Convert(tupleAccess, resultType);
+          return (Expression) Expression.Condition(isNullExpression, Expression.Constant(null, resultType), tupleAccess);
         })
         .ToList();
     }
