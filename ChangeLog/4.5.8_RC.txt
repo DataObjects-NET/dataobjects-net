@@ -3,6 +3,7 @@
 [main] Added support for System.Linq.EnumerableQuery<T> in LINQ translator
 [main] Fixed incorrect column references in generated SQL for certain queries
 [main] Fixed querying for types with enum type discriminators
+[main] Fixed querying for types with enum key fields
 [main] Fixed locking of entity that could not be persisted at the moment for some reason
 [main] Fixed handling of temporary tables query with zero columns
 [main] Fixed translation of GroupJoin() with temporary tables
