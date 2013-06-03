@@ -225,7 +225,8 @@ namespace Xtensive.Tuples.Packed
 
       var encoded = Encode(value);
       var block = tuple.Values[d.ValueIndex];
-      tuple.Values[d.ValueIndex] = (block & ~(d.ValueBitMask << d.ValueBitOffset)) | (encoded << d.ValueBitOffset);
+      var mask = d.ValueBitMask << d.ValueBitOffset;
+      tuple.Values[d.ValueIndex] = (block & ~mask) | ((encoded << d.ValueBitOffset) & mask);
     }
 
     private T Load(PackedTuple tuple, PackedFieldDescriptor d)
