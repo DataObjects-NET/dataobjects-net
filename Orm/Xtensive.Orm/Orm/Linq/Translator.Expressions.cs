@@ -1179,7 +1179,7 @@ namespace Xtensive.Orm.Linq
         // The simplest (and the only at moment) case is a source being chain of MemberExpressions.
         var currentParameter = state.Parameters[0];
         var parameter = (source.StripMemberAccessChain() as ParameterExpression) ?? currentParameter;
-        var entityExpression = visitedSource.StripCasts() as IEntityExpression;
+        var entityExpression = visitedSource.StripCasts().StripMarkers() as IEntityExpression;
 
         if (entityExpression==null)
           throw new InvalidOperationException(Strings.ExAsOperatorSupportsEntityOnly);
