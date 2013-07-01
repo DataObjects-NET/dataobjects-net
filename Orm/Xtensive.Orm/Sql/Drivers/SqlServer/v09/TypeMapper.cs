@@ -20,6 +20,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     private static readonly SqlDecimal MaxDecimal = new SqlDecimal(decimal.MaxValue);
 
     private ValueRange<DateTime> dateTimeRange;
+    private ValueRange<TimeSpan> timeSpanRange;
 
     public override void BindSByte(DbParameter parameter, object value)
     {
@@ -56,8 +57,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       parameter.DbType = DbType.Int64;
       if (value!=null) {
-        var timeSpan = (TimeSpan) value;
-        parameter.Value = timeSpan.Ticks*100;
+        var timeSpan = ValueRangeValidator.Correct((TimeSpan) value, timeSpanRange);
+        parameter.Value = timeSpan.Ticks * 100;
       }
       else
         parameter.Value = DBNull.Value;
@@ -122,6 +123,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       base.Initialize();
       dateTimeRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
+      timeSpanRange = new ValueRange<TimeSpan>(
+        TimeSpan.FromTicks(TimeSpan.MinValue.Ticks / 100),
+        TimeSpan.FromTicks(TimeSpan.MaxValue.Ticks / 100));
     }
 
     private bool TryConvert(SqlDecimal sqlDecimal, out decimal result)
