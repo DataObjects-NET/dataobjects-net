@@ -12,3 +12,4 @@
 [main] Fixed support for LINQ member compilers that return nullable values
 [main] Optimized translation of String.IsNullOrEmpty() method
 [main] Fixed translation of as with subquery operand
+[sqlserver] Fixed reading of large SqlDecimal values
