@@ -108,6 +108,7 @@ namespace Xtensive.Orm.Configuration
 
     private string collation;
     private string nativeLibraryCacheFolder;
+    private string connectionInitializationSql;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.
@@ -512,6 +513,21 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets connection initialization SQL script.
+    /// This script is executed for each created connection
+    /// (including system connections) just after connection has been opened.
+    /// </summary>
+    public string ConnectionInitializationSql
+    {
+      get { return connectionInitializationSql; }
+      set
+      {
+        this.EnsureNotLocked();
+        connectionInitializationSql = value;
+      }
+    }
+
+    /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
     /// </summary>
     public bool IsMultidatabase { get { return isMultidatabase ?? GetIsMultidatabase(); } }
@@ -614,6 +630,7 @@ namespace Xtensive.Orm.Configuration
       allowCyclicDatabaseDependencies = configuration.allowCyclicDatabaseDependencies;
       collation = configuration.collation;
       nativeLibraryCacheFolder = configuration.nativeLibraryCacheFolder;
+      connectionInitializationSql = configuration.connectionInitializationSql;
       schemaSyncExceptionFormat = configuration.schemaSyncExceptionFormat;
       databases = (DatabaseConfigurationCollection) configuration.Databases.Clone();
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();

@@ -70,6 +70,7 @@ namespace Xtensive.Sql.Drivers.MySql
     {
       using (var connection = new MySqlConnection(connectionString)) {
         connection.Open();
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
         var version = ParseVersion(configuration.ForcedServerVersion ?? connection.ServerVersion);
 
         var builder = new MySqlConnectionStringBuilder(connectionString);

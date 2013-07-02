@@ -90,6 +90,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     {
       using (var connection = new SqlServerConnection(connectionString)) {
         connection.Open();
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
         var version = new Version(configuration.ForcedServerVersion ?? connection.ServerVersion);
         var builder = new SqlConnectionStringBuilder(connectionString);
         var dataSource = string.Format(DataSourceFormat, builder.DataSource, builder.InitialCatalog);
