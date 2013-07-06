@@ -14,9 +14,9 @@ namespace Xtensive.Orm.Tests
 {
   public sealed class TestConfiguration
   {
-    private const string StorageKey = "X_STORAGE";
-    private const string StorageFileKey = "X_STORAGE_FILE";
-    private const string ConfigurationFileKey = "X_CONFIG_FILE";
+    private const string StorageKey = "DO_STORAGE";
+    private const string StorageFileKey = "DO_STORAGE_FILE";
+    private const string ConfigurationFileKey = "DO_CONFIG_FILE";
     private const string NorthwindKey = "northwind";
 
     private const string DefaultStorage = "default";
