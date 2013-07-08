@@ -3,7 +3,6 @@
 
 <PropertyGroup>
   <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
-  <EnableBuildNumber Condition="'$(EnableBuildNumber)'==''">true</EnableBuildNumber>
   <EnableBinariesZip Condition="'$(EnableBinariesZip)'==''">true</EnableBinariesZip>
 </PropertyGroup>
 
@@ -20,9 +19,7 @@
 
 <ItemGroup>
   <!-- ProductInfo -->
-  <ProductInfo Include="ProductInfo\ProductInfo.proj">
-    <Properties>EnableBuildNumber=$(EnableBuildNumber)</Properties>
-  </ProductInfo>
+  <ProductInfo Include="ProductInfo\ProductInfo.proj" />
   <!-- Templates -->
   <TemplatesCS Include="Templates\Templates.proj">
     <Properties>Language=CSharp</Properties>
