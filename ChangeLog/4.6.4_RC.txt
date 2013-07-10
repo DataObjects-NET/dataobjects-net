@@ -1,4 +1,5 @@
 [main] Added version validation on persist via SessionOptions.ValidateEntityVersions
 [main] Added DomainConfiguration.ConnectionInitializationSql option
 [main] Improved diagnostic messages for multimapping configurations when database/schema is not found
+[main] Fixed redundant delete queries when clearing key generator tables during upgrade
 [sqlite] Added support for :memory: data source

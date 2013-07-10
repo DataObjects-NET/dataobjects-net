@@ -429,7 +429,8 @@ namespace Xtensive.Orm.Upgrade
       var sequenceAccessor = session.Services.Demand<IStorageSequenceAccessor>();
       var keyGenerators = session.Domain.Model.Hierarchies
         .Select(h => h.Key.Sequence)
-        .Where(s => s!=null);
+        .Where(s => s!=null)
+        .Distinct();
 
       sequenceAccessor.CleanUp(keyGenerators, session);
     }
