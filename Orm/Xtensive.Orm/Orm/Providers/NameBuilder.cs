@@ -33,14 +33,15 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public class NameBuilder : HandlerBase
   {
-    private Dictionary<Pair<Type, string>, string> fieldNameCache = new Dictionary<Pair<Type, string>, string>();
-    private readonly object _lock = new object();
-    private HashAlgorithm hashAlgorithm;
     private const string AssociationPattern = "{0}-{1}-{2}";
     private const string GeneratorPattern = "{0}-Generator";
     private const string GenericTypePattern = "{0}({1})";
     private const string ReferenceForeignKeyFormat = "FK_{0}_{1}_{2}";
     private const string HierarchyForeignKeyFormat = "FK_{0}_{1}";
+
+    private readonly object _lock = new object();
+    private readonly Dictionary<Pair<Type, string>, string> fieldNameCache = new Dictionary<Pair<Type, string>, string>();
+
     private int maxIdentifierLength;
 
     /// <summary>
@@ -531,8 +532,10 @@ namespace Xtensive.Orm.Providers
     /// <returns>Computed hash.</returns>
     protected string GetHash(string name)
     {
-      byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name)); 
-      return string.Format("H{0:x2}{1:x2}{2:x2}{3:x2}", hash[0], hash[1], hash[2], hash[3]);
+      using (var hashAlgorithm = new MD5CryptoServiceProvider()) {
+        byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name));
+        return string.Format("H{0:x2}{1:x2}{2:x2}{3:x2}", hash[0], hash[1], hash[2], hash[3]);
+      }
     }
 
 
@@ -546,7 +549,6 @@ namespace Xtensive.Orm.Providers
     {
       ArgumentValidator.EnsureArgumentNotNull(namingConvention, "namingConvention");
       NamingConvention = namingConvention;
-      hashAlgorithm = new MD5CryptoServiceProvider();
       maxIdentifierLength = Handlers.DomainHandler.ProviderInfo.MaxIdentifierLength;
       TypeIdColumnName = ApplyNamingRules(Orm.WellKnown.TypeIdFieldName);
     }
