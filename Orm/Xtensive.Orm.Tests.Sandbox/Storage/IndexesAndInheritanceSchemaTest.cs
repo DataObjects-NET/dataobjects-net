@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Storage
       [Field, Key]
       public int Id { get; private set; }
 
-      [Field]
+      [Field(Length = 100)]
       public string ParentValue { get; set; }
 
       [Field(Nullable = false)]
