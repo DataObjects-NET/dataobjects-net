@@ -226,6 +226,11 @@ namespace Xtensive.Orm.Providers.Sql.Expressions
         return false;
       var value = ((SqlLiteral) expression).GetValue();
       return value!=null && value.Equals(string.Empty);
-    } 
+    }
+
+    private bool IsEnumUnderlyingType(Type enumType, Type numericType)
+    {
+      return enumType.IsEnum && Enum.GetUnderlyingType(enumType)==numericType;
+    }
   }
 }
