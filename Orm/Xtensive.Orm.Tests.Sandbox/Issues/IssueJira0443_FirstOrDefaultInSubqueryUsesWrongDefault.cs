@@ -52,15 +52,18 @@ namespace Xtensive.Orm.Tests.Issues
       return configuration;
     }
 
-    [Test]
-    public void MainTest()
+    protected override void PopulateData()
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var entity = new MyEntity();
         tx.Complete();
       }
+    }
 
+    [Test]
+    public void FirstOrDefaultTest()
+    {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var queryResult = session.Query.All<MyItem>().Select(e => e.MyEnum).FirstOrDefault();
@@ -70,6 +73,24 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(subqueryResult, Is.EqualTo(MyEnum.None));
 
         var subqueryCountResult = session.Query.All<MyEntity>().Count(e => e.Items.Select(i => i.MyEnum).FirstOrDefault()==MyEnum.None);
+        Assert.That(subqueryCountResult, Is.EqualTo(1));
+
+        tx.Complete();
+      }
+    }
+
+    [Test]
+    public void SingleOrDefaultTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var queryResult = session.Query.All<MyItem>().Select(e => e.MyEnum).SingleOrDefault();
+        Assert.That(queryResult, Is.EqualTo(MyEnum.None));
+
+        var subqueryResult = session.Query.All<MyEntity>().Select(e => e.Items.Select(i => i.MyEnum).SingleOrDefault()).Single();
+        Assert.That(subqueryResult, Is.EqualTo(MyEnum.None));
+
+        var subqueryCountResult = session.Query.All<MyEntity>().Count(e => e.Items.Select(i => i.MyEnum).SingleOrDefault()==MyEnum.None);
         Assert.That(subqueryCountResult, Is.EqualTo(1));
 
         tx.Complete();

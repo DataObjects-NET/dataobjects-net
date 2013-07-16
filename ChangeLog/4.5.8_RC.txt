@@ -12,4 +12,7 @@
 [main] Fixed support for LINQ member compilers that return nullable values
 [main] Optimized translation of String.IsNullOrEmpty() method
 [main] Fixed translation of as with subquery operand
+[main] Fixed concurrent access issues with NameBuilder.GetHash method
+[main] Fixed incorrect result of FirstOrDefault/SingleOrDefault in certain subqueries
+[main] Reduced number of casts in generated SQL when accessing enum fields
 [sqlserver] Fixed reading of large SqlDecimal values
