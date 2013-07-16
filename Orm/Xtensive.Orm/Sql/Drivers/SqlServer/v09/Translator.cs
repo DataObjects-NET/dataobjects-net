@@ -309,19 +309,26 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     public override string Translate(SqlCompilerContext context, SqlRenameTable node)
     {
-      return string.Format("EXEC sp_rename '{0}', '{1}'", Translate(context, node.Table), node.NewName);
+      return TranslateExecSpRename(context, node.Table, Translate(context, node.Table), node.NewName, null);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlRenameColumn action)
     {
-      var result = new StringBuilder();
       var table = action.Column.Table;
+      var schema = table.Schema;
+      var columnName = QuoteIdentifier(schema.Catalog.DbName, schema.DbName, table.DbName, action.Column.DbName);
+      return TranslateExecSpRename(context, table, columnName, action.NewName, "COLUMN");
+     }
 
-      AddUseStatement(context, table.Schema.Catalog, result);
-
-      result.AppendFormat("EXEC sp_rename '{0}', '{1}', 'COLUMN'",
-        QuoteIdentifier(table.Schema.DbName, table.DbName, action.Column.DbName), action.NewName);
-
+    protected string TranslateExecSpRename(SqlCompilerContext context, SchemaNode affectedNode, string objectName, string newName, string type)
+    {
+      var result = new StringBuilder();
+      result.Append("EXEC ");
+      if (context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects))
+        result.AppendFormat("{0}..", QuoteIdentifier(affectedNode.Schema.Catalog.DbName));
+      result.AppendFormat("sp_rename '{0}', '{1}'", objectName, newName);
+      if (type!=null)
+        result.AppendFormat(", '{0}'", type);
       return result.ToString();
     }
 

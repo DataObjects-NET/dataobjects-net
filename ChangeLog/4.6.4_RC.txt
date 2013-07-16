@@ -2,4 +2,5 @@
 [main] Added DomainConfiguration.ConnectionInitializationSql option
 [main] Improved diagnostic messages for multimapping configurations when database/schema is not found
 [main] Fixed redundant delete queries when clearing key generator tables during upgrade
+[sqlserver] Fixed incorrect SQL for table rename in non-default database
 [sqlite] Added support for :memory: data source
