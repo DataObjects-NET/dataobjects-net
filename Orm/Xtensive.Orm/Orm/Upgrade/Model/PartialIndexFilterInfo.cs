@@ -5,8 +5,6 @@
 // Created:    2011.10.13
 
 using System;
-using System.Diagnostics;
-using System.Text;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Upgrade.Model
@@ -14,8 +12,6 @@ namespace Xtensive.Orm.Upgrade.Model
   [Serializable]
   public sealed class PartialIndexFilterInfo : IEquatable<PartialIndexFilterInfo>
   {
-    private readonly string normalizedExpression;
-
     public string Expression { get; private set; }
 
     #region Equality members
@@ -26,7 +22,7 @@ namespace Xtensive.Orm.Upgrade.Model
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return Equals(other.normalizedExpression, normalizedExpression);
+      return Equals(other.Expression, Expression);
     }
 
     public override bool Equals(object obj)
@@ -42,7 +38,7 @@ namespace Xtensive.Orm.Upgrade.Model
 
     public override int GetHashCode()
     {
-      return normalizedExpression.GetHashCode();
+      return Expression.GetHashCode();
     }
 
     #endregion
@@ -55,12 +51,10 @@ namespace Xtensive.Orm.Upgrade.Model
 
     // Constructors
 
-    public PartialIndexFilterInfo(string expression, string normalizedExpression)
+    public PartialIndexFilterInfo(string expression)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(expression, "expression");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(normalizedExpression, "normalizedExpression");
       Expression = expression;
-      this.normalizedExpression = normalizedExpression;
     }
   }
 }

@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Upgrade
 
       CheckAssemblies();
       BuildTypeIdMap();
-      DeserializeDomainModel();
+      LoadStoredDomainModel();
     }
 
     /// <inheritdoc/>
@@ -55,29 +55,29 @@ namespace Xtensive.Orm.Upgrade
       var builder = new TypeIdBuilder(session.Domain, context.TypeIdProvider);
 
       switch (context.Stage) {
-        case UpgradeStage.Upgrading:
-          // Perform or PerformSafely
+      case UpgradeStage.Upgrading:
+        // Perform or PerformSafely
+        builder.BuildTypeIds();
+        UpdateMetadata(session);
+        break;
+      case UpgradeStage.Final:
+        if (upgradeMode.IsUpgrading()) {
+          // Recreate, Perform or PerformSafely
           builder.BuildTypeIds();
           UpdateMetadata(session);
-          break;
-        case UpgradeStage.Final:
-          if (upgradeMode.IsUpgrading()) {
-            // Recreate, Perform or PerformSafely
-            builder.BuildTypeIds();
-            UpdateMetadata(session);
-          }
-          else if (upgradeMode.IsLegacy()) {
-            // LegacySkip and LegacyValidate
-            builder.BuildTypeIds();
-          }
-          else {
-            // Skip and Validate
-            BuildTypeIdMap();
-            builder.BuildTypeIds();
-          }
-          break;
-        default:
-          throw new ArgumentOutOfRangeException("context.Stage");
+        }
+        else if (upgradeMode.IsLegacy()) {
+          // LegacySkip and LegacyValidate
+          builder.BuildTypeIds();
+        }
+        else {
+          // Skip and Validate
+          BuildTypeIdMap();
+          builder.BuildTypeIds();
+        }
+        break;
+      default:
+        throw new ArgumentOutOfRangeException("context.Stage");
       }
     }
 
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void UpdateMetadata(Session session)
     {
-      var groups = BuildMetadata(session.Domain.Model);
+      var groups = BuildMetadata(session.Domain);
       var driver = session.Handlers.StorageDriver;
       var mapping = new MetadataMapping(driver, session.Handlers.NameBuilder);
       var executor = session.Services.Demand<IProviderExecutor>();
@@ -142,8 +142,9 @@ namespace Xtensive.Orm.Upgrade
         handler.AssemblyName, sourceVersion, handler.AssemblyVersion));
     }
 
-    private Dictionary<string, MetadataSet> BuildMetadata(DomainModel model)
+    private Dictionary<string, MetadataSet> BuildMetadata(Domain domain)
     {
+      var model = domain.Model;
       var metadataGroups = model.Databases.ToDictionary(db => db.Name, db => new MetadataSet());
       if (metadataGroups.Count==0)
         metadataGroups.Add(string.Empty, new MetadataSet());
@@ -158,9 +159,12 @@ namespace Xtensive.Orm.Upgrade
         var assemblyMetadata = GetAssemblyMetadata(assemblies);
         var serializedModel = model.ToStoredModel(filter).Serialize();
         var modelExtension = new ExtensionMetadata(WellKnown.DomainModelExtensionName, serializedModel);
+        var indexesExtension = GetPartialIndexes(domain, types);
         metadata.Assemblies.AddRange(assemblyMetadata);
         metadata.Types.AddRange(typeMetadata);
         metadata.Extensions.Add(modelExtension);
+        if (indexesExtension!=null)
+          metadata.Extensions.Add(indexesExtension);
       }
 
       return metadataGroups;
@@ -181,7 +185,31 @@ namespace Xtensive.Orm.Upgrade
         .Select(type => new TypeMetadata(type.TypeId, type.UnderlyingType.GetFullName()));
     }
 
-    private void DeserializeDomainModel()
+    private ExtensionMetadata GetPartialIndexes(Domain domain, IEnumerable<TypeInfo> types)
+    {
+      var compiler = UpgradeContext.Services.IndexFilterCompiler;
+      var handlers = domain.Handlers;
+      var indexes = types
+        .SelectMany(type => type.Indexes
+          .Where(i => i.IsPartial && !i.IsVirtual)
+          .Select(i => new {Type = type, Index = i}))
+        .Select(item => new StoredPartialIndexFilterInfo {
+          Database = item.Type.MappingDatabase,
+          Schema = item.Type.MappingSchema,
+          Table = item.Type.MappingName,
+          Name = item.Index.MappingName,
+          Filter = compiler.Compile(handlers, item.Index)
+        })
+        .ToArray();
+      if (indexes.Length==0)
+        return null;
+      var items = new StoredPartialIndexFilterInfoCollection {
+        Items = indexes
+      };
+      return new ExtensionMetadata(WellKnown.PartialIndexDefinitionsExtensionName, items.Serialize());
+    }
+
+    private void LoadStoredDomainModel()
     {
       var context = UpgradeContext;
       var extensions = context.Metadata.Extensions.Where(e => e.Name==WellKnown.DomainModelExtensionName);

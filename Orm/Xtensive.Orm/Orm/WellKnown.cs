@@ -56,6 +56,11 @@ namespace Xtensive.Orm
     public const string DomainModelExtensionName = "Xtensive.Orm.Model";
 
     /// <summary>
+    /// Name of the <see cref="Extension"/> that describes partial indexes.
+    /// </summary>
+    public const string PartialIndexDefinitionsExtensionName = "Xtensive.Orm.PartialIndexDefinitions";
+
+    /// <summary>
     /// Name of column in key generator table.
     /// </summary>
     public const string GeneratorColumnName = "ID";

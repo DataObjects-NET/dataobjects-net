@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Upgrade
         HandlerFactory = handlerFactory,
         Driver = driver,
         NameBuilder = new NameBuilder(configuration, driver.ProviderInfo),
-        Normalizer = handlerFactory.CreateHandler<PartialIndexFilterNormalizer>(),
+        IndexFilterCompiler = new PartialIndexFilterCompiler(),
         Resolver = MappingResolver.Get(configuration, driver.ProviderInfo),
       };
 
@@ -448,8 +448,8 @@ namespace Xtensive.Orm.Upgrade
 
     private StorageModel GetTargetModel(Domain domain)
     {
-      var normalizer = context.Services.Normalizer;
-      var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, normalizer) {
+      var indexFilterCompiler = context.Services.IndexFilterCompiler;
+      var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, indexFilterCompiler) {
         BuildForeignKeys = context.Configuration.Supports(ForeignKeyMode.Reference),
         BuildHierarchyForeignKeys = context.Configuration.Supports(ForeignKeyMode.Hierarchy)
       };

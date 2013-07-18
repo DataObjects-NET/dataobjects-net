@@ -54,7 +54,8 @@ namespace Xtensive.Orm.Upgrade
 
     private void ProvideExtensionMetadataFilter(SqlDelete delete)
     {
-      delete.Where = delete.Delete[mapping.ExtensionName]==SqlDml.Literal(WellKnown.DomainModelExtensionName);
+      var knownExtensions = SqlDml.Array(WellKnown.DomainModelExtensionName, WellKnown.PartialIndexDefinitionsExtensionName);
+      delete.Where = SqlDml.In(delete.Delete[mapping.ExtensionName], knownExtensions);
     }
 
     private void WriteTypes(IEnumerable<TypeMetadata> types)

@@ -8,11 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Providers;
 using Xtensive.Reflection;
 using Xtensive.Modelling;
 using Xtensive.Sql;
-using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Upgrade.Model;
 using Node = Xtensive.Sql.Model.Node;
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly SqlExtractionResult sourceModel;
     private readonly MappingResolver resolver;
     private readonly ProviderInfo providerInfo;
-    private readonly PartialIndexFilterNormalizer normalizer;
+    private readonly PartialIndexInfoMap partialIndexMap;
 
     private StorageModel targetModel;
     private TableInfo currentTable;
@@ -171,14 +171,10 @@ namespace Xtensive.Orm.Upgrade
     protected override IPathNode VisitIndex(Index index)
     {
       var tableInfo = currentTable;
-      var native = index.Where as SqlNative;
-      var filter = !native.IsNullReference() && !string.IsNullOrEmpty(native.Value)
-        ? new PartialIndexFilterInfo(native.Value, normalizer.Normalize(native.Value))
-        : null;
       var secondaryIndexInfo = new SecondaryIndexInfo(tableInfo, index.Name) {
         IsUnique = index.IsUnique,
         IsClustered = index.IsClustered,
-        Filter = filter,
+        Filter = GetFilter(index),
       };
 
       foreach (var keyColumn in index.Columns) {
@@ -195,6 +191,15 @@ namespace Xtensive.Orm.Upgrade
       secondaryIndexInfo.PopulatePrimaryKeyColumns();
 
       return secondaryIndexInfo;
+    }
+
+    private PartialIndexFilterInfo GetFilter(Index index)
+    {
+      var tableName = resolver.GetNodeName(index.DataTable);
+      var result = partialIndexMap.FindIndex(tableName, index.DbName);
+      if (result==null)
+        return null;
+      return new PartialIndexFilterInfo(result.Filter);
     }
 
     /// <inheritdoc/>
@@ -286,29 +291,6 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <summary>
-    /// Finds the specific index by key columns.
-    /// </summary>
-    /// <param name="table">The table.</param>
-    /// <param name="keyColumns">The key columns.</param>
-    /// <returns>The index.</returns>
-    private StorageIndexInfo FindIndex(TableInfo table, List<StorageColumnInfo> keyColumns)
-    {
-      var primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value);
-      if (primaryKeyColumns.Except(keyColumns)
-        .Union(keyColumns.Except(primaryKeyColumns)).Count()==0)
-        return table.PrimaryIndex;
-
-      foreach (var index in table.SecondaryIndexes) {
-        var secondaryKeyColumns = index.KeyColumns.Select(cr => cr.Value);
-        if (secondaryKeyColumns.Except(keyColumns)
-          .Union(keyColumns.Except(secondaryKeyColumns)).Count()==0)
-          return index;
-      }
-
-      return null;
-    }
-
-    /// <summary>
     /// Determines whether specific table used as sequence.
     /// </summary>
     /// <param name="table">The table.</param>
@@ -326,16 +308,19 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public SqlModelConverter(UpgradeServiceAccessor services, SqlExtractionResult sourceModel)
+    public SqlModelConverter(UpgradeServiceAccessor services, SqlExtractionResult sourceModel,
+      IEnumerable<StoredPartialIndexFilterInfo> partialIndexes)
     {
       ArgumentValidator.EnsureArgumentNotNull(services, "handlers");
       ArgumentValidator.EnsureArgumentNotNull(sourceModel, "sourceModel");
+      ArgumentValidator.EnsureArgumentNotNull(partialIndexes, "partialIndexes");
 
       this.sourceModel = sourceModel;
 
       resolver = services.Resolver;
       providerInfo = services.ProviderInfo;
-      normalizer = services.Normalizer;
+
+      partialIndexMap = new PartialIndexInfoMap(resolver, partialIndexes);
     }
 
     #region Not supported

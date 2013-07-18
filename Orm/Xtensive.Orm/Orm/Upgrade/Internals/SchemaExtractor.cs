@@ -4,7 +4,10 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.16
 
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
+using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Sql;
@@ -22,7 +25,8 @@ namespace Xtensive.Orm.Upgrade
       if (context.ExtractedModelCache!=null)
         return context.ExtractedModelCache;
 
-      var result = ExtractSchema();
+      var converter = new SqlModelConverter(services, GetSqlSchema(), GetPartialIndexes());
+      var result =  converter.Run();
       context.ExtractedModelCache = result;
       return result;
     }
@@ -32,7 +36,7 @@ namespace Xtensive.Orm.Upgrade
       if (context.ExtractedSqlModelCache!=null)
         return context.ExtractedSqlModelCache;
 
-      var schema = ExtractSqlSchema();
+      var schema = executor.Extract(services.Resolver.GetSchemaTasks());
       context.ExtractedSqlModelCache = schema;
       return schema;
     }
@@ -43,20 +47,20 @@ namespace Xtensive.Orm.Upgrade
       context.ExtractedSqlModelCache = null;
     }
 
-    #region Private / internal methods
-
-    private StorageModel ExtractSchema()
+    private IEnumerable<StoredPartialIndexFilterInfo> GetPartialIndexes()
     {
-      var schema = GetSqlSchema(); // Must rely on this method to avoid multiple extractions
-      return new SqlModelConverter(services, schema).Run();
+      var metadata = context.Metadata;
+      if (metadata==null)
+        return Enumerable.Empty<StoredPartialIndexFilterInfo>();
+      var extensions = metadata.Extensions.Where(e => e.Name==WellKnown.PartialIndexDefinitionsExtensionName);
+      var result = new List<StoredPartialIndexFilterInfo>();
+      foreach (var extension in extensions) {
+        var items = StoredPartialIndexFilterInfoCollection.Deserialize(extension.Value).Items;
+        if (items!=null)
+          result.AddRange(items);
+      }
+      return result;
     }
-
-    private SqlExtractionResult ExtractSqlSchema()
-    {
-      return executor.Extract(services.Resolver.GetSchemaTasks());
-    }
-
-    #endregion
 
     // Constructors
 

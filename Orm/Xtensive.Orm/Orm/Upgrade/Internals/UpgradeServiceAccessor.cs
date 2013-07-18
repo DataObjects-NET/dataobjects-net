@@ -22,12 +22,13 @@ namespace Xtensive.Orm.Upgrade
     private StorageDriver driver;
     private NameBuilder nameBuilder;
     private MappingResolver resolver;
-    private PartialIndexFilterNormalizer normalizer;
     private HandlerFactory handlerFactory;
+    private SqlConnection connection;
+    private PartialIndexFilterCompiler indexFilterCompiler;
+
     private ReadOnlyList<IModule> modules;
     private ReadOnlyList<IUpgradeHandler> orderedUpgradeHandlers;
     private ReadOnlyDictionary<Assembly, IUpgradeHandler> upgradeHandlers;
-    private SqlConnection connection;
 
     public DomainConfiguration Configuration
     {
@@ -81,13 +82,13 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    public PartialIndexFilterNormalizer Normalizer
+    public PartialIndexFilterCompiler IndexFilterCompiler
     {
-      get { return normalizer; }
+      get { return indexFilterCompiler; }
       set
       {
         this.EnsureNotLocked();
-        normalizer = value;
+        indexFilterCompiler = value;
       }
     }
 
