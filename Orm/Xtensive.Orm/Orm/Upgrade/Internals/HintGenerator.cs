@@ -222,17 +222,24 @@ namespace Xtensive.Orm.Upgrade
 
     private void MapType(StoredTypeInfo oldType, StoredTypeInfo newType)
     {
-      if (typeMapping.ContainsKey(oldType))
-        throw new InvalidOperationException(String.Format(Strings.ExTypeMappingDoesNotContainXType, oldType));
+      StoredTypeInfo existingNewType;
+      if (typeMapping.TryGetValue(oldType, out existingNewType)) {
+        throw new InvalidOperationException(string.Format(
+          Strings.ExUnableToAssociateTypeXWithTypeYTypeXIsAlreadyMappedToTypeZ,
+          oldType, newType, existingNewType));
+      }
       typeMapping[oldType] = newType;
-      reverseTypeMapping[newType] = oldType;
       reverseTypeMapping[newType] = oldType;
     }
 
     private void MapField(StoredFieldInfo oldField, StoredFieldInfo newField)
     {
-      if (fieldMapping.ContainsKey(oldField))
-        throw new InvalidOperationException(String.Format(Strings.ExFieldMappingDoesNotContainField, oldField));
+      StoredFieldInfo existingNewField;
+      if (fieldMapping.TryGetValue(oldField, out existingNewField)) {
+        throw new InvalidOperationException(string.Format(
+          Strings.ExUnableToAssociateFieldXWithFieldYFieldXIsAlreadyMappedToFieldZ,
+          oldField, newField, existingNewField));
+      }
       fieldMapping[oldField] = newField;
       reverseFieldMapping[newField] = oldField;
     }
@@ -292,7 +299,7 @@ namespace Xtensive.Orm.Upgrade
           ? renameTypeHint.NewType.GetFullName()
           : oldType.UnderlyingType;
         var newType = newModelTypes.GetValueOrDefault(newTypeName);
-        if (newType != null)
+        if (newType!=null)
           MapType(oldType, newType);
       }
     }
