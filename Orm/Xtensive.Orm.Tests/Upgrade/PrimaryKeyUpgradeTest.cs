@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       FillData();
     }
 
-    [Test]
+    [Test, Ignore("Default behavior changed. Namespace-only renames are tracked automatically.")]
     public void PerformTest()
     {
       BuildDomain("Version2Perform", DomainUpgradeMode.Perform);
