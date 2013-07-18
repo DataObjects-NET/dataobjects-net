@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug
       }
     }
     
-    [Test]
+    [Test, Ignore("Default behavior changed. Namespace-only renames are tracked automatically.")]
     public void UpgradeToVersion3Test()
     {
       BuildDomain("3", DomainUpgradeMode.Perform);

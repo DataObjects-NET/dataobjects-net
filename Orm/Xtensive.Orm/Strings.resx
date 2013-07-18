@@ -994,11 +994,11 @@ Referenced Entity Key: {4}</value>
   <data name="ExOnOwnerRemoveActionIsNotEqualToOnTargetRemoveAction" xml:space="preserve">
     <value>'{0}.{1}' OnOwnerRemove action is not equal to '{2}.{3}' OnTargetRemove action.</value>
   </data>
-  <data name="ExTypeMappingDoesNotContainXType" xml:space="preserve">
-    <value>Type mapping does not contain '{0}' type.</value>
+  <data name="ExUnableToAssociateTypeXWithTypeYTypeXIsAlreadyMappedToTypeZ" xml:space="preserve">
+    <value>Unable to associate type '{0}' with type '{1}'. Type '{0}' is already mapped to type '{2}'.</value>
   </data>
-  <data name="ExFieldMappingDoesNotContainField" xml:space="preserve">
-    <value>Field mapping does not contain '{0} field.</value>
+  <data name="ExUnableToAssociateFieldXWithFieldYFieldXIsAlreadyMappedToFieldZ" xml:space="preserve">
+    <value>Unable to associate field '{0}' with field '{1}'. Field '{0}' is already mapped to field '{2}'.</value>
   </data>
   <data name="ExInheritanceSchemaIsInvalid" xml:space="preserve">
     <value>Inheritance schema '{0}' is invalid.</value>

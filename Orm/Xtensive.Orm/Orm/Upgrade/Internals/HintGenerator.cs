@@ -224,17 +224,24 @@ namespace Xtensive.Orm.Upgrade
 
     private void MapType(StoredTypeInfo oldType, StoredTypeInfo newType)
     {
-      if (typeMapping.ContainsKey(oldType))
-        throw new InvalidOperationException(String.Format(Strings.ExTypeMappingDoesNotContainXType, oldType));
+      StoredTypeInfo existingNewType;
+      if (typeMapping.TryGetValue(oldType, out existingNewType)) {
+        throw new InvalidOperationException(string.Format(
+          Strings.ExUnableToAssociateTypeXWithTypeYTypeXIsAlreadyMappedToTypeZ,
+          oldType, newType, existingNewType));
+      }
       typeMapping[oldType] = newType;
-      reverseTypeMapping[newType] = oldType;
       reverseTypeMapping[newType] = oldType;
     }
 
     private void MapField(StoredFieldInfo oldField, StoredFieldInfo newField)
     {
-      if (fieldMapping.ContainsKey(oldField))
-        throw new InvalidOperationException(String.Format(Strings.ExFieldMappingDoesNotContainField, oldField));
+      StoredFieldInfo existingNewField;
+      if (fieldMapping.TryGetValue(oldField, out existingNewField)) {
+        throw new InvalidOperationException(string.Format(
+          Strings.ExUnableToAssociateFieldXWithFieldYFieldXIsAlreadyMappedToFieldZ,
+          oldField, newField, existingNewField));
+      }
       fieldMapping[oldField] = newField;
       reverseFieldMapping[newField] = oldField;
     }
@@ -270,7 +277,7 @@ namespace Xtensive.Orm.Upgrade
       // Excluding EntitySetItem<TL,TR> descendants.
       // They're not interesting at all for us, since
       // these types aren't ever referenced.
-      IEnumerable<StoredTypeInfo> oldModelTypes = GetNonConnectorTypes(extractedModel);
+      var oldModelTypes = GetNonConnectorTypes(extractedModel);
 
       var newConnectorTypes = currentModel.Associations
         .Select(association => association.ConnectorType)
@@ -284,6 +291,9 @@ namespace Xtensive.Orm.Upgrade
       var renameLookup = renames.ToDictionary(hint => hint.OldType);
       var removeLookup = removes.ToDictionary(hint => hint.Type);
 
+      // Types that are neither mapped nor removed.
+      var suspiciousTypes = new List<StoredTypeInfo>();
+
       // Mapping types
       foreach (var oldType in oldModelTypes) {
         var removeTypeHint = removeLookup.GetValueOrDefault(oldType.UnderlyingType);
@@ -294,7 +304,26 @@ namespace Xtensive.Orm.Upgrade
           ? renameTypeHint.NewType.GetFullName()
           : oldType.UnderlyingType;
         var newType = newModelTypes.GetValueOrDefault(newTypeName);
-        if (newType != null)
+        if (newType!=null)
+          MapType(oldType, newType);
+        else
+          suspiciousTypes.Add(oldType);
+      }
+
+      if (suspiciousTypes.Count==0)
+        return;
+
+      // Now we'll lookup by using DO type name instead of CLR type name
+      // By default DO type name is a CLR type name without namespace
+      // however this could be adjusted by domain configuration.
+      // If CLR name is changed but DO name is preserved we should
+      // automatically process this type without extra hints.
+
+      newModelTypes = newModelTypes.Values.ToDictionary(t => t.Name);
+
+      foreach (var oldType in suspiciousTypes) {
+        var newType = newModelTypes.GetValueOrDefault(oldType.Name);
+        if (newType!=null && !reverseTypeMapping.ContainsKey(newType))
           MapType(oldType, newType);
       }
     }
