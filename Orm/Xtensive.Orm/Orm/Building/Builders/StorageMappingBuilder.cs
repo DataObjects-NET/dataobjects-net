@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Building.Builders
 
       public bool Equals(MappingRequest other)
       {
-        return Assembly.Equals(other.Assembly) && string.Equals(Namespace, other.Namespace);
+        return Equals(Assembly, other.Assembly) && string.Equals(Namespace, other.Namespace);
       }
 
       public override bool Equals(object obj)
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Building.Builders
       public MappingRequest(Assembly assembly, string @namespace)
       {
         Assembly = assembly;
-        Namespace = @namespace;
+        Namespace = @namespace ?? string.Empty;
       }
     }
 
