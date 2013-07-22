@@ -80,6 +80,12 @@ namespace Xtensive.Orm.Tests.Storage.LegacyDb
 {
   public class ContainerItemTest : LegacyDbAutoBuildTest
   {
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.ProviderVersionAtMost(StorageProviderVersion.SqlServer2008R2);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
