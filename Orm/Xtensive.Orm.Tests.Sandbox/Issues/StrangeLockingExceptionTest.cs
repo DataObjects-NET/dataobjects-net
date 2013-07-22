@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 #endif
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.StrangeLockingExceptionModel;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -51,6 +52,11 @@ namespace Xtensive.Orm.Tests.Issues
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(TestA).Assembly, typeof(TestA).Namespace);
       return configuration;
+    }
+
+    protected override void CheckRequirements()
+    {
+      Require.AnyFeatureNotSupported(ProviderFeatures.ExclusiveWriterConnection);
     }
 
     protected override void PopulateData()
