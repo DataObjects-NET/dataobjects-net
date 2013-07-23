@@ -223,7 +223,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void JoinSimpleWithLeftSidePenColorIntermeiate()
+    public void SimpleWithLeftSidePenColorIntermediate()
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
