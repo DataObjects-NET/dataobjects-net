@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     protected override void CheckRequirements()
     {
-      Require.AnyFeatureNotSupported(ProviderFeatures.ExclusiveWriterConnection);
+      Require.AllFeaturesNotSupported(ProviderFeatures.ExclusiveWriterConnection);
     }
 
     protected override void PopulateData()
