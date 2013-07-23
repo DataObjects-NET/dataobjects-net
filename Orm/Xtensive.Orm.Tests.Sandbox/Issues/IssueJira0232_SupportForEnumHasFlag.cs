@@ -3,33 +3,33 @@
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
 // Created:    2012.01.25
-
+#if NET40
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Issues.IssueJira0232_SupportForEnumHasFlageModel;
-#if NET40
+
 namespace Xtensive.Orm.Tests.Issues.IssueJira0232_SupportForEnumHasFlageModel
 {
   [Flags]
   public enum PenColorsLong : long
   {
-    White   = 0,
-    Red     = 1,
-    Green   = 2,
-    Blue    = 4,
-    Yellow  = 8,
+    White = 0,
+    Red = 1,
+    Green = 2,
+    Blue = 4,
+    Yellow = 8,
   }
 
   public enum PenColors
   {
-    White   = 0,
-    Red     = 1,
-    Green   = 2,
-    Blue    = 4,
-    Yellow  = 8,
+    White = 0,
+    Red = 1,
+    Green = 2,
+    Blue = 4,
+    Yellow = 8,
   }
   
   [HierarchyRoot]
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0232_SupportForEnumHasFlageModel
     public long Id { get; private set; }
 
     [Field]
-    public PenColors FavoritePanColorses { get; set; }
+    public PenColors FavoritePanColores { get; set; }
   }
 
   public class PreferenceLong : Entity
@@ -74,104 +74,98 @@ namespace Xtensive.Orm.Tests.Issues
 
     protected override void PopulateData()
     {
-      using (Domain.OpenSession()) {
-        using (var transaction = Session.Current.OpenTransaction()) {
-          for(int i = 0; i < 9; i++) {
-            new Preference {FavoritePanColorses = (PenColors) i};
-          }
-          new Pen { Color = PenColors.Red };
-          new Pen { Color = PenColors.Blue };
-          new Pen { Color = PenColors.Red|PenColors.Blue };
-          new Pen { Color = PenColors.Red|PenColors.Green };
-          transaction.Complete();
+      using (var session = Domain.OpenSession()) 
+      using (var transaction = session.OpenTransaction()) {
+        for(int i = 0; i < 9; i++) {
+          new Preference {FavoritePanColores = (PenColors) i};
         }
+        new Pen { Color = PenColors.Red };
+        new Pen { Color = PenColors.Blue };
+        new Pen { Color = PenColors.Red|PenColors.Blue };
+        new Pen { Color = PenColors.Red|PenColors.Green };
+        transaction.Complete();
       }
     }
 
     [Test]
     public void WhereSimplePenColorIntermediate()
     {
-      using (Domain.OpenSession()) {
-        using(var transaction = Session.Current.OpenTransaction()) {
+      using (var session = Domain.OpenSession()) 
+      using(var transaction = session.OpenTransaction()) {
 
-          var expected = PenColors.Blue;
+        var expected = PenColors.Blue;
 
-          var result = from a in Query.All<Preference>()
-            let v = PenColors.Blue
-            where a.FavoritePanColorses.HasFlag(v)
-            select a;
+        var result = from a in Query.All<Preference>()
+          let v = PenColors.Blue
+          where a.FavoritePanColores.HasFlag(v)
+          select a;
 
-          Assert.That(result.First(),Is.EqualTo(expected));
-        }
+        Assert.That(result.First(),Is.EqualTo(expected));
       }
     }
 
     [Test]
     public void WhereSimplePenColorDirectly()
     {
-      using (Domain.OpenSession()) {
-        using (var transaction = Session.Current.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var expected = PenColors.Blue;
 
-          var expected = PenColors.Blue;
+        var result = from a in Query.All<Preference>()
+          where a.FavoritePanColores.HasFlag(PenColors.Blue)
+          select a;
 
-          var result = from a in Query.All<Preference>()
-                       where a.FavoritePanColorses.HasFlag(PenColors.Blue)
-                       select a;
-
-          Assert.That(result.First().FavoritePanColorses, Is.EqualTo(expected));
-        }
+        Assert.That(result.First().FavoritePanColores, Is.EqualTo(expected));
       }
     }
 
     [Test]
     public void WhenComplexPenColorIntermediate()
     {
-      using (Domain.OpenSession()) {
-        using (var transaction = Session.Current.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
 
           var expected = PenColors.Blue|PenColors.Green|PenColors.Red;
 
           var result = from a in Query.All<Preference>()
-                       let v = PenColors.Blue | PenColors.Green | PenColors.Red
-                       where a.FavoritePanColorses.HasFlag(v)
-                       select a;
+            let v = PenColors.Blue | PenColors.Green | PenColors.Red
+            where a.FavoritePanColores.HasFlag(v)
+            select a;
 
-          Assert.That(result.First().FavoritePanColorses, Is.EqualTo(expected));
+          Assert.That(result.First().FavoritePanColores, Is.EqualTo(expected));
         }
-      }
+      
     }
 
     [Test]
     public void WhenComplexPenColorDirectly()
     {
-      using (Domain.OpenSession()) {
-        using (var transaction = Session.Current.OpenTransaction()) {
+      using (var session = Domain.OpenSession()) 
+      using (var transaction = session.OpenTransaction()) {
 
-          var expected = PenColors.Blue | PenColors.Green | PenColors.Red;
+        var expected = PenColors.Blue | PenColors.Green | PenColors.Red;
 
-          var result = from a in Query.All<Preference>()
-                       where a.FavoritePanColorses.HasFlag(PenColors.Blue | PenColors.Green | PenColors.Red)
-                       select a;
+        var result = from a in Query.All<Preference>()
+          where a.FavoritePanColores.HasFlag(PenColors.Blue | PenColors.Green | PenColors.Red)
+          select a;
 
-          Assert.That(result.First().FavoritePanColorses, Is.EqualTo(expected));
-        }
+        Assert.That(result.First().FavoritePanColores, Is.EqualTo(expected));
       }
     }
 
     [Test]
     public void WhereSimplePenColorLongDirectly()
     {
-      using(Domain.OpenSession()) {
-        using (var transaction = Session.Current.OpenTransaction()) {
+      using(var session = Domain.OpenSession()) 
+      using (var transaction = session.OpenTransaction()) {
 
-          var expected = PenColorsLong.White;
-
-          var result = from a in Query.All<PreferenceLong>()
+        var expected = PenColorsLong.White;
+        
+        var result = from a in Query.All<PreferenceLong>()
             where a.FavoritePanColorses.HasFlag(PenColorsLong.White)
             select a;
           
-          Assert.That(result.First().FavoritePanColorses,Is.EqualTo(expected));
-        }
+        Assert.That(result.First().FavoritePanColorses,Is.EqualTo(expected));
       }
     }
 
@@ -179,58 +173,71 @@ namespace Xtensive.Orm.Tests.Issues
     public void WhereSimplePenColorLongIntermediate()
     {
       using (Domain.OpenSession())
+      using (var transaction = Session.Current.OpenTransaction())
       {
-        using (var transaction = Session.Current.OpenTransaction())
-        {
 
-          var expected = PenColorsLong.White;
+        var expected = PenColorsLong.White;
 
-          var result = from a in Query.All<PreferenceLong>()
-                       let v = PenColorsLong.White
-                       where a.FavoritePanColorses.HasFlag(v)
-                       select a;
+        var result = from a in Query.All<PreferenceLong>()
+          let v = PenColorsLong.White
+          where a.FavoritePanColorses.HasFlag(v)
+          select a;
 
           Assert.That(result.First().FavoritePanColorses, Is.EqualTo(expected));
-        }
       }
     }
 
     [Test]
     public void WhereComplexPenColorLongDirectly()
     {
-      using (Domain.OpenSession())
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
       {
-        using (var transaction = Session.Current.OpenTransaction())
-        {
 
-          var expected = PenColorsLong.White|PenColorsLong.Blue;
+        var expected = PenColorsLong.White|PenColorsLong.Blue;
 
-          var result = from a in Query.All<PreferenceLong>()
-                       where a.FavoritePanColorses.HasFlag(PenColorsLong.White|PenColorsLong.Blue)
-                       select a;
+        var result = from a in Query.All<PreferenceLong>()
+          where a.FavoritePanColorses.HasFlag(PenColorsLong.White|PenColorsLong.Blue)
+          select a;
 
-          Assert.That(result.First().FavoritePanColorses, Is.EqualTo(expected));
-        }
+        Assert.That(result.First().FavoritePanColorses, Is.EqualTo(expected));
       }
     }
 
     [Test]
     public void WhereComplexPenColorLongIntermediate()
     {
-      using (Domain.OpenSession())
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
       {
-        using (var transaction = Session.Current.OpenTransaction())
-        {
+        
+        var expected = PenColorsLong.White|PenColorsLong.Blue;
 
-          var expected = PenColorsLong.White|PenColorsLong.Blue;
-
-          var result = from a in Query.All<PreferenceLong>()
-                       let v = PenColorsLong.White|PenColorsLong.Blue
-                       where a.FavoritePanColorses.HasFlag(v)
-                       select a;
+        var result = from a in Query.All<PreferenceLong>()
+          let v = PenColorsLong.White|PenColorsLong.Blue
+          where a.FavoritePanColorses.HasFlag(v)
+          select a;
 
           Assert.That(result.First().FavoritePanColorses, Is.EqualTo(expected));
-        }
+      }
+    }
+
+    [Test]
+    public void JoinSimpleWithLeftSidePenColot()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+
+        var expected = PenColors.Red;
+
+        var s = from p in Query.All<Pen>()
+          let v = PenColors.Red
+          where p.Color.HasFlag(v)==(from pref in Query.All<Preference>()
+            where pref.FavoritePanColores.HasFlag(v)
+            select pref).First().FavoritePanColores.HasFlag(v)
+          select p;
+          
+        Assert.That(s.First().Color,Is.EqualTo(expected));
       }
     }
   }
