@@ -81,8 +81,8 @@ namespace Xtensive.Orm.Tests.Issues
         }
         new Pen { Color = PenColors.Red };
         new Pen { Color = PenColors.Blue };
-        new Pen { Color = PenColors.Red|PenColors.Blue };
-        new Pen { Color = PenColors.Red|PenColors.Green };
+        new Pen { Color = PenColors.Red | PenColors.Blue };
+        new Pen { Color = PenColors.Red | PenColors.Green };
         transaction.Complete();
       }
     }
@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
 
-          var expected = PenColors.Blue|PenColors.Green|PenColors.Red;
+          var expected = PenColors.Blue | PenColors.Green | PenColors.Red;
 
           var result = from a in Query.All<Preference>()
             let v = PenColors.Blue | PenColors.Green | PenColors.Red
@@ -194,10 +194,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction())
       {
 
-        var expected = PenColorsLong.White|PenColorsLong.Blue;
+        var expected = PenColorsLong.White | PenColorsLong.Blue;
 
         var result = from a in Query.All<PreferenceLong>()
-          where a.FavoritePanColorses.HasFlag(PenColorsLong.White|PenColorsLong.Blue)
+          where a.FavoritePanColorses.HasFlag(PenColorsLong.White | PenColorsLong.Blue)
           select a;
 
         Assert.That(result.First().FavoritePanColorses, Is.EqualTo(expected));
@@ -211,10 +211,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction())
       {
         
-        var expected = PenColorsLong.White|PenColorsLong.Blue;
+        var expected = PenColorsLong.White | PenColorsLong.Blue;
 
         var result = from a in Query.All<PreferenceLong>()
-          let v = PenColorsLong.White|PenColorsLong.Blue
+          let v = PenColorsLong.White | PenColorsLong.Blue
           where a.FavoritePanColorses.HasFlag(v)
           select a;
 
@@ -223,7 +223,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void JoinSimpleWithLeftSidePenColot()
+    public void JoinSimpleWithLeftSidePenColorIntermeiate()
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
