@@ -16,4 +16,5 @@
 [main] Fixed incorrect result of FirstOrDefault/SingleOrDefault in certain subqueries
 [main] Reduced number of casts in generated SQL when accessing enum fields
 [main] Automatically handle namespace-only renames during upgrade
+[main] PostSharp is upgraded to version 2.1.7.30
 [sqlserver] Fixed reading of large SqlDecimal values
