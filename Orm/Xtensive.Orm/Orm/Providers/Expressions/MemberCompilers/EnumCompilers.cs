@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
 // Created:    2013.07.23
-#if NET40
+
 using System;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -13,6 +13,7 @@ namespace Xtensive.Orm.Providers
   [CompilerContainer(typeof(SqlExpression))]
   internal static class EnumCompilers
   {
+#if NET40
     [Compiler(typeof(Enum), "HasFlag")]
     public static SqlExpression EnumHasFlag(SqlExpression _this, 
       [Type(typeof (Enum))] SqlExpression value)
@@ -33,6 +34,6 @@ namespace Xtensive.Orm.Providers
       }
       return expression;
     }
+#endif
   }
 }
-#endif
