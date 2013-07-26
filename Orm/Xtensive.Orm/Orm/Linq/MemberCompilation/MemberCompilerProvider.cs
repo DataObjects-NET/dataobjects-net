@@ -348,8 +348,8 @@ namespace Xtensive.Orm.Linq.MemberCompilation
 
       var declaratedType = canonicalMember.DeclaringType;
       if (targetType.IsEnum)
-        if (targetType != declaratedType)
-          canonicalMember = GetCanonicalMethod((MethodInfo)canonicalMember, declaratedType.GetMethods());
+        if (targetType!=declaratedType)
+          canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, declaratedType.GetMethods());
         else
           canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, targetType.GetMethods());
       
