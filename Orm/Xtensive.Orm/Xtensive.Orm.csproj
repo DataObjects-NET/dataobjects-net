@@ -197,6 +197,7 @@
     <Compile Include="Orm\Model\DatabaseInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Orm\Providers\Expressions\MemberCompilers\EnumCompilers.cs" />
     <Compile Include="Orm\Providers\Interfaces\IPersistDescriptor.cs" />
     <Compile Include="Orm\Providers\MappingResolveResult.cs" />
     <Compile Include="Orm\Providers\PartialIndexFilterCompiler.cs" />

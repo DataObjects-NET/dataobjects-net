@@ -5,9 +5,7 @@
 // Created:    2012.01.25
 #if NET40
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Issues.IssueJira0232_SupportForEnumHasFlageModel;
 
@@ -22,7 +20,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0232_SupportForEnumHasFlageModel
     Blue = 4,
     Yellow = 8,
   }
-
+  [Flags]
   public enum PenColors
   {
     White = 0,
@@ -31,7 +29,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0232_SupportForEnumHasFlageModel
     Blue = 4,
     Yellow = 8,
   }
-  
+
   [HierarchyRoot]
   public class Preference : Entity
   {
@@ -42,6 +40,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0232_SupportForEnumHasFlageModel
     public PenColors FavoritePanColores { get; set; }
   }
 
+  [HierarchyRoot]
   public class PreferenceLong : Entity
   {
     [Field, Key]
@@ -51,6 +50,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0232_SupportForEnumHasFlageModel
     public PenColorsLong FavoritePanColorses { get; set; }
   }
 
+  [HierarchyRoot]
   public class Pen : Entity
   {
     [Field, Key]
@@ -78,6 +78,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         for(int i = 0; i < 9; i++) {
           new Preference {FavoritePanColores = (PenColors) i};
+          new PreferenceLong {FavoritePanColorses = (PenColorsLong) i};
         }
         new Pen { Color = PenColors.Red };
         new Pen { Color = PenColors.Blue };
@@ -93,14 +94,14 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession()) 
       using(var transaction = session.OpenTransaction()) {
 
-        var expected = PenColors.Blue;
+        var expected = PenColors.White;
 
         var result = from a in Query.All<Preference>()
-          let v = PenColors.Blue
+          let v = PenColors.White
           where a.FavoritePanColores.HasFlag(v)
           select a;
 
-        Assert.That(result.First(),Is.EqualTo(expected));
+        Assert.That(result.First().FavoritePanColores,Is.EqualTo(expected));
       }
     }
 

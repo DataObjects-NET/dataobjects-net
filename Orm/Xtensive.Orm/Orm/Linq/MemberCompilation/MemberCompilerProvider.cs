@@ -321,7 +321,6 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     private static MemberInfo GetCanonicalMember(MemberInfo member)
     {
       var canonicalMember = member;
-
       var sourceProperty = canonicalMember as PropertyInfo;
       if (sourceProperty!=null) {
         canonicalMember = sourceProperty.GetGetMethod();
@@ -347,6 +346,13 @@ namespace Xtensive.Orm.Linq.MemberCompilation
           canonicalMember = null;
       }
 
+      var declaratedType = canonicalMember.DeclaringType;
+      if (targetType.IsEnum)
+        if (targetType != declaratedType)
+          canonicalMember = GetCanonicalMethod((MethodInfo)canonicalMember, declaratedType.GetMethods());
+        else
+          canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, targetType.GetMethods());
+      
       return canonicalMember;
     }
 
