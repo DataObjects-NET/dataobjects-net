@@ -16,13 +16,13 @@ namespace Xtensive.Sql.Tests
     private static readonly Dictionary<ConnectionInfo, SqlDriver> DriverCache = new Dictionary<ConnectionInfo, SqlDriver>();
 
     private static readonly Dictionary<string, Type> FactoryRegistry = new Dictionary<string, Type> {
-        {"sqlserver", typeof (Drivers.SqlServer.DriverFactory)},
-        {"sqlserverce", typeof (Drivers.SqlServerCe.DriverFactory)},
-        {"oracle", typeof (Drivers.Oracle.DriverFactory)},
-        {"postgresql", typeof (Drivers.PostgreSql.DriverFactory)},
-        {"firebird", typeof (Drivers.Firebird.DriverFactory)},
-        {"mysql", typeof (Drivers.MySql.DriverFactory)},
-        {"sqlite", typeof (Drivers.Sqlite.DriverFactory)},
+        {WellKnown.Provider.SqlServer, typeof (Drivers.SqlServer.DriverFactory)},
+        {WellKnown.Provider.SqlServerCe, typeof (Drivers.SqlServerCe.DriverFactory)},
+        {WellKnown.Provider.Oracle, typeof (Drivers.Oracle.DriverFactory)},
+        {WellKnown.Provider.PostgreSql, typeof (Drivers.PostgreSql.DriverFactory)},
+        {WellKnown.Provider.Firebird, typeof (Drivers.Firebird.DriverFactory)},
+        {WellKnown.Provider.MySql, typeof (Drivers.MySql.DriverFactory)},
+        {WellKnown.Provider.Sqlite, typeof (Drivers.Sqlite.DriverFactory)},
       };
 
     public static SqlDriver Create(UrlInfo connectionUrl)

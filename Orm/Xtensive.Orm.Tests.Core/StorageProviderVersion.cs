@@ -12,6 +12,8 @@ namespace Xtensive.Orm.Tests
   {
     public static Version SqlServer2005 = new Version(9, 0);
     public static Version SqlServer2008 = new Version(10, 0);
+    public static Version SqlServer2008R2 = new Version(10, 50);
+    public static Version SqlServer2012 = new Version(11, 0);
 
     public static Version Oracle09 = new Version(9, 0);
     public static Version Oracle10 = new Version(10, 0);

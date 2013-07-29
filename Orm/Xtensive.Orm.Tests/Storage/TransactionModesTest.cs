@@ -16,6 +16,12 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public sealed class TransactionModesTest : NorthwindDOModelTest
   {
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.AllFeaturesNotSupported(ProviderFeatures.ExclusiveWriterConnection);
+    }
+
     [Test]
     public void DefaultTransactionsTest()
     {
