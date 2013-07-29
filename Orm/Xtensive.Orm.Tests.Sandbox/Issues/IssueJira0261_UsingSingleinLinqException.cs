@@ -59,7 +59,6 @@ namespace Xtensive.Orm.Tests.Issues
 
         Assert.That(result.Value.FirstName, Is.EqualTo("Jeremy"));
       }
-      
     }
   }
 }
