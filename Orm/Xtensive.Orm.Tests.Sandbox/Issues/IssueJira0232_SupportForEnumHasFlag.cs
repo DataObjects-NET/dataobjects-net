@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
-// Created:    2012.01.25
+// Created:    2013.07.22
 #if NET40
 using System;
 using System.Linq;
