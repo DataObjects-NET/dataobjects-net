@@ -2464,4 +2464,7 @@ Error: {1}</value>
   <data name="ExNonEnumParametersForEnumHasFlagAreNotSupported">
     <value xml:space="preserve">Non-enum parameters for Enum.HasFlag are not supported</value>
   </data>
+  <data name="ExNonLinqExpressionForQueryExecuteDelayedNotSupported">
+    <value xml:space="preserve">Non-Linq expression for Query.ExecuteDelayed not supported</value>
+  </data>
 </root>
