@@ -26,7 +26,9 @@ namespace Xtensive.Orm.Tests.Issues
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      return DomainConfiguration.Load("AppConfigTest", "DomainWithCustomSchema");
+      var configuration = base.BuildConfiguration();
+      configuration.DefaultSchema = "MyFancySchema";
+      return configuration;
     }
 
     protected override Domain BuildDomain(DomainConfiguration configuration)
