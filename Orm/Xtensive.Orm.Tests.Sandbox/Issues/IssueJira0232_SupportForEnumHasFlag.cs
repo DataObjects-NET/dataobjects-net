@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
 // Created:    2013.07.22
+
 #if NET40
 using System;
 using System.Linq;
@@ -80,10 +81,10 @@ namespace Xtensive.Orm.Tests.Issues
           new Preference {FavoritePanColores = (PenColors) i};
           new PreferenceLong {FavoritePanColorses = (PenColorsLong) i};
         }
-        new Pen { Color = PenColors.Red };
-        new Pen { Color = PenColors.Blue };
-        new Pen { Color = PenColors.Red | PenColors.Blue };
-        new Pen { Color = PenColors.Red | PenColors.Green };
+        new Pen {Color = PenColors.Red};
+        new Pen {Color = PenColors.Blue};
+        new Pen {Color = PenColors.Red | PenColors.Blue};
+        new Pen {Color = PenColors.Red | PenColors.Green};
         transaction.Complete();
       }
     }
@@ -92,8 +93,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void WhereSimplePenColorIntermediate()
     {
       using (var session = Domain.OpenSession()) 
-      using(var transaction = session.OpenTransaction()) {
-
+      using (var transaction = session.OpenTransaction()) {
         var expected = PenColors.White;
 
         var result = from a in Query.All<Preference>()
@@ -124,18 +124,16 @@ namespace Xtensive.Orm.Tests.Issues
     public void WhenComplexPenColorIntermediate()
     {
       using (var session = Domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
+      using (var transaction = session.OpenTransaction()) {
+        var expected = PenColors.Blue | PenColors.Green | PenColors.Red;
 
-          var expected = PenColors.Blue | PenColors.Green | PenColors.Red;
+        var result = from a in Query.All<Preference>()
+          let v = PenColors.Blue | PenColors.Green | PenColors.Red
+          where a.FavoritePanColores.HasFlag(v)
+          select a;
 
-          var result = from a in Query.All<Preference>()
-            let v = PenColors.Blue | PenColors.Green | PenColors.Red
-            where a.FavoritePanColores.HasFlag(v)
-            select a;
-
-          Assert.That(result.First().FavoritePanColores, Is.EqualTo(expected));
-        }
-      
+        Assert.That(result.First().FavoritePanColores, Is.EqualTo(expected));
+      }
     }
 
     [Test]
@@ -143,7 +141,6 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession()) 
       using (var transaction = session.OpenTransaction()) {
-
         var expected = PenColors.Blue | PenColors.Green | PenColors.Red;
 
         var result = from a in Query.All<Preference>()
@@ -157,9 +154,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void WhereSimplePenColorLongDirectly()
     {
-      using(var session = Domain.OpenSession()) 
+      using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-
         var expected = PenColorsLong.White;
         
         var result = from a in Query.All<PreferenceLong>()
@@ -173,10 +169,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void WhereSimplePenColorLongIntermediate()
     {
-      using (Domain.OpenSession())
-      using (var transaction = Session.Current.OpenTransaction())
-      {
-
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
         var expected = PenColorsLong.White;
 
         var result = from a in Query.All<PreferenceLong>()
@@ -192,9 +186,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void WhereComplexPenColorLongDirectly()
     {
       using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
-
+      using (var transaction = session.OpenTransaction()) {
         var expected = PenColorsLong.White | PenColorsLong.Blue;
 
         var result = from a in Query.All<PreferenceLong>()
@@ -209,9 +201,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void WhereComplexPenColorLongIntermediate()
     {
       using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
-        
+      using (var transaction = session.OpenTransaction()) {
         var expected = PenColorsLong.White | PenColorsLong.Blue;
 
         var result = from a in Query.All<PreferenceLong>()
@@ -219,7 +209,7 @@ namespace Xtensive.Orm.Tests.Issues
           where a.FavoritePanColorses.HasFlag(v)
           select a;
 
-          Assert.That(result.First().FavoritePanColorses, Is.EqualTo(expected));
+        Assert.That(result.First().FavoritePanColorses, Is.EqualTo(expected));
       }
     }
 
@@ -228,7 +218,6 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-
         var expected = PenColors.Red;
 
         var s = from p in Query.All<Pen>()
