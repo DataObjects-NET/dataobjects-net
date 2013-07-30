@@ -1,96 +1,77 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
+    Microsoft ResX Schema
+
+    Version 1.3
+
     The primary goals of this format is to allow a simple XML format 
     that is mostly human readable. The generation and parsing of the 
     various data types are done through the TypeConverter classes 
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
+    <resheader name="version">1.3</resheader>
     <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
     <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Name1">this is my long string</data>
     <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
     <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-        <value>[base64 mime encoded serialized .NET Framework object]</value>
+      [base64 mime encoded serialized .NET Framework object]
     </data>
     <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
+      [base64 mime encoded string representing a byte array form of the .NET Framework object]
     </data>
-                
+
     There are any number of "resheader" rows that contain simple 
     name/value pairs.
-    
+
     Each data row contains a name, and value. The row also contains a 
     type or mimetype. Type corresponds to a .NET class that support 
     text/value conversion through the TypeConverter architecture. 
     Classes that don't support this are serialized and stored with the 
     mimetype set.
-    
+
     The mimetype is used for serialized objects, and tells the 
     ResXResourceReader how to depersist the object. This is currently not 
     extensible. For a given mimetype the value must be set accordingly:
-    
+
     Note - application/x-microsoft.net.object.binary.base64 is the format 
     that the ResXResourceWriter will generate, however the reader can 
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
     value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-            : and then encoded with base64 encoding.
-    
+      : System.Serialization.Formatters.Binary.BinaryFormatter
+      : and then encoded with base64 encoding.
+
     mimetype: application/x-microsoft.net.object.soap.base64
     value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-            : and then encoded with base64 encoding.
+      : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+      : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
     value   : The object must be serialized into a byte array 
-            : using a System.ComponentModel.TypeConverter
-            : and then encoded with base64 encoding.
-    -->
+      : using a System.ComponentModel.TypeConverter
+      : and then encoded with base64 encoding.
+  -->
+  
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
                 <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
                 <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="name" type="xsd:string" msdata:Ordinal="1" />
               <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
               <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
@@ -109,13 +90,13 @@
     <value>text/microsoft-resx</value>
   </resheader>
   <resheader name="version">
-    <value>2.0</value>
+    <value>1.3</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ExComparerForTypeIsNotAvailable" xml:space="preserve">
     <value>Comparer for type '{0}' is not available.</value>
@@ -162,14 +143,14 @@
   <data name="ExDefaultTypeIsAlreadyRegistered" xml:space="preserve">
     <value>Default type is already registered.</value>
   </data>
-  <data name="ExInstanceMustBeLockedBeforeThisOperation" xml:space="preserve">
-    <value>Instance must be locked before this operation.</value>
+  <data name="ExInstanceMustBeLockedBeforeThisOperation">
+    <value xml:space="preserve">Instance must be locked before this operation.</value>
   </data>
-  <data name="NodeCollectionFullNameFormat" xml:space="preserve">
-    <value>{0}.{1}</value>
+  <data name="NodeCollectionFullNameFormat">
+    <value xml:space="preserve">{0}.{1}</value>
   </data>
-  <data name="LogExErrorSettingDefaultValueXForColumnYInTypeZ" xml:space="preserve">
-    <value>Error setting default value {0} for column '{1}' in type '{2}'. Most likely, its type is incorrect.</value>
+  <data name="LogExErrorSettingDefaultValueXForColumnYInTypeZ">
+    <value xml:space="preserve">Error setting default value {0} for column '{1}' in type '{2}'. Most likely, its type is incorrect.</value>
   </data>
   <data name="ExIndexIsChanged" xml:space="preserve">
     <value>Index '{0}' is changed.</value>
@@ -311,11 +292,11 @@
   <data name="ExOuterParameterReferenceFoundButNoSqlCompilerProvided" xml:space="preserve">
     <value>Outer parameter reference found, but no SqlCompiler provided</value>
   </data>
-  <data name="ExTranslationOfInContainsIsNotSupportedInThisCase" xml:space="preserve">
-    <value>Translation of In/Contains is not supported in this case</value>
+  <data name="ExTranslationOfInContainsIsNotSupportedInThisCase">
+    <value xml:space="preserve">Translation of In/Contains is not supported in this case</value>
   </data>
-  <data name="ExRequestIsNotPrepared" xml:space="preserve">
-    <value>Request is not prepared</value>
+  <data name="ExRequestIsNotPrepared">
+    <value xml:space="preserve">Request is not prepared</value>
   </data>
   <data name="ExCouldNotLoadTypesFromAssembly" xml:space="preserve">
     <value>Could not load types from assembly '{0}'.</value>
@@ -1733,95 +1714,95 @@ Error: {1}</value>
   <data name="XW0001" xml:space="preserve">
     <value>{0}</value>
   </data>
-  <data name="ExUpgradeHintTargetFieldNotFound" xml:space="preserve">
-    <value>Upgrade hint error. Target field '{0}' not found.</value>
+  <data name="ExUpgradeHintTargetFieldNotFound">
+    <value><![CDATA[Upgrade hint error. Target field '{0}' not found.]]></value>
   </data>
-  <data name="ExUpgradeHintTargetTypeNotFound" xml:space="preserve">
-    <value>Upgrade hint error. Target type '{0}' not found.</value>
+  <data name="ExUpgradeHintTargetTypeNotFound">
+    <value><![CDATA[Upgrade hint error. Target type '{0}' not found.]]></value>
   </data>
-  <data name="ExUpgradeHintSourceTypeNotFound" xml:space="preserve">
-    <value>Upgrade hint error. Source type '{0}' not found.</value>
+  <data name="ExUpgradeHintSourceTypeNotFound">
+    <value><![CDATA[Upgrade hint error. Source type '{0}' not found.]]></value>
   </data>
-  <data name="ExUpgradeHintSourceFieldNotFound" xml:space="preserve">
-    <value>Upgrade hint error. Source field '{0}' not found.</value>
+  <data name="ExUpgradeHintSourceFieldNotFound">
+    <value><![CDATA[Upgrade hint error. Source field '{0}' not found.]]></value>
   </data>
-  <data name="ExOnlyPrefetchMethodSupportedButFoundX" xml:space="preserve">
-    <value>Only 'Prefetch(source, expression, params[] expressions)' method is supported within prefetch expression. But found '{0}'.</value>
+  <data name="ExOnlyPrefetchMethodSupportedButFoundX">
+    <value><![CDATA[Only 'Prefetch(source, expression, params[] expressions)' method is supported within prefetch expression. But found '{0}'.]]></value>
   </data>
-  <data name="ExUnabletoParsePrefetchExpressionX" xml:space="preserve">
-    <value>Unable to parse prefetch expression '{0}'.</value>
+  <data name="ExUnabletoParsePrefetchExpressionX">
+    <value><![CDATA[Unable to parse prefetch expression '{0}'.]]></value>
   </data>
-  <data name="ExOnlyPropertAccessPrefetchOrAnonymousTypeSupportedButFoundX" xml:space="preserve">
-    <value>Only persistented property access, calls of Prefetch method or anonymous type constructors are supported, but found '{0}' expression.</value>
+  <data name="ExOnlyPropertAccessPrefetchOrAnonymousTypeSupportedButFoundX">
+    <value><![CDATA[Only persistented property access, calls of Prefetch method or anonymous type constructors are supported, but found '{0}' expression.]]></value>
   </data>
-  <data name="ExUnableToParseValueXForFieldY" xml:space="preserve">
-    <value>Unable to parse value '{0}' for field '{1}'</value>
+  <data name="ExUnableToParseValueXForFieldY">
+    <value xml:space="preserve">Unable to parse value '{0}' for field '{1}'</value>
   </data>
-  <data name="EntityX" xml:space="preserve">
-    <value>Entity: {0};</value>
+  <data name="EntityX">
+    <value xml:space="preserve">Entity: {0};</value>
   </data>
-  <data name="FieldX" xml:space="preserve">
-    <value> Field: {0};</value>
+  <data name="FieldX">
+    <value xml:space="preserve"> Field: {0};</value>
   </data>
-  <data name="ExUnableToSetIndexedFlagOnEntitySetFieldX" xml:space="preserve">
-    <value>Unable to set 'Indexed' flag on EntitySet field {0}.</value>
+  <data name="ExUnableToSetIndexedFlagOnEntitySetFieldX">
+    <value xml:space="preserve">Unable to set 'Indexed' flag on EntitySet field {0}.</value>
   </data>
-  <data name="ExUnableToSetIndexedFlagOnStructureFieldX" xml:space="preserve">
-    <value>Unable to set 'Indexed' flag on Structure field {0}.</value>
+  <data name="ExUnableToSetIndexedFlagOnStructureFieldX">
+    <value xml:space="preserve">Unable to set 'Indexed' flag on Structure field {0}.</value>
   </data>
-  <data name="ExOnlySecondaryIndexesCanBeDeclaredPartial" xml:space="preserve">
-    <value>Only secondary indexes can be declared partial.</value>
+  <data name="ExOnlySecondaryIndexesCanBeDeclaredPartial">
+    <value xml:space="preserve">Only secondary indexes can be declared partial.</value>
   </data>
-  <data name="ExMemberXIsNotFoundCheckThatSuchMemberExists" xml:space="preserve">
-    <value>Member '{0}' is not found. Check that either static parameterless method or static property with such name exists.</value>
+  <data name="ExMemberXIsNotFoundCheckThatSuchMemberExists">
+    <value xml:space="preserve">Member '{0}' is not found. Check that either static parameterless method or static property with such name exists.</value>
   </data>
-  <data name="ExMemberXShouldReturnValueThatIsAssignableToLambdaExpression" xml:space="preserve">
-    <value>Member '{0}' should return value that is assignable to LambdaExpression</value>
+  <data name="ExMemberXShouldReturnValueThatIsAssignableToLambdaExpression">
+    <value xml:space="preserve">Member '{0}' should return value that is assignable to LambdaExpression</value>
   </data>
-  <data name="ExLambdaExpressionReturnedByXShouldTakeOneParameterOfTypeYOrAnyBaseTypeOfIt" xml:space="preserve">
-    <value>LambdaExpression returned by '{0}' should take one parameter of type '{1}' or any base type of it</value>
+  <data name="ExLambdaExpressionReturnedByXShouldTakeOneParameterOfTypeYOrAnyBaseTypeOfIt">
+    <value xml:space="preserve">LambdaExpression returned by '{0}' should take one parameter of type '{1}' or any base type of it</value>
   </data>
-  <data name="ExLambdaExpressionReturnedByXShouldReturnValueThatIsAssignableToY" xml:space="preserve">
-    <value>LambdaExpression returned by '{0}' should return value that is assignable to '{1}'</value>
+  <data name="ExLambdaExpressionReturnedByXShouldReturnValueThatIsAssignableToY">
+    <value xml:space="preserve">LambdaExpression returned by '{0}' should return value that is assignable to '{1}'</value>
   </data>
-  <data name="ExUnableToTranslateXInPartialIndexDefinitionForIndexYReasonZ" xml:space="preserve">
-    <value>Unable to translate '{0}' in partial index definition for index '{1}'. Reason: {2}.</value>
+  <data name="ExUnableToTranslateXInPartialIndexDefinitionForIndexYReasonZ">
+    <value xml:space="preserve">Unable to translate '{0}' in partial index definition for index '{1}'. Reason: {2}.</value>
   </data>
-  <data name="MemberAccessSequenceContainsNonPersistentFields" xml:space="preserve">
-    <value>member access sequence contains non-persistent fields</value>
+  <data name="MemberAccessSequenceContainsNonPersistentFields">
+    <value xml:space="preserve">member access sequence contains non-persistent fields</value>
   </data>
-  <data name="ParametersOfTypeOtherThanXAreNotSupported" xml:space="preserve">
-    <value>parameters of type other than '{0}' are not supported</value>
+  <data name="ParametersOfTypeOtherThanXAreNotSupported">
+    <value xml:space="preserve">parameters of type other than '{0}' are not supported</value>
   </data>
-  <data name="ExpressionsOfTypeXAreNotSupported" xml:space="preserve">
-    <value>expressions of type '{0}' are not supported</value>
+  <data name="ExpressionsOfTypeXAreNotSupported">
+    <value xml:space="preserve">expressions of type '{0}' are not supported</value>
   </data>
-  <data name="OnlyPrimitiveAndReferenceFieldsAreSupported" xml:space="preserve">
-    <value>only primitive and reference fields are supported</value>
+  <data name="OnlyPrimitiveAndReferenceFieldsAreSupported">
+    <value xml:space="preserve">only primitive and reference fields are supported</value>
   </data>
-  <data name="FieldXDoesNotExistInTableForY" xml:space="preserve">
-    <value>field '{0}' does not exist in table for '{1}'</value>
+  <data name="FieldXDoesNotExistInTableForY">
+    <value xml:space="preserve">field '{0}' does not exist in table for '{1}'</value>
   </data>
-  <data name="ExTypeXHasMultipleClusteredIndexesY" xml:space="preserve">
-    <value>Type '{0}' has multiple clustered indexes: {1}</value>
+  <data name="ExTypeXHasMultipleClusteredIndexesY">
+    <value xml:space="preserve">Type '{0}' has multiple clustered indexes: {1}</value>
   </data>
-  <data name="ExTypeXDeclaresClusteredIndexYButOnlyRootTypeCanDeclareClusteredIndexInSingleTableHierarchy" xml:space="preserve">
-    <value>Type '{0}' declares clustered index '{1}', but only root type can declare clustered indexes in single table hierarhy</value>
+  <data name="ExTypeXDeclaresClusteredIndexYButOnlyRootTypeCanDeclareClusteredIndexInSingleTableHierarchy">
+    <value xml:space="preserve">Type '{0}' declares clustered index '{1}', but only root type can declare clustered indexes in single table hierarhy</value>
   </data>
-  <data name="ExIndexXCanNotBeBothPartialAndClustered" xml:space="preserve">
-    <value>Index '{0}' can not be both partial and clustered</value>
+  <data name="ExIndexXCanNotBeBothPartialAndClustered">
+    <value xml:space="preserve">Index '{0}' can not be both partial and clustered</value>
   </data>
-  <data name="ExClusteredIndexCanNotBeDeclaredInInterfaceX" xml:space="preserve">
-    <value>Clustered index can not be declared in interface '{0}'</value>
+  <data name="ExClusteredIndexCanNotBeDeclaredInInterfaceX">
+    <value xml:space="preserve">Clustered index can not be declared in interface '{0}'</value>
   </data>
-  <data name="ExMemberXIsNotSupported" xml:space="preserve">
-    <value>Member '{0}' is not supported</value>
+  <data name="ExMemberXIsNotSupported">
+    <value xml:space="preserve">Member '{0}' is not supported</value>
   </data>
-  <data name="ExpressionXShouldTakeYParameters" xml:space="preserve">
-    <value>Expression '{0}' should take {1} parameters</value>
+  <data name="ExpressionXShouldTakeYParameters">
+    <value xml:space="preserve">Expression '{0}' should take {1} parameters</value>
   </data>
-  <data name="ExEntityWithKeyXAlreadyExists" xml:space="preserve">
-    <value>Entity with key '{0}' already exists</value>
+  <data name="ExEntityWithKeyXAlreadyExists">
+    <value xml:space="preserve">Entity with key '{0}' already exists</value>
   </data>
   <data name="ExInvalidFieldNameX" xml:space="preserve">
     <value>Invalid field name '{0}'.</value>
@@ -1916,8 +1897,8 @@ Error: {1}</value>
   <data name="ExCurrentCompilerIsNotSuitableForThisOperationMostLikelyThereIsNoActiveSession" xml:space="preserve">
     <value>Current compiler is not suitable for this operation, most likely there is no active Session.</value>
   </data>
-  <data name="ExProcessingOfVoidProviderIsNotSupported" xml:space="preserve">
-    <value>Processing of VoidProvider is not supported.</value>
+  <data name="ExProcessingOfVoidProviderIsNotSupported">
+    <value xml:space="preserve">Processing of VoidProvider is not supported.</value>
   </data>
   <data name="ExEmptyKeyColumnsCollection" xml:space="preserve">
     <value>KeyColumns collection is empty.</value>
@@ -2000,8 +1981,8 @@ Error: {1}</value>
   <data name="ExEmptyColumnsCollection" xml:space="preserve">
     <value>Columns collection is empty.</value>
   </data>
-  <data name="NativeType" xml:space="preserve">
-    <value>Native type</value>
+  <data name="NativeType">
+    <value xml:space="preserve">Native type</value>
   </data>
   <data name="ExSpecifiedRedoDescriptorCantBeLogged" xml:space="preserve">
     <value>Specified RedoDescriptor can't be logged.</value>
@@ -2033,7 +2014,7 @@ Error: {1}</value>
   <data name="ExAlreadyCompleted" xml:space="preserve">
     <value>UndoDescriptor is already completed.</value>
   </data>
-  <data name="ExCompleteMustBeCalledJustOnce" xml:space="preserve">
+    <data name="ExCompleteMustBeCalledJustOnce" xml:space="preserve">
     <value>Complete method must be called just once.</value>
   </data>
   <data name="ExContextMustBeActivated" xml:space="preserve">
@@ -2153,8 +2134,8 @@ Error: {1}</value>
   <data name="ExMultipleLanguagesNotSupportedForFulltextColumnXOfIndexY" xml:space="preserve">
     <value>Multiple languages not supported for fulltext column {0} of index {1}.</value>
   </data>
-  <data name="ExNoMessageTemplateIsRegisteredForCodeX" xml:space="preserve">
-    <value>No message template is registered for code: {0}</value>
+  <data name="ExNoMessageTemplateIsRegisteredForCodeX">
+    <value xml:space="preserve">No message template is registered for code: {0}</value>
   </data>
   <data name="ExTablePropertyIsNotSet" xml:space="preserve">
     <value>Table is not set.</value>
@@ -2345,77 +2326,77 @@ Error: {1}</value>
   <data name="ConstraintX" xml:space="preserve">
     <value> Constraint: {0};</value>
   </data>
-  <data name="UnableToInvalidateSessionStateNewlyCreatedEntitiesAreAttachedToSession" xml:space="preserve">
-    <value>Unable to invalidate session state: newly created entities are attached to session.</value>
+  <data name="UnableToInvalidateSessionStateNewlyCreatedEntitiesAreAttachedToSession">
+    <value xml:space="preserve">Unable to invalidate session state: newly created entities are attached to session.</value>
   </data>
-  <data name="ExDefaultSchemaShouldBeSpecifiedWhenMultischemaOrMultidatabaseModeIsActive" xml:space="preserve">
-    <value>DefaultSchema should be specified when multi-schema or multi-database mode is active.</value>
+  <data name="ExDefaultSchemaShouldBeSpecifiedWhenMultischemaOrMultidatabaseModeIsActive">
+    <value xml:space="preserve">DefaultSchema should be specified when multi-schema or multi-database mode is active.</value>
   </data>
-  <data name="ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive" xml:space="preserve">
-    <value>DefaultSchema and DefaultDatabase should be specified when multi-database mode is active.</value>
+  <data name="ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive">
+    <value xml:space="preserve">DefaultSchema and DefaultDatabase should be specified when multi-database mode is active.</value>
   </data>
-  <data name="LogProcessingMappingRules" xml:space="preserve">
-    <value>Processing mapping rules</value>
+  <data name="LogProcessingMappingRules">
+    <value xml:space="preserve">Processing mapping rules</value>
   </data>
-  <data name="ExXImplementorsDontBelongToAnyHierarchy" xml:space="preserve">
-    <value>{0} implementors don't belong to any hierarchy.</value>
+  <data name="ExXImplementorsDontBelongToAnyHierarchy">
+    <value xml:space="preserve">{0} implementors don't belong to any hierarchy.</value>
   </data>
-  <data name="ExImplementorsOfXInterfaceBelongToHierarchiesOneOfWhichIncludesTypeIdButAnotherDoesntYZ" xml:space="preserve">
-    <value>Implementors of {0} interface belong to hierarchies one of which includes TypeId, but another doesn't: {1} &amp; {2}.</value>
+  <data name="ExImplementorsOfXInterfaceBelongToHierarchiesOneOfWhichIncludesTypeIdButAnotherDoesntYZ">
+    <value xml:space="preserve">Implementors of {0} interface belong to hierarchies one of which includes TypeId, but another doesn't: {1} &amp; {2}.</value>
   </data>
-  <data name="ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ" xml:space="preserve">
-    <value>Implementors of {0} interface belong to hierarchies with different key structure: {1} &amp; {2}.</value>
+  <data name="ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ">
+    <value xml:space="preserve">Implementors of {0} interface belong to hierarchies with different key structure: {1} &amp; {2}.</value>
   </data>
-  <data name="LogValidatingMappingConfiguration" xml:space="preserve">
-    <value>Validating mapping configuration</value>
+  <data name="LogValidatingMappingConfiguration">
+    <value xml:space="preserve">Validating mapping configuration</value>
   </data>
-  <data name="ExSingleHierarchyIsMappedToMultipleDatabasesXY" xml:space="preserve">
-    <value>Single hierarchy is mapped to multiple databases: {0}, {1}</value>
+  <data name="ExSingleHierarchyIsMappedToMultipleDatabasesXY">
+    <value xml:space="preserve">Single hierarchy is mapped to multiple databases: {0}, {1}</value>
   </data>
-  <data name="ExInterfaceXIsImplementedByTypesMappedToDifferentDatabasesYZ" xml:space="preserve">
-    <value>Interface '{0}' is implemented by types mapped to different databases: {1}, {2}</value>
+  <data name="ExInterfaceXIsImplementedByTypesMappedToDifferentDatabasesYZ">
+    <value xml:space="preserve">Interface '{0}' is implemented by types mapped to different databases: {1}, {2}</value>
   </data>
-  <data name="ExMultischemaModeIsActiveButNoSchemaSpecifiedForX" xml:space="preserve">
-    <value>Multi-schema mode is active, but no schema specified for '{0}'</value>
+  <data name="ExMultischemaModeIsActiveButNoSchemaSpecifiedForX">
+    <value xml:space="preserve">Multi-schema mode is active, but no schema specified for '{0}'</value>
   </data>
-  <data name="ExMultidatabaseModeIsActiveButNoDatabaseSpecifiedForX" xml:space="preserve">
-    <value>Multi-database mode is active, but no database specified for '{0}'</value>
+  <data name="ExMultidatabaseModeIsActiveButNoDatabaseSpecifiedForX">
+    <value xml:space="preserve">Multi-database mode is active, but no database specified for '{0}'</value>
   </data>
-  <data name="ExCyclicDependencyBetweenDatabasesFoundX" xml:space="preserve">
-    <value>Cyclic dependency between databases found: {0}</value>
+  <data name="ExCyclicDependencyBetweenDatabasesFoundX">
+    <value xml:space="preserve">Cyclic dependency between databases found: {0}</value>
   </data>
-  <data name="LogProcessingX" xml:space="preserve">
-    <value>Processing '{0}'</value>
+  <data name="LogProcessingX">
+    <value xml:space="preserve">Processing '{0}'</value>
   </data>
-  <data name="LogReusingCachedMappingInformationForX" xml:space="preserve">
-    <value>Reusing cached mapping information for '{0}'</value>
+  <data name="LogReusingCachedMappingInformationForX">
+    <value xml:space="preserve">Reusing cached mapping information for '{0}'</value>
   </data>
-  <data name="ApplyingRuleXToY" xml:space="preserve">
-    <value>Applying rule '{0}' to '{1}'</value>
+  <data name="ApplyingRuleXToY">
+    <value xml:space="preserve">Applying rule '{0}' to '{1}'</value>
   </data>
-  <data name="LogCalculatingDatabaseDependencies" xml:space="preserve">
-    <value>Calculating database dependencies</value>
+  <data name="LogCalculatingDatabaseDependencies">
+    <value xml:space="preserve">Calculating database dependencies</value>
   </data>
-  <data name="ExTemporaryTablesAreNotSupportedByCurrentStorage" xml:space="preserve">
-    <value>Temporary tables are not supported by current storage</value>
+  <data name="ExTemporaryTablesAreNotSupportedByCurrentStorage">
+    <value xml:space="preserve">Temporary tables are not supported by current storage</value>
   </data>
-  <data name="TypeIdRangeForDatabaseXYZIsExhausted" xml:space="preserve">
-    <value>Type ID range for database '{0}' ({1}, {2}) is exhausted</value>
+  <data name="TypeIdRangeForDatabaseXYZIsExhausted">
+    <value xml:space="preserve">Type ID range for database '{0}' ({1}, {2}) is exhausted</value>
   </data>
-  <data name="LogFullTextIndexesAreNotSupportedByCurrentStorageIgnoringIndexX" xml:space="preserve">
-    <value>Full text indexes are not supported by current storage, ignoring index '{0}'</value>
+  <data name="LogFullTextIndexesAreNotSupportedByCurrentStorageIgnoringIndexX">
+    <value xml:space="preserve">Full text indexes are not supported by current storage, ignoring index '{0}'</value>
   </data>
-  <data name="ExExceptionHasBeenThrownByTheParameterValueAccessor" xml:space="preserve">
-    <value>Exception has been thrown by the parameter value accessor.</value>
+  <data name="ExExceptionHasBeenThrownByTheParameterValueAccessor">
+    <value xml:space="preserve">Exception has been thrown by the parameter value accessor.</value>
   </data>
-  <data name="ExTypeDiscriminatorIsNotFoundForXType" xml:space="preserve">
-    <value>Type discriminator field is not found for '{0}' type</value>
+  <data name="ExTypeDiscriminatorIsNotFoundForXType">
+    <value xml:space="preserve">Type discriminator field is not found for '{0}' type</value>
   </data>
-  <data name="ExCurrentStorageDoesNotSupportChangingColumnTypes" xml:space="preserve">
-    <value>Current storage does not support changing column types</value>
+  <data name="ExCurrentStorageDoesNotSupportChangingColumnTypes">
+    <value xml:space="preserve">Current storage does not support changing column types</value>
   </data>
-  <data name="ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsInstead" xml:space="preserve">
-    <value>Direct querying for entity set in compiled queries is not supported, use QueryEndpoint.Items() instead.</value>
+  <data name="ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsInstead">
+    <value xml:space="preserve">Direct querying for entity set in compiled queries is not supported, use QueryEndpoint.Items() instead.</value>
   </data>
   <data name="ExCompilerXHasTooManyParameters" xml:space="preserve">
     <value>Compiler {0} has too many parameters.</value>
@@ -2447,43 +2428,40 @@ Error: {1}</value>
   <data name="ExTypeXShouldNotBeGeneric" xml:space="preserve">
     <value>Type {0} should not be generic.</value>
   </data>
-  <data name="LogFailedToExtractMetadataFromXYZ" xml:space="preserve">
-    <value>Failed to extract metadata from '{0}.{1}': {2}</value>
+  <data name="LogFailedToExtractMetadataFromXYZ">
+    <value xml:space="preserve">Failed to extract metadata from '{0}.{1}': {2}</value>
   </data>
-  <data name="ExThisMethodShouldNotBeCalledUseApplySessionExpressionInstead" xml:space="preserve">
-    <value>This method should not be called, use Apply(Session, Expression) instead</value>
+  <data name="ExThisMethodShouldNotBeCalledUseApplySessionExpressionInstead">
+    <value xml:space="preserve">This method should not be called, use Apply(Session, Expression) instead</value>
   </data>
-  <data name="ExOptionXIsMutuallyExclusiveWithOptionY" xml:space="preserve">
-    <value>Option '{0}' is mutually exclusive with option '{1}'</value>
+  <data name="ExOptionXIsMutuallyExclusiveWithOptionY">
+    <value xml:space="preserve">Option '{0}' is mutually exclusive with option '{1}'</value>
   </data>
-  <data name="ExExceptionHasBeenThrownByTheUserMemberCompiler" xml:space="preserve">
-    <value>Exception has been thrown by the user member compiler.</value>
+  <data name="ExExceptionHasBeenThrownByTheUserMemberCompiler">
+    <value xml:space="preserve">Exception has been thrown by the user member compiler.</value>
   </data>
-  <data name="ExSessionXStillUsesSingleAvailableConnection" xml:space="preserve">
-    <value>Session '{0}' still uses single available connection.</value>
+  <data name="ExSessionXStillUsesSingleAvailableConnection">
+    <value xml:space="preserve">Session '{0}' still uses single available connection.</value>
   </data>
-  <data name="LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX" xml:space="preserve">
-    <value>Unable to close single available connection: it is still used by session '{0}'.</value>
+  <data name="LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX">
+    <value xml:space="preserve">Unable to close single available connection: it is still used by session '{0}'.</value>
   </data>
-  <data name="ExValidateVersionEqTrueIsIncompatibleWithPersistRequestKindEqInsert" xml:space="preserve">
-    <value>validateVersion=true is incompatible with PersistRequestKind=Insert</value>
+	<data name="ExValidateVersionEqTrueIsIncompatibleWithPersistRequestKindEqInsert">
+		<value xml:space="preserve">validateVersion=true is incompatible with PersistRequestKind=Insert</value>
+	</data>
+	<data name="ExBatchingCommandProcessorDoesNotSupportValidationOfNumberOfAffectedRows">
+		<value xml:space="preserve">BatchingCommandProcessor does not support validation of number of affected rows.</value>
+	</data>
+  <data name="ExUnableToResolveSchemaForNodeXPleaseVerifyThatThisSchemaExists">
+    <value xml:space="preserve">Unable to resolve schema for node '{0}'. Please verify that this schema exists.</value>
   </data>
-  <data name="ExBatchingCommandProcessorDoesNotSupportValidationOfNumberOfAffectedRows" xml:space="preserve">
-    <value>BatchingCommandProcessor does not support validation of number of affected rows.</value>
+  <data name="ExUnableToResolveDatabaseForNodeXPleaseVerifyThatThisDatabaseExists">
+    <value xml:space="preserve">Unable to resolve database for node '{0}'. Please verify that this database exists.</value>
   </data>
-  <data name="ExUnableToResolveSchemaForNodeXPleaseVerifyThatThisSchemaExists" xml:space="preserve">
-    <value>Unable to resolve schema for node '{0}'. Please verify that this schema exists.</value>
+  <data name="ExInvalidSortExpressionX">
+    <value xml:space="preserve">Invalid sort expression '{0}'</value>
   </data>
-  <data name="ExUnableToResolveDatabaseForNodeXPleaseVerifyThatThisDatabaseExists" xml:space="preserve">
-    <value>Unable to resolve database for node '{0}'. Please verify that this database exists.</value>
-  </data>
-  <data name="ExInvalidSortExpressionX" xml:space="preserve">
-    <value>Invalid sort expression '{0}'</value>
-  </data>
-  <data name="ExNonEnumParametersForEnumHasFlagAreNotSupported" xml:space="preserve">
-    <value>Non-enum parameters for Enum.HasFlag are not supported</value>
-  </data>
-  <data name="ExNonLinqExpressionForQueryExecuteDelayedNotSupported" xml:space="preserve">
-    <value>Non-LinQ expressions for Query.ExecuteDelayed not supported</value>
+  <data name="ExNonEnumParametersForEnumHasFlagAreNotSupported">
+    <value xml:space="preserve">Non-enum parameters for Enum.HasFlag are not supported</value>
   </data>
 </root>
