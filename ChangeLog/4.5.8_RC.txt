@@ -18,4 +18,5 @@
 [main] Automatically handle namespace-only renames during upgrade
 [main] PostSharp is upgraded to version 2.1.7.30
 [postgresql] Npgsql is upgraded to version 2.0.12.1
+[mysql] MySQL library is upgraded to version 6.7.4
 [sqlserver] Fixed reading of large SqlDecimal values
