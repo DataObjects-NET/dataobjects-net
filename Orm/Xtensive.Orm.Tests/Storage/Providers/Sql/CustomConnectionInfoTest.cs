@@ -17,23 +17,13 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void CombinedTest()
     {
-      Require.ProviderIs(StorageProvider.SqlServer);
-      var configuration = DomainConfiguration.Load(
-        "AppConfigTest", "DomainWithCustomConnectionInfo");
-
-      using (var domain = Domain.Build(configuration)) {
-        using (var session = domain.OpenSession()) {
-          Assert.IsNull(session.Configuration.ConnectionInfo);
-        }
-        using (var session = domain.OpenSession(configuration.Sessions["constr"])) {
-          Assert.IsNotNull(session.Configuration.ConnectionInfo);
-          Assert.IsNotNull(session.Configuration.ConnectionInfo.ConnectionString);
-        }
-        using (var session = domain.OpenSession(configuration.Sessions["conurl"])) {
-          Assert.IsNotNull(session.Configuration.ConnectionInfo);
-          Assert.IsNotNull(session.Configuration.ConnectionInfo.ConnectionUrl);
-        }
-      }
+      var domainConfiguration = DomainConfiguration.Load("AppConfigTest", "DomainWithCustomConnectionInfo");
+      var session = domainConfiguration.Sessions["constr"];
+      Assert.IsNotNull(session.ConnectionInfo);
+      Assert.IsNotNull(session.ConnectionInfo.ConnectionString);
+      session = domainConfiguration.Sessions["conurl"];
+      Assert.IsNotNull(session.ConnectionInfo);
+      Assert.IsNotNull(session.ConnectionInfo.ConnectionUrl);
     }
   }
 }
