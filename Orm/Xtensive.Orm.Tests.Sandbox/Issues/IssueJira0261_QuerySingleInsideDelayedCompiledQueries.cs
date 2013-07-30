@@ -6,9 +6,9 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Orm.Tests.Issues.IssueJira0261_UsingSingleinLinqExceptionModel;
+using Xtensive.Orm.Tests.Issues.IssueJira0261_QuerySingleInsideDelayedCompiledQueriesModel;
 
-namespace Xtensive.Orm.Tests.Issues.IssueJira0261_UsingSingleinLinqExceptionModel
+namespace Xtensive.Orm.Tests.Issues.IssueJira0261_QuerySingleInsideDelayedCompiledQueriesModel
 {
   [HierarchyRoot]
   class TestEntity : Entity
@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0261_UsingSingleinLinqExceptionMode
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  public class IssueJira0261_UsingSingleinLinqException : AutoBuildTest
+  public class IssueJira0261_QuerySingleInsideDelayedCompiledQueries : AutoBuildTest
   {
     private Key instanceKey;
     protected override Configuration.DomainConfiguration BuildConfiguration()
