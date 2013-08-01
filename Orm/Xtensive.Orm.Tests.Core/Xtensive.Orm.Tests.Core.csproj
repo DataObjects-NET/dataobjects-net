@@ -113,7 +113,7 @@
     <None Include="Connections.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="DO40-Tests.sql" />
+    <None Include="DO-Tests.sql" />
     <None Include="Northwind.sql" />
   </ItemGroup>
   <ItemGroup>
