@@ -641,9 +641,6 @@
     <None Include="ObjectModel\Interfaces\Slavery.cd" />
     <None Include="ObjectModel\Northwind.cd" />
     <None Include="ObjectModel\NorthwindDO.cd" />
-    <None Include="Tests.db3">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
