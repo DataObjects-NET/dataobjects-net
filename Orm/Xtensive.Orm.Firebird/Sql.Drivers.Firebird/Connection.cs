@@ -4,6 +4,7 @@
 // Created by: Csaba Beer
 // Created:    2011.01.08
 
+using System;
 using System.Data;
 using System.Data.Common;
 using FirebirdSql.Data.FirebirdClient;
@@ -43,19 +44,19 @@ namespace Xtensive.Sql.Drivers.Firebird
     public override void BeginTransaction(IsolationLevel isolationLevel)
     {
       EnsureTrasactionIsNotActive();
-      //            activeTransaction = underlyingConnection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
-      FbTransactionOptions transactionOptions = new FbTransactionOptions();
-      transactionOptions.WaitTimeout = 10;
-      IsolationLevel innerIsolationLevel = SqlHelper.ReduceIsolationLevel(isolationLevel);
-      switch (innerIsolationLevel) {
-        case IsolationLevel.ReadCommitted:
-          transactionOptions.TransactionBehavior = FbTransactionBehavior.ReadCommitted | FbTransactionBehavior.NoRecVersion | FbTransactionBehavior.Write | FbTransactionBehavior.NoWait;
-          break;
-        case IsolationLevel.Serializable:
-          transactionOptions.TransactionBehavior = FbTransactionBehavior.Concurrency | FbTransactionBehavior.Write | FbTransactionBehavior.Wait;
-          break;
-        default:
-          throw new System.NotImplementedException("Isolation level " + innerIsolationLevel + " is not supported!");
+      var transactionOptions = new FbTransactionOptions {WaitTimeout = TimeSpan.FromSeconds(10)};
+      switch (SqlHelper.ReduceIsolationLevel(isolationLevel)) {
+      case IsolationLevel.ReadCommitted:
+        transactionOptions.TransactionBehavior = FbTransactionBehavior.ReadCommitted
+          | FbTransactionBehavior.NoRecVersion
+          | FbTransactionBehavior.Write
+          | FbTransactionBehavior.NoWait;
+        break;
+      case IsolationLevel.Serializable:
+        transactionOptions.TransactionBehavior = FbTransactionBehavior.Concurrency
+          | FbTransactionBehavior.Write
+          | FbTransactionBehavior.Wait;
+        break;
       }
       activeTransaction = underlyingConnection.BeginTransaction(transactionOptions);
     }
