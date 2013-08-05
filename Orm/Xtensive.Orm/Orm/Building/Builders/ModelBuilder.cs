@@ -411,7 +411,7 @@ namespace Xtensive.Orm.Building.Builders
 
       SetOutboundOnlyForAuxiliary(context.Model.Types);
 
-      var associations = GetAnalyzedAssociations(context.Model.Associations);
+      var associations = GetAssociationsForAnalyze(context.Model.Associations);
       foreach (var association in associations) {
         CheckForNonEntityParents(nonEntityParentTypes,association);
         switch (association.Multiplicity) {
@@ -481,7 +481,7 @@ namespace Xtensive.Orm.Building.Builders
           output.Key.IsOutboundOnly = true;
     }
 
-    private IEnumerable<AssociationInfo> GetAnalyzedAssociations(IEnumerable<AssociationInfo> associations)
+    private IEnumerable<AssociationInfo> GetAssociationsForAnalyze(IEnumerable<AssociationInfo> associations)
     {
       return associations.Where(el => (el.IsMaster || !el.IsPaired)
         && el.TargetType.Attributes==TypeAttributes.Entity
