@@ -296,6 +296,21 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Executes <see cref="SqlDriverConfiguration.ConnectionInitializationSql"/> (if any).
+    /// </summary>
+    /// <param name="connection">Connection to initialize.</param>
+    /// <param name="configuration">Driver configuration.</param>
+    public static void ExecuteInitializationSql(DbConnection connection, SqlDriverConfiguration configuration)
+    {
+      if (string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+        return;
+      using (var command = connection.CreateCommand()) {
+        command.CommandText = configuration.ConnectionInitializationSql;
+        command.ExecuteNonQuery();
+      }
+    }
+
+    /// <summary>
     /// Reduces the isolation level to the most commonly supported ones.
     /// </summary>
     /// <param name="level">The level.</param>

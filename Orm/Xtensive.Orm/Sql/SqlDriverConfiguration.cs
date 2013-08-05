@@ -22,6 +22,11 @@ namespace Xtensive.Sql
     public string NativeLibraryCacheFolder { get; set; }
 
     /// <summary>
+    /// Gets or sets connection initialization SQL script.
+    /// </summary>
+    public string ConnectionInitializationSql { get; set; }
+
+    /// <summary>
     /// Clones this instance.
     /// </summary>
     /// <returns>Clone of this instance.</returns>
@@ -29,7 +34,8 @@ namespace Xtensive.Sql
     {
       return new SqlDriverConfiguration {
         ForcedServerVersion = ForcedServerVersion,
-        NativeLibraryCacheFolder = NativeLibraryCacheFolder
+        NativeLibraryCacheFolder = NativeLibraryCacheFolder,
+        ConnectionInitializationSql = ConnectionInitializationSql,
       };
     }
 

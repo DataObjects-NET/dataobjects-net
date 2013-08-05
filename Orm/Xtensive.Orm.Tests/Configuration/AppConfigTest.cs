@@ -105,6 +105,16 @@ namespace Xtensive.Orm.Tests.Configuration
     }
 
     [Test]
+    public void ConnectionInitializationSqlTest()
+    {
+      const string expected = @"use [OtherDb]";
+      var configuration = DomainConfiguration.Load("AppConfigTest", "DomainWithInitSql");
+      Assert.That(configuration.ConnectionInitializationSql, Is.EqualTo(expected));
+      var clone = configuration.Clone();
+      Assert.That(clone.ConnectionInitializationSql, Is.EqualTo(expected));
+    }
+
+    [Test]
     public void AdvancedMappingTest()
     {
       var configuration = DomainConfiguration.Load("AppConfigTest", "AdvancedMappingTest");

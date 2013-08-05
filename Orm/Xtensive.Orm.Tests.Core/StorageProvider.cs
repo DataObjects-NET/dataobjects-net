@@ -17,6 +17,6 @@ namespace Xtensive.Orm.Tests
     Oracle = 0x8,
     MySql = 0x10,
     Firebird = 0x20,
-		Sqlite = 0x40
+    Sqlite = 0x40
   }
 }

@@ -94,7 +94,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3
     {
       if (runningVersion=="1") {
         // Save connection string for future operation.
-        connectionString = Session.Demand().Services.Get<DirectSqlAccessor>().Connection.ConnectionString;
+        connectionString = new Sql.Drivers.SqlServer.DriverFactory()
+          .GetConnectionString(UpgradeContext.Configuration.ConnectionInfo);
       }
 
       if (runningVersion!="2")

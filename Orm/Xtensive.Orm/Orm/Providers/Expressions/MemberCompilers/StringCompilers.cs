@@ -214,7 +214,10 @@ namespace Xtensive.Orm.Providers
     public static SqlExpression StringIsNullOrEmpty(
       [Type(typeof(string))] SqlExpression value)
     {
-      return SqlDml.IsNull(value) || SqlDml.CharLength(value)==SqlDml.Literal(0);
+      var context = ExpressionTranslationContext.Current;
+      if (context.ProviderInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull))
+        return SqlDml.IsNull(value);
+      return SqlDml.IsNull(value) || value==SqlDml.Literal(string.Empty);
     }
 
     [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]

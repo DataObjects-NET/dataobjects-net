@@ -45,6 +45,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string ForcedServerVersionElementName = "forcedServerVersion";
     private const string SchemaSyncExceptionFormatElementName = "schemaSyncExceptionFormat";
     private const string NativeLibraryCacheFolderElementName = "nativeLibraryCacheFolder";
+    private const string ConnectionInitializationSqlElementName = "connectionInitializationSql";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -336,6 +337,16 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.ConnectionInitializationSql" copy="true" />
+    /// </summary>
+    [ConfigurationProperty(ConnectionInitializationSqlElementName)]
+    public string ConnectionInitializationSql
+    {
+      get { return (string) this[ConnectionInitializationSqlElementName]; }
+      set { this[ConnectionInitializationSqlElementName] = value; }
+    }
+
+    /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="DomainConfiguration"/> object.
     /// </summary>
@@ -366,6 +377,7 @@ namespace Xtensive.Orm.Configuration.Elements
         ForcedServerVersion = ForcedServerVersion,
         Collation = Collation,
         NativeLibraryCacheFolder = NativeLibraryCacheFolder,
+        ConnectionInitializationSql = ConnectionInitializationSql,
       };
 
       foreach (var element in Types)

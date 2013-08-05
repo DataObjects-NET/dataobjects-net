@@ -38,6 +38,9 @@ namespace Xtensive.Orm.Providers
 
       try {
         connection.Open();
+        if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+          using (var command = connection.CreateCommand(configuration.ConnectionInitializationSql))
+            command.ExecuteNonQuery();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);

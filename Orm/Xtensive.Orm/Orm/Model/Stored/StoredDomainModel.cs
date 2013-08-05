@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Model.Stored
   [XmlRoot("DomainModel", Namespace = "")]
   public sealed class StoredDomainModel
   {
-    private static readonly XmlSerializer Serializer = new XmlSerializer(typeof (StoredDomainModel));
+    private static readonly SimpleXmlSerializer<StoredDomainModel> Serializer = new SimpleXmlSerializer<StoredDomainModel>();
 
     /// <summary>
     /// <see cref="DomainModel.Types"/>.
@@ -43,14 +43,7 @@ namespace Xtensive.Orm.Model.Stored
     /// <returns>Deserialized instance.</returns>
     public static StoredDomainModel Deserialize(string serialized)
     {
-      ArgumentValidator.EnsureArgumentNotNull(serialized, "serialized");
-
-      StoredDomainModel result;
-      using (var reader = new StringReader(serialized)) {
-        result = (StoredDomainModel) Serializer.Deserialize(reader);
-      }
-
-      return result;
+      return Serializer.Deserialize(serialized);
     }
 
     /// <summary>
@@ -59,12 +52,7 @@ namespace Xtensive.Orm.Model.Stored
     /// <returns>Serialized instance.</returns>
     public string Serialize()
     {
-      string result;
-      using (var writer = new StringWriter()) {
-        Serializer.Serialize(writer, this);
-        result = writer.ToString();
-      }
-      return result;
+      return Serializer.Serialize(this);
     }
 
     /// <summary>

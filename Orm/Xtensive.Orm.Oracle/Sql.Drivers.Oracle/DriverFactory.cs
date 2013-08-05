@@ -66,6 +66,7 @@ namespace Xtensive.Sql.Drivers.Oracle
     {
       using (var connection = new OracleConnection(connectionString)) {
         connection.Open();
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
         var version = configuration.ForcedServerVersion!=null
           ? new Version(configuration.ForcedServerVersion)
           : ParseVersion(connection.ServerVersion);

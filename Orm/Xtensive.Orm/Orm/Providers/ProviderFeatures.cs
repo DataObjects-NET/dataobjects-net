@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Providers
     Batches = DdlBatches | DmlBatches,
 
     // Obsolete features
-    [Obsolete("Use ProviderFeatures.SingleWriterSession instead.")]
+    [Obsolete("Use ProviderFeatures.ExclusiveWriterConnection instead.")]
     SingleSessionAccess = ExclusiveWriterConnection,
   }
 }

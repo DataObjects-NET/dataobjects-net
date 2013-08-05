@@ -31,6 +31,7 @@ namespace Xtensive.Sql.Drivers.Firebird
     {
       using (var connection = new FbConnection(connectionString)) {
         connection.Open();
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
         var dataSource = new FbConnectionStringBuilder(connectionString).DataSource;
         var coreServerInfo = new CoreServerInfo {
           ServerVersion = connection.ServerVersionNumber,

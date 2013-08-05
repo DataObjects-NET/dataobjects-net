@@ -139,7 +139,6 @@
     </EmbeddedResource>
     <Compile Include="Orm.Providers.PostgreSql\DomainHandler.cs" />
     <Compile Include="Orm.Providers.PostgreSql\HandlerFactory.cs" />
-    <Compile Include="Orm.Providers.PostgreSql\PartialIndexFilterNormalizer.cs" />
     <Compile Include="Orm.Providers.PostgreSql\SqlCompiler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\Resources\Strings.Designer.cs">

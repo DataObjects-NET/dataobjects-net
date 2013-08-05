@@ -141,6 +141,7 @@ namespace Xtensive.Orm.Providers
       var driverConfiguration = new SqlDriverConfiguration {
         ForcedServerVersion = configuration.ForcedServerVersion,
         NativeLibraryCacheFolder = configuration.NativeLibraryCacheFolder,
+        ConnectionInitializationSql = configuration.ConnectionInitializationSql,
       };
 
       var driver = driverFactory.GetDriver(configuration.ConnectionInfo, driverConfiguration);

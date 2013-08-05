@@ -35,13 +35,14 @@ namespace Xtensive.Sql.Drivers.Sqlite
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       ProviderInitializer.Run(configuration.NativeLibraryCacheFolder);
-      return DoCreateDriver(connectionString);
+      return DoCreateDriver(connectionString, configuration);
     }
 
-    private SqlDriver DoCreateDriver(string connectionString)
+    private SqlDriver DoCreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       using (var connection = new SQLiteConnection(connectionString)) {
         connection.Open();
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
         var version = new Version(connection.ServerVersion);
         var dataSource = GetDataSource(connectionString);
         var coreServerInfo = new CoreServerInfo {

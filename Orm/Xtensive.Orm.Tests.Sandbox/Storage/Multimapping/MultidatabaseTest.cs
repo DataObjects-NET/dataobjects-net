@@ -11,12 +11,12 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
 {
   public abstract class MultidatabaseTest : MultimappingTest
   {
-    protected const string DefaultSchemaName = "dbo";
+    private const string DefaultSchemaName = "dbo";
 
-    protected const string Database1Name = "DO-Tests-1";
-    protected const string Database2Name = "DO-Tests-2";
-    protected const string Database3Name = "DO-Tests-3";
-    protected const string Database4Name = "DO-Tests-4";
+    public const string Database1Name = "DO-Tests-1";
+    public const string Database2Name = "DO-Tests-2";
+    public const string Database3Name = "DO-Tests-3";
+    public const string Database4Name = "DO-Tests-4";
 
     protected override DomainConfiguration BuildConfiguration()
     {

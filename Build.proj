@@ -3,7 +3,6 @@
 
 <PropertyGroup>
   <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
-  <EnableBuildNumber Condition="'$(EnableBuildNumber)'==''">true</EnableBuildNumber>
   <EnableBinariesZip Condition="'$(EnableBinariesZip)'==''">true</EnableBinariesZip>
 </PropertyGroup>
 
@@ -20,9 +19,7 @@
 
 <ItemGroup>
   <!-- ProductInfo -->
-  <ProductInfo Include="ProductInfo\ProductInfo.proj">
-    <Properties>EnableBuildNumber=$(EnableBuildNumber)</Properties>
-  </ProductInfo>
+  <ProductInfo Include="ProductInfo\ProductInfo.proj" />
   <!-- Templates -->
   <TemplatesCS Include="Templates\Templates.proj">
     <Properties>Language=CSharp</Properties>
@@ -60,6 +57,11 @@
   <MSBuild Projects="@(ProductInfo)" />
 </Target>
 
+<!-- ChangeLog -->
+<Target Name="BuildChangeLog">
+  <Exec Command="mkchangelog.bat" WorkingDirectory="ChangeLog" />
+</Target>
+
 <!-- DataObjects.Net.targets -->
 <Target Name="CopyTargetsFile">
   <Copy SourceFiles="MSBuild\DataObjects.Net.targets"
@@ -90,7 +92,7 @@
 
 <!-- Distribution -->
 <Target Name="BuildDist"
-        DependsOnTargets="CopyTargetsFile;BuildProductInfo;BuildBinaries;BuildTemplates">
+        DependsOnTargets="CopyTargetsFile;BuildProductInfo;BuildChangeLog;BuildBinaries;BuildTemplates">
   <MSBuild Projects="@(Distributions)" Targets="Build" />
 </Target>
 <Target Name="CleanDist" DependsOnTargets="BuildProductInfo">

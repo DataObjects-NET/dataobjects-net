@@ -174,6 +174,7 @@ namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade
     public void TestFixtureSetUp()
     {
       Require.ProviderIs(StorageProvider.SqlServer);
+      Require.ProviderVersionAtMost(StorageProviderVersion.SqlServer2008R2);
     }
 
     private static DomainConfiguration BuildConfiguration()

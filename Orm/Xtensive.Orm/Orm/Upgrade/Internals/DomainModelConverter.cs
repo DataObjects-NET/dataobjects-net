@@ -37,10 +37,10 @@ namespace Xtensive.Orm.Upgrade
     private readonly DomainModel sourceModel;
     private readonly NameBuilder nameBuilder;
     private readonly StorageDriver driver;
-    private readonly PartialIndexFilterNormalizer normalizer;
     private readonly MappingResolver resolver;
     private readonly ITypeIdProvider typeIdProvider;
     private readonly DomainConfiguration configuration;
+    private readonly PartialIndexFilterCompiler compiler;
 
     private StorageModel targetModel;
     private TableInfo currentTable;
@@ -508,7 +508,7 @@ namespace Xtensive.Orm.Upgrade
 
       if (originalModelIndex.Filter!=null) {
         if (providerInfo.Supports(ProviderFeatures.PartialIndexes))
-          index.Filter = TranslateFilterExpression(originalModelIndex);
+          index.Filter = new PartialIndexFilterInfo(compiler.Compile(handlers, originalModelIndex));
         else
           UpgradeLog.Warning(
             Strings.LogStorageXDoesNotSupportPartialIndexesIgnoringFilterForPartialIndexY,
@@ -518,41 +518,16 @@ namespace Xtensive.Orm.Upgrade
       return index;
     }
 
-    private PartialIndexFilterInfo TranslateFilterExpression(IndexInfo index)
-    {
-      var table = SqlDml.TableRef(CreateStubTable(index.ReflectedType.MappingName, index.Filter.Fields.Count));
-      // Translation of ColumnRefs without alias seems broken, use original name as alias.
-      var columns = index.Filter.Fields
-        .Select(field => field.Column.Name)
-        .Select((name, i) => SqlDml.ColumnRef(table.Columns[i], name))
-        .Cast<SqlExpression>()
-        .ToList();
-      var processor = new ExpressionProcessor(index.Filter.Expression, handlers, null, columns);
-      var fragment = SqlDml.Fragment(processor.Translate());
-      var expression = driver.Compile(fragment).GetCommandText();
-      return new PartialIndexFilterInfo(expression, normalizer.Normalize(expression));
-    }
-
-    private Table CreateStubTable(string name, int columnsCount)
-    {
-      var catalog = new Catalog(string.Empty);
-      var schema = catalog.CreateSchema(string.Empty);
-      var table = schema.CreateTable(name);
-      for (int i = 0; i < columnsCount; i++)
-        table.CreateColumn("c" + i);
-      return table;
-    }
-
     // Constructors
 
-    public DomainModelConverter(HandlerAccessor handlers, ITypeIdProvider typeIdProvider, PartialIndexFilterNormalizer normalizer)
+    public DomainModelConverter(HandlerAccessor handlers, ITypeIdProvider typeIdProvider, PartialIndexFilterCompiler compiler)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       ArgumentValidator.EnsureArgumentNotNull(typeIdProvider, "typeIdProvider");
-      ArgumentValidator.EnsureArgumentNotNull(normalizer, "normalizer");
+      ArgumentValidator.EnsureArgumentNotNull(compiler, "compiler");
 
       this.handlers = handlers;
-      this.normalizer = normalizer;
+      this.compiler = compiler;
       this.typeIdProvider = typeIdProvider;
 
       sourceModel = handlers.Domain.Model;

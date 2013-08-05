@@ -72,6 +72,8 @@ namespace Xtensive.Orm.Internals
           result = query.Invoke(endpoint);
         }
         var parameterizedQuery = (ParameterizedQuery<TResult>) scope.ParameterizedQuery;
+        if (parameterizedQuery==null)
+          throw new NotSupportedException(Strings.ExNonLinqExpressionForQueryExecuteDelayedNotSupported);
         PutCachedQuery(parameterizedQuery);
         return parameterizedQuery;
       }

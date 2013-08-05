@@ -137,6 +137,7 @@ namespace Xtensive.Orm.Linq
       query = ClosureAccessRewriter.Rewrite(query);
       query = EqualityRewriter.Rewrite(query);
       query = EntitySetAccessRewriter.Rewrite(query);
+      query = SubqueryDefaultResultRewriter.Rewrite(query);
       Evaluator = new ExpressionEvaluator(query);
       query = PersistentIndexerRewriter.Rewrite(query, this);
       Query = query;

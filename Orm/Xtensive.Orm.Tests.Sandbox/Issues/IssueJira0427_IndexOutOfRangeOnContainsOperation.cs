@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Tests.Issues
     [HierarchyRoot]
     public class Kind : Entity
     {
-      [Key, Field]
+      [Key, Field(Length = 255)]
       public string Id { get; private set; }
 
       [Field]

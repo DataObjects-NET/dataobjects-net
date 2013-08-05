@@ -1,6 +1,6 @@
 @setlocal EnableExtensions
 
-@cd "%~dp0.."
+@pushd "%~dp0.."
 
 @set input_dir=%cd%\ChangeLog
 @set output_dir=%cd%\_Build\ProductInfo
@@ -11,7 +11,7 @@
 @if exist "%change_log_file%" del "%change_log_file%"
 @if exist "%notes_file%" del "%notes_file%"
 
-@cd "%input_dir%"
+@pushd "%input_dir%"
 
 @for /F "usebackq delims==" %%I in (`dir /B /O-N *.txt`) do @call :process %%I
 @goto :end

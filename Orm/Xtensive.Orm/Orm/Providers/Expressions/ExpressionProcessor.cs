@@ -139,6 +139,8 @@ namespace Xtensive.Orm.Providers
       var targetType = cast.Type.StripNullable();
       if (sourceType==targetType || targetType==typeof(object) || sourceType==typeof(object))
         return operand;
+      if (IsEnumUnderlyingType(sourceType, targetType) || IsEnumUnderlyingType(targetType, sourceType))
+        return operand;
       // Special case for boolean cast
       if (fixBooleanExpressions && IsBooleanExpression(cast.Operand)) {
         var result = SqlDml.Case();
@@ -148,6 +150,8 @@ namespace Xtensive.Orm.Providers
       }
       return SqlDml.Cast(operand, driver.MapValueType(targetType));
     }
+
+
 
     protected override SqlExpression VisitBinary(BinaryExpression expression)
     {

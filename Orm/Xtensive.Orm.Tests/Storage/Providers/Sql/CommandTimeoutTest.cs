@@ -17,14 +17,15 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     public void ConfigTest()
     {
       Require.ProviderIs(StorageProvider.SqlServer);
-      var domainConfiguration = DomainConfiguration.Load(
-        "AppConfigTest", "DomainWithCustomCommandTimeout");
-      var systemSessionConfig = domainConfiguration.Sessions.System;
-      if (systemSessionConfig == null) {
-        systemSessionConfig = new SessionConfiguration(WellKnown.Sessions.System);
-        domainConfiguration.Sessions.Add(systemSessionConfig);
-      }
-      systemSessionConfig.DefaultCommandTimeout = 6000; // 100 min.
+      var domainConfiguration = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+      var defaultSessionConfig = new SessionConfiguration(WellKnown.Sessions.Default) {
+        DefaultCommandTimeout = 100
+      };
+      var systemSessionConfig = new SessionConfiguration(WellKnown.Sessions.System) {
+        DefaultCommandTimeout = 6000
+      };
+      domainConfiguration.Sessions.Add(defaultSessionConfig);
+      domainConfiguration.Sessions.Add(systemSessionConfig);
 
       using (var domain = Domain.Build(domainConfiguration)) {
         using (var session = domain.OpenSession()) {
