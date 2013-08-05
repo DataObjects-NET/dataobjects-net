@@ -117,6 +117,7 @@ namespace Xtensive.Orm.Building.Builders
         context.Model = new DomainModel();
         BuildTypes(GetTypeBuildSequence());
         BuildAssociations();
+        SearchingForInboundOutboundTypes(context);
         IndexBuilder.BuildIndexes(context);
         context.Model.UpdateState();
         ValidateMappingConfiguration();
@@ -401,6 +402,120 @@ namespace Xtensive.Orm.Building.Builders
         if (association.IsPaired)
           association.Reversed.AuxiliaryType = auxiliaryType;
       }
+    }
+    private void SearchingForInboundOutboundTypes(BuildingContext context)
+    {
+      var inputs = new Dictionary<TypeInfo, int>();
+      var outputs = new Dictionary<TypeInfo, int>();
+      var nonEntityParentTypes = new List<TypeInfo>();
+
+      SetOutboundOnlyForAuxiliary(context.Model.Types);
+
+      var associations = GetAnalyzedAssociations(context.Model.Associations);
+      foreach (var association in associations) {
+
+        CheckForNonEntityParents(nonEntityParentTypes,association);
+
+        switch (association.Multiplicity) {
+          case Multiplicity.ZeroToOne:
+          case Multiplicity.ManyToOne: {
+            if (!association.TargetType.IsInterface && !association.OwnerType.IsInterface) {
+              IncrementValueInDictinary(outputs, association.OwnerType);
+              IncrementValueInDictinary(inputs, association.TargetType);
+            }
+            else if (!association.TargetType.IsInterface)
+              IncrementValueInDictinary(inputs, association.TargetType);
+            else if (!association.OwnerType.IsInterface)
+              IncrementValueInDictinary(outputs, association.OwnerType);
+            break;
+          }
+          case Multiplicity.OneToMany: {
+            if (!association.TargetType.IsInterface && !association.OwnerType.IsInterface) {
+              IncrementValueInDictinary(inputs, association.OwnerType);
+              IncrementValueInDictinary(outputs, association.TargetType);
+            }
+            else if (!association.TargetType.IsInterface)
+              IncrementValueInDictinary(outputs, association.TargetType);
+            else if (!association.OwnerType.IsInterface)
+              IncrementValueInDictinary(inputs, association.OwnerType);
+            break;
+          }
+          case Multiplicity.OneToOne: {
+            if (!association.TargetType.IsInterface && !association.OwnerType.IsInterface) {
+              IncrementValueInDictinary(inputs, association.OwnerType);
+              IncrementValueInDictinary(inputs, association.TargetType);
+              IncrementValueInDictinary(outputs, association.OwnerType);
+              IncrementValueInDictinary(outputs, association.TargetType);
+            }
+            else if (!association.TargetType.IsInterface) {
+              IncrementValueInDictinary(inputs, association.TargetType);
+              IncrementValueInDictinary(outputs, association.TargetType);
+            }
+            else if (!association.OwnerType.IsInterface) {
+              IncrementValueInDictinary(inputs, association.OwnerType);
+              IncrementValueInDictinary(outputs, association.OwnerType);
+            }
+            break;
+          }
+          case Multiplicity.ManyToMany:
+          case Multiplicity.ZeroToMany: {
+            if (!association.TargetType.IsInterface && !association.OwnerType.IsInterface) {
+              IncrementValueInDictinary(inputs, association.OwnerType);
+              IncrementValueInDictinary(inputs, association.TargetType);
+            }
+            else if (!association.TargetType.IsInterface)
+              IncrementValueInDictinary(inputs, association.TargetType);
+            else if (!association.OwnerType.IsInterface)
+              IncrementValueInDictinary(inputs, association.OwnerType);
+            break;
+          }
+        }
+      }
+      SetInboundOutboundFlags(inputs, outputs, nonEntityParentTypes);
+    }
+
+    private void IncrementValueInDictinary(Dictionary<TypeInfo, int> dictionary, TypeInfo type)
+    {
+      if (dictionary.ContainsKey(type))
+        dictionary[type] += 1;
+      else
+        dictionary.Add(type, 1);
+    }
+
+    private void CheckForNonEntityParents(List<TypeInfo> nonEntityParentTypes, AssociationInfo association)
+    {
+      if (association.OwnerType.UnderlyingType.BaseType==typeof (Entity) 
+        && association.TargetType.UnderlyingType.BaseType==typeof (Entity))
+        return;
+      if(!nonEntityParentTypes.Contains(association.OwnerType))
+        nonEntityParentTypes.Add(association.OwnerType);
+      if(!nonEntityParentTypes.Contains(association.TargetType))
+        nonEntityParentTypes.Add(association.TargetType);
+    }
+
+    private void SetOutboundOnlyForAuxiliary(IEnumerable<TypeInfo> types)
+    {
+      var auxiliary = types.Where(el => el.IsAuxiliary);
+      foreach (var typeInfo in auxiliary)
+        typeInfo.IsOutboundOnly = true;
+    }
+
+    private void SetInboundOutboundFlags(Dictionary<TypeInfo, int> inputs, Dictionary<TypeInfo, int> outputs, List<TypeInfo> exceptedTypes)
+    {
+      foreach (var input in inputs)
+        if (!outputs.ContainsKey(input.Key) && !exceptedTypes.Contains(input.Key))
+          input.Key.IsInboundOnly = true;
+
+      foreach (var output in outputs)
+        if (!inputs.ContainsKey(output.Key) && !exceptedTypes.Contains(output.Key))
+          output.Key.IsOutboundOnly = true;
+    }
+
+    private IEnumerable<AssociationInfo> GetAnalyzedAssociations(IEnumerable<AssociationInfo> associations)
+    {
+      return associations.Where(el => (el.IsMaster || !el.IsPaired)
+        && el.TargetType.Attributes==TypeAttributes.Entity
+        && el.OwnerType.Attributes==TypeAttributes.Entity);
     }
 
     #region Topological sort helpers
