@@ -11,6 +11,8 @@ namespace Xtensive.Tuples.Packed
   [Serializable]
   internal sealed class PackedTuple : RegularTuple
   {
+    private static readonly object[] EmptyObjectArray = new object[0];
+
     public readonly TupleDescriptor PackedDescriptor;
     public readonly long[] Values;
     public readonly object[] Objects;
@@ -120,7 +122,9 @@ namespace Xtensive.Tuples.Packed
       PackedDescriptor = descriptor;
 
       Values = new long[PackedDescriptor.ValuesLength];
-      Objects = new object[PackedDescriptor.ObjectsLength];
+      Objects = PackedDescriptor.ObjectsLength > 0
+        ? new object[PackedDescriptor.ObjectsLength]
+        : EmptyObjectArray;
     }
 
     private PackedTuple(PackedTuple origin)
@@ -128,7 +132,9 @@ namespace Xtensive.Tuples.Packed
       PackedDescriptor = origin.PackedDescriptor;
 
       Values = (long[]) origin.Values.Clone();
-      Objects = (object[]) origin.Objects.Clone();
+      Objects = PackedDescriptor.ObjectsLength > 0
+        ? (object[]) origin.Objects.Clone()
+        : EmptyObjectArray;
     }
   }
 }
