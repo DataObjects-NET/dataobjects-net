@@ -3,7 +3,7 @@
 
 <PropertyGroup>
   <Version>4.5.8</Version>
-  <Modifier></Modifier>
+  <Modifier>RC</Modifier>
   <BuildNumberBase>8828</BuildNumberBase>
 </PropertyGroup>
 
