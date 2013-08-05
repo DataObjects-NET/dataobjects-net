@@ -25,7 +25,8 @@ namespace Xtensive.Tuples
   [Serializable]
   public sealed class TupleDescriptor : IEquatable<TupleDescriptor>, IList<Type>
   {
-    private static readonly TupleDescriptor EmptyDescriptor = Create(new Type[0]);
+    private static readonly Dictionary<TupleDescriptor, TupleDescriptor> KnownDescriptors = new Dictionary<TupleDescriptor, TupleDescriptor>();
+    private static readonly TupleDescriptor EmptyDescriptor = new TupleDescriptor(new Type[0]);
 
     internal readonly int FieldCount;
     internal readonly int ValuesLength;
@@ -268,6 +269,19 @@ namespace Xtensive.Tuples
         PackedFieldAccessorFactory.ProvideAccessor(FieldTypes[i], FieldDescriptors[i]);
     }
 
+    private static void CacheDestriptor(TupleDescriptor descriptor)
+    {
+      KnownDescriptors.Add(descriptor, descriptor);
+    }
+
+    private static TupleDescriptor CreateInternal(IList<Type> fieldTypes)
+    {
+      var descriptor = new TupleDescriptor(fieldTypes);
+      TupleDescriptor existingDescriptor;
+      if (KnownDescriptors.TryGetValue(descriptor, out existingDescriptor))
+        return existingDescriptor;
+      return descriptor;
+    }
 
     #region Create methods (base)
 
@@ -281,7 +295,7 @@ namespace Xtensive.Tuples
     public static TupleDescriptor Create(Type[] fieldTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(fieldTypes, "fieldTypes");
-      return new TupleDescriptor(fieldTypes.ToList());
+      return CreateInternal(fieldTypes);
     }
 
     /// <summary>
@@ -294,7 +308,7 @@ namespace Xtensive.Tuples
     public static TupleDescriptor Create(IList<Type> fieldTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(fieldTypes, "fieldTypes");
-      return new TupleDescriptor(fieldTypes.ToList());
+      return CreateInternal(fieldTypes);
     }
 
     /// <summary>
@@ -306,7 +320,8 @@ namespace Xtensive.Tuples
     /// describing the specified set of fields.</returns>
     public static TupleDescriptor Create(IEnumerable<Type> fieldTypes)
     {
-      return Create(fieldTypes.ToArray());
+      ArgumentValidator.EnsureArgumentNotNull(fieldTypes, "fieldTypes");
+      return CreateInternal(fieldTypes.ToList());
     }
 
     /// <summary>
@@ -344,7 +359,7 @@ namespace Xtensive.Tuples
     /// <returns>Newly created <see cref="TupleDescriptor"/> object.</returns>
     public static TupleDescriptor Create<T>()
     {
-      return Create(new[] {
+      return CreateInternal(new[] {
         typeof (T)
       });
     }
@@ -357,7 +372,7 @@ namespace Xtensive.Tuples
     /// <returns>Newly created <see cref="TupleDescriptor"/> object</returns>
     public static TupleDescriptor Create<T1, T2>()
     {
-      return Create(new[] {
+      return CreateInternal(new[] {
         typeof (T1),
         typeof (T2)
       });
@@ -372,7 +387,7 @@ namespace Xtensive.Tuples
     /// <returns>Newly created <see cref="TupleDescriptor"/> object</returns>
     public static TupleDescriptor Create<T1, T2, T3>()
     {
-      return Create(new[] {
+      return CreateInternal(new[] {
         typeof (T1),
         typeof (T2),
         typeof (T3)
@@ -389,7 +404,7 @@ namespace Xtensive.Tuples
     /// <returns>Newly created <see cref="TupleDescriptor"/> object</returns>
     public static TupleDescriptor Create<T1, T2, T3, T4>()
     {
-      return Create(new[] {
+      return CreateInternal(new[] {
         typeof (T1),
         typeof (T2),
         typeof (T3),
@@ -408,7 +423,7 @@ namespace Xtensive.Tuples
     /// <returns>Newly created <see cref="TupleDescriptor"/> object</returns>
     public static TupleDescriptor Create<T1, T2, T3, T4, T5>()
     {
-      return Create(new[] {
+      return CreateInternal(new[] {
         typeof (T1),
         typeof (T2),
         typeof (T3),
@@ -429,7 +444,7 @@ namespace Xtensive.Tuples
     /// <returns>Newly created <see cref="TupleDescriptor"/> object</returns>
     public static TupleDescriptor Create<T1, T2, T3, T4, T5, T6>()
     {
-      return Create(new[] {
+      return CreateInternal(new[] {
         typeof (T1),
         typeof (T2),
         typeof (T3),
@@ -518,6 +533,26 @@ namespace Xtensive.Tuples
 
       ValuesLength = valueIndex + Math.Min(1, valueBitOffset);
       ObjectsLength = objectIndex;
+    }
+
+    static TupleDescriptor()
+    {
+      CacheDestriptor(EmptyDescriptor);
+      foreach (var type in PackedFieldAccessorFactory.KnownTypes)
+        CacheDestriptor(new TupleDescriptor(new[] {type}));
+
+      CacheDestriptor(new TupleDescriptor(new[] {typeof (string)}));
+      CacheDestriptor(new TupleDescriptor(new[] {typeof (string), typeof (string)}));
+      CacheDestriptor(new TupleDescriptor(new[] {typeof (string), typeof (string), typeof (string)}));
+
+      CacheDestriptor(new TupleDescriptor(new[] {typeof (int), typeof (int)}));
+      CacheDestriptor(new TupleDescriptor(new[] {typeof (int), typeof (int), typeof (int)}));
+
+      CacheDestriptor(new TupleDescriptor(new[] {typeof (long), typeof (long)}));
+      CacheDestriptor(new TupleDescriptor(new[] {typeof (long), typeof (long), typeof (long)}));
+
+      CacheDestriptor(new TupleDescriptor(new[] {typeof (Guid), typeof (Guid)}));
+      CacheDestriptor(new TupleDescriptor(new[] {typeof (Guid), typeof (Guid), typeof (Guid)}));
     }
   }
 }

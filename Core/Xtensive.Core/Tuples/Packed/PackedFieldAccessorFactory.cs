@@ -14,6 +14,8 @@ namespace Xtensive.Tuples.Packed
     private static readonly PackedFieldAccessor ObjectAccessor;
     private static readonly Dictionary<Type, ValueFieldAccessor> ValueAccessors;
 
+    public static IEnumerable<Type> KnownTypes { get { return ValueAccessors.Keys; } }
+
     public static void ProvideAccessor(Type valueType, PackedFieldDescriptor descriptor)
     {
       ValueFieldAccessor valueAccessor;
