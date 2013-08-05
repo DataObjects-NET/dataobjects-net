@@ -413,60 +413,27 @@ namespace Xtensive.Orm.Building.Builders
 
       var associations = GetAnalyzedAssociations(context.Model.Associations);
       foreach (var association in associations) {
-
         CheckForNonEntityParents(nonEntityParentTypes,association);
-
         switch (association.Multiplicity) {
           case Multiplicity.ZeroToOne:
           case Multiplicity.ManyToOne: {
-            if (!association.TargetType.IsInterface && !association.OwnerType.IsInterface) {
-              IncrementValueInDictinary(outputs, association.OwnerType);
-              IncrementValueInDictinary(inputs, association.TargetType);
-            }
-            else if (!association.TargetType.IsInterface)
-              IncrementValueInDictinary(inputs, association.TargetType);
-            else if (!association.OwnerType.IsInterface)
-              IncrementValueInDictinary(outputs, association.OwnerType);
+            IncrementValueInDictionary(outputs, association.OwnerType);
+            IncrementValueInDictionary(inputs, association.TargetType);
             break;
           }
           case Multiplicity.OneToMany: {
-            if (!association.TargetType.IsInterface && !association.OwnerType.IsInterface) {
-              IncrementValueInDictinary(inputs, association.OwnerType);
-              IncrementValueInDictinary(outputs, association.TargetType);
-            }
-            else if (!association.TargetType.IsInterface)
-              IncrementValueInDictinary(outputs, association.TargetType);
-            else if (!association.OwnerType.IsInterface)
-              IncrementValueInDictinary(inputs, association.OwnerType);
+            IncrementValueInDictionary(inputs, association.OwnerType);
+            IncrementValueInDictionary(outputs, association.TargetType);
             break;
           }
           case Multiplicity.OneToOne: {
-            if (!association.TargetType.IsInterface && !association.OwnerType.IsInterface) {
-              IncrementValueInDictinary(inputs, association.OwnerType);
-              IncrementValueInDictinary(inputs, association.TargetType);
-              IncrementValueInDictinary(outputs, association.OwnerType);
-              IncrementValueInDictinary(outputs, association.TargetType);
-            }
-            else if (!association.TargetType.IsInterface) {
-              IncrementValueInDictinary(inputs, association.TargetType);
-              IncrementValueInDictinary(outputs, association.TargetType);
-            }
-            else if (!association.OwnerType.IsInterface) {
-              IncrementValueInDictinary(inputs, association.OwnerType);
-              IncrementValueInDictinary(outputs, association.OwnerType);
-            }
+            IncrementValueInDictionary(inputs, association.OwnerType, association.TargetType);
+            IncrementValueInDictionary(outputs, association.OwnerType, association.TargetType);
             break;
           }
           case Multiplicity.ManyToMany:
           case Multiplicity.ZeroToMany: {
-            if (!association.TargetType.IsInterface && !association.OwnerType.IsInterface) {
-              IncrementValueInDictinary(inputs, association.OwnerType);
-              IncrementValueInDictinary(inputs, association.TargetType);
-            }
-            else if (!association.TargetType.IsInterface)
-              IncrementValueInDictinary(inputs, association.TargetType);
-            else if (!association.OwnerType.IsInterface)
-              IncrementValueInDictinary(inputs, association.OwnerType);
+            IncrementValueInDictionary(inputs, association.OwnerType, association.TargetType);
             break;
           }
         }
@@ -474,12 +441,15 @@ namespace Xtensive.Orm.Building.Builders
       SetInboundOutboundFlags(inputs, outputs, nonEntityParentTypes);
     }
 
-    private void IncrementValueInDictinary(Dictionary<TypeInfo, int> dictionary, TypeInfo type)
+    private void IncrementValueInDictionary(Dictionary<TypeInfo, int> dictionary, params TypeInfo[] types)
     {
-      if (dictionary.ContainsKey(type))
-        dictionary[type] += 1;
-      else
-        dictionary.Add(type, 1);
+      foreach (var type in types) {
+        if (!type.IsInterface)
+          if (dictionary.ContainsKey(type))
+            dictionary[type] += 1;
+          else
+            dictionary.Add(type, 1);
+      }
     }
 
     private void CheckForNonEntityParents(List<TypeInfo> nonEntityParentTypes, AssociationInfo association)
@@ -502,12 +472,12 @@ namespace Xtensive.Orm.Building.Builders
 
     private void SetInboundOutboundFlags(Dictionary<TypeInfo, int> inputs, Dictionary<TypeInfo, int> outputs, List<TypeInfo> exceptedTypes)
     {
-      foreach (var input in inputs)
-        if (!outputs.ContainsKey(input.Key) && !exceptedTypes.Contains(input.Key))
+      foreach (var input in inputs.Except(outputs))
+        if (!exceptedTypes.Contains(input.Key))
           input.Key.IsInboundOnly = true;
 
-      foreach (var output in outputs)
-        if (!inputs.ContainsKey(output.Key) && !exceptedTypes.Contains(output.Key))
+      foreach (var output in outputs.Except(inputs))
+        if (!exceptedTypes.Contains(output.Key))
           output.Key.IsOutboundOnly = true;
     }
 
