@@ -133,6 +133,7 @@ namespace Xtensive.Orm.Model
 
     ///<summary>
     /// Gets or sets a value indicating whether this instance is outbound only
+    /// i.e. it's has only outgoing references
     /// </summary>
     public bool IsOutboundOnly
     {
@@ -145,7 +146,8 @@ namespace Xtensive.Orm.Model
     }
 
     ///<summary>
-    /// 
+    /// Gets or sets a value indicating whether this instance is inbound only
+    /// i.e. it's has only incoming references
     /// </summary>
     public bool IsInboundOnly
     {
