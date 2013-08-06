@@ -91,9 +91,9 @@ namespace Xtensive.Orm.Internals
         if (rollbackDifferenceBeforeSort)
           state.RollbackDifference();
         var type = state.Type;
-        if (IsOutboundOnlyType(type))
+        if (type.IsOutboundOnly)
           outboundOnlyStates.Add(state);
-        else if (IsInboundOnlyType(type))
+        else if (type.IsInboundOnly)
           inboundOnlyStates.Add(state);
         else {
           var node = new Node<EntityState>(state);
@@ -154,22 +154,6 @@ namespace Xtensive.Orm.Internals
           .GetFieldAccessor(associationInfo.OwnerField)
           .SetUntypedValue(entity, null);
       }
-    }
-
-    private static bool IsInboundOnlyType(TypeInfo type)
-    {
-      // Temporary disabled:
-      // return type.GetOwnerAssociations().Count==0;
-      //return false;
-      return type.IsInboundOnly;
-    }
-
-    private static bool IsOutboundOnlyType(TypeInfo type)
-    {
-      // Temporary disabled:
-      // return type.GetTargetAssociations().Count==0 || type.IsAuxiliary;
-      //return type.IsAuxiliary;
-      return type.IsOutboundOnly;
     }
   }
 }
