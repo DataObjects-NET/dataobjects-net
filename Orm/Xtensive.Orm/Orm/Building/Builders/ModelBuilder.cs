@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Building.Builders
         context.Model = new DomainModel();
         BuildTypes(GetTypeBuildSequence());
         BuildAssociations();
-        SearchingForInboundOutboundTypes(context);
+        FindAndMarkInboundAndOutboundTypes(context);
         IndexBuilder.BuildIndexes(context);
         context.Model.UpdateState();
         ValidateMappingConfiguration();
@@ -403,89 +403,99 @@ namespace Xtensive.Orm.Building.Builders
           association.Reversed.AuxiliaryType = auxiliaryType;
       }
     }
-    private void SearchingForInboundOutboundTypes(BuildingContext context)
+    private void FindAndMarkInboundAndOutboundTypes(BuildingContext context)
     {
-      var inputs = new Dictionary<TypeInfo, int>();
-      var outputs = new Dictionary<TypeInfo, int>();
-      var nonEntityParentTypes = new List<TypeInfo>();
+      var inputRefCountDictionary = InitReferencesOfTypesDictionary(context.Model.Types);
+      var outputRefCountDictionary = InitReferencesOfTypesDictionary(context.Model.Types);
 
-      SetOutboundOnlyForAuxiliary(context.Model.Types);
+      MarkAuxiliaryTypesAsOutboundOnly(context.Model.Types);
 
-      var associations = GetAssociationsForAnalyze(context.Model.Associations);
+      var associations = GetMasterOrNonPairedAssociations(context.Model.Associations);
       foreach (var association in associations) {
-        CheckForNonEntityParents(nonEntityParentTypes,association);
         switch (association.Multiplicity) {
           case Multiplicity.ZeroToOne:
           case Multiplicity.ManyToOne: {
-            IncrementValueInDictionary(outputs, association.OwnerType);
-            IncrementValueInDictionary(inputs, association.TargetType);
+            RegiserReferences(outputRefCountDictionary, association.OwnerType);
+            RegiserReferences(inputRefCountDictionary, association.TargetType);
             break;
           }
           case Multiplicity.OneToMany: {
-            IncrementValueInDictionary(inputs, association.OwnerType);
-            IncrementValueInDictionary(outputs, association.TargetType);
+            RegiserReferences(inputRefCountDictionary, association.OwnerType);
+            RegiserReferences(outputRefCountDictionary, association.TargetType);
             break;
           }
           case Multiplicity.OneToOne: {
-            IncrementValueInDictionary(inputs, association.OwnerType, association.TargetType);
-            IncrementValueInDictionary(outputs, association.OwnerType, association.TargetType);
+            RegiserReferences(inputRefCountDictionary, association.OwnerType, association.TargetType);
+            RegiserReferences(outputRefCountDictionary, association.OwnerType, association.TargetType);
             break;
           }
           case Multiplicity.ManyToMany:
           case Multiplicity.ZeroToMany: {
-            IncrementValueInDictionary(inputs, association.OwnerType, association.TargetType);
+            RegiserReferences(inputRefCountDictionary, association.OwnerType, association.TargetType);
             break;
           }
         }
       }
-      SetInboundOutboundFlags(inputs, outputs, nonEntityParentTypes);
+      MarkTypesAsInboundOnly(outputRefCountDictionary);
+      MarkTypesAsOutboundOnly(inputRefCountDictionary);
     }
 
-    private void IncrementValueInDictionary(Dictionary<TypeInfo, int> dictionary, params TypeInfo[] types)
+    private void RegiserReferences(Dictionary<TypeInfo, int> referenceRegistrator, params TypeInfo[] typesToRegisterReferences)
     {
-      foreach (var type in types) {
-        if (!type.IsInterface)
-          if (dictionary.ContainsKey(type))
-            dictionary[type] += 1;
-          else
-            dictionary.Add(type, 1);
+      foreach (var type in typesToRegisterReferences) {
+        var typeImplementors = type.GetImplementors();
+        var descendantTypes = type.GetDescendants();
+        if (typeImplementors.Any())
+        {
+          foreach (var implementor in typeImplementors)
+            if (referenceRegistrator.ContainsKey(implementor))
+              referenceRegistrator[implementor] += 1;
+        }
+        else {
+          if (referenceRegistrator.ContainsKey(type))
+            referenceRegistrator[type] += 1;
+          if (descendantTypes.Any()) {
+            foreach (var descendant in descendantTypes) {
+              if (referenceRegistrator.ContainsKey(descendant))
+                referenceRegistrator[descendant] += 1;
+            }
+          }
+        }
       }
     }
 
-    private void CheckForNonEntityParents(List<TypeInfo> nonEntityParentTypes, AssociationInfo association)
+    private void MarkAuxiliaryTypesAsOutboundOnly(IEnumerable<TypeInfo> typesToMark)
     {
-      if (association.OwnerType.UnderlyingType.BaseType==typeof (Entity) 
-        && association.TargetType.UnderlyingType.BaseType==typeof (Entity))
-        return;
-      if(!nonEntityParentTypes.Contains(association.OwnerType))
-        nonEntityParentTypes.Add(association.OwnerType);
-      if(!nonEntityParentTypes.Contains(association.TargetType))
-        nonEntityParentTypes.Add(association.TargetType);
-    }
-
-    private void SetOutboundOnlyForAuxiliary(IEnumerable<TypeInfo> types)
-    {
-      var auxiliary = types.Where(el => el.IsAuxiliary);
+      var auxiliary = typesToMark.Where(el => el.IsAuxiliary);
       foreach (var typeInfo in auxiliary)
         typeInfo.IsOutboundOnly = true;
     }
 
-    private void SetInboundOutboundFlags(Dictionary<TypeInfo, int> inputs, Dictionary<TypeInfo, int> outputs, List<TypeInfo> exceptedTypes)
+    private void MarkTypesAsInboundOnly(Dictionary<TypeInfo, int> outputRefCountDictionary)
     {
-      foreach (var input in inputs.Except(outputs))
-        if (!exceptedTypes.Contains(input.Key))
-          input.Key.IsInboundOnly = true;
-
-      foreach (var output in outputs.Except(inputs))
-        if (!exceptedTypes.Contains(output.Key))
-          output.Key.IsOutboundOnly = true;
+      foreach (var output in outputRefCountDictionary.Where(el => el.Value==0))
+        output.Key.IsInboundOnly = true;
     }
 
-    private IEnumerable<AssociationInfo> GetAssociationsForAnalyze(IEnumerable<AssociationInfo> associations)
+    private void MarkTypesAsOutboundOnly(Dictionary<TypeInfo, int> inputRefCountDictionary)
     {
-      return associations.Where(el => (el.IsMaster || !el.IsPaired)
-        && el.TargetType.Attributes==TypeAttributes.Entity
-        && el.OwnerType.Attributes==TypeAttributes.Entity);
+      foreach (var input in inputRefCountDictionary.Where(el => el.Value == 0))
+        input.Key.IsOutboundOnly = true;
+    }
+
+    private IEnumerable<AssociationInfo> GetMasterOrNonPairedAssociations(IEnumerable<AssociationInfo> allAssociations)
+    {
+      return allAssociations.Where(el => el.IsMaster || !el.IsPaired);
+    }
+
+    private Dictionary<TypeInfo,int> InitReferencesOfTypesDictionary(TypeInfoCollection allTypes)
+    {
+      var referencesOfTypeDictionary = new Dictionary<TypeInfo, int>();
+      var entityTypes = allTypes.Where(el => el.IsEntity && !el.IsInterface && !el.IsStructure && !el.IsSystem && !el.IsAuxiliary);
+      foreach (var type in entityTypes) {
+        referencesOfTypeDictionary.Add(type,0);
+      }
+      return referencesOfTypeDictionary;
     }
 
     #region Topological sort helpers
