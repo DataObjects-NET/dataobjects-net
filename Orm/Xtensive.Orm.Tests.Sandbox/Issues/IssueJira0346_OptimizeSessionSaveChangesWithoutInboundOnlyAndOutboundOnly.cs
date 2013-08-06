@@ -37,6 +37,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0346_OptimizeSessionSaveChangesWith
 
     [Field]
     public UserState UserState { get; set; }
+
+    [Field]
+    public Location Location { get; set; }
   }
 
   [HierarchyRoot]
@@ -106,6 +109,28 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0346_OptimizeSessionSaveChangesWith
     [Field]
     public string Name { get; set; }
   }
+
+  public class Location : Structure
+  {
+    [Field]
+    public double Longitude { get; set; }
+
+    [Field]
+    public double Latitude { get; set; }
+
+    [Field]
+    public City City { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class City : Entity
+  {
+    [Field, Key]
+    public long Id { get; set; }
+
+    [Field]
+    public string Name { get; set; }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Issues
@@ -145,7 +170,8 @@ namespace Xtensive.Orm.Tests.Issues
             FirstName = "Иван",
             LastName = "Бобышкин"
           },
-          UserState = userStates.Find(el=>el.Name=="Activated")
+          UserState = userStates.Find(el=>el.Name=="Activated"),
+          Location = new Location{City = new City{Name = "City1"},Latitude = 0, Longitude = 1}
         });
         users.Add(new User {
           Login = "visa43",
@@ -154,7 +180,8 @@ namespace Xtensive.Orm.Tests.Issues
             FirstName = "Иван",
             LastName = "Похлебкин"
           },
-          UserState = userStates.Find(el=>el.Name=="Blocked")
+          UserState = userStates.Find(el=>el.Name=="Blocked"),
+          Location = new Location { City = new City { Name = "City1" }, Latitude = 0, Longitude = 1 }
         });
         users.Add(new User {
           Login = "csi90210",
@@ -163,7 +190,8 @@ namespace Xtensive.Orm.Tests.Issues
             FirstName = "Алексей",
             LastName = "Алексеев"
           },
-          UserState = userStates.Find(el => el.Name == "Activated")
+          UserState = userStates.Find(el => el.Name == "Activated"),
+          Location = new Location { City = new City { Name = "City1" }, Latitude = 0, Longitude = 1 }
         });
 
         new AssignedRole {
@@ -196,17 +224,31 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void SelectTest()
+    public void InboundOnlyAndOutbountOnlyFlagsTest()
     {
-      using(var session = Domain.OpenSession())
-      using(var transaction = session.OpenTransaction()) {
-        var result = from u in session.Query.All<User>()
-          join ui in session.Query.All<UserInfo>() on u.UserInfo.Id equals ui.Id
-          where u.Login=="visa43"
-          select u;
+      Assert.That(Domain.Model.Types.First(el => el.Name=="Role").IsInboundOnly, Is.EqualTo(true));
+      Assert.That(Domain.Model.Types.First(el => el.Name=="Role").IsOutboundOnly, Is.EqualTo(false));
 
-        Assert.That(result.First().Login, Is.EqualTo("visa43"));
-      }
+      Assert.That(Domain.Model.Types.First(el => el.Name=="User").IsInboundOnly, Is.EqualTo(false));
+      Assert.That(Domain.Model.Types.First(el => el.Name=="User").IsOutboundOnly, Is.EqualTo(false));
+
+      Assert.That(Domain.Model.Types.First(el => el.Name=="Group").IsInboundOnly, Is.EqualTo(true));
+      Assert.That(Domain.Model.Types.First(el => el.Name=="Group").IsOutboundOnly, Is.EqualTo(false));
+
+      Assert.That(Domain.Model.Types.First(el => el.Name=="City").IsInboundOnly, Is.EqualTo(true));
+      Assert.That(Domain.Model.Types.First(el => el.Name=="City").IsOutboundOnly, Is.EqualTo(false));
+
+      Assert.That(Domain.Model.Types.First(el => el.Name=="UserInfo").IsInboundOnly, Is.EqualTo(false));
+      Assert.That(Domain.Model.Types.First(el => el.Name=="UserInfo").IsOutboundOnly, Is.EqualTo(false));
+
+      Assert.That(Domain.Model.Types.First(el => el.Name=="UserState").IsInboundOnly, Is.EqualTo(true));
+      Assert.That(Domain.Model.Types.First(el => el.Name=="UserState").IsOutboundOnly, Is.EqualTo(false));
+
+      Assert.That(Domain.Model.Types.First(el => el.Name=="AssignedRole").IsInboundOnly, Is.EqualTo(false));
+      Assert.That(Domain.Model.Types.First(el => el.Name=="AssignedRole").IsOutboundOnly, Is.EqualTo(true));
+
+      Assert.That(Domain.Model.Types.First(el => el.Name=="User-Groups-Group").IsInboundOnly, Is.EqualTo(false));
+      Assert.That(Domain.Model.Types.First(el => el.Name=="User-Groups-Group").IsOutboundOnly, Is.EqualTo(true));
     }
   }
 }
