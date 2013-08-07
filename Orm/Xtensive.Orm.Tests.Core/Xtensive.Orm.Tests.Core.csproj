@@ -114,7 +114,7 @@
     <None Include="Connections.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="DO40-Tests.sql" />
+    <None Include="DO-Tests.sql" />
     <None Include="Northwind.sql" />
   </ItemGroup>
   <ItemGroup>
@@ -126,6 +126,11 @@
       <Project>{52FD4F16-3718-4828-A1EA-DFD34044FA25}</Project>
       <Name>Xtensive.Sql.Tests</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="DO-Tests.sdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

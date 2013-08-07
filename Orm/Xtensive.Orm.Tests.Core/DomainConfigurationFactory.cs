@@ -25,6 +25,11 @@ namespace Xtensive.Orm.Tests
       return Create(provider, false, false);
     }
 
+    public static DomainConfiguration CreateWithoutSessionConfigurations()
+    {
+      return Create(TestConfiguration.Instance.Storage, false, false);
+    }
+
     private static DomainConfiguration Create(string storage, bool useConnectionString, bool addSessionConfiguration)
     {
       if (useConnectionString)

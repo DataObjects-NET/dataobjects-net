@@ -17,5 +17,7 @@
 [main] Reduced number of casts in generated SQL when accessing enum fields
 [main] Automatically handle namespace-only renames during upgrade
 [main] PostSharp is upgraded to version 2.1.7.30
-[main] Npgsql is upgraded to version 2.0.12.1
+[postgresql] Npgsql is upgraded to version 2.0.12.1
+[mysql] MySQL library is upgraded to version 6.7.4
+[firebird] Firebird library is upgraded to version 3.0.2.1
 [sqlserver] Fixed reading of large SqlDecimal values
