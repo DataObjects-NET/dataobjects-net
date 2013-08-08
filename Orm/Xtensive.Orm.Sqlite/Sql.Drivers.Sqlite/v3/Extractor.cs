@@ -89,7 +89,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       foreach (var table in schema.Tables) {
         var select = string.Format("PRAGMA table_info([{0}])", table.Name);
-        var primaryKeyItems = new List<TableColumn>();
+        var primaryKeyItems = new Dictionary<int, TableColumn>();
         using (var cmd = Connection.CreateCommand(select))
         using (IDataReader reader = cmd.ExecuteReader()) {
           while (reader.Read()) {
@@ -110,19 +110,22 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
             if (!string.IsNullOrEmpty(defaultValue) && string.Compare("NULL", defaultValue, StringComparison.OrdinalIgnoreCase)!=0)
               tableColumn.DefaultValue = defaultValue;
 
-            var isPrimaryKey = ReadInt(reader, 5)==1;
-            if (isPrimaryKey) {
-              primaryKeyItems.Add(tableColumn);
-              // Auto Increment
-              var incrementValue = GetIncrementValue(tableName);
-              if (incrementValue!=null)
-                tableColumn.SequenceDescriptor = new SequenceDescriptor(tableColumn, incrementValue, 1);
+            var primaryKeyPosition = ReadInt(reader, 5);
+            if (primaryKeyPosition > 0) {
+              primaryKeyItems.Add(primaryKeyPosition, tableColumn);
+              if (primaryKeyPosition==1) {
+                // Auto Increment
+                var incrementValue = GetIncrementValue(tableName);
+                if (incrementValue!=null)
+                  tableColumn.SequenceDescriptor = new SequenceDescriptor(tableColumn, incrementValue, 1);
+              }
             }
           }
         }
 
         if (primaryKeyItems.Count > 0)
-          table.CreatePrimaryKey(PrimaryKeyName, primaryKeyItems.ToArray());
+          table.CreatePrimaryKey(PrimaryKeyName,
+            primaryKeyItems.OrderBy(i => i.Key).Select(i => i.Value).ToArray());
       }
     }
 
