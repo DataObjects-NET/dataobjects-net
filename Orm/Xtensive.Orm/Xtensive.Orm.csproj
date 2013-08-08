@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <DontImportPostSharp>True</DontImportPostSharp>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\Secure\Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net35-Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -1231,7 +1231,7 @@
     <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
       <Link>Properties\ProductInfo.cs</Link>
     </Compile>
-    <EmbeddedResource Include="..\..\Secure\PostSharp.license">
+    <EmbeddedResource Include="$(DO_SECURE_DIR)\PostSharp.license">
       <Link>PostSharp.license</Link>
     </EmbeddedResource>
   </ItemGroup>
