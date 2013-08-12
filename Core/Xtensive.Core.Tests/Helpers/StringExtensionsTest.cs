@@ -63,5 +63,24 @@ namespace Xtensive.Tests.Helpers
       Assert.AreEqual("A\r\nB".Indent(1, false), "A\r\n B");
       Assert.AreEqual("A\r\nB".Indent(1, true), " A\r\n B");
     }
+
+    [Test]
+    [ExpectedException(typeof(Exception))]
+    public void LikeExtensionTest()
+    {
+      Assert.AreEqual("uewryewsf".Like("%sf"), true);
+      Assert.AreEqual("s__asdf".Like("_%asdf"), true);
+      Assert.AreEqual("dsfEEEE".Like("dsf%"), true);
+      Assert.AreEqual("Afigdf".Like("_figdf"), true);
+      Assert.AreEqual("fsdfASDsdfs".Like("fsdf___sdfs"), true);
+      Assert.AreEqual("my name is Alex.".Like("my name is _____"), true);
+      Assert.AreEqual("how old are you?".Like("how old % you_"), true);
+      Assert.AreEqual("hi, I'm alex. I'm 26".Like("hi, I'm ____. I'm %"), true);
+      Assert.AreEqual("it's another test string%%%".Like("it's another test string!%!%!%"), false);
+      Assert.AreEqual("it's another test string%%%".Like("it's another test string!%!%!%",'!'), true);
+      Assert.AreEqual("string with error.".Like("String with error_"), false);
+      Assert.AreEqual("Another string with error.".Like("another string with err%."), false);
+      Assert.AreEqual("aRRRRa%".Like("a%a%%",'%'), true);
+    }
   }
 }
