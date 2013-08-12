@@ -523,7 +523,7 @@ namespace Xtensive.Core
       var regExSpecialChars = @"[]\/^$.|?*+(){}";
 
       if(escapeCharacter=='%'|| escapeCharacter== '_')
-        throw new Exception("Special character used as escape character");
+        throw new Exception(string.Format(Strings.ExSpecialCharacterXUsedAsEscapeCharacter, escapeCharacter));
 
       var escChar = escapeCharacter.ToString();
       if (regExSpecialChars.Contains(escapeCharacter))
