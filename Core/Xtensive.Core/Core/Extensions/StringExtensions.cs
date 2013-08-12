@@ -502,6 +502,15 @@ namespace Xtensive.Core
       return string.Join(separator, values.Select(value => value.ToString()).ToArray());
     }
 
+
+    /// <summary>
+    /// Compares <paramref name="value"/> with <paramref name="sqlLikePattern"/>
+    /// </summary>
+    /// <param name="value">Value to compare.</param>
+    /// <param name="sqlLikePattern">SQL-Like pattern</param>
+    /// <returns>
+    /// <see langword="true" /> if <paramref name="value"/> fits the <paramref name="sqlLikePattern"/>; otherwise <see langword="false" />
+    /// </returns>
     public static bool Like(this string value, string sqlLikePattern)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
@@ -521,6 +530,15 @@ namespace Xtensive.Core
       return Regex.IsMatch(value, regexPattern);
     }
 
+    /// <summary>
+    /// Compares <paramref name="value"/> with <paramref name="sqlLikePattern"/>
+    /// </summary>
+    /// <param name="value">Value to compare.</param>
+    /// <param name="sqlLikePattern">SQL-Like pattern</param>
+    /// <param name="escapeCharacter">Character to escape special symbols like '%' or '_'</param>
+    /// <returns>
+    /// <see langword="true" /> if <paramref name="value"/> fits the <paramref name="sqlLikePattern"/>; otherwise <see langword="false" />
+    /// </returns>
     public static bool Like(this string value, string sqlLikePattern, char escapeCharacter)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
