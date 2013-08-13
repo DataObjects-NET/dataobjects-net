@@ -516,13 +516,13 @@ namespace Xtensive.Core
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(sqlLikePattern, "sqlLikePattern");
 
-      string regexPattern =Regex.Replace(sqlLikePattern,
+      string regexPattern = Regex.Replace(sqlLikePattern,
         @"[%_]|[^%_]+",
         match => {
-          if (match.Value == "%") {
+          if (match.Value=="%") {
             return ".*";
           }
-          if (match.Value == "_") {
+          if (match.Value=="_") {
             return ".";
           }
           return Regex.Escape(match.Value);
@@ -547,21 +547,21 @@ namespace Xtensive.Core
 
       const string regExSpecialChars = @"[]\/^$.|?*+(){}";
 
-      if(escapeCharacter=='%'|| escapeCharacter== '_')
+      if(escapeCharacter=='%' || escapeCharacter== '_')
         throw new Exception(string.Format(Strings.ExSpecialCharacterXUsedAsEscapeCharacter, escapeCharacter));
 
       var escChar = new string(escapeCharacter, 1);
       if (regExSpecialChars.Contains(escapeCharacter))
-        escChar = @"\"+escChar;
-      var pattern = escChar+@"[%_]|[%_]|[^%"+escapeCharacter+"_]+";
+        escChar = @"\" + escChar;
+      var pattern = escChar + @"[%_]|[%_]|[^%" + escapeCharacter + "_]+";
 
       string regexPattern = Regex.Replace(sqlLikePattern,
         pattern,
         match => {
-          if (match.Value == "%") {
+          if (match.Value=="%") {
             return ".*";
           }
-          if (match.Value == "_") {
+          if (match.Value=="_") {
             return ".";
           }
           if(match.Value.StartsWith(escapeCharacter.ToString())) {

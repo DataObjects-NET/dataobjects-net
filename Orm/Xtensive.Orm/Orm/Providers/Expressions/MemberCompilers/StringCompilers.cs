@@ -484,17 +484,17 @@ namespace Xtensive.Orm.Providers
       return SqlDml.NotEquals(left, right);
     }
 
-    [Compiler(typeof(StringExtensions), "Like", TargetKind.Static | TargetKind.Method)]
+    [Compiler(typeof (StringExtensions), "Like", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringLike(SqlExpression _this,
-      [Type(typeof(string))]SqlExpression pattern)
+      [Type(typeof (string))] SqlExpression pattern)
     {
       return SqlDml.Like(_this, pattern);
     }
 
-    [Compiler(typeof(StringExtensions),"Like",TargetKind.Static|TargetKind.Method)]
+    [Compiler(typeof (StringExtensions), "Like", TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringLike(SqlExpression _this,
-      [Type(typeof(string))]SqlExpression pattern,
-      [Type(typeof(char))]SqlExpression escapeChar)
+      [Type(typeof (string))] SqlExpression pattern,
+      [Type(typeof (char))] SqlExpression escapeChar)
     {
       return SqlDml.Like(_this, pattern, escapeChar);
     }

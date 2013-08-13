@@ -4,10 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2013.08.12
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Issues.IssueJira0471_LikeOperatorSupportModel;
 using Xtensive.Core;
@@ -35,7 +32,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override Configuration.DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(Customer).Assembly, typeof(Customer).Namespace);
+      configuration.Types.Register(typeof (Customer).Assembly, typeof (Customer).Namespace);
       return configuration;
     }
 
@@ -46,7 +43,7 @@ namespace Xtensive.Orm.Tests.Issues
         new Customer {FirstName = "Alexey", LastName = "Kulakov"};
         new Customer {FirstName = "Ulexey", LastName = "Kerzhakov"};
         new Customer {FirstName = "Klexey", LastName = "Komarov"};
-        new Customer { FirstName = "Klexey", LastName = "K%[maroff" };
+        new Customer {FirstName = "Klexey", LastName = "K%[maroff"};
         new Customer {FirstName = "Martha", LastName = "$mith"};
         new Customer {FirstName = "E%ric", LastName = "Cartman"};
         new Customer {FirstName = "Kyle", LastName = "Broflovski"};
@@ -107,7 +104,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var firstQuery = from a in session.Query.All<Customer>()
-          where a.LastName.Like("K!%![m%f_",'!') 
+          where a.LastName.Like("K!%![m%f_", '!') 
           select a;
         Assert.That(firstQuery.First().LastName, Is.EqualTo("K%[maroff"));
       }

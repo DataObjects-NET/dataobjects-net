@@ -77,10 +77,10 @@ namespace Xtensive.Tests.Helpers
       Assert.AreEqual("how old are you?".Like("how old % you_"), true);
       Assert.AreEqual("hi, I'm alex. I'm 26".Like("hi, I'm ____. I'm %"), true);
       Assert.AreEqual("it's another test string%%%".Like("it's another test string!%!%!%"), false);
-      Assert.AreEqual("it's another test string%%%".Like("it's another test string!%!%!%",'!'), true);
+      Assert.AreEqual("it's another test string%%%".Like("it's another test string!%!%!%", '!'), true);
       Assert.AreEqual("string with error.".Like("String with error_"), false);
       Assert.AreEqual("Another string with error.".Like("another string with err%."), false);
-      Assert.AreEqual("aRRRRa%".Like("a%a%%",'%'), true);
+      Assert.AreEqual("aRRRRa%".Like("a%a%%", '%'), true);
     }
   }
 }
