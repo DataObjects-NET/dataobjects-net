@@ -4,6 +4,7 @@
 [main] Fixed redundant delete queries when clearing key generator tables during upgrade
 [main] Fixed NRE in StorageMappingBuilder when persistent type does not have a namespace
 [main] Store partial index filter definitions in Metadata.Extension table instead of relying on information schema
+[main] Added support for Enum.HasFlags method in LINQ
 [sqlite] SQLite library is upgraded to version 1.0.87.0
 [sqlserver] Fixed incorrect SQL for table rename in non-default database
 [sqlite] Added support for :memory: data source
