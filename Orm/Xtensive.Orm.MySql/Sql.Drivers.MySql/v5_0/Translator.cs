@@ -506,12 +506,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       switch (part) {
         case SqlDateTimePart.Millisecond:
           return "MICROSECOND";
-        case SqlDateTimePart.DayOfYear:
-          return "DAYOFYEAR";
         case SqlDateTimePart.Day:
           return "DAY";
-        case SqlDateTimePart.DayOfWeek:
-          return "DAYOFWEEK";
         case SqlDateTimePart.Year:
           return "YEAR";
         case SqlDateTimePart.Month:
