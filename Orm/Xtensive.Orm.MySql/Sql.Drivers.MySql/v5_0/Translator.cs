@@ -231,11 +231,11 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         case SqlNodeType.Except:
           throw SqlHelper.NotSupported(type.ToString());
         case SqlNodeType.BitAnd:
-          return "BIT_AND";
+          return "&";
         case SqlNodeType.BitOr:
-          return "BIT_OR";
+          return "|";
         case SqlNodeType.BitXor:
-          return "BIT_XOR";
+          return "^";
         case SqlNodeType.Overlaps:
           throw SqlHelper.NotSupported(type.ToString());
         default:
