@@ -12,6 +12,10 @@ namespace Xtensive.Orm.Tests.Issues
       public long Id { get; private set; }
     }
 
+    public class Entity1Child : Entity1
+    {
+    }
+
     [HierarchyRoot]
     public class Entity2 : Entity
     {
