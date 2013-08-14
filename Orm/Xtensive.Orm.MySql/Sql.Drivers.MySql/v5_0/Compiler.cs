@@ -197,6 +197,15 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
+    public override void Visit(SqlExtract node)
+    {
+      if (node.DateTimePart==SqlDateTimePart.DayOfWeek || node.DateTimePart==SqlDateTimePart.DayOfYear) {
+          Visit(SqlDml.FunctionCall(node.DateTimePart.ToString(), node.Operand));
+          return;
+      }
+      base.Visit(node);
+    }
+
     #region Static helpers
 
     private static SqlCast CastToLong(SqlExpression arg)
