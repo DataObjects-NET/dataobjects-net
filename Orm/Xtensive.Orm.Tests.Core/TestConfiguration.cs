@@ -17,10 +17,8 @@ namespace Xtensive.Orm.Tests
     private const string StorageKey = "DO_STORAGE";
     private const string StorageFileKey = "DO_STORAGE_FILE";
     private const string ConfigurationFileKey = "DO_CONFIG_FILE";
-    private const string NorthwindKey = "northwind";
 
     private const string DefaultStorage = "default";
-    private const string DefaultNorthwindConnectionString = "Data Source=localhost;Initial Catalog=Northwind;Integrated Security=True";
 
     private static readonly object InstanceLock = new object();
     private static TestConfiguration InstanceValue;
@@ -40,8 +38,6 @@ namespace Xtensive.Orm.Tests
     }
 
     public string Storage { get; private set; }
-
-    public string NorthwindConnectionString { get; private set; }
 
     public ConnectionInfo GetConnectionInfo(string name)
     {
@@ -106,7 +102,6 @@ namespace Xtensive.Orm.Tests
     {
       configuration = LoadConfiguration();
       Storage = GetEnvironmentVariable(StorageKey) ?? GetStorageFromFile() ?? DefaultStorage;
-      NorthwindConnectionString = GetConfigurationVariable(NorthwindKey) ?? DefaultNorthwindConnectionString;
     }
   }
 }
