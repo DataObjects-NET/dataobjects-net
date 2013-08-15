@@ -51,10 +51,10 @@ namespace Xtensive.Orm.Internals
       }
     }
 
-    protected override IEnumerable<PersistAction> GetDeleteSequence(IEnumerable<EntityState> entityStates)
+    protected override IEnumerable<PersistAction> GetDeleteSequence(IEnumerable<EntityState> entityStates, bool setForeignKeyIsError)
     {
       // Topological sorting
-      SortAndRemoveLoopEdges(entityStates, true);
+      SortAndRemoveLoopEdges(entityStates, true, setForeignKeyIsError);
 
       // Restore loop links
       foreach (var triplet in referencesToRestore) {
@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Internals
          yield return new PersistAction(state, PersistActionKind.Remove);
     }
 
-    private void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates, bool rollbackDifferenceBeforeSort)
+    private void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates, bool rollbackDifferenceBeforeSort, bool selfForeignKeyIsError = false)
     {
       var nodeIndex = new Dictionary<Key, Node<EntityState>>();
       var graph = new Graph<Node<EntityState>, Edge<AssociationInfo>>();
@@ -125,7 +125,8 @@ namespace Xtensive.Orm.Internals
           var skipEdge =
             targetKey.Equals(ownerKey)
               && (hierarchy.InheritanceSchema!=InheritanceSchema.ClassTable
-                || ownerField.ValueType==hierarchy.Root.UnderlyingType);
+                || ownerField.ValueType==hierarchy.Root.UnderlyingType)
+                && !selfForeignKeyIsError;
 
           if (skipEdge)
             continue;

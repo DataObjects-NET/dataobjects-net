@@ -28,9 +28,10 @@ namespace Xtensive.Orm.Providers
         ? new SortingPersistActionGenerator()
         : new PersistActionGenerator();
 
+      var selfForeignKeyFeatureIsSet = requestBuilder.Handlers.ProviderInfo.Supports(ProviderFeatures.NotRemovableSelfForeignKey);
       var validateVersion = registry.Session.Configuration.Supports(SessionOptions.ValidateEntityVersions);
 
-      var actions = actionGenerator.GetPersistSequence(registry);
+      var actions = actionGenerator.GetPersistSequence(registry, selfForeignKeyFeatureIsSet);
       foreach (var action in actions)
         processor.RegisterTask(CreatePersistTask(action, validateVersion));
     }
