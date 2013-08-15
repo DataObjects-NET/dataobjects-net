@@ -98,6 +98,8 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.StrictJoinSyntax;
       if (serverFeatures.Supports(ServerFeatures.SingleConnection))
         f |= ProviderFeatures.SingleConnection;
+      if (queryFeatures.Supports(QueryFeatures.NotRemovableSelfForeignKey))
+        f |= ProviderFeatures.NotRemovableSelfForeignKey;
 
       var temporaryTable = serverInfo.TemporaryTable;
       if (temporaryTable!=null && temporaryTable.Features.Supports(TemporaryTableFeatures.Local))
