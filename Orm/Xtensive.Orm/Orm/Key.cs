@@ -150,9 +150,13 @@ namespace Xtensive.Orm
         return true;
       if (GetHashCode()!=other.GetHashCode())
         return false;
-      if (HasExactType && other.HasExactType && TypeReference.Type != other.TypeReference.Type)
+      var thisType = TypeReference.Type;
+      var otherType = other.TypeReference.Type;
+      if (HasExactType && other.HasExactType && thisType!=otherType)
         return false;
-      if (TypeReference.Type.Key.EqualityIdentifier!=other.TypeReference.Type.Key.EqualityIdentifier)
+      if (!thisType.IsInterface && !otherType.IsInterface && thisType.Hierarchy!=otherType.Hierarchy)
+        return false;
+      if (thisType.Key.EqualityIdentifier!=otherType.Key.EqualityIdentifier)
         return false;
       if (other.GetType().IsGenericType)
         return other.ValueEquals(this);
