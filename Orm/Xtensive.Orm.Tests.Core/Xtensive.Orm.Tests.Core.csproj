@@ -114,6 +114,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="DO-Tests.sql" />
+    <None Include="Northwind.sql" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj">
