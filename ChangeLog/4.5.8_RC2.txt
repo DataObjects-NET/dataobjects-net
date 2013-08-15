@@ -1,2 +1,3 @@
+[main] Fixed invalid key comparison under certain conditions
 [mysql] Fixed translation of bitwise operations
 [mysql] Fixed translation of DateTime.DayOfWeek and DateTime.DayOfYear
