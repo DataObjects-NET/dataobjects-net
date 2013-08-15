@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Providers
     TemporaryTableEmulation = 1L << 45,
     StrictJoinSyntax = 1L << 46,
     SingleConnection = 1L << 47,
-    NotRemovableSelfForeignKey = 1L << 48,
+    SelfReferencingRowRemovalIsError = 1L << 48,
 
     // Feature groups
     Paging = Take | Skip,

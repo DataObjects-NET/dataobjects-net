@@ -133,9 +133,9 @@ namespace Xtensive.Sql.Info
     StrictJoinSyntax = 1 << 22,
 
     /// <summary>
-    /// Indicates whether RDBMS supports remove rows, which has foreign key to self.
+    /// Indicates whether RDBMS do not support removal of rows, which have reference to itself.
     /// </summary>
-    NotRemovableSelfForeignKey = 1 << 23,
+    SelfReferencingRowRemovalIsError = 1 << 23,
 
     /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
