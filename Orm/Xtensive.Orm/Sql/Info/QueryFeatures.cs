@@ -133,7 +133,7 @@ namespace Xtensive.Sql.Info
     StrictJoinSyntax = 1 << 22,
 
     /// <summary>
-    /// Indicates whether RDBMS do not support removal of rows, which have reference to itself.
+    /// Indicates whether RDBMS does not support removal of rows, which have reference to itself.
     /// </summary>
     SelfReferencingRowRemovalIsError = 1 << 23,
 
