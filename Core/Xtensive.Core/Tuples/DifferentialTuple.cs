@@ -89,7 +89,7 @@ namespace Xtensive.Tuples
     }
 
     /// <inheritdoc/>
-    public override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
+    protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
       Tuple tuple;
       if (isWriting) {

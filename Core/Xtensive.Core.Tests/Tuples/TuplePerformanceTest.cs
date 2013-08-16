@@ -81,11 +81,11 @@ namespace Xtensive.Tests.Tuples
 
     [Test]
     [Explicit, Category("Profile")]
-    public void ProfileFieldAccessTest()
+    public void ProfileIntFieldAccessTest()
     {
       const int iterationCount = 10000000;
       TupleDescriptor descriptor = TupleDescriptor.Create(shortFieldTypes);
-      Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(descriptor);
+      Tuple tuple = Tuple.Create(descriptor);
       using (new Measurement("Tuple.SetValue", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.SetValue(0, (object) i);
@@ -94,10 +94,12 @@ namespace Xtensive.Tests.Tuples
           TupleFieldState state;
           tuple.GetValue(0, out state);
         }
-
       using (new Measurement("Tuple.SetValue<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.SetValue(0, i);
+      using (new Measurement("Tuple.SetValue<T?>", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.SetValue<int?>(0, i);
       using (new Measurement("Tuple.GetValue<T>", iterationCount))
         for (int i = 0; i < iterationCount; i++)
           tuple.GetValue<int>(0);
@@ -114,12 +116,84 @@ namespace Xtensive.Tests.Tuples
     }
 
     [Test]
+    [Explicit, Category("Profile")]
+    public void ProfileDecimalFieldAccessTest()
+    {
+      const int iterationCount = 10000000;
+      TupleDescriptor descriptor = TupleDescriptor.Create<decimal>();
+      Tuple tuple = Tuple.Create(descriptor);
+      using (new Measurement("Tuple.SetValue", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.SetValue(0, (object) (decimal) i);
+      using (new Measurement("Tuple.GetValue(_,_)", iterationCount))
+        for (int i = 0; i < iterationCount; i++) {
+          TupleFieldState state;
+          tuple.GetValue(0, out state);
+        }
+      using (new Measurement("Tuple.SetValue<T>", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.SetValue(0, (decimal) i);
+      using (new Measurement("Tuple.SetValue<T?>", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.SetValue<decimal?>(0, i);
+      using (new Measurement("Tuple.GetValue<T>", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.GetValue<decimal>(0);
+      using (new Measurement("Tuple.GetValue<T>(_,_)", iterationCount))
+        for (int i = 0; i < iterationCount; i++) {
+          TupleFieldState state;
+          tuple.GetValue<decimal>(0, out state);
+        }
+      using (new Measurement("Tuple.GetValue<T?>(_,_)", iterationCount))
+        for (int i = 0; i < iterationCount; i++) {
+          TupleFieldState state;
+          tuple.GetValue<decimal?>(0, out state);
+        }
+    }
+
+    [Test]
+    [Explicit, Category("Profile")]
+    public void ProfileGuidFieldAccessTest()
+    {
+      const int iterationCount = 10000000;
+      TupleDescriptor descriptor = TupleDescriptor.Create<Guid>();
+      Tuple tuple = Tuple.Create(descriptor);
+      using (new Measurement("Tuple.SetValue", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.SetValue(0, Guid.Empty);
+      using (new Measurement("Tuple.GetValue(_,_)", iterationCount))
+        for (int i = 0; i < iterationCount; i++) {
+          TupleFieldState state;
+          tuple.GetValue(0, out state);
+        }
+      using (new Measurement("Tuple.SetValue<T>", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.SetValue(0, Guid.Empty);
+      using (new Measurement("Tuple.SetValue<T?>", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.SetValue<Guid?>(0, Guid.Empty);
+      using (new Measurement("Tuple.GetValue<T>", iterationCount))
+        for (int i = 0; i < iterationCount; i++)
+          tuple.GetValue<Guid>(0);
+      using (new Measurement("Tuple.GetValue<T>(_,_)", iterationCount))
+        for (int i = 0; i < iterationCount; i++) {
+          TupleFieldState state;
+          tuple.GetValue<Guid>(0, out state);
+        }
+      using (new Measurement("Tuple.GetValue<T?>(_,_)", iterationCount))
+        for (int i = 0; i < iterationCount; i++) {
+          TupleFieldState state;
+          tuple.GetValue<Guid?>(0, out state);
+        }
+    }
+
+    [Test]
     [Explicit, Category("Performance")]
     public void FieldAccessTest()
     {
       const int iterationCount = 10000000;
       TupleDescriptor descriptor = TupleDescriptor.Create(shortFieldTypes);
-      Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(descriptor);
+      Tuple tuple = Tuple.Create(descriptor);
       for (int i = 0; i < iterationCount; i++)
         tuple.SetValue(0, (object) i);
       for (int i = 0; i < iterationCount; i++) {

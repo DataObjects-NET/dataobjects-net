@@ -66,7 +66,7 @@ namespace Xtensive.Tests.Performance
     {
       StructTest<Direction>(0.5);
       StructTest<double>(1);
-      ClassTest<Xtensive.Tuples.Tuple>(0.2);
+      ClassTest<Tuple>(0.2);
     }
 
     public void Test(double speedFactor)
@@ -184,7 +184,7 @@ namespace Xtensive.Tests.Performance
     private static void SimpleComparisonLoop<T>(AdvancedComparerStruct<T> c, T o1, T o2, int count)
     {
       for (int i = 0; i<count; i++)
-        c.Compare(o1, o2);
+        c.Equals(o1, o2);
     }
 
     private static void ArrayComparisonLoop<T>(AdvancedComparerStruct<T> c, T[] array, int count)
@@ -192,7 +192,7 @@ namespace Xtensive.Tests.Performance
       int length = array.Length;
       for (int j = 0; j<count; j++)
         for (int i = 0; i<length-1;)
-          c.Compare(array[i], array[++i]);
+          c.Equals(array[i], array[++i]);
     }
   }
 }

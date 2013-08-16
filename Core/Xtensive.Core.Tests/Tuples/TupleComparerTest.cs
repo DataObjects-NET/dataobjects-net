@@ -61,20 +61,6 @@ namespace Xtensive.Tests.Tuples
     }
 
     [Test]
-    public void ComparisonResultsTest()
-    {
-      Assert.AreEqual(2,  advancedComparer.Compare(Xtensive.Tuples.Tuple.Create(1, 2),    Xtensive.Tuples.Tuple.Create(1)));
-      Assert.AreEqual(-2, advancedComparer.Compare(Xtensive.Tuples.Tuple.Create(1, 2, 3), Xtensive.Tuples.Tuple.Create(1, 3, 5)));
-      Assert.AreEqual(-1, advancedComparer.Compare(Xtensive.Tuples.Tuple.Create(1),       Xtensive.Tuples.Tuple.Create(2)));
-      Assert.AreEqual(-1, advancedComparer.Compare(Xtensive.Tuples.Tuple.Create(1),       Xtensive.Tuples.Tuple.Create(5)));
-
-      Assert.AreEqual(2,  comparer.Compare(Xtensive.Tuples.Tuple.Create(1, 2), Xtensive.Tuples.Tuple.Create(1)));
-      Assert.AreEqual(-2, comparer.Compare(Xtensive.Tuples.Tuple.Create(1, 2, 3), Xtensive.Tuples.Tuple.Create(1, 3, 5)));
-      Assert.AreEqual(-1, comparer.Compare(Xtensive.Tuples.Tuple.Create(1), Xtensive.Tuples.Tuple.Create(2)));
-      Assert.AreEqual(-1, comparer.Compare(Xtensive.Tuples.Tuple.Create(1), Xtensive.Tuples.Tuple.Create(5)));
-    }
-
-    [Test]
     public void DifferentSizeAndTypeTest()
     {
       CheckComparisons(Xtensive.Tuples.Tuple.Create(1), Xtensive.Tuples.Tuple.Create("1"), -1);
@@ -202,20 +188,14 @@ namespace Xtensive.Tests.Tuples
     {
       expectedResult = Normalize(expectedResult);
       bool boolResult = expectedResult==0;
-      Assert.AreEqual(expectedResult, Normalize(comparer.Compare(x, y)));
-      Assert.AreEqual(expectedResult, Normalize(x.CompareTo(y)));
       Assert.AreEqual(boolResult, x.Equals(y));
       Assert.AreEqual(boolResult, equalityComparer.Equals(x, y));
-      Assert.AreEqual(expectedResult, Normalize(advancedComparer.Compare(x, y)));
       Assert.AreEqual(boolResult, advancedComparer.Equals(x, y));
 
       // Reverse
       expectedResult *= -1;
-      Assert.AreEqual(expectedResult, Normalize(comparer.Compare(y, x)));
-      Assert.AreEqual(expectedResult, Normalize(y.CompareTo(x)));
       Assert.AreEqual(boolResult, equalityComparer.Equals(y, x));
       Assert.AreEqual(boolResult, y.Equals(x));
-      Assert.AreEqual(expectedResult, Normalize(advancedComparer.Compare(y, x)));
       Assert.AreEqual(boolResult, advancedComparer.Equals(y, x));
     }
 

@@ -18,9 +18,6 @@ namespace Xtensive.Comparison
   internal sealed class TupleDescriptorComparer: WrappingComparer<TupleDescriptor, Type[]>,
     ISystemComparer<TupleDescriptor>
   {
-    [NonSerialized]
-    private ThreadSafeDictionary<Pair<TupleDescriptor>, int> results;
-
     protected override IAdvancedComparer<TupleDescriptor> CreateNew(ComparisonRules rules)
     {
       return new TupleDescriptorComparer(Provider, ComparisonRules.Combine(rules));
@@ -28,11 +25,7 @@ namespace Xtensive.Comparison
 
     public override int Compare(TupleDescriptor x, TupleDescriptor y)
     {
-      if (x==y)
-        return 0;
-      return results.GetValue(new Pair<TupleDescriptor>(x, y), 
-        (pair, _this) => _this.BaseComparer.Compare(pair.First.fieldTypes, pair.Second.fieldTypes), 
-        this);
+      throw new NotSupportedException();
     }
 
     public override bool Equals(TupleDescriptor x, TupleDescriptor y)
@@ -45,23 +38,15 @@ namespace Xtensive.Comparison
       return AdvancedComparerStruct<TupleDescriptor>.System.GetHashCode(obj);
     }
 
-    private void Initialize()
-    {
-      results = ThreadSafeDictionary<Pair<TupleDescriptor>, int>.Create(new object());
-    }
-
-
     // Constructors
 
     public TupleDescriptorComparer(IComparerProvider provider, ComparisonRules comparisonRules)
       : base(provider, comparisonRules)
     {
-      Initialize();
     }
 
     public override void OnDeserialization(object sender)
     {
-      Initialize();
     }
   }
 }

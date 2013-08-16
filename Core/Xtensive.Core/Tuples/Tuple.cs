@@ -13,6 +13,7 @@ using Xtensive.Comparison;
 using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 using Xtensive.Resources;
+using Xtensive.Tuples.Packed;
 
 namespace Xtensive.Tuples
 {
@@ -21,9 +22,7 @@ namespace Xtensive.Tuples
   /// </summary>
   [DataContract]
   [Serializable]
-  public abstract class Tuple : ITuple,
-    IEquatable<Tuple>,
-    IComparable<Tuple>
+  public abstract class Tuple : ITuple, IEquatable<Tuple>
   {
     /// <summary>
     /// Per-field hash code multiplier used in <see cref="GetHashCode"/> calculation.
@@ -39,10 +38,8 @@ namespace Xtensive.Tuples
     public virtual int Count
     {
       [DebuggerStepThrough]
-      get { return Descriptor.Count; }
+      get { return Descriptor.FieldCount; }
     }
-
-    #region CreateNew, Clone methods
 
     /// <inheritdoc/>
     Tuple ITupleFactory.CreateNew()
@@ -74,10 +71,6 @@ namespace Xtensive.Tuples
       return (Tuple) MemberwiseClone();
     }
 
-    #endregion
-
-    #region GetFieldState (abstract), GetValue(int, out TupleFieldState) (asbtract), GetValue(int), SetValue methods
-
     /// <inheritdoc />
     public abstract TupleFieldState GetFieldState(int fieldIndex);
 
@@ -100,15 +93,11 @@ namespace Xtensive.Tuples
     {
       TupleFieldState state;
       var value = GetValue(fieldIndex, out state);
-      return state.HasValue() ? value : null;
+      return state==TupleFieldState.Available ? value : null;
     }
 
     /// <inheritdoc />
     public abstract void SetValue(int fieldIndex, object fieldValue);
-
-    #endregion
-
-    #region GetValue<T>(int, out TupleFieldState), GetValue<T>, SetValue<T> methods
 
     /// <summary>
     /// Gets the value field value by its index, if it is available;
@@ -121,12 +110,22 @@ namespace Xtensive.Tuples
     public T GetValue<T>(int fieldIndex, out TupleFieldState fieldState)
     {
       var isNullable = null==default(T); // Is nullable value type or class
-      var getter = (isNullable
-        ? GetGetNullableValueDelegate(fieldIndex)
-        : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
-      return getter!=null
-        ? getter.Invoke(this, out fieldState)
-        : GetValueInternal<T>(isNullable, fieldIndex, out fieldState);
+
+      var packedTuple = this as PackedTuple;
+      if (packedTuple!=null) {
+        var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
+        return descriptor.Accessor.GetValue<T>(packedTuple, descriptor, isNullable, out fieldState);
+      }
+
+      var mappedContainer = GetMappedContainer(fieldIndex, false);
+      var mappedTuple = mappedContainer.First as PackedTuple;
+      if (mappedTuple!=null) {
+        var descriptor = mappedTuple.PackedDescriptor.FieldDescriptors[mappedContainer.Second];
+        return descriptor.Accessor.GetValue<T>(mappedTuple, descriptor, isNullable, out fieldState);
+      }
+
+      var value = GetValue(fieldIndex, out fieldState);
+      return value!=null ? (T) value : default(T);
     }
 
     /// <summary>
@@ -146,20 +145,15 @@ namespace Xtensive.Tuples
     public T GetValue<T>(int fieldIndex)
     {
       TupleFieldState fieldState;
-      var isNullable = null==default(T); // Is nullable value type or class
-      var getter = (isNullable
-        ? GetGetNullableValueDelegate(fieldIndex)
-        : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
-      if (getter!=null) {
-        var result = getter.Invoke(this, out fieldState);
-        if (fieldState.IsNull()) {
-          if (isNullable)
-            return default(T);
+      var result = GetValue<T>(fieldIndex, out fieldState);
+
+      if (fieldState.IsNull()) {
+        if (default(T)!=null)
           throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof (T)));
-        }
-        return result;
+        return default(T);
       }
-      return GetValueInternal<T>(isNullable, fieldIndex);
+
+      return result;
     }
 
     /// <summary>
@@ -177,18 +171,9 @@ namespace Xtensive.Tuples
     /// but <typeparamref name="T"/> is not a <see cref="Nullable{T}"/> type.</exception>
     public T GetValueOrDefault<T>(int fieldIndex)
     {
-      var isNullable = null==default(T); // Is nullable value type or class
-      var getter = (isNullable
-        ? GetGetNullableValueDelegate(fieldIndex)
-        : GetGetValueDelegate(fieldIndex)) as GetValueDelegate<T>;
-      if (getter!=null) {
-        TupleFieldState fieldState;
-        var result = getter.Invoke(this, out fieldState);
-        return fieldState==TupleFieldState.Available
-          ? result
-          : default(T);
-      }
-      return GetValueOrDefaultInternal<T>(isNullable, fieldIndex);
+      TupleFieldState fieldState;
+      var result = GetValue<T>(fieldIndex, out fieldState);
+      return fieldState==TupleFieldState.Available ? result : default(T);
     }
 
     /// <summary>
@@ -202,164 +187,34 @@ namespace Xtensive.Tuples
     public void SetValue<T>(int fieldIndex, T fieldValue)
     {
       var isNullable = null==default(T); // Is nullable value type or class
-      var setter = (isNullable
-        ? GetSetNullableValueDelegate(fieldIndex)
-        : GetSetValueDelegate(fieldIndex)) as Action<Tuple, T>;
-      if (setter!=null)
-        setter.Invoke(this, fieldValue);
-      else
-        SetValueInternal(isNullable, fieldIndex, fieldValue);
-    }
+      var packedTuple = this as PackedTuple;
 
-    #endregion
+      if (packedTuple!=null) {
+        var descriptor = packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
+        descriptor.Accessor.SetValue(packedTuple, descriptor, isNullable, fieldValue);
+        return;
+      }
 
-    #region Private internal Get/Set Value methods
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private T GetValueInternal<T>(bool isNullable, int fieldIndex, out TupleFieldState fieldState)
-    {
-      var mappedContainer = GetMappedContainer(fieldIndex, false);
-      if (mappedContainer.First!=null) {
-        var getter = (isNullable
-          ? mappedContainer.First.GetGetNullableValueDelegate(mappedContainer.Second)
-          : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>;
-        if (getter!=null)
-          return getter.Invoke(mappedContainer.First, out fieldState);
-      }
-      var value = GetValue(fieldIndex, out fieldState);
-      return value==null
-        ? default(T)
-        : (T) value;
-    }
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private T GetValueInternal<T>(bool isNullable, int fieldIndex)
-    {
-      T result;
-      TupleFieldState fieldState;
-      GetValueDelegate<T> getter;
-      var mappedContainer = GetMappedContainer(fieldIndex, false);
-      if (mappedContainer.First!=null &&
-        (getter = (isNullable
-          ? mappedContainer.First.GetGetNullableValueDelegate(mappedContainer.Second)
-          : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>)!=null) {
-        result = getter.Invoke(mappedContainer.First, out fieldState);
-      }
-      else {
-        var value = GetValue(fieldIndex, out fieldState);
-        result = value==null
-          ? default(T)
-          : (T) value;
-      }
-      if (fieldState.IsNull()) {
-        if (isNullable)
-          return default(T);
-        throw new InvalidCastException(string.Format(Strings.ExUnableToCastNullValueToXUseXInstead, typeof (T)));
-      }
-      return result;
-    }
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private T GetValueOrDefaultInternal<T>(bool isNullable, int fieldIndex)
-    {
-      T result;
-      TupleFieldState fieldState;
-      GetValueDelegate<T> getter;
-      var mappedContainer = GetMappedContainer(fieldIndex, false);
-      if (mappedContainer.First!=null &&
-        (getter = (isNullable
-          ? mappedContainer.First.GetGetNullableValueDelegate(mappedContainer.Second)
-          : mappedContainer.First.GetGetValueDelegate(mappedContainer.Second)) as GetValueDelegate<T>)!=null) {
-        result = getter.Invoke(mappedContainer.First, out fieldState);
-      }
-      else {
-        var value = GetValue(fieldIndex, out fieldState);
-        result = value==null
-          ? default(T)
-          : (T) value;
-      }
-      return fieldState==TupleFieldState.Available
-        ? result
-        : default(T);
-    }
-
-    [MethodImpl(MethodImplOptions.NoInlining)]
-    private void SetValueInternal<T>(bool isNullable, int fieldIndex, T fieldValue)
-    {
-      Action<Tuple, T> setter;
       var mappedContainer = GetMappedContainer(fieldIndex, true);
-      if (mappedContainer.First!=null &&
-        (setter = (isNullable
-          ? mappedContainer.First.GetSetNullableValueDelegate(mappedContainer.Second)
-          : mappedContainer.First.GetSetValueDelegate(mappedContainer.Second)) as Action<Tuple, T>)!=null)
-        setter.Invoke(mappedContainer.First, fieldValue);
-      else
-        SetValue(fieldIndex, (object) fieldValue);
+      var mappedTuple = mappedContainer.First as PackedTuple;
+      if (mappedTuple!=null) {
+        var descriptor = mappedTuple.PackedDescriptor.FieldDescriptors[mappedContainer.Second];
+        descriptor.Accessor.SetValue(mappedTuple, descriptor, isNullable, fieldValue);
+        return;
+      }
+
+      SetValue(fieldIndex, (object) fieldValue);
     }
-
-    #endregion
-
-    #region Get Delegate methods
 
     /// <summary>
     /// Gets the tuple containing actual value of the specified field.
     /// </summary>
     /// <param name="fieldIndex">Index of the field to get the value container for.</param>
     /// <returns>Tuple container and remapped field index.</returns>
-    public virtual Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
+    protected internal virtual Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
       return new Pair<Tuple, int>(this, fieldIndex);
     }
-
-    protected virtual Delegate GetGetValueDelegate(int fieldIndex)
-    {
-      return null;
-    }
-
-    protected virtual Delegate GetGetNullableValueDelegate(int fieldIndex)
-    {
-      return null;
-    }
-
-    protected virtual Delegate GetSetValueDelegate(int fieldIndex)
-    {
-      return null;
-    }
-
-    protected virtual Delegate GetSetNullableValueDelegate(int fieldIndex)
-    {
-      return null;
-    }
-
-    #endregion
-
-    #region IComparable, IEquatable
-
-    /// <inheritdoc/>
-    public int CompareTo(Tuple other)
-    {
-      return AdvancedComparerStruct<Tuple>.System.Compare(this, other);
-    }
-
-    /// <inheritdoc/>
-    public int CompareTo(ITuple other)
-    {
-      return CompareTo((Tuple) other);
-    }
-
-    /// <inheritdoc/>
-    public virtual bool Equals(Tuple other)
-    {
-      return AdvancedComparerStruct<Tuple>.System.Equals(this, other);
-    }
-
-    /// <inheritdoc/>
-    public bool Equals(ITuple other)
-    {
-      return Equals((Tuple) other);
-    }
-
-    #endregion
 
     #region Equals, GetHashCode
 
@@ -370,14 +225,41 @@ namespace Xtensive.Tuples
     }
 
     /// <inheritdoc/>
+    public virtual bool Equals(Tuple other)
+    {
+      if (ReferenceEquals(other, null))
+        return false;
+      if (ReferenceEquals(other, this))
+        return true;
+      if (Descriptor!=other.Descriptor)
+        return false;
+
+      var count = Count;
+      for (int i = 0; i < count; i++) {
+        TupleFieldState thisState;
+        TupleFieldState otherState;
+        var thisValue = GetValue(i, out thisState);
+        var otherValue = other.GetValue(i, out otherState);
+        if (thisState!=otherState)
+          return false;
+        if (thisState!=TupleFieldState.Available)
+          continue;
+        if (!Equals(thisValue, otherValue))
+          return false;
+      }
+
+      return true;
+    }
+
+    /// <inheritdoc/>
     public override int GetHashCode()
     {
       var count = Count;
       int result = 0;
       for (int i = 0; i < count; i++) {
         TupleFieldState state;
-        object valueOrDefault = GetValue(i, out state);
-        result = HashCodeMultiplier * result ^ (valueOrDefault!=null ? valueOrDefault.GetHashCode() : 0);
+        object value = GetValue(i, out state);
+        result = HashCodeMultiplier * result ^ (value!=null ? value.GetHashCode() : 0);
       }
       return result;
     }
@@ -435,8 +317,7 @@ namespace Xtensive.Tuples
     {
       if (descriptor==null)
         throw new ArgumentNullException("descriptor");
-      descriptor.EnsureIsInitialized();
-      return (RegularTuple) descriptor.TupleFactory.CreateNew();
+      return new PackedTuple(descriptor);
     }
 
     #endregion

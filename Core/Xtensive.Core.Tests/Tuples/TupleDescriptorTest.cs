@@ -129,9 +129,9 @@ namespace Xtensive.Tests.Tuples
       TupleDescriptor d2 = TupleDescriptor.Create(types);
       Assert.IsNotNull(d1);
       Assert.IsNotNull(d2);
-      Assert.AreSame(d1, d2);
+      Assert.AreEqual(d1, d2);
       if (theSame!=null)
-        Assert.AreSame(theSame, d2);
+        Assert.AreEqual(theSame, d2);
       Assert.AreEqual(d1, d2);
       if (theSame!=null)
         Assert.AreEqual(theSame, d2);
