@@ -15,27 +15,6 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net35-Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net35\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\Net35\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>2</WarningLevel>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net35-Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net35\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net35\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>2</WarningLevel>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -74,16 +53,6 @@
       <SpecificVersion>False</SpecificVersion>
       <Private>True</Private>
     </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="$(Configuration.StartsWith('Net35'))">
-    <Reference Include="Npgsql">
-      <HintPath>..\..\Lib\Npgsql\Net35\Npgsql.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Security">
-      <HintPath>..\..\Lib\Npgsql\Net35\Mono.Security.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="$(Configuration.StartsWith('Net40'))">
     <Reference Include="Npgsql">
       <HintPath>..\..\Lib\Npgsql\Net40\Npgsql.dll</HintPath>
     </Reference>

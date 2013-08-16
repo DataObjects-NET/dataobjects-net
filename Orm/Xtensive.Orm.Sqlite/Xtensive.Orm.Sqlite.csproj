@@ -15,27 +15,6 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net35-Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net35\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\Net35\Xtensive.Orm.Sqlite.xml</DocumentationFile>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>2</WarningLevel>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net35-Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net35\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net35\Xtensive.Orm.Sqlite.xml</DocumentationFile>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>2</WarningLevel>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
@@ -74,13 +53,6 @@
       <SpecificVersion>False</SpecificVersion>
       <Private>True</Private>
     </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="$(Configuration.StartsWith('Net35'))">
-    <Reference Include="System.Data.SQLite">
-      <HintPath>..\..\Lib\SQLite\Net35\System.Data.SQLite.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="$(Configuration.StartsWith('Net40'))">
     <Reference Include="System.Data.SQLite">
       <HintPath>..\..\Lib\SQLite\Net40\System.Data.SQLite.dll</HintPath>
     </Reference>
@@ -129,11 +101,7 @@
       <Name>Xtensive.Orm</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup Condition="$(Configuration.StartsWith('Net35'))">
-    <EmbeddedResource Include="Sql.Drivers.Sqlite\NativeModules\Net35_32\SQLite.Interop.dll" />
-    <EmbeddedResource Include="Sql.Drivers.Sqlite\NativeModules\Net35_64\SQLite.Interop.dll" />
-  </ItemGroup>
-  <ItemGroup Condition="$(Configuration.StartsWith('Net40'))">
+  <ItemGroup>
     <EmbeddedResource Include="Sql.Drivers.Sqlite\NativeModules\Net40_32\SQLite.Interop.dll" />
     <EmbeddedResource Include="Sql.Drivers.Sqlite\NativeModules\Net40_64\SQLite.Interop.dll" />
   </ItemGroup>
