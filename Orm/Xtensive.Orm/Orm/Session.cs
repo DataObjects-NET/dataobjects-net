@@ -429,6 +429,7 @@ namespace Xtensive.Orm
       // Caches, registry
       EntityStateCache = CreateSessionCache(configuration);
       EntityChangeRegistry = new EntityChangeRegistry(this);
+      entitySetsWithInvalidState = new HashSet<EntitySetBase>();
 
       // Events
       EntityEvents = new EntityEventBroker();
