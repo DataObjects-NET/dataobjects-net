@@ -1,4 +1,10 @@
-﻿using System.Linq;
+﻿// Copyright (C) 2013 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Denis Krjuchkov
+// Created:    2013.06.25
+
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Issues.IssueJira0446_TypeAsOnSubqueryOperandModel;
 
