@@ -51,7 +51,7 @@ namespace Xtensive.Orm
 
     internal void NotifyEntitySetCached(EntitySetBase entitySet)
     {
-      if (disableAutoSaveChanges || Pinner.RootCount > 0)
+      if (disableAutoSaveChanges || pinner.RootCount > 0)
         entitySetsWithInvalidState.Add(entitySet);
     }
 
