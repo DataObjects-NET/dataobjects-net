@@ -520,6 +520,15 @@ namespace Xtensive.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Control character used as escape character.
+        /// </summary>
+        internal static string ExControlCharacterUsedAsEscapeCharacter {
+            get {
+                return ResourceManager.GetString("ExControlCharacterUsedAsEscapeCharacter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to copy a part of the stream to itself. Use StreamExtensions.Copy method instead..
         /// </summary>
         internal static string ExCopyToMustOperateWithDifferentStreams {

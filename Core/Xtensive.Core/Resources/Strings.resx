@@ -894,4 +894,7 @@
   <data name="ExSpecialCharacterXUsedAsEscapeCharacter">
     <value xml:space="preserve">Special character {0} used as escape character.</value>
   </data>
+  <data name="ExControlCharacterUsedAsEscapeCharacter">
+    <value xml:space="preserve">Control character used as escape character</value>
+  </data>
 </root>
