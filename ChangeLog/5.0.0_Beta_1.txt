@@ -1,0 +1,1 @@
+[main] New improved version of Xtensive.Tuples
