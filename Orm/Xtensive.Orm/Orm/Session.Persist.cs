@@ -213,7 +213,10 @@ namespace Xtensive.Orm
         return null;
 
       disableAutoSaveChanges = true;
-      return new Disposable(_ => { disableAutoSaveChanges = false; });
+      return new Disposable(_ => {
+        disableAutoSaveChanges = false;
+        InvalidateEntitySetsWithInvalidState();
+      });
     }
   }
 }

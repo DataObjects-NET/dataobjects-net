@@ -22,6 +22,10 @@ namespace Xtensive.Orm
 {
   public partial class Session
   {
+    // EntitySets with cached items that filled their cache
+    // within DisableSaveChanges() scope.
+    private HashSet<EntitySetBase> entitySetsWithInvalidState;
+
     internal ICache<Key, EntityState> EntityStateCache { get; private set; }
     internal EntityChangeRegistry EntityChangeRegistry { get; private set; }
 
@@ -47,6 +51,12 @@ namespace Xtensive.Orm
         // Invalidate entity itself
         ((IInvalidatable) state).Invalidate();
       }
+    }
+
+    internal void NotifyEntitySetCached(EntitySetBase entitySet)
+    {
+      if (disableAutoSaveChanges || Pinner.RootCount > 0)
+        entitySetsWithInvalidState.Add(entitySet);
     }
 
     internal void RemapEntityKeys(KeyMapping keyMapping)
@@ -231,6 +241,17 @@ namespace Xtensive.Orm
       if (IsDebugEventLoggingEnabled)
         Log.Debug(Strings.LogSessionXCachingY, this, result);
       return result;
+    }
+
+    private void InvalidateEntitySetsWithInvalidState()
+    {
+      try {
+        foreach (var item in entitySetsWithInvalidState)
+          ((IInvalidatable) item.State).Invalidate();
+      }
+      finally {
+        entitySetsWithInvalidState.Clear();
+      }
     }
 
     private static ICache<Key,EntityState> CreateSessionCache(SessionConfiguration configuration)
