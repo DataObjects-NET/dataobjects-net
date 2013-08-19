@@ -23,7 +23,9 @@ namespace Xtensive.Orm.Internals
 
     protected override Tuple GetValue()
     {
-      return Tuple.Create(value1);
+      var result = CreateTuple();
+      result.SetValue(0, value1);
+      return result;
     }
 
     protected override bool ValueEquals(Key other)
