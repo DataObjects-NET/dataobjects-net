@@ -65,7 +65,7 @@ namespace Xtensive.Tests.Helpers
     }
 
     [Test]
-    [ExpectedException(typeof(Exception))]
+    [ExpectedException(typeof(ArgumentException))]
     public void LikeExtensionTest()
     {
       Assert.AreEqual("uewryewsf".Like("%sf"), true);
