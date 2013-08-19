@@ -30,9 +30,7 @@ namespace Xtensive.Orm.Serialization
       }
     }
 
-    #if NET40
     [SecuritySafeCritical]
-    #endif
     public static void GetEntityReferenceData(Entity entity, SerializationInfo info, StreamingContext context)
     {
       EntityReference reference = new EntityReference(entity);

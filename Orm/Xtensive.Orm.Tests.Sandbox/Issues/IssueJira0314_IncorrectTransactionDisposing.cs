@@ -1,6 +1,4 @@
-﻿#if NET40
-
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -101,5 +99,3 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 }
-
-#endif

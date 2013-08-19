@@ -26,9 +26,7 @@ namespace Xtensive.Orm
       MulticastAttributes.NonAbstract | 
       MulticastAttributes.Managed)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
-#if NET40
   [SecuritySafeCritical]
-#endif
   internal class PersistentAspect : Aspect,
     IAspectProvider
   {

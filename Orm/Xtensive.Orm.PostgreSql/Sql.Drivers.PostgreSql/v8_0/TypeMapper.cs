@@ -61,9 +61,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       parameter.Value = value ?? DBNull.Value;
     }
 
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override void BindTimeSpan(DbParameter parameter, object value)
     {
       var nativeParameter = (NpgsqlParameter) parameter;
@@ -119,9 +117,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return SqlHelper.GuidFromString(reader.GetString(index));
     }
 
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override object ReadTimeSpan(DbDataReader reader, int index)
     {
       var nativeReader = (NpgsqlDataReader) reader;

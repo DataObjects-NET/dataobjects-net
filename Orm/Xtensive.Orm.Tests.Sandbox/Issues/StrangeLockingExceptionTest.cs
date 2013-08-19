@@ -6,9 +6,7 @@
 
 using System;
 using System.Linq;
-#if NET40
 using System.Threading.Tasks;
-#endif
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
@@ -119,7 +117,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
     }
-#if NET40
+
     [Test]
     public void Test4()
     {
@@ -152,6 +150,6 @@ namespace Xtensive.Orm.Tests.Issues
       };
       Parallel.Invoke(action, action, action, action, action, action);
     }
-#endif
+
   }
 }

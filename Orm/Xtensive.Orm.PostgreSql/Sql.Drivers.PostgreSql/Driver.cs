@@ -11,17 +11,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 {
   internal abstract class Driver : SqlDriver
   {
-#if NET40
     [SecuritySafeCritical]
-#endif
     protected override SqlConnection CreateConnection(string connectionString)
     {
       return new Connection(this, connectionString);
     }
 
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override SqlExceptionType GetExceptionType(Exception exception)
     {
       var nativeException = exception as NpgsqlException;

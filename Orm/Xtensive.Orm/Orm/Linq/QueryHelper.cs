@@ -158,7 +158,6 @@ namespace Xtensive.Orm.Linq
         resultSelector);
     }
 
-    [Conditional("NET40")]
     public static void TryAddConvarianceCast(ref Expression source, Type baseType)
     {
       var elementType = GetSequenceElementType(source.Type);

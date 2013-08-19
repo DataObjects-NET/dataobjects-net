@@ -24,18 +24,14 @@ namespace Xtensive.Sql.Drivers.Sqlite
     public override DbTransaction ActiveTransaction { get { return activeTransaction; } }
 
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override DbParameter CreateParameter()
     {
       return new SQLiteParameter();
     }
 
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override void BeginTransaction()
     {
       EnsureTrasactionIsNotActive();
@@ -43,9 +39,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
     }
 
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override void BeginTransaction(IsolationLevel isolationLevel)
     {
       EnsureTrasactionIsNotActive();
@@ -89,9 +83,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
     // Constructors
 
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     public Connection(SqlDriver driver, string connectionString)
       : base(driver, connectionString)
     {

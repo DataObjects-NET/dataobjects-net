@@ -22,19 +22,13 @@ namespace Xtensive.Orm.Serialization
     private const string KeyValueName = WellKnown.KeyFieldName;
     private readonly Entity entity;
 
-    #if NET40
     [SecurityCritical]
-    #endif
     public object GetRealObject(StreamingContext context)
     {
       return entity;
     }
       
-    #if NET40
     [SecurityCritical]
-    #else
-    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
-    #endif
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue(KeyValueName, entity.Key.Format());

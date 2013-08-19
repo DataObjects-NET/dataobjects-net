@@ -17,11 +17,7 @@ namespace Xtensive.Orm.Providers
   [CompilerContainer(typeof(SqlExpression))]
   internal static class VbConversionsCompilers
   {
-    #if NET40
-      private const string VbConversions = "Microsoft.VisualBasic.CompilerServices.Conversions, Microsoft.VisualBasic, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
-    #else
-      private const string VbConversions = "Microsoft.VisualBasic.CompilerServices.Conversions, Microsoft.VisualBasic, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
-    #endif
+    private const string VbConversions = "Microsoft.VisualBasic.CompilerServices.Conversions, Microsoft.VisualBasic, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a";
 
     [Compiler(VbConversions, "ToBoolean", TargetKind.Static)]
     public static SqlExpression ToBoolean([Type(typeof(string))]SqlExpression stringExpression)

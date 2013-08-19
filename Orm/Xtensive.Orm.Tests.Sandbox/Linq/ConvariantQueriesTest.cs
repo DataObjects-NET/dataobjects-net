@@ -45,8 +45,6 @@ namespace Xtensive.Orm.Tests.Linq
       CreateSessionAndTransaction();
     }
 
-    #if NET40
-
     [Test]
     public void ConcatTest()
     {
@@ -96,7 +94,5 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(childEntity => childEntity.In(Query.All<MyBaseEntity>()))
         .ToList();
     }
-
-    #endif
   }
 }

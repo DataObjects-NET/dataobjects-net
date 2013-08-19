@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2013.07.22
 
-#if NET40
 using System;
 using System.Linq;
 using NUnit.Framework;
@@ -232,4 +231,3 @@ namespace Xtensive.Orm.Tests.Issues
     }
   }
 }
-#endif

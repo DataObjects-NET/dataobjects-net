@@ -18,9 +18,7 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
   {
     private ValueRange<DateTime> dateTimeRange;
 
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override void BindString(DbParameter parameter, object value)
     {
       string text = value as string;
@@ -33,9 +31,7 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
         base.BindString(parameter, value);
     }
 
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override void BindByteArray(DbParameter parameter, object value)
     {
       var array = value as byte[];

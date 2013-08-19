@@ -148,10 +148,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       return SqlHelper.GuidFromString(reader.GetString(index));
     }
 
-#if NET40
-    [SecuritySafeCritical]
-#endif
     // Constructors
+
+    [SecuritySafeCritical]
     public TypeMapper(SqlDriver driver)
       : base(driver)
     {
