@@ -44,11 +44,7 @@ namespace Xtensive.Core
     }
 
     /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
-    #if NET40
     [SecurityCritical]
-    #else
-    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
-    #endif
     public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("Implementation", Implementation);

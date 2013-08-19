@@ -56,19 +56,10 @@ namespace Xtensive.Linq
 
     private static QueryableMethodKind? ParseQueryableMethodKind(string methodName)
     {
-#if NET40
       QueryableMethodKind result;
       if (Enum.TryParse(methodName, out result))
         return result;
       return null;
-#else
-      try {
-        return (QueryableMethodKind) Enum.Parse(typeof (QueryableMethodKind), methodName);
-      }
-      catch {
-        return null;
-      }
-#endif
     }
   }
 }

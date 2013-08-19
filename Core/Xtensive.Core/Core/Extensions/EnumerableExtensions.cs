@@ -292,35 +292,6 @@ namespace Xtensive.Core
       }
       return true;
     }
-#if !NET40
-    /// <summary>
-    /// Constructs <see cref="IEnumerable{T}"/> from
-    /// this <see cref="IEnumerable{T}"/> and specified <see cref="IEnumerable{T}"/>
-    /// by applying <paramref name="projector"/> for each pair of items.
-    /// If one input <see cref="IEnumerable{T}"/> is short,
-    /// excess elements of the longer <see cref="IEnumerable{T}"/> are discarded.
-    /// </summary>
-    /// <typeparam name="TLeft">Type of first <see cref="IEnumerable{T}"/>.</typeparam>
-    /// <typeparam name="TRight">Type of second <see cref="IEnumerable{T}"/>.</typeparam>
-    /// <typeparam name="TResult">Type of result.</typeparam>
-    /// <param name="leftSequence">First <see cref="IEnumerable{T}"/>.</param>
-    /// <param name="rightSequence">Second <see cref="IEnumerable{T}"/>.</param>
-    /// <param name="projector">A delegate constructing <typeparamref name="TResult"/> from 
-    /// <typeparamref name="TLeft"/> and <typeparamref name="TRight"/> values.</param>
-    /// <returns>Result of applying <paramref name="projector"/> for each pair of items.</returns>
-    public static IEnumerable<TResult> Zip<TLeft, TRight, TResult>(
-      this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence, Func<TLeft, TRight, TResult> projector)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(leftSequence, "leftSequence");
-      ArgumentValidator.EnsureArgumentNotNull(rightSequence, "rightSequence");
-      ArgumentValidator.EnsureArgumentNotNull(projector, "projector");
-
-      using (var leftEnum = leftSequence.GetEnumerator())
-      using (var rightEnum = rightSequence.GetEnumerator())
-        while (leftEnum.MoveNext() && rightEnum.MoveNext())
-          yield return projector(leftEnum.Current, rightEnum.Current);
-    }
-#endif
 
     /// <summary>
     /// Constructs <see cref="IEnumerable{T}"/> from

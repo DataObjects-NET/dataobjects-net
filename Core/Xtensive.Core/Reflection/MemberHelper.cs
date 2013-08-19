@@ -221,9 +221,7 @@ namespace Xtensive.Reflection
     /// <returns>Interface member;
     /// <see langword="null" />, if no interface member maps to the specified one,
     /// or the member itself is declared in interface.</returns>
-  #if NET40
     [SecuritySafeCritical]
-  #endif
     public static MemberInfo GetInterfaceMember(this MemberInfo member)
     {
       if (member.DeclaringType.IsInterface)
