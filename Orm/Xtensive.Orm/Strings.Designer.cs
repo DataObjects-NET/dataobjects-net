@@ -3135,11 +3135,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Non-Linq expression for Query.ExecuteDelayed not supported.
+        ///   Looks up a localized string similar to Non-LINQ calls are not supported within Query.ExecuteDelayed.
         /// </summary>
-        internal static string ExNonLinqExpressionForQueryExecuteDelayedNotSupported {
+        internal static string ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed {
             get {
-                return ResourceManager.GetString("ExNonLinqExpressionForQueryExecuteDelayedNotSupported", resourceCulture);
+                return ResourceManager.GetString("ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed", resourceCulture);
             }
         }
         

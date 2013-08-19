@@ -1,4 +1,10 @@
-﻿using NUnit.Framework;
+﻿// Copyright (C) 2013 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Denis Krjuchkov
+// Created:    2013.07.16
+
+using NUnit.Framework;
 using Xtensive.Orm.Tests.Issues.IssueJira0450_SingleOrDefaultInvalidResultModel;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -10,6 +16,10 @@ namespace Xtensive.Orm.Tests.Issues
     {
       [Key, Field]
       public long Id { get; private set; }
+    }
+
+    public class Entity1Child : Entity1
+    {
     }
 
     [HierarchyRoot]

@@ -2,15 +2,16 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
-// Created:    2013.06.25
+// Created:    2013.08.17
 
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Orm.Tests.Issues.IssueJira0446_TypeAsOnSubqueryOperandModel;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Issues.IssueJira0481_EntitySetCachesInvalidStateModel;
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  namespace IssueJira0446_TypeAsOnSubqueryOperandModel
+  namespace IssueJira0481_EntitySetCachesInvalidStateModel
   {
     [HierarchyRoot]
     public class Owner : Entity
@@ -18,8 +19,8 @@ namespace Xtensive.Orm.Tests.Issues
       [Key, Field]
       public long Id { get; private set; }
 
-      [Field, Association(PairTo = "Owner")]
-      public EntitySet<Item> Items { get; set; }
+      [Field]
+      public EntitySet<Item> Items { get; private set; }
     }
 
     [HierarchyRoot]
@@ -27,22 +28,13 @@ namespace Xtensive.Orm.Tests.Issues
     {
       [Key, Field]
       public long Id { get; private set; }
-
-      [Field]
-      public Owner Owner { get; set; }
-    }
-
-    public class Item2 : Item
-    {
-      [Field]
-      public string Info { get; set; }
     }
   }
 
   [TestFixture]
-  public class IssueJira0446_TypeAsOnSubqueryOperand : AutoBuildTest
+  public class IssueJira0481_EntitySetCachesInvalidState : AutoBuildTest
   {
-    protected override Configuration.DomainConfiguration BuildConfiguration()
+    protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (Owner).Assembly, typeof (Owner).Namespace);
@@ -54,7 +46,17 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var q = session.Query.All<Owner>().Select(o => (o.Items.First() as Item2).Info).ToList();
+        var owner = new Owner();
+        session.SaveChanges();
+        using (session.DisableSaveChanges()) {
+          var item = new Item();
+          owner.Items.Add(item);
+          var dummy = owner.Items.ToList();
+        }
+        session.SaveChanges();
+        var items = owner.Items.ToList();
+        Assert.That(items.Count, Is.EqualTo(1));
+        tx.Complete();
       }
     }
   }

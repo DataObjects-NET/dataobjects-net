@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
 
-        var expected = new Exception(Strings.ExNonLinqExpressionForQueryExecuteDelayedNotSupported);
+        var expected = new Exception(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
 
         var result = session.Query.ExecuteDelayed(query => query.SingleOrDefault<TestEntity>(instanceKey));
 

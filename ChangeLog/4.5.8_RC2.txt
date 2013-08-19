@@ -1,0 +1,4 @@
+[main] Fixed invalid key comparison under certain conditions
+[main] Fixed EntitySet caching invalid state within DisableSaveChanges() scope
+[mysql] Fixed translation of bitwise operations
+[mysql] Fixed translation of DateTime.DayOfWeek and DateTime.DayOfYear
