@@ -25,8 +25,8 @@ namespace Xtensive.Tuples
   [Serializable]
   public sealed class TupleDescriptor : IEquatable<TupleDescriptor>, IList<Type>
   {
-    private static readonly Dictionary<TupleDescriptor, TupleDescriptor> KnownDescriptors = new Dictionary<TupleDescriptor, TupleDescriptor>();
     private static readonly TupleDescriptor EmptyDescriptor = new TupleDescriptor(new Type[0]);
+    private static readonly Dictionary<Type, TupleDescriptor> SingleFieldDescriptors = new Dictionary<Type, TupleDescriptor>();
 
     internal readonly int FieldCount;
     internal readonly int ValuesLength;
@@ -269,18 +269,17 @@ namespace Xtensive.Tuples
         PackedFieldAccessorFactory.ProvideAccessor(FieldTypes[i], FieldDescriptors[i]);
     }
 
-    private static void CacheDestriptor(TupleDescriptor descriptor)
-    {
-      KnownDescriptors.Add(descriptor, descriptor);
-    }
-
     private static TupleDescriptor CreateInternal(IList<Type> fieldTypes)
     {
-      var descriptor = new TupleDescriptor(fieldTypes);
-      TupleDescriptor existingDescriptor;
-      if (KnownDescriptors.TryGetValue(descriptor, out existingDescriptor))
-        return existingDescriptor;
-      return descriptor;
+      var fieldCount = fieldTypes.Count;
+      if (fieldCount==0)
+        return EmptyDescriptor;
+      if (fieldCount==1) {
+        TupleDescriptor cachedDescriptor;
+        if (SingleFieldDescriptors.TryGetValue(fieldTypes[0], out cachedDescriptor))
+          return cachedDescriptor;
+      }
+      return new TupleDescriptor(fieldTypes);
     }
 
     #region Create methods (base)
@@ -537,22 +536,8 @@ namespace Xtensive.Tuples
 
     static TupleDescriptor()
     {
-      CacheDestriptor(EmptyDescriptor);
       foreach (var type in PackedFieldAccessorFactory.KnownTypes)
-        CacheDestriptor(new TupleDescriptor(new[] {type}));
-
-      CacheDestriptor(new TupleDescriptor(new[] {typeof (string)}));
-      CacheDestriptor(new TupleDescriptor(new[] {typeof (string), typeof (string)}));
-      CacheDestriptor(new TupleDescriptor(new[] {typeof (string), typeof (string), typeof (string)}));
-
-      CacheDestriptor(new TupleDescriptor(new[] {typeof (int), typeof (int)}));
-      CacheDestriptor(new TupleDescriptor(new[] {typeof (int), typeof (int), typeof (int)}));
-
-      CacheDestriptor(new TupleDescriptor(new[] {typeof (long), typeof (long)}));
-      CacheDestriptor(new TupleDescriptor(new[] {typeof (long), typeof (long), typeof (long)}));
-
-      CacheDestriptor(new TupleDescriptor(new[] {typeof (Guid), typeof (Guid)}));
-      CacheDestriptor(new TupleDescriptor(new[] {typeof (Guid), typeof (Guid), typeof (Guid)}));
+        SingleFieldDescriptors.Add(type, new TupleDescriptor(new[] {type}));
     }
   }
 }
