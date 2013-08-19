@@ -465,7 +465,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public LongFieldAccessor()
-      : base(sizeof(long) * 4)
+      : base(sizeof(long) * 8)
     {
     }
   }
@@ -483,7 +483,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public ULongFieldAccessor()
-      : base(sizeof(ulong) * 4)
+      : base(sizeof(ulong) * 8)
     {
     }
   }
