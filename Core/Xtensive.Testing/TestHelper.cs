@@ -96,11 +96,7 @@ namespace Xtensive.Testing
 
       for (int i = 0; i<5; i++) {
         Thread.Sleep(baseSleepTime);
-        #if NET40
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-        #else
-        GC.GetTotalMemory(true);
-        #endif
         GC.WaitForPendingFinalizers();
       }
     }
