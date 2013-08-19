@@ -6,7 +6,7 @@
 
 namespace Xtensive.Orm.Weaver.Tasks
 {
-  internal sealed class ThrowNotSupportedTask : ProcessorTask
+  internal sealed class ThrowNotSupportedTask : WeavingTask
   {
     public override ActionResult Execute(ProcessorContext context)
     {

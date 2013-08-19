@@ -8,6 +8,6 @@ namespace Xtensive.Orm.Weaver
 {
   public interface IAssemblyProcessor
   {
-    ProcessorResult Execute(ProcessorParameterSet parameters, IMessageWriter messageWriter);
+    ActionResult Execute(ProcessorParameterSet parameters, IMessageWriter messageWriter);
   }
 }

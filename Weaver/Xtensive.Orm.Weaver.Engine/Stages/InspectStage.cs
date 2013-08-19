@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.19
 
-using Xtensive.Orm.Weaver.Inspectors;
+using Xtensive.Orm.Weaver.Inspections;
 
 namespace Xtensive.Orm.Weaver
 {
@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Weaver
   {
     private readonly Inspector[] inspectors;
 
-    public override ProcessorResult Execute(ProcessorContext context)
+    public override ActionResult Execute(ProcessorContext context)
     {
       var failure = false;
 
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Weaver
           break;
       }
 
-      return failure ? ProcessorResult.Failure : ProcessorResult.Success;
+      return failure ? ActionResult.Failure : ActionResult.Success;
     }
 
     public InspectStage()

@@ -42,9 +42,9 @@ namespace Xtensive.Orm.Weaver
       ExitAccordingToResult(result);
     }
 
-    private void ExitAccordingToResult(ProcessorResult result)
+    private void ExitAccordingToResult(ActionResult result)
     {
-      Environment.Exit(result==ProcessorResult.Failure ? ExitCode.ProcessorError : ExitCode.Success);
+      Environment.Exit(result==ActionResult.Success ? ExitCode.Success : ExitCode.ProcessorError);
     }
 
     private void ProcessArgument(string argument)

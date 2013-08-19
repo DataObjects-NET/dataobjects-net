@@ -4,9 +4,12 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.19
 
+using System;
+
 namespace Xtensive.Orm.Weaver
 {
-  internal enum ActionResult
+  [Serializable]
+  public enum ActionResult
   {
     Success,
     Failure,

@@ -8,6 +8,6 @@ namespace Xtensive.Orm.Weaver
 {
   internal abstract class ProcessorStage
   {
-    public abstract ProcessorResult Execute(ProcessorContext context);
+    public abstract ActionResult Execute(ProcessorContext context);
   }
 }

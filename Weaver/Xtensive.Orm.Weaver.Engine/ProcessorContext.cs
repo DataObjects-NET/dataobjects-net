@@ -5,6 +5,7 @@
 // Created:    2013.08.19
 
 using System.Collections.Generic;
+using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver
 {
@@ -12,8 +13,10 @@ namespace Xtensive.Orm.Weaver
   {
     public ProcessorParameterSet Parameters { get; set; }
 
-    public IMessageWriter MessageWriter { get; set; }
+    public MessageLogger Logger { get; set; }
 
-    public IList<ProcessorTask> Tasks { get; set; }
+    public IList<WeavingTask> WeavingTasks { get; set; }
+
+    public ModuleDefinition TargetModule { get; set; }
   }
 }

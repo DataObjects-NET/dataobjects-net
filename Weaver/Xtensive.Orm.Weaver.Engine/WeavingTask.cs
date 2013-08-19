@@ -6,7 +6,7 @@
 
 namespace Xtensive.Orm.Weaver
 {
-  internal abstract class ProcessorTask
+  internal abstract class WeavingTask
   {
     public int Priority { get; protected set; }
 

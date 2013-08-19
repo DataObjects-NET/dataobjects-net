@@ -4,13 +4,16 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.19
 
+using Mono.Cecil;
+
 namespace Xtensive.Orm.Weaver
 {
   internal sealed class LoadStage : ProcessorStage
   {
-    public override ProcessorResult Execute(ProcessorContext context)
+    public override ActionResult Execute(ProcessorContext context)
     {
-      return ProcessorResult.Success;
+      context.TargetModule = ModuleDefinition.ReadModule(context.Parameters.InputFile);
+      return ActionResult.Success;
     }
   }
 }

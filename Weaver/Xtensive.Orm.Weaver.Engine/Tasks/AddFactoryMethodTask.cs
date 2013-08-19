@@ -6,7 +6,7 @@
 
 namespace Xtensive.Orm.Weaver.Tasks
 {
-  internal sealed class AddFactoryMethodTask : ProcessorTask
+  internal sealed class AddFactoryMethodTask : WeavingTask
   {
     public override ActionResult Execute(ProcessorContext context)
     {

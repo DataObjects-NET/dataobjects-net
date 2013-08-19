@@ -6,7 +6,7 @@
 
 namespace Xtensive.Orm.Weaver.Tasks
 {
-  internal sealed class ReplaceAutoPropertyTask : ProcessorTask
+  internal sealed class ReplaceAutoPropertyTask : WeavingTask
   {
     public override ActionResult Execute(ProcessorContext context)
     {

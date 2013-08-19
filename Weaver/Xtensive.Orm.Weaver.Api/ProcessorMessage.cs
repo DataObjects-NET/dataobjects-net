@@ -5,7 +5,7 @@
 // Created:    2013.08.19
 
 using System;
-using System.Globalization;
+using System.Text;
 
 namespace Xtensive.Orm.Weaver
 {
@@ -13,9 +13,7 @@ namespace Xtensive.Orm.Weaver
   public sealed class ProcessorMessage
   {
     private string projectId;
-    private string file;
-    private int line;
-    private int column;
+    private MessageLocation location;
     private MessageType type;
     private string messageText;
     private string messageCode;
@@ -26,22 +24,10 @@ namespace Xtensive.Orm.Weaver
       set { projectId = value; }
     }
 
-    public string File
+    public MessageLocation Location
     {
-      get { return file; }
-      set { file = value; }
-    }
-
-    public int Line
-    {
-      get { return line; }
-      set { line = value; }
-    }
-
-    public int Column
-    {
-      get { return column; }
-      set { column = value; }
+      get { return location; }
+      set { location = value; }
     }
 
     public MessageType Type
@@ -64,8 +50,27 @@ namespace Xtensive.Orm.Weaver
 
     public override string ToString()
     {
-      return string.Format(CultureInfo.InvariantCulture, "{0}({1},{2}): {3} {4}: {5}",
-        file, line, column, type.ToString().ToLowerInvariant(), messageCode, messageText);
+      var resultBuilder = new StringBuilder();
+      if (location!=null)
+        resultBuilder.Append(location);
+      resultBuilder.AppendFormat("{0} {1}: {2}", GetMessageTypeName(type), messageCode, messageText);
+      return resultBuilder.ToString();
+    }
+
+    private static string GetMessageTypeName(MessageType type)
+    {
+      switch (type) {
+      case MessageType.Info:
+        return "info";
+      case MessageType.Warning:
+        return "warning";
+      case MessageType.Error:
+        return "error";
+      case MessageType.FatalError:
+        return "fatal error";
+      default:
+        throw new ArgumentOutOfRangeException("type");
+      }
     }
   }
 }

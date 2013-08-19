@@ -6,7 +6,7 @@
 
 namespace Xtensive.Orm.Weaver.Tasks
 {
-  internal sealed class RemoveFieldTask : ProcessorTask
+  internal sealed class RemoveFieldTask : WeavingTask
   {
     public override ActionResult Execute(ProcessorContext context)
     {

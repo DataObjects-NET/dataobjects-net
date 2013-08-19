@@ -6,7 +6,7 @@
 
 namespace Xtensive.Orm.Weaver.Tasks
 {
-  internal sealed class ImplementInitializablePatternTask : ProcessorTask
+  internal sealed class ImplementInitializablePatternTask : WeavingTask
   {
     public override ActionResult Execute(ProcessorContext context)
     {

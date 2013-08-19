@@ -10,11 +10,11 @@ namespace Xtensive.Orm.Weaver
 {
   internal sealed class TransformStage : ProcessorStage
   {
-    public override ProcessorResult Execute(ProcessorContext context)
+    public override ActionResult Execute(ProcessorContext context)
     {
       var failure = false;
 
-      var sortedTasks = context.Tasks
+      var sortedTasks = context.WeavingTasks
         .Select((t, i) => new {Task = t, Index = i})
         .OrderBy(item => item.Task.Priority)
         .ThenBy(item => item.Index)
@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Weaver
           break;
       }
 
-      return failure ? ProcessorResult.Failure : ProcessorResult.Success;
+      return failure ? ActionResult.Failure : ActionResult.Success;
     }
   }
 }

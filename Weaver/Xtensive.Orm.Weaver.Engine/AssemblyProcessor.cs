@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace Xtensive.Orm.Weaver
 {
@@ -14,36 +13,37 @@ namespace Xtensive.Orm.Weaver
   {
     private readonly ProcessorStage[] stages;
 
-    public ProcessorResult Execute(ProcessorParameterSet parameters, IMessageWriter messageWriter)
+    public ActionResult Execute(ProcessorParameterSet parameters, IMessageWriter messageWriter)
     {
+      if (parameters==null)
+        throw new ArgumentNullException("parameters");
+      if (messageWriter==null)
+        throw new ArgumentNullException("messageWriter");
+
       var context = new ProcessorContext {
         Parameters = parameters,
-        MessageWriter = messageWriter,
-        Tasks = new List<ProcessorTask>()
+        Logger = new MessageLogger(parameters.ProjectId, messageWriter),
+        WeavingTasks = new List<WeavingTask>()
       };
 
       foreach (var stage in stages) {
-        var stageResult = stage.Execute(context);
-        if (stageResult!=ProcessorResult.Success)
+        var stageResult = ExecuteStage(context, stage);
+        if (stageResult!=ActionResult.Success)
           return stageResult;
       }
 
-      for (var i = 0; i < 5; i++) {
-        messageWriter.Write(new ProcessorMessage {
-          File = "Foo.cs",
-          MessageCode = "XW0001",
-          MessageText = "What's the meaning of this?",
-          Type = MessageType.Warning,
-        });
-        Thread.Sleep(TimeSpan.FromSeconds(1));
-      }
+      return ActionResult.Success;
+    }
 
-      return ProcessorResult.Success;
+    private static ActionResult ExecuteStage(ProcessorContext context, ProcessorStage stage)
+    {
+      return stage.Execute(context);
     }
 
     public AssemblyProcessor()
     {
       stages = new ProcessorStage[] {
+        new ValidateStage(),
         new LoadStage(),
         new InspectStage(),
         new TransformStage(),

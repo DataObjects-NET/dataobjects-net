@@ -8,9 +8,9 @@ namespace Xtensive.Orm.Weaver
 {
   internal sealed class SaveStage : ProcessorStage
   {
-    public override ProcessorResult Execute(ProcessorContext context)
+    public override ActionResult Execute(ProcessorContext context)
     {
-      return ProcessorResult.Success;
+      return ActionResult.Success;
     }
   }
 }
