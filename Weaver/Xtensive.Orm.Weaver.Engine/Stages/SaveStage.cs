@@ -18,9 +18,13 @@ namespace Xtensive.Orm.Weaver
       var configuration = context.Configuration;
 
       if (context.WeavingTasks.Count==0) {
-        File.Copy(configuration.InputFile, configuration.OutputFile);
-        if (configuration.UseDebugSymbols)
-          File.Copy(FileUtility.GetDebugSymbolsFile(configuration.InputFile), FileUtility.GetDebugSymbolsFile(configuration.OutputFile));
+        File.Copy(configuration.InputFile, configuration.OutputFile, true);
+        if (configuration.UseDebugSymbols) {
+          File.Copy(
+            FileUtility.GetDebugSymbolsFile(configuration.InputFile),
+            FileUtility.GetDebugSymbolsFile(configuration.OutputFile),
+            true);
+        }
         return ActionResult.Success;
       }
 
@@ -39,7 +43,6 @@ namespace Xtensive.Orm.Weaver
 
       if (configuration.UseDebugSymbols) {
         writerParameters.WriteSymbols = true;
-        writerParameters.SymbolStream = File.OpenWrite(FileUtility.GetDebugSymbolsFile(configuration.OutputFile));
         writerParameters.SymbolWriterProvider = new PdbWriterProvider();
       }
 

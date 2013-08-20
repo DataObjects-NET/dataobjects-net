@@ -23,5 +23,10 @@ namespace Xtensive.Orm.Weaver
     public void Dispose()
     {
     }
+
+    public ProcessorContext()
+    {
+      WeavingTasks = new List<WeavingTask>();
+    }
   }
 }

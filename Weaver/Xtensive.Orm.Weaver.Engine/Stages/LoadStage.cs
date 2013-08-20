@@ -41,13 +41,18 @@ namespace Xtensive.Orm.Weaver
         MetadataResolver = new MetadataResolver(assemblyResolver),
       };
 
+      Stream debugSymbolsStream = null;
+
       if (configuration.UseDebugSymbols) {
+        debugSymbolsStream = File.OpenRead(debugSymbolsFile);
         readerParameters.ReadSymbols = true;
         readerParameters.SymbolReaderProvider = new PdbReaderProvider();
-        readerParameters.SymbolStream = File.OpenRead(debugSymbolsFile);
+        readerParameters.SymbolStream = debugSymbolsStream;
       }
 
-      context.TargetModule = ModuleDefinition.ReadModule(inputFile, readerParameters);
+      using (debugSymbolsStream) {
+        context.TargetModule = ModuleDefinition.ReadModule(inputFile, readerParameters);
+      }
 
       return ActionResult.Success;
     }
