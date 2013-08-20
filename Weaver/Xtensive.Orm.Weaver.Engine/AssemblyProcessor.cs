@@ -5,7 +5,6 @@
 // Created:    2013.08.19
 
 using System;
-using System.Collections.Generic;
 
 namespace Xtensive.Orm.Weaver
 {
@@ -13,23 +12,24 @@ namespace Xtensive.Orm.Weaver
   {
     private readonly ProcessorStage[] stages;
 
-    public ActionResult Execute(ProcessorParameterSet parameters, IMessageWriter messageWriter)
+    public ActionResult Execute(ProcessorConfiguration configuration, IMessageWriter messageWriter)
     {
-      if (parameters==null)
-        throw new ArgumentNullException("parameters");
+      if (configuration==null)
+        throw new ArgumentNullException("configuration");
       if (messageWriter==null)
         throw new ArgumentNullException("messageWriter");
 
       var context = new ProcessorContext {
-        Parameters = parameters,
-        Logger = new MessageLogger(parameters.ProjectId, messageWriter),
-        WeavingTasks = new List<WeavingTask>()
+        Configuration = configuration,
+        Logger = new MessageLogger(configuration.ProjectId, messageWriter),
       };
 
-      foreach (var stage in stages) {
-        var stageResult = ExecuteStage(context, stage);
-        if (stageResult!=ActionResult.Success)
-          return stageResult;
+      using (context) {
+        foreach (var stage in stages) {
+          var stageResult = ExecuteStage(context, stage);
+          if (stageResult!=ActionResult.Success)
+            return stageResult;
+        }
       }
 
       return ActionResult.Success;
@@ -43,7 +43,6 @@ namespace Xtensive.Orm.Weaver
     public AssemblyProcessor()
     {
       stages = new ProcessorStage[] {
-        new ValidateStage(),
         new LoadStage(),
         new InspectStage(),
         new TransformStage(),

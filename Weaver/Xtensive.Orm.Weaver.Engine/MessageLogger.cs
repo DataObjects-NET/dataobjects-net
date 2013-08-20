@@ -69,7 +69,9 @@ namespace Xtensive.Orm.Weaver
     static MessageLogger()
     {
       Messages = new Dictionary<MessageCode, Tuple<string, string>>();
-      RegisterMessage(MessageCode.ErrorInputFileNotFound, "input file is not found");
+      RegisterMessage(MessageCode.ErrorInputFileIsNotFound, "input file is not found");
+      RegisterMessage(MessageCode.ErrorStrongNameKeyIsNotFound, "strong name key file is not found");
+      RegisterMessage(MessageCode.WarningDebugSymbolsFileIsNotFound, "debug symbols file is not found");
     }
   }
 }

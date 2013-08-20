@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Weaver
     private static readonly string[] OptionPrefixes = new[] {"-", "/", "--"};
 
     private readonly string[] args;
-    private readonly ProcessorParameterSet parameters;
+    private readonly ProcessorConfiguration configuration;
 
     private static void Main(string[] args)
     {
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Weaver
         ProcessArgument(arg);
 
       var processor = CreateProcessor();
-      var result = processor.Execute(parameters, new ConsoleMessageWriter());
+      var result = processor.Execute(configuration, new ConsoleMessageWriter());
 
       ExitAccordingToResult(result);
     }
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Weaver
         return;
       }
 
-      if (!parameters.Parse(StripOptionPrefix(argument)))
+      if (!configuration.Parse(StripOptionPrefix(argument)))
         ShowInvalidArgumentErrorAndExit(argument);
     }
 
@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Weaver
     private Program(string[] args)
     {
       this.args = args;
-      parameters = new ProcessorParameterSet();
+      configuration = new ProcessorConfiguration();
     }
   }
 }

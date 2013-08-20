@@ -11,13 +11,14 @@ using System.Linq;
 namespace Xtensive.Orm.Weaver
 {
   [Serializable]
-  public sealed class ProcessorParameterSet
+  public sealed class ProcessorConfiguration
   {
     internal static class Formatter
     {
       private const string ProjectId = "projectId";
       private const string InputFile = "input";
       private const string OutputFile = "output";
+      private const string UseDebugSymbols = "debugSymbols";
       private const string StrongNameKey = "strongNameKey";
       private const string TargetFramework = "targetFramework";
       private const string ReferencedAssembly = "reference";
@@ -26,7 +27,7 @@ namespace Xtensive.Orm.Weaver
 
       private static readonly StringComparer Comparer = StringComparer.InvariantCultureIgnoreCase;
 
-      public static bool Parse(ProcessorParameterSet parameters, string item)
+      public static bool Parse(ProcessorConfiguration configuration, string item)
       {
         string key;
         string value;
@@ -35,42 +36,47 @@ namespace Xtensive.Orm.Weaver
           return false;
 
         if (Comparer.Equals(key, ProjectId))
-          parameters.ProjectId = value;
+          configuration.ProjectId = value;
         else if (Comparer.Equals(key, InputFile))
-          parameters.InputFile = value;
+          configuration.InputFile = value;
         else if (Comparer.Equals(key, OutputFile))
-          parameters.OutputFile = value;
+          configuration.OutputFile = value;
+        else if (Comparer.Equals(key, UseDebugSymbols))
+          configuration.UseDebugSymbols = ParseBool(value);
         else if (Comparer.Equals(key, StrongNameKey))
-          parameters.StrongNameKey = value;
+          configuration.StrongNameKey = value;
         else if (Comparer.Equals(key, TargetFramework))
-          parameters.TargetFramework = value;
+          configuration.TargetFramework = value;
         else if (Comparer.Equals(key, ReferencedAssembly))
-          parameters.ReferencedAssemblies.Add(value);
+          configuration.ReferencedAssemblies.Add(value);
         else
           return false;
 
         return true;
       }
 
-      public static IEnumerable<string> Dump(ProcessorParameterSet parameters)
+      public static IEnumerable<string> Dump(ProcessorConfiguration configuration)
       {
-        if (!string.IsNullOrEmpty(parameters.ProjectId))
-          yield return FormatKeyValue(ProjectId, parameters.ProjectId);
+        if (!string.IsNullOrEmpty(configuration.ProjectId))
+          yield return FormatKeyValue(ProjectId, configuration.ProjectId);
 
-        if (!string.IsNullOrEmpty(parameters.InputFile))
-          yield return FormatKeyValue(InputFile, parameters.InputFile);
+        if (!string.IsNullOrEmpty(configuration.InputFile))
+          yield return FormatKeyValue(InputFile, configuration.InputFile);
 
-        if (!string.IsNullOrEmpty(parameters.OutputFile))
-          yield return FormatKeyValue(OutputFile, parameters.OutputFile);
+        if (!string.IsNullOrEmpty(configuration.OutputFile))
+          yield return FormatKeyValue(OutputFile, configuration.OutputFile);
 
-        if (!string.IsNullOrEmpty(parameters.StrongNameKey))
-          yield return FormatKeyValue(StrongNameKey, parameters.StrongNameKey);
+        if (configuration.UseDebugSymbols)
+          yield return FormatKeyValue(UseDebugSymbols, "true");
 
-        if (!string.IsNullOrEmpty(parameters.StrongNameKey))
-          yield return FormatKeyValue(TargetFramework, parameters.TargetFramework);
+        if (!string.IsNullOrEmpty(configuration.StrongNameKey))
+          yield return FormatKeyValue(StrongNameKey, configuration.StrongNameKey);
 
-        if (parameters.ReferencedAssemblies!=null)
-          foreach (var assemblyFile in parameters.ReferencedAssemblies)
+        if (!string.IsNullOrEmpty(configuration.StrongNameKey))
+          yield return FormatKeyValue(TargetFramework, configuration.TargetFramework);
+
+        if (configuration.ReferencedAssemblies!=null)
+          foreach (var assemblyFile in configuration.ReferencedAssemblies)
             yield return FormatKeyValue(ReferencedAssembly, assemblyFile);
       }
 
@@ -97,6 +103,12 @@ namespace Xtensive.Orm.Weaver
           value = rawValue;
         return true;
       }
+
+      private static bool ParseBool(string value)
+      {
+        bool result;
+        return bool.TryParse(value, out result) && result;
+      }
     }
 
     private string projectId;
@@ -105,6 +117,7 @@ namespace Xtensive.Orm.Weaver
     private string strongNameKey;
     private string targetFramework;
     private IList<string> referencedAssemblies;
+    private bool useDebugSymbols;
 
     public string ProjectId
     {
@@ -122,6 +135,12 @@ namespace Xtensive.Orm.Weaver
     {
       get { return outputFile; }
       set { outputFile = value; }
+    }
+
+    public bool UseDebugSymbols
+    {
+      get { return useDebugSymbols; }
+      set { useDebugSymbols = value; }
     }
 
     public string StrongNameKey
@@ -154,7 +173,7 @@ namespace Xtensive.Orm.Weaver
       return Formatter.Parse(this, parameterString);
     }
 
-    public ProcessorParameterSet()
+    public ProcessorConfiguration()
     {
       ReferencedAssemblies = new List<string>();
     }

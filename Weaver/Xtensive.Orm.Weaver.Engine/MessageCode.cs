@@ -8,6 +8,8 @@ namespace Xtensive.Orm.Weaver
 {
   internal enum MessageCode
   {
-    ErrorInputFileNotFound,
+    ErrorInputFileIsNotFound,
+    ErrorStrongNameKeyIsNotFound,
+    WarningDebugSymbolsFileIsNotFound,
   }
 }
