@@ -5,6 +5,8 @@
 // Created:    2013.08.19
 
 using System;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 
@@ -36,8 +38,12 @@ namespace Xtensive.Orm.Weaver
       foreach (var arg in args)
         ProcessArgument(arg);
 
+      var stopwatch = Stopwatch.StartNew();
+
       var processor = CreateProcessor();
       var result = processor.Execute(configuration, new ConsoleMessageWriter());
+
+      Console.WriteLine("completed in {0}", stopwatch.Elapsed.TotalSeconds.ToString("0.00", CultureInfo.InvariantCulture));
 
       ExitAccordingToResult(result);
     }
@@ -81,8 +87,15 @@ namespace Xtensive.Orm.Weaver
 
     private static IAssemblyProcessor CreateProcessor()
     {
-      var processorAssembly = Assembly.Load("Xtensive.Orm.Weaver.Engine");
-      var processorType = processorAssembly.GetType("Xtensive.Orm.Weaver.AssemblyProcessor");
+      var weaverAssembly = string.Format(
+        "Xtensive.Orm.Weaver.Engine, Version={0}, Culture=neutral, PublicKeyToken={1}",
+        ThisAssembly.Version,
+        ThisAssembly.PublicKeyToken);
+
+      const string weaverType = "Xtensive.Orm.Weaver.AssemblyProcessor";
+
+      var processorAssembly = Assembly.Load(weaverAssembly);
+      var processorType = processorAssembly.GetType(weaverType);
       return (IAssemblyProcessor) Activator.CreateInstance(processorType);
     }
 

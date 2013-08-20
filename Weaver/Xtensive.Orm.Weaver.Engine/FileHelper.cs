@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Xtensive.Orm.Weaver
 {
-  internal static class FileUtility
+  internal static class FileHelper
   {
     public static string GetDebugSymbolsFile(string file)
     {

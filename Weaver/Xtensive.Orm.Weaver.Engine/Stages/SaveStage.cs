@@ -21,8 +21,8 @@ namespace Xtensive.Orm.Weaver
         File.Copy(configuration.InputFile, configuration.OutputFile, true);
         if (configuration.UseDebugSymbols) {
           File.Copy(
-            FileUtility.GetDebugSymbolsFile(configuration.InputFile),
-            FileUtility.GetDebugSymbolsFile(configuration.OutputFile),
+            FileHelper.GetDebugSymbolsFile(configuration.InputFile),
+            FileHelper.GetDebugSymbolsFile(configuration.OutputFile),
             true);
         }
         return ActionResult.Success;

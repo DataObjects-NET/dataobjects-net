@@ -5,13 +5,12 @@
 // Created:    2013.08.19
 
 using System;
+using System.Collections.Generic;
 
 namespace Xtensive.Orm.Weaver
 {
   public sealed class AssemblyProcessor : IAssemblyProcessor
   {
-    private readonly ProcessorStage[] stages;
-
     public ActionResult Execute(ProcessorConfiguration configuration, IMessageWriter messageWriter)
     {
       if (configuration==null)
@@ -25,7 +24,7 @@ namespace Xtensive.Orm.Weaver
       };
 
       using (context) {
-        foreach (var stage in stages) {
+        foreach (var stage in GetStages()) {
           var stageResult = ExecuteStage(context, stage);
           if (stageResult!=ActionResult.Success)
             return stageResult;
@@ -35,19 +34,19 @@ namespace Xtensive.Orm.Weaver
       return ActionResult.Success;
     }
 
-    private static ActionResult ExecuteStage(ProcessorContext context, ProcessorStage stage)
+    private IEnumerable<ProcessorStage> GetStages()
     {
-      return stage.Execute(context);
-    }
-
-    public AssemblyProcessor()
-    {
-      stages = new ProcessorStage[] {
+      return new ProcessorStage[] {
         new LoadStage(),
         new InspectStage(),
         new TransformStage(),
         new SaveStage(),
       };
+    }
+
+    private static ActionResult ExecuteStage(ProcessorContext context, ProcessorStage stage)
+    {
+      return stage.Execute(context);
     }
   }
 }

@@ -20,6 +20,10 @@ namespace Xtensive.Orm.Weaver
 
     public ModuleDefinition TargetModule { get; set; }
 
+    public ModuleDefinition OrmModule { get; set; }
+
+    public ReferenceRegistry References { get; set; }
+
     public void Dispose()
     {
     }
@@ -27,6 +31,7 @@ namespace Xtensive.Orm.Weaver
     public ProcessorContext()
     {
       WeavingTasks = new List<WeavingTask>();
+      References = new ReferenceRegistry();
     }
   }
 }

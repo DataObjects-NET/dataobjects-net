@@ -4,19 +4,18 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.19
 
+using System.Collections.Generic;
 using Xtensive.Orm.Weaver.Inspections;
 
 namespace Xtensive.Orm.Weaver
 {
   internal sealed class InspectStage : ProcessorStage
   {
-    private readonly Inspector[] inspectors;
-
     public override ActionResult Execute(ProcessorContext context)
     {
       var failure = false;
 
-      foreach (var inspector in inspectors) {
+      foreach (var inspector in GetInspectors()) {
         var actionResult = inspector.Execute(context);
         if (actionResult==ActionResult.Success)
           continue;
@@ -28,9 +27,10 @@ namespace Xtensive.Orm.Weaver
       return failure ? ActionResult.Failure : ActionResult.Success;
     }
 
-    public InspectStage()
+    private static IEnumerable<Inspector> GetInspectors()
     {
-      inspectors = new Inspector[] {
+      return new Inspector[] {
+        new ReferenceImporter(),
         new EntityInspector(),
       };
     }
