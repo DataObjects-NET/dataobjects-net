@@ -28,9 +28,9 @@ namespace Xtensive.Orm.Weaver
 
     public bool HasTransformations { get { return WeavingTasks.Count > 0; } }
 
-    public ISet<TypeDefinition> EntityTypes { get; set; }
+    public IList<TypeDefinition> EntityTypes { get; set; }
 
-    public ISet<TypeDefinition> StructureTypes { get; set; }
+    public IList<TypeDefinition> StructureTypes { get; set; }
 
     public void Dispose()
     {
@@ -40,8 +40,8 @@ namespace Xtensive.Orm.Weaver
     {
       WeavingTasks = new List<WeavingTask>();
       References = new ReferenceRegistry();
-      EntityTypes = new HashSet<TypeDefinition>();
-      StructureTypes = new HashSet<TypeDefinition>();
+      EntityTypes = new List<TypeDefinition>();
+      StructureTypes = new List<TypeDefinition>();
     }
   }
 }

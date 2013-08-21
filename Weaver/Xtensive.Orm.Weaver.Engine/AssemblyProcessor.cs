@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
-using Xtensive.Orm.Weaver.Inspections;
 using Xtensive.Orm.Weaver.Stages;
 
 namespace Xtensive.Orm.Weaver
@@ -52,6 +51,7 @@ namespace Xtensive.Orm.Weaver
         new FindPersistentTypesStage(),
         new ModifyPersistentTypesStage(),
         new MarkAssemblyStage(),
+        new DumpStateStage(),
         new ExecuteWeavingTasksStage(),
         new SaveAssemblyStage(),
       };

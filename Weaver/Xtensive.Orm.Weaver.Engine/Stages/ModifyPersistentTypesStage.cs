@@ -24,6 +24,8 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private void ProcessEntity(ProcessorContext context, TypeDefinition type)
     {
+      context.WeavingTasks.Add(new AddAttributeTask(type, context.References.EntityTypeAttributeConstructor));
+
       var references = context.References;
       var signatures = new[] {
         new[] {references.EntityState},
@@ -32,10 +34,30 @@ namespace Xtensive.Orm.Weaver.Stages
       };
 
       foreach (var signature in signatures)
-        context.WeavingTasks.Add(new AddFactoryMethodAndConstructorTask(type, signature));
+        context.WeavingTasks.Add(new AddFactoryTask(type, signature));
+
+      ProcessFields(context, type);
     }
 
     private void ProcessStructure(ProcessorContext context, TypeDefinition type)
+    {
+      context.WeavingTasks.Add(new AddAttributeTask(type, context.References.StructureTypeAttributeConstructor));
+
+      var references = context.References;
+      var signatures = new[] {
+        new[] {references.Tuple},
+        new[] {references.Session, references.Tuple},
+        new[] {references.Persistent, references.FieldInfo},
+        new[] {references.SerializationInfo, references.StreamingContext},
+      };
+
+      foreach (var signature in signatures)
+        context.WeavingTasks.Add(new AddFactoryTask(type, signature));
+
+      ProcessFields(context, type);
+    }
+
+    private void ProcessFields(ProcessorContext context, TypeDefinition type)
     {
     }
   }

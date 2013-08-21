@@ -18,6 +18,7 @@ namespace Xtensive.Orm.Weaver
       private const string ProjectId = "projectId";
       private const string InputFile = "input";
       private const string OutputFile = "output";
+      private const string DumpFile = "dump";
       private const string UseDebugSymbols = "debugSymbols";
       private const string StrongNameKey = "strongNameKey";
       private const string TargetFramework = "targetFramework";
@@ -41,6 +42,8 @@ namespace Xtensive.Orm.Weaver
           configuration.InputFile = value;
         else if (Comparer.Equals(key, OutputFile))
           configuration.OutputFile = value;
+        else if (Comparer.Equals(key, DumpFile))
+          configuration.DumpFile = value;
         else if (Comparer.Equals(key, UseDebugSymbols))
           configuration.UseDebugSymbols = ParseBool(value);
         else if (Comparer.Equals(key, StrongNameKey))
@@ -65,6 +68,9 @@ namespace Xtensive.Orm.Weaver
 
         if (!string.IsNullOrEmpty(configuration.OutputFile))
           yield return FormatKeyValue(OutputFile, configuration.OutputFile);
+
+        if (!string.IsNullOrEmpty(configuration.DumpFile))
+          yield return FormatKeyValue(DumpFile, configuration.DumpFile);
 
         if (configuration.UseDebugSymbols)
           yield return FormatKeyValue(UseDebugSymbols, "true");
@@ -114,6 +120,7 @@ namespace Xtensive.Orm.Weaver
     private string projectId;
     private string inputFile;
     private string outputFile;
+    private string dumpFile;
     private string strongNameKey;
     private string targetFramework;
     private IList<string> referencedAssemblies;
@@ -159,6 +166,12 @@ namespace Xtensive.Orm.Weaver
     {
       get { return referencedAssemblies; }
       set { referencedAssemblies = value; }
+    }
+
+    public string DumpFile
+    {
+      get { return dumpFile; }
+      set { dumpFile = value; }
     }
 
     public IEnumerable<string> Dump()

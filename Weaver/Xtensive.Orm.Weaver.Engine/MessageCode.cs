@@ -10,7 +10,7 @@ namespace Xtensive.Orm.Weaver
   {
     ErrorInputFileIsNotFound,
     ErrorStrongNameKeyIsNotFound,
-    ErrorTargetAssemblyHasNoReferenceToOrm,
+    ErrorTargetAssemblyHasNoExpectedReference,
     ErrorUnableToLocateOrmAssembly,
     ErrorUnableToFindReferencedAssembly,
 

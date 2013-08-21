@@ -7,7 +7,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
-using Xtensive.Orm.Weaver.Tasks;
 
 namespace Xtensive.Orm.Weaver.Stages
 {

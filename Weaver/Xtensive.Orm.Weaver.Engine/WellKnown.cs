@@ -8,11 +8,11 @@ namespace Xtensive.Orm.Weaver
 {
   internal static class WellKnown
   {
-    public static readonly string OrmAssemblyFile = "Xtensive.Orm.dll";
-    public static readonly string OrmAssemblyName = "Xtensive.Orm";
     public static readonly string OrmAssemblyFullName;
+    public static readonly string CoreAssemblyFullName;
 
     public static readonly string OrmNamespace = "Xtensive.Orm";
+
     public static readonly string EntityType = "Entity";
     public static readonly string StructureType = "Structure";
 
@@ -23,11 +23,17 @@ namespace Xtensive.Orm.Weaver
     public static readonly string Constructor = ".ctor";
     public static readonly string FactoryMethod = "~Xtensive.Aspects.FactoryMethod";
 
+    private static string GetFullAssemblyName(string shortName)
+    {
+      return string.Format(
+        "{0}, Version={1}, Culture=neutral, PublicKeyToken={2}",
+        shortName, ThisAssembly.Version, ThisAssembly.PublicKeyToken);
+    }
+
     static WellKnown()
     {
-      OrmAssemblyFullName = string.Format(
-        "{0}, Version={1}, Culture=neutral, PublicKeyToken={2}",
-        OrmAssemblyName, ThisAssembly.Version, ThisAssembly.PublicKeyToken);
+      OrmAssemblyFullName = GetFullAssemblyName("Xtensive.Orm");
+      CoreAssemblyFullName = GetFullAssemblyName("Xtensive.Core");
     }
   }
 }

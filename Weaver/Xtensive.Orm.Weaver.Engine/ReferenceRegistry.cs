@@ -10,10 +10,15 @@ namespace Xtensive.Orm.Weaver
 {
   internal sealed class ReferenceRegistry
   {
+    public AssemblyNameReference CoreAssembly { get; set; }
     public AssemblyNameReference OrmAssembly { get; set; }
+
+    public TypeReference Tuple { get; set; }
 
     public TypeReference Session { get; set; }
     public TypeReference EntityState { get; set; }
+    public TypeReference FieldInfo { get; set; }
+    public TypeReference Persistent { get; set; }
 
     public MethodReference ProcessedByWeaverAttributeConstructor { get; set; }
     public MethodReference EntityTypeAttributeConstructor { get; set; }
@@ -21,5 +26,7 @@ namespace Xtensive.Orm.Weaver
 
     public TypeReference StreamingContext { get; set; }
     public TypeReference SerializationInfo { get; set; }
+
+    
   }
 }

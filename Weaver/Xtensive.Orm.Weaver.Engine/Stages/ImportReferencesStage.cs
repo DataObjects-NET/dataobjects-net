@@ -4,29 +4,40 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.20
 
-using System;
 using System.Linq;
 using Mono.Cecil;
 
-namespace Xtensive.Orm.Weaver.Inspections
+namespace Xtensive.Orm.Weaver.Stages
 {
   internal sealed class ImportReferencesStage : ProcessorStage
   {
     public override ActionResult Execute(ProcessorContext context)
     {
-      if (!FindOrmReference(context))
-        return ActionResult.Failure;
-
-      var ormAssembly = context.References.OrmAssembly;
-      var coreLibAssembly = context.TargetModule.TypeSystem.Corlib;
-
       var registry = context.References;
+      var mscorlibAssembly = context.TargetModule.TypeSystem.Corlib;
 
-      registry.SerializationInfo = ImportType(context, coreLibAssembly, "System.Runtime.Serialization", "SerializationInfo");
-      registry.StreamingContext = ImportType(context, coreLibAssembly, "System.Runtime.Serialization", "StreamingContext");
+      var coreAssembly = FindReference(context, WellKnown.CoreAssemblyFullName);
+      if (coreAssembly==null)
+        return ActionResult.Failure;
+      registry.CoreAssembly = coreAssembly;
 
+      var ormAssembly = FindReference(context, WellKnown.OrmAssemblyFullName);
+      if (ormAssembly==null)
+        return ActionResult.Failure;
+      registry.OrmAssembly = ormAssembly;
+
+      // mscorlib
+      registry.SerializationInfo = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization", "SerializationInfo");
+      registry.StreamingContext = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization", "StreamingContext");
+
+      // Xtensive.Core
+      registry.Tuple = ImportType(context, coreAssembly, "Xtensive.Tuples", "Tuple");
+
+      // Xtensive.Orm
       registry.Session = ImportType(context, ormAssembly, WellKnown.OrmNamespace, "Session");
       registry.EntityState = ImportType(context, ormAssembly, WellKnown.OrmNamespace, "EntityState");
+      registry.Persistent = ImportType(context, ormAssembly, WellKnown.OrmNamespace, "Persistent");
+      registry.FieldInfo = ImportType(context, ormAssembly, WellKnown.OrmNamespace, "FieldInfo");
 
       registry.ProcessedByWeaverAttributeConstructor = ImportDefaultConstructor(
         context, ormAssembly, WellKnown.OrmNamespace, WellKnown.ProcessedByWeaverAttribute);
@@ -54,20 +65,18 @@ namespace Xtensive.Orm.Weaver.Inspections
       return targetModule.Import(constructorReference);
     }
 
-    private bool FindOrmReference(ProcessorContext context)
+    private AssemblyNameReference FindReference(ProcessorContext context, string assemblyName)
     {
       var comparer = AssemblyResolver.AssemblyNameComparer;
-      var ormReference = context.TargetModule.AssemblyReferences
-        .FirstOrDefault(r => comparer.Equals(r.FullName, WellKnown.OrmAssemblyFullName));
+      var reference = context.TargetModule.AssemblyReferences
+        .FirstOrDefault(r => comparer.Equals(r.FullName, assemblyName));
 
-      if (ormReference==null) {
-        context.Logger.Write(MessageCode.ErrorTargetAssemblyHasNoReferenceToOrm);
-        return false;
+      if (reference==null) {
+        context.Logger.Write(MessageCode.ErrorTargetAssemblyHasNoExpectedReference, assemblyName);
+        return null;
       }
 
-      context.References.OrmAssembly = ormReference;
-
-      return true;
+      return reference;
     }
   }
 }

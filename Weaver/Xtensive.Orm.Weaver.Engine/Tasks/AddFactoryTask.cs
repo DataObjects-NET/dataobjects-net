@@ -10,7 +10,7 @@ using Mono.Cecil.Cil;
 
 namespace Xtensive.Orm.Weaver.Tasks
 {
-  internal sealed class AddFactoryMethodAndConstructorTask : WeavingTask
+  internal sealed class AddFactoryTask : WeavingTask
   {
     private const MethodAttributes ConstructorAttributes =
       MethodAttributes.Family
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       targetType.Methods.Add(method);
     }
 
-    public AddFactoryMethodAndConstructorTask(TypeDefinition targetType, TypeReference[] signature)
+    public AddFactoryTask(TypeDefinition targetType, TypeReference[] signature)
     {
       if (targetType==null)
         throw new ArgumentNullException("targetType");
