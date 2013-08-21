@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.20
 
+using System.Collections.Generic;
 using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver
@@ -27,6 +28,16 @@ namespace Xtensive.Orm.Weaver
     public TypeReference StreamingContext { get; set; }
     public TypeReference SerializationInfo { get; set; }
 
-    
+    public MethodReference PersistentGetterDefinition { get; set; }
+    public MethodReference PersistentSetterDefinition { get; set; }
+
+    public IDictionary<TypeIdentity, GenericInstanceMethod> PersistentGetters { get; set; }
+    public IDictionary<TypeIdentity, GenericInstanceMethod> PersistentSetters { get; set; }
+
+    public ReferenceRegistry()
+    {
+      PersistentGetters = new Dictionary<TypeIdentity, GenericInstanceMethod>();
+      PersistentSetters = new Dictionary<TypeIdentity, GenericInstanceMethod>();
+    }
   }
 }

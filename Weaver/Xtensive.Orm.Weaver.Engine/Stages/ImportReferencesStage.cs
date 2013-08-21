@@ -40,6 +40,14 @@ namespace Xtensive.Orm.Weaver.Stages
       registry.Persistent = ImportType(context, ormAssembly, "Xtensive.Orm.Persistent");
       registry.FieldInfo = ImportType(context, ormAssembly, "Xtensive.Orm.FieldInfo");
 
+      var getValueParameter = new GenericParameter(0, GenericParameterType.Method, context.TargetModule);
+      registry.PersistentGetterDefinition = new MethodReference("GetFieldValue", getValueParameter, registry.Persistent);
+      registry.PersistentGetterDefinition.GenericParameters.Add(getValueParameter);
+
+      var setValueParameter = new GenericParameter(0, GenericParameterType.Method, context.TargetModule);
+      registry.PersistentSetterDefinition = new MethodReference("SetFieldValue", context.TargetModule.TypeSystem.Void, registry.Persistent);
+      registry.PersistentSetterDefinition.GenericParameters.Add(setValueParameter);
+
       registry.ProcessedByWeaverAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.ProcessedByWeaverAttribute);
       registry.EntityTypeAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.EntityTypeAttribute);
       registry.StructureTypeAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.StructureTypeAttribute);
