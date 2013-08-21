@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.20
 
+using System;
 using System.Linq;
 using Mono.Cecil;
 
@@ -27,25 +28,21 @@ namespace Xtensive.Orm.Weaver.Stages
       registry.OrmAssembly = ormAssembly;
 
       // mscorlib
-      registry.SerializationInfo = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization", "SerializationInfo");
-      registry.StreamingContext = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization", "StreamingContext");
+      registry.SerializationInfo = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization.SerializationInfo");
+      registry.StreamingContext = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization.StreamingContext");
 
       // Xtensive.Core
-      registry.Tuple = ImportType(context, coreAssembly, "Xtensive.Tuples", "Tuple");
+      registry.Tuple = ImportType(context, coreAssembly, "Xtensive.Tuples.Tuple");
 
       // Xtensive.Orm
-      registry.Session = ImportType(context, ormAssembly, WellKnown.OrmNamespace, "Session");
-      registry.EntityState = ImportType(context, ormAssembly, WellKnown.OrmNamespace, "EntityState");
-      registry.Persistent = ImportType(context, ormAssembly, WellKnown.OrmNamespace, "Persistent");
-      registry.FieldInfo = ImportType(context, ormAssembly, WellKnown.OrmNamespace, "FieldInfo");
+      registry.Session = ImportType(context, ormAssembly, "Xtensive.Orm.Session");
+      registry.EntityState = ImportType(context, ormAssembly, "Xtensive.Orm.EntityState");
+      registry.Persistent = ImportType(context, ormAssembly, "Xtensive.Orm.Persistent");
+      registry.FieldInfo = ImportType(context, ormAssembly, "Xtensive.Orm.FieldInfo");
 
-      registry.ProcessedByWeaverAttributeConstructor = ImportDefaultConstructor(
-        context, ormAssembly, WellKnown.OrmNamespace, WellKnown.ProcessedByWeaverAttribute);
-
-      registry.EntityTypeAttributeConstructor = ImportDefaultConstructor(
-        context, ormAssembly, WellKnown.OrmNamespace, WellKnown.EntityTypeAttribute);
-      registry.StructureTypeAttributeConstructor = ImportDefaultConstructor(
-        context, ormAssembly, WellKnown.OrmNamespace, WellKnown.StructureTypeAttribute);
+      registry.ProcessedByWeaverAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.ProcessedByWeaverAttribute);
+      registry.EntityTypeAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.EntityTypeAttribute);
+      registry.StructureTypeAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.StructureTypeAttribute);
 
       return ActionResult.Success;
     }
@@ -57,12 +54,24 @@ namespace Xtensive.Orm.Weaver.Stages
       return targetModule.Import(reference);
     }
 
+    private TypeReference ImportType(ProcessorContext context, IMetadataScope assembly, string fullName)
+    {
+      var splitName = SplitTypeName(fullName);
+      return ImportType(context, assembly, splitName.Item1, splitName.Item2);
+    }
+
     private MethodReference ImportDefaultConstructor(ProcessorContext context, IMetadataScope assembly, string @namespace, string name)
     {
       var targetModule = context.TargetModule;
       var typeReference = new TypeReference(@namespace, name, targetModule, assembly);
       var constructorReference = new MethodReference(WellKnown.Constructor, targetModule.TypeSystem.Void, typeReference);
       return targetModule.Import(constructorReference);
+    }
+
+    private MethodReference ImportDefaultConstructor(ProcessorContext context, IMetadataScope assembly, string fullName)
+    {
+      var splitName = SplitTypeName(fullName);
+      return ImportDefaultConstructor(context, assembly, splitName.Item1, splitName.Item2);
     }
 
     private AssemblyNameReference FindReference(ProcessorContext context, string assemblyName)
@@ -77,6 +86,16 @@ namespace Xtensive.Orm.Weaver.Stages
       }
 
       return reference;
+    }
+
+    private static Tuple<string, string> SplitTypeName(string fullName)
+    {
+      var index = fullName.IndexOf(".", StringComparison.InvariantCulture);
+      if (index < 0)
+        return Tuple.Create(String.Empty, fullName);
+      return Tuple.Create(
+        fullName.Substring(0, index),
+        fullName.Substring(index + 1));
     }
   }
 }

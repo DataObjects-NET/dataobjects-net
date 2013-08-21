@@ -11,8 +11,26 @@ namespace Xtensive.Orm.Weaver.Stages
 {
   internal sealed class ModifyPersistentTypesStage : ProcessorStage
   {
+    private TypeReference[][] entityFactorySignatures;
+    private TypeReference[][] structureFactorySignatures;
+
     public override ActionResult Execute(ProcessorContext context)
     {
+      var references = context.References;
+
+      entityFactorySignatures = new[] {
+        new[] {references.EntityState},
+        new[] {references.Session, references.EntityState},
+        new[] {references.SerializationInfo, references.StreamingContext},
+      };
+
+      structureFactorySignatures = new[] {
+        new[] {references.Tuple},
+        new[] {references.Session, references.Tuple},
+        new[] {references.Persistent, references.FieldInfo},
+        new[] {references.SerializationInfo, references.StreamingContext},
+      };
+
       foreach (var type in context.EntityTypes)
         ProcessEntity(context, type);
 
@@ -22,42 +40,31 @@ namespace Xtensive.Orm.Weaver.Stages
       return ActionResult.Success;
     }
 
-    private void ProcessEntity(ProcessorContext context, TypeDefinition type)
+    private void ProcessEntity(ProcessorContext context, PersistentType type)
     {
-      context.WeavingTasks.Add(new AddAttributeTask(type, context.References.EntityTypeAttributeConstructor));
-
-      var references = context.References;
-      var signatures = new[] {
-        new[] {references.EntityState},
-        new[] {references.Session, references.EntityState},
-        new[] {references.SerializationInfo, references.StreamingContext},
-      };
-
-      foreach (var signature in signatures)
-        context.WeavingTasks.Add(new AddFactoryTask(type, signature));
+      var definition = type.Definition;
+      
+      foreach (var signature in entityFactorySignatures)
+        context.WeavingTasks.Add(new AddFactoryTask(definition, signature));
 
       ProcessFields(context, type);
+
+      context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.EntityTypeAttributeConstructor));
     }
 
-    private void ProcessStructure(ProcessorContext context, TypeDefinition type)
+    private void ProcessStructure(ProcessorContext context, PersistentType type)
     {
-      context.WeavingTasks.Add(new AddAttributeTask(type, context.References.StructureTypeAttributeConstructor));
+      var definition = type.Definition;
 
-      var references = context.References;
-      var signatures = new[] {
-        new[] {references.Tuple},
-        new[] {references.Session, references.Tuple},
-        new[] {references.Persistent, references.FieldInfo},
-        new[] {references.SerializationInfo, references.StreamingContext},
-      };
-
-      foreach (var signature in signatures)
-        context.WeavingTasks.Add(new AddFactoryTask(type, signature));
+      foreach (var signature in structureFactorySignatures)
+        context.WeavingTasks.Add(new AddFactoryTask(definition, signature));
 
       ProcessFields(context, type);
+
+      context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.StructureTypeAttributeConstructor));
     }
 
-    private void ProcessFields(ProcessorContext context, TypeDefinition type)
+    private void ProcessFields(ProcessorContext context, PersistentType type)
     {
     }
   }

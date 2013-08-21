@@ -12,97 +12,103 @@ namespace Xtensive.Orm.Weaver.Stages
 {
   internal sealed class FindPersistentTypesStage : ProcessorStage
   {
-    private enum TypePersistence
-    {
-      None,
-      Entity,
-      Structure,
-    }
-
-    private readonly Dictionary<TypeIdentity, TypePersistence> processedTypes = new Dictionary<TypeIdentity, TypePersistence>();
-    private readonly Dictionary<TypeIdentity, TypePersistence> externalTypes = new Dictionary<TypeIdentity, TypePersistence>();
+    private readonly Dictionary<TypeIdentity, PersistentTypeKind> processedTypes = new Dictionary<TypeIdentity, PersistentTypeKind>();
+    private readonly Dictionary<TypeIdentity, PersistentTypeKind> externalTypes = new Dictionary<TypeIdentity, PersistentTypeKind>();
 
     public override ActionResult Execute(ProcessorContext context)
     {
       var typesToInspect = context.TargetModule.Types.Where(t => t.IsClass && t.BaseType!=null);
       foreach (var type in typesToInspect) {
-        switch (InspectType(context, type)) {
-        case TypePersistence.Entity:
-          context.EntityTypes.Add(type);
+        var kind = InspectType(context, type);
+        switch (kind) {
+        case PersistentTypeKind.Entity:
+          context.EntityTypes.Add(CreateType(type, kind));
           break;
-        case TypePersistence.Structure:
-          context.StructureTypes.Add(type);
+        case PersistentTypeKind.Structure:
+          context.StructureTypes.Add(CreateType(type, kind));
           break;
         }
       }
       return ActionResult.Success;
     }
 
-    private TypePersistence InspectType(ProcessorContext context, TypeDefinition type)
+    private PersistentType CreateType(TypeDefinition definition, PersistentTypeKind kind)
+    {
+      return new PersistentType(definition, kind, definition.Properties.Where(IsPersistentProperty));
+    }
+
+    private PersistentTypeKind InspectType(ProcessorContext context, TypeDefinition type)
     {
       var identity = new TypeIdentity(type);
 
-      TypePersistence persistence;
-      if (processedTypes.TryGetValue(identity, out persistence))
-        return persistence;
+      PersistentTypeKind kind;
+      if (processedTypes.TryGetValue(identity, out kind))
+        return kind;
 
       var thisAssembly = context.TargetModule;
       var ormAssembly = context.References.OrmAssembly;
 
       var baseType = type.BaseType;
       if (baseType.Scope==thisAssembly) {
-        persistence = InspectType(context, baseType.Resolve());
-        processedTypes.Add(identity, persistence);
-        return persistence;
+        kind = InspectType(context, baseType.Resolve());
+        processedTypes.Add(identity, kind);
+        return kind;
       }
 
       if (baseType.Scope==ormAssembly) {
-        persistence = ClassifyOrmType(baseType);
-        processedTypes.Add(identity, persistence);
-        return persistence;
+        kind = ClassifyOrmType(baseType);
+        processedTypes.Add(identity, kind);
+        return kind;
       }
 
-      persistence = InspectExternalType(baseType);
-      processedTypes.Add(identity, persistence);
-      return persistence;
+      kind = InspectExternalType(baseType);
+      processedTypes.Add(identity, kind);
+      return kind;
     }
 
-    private TypePersistence InspectExternalType(TypeReference type)
+    private PersistentTypeKind InspectExternalType(TypeReference type)
     {
       var identity = new TypeIdentity(type);
-      TypePersistence persistence;
-      if (!externalTypes.TryGetValue(identity, out persistence)) {
-        persistence = ClassifyExternalType(type.Resolve());
-        externalTypes.Add(identity, persistence);
+      PersistentTypeKind kind;
+      if (!externalTypes.TryGetValue(identity, out kind)) {
+        kind = ClassifyExternalType(type.Resolve());
+        externalTypes.Add(identity, kind);
       }
-      return persistence;
+      return kind;
     }
 
-    private TypePersistence ClassifyOrmType(TypeReference type)
+    private PersistentTypeKind ClassifyOrmType(TypeReference type)
     {
       var comparer = TypeIdentity.TypeNameComparer;
-      if (comparer.Equals(type.Namespace, WellKnown.OrmNamespace)) {
-        if (comparer.Equals(type.Name, WellKnown.EntityType))
-          return TypePersistence.Entity;
-        if (comparer.Equals(type.Name, WellKnown.StructureType))
-          return TypePersistence.Structure;
-      }
-      return TypePersistence.None;
+      if (comparer.Equals(type.FullName, WellKnown.EntityType))
+        return PersistentTypeKind.Entity;
+      if (comparer.Equals(type.FullName, WellKnown.StructureType))
+        return PersistentTypeKind.Structure;
+      return PersistentTypeKind.None;
     }
 
-    private TypePersistence ClassifyExternalType(TypeDefinition type)
+    private PersistentTypeKind ClassifyExternalType(TypeDefinition type)
     {
-      var comparer = TypeIdentity.TypeNameComparer;
-      foreach (var attribute in type.CustomAttributes) {
-        var attributeType = attribute.AttributeType;
-        if (comparer.Equals(attributeType.Namespace, WellKnown.OrmNamespace)) {
-          if (comparer.Equals(attributeType.Name, WellKnown.EntityTypeAttribute))
-            return TypePersistence.Entity;
-          if (comparer.Equals(attributeType.Name, WellKnown.StructureTypeAttribute))
-            return TypePersistence.Structure;
-        }
-      }
-      return TypePersistence.None;
+      if (type.HasAttribute(WellKnown.EntityTypeAttribute))
+        return PersistentTypeKind.Entity;
+      if (type.HasAttribute(WellKnown.StructureTypeAttribute))
+        return PersistentTypeKind.Structure;
+      return PersistentTypeKind.None;
+    }
+
+    private bool IsPersistentProperty(PropertyDefinition property)
+    {
+//      if (!property.HasThis)
+//        return false;
+//      if (property.HasParameters)
+//        return false;
+      if (!property.HasAttribute(WellKnown.FieldAttribute))
+        return false;
+      if (property.GetMethod!=null && !property.GetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute))
+        return false;
+      if (property.SetMethod!=null && !property.SetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute))
+        return false;
+      return true;
     }
   }
 }

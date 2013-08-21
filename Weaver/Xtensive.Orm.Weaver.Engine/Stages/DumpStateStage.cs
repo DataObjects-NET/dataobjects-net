@@ -26,12 +26,18 @@ namespace Xtensive.Orm.Weaver.Stages
       return ActionResult.Success;
     }
 
-    private static void DumpTypes(StreamWriter writer, string header, IEnumerable<TypeDefinition> types)
+    private static void DumpTypes(StreamWriter writer, string header, IEnumerable<PersistentType> types)
     {
+      const string indent1 = "  ";
+      const string indent2 = indent1 + indent1;
+
       writer.WriteLine(header);
       writer.WriteLine();
-      foreach (var type in types)
-        writer.WriteLine("  " + type.FullName);
+      foreach (var type in types) {
+        writer.WriteLine(indent1 + type.Definition.FullName);
+        foreach (var field in type.Properties)
+          writer.WriteLine(indent2 + field.PropertyType + " " + field.Name);
+      }
       writer.WriteLine();
     }
   }
