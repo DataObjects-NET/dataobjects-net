@@ -4,10 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.19
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Pdb;
 
@@ -15,23 +13,14 @@ namespace Xtensive.Orm.Weaver.Stages
 {
   internal sealed class LoadAssemblyStage : ProcessorStage
   {
-    private static readonly StringComparer Comparer = StringComparer.InvariantCultureIgnoreCase;
-
     public override ActionResult Execute(ProcessorContext context)
-    {
-      return LoadTargetModule(context) && LoadOrmModule(context)
-        ? ActionResult.Success
-        : ActionResult.Failure;
-    }
-
-    private bool LoadTargetModule(ProcessorContext context)
     {
       var configuration = context.Configuration;
       var inputFile = configuration.InputFile;
 
       if (string.IsNullOrEmpty(inputFile) || !File.Exists(inputFile)) {
         context.Logger.Write(MessageCode.ErrorInputFileIsNotFound, inputFile);
-        return false;
+        return ActionResult.Failure;
       }
 
       var debugSymbolsFile = string.Empty;
@@ -65,43 +54,7 @@ namespace Xtensive.Orm.Weaver.Stages
         context.TargetModule = ModuleDefinition.ReadModule(inputFile, readerParameters);
       }
 
-      return true;
-    }
-
-    private bool LoadOrmModule(ProcessorContext context)
-    {
-      var configuration = context.Configuration;
-
-      var ormReference = context.TargetModule.AssemblyReferences
-        .FirstOrDefault(r => Comparer.Equals(r.FullName, WellKnown.OrmAssemblyFullName));
-
-      if (ormReference==null) {
-        context.Logger.Write(MessageCode.ErrorTargetAssemblyHasNoReferenceToOrm);
-        return false;
-      }
-
-      context.References.OrmAssembly = ormReference;
-
-      var referencedAssemblies = context.Configuration.ReferencedAssemblies ?? new List<string>();
-
-      var ormAssemblyFile = configuration.ReferencedAssemblies
-        .FirstOrDefault(r => Comparer.Equals(Path.GetFileName(r), WellKnown.OrmAssemblyFile));
-
-      if (ormAssemblyFile==null) {
-        context.Logger.Write(MessageCode.ErrorUnableToLocateOrmAssembly);
-        return false;
-      }
-
-      var assemblyResolver = new AssemblyResolver(referencedAssemblies);
-      var readerParameters = new ReaderParameters {
-        ReadingMode = ReadingMode.Deferred,
-        AssemblyResolver = assemblyResolver,
-        MetadataResolver = new MetadataResolver(assemblyResolver),
-      };
-
-      context.OrmModule = ModuleDefinition.ReadModule(ormAssemblyFile, readerParameters);
-
-      return true;
+      return ActionResult.Success;
     }
   }
 }

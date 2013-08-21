@@ -4,14 +4,21 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.20
 
+using System;
+using System.Linq;
 using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver.Inspections
 {
   internal sealed class ImportReferencesStage : ProcessorStage
   {
+    private static readonly StringComparer AssemblyNameComparer = StringComparer.InvariantCulture;
+
     public override ActionResult Execute(ProcessorContext context)
     {
+      if (!FindOrmReference(context))
+        return ActionResult.Failure;
+
       var ormAssembly = context.References.OrmAssembly;
       var coreLibAssembly = context.TargetModule.TypeSystem.Corlib;
 
@@ -47,6 +54,21 @@ namespace Xtensive.Orm.Weaver.Inspections
       var typeReference = new TypeReference(@namespace, name, targetModule, assembly);
       var constructorReference = new MethodReference(WellKnown.Constructor, targetModule.TypeSystem.Void, typeReference);
       return targetModule.Import(constructorReference);
+    }
+
+    private bool FindOrmReference(ProcessorContext context)
+    {
+      var ormReference = context.TargetModule.AssemblyReferences
+        .FirstOrDefault(r => AssemblyNameComparer.Equals(r.FullName, WellKnown.OrmAssemblyFullName));
+
+      if (ormReference==null) {
+        context.Logger.Write(MessageCode.ErrorTargetAssemblyHasNoReferenceToOrm);
+        return false;
+      }
+
+      context.References.OrmAssembly = ormReference;
+
+      return true;
     }
   }
 }

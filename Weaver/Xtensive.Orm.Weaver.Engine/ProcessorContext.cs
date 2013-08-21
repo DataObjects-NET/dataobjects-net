@@ -20,8 +20,6 @@ namespace Xtensive.Orm.Weaver
 
     public ModuleDefinition TargetModule { get; set; }
 
-    public ModuleDefinition OrmModule { get; set; }
-
     public ReferenceRegistry References { get; set; }
 
     public bool HasTransformations { get { return WeavingTasks.Count > 0; } }
