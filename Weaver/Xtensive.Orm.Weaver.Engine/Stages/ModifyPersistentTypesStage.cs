@@ -66,6 +66,11 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private void ProcessFields(ProcessorContext context, PersistentType type)
     {
+      foreach (var property in type.Properties) {
+        var definition = type.Definition;
+        context.WeavingTasks.Add(new ReplaceAutoPropertyTask(definition, property));
+        context.WeavingTasks.Add(new RemoveBackingFieldTask(definition, property));
+      }
     }
   }
 }

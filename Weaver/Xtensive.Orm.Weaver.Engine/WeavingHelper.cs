@@ -11,11 +11,14 @@ namespace Xtensive.Orm.Weaver
 {
   internal static class WeavingHelper
   {
+    public static readonly StringComparer AssemblyNameComparer = StringComparer.InvariantCultureIgnoreCase;
+    public static readonly StringComparer TypeNameComparer = StringComparer.InvariantCulture;
+
     public static void EmitLoadArguments(ILProcessor il, int count)
     {
       if (il==null)
         throw new ArgumentNullException("il");
-      if (count > byte.MaxValue)
+      if (count > Byte.MaxValue)
         throw new ArgumentOutOfRangeException("count");
 
       if (count > 0)

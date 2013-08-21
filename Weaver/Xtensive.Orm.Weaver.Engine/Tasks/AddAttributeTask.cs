@@ -26,6 +26,7 @@ namespace Xtensive.Orm.Weaver.Tasks
         throw new ArgumentNullException("target");
       if (attributeConstructor==null)
         throw new ArgumentNullException("attributeConstructor");
+
       this.target = target;
       this.attributeConstructor = attributeConstructor;
     }

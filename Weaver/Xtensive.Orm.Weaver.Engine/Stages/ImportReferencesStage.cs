@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private AssemblyNameReference FindReference(ProcessorContext context, string assemblyName)
     {
-      var comparer = AssemblyResolver.AssemblyNameComparer;
+      var comparer = WeavingHelper.AssemblyNameComparer;
       var reference = context.TargetModule.AssemblyReferences
         .FirstOrDefault(r => comparer.Equals(r.FullName, assemblyName));
 

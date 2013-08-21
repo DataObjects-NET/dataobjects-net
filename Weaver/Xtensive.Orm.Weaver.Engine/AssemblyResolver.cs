@@ -15,10 +15,8 @@ namespace Xtensive.Orm.Weaver
   internal sealed class AssemblyResolver : IAssemblyResolver
   {
     private readonly MessageLogger logger;
-    public static readonly StringComparer AssemblyNameComparer = StringComparer.InvariantCultureIgnoreCase;
-
-    private readonly Dictionary<string, string> assemblyFiles = new Dictionary<string, string>(AssemblyNameComparer);
-    private readonly Dictionary<string, ModuleDefinition> loadedAssemblies = new Dictionary<string, ModuleDefinition>(AssemblyNameComparer);
+    private readonly Dictionary<string, string> assemblyFiles = new Dictionary<string, string>(WeavingHelper.AssemblyNameComparer);
+    private readonly Dictionary<string, ModuleDefinition> loadedAssemblies = new Dictionary<string, ModuleDefinition>(WeavingHelper.AssemblyNameComparer);
 
     public AssemblyDefinition Resolve(AssemblyNameReference name)
     {

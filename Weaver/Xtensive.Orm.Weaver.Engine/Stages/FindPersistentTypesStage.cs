@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private PersistentTypeKind ClassifyOrmType(TypeReference type)
     {
-      var comparer = TypeIdentity.TypeNameComparer;
+      var comparer = WeavingHelper.TypeNameComparer;
       if (comparer.Equals(type.FullName, WellKnown.EntityType))
         return PersistentTypeKind.Entity;
       if (comparer.Equals(type.FullName, WellKnown.StructureType))

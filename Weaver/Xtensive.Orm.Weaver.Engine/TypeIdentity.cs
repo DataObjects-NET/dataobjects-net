@@ -11,8 +11,6 @@ namespace Xtensive.Orm.Weaver
 {
   internal struct TypeIdentity : IEquatable<TypeIdentity>
   {
-    public static readonly StringComparer TypeNameComparer = StringComparer.InvariantCulture;
-
     private readonly IMetadataScope scope;
     private readonly string fullName;
 
@@ -42,7 +40,7 @@ namespace Xtensive.Orm.Weaver
 
     public bool Equals(TypeIdentity other)
     {
-      return scope==other.scope && TypeNameComparer.Equals(fullName, other.fullName);
+      return scope==other.scope && WeavingHelper.TypeNameComparer.Equals(fullName, other.fullName);
     }
 
     public TypeIdentity(TypeDefinition type)
