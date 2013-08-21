@@ -8,12 +8,13 @@ using Xtensive.Orm.Weaver.Tasks;
 
 namespace Xtensive.Orm.Weaver.Stages
 {
-  internal sealed class DetectTransformationsStage : ProcessorStage
+  internal sealed class MarkAssemblyStage : ProcessorStage
   {
     public override ActionResult Execute(ProcessorContext context)
     {
       if (context.HasTransformations)
-        context.WeavingTasks.Add(new MarkAsProcessedByWeaverTask());
+        context.WeavingTasks.Add(new AddAttributeTask(
+          context.TargetModule.Assembly, context.References.ProcessedByWeaverAttributeConstructor));
       return ActionResult.Success;
     }
   }

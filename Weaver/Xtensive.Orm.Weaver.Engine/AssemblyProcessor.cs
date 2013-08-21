@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Mono.Cecil;
 using Xtensive.Orm.Weaver.Inspections;
 using Xtensive.Orm.Weaver.Stages;
 
@@ -20,9 +22,15 @@ namespace Xtensive.Orm.Weaver
       if (messageWriter==null)
         throw new ArgumentNullException("messageWriter");
 
+      var logger = new MessageLogger(configuration.ProjectId, messageWriter);
+      var referencedAssemblies = configuration.ReferencedAssemblies ?? Enumerable.Empty<string>();
+      var assemblyResolver = new AssemblyResolver(referencedAssemblies, logger);
+
       var context = new ProcessorContext {
         Configuration = configuration,
-        Logger = new MessageLogger(configuration.ProjectId, messageWriter),
+        Logger = logger,
+        AssemblyResolver = assemblyResolver,
+        MetadataResolver = new MetadataResolver(assemblyResolver),
       };
 
       using (context) {
@@ -43,15 +51,20 @@ namespace Xtensive.Orm.Weaver
         new ImportReferencesStage(),
         new FindPersistentTypesStage(),
         new ModifyPersistentTypesStage(),
+        new MarkAssemblyStage(),
         new ExecuteWeavingTasksStage(),
-        new DetectTransformationsStage(),
         new SaveAssemblyStage(),
       };
     }
 
     private static ActionResult ExecuteStage(ProcessorContext context, ProcessorStage stage)
     {
-      return stage.Execute(context);
+      try {
+        return stage.Execute(context);
+      }
+      catch (StageFailedException) {
+        return ActionResult.Failure;
+      }
     }
   }
 }

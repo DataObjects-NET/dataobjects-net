@@ -12,7 +12,9 @@ namespace Xtensive.Orm.Weaver
     ErrorStrongNameKeyIsNotFound,
     ErrorTargetAssemblyHasNoReferenceToOrm,
     ErrorUnableToLocateOrmAssembly,
+    ErrorUnableToFindReferencedAssembly,
 
     WarningDebugSymbolsFileIsNotFound,
+    WarningReferencedAssemblyFileIsNotFound,
   }
 }

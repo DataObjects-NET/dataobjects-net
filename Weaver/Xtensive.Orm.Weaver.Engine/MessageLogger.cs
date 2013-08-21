@@ -73,8 +73,11 @@ namespace Xtensive.Orm.Weaver
       RegisterMessage(MessageCode.ErrorInputFileIsNotFound, "input file is not found");
       RegisterMessage(MessageCode.ErrorStrongNameKeyIsNotFound, "strong name key file is not found");
       RegisterMessage(MessageCode.ErrorTargetAssemblyHasNoReferenceToOrm, "target assembly has no reference to Xtensive.Orm");
-      RegisterMessage(MessageCode.WarningDebugSymbolsFileIsNotFound, "debug symbols file is not found");
       RegisterMessage(MessageCode.ErrorUnableToLocateOrmAssembly, "unable to locate Xtensive.Orm assembly");
+      RegisterMessage(MessageCode.ErrorUnableToFindReferencedAssembly, "unable to find referenced assembly");
+
+      RegisterMessage(MessageCode.WarningDebugSymbolsFileIsNotFound, "debug symbols file is not found");
+      RegisterMessage(MessageCode.WarningReferencedAssemblyFileIsNotFound, "referenced assembly file is not found");
     }
   }
 }

@@ -22,6 +22,10 @@ namespace Xtensive.Orm.Weaver
 
     public ReferenceRegistry References { get; set; }
 
+    public IAssemblyResolver AssemblyResolver { get; set; }
+
+    public IMetadataResolver MetadataResolver { get; set; }
+
     public bool HasTransformations { get { return WeavingTasks.Count > 0; } }
 
     public ISet<TypeDefinition> EntityTypes { get; set; }

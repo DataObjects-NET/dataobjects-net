@@ -12,8 +12,6 @@ namespace Xtensive.Orm.Weaver.Inspections
 {
   internal sealed class ImportReferencesStage : ProcessorStage
   {
-    private static readonly StringComparer AssemblyNameComparer = StringComparer.InvariantCulture;
-
     public override ActionResult Execute(ProcessorContext context)
     {
       if (!FindOrmReference(context))
@@ -58,8 +56,9 @@ namespace Xtensive.Orm.Weaver.Inspections
 
     private bool FindOrmReference(ProcessorContext context)
     {
+      var comparer = AssemblyResolver.AssemblyNameComparer;
       var ormReference = context.TargetModule.AssemblyReferences
-        .FirstOrDefault(r => AssemblyNameComparer.Equals(r.FullName, WellKnown.OrmAssemblyFullName));
+        .FirstOrDefault(r => comparer.Equals(r.FullName, WellKnown.OrmAssemblyFullName));
 
       if (ormReference==null) {
         context.Logger.Write(MessageCode.ErrorTargetAssemblyHasNoReferenceToOrm);

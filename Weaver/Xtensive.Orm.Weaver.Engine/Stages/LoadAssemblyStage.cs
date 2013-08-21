@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.19
 
-using System.Collections.Generic;
 using System.IO;
 using Mono.Cecil;
 using Mono.Cecil.Pdb;
@@ -33,12 +32,10 @@ namespace Xtensive.Orm.Weaver.Stages
         }
       }
 
-      var referencedAssemblies = context.Configuration.ReferencedAssemblies ?? new List<string>();
-      var assemblyResolver = new AssemblyResolver(referencedAssemblies);
       var readerParameters = new ReaderParameters {
         ReadingMode = ReadingMode.Deferred,
-        AssemblyResolver = assemblyResolver,
-        MetadataResolver = new MetadataResolver(assemblyResolver),
+        AssemblyResolver = context.AssemblyResolver,
+        MetadataResolver = context.MetadataResolver,
       };
 
       Stream debugSymbolsStream = null;
