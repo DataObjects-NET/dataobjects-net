@@ -69,7 +69,10 @@
     <Compile Include="Orm\Aspects\TransactionalTypeAttribute.cs" />
     <Compile Include="Orm\Attributes\CompilerAttribute.cs" />
     <Compile Include="Orm\Attributes\CompilerContainerAttribute.cs" />
+    <Compile Include="Orm\Attributes\EntityTypeAttribute.cs" />
     <Compile Include="Orm\Attributes\KeyGeneratorKind.cs" />
+    <Compile Include="Orm\Attributes\ProcessedByWeaverAttribute.cs" />
+    <Compile Include="Orm\Attributes\StructureTypeAttribute.cs" />
     <Compile Include="Orm\Attributes\TypeAttribute.cs" />
     <Compile Include="Orm\Attributes\TypeDiscriminatorAttribute.cs" />
     <Compile Include="Orm\Attributes\MaterializedViewAttribute.cs" />
