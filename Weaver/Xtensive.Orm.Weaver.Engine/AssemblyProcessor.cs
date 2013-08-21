@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Orm.Weaver.Inspections;
+using Xtensive.Orm.Weaver.Stages;
 
 namespace Xtensive.Orm.Weaver
 {
@@ -37,10 +39,13 @@ namespace Xtensive.Orm.Weaver
     private IEnumerable<ProcessorStage> GetStages()
     {
       return new ProcessorStage[] {
-        new LoadStage(),
-        new InspectStage(),
-        new TransformStage(),
-        new SaveStage(),
+        new LoadAssemblyStage(),
+        new ImportReferencesStage(),
+        new FindPersistentTypesStage(),
+        new ModifyPersistentTypesStage(),
+        new ExecuteWeavingTasksStage(),
+        new DetectTransformationsStage(),
+        new SaveAssemblyStage(),
       };
     }
 

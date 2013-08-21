@@ -1,23 +1,23 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
-// Created:    2013.08.19
+// Created:    2013.08.21
 
 using Mono.Cecil;
 using Xtensive.Orm.Weaver.Tasks;
 
-namespace Xtensive.Orm.Weaver.Inspections
+namespace Xtensive.Orm.Weaver.Stages
 {
-  internal sealed class EntityInspector : Inspector
+  internal sealed class ModifyPersistentTypesStage : ProcessorStage
   {
     public override ActionResult Execute(ProcessorContext context)
     {
-      foreach (var type in context.TargetModule.Types) {
-        var baseType = type.BaseType;
-        if (baseType!=null && baseType.Namespace==WellKnown.OrmNamespace && baseType.Name==WellKnown.EntityTypeName)
-          ProcessEntity(context, type);
-      }
+      foreach (var type in context.EntityTypes)
+        ProcessEntity(context, type);
+
+      foreach (var type in context.StructureTypes)
+        ProcessStructure(context, type);
 
       return ActionResult.Success;
     }
@@ -33,6 +33,10 @@ namespace Xtensive.Orm.Weaver.Inspections
 
       foreach (var signature in signatures)
         context.WeavingTasks.Add(new AddFactoryMethodAndConstructorTask(type, signature));
+    }
+
+    private void ProcessStructure(ProcessorContext context, TypeDefinition type)
+    {
     }
   }
 }

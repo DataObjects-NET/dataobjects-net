@@ -14,6 +14,11 @@ namespace Xtensive.Orm.Weaver
 
     public TypeReference Session { get; set; }
     public TypeReference EntityState { get; set; }
+
+    public MethodReference ProcessedByWeaverAttributeConstructor { get; set; }
+    public MethodReference EntityTypeAttributeConstructor { get; set; }
+    public MethodReference StructureTypeAttributeConstructor { get; set; }
+
     public TypeReference StreamingContext { get; set; }
     public TypeReference SerializationInfo { get; set; }
   }

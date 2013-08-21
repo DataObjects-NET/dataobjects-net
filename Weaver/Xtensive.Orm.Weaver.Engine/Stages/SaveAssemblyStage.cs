@@ -9,15 +9,15 @@ using System.Reflection;
 using Mono.Cecil;
 using Mono.Cecil.Pdb;
 
-namespace Xtensive.Orm.Weaver
+namespace Xtensive.Orm.Weaver.Stages
 {
-  internal sealed class SaveStage : ProcessorStage
+  internal sealed class SaveAssemblyStage : ProcessorStage
   {
     public override ActionResult Execute(ProcessorContext context)
     {
       var configuration = context.Configuration;
 
-      if (context.WeavingTasks.Count==0) {
+      if (!context.HasTransformations) {
         File.Copy(configuration.InputFile, configuration.OutputFile, true);
         if (configuration.UseDebugSymbols) {
           File.Copy(

@@ -13,10 +13,15 @@ namespace Xtensive.Orm.Weaver
     public static readonly string OrmAssemblyFullName;
 
     public static readonly string OrmNamespace = "Xtensive.Orm";
-    public static readonly string EntityTypeName = "Entity";
+    public static readonly string EntityType = "Entity";
+    public static readonly string StructureType = "Structure";
 
-    public static readonly string ConstructorName = ".ctor";
-    public static readonly string FactoryMethodName = "~Xtensive.Aspects.FactoryMethod";
+    public static readonly string ProcessedByWeaverAttribute = "ProcessedByWeaverAttribute";
+    public static readonly string EntityTypeAttribute = "EntityTypeAttribute";
+    public static readonly string StructureTypeAttribute = "StructureTypeAttribute";
+
+    public static readonly string Constructor = ".ctor";
+    public static readonly string FactoryMethod = "~Xtensive.Aspects.FactoryMethod";
 
     static WellKnown()
     {

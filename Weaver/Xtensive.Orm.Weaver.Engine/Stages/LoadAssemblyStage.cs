@@ -11,9 +11,9 @@ using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Pdb;
 
-namespace Xtensive.Orm.Weaver
+namespace Xtensive.Orm.Weaver.Stages
 {
-  internal sealed class LoadStage : ProcessorStage
+  internal sealed class LoadAssemblyStage : ProcessorStage
   {
     private static readonly StringComparer Comparer = StringComparer.InvariantCultureIgnoreCase;
 

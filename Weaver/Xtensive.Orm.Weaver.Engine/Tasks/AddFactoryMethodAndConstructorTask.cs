@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Weaver.Tasks
     private MethodDefinition AddConstructor(ProcessorContext context)
     {
       var baseConstructor = GetBaseConstructor(context);
-      var method =  new MethodDefinition(WellKnown.ConstructorName, ConstructorAttributes, voidType);
+      var method =  new MethodDefinition(WellKnown.Constructor, ConstructorAttributes, voidType);
       method.HasThis = true;
       AddParameters(method);
       var il = method.Body.GetILProcessor();
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     private MethodReference GetBaseConstructor(ProcessorContext context)
     {
-      var reference = new MethodReference(WellKnown.ConstructorName, targetType.BaseType, targetType.BaseType);
+      var reference = new MethodReference(WellKnown.Constructor, targetType.BaseType, targetType.BaseType);
       reference.ReturnType = voidType;
       foreach (var item in signature)
         reference.Parameters.Add(new ParameterDefinition(item));
@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     private void AddFactoryMethod(MethodDefinition constructor)
     {
-      var method = new MethodDefinition(WellKnown.FactoryMethodName, FactoryMethodAttributes, targetType);
+      var method = new MethodDefinition(WellKnown.FactoryMethod, FactoryMethodAttributes, targetType);
       AddParameters(method);
       var il = method.Body.GetILProcessor();
       WeavingHelper.EmitLoadArguments(il, signature.Length);

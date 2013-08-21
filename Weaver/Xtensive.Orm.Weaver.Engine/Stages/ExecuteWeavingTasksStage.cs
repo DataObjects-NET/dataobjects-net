@@ -4,19 +4,24 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.19
 
-using System.Collections.Generic;
-using Xtensive.Orm.Weaver.Inspections;
+using System.Linq;
 
-namespace Xtensive.Orm.Weaver
+namespace Xtensive.Orm.Weaver.Stages
 {
-  internal sealed class InspectStage : ProcessorStage
+  internal sealed class ExecuteWeavingTasksStage : ProcessorStage
   {
     public override ActionResult Execute(ProcessorContext context)
     {
       var failure = false;
 
-      foreach (var inspector in GetInspectors()) {
-        var actionResult = inspector.Execute(context);
+      var sortedTasks = context.WeavingTasks
+        .Select((t, i) => new {Task = t, Index = i})
+        .OrderBy(item => item.Task.Priority)
+        .ThenBy(item => item.Index)
+        .Select(item => item.Task);
+
+      foreach (var task in sortedTasks) {
+        var actionResult = task.Execute(context);
         if (actionResult==ActionResult.Success)
           continue;
         failure = true;
@@ -25,14 +30,6 @@ namespace Xtensive.Orm.Weaver
       }
 
       return failure ? ActionResult.Failure : ActionResult.Success;
-    }
-
-    private static IEnumerable<Inspector> GetInspectors()
-    {
-      return new Inspector[] {
-        new ReferenceImporter(),
-        new EntityInspector(),
-      };
     }
   }
 }
