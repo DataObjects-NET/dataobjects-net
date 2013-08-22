@@ -69,6 +69,7 @@
     <Compile Include="Orm\Aspects\TransactionalTypeAttribute.cs" />
     <Compile Include="Orm\Attributes\CompilerAttribute.cs" />
     <Compile Include="Orm\Attributes\CompilerContainerAttribute.cs" />
+    <Compile Include="Orm\Attributes\EntitySetTypeAttribute.cs" />
     <Compile Include="Orm\Attributes\EntityTypeAttribute.cs" />
     <Compile Include="Orm\Attributes\KeyGeneratorKind.cs" />
     <Compile Include="Orm\Attributes\ProcessedByWeaverAttribute.cs" />
