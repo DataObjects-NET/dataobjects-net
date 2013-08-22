@@ -14,8 +14,16 @@ namespace Xtensive.Orm.Weaver
     public AssemblyNameReference CoreAssembly { get; set; }
     public AssemblyNameReference OrmAssembly { get; set; }
 
+    // mscorlib
+    public TypeReference StreamingContext { get; set; }
+    public TypeReference SerializationInfo { get; set; }
+
+    public MethodReference CompilerGeneratedAttributeConstructor { get; set; }
+
+    // Xtensive.Core
     public TypeReference Tuple { get; set; }
 
+    // Xtensive.Orm
     public TypeReference Session { get; set; }
     public TypeReference EntityState { get; set; }
     public TypeReference FieldInfo { get; set; }
@@ -24,9 +32,6 @@ namespace Xtensive.Orm.Weaver
     public MethodReference ProcessedByWeaverAttributeConstructor { get; set; }
     public MethodReference EntityTypeAttributeConstructor { get; set; }
     public MethodReference StructureTypeAttributeConstructor { get; set; }
-
-    public TypeReference StreamingContext { get; set; }
-    public TypeReference SerializationInfo { get; set; }
 
     public MethodReference PersistentGetterDefinition { get; set; }
     public MethodReference PersistentSetterDefinition { get; set; }

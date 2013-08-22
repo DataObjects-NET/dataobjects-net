@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Weaver.Tasks
     {
       voidType = context.TargetModule.TypeSystem.Void;
       var constructor = AddConstructor(context);
-      AddFactoryMethod(constructor);
+      AddFactoryMethod(context, constructor);
       return ActionResult.Success;
     }
 
@@ -38,8 +38,8 @@ namespace Xtensive.Orm.Weaver.Tasks
     {
       var baseConstructor = GetBaseConstructor(context);
       var method =  new MethodDefinition(WellKnown.Constructor, ConstructorAttributes, voidType);
-      method.HasThis = true;
       AddParameters(method);
+      WeavingHelper.MarkAsCompilerGenerated(context, method);
       var il = method.Body.GetILProcessor();
       WeavingHelper.EmitLoadArguments(il, signature.Length + 1);
       il.Emit(OpCodes.Call, baseConstructor);
@@ -63,10 +63,11 @@ namespace Xtensive.Orm.Weaver.Tasks
       return context.TargetModule.Import(reference);
     }
 
-    private void AddFactoryMethod(MethodDefinition constructor)
+    private void AddFactoryMethod(ProcessorContext context, MethodDefinition constructor)
     {
       var method = new MethodDefinition(WellKnown.FactoryMethod, FactoryMethodAttributes, targetType);
       AddParameters(method);
+      WeavingHelper.MarkAsCompilerGenerated(context, method);
       var il = method.Body.GetILProcessor();
       WeavingHelper.EmitLoadArguments(il, signature.Length);
       il.Emit(OpCodes.Newobj, constructor);

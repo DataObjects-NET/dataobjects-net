@@ -31,6 +31,8 @@ namespace Xtensive.Orm.Weaver.Stages
       registry.SerializationInfo = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization.SerializationInfo");
       registry.StreamingContext = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization.StreamingContext");
 
+      registry.CompilerGeneratedAttributeConstructor = ImportDefaultConstructor(context, mscorlibAssembly, WellKnown.CompilerGeneratedAttribute);
+
       // Xtensive.Core
       registry.Tuple = ImportType(context, coreAssembly, "Xtensive.Tuples.Tuple");
 

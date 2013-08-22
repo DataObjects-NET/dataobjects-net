@@ -5,6 +5,7 @@
 // Created:    2013.08.20
 
 using System;
+using Mono.Cecil;
 using Mono.Cecil.Cil;
 
 namespace Xtensive.Orm.Weaver
@@ -13,6 +14,15 @@ namespace Xtensive.Orm.Weaver
   {
     public static readonly StringComparer AssemblyNameComparer = StringComparer.InvariantCultureIgnoreCase;
     public static readonly StringComparer TypeNameComparer = StringComparer.InvariantCulture;
+
+    public static void MarkAsCompilerGenerated(ProcessorContext context, ICustomAttributeProvider target)
+    {
+      if (context==null)
+        throw new ArgumentNullException("context");
+      if (target==null)
+        throw new ArgumentNullException("target");
+      target.CustomAttributes.Add(new CustomAttribute(context.References.CompilerGeneratedAttributeConstructor));
+    }
 
     public static void EmitLoadArguments(ILProcessor il, int count)
     {
