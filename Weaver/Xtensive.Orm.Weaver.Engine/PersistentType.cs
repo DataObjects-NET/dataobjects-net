@@ -4,8 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.21
 
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver
@@ -16,13 +16,22 @@ namespace Xtensive.Orm.Weaver
 
     public TypeDefinition Definition { get; set; }
 
-    public IList<PropertyDefinition> Properties { get; set; }
+    public ISet<PropertyDefinition> KeyProperties { get; set; }
 
-    public PersistentType(TypeDefinition definition, PersistentTypeKind kind, IEnumerable<PropertyDefinition> fields)
+    public ISet<PropertyDefinition> AllProperties { get; set; }
+
+    public PersistentType(TypeDefinition definition, PersistentTypeKind kind,
+      IEnumerable<PropertyDefinition> keyProperties, IEnumerable<PropertyDefinition> allProperties)
     {
+      if (definition==null)
+        throw new ArgumentNullException("definition");
+      if (allProperties==null)
+        throw new ArgumentNullException("allProperties");
+
       Definition = definition;
       Kind = kind;
-      Properties = fields.ToList();
+      KeyProperties = new HashSet<PropertyDefinition>(keyProperties);
+      AllProperties = new HashSet<PropertyDefinition>(allProperties);
     }
   }
 }

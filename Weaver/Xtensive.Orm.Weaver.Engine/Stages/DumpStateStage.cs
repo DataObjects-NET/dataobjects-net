@@ -35,8 +35,11 @@ namespace Xtensive.Orm.Weaver.Stages
       writer.WriteLine();
       foreach (var type in types) {
         writer.WriteLine(indent1 + type.Definition.FullName);
-        foreach (var field in type.Properties)
-          writer.WriteLine(indent2 + field.PropertyType + " " + field.Name);
+        foreach (var property in type.KeyProperties)
+          writer.WriteLine("{0}[Key] {1} {2}", indent2, property.PropertyType, property.Name);
+        foreach (var property in type.AllProperties)
+          if (!type.KeyProperties.Contains(property))
+            writer.WriteLine("{0}{1} {2}", indent2, property.PropertyType, property.Name);
       }
       writer.WriteLine();
     }

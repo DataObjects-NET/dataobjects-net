@@ -9,25 +9,25 @@ using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver.Tasks
 {
-  internal sealed class ImplementInitializablePatternTask : WeavingTask
+  internal sealed class DisableKeySetterTask : WeavingTask
   {
     private readonly TypeDefinition type;
-    private readonly MethodDefinition constructor;
+    private readonly PropertyDefinition property;
 
     public override ActionResult Execute(ProcessorContext context)
     {
       return ActionResult.Success;
     }
 
-    public ImplementInitializablePatternTask(TypeDefinition type, MethodDefinition constructor)
+    public DisableKeySetterTask(TypeDefinition type, PropertyDefinition property)
     {
       if (type==null)
         throw new ArgumentNullException("type");
-      if (constructor==null)
-        throw new ArgumentNullException("constructor");
+      if (property==null)
+        throw new ArgumentNullException("property");
 
       this.type = type;
-      this.constructor = constructor;
+      this.property = property;
     }
   }
 }

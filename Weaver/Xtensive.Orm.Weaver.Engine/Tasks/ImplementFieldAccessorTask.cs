@@ -10,23 +10,29 @@ using Mono.Cecil.Cil;
 
 namespace Xtensive.Orm.Weaver.Tasks
 {
-  internal sealed class ReplaceAutoPropertyTask : WeavingTask
+  internal sealed class ImplementFieldAccessorTask : WeavingTask
   {
     private readonly TypeDefinition type;
     private readonly PropertyDefinition property;
+    private readonly AccessorKind kind;
 
     public override ActionResult Execute(ProcessorContext context)
     {
-      if (property.GetMethod!=null)
-        ProcessGetMethod(context);
-
-      if (property.SetMethod!=null)
-        ProccessSetMethod(context);
+      switch (kind) {
+      case AccessorKind.Getter:
+        ImplementGetter(context);
+        break;
+      case AccessorKind.Setter:
+        ImplementSetter(context);
+        break;
+      default:
+        throw new ArgumentOutOfRangeException();
+      }
 
       return ActionResult.Success;
     }
 
-    private void ProccessSetMethod(ProcessorContext context)
+    private void ImplementSetter(ProcessorContext context)
     {
       var body = property.SetMethod.Body;
       body.Instructions.Clear();
@@ -38,7 +44,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       il.Emit(OpCodes.Ret);
     }
 
-    private void ProcessGetMethod(ProcessorContext context)
+    private void ImplementGetter(ProcessorContext context)
     {
       var body = property.GetMethod.Body;
       body.Instructions.Clear();
@@ -81,7 +87,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       return result;
     }
 
-    public ReplaceAutoPropertyTask(TypeDefinition type, PropertyDefinition property)
+    public ImplementFieldAccessorTask(TypeDefinition type, PropertyDefinition property, AccessorKind kind)
     {
       if (type==null)
         throw new ArgumentNullException("type");
@@ -90,6 +96,7 @@ namespace Xtensive.Orm.Weaver.Tasks
 
       this.type = type;
       this.property = property;
+      this.kind = kind;
     }
   }
 }

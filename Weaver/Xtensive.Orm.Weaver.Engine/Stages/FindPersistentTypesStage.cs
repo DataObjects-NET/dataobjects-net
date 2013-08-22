@@ -34,7 +34,11 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private PersistentType CreateType(TypeDefinition definition, PersistentTypeKind kind)
     {
-      return new PersistentType(definition, kind, definition.Properties.Where(IsPersistentProperty));
+      var allProperties = definition.Properties.Where(IsPersistentProperty).ToList();
+      var keyProperties = kind==PersistentTypeKind.Entity
+        ? definition.Properties.Where(p => p.HasAttribute(WellKnown.FieldAttribute))
+        : Enumerable.Empty<PropertyDefinition>();
+      return new PersistentType(definition, kind, keyProperties, allProperties);
     }
 
     private PersistentTypeKind InspectType(ProcessorContext context, TypeDefinition type)
@@ -98,17 +102,18 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private bool IsPersistentProperty(PropertyDefinition property)
     {
-//      if (!property.HasThis)
-//        return false;
-//      if (property.HasParameters)
-//        return false;
       if (!property.HasAttribute(WellKnown.FieldAttribute))
         return false;
-      if (property.GetMethod!=null && !property.GetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute))
+      if (property.GetMethod!=null && !IsPersistentPropertyAccessor(property.GetMethod))
         return false;
-      if (property.SetMethod!=null && !property.SetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute))
+      if (property.SetMethod!=null && !IsPersistentPropertyAccessor(property.SetMethod))
         return false;
       return true;
+    }
+
+    private bool IsPersistentPropertyAccessor(MethodDefinition method)
+    {
+      return !method.IsStatic && method.HasAttribute(WellKnown.CompilerGeneratedAttribute);
     }
   }
 }

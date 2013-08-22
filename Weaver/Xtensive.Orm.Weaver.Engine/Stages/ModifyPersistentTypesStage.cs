@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.21
 
+using System.Linq;
 using Mono.Cecil;
 using Xtensive.Orm.Weaver.Tasks;
 
@@ -47,6 +48,12 @@ namespace Xtensive.Orm.Weaver.Stages
       foreach (var signature in entityFactorySignatures)
         context.WeavingTasks.Add(new AddFactoryTask(definition, signature));
 
+      var userConstructors = type.Definition.Methods
+        .Where(m => m.IsConstructor && !m.IsStatic && !m.HasAttribute(WellKnown.CompilerGeneratedAttribute));
+      foreach (var constructor in userConstructors) {
+        context.WeavingTasks.Add(new ImplementInitializablePatternTask(type.Definition, constructor));
+      }
+
       ProcessFields(context, type);
 
       context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.EntityTypeAttributeConstructor));
@@ -66,9 +73,16 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private void ProcessFields(ProcessorContext context, PersistentType type)
     {
-      foreach (var property in type.Properties) {
+      foreach (var property in type.AllProperties) {
         var definition = type.Definition;
-        context.WeavingTasks.Add(new ReplaceAutoPropertyTask(definition, property));
+        if (property.GetMethod!=null)
+          context.WeavingTasks.Add(new ImplementFieldAccessorTask(definition, property, AccessorKind.Getter));
+        if (property.SetMethod!=null) {
+          if (type.KeyProperties.Contains(property))
+            context.WeavingTasks.Add(new DisableKeySetterTask(definition, property));
+          else
+            context.WeavingTasks.Add(new ImplementFieldAccessorTask(definition, property, AccessorKind.Setter));
+        }
         context.WeavingTasks.Add(new RemoveBackingFieldTask(definition, property));
       }
     }
