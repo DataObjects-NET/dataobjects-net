@@ -52,6 +52,8 @@ namespace Xtensive.Orm.Weaver.Stages
 
       registry.ProcessedByWeaverAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.ProcessedByWeaverAttribute);
       registry.EntityTypeAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.EntityTypeAttribute);
+      registry.EntitySetTypeAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.EntitySetTypeAttribute);
+      registry.EntityInterfaceAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.EntityInterfaceAttribute);
       registry.StructureTypeAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.StructureTypeAttribute);
 
       return ActionResult.Success;

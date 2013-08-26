@@ -31,6 +31,8 @@ namespace Xtensive.Orm.Weaver
 
     public MethodReference ProcessedByWeaverAttributeConstructor { get; set; }
     public MethodReference EntityTypeAttributeConstructor { get; set; }
+    public MethodReference EntitySetTypeAttributeConstructor { get; set; }
+    public MethodReference EntityInterfaceAttributeConstructor { get; set; }
     public MethodReference StructureTypeAttributeConstructor { get; set; }
 
     public MethodReference PersistentGetterDefinition { get; set; }

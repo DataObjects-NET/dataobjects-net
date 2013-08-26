@@ -12,6 +12,8 @@ namespace Xtensive.Orm.Weaver
     public static readonly string CoreAssemblyFullName;
 
     public static readonly string EntityType = "Xtensive.Orm.Entity";
+    public static readonly string EntityInterface = "Xtensive.Orm.IEntity";
+    public static readonly string EntitySetType = "Xtensive.Orm.EntitySet`1";
     public static readonly string StructureType = "Xtensive.Orm.Structure";
 
     public static readonly string KeyAttribute = "Xtensive.Orm.KeyAttribute";

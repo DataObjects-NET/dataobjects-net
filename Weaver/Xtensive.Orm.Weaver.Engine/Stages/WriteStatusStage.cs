@@ -21,21 +21,24 @@ namespace Xtensive.Orm.Weaver.Stages
       var statusFile = FileHelper.GetStatusFile(context.Configuration.OutputFile);
 
       using (var writer = new StreamWriter(statusFile)) {
-        DumpTypes(writer, "Entity types:", context.EntityTypes);
-        DumpTypes(writer, "Structure types:", context.StructureTypes);
+        DumpTypes(context, writer, PersistentTypeKind.Entity);
+        DumpTypes(context, writer, PersistentTypeKind.EntitySet);
+        DumpTypes(context, writer, PersistentTypeKind.EntityInterface);
+        DumpTypes(context, writer, PersistentTypeKind.Structure);
       }
 
       return ActionResult.Success;
     }
 
-    private static void DumpTypes(StreamWriter writer, string header, IEnumerable<PersistentType> types)
+    private static void DumpTypes(ProcessorContext context, StreamWriter writer, PersistentTypeKind kind)
     {
       const string indent1 = "  ";
       const string indent2 = indent1 + indent1;
 
-      writer.WriteLine(header);
+      writer.WriteLine("{0}: ", kind);
       writer.WriteLine();
-      foreach (var type in types) {
+
+      foreach (var type in context.PersistentTypes.Where(t => t.Kind==kind)) {
         writer.WriteLine(indent1 + type.Definition.FullName);
         foreach (var property in type.Properties.Where(p => p.IsKey)) {
           writer.Write(indent2);

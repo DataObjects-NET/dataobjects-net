@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.21
 
+using System;
 using System.Linq;
 using Mono.Cecil;
 using Xtensive.Orm.Weaver.Tasks;
@@ -32,13 +33,33 @@ namespace Xtensive.Orm.Weaver.Stages
         new[] {references.SerializationInfo, references.StreamingContext},
       };
 
-      foreach (var type in context.EntityTypes)
-        ProcessEntity(context, type);
-
-      foreach (var type in context.StructureTypes)
-        ProcessStructure(context, type);
+      foreach (var type in context.PersistentTypes)
+        switch (type.Kind) {
+        case PersistentTypeKind.Entity:
+          ProcessEntity(context, type);
+          break;
+        case PersistentTypeKind.EntitySet:
+          ProcessEntitySet(context, type);
+          break;
+        case PersistentTypeKind.EntityInterface:
+          ProcessEntityInterface(context, type);
+          break;
+        case PersistentTypeKind.Structure:
+          ProcessStructure(context, type);
+          break;
+        }
 
       return ActionResult.Success;
+    }
+
+    private void ProcessEntityInterface(ProcessorContext context, PersistentType type)
+    {
+      context.WeavingTasks.Add(new AddAttributeTask(type.Definition, context.References.EntityInterfaceAttributeConstructor));
+    }
+
+    private void ProcessEntitySet(ProcessorContext context, PersistentType type)
+    {
+      context.WeavingTasks.Add(new AddAttributeTask(type.Definition, context.References.EntitySetTypeAttributeConstructor));
     }
 
     private void ProcessEntity(ProcessorContext context, PersistentType type)

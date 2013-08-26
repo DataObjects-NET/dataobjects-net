@@ -10,6 +10,8 @@ namespace Xtensive.Orm.Weaver
   {
     None,
     Entity,
+    EntitySet,
+    EntityInterface,
     Structure,
   }
 }

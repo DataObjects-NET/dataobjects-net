@@ -16,6 +16,8 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     public override ActionResult Execute(ProcessorContext context)
     {
+      var body = property.SetMethod.Body;
+      body.Instructions.Clear();
       return ActionResult.Success;
     }
 

@@ -17,28 +17,24 @@ namespace Xtensive.Orm.Weaver.Stages
 
     public override ActionResult Execute(ProcessorContext context)
     {
-      var typesToInspect = context.TargetModule.Types.Where(t => t.IsClass && t.BaseType!=null);
+      var typesToInspect = context.TargetModule.Types.Where(t => t.IsClass && t.BaseType!=null || t.IsInterface);
       foreach (var type in typesToInspect) {
         var kind = InspectType(context, type);
-        switch (kind) {
-        case PersistentTypeKind.Entity:
-          context.EntityTypes.Add(CreateType(type, kind));
-          break;
-        case PersistentTypeKind.Structure:
-          context.StructureTypes.Add(CreateType(type, kind));
-          break;
-        }
+        if (kind!=PersistentTypeKind.None)
+          context.PersistentTypes.Add(CreatePersistentType(type, kind));
       }
       return ActionResult.Success;
     }
 
-    private PersistentType CreateType(TypeDefinition definition, PersistentTypeKind kind)
+    private PersistentType CreatePersistentType(TypeDefinition definition, PersistentTypeKind kind)
     {
-      var allProperties = definition.Properties.Where(IsPersistentProperty).Select(CreateProperty);
+      var allProperties = kind==PersistentTypeKind.EntitySet
+        ? Enumerable.Empty<PersistentProperty>()
+        : definition.Properties.Where(IsPersistentProperty).Select(CreatePersistentProperty);
       return new PersistentType(definition, kind, allProperties);
     }
 
-    private PersistentProperty CreateProperty(PropertyDefinition definition)
+    private PersistentProperty CreatePersistentProperty(PropertyDefinition definition)
     {
       var result = new PersistentProperty(definition);
       result.IsKey = definition.HasAttribute(WellKnown.KeyAttribute);
@@ -56,25 +52,37 @@ namespace Xtensive.Orm.Weaver.Stages
       if (processedTypes.TryGetValue(identity, out kind))
         return kind;
 
+      if (type.IsClass) {
+        kind = ClassifyType(context, type.BaseType);
+        processedTypes.Add(identity, kind);
+        return kind;
+      }
+
+      kind = PersistentTypeKind.None;
+      foreach (var baseInterface in type.Interfaces) {
+        kind = ClassifyType(context, baseInterface);
+        if (kind!=PersistentTypeKind.None)
+          break;
+      }
+      processedTypes.Add(identity, kind);
+      return kind;
+    }
+
+    private PersistentTypeKind ClassifyType(ProcessorContext context, TypeReference type)
+    {
+      if (type.IsGenericInstance)
+        type = type.GetElementType();
+
       var thisAssembly = context.TargetModule;
       var ormAssembly = context.References.OrmAssembly;
 
-      var baseType = type.BaseType;
-      if (baseType.Scope==thisAssembly) {
-        kind = InspectType(context, baseType.Resolve());
-        processedTypes.Add(identity, kind);
-        return kind;
-      }
+      if (type.Scope==thisAssembly)
+        return InspectType(context, type.Resolve());
 
-      if (baseType.Scope==ormAssembly) {
-        kind = ClassifyOrmType(baseType);
-        processedTypes.Add(identity, kind);
-        return kind;
-      }
+      if (type.Scope==ormAssembly)
+        return ClassifyOrmType(type);
 
-      kind = InspectExternalType(baseType);
-      processedTypes.Add(identity, kind);
-      return kind;
+      return InspectExternalType(type);
     }
 
     private PersistentTypeKind InspectExternalType(TypeReference type)
@@ -91,10 +99,15 @@ namespace Xtensive.Orm.Weaver.Stages
     private PersistentTypeKind ClassifyOrmType(TypeReference type)
     {
       var comparer = WeavingHelper.TypeNameComparer;
-      if (comparer.Equals(type.FullName, WellKnown.EntityType))
+      var name = type.FullName;
+      if (comparer.Equals(name, WellKnown.EntityType))
         return PersistentTypeKind.Entity;
-      if (comparer.Equals(type.FullName, WellKnown.StructureType))
+      if (comparer.Equals(name, WellKnown.StructureType))
         return PersistentTypeKind.Structure;
+      if (comparer.Equals(name, WellKnown.EntitySetType))
+        return PersistentTypeKind.EntitySet;
+      if (comparer.Equals(name, WellKnown.EntityInterface))
+        return PersistentTypeKind.EntityInterface;
       return PersistentTypeKind.None;
     }
 
@@ -104,18 +117,16 @@ namespace Xtensive.Orm.Weaver.Stages
         return PersistentTypeKind.Entity;
       if (type.HasAttribute(WellKnown.StructureTypeAttribute))
         return PersistentTypeKind.Structure;
+      if (type.HasAttribute(WellKnown.EntitySetTypeAttribute))
+        return PersistentTypeKind.EntitySet;
+      if (type.HasAttribute(WellKnown.EntityInterfaceAttribute))
+        return PersistentTypeKind.EntityInterface;
       return PersistentTypeKind.None;
     }
 
     private bool IsPersistentProperty(PropertyDefinition property)
     {
-      if (property.IsStatic() || !property.IsAutoProperty())
-        return false;
-      if (property.HasAttribute(WellKnown.FieldAttribute))
-        return true;
-      if (property.GetMethod.IsVirtual || property.GetMethod.Overrides.Count > 0) {
-        // Inspect declaring type
-      }
+      return !property.IsStatic() && property.IsAutoProperty() && property.HasAttribute(WellKnown.FieldAttribute);
     }
   }
 }
