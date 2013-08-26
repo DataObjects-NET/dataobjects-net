@@ -10,6 +10,7 @@ using System.Data.Common;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql
 {
@@ -19,6 +20,10 @@ namespace Xtensive.Sql
   public abstract class TypeMapper
   {
     private const int DecimalPrecisionLimit = 60;
+
+    private static readonly ValueRange<TimeSpan> Int64TimeSpanRange = new ValueRange<TimeSpan>(
+      TimeSpan.FromTicks(TimeSpan.MinValue.Ticks / 100),
+      TimeSpan.FromTicks(TimeSpan.MaxValue.Ticks / 100));
 
     public SqlDriver Driver { get; private set; }
 
@@ -132,7 +137,7 @@ namespace Xtensive.Sql
     {
       parameter.DbType = DbType.Int64;
       if (value!=null) {
-        var timeSpan = (TimeSpan) value;
+        var timeSpan = ValueRangeValidator.Correct((TimeSpan) value, Int64TimeSpanRange);
         parameter.Value = timeSpan.Ticks * 100;
       }
       else
@@ -232,7 +237,14 @@ namespace Xtensive.Sql
 
     public virtual object ReadTimeSpan(DbDataReader reader, int index)
     {
-      throw new NotSupportedException();
+      long value;
+      try {
+        value = reader.GetInt64(index);
+      }
+      catch (InvalidCastException) {
+        value = (long) reader.GetDecimal(index);
+      }
+      return TimeSpan.FromTicks(value / 100);
     }
 
     public virtual object ReadGuid(DbDataReader reader, int index)
@@ -344,7 +356,7 @@ namespace Xtensive.Sql
 
     public virtual SqlValueType MapTimeSpan(int? length, int? precision, int? scale)
     {
-      return new SqlValueType(SqlType.Interval);
+      return new SqlValueType(SqlType.Int64);
     }
 
     public virtual SqlValueType MapGuid(int? length, int? precision, int? scale)

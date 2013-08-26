@@ -19,7 +19,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     private static readonly SqlDecimal MaxDecimal = new SqlDecimal(decimal.MaxValue);
 
     private ValueRange<DateTime> dateTimeRange;
-    private ValueRange<TimeSpan> timeSpanRange;
 
     public override void BindSByte(DbParameter parameter, object value)
     {
@@ -52,17 +51,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       base.BindDateTime(parameter, value);
     }
 
-    public override void BindTimeSpan(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Int64;
-      if (value!=null) {
-        var timeSpan = ValueRangeValidator.Correct((TimeSpan) value, timeSpanRange);
-        parameter.Value = timeSpan.Ticks * 100;
-      }
-      else
-        parameter.Value = DBNull.Value;
-    }
-
     public override SqlValueType MapSByte(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int16);
@@ -83,11 +71,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return new SqlValueType(SqlType.Decimal, 20, 0);
     }
 
-    public override SqlValueType MapTimeSpan(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int64);
-    }
-
     public override object ReadDecimal(DbDataReader reader, int index)
     {
       var nativeReader = (SqlDataReader) reader;
@@ -106,25 +89,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return reduced2.Value;
     }
 
-    public override object ReadTimeSpan(DbDataReader reader, int index)
-    {
-      long value = 0L;
-      try {
-        value = reader.GetInt64(index);
-      }
-      catch (InvalidCastException) {
-        value = (long) reader.GetDecimal(index);
-      }
-      return TimeSpan.FromTicks(value/100);
-    }
-
     public override void Initialize()
     {
       base.Initialize();
       dateTimeRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
-      timeSpanRange = new ValueRange<TimeSpan>(
-        TimeSpan.FromTicks(TimeSpan.MinValue.Ticks / 100),
-        TimeSpan.FromTicks(TimeSpan.MaxValue.Ticks / 100));
     }
 
     private bool TryConvert(SqlDecimal sqlDecimal, out decimal result)
