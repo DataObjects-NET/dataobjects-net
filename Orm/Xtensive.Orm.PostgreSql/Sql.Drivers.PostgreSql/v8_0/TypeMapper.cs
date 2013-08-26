@@ -109,6 +109,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return new SqlValueType(SqlType.VarChar, 32);
     }
 
+    public override SqlValueType MapTimeSpan(int? length, int? precision, int? scale)
+    {
+      return new SqlValueType(SqlType.Interval);
+    }
+
     public override object ReadByte(DbDataReader reader, int index)
     {
       return Convert.ToByte(reader[index]);
