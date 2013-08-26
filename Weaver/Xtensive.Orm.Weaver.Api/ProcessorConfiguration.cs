@@ -18,10 +18,11 @@ namespace Xtensive.Orm.Weaver
       private const string ProjectId = "projectId";
       private const string InputFile = "input";
       private const string OutputFile = "output";
-      private const string DumpFile = "dump";
-      private const string UseDebugSymbols = "debugSymbols";
+      private const string WriteStatusFile = "writeStatusFile";
+      private const string WriteStampFile = "writeStampFile";
+      private const string ProcessDebugSymbols = "processDebugSymbols";
       private const string StrongNameKey = "strongNameKey";
-      private const string TargetFramework = "targetFramework";
+      private const string BackupDirectory = "backupDir";
       private const string ReferencedAssembly = "reference";
 
       private static readonly char[] KeyValueSeparators = new[] {':', '='};
@@ -36,30 +37,58 @@ namespace Xtensive.Orm.Weaver
         if (!ParseKeyValue(item, out key, out value))
           return false;
 
-        if (Comparer.Equals(key, ProjectId))
+        if (Comparer.Equals(key, ProjectId)) {
           configuration.ProjectId = value;
-        else if (Comparer.Equals(key, InputFile))
-          configuration.InputFile = value;
-        else if (Comparer.Equals(key, OutputFile))
-          configuration.OutputFile = value;
-        else if (Comparer.Equals(key, DumpFile))
-          configuration.DumpFile = value;
-        else if (Comparer.Equals(key, UseDebugSymbols))
-          configuration.UseDebugSymbols = ParseBool(value);
-        else if (Comparer.Equals(key, StrongNameKey))
-          configuration.StrongNameKey = value;
-        else if (Comparer.Equals(key, TargetFramework))
-          configuration.TargetFramework = value;
-        else if (Comparer.Equals(key, ReferencedAssembly))
-          configuration.ReferencedAssemblies.Add(value);
-        else
-          return false;
+          return true;
+        }
 
-        return true;
+        if (Comparer.Equals(key, InputFile)) {
+          configuration.InputFile = value;
+          return true;
+        }
+
+        if (Comparer.Equals(key, OutputFile)) {
+          configuration.OutputFile = value;
+          return true;
+        }
+
+        if (Comparer.Equals(key, BackupDirectory)) {
+          configuration.BackupDirectory = value;
+          return true;
+        }
+
+        if (Comparer.Equals(key, StrongNameKey)) {
+          configuration.StrongNameKey = value;
+          return true;
+        }
+          
+        if (Comparer.Equals(key, WriteStatusFile)) {
+          configuration.WriteStatusFile = ParseBool(value);
+          return true;
+        }
+
+        if (Comparer.Equals(key, WriteStampFile)) {
+          configuration.WriteStampFile = ParseBool(value);
+          return true;
+        }
+
+        if (Comparer.Equals(key, ProcessDebugSymbols)) {
+          configuration.ProcessDebugSymbols = ParseBool(value);
+          return true;
+        }
+
+        if (Comparer.Equals(key, ReferencedAssembly)) {
+          configuration.ReferencedAssemblies.Add(value);
+          return true;
+        }
+
+        return false;
       }
 
       public static IEnumerable<string> Dump(ProcessorConfiguration configuration)
       {
+        const string trueString = "true";
+
         if (!string.IsNullOrEmpty(configuration.ProjectId))
           yield return FormatKeyValue(ProjectId, configuration.ProjectId);
 
@@ -69,17 +98,20 @@ namespace Xtensive.Orm.Weaver
         if (!string.IsNullOrEmpty(configuration.OutputFile))
           yield return FormatKeyValue(OutputFile, configuration.OutputFile);
 
-        if (!string.IsNullOrEmpty(configuration.DumpFile))
-          yield return FormatKeyValue(DumpFile, configuration.DumpFile);
+        if (configuration.WriteStatusFile)
+          yield return FormatKeyValue(WriteStatusFile, trueString);
 
-        if (configuration.UseDebugSymbols)
-          yield return FormatKeyValue(UseDebugSymbols, "true");
+        if (configuration.WriteStampFile)
+          yield return FormatKeyValue(WriteStampFile, trueString);
+
+        if (configuration.ProcessDebugSymbols)
+          yield return FormatKeyValue(ProcessDebugSymbols, trueString);
 
         if (!string.IsNullOrEmpty(configuration.StrongNameKey))
           yield return FormatKeyValue(StrongNameKey, configuration.StrongNameKey);
 
-        if (!string.IsNullOrEmpty(configuration.StrongNameKey))
-          yield return FormatKeyValue(TargetFramework, configuration.TargetFramework);
+        if (!string.IsNullOrEmpty(configuration.BackupDirectory))
+          yield return FormatKeyValue(BackupDirectory, configuration.BackupDirectory);
 
         if (configuration.ReferencedAssemblies!=null)
           foreach (var assemblyFile in configuration.ReferencedAssemblies)
@@ -120,11 +152,12 @@ namespace Xtensive.Orm.Weaver
     private string projectId;
     private string inputFile;
     private string outputFile;
-    private string dumpFile;
     private string strongNameKey;
-    private string targetFramework;
+    private string backupDirectory;
+    private bool writeStatusFile;
+    private bool writeStampFile;
+    private bool processDebugSymbols;
     private IList<string> referencedAssemblies;
-    private bool useDebugSymbols;
 
     public string ProjectId
     {
@@ -144,34 +177,40 @@ namespace Xtensive.Orm.Weaver
       set { outputFile = value; }
     }
 
-    public bool UseDebugSymbols
-    {
-      get { return useDebugSymbols; }
-      set { useDebugSymbols = value; }
-    }
-
     public string StrongNameKey
     {
       get { return strongNameKey; }
       set { strongNameKey = value; }
     }
 
-    public string TargetFramework
+    public string BackupDirectory
     {
-      get { return targetFramework; }
-      set { targetFramework = value; }
+      get { return backupDirectory; }
+      set { backupDirectory = value; }
+    }
+
+    public bool ProcessDebugSymbols
+    {
+      get { return processDebugSymbols; }
+      set { processDebugSymbols = value; }
+    }
+
+    public bool WriteStatusFile
+    {
+      get { return writeStatusFile; }
+      set { writeStatusFile = value; }
+    }
+
+    public bool WriteStampFile
+    {
+      get { return writeStampFile; }
+      set { writeStampFile = value; }
     }
 
     public IList<string> ReferencedAssemblies
     {
       get { return referencedAssemblies; }
       set { referencedAssemblies = value; }
-    }
-
-    public string DumpFile
-    {
-      get { return dumpFile; }
-      set { dumpFile = value; }
     }
 
     public IEnumerable<string> Dump()

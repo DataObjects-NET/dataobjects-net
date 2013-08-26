@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Weaver.Stages
 
       if (!context.HasTransformations) {
         File.Copy(configuration.InputFile, configuration.OutputFile, true);
-        if (configuration.UseDebugSymbols) {
+        if (configuration.ProcessDebugSymbols) {
           File.Copy(
             FileHelper.GetDebugSymbolsFile(configuration.InputFile),
             FileHelper.GetDebugSymbolsFile(configuration.OutputFile),
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Weaver.Stages
         }
       }
 
-      if (configuration.UseDebugSymbols) {
+      if (configuration.ProcessDebugSymbols) {
         writerParameters.WriteSymbols = true;
         writerParameters.SymbolWriterProvider = new PdbWriterProvider();
       }

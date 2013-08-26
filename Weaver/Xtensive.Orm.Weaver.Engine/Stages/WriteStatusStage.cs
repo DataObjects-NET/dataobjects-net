@@ -6,19 +6,19 @@
 
 using System.Collections.Generic;
 using System.IO;
-using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver.Stages
 {
-  internal sealed class DumpStateStage : ProcessorStage
+  internal sealed class WriteStatusStage : ProcessorStage
   {
     public override ActionResult Execute(ProcessorContext context)
     {
-      var dumpFile = context.Configuration.DumpFile;
-      if (string.IsNullOrEmpty(dumpFile))
+      if (!context.Configuration.WriteStatusFile)
         return ActionResult.Success;
 
-      using (var writer = new StreamWriter(dumpFile)) {
+      var statusFile = FileHelper.GetStatusFile(context.Configuration.OutputFile);
+
+      using (var writer = new StreamWriter(statusFile)) {
         DumpTypes(writer, "Entity types:", context.EntityTypes);
         DumpTypes(writer, "Structure types:", context.StructureTypes);
       }

@@ -24,10 +24,10 @@ namespace Xtensive.Orm.Weaver.Stages
 
       var debugSymbolsFile = string.Empty;
 
-      if (configuration.UseDebugSymbols) {
+      if (configuration.ProcessDebugSymbols) {
         debugSymbolsFile = FileHelper.GetDebugSymbolsFile(inputFile);
         if (!File.Exists(debugSymbolsFile)) {
-          configuration.UseDebugSymbols = false;
+          configuration.ProcessDebugSymbols = false;
           context.Logger.Write(MessageCode.WarningDebugSymbolsFileIsNotFound, debugSymbolsFile);
         }
       }
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Weaver.Stages
 
       Stream debugSymbolsStream = null;
 
-      if (configuration.UseDebugSymbols) {
+      if (configuration.ProcessDebugSymbols) {
         debugSymbolsStream = File.OpenRead(debugSymbolsFile);
         readerParameters.ReadSymbols = true;
         readerParameters.SymbolReaderProvider = new PdbReaderProvider();

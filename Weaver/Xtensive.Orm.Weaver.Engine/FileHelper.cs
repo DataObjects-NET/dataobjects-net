@@ -10,9 +10,19 @@ namespace Xtensive.Orm.Weaver
 {
   internal static class FileHelper
   {
-    public static string GetDebugSymbolsFile(string file)
+    public static string GetDebugSymbolsFile(string targetFile)
     {
-      return Path.ChangeExtension(file, ".pdb");
+      return Path.ChangeExtension(targetFile, ".pdb");
+    }
+
+    public static string GetStatusFile(string targetFile)
+    {
+      return targetFile + ".weaver-status";
+    }
+
+    public static string GetStampFile(string targetFile)
+    {
+      return targetFile + ".weaver-stamp";
     }
   }
 }

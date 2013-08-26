@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Weaver
         new FindPersistentTypesStage(),
         new ModifyPersistentTypesStage(),
         new MarkAssemblyStage(),
-        new DumpStateStage(),
+        new WriteStatusStage(),
         new ExecuteWeavingTasksStage(),
         new SaveAssemblyStage(),
       };

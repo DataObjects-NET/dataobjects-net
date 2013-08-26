@@ -26,6 +26,10 @@ namespace Xtensive.Orm.Weaver
 
     public IMetadataResolver MetadataResolver { get; set; }
 
+    public string InputFile { get; set; }
+
+    public string OutputFile { get; set; }
+
     public bool HasTransformations { get { return WeavingTasks.Count > 0; } }
 
     public IList<PersistentType> EntityTypes { get; set; }
