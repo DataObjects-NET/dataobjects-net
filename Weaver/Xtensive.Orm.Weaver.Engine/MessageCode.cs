@@ -13,6 +13,7 @@ namespace Xtensive.Orm.Weaver
     ErrorTargetAssemblyHasNoExpectedReference,
     ErrorUnableToLocateOrmAssembly,
     ErrorUnableToFindReferencedAssembly,
+    ErrorUnableToRemoveBackingField,
 
     WarningDebugSymbolsFileIsNotFound,
     WarningReferencedAssemblyFileIsNotFound,

@@ -6,6 +6,8 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace Xtensive.Orm.Weaver.Stages
 {
@@ -35,13 +37,32 @@ namespace Xtensive.Orm.Weaver.Stages
       writer.WriteLine();
       foreach (var type in types) {
         writer.WriteLine(indent1 + type.Definition.FullName);
-        foreach (var property in type.KeyProperties)
-          writer.WriteLine("{0}[Key] {1} {2}", indent2, property.PropertyType, property.Name);
-        foreach (var property in type.AllProperties)
-          if (!type.KeyProperties.Contains(property))
-            writer.WriteLine("{0}{1} {2}", indent2, property.PropertyType, property.Name);
+        foreach (var property in type.Properties.Where(p => p.IsKey)) {
+          writer.Write(indent2);
+          WriteProperty(writer, property);
+          writer.WriteLine();
+        }
+        foreach (var property in type.Properties.Where(p => !p.IsKey)) {
+          writer.Write(indent2);
+          WriteProperty(writer, property);
+          writer.WriteLine();
+        }
       }
       writer.WriteLine();
+    }
+
+    private static void WriteProperty(StreamWriter writer, PersistentProperty property)
+    {
+      if (property.IsKey)
+        writer.Write("[Key] ");
+      if (property.IsExplicitInterfaceImplementation)
+        writer.WriteLine("[Explicit] ");
+      var propertyDefinition = property.Definition;
+      writer.Write(propertyDefinition.PropertyType.FullName);
+      writer.Write(" ");
+      writer.Write(propertyDefinition.Name);
+      if (property.IsExplicitInterfaceImplementation)
+        writer.Write(" ({0})", property.ExplicitlyImplementedInterface.FullName);
     }
   }
 }

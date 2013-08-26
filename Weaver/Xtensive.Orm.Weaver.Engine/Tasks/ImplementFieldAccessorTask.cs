@@ -14,6 +14,7 @@ namespace Xtensive.Orm.Weaver.Tasks
   {
     private readonly TypeDefinition type;
     private readonly PropertyDefinition property;
+    private readonly TypeReference explicitlyImplementedInterface;
     private readonly AccessorKind kind;
 
     public override ActionResult Execute(ProcessorContext context)
@@ -57,8 +58,9 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     private string GetPropertyName()
     {
-      // TODO: handle explicit interface implementations
-      return property.Name;
+      return explicitlyImplementedInterface!=null
+        ? string.Format("{0}.{1}", explicitlyImplementedInterface.Name, property.Name)
+        : property.Name;
     }
 
     private GenericInstanceMethod GetGetter(ProcessorContext context)
@@ -87,16 +89,17 @@ namespace Xtensive.Orm.Weaver.Tasks
       return result;
     }
 
-    public ImplementFieldAccessorTask(TypeDefinition type, PropertyDefinition property, AccessorKind kind)
+    public ImplementFieldAccessorTask(AccessorKind kind, TypeDefinition type, PropertyDefinition property, TypeReference explicitlyImplementedInterface)
     {
       if (type==null)
         throw new ArgumentNullException("type");
       if (property==null)
         throw new ArgumentNullException("property");
 
+      this.kind = kind;
       this.type = type;
       this.property = property;
-      this.kind = kind;
+      this.explicitlyImplementedInterface = explicitlyImplementedInterface;
     }
   }
 }

@@ -16,22 +16,18 @@ namespace Xtensive.Orm.Weaver
 
     public TypeDefinition Definition { get; set; }
 
-    public ISet<PropertyDefinition> KeyProperties { get; set; }
+    public ISet<PersistentProperty> Properties { get; set; }
 
-    public ISet<PropertyDefinition> AllProperties { get; set; }
-
-    public PersistentType(TypeDefinition definition, PersistentTypeKind kind,
-      IEnumerable<PropertyDefinition> keyProperties, IEnumerable<PropertyDefinition> allProperties)
+    public PersistentType(TypeDefinition definition, PersistentTypeKind kind, IEnumerable<PersistentProperty> properties)
     {
       if (definition==null)
         throw new ArgumentNullException("definition");
-      if (allProperties==null)
-        throw new ArgumentNullException("allProperties");
+      if (properties==null)
+        throw new ArgumentNullException("properties");
 
       Definition = definition;
       Kind = kind;
-      KeyProperties = new HashSet<PropertyDefinition>(keyProperties);
-      AllProperties = new HashSet<PropertyDefinition>(allProperties);
+      Properties = new HashSet<PersistentProperty>(properties);
     }
   }
 }

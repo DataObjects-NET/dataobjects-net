@@ -6,15 +6,15 @@
 
 using System;
 
-namespace Xtensive.Orm
+namespace Xtensive.Orm.Weaver
 {
   /// <summary>
   /// Identifies assembly processed by DataObjects.Net weaver.
   /// You should not use this attribute directly.
   /// It is automatically applied to your assembly when needed.
   /// </summary>
-  [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
-  public sealed class ProcessedByWeaverAttribute : StorageAttribute
+  [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false, Inherited = false)]
+  public sealed class ProcessedByWeaverAttribute : Attribute
   {
   }
 }

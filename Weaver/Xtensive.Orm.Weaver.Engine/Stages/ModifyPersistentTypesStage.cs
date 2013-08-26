@@ -73,17 +73,21 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private void ProcessFields(ProcessorContext context, PersistentType type)
     {
-      foreach (var property in type.AllProperties) {
-        var definition = type.Definition;
-        if (property.GetMethod!=null)
-          context.WeavingTasks.Add(new ImplementFieldAccessorTask(definition, property, AccessorKind.Getter));
-        if (property.SetMethod!=null) {
-          if (type.KeyProperties.Contains(property))
-            context.WeavingTasks.Add(new DisableKeySetterTask(definition, property));
-          else
-            context.WeavingTasks.Add(new ImplementFieldAccessorTask(definition, property, AccessorKind.Setter));
-        }
-        context.WeavingTasks.Add(new RemoveBackingFieldTask(definition, property));
+      foreach (var property in type.Properties) {
+        var typeDefinition = type.Definition;
+        var propertyDefinition = property.Definition;
+        // Getter
+        context.WeavingTasks.Add(new ImplementFieldAccessorTask(AccessorKind.Getter,
+          typeDefinition, propertyDefinition, property.ExplicitlyImplementedInterface));
+        // Setter
+        if (property.IsKey)
+          context.WeavingTasks.Add(new DisableKeySetterTask(typeDefinition, propertyDefinition));
+        else
+          context.WeavingTasks.Add(new ImplementFieldAccessorTask(AccessorKind.Setter,
+            typeDefinition, propertyDefinition, property.ExplicitlyImplementedInterface));
+        // Backing field
+        context.WeavingTasks.Add(new RemoveBackingFieldTask(typeDefinition, propertyDefinition,
+          property.ExplicitlyImplementedInterface));
       }
     }
   }

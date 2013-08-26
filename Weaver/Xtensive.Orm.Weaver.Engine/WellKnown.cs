@@ -16,9 +16,12 @@ namespace Xtensive.Orm.Weaver
 
     public static readonly string KeyAttribute = "Xtensive.Orm.KeyAttribute";
     public static readonly string FieldAttribute = "Xtensive.Orm.FieldAttribute";
-    public static readonly string ProcessedByWeaverAttribute = "Xtensive.Orm.ProcessedByWeaverAttribute";
-    public static readonly string EntityTypeAttribute = "Xtensive.Orm.EntityTypeAttribute";
-    public static readonly string StructureTypeAttribute = "Xtensive.Orm.StructureTypeAttribute";
+
+    public static readonly string ProcessedByWeaverAttribute = "Xtensive.Orm.Weaver.ProcessedByWeaverAttribute";
+    public static readonly string EntityTypeAttribute = "Xtensive.Orm.Weaver.EntityTypeAttribute";
+    public static readonly string EntityInterfaceAttribute = "Xtensive.Orm.Weaver.EntityInterfaceAttribute";
+    public static readonly string EntitySetTypeAttribute = "Xtensive.Orm.Weaver.EntitySetTypeAttribute";
+    public static readonly string StructureTypeAttribute = "Xtensive.Orm.Weaver.StructureTypeAttribute";
 
     public static readonly string CompilerGeneratedAttribute = "System.Runtime.CompilerServices.CompilerGeneratedAttribute";
 

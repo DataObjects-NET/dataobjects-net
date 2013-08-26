@@ -75,6 +75,7 @@ namespace Xtensive.Orm.Weaver
       RegisterMessage(MessageCode.ErrorTargetAssemblyHasNoExpectedReference, "target assembly has expected reference to");
       RegisterMessage(MessageCode.ErrorUnableToLocateOrmAssembly, "unable to locate Xtensive.Orm assembly");
       RegisterMessage(MessageCode.ErrorUnableToFindReferencedAssembly, "unable to find referenced assembly");
+      RegisterMessage(MessageCode.ErrorUnableToRemoveBackingField, "unable to remove backing field");
 
       RegisterMessage(MessageCode.WarningDebugSymbolsFileIsNotFound, "debug symbols file is not found");
       RegisterMessage(MessageCode.WarningReferencedAssemblyFileIsNotFound, "referenced assembly file is not found");

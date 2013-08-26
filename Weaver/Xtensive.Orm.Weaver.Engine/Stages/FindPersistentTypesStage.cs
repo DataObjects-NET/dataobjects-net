@@ -34,11 +34,18 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private PersistentType CreateType(TypeDefinition definition, PersistentTypeKind kind)
     {
-      var allProperties = definition.Properties.Where(IsPersistentProperty).ToList();
-      var keyProperties = kind==PersistentTypeKind.Entity
-        ? definition.Properties.Where(p => p.HasAttribute(WellKnown.FieldAttribute))
-        : Enumerable.Empty<PropertyDefinition>();
-      return new PersistentType(definition, kind, keyProperties, allProperties);
+      var allProperties = definition.Properties.Where(IsPersistentProperty).Select(CreateProperty);
+      return new PersistentType(definition, kind, allProperties);
+    }
+
+    private PersistentProperty CreateProperty(PropertyDefinition definition)
+    {
+      var result = new PersistentProperty(definition);
+      result.IsKey = definition.HasAttribute(WellKnown.KeyAttribute);
+      var overriddenGetter = definition.GetMethod.Overrides.FirstOrDefault();
+      if (overriddenGetter!=null)
+        result.ExplicitlyImplementedInterface = overriddenGetter.DeclaringType;
+      return result;
     }
 
     private PersistentTypeKind InspectType(ProcessorContext context, TypeDefinition type)
@@ -102,18 +109,13 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private bool IsPersistentProperty(PropertyDefinition property)
     {
-      if (!property.HasAttribute(WellKnown.FieldAttribute))
+      if (property.IsStatic() || !property.IsAutoProperty())
         return false;
-      if (property.GetMethod!=null && !IsPersistentPropertyAccessor(property.GetMethod))
-        return false;
-      if (property.SetMethod!=null && !IsPersistentPropertyAccessor(property.SetMethod))
-        return false;
-      return true;
-    }
-
-    private bool IsPersistentPropertyAccessor(MethodDefinition method)
-    {
-      return !method.IsStatic && method.HasAttribute(WellKnown.CompilerGeneratedAttribute);
+      if (property.HasAttribute(WellKnown.FieldAttribute))
+        return true;
+      if (property.GetMethod.IsVirtual || property.GetMethod.Overrides.Count > 0) {
+        // Inspect declaring type
+      }
     }
   }
 }

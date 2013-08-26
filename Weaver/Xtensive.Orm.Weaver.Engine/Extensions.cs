@@ -19,6 +19,18 @@ namespace Xtensive.Orm.Weaver
       return target.CustomAttributes.Any(a => comparer.Equals(a.AttributeType.FullName, fullName));
     }
 
+    public static bool IsAutoProperty(this PropertyDefinition property)
+    {
+      return property.GetMethod!=null && property.GetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute)
+        && property.SetMethod!=null && property.SetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute);
+    }
+
+    public static bool IsStatic(this PropertyDefinition property)
+    {
+      return property.GetMethod!=null && property.GetMethod.IsStatic
+        || property.SetMethod!=null && property.SetMethod.IsStatic;
+    }
+
     public static bool Remove<T>(this Collection<T> items, string name)
       where T : MemberReference
     {
