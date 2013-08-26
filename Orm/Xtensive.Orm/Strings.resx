@@ -2467,4 +2467,7 @@ Error: {1}</value>
   <data name="ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed">
     <value xml:space="preserve">Non-LINQ calls are not supported within Query.ExecuteDelayed</value>
   </data>
+  <data name="ExIgnoreRuleCantBeAppliedToDatabaseOrSchemaOnly">
+    <value xml:space="preserve">Ignore rule can't be applied to database or schema only.</value>
+  </data>
 </root>

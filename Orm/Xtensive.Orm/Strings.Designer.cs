@@ -2052,6 +2052,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ignore rule can&apos;t be applied to database or schema only..
+        /// </summary>
+        internal static string ExIgnoreRuleCantBeAppliedToDatabaseOrSchemaOnly {
+            get {
+                return ResourceManager.GetString("ExIgnoreRuleCantBeAppliedToDatabaseOrSchemaOnly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Implementors of {0} interface belong to hierarchies one of which includes TypeId, but another doesn&apos;t: {1} &amp; {2}..
         /// </summary>
         internal static string ExImplementorsOfXInterfaceBelongToHierarchiesOneOfWhichIncludesTypeIdButAnotherDoesntYZ {

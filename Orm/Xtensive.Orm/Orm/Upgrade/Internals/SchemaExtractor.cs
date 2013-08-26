@@ -25,7 +25,8 @@ namespace Xtensive.Orm.Upgrade
       if (context.ExtractedModelCache!=null)
         return context.ExtractedModelCache;
 
-      var converter = new SqlModelConverter(services, GetSqlSchema(), GetPartialIndexes());
+      var sourceModel = new IgnoreRulesHandler(GetSqlSchema(), services.Configuration).Handle();
+      var converter = new SqlModelConverter(services, sourceModel, GetPartialIndexes());
       var result =  converter.Run();
       context.ExtractedModelCache = result;
       return result;

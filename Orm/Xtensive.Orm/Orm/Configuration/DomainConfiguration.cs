@@ -102,6 +102,7 @@ namespace Xtensive.Orm.Configuration
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseConfigurationCollection databases = new DatabaseConfigurationCollection();
     private KeyGeneratorConfigurationCollection keyGenerators = new KeyGeneratorConfigurationCollection();
+    private IgnoreRuleCollection ignoreRules = new IgnoreRuleCollection();
 
     private bool? isMultidatabase;
     private bool? isMultischema;
@@ -474,6 +475,19 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Get or set registered ignore rules
+    /// </summary>
+    public IgnoreRuleCollection IgnoreRules
+    {
+      get { return ignoreRules; }
+      set
+      {
+        this.EnsureNotLocked();
+        ignoreRules = value;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets collation for all columns.
     /// If provider does not utilize collations this setting is ignored.
     /// <remarks>
@@ -562,6 +576,7 @@ namespace Xtensive.Orm.Configuration
       // This couldn't be done in Validate() method
       // because override sequence of Lock() is so broken.
       ValidateMappingConfiguration(multischema, multidatabase);
+      ValidateIgnoreConfiguration();
 
       types.Lock(true);
       sessions.Lock(true);
@@ -569,6 +584,7 @@ namespace Xtensive.Orm.Configuration
       databases.Lock(true);
       mappingRules.Lock(true);
       keyGenerators.Lock(true);
+      ignoreRules.Lock(true);
 
       base.Lock(recursive);
 
@@ -588,6 +604,13 @@ namespace Xtensive.Orm.Configuration
           Strings.ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive);
     }
 
+    private void ValidateIgnoreConfiguration()
+    {
+      foreach (var ignoreRule in IgnoreRules) {
+        if(string.IsNullOrEmpty(ignoreRule.Table) && string.IsNullOrEmpty(ignoreRule.Column))
+          throw new InvalidOperationException(Strings.ExIgnoreRuleCantBeAppliedToDatabaseOrSchemaOnly);
+      }
+    }
     /// <inheritdoc/>
     protected override ConfigurationBase CreateClone()
     {
@@ -635,6 +658,7 @@ namespace Xtensive.Orm.Configuration
       databases = (DatabaseConfigurationCollection) configuration.Databases.Clone();
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
       keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();
+      ignoreRules = (IgnoreRuleCollection) configuration.IgnoreRules.Clone();
     }
 
     /// <summary>
