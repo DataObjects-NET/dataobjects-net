@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Weaver.Stages
       registry.Session = ImportType(context, ormAssembly, "Xtensive.Orm.Session");
       registry.EntityState = ImportType(context, ormAssembly, "Xtensive.Orm.EntityState");
       registry.Persistent = ImportType(context, ormAssembly, "Xtensive.Orm.Persistent");
-      registry.FieldInfo = ImportType(context, ormAssembly, "Xtensive.Orm.FieldInfo");
+      registry.FieldInfo = ImportType(context, ormAssembly, "Xtensive.Orm.Model.FieldInfo");
 
       registry.PersistenceImplementation = ImportType(context, ormAssembly, "Xtensive.Orm.Weaving.PersistenceImplementation");
       registry.HandleKeySet = ImportMethod(context, registry.PersistenceImplementation, "HandleKeySet", voidType, stringType, stringType);
