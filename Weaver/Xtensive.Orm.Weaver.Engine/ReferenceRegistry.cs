@@ -41,13 +41,13 @@ namespace Xtensive.Orm.Weaver
     public MethodReference PersistentGetterDefinition { get; set; }
     public MethodReference PersistentSetterDefinition { get; set; }
 
-    public IDictionary<TypeIdentity, GenericInstanceMethod> PersistentGetters { get; set; }
-    public IDictionary<TypeIdentity, GenericInstanceMethod> PersistentSetters { get; set; }
+    public IDictionary<TypeIdentity, MethodReference> PersistentGetters { get; set; }
+    public IDictionary<TypeIdentity, MethodReference> PersistentSetters { get; set; }
 
     public ReferenceRegistry()
     {
-      PersistentGetters = new Dictionary<TypeIdentity, GenericInstanceMethod>();
-      PersistentSetters = new Dictionary<TypeIdentity, GenericInstanceMethod>();
+      PersistentGetters = new Dictionary<TypeIdentity, MethodReference>();
+      PersistentSetters = new Dictionary<TypeIdentity, MethodReference>();
     }
   }
 }

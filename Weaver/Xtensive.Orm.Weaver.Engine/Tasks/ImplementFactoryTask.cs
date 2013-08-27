@@ -10,7 +10,7 @@ using Mono.Cecil.Cil;
 
 namespace Xtensive.Orm.Weaver.Tasks
 {
-  internal sealed class AddFactoryTask : WeavingTask
+  internal sealed class ImplementFactoryTask : WeavingTask
   {
     private const MethodAttributes ConstructorAttributes =
       MethodAttributes.Family
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Weaver.Tasks
     private MethodDefinition AddConstructor(ProcessorContext context)
     {
       var baseConstructor = GetBaseConstructor(context);
-      var method =  new MethodDefinition(WellKnown.Constructor, ConstructorAttributes, voidType);
+      var method = new MethodDefinition(WellKnown.Constructor, ConstructorAttributes, voidType) {HasThis = true};
       AddParameters(method);
       WeavingHelper.MarkAsCompilerGenerated(context, method);
       var il = method.Body.GetILProcessor();
@@ -56,8 +56,7 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     private MethodReference GetBaseConstructor(ProcessorContext context)
     {
-      var reference = new MethodReference(WellKnown.Constructor, targetType.BaseType, targetType.BaseType);
-      reference.ReturnType = voidType;
+      var reference = new MethodReference(WellKnown.Constructor, voidType, targetType.BaseType) {HasThis = true};
       foreach (var item in signature)
         reference.Parameters.Add(new ParameterDefinition(item));
       return context.TargetModule.Import(reference);
@@ -75,7 +74,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       targetType.Methods.Add(method);
     }
 
-    public AddFactoryTask(TypeDefinition targetType, TypeReference[] signature)
+    public ImplementFactoryTask(TypeDefinition targetType, TypeReference[] signature)
     {
       if (targetType==null)
         throw new ArgumentNullException("targetType");

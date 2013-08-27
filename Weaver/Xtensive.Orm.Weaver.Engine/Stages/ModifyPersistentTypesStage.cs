@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Weaver.Stages
       var definition = type.Definition;
       
       foreach (var signature in entityFactorySignatures)
-        context.WeavingTasks.Add(new AddFactoryTask(definition, signature));
+        context.WeavingTasks.Add(new ImplementFactoryTask(definition, signature));
 
       var userConstructors = type.Definition.Methods
         .Where(m => m.IsConstructor && !m.IsStatic && !m.HasAttribute(WellKnown.CompilerGeneratedAttribute));
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Weaver.Stages
       var definition = type.Definition;
 
       foreach (var signature in structureFactorySignatures)
-        context.WeavingTasks.Add(new AddFactoryTask(definition, signature));
+        context.WeavingTasks.Add(new ImplementFactoryTask(definition, signature));
 
       ProcessFields(context, type);
 
