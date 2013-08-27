@@ -114,7 +114,7 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private static Tuple<string, string> SplitTypeName(string fullName)
     {
-      var index = fullName.IndexOf(".", StringComparison.InvariantCulture);
+      var index = fullName.LastIndexOf(".", StringComparison.InvariantCulture);
       if (index < 0)
         return Tuple.Create(String.Empty, fullName);
       return Tuple.Create(
