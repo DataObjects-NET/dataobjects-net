@@ -30,7 +30,8 @@ namespace Xtensive.Orm.Weaver.Tasks
     {
       voidType = context.TargetModule.TypeSystem.Void;
       var constructor = AddConstructor(context);
-      AddFactoryMethod(context, constructor);
+      if (!targetType.IsAbstract)
+        AddFactoryMethod(context, constructor);
       return ActionResult.Success;
     }
 
