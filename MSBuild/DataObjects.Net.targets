@@ -13,28 +13,28 @@
   <CompileDependsOn>$(CompileDependsOn);XtensiveOrmRunWeaver</CompileDependsOn>
   <!-- Autodetect weaver program unless overridden by user -->
   <XtensiveOrmWeaver Condition="'$(XtensiveOrmWeaver)'==''">$(MSBuildThisFileDirectory)\Tools\Weaver.exe</XtensiveOrmWeaver>
+  <XtensiveOrmRunWeaverDependsOn>$(XtensiveOrmRunWeaverDependsOn)</XtensiveOrmRunWeaverDependsOn>
 </PropertyGroup>
 
 <!-- Run weaver -->
 <Target Name="XtensiveOrmRunWeaver"
         Inputs="@(IntermediateAssembly -> '%(FullPath)')"
         Outputs="@(IntermediateAssembly -> '%(FullPath).weaver-stamp')"
-        DependsOnTargets="ResolveAssemblyReferences;_CopyFilesMarkedCopyLocal">
+        DependsOnTargets="ResolveAssemblyReferences;_CopyFilesMarkedCopyLocal;$(XtensiveOrmRunWeaverDependsOn)">
   <Error Condition="!Exists('$(XtensiveOrmWeaver)')"
          Text="Weaver is not found at '$(XtensiveOrmWeaver)'" />
   <Message Importance="low" Text="Using weaver at '$(XtensiveOrmWeaver)'"/>
   <PropertyGroup>
-    <XtensiveOrmWeaverArguments>/makeBackup:true /processDebugSymbols:true /writeStampFile:true /input:@(IntermediateAssembly -> '%(FullPath)') @(ReferencePath -> '/reference:"%(FullPath)"', ' ')</XtensiveOrmWeaverArguments>
-    <XtensiveOrmWeaverArguments Condition="$(SignAssembly)=='true'">$(XtensiveOrmWeaverArguments) /strongNameKey:$(AssemblyOriginatorKeyFile)</XtensiveOrmWeaverArguments>
+    <XtensiveOrmWeaverParameters>/input:"@(IntermediateAssembly -> '%(FullPath)')" /makeBackup:true /writeStampFile:true</XtensiveOrmWeaverParameters>
+    <XtensiveOrmWeaverParameters Condition="'$(DebugSymbols)'=='true'">$(XtensiveOrmWeaverParameters) /processDebugSymbols:true</XtensiveOrmWeaverParameters>
+    <XtensiveOrmWeaverParameters Condition="$(SignAssembly)=='true'">$(XtensiveOrmWeaverParameters) /strongNameKey:"$(AssemblyOriginatorKeyFile)"</XtensiveOrmWeaverParameters>
+    <XtensiveOrmWeaverParameters>$(XtensiveOrmWeaverParameters) @(ReferencePath -> '/reference:"%(FullPath)"', ' ')</XtensiveOrmWeaverParameters>
   </PropertyGroup>
-  <Exec Command="$(XtensiveOrmWeaver) $(XtensiveOrmWeaverArguments)"
+  <Exec Command="$(XtensiveOrmWeaver) $(XtensiveOrmWeaverParameters)"
         WorkingDirectory="$(MSBuildProjectDirectory)"
         IgnoreExitCode="true">
     <Output TaskParameter="ExitCode" PropertyName="XtensiveOrmWeaverResult" />        
   </Exec>
-  <Error
-    Condition="'$(XtensiveOrmWeaverResult)'!='0'"
-    Text="DataObjects.Net persistence weaving failed." />
 </Target>
 
 </Project>
