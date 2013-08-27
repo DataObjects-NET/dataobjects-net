@@ -27,6 +27,9 @@ namespace Xtensive.Orm.Weaver.Stages
         return ActionResult.Failure;
       registry.OrmAssembly = ormAssembly;
 
+      var stringType = context.TargetModule.TypeSystem.String;
+      var voidType = context.TargetModule.TypeSystem.Void;
+
       // mscorlib
       registry.SerializationInfo = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization.SerializationInfo");
       registry.StreamingContext = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization.StreamingContext");
@@ -42,13 +45,21 @@ namespace Xtensive.Orm.Weaver.Stages
       registry.Persistent = ImportType(context, ormAssembly, "Xtensive.Orm.Persistent");
       registry.FieldInfo = ImportType(context, ormAssembly, "Xtensive.Orm.FieldInfo");
 
-      var getValueParameter = new GenericParameter(0, GenericParameterType.Method, context.TargetModule);
-      registry.PersistentGetterDefinition = new MethodReference("GetFieldValue", getValueParameter, registry.Persistent);
-      registry.PersistentGetterDefinition.GenericParameters.Add(getValueParameter);
+      registry.PersistenceImplementation = ImportType(context, ormAssembly, "Xtensive.Orm.Weaving.PersistenceImplementation");
+      registry.HandleKeySet = ImportMethod(context, registry.PersistenceImplementation, "HandleKeySet", voidType, stringType, stringType);
 
-      var setValueParameter = new GenericParameter(0, GenericParameterType.Method, context.TargetModule);
-      registry.PersistentSetterDefinition = new MethodReference("SetFieldValue", context.TargetModule.TypeSystem.Void, registry.Persistent);
-      registry.PersistentSetterDefinition.GenericParameters.Add(setValueParameter);
+      var getterType = new GenericParameter(0, GenericParameterType.Method, context.TargetModule);
+      var persistentGetter = new MethodReference("GetFieldValue", getterType, registry.Persistent) {HasThis = true};
+      persistentGetter.Parameters.Add(new ParameterDefinition(stringType));
+      persistentGetter.GenericParameters.Add(getterType);
+      registry.PersistentGetterDefinition = persistentGetter;
+
+      var setterType = new GenericParameter(0, GenericParameterType.Method, context.TargetModule);
+      var persistentSetter = new MethodReference("SetFieldValue", voidType, registry.Persistent) {HasThis = true};
+      persistentSetter.Parameters.Add(new ParameterDefinition(stringType));
+      persistentSetter.Parameters.Add(new ParameterDefinition(setterType));
+      persistentSetter.GenericParameters.Add(setterType);
+      registry.PersistentSetterDefinition = persistentSetter;
 
       registry.ProcessedByWeaverAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.ProcessedByWeaverAttribute);
       registry.EntityTypeAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.EntityTypeAttribute);
@@ -84,6 +95,15 @@ namespace Xtensive.Orm.Weaver.Stages
     {
       var splitName = SplitTypeName(fullName);
       return ImportDefaultConstructor(context, assembly, splitName.Item1, splitName.Item2);
+    }
+
+    private MethodReference ImportMethod(ProcessorContext context, TypeReference type, string name, TypeReference returnType, params TypeReference[] parameterTypes)
+    {
+      var targetModule = context.TargetModule;
+      var methodReference = new MethodReference(name,returnType, type);
+      foreach (var parameterType in parameterTypes)
+        methodReference.Parameters.Add(new ParameterDefinition(parameterType));
+      return targetModule.Import(methodReference);
     }
 
     private AssemblyNameReference FindReference(ProcessorContext context, string assemblyName)

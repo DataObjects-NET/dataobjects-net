@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Orm.Weaver
+namespace Xtensive.Orm.Weaving
 {
   /// <summary>
   /// Identifies assembly processed by DataObjects.Net weaver.

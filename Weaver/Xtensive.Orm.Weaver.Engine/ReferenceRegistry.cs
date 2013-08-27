@@ -28,12 +28,15 @@ namespace Xtensive.Orm.Weaver
     public TypeReference EntityState { get; set; }
     public TypeReference FieldInfo { get; set; }
     public TypeReference Persistent { get; set; }
+    public TypeReference PersistenceImplementation { get; set; }
 
     public MethodReference ProcessedByWeaverAttributeConstructor { get; set; }
     public MethodReference EntityTypeAttributeConstructor { get; set; }
     public MethodReference EntitySetTypeAttributeConstructor { get; set; }
     public MethodReference EntityInterfaceAttributeConstructor { get; set; }
     public MethodReference StructureTypeAttributeConstructor { get; set; }
+
+    public MethodReference HandleKeySet { get; set; }
 
     public MethodReference PersistentGetterDefinition { get; set; }
     public MethodReference PersistentSetterDefinition { get; set; }

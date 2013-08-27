@@ -6,6 +6,7 @@
 
 using System;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace Xtensive.Orm.Weaver.Tasks
 {
@@ -18,6 +19,11 @@ namespace Xtensive.Orm.Weaver.Tasks
     {
       var body = property.SetMethod.Body;
       body.Instructions.Clear();
+      var il = body.GetILProcessor();
+      il.Emit(OpCodes.Ldstr, type.Name);
+      il.Emit(OpCodes.Ldstr, property.Name);
+      il.Emit(OpCodes.Call, context.References.HandleKeySet);
+      il.Emit(OpCodes.Ret);
       return ActionResult.Success;
     }
 
