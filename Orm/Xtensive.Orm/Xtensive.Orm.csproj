@@ -1310,5 +1310,4 @@
     <Folder Include="Orm\Upgrade\Model\Stored\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\MSBuild\Weaving.targets" />
 </Project>

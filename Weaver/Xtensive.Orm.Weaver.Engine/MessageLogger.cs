@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Weaver
       Messages = new Dictionary<MessageCode, Tuple<string, string>>();
       RegisterMessage(MessageCode.ErrorInputFileIsNotFound, "input file is not found");
       RegisterMessage(MessageCode.ErrorStrongNameKeyIsNotFound, "strong name key file is not found");
-      RegisterMessage(MessageCode.ErrorTargetAssemblyHasNoExpectedReference, "target assembly has expected reference to");
+      RegisterMessage(MessageCode.ErrorTargetAssemblyHasNoExpectedReference, "target assembly does not have expected reference");
       RegisterMessage(MessageCode.ErrorUnableToLocateOrmAssembly, "unable to locate Xtensive.Orm assembly");
       RegisterMessage(MessageCode.ErrorUnableToFindReferencedAssembly, "unable to find referenced assembly");
       RegisterMessage(MessageCode.ErrorUnableToRemoveBackingField, "unable to remove backing field");

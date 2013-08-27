@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Weaver.Stages
     public override ActionResult Execute(ProcessorContext context)
     {
       var configuration = context.Configuration;
-      var inputFile = configuration.InputFile;
+      var inputFile = context.InputFile;
 
       if (string.IsNullOrEmpty(inputFile) || !File.Exists(inputFile)) {
         context.Logger.Write(MessageCode.ErrorInputFileIsNotFound, inputFile);

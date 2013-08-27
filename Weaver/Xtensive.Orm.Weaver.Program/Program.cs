@@ -38,12 +38,8 @@ namespace Xtensive.Orm.Weaver
       foreach (var arg in args)
         ProcessArgument(arg);
 
-      var stopwatch = Stopwatch.StartNew();
-
       var processor = CreateProcessor();
       var result = processor.Execute(configuration, new ConsoleMessageWriter());
-
-      Console.WriteLine("completed in {0}", stopwatch.Elapsed.TotalSeconds.ToString("0.00", CultureInfo.InvariantCulture));
 
       ExitAccordingToResult(result);
     }

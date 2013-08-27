@@ -4,10 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.21
 
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace Xtensive.Orm.Weaver.Stages
 {
@@ -18,7 +16,7 @@ namespace Xtensive.Orm.Weaver.Stages
       if (!context.Configuration.WriteStatusFile)
         return ActionResult.Success;
 
-      var statusFile = FileHelper.GetStatusFile(context.Configuration.OutputFile);
+      var statusFile = FileHelper.GetStatusFile(context.OutputFile);
 
       using (var writer = new StreamWriter(statusFile)) {
         DumpTypes(context, writer, PersistentTypeKind.Entity);

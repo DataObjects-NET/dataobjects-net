@@ -17,16 +17,18 @@ namespace Xtensive.Orm.Weaver.Stages
     {
       var configuration = context.Configuration;
 
+      var inputFile = context.InputFile;
+      var outputFile = context.OutputFile;
+      var outputIsInput = inputFile==outputFile;
+
       if (!context.HasTransformations) {
-        File.Copy(configuration.InputFile, configuration.OutputFile, true);
-        if (configuration.ProcessDebugSymbols) {
-          File.Copy(
-            FileHelper.GetDebugSymbolsFile(configuration.InputFile),
-            FileHelper.GetDebugSymbolsFile(configuration.OutputFile),
-            true);
-        }
+        if (!outputIsInput)
+          FileHelper.CopyWithPdb(context, inputFile, outputFile);
         return ActionResult.Success;
       }
+
+      if (context.Configuration.MakeBackup && outputIsInput)
+        FileHelper.CopyWithPdb(context, inputFile, FileHelper.GetBackupFile(inputFile));
 
       var writerParameters = new WriterParameters();
 
@@ -46,7 +48,7 @@ namespace Xtensive.Orm.Weaver.Stages
         writerParameters.SymbolWriterProvider = new PdbWriterProvider();
       }
 
-      context.TargetModule.Write(configuration.OutputFile, writerParameters);
+      context.TargetModule.Write(outputFile, writerParameters);
 
       return ActionResult.Success;
     }

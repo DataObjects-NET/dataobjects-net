@@ -20,9 +20,9 @@ namespace Xtensive.Orm.Weaver
       private const string OutputFile = "output";
       private const string WriteStatusFile = "writeStatusFile";
       private const string WriteStampFile = "writeStampFile";
+      private const string MakeBackup = "makeBackup";
       private const string ProcessDebugSymbols = "processDebugSymbols";
       private const string StrongNameKey = "strongNameKey";
-      private const string BackupDirectory = "backupDir";
       private const string ReferencedAssembly = "reference";
 
       private static readonly char[] KeyValueSeparators = new[] {':', '='};
@@ -52,8 +52,8 @@ namespace Xtensive.Orm.Weaver
           return true;
         }
 
-        if (Comparer.Equals(key, BackupDirectory)) {
-          configuration.BackupDirectory = value;
+        if (Comparer.Equals(key, MakeBackup)) {
+          configuration.MakeBackup = ParseBool(value);
           return true;
         }
 
@@ -107,11 +107,11 @@ namespace Xtensive.Orm.Weaver
         if (configuration.ProcessDebugSymbols)
           yield return FormatKeyValue(ProcessDebugSymbols, trueString);
 
+        if (configuration.MakeBackup)
+          yield return FormatKeyValue(MakeBackup, trueString);
+
         if (!string.IsNullOrEmpty(configuration.StrongNameKey))
           yield return FormatKeyValue(StrongNameKey, configuration.StrongNameKey);
-
-        if (!string.IsNullOrEmpty(configuration.BackupDirectory))
-          yield return FormatKeyValue(BackupDirectory, configuration.BackupDirectory);
 
         if (configuration.ReferencedAssemblies!=null)
           foreach (var assemblyFile in configuration.ReferencedAssemblies)
@@ -153,7 +153,7 @@ namespace Xtensive.Orm.Weaver
     private string inputFile;
     private string outputFile;
     private string strongNameKey;
-    private string backupDirectory;
+    private bool makeBackup;
     private bool writeStatusFile;
     private bool writeStampFile;
     private bool processDebugSymbols;
@@ -183,10 +183,10 @@ namespace Xtensive.Orm.Weaver
       set { strongNameKey = value; }
     }
 
-    public string BackupDirectory
+    public bool MakeBackup
     {
-      get { return backupDirectory; }
-      set { backupDirectory = value; }
+      get { return makeBackup; }
+      set { makeBackup = value; }
     }
 
     public bool ProcessDebugSymbols

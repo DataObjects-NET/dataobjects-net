@@ -32,6 +32,11 @@ namespace Xtensive.Orm.Weaver
         MetadataResolver = new MetadataResolver(assemblyResolver),
       };
 
+      context.InputFile = FileHelper.ExpandPath(configuration.InputFile);
+      context.OutputFile = FileHelper.ExpandPath(configuration.OutputFile);
+      if (string.IsNullOrEmpty(context.OutputFile))
+        context.OutputFile = context.InputFile;
+
       using (context) {
         foreach (var stage in GetStages()) {
           var stageResult = ExecuteStage(context, stage);
@@ -48,12 +53,14 @@ namespace Xtensive.Orm.Weaver
       return new ProcessorStage[] {
         new LoadAssemblyStage(),
         new ImportReferencesStage(),
+        new LoadSystemAssembliesListStage(),
         new FindPersistentTypesStage(),
         new ModifyPersistentTypesStage(),
         new MarkAssemblyStage(),
         new WriteStatusStage(),
         new ExecuteWeavingTasksStage(),
         new SaveAssemblyStage(),
+        new WriteStampStage(),
       };
     }
 

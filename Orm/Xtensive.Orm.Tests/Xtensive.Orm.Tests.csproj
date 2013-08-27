@@ -652,5 +652,5 @@
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\MSBuild\Weaving.targets" />
+  <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
 </Project>

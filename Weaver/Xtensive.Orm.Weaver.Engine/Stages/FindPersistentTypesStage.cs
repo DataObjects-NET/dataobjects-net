@@ -82,6 +82,10 @@ namespace Xtensive.Orm.Weaver.Stages
       if (type.Scope==ormAssembly)
         return ClassifyOrmType(type);
 
+      var reference = (AssemblyNameReference) type.Scope;
+      if (context.SystemAssemblies.Contains(reference.Name))
+        return PersistentTypeKind.None;
+
       return InspectExternalType(type);
     }
 

@@ -11,7 +11,6 @@
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.Oracle</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <SkipPostSharp>true</SkipPostSharp>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>

@@ -26,13 +26,15 @@ namespace Xtensive.Orm.Weaver
 
     public IMetadataResolver MetadataResolver { get; set; }
 
+    public bool HasTransformations { get { return WeavingTasks.Count > 0; } }
+
+    public ISet<string> SystemAssemblies { get; set; }
+
+    public IList<PersistentType> PersistentTypes { get; set; }
+
     public string InputFile { get; set; }
 
     public string OutputFile { get; set; }
-
-    public bool HasTransformations { get { return WeavingTasks.Count > 0; } }
-
-    public IList<PersistentType> PersistentTypes { get; set; }
 
     public void Dispose()
     {
@@ -43,6 +45,7 @@ namespace Xtensive.Orm.Weaver
       WeavingTasks = new List<WeavingTask>();
       References = new ReferenceRegistry();
       PersistentTypes = new List<PersistentType>();
+      SystemAssemblies = new HashSet<string>(WeavingHelper.AssemblyNameComparer);
     }
   }
 }
