@@ -63,9 +63,19 @@ namespace Xtensive.Orm.Weaver.Tasks
       return context.TargetModule.Import(reference);
     }
 
-    private void AddFactoryMethod(ProcessorContext context, MethodDefinition constructor)
+    private void AddFactoryMethod(ProcessorContext context, MethodReference constructor)
     {
-      var method = new MethodDefinition(WellKnown.FactoryMethod, FactoryMethodAttributes, targetType);
+      var returnType = (TypeReference) targetType;
+      if (targetType.HasGenericParameters) {
+        var typeInstance = new GenericInstanceType(targetType);
+        foreach (var parameter in targetType.GenericParameters)
+          typeInstance.GenericArguments.Add(parameter);
+        returnType = typeInstance;
+        constructor = new MethodReference(WellKnown.Constructor, voidType, typeInstance) {HasThis = true};
+        foreach (var parameterType in signature)
+          constructor.Parameters.Add(new ParameterDefinition(parameterType));
+      }
+      var method = new MethodDefinition(WellKnown.FactoryMethod, FactoryMethodAttributes, returnType);
       AddParameters(method);
       WeavingHelper.MarkAsCompilerGenerated(context, method);
       var il = method.Body.GetILProcessor();
