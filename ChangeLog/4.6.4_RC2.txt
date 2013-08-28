@@ -1,2 +1,3 @@
 [main] Fixed regression in Session.Query.ExecuteDelayed introduced in 4.6.4 RC
+[mysql] Fixed removal of self-referenced entities
 [sqlite] Fixed extraction of multi-column primary keys

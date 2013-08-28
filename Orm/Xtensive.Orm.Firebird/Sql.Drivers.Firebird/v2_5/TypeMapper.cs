@@ -22,11 +22,6 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       return new SqlValueType(SqlType.Int16);
     }
 
-    public override SqlValueType MapTimeSpan(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int64);
-    }
-
     public override SqlValueType MapUShort(int? length, int? precision, int? scale)
     {
       return base.MapInt(length, precision, scale);
@@ -64,30 +59,12 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       return base.MapShort(length, precision, scale);
     }
 
-    public override object ReadTimeSpan(DbDataReader reader, int index)
-    {
-      long value = 0L;
-      value = reader.GetInt64(index);
-      return TimeSpan.FromTicks(value / 100);
-    }
-
     public override object ReadGuid(DbDataReader reader, int index)
     {
       string s = reader.GetString(index);
       if (string.IsNullOrEmpty(s))
         return null;
       return SqlHelper.GuidFromString(s);
-    }
-
-    public override void BindTimeSpan(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Int64;
-      if (value!=null) {
-        var timeSpan = (TimeSpan) value;
-        parameter.Value = timeSpan.Ticks * 100;
-      }
-      else
-        parameter.Value = DBNull.Value;
     }
 
     public override object ReadChar(DbDataReader reader, int index)
@@ -102,7 +79,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
     public override void BindChar(DbParameter parameter, object value)
     {
-      parameter.DbType = System.Data.DbType.String;
+      parameter.DbType = DbType.String;
       if (value==null || (default(char).Equals(value))) {
         parameter.Value = DBNull.Value;
         return;
@@ -121,7 +98,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
     public override void BindULong(DbParameter parameter, object value)
     {
-      parameter.DbType = System.Data.DbType.String;
+      parameter.DbType = DbType.String;
       parameter.Value = value ?? DBNull.Value;
     }
 

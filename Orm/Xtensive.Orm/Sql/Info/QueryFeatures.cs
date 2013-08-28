@@ -133,6 +133,11 @@ namespace Xtensive.Sql.Info
     StrictJoinSyntax = 1 << 22,
 
     /// <summary>
+    /// Indicates whether RDBMS does not support removal of rows, which have reference to itself.
+    /// </summary>
+    SelfReferencingRowRemovalIsError = 1 << 23,
+
+    /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
     /// </summary>
     Paging = Limit | Offset,

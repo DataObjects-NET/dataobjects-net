@@ -63,17 +63,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public override void BindTimeSpan(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Int64;
-      if (value!=null) {
-        var timeSpan = (TimeSpan) value;
-        parameter.Value = timeSpan.Ticks * 100;
-      }
-      else
-        parameter.Value = DBNull.Value;
-    }
-
     /// <inheritdoc/>
     public override void BindGuid(DbParameter parameter, object value)
     {
@@ -112,12 +101,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     }
 
     /// <inheritdoc/>
-    public override SqlValueType MapTimeSpan(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int64);
-    }
-
-    /// <inheritdoc/>
     public override SqlValueType MapGuid(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.VarChar, 32);
@@ -127,19 +110,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override object ReadByte(DbDataReader reader, int index)
     {
       return Convert.ToByte(reader[index]);
-    }
-
-    /// <inheritdoc/>
-    public override object ReadTimeSpan(DbDataReader reader, int index)
-    {
-      long value = 0L;
-      try {
-        value = reader.GetInt64(index);
-      }
-      catch (InvalidCastException) {
-        value = (long) reader.GetDecimal(index);
-      }
-      return TimeSpan.FromTicks(value / 100);
     }
 
     /// <inheritdoc/>

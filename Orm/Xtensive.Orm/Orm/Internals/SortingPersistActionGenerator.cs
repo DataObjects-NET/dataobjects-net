@@ -18,6 +18,7 @@ namespace Xtensive.Orm.Internals
     private List<EntityState> nonOwningStates;
     private List<EntityState> nonTargetedStates;
     private List<Triplet<EntityState, FieldInfo, Entity>> referencesToRestore;
+    private bool selfReferencingRowRemovalIsError;
 
     protected override IEnumerable<PersistAction> GetInsertSequence(IEnumerable<EntityState> entityStates)
     {
@@ -125,7 +126,8 @@ namespace Xtensive.Orm.Internals
           var skipEdge =
             targetKey.Equals(ownerKey)
               && (hierarchy.InheritanceSchema!=InheritanceSchema.ClassTable
-                || ownerField.ValueType==hierarchy.Root.UnderlyingType);
+                || ownerField.ValueType==hierarchy.Root.UnderlyingType)
+                && !selfReferencingRowRemovalIsError;
 
           if (skipEdge)
             continue;
@@ -168,6 +170,17 @@ namespace Xtensive.Orm.Internals
       // Temporary disabled:
       // return type.GetTargetAssociations().Count==0 || type.IsAuxiliary;
       return type.IsAuxiliary;
+    }
+
+    //Constructors
+    public SortingPersistActionGenerator()
+    {
+      selfReferencingRowRemovalIsError = false;
+    }
+
+    public SortingPersistActionGenerator(bool selfReferencingRowRemovalIsError)
+    {
+      this.selfReferencingRowRemovalIsError = selfReferencingRowRemovalIsError;
     }
   }
 }
