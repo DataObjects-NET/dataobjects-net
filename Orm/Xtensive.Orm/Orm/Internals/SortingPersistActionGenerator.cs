@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Internals
 
       // Remove entities that do not reference anything
       foreach (var state in inboundOnlyStates)
-         yield return new PersistAction(state, PersistActionKind.Remove);
+        yield return new PersistAction(state, PersistActionKind.Remove);
     }
 
     private void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates, bool rollbackDifferenceBeforeSort)
@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Internals
             targetKey.Equals(ownerKey)
               && (hierarchy.InheritanceSchema!=InheritanceSchema.ClassTable
                 || ownerField.ValueType==hierarchy.Root.UnderlyingType)
-                && !selfReferencingRowRemovalIsError;
+              && !selfReferencingRowRemovalIsError;
 
           if (skipEdge)
             continue;
@@ -157,16 +157,12 @@ namespace Xtensive.Orm.Internals
           .SetUntypedValue(entity, null);
       }
     }
-    }
 
-    //Constructors
-    public SortingPersistActionGenerator()
-    {
-      selfReferencingRowRemovalIsError = false;
-    }
+    // Constructors
 
     public SortingPersistActionGenerator(bool selfReferencingRowRemovalIsError)
     {
       this.selfReferencingRowRemovalIsError = selfReferencingRowRemovalIsError;
+    }
   }
 }
