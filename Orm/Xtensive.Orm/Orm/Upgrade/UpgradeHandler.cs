@@ -5,7 +5,6 @@
 // Created:    2009.04.30
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -74,7 +73,7 @@ namespace Xtensive.Orm.Upgrade
     /// <inheritdoc/>
     public void OnConfigureUpgradeDomain()
     {
-      var recycledList = new List<RecycledDefinition>();
+      var recycledList = new System.Collections.Generic.List<RecycledDefinition>();
       AddRecycledDefinitions(recycledList);
       ConvertRecycledCollectionToHints(UpgradeContext.Hints, recycledList);
     }
@@ -290,7 +289,7 @@ namespace Xtensive.Orm.Upgrade
     /// Overide this method to add recycled definitions
     /// </summary>
     /// <param name="recycledDefinitions"></param>
-    protected virtual void AddRecycledDefinitions(ICollection<RecycledDefinition>  recycledDefinitions)
+    protected virtual void AddRecycledDefinitions(System.Collections.Generic.ICollection<RecycledDefinition> recycledDefinitions)
     {
     }
     
@@ -299,7 +298,7 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     /// <param name="hints"></param>
     /// <param name="recycledDefinitions"></param>
-    private void ConvertRecycledCollectionToHints(ISet<UpgradeHint> hints, ICollection<RecycledDefinition> recycledDefinitions)
+    private void ConvertRecycledCollectionToHints(ISet<UpgradeHint> hints, System.Collections.Generic.ICollection<RecycledDefinition> recycledDefinitions)
     {
       if (recycledDefinitions.Count==0)
         return;
