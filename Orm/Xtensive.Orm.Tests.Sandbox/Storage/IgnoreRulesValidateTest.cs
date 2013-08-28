@@ -5,11 +5,13 @@
 // Created:    2013.08.16
 
 using System;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Customer = Xtensive.Orm.Tests.Storage.IgnoreRulesValidateValidateModel.Customer;
+using Model_1 = Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel_1;
+using Model_2 = Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel_2;
 
-namespace Xtensive.Orm.Tests.Storage.IgnoreRulesValidateRecreateModel
+namespace Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel_1
 {
   public abstract class Person : Entity
   {
@@ -110,7 +112,7 @@ namespace Xtensive.Orm.Tests.Storage.IgnoreRulesValidateRecreateModel
   }
 }
 
-namespace Xtensive.Orm.Tests.Storage.IgnoreRulesValidateValidateModel
+namespace Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel_2
 {
   public abstract class Person : Entity
   {
@@ -186,8 +188,10 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public class IgnoreRulesValidateTest
   {
+    private Key changedOrderKey;
+
     [Test]
-    public void MainTest()
+    public void ValidateUpdateTest()
     {
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate);
       initialDomain.Dispose();
@@ -210,6 +214,22 @@ namespace Xtensive.Orm.Tests.Storage
       good.Lock();
     }
     
+    [Test]
+    public void PerformUpdateTest()
+    {
+      InitialDomainFillData();
+      UpgrageDomainPerformMode();
+      DomainValidate();
+    }
+    
+    [Test]
+    public void PerformSafelyUpdateTest()
+    {
+      InitialDomainFillData();
+      UpgrageDomainPerformSafelyMode();
+      DomainValidate();
+    }
+
     private void ValidateIgnoringConfiguration(DomainConfiguration configuration)
     {
       Assert.That(configuration.DefaultDatabase, Is.EqualTo("main"));
@@ -234,16 +254,70 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = mode;
-      if (mode == DomainUpgradeMode.Validate)
-      {
-        configuration.Types.Register(typeof(Customer).Assembly, typeof(Customer).Namespace);
+      if (mode != DomainUpgradeMode.Recreate) {
+        configuration.Types.Register(typeof (Model_2.Customer).Assembly, typeof (Model_2.Customer).Namespace);
         configuration.IgnoreRules.IgnoreTable("IgnoredTable");
         configuration.IgnoreRules.IgnoreColumn("SomeIgnoredField").WhenTable("Order");
         configuration.IgnoreRules.IgnoreColumn("IgnoredColumn.Id").WhenTable("Author");
       }
       else
-        configuration.Types.Register(typeof(IgnoreRulesValidateRecreateModel.Customer).Assembly, typeof(IgnoreRulesValidateRecreateModel.Customer).Namespace);
+        configuration.Types.Register(typeof (Model_1.Customer).Assembly, typeof (Model_1.Customer).Namespace);
       return Domain.Build(configuration);
+    }
+
+    private void InitialDomainFillData()
+    {
+      using (var domain = BuildDomain(DomainUpgradeMode.Recreate))
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var author = new Model_1.Author { FirstName = "Иван", LastName = "Гончаров", Birthday = new DateTime(1812, 6, 18) };
+        var book = new Model_1.Book { ISBN = "9780140440409", Title = "Обломов" };
+        book.Authors.Add(author);
+        var customer = new Model_1.Customer { FirstName = "Алексей", LastName = "Кулаков", Birthday = new DateTime(1988, 8, 31) };
+        var order = new Model_1.Order { Book = book, Customer = customer, SomeIgnoredField = "Secret information for FBI :)" };
+        transaction.Complete();
+      }
+    }
+
+    private void UpgrageDomainPerformMode()
+    {
+      using (var domain = BuildDomain(DomainUpgradeMode.Perform))
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var currentCustomer = session.Query.All<Model_2.Customer>().First(c => c.LastName=="Кулаков");
+        var order = session.Query.All<Model_2.Order>().First(o => o.Customer.LastName==currentCustomer.LastName);
+        var newCustomer = new Model_2.Customer { FirstName = "Fred", LastName = "Smith", Birthday = new DateTime(1998, 7, 9) };
+        order.Customer = newCustomer;
+        changedOrderKey = order.Key;
+        transaction.Complete();
+      }
+    }
+
+    private void UpgrageDomainPerformSafelyMode()
+    {
+      using (var domain = BuildDomain(DomainUpgradeMode.PerformSafely))
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var currentCustomer = session.Query.All<Model_2.Customer>().First(c => c.LastName=="Кулаков");
+        var order = session.Query.All<Model_2.Order>().First(o => o.Customer.LastName==currentCustomer.LastName);
+        var newCustomer = new Model_2.Customer { FirstName = "Fred", LastName = "Smith", Birthday = new DateTime(1998, 7, 9) };
+        order.Customer = newCustomer;
+        changedOrderKey = order.Key;
+        transaction.Complete();
+      }
+    }
+    private void DomainValidate()
+    {
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.UpgradeMode = DomainUpgradeMode.Validate;
+      configuration.Types.Register(typeof (Model_1.Customer).Assembly, typeof (Model_1.Customer).Namespace);
+
+      using (var domain = Domain.Build(configuration))
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var result = session.Query.All<Model_1.Order>().First(o => o.Key==changedOrderKey);
+        Assert.That(result.SomeIgnoredField, Is.EqualTo("Secret information for FBI :)"));
+      }
     }
   }
 }
