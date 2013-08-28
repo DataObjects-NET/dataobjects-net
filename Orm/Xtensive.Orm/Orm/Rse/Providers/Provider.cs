@@ -7,7 +7,6 @@
 using System;
 using System.Diagnostics;
 using System.Text;
-using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.Reflection;
 
@@ -17,7 +16,6 @@ namespace Xtensive.Orm.Rse.Providers
   /// Abstract base class for any query provider.
   /// </summary>
   [Serializable]
-  [Initializable]
   [DebuggerDisplay("{DebuggerDisplayName}, Source count = {Sources.Length}")]
   public abstract class Provider
   {

@@ -6,8 +6,6 @@
 
 using System;
 using System.Text.RegularExpressions;
-using PostSharp.Aspects.Dependencies;
-using Xtensive.Aspects;
 
 namespace Xtensive.Orm.Validation
 {
@@ -15,10 +13,6 @@ namespace Xtensive.Orm.Validation
   /// Ensures that email address is in correct format.
   /// </summary>
   [Serializable]
-  [ProvideAspectRole(StandardRoles.Validation)]
-  [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
-  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(InconsistentRegionAttribute))]
-  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
   public sealed class EmailConstraint : PropertyConstraintAspect
   {
     private const string EmailPattern = @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$";

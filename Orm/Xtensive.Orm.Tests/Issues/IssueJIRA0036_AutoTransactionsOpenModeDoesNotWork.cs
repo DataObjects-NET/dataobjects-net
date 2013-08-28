@@ -82,7 +82,6 @@ namespace Xtensive.Orm.Tests.Issues
       session.SaveChanges();
     }
 
-    [Transactional]
     public static void CreateContractors()
     {
       var contractor = new Contractor();

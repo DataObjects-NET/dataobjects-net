@@ -12,7 +12,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Xtensive.Aspects;
 using Xtensive.Collections;
 using Xtensive.Core;
 
@@ -76,7 +75,6 @@ namespace Xtensive.Orm
     /// <see langword="true"/> if this collection contains the specified item; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    [Infrastructure] // Proxy
     public bool Contains(TItem item)
     {
       return base.Contains(item);
@@ -90,7 +88,6 @@ namespace Xtensive.Orm
     /// <see langword="True"/>, if the item is added to the collection;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    [Infrastructure] // Proxy
     public bool Add(TItem item)
     {
       return base.Add(item);
@@ -104,7 +101,6 @@ namespace Xtensive.Orm
     /// <see langword="True"/>, if the item is removed from the collection;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    [Infrastructure] // Proxy
     public bool Remove(TItem item)
     {
       return base.Remove(item);
@@ -163,7 +159,6 @@ namespace Xtensive.Orm
     #region ICollection<T> members
 
     /// <inheritdoc/>
-    [Infrastructure] // Proxy
     int ICollection<TItem>.Count
     {
       [DebuggerStepThrough]
@@ -171,7 +166,6 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public bool IsReadOnly
     {
       [DebuggerStepThrough]
@@ -179,14 +173,12 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    [Infrastructure] // Proxy
     void ICollection<TItem>.Add(TItem item)
     {
       base.Add(item);
     }
 
     /// <inheritdoc/>
-    [Infrastructure] // Proxy
     public IEnumerator<TItem> GetEnumerator()
     {
       foreach (var item in Entities)
@@ -194,7 +186,6 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    [Infrastructure] // Proxy
     IEnumerator IEnumerable.GetEnumerator()
     {
       return GetEnumerator();
@@ -216,7 +207,6 @@ namespace Xtensive.Orm
     /// </summary>
     /// <value></value>
     /// <inheritdoc/>
-    [Infrastructure]
     public Expression Expression
     {
       get {
@@ -228,17 +218,14 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public Type ElementType { get { return typeof (TItem); } }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public IQueryProvider Provider { get { return Session.Query.Provider; } }
 
     #endregion
     
     /// <inheritdoc/>
-    [Infrastructure]
     protected sealed override Func<QueryEndpoint,Int64> GetItemCountQueryDelegate(FieldInfo field)
     {
       return qe => GetItemsQuery(qe, field).LongCount();

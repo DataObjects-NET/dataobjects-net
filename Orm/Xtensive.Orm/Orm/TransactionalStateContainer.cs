@@ -5,15 +5,12 @@
 // Created:    2008.11.05
 
 using System;
-using Xtensive.Aspects;
-
 
 namespace Xtensive.Orm
 {
   /// <summary>
   /// An abstract base class for objects having associated transactional state.
   /// </summary>
-  [Infrastructure]
   public abstract class TransactionalStateContainer<TState> : SessionBound
   {
     private TState state;

@@ -5,7 +5,6 @@
 // Created:    2008.11.02
 
 using System;
-using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Tuples;
@@ -20,7 +19,6 @@ namespace Xtensive.Orm.Services
   /// Provides access to low-level operations with <see cref="Persistent"/> descendants.
   /// </summary>
   [Service(typeof(DirectPersistentAccessor))]
-  [Infrastructure]
   public class DirectPersistentAccessor : SessionBound,
     ISessionService
   {

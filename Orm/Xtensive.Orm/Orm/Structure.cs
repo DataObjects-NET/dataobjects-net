@@ -8,7 +8,6 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using Xtensive.Aspects;
 using Xtensive.Comparison;
 using Xtensive.Core;
 
@@ -67,7 +66,6 @@ namespace Xtensive.Orm
   /// </code>
   /// </example>
   [SystemType]
-  [StructureAspect]
   public abstract class Structure : Persistent,
     IEquatable<Structure>,
     IFieldValueAdapter
@@ -84,7 +82,6 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public Persistent Owner
     {
       get { return owner; }
@@ -95,13 +92,11 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public FieldInfo Field { get; private set; }
 
     /// <summary>
     /// Gets the entity.
     /// </summary>
-    [Infrastructure]
     public Entity Entity
     {
       get
@@ -115,7 +110,6 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets a value indicating whether this <see cref="Structure"/> instance is bound to entity.
     /// </summary>
-    [Infrastructure]
     public bool IsBoundToEntity {
       get {
         return (Owner!=null) && ((Owner is Entity) || ((Structure) Owner).IsBoundToEntity);
@@ -341,7 +335,6 @@ namespace Xtensive.Orm
       return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
     }
 
-    [Transactional(TransactionalBehavior.Auto)]
     private bool InnerEquals(Structure other, bool thisIsBound, bool otherIsBound)
     {
       if (thisIsBound) {
@@ -457,7 +450,6 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="owner">The owner of this instance.</param>
     /// <param name="field">The owner field that describes this instance.</param>
-    [Infrastructure]
     protected Structure(Persistent owner, FieldInfo field)
       : base(owner.Session)
     {
@@ -484,7 +476,6 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="info">The info.</param>
     /// <param name="context">The context.</param>
-    [Infrastructure]
     protected Structure(SerializationInfo info, StreamingContext context)
     {
       bool successfully = false;

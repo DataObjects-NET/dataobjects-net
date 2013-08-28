@@ -7,14 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using PostSharp;
-using PostSharp.Aspects;
-using PostSharp.Aspects.Dependencies;
-using PostSharp.Extensibility;
 using Xtensive.Core;
-using Xtensive.Aspects;
-using Xtensive.Aspects.Helpers;
-
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Validation
@@ -25,9 +18,9 @@ namespace Xtensive.Orm.Validation
   /// </summary>
   [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = false, Inherited = false)]
   [Serializable]
-  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(PropertyConstraintAspect))]
-  public sealed class InconsistentRegionAttribute : OnMethodBoundaryAspect
+  public sealed class InconsistentRegionAttribute : Attribute
   {
+#if NEVER
     /// <inheritdoc/>
     public override bool CompileTimeValidate(MethodBase method)
     {
@@ -73,5 +66,6 @@ namespace Xtensive.Orm.Validation
       var region = (ICompletableScope) eventArgs.MethodExecutionTag;
       region.DisposeSafely();
     }
+#endif
   }
 }

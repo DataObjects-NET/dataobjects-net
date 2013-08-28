@@ -11,7 +11,6 @@
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <DontImportPostSharp>True</DontImportPostSharp>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -39,9 +38,6 @@
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PostSharp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL">
-      <HintPath>..\..\Lib\PostSharp\Reference Assemblies\.NET Framework 2.0\PostSharp.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -50,25 +46,16 @@
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
-    <Reference Include="Xtensive.Aspects, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
     <Reference Include="Xtensive.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Orm\Aspects\TransactionalAttribute.cs" />
-    <Compile Include="Orm\Aspects\EntityAspect.cs" />
-    <Compile Include="Orm\Aspects\EntitySetAspect.cs" />
-    <Compile Include="Orm\Aspects\NonTransactionalAttribute.cs" />
-    <Compile Include="Orm\Aspects\PersistentAspect.cs" />
-    <Compile Include="Orm\Aspects\StructureAspect.cs" />
     <Compile Include="Orm\Aspects\TransactionalBehavior.cs" />
-    <Compile Include="Orm\Aspects\TransactionalTypeAttribute.cs" />
     <Compile Include="Orm\Attributes\CompilerAttribute.cs" />
     <Compile Include="Orm\Attributes\CompilerContainerAttribute.cs" />
+    <Compile Include="Orm\Weaving\OverrideFieldNameAttribute.cs" />
     <Compile Include="Orm\Weaving\PersistenceImplementation.cs" />
     <Compile Include="Orm\Weaving\EntityInterfaceAttribute.cs" />
     <Compile Include="Orm\Weaving\EntitySetTypeAttribute.cs" />
@@ -1300,9 +1287,6 @@
     <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
       <Link>Properties\ProductInfo.cs</Link>
     </Compile>
-    <EmbeddedResource Include="$(DO_SECURE_DIR)\PostSharp.license">
-      <Link>PostSharp.license</Link>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

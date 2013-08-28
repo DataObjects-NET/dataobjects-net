@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Aspects;
 using Xtensive.Collections;
 
 
@@ -15,7 +14,6 @@ namespace Xtensive.Orm.Internals
   /// <summary>
   /// Registers <see cref="EntityState"/> changes.
   /// </summary>
-  [Infrastructure]
   public sealed class EntityChangeRegistry : SessionBound
   {
     private readonly HashSet<EntityState> @new = new HashSet<EntityState>();

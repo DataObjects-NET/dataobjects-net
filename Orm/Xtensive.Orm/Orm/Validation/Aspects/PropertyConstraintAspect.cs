@@ -7,13 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using PostSharp;
-using PostSharp.Aspects;
-using PostSharp.Aspects.Dependencies;
-using PostSharp.Aspects.Internals;
-using PostSharp.Extensibility;
-using Xtensive.Aspects;
-using Xtensive.Aspects.Helpers;
 using Xtensive.Collections;
 using Xtensive.Reflection;
 
@@ -24,12 +17,7 @@ namespace Xtensive.Orm.Validation
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = false)]
-  [MulticastAttributeUsage(MulticastTargets.Method, TargetMemberAttributes = MulticastAttributes.Instance, PersistMetaData = true)]
-  [ProvideAspectRole(StandardRoles.Validation)]
-  [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
-  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof (InconsistentRegionAttribute))]
-  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof (ReplaceAutoProperty))]
-  public abstract class PropertyConstraintAspect : OnMethodBoundaryAspect
+  public abstract class PropertyConstraintAspect : Attribute
   {
     private abstract class PropertyGetter
     {
@@ -115,9 +103,9 @@ namespace Xtensive.Orm.Validation
     /// <see cref="MessageResourceName"/>
     public Type MessageResourceType { get; set; }
 
+#if NEVER
     /// <inheritdoc/>
-    [MethodExecutionAdviceOptimization(MethodExecutionAdviceOptimizations.IgnoreAllEventArgsMembers & ~(MethodExecutionAdviceOptimizations.IgnoreGetInstance | MethodExecutionAdviceOptimizations.IgnoreGetArguments))]
-    public override sealed void OnEntry(MethodExecutionArgs args)
+    public void OnEntry(MethodExecutionArgs args)
     {
       var target = (IValidationAware) args.Instance;
       var context = target.Context;
@@ -129,7 +117,7 @@ namespace Xtensive.Orm.Validation
     }
 
     /// <inheritdoc/>
-    public override sealed bool CompileTimeValidate(MethodBase target)
+    public bool CompileTimeValidate(MethodBase target)
     {
       var methodInfo = target as MethodInfo;
       Property = methodInfo.GetProperty();
@@ -201,6 +189,7 @@ namespace Xtensive.Orm.Validation
     {
       OnRuntimeInitialize();
     }
+#endif
 
     /// <summary>
     /// Determines whether the specified <paramref name="valueType"/> 

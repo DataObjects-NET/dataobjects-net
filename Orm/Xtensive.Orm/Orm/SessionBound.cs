@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core;
 
-using Xtensive.Aspects;
+
 using Xtensive.IoC;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
@@ -28,7 +28,6 @@ namespace Xtensive.Orm
   /// To override the default behavior, use <see cref="TransactionalAttribute"/> and
   /// <see cref="InfrastructureAttribute"/>.
   /// </remarks>
-  [Infrastructure]
   public abstract class SessionBound : ISessionBound
   {
     private Session session;

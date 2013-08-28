@@ -7,10 +7,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using PostSharp.Aspects.Dependencies;
-using Xtensive.Aspects;
-using Xtensive.Collections;
-
 
 namespace Xtensive.Orm.Validation
 {
@@ -18,10 +14,6 @@ namespace Xtensive.Orm.Validation
   /// Ensures field length (or item count) fits in specified range.
   /// </summary>
   [Serializable]
-  [ProvideAspectRole(StandardRoles.Validation)]
-  [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
-  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(InconsistentRegionAttribute))]
-  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
   public sealed class LengthConstraint : PropertyConstraintAspect
   {
     private const string MinParameter = "Min";

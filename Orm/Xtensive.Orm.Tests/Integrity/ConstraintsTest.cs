@@ -8,7 +8,6 @@ using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using PostSharp.Aspects;
 using Xtensive.IoC;
 using Xtensive.Reflection;
 using Xtensive.Orm;
@@ -36,46 +35,6 @@ namespace Xtensive.Orm.Tests.Integrity
         get { return context; }
       }
     }
-
-    #region LogMethodFastAspect
-
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Constructor, AllowMultiple = true, Inherited = false)]
-    [Serializable]
-    internal class LogMethodFastAspect : OnMethodBoundaryAspect
-    {
-      public MethodBase Method { get; private set; }
-
-      public override void OnEntry(MethodExecutionArgs args)
-      {
-        Log.Info("OnEntry called on {0}.", Method.GetShortName(true));
-        args.MethodExecutionTag = "OnEntry";
-      }
-
-      public override void OnExit(MethodExecutionArgs args)
-      {
-        Log.Info("OnExit called.");
-        Log.Info(string.Format("OnEntry result: {0}", args.MethodExecutionTag));
-      }
-
-      public override void OnSuccess(MethodExecutionArgs args)
-      {
-        Log.Info("OnSuccess called.");
-      }
-
-      public override void OnException(MethodExecutionArgs args)
-      {
-        Log.Error(args.Exception);
-        args.FlowBehavior = FlowBehavior.RethrowException;
-      }
-
-      public override void RuntimeInitialize(MethodBase method)
-      {
-        Method = method;
-        Log.Info("RuntimeInitialize for {0}.", method.GetShortName(true));
-      }
-    }
-
-    #endregion
 
     internal class Person : ValidatableObject
     {

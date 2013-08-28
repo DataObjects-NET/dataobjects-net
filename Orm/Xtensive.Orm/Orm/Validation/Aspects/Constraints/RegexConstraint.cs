@@ -7,9 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using PostSharp.Aspects.Dependencies;
-using Xtensive.Aspects;
-
 
 namespace Xtensive.Orm.Validation
 {
@@ -17,10 +14,6 @@ namespace Xtensive.Orm.Validation
   /// Ensures property value matches specified regular expression.
   /// </summary>
   [Serializable]
-  [ProvideAspectRole(StandardRoles.Validation)]
-  [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
-  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(InconsistentRegionAttribute))]
-  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
   public sealed class RegexConstraint : PropertyConstraintAspect
   {
     private const string PatternParameter = "Pattern";

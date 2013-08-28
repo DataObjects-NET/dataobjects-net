@@ -6,8 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using PostSharp.Aspects.Dependencies;
-using Xtensive.Aspects;
 using Xtensive.Collections;
 using Xtensive.Comparison;
 using Xtensive.Core;
@@ -18,10 +16,6 @@ namespace Xtensive.Orm.Validation
   /// Ensures field value fits in the specified range.
   /// </summary>
   [Serializable]
-  [ProvideAspectRole(StandardRoles.Validation)]
-  [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
-  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof (InconsistentRegionAttribute))]
-  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof (ReplaceAutoProperty))]
   public sealed class RangeConstraint : PropertyConstraintAspect
   {
     private abstract class RangeValidator

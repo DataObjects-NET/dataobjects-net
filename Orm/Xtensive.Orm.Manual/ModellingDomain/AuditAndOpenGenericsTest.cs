@@ -393,7 +393,9 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
         }
 
         // And now - the magic!
-        DumpAuditLog();
+        using (var tx = session.OpenTransaction()) {
+          DumpAuditLog();
+        }
       }
     }
 
@@ -416,7 +418,6 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
       Assert.AreEqual(6, autoGenericInstances.Count);
     }
 
-    [Transactional(TransactionalBehavior.Open)]
     private void DumpAuditLog()
     {
       Console.WriteLine("Audit log:");

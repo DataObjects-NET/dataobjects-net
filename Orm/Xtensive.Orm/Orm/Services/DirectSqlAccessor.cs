@@ -6,7 +6,6 @@
 
 using System;
 using System.Data.Common;
-using Xtensive.Aspects;
 using Xtensive.Core;
 
 using Xtensive.IoC;
@@ -20,7 +19,6 @@ namespace Xtensive.Orm.Services
   /// <see cref="DbCommand"/> and <see cref="DbConnection"/>.
   /// </summary>
   [Service(typeof(DirectSqlAccessor))]
-  [Infrastructure]
   public sealed class DirectSqlAccessor : SessionBound,
     ISessionService
   {

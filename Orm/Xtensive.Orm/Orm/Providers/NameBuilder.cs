@@ -10,13 +10,13 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Weaving;
 using Xtensive.Reflection;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 

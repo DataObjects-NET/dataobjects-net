@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2009.12.14
 
-using Xtensive.Aspects;
 using Xtensive.Core;
 
 namespace Xtensive.Orm
@@ -21,7 +20,6 @@ namespace Xtensive.Orm
   /// To override the default behavior, use <see cref="TransactionalAttribute"/> and
   /// <see cref="InfrastructureAttribute"/>.
   /// </remarks>
-  [TransactionalType(TransactionalBehavior.Auto)]
   public interface ISessionBound : IContextBound<Session>
   {
     /// <summary>

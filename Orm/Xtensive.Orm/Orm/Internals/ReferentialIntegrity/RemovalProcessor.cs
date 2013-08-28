@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.Orm.Disconnected;
 using Xtensive.Orm.Internals;
@@ -17,7 +16,6 @@ using Xtensive.Orm.Operations;
 
 namespace Xtensive.Orm.ReferentialIntegrity
 {
-  [Infrastructure]
   internal class RemovalProcessor : SessionBound
   {
     #region Nested type: ReferenceDescriptor

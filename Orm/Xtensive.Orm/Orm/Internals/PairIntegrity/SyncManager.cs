@@ -6,14 +6,12 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Aspects;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.ReferentialIntegrity;
 
 namespace Xtensive.Orm.PairIntegrity
 {
-  [Infrastructure]
   internal class SyncManager : SessionBound
   {
     public void ProcessRecursively(SyncContext context, RemovalContext removalContext, 

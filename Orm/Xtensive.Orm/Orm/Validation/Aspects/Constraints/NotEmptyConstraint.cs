@@ -5,8 +5,6 @@
 // Created:    2009.05.27
 
 using System;
-using PostSharp.Aspects.Dependencies;
-using Xtensive.Aspects;
 
 namespace Xtensive.Orm.Validation
 {
@@ -14,10 +12,6 @@ namespace Xtensive.Orm.Validation
   /// Ensures that property value is not <see cref="string.Empty"/>.
   /// </summary>
   [Serializable]
-  [ProvideAspectRole(StandardRoles.Validation)]
-  [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
-  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(InconsistentRegionAttribute))]
-  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
   public sealed class NotEmptyConstraint : PropertyConstraintAspect
   {
     /// <inheritdoc/>

@@ -9,7 +9,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Xtensive.Aspects;
 using Xtensive.Caching;
 
 namespace Xtensive.Orm.Services
@@ -36,7 +35,6 @@ namespace Xtensive.Orm.Services
     /// returned by <see cref="GetEnumerator"/> methods
     /// (cache can be week, etc.).
     /// </summary>
-    [Infrastructure]
     public int Count {
       get { return EntityStateCache.Count; }
     }

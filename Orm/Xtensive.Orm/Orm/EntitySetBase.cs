@@ -10,7 +10,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
-using Xtensive.Aspects;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -32,8 +31,6 @@ namespace Xtensive.Orm
   /// <summary>
   /// Abstract base for <see cref="EntitySet{TItem}"/>.
   /// </summary>
-  [EntitySetAspect]
-  [Initializable]
   public abstract class EntitySetBase : SessionBound,
     IFieldValueAdapter,
     INotifyPropertyChanged,
@@ -53,15 +50,12 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the owner of this instance.
     /// </summary>
-    [Infrastructure]
     public Entity Owner { get { return owner; } }
 
     /// <inheritdoc/>
-    [Infrastructure] // Proxy
     Persistent IFieldValueAdapter.Owner { get { return Owner; } }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public FieldInfo Field { get; private set; }
 
     internal EntitySetState State { get; private set; }
@@ -316,7 +310,6 @@ namespace Xtensive.Orm
     #region INotifyXxxChanged & event support related methods
 
     /// <inheritdoc/>
-    [Infrastructure]
     public event PropertyChangedEventHandler PropertyChanged {
       add {
         Session.EntityEvents.AddSubscriber(GetOwnerKey(Owner), Field,
@@ -329,7 +322,6 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public event NotifyCollectionChangedEventHandler CollectionChanged {
       add {
         Session.EntityEvents.AddSubscriber(GetOwnerKey(Owner), Field,
@@ -345,7 +337,6 @@ namespace Xtensive.Orm
     /// Raises <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
     /// </summary>
     /// <param name="propertyName">Name of the changed property.</param>
-    [Infrastructure]
     protected void NotifyPropertyChanged(string propertyName)
     {
       if (!Session.EntityEvents.HasSubscribers)
@@ -362,7 +353,6 @@ namespace Xtensive.Orm
     /// <param name="action">The actual action.</param>
     /// <param name="item">The item, that was participating in the specified action.</param>
     /// <param name="index">The index on the item, if available.</param>
-    [Infrastructure]
     protected void NotifyCollectionChanged(NotifyCollectionChangedAction action, Entity item, int? index)
     {
       if (!Session.EntityEvents.HasSubscribers)
@@ -404,7 +394,6 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="eventKey">The event key.</param>
     /// <returns>Event subscription (delegate) for the specified event key.</returns>
-    [Infrastructure]
     protected Pair<Key, Delegate> GetSubscription(object eventKey)
     {
       var entityKey = GetOwnerKey(Owner);
@@ -421,7 +410,6 @@ namespace Xtensive.Orm
     /// <summary>
     /// Called when entity set is initialized.
     /// </summary>
-    [Infrastructure]
     protected virtual void OnInitialize()
     {
     }
@@ -430,7 +418,6 @@ namespace Xtensive.Orm
     /// Called when item is adding to entity set.
     /// </summary>
     /// <param name="item">The item.</param>
-    [Infrastructure]
     protected virtual void OnAdding(Entity item)
     {
     }
@@ -439,7 +426,6 @@ namespace Xtensive.Orm
     /// Called when item is added to entity set.
     /// </summary>
     /// <param name="item">The item.</param>
-    [Infrastructure]
     protected virtual void OnAdd(Entity item)
     {
     }
@@ -448,7 +434,6 @@ namespace Xtensive.Orm
     /// Called when item is removing from entity set.
     /// </summary>
     /// <param name="item">The item.</param>
-    [Infrastructure]
     protected virtual void OnRemoving(Entity item)
     {
     }
@@ -457,7 +442,6 @@ namespace Xtensive.Orm
     /// Called when item is removed from entity set.
     /// </summary>
     /// <param name="item">The item.</param>
-    [Infrastructure]
     protected virtual void OnRemove(Entity item)
     {
     }
@@ -465,7 +449,6 @@ namespace Xtensive.Orm
     /// <summary>
     /// Called when entity set is clearing.
     /// </summary>
-    [Infrastructure]
     protected virtual void OnClearing()
     {
     }
@@ -473,7 +456,6 @@ namespace Xtensive.Orm
     /// <summary>
     /// Called when entity set is cleared.
     /// </summary>
-    [Infrastructure]
     protected virtual void OnClear()
     {
     }
@@ -484,7 +466,6 @@ namespace Xtensive.Orm
     /// <remarks>
     /// Override this method to perform custom entity set validation.
     /// </remarks>
-    [Infrastructure]
     protected virtual void OnValidate()
     {
     }
@@ -492,7 +473,6 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets a value indicating whether validation can be performed for this entity.
     /// </summary>
-    [Infrastructure]
     protected internal virtual bool CanBeValidated {
       get { return Owner!=null && !Owner.IsRemoved;  }
     }
@@ -501,7 +481,6 @@ namespace Xtensive.Orm
 
     #region Add/Remove/Contains/Clear methods
 
-    [Transactional(TransactionalBehavior.Auto)]
     internal bool Contains(Entity item)
     {
       EnsureOwnerIsNotRemoved();
@@ -510,7 +489,6 @@ namespace Xtensive.Orm
       return Contains(item.Key, item);
     }
 
-    [Transactional(TransactionalBehavior.Auto)]
     internal bool Add(Entity item)
     {
       return Add(item, null, null);
@@ -577,7 +555,6 @@ namespace Xtensive.Orm
       }
     }
 
-    [Transactional(TransactionalBehavior.Auto)]
     internal bool Remove(Entity item)
     {
       return Remove(item, null, null);
@@ -766,13 +743,11 @@ namespace Xtensive.Orm
     #region IValidationAware implementation
 
     /// <inheritdoc/>
-    [Infrastructure]
     void IValidationAware.OnValidate()
     {
       InnerOnValidate();
     }
 
-    [Transactional]
     private void InnerOnValidate()
     {
       if (!CanBeValidated) // True for EntitySets with removed owners
@@ -781,7 +756,6 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     ValidationContext IValidationAware.Context {
       get {
         return Session.ValidationContext;

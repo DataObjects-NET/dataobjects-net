@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Linq;
@@ -21,7 +20,7 @@ namespace Xtensive.Orm.Services
   /// <summary>
   /// Provides API for dealing with query pipeline.
   /// </summary>
-  [Service(typeof (QueryBuilder), Singleton = true), Infrastructure]
+  [Service(typeof (QueryBuilder), Singleton = true)]
   public sealed class QueryBuilder : SessionBound, ISessionService
   {
     private readonly StorageDriver driver;

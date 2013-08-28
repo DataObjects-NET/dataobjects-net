@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Aspects;
 using Xtensive.Collections;
 
 using Xtensive.IoC;
@@ -16,7 +15,6 @@ using Xtensive.Orm;
 namespace Xtensive.Orm.Services
 {
   [Service(typeof (TransactionMonitor))]
-  [Infrastructure]
   public sealed class TransactionMonitor : SessionBound,
     ISessionService
   {
