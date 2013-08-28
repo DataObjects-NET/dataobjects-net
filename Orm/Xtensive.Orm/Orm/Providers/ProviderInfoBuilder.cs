@@ -98,6 +98,8 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.StrictJoinSyntax;
       if (serverFeatures.Supports(ServerFeatures.SingleConnection))
         f |= ProviderFeatures.SingleConnection;
+      if (queryFeatures.Supports(QueryFeatures.SelfReferencingRowRemovalIsError))
+        f |= ProviderFeatures.SelfReferencingRowRemovalIsError;
 
       var temporaryTable = serverInfo.TemporaryTable;
       if (temporaryTable!=null && temporaryTable.Features.Supports(TemporaryTableFeatures.Local))

@@ -202,7 +202,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         QueryFeatures.InsertDefaultValues |
         QueryFeatures.UpdateDefaultValues |
         QueryFeatures.ExplicitJoinOrder |
-        QueryFeatures.ScalarSubquery;
+        QueryFeatures.ScalarSubquery |
+        QueryFeatures.SelfReferencingRowRemovalIsError;
 
       return queryInfo;
     }
