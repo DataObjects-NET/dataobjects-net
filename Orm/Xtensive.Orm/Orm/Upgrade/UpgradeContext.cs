@@ -78,6 +78,11 @@ namespace Xtensive.Orm.Upgrade
     /// Gets the upgrade hints.
     /// </summary>
     public SetSlim<UpgradeHint> Hints { get; private set; }
+    
+    /// <summary>
+    /// Gets the recycled definitions.
+    /// </summary>
+    public ICollection<RecycledDefinition> RecycledDefinitions { get; internal set; }
 
     /// <summary>
     /// Gets the schema upgrade hints.

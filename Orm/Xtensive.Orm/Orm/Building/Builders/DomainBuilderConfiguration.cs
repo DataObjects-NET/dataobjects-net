@@ -4,6 +4,8 @@
 // Created by: Alex Yakunin
 // Created:    2009.05.01
 
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;
@@ -17,6 +19,7 @@ namespace Xtensive.Orm.Building.Builders
     private UpgradeStage stage;
     private IModelFilter modelFilter;
     private object upgradeContextCookie;
+    private ReadOnlyCollection<RecycledDefinition> recycledDefinitions;
 
     /// <summary>
     /// Gets <see cref="DomainConfiguration"/> for domain.
@@ -71,6 +74,16 @@ namespace Xtensive.Orm.Building.Builders
       {
         this.EnsureNotLocked();
         upgradeContextCookie = value;
+      }
+    }
+
+    internal ICollection<RecycledDefinition> RecycledDefinitions
+    {
+      get { return recycledDefinitions; }
+      set
+      {
+        this.EnsureNotLocked();
+        recycledDefinitions = value==null ? null : new ReadOnlyCollection<RecycledDefinition>(value.ToArray());
       }
     }
 

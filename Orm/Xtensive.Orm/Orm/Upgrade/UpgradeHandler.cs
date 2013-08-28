@@ -5,9 +5,11 @@
 // Created:    2009.04.30
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
 using System.Linq;
 
@@ -68,6 +70,14 @@ namespace Xtensive.Orm.Upgrade
 
     /// <inheritdoc/>
     public UpgradeContext UpgradeContext { get; private set; }
+
+    /// <inheritdoc/>
+    public void OnConfigureUpgradeDomain()
+    {
+      var recycledList = new List<RecycledDefinition>();
+      AddRecycledDefinitions(recycledList);
+      ConvertRecycledCollectionToHints(UpgradeContext.Hints, recycledList);
+    }
 
     /// <inheritdoc/>
     public virtual void OnPrepare()
@@ -274,6 +284,31 @@ namespace Xtensive.Orm.Upgrade
           hints.Add(new RenameFieldHint(r.Property.DeclaringType, oldName, r.Property.Name));
         }
       }
+    }
+
+    /// <summary>
+    /// Overide this method to add recycled definitions
+    /// </summary>
+    /// <param name="recycledDefinitions"></param>
+    protected virtual void AddRecycledDefinitions(ICollection<RecycledDefinition>  recycledDefinitions)
+    {
+    }
+    
+    /// <summary>
+    /// Convert recycled collection to SetSlim collection of hints.
+    /// </summary>
+    /// <param name="hints"></param>
+    /// <param name="recycledDefinitions"></param>
+    private void ConvertRecycledCollectionToHints(ISet<UpgradeHint> hints, ICollection<RecycledDefinition> recycledDefinitions)
+    {
+      if (recycledDefinitions.Count==0)
+        return;
+      var recycledFieldDefinitions = recycledDefinitions.OfType<RecycledFieldDefinition>();
+      foreach (var rec in recycledFieldDefinitions) {
+        if (rec.FieldName!=rec.OriginalFieldName && !string.IsNullOrEmpty(rec.OriginalFieldName))
+          hints.Add(new RenameFieldHint(rec.OwnerType, rec.OriginalFieldName, rec.FieldName));
+      }
+      UpgradeContext.RecycledDefinitions = recycledDefinitions;
     }
 
     /// <summary>

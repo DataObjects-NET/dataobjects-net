@@ -2467,4 +2467,7 @@ Error: {1}</value>
   <data name="ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed">
     <value xml:space="preserve">Non-LINQ calls are not supported within Query.ExecuteDelayed</value>
   </data>
+  <data name="ExUnableToProcessRecycledFieldDefinitionXOwnerTypeIsNotRegisteredInModel">
+    <value xml:space="preserve">Unable to process recycled field definition '{0}': owner type is not registered in model.</value>
+  </data>
 </root>
