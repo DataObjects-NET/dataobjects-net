@@ -41,8 +41,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override void PopulateData()
     {
       using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
+      using (var transaction = session.OpenTransaction()) {
         var deparnment = new Department { Name = "Cool Department" };
         deparnment.SeniorDepartment = deparnment;
         selfReferencedInstanceKey = deparnment.Key;
@@ -54,13 +53,12 @@ namespace Xtensive.Orm.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
+      using (var transaction = session.OpenTransaction()) {
         (from a in session.Query.All<Department>() where a.Key == selfReferencedInstanceKey select a).First().Remove();
-        transaction.Complete();
         var deletedEntity = (from a in session.Query.All<Department>()
-                              where a.Key == selfReferencedInstanceKey
-                              select a).FirstOrDefault();
+          where a.Key == selfReferencedInstanceKey
+          select a).FirstOrDefault();
+        transaction.Complete();
         Assert.AreEqual(deletedEntity, null);
       }
     }

@@ -18,6 +18,7 @@ namespace Xtensive.Orm.Internals
     private List<EntityState> nonOwningStates;
     private List<EntityState> nonTargetedStates;
     private List<Triplet<EntityState, FieldInfo, Entity>> referencesToRestore;
+    private bool selfReferencingRowRemovalIsError;
 
     protected override IEnumerable<PersistAction> GetInsertSequence(IEnumerable<EntityState> entityStates)
     {
@@ -51,10 +52,10 @@ namespace Xtensive.Orm.Internals
       }
     }
 
-    protected override IEnumerable<PersistAction> GetDeleteSequence(IEnumerable<EntityState> entityStates, bool setForeignKeyIsError)
+    protected override IEnumerable<PersistAction> GetDeleteSequence(IEnumerable<EntityState> entityStates)
     {
       // Topological sorting
-      SortAndRemoveLoopEdges(entityStates, true, setForeignKeyIsError);
+      SortAndRemoveLoopEdges(entityStates, true);
 
       // Restore loop links
       foreach (var triplet in referencesToRestore) {
@@ -79,7 +80,7 @@ namespace Xtensive.Orm.Internals
          yield return new PersistAction(state, PersistActionKind.Remove);
     }
 
-    private void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates, bool rollbackDifferenceBeforeSort, bool selfForeignKeyIsError = false)
+    private void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates, bool rollbackDifferenceBeforeSort)
     {
       var nodeIndex = new Dictionary<Key, Node<EntityState>>();
       var graph = new Graph<Node<EntityState>, Edge<AssociationInfo>>();
@@ -126,7 +127,7 @@ namespace Xtensive.Orm.Internals
             targetKey.Equals(ownerKey)
               && (hierarchy.InheritanceSchema!=InheritanceSchema.ClassTable
                 || ownerField.ValueType==hierarchy.Root.UnderlyingType)
-                && !selfForeignKeyIsError;
+                && !selfReferencingRowRemovalIsError;
 
           if (skipEdge)
             continue;
@@ -169,6 +170,17 @@ namespace Xtensive.Orm.Internals
       // Temporary disabled:
       // return type.GetTargetAssociations().Count==0 || type.IsAuxiliary;
       return type.IsAuxiliary;
+    }
+
+    //Constructors
+    public SortingPersistActionGenerator()
+    {
+      selfReferencingRowRemovalIsError = false;
+    }
+
+    public SortingPersistActionGenerator(bool selfReferencingRowRemovalIsError)
+    {
+      this.selfReferencingRowRemovalIsError = selfReferencingRowRemovalIsError;
     }
   }
 }
