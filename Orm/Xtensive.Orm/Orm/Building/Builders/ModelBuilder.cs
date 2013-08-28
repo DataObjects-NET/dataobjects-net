@@ -117,6 +117,7 @@ namespace Xtensive.Orm.Building.Builders
         context.Model = new DomainModel();
         BuildTypes(GetTypeBuildSequence());
         BuildAssociations();
+        FindAndMarkInboundAndOutboundTypes(context);
         IndexBuilder.BuildIndexes(context);
         context.Model.UpdateState();
         ValidateMappingConfiguration();
@@ -401,6 +402,100 @@ namespace Xtensive.Orm.Building.Builders
         if (association.IsPaired)
           association.Reversed.AuxiliaryType = auxiliaryType;
       }
+    }
+    private void FindAndMarkInboundAndOutboundTypes(BuildingContext context)
+    {
+      var inputRefCountDictionary = InitReferencesOfTypesDictionary(context.Model.Types);
+      var outputRefCountDictionary = InitReferencesOfTypesDictionary(context.Model.Types);
+
+      MarkAuxiliaryTypesAsOutboundOnly(context.Model.Types);
+
+      var associations = GetMasterOrNonPairedAssociations(context.Model.Associations);
+      foreach (var association in associations) {
+        switch (association.Multiplicity) {
+          case Multiplicity.ZeroToOne:
+          case Multiplicity.ManyToOne: {
+            RegiserReferences(outputRefCountDictionary, association.OwnerType);
+            RegiserReferences(inputRefCountDictionary, association.TargetType);
+            break;
+          }
+          case Multiplicity.OneToMany: {
+            RegiserReferences(inputRefCountDictionary, association.OwnerType);
+            RegiserReferences(outputRefCountDictionary, association.TargetType);
+            break;
+          }
+          case Multiplicity.OneToOne: {
+            RegiserReferences(inputRefCountDictionary, association.OwnerType, association.TargetType);
+            RegiserReferences(outputRefCountDictionary, association.OwnerType, association.TargetType);
+            break;
+          }
+          case Multiplicity.ManyToMany:
+          case Multiplicity.ZeroToMany: {
+            RegiserReferences(inputRefCountDictionary, association.OwnerType, association.TargetType);
+            break;
+          }
+        }
+      }
+      MarkTypesAsInboundOnly(outputRefCountDictionary);
+      MarkTypesAsOutboundOnly(inputRefCountDictionary);
+    }
+
+    private void RegiserReferences(Dictionary<TypeInfo, int> referenceRegistrator, params TypeInfo[] typesToRegisterReferences)
+    {
+      foreach (var type in typesToRegisterReferences) {
+        var typeImplementors = type.GetImplementors();
+        var descendantTypes = type.GetDescendants();
+        if (typeImplementors.Any())
+        {
+          foreach (var implementor in typeImplementors)
+            if (referenceRegistrator.ContainsKey(implementor))
+              referenceRegistrator[implementor] += 1;
+        }
+        else {
+          if (referenceRegistrator.ContainsKey(type))
+            referenceRegistrator[type] += 1;
+          if (descendantTypes.Any()) {
+            foreach (var descendant in descendantTypes) {
+              if (referenceRegistrator.ContainsKey(descendant))
+                referenceRegistrator[descendant] += 1;
+            }
+          }
+        }
+      }
+    }
+
+    private void MarkAuxiliaryTypesAsOutboundOnly(IEnumerable<TypeInfo> typesToMark)
+    {
+      var auxiliary = typesToMark.Where(el => el.IsAuxiliary);
+      foreach (var typeInfo in auxiliary)
+        typeInfo.IsOutboundOnly = true;
+    }
+
+    private void MarkTypesAsInboundOnly(Dictionary<TypeInfo, int> outputRefCountDictionary)
+    {
+      foreach (var output in outputRefCountDictionary.Where(el => el.Value==0))
+        output.Key.IsInboundOnly = true;
+    }
+
+    private void MarkTypesAsOutboundOnly(Dictionary<TypeInfo, int> inputRefCountDictionary)
+    {
+      foreach (var input in inputRefCountDictionary.Where(el => el.Value == 0))
+        input.Key.IsOutboundOnly = true;
+    }
+
+    private IEnumerable<AssociationInfo> GetMasterOrNonPairedAssociations(IEnumerable<AssociationInfo> allAssociations)
+    {
+      return allAssociations.Where(el => el.IsMaster || !el.IsPaired);
+    }
+
+    private Dictionary<TypeInfo,int> InitReferencesOfTypesDictionary(TypeInfoCollection allTypes)
+    {
+      var referencesOfTypeDictionary = new Dictionary<TypeInfo, int>();
+      var entityTypes = allTypes.Where(el => el.IsEntity && !el.IsInterface && !el.IsStructure && !el.IsSystem && !el.IsAuxiliary);
+      foreach (var type in entityTypes) {
+        referencesOfTypeDictionary.Add(type,0);
+      }
+      return referencesOfTypeDictionary;
     }
 
     #region Topological sort helpers

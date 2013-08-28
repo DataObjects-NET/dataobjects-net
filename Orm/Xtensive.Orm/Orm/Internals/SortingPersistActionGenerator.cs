@@ -15,8 +15,8 @@ namespace Xtensive.Orm.Internals
   internal class SortingPersistActionGenerator : PersistActionGenerator
   {
     private List<Node<EntityState>> sortedNodes;
-    private List<EntityState> nonOwningStates;
-    private List<EntityState> nonTargetedStates;
+    private List<EntityState> inboundOnlyStates;
+    private List<EntityState> outboundOnlyStates;
     private List<Triplet<EntityState, FieldInfo, Entity>> referencesToRestore;
     private bool selfReferencingRowRemovalIsError;
 
@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Internals
       SortAndRemoveLoopEdges(entityStates, false);
 
       // Insert entities that do not reference anything
-      foreach (var state in nonOwningStates)
+      foreach (var state in inboundOnlyStates)
         yield return new PersistAction(state, PersistActionKind.Insert);
 
       // Insert sorted states in reverse order
@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Internals
         yield return new PersistAction(sortedNodes[i].Value, PersistActionKind.Insert);
 
       // Insert entities that are not referenced by anything
-      foreach (var state in nonTargetedStates)
+      foreach (var state in outboundOnlyStates)
         yield return new PersistAction(state, PersistActionKind.Insert);
 
       // Restore loop links
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Internals
       }
 
       // Remove entities that are not referenced by anything
-      foreach (var state in nonTargetedStates)
+      foreach (var state in outboundOnlyStates)
         yield return new PersistAction(state, PersistActionKind.Remove);
 
       // Remove sorted states in direct order
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Internals
         yield return new PersistAction(node.Value, PersistActionKind.Remove);
 
       // Remove entities that do not reference anything
-      foreach (var state in nonOwningStates)
+      foreach (var state in inboundOnlyStates)
          yield return new PersistAction(state, PersistActionKind.Remove);
     }
 
@@ -85,17 +85,17 @@ namespace Xtensive.Orm.Internals
       var nodeIndex = new Dictionary<Key, Node<EntityState>>();
       var graph = new Graph<Node<EntityState>, Edge<AssociationInfo>>();
 
-      nonOwningStates = new List<EntityState>();
-      nonTargetedStates = new List<EntityState>();
+      inboundOnlyStates = new List<EntityState>();
+      outboundOnlyStates = new List<EntityState>();
 
       foreach (var state in entityStates) {
         if (rollbackDifferenceBeforeSort)
           state.RollbackDifference();
         var type = state.Type;
-        if (IsNonTargetedType(type))
-          nonTargetedStates.Add(state);
-        else if (IsNonOwningType(type))
-          nonOwningStates.Add(state);
+        if (type.IsOutboundOnly)
+          outboundOnlyStates.Add(state);
+        else if (type.IsInboundOnly)
+          inboundOnlyStates.Add(state);
         else {
           var node = new Node<EntityState>(state);
           graph.Nodes.Add(node);
@@ -157,19 +157,6 @@ namespace Xtensive.Orm.Internals
           .SetUntypedValue(entity, null);
       }
     }
-
-    private static bool IsNonOwningType(TypeInfo type)
-    {
-      // Temporary disabled:
-      // return type.GetOwnerAssociations().Count==0;
-      return false;
-    }
-
-    private static bool IsNonTargetedType(TypeInfo type)
-    {
-      // Temporary disabled:
-      // return type.GetTargetAssociations().Count==0 || type.IsAuxiliary;
-      return type.IsAuxiliary;
     }
 
     //Constructors
@@ -181,6 +168,5 @@ namespace Xtensive.Orm.Internals
     public SortingPersistActionGenerator(bool selfReferencingRowRemovalIsError)
     {
       this.selfReferencingRowRemovalIsError = selfReferencingRowRemovalIsError;
-    }
   }
 }

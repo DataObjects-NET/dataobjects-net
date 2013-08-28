@@ -56,6 +56,8 @@ namespace Xtensive.Orm.Model
     private object                             typeDiscriminatorValue;
     private MapTransform                       primaryKeyInjector;
     private bool                               isLeaf;
+    private bool                               isOutboundOnly;
+    private bool                               isInboundOnly;
     private KeyInfo                            key;
     private bool                               hasVersionRoots;
     private Dictionary<Pair<FieldInfo>, FieldInfo> structureFieldMapping;
@@ -127,6 +129,34 @@ namespace Xtensive.Orm.Model
     {
       [DebuggerStepThrough]
       get { return IsLocked ? isLeaf : GetIsLeaf(); }
+    }
+
+    ///<summary>
+    /// Gets or sets a value indicating whether this instance is outbound only
+    /// i.e. it's has only outgoing references
+    /// </summary>
+    public bool IsOutboundOnly
+    {
+      get { return isOutboundOnly; }
+      set
+      {
+        this.EnsureNotLocked();
+        isOutboundOnly = value;
+      }
+    }
+
+    ///<summary>
+    /// Gets or sets a value indicating whether this instance is inbound only
+    /// i.e. it's has only incoming references
+    /// </summary>
+    public bool IsInboundOnly
+    {
+      get { return isInboundOnly; }
+      set
+      {
+        this.EnsureNotLocked();
+        isInboundOnly = value;
+      }
     }
 
     /// <summary>

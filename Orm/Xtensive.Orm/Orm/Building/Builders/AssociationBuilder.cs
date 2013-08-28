@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Building.Builders
       var referencedType = field.IsEntity ? context.Model.Types[field.ValueType] : context.Model.Types[field.ItemType];
       var multiplicity = field.IsEntitySet ? Multiplicity.ZeroToMany : Multiplicity.ZeroToOne;
       var association = new AssociationInfo(
-        field, referencedType, multiplicity, 
+        field, referencedType, multiplicity,
         fieldDef.OnOwnerRemove, fieldDef.OnTargetRemove);
       association.Name = context.NameBuilder.BuildAssociationName(association);
       context.Model.Associations.Add(association);
