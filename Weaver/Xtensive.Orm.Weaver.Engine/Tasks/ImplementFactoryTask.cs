@@ -74,8 +74,9 @@ namespace Xtensive.Orm.Weaver.Tasks
     private MethodDefinition GetExistingConstructor()
     {
       var parameterTypes = signature.Select(t => new TypeIdentity(t)).ToList();
-      var existingConstructor = targetType.GetConstructors()
-        .FirstOrDefault(c => c.Parameters.Select(p => new TypeIdentity(p.ParameterType)).SequenceEqual(parameterTypes));
+      var constructors = targetType.Methods.Where(m => m.IsConstructor && !m.IsStatic);
+      var existingConstructor = constructors
+        .FirstOrDefault(m => m.Parameters.Select(p => new TypeIdentity(p.ParameterType)).SequenceEqual(parameterTypes));
       return existingConstructor;
     }
 

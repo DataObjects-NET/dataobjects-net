@@ -31,15 +31,6 @@ namespace Xtensive.Orm.Weaver
         || property.SetMethod!=null && property.SetMethod.IsStatic;
     }
 
-    public static IEnumerable<MethodDefinition> GetConstructors(this TypeDefinition type)
-    {
-      var comparer = WeavingHelper.TypeNameComparer;
-      return type.Methods.Where(m =>
-        comparer.Equals(m.Name, WellKnown.Constructor)
-        && m.HasThis
-        && m.Attributes.HasFlag(MethodAttributes.SpecialName | MethodAttributes.RTSpecialName));
-    }
-
     public static bool Remove<T>(this Collection<T> items, string name)
       where T : MemberReference
     {
