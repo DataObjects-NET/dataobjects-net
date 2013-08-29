@@ -891,4 +891,7 @@
   <data name="ExExpression0MustReferenceProperty">
     <value><![CDATA[Expression '{0}' must reference property.]]></value>
   </data>
+  <data name="ExChainedBufferRemoveMethodIsNotSupported">
+    <value xml:space="preserve">ChainedBuffer.Remove() method is not supported.</value>
+  </data>
 </root>
