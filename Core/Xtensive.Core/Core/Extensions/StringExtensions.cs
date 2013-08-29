@@ -501,5 +501,74 @@ namespace Xtensive.Core
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
       return string.Join(separator, values.Select(value => value.ToString()).ToArray());
     }
+
+
+    /// <summary>
+    /// Compares <paramref name="value"/> with <paramref name="sqlLikePattern"/>
+    /// </summary>
+    /// <param name="value">Value to compare.</param>
+    /// <param name="sqlLikePattern">SQL-Like pattern</param>
+    /// <returns>
+    /// <see langword="true" /> if <paramref name="value"/> fits the <paramref name="sqlLikePattern"/>; otherwise <see langword="false" />
+    /// </returns>
+    public static bool Like(this string value, string sqlLikePattern)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      ArgumentValidator.EnsureArgumentNotNull(sqlLikePattern, "sqlLikePattern");
+      string regexPattern = Regex.Replace(sqlLikePattern,
+        @"[%_]|[^%_]+",
+        match => {
+          if (match.Value=="%") {
+            return ".*";
+          }
+          if (match.Value=="_") {
+            return ".";
+          }
+          return Regex.Escape(match.Value);
+        });
+      return Regex.IsMatch(value, regexPattern);
+    }
+
+    /// <summary>
+    /// Compares <paramref name="value"/> with <paramref name="sqlLikePattern"/>
+    /// </summary>
+    /// <param name="value">Value to compare.</param>
+    /// <param name="sqlLikePattern">SQL-Like pattern</param>
+    /// <param name="escapeCharacter">Character to escape special symbols like '%' or '_'</param>
+    /// <returns>
+    /// <see langword="true" /> if <paramref name="value"/> fits the <paramref name="sqlLikePattern"/>; otherwise <see langword="false" />
+    /// </returns>
+    public static bool Like(this string value, string sqlLikePattern, char escapeCharacter)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      ArgumentValidator.EnsureArgumentNotNull(sqlLikePattern, "sqlLikePattern");
+      const string regExSpecialChars = @"[]\/^$.|?*+(){}";
+
+      if(char.IsControl(escapeCharacter))
+        throw new ArgumentException(Strings.ExControlCharacterUsedAsEscapeCharacter, "escapeCharacter");
+      if(escapeCharacter=='%' || escapeCharacter== '_')
+        throw new ArgumentException(string.Format(Strings.ExSpecialCharacterXUsedAsEscapeCharacter, escapeCharacter), "escapeCharacter");
+
+      var escChar = new string(escapeCharacter, 1);
+      if (regExSpecialChars.Contains(escapeCharacter))
+        escChar = @"\" + escChar;
+      var pattern = escChar + @"[%_]|[%_]|[^%" + escapeCharacter + "_]+";
+
+      string regexPattern = Regex.Replace(sqlLikePattern,
+        pattern,
+        match => {
+          if (match.Value=="%") {
+            return ".*";
+          }
+          if (match.Value=="_") {
+            return ".";
+          }
+          if(match.Value.StartsWith(escapeCharacter.ToString())) {
+            return match.Value[1].ToString();
+          }
+          return Regex.Escape(match.Value);
+        });
+      return Regex.IsMatch(value, regexPattern);
+    }
   }
 }

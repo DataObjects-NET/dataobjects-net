@@ -1036,10 +1036,6 @@ namespace Xtensive.Orm.Linq
 
       if (expression.IsAnonymousConstructor()) {
         var newExpression = (NewExpression) expression;
-#if !NET40
-        if (member.MemberType==MemberTypes.Property)
-          member = ((PropertyInfo) member).GetGetMethod();
-#endif
         int memberIndex = newExpression.Members.IndexOf(member);
         if (memberIndex < 0)
           throw new InvalidOperationException(string.Format(Strings.ExCouldNotGetMemberXFromExpression, member));

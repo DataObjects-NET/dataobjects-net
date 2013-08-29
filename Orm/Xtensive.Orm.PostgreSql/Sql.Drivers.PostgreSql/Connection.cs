@@ -23,18 +23,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     public override DbTransaction ActiveTransaction { get { return activeTransaction; } }
     
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override DbParameter CreateParameter()
     {
       return new NpgsqlParameter();
     }
 
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override void BeginTransaction()
     {
       EnsureTrasactionIsNotActive();
@@ -42,9 +38,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     }
 
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override void BeginTransaction(IsolationLevel isolationLevel)
     {
       EnsureTrasactionIsNotActive();
@@ -87,9 +81,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
     // Constructors
 
-#if NET40
-  [SecuritySafeCritical]
-#endif
+   [SecuritySafeCritical]
    public Connection(SqlDriver driver, string connectionString)
       : base(driver, connectionString)
     {

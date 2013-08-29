@@ -65,9 +65,7 @@ namespace Xtensive.Diagnostics
     /// </remarks>
     public static bool IsRunningOnBuildServer
     {
-    #if NET40
       [SecuritySafeCritical]
-    #endif
       get {
         if (isRunningOnBuildServer==0) {
           int newIsRunningOnBuildServer = -1;

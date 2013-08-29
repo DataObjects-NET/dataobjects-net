@@ -55,15 +55,11 @@ namespace Xtensive.Orm.Tests.Issues
       RunTest(keys.AsQueryable());
     }
 
-#if NET40
-
     [Test]
     public void EnumerableQueryTest()
     {
       RunTest(new EnumerableQuery<long>(keys));
     }
-
-#endif
 
     private void RunTest(IQueryable<long> keysQuery)
     {

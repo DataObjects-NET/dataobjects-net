@@ -84,11 +84,7 @@ namespace Xtensive.Orm
     // Serialization
 
     /// <inheritdoc/>
-    #if NET40
     [SecurityCritical]
-    #else
-    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
-    #endif
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
     {
       var serializedMapping = new Dictionary<Ref<Entity>, Ref<Entity>>();

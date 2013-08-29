@@ -24,9 +24,7 @@ namespace Xtensive.Sql.Drivers.MySql
     private const string DatabaseAndSchemaQuery = "select database(), schema()";
 
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     protected override string BuildConnectionString(UrlInfo url)
     {
       SqlHelper.ValidateConnectionUrl(url);
@@ -63,9 +61,7 @@ namespace Xtensive.Sql.Drivers.MySql
     }
 
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       using (var connection = new MySqlConnection(connectionString)) {

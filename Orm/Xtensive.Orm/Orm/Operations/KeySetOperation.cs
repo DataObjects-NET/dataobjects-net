@@ -76,11 +76,7 @@ namespace Xtensive.Orm.Operations
       Keys = new ReadOnlySet<Key>(keys);
     }
 
-    #if NET40
     [SecurityCritical]
-    #else
-    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
-    #endif
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
     {
       GetObjectData(info, context);

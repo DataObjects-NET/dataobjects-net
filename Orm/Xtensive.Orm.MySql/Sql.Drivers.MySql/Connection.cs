@@ -29,18 +29,14 @@ namespace Xtensive.Sql.Drivers.MySql
     }
 
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override DbParameter CreateParameter()
     {
       return new MySqlParameter();
     }
 
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override void BeginTransaction()
     {
       EnsureTrasactionIsNotActive();
@@ -48,9 +44,7 @@ namespace Xtensive.Sql.Drivers.MySql
     }
 
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override void BeginTransaction(IsolationLevel isolationLevel)
     {
       EnsureTrasactionIsNotActive();
@@ -92,9 +86,7 @@ namespace Xtensive.Sql.Drivers.MySql
 
     // Constructors
 
-#if NET40
     [SecuritySafeCritical]
-#endif
     public Connection(SqlDriver driver, string connectionString)
       : base(driver, connectionString)
     {

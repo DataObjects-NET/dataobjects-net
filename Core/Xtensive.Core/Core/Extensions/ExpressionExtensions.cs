@@ -191,7 +191,6 @@ namespace Xtensive.Core
       return mce.Method;
     }
 
-#if NET40
     /// <summary>
     /// Gets the index <see cref="PropertyInfo"/> from passed <paramref name="expression"/>.
     /// </summary>
@@ -208,7 +207,6 @@ namespace Xtensive.Core
           Strings.ExInvalidArgumentType.FormatWith(typeof (IndexExpression)), "expression");
       return ie.Indexer;
     }
-#endif
 
     /// <summary>
     /// Gets the <see cref="ConstructorInfo"/> from passed <paramref name="expression"/>.

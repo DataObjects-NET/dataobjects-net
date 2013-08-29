@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Providers
   [CompilerContainer(typeof(SqlExpression))]
   internal static class EnumCompilers
   {
-#if NET40
     [Compiler(typeof(Enum), "HasFlag")]
     public static SqlExpression EnumHasFlag(SqlExpression _this, 
       [Type(typeof (Enum))] SqlExpression value)
@@ -34,6 +33,5 @@ namespace Xtensive.Orm.Providers
       }
       return expression;
     }
-#endif
   }
 }

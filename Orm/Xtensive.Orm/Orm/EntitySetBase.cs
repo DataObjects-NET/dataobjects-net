@@ -798,6 +798,7 @@ namespace Xtensive.Orm
       var itemList = items.ToList();
       State.Update(itemList, isFullyLoaded ? (long?) itemList.Count : null);
       State.IsLoaded = true;
+      Session.NotifyEntitySetCached(this);
       return State;
     }
 
@@ -808,6 +809,7 @@ namespace Xtensive.Orm
       if (Owner.State.PersistenceState == PersistenceState.New) {
         State.TotalItemCount = State.CachedItemCount;
         State.IsLoaded = true;
+        Session.NotifyEntitySetCached(this);
         return true;
       }
       return false;

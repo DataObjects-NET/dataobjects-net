@@ -252,6 +252,11 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return new SqlValueType(SqlType.VarChar, 32);
     }
 
+    public override SqlValueType MapTimeSpan(int? length, int? precision, int? scale)
+    {
+      return new SqlValueType(SqlType.Interval);
+    }
+
     // Constructors
 
     public TypeMapper(SqlDriver driver)

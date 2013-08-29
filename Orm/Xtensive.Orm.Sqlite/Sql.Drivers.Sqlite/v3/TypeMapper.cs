@@ -56,17 +56,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       base.BindDateTime(parameter, value);
     }
 
-    public override void BindTimeSpan(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Int64;
-      if (value!=null) {
-        var timeSpan = (TimeSpan) value;
-        parameter.Value = timeSpan.Ticks*100;
-      }
-      else
-        parameter.Value = DBNull.Value;
-    }
-
     public override SqlValueType MapDecimal(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal);
@@ -105,23 +94,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override SqlValueType MapULong(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int64);
-    }
-
-    public override SqlValueType MapTimeSpan(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int64);
-    }
-
-    public override object ReadTimeSpan(DbDataReader reader, int index)
-    {
-      long value;
-      try {
-        value = reader.GetInt64(index);
-      }
-      catch (InvalidCastException) {
-        value = (long) reader.GetDecimal(index);
-      }
-      return TimeSpan.FromTicks(value / 100);
     }
 
     public override void Initialize()

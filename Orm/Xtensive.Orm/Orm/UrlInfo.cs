@@ -444,11 +444,7 @@ namespace Xtensive.Orm
     /// <param name="context">The destination (see <see cref="T:System.Runtime.Serialization.StreamingContext"></see>) for this serialization. </param>
     /// <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to populate with data. </param>
     /// <exception cref="T:System.Security.SecurityException">The caller does not have the required permission. </exception>
-    #if NET40
     [SecurityCritical]
-    #else
-    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
-    #endif
     public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("Url", url);

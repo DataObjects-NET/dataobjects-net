@@ -23,9 +23,7 @@ namespace Xtensive.Orm
   [MulticastAttributeUsage(MulticastTargets.Class, AllowMultiple = false, Inheritance = MulticastInheritance.Multicast)]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, typeof(InitializableAttribute))]
-#if NET40
   [SecuritySafeCritical]
-#endif
   internal class EntityAspect : Aspect, IAspectProvider
   {
     public IEnumerable<AspectInstance> ProvideAspects(object targetElement)

@@ -23,9 +23,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     private const string DatabaseAndSchemaQuery = "select current_database(), current_schema()";
 
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     protected override string BuildConnectionString(UrlInfo url)
     {
       SqlHelper.ValidateConnectionUrl(url);
@@ -54,9 +52,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     }
 
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       using (var connection = new NpgsqlConnection(connectionString)) {

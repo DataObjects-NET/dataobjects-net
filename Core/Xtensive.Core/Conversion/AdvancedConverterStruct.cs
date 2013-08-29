@@ -78,11 +78,7 @@ namespace Xtensive.Conversion
     }
 
     /// <inheritdoc/>
-    #if NET40
     [SecurityCritical]
-    #else
-    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
-    #endif
     public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       info.AddValue("AdvancedConverter", AdvancedConverter);

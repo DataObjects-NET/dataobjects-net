@@ -6,9 +6,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
+using System.Xml.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 
@@ -69,7 +74,8 @@ namespace Xtensive.Orm.Tests.ObjectModel.NorthwindDO
 
     protected Person(string id)
       : base(id)
-    {}
+    {
+    }
 
     protected Person(int id)
       : base(id)
@@ -98,7 +104,8 @@ namespace Xtensive.Orm.Tests.ObjectModel.NorthwindDO
 
     protected BusinessContact(string id)
       : base(id)
-    {}
+    {
+    }
 
     protected BusinessContact(int id)
       : base(id)
@@ -194,10 +201,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.NorthwindDO
     /// </summary>
     public IQueryable<Order> Orders
     {
-      get
-      {
-        return Session.Query.All<Order>().Where(o => o.ShipVia==this);
-      }
+      get { return Session.Query.All<Order>().Where(o => o.ShipVia==this); }
     }
 
     /// <summary>
@@ -205,10 +209,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.NorthwindDO
     /// </summary>
     public Order FirstOrder
     {
-      get
-      {
-        return Session.Query.All<Order>().Where(o => o.ShipVia==this).FirstOrDefault();
-      }
+      get { return Session.Query.All<Order>().Where(o => o.ShipVia==this).FirstOrDefault(); }
     }
   }
 
@@ -232,7 +233,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.NorthwindDO
     public Category Category { get; set; }
 
     [Field]
-    public ProductType ProductType { get; protected set;}
+    public ProductType ProductType { get; protected set; }
 
     [Field(Indexed = true)]
     public decimal UnitPrice { get; set; }
@@ -332,7 +333,10 @@ namespace Xtensive.Orm.Tests.ObjectModel.NorthwindDO
     [Field]
     public EntitySet<Territory> Territories { get; private set; }
 
-    public string FullName { get { return FirstName + " " + LastName; } }
+    public string FullName
+    {
+      get { return FirstName + " " + LastName; }
+    }
   }
 
   [Serializable]
@@ -443,374 +447,310 @@ namespace Xtensive.Orm.Tests.ObjectModel.NorthwindDO
 
   public class DataBaseFiller
   {
+    private abstract class Importer
+    {
+      public abstract void Import(Dictionary<string, object> fields, ImportContext importContext);
+    }
+
+    private class CategoryImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext importContext)
+      {
+        var category = new Category();
+        category.CategoryName = (String) fields["CategoryName"];
+        category.Description = (String) fields["Description"];
+        category.Picture = (Byte[]) fields["Picture"];
+        importContext.Categories.Add(fields["CategoryID"], category);
+      }
+    }
+
+    private class CustomerImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext importContext)
+      {
+        var customer = new Customer((String) fields["CustomerID"]);
+        customer.CompanyName = (String) fields["CompanyName"];
+        customer.ContactName = (String) fields["ContactName"];
+        customer.ContactTitle = (String) fields["ContactTitle"];
+        customer.Fax = (String) fields["Fax"];
+        customer.Phone = (String) fields["Phone"];
+        customer.Address = new Address();
+        customer.Address.City = (String) fields["City"];
+        customer.Address.Country = (String) fields["Country"];
+        customer.Address.PostalCode = (String) fields["PostalCode"];
+        customer.Address.Region = (String) fields["Region"];
+        customer.Address.StreetAddress = (String) fields["Address"];
+        importContext.Customers.Add(fields["CustomerID"], customer);
+      }
+    }
+
+    private class RegionImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext importContext)
+      {
+        var region = new Region();
+        region.RegionDescription = (String) fields["RegionDescription"];
+        importContext.Regions.Add(fields["RegionID"], region);
+      }
+    }
+
+    private class SupplierImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext importContext)
+      {
+        var supplier = new Supplier();
+        supplier.Phone = (String) fields["Phone"];
+        supplier.HomePage = (String) fields["HomePage"];
+        supplier.Fax = (String) fields["Fax"];
+        supplier.ContactTitle = (String) fields["ContactTitle"];
+        supplier.ContactName = (String) fields["ContactName"];
+        supplier.CompanyName = (String) fields["CompanyName"];
+        supplier.Address = new Address();
+        supplier.Address.City = (String) fields["City"];
+        supplier.Address.Country = (String) fields["Country"];
+        supplier.Address.Region = (String) fields["Region"];
+        supplier.Address.PostalCode = (String) fields["PostalCode"];
+        supplier.Address.StreetAddress = (String) fields["Address"];
+        importContext.Suppliers.Add(fields["SupplierID"], supplier);
+      }
+    }
+
+    private class ShipperImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext importContext)
+      {
+        var shipper = new Shipper();
+        shipper.CompanyName = (String) fields["CompanyName"];
+        shipper.Phone = (String) fields["Phone"];
+        importContext.Shippers.Add(fields["ShipperID"], shipper);
+      }
+    }
+
+    private class ProductImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext importContext)
+      {
+        var product = (bool) fields["Discontinued"]
+          ? (Product) new DiscontinuedProduct()
+          : new ActiveProduct();
+        product.ProductName = (String) fields["ProductName"];
+        product.Supplier = (Supplier) importContext.Suppliers[fields["SupplierID"]];
+        product.Category = (Category) importContext.Categories[fields["CategoryID"]];
+        product.UnitPrice = (Decimal) fields["UnitPrice"];
+        product.UnitsInStock = (Int16) fields["UnitsInStock"];
+        product.UnitsOnOrder = (Int16) fields["UnitsOnOrder"];
+        product.ReorderLevel = (Int16) fields["ReorderLevel"];
+        importContext.Products.Add(fields["ProductID"], product);
+      }
+    }
+
+    private class EmployeeImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext importContext)
+      {
+        var employee = new Employee();
+        employee.LastName = (String) fields["LastName"];
+        employee.FirstName = (String) fields["FirstName"];
+        employee.Title = (String) fields["Title"];
+        employee.TitleOfCourtesy = (String) fields["TitleOfCourtesy"];
+        employee.BirthDate = (DateTime?) fields["BirthDate"];
+        employee.HireDate = (DateTime?) fields["HireDate"];
+        employee.HomePhone = (String) fields["HomePhone"];
+        employee.Extension = (String) fields["Extension"];
+        employee.Photo = (Byte[]) fields["Photo"];
+        employee.Notes = (String) fields["Notes"];
+        employee.PhotoPath = (String) fields["PhotoPath"];
+        employee.Address = new Address();
+        employee.Address.City = (String) fields["City"];
+        employee.Address.Country = (String) fields["Country"];
+        employee.Address.PostalCode = (String) fields["PostalCode"];
+        employee.Address.Region = (String) fields["Region"];
+        employee.Address.StreetAddress = (String) fields["Address"];
+        importContext.Employees.Add(fields["EmployeeID"], employee);
+      }
+    }
+
+    private class EmployeeImporterReportsTo : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext importContext)
+      {
+        var value = fields["ReportsTo"];
+        if (value!=null)
+          ((Employee) importContext.Employees[fields["EmployeeID"]]).ReportsTo = (Employee) importContext.Employees[fields["ReportsTo"]];
+      }
+    }
+
+    private class TerritoryImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext importContext)
+      {
+        var territory = new Territory((String) fields["TerritoryID"]);
+        territory.TerritoryDescription = (String) fields["TerritoryDescription"];
+        territory.Region = (Region) importContext.Regions[fields["RegionID"]];
+        importContext.Territories.Add(fields["TerritoryID"], territory);
+      }
+    }
+
+    private class TerritoryEmployeeImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext importContext)
+      {
+        var employee = importContext.Employees[fields["EmployeeID"]];
+        var territory = (Territory) importContext.Territories[fields["TerritoryID"]];
+        territory.Employees.Add(employee);
+      }
+    }
+
+    private class OrderImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext importContext)
+      {
+        var order = new Order();
+        order.Customer = (Customer) importContext.Customers[fields["CustomerID"]];
+        order.Employee = (Employee) importContext.Employees[fields["EmployeeID"]];
+        order.ShipVia = (Shipper) importContext.Shippers[fields["ShipVia"]];
+        order.OrderDate = (DateTime?) fields["OrderDate"];
+        order.RequiredDate = (DateTime?) fields["RequiredDate"];
+        order.ShippedDate = (DateTime?) fields["ShippedDate"];
+        order.Freight = (Decimal?) fields["Freight"];
+        order.ShipName = (String) fields["ShipName"];
+        order.ShippingAddress = new Address();
+        order.ShippingAddress.City = (String) fields["ShipCity"];
+        order.ShippingAddress.Country = (String) fields["ShipCountry"];
+        order.ShippingAddress.Region = (String) fields["ShipRegion"];
+        order.ShippingAddress.PostalCode = (String) fields["ShipPostalCode"];
+        order.ShippingAddress.StreetAddress = (String) fields["ShipAddress"];
+        importContext.Orders.Add(fields["OrderID"], order);
+      }
+    }
+
+    private class OrderDetailsImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext importContext)
+      {
+        var order = (Order) importContext.Orders[fields["OrderID"]];
+        var product = (Product) (importContext.Products[fields["ProductID"]]);
+        var orderDetail = new OrderDetails(order, product);
+        orderDetail.Discount = (Single) fields["Discount"];
+        orderDetail.UnitPrice = (Decimal) fields["UnitPrice"];
+        orderDetail.Quantity = (Int16) fields["Quantity"];
+      }
+    }
+
+    public class ImportContext
+    {
+      public Dictionary<object, Entity> Categories { get; private set; }
+      public Dictionary<object, Entity> Customers { get; private set; }
+      public Dictionary<object, Entity> Regions { get; private set; }
+      public Dictionary<object, Entity> Suppliers { get; private set; }
+      public Dictionary<object, Entity> Shippers { get; private set; }
+      public Dictionary<object, Entity> Products { get; private set; }
+      public Dictionary<object, Entity> Employees { get; private set; }
+      public Dictionary<object, Entity> Territories { get; private set; }
+      public Dictionary<object, Entity> Orders { get; private set; }
+
+      public ImportContext()
+      {
+        Categories = new Dictionary<object, Entity>();
+        Customers = new Dictionary<object, Entity>();
+        Regions = new Dictionary<object, Entity>();
+        Suppliers = new Dictionary<object, Entity>();
+        Shippers = new Dictionary<object, Entity>();
+        Products = new Dictionary<object, Entity>();
+        Employees = new Dictionary<object, Entity>();
+        Territories = new Dictionary<object, Entity>();
+        Orders = new Dictionary<object, Entity>();
+      }
+    }
+
     public static void Fill(Domain domain)
     {
-      var con = new SqlConnection(TestConfiguration.Instance.NorthwindConnectionString);
-      con.Open();
-      try
-      {
-        SqlTransaction transaction = con.BeginTransaction();
-        SqlCommand cmd = con.CreateCommand();
-        cmd.Transaction = transaction;
-        cmd.CommandText = "Select * from [dbo].[Categories]";
-        var reader = cmd.ExecuteReader();
+      var path = @"Northwind.xml";
+      var xmlTables = ReadXml(path);
+      using (var session = domain.OpenSession(new SessionConfiguration("Legacy", SessionOptions.ServerProfile | SessionOptions.AutoActivation)))
+      using (var tr = session.OpenTransaction(System.Transactions.IsolationLevel.ReadCommitted)) {
+        var importContext = new ImportContext();
+        Import(xmlTables.First(t => t.Name=="Categories"), importContext, new CategoryImporter());
+        Import(xmlTables.First(t => t.Name=="Customers"), importContext, new CustomerImporter());
+        Import(xmlTables.First(t => t.Name=="Region"), importContext, new RegionImporter());
+        Import(xmlTables.First(t => t.Name=="Suppliers"), importContext, new SupplierImporter());
+        Import(xmlTables.First(t => t.Name=="Shippers"), importContext, new ShipperImporter());
+        Import(xmlTables.First(t => t.Name=="Products"), importContext, new ProductImporter());
+        Import(xmlTables.First(t => t.Name=="Employees"), importContext, new EmployeeImporter());
+        Import(xmlTables.First(t => t.Name=="Employees"), importContext, new EmployeeImporterReportsTo());
+        Import(xmlTables.First(t => t.Name=="Territories"), importContext, new TerritoryImporter());
+        Import(xmlTables.First(t => t.Name=="EmployeeTerritories"), importContext, new TerritoryEmployeeImporter());
+        Import(xmlTables.First(t => t.Name=="Orders"), importContext, new OrderImporter());
+        Import(xmlTables.First(t => t.Name=="Order_Details"), importContext, new OrderDetailsImporter());
+        Session.Current.SaveChanges();
+        tr.Complete();
+      }
+    }
 
-        using (var session = domain.OpenSession(new SessionConfiguration("Legacy", SessionOptions.ServerProfile | SessionOptions.AutoActivation)))
-        using (var tr = session.OpenTransaction(System.Transactions.IsolationLevel.ReadCommitted))
-        {
-          #region  Categories
+    private static void Import(XmlTable node, ImportContext importContext, Importer importer)
+    {
+      foreach (var row in node.Rows) {
+        var fields = GetFields(row, node.ColumnTypes);
+        importer.Import(fields, importContext);
+      }
+    }
 
-          var categories = new Dictionary<object, Category>();
-          if (reader != null)
-          {
-            while (reader.Read())
-            {
-              var category = new Category();
-              for (int i = 1; i < reader.FieldCount; i++)
-                category[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-              categories.Add(reader.GetValue(0), category);
-            }
-            reader.Close();
-          }
-
-          #endregion
-
-          #region Customers
-
-          var customers = new Dictionary<object, Customer>();
-          cmd.CommandText = "Select * from [dbo].[Customers]";
-          reader = cmd.ExecuteReader();
-          if (reader != null)
-          {
-            while (reader.Read())
-            {
-              var customer = new Customer(reader.GetString(0));
-              for (int i = 1; i < reader.FieldCount; i++)
-              {
-                string dbName = reader.GetName(i);
-                string fieldName;
-                Address address = customer.Address;
-                switch (dbName)
-                {
-                  case "Address":
-                    address.StreetAddress = (string)(!reader.IsDBNull(i) ? reader.GetValue(i) : null);
-                    break;
-                  case "City":
-                  case "Region":
-                  case "PostalCode":
-                  case "Country":
-                    fieldName = dbName;
-                    address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : string.Empty;
-                    break;
-                  default:
-                    fieldName = dbName;
-                    customer[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-                    break;
-                }
-              }
-              customers.Add(reader.GetValue(0), customer);
-            }
-            reader.Close();
-          }
-
-          #endregion
-
-          #region Regions
-
-          var regions = new Dictionary<object, Region>();
-          cmd.CommandText = "Select * from [dbo].[Region]";
-          reader = cmd.ExecuteReader();
-          if (reader != null)
-          {
-            while (reader.Read())
-            {
-              var region = new Region();
-              for (int i = 1; i < reader.FieldCount; i++)
-                region[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-              regions.Add(reader.GetValue(0), region);
-            }
-            reader.Close();
-          }
-
-          #endregion
-
-          #region Suppliers
-
-          var suppliers = new Dictionary<object, Supplier>();
-          cmd.CommandText = "Select * from [dbo].[Suppliers]";
-          reader = cmd.ExecuteReader();
-          if (reader != null)
-          {
-            while (reader.Read())
-            {
-              var supplier = new Supplier();
-              for (int i = 1; i < reader.FieldCount; i++)
-              {
-                string dbName = reader.GetName(i);
-                string fieldName;
-                Address address = supplier.Address;
-                switch (dbName)
-                {
-                  case "Address":
-                    address.StreetAddress = (string)(!reader.IsDBNull(i) ? reader.GetValue(i) : null);
-                    break;
-                  case "City":
-                  case "Region":
-                  case "PostalCode":
-                  case "Country":
-                    fieldName = dbName;
-                    address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-                    break;
-                  default:
-                    fieldName = dbName;
-                    supplier[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-                    break;
-                }
-              }
-              suppliers.Add(reader.GetValue(0), supplier);
-            }
-            reader.Close();
-          }
-
-          #endregion
-
-          #region Shippers
-
-          var shippers = new Dictionary<object, Shipper>();
-          cmd.CommandText = "Select * from [dbo].[Shippers]";
-          reader = cmd.ExecuteReader();
-          if (reader != null)
-          {
-            while (reader.Read())
-            {
-              var shipper = new Shipper();
-              for (int i = 1; i < reader.FieldCount; i++)
-                shipper[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-              shippers.Add(reader.GetValue(0), shipper);
-            }
-            reader.Close();
-          }
-
-          #endregion
-
-          #region Products
-
-          var products = new Dictionary<object, Product>();
-          cmd.CommandText = "Select * from [dbo].[Products]";
-          reader = cmd.ExecuteReader(CommandBehavior.KeyInfo);
-          if (reader != null)
-          {
-            while (reader.Read())
-            {
-              var discontinuedColumnIndex = reader.GetOrdinal("Discontinued");
-              Product product = reader.GetBoolean(discontinuedColumnIndex)
-                ? (Product)new DiscontinuedProduct()
-                : new ActiveProduct();
-              for (int i = 1; i < reader.FieldCount; i++)
-                switch (i)
-                {
-                  case 2:
-                    product.Supplier = !reader.IsDBNull(i) ? suppliers[reader.GetValue(i)] : null;
-                    break;
-                  case 3:
-                    product.Category = !reader.IsDBNull(i) ? categories[reader.GetValue(i)] : null;
-                    break;
-                  default:
-                    if (i != discontinuedColumnIndex)
-                      product[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-                    break;
-                }
-              products.Add(reader.GetValue(0), product);
-            }
-            reader.Close();
-          }
-
-          #endregion
-
-          #region Employees
-
-          var employees = new Dictionary<object, Employee>();
-          cmd.CommandText = "Select * from [dbo].[Employees]";
-          reader = cmd.ExecuteReader();
-          if (reader != null)
-          {
-            while (reader.Read())
-            {
-              var employee = new Employee();
-              for (int i = 1; i < reader.FieldCount; i++)
-              {
-                if (i == 16)
-                  continue;
-                string dbName = reader.GetName(i);
-                string fieldName;
-                Address address = employee.Address;
-                switch (dbName)
-                {
-                  case "Address":
-                    address.StreetAddress = (string)(!reader.IsDBNull(i) ? reader.GetValue(i) : null);
-                    break;
-                  case "City":
-                  case "Region":
-                  case "PostalCode":
-                  case "Country":
-                    fieldName = dbName;
-                    address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : string.Empty;
-                    break;
-                  default:
-                    fieldName = dbName;
-                    employee[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-                    break;
-                }
-              }
-              employees.Add(reader.GetValue(0), employee);
-            }
-            reader.Close();
-          }
-
-          reader = cmd.ExecuteReader();
-          if (reader != null)
-          {
-            while (reader.Read())
-            {
-              var employee = employees[reader.GetValue(0)];
-              employee.ReportsTo = !reader.IsDBNull(16) ? employees[reader.GetValue(16)] : null;
-            }
-            reader.Close();
-          }
-
-          #endregion
-
-          #region Territories
-
-          var territories = new Dictionary<object, Territory>();
-          cmd.CommandText = "Select * from [dbo].[Territories]";
-          reader = cmd.ExecuteReader();
-          if (reader != null)
-          {
-            while (reader.Read())
-            {
-              var territory = new Territory(reader.GetString(0));
-              territory.TerritoryDescription = reader.GetString(1);
-              territory.Region = regions[reader.GetInt32(2)];
-              territories.Add(reader.GetValue(0), territory);
-            }
-            reader.Close();
-          }
-
-          #endregion
-
-          #region EmployeeTerritories
-
-          cmd.CommandText = "Select * from [dbo].[EmployeeTerritories]";
-          reader = cmd.ExecuteReader();
-          if (reader != null)
-          {
-            while (reader.Read())
-            {
-              var employee = employees[reader.GetValue(0)];
-              var territory = territories[reader.GetValue(1)];
-              territory.Employees.Add(employee);
-            }
-            reader.Close();
-          }
-
-          #endregion
-
-          #region Orders
-
-          var orders = new Dictionary<object, Order>();
-          cmd.CommandText = "Select * from [dbo].[Orders]";
-          reader = cmd.ExecuteReader(CommandBehavior.KeyInfo);
-          if (reader != null)
-          {
-            while (reader.Read())
-            {
-              var order = new Order();
-              for (int i = 1; i < reader.FieldCount; i++)
-                switch (i)
-                {
-                  case 1:
-                    order.Customer = !reader.IsDBNull(i) ? customers[reader.GetValue(i)] : null;
-                    break;
-                  case 2:
-                    order.Employee = !reader.IsDBNull(i) ? employees[reader.GetValue(i)] : null;
-                    break;
-                  case 3:
-                    order.OrderDate = !reader.IsDBNull(i) ? (DateTime?)reader.GetDateTime(i) : null;
-                    break;
-                  case 4:
-                    order.RequiredDate = !reader.IsDBNull(i) ? (DateTime?)reader.GetDateTime(i) : null;
-                    break;
-                  case 5:
-                    order.ShippedDate = !reader.IsDBNull(i) ? (DateTime?)reader.GetDateTime(i) : null;
-                    break;
-                  case 6:
-                    order.ShipVia = !reader.IsDBNull(i) ? shippers[reader.GetValue(i)] : null;
-                    break;
-                  case 7:
-                    order.Freight = reader.GetDecimal(i);
-                    break;
-                  default:
-                    string dbName = reader.GetName(i);
-                    string fieldName;
-                    Address address = order.ShippingAddress;
-                    switch (dbName)
-                    {
-                      case "ShipAddress":
-                        address.StreetAddress = (string)(!reader.IsDBNull(i) ? reader.GetValue(i) : null);
-                        break;
-                      case "ShipCity":
-                      case "ShipRegion":
-                      case "ShipPostalCode":
-                      case "ShipCountry":
-                        fieldName = dbName.Substring(4);
-                        address[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-                        break;
-                      default:
-                        fieldName = dbName;
-                        order[fieldName] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-                        break;
-                    }
-                    break;
-                }
-              orders.Add(reader.GetValue(0), order);
-            }
-            reader.Close();
-          }
-
-          foreach (var o in orders.Values)
-            o.ProcessingTime = o.ShippedDate - o.OrderDate;
-
-          #endregion
-
-          #region OrderDetails
-
-          cmd.CommandText = "Select * from [dbo].[Order Details]";
-          reader = cmd.ExecuteReader();
-          if (reader != null)
-          {
-            while (reader.Read())
-            {
-              var order = orders[reader.GetValue(0)];
-              var product = products[reader.GetValue(1)];
-              var orderDetails = new OrderDetails(order, product);
-
-              for (int i = 2; i < reader.FieldCount; i++)
-                orderDetails[reader.GetName(i)] = !reader.IsDBNull(i) ? reader.GetValue(i) : null;
-            }
-            reader.Close();
-          }
-
-          #endregion
-
-          Session.Current.SaveChanges();
-          tr.Complete();
+    private static Dictionary<string, object> GetFields(XElement row, Dictionary<string, string> columnTypes)
+    {
+      var fields = new Dictionary<string, object>();
+      var elements = row.Elements().ToList();
+      for (int i = 0; i < elements.Count(); i++) {
+        var value = elements[i].Value;
+        object obj = null;
+        if (!string.IsNullOrEmpty(value)) {
+          obj = ConvertFieldType(columnTypes[elements[i].Name.LocalName], elements[i].Value);
         }
-        transaction.Commit();
+        fields.Add(elements[i].Name.LocalName, obj);
       }
-      finally {
-        con.Close();
+      return fields;
+    }
+
+    private static object ConvertFieldType(string columnType, string text)
+    {
+      var type = Type.GetType(columnType);
+      switch (columnType) {
+      case "System.Byte[]":
+        return Convert.FromBase64String(text);
+      case "System.Decimal":
+        return Decimal.Parse(text, CultureInfo.InvariantCulture);
+      case "System.Single":
+        return Single.Parse(text, CultureInfo.InvariantCulture);
+      case "System.DateTime":
+        return DateTime.Parse(text);
+      default:
+        return Convert.ChangeType(text, type, CultureInfo.InvariantCulture);
       }
+    }
+
+    private static List<XmlTable> ReadXml(string path)
+    {
+      var doc = XDocument.Load(path);
+      var root = doc.Element("root");
+      if (root==null)
+        throw new Exception("Read xml error");
+      var tables = root.Elements();
+      var list = new List<XmlTable>();
+
+      foreach (var table in tables) {
+        var xmlTable = new XmlTable();
+        xmlTable.Name = table.Name.LocalName;
+        xmlTable.ColumnTypes = table.Element("Columns").Elements().ToDictionary(key => key.Name.LocalName, value => value.Value);
+        xmlTable.Rows = table.Element("Rows").Elements();
+        list.Add(xmlTable);
+      }
+      return list;
+    }
+
+    private class XmlTable
+    {
+      public string Name { get; set; }
+      public Dictionary<string, string> ColumnTypes { get; set; }
+      public IEnumerable<XElement> Rows { get; set; }
     }
   }
 }

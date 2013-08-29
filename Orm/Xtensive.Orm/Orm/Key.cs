@@ -139,6 +139,12 @@ namespace Xtensive.Orm
       get { return TypeReference.Accuracy == TypeReferenceAccuracy.ExactType; }
     }
 
+    internal Tuple CreateTuple()
+    {
+      var descriptor = TypeReference.Type.Key.TupleDescriptor;
+      return Tuple.Create(descriptor);
+    }
+
     #region Equals, GetHashCode, ==, != 
 
     /// <inheritdoc/>

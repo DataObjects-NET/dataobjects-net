@@ -23,11 +23,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
     private const string LibraryResourceNameFormat = @"Xtensive.Sql.Drivers.Sqlite.NativeModules.{0}_{1}.SQLite.Interop.dll";
     private const string LibraryMutexFormat = @"{0}_Native_{1}";
 
-#if NET40
     private const string FrameworkName = "Net40";
-#else
-    private const string FrameworkName = "Net35";
-#endif
 
     private static volatile bool IsInitialized;
     private static readonly object SyncRoot = new object();

@@ -28,12 +28,14 @@
     <Properties>Language=VisualBasic</Properties>
   </TemplatesVB>
   <!-- Binaries -->
-  <BinariesNet35 Include="BuildBinaries.proj">
-    <Properties>Framework=Net35;Configuration=$(Configuration)</Properties>
-  </BinariesNet35>
   <BinariesNet40 Include="BuildBinaries.proj">
     <Properties>Framework=Net40;Configuration=$(Configuration)</Properties>
   </BinariesNet40>
+  <!--  
+  <BinariesNet45 Include="BuildBinaries.proj">
+    <Properties>Framework=Net45;Configuration=$(Configuration)</Properties>
+  </BinariesNet45>
+  -->
   <!-- Distribution -->
   <Distributions Include="Dist\Setup.proj" Condition="'$(EnableSetup)'=='true'">
     <Properties>Configuration=$(Configuration)</Properties>
@@ -81,12 +83,16 @@
 
 <!-- Binaries -->
 <Target Name="BuildBinaries" DependsOnTargets="BuildProductInfo">
-  <MSBuild Projects="@(BinariesNet35)" Targets="Build" />
   <MSBuild Projects="@(BinariesNet40)" Targets="Build" />
+  <!--
+  <MSBuild Projects="@(BinariesNet45)" Targets="Build" />
+  -->
 </Target>
 <Target Name="CleanBinaries">
-  <MSBuild Projects="@(BinariesNet35)" Targets="Clean" />
   <MSBuild Projects="@(BinariesNet40)" Targets="Clean" />
+  <!--
+  <MSBuild Projects="@(BinariesNet45)" Targets="Clean" />
+  -->
   <RemoveDir Directories="_Build\Binaries\$(Configuration)" />
 </Target>
 

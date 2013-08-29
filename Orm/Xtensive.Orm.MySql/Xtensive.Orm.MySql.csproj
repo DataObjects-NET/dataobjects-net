@@ -15,34 +15,13 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net35-Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net35\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\Net35\Xtensive.Orm.MySql.xml</DocumentationFile>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>2</WarningLevel>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net35-Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net35\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net35\Xtensive.Orm.MySql.xml</DocumentationFile>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>2</WarningLevel>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net40\</OutputPath>
     <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\Net40\Xtensive.Orm.MySql.xml</DocumentationFile>
-    <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>2</WarningLevel>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
@@ -52,7 +31,7 @@
     <Optimize>true</Optimize>
     <OutputPath>..\..\_Build\Binaries\Release\Lib\Net40\</OutputPath>
     <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net40\Xtensive.Orm.MySql.xml</DocumentationFile>
-    <DefineConstants>TRACE;NET40</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>2</WarningLevel>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
@@ -74,13 +53,6 @@
       <SpecificVersion>False</SpecificVersion>
       <Private>True</Private>
     </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="$(Configuration.StartsWith('Net35'))">
-    <Reference Include="mysql.data">
-      <HintPath>..\..\Lib\MySQL\Net35\mysql.data.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="$(Configuration.StartsWith('Net40'))">
     <Reference Include="mysql.data">
       <HintPath>..\..\Lib\MySQL\Net40\mysql.data.dll</HintPath>
     </Reference>

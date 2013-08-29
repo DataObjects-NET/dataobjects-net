@@ -24,14 +24,14 @@ namespace Xtensive.Orm.Providers
 
     public void Persist(EntityChangeRegistry registry, CommandProcessor processor)
     {
+      var selfRefRowRemovalIsErr = requestBuilder.Handlers.ProviderInfo.Supports(ProviderFeatures.SelfReferencingRowRemovalIsError);
       var actionGenerator = sortingRequired
-        ? new SortingPersistActionGenerator()
+        ? new SortingPersistActionGenerator(selfRefRowRemovalIsErr)
         : new PersistActionGenerator();
 
-      var selfForeignKeyFeatureIsSet = requestBuilder.Handlers.ProviderInfo.Supports(ProviderFeatures.SelfReferencingRowRemovalIsError);
       var validateVersion = registry.Session.Configuration.Supports(SessionOptions.ValidateEntityVersions);
 
-      var actions = actionGenerator.GetPersistSequence(registry, selfForeignKeyFeatureIsSet);
+      var actions = actionGenerator.GetPersistSequence(registry);
       foreach (var action in actions)
         processor.RegisterTask(CreatePersistTask(action, validateVersion));
     }

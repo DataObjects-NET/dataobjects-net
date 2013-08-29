@@ -29,17 +29,17 @@ internal static class ThisAssembly
   public const string Version = "${Version2}.0.0";
   public const string FileVersion = "${Version4}";
 
-  #if NET40
+  #if NET45
+    #if DEBUG
+      public const string Configuration = "Net45-Debug";
+    #else
+      public const string Configuration = "Net45-Release";
+    #endif
+  #else
     #if DEBUG
       public const string Configuration = "Net40-Debug";
     #else
       public const string Configuration = "Net40-Release";
-    #endif
-  #else
-    #if DEBUG
-      public const string Configuration = "Net35-Debug";
-    #else
-      public const string Configuration = "Net35-Release";
     #endif
   #endif
 }

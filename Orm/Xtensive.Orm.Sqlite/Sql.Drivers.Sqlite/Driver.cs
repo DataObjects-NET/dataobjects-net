@@ -14,18 +14,14 @@ namespace Xtensive.Sql.Drivers.Sqlite
   internal abstract class Driver : SqlDriver
   {
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     protected override SqlConnection CreateConnection(string connectionString)
     {
       return new Connection(this, connectionString);
     }
 
     /// <inheritdoc/>
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override SqlExceptionType GetExceptionType(Exception exception)
     {
       var nativeException = exception as SQLiteException;

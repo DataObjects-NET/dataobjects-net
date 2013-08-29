@@ -23,9 +23,7 @@ namespace Xtensive.Caching
   /// </summary>
   /// <typeparam name="TKey">The key of the item.</typeparam>
   /// <typeparam name="TItem">The type of the item to cache.</typeparam>
-#if NET40
   [SecuritySafeCritical]
-#endif
   public class WeakCache<TKey, TItem> :
     ICache<TKey, TItem>,
     IHasGarbage,
@@ -80,9 +78,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-  #if NET40
     [SecuritySafeCritical]
-  #endif
     public virtual bool TryGetItem(TKey key, bool markAsHit, out TItem item)
     {
       RegisterOperation(1);
@@ -121,9 +117,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-  #if NET40
     [SecuritySafeCritical]
-  #endif
     public virtual TItem Add(TItem item, bool replaceIfExists)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
@@ -152,9 +146,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-  #if NET40
     [SecuritySafeCritical]
-  #endif
     public virtual void RemoveKey(TKey key)
     {
       GCHandle cached;
@@ -165,9 +157,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-  #if NET40
     [SecuritySafeCritical]
-  #endif
     public virtual void Clear()
     {
       try {
@@ -190,9 +180,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-  #if NET40
     [SecuritySafeCritical]
-  #endif
     public virtual void CollectGarbage()
     {
       int count = items.Count;
@@ -252,9 +240,7 @@ namespace Xtensive.Caching
       }
     }
 
-  #if NET40
     [SecuritySafeCritical]
-  #endif
     private static TItem ExtractTarget(GCHandle handle)
     {
       return (TItem) handle.Target;
@@ -297,9 +283,7 @@ namespace Xtensive.Caching
     /// <summary>
     /// <see cref="DisposableDocTemplate.Dispose(bool)" copy="true"/>
     /// </summary>
-  #if NET40
     [SecuritySafeCritical]
-  #endif
     protected virtual void Dispose(bool disposing)
     {
       if (items!=null) {

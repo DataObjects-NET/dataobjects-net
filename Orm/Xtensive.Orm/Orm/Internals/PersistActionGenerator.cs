@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Internals
 {
   internal class PersistActionGenerator
   {
-    public virtual IEnumerable<PersistAction> GetPersistSequence(EntityChangeRegistry registry, bool selfForeignKeyIsError)
+    public virtual IEnumerable<PersistAction> GetPersistSequence(EntityChangeRegistry registry)
     {
       // Insert
       foreach (var action in GetInsertSequence(GetCreatedStates(registry)))
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Internals
       }
 
       // Delete
-      foreach (var action in GetDeleteSequence(GetRemovedStates(registry), selfForeignKeyIsError))
+      foreach (var action in GetDeleteSequence(GetRemovedStates(registry)))
         yield return action;
     }
 
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Internals
         .Select(state => new PersistAction(state, PersistActionKind.Insert));
     }
 
-    protected virtual IEnumerable<PersistAction> GetDeleteSequence(IEnumerable<EntityState> entityStates, bool selfForeignKeyIsError)
+    protected virtual IEnumerable<PersistAction> GetDeleteSequence(IEnumerable<EntityState> entityStates)
     {
       return entityStates
         .Select(state => new PersistAction(state, PersistActionKind.Remove));

@@ -18,9 +18,7 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
   {
     private ValueRange<DateTime> dateTimeRange;
 
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override void BindString(DbParameter parameter, object value)
     {
       string text = value as string;
@@ -33,9 +31,7 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
         base.BindString(parameter, value);
     }
 
-#if NET40
     [SecuritySafeCritical]
-#endif
     public override void BindByteArray(DbParameter parameter, object value)
     {
       var array = value as byte[];
@@ -79,17 +75,6 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
       base.BindDateTime(parameter, value);
     }
 
-    public override void BindTimeSpan(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Int64;
-      if (value!=null) {
-        var timeSpan = (TimeSpan) value;
-        parameter.Value = (long) timeSpan.Ticks*100;
-      }
-      else
-        parameter.Value = DBNull.Value;
-    }
-
     public override SqlValueType MapSByte(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int16);
@@ -108,23 +93,6 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
     public override SqlValueType MapULong(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal, 20, 0);
-    }
-
-    public override SqlValueType MapTimeSpan(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Int64);
-    }
-
-    public override object ReadTimeSpan(DbDataReader reader, int index)
-    {
-      long value = 0L;
-      try {
-        value = reader.GetInt64(index);
-      }
-      catch (InvalidCastException) {
-        value = (long) reader.GetDecimal(index);
-      }
-      return TimeSpan.FromTicks(value/100);
     }
 
     public override void Initialize()

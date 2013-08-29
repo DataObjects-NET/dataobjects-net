@@ -40,9 +40,7 @@ namespace Xtensive.Orm
   [ProvideAspectRole(StandardRoles.TransactionHandling)]
   [AspectRoleDependency(AspectDependencyAction.Order, AspectDependencyPosition.Before, StandardRoles.Validation)]
   [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
-#if NET40
   [SecuritySafeCritical]
-#endif
   public sealed class TransactionalAttribute : OnMethodBoundaryAspect
   {
     private bool? activateSession;

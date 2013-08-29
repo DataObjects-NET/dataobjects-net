@@ -11,6 +11,7 @@ using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
+using Xtensive.Tuples;
 using ArgumentValidator = Xtensive.Core.ArgumentValidator;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -18,6 +19,9 @@ namespace Xtensive.Orm.Upgrade
 {
   internal sealed class MetadataWriter
   {
+    private static readonly TupleDescriptor IntStringDescriptor = TupleDescriptor.Create(new[] {typeof (int), typeof (string)});
+    private static readonly TupleDescriptor StringStringDescriptor = TupleDescriptor.Create(new[] {typeof (string), typeof (string)});
+
     private sealed class Descriptor : IPersistDescriptor
     {
       public PersistRequest StoreRequest { get; set; }
@@ -49,7 +53,7 @@ namespace Xtensive.Orm.Upgrade
         mapping.StringMapping, mapping.ExtensionText, extensionTextTransmissionType,
         ProvideExtensionMetadataFilter);
 
-      executor.Overwrite(descriptor, extensions.Select(item => (Tuple) Tuple.Create(item.Name, item.Value)));
+      executor.Overwrite(descriptor, extensions.Select(item => (Tuple) Tuple.Create(StringStringDescriptor, item.Name, item.Value)));
     }
 
     private void ProvideExtensionMetadataFilter(SqlDelete delete)
@@ -64,7 +68,7 @@ namespace Xtensive.Orm.Upgrade
         mapping.IntMapping, mapping.TypeId, ParameterTransmissionType.Regular,
         mapping.StringMapping, mapping.TypeName, ParameterTransmissionType.Regular);
 
-      executor.Overwrite(descriptor, types.Select(item => (Tuple) Tuple.Create(item.Id, item.Name)));
+      executor.Overwrite(descriptor, types.Select(item => (Tuple) Tuple.Create(IntStringDescriptor, item.Id, item.Name)));
     }
 
     private void WriteAssemblies(IEnumerable<AssemblyMetadata> assemblies)
@@ -73,7 +77,7 @@ namespace Xtensive.Orm.Upgrade
         mapping.StringMapping, mapping.AssemblyName, ParameterTransmissionType.Regular,
         mapping.StringMapping, mapping.AssemblyVersion, ParameterTransmissionType.Regular);
 
-      executor.Overwrite(descriptor, assemblies.Select(item => (Tuple) Tuple.Create(item.Name, item.Version)));
+      executor.Overwrite(descriptor, assemblies.Select(item => (Tuple) Tuple.Create(StringStringDescriptor, item.Name, item.Version)));
     }
 
     private IPersistDescriptor CreateDescriptor(string tableName,

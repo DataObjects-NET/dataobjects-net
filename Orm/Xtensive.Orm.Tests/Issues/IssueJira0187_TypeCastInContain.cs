@@ -77,8 +77,6 @@ namespace Xtensive.Orm.Tests.Issues
       var result = Query.All<Child>().Where(child => child.In(parents)).ToArray();
     }
 
-    #if NET40
-
     [Test]
     public void ChildContainsParentWithImplicitCast()
     {
@@ -99,7 +97,5 @@ namespace Xtensive.Orm.Tests.Issues
       var children = Query.All<Child>().ToArray();
       var result = Query.All<Child>().Where(a => a.Parent.In(children)).ToArray();
     }
-
-    #endif
   }
 }

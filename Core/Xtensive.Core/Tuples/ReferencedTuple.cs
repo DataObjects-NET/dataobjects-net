@@ -51,7 +51,7 @@ namespace Xtensive.Tuples
       get { return InnerTuple.Descriptor; }
     }
 
-    public override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
+    protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
       return InnerTuple.GetMappedContainer(fieldIndex, isWriting);
     }

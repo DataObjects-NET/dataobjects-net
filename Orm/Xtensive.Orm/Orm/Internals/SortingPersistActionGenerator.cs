@@ -15,9 +15,10 @@ namespace Xtensive.Orm.Internals
   internal class SortingPersistActionGenerator : PersistActionGenerator
   {
     private List<Node<EntityState>> sortedNodes;
-    private List<EntityState> nonOwningStates;
-    private List<EntityState> nonTargetedStates;
+    private List<EntityState> inboundOnlyStates;
+    private List<EntityState> outboundOnlyStates;
     private List<Triplet<EntityState, FieldInfo, Entity>> referencesToRestore;
+    private bool selfReferencingRowRemovalIsError;
 
     protected override IEnumerable<PersistAction> GetInsertSequence(IEnumerable<EntityState> entityStates)
     {
@@ -25,7 +26,7 @@ namespace Xtensive.Orm.Internals
       SortAndRemoveLoopEdges(entityStates, false);
 
       // Insert entities that do not reference anything
-      foreach (var state in nonOwningStates)
+      foreach (var state in inboundOnlyStates)
         yield return new PersistAction(state, PersistActionKind.Insert);
 
       // Insert sorted states in reverse order
@@ -33,7 +34,7 @@ namespace Xtensive.Orm.Internals
         yield return new PersistAction(sortedNodes[i].Value, PersistActionKind.Insert);
 
       // Insert entities that are not referenced by anything
-      foreach (var state in nonTargetedStates)
+      foreach (var state in outboundOnlyStates)
         yield return new PersistAction(state, PersistActionKind.Insert);
 
       // Restore loop links
@@ -51,10 +52,10 @@ namespace Xtensive.Orm.Internals
       }
     }
 
-    protected override IEnumerable<PersistAction> GetDeleteSequence(IEnumerable<EntityState> entityStates, bool setForeignKeyIsError)
+    protected override IEnumerable<PersistAction> GetDeleteSequence(IEnumerable<EntityState> entityStates)
     {
       // Topological sorting
-      SortAndRemoveLoopEdges(entityStates, true, setForeignKeyIsError);
+      SortAndRemoveLoopEdges(entityStates, true);
 
       // Restore loop links
       foreach (var triplet in referencesToRestore) {
@@ -67,7 +68,7 @@ namespace Xtensive.Orm.Internals
       }
 
       // Remove entities that are not referenced by anything
-      foreach (var state in nonTargetedStates)
+      foreach (var state in outboundOnlyStates)
         yield return new PersistAction(state, PersistActionKind.Remove);
 
       // Remove sorted states in direct order
@@ -75,26 +76,26 @@ namespace Xtensive.Orm.Internals
         yield return new PersistAction(node.Value, PersistActionKind.Remove);
 
       // Remove entities that do not reference anything
-      foreach (var state in nonOwningStates)
-         yield return new PersistAction(state, PersistActionKind.Remove);
+      foreach (var state in inboundOnlyStates)
+        yield return new PersistAction(state, PersistActionKind.Remove);
     }
 
-    private void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates, bool rollbackDifferenceBeforeSort, bool selfForeignKeyIsError = false)
+    private void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates, bool rollbackDifferenceBeforeSort)
     {
       var nodeIndex = new Dictionary<Key, Node<EntityState>>();
       var graph = new Graph<Node<EntityState>, Edge<AssociationInfo>>();
 
-      nonOwningStates = new List<EntityState>();
-      nonTargetedStates = new List<EntityState>();
+      inboundOnlyStates = new List<EntityState>();
+      outboundOnlyStates = new List<EntityState>();
 
       foreach (var state in entityStates) {
         if (rollbackDifferenceBeforeSort)
           state.RollbackDifference();
         var type = state.Type;
-        if (IsNonTargetedType(type))
-          nonTargetedStates.Add(state);
-        else if (IsNonOwningType(type))
-          nonOwningStates.Add(state);
+        if (type.IsOutboundOnly)
+          outboundOnlyStates.Add(state);
+        else if (type.IsInboundOnly)
+          inboundOnlyStates.Add(state);
         else {
           var node = new Node<EntityState>(state);
           graph.Nodes.Add(node);
@@ -126,7 +127,7 @@ namespace Xtensive.Orm.Internals
             targetKey.Equals(ownerKey)
               && (hierarchy.InheritanceSchema!=InheritanceSchema.ClassTable
                 || ownerField.ValueType==hierarchy.Root.UnderlyingType)
-                && !selfForeignKeyIsError;
+              && !selfReferencingRowRemovalIsError;
 
           if (skipEdge)
             continue;
@@ -157,18 +158,11 @@ namespace Xtensive.Orm.Internals
       }
     }
 
-    private static bool IsNonOwningType(TypeInfo type)
-    {
-      // Temporary disabled:
-      // return type.GetOwnerAssociations().Count==0;
-      return false;
-    }
+    // Constructors
 
-    private static bool IsNonTargetedType(TypeInfo type)
+    public SortingPersistActionGenerator(bool selfReferencingRowRemovalIsError)
     {
-      // Temporary disabled:
-      // return type.GetTargetAssociations().Count==0 || type.IsAuxiliary;
-      return type.IsAuxiliary;
+      this.selfReferencingRowRemovalIsError = selfReferencingRowRemovalIsError;
     }
   }
 }

@@ -631,11 +631,7 @@ namespace Xtensive.Collections
     #region ISerializable Members
 
     /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
-    #if NET40
     [SecurityCritical]
-    #else
-    [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter=true)]
-    #endif
     public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
       T[] arrItems = new T[count];
