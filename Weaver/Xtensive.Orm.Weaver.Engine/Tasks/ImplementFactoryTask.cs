@@ -5,6 +5,7 @@
 // Created:    2013.08.19
 
 using System;
+using System.Linq;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -29,17 +30,17 @@ namespace Xtensive.Orm.Weaver.Tasks
     public override ActionResult Execute(ProcessorContext context)
     {
       voidType = context.TargetModule.TypeSystem.Void;
-      var constructor = AddConstructor(context);
+      var constructor = GetExistingConstructor() ?? DefineConstructor(context);
       if (!targetType.IsAbstract)
-        AddFactoryMethod(context, constructor);
+        DefineFactoryMethod(context, constructor);
       return ActionResult.Success;
     }
 
-    private MethodDefinition AddConstructor(ProcessorContext context)
+    private MethodDefinition DefineConstructor(ProcessorContext context)
     {
       var baseConstructor = GetBaseConstructor(context);
       var method = new MethodDefinition(WellKnown.Constructor, ConstructorAttributes, voidType) {HasThis = true};
-      AddParameters(method);
+      DefineParameters(method);
       WeavingHelper.MarkAsCompilerGenerated(context, method);
       var il = method.Body.GetILProcessor();
       WeavingHelper.EmitLoadArguments(il, signature.Length + 1);
@@ -49,21 +50,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       return method;
     }
 
-    private void AddParameters(MethodDefinition method)
-    {
-      for (int i = 0; i < signature.Length; i++)
-        method.Parameters.Add(new ParameterDefinition("p" + i, ParameterAttributes.In, signature[i]));
-    }
-
-    private MethodReference GetBaseConstructor(ProcessorContext context)
-    {
-      var reference = new MethodReference(WellKnown.Constructor, voidType, targetType.BaseType) {HasThis = true};
-      foreach (var item in signature)
-        reference.Parameters.Add(new ParameterDefinition(item));
-      return context.TargetModule.Import(reference);
-    }
-
-    private void AddFactoryMethod(ProcessorContext context, MethodReference constructor)
+    private void DefineFactoryMethod(ProcessorContext context, MethodReference constructor)
     {
       var returnType = (TypeReference) targetType;
       if (targetType.HasGenericParameters) {
@@ -72,17 +59,43 @@ namespace Xtensive.Orm.Weaver.Tasks
           typeInstance.GenericArguments.Add(parameter);
         returnType = typeInstance;
         constructor = new MethodReference(WellKnown.Constructor, voidType, typeInstance) {HasThis = true};
-        foreach (var parameterType in signature)
-          constructor.Parameters.Add(new ParameterDefinition(parameterType));
+        DefineParameters(constructor);
       }
       var method = new MethodDefinition(WellKnown.FactoryMethod, FactoryMethodAttributes, returnType);
-      AddParameters(method);
+      DefineParameters(method);
       WeavingHelper.MarkAsCompilerGenerated(context, method);
       var il = method.Body.GetILProcessor();
       WeavingHelper.EmitLoadArguments(il, signature.Length);
       il.Emit(OpCodes.Newobj, constructor);
       il.Emit(OpCodes.Ret);
       targetType.Methods.Add(method);
+    }
+
+    private MethodDefinition GetExistingConstructor()
+    {
+      var parameterTypes = signature.Select(t => new TypeIdentity(t)).ToList();
+      var existingConstructor = targetType.GetConstructors()
+        .FirstOrDefault(c => c.Parameters.Select(p => new TypeIdentity(p.ParameterType)).SequenceEqual(parameterTypes));
+      return existingConstructor;
+    }
+
+    private MethodReference GetBaseConstructor(ProcessorContext context)
+    {
+      var reference = new MethodReference(WellKnown.Constructor, voidType, targetType.BaseType) {HasThis = true};
+      DefineParameters(reference);
+      return context.TargetModule.Import(reference);
+    }
+
+    private void DefineParameters(MethodDefinition method)
+    {
+      for (int i = 0; i < signature.Length; i++)
+        method.Parameters.Add(new ParameterDefinition("p" + i, ParameterAttributes.In, signature[i]));
+    }
+
+    private void DefineParameters(MethodReference reference)
+    {
+      foreach (var item in signature)
+        reference.Parameters.Add(new ParameterDefinition(item));
     }
 
     public ImplementFactoryTask(TypeDefinition targetType, TypeReference[] signature)
