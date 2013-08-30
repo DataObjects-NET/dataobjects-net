@@ -202,17 +202,17 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void PerformUpdateTest()
     {
-      InitialDomainFillData();
-      UpgrageDomainPerformMode();
-      DomainValidate();
+      BuildDomainAndFillData();
+      UpgrageDomainInPerformMode();
+      BuildDomainInValidateMode();
     }
     
     [Test]
     public void PerformSafelyUpdateTest()
     {
-      InitialDomainFillData();
-      UpgrageDomainPerformSafelyMode();
-      DomainValidate();
+      BuildDomainAndFillData();
+      UpgrageDomainInPerformSafelyMode();
+      BuildDomainInValidateMode();
     }
 
     private Domain BuildDomain(DomainUpgradeMode mode)
@@ -230,7 +230,7 @@ namespace Xtensive.Orm.Tests.Storage
       return Domain.Build(configuration);
     }
 
-    private void InitialDomainFillData()
+    private void BuildDomainAndFillData()
     {
       using (var domain = BuildDomain(DomainUpgradeMode.Recreate))
       using (var session = domain.OpenSession())
@@ -244,7 +244,7 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    private void UpgrageDomainPerformMode()
+    private void UpgrageDomainInPerformMode()
     {
       using (var domain = BuildDomain(DomainUpgradeMode.Perform))
       using (var session = domain.OpenSession())
@@ -258,7 +258,7 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    private void UpgrageDomainPerformSafelyMode()
+    private void UpgrageDomainInPerformSafelyMode()
     {
       using (var domain = BuildDomain(DomainUpgradeMode.PerformSafely))
       using (var session = domain.OpenSession())
@@ -271,7 +271,7 @@ namespace Xtensive.Orm.Tests.Storage
         transaction.Complete();
       }
     }
-    private void DomainValidate()
+    private void BuildDomainInValidateMode()
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Validate;
