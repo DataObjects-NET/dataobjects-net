@@ -200,21 +200,6 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public void IgnoreRuleConfigTest()
-    {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "IgnoreRuleConfigTest");
-      ValidateIgnoringConfiguration(configuration);
-      var clone = configuration.Clone();
-      ValidateIgnoringConfiguration(clone);
-
-      var good = configuration.Clone();
-      good.IgnoreRules.Clear();
-      good.IgnoreRules.IgnoreTable("ignored-table").WhenDatabase("Other-DO40-Test").WhenSchema("dbo");
-      good.IgnoreRules.IgnoreColumn("ignored-column");
-      good.Lock();
-    }
-    
-    [Test]
     public void PerformUpdateTest()
     {
       InitialDomainFillData();
@@ -228,26 +213,6 @@ namespace Xtensive.Orm.Tests.Storage
       InitialDomainFillData();
       UpgrageDomainPerformSafelyMode();
       DomainValidate();
-    }
-
-    private void ValidateIgnoringConfiguration(DomainConfiguration configuration)
-    {
-      Assert.That(configuration.DefaultDatabase, Is.EqualTo("main"));
-      Assert.That(configuration.DefaultSchema, Is.EqualTo("dbo"));
-      Assert.That(configuration.IgnoreRules.Count, Is.EqualTo(11));
-      var rule = configuration.IgnoreRules[0];
-      Assert.That(rule.Database, Is.EqualTo("Other-DO40-Tests"));
-      var rule2 = configuration.IgnoreRules[2];
-      Assert.That(rule2.Schema, Is.EqualTo("some-schema3"));
-      Assert.That(rule2.Table, Is.EqualTo("table2"));
-      Assert.That(rule2.Column, Is.EqualTo("col3"));
-      var databases = configuration.Databases;
-      Assert.That(databases.Count, Is.EqualTo(2));
-      Assert.That(databases[0].Name, Is.EqualTo("main"));
-      Assert.That(databases[0].RealName, Is.EqualTo("DO40-Tests"));
-      Assert.That(databases[1].Name, Is.EqualTo("other"));
-      Assert.That(databases[1].RealName, Is.EqualTo("Other-DO40-Tests"));
-      configuration.Lock();
     }
 
     private Domain BuildDomain(DomainUpgradeMode mode)
