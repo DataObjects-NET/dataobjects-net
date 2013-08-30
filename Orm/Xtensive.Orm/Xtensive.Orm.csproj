@@ -393,7 +393,7 @@
     <Compile Include="Orm\Upgrade\Internals\TypeIdProvider.cs" />
     <Compile Include="Orm\Upgrade\Internals\UpgradeActionSequenceBuilder.cs" />
     <Compile Include="Orm\Upgrade\Internals\UpgradeServiceAccessor.cs" />
-    <Compile Include="Orm\Upgrade\IgnoreRulesHandler.cs" />
+    <Compile Include="Orm\Upgrade\Internals\IgnoreRulesHandler.cs" />
     <Compile Include="Orm\Upgrade\UpgradeActionSequence.cs" />
     <Compile Include="Orm\UrlInfo.cs" />
     <Compile Include="Orm\UrlInfoConverter.cs" />
