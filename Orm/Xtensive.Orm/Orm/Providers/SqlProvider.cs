@@ -92,6 +92,8 @@ namespace Xtensive.Orm.Providers
     {
       this.handlers = handlers;
       Request = request;
+      if (typeof (SqlProvider)==GetType())
+        Initialize();
     }
 
     /// <summary>
@@ -105,6 +107,8 @@ namespace Xtensive.Orm.Providers
       this.permanentReference = permanentReference;
       handlers = provider.handlers;
       Request = provider.Request;
+      if (typeof (SqlProvider)==GetType())
+        Initialize();
     }
   }
 }
