@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Rse.Providers
   /// otherwise, <see langword="false" />.
   /// </summary>
   [Serializable]
-  public class IncludeProvider: UnaryProvider,
+  public sealed class IncludeProvider: UnaryProvider,
     IInlinableProvider
   {
     private readonly int[] filteredColumns;
@@ -96,6 +96,7 @@ namespace Xtensive.Orm.Rse.Providers
       FilterDataSource = filterDataSource;
       ResultColumnName = resultColumnName;
       this.filteredColumns = filteredColumns.Copy();
+      Initialize();
     }
   }
 }

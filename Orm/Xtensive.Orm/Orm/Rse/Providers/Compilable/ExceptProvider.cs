@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Rse.Providers
   /// <see cref="BinaryProvider.Right"/> sources.
   /// </summary>
   [Serializable]
-  public class ExceptProvider : BinaryProvider
+  public sealed class ExceptProvider : BinaryProvider
   {
     protected override RecordSetHeader BuildHeader()
     {
@@ -44,6 +44,7 @@ namespace Xtensive.Orm.Rse.Providers
     public ExceptProvider(CompilableProvider left, CompilableProvider right)
       : base(ProviderType.Except, left, right)
     {
+      Initialize();
     }
   }
 }

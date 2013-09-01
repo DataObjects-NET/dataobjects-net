@@ -43,6 +43,7 @@ namespace Xtensive.Orm.Rse.Providers
       : base(ProviderType.Existence, source)
     {
       ExistenceColumnName = existenceColumnName;
+      Initialize();
     }
   }
 }

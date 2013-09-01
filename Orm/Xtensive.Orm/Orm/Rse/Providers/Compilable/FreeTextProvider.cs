@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Rse.Providers
   /// Executes full-text search (free text query) against specified <see cref="PrimaryIndex"/>.
   /// </summary>
   [Serializable]
-  public class FreeTextProvider : CompilableProvider
+  public sealed class FreeTextProvider : CompilableProvider
   {
     private readonly RecordSetHeader indexHeader;
 
@@ -63,6 +63,7 @@ namespace Xtensive.Orm.Rse.Providers
           .AddOne(new MappedColumn("RANK", tupleDescriptor.Count, typeof (double)));
         indexHeader = new RecordSetHeader(tupleDescriptor, columns);
       }
+      Initialize();
     }
   }
 }

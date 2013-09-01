@@ -77,6 +77,7 @@ namespace Xtensive.Orm.Rse.Providers
           Strings.ExAtLeastOneColumnIndexPairMustBeSpecified, "equalIndexes");
       JoinType = joinType;
       EqualIndexes = equalIndexes;
+      Initialize();
     }
 
     /// <summary>
@@ -98,6 +99,7 @@ namespace Xtensive.Orm.Rse.Providers
         ei[i] = new Pair<int>(equalIndexes[j++], equalIndexes[j++]);
       JoinType = joinType;
       EqualIndexes = ei;
+      Initialize();
     }
   }
 }

@@ -8,7 +8,7 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Rse.Providers
 {
-  public class VoidProvider : CompilableProvider
+  public sealed class VoidProvider : CompilableProvider
   {
     private readonly RecordSetHeader header;
 
@@ -22,6 +22,7 @@ namespace Xtensive.Orm.Rse.Providers
     {
       ArgumentValidator.EnsureArgumentNotNull(header, "header");
       this.header = header;
+      Initialize();
     }
   }
 }

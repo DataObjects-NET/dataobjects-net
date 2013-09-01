@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Rse.Providers
   /// <see cref="BinaryProvider.Right"/> sources.
   /// </summary>
   [Serializable]
-  public class ConcatProvider : BinaryProvider
+  public sealed class ConcatProvider : BinaryProvider
   {
     protected override RecordSetHeader BuildHeader()
     {
@@ -71,6 +71,7 @@ namespace Xtensive.Orm.Rse.Providers
     public ConcatProvider(CompilableProvider left, CompilableProvider right)
       : base(ProviderType.Concat, left, right)
     {
+      Initialize();
     }
   }
 }

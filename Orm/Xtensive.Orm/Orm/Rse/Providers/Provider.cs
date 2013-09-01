@@ -73,27 +73,12 @@ namespace Xtensive.Orm.Rse.Providers
       get { return GetType().GetShortName(); }
     }
 
-
-    /// <summary>
-    /// Performs initialization (see <see cref="Initialize()"/>) of the provider 
-    /// if type of <see langword="this" /> is the same as <paramref name="ctorType"/>.
-    /// Invoked by <see cref="InitializableAttribute"/> aspect in the epilogue of any 
-    /// constructor of this type and its ancestors.
-    /// </summary>
-    /// <param name="ctorType">The type, which constructor has invoked this method.</param>
-    protected void Initialize(Type ctorType)
-    {
-      if (ctorType==GetType() && !isInitialized) {
-        isInitialized = true;
-        Initialize();
-      }
-    }
-
     /// <summary>
     /// Performs initialization of the provider.
     /// </summary>
     protected virtual void Initialize()
     {
+      isInitialized = true;
       Header = BuildHeader();
     }
 

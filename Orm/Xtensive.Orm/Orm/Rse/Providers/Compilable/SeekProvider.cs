@@ -43,6 +43,7 @@ namespace Xtensive.Orm.Rse.Providers
       : base(ProviderType.Seek, source)
     {
       Key = key;
+      Initialize();
     }
 
     /// <summary>
@@ -54,6 +55,7 @@ namespace Xtensive.Orm.Rse.Providers
       : base(ProviderType.Seek, source)
     {
       Key = () => key;
+      Initialize();
     }
   }
 }

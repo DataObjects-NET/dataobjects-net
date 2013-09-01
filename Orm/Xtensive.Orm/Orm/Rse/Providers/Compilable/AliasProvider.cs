@@ -46,6 +46,7 @@ namespace Xtensive.Orm.Rse.Providers
       : base(ProviderType.Alias, source)
     {
       Alias = alias;
+      Initialize();
     }
   }
 }

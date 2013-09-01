@@ -58,6 +58,7 @@ namespace Xtensive.Orm.Rse.Providers
       Take = take;
       From = () => skip() + 1;
       To = () => take() + skip();
+      Initialize();
     }
 
     /// <summary>
@@ -73,6 +74,7 @@ namespace Xtensive.Orm.Rse.Providers
       Take = () => take;
       From = () => skip + 1;
       To = () => take + skip;
+      Initialize();
     }
 
     /// <summary>
@@ -87,6 +89,7 @@ namespace Xtensive.Orm.Rse.Providers
       Take = pagingProvider.Take;
       From = pagingProvider.From;
       To = pagingProvider.To;
+      Initialize();
     }
   }
 }

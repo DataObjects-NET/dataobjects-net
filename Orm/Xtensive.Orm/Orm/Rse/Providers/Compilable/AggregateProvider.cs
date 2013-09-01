@@ -205,6 +205,7 @@ namespace Xtensive.Orm.Rse.Providers
       }
       AggregateColumns = columns;
       GroupColumnIndexes = groupIndexes;
+      Initialize();
     }
   }
 }

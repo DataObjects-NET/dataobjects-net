@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Rse.Providers
   /// Compilable provider that adds row number to <see cref="UnaryProvider.Source"/>.
   /// </summary>
   [Serializable]
-  public class RowNumberProvider : UnaryProvider
+  public sealed class RowNumberProvider : UnaryProvider
   {
     /// <summary>
     /// Gets the row number column.
@@ -55,6 +55,7 @@ namespace Xtensive.Orm.Rse.Providers
       : base(ProviderType.RowNumber, source)
     {
       SystemColumn = new SystemColumn(columnName, Source.Header.Length, typeof(long));
+      Initialize();
     }
   }
 }
