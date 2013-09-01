@@ -44,6 +44,7 @@ namespace Xtensive.Orm.Weaver.Stages
 
       // Xtensive.Orm
       registry.Session = ImportType(context, ormAssembly, "Xtensive.Orm.Session");
+      registry.Entity = ImportType(context, ormAssembly, WellKnown.EntityType);
       registry.EntityState = ImportType(context, ormAssembly, "Xtensive.Orm.EntityState");
       registry.FieldInfo = ImportType(context, ormAssembly, "Xtensive.Orm.Model.FieldInfo");
       var persistentType = registry.Persistent = ImportType(context, ormAssembly, "Xtensive.Orm.Persistent");

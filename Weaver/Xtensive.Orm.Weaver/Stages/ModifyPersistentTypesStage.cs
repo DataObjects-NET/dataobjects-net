@@ -15,22 +15,26 @@ namespace Xtensive.Orm.Weaver.Stages
   {
     private TypeReference[][] entityFactorySignatures;
     private TypeReference[][] structureFactorySignatures;
+    private TypeReference[][] entitySetFactorySignatures;
 
     public override ActionResult Execute(ProcessorContext context)
     {
       var references = context.References;
 
       entityFactorySignatures = new[] {
-        new[] {references.EntityState},
-        new[] {references.Session, references.EntityState},
         new[] {references.SerializationInfo, references.StreamingContext},
+        new[] {references.Session, references.EntityState},
       };
 
       structureFactorySignatures = new[] {
-        new[] {references.Tuple},
+        new[] {references.SerializationInfo, references.StreamingContext},
         new[] {references.Session, references.Tuple},
         new[] {references.Persistent, references.FieldInfo},
+      };
+
+      entitySetFactorySignatures = new[] {
         new[] {references.SerializationInfo, references.StreamingContext},
+        new[] {references.Entity, references.FieldInfo},
       };
 
       foreach (var type in context.PersistentTypes)
@@ -59,7 +63,12 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private void ProcessEntitySet(ProcessorContext context, PersistentType type)
     {
-      context.WeavingTasks.Add(new AddAttributeTask(type.Definition, context.References.EntitySetTypeAttributeConstructor));
+      var definition = type.Definition;
+
+      foreach (var signature in entitySetFactorySignatures)
+        context.WeavingTasks.Add(new ImplementFactoryTask(definition, signature));
+
+      context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.EntitySetTypeAttributeConstructor));
     }
 
     private void ProcessEntity(ProcessorContext context, PersistentType type)

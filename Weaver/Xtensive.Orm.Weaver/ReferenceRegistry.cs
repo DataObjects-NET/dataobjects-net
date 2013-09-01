@@ -30,6 +30,7 @@ namespace Xtensive.Orm.Weaver
 
     // Xtensive.Orm
     public TypeReference Session { get; set; }
+    public TypeReference Entity { get; set; }
     public TypeReference EntityState { get; set; }
     public TypeReference FieldInfo { get; set; }
     public TypeReference Persistent { get; set; }
