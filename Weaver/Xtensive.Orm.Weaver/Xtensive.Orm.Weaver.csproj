@@ -78,6 +78,7 @@
     <Compile Include="ProcessorConfiguration.cs" />
     <Compile Include="ProcessorMessage.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="PropertyIdentity.cs" />
     <Compile Include="StageFailedException.cs" />
     <Compile Include="AssemblyProcessor.cs" />
     <Compile Include="AssemblyResolver.cs" />

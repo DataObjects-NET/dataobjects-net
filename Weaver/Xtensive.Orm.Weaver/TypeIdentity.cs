@@ -21,10 +21,16 @@ namespace Xtensive.Orm.Weaver
       return obj is TypeIdentity && Equals((TypeIdentity) obj);
     }
 
+    public bool Equals(TypeIdentity other)
+    {
+      return scope==other.scope && WeavingHelper.TypeNameComparer.Equals(fullName, other.fullName);
+    }
+
     public override int GetHashCode()
     {
       unchecked {
-        return ((fullName!=null ? fullName.GetHashCode() : 0) * 397) ^ (scope!=null ? scope.GetHashCode() : 0);
+        return
+          (fullName!=null ? WeavingHelper.TypeNameComparer.GetHashCode(fullName) : 0) * 397 ^ (scope!=null ? scope.GetHashCode() : 0);
       }
     }
 
@@ -36,11 +42,6 @@ namespace Xtensive.Orm.Weaver
     public static bool operator !=(TypeIdentity left, TypeIdentity right)
     {
       return !left.Equals(right);
-    }
-
-    public bool Equals(TypeIdentity other)
-    {
-      return scope==other.scope && WeavingHelper.TypeNameComparer.Equals(fullName, other.fullName);
     }
 
     public TypeIdentity(TypeDefinition type)
