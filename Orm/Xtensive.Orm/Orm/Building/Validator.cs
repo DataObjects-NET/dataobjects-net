@@ -192,7 +192,7 @@ namespace Xtensive.Orm.Building
       if (underlyingType.Assembly==OrmAssembly)
         return;
       var constructor = underlyingType.GetConstructor(
-        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, new[] {typeof (EntityState)});
+        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, new[] {typeof (Session), typeof (EntityState)});
       if (constructor!=null)
         return;
       var assemblyName = underlyingType.Assembly.GetName().FullName;
