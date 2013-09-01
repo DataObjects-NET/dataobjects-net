@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Weaver.Stages
 
     public override ActionResult Execute(ProcessorContext context)
     {
-      var typesToInspect = context.TargetModule.Types.Where(t => t.IsClass && t.BaseType!=null || t.IsInterface);
+      var typesToInspect = context.TargetModule.GetTypes().Where(t => t.IsClass && t.BaseType!=null || t.IsInterface);
       foreach (var type in typesToInspect) {
         var kind = InspectType(context, type);
         if (kind!=PersistentTypeKind.None)
