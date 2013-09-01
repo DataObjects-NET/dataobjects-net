@@ -5,10 +5,7 @@
 // Created:    2013.08.19
 
 using System;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
-using System.Reflection;
 
 namespace Xtensive.Orm.Weaver
 {
@@ -38,8 +35,8 @@ namespace Xtensive.Orm.Weaver
       foreach (var arg in args)
         ProcessArgument(arg);
 
-      var processor = CreateProcessor();
-      var result = processor.Execute(configuration, new ConsoleMessageWriter());
+      var processor = new AssemblyProcessor(configuration, new ConsoleMessageWriter());
+      var result = processor.Execute();
 
       ExitAccordingToResult(result);
     }
@@ -79,20 +76,6 @@ namespace Xtensive.Orm.Weaver
     {
       Console.Error.WriteLine("Invalid argument: {0}", argument);
       Environment.Exit(ExitCode.InvalidCommandLine);
-    }
-
-    private static IAssemblyProcessor CreateProcessor()
-    {
-      var weaverAssembly = string.Format(
-        "Xtensive.Orm.Weaver.Engine, Version={0}, Culture=neutral, PublicKeyToken={1}",
-        ThisAssembly.Version,
-        ThisAssembly.PublicKeyToken);
-
-      const string weaverType = "Xtensive.Orm.Weaver.AssemblyProcessor";
-
-      var processorAssembly = Assembly.Load(weaverAssembly);
-      var processorType = processorAssembly.GetType(weaverType);
-      return (IAssemblyProcessor) Activator.CreateInstance(processorType);
     }
 
     private Program(string[] args)

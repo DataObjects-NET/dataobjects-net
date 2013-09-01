@@ -4,26 +4,21 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.19
 
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Mono.Cecil;
 using Xtensive.Orm.Weaver.Stages;
 
 namespace Xtensive.Orm.Weaver
 {
-  [Obfuscation(Exclude = true)]
-  public sealed class AssemblyProcessor : IAssemblyProcessor
+  public sealed class AssemblyProcessor
   {
-    public ActionResult Execute(ProcessorConfiguration configuration, IMessageWriter messageWriter)
-    {
-      if (configuration==null)
-        throw new ArgumentNullException("configuration");
-      if (messageWriter==null)
-        throw new ArgumentNullException("messageWriter");
+    private readonly ProcessorConfiguration configuration;
+    private readonly IMessageWriter messageWriter;
 
+    public ActionResult Execute()
+    {
       var logger = new MessageLogger(configuration.ProjectId, messageWriter);
       var referencedAssemblies = configuration.ReferencedAssemblies ?? Enumerable.Empty<string>();
       var assemblyResolver = new AssemblyResolver(referencedAssemblies, logger);
@@ -77,6 +72,12 @@ namespace Xtensive.Orm.Weaver
       catch (StageFailedException) {
         return ActionResult.Failure;
       }
+    }
+
+    public AssemblyProcessor(ProcessorConfiguration configuration, IMessageWriter messageWriter)
+    {
+      this.configuration = configuration;
+      this.messageWriter = messageWriter;
     }
   }
 }
