@@ -31,6 +31,19 @@ namespace Xtensive.Orm.Weaver
         || property.SetMethod!=null && property.SetMethod.IsStatic;
     }
 
+    public static bool HasPublicKeyToken(this AssemblyNameReference reference, IList<byte> expectedToken)
+    {
+      var tokenToCheck = reference.PublicKeyToken;
+      return tokenToCheck!=null
+        && tokenToCheck.Length==expectedToken.Count
+        && tokenToCheck.SequenceEqual(expectedToken);
+    }
+
+    public static bool HasReferenceTo(this ModuleDefinition module, string assemblyName, IList<byte> publicKeyToken)
+    {
+      return module.AssemblyReferences.Any(r => r.Name==assemblyName && r.HasPublicKeyToken(publicKeyToken));
+    }
+
     public static bool Remove<T>(this Collection<T> items, string name)
       where T : MemberReference
     {

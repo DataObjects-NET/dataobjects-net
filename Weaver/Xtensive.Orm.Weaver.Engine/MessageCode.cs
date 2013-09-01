@@ -14,6 +14,9 @@ namespace Xtensive.Orm.Weaver
     ErrorUnableToLocateOrmAssembly,
     ErrorUnableToFindReferencedAssembly,
     ErrorUnableToRemoveBackingField,
+    ErrorEntityLimitIsExceeded,
+    ErrorLicenseIsInvalid,
+    ErrorSubscriptionExpired,
 
     WarningDebugSymbolsFileIsNotFound,
     WarningReferencedAssemblyFileIsNotFound,

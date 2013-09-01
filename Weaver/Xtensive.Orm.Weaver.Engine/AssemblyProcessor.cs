@@ -6,12 +6,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using Mono.Cecil;
 using Xtensive.Orm.Weaver.Stages;
 
 namespace Xtensive.Orm.Weaver
 {
+  [Obfuscation(Exclude = true)]
   public sealed class AssemblyProcessor : IAssemblyProcessor
   {
     public ActionResult Execute(ProcessorConfiguration configuration, IMessageWriter messageWriter)
@@ -27,6 +30,7 @@ namespace Xtensive.Orm.Weaver
 
       var context = new ProcessorContext {
         Configuration = configuration,
+        ApplicationDirectory = Path.GetDirectoryName(GetType().Assembly.Location),
         Logger = logger,
         AssemblyResolver = assemblyResolver,
         MetadataResolver = new MetadataResolver(assemblyResolver),
@@ -55,6 +59,7 @@ namespace Xtensive.Orm.Weaver
         new ImportReferencesStage(),
         new LoadSystemAssembliesListStage(),
         new FindPersistentTypesStage(),
+        new ValidateLicenseStage(),
         new ModifyPersistentTypesStage(),
         new MarkAssemblyStage(),
         new WriteStatusStage(),

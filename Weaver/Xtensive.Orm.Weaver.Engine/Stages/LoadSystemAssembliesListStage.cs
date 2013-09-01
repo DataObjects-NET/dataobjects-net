@@ -13,8 +13,7 @@ namespace Xtensive.Orm.Weaver.Stages
   {
     public override ActionResult Execute(ProcessorContext context)
     {
-      var listDirectory = Path.GetDirectoryName(GetType().Assembly.Location);
-      var listFile = Path.Combine(listDirectory, "SystemAssemblies.txt");
+      var listFile = Path.Combine(context.ApplicationDirectory, "SystemAssemblies.txt");
       if (File.Exists(listFile))
         foreach (var item in File.ReadLines(listFile).Where(l => !string.IsNullOrWhiteSpace(l)))
           context.SystemAssemblies.Add(item);

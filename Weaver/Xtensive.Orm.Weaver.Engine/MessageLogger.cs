@@ -76,6 +76,12 @@ namespace Xtensive.Orm.Weaver
       RegisterMessage(MessageCode.ErrorUnableToLocateOrmAssembly, "unable to locate Xtensive.Orm assembly");
       RegisterMessage(MessageCode.ErrorUnableToFindReferencedAssembly, "unable to find referenced assembly");
       RegisterMessage(MessageCode.ErrorUnableToRemoveBackingField, "unable to remove backing field");
+      RegisterMessage(MessageCode.ErrorEntityLimitIsExceeded,
+        "Number of persistent types in assembly exceeds the maximal available types per assembly for Community Edition. " +
+        "Consider upgrading to any commercial edition of DataObjects.Net.");
+      RegisterMessage(MessageCode.ErrorLicenseIsInvalid, "DataObjects.Net license is invalid.");
+      RegisterMessage(MessageCode.ErrorSubscriptionExpired,
+        "Your subscription expired and is not valid for this release of DataObjects.Net.");
 
       RegisterMessage(MessageCode.WarningDebugSymbolsFileIsNotFound, "debug symbols file is not found");
       RegisterMessage(MessageCode.WarningReferencedAssemblyFileIsNotFound, "referenced assembly file is not found");

@@ -14,6 +14,8 @@ namespace Xtensive.Orm.Weaver
   {
     public ProcessorConfiguration Configuration { get; set; }
 
+    public string ApplicationDirectory { get; set; }
+
     public MessageLogger Logger { get; set; }
 
     public IList<WeavingTask> WeavingTasks { get; set; }
