@@ -31,9 +31,12 @@ namespace Xtensive.Orm.Weaver.Stages
       var voidType = context.TargetModule.TypeSystem.Void;
 
       // mscorlib
+      var typeType = registry.Type = ImportType(context, mscorlibAssembly, "System.Type");
+      var exceptionType = registry.Exception = ImportType(context, mscorlibAssembly, "System.Exception");
+      var runtimeTypeHandleType = registry.RuntimeTypeHandle = ImportType(context, mscorlibAssembly, "System.RuntimeTypeHandle", true);
       registry.SerializationInfo = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization.SerializationInfo");
       registry.StreamingContext = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization.StreamingContext", true);
-
+      registry.TypeGetTypeFromHandle = ImportMethod(context, typeType, "GetTypeFromHandle", false, typeType, runtimeTypeHandleType);
       registry.CompilerGeneratedAttributeConstructor = ImportDefaultConstructor(context, mscorlibAssembly, WellKnown.CompilerGeneratedAttribute);
 
       // Xtensive.Core
@@ -42,13 +45,14 @@ namespace Xtensive.Orm.Weaver.Stages
       // Xtensive.Orm
       registry.Session = ImportType(context, ormAssembly, "Xtensive.Orm.Session");
       registry.EntityState = ImportType(context, ormAssembly, "Xtensive.Orm.EntityState");
-      registry.Persistent = ImportType(context, ormAssembly, "Xtensive.Orm.Persistent");
       registry.FieldInfo = ImportType(context, ormAssembly, "Xtensive.Orm.Model.FieldInfo");
+      var persistentType = registry.Persistent = ImportType(context, ormAssembly, "Xtensive.Orm.Persistent");
 
       registry.PersistenceImplementation = ImportType(context, ormAssembly, "Xtensive.Orm.Weaving.PersistenceImplementation");
-      registry.HandleKeySet = ImportMethod(context, registry.PersistenceImplementation, "HandleKeySet", voidType, stringType, stringType);
+      registry.PersistenceImplementationHandleKeySet = ImportMethod(context, registry.PersistenceImplementation, "HandleKeySet", false, voidType, stringType, stringType);
 
-      var persistentType = registry.Persistent;
+      registry.PersistentInitialize = ImportMethod(context, persistentType, "Initialize", true, voidType, typeType);
+      registry.PersistentInitializationError = ImportMethod(context, persistentType, "InitializationError", true, voidType, typeType, exceptionType);
 
       var getterType = new GenericParameter(0, GenericParameterType.Method, context.TargetModule);
       var persistentGetter = new MethodReference("GetFieldValue", getterType, persistentType) {HasThis = true};
@@ -89,10 +93,11 @@ namespace Xtensive.Orm.Weaver.Stages
       return targetModule.Import(constructorReference);
     }
 
-    private MethodReference ImportMethod(ProcessorContext context, TypeReference type, string name, TypeReference returnType, params TypeReference[] parameterTypes)
+    private MethodReference ImportMethod(ProcessorContext context, TypeReference declaringType, string methodName,
+      bool hasThis, TypeReference returnType, params TypeReference[] parameterTypes)
     {
       var targetModule = context.TargetModule;
-      var methodReference = new MethodReference(name,returnType, type);
+      var methodReference = new MethodReference(methodName,returnType, declaringType) {HasThis = hasThis};
       foreach (var parameterType in parameterTypes)
         methodReference.Parameters.Add(new ParameterDefinition(parameterType));
       return targetModule.Import(methodReference);

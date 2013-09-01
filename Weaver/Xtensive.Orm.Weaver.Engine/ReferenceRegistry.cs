@@ -15,8 +15,13 @@ namespace Xtensive.Orm.Weaver
     public AssemblyNameReference OrmAssembly { get; set; }
 
     // mscorlib
+    public TypeReference Type { get; set; }
+    public TypeReference Exception { get; set; }
+    public TypeReference RuntimeTypeHandle { get; set; }
     public TypeReference StreamingContext { get; set; }
     public TypeReference SerializationInfo { get; set; }
+
+    public MethodReference TypeGetTypeFromHandle { get; set; }
 
     public MethodReference CompilerGeneratedAttributeConstructor { get; set; }
 
@@ -36,7 +41,10 @@ namespace Xtensive.Orm.Weaver
     public MethodReference EntityInterfaceAttributeConstructor { get; set; }
     public MethodReference StructureTypeAttributeConstructor { get; set; }
 
-    public MethodReference HandleKeySet { get; set; }
+    public MethodReference PersistenceImplementationHandleKeySet { get; set; }
+
+    public MethodReference PersistentInitialize { get; set; }
+    public MethodReference PersistentInitializationError { get; set; }
 
     public MethodReference PersistentGetterDefinition { get; set; }
     public MethodReference PersistentSetterDefinition { get; set; }

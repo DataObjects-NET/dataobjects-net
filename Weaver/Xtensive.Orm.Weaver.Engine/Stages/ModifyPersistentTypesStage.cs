@@ -69,13 +69,8 @@ namespace Xtensive.Orm.Weaver.Stages
       foreach (var signature in entityFactorySignatures)
         context.WeavingTasks.Add(new ImplementFactoryTask(definition, signature));
 
-      var userConstructors = type.Definition.Methods
-        .Where(m => m.IsConstructor && !m.IsStatic && !m.HasAttribute(WellKnown.CompilerGeneratedAttribute));
-      foreach (var constructor in userConstructors) {
-        context.WeavingTasks.Add(new ImplementInitializablePatternTask(type.Definition, constructor));
-      }
-
       ProcessFields(context, type);
+      ProcessConstructors(context, type);
 
       context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.EntityTypeAttributeConstructor));
     }
@@ -88,6 +83,7 @@ namespace Xtensive.Orm.Weaver.Stages
         context.WeavingTasks.Add(new ImplementFactoryTask(definition, signature));
 
       ProcessFields(context, type);
+      ProcessConstructors(context, type);
 
       context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.StructureTypeAttributeConstructor));
     }
@@ -110,6 +106,14 @@ namespace Xtensive.Orm.Weaver.Stages
         context.WeavingTasks.Add(new RemoveBackingFieldTask(typeDefinition, propertyDefinition,
           property.ExplicitlyImplementedInterface));
       }
+    }
+
+    private static void ProcessConstructors(ProcessorContext context, PersistentType type)
+    {
+      var userConstructors = type.Definition.Methods
+        .Where(m => m.IsConstructor && !m.IsStatic && !m.HasAttribute(WellKnown.CompilerGeneratedAttribute));
+      foreach (var constructor in userConstructors)
+        context.WeavingTasks.Add(new ImplementInitializablePatternTask(type.Definition, constructor));
     }
   }
 }
