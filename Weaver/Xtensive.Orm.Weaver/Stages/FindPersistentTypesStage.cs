@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private bool IsPersistentProperty(PropertyDefinition property)
     {
-      return !property.IsStatic() && property.IsAutoProperty() && property.HasAttribute(WellKnown.FieldAttribute);
+      return property.HasThis && property.IsAutoProperty() && property.HasAttribute(WellKnown.FieldAttribute);
     }
   }
 }

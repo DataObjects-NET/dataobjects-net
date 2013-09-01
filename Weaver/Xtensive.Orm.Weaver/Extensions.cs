@@ -25,12 +25,6 @@ namespace Xtensive.Orm.Weaver
         && property.SetMethod!=null && property.SetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute);
     }
 
-    public static bool IsStatic(this PropertyDefinition property)
-    {
-      return property.GetMethod!=null && property.GetMethod.IsStatic
-        || property.SetMethod!=null && property.SetMethod.IsStatic;
-    }
-
     public static bool HasPublicKeyToken(this AssemblyNameReference reference, IList<byte> expectedToken)
     {
       var tokenToCheck = reference.PublicKeyToken;
