@@ -17,6 +17,8 @@ namespace Xtensive.Orm.Building
 {
   internal static class Validator
   {
+    private static readonly Assembly OrmAssembly = typeof (Validator).Assembly;
+
     private static readonly HashSet<Type> ValidFieldTypes = new HashSet<Type>();
     private static readonly Regex ColumnNamingRule;
     private static readonly Regex TypeNamingRule;
@@ -186,15 +188,15 @@ namespace Xtensive.Orm.Building
 
     public static void EnsureUnderlyingTypeIsAspected(TypeDef type)
     {
-      var constructor = type.UnderlyingType.GetConstructor(
+      var underlyingType = type.UnderlyingType;
+      if (underlyingType.Assembly==OrmAssembly)
+        return;
+      var constructor = underlyingType.GetConstructor(
         BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, new[] {typeof (EntityState)});
       if (constructor!=null)
         return;
-      var typeName = type.UnderlyingType.GetFullName();
-      var assemblyName = type.UnderlyingType.Assembly.GetName().FullName;
-      throw new DomainBuilderException(String.Format(
-        Strings.ExPersistentAttributeIsNotSetOnTypeXOrAssemblyYIsNotProcessedByPostSharp,
-        typeName, assemblyName));
+      var assemblyName = underlyingType.Assembly.GetName().FullName;
+      throw new DomainBuilderException(string.Format(Strings.ExAssemblyXIsNotProcessedByWeaver, assemblyName));
     }
 
     public static void EnsureTypeIsPersistent(Type type)
