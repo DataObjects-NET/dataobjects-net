@@ -239,6 +239,11 @@ namespace Xtensive.Orm
       return qe.Provider.CreateQuery<TItem>(queryExpression);
     }
 
+    private static EntitySet<TItem> CreateObject(Entity owner, FieldInfo field)
+    {
+      return new EntitySet<TItem>(owner, field);
+    }
+
  
     // Constructors
 
@@ -249,7 +254,8 @@ namespace Xtensive.Orm
     /// <param name="field">Field corresponds to this entity set.</param>
     protected EntitySet(Entity owner, FieldInfo field)
       : base(owner, field)
-    {}
+    {
+    }
 
     /// <summary>
     /// Initializes a new instance of this class.

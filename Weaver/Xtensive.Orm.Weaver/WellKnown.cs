@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Weaver
     public static readonly string CompilerGeneratedAttribute = "System.Runtime.CompilerServices.CompilerGeneratedAttribute";
 
     public static readonly string Constructor = ".ctor";
-    public static readonly string FactoryMethod = "~Xtensive.Aspects.FactoryMethod";
+    public static readonly string FactoryMethod = "~Xtensive.Orm.CreateObject";
 
     private static string GetFullAssemblyName(string shortName)
     {

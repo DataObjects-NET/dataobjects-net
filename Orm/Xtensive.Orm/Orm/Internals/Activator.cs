@@ -5,74 +5,65 @@
 // Created:    2008.11.01
 
 using System;
-using Xtensive.Collections;
-using Xtensive.Reflection;
-using Xtensive.Tuples;
+using System.Collections.Concurrent;
+using System.Reflection;
+using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 using Tuple = Xtensive.Tuples.Tuple;
-using FieldInfo=Xtensive.Orm.Model.FieldInfo;
 
 namespace Xtensive.Orm.Internals
 {
   internal static class Activator
   {
-    private static readonly ThreadSafeDictionary<Type, Func<Session, EntityState, Entity>> entityActivators =
-      ThreadSafeDictionary<Type, Func<Session, EntityState, Entity>>.Create(new object());
+    private static readonly Assembly OrmAssembly = typeof (Activator).Assembly;
 
-    private static readonly ThreadSafeDictionary<Type, Func<Session,Entity>> newEntityActivators =
-      ThreadSafeDictionary<Type, Func<Session,Entity>>.Create(new object());
+    private const string OrmFactoryMethodName = "CreateObject";
+    private const string OtherFactoryMethodName = "~Xtensive.Orm.CreateObject";
 
-    private static readonly ThreadSafeDictionary<Type, Func<Session, Tuple, Structure>> structureTupleActivators =
-      ThreadSafeDictionary<Type, Func<Session, Tuple, Structure>>.Create(new object());
+    private static readonly ConcurrentDictionary<Type, Func<Session, EntityState, Entity>> EntityActivators
+      = new ConcurrentDictionary<Type, Func<Session, EntityState, Entity>>();
+    private static readonly ConcurrentDictionary<Type, Func<Session, Tuple, Structure>> DetachedStructureActivators
+      = new ConcurrentDictionary<Type, Func<Session, Tuple, Structure>>();
+    private static readonly ConcurrentDictionary<Type, Func<Persistent, FieldInfo, Structure>> StructureActivators
+      = new ConcurrentDictionary<Type, Func<Persistent, FieldInfo, Structure>>();
+    private static readonly ConcurrentDictionary<Type, Func<Entity, FieldInfo, EntitySetBase>> EntitySetActivators
+      = new ConcurrentDictionary<Type, Func<Entity, FieldInfo, EntitySetBase>>();
 
-    private static readonly ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, Structure>> 
-      structureActivators = ThreadSafeDictionary<Type, Func<Persistent, FieldInfo, Structure>>
-      .Create(new object());
-
-    private static readonly ThreadSafeDictionary<Type, Func<Entity, FieldInfo, EntitySetBase>>
-      entitySetActivators = ThreadSafeDictionary<Type, Func<Entity, FieldInfo, EntitySetBase>>
-      .Create(new object());
-
-    internal static Entity CreateEntity(Session session, Type type, EntityState state)
+    public static Entity CreateEntity(Session session, Type type, EntityState state)
     {
-      var activator = entityActivators.GetValue(type,
-        DelegateHelper.CreateConstructorDelegate<Func<Session, EntityState, Entity>>);
-      Entity result = activator(session, state);
-      // This one is already called from the constructor
-      //result.SystemInitialize(true);
-      return result;
+      var activator = EntityActivators.GetOrAdd(type, GetActivator<Session, EntityState, Entity>);
+      return activator.Invoke(session, state);
     }
 
-    internal static Entity CreateNewEntity(Session session, Type type)
+    public static Structure CreateStructure(Type type, Persistent owner, FieldInfo field)
     {
-      var activator = newEntityActivators.GetValue(type,
-        DelegateHelper.CreateConstructorDelegate<Func<Session,Entity>>);
-      Entity result = activator(session);
-      return result;
-    }
-
-    internal static Structure CreateStructure(Type type, Persistent owner, FieldInfo field)
-    {
-      var activator = structureActivators.GetValue(type,
-        DelegateHelper.CreateConstructorDelegate<Func<Persistent, FieldInfo,Structure>>);
-      Structure result = activator(owner, field);
+      var activator = StructureActivators.GetOrAdd(type, GetActivator<Persistent, FieldInfo, Structure>);
+      var result = activator.Invoke(owner, field);
       result.SystemInitialize(true);
       return result;
     }
 
-    internal static Structure CreateStructure(Session session, Type type, Tuple tuple)
+    public static Structure CreateStructure(Session session, Type type, Tuple tuple)
     {
-      var activator = structureTupleActivators.GetValue(type,
-        DelegateHelper.CreateConstructorDelegate<Func<Session, Tuple, Structure>>);
-      Structure result = activator(session, tuple);
-      return result;
+      var activator = DetachedStructureActivators.GetOrAdd(type, GetActivator<Session, Tuple, Structure>);
+      return activator.Invoke(session, tuple);
     }
 
-    internal static EntitySetBase CreateEntitySet(Entity owner, FieldInfo field)
+    public static EntitySetBase CreateEntitySet(Entity owner, FieldInfo field)
     {
-      var activator = entitySetActivators.GetValue(field.ValueType,
-        DelegateHelper.CreateConstructorDelegate<Func<Entity, FieldInfo, EntitySetBase>>);
-      EntitySetBase result = activator.Invoke(owner, field);
-      return result;
+      var activator = EntitySetActivators.GetOrAdd(field.ValueType, GetActivator<Entity, FieldInfo, EntitySetBase>);
+      return activator.Invoke(owner, field);
+    }
+
+    private static Func<TArg1, TArg2, TResult> GetActivator<TArg1, TArg2, TResult>(Type type)
+      where TArg1 : class
+      where TArg2 : class
+    {
+      var methodName = type.Assembly==OrmAssembly ? OrmFactoryMethodName : OtherFactoryMethodName;
+      var parameters = new[] {typeof (TArg1), typeof (TArg2)};
+      var method = type.GetMethod(methodName, BindingFlags.Static | BindingFlags.NonPublic, null, parameters, null);
+      if (method==null)
+        throw new InvalidOperationException(string.Format(Strings.ExAssemblyXIsNotProcessedByWeaver, type.Assembly));
+      return (Func<TArg1, TArg2, TResult>) Delegate.CreateDelegate(typeof (Func<TArg1, TArg2, TResult>), method);
     }
   }
 }
