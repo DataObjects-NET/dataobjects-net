@@ -8,6 +8,7 @@ namespace Xtensive.Orm.Weaver
 {
   internal enum MessageCode
   {
+    ErrorInternal,
     ErrorInputFileIsNotFound,
     ErrorStrongNameKeyIsNotFound,
     ErrorTargetAssemblyHasNoExpectedReference,

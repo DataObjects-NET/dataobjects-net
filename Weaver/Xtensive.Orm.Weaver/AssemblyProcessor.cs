@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Weaver
       return new ProcessorStage[] {
         new LoadAssemblyStage(),
         new ImportReferencesStage(),
-        new LoadSystemAssembliesListStage(),
+        new RegisterFrameworkAssembliesStage(),
         new FindPersistentTypesStage(),
         new ValidateLicenseStage(),
         new ModifyPersistentTypesStage(),

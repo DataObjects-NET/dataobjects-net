@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Weaver
       OrmAssemblyFullName = GetFullAssemblyName("Xtensive.Orm");
       CoreAssemblyFullName = GetFullAssemblyName("Xtensive.Core");
 
-      XtensivePublicKeyToken = new ReadOnlyCollection<byte>(new byte[] {0x93, 0xa6, 0xc5, 0x3d, 0x77, 0xa5, 0x29, 0x6c});
+      XtensivePublicKeyToken = new ReadOnlyCollection<byte>(WeavingHelper.ParsePublicKeyToken(ThisAssembly.PublicKeyToken));
     }
   }
 }

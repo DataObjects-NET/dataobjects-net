@@ -70,6 +70,7 @@ namespace Xtensive.Orm.Weaver
     static MessageLogger()
     {
       Messages = new Dictionary<MessageCode, Tuple<string, string>>();
+      RegisterMessage(MessageCode.ErrorInternal, "internal error");
       RegisterMessage(MessageCode.ErrorInputFileIsNotFound, "input file is not found");
       RegisterMessage(MessageCode.ErrorStrongNameKeyIsNotFound, "strong name key file is not found");
       RegisterMessage(MessageCode.ErrorTargetAssemblyHasNoExpectedReference, "target assembly does not have expected reference");

@@ -5,6 +5,7 @@
 // Created:    2013.08.20
 
 using System;
+using System.Collections.Generic;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -14,6 +15,16 @@ namespace Xtensive.Orm.Weaver
   {
     public static readonly StringComparer AssemblyNameComparer = StringComparer.InvariantCultureIgnoreCase;
     public static readonly StringComparer TypeNameComparer = StringComparer.InvariantCulture;
+
+    public static byte[] ParsePublicKeyToken(string value)
+    {
+      var result = new List<byte>();
+      for (var i = 0; i + 1 < value.Length; i += 2) {
+        var itemValue = value.Substring(i, 2);
+        result.Add(Convert.ToByte(itemValue, 16));
+      }
+      return result.ToArray();
+    }
 
     public static void MarkAsCompilerGenerated(ProcessorContext context, ICustomAttributeProvider target)
     {

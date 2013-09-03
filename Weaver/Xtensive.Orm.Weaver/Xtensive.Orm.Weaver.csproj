@@ -70,6 +70,8 @@
     <Compile Include="ConsoleMessageWriter.cs" />
     <Compile Include="ExitCode.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="AssemblyChecker.cs" />
+    <Compile Include="FrameworkAssemblyList.cs" />
     <Compile Include="Interfaces\IMessageWriter.cs" />
     <Compile Include="MessageLocation.cs" />
     <Compile Include="MessageType.cs" />
@@ -82,7 +84,7 @@
     <Compile Include="StageFailedException.cs" />
     <Compile Include="AssemblyProcessor.cs" />
     <Compile Include="AssemblyResolver.cs" />
-    <Compile Include="Stages\LoadSystemAssembliesListStage.cs" />
+    <Compile Include="Stages\RegisterFrameworkAssembliesStage.cs" />
     <Compile Include="Stages\ValidateLicenseStage.cs" />
     <Compile Include="Stages\WriteStampStage.cs" />
     <Compile Include="Stages\WriteStatusStage.cs" />
@@ -122,13 +124,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SystemAssemblies.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\MSBuild\Protection.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
