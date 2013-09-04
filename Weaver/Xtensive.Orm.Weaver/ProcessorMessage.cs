@@ -60,14 +60,10 @@ namespace Xtensive.Orm.Weaver
     private static string GetMessageTypeName(MessageType type)
     {
       switch (type) {
-      case MessageType.Info:
-        return "info";
       case MessageType.Warning:
         return "warning";
       case MessageType.Error:
         return "error";
-      case MessageType.FatalError:
-        return "fatal error";
       default:
         throw new ArgumentOutOfRangeException("type");
       }
