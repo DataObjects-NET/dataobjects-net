@@ -11,8 +11,7 @@ namespace Xtensive.Orm.Weaver
   [Serializable]
   public enum ActionResult
   {
-    Success,
     Failure,
-    FatalFailure,
+    Success,
   }
 }

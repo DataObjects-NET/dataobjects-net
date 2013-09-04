@@ -21,12 +21,8 @@ namespace Xtensive.Orm.Weaver.Stages
         .Select(item => item.Task);
 
       foreach (var task in sortedTasks) {
-        var actionResult = task.Execute(context);
-        if (actionResult==ActionResult.Success)
-          continue;
-        failure = true;
-        if (actionResult==ActionResult.FatalFailure)
-          break;
+        if (task.Execute(context)==ActionResult.Failure)
+          failure = true;
       }
 
       return failure ? ActionResult.Failure : ActionResult.Success;
