@@ -936,8 +936,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Performs initialization (see <see cref="Initialize()"/>) of the <see cref="EntitySetBase"/> 
     /// if type of <see langword="this" /> is the same as <paramref name="ctorType"/>.
-    /// Invoked by <see cref="InitializableAttribute"/> aspect in the epilogue of any 
-    /// constructor of this type and its ancestors.
+    /// Automatically invoked in the epilogue of any constructor of this type and its ancestors.
     /// </summary>
     /// <param name="ctorType">The type, which constructor has invoked this method.</param>
     protected void Initialize(Type ctorType)

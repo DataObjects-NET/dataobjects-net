@@ -18,16 +18,7 @@ namespace Xtensive.Orm
 {
   /// <summary>
   /// Base class for any object that is bound to <see cref="Session"/> instance.
-  /// Methods of descendants of this interface must be processed by PostSharp 
-  /// to ensure their own <see cref="Session"/> is activated inside their method bodies, 
-  /// and transaction is already opened there.
   /// </summary>
-  /// <remarks>
-  /// Only public and protected methods and properties are processed by
-  /// <see cref="TransactionalTypeAttribute"/> aspect.
-  /// To override the default behavior, use <see cref="TransactionalAttribute"/> and
-  /// <see cref="InfrastructureAttribute"/>.
-  /// </remarks>
   public abstract class SessionBound : ISessionBound
   {
     private Session session;
