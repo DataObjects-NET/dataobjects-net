@@ -75,12 +75,11 @@
     <Compile Include="Interfaces\IMessageWriter.cs" />
     <Compile Include="MessageLocation.cs" />
     <Compile Include="MessageType.cs" />
-    <Compile Include="PersistentProperty.cs" />
-    <Compile Include="PersistentType.cs" />
+    <Compile Include="PropertyInfo.cs" />
+    <Compile Include="TypeInfo.cs" />
     <Compile Include="ProcessorConfiguration.cs" />
     <Compile Include="ProcessorMessage.cs" />
     <Compile Include="Application\Program.cs" />
-    <Compile Include="PropertyIdentity.cs" />
     <Compile Include="StageFailedException.cs" />
     <Compile Include="AssemblyProcessor.cs" />
     <Compile Include="AssemblyResolver.cs" />

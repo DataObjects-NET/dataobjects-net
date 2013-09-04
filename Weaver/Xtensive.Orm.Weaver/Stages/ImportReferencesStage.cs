@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Weaver.Stages
       registry.SerializationInfo = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization.SerializationInfo");
       registry.StreamingContext = ImportType(context, mscorlibAssembly, "System.Runtime.Serialization.StreamingContext", true);
       registry.TypeGetTypeFromHandle = ImportMethod(context, typeType, "GetTypeFromHandle", false, typeType, runtimeTypeHandleType);
-      registry.CompilerGeneratedAttributeConstructor = ImportDefaultConstructor(context, mscorlibAssembly, WellKnown.CompilerGeneratedAttribute);
+      registry.CompilerGeneratedAttributeConstructor = ImportConstructor(context, mscorlibAssembly, WellKnown.CompilerGeneratedAttribute);
 
       // Xtensive.Core
       registry.Tuple = ImportType(context, coreAssembly, "Xtensive.Tuples.Tuple");
@@ -68,11 +68,12 @@ namespace Xtensive.Orm.Weaver.Stages
       persistentSetter.GenericParameters.Add(setterType);
       registry.PersistentSetterDefinition = context.TargetModule.Import(persistentSetter);
 
-      registry.ProcessedByWeaverAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.ProcessedByWeaverAttribute);
-      registry.EntityTypeAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.EntityTypeAttribute);
-      registry.EntitySetTypeAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.EntitySetTypeAttribute);
-      registry.EntityInterfaceAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.EntityInterfaceAttribute);
-      registry.StructureTypeAttributeConstructor = ImportDefaultConstructor(context, ormAssembly, WellKnown.StructureTypeAttribute);
+      registry.ProcessedByWeaverAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.ProcessedByWeaverAttribute);
+      registry.EntityTypeAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.EntityTypeAttribute);
+      registry.EntitySetTypeAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.EntitySetTypeAttribute);
+      registry.EntityInterfaceAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.EntityInterfaceAttribute);
+      registry.StructureTypeAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.StructureTypeAttribute);
+      registry.OverrideFieldNameAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.OverrideFieldNameAttribute);
 
       return ActionResult.Success;
     }
@@ -85,12 +86,14 @@ namespace Xtensive.Orm.Weaver.Stages
       return targetModule.Import(reference);
     }
 
-    private MethodReference ImportDefaultConstructor(ProcessorContext context, IMetadataScope assembly, string fullName)
+    private MethodReference ImportConstructor(ProcessorContext context, IMetadataScope assembly, string fullName, params TypeReference[] parameterTypes)
     {
       var splitName = SplitTypeName(fullName);
       var targetModule = context.TargetModule;
       var typeReference = new TypeReference(splitName.Item1, splitName.Item2, targetModule, assembly);
       var constructorReference = new MethodReference(WellKnown.Constructor, targetModule.TypeSystem.Void, typeReference) {HasThis = true};
+      foreach (var type in parameterTypes)
+        constructorReference.Parameters.Add(new ParameterDefinition(type));
       return targetModule.Import(constructorReference);
     }
 

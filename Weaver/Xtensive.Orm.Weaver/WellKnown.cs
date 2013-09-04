@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Weaver
     public static readonly string EntityInterfaceAttribute = "Xtensive.Orm.Weaving.EntityInterfaceAttribute";
     public static readonly string EntitySetTypeAttribute = "Xtensive.Orm.Weaving.EntitySetTypeAttribute";
     public static readonly string StructureTypeAttribute = "Xtensive.Orm.Weaving.StructureTypeAttribute";
+    public static readonly string OverrideFieldNameAttribute = "Xtensive.Orm.Weaving.OverrideFieldNameAttribute";
 
     public static readonly string CompilerGeneratedAttribute = "System.Runtime.CompilerServices.CompilerGeneratedAttribute";
 

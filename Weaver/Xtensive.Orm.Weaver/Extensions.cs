@@ -25,6 +25,16 @@ namespace Xtensive.Orm.Weaver
         && property.SetMethod!=null && property.SetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute);
     }
 
+    public static TypeReference FindExplicitlyImplementedInterface(this PropertyDefinition property)
+    {
+      MethodReference accessor = null;
+      if (property.GetMethod!=null)
+        accessor = property.GetMethod.Overrides.FirstOrDefault();
+      else if (property.SetMethod!=null)
+        accessor = property.SetMethod.Overrides.FirstOrDefault();
+      return accessor!=null ? accessor.DeclaringType : null;
+    }
+
     public static bool HasPublicKeyToken(this AssemblyNameReference reference, IList<byte> expectedToken)
     {
       var tokenToCheck = reference.PublicKeyToken;

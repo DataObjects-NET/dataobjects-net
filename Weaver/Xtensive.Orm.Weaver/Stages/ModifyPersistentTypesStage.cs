@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.21
 
-using System;
 using System.Linq;
 using Mono.Cecil;
 using Xtensive.Orm.Weaver.Tasks;
@@ -56,12 +55,12 @@ namespace Xtensive.Orm.Weaver.Stages
       return ActionResult.Success;
     }
 
-    private void ProcessEntityInterface(ProcessorContext context, PersistentType type)
+    private void ProcessEntityInterface(ProcessorContext context, TypeInfo type)
     {
       context.WeavingTasks.Add(new AddAttributeTask(type.Definition, context.References.EntityInterfaceAttributeConstructor));
     }
 
-    private void ProcessEntitySet(ProcessorContext context, PersistentType type)
+    private void ProcessEntitySet(ProcessorContext context, TypeInfo type)
     {
       var definition = type.Definition;
 
@@ -71,10 +70,10 @@ namespace Xtensive.Orm.Weaver.Stages
       context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.EntitySetTypeAttributeConstructor));
     }
 
-    private void ProcessEntity(ProcessorContext context, PersistentType type)
+    private void ProcessEntity(ProcessorContext context, TypeInfo type)
     {
       var definition = type.Definition;
-      
+
       foreach (var signature in entityFactorySignatures)
         context.WeavingTasks.Add(new ImplementFactoryTask(definition, signature));
 
@@ -84,7 +83,7 @@ namespace Xtensive.Orm.Weaver.Stages
       context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.EntityTypeAttributeConstructor));
     }
 
-    private void ProcessStructure(ProcessorContext context, PersistentType type)
+    private void ProcessStructure(ProcessorContext context, TypeInfo type)
     {
       var definition = type.Definition;
 
@@ -97,9 +96,9 @@ namespace Xtensive.Orm.Weaver.Stages
       context.WeavingTasks.Add(new AddAttributeTask(definition, context.References.StructureTypeAttributeConstructor));
     }
 
-    private void ProcessFields(ProcessorContext context, PersistentType type)
+    private void ProcessFields(ProcessorContext context, TypeInfo type)
     {
-      foreach (var property in type.Properties) {
+      foreach (var property in type.Properties.Values.Where(p => p.IsPersistent && p.IsAutomatic)) {
         var typeDefinition = type.Definition;
         var propertyDefinition = property.Definition;
         // Getter
@@ -117,7 +116,7 @@ namespace Xtensive.Orm.Weaver.Stages
       }
     }
 
-    private static void ProcessConstructors(ProcessorContext context, PersistentType type)
+    private static void ProcessConstructors(ProcessorContext context, TypeInfo type)
     {
       var userConstructors = type.Definition.Methods
         .Where(m => m.IsConstructor && !m.IsStatic && !m.HasAttribute(WellKnown.CompilerGeneratedAttribute));

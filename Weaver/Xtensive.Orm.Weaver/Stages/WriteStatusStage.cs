@@ -38,12 +38,12 @@ namespace Xtensive.Orm.Weaver.Stages
 
       foreach (var type in context.PersistentTypes.Where(t => t.Kind==kind)) {
         writer.WriteLine(indent1 + type.Definition.FullName);
-        foreach (var property in type.Properties.Where(p => p.IsKey)) {
+        foreach (var property in type.Properties.Values.Where(p => p.IsPersistent && p.IsKey)) {
           writer.Write(indent2);
           WriteProperty(writer, property);
           writer.WriteLine();
         }
-        foreach (var property in type.Properties.Where(p => !p.IsKey)) {
+        foreach (var property in type.Properties.Values.Where(p => p.IsPersistent && !p.IsKey)) {
           writer.Write(indent2);
           WriteProperty(writer, property);
           writer.WriteLine();
@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Weaver.Stages
       writer.WriteLine();
     }
 
-    private static void WriteProperty(StreamWriter writer, PersistentProperty property)
+    private static void WriteProperty(StreamWriter writer, PropertyInfo property)
     {
       if (property.IsKey)
         writer.Write("[Key] ");

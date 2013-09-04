@@ -12,92 +12,78 @@ namespace Xtensive.Orm.Weaver.Stages
 {
   internal sealed class FindPersistentTypesStage : ProcessorStage
   {
-    private readonly Dictionary<TypeIdentity, PersistentTypeKind> processedTypes = new Dictionary<TypeIdentity, PersistentTypeKind>();
-    private readonly Dictionary<TypeIdentity, PersistentTypeKind> externalTypes = new Dictionary<TypeIdentity, PersistentTypeKind>();
+    private readonly Dictionary<TypeIdentity, TypeInfo> processedTypes = new Dictionary<TypeIdentity, TypeInfo>();
 
     public override ActionResult Execute(ProcessorContext context)
     {
       var typesToInspect = context.TargetModule.GetTypes().Where(t => t.IsClass && t.BaseType!=null || t.IsInterface);
       foreach (var type in typesToInspect) {
-        var kind = InspectType(context, type);
-        if (kind!=PersistentTypeKind.None)
-          context.PersistentTypes.Add(CreatePersistentType(type, kind));
+        var result = InspectType(context, type);
+        if (result.Kind!=PersistentTypeKind.None)
+          context.PersistentTypes.Add(result);
       }
       return ActionResult.Success;
     }
 
-    private PersistentType CreatePersistentType(TypeDefinition definition, PersistentTypeKind kind)
+    private TypeInfo InspectDefinedType(ProcessorContext context, TypeIdentity identity, TypeDefinition type)
     {
-      var allProperties = kind==PersistentTypeKind.EntitySet
-        ? Enumerable.Empty<PersistentProperty>()
-        : definition.Properties.Where(IsPersistentProperty).Select(CreatePersistentProperty);
-      return new PersistentType(definition, kind, allProperties);
-    }
-
-    private PersistentProperty CreatePersistentProperty(PropertyDefinition definition)
-    {
-      var result = new PersistentProperty(definition);
-      result.IsKey = definition.HasAttribute(WellKnown.KeyAttribute);
-      var overriddenGetter = definition.GetMethod.Overrides.FirstOrDefault();
-      if (overriddenGetter!=null)
-        result.ExplicitlyImplementedInterface = overriddenGetter.DeclaringType;
-      return result;
-    }
-
-    private PersistentTypeKind InspectType(ProcessorContext context, TypeDefinition type)
-    {
-      var identity = new TypeIdentity(type);
-
-      PersistentTypeKind kind;
-      if (processedTypes.TryGetValue(identity, out kind))
-        return kind;
-
       if (type.IsClass) {
-        kind = ClassifyType(context, type.BaseType);
-        processedTypes.Add(identity, kind);
-        return kind;
+        var baseType = InspectType(context, type.BaseType);
+        var kind = baseType.Kind;
+        var result = new TypeInfo(kind, type, baseType);
+        if (kind==PersistentTypeKind.Entity || kind==PersistentTypeKind.Structure) {
+          foreach (var @interface in type.Interfaces)
+            InspectType(context, @interface);
+          InspectProperties(result);
+        }
+        processedTypes.Add(identity, result);
+        return result;
       }
-
-      kind = PersistentTypeKind.None;
-      foreach (var baseInterface in type.Interfaces) {
-        kind = ClassifyType(context, baseInterface);
-        if (kind!=PersistentTypeKind.None)
-          break;
+      else {
+        var isPersistent = false;
+        foreach (var @interface in type.Interfaces) {
+          var current = InspectType(context, @interface);
+          if (current.Kind==PersistentTypeKind.EntityInterface)
+            isPersistent = true;
+        }
+        TypeInfo result;
+        if (isPersistent) {
+          result = new TypeInfo(PersistentTypeKind.EntityInterface, type);
+          InspectProperties(result);
+        }
+        else
+          result = new TypeInfo(PersistentTypeKind.None);
+        processedTypes.Add(identity, result);
+        return result;
       }
-      processedTypes.Add(identity, kind);
-      return kind;
     }
 
-    private PersistentTypeKind ClassifyType(ProcessorContext context, TypeReference type)
+    private TypeInfo InspectType(ProcessorContext context, TypeReference type)
     {
       if (type.IsGenericInstance)
         type = type.GetElementType();
 
-      var thisAssembly = context.TargetModule;
-      var ormAssembly = context.References.OrmAssembly;
-
-      if (type.Scope==thisAssembly)
-        return InspectType(context, type.Resolve());
-
-      if (type.Scope==ormAssembly)
-        return ClassifyOrmType(type);
-
-      var reference = (AssemblyNameReference) type.Scope;
-      if (context.AssemblyChecker.IsFrameworkAssembly(reference))
-        return PersistentTypeKind.None;
-
-      return InspectExternalType(type);
-    }
-
-    private PersistentTypeKind InspectExternalType(TypeReference type)
-    {
       var identity = new TypeIdentity(type);
-      PersistentTypeKind kind;
-      if (!externalTypes.TryGetValue(identity, out kind)) {
-        kind = ClassifyExternalType(type.Resolve());
-        externalTypes.Add(identity, kind);
+
+      TypeInfo existing;
+      if (processedTypes.TryGetValue(identity, out existing))
+        return existing;
+
+      if (type.Scope.MetadataScopeType==MetadataScopeType.AssemblyNameReference) {
+        var reference = (AssemblyNameReference) type.Scope;
+        if (context.AssemblyChecker.IsFrameworkAssembly(reference)) {
+          var result = new TypeInfo(PersistentTypeKind.None);
+          processedTypes.Add(identity, result);
+          return result;
+        }
+        if (reference.FullName==WellKnown.OrmAssemblyFullName) {
+          var result = new TypeInfo(ClassifyOrmType(type));
+          processedTypes.Add(identity, result);
+          return result;
+        }
       }
-      return kind;
+
+      return InspectDefinedType(context, identity, type.Resolve());
     }
 
     private PersistentTypeKind ClassifyOrmType(TypeReference type)
@@ -128,9 +114,19 @@ namespace Xtensive.Orm.Weaver.Stages
       return PersistentTypeKind.None;
     }
 
-    private bool IsPersistentProperty(PropertyDefinition property)
+    private void InspectProperties(TypeInfo type)
     {
-      return property.HasThis && property.IsAutoProperty() && property.HasAttribute(WellKnown.FieldAttribute);
+      foreach (var property in type.Definition.Properties) {
+        var baseProperty = type.FindProperty(property.Name);
+        var propertyInfo = new PropertyInfo(property);
+        propertyInfo.IsAutomatic = property.IsAutoProperty();
+        propertyInfo.IsPersistent = propertyInfo.IsInstance
+          && (property.HasAttribute(WellKnown.FieldAttribute) || baseProperty!=null && baseProperty.IsPersistent);
+        propertyInfo.IsKey = propertyInfo.IsPersistent
+          && (property.HasAttribute(WellKnown.KeyAttribute) || baseProperty!=null && baseProperty.IsKey);
+        propertyInfo.ExplicitlyImplementedInterface = property.FindExplicitlyImplementedInterface();
+        type.Properties.Add(property.Name, propertyInfo);
+      }
     }
   }
 }

@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Weaver
 
     public AssemblyChecker AssemblyChecker { get; set; }
 
-    public IList<PersistentType> PersistentTypes { get; set; }
+    public IList<TypeInfo> PersistentTypes { get; set; }
 
     public string InputFile { get; set; }
 
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Weaver
     {
       WeavingTasks = new List<WeavingTask>();
       References = new ReferenceRegistry();
-      PersistentTypes = new List<PersistentType>();
+      PersistentTypes = new List<TypeInfo>();
       AssemblyChecker = new AssemblyChecker();
     }
   }

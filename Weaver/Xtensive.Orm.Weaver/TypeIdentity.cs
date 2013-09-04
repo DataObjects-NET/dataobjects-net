@@ -11,8 +11,18 @@ namespace Xtensive.Orm.Weaver
 {
   internal struct TypeIdentity : IEquatable<TypeIdentity>
   {
-    private readonly IMetadataScope scope;
-    private readonly string fullName;
+    private readonly string assemblyName;
+    private readonly string typeName;
+
+    public string AssemblyName
+    {
+      get { return assemblyName; }
+    }
+
+    public string TypeName
+    {
+      get { return typeName; }
+    }
 
     public override bool Equals(object obj)
     {
@@ -23,14 +33,16 @@ namespace Xtensive.Orm.Weaver
 
     public bool Equals(TypeIdentity other)
     {
-      return scope==other.scope && WeavingHelper.TypeNameComparer.Equals(fullName, other.fullName);
+      return WeavingHelper.AssemblyNameComparer.Equals(AssemblyName, other.AssemblyName)
+        && WeavingHelper.TypeNameComparer.Equals(TypeName, other.TypeName);
     }
 
     public override int GetHashCode()
     {
       unchecked {
-        return
-          (fullName!=null ? WeavingHelper.TypeNameComparer.GetHashCode(fullName) : 0) * 397 ^ (scope!=null ? scope.GetHashCode() : 0);
+        var typeNameHash = TypeName!=null ? WeavingHelper.TypeNameComparer.GetHashCode(TypeName) : 0;
+        var assemblyNameHash = AssemblyName!=null ? WeavingHelper.AssemblyNameComparer.GetHashCode(AssemblyName) : 0;
+        return assemblyNameHash * 397 ^ typeNameHash;
       }
     }
 
@@ -44,22 +56,13 @@ namespace Xtensive.Orm.Weaver
       return !left.Equals(right);
     }
 
-    public TypeIdentity(TypeDefinition type)
-    {
-      if (type==null)
-        throw new ArgumentNullException("type");
-
-      scope = type.Module;
-      fullName = type.FullName;
-    }
-
     public TypeIdentity(TypeReference type)
     {
       if (type==null)
         throw new ArgumentNullException("type");
 
-      scope = type.Scope;
-      fullName = type.FullName;
+      assemblyName = type.Scope.Name;
+      typeName = type.FullName;
     }
   }
 }
