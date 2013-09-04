@@ -67,8 +67,8 @@
   <ItemGroup>
     <Compile Include="AccessorKind.cs" />
     <Compile Include="ActionResult.cs" />
-    <Compile Include="ConsoleMessageWriter.cs" />
-    <Compile Include="ExitCode.cs" />
+    <Compile Include="Application\ConsoleMessageWriter.cs" />
+    <Compile Include="Application\ExitCode.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="AssemblyChecker.cs" />
     <Compile Include="FrameworkAssemblyList.cs" />
@@ -79,7 +79,7 @@
     <Compile Include="PersistentType.cs" />
     <Compile Include="ProcessorConfiguration.cs" />
     <Compile Include="ProcessorMessage.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Application\Program.cs" />
     <Compile Include="PropertyIdentity.cs" />
     <Compile Include="StageFailedException.cs" />
     <Compile Include="AssemblyProcessor.cs" />

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Orm.Weaver
+namespace Xtensive.Orm.Weaver.Application
 {
   internal sealed class ConsoleMessageWriter : IMessageWriter
   {

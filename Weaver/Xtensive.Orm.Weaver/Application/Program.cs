@@ -7,7 +7,7 @@
 using System;
 using System.IO;
 
-namespace Xtensive.Orm.Weaver
+namespace Xtensive.Orm.Weaver.Application
 {
   internal sealed class Program
   {

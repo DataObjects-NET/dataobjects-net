@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.19
 
-namespace Xtensive.Orm.Weaver
+namespace Xtensive.Orm.Weaver.Application
 {
   internal static class ExitCode
   {
