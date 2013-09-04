@@ -8,7 +8,9 @@ namespace Xtensive.Orm.Weaver
 {
   internal enum MessageCode
   {
-    ErrorInternal,
+    Unknown = 0,
+
+    ErrorInternal = 1,
     ErrorInputFileIsNotFound,
     ErrorStrongNameKeyIsNotFound,
     ErrorTargetAssemblyHasNoExpectedReference,
@@ -19,7 +21,7 @@ namespace Xtensive.Orm.Weaver
     ErrorLicenseIsInvalid,
     ErrorSubscriptionExpired,
 
-    WarningDebugSymbolsFileIsNotFound,
+    WarningDebugSymbolsFileIsNotFound = 1000,
     WarningReferencedAssemblyFileIsNotFound,
   }
 }

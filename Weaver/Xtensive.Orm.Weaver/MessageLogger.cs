@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Weaver
 {
   internal sealed class MessageLogger
   {
-    private static readonly Dictionary<MessageCode, Tuple<string, string>> Messages;
+    private static readonly Dictionary<MessageCode, string> Messages;
 
     private readonly IMessageWriter writer;
     private readonly string projectId;
@@ -34,29 +34,35 @@ namespace Xtensive.Orm.Weaver
 
     public void Write(MessageCode code, string extraInformation, MessageLocation location)
     {
-      Tuple<string, string> entry;
-      if (!Messages.TryGetValue(code, out entry))
+      string description;
+      if (!Messages.TryGetValue(code, out description))
         throw new ArgumentOutOfRangeException("code");
 
+      var messageCode = string.Format(CultureInfo.InvariantCulture, "XW{0:0000}", (int) code);
       var messageText = string.IsNullOrEmpty(extraInformation)
-        ? entry.Item2
-        : string.Format("{0}: {1}", entry.Item2, extraInformation);
+        ? description
+        : string.Format("{0}: {1}", description, extraInformation);
 
       var message = new ProcessorMessage {
         ProjectId = projectId,
-        MessageCode = entry.Item1,
+        MessageCode = messageCode,
         MessageText = messageText,
         Location = location,
-        Type = MessageType.Error,
+        Type = GetMessageType(code),
       };
 
       writer.Write(message);
     }
 
+    private static MessageType GetMessageType(MessageCode code)
+    {
+      var value = (int) code;
+      return value >= 1000 ? MessageType.Warning : MessageType.Error;
+    }
+
     private static void RegisterMessage(MessageCode code, string description)
     {
-      var codeText = string.Format(CultureInfo.InvariantCulture, "XW{0:0000}", Messages.Count);
-      Messages.Add(code, Tuple.Create(codeText, description));
+      Messages.Add(code, description);
     }
 
     public MessageLogger(string projectId, IMessageWriter writer)
@@ -69,14 +75,15 @@ namespace Xtensive.Orm.Weaver
 
     static MessageLogger()
     {
-      Messages = new Dictionary<MessageCode, Tuple<string, string>>();
-      RegisterMessage(MessageCode.ErrorInternal, "internal error");
-      RegisterMessage(MessageCode.ErrorInputFileIsNotFound, "input file is not found");
-      RegisterMessage(MessageCode.ErrorStrongNameKeyIsNotFound, "strong name key file is not found");
-      RegisterMessage(MessageCode.ErrorTargetAssemblyHasNoExpectedReference, "target assembly does not have expected reference");
-      RegisterMessage(MessageCode.ErrorUnableToLocateOrmAssembly, "unable to locate Xtensive.Orm assembly");
-      RegisterMessage(MessageCode.ErrorUnableToFindReferencedAssembly, "unable to find referenced assembly");
-      RegisterMessage(MessageCode.ErrorUnableToRemoveBackingField, "unable to remove backing field");
+      Messages = new Dictionary<MessageCode, string>();
+
+      RegisterMessage(MessageCode.ErrorInternal, "Internal error");
+      RegisterMessage(MessageCode.ErrorInputFileIsNotFound, "Input file is not found");
+      RegisterMessage(MessageCode.ErrorStrongNameKeyIsNotFound, "Strong name key file is not found");
+      RegisterMessage(MessageCode.ErrorTargetAssemblyHasNoExpectedReference, "Target assembly does not have expected reference");
+      RegisterMessage(MessageCode.ErrorUnableToLocateOrmAssembly, "Unable to locate Xtensive.Orm assembly");
+      RegisterMessage(MessageCode.ErrorUnableToFindReferencedAssembly, "Unable to find referenced assembly");
+      RegisterMessage(MessageCode.ErrorUnableToRemoveBackingField, "Unable to remove backing field");
       RegisterMessage(MessageCode.ErrorEntityLimitIsExceeded,
         "Number of persistent types in assembly exceeds the maximal available types per assembly for Community Edition. " +
         "Consider upgrading to any commercial edition of DataObjects.Net.");
@@ -84,8 +91,8 @@ namespace Xtensive.Orm.Weaver
       RegisterMessage(MessageCode.ErrorSubscriptionExpired,
         "Your subscription expired and is not valid for this release of DataObjects.Net.");
 
-      RegisterMessage(MessageCode.WarningDebugSymbolsFileIsNotFound, "debug symbols file is not found");
-      RegisterMessage(MessageCode.WarningReferencedAssemblyFileIsNotFound, "referenced assembly file is not found");
+      RegisterMessage(MessageCode.WarningDebugSymbolsFileIsNotFound, "Debug symbols file is not found");
+      RegisterMessage(MessageCode.WarningReferencedAssemblyFileIsNotFound, "Referenced assembly file is not found");
     }
   }
 }

@@ -11,9 +11,7 @@ namespace Xtensive.Orm.Weaver
   [Serializable]
   public enum MessageType
   {
-    Info,
-    Warning,
     Error,
-    FatalError,
+    Warning,
   }
 }
