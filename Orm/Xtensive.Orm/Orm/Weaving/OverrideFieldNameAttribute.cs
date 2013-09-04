@@ -5,14 +5,14 @@
 // Created:    2010.07.13
 
 using System;
-using System.Diagnostics;
 
 namespace Xtensive.Orm.Weaving
 {
   /// <summary>
-  /// Overrides field name for persistence purposes. Should not be applied in end-user code.
+  /// Overrides field name for persistence purposes.
+  /// You should not use this attribute directly.
+  /// It is automatically applied to your types when needed.
   /// </summary>
-  [Serializable]
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
   public sealed class OverrideFieldNameAttribute : Attribute
   {
@@ -20,7 +20,6 @@ namespace Xtensive.Orm.Weaving
     /// Gets or sets the name.
     /// </summary>
     public string Name { get; private set; }
-
 
     /// <summary>
     /// Initializes a new instance of the <see cref="OverrideFieldNameAttribute"/> class.
