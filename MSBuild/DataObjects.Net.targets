@@ -32,9 +32,7 @@
   </PropertyGroup>
   <Exec Command="$(XtensiveOrmWeaver) $(XtensiveOrmWeaverParameters)"
         WorkingDirectory="$(MSBuildProjectDirectory)"
-        IgnoreExitCode="true">
-    <Output TaskParameter="ExitCode" PropertyName="XtensiveOrmWeaverResult" />        
-  </Exec>
+        IgnoreExitCode="true" />
 </Target>
 
 </Project>
