@@ -191,15 +191,6 @@ namespace Xtensive.Orm.Tests.Storage
     private Key changedOrderKey;
 
     [Test]
-    public void ValidateUpdateTest()
-    {
-      var initialDomain = BuildDomain(DomainUpgradeMode.Recreate);
-      initialDomain.Dispose();
-      var validatedDomain = BuildDomain(DomainUpgradeMode.Validate);
-      validatedDomain.Dispose();
-    }
-
-    [Test]
     public void PerformUpdateTest()
     {
       BuildDomainAndFillData();
@@ -215,24 +206,21 @@ namespace Xtensive.Orm.Tests.Storage
       BuildDomainInValidateMode();
     }
 
-    private Domain BuildDomain(DomainUpgradeMode mode)
+    private Domain BuildDomain(DomainUpgradeMode mode, Type sourceType, IgnoreRuleCollection ignoreRules = null)
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = mode;
-      if (mode != DomainUpgradeMode.Recreate) {
-        configuration.Types.Register(typeof (Model2.Customer).Assembly, typeof (Model2.Customer).Namespace);
-        configuration.IgnoreRules.IgnoreTable("IgnoredTable");
-        configuration.IgnoreRules.IgnoreColumn("SomeIgnoredField").WhenTable("Order");
-        configuration.IgnoreRules.IgnoreColumn("IgnoredColumn.Id").WhenTable("Author");
+      configuration.Types.Register(sourceType.Assembly, sourceType.Namespace);
+      if (ignoreRules != null)
+      {
+        configuration.IgnoreRules = ignoreRules;
       }
-      else
-        configuration.Types.Register(typeof (Model1.Customer).Assembly, typeof (Model1.Customer).Namespace);
       return Domain.Build(configuration);
     }
 
     private void BuildDomainAndFillData()
     {
-      using (var domain = BuildDomain(DomainUpgradeMode.Recreate))
+      using (var domain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model1.Customer)))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var author = new Model1.Author { FirstName = "Иван", LastName = "Гончаров", Birthday = new DateTime(1812, 6, 18) };
@@ -246,7 +234,11 @@ namespace Xtensive.Orm.Tests.Storage
 
     private void UpgrageDomainInPerformMode()
     {
-      using (var domain = BuildDomain(DomainUpgradeMode.Perform))
+      IgnoreRuleCollection ignoreRules = new IgnoreRuleCollection();
+      ignoreRules.IgnoreTable("IgnoredTable");
+      ignoreRules.IgnoreColumn("SomeIgnoredField").WhenTable("Order");
+      ignoreRules.IgnoreColumn("IgnoredColumn.Id").WhenTable("Author");
+      using (var domain = BuildDomain(DomainUpgradeMode.Perform, typeof (Model2.Customer), ignoreRules))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var currentCustomer = session.Query.All<Model2.Customer>().First(c => c.LastName=="Кулаков");
@@ -260,7 +252,11 @@ namespace Xtensive.Orm.Tests.Storage
 
     private void UpgrageDomainInPerformSafelyMode()
     {
-      using (var domain = BuildDomain(DomainUpgradeMode.PerformSafely))
+      IgnoreRuleCollection ignoreRules = new IgnoreRuleCollection();
+      ignoreRules.IgnoreTable("IgnoredTable");
+      ignoreRules.IgnoreColumn("SomeIgnoredField").WhenTable("Order");
+      ignoreRules.IgnoreColumn("IgnoredColumn.Id").WhenTable("Author");
+      using (var domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof (Model2.Customer), ignoreRules))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var currentCustomer = session.Query.All<Model2.Customer>().First(c => c.LastName=="Кулаков");
@@ -271,6 +267,7 @@ namespace Xtensive.Orm.Tests.Storage
         transaction.Complete();
       }
     }
+
     private void BuildDomainInValidateMode()
     {
       var configuration = DomainConfigurationFactory.Create();
