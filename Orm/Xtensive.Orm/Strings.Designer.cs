@@ -4215,6 +4215,24 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Table &apos;{0}&apos; can&apos;t be removed due to the foreign key &apos;{1}&apos; of a ignored table or column.
+        /// </summary>
+        internal static string ExTableXCantBeRemovedDueToForeignKeyYOfIgnoredTableOrColumn {
+            get {
+                return ResourceManager.GetString("ExTableXCantBeRemovedDueToForeignKeyYOfIgnoredTableOrColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Table &apos;{0}&apos; can&apos;t be removed due to the ignored column &apos;{1}&apos;.
+        /// </summary>
+        internal static string ExTableXCantBeRemovedDueToTheIgnoredColumnY {
+            get {
+                return ResourceManager.GetString("ExTableXCantBeRemovedDueToTheIgnoredColumnY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Table with name &apos;{0}&apos; is not found..
         /// </summary>
         internal static string ExTableXIsNotFound {

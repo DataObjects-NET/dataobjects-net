@@ -2470,4 +2470,10 @@ Error: {1}</value>
   <data name="ExIgnoreRuleCantBeAppliedToDatabaseOrSchemaOnly">
     <value xml:space="preserve">Ignore rule can't be applied to database or schema only.</value>
   </data>
+  <data name="ExTableXCantBeRemovedDueToForeignKeyYOfIgnoredTableOrColumn">
+    <value xml:space="preserve">Table '{0}' can't be removed due to the foreign key '{1}' of a ignored table or column</value>
+  </data>
+  <data name="ExTableXCantBeRemovedDueToTheIgnoredColumnY">
+    <value xml:space="preserve">Table '{0}' can't be removed due to the ignored column '{1}'</value>
+  </data>
 </root>
