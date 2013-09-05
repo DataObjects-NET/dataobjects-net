@@ -26,6 +26,17 @@ namespace Xtensive.Orm.Weaver
       return result.ToArray();
     }
 
+    public static string GetPropertyName(string accessorName)
+    {
+      const string getterPrefix = "get_";
+      const string setterPrefix = "set_";
+      if (accessorName.StartsWith(getterPrefix))
+        return accessorName.Substring(getterPrefix.Length);
+      if (accessorName.StartsWith(setterPrefix))
+        return accessorName.Substring(setterPrefix.Length);
+      throw new InvalidOperationException(String.Format("Invalid or unsupported accessor name '{0}'", accessorName));
+    }
+
     public static void MarkAsCompilerGenerated(ProcessorContext context, ICustomAttributeProvider target)
     {
       if (context==null)
@@ -53,6 +64,11 @@ namespace Xtensive.Orm.Weaver
       if (count > 4)
         for (var i = 4; i < count; i++)
           il.Emit(OpCodes.Ldarg_S, (byte) i);
+    }
+
+    public static string BuildComplexPersistentName(TypeInfo type, PropertyInfo property)
+    {
+      return String.Format("{0}.{1}", type.Name, property.Name);
     }
   }
 }

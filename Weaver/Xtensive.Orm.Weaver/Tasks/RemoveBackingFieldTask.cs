@@ -6,6 +6,7 @@
 
 using System;
 using Mono.Cecil;
+using Mono.Cecil.Cil;
 
 namespace Xtensive.Orm.Weaver.Tasks
 {
@@ -13,13 +14,11 @@ namespace Xtensive.Orm.Weaver.Tasks
   {
     private readonly TypeDefinition type;
     private readonly PropertyDefinition property;
-    private readonly TypeReference explicitlyImplementedInterface;
-    private const string BackingFieldNameFormat = "<{0}>k__BackingField";
 
     public override ActionResult Execute(ProcessorContext context)
     {
       var fieldName = GetBackingFieldName();
-      if (type.Fields.Remove(fieldName))
+      if (fieldName!=null && type.Fields.Remove(fieldName))
         return ActionResult.Success;
       context.Logger.Write(MessageCode.ErrorUnableToRemoveBackingField,
         string.Format("type: {0}, property: {1}, field: {2}", type.FullName, property.Name, fieldName));
@@ -28,11 +27,16 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     private string GetBackingFieldName()
     {
-      return string.Format(BackingFieldNameFormat,
-        explicitlyImplementedInterface!=null ? explicitlyImplementedInterface.FullName : property.Name);
+      foreach (var instruction in property.GetMethod.Body.Instructions) {
+        if (instruction.OpCode.Code==Code.Ldfld) {
+          var field = (FieldReference) instruction.Operand;
+          return field.Name;
+        }
+      }
+      return null;
     }
 
-    public RemoveBackingFieldTask(TypeDefinition type, PropertyDefinition property, TypeReference explicitlyImplementedInterface)
+    public RemoveBackingFieldTask(TypeDefinition type, PropertyDefinition property)
     {
       if (type==null)
         throw new ArgumentNullException("type");
@@ -41,7 +45,6 @@ namespace Xtensive.Orm.Weaver.Tasks
 
       this.type = type;
       this.property = property;
-      this.explicitlyImplementedInterface = explicitlyImplementedInterface;
     }
   }
 }

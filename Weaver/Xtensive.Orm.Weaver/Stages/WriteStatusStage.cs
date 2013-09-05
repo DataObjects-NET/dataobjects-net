@@ -18,52 +18,38 @@ namespace Xtensive.Orm.Weaver.Stages
 
       var statusFile = FileHelper.GetStatusFile(context.OutputFile);
 
-      using (var writer = new StreamWriter(statusFile)) {
-        DumpTypes(context, writer, PersistentTypeKind.Entity);
-        DumpTypes(context, writer, PersistentTypeKind.EntitySet);
-        DumpTypes(context, writer, PersistentTypeKind.EntityInterface);
-        DumpTypes(context, writer, PersistentTypeKind.Structure);
-      }
+      using (var writer = new StreamWriter(statusFile))
+        DumpTypes(context, writer);
 
       return ActionResult.Success;
     }
 
-    private static void DumpTypes(ProcessorContext context, StreamWriter writer, PersistentTypeKind kind)
+    private static void DumpTypes(ProcessorContext context, StreamWriter writer)
     {
-      const string indent1 = "  ";
-      const string indent2 = indent1 + indent1;
+      const string indent = "  ";
 
-      writer.WriteLine("{0}: ", kind);
-      writer.WriteLine();
-
-      foreach (var type in context.PersistentTypes.Where(t => t.Kind==kind)) {
-        writer.WriteLine(indent1 + type.Definition.FullName);
-        foreach (var property in type.Properties.Values.Where(p => p.IsPersistent && p.IsKey)) {
-          writer.Write(indent2);
-          WriteProperty(writer, property);
-          writer.WriteLine();
-        }
-        foreach (var property in type.Properties.Values.Where(p => p.IsPersistent && !p.IsKey)) {
-          writer.Write(indent2);
-          WriteProperty(writer, property);
-          writer.WriteLine();
-        }
+      foreach (var type in context.PersistentTypes) {
+        WriteWithWrapping(writer, string.Empty, indent, type.ToString());
+        foreach (var property in type.Properties.Values)
+          WriteWithWrapping(writer, indent, indent, property.ToString());
+        writer.WriteLine();
       }
-      writer.WriteLine();
     }
 
-    private static void WriteProperty(StreamWriter writer, PropertyInfo property)
+    private static void WriteWithWrapping(StreamWriter writer, string baseIndent, string indent, string line)
     {
-      if (property.IsKey)
-        writer.Write("[Key] ");
-      if (property.IsExplicitInterfaceImplementation)
-        writer.WriteLine("[Explicit] ");
-      var propertyDefinition = property.Definition;
-      writer.Write(propertyDefinition.PropertyType.FullName);
-      writer.Write(" ");
-      writer.Write(propertyDefinition.Name);
-      if (property.IsExplicitInterfaceImplementation)
-        writer.Write(" ({0})", property.ExplicitlyImplementedInterface.FullName);
+      var items = line.Split();
+      if (items.Length==0)
+        return;
+      writer.Write(baseIndent);
+      writer.WriteLine(items[0]);
+      for (var i = 1; i < items.Length; i++) {
+        writer.Write(baseIndent);
+        writer.Write(indent);
+        writer.Write(items[i]);
+        writer.WriteLine();
+      }
+      writer.WriteLine();
     }
   }
 }

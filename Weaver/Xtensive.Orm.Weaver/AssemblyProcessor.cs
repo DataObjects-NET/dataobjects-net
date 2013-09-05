@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.19
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -70,6 +71,10 @@ namespace Xtensive.Orm.Weaver
         return stage.Execute(context);
       }
       catch (StageFailedException) {
+        return ActionResult.Failure;
+      }
+      catch (Exception exception) {
+        context.Logger.Write(MessageCode.ErrorInternal, exception.Message);
         return ActionResult.Failure;
       }
     }

@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Weaver.Stages
       registry.EntitySetTypeAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.EntitySetTypeAttribute);
       registry.EntityInterfaceAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.EntityInterfaceAttribute);
       registry.StructureTypeAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.StructureTypeAttribute);
-      registry.OverrideFieldNameAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.OverrideFieldNameAttribute);
+      registry.OverrideFieldNameAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.OverrideFieldNameAttribute, stringType);
 
       return ActionResult.Success;
     }

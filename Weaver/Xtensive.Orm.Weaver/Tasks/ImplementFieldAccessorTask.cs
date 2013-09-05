@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Weaver.Tasks
   {
     private readonly TypeDefinition type;
     private readonly PropertyDefinition property;
-    private readonly TypeReference explicitlyImplementedInterface;
+    private readonly string persistentName;
     private readonly AccessorKind kind;
 
     public override ActionResult Execute(ProcessorContext context)
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       body.Instructions.Clear();
       var il = body.GetILProcessor();
       il.Emit(OpCodes.Ldarg_0);
-      il.Emit(OpCodes.Ldstr, GetPropertyName());
+      il.Emit(OpCodes.Ldstr, persistentName);
       il.Emit(OpCodes.Ldarg_1);
       il.Emit(OpCodes.Call, accessor);
       il.Emit(OpCodes.Ret);
@@ -56,16 +56,9 @@ namespace Xtensive.Orm.Weaver.Tasks
       body.Instructions.Clear();
       var il = body.GetILProcessor();
       il.Emit(OpCodes.Ldarg_0);
-      il.Emit(OpCodes.Ldstr, GetPropertyName());
+      il.Emit(OpCodes.Ldstr, persistentName);
       il.Emit(OpCodes.Call, accessor);
       il.Emit(OpCodes.Ret);
-    }
-
-    private string GetPropertyName()
-    {
-      return explicitlyImplementedInterface!=null
-        ? string.Format("{0}.{1}", explicitlyImplementedInterface.Name, property.Name)
-        : property.Name;
     }
 
     private MethodReference GetAccessor(ProcessorContext context,
@@ -82,7 +75,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       return result;
     }
 
-    public ImplementFieldAccessorTask(AccessorKind kind, TypeDefinition type, PropertyDefinition property, TypeReference explicitlyImplementedInterface)
+    public ImplementFieldAccessorTask(AccessorKind kind, TypeDefinition type, PropertyDefinition property, string persistentName)
     {
       if (type==null)
         throw new ArgumentNullException("type");
@@ -92,7 +85,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       this.kind = kind;
       this.type = type;
       this.property = property;
-      this.explicitlyImplementedInterface = explicitlyImplementedInterface;
+      this.persistentName = persistentName;
     }
   }
 }

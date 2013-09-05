@@ -101,18 +101,21 @@ namespace Xtensive.Orm.Weaver.Stages
       foreach (var property in type.Properties.Values.Where(p => p.IsPersistent && p.IsAutomatic)) {
         var typeDefinition = type.Definition;
         var propertyDefinition = property.Definition;
+        var persistentName = property.PersistentName ?? property.Name;
+        // Backing field
+        context.WeavingTasks.Add(new RemoveBackingFieldTask(typeDefinition, propertyDefinition));
         // Getter
         context.WeavingTasks.Add(new ImplementFieldAccessorTask(AccessorKind.Getter,
-          typeDefinition, propertyDefinition, property.ExplicitlyImplementedInterface));
+          typeDefinition, propertyDefinition, persistentName));
         // Setter
         if (property.IsKey)
           context.WeavingTasks.Add(new DisableKeySetterTask(typeDefinition, propertyDefinition));
         else
           context.WeavingTasks.Add(new ImplementFieldAccessorTask(AccessorKind.Setter,
-            typeDefinition, propertyDefinition, property.ExplicitlyImplementedInterface));
-        // Backing field
-        context.WeavingTasks.Add(new RemoveBackingFieldTask(typeDefinition, propertyDefinition,
-          property.ExplicitlyImplementedInterface));
+            typeDefinition, propertyDefinition, persistentName));
+        if (property.PersistentName!=null)
+          context.WeavingTasks.Add(new AddAttributeTask(propertyDefinition,
+            context.References.OverrideFieldNameAttributeConstructor, property.PersistentName));
       }
     }
 
