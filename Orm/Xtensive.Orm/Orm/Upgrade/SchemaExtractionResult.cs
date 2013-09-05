@@ -12,8 +12,7 @@ namespace Xtensive.Orm.Upgrade
 {
   internal sealed class SchemaExtractionResult
   {
-    public Dictionary<string, string> LockedTablesByForeignKey { get; set; }
-    public Dictionary<string, string> LockedTablesByUserColumn { get; set; } 
+    public Dictionary<string, string> LockedTables { get; set; } 
     public NodeCollection<Catalog> Catalogs { get; set; }
 
     public SqlExtractionResult ToSqlExtractionResult()
@@ -23,15 +22,13 @@ namespace Xtensive.Orm.Upgrade
 
     public SchemaExtractionResult()
     {
-      LockedTablesByUserColumn = new Dictionary<string, string>();
-      LockedTablesByForeignKey = new Dictionary<string, string>();
+      LockedTables = new Dictionary<string, string>();
       Catalogs = new NodeCollection<Catalog>();
     }
 
     public SchemaExtractionResult(SqlExtractionResult sqlExtractionResult)
     {
-      LockedTablesByUserColumn = new Dictionary<string, string>();
-      LockedTablesByForeignKey = new Dictionary<string, string>();
+      LockedTables = new Dictionary<string, string>();
       Catalogs = sqlExtractionResult.Catalogs;
     }
   }
