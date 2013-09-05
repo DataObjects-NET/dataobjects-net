@@ -47,9 +47,9 @@ namespace Xtensive.Orm.Upgrade
       result.Metadata = set;
     }
 
-    private static SqlExtractionResult ExtractSchema(UpgradeServiceAccessor services, ISqlExecutor executor)
+    private static SchemaExtractionResult ExtractSchema(UpgradeServiceAccessor services, ISqlExecutor executor)
     {
-      return executor.Extract(services.Resolver.GetSchemaTasks());
+      return new SchemaExtractionResult(executor.Extract(services.Resolver.GetSchemaTasks()));
     }
 
     private static void DropSchema(UpgradeServiceAccessor services, ISqlExecutor executor)

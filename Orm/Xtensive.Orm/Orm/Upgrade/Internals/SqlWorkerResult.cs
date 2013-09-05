@@ -10,7 +10,7 @@ namespace Xtensive.Orm.Upgrade
 {
   internal sealed class SqlWorkerResult
   {
-    public SqlExtractionResult Schema { get; set; }
+    public SchemaExtractionResult Schema { get; set; }
 
     public MetadataSet Metadata { get; set; }
   }

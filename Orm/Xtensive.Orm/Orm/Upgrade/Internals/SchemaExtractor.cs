@@ -32,12 +32,12 @@ namespace Xtensive.Orm.Upgrade
       return result;
     }
 
-    public SqlExtractionResult GetSqlSchema()
+    public SchemaExtractionResult GetSqlSchema()
     {
       if (context.ExtractedSqlModelCache!=null)
         return context.ExtractedSqlModelCache;
 
-      var schema = executor.Extract(services.Resolver.GetSchemaTasks());
+      var schema = new SchemaExtractionResult(executor.Extract(services.Resolver.GetSchemaTasks()));
       context.ExtractedSqlModelCache = schema;
       return schema;
     }

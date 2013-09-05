@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Building.Builders
 {
   internal static class ModelMappingBuilder
   {
-    public static ModelMapping Build(HandlerAccessor handlers, SqlExtractionResult sqlModel)
+    public static ModelMapping Build(HandlerAccessor handlers, SchemaExtractionResult sqlModel)
     {
       var domainModel = handlers.Domain.Model;
       var configuration = handlers.Domain.Configuration;

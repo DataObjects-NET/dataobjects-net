@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Upgrade
   internal sealed class IgnoreRulesHandler
   {
     private readonly IgnoreRuleCollection ignoreRules;
-    private readonly SqlExtractionResult targetModel;
+    private readonly SchemaExtractionResult targetModel;
     private readonly MappingResolver mappingResolver;
     private readonly StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
     
@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Upgrade
     /// Runs handling of <see cref="IgnoreRuleCollection"/>
     /// </summary>
     /// <returns>Modified extracted model</returns>
-    public SqlExtractionResult Handle()
+    public SchemaExtractionResult Handle()
     {
       foreach (var ignoreRule in ignoreRules) {
         var schema = mappingResolver.GetSchema(targetModel, ignoreRule.Database, ignoreRule.Schema);
@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     /// <param name="model">Extracted model</param>
     /// <param name="configuration">Configuration of domain</param>
-    public IgnoreRulesHandler(SqlExtractionResult model, DomainConfiguration configuration, MappingResolver resolver)
+    public IgnoreRulesHandler(SchemaExtractionResult model, DomainConfiguration configuration, MappingResolver resolver)
     {
       ArgumentValidator.EnsureArgumentNotNull(model, "model");
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");

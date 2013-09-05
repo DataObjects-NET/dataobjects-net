@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Upgrade
 
     private readonly string collationName;
     private readonly ActionSequence actions;
-    private readonly SqlExtractionResult sqlModel;
+    private readonly SchemaExtractionResult sqlModel;
     private readonly StorageModel sourceModel;
     private readonly StorageModel targetModel;
     private readonly StorageDriver driver;
@@ -1130,7 +1130,7 @@ namespace Xtensive.Orm.Upgrade
 
     public SqlActionTranslator(
       HandlerAccessor handlers, ISqlExecutor sqlExecutor,
-      ActionSequence actions, SqlExtractionResult sqlModel, StorageModel sourceModel, StorageModel targetModel,
+      ActionSequence actions, SchemaExtractionResult sqlModel, StorageModel sourceModel, StorageModel targetModel,
       List<string> enforceChangedColumns, bool allowCreateConstraints)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");

@@ -12,6 +12,7 @@ using Xtensive.Orm.Linq.MemberCompilation;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Transformation;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Upgrade;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
@@ -60,7 +61,7 @@ namespace Xtensive.Orm.Providers
     /// Builds the mapping schema.
     /// </summary>
     /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    public void BuildMapping(SqlExtractionResult model)
+    internal void BuildMapping(SchemaExtractionResult model)
     {
       Mapping = ModelMappingBuilder.Build(Handlers, model);
     }

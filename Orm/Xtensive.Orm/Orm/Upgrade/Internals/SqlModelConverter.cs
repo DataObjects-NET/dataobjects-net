@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Upgrade
   /// </summary>
   internal sealed class SqlModelConverter : SqlModelVisitor<IPathNode>
   {
-    private readonly SqlExtractionResult sourceModel;
+    private readonly SchemaExtractionResult sourceModel;
     private readonly MappingResolver resolver;
     private readonly ProviderInfo providerInfo;
     private readonly PartialIndexInfoMap partialIndexMap;
@@ -308,7 +308,7 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public SqlModelConverter(UpgradeServiceAccessor services, SqlExtractionResult sourceModel,
+    public SqlModelConverter(UpgradeServiceAccessor services, SchemaExtractionResult sourceModel,
       IEnumerable<StoredPartialIndexFilterInfo> partialIndexes)
     {
       ArgumentValidator.EnsureArgumentNotNull(services, "handlers");
