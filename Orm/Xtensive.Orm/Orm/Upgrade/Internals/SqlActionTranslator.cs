@@ -278,6 +278,9 @@ namespace Xtensive.Orm.Upgrade
     {
       var tableInfo = (TableInfo) action.Difference.Source;
       var table = FindTable(tableInfo);
+      var lockedTable = sqlModel.LockedTables.FirstOrDefault(t=>t.Key==resolver.GetNodeName(table));
+      if (lockedTable.Key!=null && lockedTable.Value!=null)
+        throw new SchemaSynchronizationException(lockedTable.Value);
       currentOutput.RegisterCommand(SqlDdl.Drop(table));
       table.Schema.Tables.Remove(table);
     }
@@ -304,8 +307,10 @@ namespace Xtensive.Orm.Upgrade
 
     private void RecreateTableWithNewName(Table oldTable, Schema newSchema, string newName)
     {
+      var lockedTable = sqlModel.LockedTables.FirstOrDefault(t=>t.Key==resolver.GetNodeName(oldTable));
+      if (lockedTable.Key!=null && lockedTable.Value!=null)
+        throw new SchemaSynchronizationException(lockedTable.Value);
       var newTable = newSchema.CreateTable(newName);
-
       // Clone table definition
       foreach (var oldColumn in oldTable.TableColumns) {
         var newColumn = newTable.CreateColumn(oldColumn.Name, oldColumn.DataType);
@@ -978,6 +983,9 @@ namespace Xtensive.Orm.Upgrade
     {
       var node = resolver.Resolve(sqlModel, sequenceInfo.Name);
       var sequenceTable = node.GetTable();
+      var lockedTable = sqlModel.LockedTables.FirstOrDefault(t => t.Key==resolver.GetNodeName(sequenceTable));
+      if (lockedTable.Key != null && lockedTable.Value != null)
+        throw new SchemaSynchronizationException(lockedTable.Value);
       currentOutput.RegisterCommand(SqlDdl.Drop(sequenceTable));
       node.Schema.Tables.Remove(sequenceTable);
     }
