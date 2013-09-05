@@ -54,11 +54,8 @@ namespace Xtensive.Orm.Weaver.Tasks
     {
       var returnType = (TypeReference) targetType;
       if (targetType.HasGenericParameters) {
-        var typeInstance = new GenericInstanceType(targetType);
-        foreach (var parameter in targetType.GenericParameters)
-          typeInstance.GenericArguments.Add(parameter);
-        returnType = typeInstance;
-        constructor = new MethodReference(WellKnown.Constructor, voidType, typeInstance) {HasThis = true};
+        returnType = WeavingHelper.CreateGenericInstance(targetType);
+        constructor = new MethodReference(WellKnown.Constructor, voidType, returnType) {HasThis = true};
         DefineParameters(constructor);
       }
       var method = new MethodDefinition(WellKnown.FactoryMethod, FactoryMethodAttributes, returnType);

@@ -66,6 +66,14 @@ namespace Xtensive.Orm.Weaver
           il.Emit(OpCodes.Ldarg_S, (byte) i);
     }
 
+    public static TypeReference CreateGenericInstance(TypeDefinition type)
+    {
+      var typeInstance = new GenericInstanceType(type);
+      foreach (var parameter in type.GenericParameters)
+        typeInstance.GenericArguments.Add(parameter);
+      return typeInstance;
+    }
+
     public static string BuildComplexPersistentName(TypeInfo type, PropertyInfo property)
     {
       return String.Format("{0}.{1}", type.Name, property.Name);

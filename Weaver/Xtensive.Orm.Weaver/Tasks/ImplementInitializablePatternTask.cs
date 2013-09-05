@@ -87,9 +87,10 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     private Instruction EmitInitializeCall(ProcessorContext context, ILProcessor il)
     {
+      var initializedType = type.HasGenericParameters ? WeavingHelper.CreateGenericInstance(type) : type;
       var start = il.Create(OpCodes.Ldarg_0);
       il.Append(start);
-      il.Emit(OpCodes.Ldtoken, type);
+      il.Emit(OpCodes.Ldtoken, initializedType);
       il.Emit(OpCodes.Call, context.References.TypeGetTypeFromHandle);
       il.Emit(OpCodes.Call, context.References.PersistentInitialize);
       return start;
@@ -97,6 +98,7 @@ namespace Xtensive.Orm.Weaver.Tasks
 
     private Tuple<Instruction, Instruction> EmitExceptionHandler(ProcessorContext context, ILProcessor il, TypeReference exceptionType)
     {
+      var initializedType = type.HasGenericParameters ? WeavingHelper.CreateGenericInstance(type) : type;
       var variables = constructor.Body.Variables;
       var instructions = constructor.Body.Instructions;
       var variableIndex = variables.Count;
@@ -104,7 +106,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       il.Emit(OpCodes.Stloc, variableIndex);
       var start = instructions[instructions.Count - 1];
       il.Emit(OpCodes.Ldarg_0);
-      il.Emit(OpCodes.Ldtoken, type);
+      il.Emit(OpCodes.Ldtoken, initializedType);
       il.Emit(OpCodes.Call, context.References.TypeGetTypeFromHandle);
       il.Emit(OpCodes.Ldloc, variableIndex);
       il.Emit(OpCodes.Call, context.References.PersistentInitializationError);
