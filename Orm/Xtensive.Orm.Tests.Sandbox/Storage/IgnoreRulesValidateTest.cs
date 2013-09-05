@@ -9,10 +9,12 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
+using Xtensive.Sql.Tests;
 using Model1 = Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel1;
 using Model2 = Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel2;
 using Model3 = Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel3;
@@ -230,17 +232,13 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public class IgnoreRulesValidateTest
   {
-    private static readonly Dictionary<string, Type> FactoryRegistry = new Dictionary<string, Type> {
-        {WellKnown.Provider.SqlServer, typeof (Sql.Drivers.SqlServer.DriverFactory)}
-      };
-
     private SqlDriver sqlDriver;
     private Key changedOrderKey;
 
     [TestFixtureSetUp]
     public void Setup()
     {
-      sqlDriver = BuildDriver(GetConnectionInfo());
+      sqlDriver = TestSqlDriver.Create(GetConnectionInfo());
     }
 
     [Test]
@@ -559,15 +557,6 @@ namespace Xtensive.Orm.Tests.Storage
         connection.Close();
       }
       return result;
-    }
-
-    private static SqlDriver BuildDriver(ConnectionInfo connectionInfo)
-    {
-      SqlDriver driver;
-      var factoryType = FactoryRegistry[connectionInfo.Provider];
-      var factory = (SqlDriverFactory)Activator.CreateInstance(factoryType);
-      driver = factory.GetDriver(connectionInfo);
-      return driver;
     }
   }
 }
