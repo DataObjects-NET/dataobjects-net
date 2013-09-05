@@ -61,9 +61,15 @@ namespace Xtensive.Orm.Upgrade
     private void RemoveTable(PairedNodeCollection<Schema, Table> tables, Table tableToRemove)
     {
       var fKs = tables.SelectMany(t => t.TableConstraints.OfType<ForeignKey>()).ToList();
-      foreach (var fK in fKs) 
-        if (fK.Owner==tableToRemove || fK.ReferencedTable==tableToRemove)
-          tables.First(table=>table==fK.Owner).TableConstraints.Remove(fK);
+      foreach (var fK in fKs)
+        if (fK.Owner == tableToRemove || fK.ReferencedTable == tableToRemove) {
+          if (fK.Owner == tableToRemove) {
+            var resolvedTableName = mappingResolver.GetNodeName(fK.ReferencedTable);
+            if (!targetModel.LockedTables.ContainsKey(resolvedTableName))
+              targetModel.LockedTables.Add(resolvedTableName,string.Format(Strings.ExTableXCantBeRemovedDueToForeignKeyYOfIgnoredTableOrColumn, fK.ReferencedTable.Name, fK.Name));
+          }
+          tables.First(table => table==fK.Owner).TableConstraints.Remove(fK);
+        }
       tables.Remove(tableToRemove);
     }
 
@@ -71,6 +77,9 @@ namespace Xtensive.Orm.Upgrade
     {
       RemoveForeignKeys(tables, columnToRemove);
       RemoveIndexes(columnToRemove.Table, columnToRemove.Name);
+      var resolvedTableName = mappingResolver.GetNodeName(columnToRemove.Table);
+      if(!targetModel.LockedTables.ContainsKey(resolvedTableName))
+        targetModel.LockedTables.Add(resolvedTableName, string.Format(Strings.ExTableXCantBeRemovedDueToTheIgnoredColumnY, columnToRemove.Table.Name, columnToRemove.Name));
       columns.Remove(columnToRemove);
     }
 
@@ -78,7 +87,15 @@ namespace Xtensive.Orm.Upgrade
     {
       var foregnKeys = tables.SelectMany(t => t.TableConstraints.OfType<ForeignKey>()).ToList();
       foreach (var fK in foregnKeys) {
-        if (fK.ReferencedColumns.Contains(referencedColumn)) {
+        if (fK.ReferencedColumns.Contains(referencedColumn))
+          tables.First(table=>table==fK.Owner).TableConstraints.Remove(fK);
+
+        if (fK.Columns.Contains(referencedColumn)) {
+          if (fK.Owner == referencedColumn.Table) {
+            var resolvedTableName = mappingResolver.GetNodeName(fK.ReferencedTable);
+            if (!targetModel.LockedTables.ContainsKey(resolvedTableName))
+              targetModel.LockedTables.Add(resolvedTableName, string.Format(Strings.ExTableXCantBeRemovedDueToForeignKeyYOfIgnoredTableOrColumn, fK.ReferencedTable.Name, fK.Name));
+          }
           tables.First(table=>table==fK.Owner).TableConstraints.Remove(fK);
         }
       }
