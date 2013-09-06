@@ -37,24 +37,9 @@ namespace Xtensive.Orm.Metadata
 
     // Constructors
 
-    /// <summary>
-    ///   Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="id">The identifier.</param>
-    protected MetadataBase(int id)
-      : base(id)
+    internal MetadataBase(Session session, EntityState state)
+      : base(session, state)
     {
-      ThrowObjectIsReadOnly();
-    }
-
-    /// <summary>
-    ///   Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="name">The identifier.</param>
-    protected MetadataBase(string name)
-      : base(name)
-    {
-      ThrowObjectIsReadOnly();
     }
   }
 }

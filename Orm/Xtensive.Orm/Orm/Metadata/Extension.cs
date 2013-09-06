@@ -16,26 +16,37 @@ namespace Xtensive.Orm.Metadata
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   [TableMapping("Metadata.Extension")]
-  public class Extension : Entity
+  public sealed class Extension : Entity
   {
     /// <summary>
     /// Gets or sets the name of the extension.
     /// </summary>
     [Key]
     [Field(Length = 1024)]
-    public string Name { get; private set; }
+    public string Name
+    {
+      get { return GetFieldValue<string>("Name"); }
+    }
 
     /// <summary>
     /// Gets or sets the text data.
     /// </summary>
     [Field(Length = int.MaxValue)]
-    public string Text { get; set; }
+    public string Text
+    {
+      get { return GetFieldValue<string>("Text"); }
+      set { SetFieldValue("Text", value); }
+    }
 
     /// <summary>
     /// Gets or sets the binary data.
     /// </summary>
     [Field(Length = int.MaxValue)]
-    public byte[] Data { get; set; }
+    public byte[] Data
+    {
+      get { return GetFieldValue<byte[]>("Data"); }
+      set { SetFieldValue("Data", value); }
+    }
 
     /// <inheritdoc/>
     public override string ToString()
@@ -43,6 +54,10 @@ namespace Xtensive.Orm.Metadata
       return Name;
     }
 
+    private Extension CreateObject(Session session, EntityState state)
+    {
+      return new Extension(session, state);
+    }
 
     // Constructors
 
@@ -53,6 +68,11 @@ namespace Xtensive.Orm.Metadata
     /// <exception cref="Exception">Object is read-only.</exception>
     public Extension(string name) 
       : base(name)
+    {
+    }
+
+    private Extension(Session session, EntityState state)
+      : base(session, state)
     {
     }
   }
