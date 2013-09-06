@@ -55,6 +55,10 @@
     <Compile Include="Orm\Aspects\TransactionalBehavior.cs" />
     <Compile Include="Orm\Attributes\CompilerAttribute.cs" />
     <Compile Include="Orm\Attributes\CompilerContainerAttribute.cs" />
+    <Compile Include="Orm\Validation\IObjectValidator.cs" />
+    <Compile Include="Orm\Validation\IPropertyValidator.cs" />
+    <Compile Include="Orm\Validation\ObjectValidator.cs" />
+    <Compile Include="Orm\Validation\PropertyValidator.cs" />
     <Compile Include="Orm\Weaving\OverrideFieldNameAttribute.cs" />
     <Compile Include="Orm\Weaving\PersistenceImplementation.cs" />
     <Compile Include="Orm\Weaving\EntityInterfaceAttribute.cs" />
