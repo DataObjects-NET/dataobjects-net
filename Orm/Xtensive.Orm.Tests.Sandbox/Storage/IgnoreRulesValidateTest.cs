@@ -235,6 +235,8 @@ namespace Xtensive.Orm.Tests.Storage
   {
     private SqlDriver sqlDriver;
     private Key changedOrderKey;
+    private bool isMultidatabaseTest;
+    private bool isMultischemaTest;
 
     [TestFixtureSetUp]
     public void Setup()
@@ -245,6 +247,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void PerformUpdateTest()
     {
+      SetNoMulti();
       BuildDomainAndFillData();
       UpgradeDomain(DomainUpgradeMode.Perform);
       BuildDomainInValidateMode();
@@ -253,6 +256,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void PerformSafelyUpdateTest()
     {
+      SetNoMulti();
       BuildDomainAndFillData();
       UpgradeDomain(DomainUpgradeMode.PerformSafely);
       BuildDomainInValidateMode();
@@ -261,6 +265,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void IgnoreSimpleColumnTest()
     {
+      SetNoMulti();
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
@@ -274,6 +279,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void IgnoreReferencedColumnTest()
     {
+      SetNoMulti();
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
@@ -288,6 +294,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void IgnoreSimpleTableTest()
     {
+      SetNoMulti();
       var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initDomain.Dispose();
 
@@ -305,6 +312,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void IgnoreReferencedTableTest()
     {
+      SetNoMulti();
       var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initDomain.Dispose();
 
@@ -323,6 +331,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void InsertIntoTableWithIgnoredColumnTest()
     {
+      SetNoMulti();
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
 
@@ -343,6 +352,7 @@ namespace Xtensive.Orm.Tests.Storage
     [ExpectedException(typeof(CheckConstraintViolationException))]
     public void InsertIntoTableWithNotNullableIgnoredColumnTest()
     {
+      SetNoMulti();
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
 
@@ -366,6 +376,7 @@ namespace Xtensive.Orm.Tests.Storage
     [ExpectedException(typeof(SchemaSynchronizationException))]
     public void DropTableWithIgnoredColumnTest()
     {
+      SetNoMulti();
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
@@ -380,6 +391,7 @@ namespace Xtensive.Orm.Tests.Storage
     [ExpectedException(typeof(SchemaSynchronizationException))]
     public void DropReferencedTableTest()
     {
+      SetNoMulti();
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
@@ -403,7 +415,11 @@ namespace Xtensive.Orm.Tests.Storage
 
     private void BuildDomainAndFillData()
     {
-      using (var domain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model1.Customer)))
+      Domain domain;
+      if (isMultidatabaseTest || isMultischemaTest)
+        domain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model1.Customer), typeof (Model3.MyEntity1));
+      else
+        domain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model1.Customer));
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var author = new Model1.Author {FirstName = "Иван", LastName = "Гончаров", Birthday = new DateTime(1812, 6, 18)};
@@ -411,6 +427,10 @@ namespace Xtensive.Orm.Tests.Storage
         book.Authors.Add(author);
         var customer = new Model1.Customer {FirstName = "Алексей", LastName = "Кулаков", Birthday = new DateTime(1988, 8, 31)};
         var order = new Model1.Order {Book = book, Customer = customer, SomeIgnoredField = "Secret information for FBI :)"};
+        if(isMultidatabaseTest || isMultischemaTest) {
+          new Model3.MyEntity1 {FirstColumn = "first"};
+          new Model3.MyEntity2 {FirstColumn = "first"};
+        }
         transaction.Complete();
       }
     }
@@ -446,14 +466,30 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    private Catalog GetCatalog()
+    private void BuildDomainInValidateMode(IgnoreRuleCollection ignoreRules)
+    {
+      using (var validateDomain = BuildDomain(DomainUpgradeMode.Validate, typeof(Model1.Customer), typeof(Model3.MyEntity1), ignoreRules))
+      using (var session = validateDomain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        var result = session.Query.All<Model1.Order>().First(o => o.Key == changedOrderKey);
+        Assert.That(result.SomeIgnoredField, Is.EqualTo("Secret information for FBI :)"));
+      }
+    }
+
+    private Catalog GetCatalog(string catalogName = null)
     {
       Catalog catalog;
-      using (var sqlConnection = sqlDriver.CreateConnection())
-      {
+      using (var sqlConnection = sqlDriver.CreateConnection()) {
         sqlConnection.Open();
         sqlConnection.BeginTransaction();
-        catalog = sqlDriver.ExtractCatalog(sqlConnection);
+        if (catalogName==null)
+          catalog = sqlDriver.ExtractCatalog(sqlConnection);
+        else {
+          var sqlExtractionTaskList = new List<SqlExtractionTask>();
+          sqlExtractionTaskList.Add(new SqlExtractionTask(catalogName));
+          catalog = sqlDriver.Extract(sqlConnection, sqlExtractionTaskList).Catalogs.First();
+        }
         sqlConnection.Commit();
         sqlConnection.Close();
       }
@@ -547,6 +583,24 @@ namespace Xtensive.Orm.Tests.Storage
       sqlComplieConfig.DatabaseQualifiedObjects = useDatabasePrefix;
       string commandText = sqlDriver.Compile(create, sqlComplieConfig).GetCommandText();
       ExecuteNonQuery(commandText);
+    }
+
+    private void SetMultidatabase()
+    {
+      isMultidatabaseTest = true;
+      isMultischemaTest = false;
+    }
+
+    private void SetMultischema()
+    {
+      isMultidatabaseTest = false;
+      isMultischemaTest = true;
+    }
+
+    private void SetNoMulti()
+    {
+      isMultidatabaseTest = false;
+      isMultischemaTest = false;
     }
   }
 }
