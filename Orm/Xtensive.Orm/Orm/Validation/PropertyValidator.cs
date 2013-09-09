@@ -27,6 +27,7 @@ namespace Xtensive.Orm.Validation
       {
         if (Domain!=null)
           throw Exceptions.ObjectIsReadOnly(null);
+
         isImmediate = value;
       }
     }
@@ -67,12 +68,51 @@ namespace Xtensive.Orm.Validation
     /// </summary>
     /// <param name="target">An object to validate.</param>
     /// <param name="fieldValue">Persistent field value.</param>
-    public abstract void Validate(Persistent target, object fieldValue);
+    public abstract ValidationResult Validate(Entity target, object fieldValue);
 
     /// <summary>
     /// Creates new unconfigured <see cref="IPropertyValidator"/> instance
     /// with the same parameters.
     /// </summary>
-    public abstract void CreateNew();
+    public abstract IPropertyValidator CreateNew();
+
+    /// <summary>
+    /// Constructs successful validation result.
+    /// </summary>
+    /// <returns>Constructed result.</returns>
+    protected ValidationResult Success()
+    {
+      return ValidationResult.Success;
+    }
+
+    /// <summary>
+    /// Constructs validation error result.
+    /// </summary>
+    /// <param name="value">Validated value.</param>
+    /// <param name="errorMessage">Validatio error message.</param>
+    /// <returns>Constructed result.</returns>
+    protected ValidationResult Error(object value, string errorMessage)
+    {
+      return new ValidationResult(true, Field, value, errorMessage);
+    }
+
+    /// <summary>
+    /// Throws configuration error with specified message.
+    /// </summary>
+    /// <param name="message">Configuration error message.</param>
+    protected void ThrowConfigurationError(string message, Exception innerException = null)
+    {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(message, "message");
+
+      var exceptionMessage = string.Format(
+        Strings.ExValidatorXConfigurationFailedOnTypeYFieldZWithMessageA,
+        GetType().Name, Type, Field, message);
+
+      var exception = innerException==null
+        ? new DomainBuilderException(exceptionMessage)
+        : new DomainBuilderException(message, innerException);
+
+      throw exception;
+    }
   }
 }

@@ -128,10 +128,10 @@ namespace Xtensive.Orm.Tests.Storage.Validation
       [Field, Key]
       public int Id { get; private set; }
 
-      [Field, NotNullOrEmptyConstraint(Mode = ConstrainMode.OnSetValue)]
+      [Field, NotNullOrEmptyConstraint(IsImmediate = true)]
       public string Name { get; set; }
 
-      [Field, NotNullOrEmptyConstraint(Mode = ConstrainMode.OnSetValue)]
+      [Field, NotNullOrEmptyConstraint(IsImmediate = true)]
       public string Description { get; set; }
     }
 

@@ -2029,8 +2029,8 @@ Error: {1}</value>
   <data name="LogRelationSyncUndoError" xml:space="preserve">
     <value>Error during undoing the relation synchronization.</value>
   </data>
-  <data name="PropertyValueDoesNotMatchRegexPattern" xml:space="preserve">
-    <value>Property value '{value}' does not match regex pattern '{Pattern}'.</value>
+  <data name="ValueDoesNotMatchRegexPatternX" xml:space="preserve">
+    <value>Value does not match regex pattern '{0}'.</value>
   </data>
   <data name="PropertyValueCanNotBeEmpty" xml:space="preserve">
     <value>{0}: value can not be empty.</value>
@@ -2062,50 +2062,50 @@ Error: {1}</value>
   <data name="DateMustBeInThePast" xml:space="preserve">
     <value>Date must be in the past.</value>
   </data>
-  <data name="ConstraintMessageValueMustBeInTheFuture" xml:space="preserve">
-    <value>{PropertyName} must be in the future.</value>
+  <data name="ValueShouldBeInTheFuture" xml:space="preserve">
+    <value>Value should be in the future.</value>
   </data>
-  <data name="ConstraintMessageValueLengthCanNotBeGreaterThanMax" xml:space="preserve">
-    <value>{PropertyName} length can not be greater than {Max}.</value>
+  <data name="ValueShouldBeInThePast" xml:space="preserve">
+    <value>Value should be in the past.</value>
   </data>
-  <data name="ConstraintMessageValueLengthCanNotBeLessThanMin" xml:space="preserve">
-    <value>{PropertyName} length can not be less than {Min}.</value>
+  <data name="ValueLengthCanNotBeGreaterThanX" xml:space="preserve">
+    <value>Value length can not be greater than {0}.</value>
   </data>
-  <data name="ExMaxOrMinPropertyMustBeSpecified" xml:space="preserve">
-    <value>'Max' or 'Min' property must be specified.</value>
+  <data name="ValueLengthCanNotBeLessThanX" xml:space="preserve">
+    <value>Value length can not be less than {0}.</value>
   </data>
-  <data name="ConstraintMessageValueCanNotBeEmpty" xml:space="preserve">
-    <value>{PropertyName} can not be empty.</value>
+  <data name="ValueLengthCanNotBeLessThanXOrGreaterThanY" xml:space="preserve">
+    <value>Value length can not be less than {0} or greater than {1}.</value>
   </data>
-  <data name="ConstraintMessageValueCanNotBeNull" xml:space="preserve">
-    <value>{PropertyName} can not be null.</value>
+  <data name="MaxOrMinPropertyShouldBeSpecified" xml:space="preserve">
+    <value>'Max' or 'Min' property should be specified.</value>
   </data>
-  <data name="ConstraintMessageValueCanNotBeNullOrEmpty" xml:space="preserve">
-    <value>{PropertyName} can not be null or empty.</value>
+  <data name="ValueShouldNotBeEmpty" xml:space="preserve">
+    <value>Value should not be empty.</value>
   </data>
-  <data name="ConstraintMessageValueMustBeInThePast" xml:space="preserve">
-    <value>{PropertyName} must be in the past.</value>
+  <data name="ValueShouldNotBeNull" xml:space="preserve">
+    <value>Value should not be null.</value>
   </data>
-  <data name="ExComparerForTypeXIsNotFound" xml:space="preserve">
-    <value>Comparer for type '{0}' is not found.</value>
+  <data name="ValueShouldNotBeEmptyOrEmpty" xml:space="preserve">
+    <value>Value should not be null or empty.</value>
   </data>
-  <data name="ConstraintMessageValueCanNotBeGreaterThanMax" xml:space="preserve">
-    <value>{PropertyName} can not be greater than {Max}.</value>
+  <data name="FieldShouldBeOfComparableType" xml:space="preserve">
+    <value>Field should be of comparable type.</value>
   </data>
-  <data name="ConstraintMessageValueCanNotBeLessThanMin" xml:space="preserve">
-    <value>{PropertyName} can not be less than {Min}.</value>
+  <data name="ValueShouldNotBeGreaterThanMax" xml:space="preserve">
+    <value>Value should not be greater than {0}.</value>
   </data>
-  <data name="ConstraintMessageValueCanNotBeLessThanMinOrGreaterThanMax" xml:space="preserve">
-    <value>{PropertyName} can not be less than {Min} or greater than {Max}.</value>
+  <data name="ValueShouldNotBeLessThanMin" xml:space="preserve">
+    <value>Value should not be less than {0}.</value>
   </data>
-  <data name="ExExpressionPatternIsNotSpecified" xml:space="preserve">
+  <data name="ValueShouldNotBeLessThanMinOrGreaterThanMax" xml:space="preserve">
+    <value>Value should not be less than {0} or greater than {1}.</value>
+  </data>
+  <data name="RegularExpressionPatternIsNotSpecified" xml:space="preserve">
     <value>Regular expression pattern is not specified.</value>
   </data>
-  <data name="ConstraintMessageValueLengthCanNotBeLessThanMinAndGreaterThenMax" xml:space="preserve">
-    <value>{PropertyName} length can not be less than {Min} and greater then {Max}.</value>
-  </data>
-  <data name="ConstraintMessageValueFormatIsIncorrect" xml:space="preserve">
-    <value>{PropertyName} format is incorrect.</value>
+  <data name="FailedToCreateRegularExpressionFromPatternX" xml:space="preserve">
+    <value>Failed to create regular expression from pattern '{0}'.</value>
   </data>
   <data name="AspectExApplyingXToPropertyYFailedZ" xml:space="preserve">
     <value>Applying [{0}] to property '{1}' failed. {2}</value>
@@ -2466,5 +2466,17 @@ Error: {1}</value>
   </data>
   <data name="ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed">
     <value xml:space="preserve">Non-LINQ calls are not supported within Query.ExecuteDelayed</value>
+  </data>
+  <data name="FieldShouldBeOfTypeX">
+    <value xml:space="preserve">Field should be of type '{0}'.</value>
+  </data>
+  <data name="ExValidatorXConfigurationFailedOnTypeYWithMessageZ">
+    <value xml:space="preserve">Validator '{0}' configuration failed on type '{1}'. {2}</value>
+  </data>
+  <data name="ExValidatorXConfigurationFailedOnTypeYFieldZWithMessageA">
+    <value xml:space="preserve">Validator '{0}' configuration failed on type '{1}' field '{2}'. {3}</value>
+  </data>
+  <data name="ValueShouldBeAValidEMail">
+    <value xml:space="preserve">Value should be a valid e-mail.</value>
   </data>
 </root>

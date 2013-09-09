@@ -39,17 +39,16 @@ namespace Xtensive.Orm.Tests.Integrity
     internal class Person : ValidatableObject
     {
       [NotNullOrEmptyConstraint]
-      [LengthConstraint(Max = 20, Mode = ConstrainMode.OnSetValue)]
+      [LengthConstraint(Max = 20, IsImmediate = true)]
       public string Name { get; set;}
 
-      [RangeConstraint(Min = 0, Message = "Incorrect age ({value}), age can not be less than {Min}.")]
+      [RangeConstraint(Min = 0)]
       public int Age { get; set;}
 
       [PastConstraint]
       public DateTime RegistrationDate { get; set;}
 
-      [RegexConstraint(Pattern = @"^(\(\d+\))?[-\d ]+$", 
-        MessageResourceType = typeof(TestResources) , MessageResourceName = "IncorrectPhoneFormat")]
+      [RegexConstraint(@"^(\(\d+\))?[-\d ]+$")]
       public string Phone { get; set;}
 
       [EmailConstraint]

@@ -55,10 +55,12 @@
     <Compile Include="Orm\Aspects\TransactionalBehavior.cs" />
     <Compile Include="Orm\Attributes\CompilerAttribute.cs" />
     <Compile Include="Orm\Attributes\CompilerContainerAttribute.cs" />
+    <Compile Include="Orm\Validation\EntityErrorInfo.cs" />
     <Compile Include="Orm\Validation\IObjectValidator.cs" />
     <Compile Include="Orm\Validation\IPropertyValidator.cs" />
     <Compile Include="Orm\Validation\ObjectValidator.cs" />
     <Compile Include="Orm\Validation\PropertyValidator.cs" />
+    <Compile Include="Orm\Validation\ValidationResult.cs" />
     <Compile Include="Orm\Weaving\OverrideFieldNameAttribute.cs" />
     <Compile Include="Orm\Weaving\PersistenceImplementation.cs" />
     <Compile Include="Orm\Weaving\EntityInterfaceAttribute.cs" />
@@ -388,18 +390,15 @@
     <Compile Include="Orm\Upgrade\UpgradeActionSequence.cs" />
     <Compile Include="Orm\UrlInfo.cs" />
     <Compile Include="Orm\UrlInfoConverter.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\EmailConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\FutureConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\LengthConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\NotEmptyConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\NotNullConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\NotNullOrEmptyConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\PastConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\RangeConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\RegexConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\InconsistentRegionAttribute.cs" />
-    <Compile Include="Orm\Validation\Aspects\Internals\ConstraintRegistry.cs" />
-    <Compile Include="Orm\Validation\Aspects\PropertyConstraintAspect.cs" />
+    <Compile Include="Orm\Validation\Constraints\EmailConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\FutureConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\LengthConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\NotEmptyConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\NotNullConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\NotNullOrEmptyConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\PastConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\RangeConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\RegexConstraint.cs" />
     <Compile Include="Orm\Validation\Exceptions\ConstraintViolationException.cs" />
     <Compile Include="Orm\Validation\Interfaces\IValidationAware.cs" />
     <Compile Include="Orm\Validation\ValidationAwareExtensions.cs" />
@@ -1273,7 +1272,6 @@
       <LastGenOutput>MemberCompilerProvider-CreateCompiler.cs</LastGenOutput>
     </None>
     <None Include="Orm\Model\_Diagrams\Storage-Model-BaseTypes.cd" />
-    <None Include="Orm\Validation\_Diagrams\Integrity-ValidationAspects.cd" />
     <None Include="Orm\_Diagrams\Storage-Class-Attributes.cd" />
     <None Include="Orm\_Diagrams\Storage-Exceptions.cd" />
     <None Include="Orm\_Diagrams\Storage-DirectAccessors.cd" />

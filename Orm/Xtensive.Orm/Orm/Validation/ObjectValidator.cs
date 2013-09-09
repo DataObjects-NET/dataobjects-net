@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.09.06
 
+using System;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 
@@ -42,7 +43,7 @@ namespace Xtensive.Orm.Validation
     /// Validates specified object.
     /// </summary>
     /// <param name="target">An object to validate.</param>
-    public abstract void Validate(Persistent target);
+    public abstract ValidationResult Validate(Entity target);
 
     /// <summary>
     /// Creates new unconfigured <see cref="IObjectValidator"/> instance
@@ -50,5 +51,43 @@ namespace Xtensive.Orm.Validation
     /// </summary>
     /// <returns>Newly created validator.</returns>
     public abstract IObjectValidator CreateNew();
+
+    /// <summary>
+    /// Constructs successful validation result.
+    /// </summary>
+    /// <returns>Constructed result.</returns>
+    protected ValidationResult Success()
+    {
+      return ValidationResult.Success;
+    }
+
+    /// <summary>
+    /// Constructs validation failed result.
+    /// </summary>
+    /// <param name="errorMessage">Validation error message.</param>
+    /// <returns>Constructed result.</returns>
+    protected ValidationResult Error(string errorMessage)
+    {
+      return new ValidationResult(true, null, null, errorMessage);
+    }
+
+    /// <summary>
+    /// Throws configuration error with specified message.
+    /// </summary>
+    /// <param name="message">Configuration error message.</param>
+    protected void ThrowConfigurationError(string message, Exception innerException = null)
+    {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(message, "message");
+
+      var exceptionMessage = string.Format(
+        Strings.ExValidatorXConfigurationFailedOnTypeYWithMessageZ,
+        GetType().Name, Type, message);
+
+      var exception = innerException==null
+        ? new DomainBuilderException(exceptionMessage)
+        : new DomainBuilderException(message, innerException);
+
+      throw exception;
+    }
   }
 }

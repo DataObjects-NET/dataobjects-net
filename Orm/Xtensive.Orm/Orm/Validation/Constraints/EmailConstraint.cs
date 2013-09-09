@@ -2,21 +2,22 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Kofman
-// Created:    2009.10.28
+// Created:    2009.05.27
 
 using System;
 using System.Text.RegularExpressions;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Validation;
 
-namespace Xtensive.Orm.Tests._Manual.Validation
+namespace Xtensive.Orm.Validation
 {
-  [Serializable]
-  public class PhoneNumberConstraint : PropertyValidator
+  /// <summary>
+  /// Ensures that email address is in correct format.
+  /// </summary>
+  public sealed class EmailConstraint : PropertyValidator
   {
-    private const string PhoneNumberPattern = "^[2-9]\\d{2}-\\d{3}-\\d{4}$";
+    private const string EmailPattern = @"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$";
 
-    private static readonly Regex Validator = new Regex(PhoneNumberPattern);
+    private static readonly Regex Validator = new Regex(EmailPattern);
 
     public override void Configure(Domain domain, TypeInfo type, FieldInfo field)
     {
@@ -30,7 +31,7 @@ namespace Xtensive.Orm.Tests._Manual.Validation
     {
       var value = (string) fieldValue;
       var isValid = string.IsNullOrEmpty(value) || Validator.IsMatch(value);
-      return isValid ? Success() : Error(fieldValue, "Phone number is incorrect");
+      return isValid ? Success() : Error(fieldValue, Strings.ValueShouldBeAValidEMail);
     }
 
     public override IPropertyValidator CreateNew()

@@ -32,12 +32,13 @@ namespace Xtensive.Orm.Validation
     /// </summary>
     /// <param name="target">An object to validate.</param>
     /// <param name="fieldValue">Persistent field value.</param>
-    void Validate(Persistent target, object fieldValue);
+    ValidationResult Validate(Entity target, object fieldValue);
 
     /// <summary>
     /// Creates new unconfigured <see cref="IPropertyValidator"/> instance
     /// with the same parameters.
     /// </summary>
-    void CreateNew();
+    /// <returns>Newly created validator.</returns>
+    IPropertyValidator CreateNew();
   }
 }

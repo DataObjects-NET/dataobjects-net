@@ -24,12 +24,12 @@ namespace Xtensive.Orm.Tests.Storage.DataErrorInfoTestModel
     public int Id { get; private set; }
 
     [Field]
-    [NotNullConstraint(Message = "Name is empty.")]
+    [NotNullConstraint]
     public string Name { get; set; }
 
     [Field]
-    [RangeConstraint(Min = 1, Message = "Age is negative.")]
-    public int Age { get; set;}
+    [RangeConstraint(Min = 1)]
+    public int Age { get; set; }
   }
 }
 

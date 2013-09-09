@@ -103,6 +103,8 @@ namespace Xtensive.Orm.Validation
     /// <param name="target">The object to validate.</param>
     public static void CheckConstraints(this IValidationAware target)
     {
+      throw new NotImplementedException();
+#if NEVER
       var constraints = ConstraintRegistry.GetConstraints(target.GetType());
       if (constraints.Length > 0) {
         using (var ea = new ExceptionAggregator()) {
@@ -111,6 +113,7 @@ namespace Xtensive.Orm.Validation
           ea.Complete();
         }
       }
+#endif
     }
 
     /// <summary>
@@ -124,6 +127,8 @@ namespace Xtensive.Orm.Validation
     /// </returns>
     public static Exception GetPropertyValidationError(this IValidationAware target, string propertyName)
     {
+      throw new NotImplementedException();
+#if NEVER
       var constraints = ConstraintRegistry.GetConstraints(target.GetType());
       foreach (var constraint in constraints)
         if (constraint.Property.Name==propertyName)
@@ -134,6 +139,7 @@ namespace Xtensive.Orm.Validation
             return error;
           }
       return null;
+#endif
     }
   }
 }

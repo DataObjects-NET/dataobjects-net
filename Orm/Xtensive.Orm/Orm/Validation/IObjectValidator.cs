@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Validation
     /// Validates specified object.
     /// </summary>
     /// <param name="target">An object to validate.</param>
-    void Validate(Persistent target);
+    ValidationResult Validate(Entity target);
 
     /// <summary>
     /// Creates new unconfigured <see cref="IObjectValidator"/> instance
