@@ -48,6 +48,16 @@ namespace Xtensive.Orm.Validation
     public FieldInfo Field { get; private set; }
 
     /// <summary>
+    /// Gets or sets the <see cref="ConstrainMode"/> to be used on setting property value.
+    /// </summary>
+    [Obsolete("Use IsImmediate property instead.")]
+    public ConstrainMode Mode
+    {
+      get { return IsImmediate ? ConstrainMode.OnSetValue : ConstrainMode.OnValidate; }
+      set { IsImmediate = value==ConstrainMode.OnSetValue; }
+    }
+
+    /// <summary>
     /// Configures this instance.
     /// </summary>
     /// <param name="domain">A domain this validator is bound to.</param>

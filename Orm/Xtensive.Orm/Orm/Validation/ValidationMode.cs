@@ -12,6 +12,7 @@ namespace Xtensive.Orm.Validation
   /// Possible validation modes.
   /// </summary>
   [Serializable]
+  [Obsolete("Use IsImmediate property of a particular constraint instead.")]
   public enum ConstrainMode
   {
     /// <summary>
