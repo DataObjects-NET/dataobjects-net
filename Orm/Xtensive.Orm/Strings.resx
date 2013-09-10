@@ -2479,4 +2479,7 @@ Error: {1}</value>
   <data name="ValueShouldBeAValidEMail">
     <value xml:space="preserve">Value should be a valid e-mail.</value>
   </data>
+  <data name="Validators">
+    <value xml:space="preserve">Validators</value>
+  </data>
 </root>

@@ -6937,6 +6937,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Validators.
+        /// </summary>
+        internal static string Validators {
+            get {
+                return ResourceManager.GetString("Validators", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value can not be less then {0}..
         /// </summary>
         internal static string ValueCanNotBeLessThenX {

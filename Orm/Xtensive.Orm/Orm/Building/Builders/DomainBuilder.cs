@@ -115,8 +115,9 @@ namespace Xtensive.Orm.Building.Builders
 
     private void InitializeServices()
     {
+      var domain = context.Domain;
+
       using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.KeyGenerators)) {
-        var domain = context.Domain;
         var generators = domain.KeyGenerators;
         var initialized = new HashSet<KeyGenerator>();
         var keysToProcess = domain.Model.Hierarchies
@@ -137,8 +138,18 @@ namespace Xtensive.Orm.Building.Builders
         generators.Lock();
       }
 
+      using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.Validators)) {
+        foreach (var type in domain.Model.Types) {
+          foreach (var validator in type.Validators)
+            validator.Configure(domain, type);
+          foreach (var field in type.Fields)
+            foreach (var validator in field.Validators)
+              validator.Configure(domain, type, field);
+        }
+      }
+
       // Initialize DomainHandler services as well
-      context.Domain.Handler.InitializeServices();
+      domain.Handler.InitializeServices();
     }
 
     private static IEnumerable<ServiceRegistration> CreateServiceRegistrations(DomainConfiguration configuration)

@@ -41,7 +41,8 @@ namespace Xtensive.Orm.Building.Builders
           MappingName = typeDef.MappingName,
           MappingDatabase = typeDef.MappingDatabase,
           MappingSchema = typeDef.MappingSchema,
-          HasVersionRoots = typeDef.UnderlyingType.GetInterfaces().Any(type => type==typeof (IHasVersionRoots))
+          HasVersionRoots = typeDef.UnderlyingType.GetInterfaces().Any(type => type==typeof (IHasVersionRoots)),
+          Validators = typeDef.Validators,
         };
 
         if (typeDef.StaticTypeId!=null)
@@ -211,7 +212,8 @@ namespace Xtensive.Orm.Building.Builders
         ItemType = fieldDef.ItemType,
         Length = fieldDef.Length,
         Scale = fieldDef.Scale,
-        Precision = fieldDef.Precision
+        Precision = fieldDef.Precision,
+        Validators = fieldDef.Validators,
       };
 
       type.Fields.Add(fieldInfo);

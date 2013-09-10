@@ -10,8 +10,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 using System.Reflection;
+using Xtensive.Collections;
 using Xtensive.Core;
-
+using Xtensive.Orm.Validation;
 using Xtensive.Sorting;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
@@ -56,6 +57,8 @@ namespace Xtensive.Orm.Model
     private ColumnInfoCollection            columns;
     private int                             fieldId;
     private int?                            cachedHashCode;
+
+    private IList<IPropertyValidator> validators;
     
     #region IsXxx properties
 
@@ -535,6 +538,20 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
+    /// Gets <see cref="IPropertyValidator"/> instances
+    /// associated with this field.
+    /// </summary>
+    public IList<IPropertyValidator> Validators
+    {
+      get { return validators; }
+      internal set
+      {
+        this.EnsureNotLocked();
+        validators = value;
+      }
+    }
+
+    /// <summary>
     /// Extracts the field value from the specified <see cref="Tuple"/>.
     /// </summary>
     /// <param name="tuple">The tuple to extract value from.</param>
@@ -587,8 +604,9 @@ namespace Xtensive.Orm.Model
       base.Lock(recursive);
       if (!recursive)
         return;
+      validators = new ReadOnlyList<IPropertyValidator>(validators.ToList());
       Fields.Lock(true);
-      if (column!=null) 
+      if (column!=null)
         column.Lock(true);
       if (associations.Count > 1) {
         var sorted = associations.Reorder();
@@ -700,7 +718,8 @@ namespace Xtensive.Orm.Model
           scale = scale,
           precision = precision,
           defaultValue = defaultValue,
-          DeclaringField = DeclaringField
+          DeclaringField = DeclaringField,
+          Validators = Validators.Select(v => v.CreateNew()).ToList(),
         };
       clone.Associations.AddRange(associations);
       return clone;
