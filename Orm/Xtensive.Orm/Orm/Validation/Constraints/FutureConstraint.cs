@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Validation
     public override ValidationResult Validate(Entity target, object fieldValue)
     {
       var isValid = fieldValue==null || (DateTime) fieldValue > DateTime.Now;
-      return isValid ? Success() : Error(fieldValue, Strings.ValueShouldBeInTheFuture);
+      return isValid ? Success() : Error(Strings.ValueShouldBeInTheFuture, fieldValue);
     }
 
     public override IPropertyValidator CreateNew()

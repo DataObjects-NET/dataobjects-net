@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Validation
   /// <summary>
   /// Persistent object validator contract.
   /// </summary>
-  public interface IObjectValidator
+  public interface IObjectValidator : IValidator
   {
     /// <summary>
     /// Configures this instance.

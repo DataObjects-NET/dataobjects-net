@@ -99,10 +99,10 @@ namespace Xtensive.Orm.Validation
       if (handler.Validate(fieldValue))
         return Success();
       if (Min==null)
-        return Error(fieldValue, string.Format(Strings.ValueShouldNotBeGreaterThanMax, Max));
+        return Error(string.Format(Strings.ValueShouldNotBeGreaterThanMax, Max), fieldValue);
       if (Max==null)
-        return Error(fieldValue, string.Format(Strings.ValueShouldNotBeLessThanMin, Min));
-      return Error(fieldValue, string.Format(Strings.ValueShouldNotBeLessThanMinOrGreaterThanMax, Min, Max));
+        return Error(string.Format(Strings.ValueShouldNotBeLessThanMin, Min), fieldValue);
+      return Error(string.Format(Strings.ValueShouldNotBeLessThanMinOrGreaterThanMax, Min, Max), fieldValue);
     }
 
     public override IPropertyValidator CreateNew()

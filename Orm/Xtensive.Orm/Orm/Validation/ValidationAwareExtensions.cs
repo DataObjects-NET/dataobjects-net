@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Validation
     /// <see langword="false"/> if it was enqueued.
     /// </returns>
     public static bool Validate(this IValidationAware target, Action<IValidationAware> validator, bool immediately)
-    {            
+    {
       ValidationContext context = target.Context;
 
       bool validateNow = immediately || context==null || context.IsConsistent;

@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Validation
     {
       var value = (string) fieldValue;
       var isValid = string.IsNullOrEmpty(value) || Validator.IsMatch(value);
-      return isValid ? Success() : Error(fieldValue, Strings.ValueShouldBeAValidEMail);
+      return isValid ? Success() : Error(Strings.ValueShouldBeAValidEMail, fieldValue);
     }
 
     public override IPropertyValidator CreateNew()

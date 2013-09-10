@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Validation
       var value = (string) fieldValue;
       return value==null || regex.IsMatch(value)
         ? Success()
-        : Error(fieldValue, string.Format(Strings.ValueDoesNotMatchRegexPatternX, Pattern));
+        : Error(string.Format(Strings.ValueDoesNotMatchRegexPatternX, Pattern), fieldValue);
     }
 
     public override IPropertyValidator CreateNew()

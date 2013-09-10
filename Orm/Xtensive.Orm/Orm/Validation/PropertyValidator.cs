@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Validation
       set
       {
         if (Domain!=null)
-          throw Exceptions.ObjectIsReadOnly(null);
+          throw Exceptions.AlreadyInitialized(null);
 
         isImmediate = value;
       }
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Validation
     public virtual void Configure(Domain domain, TypeInfo type, FieldInfo field)
     {
       if (Domain!=null)
-        throw Exceptions.ObjectIsReadOnly(null);
+        throw Exceptions.AlreadyInitialized(null);
 
       Domain = domain;
       Type = type;
@@ -88,12 +88,12 @@ namespace Xtensive.Orm.Validation
     /// <summary>
     /// Constructs validation error result.
     /// </summary>
-    /// <param name="value">Validated value.</param>
     /// <param name="errorMessage">Validatio error message.</param>
+    /// <param name="value">Validated value.</param>
     /// <returns>Constructed result.</returns>
-    protected ValidationResult Error(object value, string errorMessage)
+    protected ValidationResult Error(string errorMessage, object value)
     {
-      return new ValidationResult(true, Field, value, errorMessage);
+      return new ValidationResult(this, errorMessage, Field, value);
     }
 
     /// <summary>

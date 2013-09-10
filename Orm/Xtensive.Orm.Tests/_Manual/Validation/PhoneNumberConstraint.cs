@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Tests._Manual.Validation
     {
       var value = (string) fieldValue;
       var isValid = string.IsNullOrEmpty(value) || Validator.IsMatch(value);
-      return isValid ? Success() : Error(fieldValue, "Phone number is incorrect");
+      return isValid ? Success() : Error("Phone number is incorrect", fieldValue);
     }
 
     public override IPropertyValidator CreateNew()

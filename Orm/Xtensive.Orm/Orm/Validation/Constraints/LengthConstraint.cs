@@ -50,12 +50,12 @@ namespace Xtensive.Orm.Validation
         return Success();
 
       if (Min==0)
-        return Error(fieldValue, string.Format(Strings.ValueLengthCanNotBeGreaterThanX, Max));
+        return Error(string.Format(Strings.ValueLengthCanNotBeGreaterThanX, Max), fieldValue);
 
       if (Max==int.MaxValue)
-        return Error(fieldValue, string.Format(Strings.ValueLengthCanNotBeLessThanX, Min));
+        return Error(string.Format(Strings.ValueLengthCanNotBeLessThanX, Min), fieldValue);
 
-      return Error(fieldValue, string.Format(Strings.ValueLengthCanNotBeLessThanXOrGreaterThanY, Min, Max));
+      return Error(string.Format(Strings.ValueLengthCanNotBeLessThanXOrGreaterThanY, Min, Max), fieldValue);
     }
 
     public override IPropertyValidator CreateNew()

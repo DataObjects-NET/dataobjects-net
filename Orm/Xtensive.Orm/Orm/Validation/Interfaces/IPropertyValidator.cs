@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Validation
   /// <summary>
   /// Field validator contract.
   /// </summary>
-  public interface IPropertyValidator
+  public interface IPropertyValidator : IValidator
   {
     /// <summary>
     /// Gets value indicating if current validator is immediate.

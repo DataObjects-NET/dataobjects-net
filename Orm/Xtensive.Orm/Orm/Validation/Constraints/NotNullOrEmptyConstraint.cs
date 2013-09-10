@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Validation
     public override ValidationResult Validate(Entity target, object fieldValue)
     {
       var value = (string) fieldValue;
-      return !string.IsNullOrEmpty(value) ? Success() : Error(fieldValue, Strings.ValueShouldNotBeEmpty);
+      return !string.IsNullOrEmpty(value) ? Success() : Error(Strings.ValueShouldNotBeEmpty, fieldValue);
     }
 
     public override IPropertyValidator CreateNew()

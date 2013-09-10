@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Validation
     public virtual void Configure(Domain domain, TypeInfo type)
     {
       if (Domain!=null)
-        throw Exceptions.ObjectIsReadOnly(null);
+        throw Exceptions.AlreadyInitialized(null);
 
       Domain = domain;
       Type = type;
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Validation
     /// <returns>Constructed result.</returns>
     protected ValidationResult Error(string errorMessage)
     {
-      return new ValidationResult(true, null, null, errorMessage);
+      return new ValidationResult(this, errorMessage);
     }
 
     /// <summary>
