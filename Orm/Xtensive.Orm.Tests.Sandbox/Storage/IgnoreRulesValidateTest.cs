@@ -474,7 +474,6 @@ namespace Xtensive.Orm.Tests.Storage
       }
       SqlTableRef myEntity2 = SqlDml.TableRef(catalog.Schemas["dbo"].Tables["MyEntity2"]);
       SqlSelect select = SqlDml.Select(myEntity2);
-      select.Limit = 1;
       var compileConfiguration = new SqlCompilerConfiguration();
       compileConfiguration.DatabaseQualifiedObjects = false;
       var commandText = sqlDriver.Compile(select, compileConfiguration).GetCommandText();
@@ -502,7 +501,6 @@ namespace Xtensive.Orm.Tests.Storage
       }
       SqlTableRef myEntity2 = SqlDml.TableRef(catalog.Schemas["dbo"].Tables["MyEntity2"]);
       SqlSelect select = SqlDml.Select(myEntity2);
-      select.Limit = 1;
       var compileConfiguration = new SqlCompilerConfiguration();
       compileConfiguration.DatabaseQualifiedObjects = false;
       var commandText = sqlDriver.Compile(select, compileConfiguration).GetCommandText();
@@ -863,7 +861,6 @@ namespace Xtensive.Orm.Tests.Storage
     {
       SqlTableRef myEntity2 = SqlDml.TableRef(catalog.Schemas[schema].Tables["MyEntity2"]);
       SqlSelect select = SqlDml.Select(myEntity2);
-      select.Limit = 1;
       var compileConfiguration = new SqlCompilerConfiguration();
       compileConfiguration.DatabaseQualifiedObjects = useDatabasePrefix;
       var commandText = sqlDriver.Compile(select, compileConfiguration).GetCommandText();
