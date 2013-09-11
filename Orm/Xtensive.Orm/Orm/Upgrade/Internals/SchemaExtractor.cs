@@ -25,8 +25,7 @@ namespace Xtensive.Orm.Upgrade
       if (context.ExtractedModelCache!=null)
         return context.ExtractedModelCache;
 
-      var sourceModel = new IgnoreRulesHandler(GetSqlSchema(), services.Configuration, services.Resolver).Handle();
-      var converter = new SqlModelConverter(services, sourceModel, GetPartialIndexes());
+      var converter = new SqlModelConverter(services, GetSqlSchema(), GetPartialIndexes());
       var result =  converter.Run();
       context.ExtractedModelCache = result;
       return result;
@@ -38,8 +37,9 @@ namespace Xtensive.Orm.Upgrade
         return context.ExtractedSqlModelCache;
 
       var schema = new SchemaExtractionResult(executor.Extract(services.Resolver.GetSchemaTasks()));
-      context.ExtractedSqlModelCache = schema;
-      return schema;
+      var handledSchema = new IgnoreRulesHandler(schema, services.Configuration, services.Resolver).Handle();
+      context.ExtractedSqlModelCache = handledSchema;
+      return handledSchema;
     }
 
     public void ClearCache()
