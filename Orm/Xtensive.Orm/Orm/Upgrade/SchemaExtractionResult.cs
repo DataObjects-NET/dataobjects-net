@@ -15,11 +15,6 @@ namespace Xtensive.Orm.Upgrade
     public Dictionary<string, string> LockedTables { get; set; } 
     public NodeCollection<Catalog> Catalogs { get; set; }
 
-    public SqlExtractionResult ToSqlExtractionResult()
-    {
-      return new SqlExtractionResult(){Catalogs = this.Catalogs};
-    }
-
     public SchemaExtractionResult()
     {
       LockedTables = new Dictionary<string, string>();
