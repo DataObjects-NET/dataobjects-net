@@ -903,6 +903,11 @@ namespace Xtensive.Orm
       return null;
     }
 
+    internal static void ExecuteOnValidate(EntitySetBase target)
+    {
+      target.OnValidate();
+    }
+
     #endregion
 
 

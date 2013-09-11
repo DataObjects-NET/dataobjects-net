@@ -930,6 +930,10 @@ namespace Xtensive.Orm
 
     #endregion
 
+    internal static void ExecuteOnValidate(Persistent target)
+    {
+      target.OnValidate();
+    }
 
     // Constructors
 

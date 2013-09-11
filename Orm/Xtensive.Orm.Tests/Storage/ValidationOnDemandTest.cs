@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Tests.Storage
 
         transactionScope.Complete();
 
-        AssertEx.Throws<InvalidOperationException>(transactionScope.Dispose);
+        AssertEx.Throws<ValidationFailedException>(transactionScope.Dispose);
       }
     }
 

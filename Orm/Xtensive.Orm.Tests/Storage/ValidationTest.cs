@@ -141,6 +141,17 @@ namespace Xtensive.Orm.Tests.Storage.Validation
     }
 
     [Test]
+    public void ModelTest()
+    {
+      var mouseType = Domain.Model.Types[typeof (Mouse)];
+      Assert.That(mouseType.Validators.Count, Is.EqualTo(1));
+      Assert.That(mouseType.Validators[0], Is.InstanceOf<EntityValidator>());
+      var ledField = mouseType.Fields["Led"];
+      Assert.That(ledField.Validators.Count, Is.EqualTo(1));
+      Assert.That(ledField.Validators[0], Is.InstanceOf<StructureFieldValidator>());
+    }
+
+    [Test]
     public void OnSetValueModeTest()
     {
       using (var session = Domain.OpenSession()) {
@@ -218,7 +229,6 @@ namespace Xtensive.Orm.Tests.Storage.Validation
     {
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction()) {
-
           // Created and modified invalid object. (ScrollingCount > ButtonCount)
           AssertEx.Throws<ValidationFailedException>(() => {
               new Mouse {ButtonCount = 2, ScrollingCount = 3, Led = new Led {Brightness = 1, Precision = 1}};
@@ -226,10 +236,8 @@ namespace Xtensive.Orm.Tests.Storage.Validation
             });
         }
         using (session.OpenTransaction()) {
-
           // Created, but not modified invalid object.
-          AssertEx.Throws<ValidationFailedException>(() =>
-            new Mouse());
+          AssertEx.Throws<ValidationFailedException>(() => new Mouse());
         }
         using (session.OpenTransaction()) {
           // Invalid modification of existing object.
@@ -284,7 +292,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
           AssertEx.Throws<ValidationFailedException>(
             delegate {
               mouse.Led.Brightness = 2.3;
-              transactionScope.Complete();
+              session.Validate();
             });
         }
           
@@ -293,7 +301,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
           AssertEx.Throws<ValidationFailedException>(
             delegate {
               mouse.Led.Brightness = 11;
-              transactionScope.Complete();
+              session.Validate();
             });
         }
       }
@@ -304,14 +312,20 @@ namespace Xtensive.Orm.Tests.Storage.Validation
     {
       using (var session = Domain.OpenSession()) 
       using (session.OpenTransaction()) {
-        AssertEx.Throws<Exception>(() => { var reference1 = new Reference(); });
+        AssertEx.Throws<ValidationFailedException>(() => {
+          var reference1 = new Reference();
+          session.Validate();
+        });
         var reference2 = new Reference {
           Title = "Test"
         };
         session.Validate();
         var reference = new Reference("Test");
 
-        AssertEx.Throws<Exception>(() => { var referrer1 = new Referrer(); });
+        AssertEx.Throws<ValidationFailedException>(() => {
+          var referrer1 = new Referrer();
+          session.Validate();
+        });
         var referrer2 = new Referrer {
           Title = "Test",
           Reference = reference

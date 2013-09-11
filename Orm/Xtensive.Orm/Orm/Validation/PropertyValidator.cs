@@ -96,14 +96,25 @@ namespace Xtensive.Orm.Validation
     }
 
     /// <summary>
-    /// Constructs validation error result.
+    /// Constructs validation failure result.
     /// </summary>
-    /// <param name="errorMessage">Validatio error message.</param>
+    /// <param name="errorMessage">Validation error message.</param>
     /// <param name="value">Validated value.</param>
     /// <returns>Constructed result.</returns>
     protected ValidationResult Error(string errorMessage, object value)
     {
       return new ValidationResult(this, errorMessage, Field, value);
+    }
+
+    /// <summary>
+    /// Constructs validation failure result.
+    /// </summary>
+    /// <param name="exception">Validation exception.</param>
+    /// <param name="value">Validated value.</param>
+    /// <returns>Constructed result.</returns>
+    protected ValidationResult Error(Exception exception, object value)
+    {
+      return new ValidationResult(this, exception.Message, Field, value);
     }
 
     /// <summary>

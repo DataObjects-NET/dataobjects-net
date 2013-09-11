@@ -57,12 +57,15 @@
     <Compile Include="Orm\Attributes\CompilerContainerAttribute.cs" />
     <Compile Include="Orm\Internals\ValidationReason.cs" />
     <Compile Include="Orm\Validation\EntityErrorInfo.cs" />
+    <Compile Include="Orm\Validation\EntitySetFieldValidator.cs" />
+    <Compile Include="Orm\Validation\EntityValidator.cs" />
     <Compile Include="Orm\Validation\Exceptions\ValidationFailedException.cs" />
     <Compile Include="Orm\Validation\Interfaces\IObjectValidator.cs" />
     <Compile Include="Orm\Validation\Interfaces\IPropertyValidator.cs" />
     <Compile Include="Orm\Validation\Interfaces\IValidator.cs" />
     <Compile Include="Orm\Validation\ObjectValidator.cs" />
     <Compile Include="Orm\Validation\PropertyValidator.cs" />
+    <Compile Include="Orm\Validation\StructureFieldValidator.cs" />
     <Compile Include="Orm\Validation\ValidationResult.cs" />
     <Compile Include="Orm\Weaving\OverrideFieldNameAttribute.cs" />
     <Compile Include="Orm\Weaving\PersistenceImplementation.cs" />
