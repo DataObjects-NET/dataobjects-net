@@ -49,7 +49,8 @@ namespace Xtensive.Orm.Upgrade
 
     private static SchemaExtractionResult ExtractSchema(UpgradeServiceAccessor services, ISqlExecutor executor)
     {
-      return new SchemaExtractionResult(executor.Extract(services.Resolver.GetSchemaTasks()));
+      var schema = new SchemaExtractionResult(executor.Extract(services.Resolver.GetSchemaTasks()));
+      return new IgnoreRulesHandler(schema, services.Configuration, services.Resolver).Handle();
     }
 
     private static void DropSchema(UpgradeServiceAccessor services, ISqlExecutor executor)
