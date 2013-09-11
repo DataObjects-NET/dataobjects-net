@@ -7,12 +7,10 @@
 using System;
 using System.ComponentModel;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Orm.Validation;
 using Xtensive.Testing;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.DataErrorInfoTestModel;
-using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Orm.Tests.Storage.DataErrorInfoTestModel
 {
@@ -49,27 +47,22 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
-          using (var region = session.DisableValidation()) {
+          var person = new Person();
+          var personErrorInfo = ((IDataErrorInfo) person);
 
-            var person = new Person();
+          Assert.AreEqual("Name is empty.", personErrorInfo["Name"]);
+          Assert.AreEqual("Age is negative.", personErrorInfo["Age"]);
 
-            Assert.AreEqual("Name is empty.", ((IDataErrorInfo) person)["Name"]);
-            Assert.AreEqual("Age is negative.", ((IDataErrorInfo) person)["Age"]);
+          person.Name = "Alex";
+          person.Age = 26;
 
-            person.Name = "Alex";
-            person.Age = 26;
+          Assert.AreEqual(string.Empty, personErrorInfo["Name"]);
+          Assert.AreEqual(string.Empty, personErrorInfo["Age"]);
 
-            Assert.AreEqual(string.Empty, ((IDataErrorInfo) person)["Name"]);
-            Assert.AreEqual(string.Empty, ((IDataErrorInfo) person)["Age"]);
+          person.Age = -1;
+          Assert.AreEqual("Age is negative.", personErrorInfo["Age"]);
 
-            person.Age = -1;
-            Assert.AreEqual("Age is negative.", ((IDataErrorInfo) person)["Age"]);
-
-            region.Complete();
-            AssertEx.Throws<AggregateException>(region.Dispose);
-          } // Second .Dispose should do nothing!
-
-          // tx.Complete(); // Rollback
+          AssertEx.Throws<ValidationFailedException>(session.Validate);
         }
       }
     }

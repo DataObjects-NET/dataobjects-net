@@ -34,8 +34,7 @@ namespace Xtensive.Orm
   public abstract class EntitySetBase : SessionBound,
     IFieldValueAdapter,
     INotifyPropertyChanged,
-    INotifyCollectionChanged,
-    IValidationAware
+    INotifyCollectionChanged
   {
     private static readonly string presentationFrameworkAssemblyPrefix = "PresentationFramework,";
     private static readonly string storageTestsAssemblyPrefix = "Xtensive.Orm.Tests";
@@ -190,8 +189,8 @@ namespace Xtensive.Orm
         if (Session.IsSystemLogicOnly)
           return;
 
-        if (Session.Domain.Configuration.AutoValidation)
-          this.Validate();
+        if (CanBeValidated)
+          Session.ValidationContext.EnqueueValidation(Owner);
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.AddEntitySetItemEventKey);
         if (subscriptionInfo.Second!=null)
@@ -235,8 +234,8 @@ namespace Xtensive.Orm
         if (Session.IsSystemLogicOnly)
           return;
 
-        if (Session.Domain.Configuration.AutoValidation)
-          this.Validate();
+        if (CanBeValidated)
+          Session.ValidationContext.EnqueueValidation(Owner);
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntitySetItemEventKey);
         if (subscriptionInfo.Second!=null)
@@ -283,8 +282,8 @@ namespace Xtensive.Orm
         if (Session.IsSystemLogicOnly)
           return;
 
-        if (Session.Domain.Configuration.AutoValidation)
-          this.Validate();
+        if (CanBeValidated)
+          Session.ValidationContext.EnqueueValidation(Owner);
 
         using (Session.Operations.EnableSystemOperationRegistration()) {
           var subscriptionInfo = GetSubscription(EntityEventBroker.ClearEntitySetEventKey);
@@ -736,30 +735,6 @@ namespace Xtensive.Orm
       }
       foreach (var item in other)
         Remove(item);
-    }
-
-    #endregion
-
-    #region IValidationAware implementation
-
-    /// <inheritdoc/>
-    void IValidationAware.OnValidate()
-    {
-      InnerOnValidate();
-    }
-
-    private void InnerOnValidate()
-    {
-      if (!CanBeValidated) // True for EntitySets with removed owners
-        return;
-      OnValidate(); // Runs custom validation logic: this OnValidate can be overriden
-    }
-
-    /// <inheritdoc/>
-    ValidationContext IValidationAware.Context {
-      get {
-        return Session.ValidationContext;
-      }
     }
 
     #endregion

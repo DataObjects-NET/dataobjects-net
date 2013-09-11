@@ -5,28 +5,19 @@
 // Created:    2007.08.03
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Transactions;
 using Xtensive.Core;
-
-using Xtensive.IoC;
-using Xtensive.Orm.Validation;
-using Xtensive.Reflection;
-using Xtensive.Tuples;
-using Xtensive.Orm;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
 using Xtensive.Orm.PairIntegrity;
 using Xtensive.Orm.ReferentialIntegrity;
-
-using Xtensive.Orm.Services;
+using Xtensive.Orm.Validation;
+using Xtensive.Tuples;
 using Activator = Xtensive.Orm.Internals.Activator;
-using AggregateException = Xtensive.Core.AggregateException;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 using OperationType = Xtensive.Orm.PairIntegrity.OperationType;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -40,7 +31,6 @@ namespace Xtensive.Orm
   /// <seealso cref="Structure"/>
   [SystemType]
   public abstract class Persistent : SessionBound,
-    IValidationAware,
     INotifyPropertyChanged,
     IDataErrorInfo
   {
@@ -55,7 +45,6 @@ namespace Xtensive.Orm
 
       // public int Id;
       public TransactionScope TransactionScope;
-      public ICompletableScope InconsistentRegion;
       public ICompletableScope OperationScope;
       public CtorTransactionInfo Previous;
 
@@ -79,34 +68,13 @@ namespace Xtensive.Orm
     /// </summary>
     protected internal abstract Tuple Tuple { get; }
 
+    /// <summary>
+    /// Gets a value indicating whether validation can be performed for this entity.
+    /// </summary>
+    protected internal abstract bool CanBeValidated { get; }
+
     /// <inheritdoc/>
     public abstract event PropertyChangedEventHandler PropertyChanged;
-
-    internal IFieldValueAdapter GetFieldValueAdapter (FieldInfo field, Func<Persistent, FieldInfo, IFieldValueAdapter> ctor)
-    {
-      if (field.ReflectedType.IsInterface)
-        field = TypeInfo.FieldMap[field];
-      // Building adapter container if necessary
-      if (fieldAdapters==null) {
-        int maxAdapterIndex = TypeInfo.Fields.Select(f => f.AdapterIndex).Max();
-        fieldAdapters = new IFieldValueAdapter[maxAdapterIndex + 1];
-      }
-
-      // Building adapter
-      var adapter = fieldAdapters[field.AdapterIndex];
-      if (adapter != null)
-        return adapter;
-      adapter = ctor(this, field);
-      fieldAdapters[field.AdapterIndex] = adapter;
-      return adapter;
-    }
-
-    internal abstract void EnsureIsFetched(FieldInfo field);
-
-    internal TypeInfo GetTypeInfo()
-    {
-      return Session.Domain.Model.Types[GetType()];
-    }
 
     #region this[...], GetProperty, SetProperty members
 
@@ -403,12 +371,7 @@ namespace Xtensive.Orm
     /// <param name="value">The value to set.</param>
     protected internal void SetFieldValue(FieldInfo field, object value)
     {
-      SetFieldValue(field, value, null);
-    }
-
-    internal void SetFieldValue(FieldInfo field, object value, SyncContext syncContext)
-    {
-      SetFieldValue(field, value, syncContext, null);
+      SetFieldValue(field, value, null, null);
     }
 
     internal void SetFieldValue(FieldInfo field, object value, SyncContext syncContext, RemovalContext removalContext)
@@ -531,6 +494,29 @@ namespace Xtensive.Orm
       if (field.ReflectedType.IsInterface)
         field = TypeInfo.FieldMap[field];
       return Tuple.GetFieldState(field.MappingInfo.Offset).IsAvailable();
+    }
+
+    #endregion
+
+    #region Validation
+
+    public void Validate()
+    {
+    }
+
+    public IEnumerable<ValidationResult> ValidateAndGetErrors()
+    {
+      throw new NotImplementedException();
+    }
+
+    public IEnumerable<ValidationResult> ValidateAndGetErrors(string field)
+    {
+      return ValidateAndGetErrors(TypeInfo.Fields[field]);
+    }
+
+    public IEnumerable<ValidationResult> ValidateAndGetErrors(FieldInfo field)
+    {
+      throw new NotImplementedException();
     }
 
     #endregion
@@ -723,63 +709,53 @@ namespace Xtensive.Orm
 
     #endregion
 
-    #region IValidationAware members
-
-    /// <summary>
-    /// Gets a value indicating whether validation can be performed for this entity.
-    /// </summary>
-    protected internal abstract bool CanBeValidated { get; }
-
-    /// <inheritdoc/>
-    void IValidationAware.OnValidate()
-    {
-      InnerOnValidate();
-    }
-
-    private void InnerOnValidate()
-    {
-      if (!CanBeValidated) // True for Structures which aren't bound to entities & removed entities
-        return;
-      this.CheckConstraints(); // Ensures all PropertyConstraintAspects will be executed
-                               // CheckConstraints is an extension method provided by Integrity
-      OnValidate(); // Runs custom validation logic: this OnValidate can be overriden
-    }
-
-    /// <inheritdoc/>
-    ValidationContext IValidationAware.Context
-    {
-      get {
-        return (Session ?? Session.Demand()).ValidationContext;
-      }
-    }
-
-    #endregion
-
     #region IDataErrorInfo members
 
     /// <inheritdoc/>
     string IDataErrorInfo.this[string columnName] {
       get {
-        return GetErrorMessage(this.GetPropertyValidationError(columnName));
+        var error = ValidateAndGetErrors(columnName).FirstOrDefault();
+        return error==null ? string.Empty : error.ErrorMessage;
       }
     }
 
     /// <inheritdoc/>
     string IDataErrorInfo.Error {
-      get { 
-        try {
-          OnValidate();
-          return string.Empty;
-        }
-        catch (Exception error) {
-          return GetErrorMessage(error);
-        }
+      get {
+        var error = ValidateAndGetErrors().FirstOrDefault();
+        return error==null ? string.Empty : error.ErrorMessage;
       }
     }
 
     #endregion
 
-    #region Private \ Internal methods
+    #region Private / Internal methods
+
+    internal abstract void EnsureIsFetched(FieldInfo field);
+
+    internal IFieldValueAdapter GetFieldValueAdapter(FieldInfo field, Func<Persistent, FieldInfo, IFieldValueAdapter> ctor)
+    {
+      if (field.ReflectedType.IsInterface)
+        field = TypeInfo.FieldMap[field];
+      // Building adapter container if necessary
+      if (fieldAdapters==null) {
+        int maxAdapterIndex = TypeInfo.Fields.Select(f => f.AdapterIndex).Max();
+        fieldAdapters = new IFieldValueAdapter[maxAdapterIndex + 1];
+      }
+
+      // Building adapter
+      var adapter = fieldAdapters[field.AdapterIndex];
+      if (adapter != null)
+        return adapter;
+      adapter = ctor(this, field);
+      fieldAdapters[field.AdapterIndex] = adapter;
+      return adapter;
+    }
+
+    internal TypeInfo GetTypeInfo()
+    {
+      return Session.Domain.Model.Types[GetType()];
+    }
 
     internal FieldAccessor GetFieldAccessor(FieldInfo field)
     {
@@ -819,24 +795,6 @@ namespace Xtensive.Orm
       if (diffTuple!=null && diffTuple.Difference.IsAtLeastOneColumAvailable(mappingInfo))
         state = PersistentFieldState.Modified;
       return state;
-    }
-
-    private static string GetErrorMessage(Exception error)
-    {
-      string result;
-      if (error==null)
-        result = string.Empty;
-      else if (error is AggregateException) {
-        var ae = error as AggregateException;
-        var errors = ae.GetFlatExceptions();
-        if (errors.Count==1)
-          result = errors[0].Message;
-        else
-          result = ae.Message;
-      }
-      else 
-        result = error.Message;
-      return result ?? string.Empty;
     }
 
     #endregion
@@ -930,7 +888,6 @@ namespace Xtensive.Orm
     {
       CtorTransactionInfo.Current = new CtorTransactionInfo() {
         TransactionScope = Session.OpenAutoTransaction(),
-        InconsistentRegion = Session.DisableValidation(),
         Previous = CtorTransactionInfo.Current,
       };
     }
@@ -944,51 +901,28 @@ namespace Xtensive.Orm
     internal void LeaveCtorTransactionScope(bool successfully)
     {
       var cti = CtorTransactionInfo.Current;
-      if (cti == null)
+      if (cti==null)
         return;
       CtorTransactionInfo.Current = cti.Previous;
-      bool inconsistentRegionDisposed = false;
       try {
-        if (successfully) {
-          try {
-            cti.InconsistentRegion.Complete();
-            inconsistentRegionDisposed = true;
-            cti.InconsistentRegion.Dispose();
-            cti.InconsistentRegion = null;
-          } 
-          catch {
-            successfully = false;
-            throw;
-          }
-        }
         if (cti.OperationScope!=null)
           cti.OperationScope.Complete();
       }
       finally {
         try {
-          if (!inconsistentRegionDisposed)
-            cti.InconsistentRegion.Dispose();
+          if (cti.OperationScope!=null)
+            cti.OperationScope.Dispose();
         }
         catch {
           successfully = false;
           throw;
         }
         finally {
-          try {
-            if (cti.OperationScope != null)
-              cti.OperationScope.Dispose();
-          }
-          catch {
-            successfully = false;
-            throw;
-          }
-          finally {
-            var transactionScope = cti.TransactionScope;
-            if (transactionScope!=null) {
-              if (successfully)
-                transactionScope.Complete();
-              transactionScope.Dispose();
-            }
+          var transactionScope = cti.TransactionScope;
+          if (transactionScope!=null) {
+            if (successfully)
+              transactionScope.Complete();
+            transactionScope.Dispose();
           }
         }
       }

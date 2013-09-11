@@ -19,15 +19,14 @@ namespace Xtensive.Orm.Internals.FieldAccessors
     public override bool AreSameValues(object oldValue, object newValue)
     {
       if (isValueType || isString)
-        return object.Equals(oldValue, newValue);
+        return Equals(oldValue, newValue);
       return false;
     }
 
     /// <inheritdoc/>
     public override T GetValue(Persistent obj)
     {
-      var field = Field;
-      int fieldIndex = field.MappingInfo.Offset;
+      int fieldIndex = Field.MappingInfo.Offset;
       var tuple = obj.Tuple;
       var value = tuple.GetValueOrDefault<T>(fieldIndex);
       return value;
@@ -37,20 +36,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
     /// <exception cref="InvalidOperationException">Invalid arguments.</exception>
     public override void SetValue(Persistent obj, T value)
     {
-      var field = Field;
-
-      if (obj.Session.ValidationContext.IsConsistent) {
-        if (!field.IsNullable && value==null)
-          throw new InvalidOperationException(string.Format(Strings.ExNotNullableConstraintViolationOnFieldX, field));
-        if (value!=null && field.Length > 0) {
-          if (isString && field.Length < ((string) (object) value).Length)
-            throw new InvalidOperationException(string.Format(Strings.ExLengthConstraintViolationOnFieldX, field));
-          if (isByteArray && field.Length < ((byte[]) (object) value).Length)
-            throw new InvalidOperationException(string.Format(Strings.ExLengthConstraintViolationOnFieldX, field));
-        }
-      }
-
-      obj.Tuple.SetValue(field.MappingInfo.Offset, value);
+      obj.Tuple.SetValue(Field.MappingInfo.Offset, value);
     }
   }
 }

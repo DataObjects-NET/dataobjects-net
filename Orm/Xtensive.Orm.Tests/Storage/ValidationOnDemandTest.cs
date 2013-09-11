@@ -6,11 +6,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core;
+using Xtensive.Orm.Validation;
 using Xtensive.Testing;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.ValidationContextTestModel;
-using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Orm.Tests.Storage
 {
@@ -62,17 +61,17 @@ namespace Xtensive.Orm.Tests.Storage
         var transactionScope = session.OpenTransaction();
 
         var entity = new Validatable {IsValid = false};
-        AssertEx.Throws<AggregateException>(session.Validate);
-        AssertEx.Throws<AggregateException>(session.Validate);
+        AssertEx.Throws<ValidationFailedException>(session.Validate);
+        AssertEx.Throws<ValidationFailedException>(session.Validate);
 
         entity.IsValid = true;
         session.Validate();
 
         entity.IsValid = false;
-        AssertEx.Throws<AggregateException>(session.Validate);
+        AssertEx.Throws<ValidationFailedException>(session.Validate);
         
         transactionScope.Complete();
-        AssertEx.Throws<InvalidOperationException>(transactionScope.Dispose);
+        AssertEx.Throws<ValidationFailedException>(transactionScope.Dispose);
       }
     }
 

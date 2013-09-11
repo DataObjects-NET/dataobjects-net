@@ -281,22 +281,19 @@ namespace Xtensive.Orm.Tests.Storage
 
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction()) {
-
           object[] array;
           Company existingCompany = (Company) session.Query.SingleOrDefault(Key.Create(Domain, typeof (Company), firstCompanyId)); //session.Query.All<Company>().First();
 
-          using (var region = session.DisableValidation()) {
 
-            Company company = new Company {Name = "Region mobile"};
-            Emploee mike = new Emploee {Name = "Mike", Company = company};
-            Emploee alex = new Emploee {Name = "Alex", Company = company};
-            Emploee jef = new Emploee {Name = "Jef", Company = existingCompany};
-            company.Head = alex;
+          Company company = new Company {Name = "Region mobile"};
+          Emploee mike = new Emploee {Name = "Mike", Company = company};
+          Emploee alex = new Emploee {Name = "Alex", Company = company};
+          Emploee jef = new Emploee {Name = "Jef", Company = existingCompany};
+          company.Head = alex;
 
-            array = new object[] { existingCompany, company, alex, jef };
-            region.Complete();
-          }
-          
+          array = new object[] {existingCompany, company, alex, jef};
+          session.Validate();
+
 
           SerializationContext context =
             new SerializationContext(entity => entity==existingCompany ? SerializationKind.ByReference : SerializationKind.ByValue);

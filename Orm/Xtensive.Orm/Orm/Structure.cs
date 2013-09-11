@@ -161,8 +161,8 @@ namespace Xtensive.Orm
         ((Action<Key, FieldInfo>) subscriptionInfo.Second)
           .Invoke(subscriptionInfo.First, Field);
       OnInitialize();
-      if (!materialize && CanBeValidated && Session.Domain.Configuration.AutoValidation)
-        this.Validate();
+      if (!materialize && CanBeValidated)
+        Session.ValidationContext.EnqueueValidation(Entity);
     }
 
     internal override sealed void SystemInitializationError(Exception error)
@@ -261,8 +261,8 @@ namespace Xtensive.Orm
     {
       if (!Session.IsSystemLogicOnly) {
         using (Session.Operations.EnableSystemOperationRegistration()) {
-          if (CanBeValidated && Session.Domain.Configuration.AutoValidation)
-            this.Validate();
+          if (CanBeValidated)
+            Session.ValidationContext.EnqueueValidation(Entity);
           var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
           if (subscriptionInfo.Second!=null)
             ((Action<Key, FieldInfo, FieldInfo, object, object>) subscriptionInfo.Second)

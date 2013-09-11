@@ -74,11 +74,9 @@ namespace Xtensive.Orm.Serialization
       if (isDeserialized)
         return;
 
-      using (var region = Session.Demand().DisableValidation()) {
-        InitializeEntities();
-        DeserializeEntities();
-        region.Complete();
-      }
+      InitializeEntities();
+      DeserializeEntities();
+
       isDeserialized = true;
     }
 

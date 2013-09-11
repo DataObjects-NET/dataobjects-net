@@ -5,22 +5,34 @@
 // Created:    2013.09.09
 
 using System.Collections.Generic;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Validation
 {
   /// <summary>
   /// Entity validation error info.
   /// </summary>
-  public class EntityErrorInfo
+  public sealed class EntityErrorInfo
   {
     /// <summary>
-    /// Gets or sets validated entity.
+    /// Gets validated entity.
     /// </summary>
-    public Entity Target { get; set; }
+    public Entity Target { get; private set; }
 
     /// <summary>
     /// Gets or sets validation errors.
     /// </summary>
     public ICollection<ValidationResult> Errors { get; set; }
+
+    /// <summary>
+    /// Initializes new instance of this type.
+    /// </summary>
+    /// <param name="target">Validated entity.</param>
+    public EntityErrorInfo(Entity target)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      Target = target;
+      Errors = new List<ValidationResult>();
+    }
   }
 }

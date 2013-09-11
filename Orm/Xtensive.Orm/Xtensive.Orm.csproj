@@ -55,7 +55,9 @@
     <Compile Include="Orm\Aspects\TransactionalBehavior.cs" />
     <Compile Include="Orm\Attributes\CompilerAttribute.cs" />
     <Compile Include="Orm\Attributes\CompilerContainerAttribute.cs" />
+    <Compile Include="Orm\Internals\ValidationReason.cs" />
     <Compile Include="Orm\Validation\EntityErrorInfo.cs" />
+    <Compile Include="Orm\Validation\Exceptions\ValidationFailedException.cs" />
     <Compile Include="Orm\Validation\Interfaces\IObjectValidator.cs" />
     <Compile Include="Orm\Validation\Interfaces\IPropertyValidator.cs" />
     <Compile Include="Orm\Validation\Interfaces\IValidator.cs" />
@@ -401,8 +403,6 @@
     <Compile Include="Orm\Validation\Constraints\RangeConstraint.cs" />
     <Compile Include="Orm\Validation\Constraints\RegexConstraint.cs" />
     <Compile Include="Orm\Validation\Exceptions\ConstraintViolationException.cs" />
-    <Compile Include="Orm\Validation\Interfaces\IValidationAware.cs" />
-    <Compile Include="Orm\Validation\ValidationAwareExtensions.cs" />
     <Compile Include="Orm\Validation\ValidationContext.cs" />
     <Compile Include="Orm\Validation\ValidationMode.cs" />
     <Compile Include="Orm\Linq\Expressions\Visitors\EnumRewriter.cs" />
@@ -475,7 +475,6 @@
     <Compile Include="Orm\Internals\Pinner.cs" />
     <Compile Include="Orm\Exceptions\QueryTranslationException.cs" />
     <Compile Include="Orm\ObjectMapping\Mapper.cs" />
-    <Compile Include="Orm\Transaction.Validation.cs" />
     <Compile Include="Orm\Exceptions\ConnectionRequiredException.cs" />
     <Compile Include="Orm\Internals\Disconnected\SerializableEntityState.cs" />
     <Compile Include="Orm\Internals\Disconnected\SerializableReference.cs" />

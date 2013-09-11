@@ -8,8 +8,8 @@ using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.ValidationContextClientProfileModel;
+using Xtensive.Orm.Validation;
 using Xtensive.Testing;
-using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Orm.Tests.Storage
 {
@@ -54,17 +54,13 @@ namespace Xtensive.Orm.Tests.Storage
         Validatable first = null;
         Validatable second;
 
-        AssertEx.Throws<AggregateException>(() => {
-          using (var region = session.DisableValidation()) {
-            first = new Validatable(session);
-            region.Complete();
-          }
+        AssertEx.Throws<ValidationFailedException>(() => {
+          first = new Validatable(session);
+          session.Validate();
         });
 
-        using (var region = session.DisableValidation()) {
-          first.IsValid = true;
-          region.Complete();
-        }
+        first.IsValid = true;
+        session.Validate();
       }
     }
 
@@ -72,9 +68,8 @@ namespace Xtensive.Orm.Tests.Storage
     public void CatchErrorAndRecoverTest()
     {
       using (var session = Domain.OpenSession()) {
-        session.DisableValidation();
         var v = new Validatable(session);
-        AssertEx.Throws<AggregateException>(session.Validate);
+        AssertEx.Throws<ValidationFailedException>(session.Validate);
         v.IsValid = true;
         session.Validate();
       }
@@ -84,13 +79,9 @@ namespace Xtensive.Orm.Tests.Storage
     public void ForceValidationTest()
     {
       using (var session = Domain.OpenSession()) {
-        AssertEx.Throws<Exception>(() => {
-          using (var region = session.DisableValidation()) {
-            var obj = new Validatable(session) {IsValid = false};
-            session.Validate();
-            obj.IsValid = true;
-            region.Complete();
-          }
+        AssertEx.Throws<ValidationFailedException>(() => {
+          var obj = new Validatable(session) {IsValid = false};
+          session.Validate();
         });
       }
     }
@@ -100,15 +91,13 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession()) {
         try {
-          using (var region = session.DisableValidation()) {
-            var obj = new Validatable(session);
-            region.Complete();
-          }
+          var obj = new Validatable(session);
+          session.Validate();
         }
-        catch (Exception) {
+        catch (ValidationFailedException) {
         }
 
-        AssertEx.Throws<AggregateException>(session.SaveChanges);
+        AssertEx.Throws<ValidationFailedException>(session.SaveChanges);
       }
     }
   }

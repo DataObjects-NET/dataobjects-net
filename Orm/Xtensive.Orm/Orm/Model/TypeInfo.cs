@@ -370,6 +370,11 @@ namespace Xtensive.Orm.Model
       }
     }
 
+    /// <summary>
+    /// Gets value indicating if this type has validators (including field validators).
+    /// </summary>
+    public bool HasValidators { get; private set; }
+
     internal FieldAccessorProvider Accessors { get; private set; }
 
     /// <summary>
@@ -607,6 +612,8 @@ namespace Xtensive.Orm.Model
           MappingSchema = firstImplementor.MappingSchema;
         }
       }
+
+      HasValidators = validators.Count > 0 || fields.Any(f => f.HasValidators);
 
       // Selecting master parts from paired associations & single associations
       var associations = model.Associations.Find(this)

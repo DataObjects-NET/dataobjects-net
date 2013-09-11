@@ -39,27 +39,27 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public const int MinFieldId = 1;
 
-    private PropertyInfo                    underlyingProperty;
-    private Type                            valueType;
-    private int?                            length;
-    private int?                            scale;
-    private int?                            precision;
-    private object                          defaultValue;
-    private TypeInfo                        reflectedType;
-    private TypeInfo                        declaringType;
-    private FieldInfo                       parent;
-    private ColumnInfo                      column;
+    private PropertyInfo underlyingProperty;
+    private Type valueType;
+    private int? length;
+    private int? scale;
+    private int? precision;
+    private object defaultValue;
+    private TypeInfo reflectedType;
+    private TypeInfo declaringType;
+    private FieldInfo parent;
+    private ColumnInfo column;
     private NodeCollection<AssociationInfo> associations;
-    private Type                            itemType;
-    private string                          originalName;
-    internal SegmentTransform               valueExtractor;
-    private int                             adapterIndex = -1;
-    private ColumnInfoCollection            columns;
-    private int                             fieldId;
-    private int?                            cachedHashCode;
+    private Type itemType;
+    private string originalName;
+    internal SegmentTransform valueExtractor;
+    private int adapterIndex = -1;
+    private ColumnInfoCollection columns;
+    private int fieldId;
+    private int? cachedHashCode;
 
     private IList<IPropertyValidator> validators;
-    
+
     #region IsXxx properties
 
     /// <summary>
@@ -67,11 +67,13 @@ namespace Xtensive.Orm.Model
     /// in <see cref="TypeInfo.Fields"/> collection of <see cref="ReflectedType"/>.
     /// </summary>
     /// <exception cref="NotSupportedException">Property is already initialized.</exception>
-    public int FieldId {
+    public int FieldId
+    {
       [DebuggerStepThrough]
       get { return fieldId; }
-      set {
-        if (fieldId != NoFieldId)
+      set
+      {
+        if (fieldId!=NoFieldId)
           throw Exceptions.AlreadyInitialized("FieldId");
         fieldId = value;
       }
@@ -80,11 +82,13 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets a value indicating whether this property is system.
     /// </summary>
-    public bool IsSystem {
+    public bool IsSystem
+    {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.System) != 0; }
+      get { return (Attributes & FieldAttributes.System)!=0; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         Attributes = value
           ? (Attributes | FieldAttributes.System)
@@ -98,7 +102,7 @@ namespace Xtensive.Orm.Model
     public bool SkipVersion
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.SkipVersion) != 0; }
+      get { return (Attributes & FieldAttributes.SkipVersion)!=0; }
       [DebuggerStepThrough]
       set
       {
@@ -115,7 +119,7 @@ namespace Xtensive.Orm.Model
     public bool ManualVersion
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.ManualVersion) != 0; }
+      get { return (Attributes & FieldAttributes.ManualVersion)!=0; }
     }
 
     /// <summary>
@@ -124,34 +128,38 @@ namespace Xtensive.Orm.Model
     public bool AutoVersion
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.AutoVersion) != 0; }
+      get { return (Attributes & FieldAttributes.AutoVersion)!=0; }
     }
 
     /// <summary>
     /// Gets a value indicating whether this property contains type identifier.
     /// </summary>
-    public bool IsTypeId {
+    public bool IsTypeId
+    {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.TypeId) != 0; }
+      get { return (Attributes & FieldAttributes.TypeId)!=0; }
     }
 
     /// <summary>
     /// Gets a value indicating whether this property is type discriminator.
     /// </summary>
-    public bool IsTypeDiscriminator {
+    public bool IsTypeDiscriminator
+    {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.TypeDiscriminator) != 0; }
+      get { return (Attributes & FieldAttributes.TypeDiscriminator)!=0; }
       set { Attributes = value ? Attributes | FieldAttributes.TypeDiscriminator : Attributes & ~FieldAttributes.TypeDiscriminator; }
     }
 
     /// <summary>
     /// Gets or sets a value indicating whether this instance is declared in <see cref="TypeInfo"/> instance.
     /// </summary>
-    public bool IsDeclared {
+    public bool IsDeclared
+    {
       [DebuggerStepThrough]
       get { return (Attributes & FieldAttributes.Declared) > 0; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         Attributes = value
           ? (Attributes | FieldAttributes.Declared) & ~FieldAttributes.Inherited
@@ -162,10 +170,12 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets a value indicating whether this property is enum.
     /// </summary>
-    public bool IsEnum { 
+    public bool IsEnum
+    {
       [DebuggerStepThrough]
       get { return (Attributes & FieldAttributes.Enum) > 0; }
-      private set {
+      private set
+      {
         this.EnsureNotLocked();
         Attributes = value
           ? (Attributes | FieldAttributes.Enum)
@@ -176,11 +186,13 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets a value indicating whether this instance is inherited from parent <see cref="TypeInfo"/> instance.
     /// </summary>
-    public bool IsInherited {
+    public bool IsInherited
+    {
       [DebuggerStepThrough]
       get { return (Attributes & FieldAttributes.Inherited) > 0; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         Attributes = value
           ? (Attributes | FieldAttributes.Inherited) & ~FieldAttributes.Declared
@@ -191,14 +203,16 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets a value indicating whether this property is contained by primary key.
     /// </summary>
-    public bool IsPrimaryKey {
+    public bool IsPrimaryKey
+    {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.PrimaryKey) != 0; }
+      get { return (Attributes & FieldAttributes.PrimaryKey)!=0; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.PrimaryKey : Attributes & ~FieldAttributes.PrimaryKey;
-        if (column != null)
+        if (column!=null)
           column.IsPrimaryKey = true;
         else
           foreach (FieldInfo childField in Fields)
@@ -209,19 +223,22 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets a value indicating whether this property is nested.
     /// </summary>
-    public bool IsNested {
+    public bool IsNested
+    {
       [DebuggerStepThrough]
-      get { return Parent != null; }
+      get { return Parent!=null; }
     }
 
     /// <summary>
     /// Gets a value indicating whether this property explicitly implemented.
     /// </summary>
-    public bool IsExplicit {
+    public bool IsExplicit
+    {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.Explicit) != 0; }
+      get { return (Attributes & FieldAttributes.Explicit)!=0; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.Explicit : Attributes & ~FieldAttributes.Explicit;
       }
@@ -230,11 +247,13 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets a value indicating whether this property implements property of one or more interfaces.
     /// </summary>
-    public bool IsInterfaceImplementation {
+    public bool IsInterfaceImplementation
+    {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.InterfaceImplementation) != 0; }
+      get { return (Attributes & FieldAttributes.InterfaceImplementation)!=0; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.InterfaceImplementation : Attributes & ~FieldAttributes.InterfaceImplementation;
       }
@@ -243,7 +262,8 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets a value indicating whether this property is primitive field.
     /// </summary>
-    public bool IsPrimitive {
+    public bool IsPrimitive
+    {
       [DebuggerStepThrough]
       get { return !IsStructure && !IsEntity && !IsEntitySet; }
     }
@@ -251,25 +271,28 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets a value indicating whether this property is reference to Entity.
     /// </summary>
-    public bool IsEntity {
+    public bool IsEntity
+    {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.Entity) != 0; }
+      get { return (Attributes & FieldAttributes.Entity)!=0; }
     }
 
     /// <summary>
     /// Gets a value indicating whether this property is structure field.
     /// </summary>
-    public bool IsStructure {
+    public bool IsStructure
+    {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.Structure) != 0; }
+      get { return (Attributes & FieldAttributes.Structure)!=0; }
     }
 
     /// <summary>
     /// Gets a value indicating whether this property is reference to EntitySet.
     /// </summary>
-    public bool IsEntitySet {
+    public bool IsEntitySet
+    {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.EntitySet) != 0; }
+      get { return (Attributes & FieldAttributes.EntitySet)!=0; }
     }
 
     /// <summary>
@@ -278,9 +301,10 @@ namespace Xtensive.Orm.Model
     public bool IsNullable
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.Nullable) != 0; }
+      get { return (Attributes & FieldAttributes.Nullable)!=0; }
       [DebuggerStepThrough]
-      private set {
+      private set
+      {
         this.EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.Nullable : Attributes & ~FieldAttributes.Nullable;
       }
@@ -292,9 +316,10 @@ namespace Xtensive.Orm.Model
     public bool IsLazyLoad
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.LazyLoad) != 0; }
+      get { return (Attributes & FieldAttributes.LazyLoad)!=0; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.LazyLoad : Attributes & ~FieldAttributes.LazyLoad;
       }
@@ -319,15 +344,17 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets the type of the value of this instance.
     /// </summary>
-    public Type ValueType {
+    public Type ValueType
+    {
       [DebuggerStepThrough]
       get { return valueType; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         valueType = value;
         if (valueType.IsGenericType) {
-          if (valueType.GetGenericTypeDefinition() == typeof (Nullable<>))
+          if (valueType.GetGenericTypeDefinition()==typeof (Nullable<>))
             IsEnum = Nullable.GetUnderlyingType(valueType).IsEnum;
         }
         else
@@ -338,11 +365,13 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets the item type for field that describes the EntitySet.
     /// </summary>
-    public Type ItemType {
+    public Type ItemType
+    {
       [DebuggerStepThrough]
       get { return itemType; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         itemType = value;
       }
@@ -351,11 +380,13 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets the maximal length of the field.
     /// </summary>
-    public int? Length {
+    public int? Length
+    {
       [DebuggerStepThrough]
       get { return length; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         length = value;
       }
@@ -364,11 +395,13 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets the scale of the field.
     /// </summary>
-    public int? Scale {
+    public int? Scale
+    {
       [DebuggerStepThrough]
       get { return scale; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         scale = value;
       }
@@ -377,11 +410,13 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets the precision of the field.
     /// </summary>
-    public int? Precision {
+    public int? Precision
+    {
       [DebuggerStepThrough]
       get { return precision; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         precision = value;
       }
@@ -391,11 +426,13 @@ namespace Xtensive.Orm.Model
     /// Gets or sets the default value for this field.
     /// <see langword="null" /> indicates default value is provided automatically.
     /// </summary>
-    public object DefaultValue {
+    public object DefaultValue
+    {
       [DebuggerStepThrough]
       get { return defaultValue; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         defaultValue = value;
       }
@@ -414,11 +451,13 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the underlying system property.
     /// </summary>
-    public PropertyInfo UnderlyingProperty {
+    public PropertyInfo UnderlyingProperty
+    {
       [DebuggerStepThrough]
       get { return underlyingProperty; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         underlyingProperty = value;
       }
@@ -435,11 +474,13 @@ namespace Xtensive.Orm.Model
     /// <remarks>
     /// For not nested fields return value is <see langword="null"/>.
     /// </remarks>
-    public FieldInfo Parent {
+    public FieldInfo Parent
+    {
       [DebuggerStepThrough]
       get { return parent; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         ArgumentValidator.EnsureArgumentNotNull(value, "Parent");
         parent = value;
@@ -450,7 +491,7 @@ namespace Xtensive.Orm.Model
         IsPrimaryKey = value.IsPrimaryKey;
         if (value.IsEntity)
           IsNullable = value.IsNullable;
-//        associations = value.associations;
+        //        associations = value.associations;
         itemType = value.itemType;
       }
     }
@@ -458,11 +499,13 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the type that was used to obtain this instance.
     /// </summary>
-    public TypeInfo ReflectedType {
+    public TypeInfo ReflectedType
+    {
       [DebuggerStepThrough]
       get { return reflectedType; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         reflectedType = value;
       }
@@ -471,11 +514,13 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the type where the field is declared.
     /// </summary>
-    public TypeInfo DeclaringType {
+    public TypeInfo DeclaringType
+    {
       [DebuggerStepThrough]
       get { return declaringType; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         declaringType = value;
       }
@@ -489,11 +534,13 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets the column associated with this instance.
     /// </summary>
-    public ColumnInfo Column {
+    public ColumnInfo Column
+    {
       [DebuggerStepThrough]
       get { return column; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         column = value;
       }
@@ -505,10 +552,10 @@ namespace Xtensive.Orm.Model
     /// <param name="targetType"></param>
     public AssociationInfo GetAssociation(TypeInfo targetType)
     {
-      if (associations.Count == 0)
+      if (associations.Count==0)
         return null;
 
-      if (associations.Count == 1)
+      if (associations.Count==1)
         return associations[0];
 
       var ordered = IsLocked
@@ -527,11 +574,13 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets or sets field's adapter index.
     /// </summary>
-    public int AdapterIndex {
+    public int AdapterIndex
+    {
       [DebuggerStepThrough]
       get { return adapterIndex; }
       [DebuggerStepThrough]
-      set {
+      set
+      {
         this.EnsureNotLocked();
         adapterIndex = value;
       }
@@ -550,6 +599,21 @@ namespace Xtensive.Orm.Model
         validators = value;
       }
     }
+
+    /// <summary>
+    /// Gets value indicating if this field
+    /// has associated validators.
+    /// </summary>
+    public bool HasValidators
+    {
+      get { return Validators.Count > 0; }
+    }
+
+    /// <summary>
+    /// Gets value indicating if this field
+    /// has associated immediate validators.
+    /// </summary>
+    public bool HasImmediateValidators { get; private set; }
 
     /// <summary>
     /// Extracts the field value from the specified <see cref="Tuple"/>.
@@ -589,11 +653,14 @@ namespace Xtensive.Orm.Model
     public override void UpdateState()
     {
       base.UpdateState();
+
       Fields.UpdateState();
-      if (column!=null) 
+      if (column!=null)
         column.UpdateState();
       columns = new ColumnInfoCollection(this, "Columns");
       GetColumns(columns);
+
+      HasImmediateValidators = validators.Count > 0 && validators.Any(v => v.IsImmediate);
 
       CreateMappingInfo();
     }

@@ -56,12 +56,9 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transactionScope = session.OpenTransaction()) {
           Company company;
           Contact contact;
-
-          using (var region = session.DisableValidation()) {
-            company = new Company();
-            contact = new Contact {Company = company};
-            region.Complete();
-          }
+          company = new Company();
+          contact = new Contact {Company = company};
+          session.Validate();
 
           Assert.AreEqual(1, company.Contacts.Count);
           Assert.AreEqual(company.Contacts.First(), contact);

@@ -539,11 +539,12 @@ namespace Xtensive.Orm
 
       var subscriptionInfo = GetSubscription(EntityEventBroker.InitializePersistentEventKey);
       if (subscriptionInfo.Second!=null)
-        ((Action<Key>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First);
+        ((Action<Key>) subscriptionInfo.Second).Invoke(subscriptionInfo.First);
+
       OnInitialize();
-      if (!materialize && CanBeValidated && Session.Domain.Configuration.AutoValidation)
-        this.Validate();
+
+      if (!materialize && CanBeValidated)
+        Session.ValidationContext.EnqueueValidation(this);
     }
 
     internal override sealed void SystemInitializationError(Exception error)
@@ -620,7 +621,9 @@ namespace Xtensive.Orm
     internal override sealed void SystemSetValueAttempt(FieldInfo field, object value)
     {
       EnsureNotRemoved();
+
       OrmLog.Debug(Strings.LogSessionXSettingValueKeyYFieldZ, Session, Key, field);
+
       if (field.IsPrimaryKey)
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
 
@@ -689,8 +692,8 @@ namespace Xtensive.Orm
         if (Session.IsSystemLogicOnly)
           return;
 
-        if (Session.Domain.Configuration.AutoValidation)
-          this.Validate();
+        if (CanBeValidated)
+          Session.ValidationContext.EnqueueValidation(this);
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
         if (subscriptionInfo.Second!=null)

@@ -46,8 +46,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void SuccessTest()
     {
       using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction())
-      using (session.DisableValidation()) {
+      using (var tx = session.OpenTransaction()) {
         var entity = new GenericEntity<long>();
         entity.Name = entity.Id.ToString();
         entity.Value = 5;
@@ -55,12 +54,11 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    [Test, ExpectedException(typeof (Core.AggregateException))]
+    [Test, ExpectedException(typeof (ValidationFailedException))]
     public void Failure1Test()
     {
       using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction())
-      using (session.DisableValidation()) {
+      using (var tx = session.OpenTransaction()) {
         var entity = new GenericEntity<long>();
         entity.Name = entity.Id.ToString();
         entity.Value = -1;
@@ -69,12 +67,11 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    [Test, ExpectedException(typeof (Core.AggregateException))]
+    [Test, ExpectedException(typeof (ValidationFailedException))]
     public void Failure2Test()
     {
       using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction())
-      using (session.DisableValidation()) {
+      using (var tx = session.OpenTransaction()) {
         var entity = new GenericEntity<long>();
         session.Validate();
         tx.Complete();
