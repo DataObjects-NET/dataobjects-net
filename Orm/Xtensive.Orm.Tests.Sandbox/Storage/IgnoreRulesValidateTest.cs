@@ -247,7 +247,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void PerformUpdateTest()
     {
-      SetNoMulti();
+      ClearMultidatabaseAndMultischemaFlags();
       BuildDomainAndFillData();
       UpgradeDomain(DomainUpgradeMode.Perform);
       BuildDomainInValidateMode();
@@ -256,7 +256,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void PerformSafelyUpdateTest()
     {
-      SetNoMulti();
+      ClearMultidatabaseAndMultischemaFlags();
       BuildDomainAndFillData();
       UpgradeDomain(DomainUpgradeMode.PerformSafely);
       BuildDomainInValidateMode();
@@ -265,7 +265,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void IgnoreSimpleColumnTest()
     {
-      SetNoMulti();
+      ClearMultidatabaseAndMultischemaFlags();
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
@@ -279,7 +279,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void IgnoreReferencedColumnTest()
     {
-      SetNoMulti();
+      ClearMultidatabaseAndMultischemaFlags();
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
@@ -294,7 +294,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void IgnoreSimpleTableTest()
     {
-      SetNoMulti();
+      ClearMultidatabaseAndMultischemaFlags();
       var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initDomain.Dispose();
 
@@ -312,7 +312,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void IgnoreReferencedTableTest()
     {
-      SetNoMulti();
+      ClearMultidatabaseAndMultischemaFlags();
       var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initDomain.Dispose();
 
@@ -331,7 +331,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void InsertIntoTableWithIgnoredColumnTest()
     {
-      SetNoMulti();
+      ClearMultidatabaseAndMultischemaFlags();
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
 
@@ -352,7 +352,7 @@ namespace Xtensive.Orm.Tests.Storage
     [ExpectedException(typeof(CheckConstraintViolationException))]
     public void InsertIntoTableWithNotNullableIgnoredColumnTest()
     {
-      SetNoMulti();
+      ClearMultidatabaseAndMultischemaFlags();
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
 
@@ -376,7 +376,7 @@ namespace Xtensive.Orm.Tests.Storage
     [ExpectedException(typeof(SchemaSynchronizationException))]
     public void DropTableWithIgnoredColumnTest()
     {
-      SetNoMulti();
+      ClearMultidatabaseAndMultischemaFlags();
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
@@ -391,7 +391,7 @@ namespace Xtensive.Orm.Tests.Storage
     [ExpectedException(typeof(SchemaSynchronizationException))]
     public void DropReferencedTableTest()
     {
-      SetNoMulti();
+      ClearMultidatabaseAndMultischemaFlags();
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
@@ -671,8 +671,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var performDomain = BuildDomain(mode, typeof(Model2.Customer), typeof(Model3.MyEntity1), ignoreRules))
       using (var session = performDomain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
+      using (var transaction = session.OpenTransaction()) {
         var currentCustomer = session.Query.All<Model2.Customer>().First(c => c.LastName == "Кулаков");
         var order = session.Query.All<Model2.Order>().First(o => o.Customer.LastName == currentCustomer.LastName);
         var newCustomer = new Model2.Customer { FirstName = "Fred", LastName = "Smith", Birthday = new DateTime(1998, 7, 9) };
@@ -701,8 +700,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var validateDomain = BuildDomain(DomainUpgradeMode.Validate, typeof(Model1.Customer), typeof(Model3.MyEntity1), ignoreRules))
       using (var session = validateDomain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
+      using (var transaction = session.OpenTransaction()) {
         var result = session.Query.All<Model1.Order>().First(o => o.Key == changedOrderKey);
         Assert.That(result.SomeIgnoredField, Is.EqualTo("Secret information for FBI :)"));
       }
@@ -729,13 +727,12 @@ namespace Xtensive.Orm.Tests.Storage
 
     private ConnectionInfo GetConnectionInfo()
     {
-      return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage);
+      return DomainConfigurationFactory.Create().ConnectionInfo;
     }
 
     private void ExecuteNonQuery(string commandText)
     {
-      using (var connection = sqlDriver.CreateConnection())
-      {
+      using (var connection = sqlDriver.CreateConnection()) {
         connection.Open();
         connection.CreateCommand(commandText).ExecuteNonQuery();
         connection.Close();
@@ -745,8 +742,7 @@ namespace Xtensive.Orm.Tests.Storage
     private object ExecuteQuery(string commandText, int returnedColumnIndex)
     {
       var result = new object();
-      using (var connection = sqlDriver.CreateConnection())
-      {
+      using (var connection = sqlDriver.CreateConnection()) {
         connection.Open();
         var reader = connection.CreateCommand(commandText).ExecuteReader();
         if (reader.Read())
@@ -770,11 +766,11 @@ namespace Xtensive.Orm.Tests.Storage
     private void CreateForeignKey(Catalog catalog, string schema, string table, string column, string referencedTable,
       string referencedColumn, string foreignKeyName, bool useDatabasePrefix = false)
     {
-      var fk = catalog.Schemas[schema].Tables[table].CreateForeignKey(foreignKeyName);
-      fk.Columns.Add(catalog.Schemas[schema].Tables[table].TableColumns[column]);
-      fk.ReferencedTable = catalog.Schemas[schema].Tables[referencedTable];
-      fk.ReferencedColumns.Add(catalog.Schemas[schema].Tables[referencedTable].TableColumns[referencedColumn]);
-      var alter = SqlDdl.Alter(catalog.Schemas[schema].Tables[table], SqlDdl.AddConstraint(fk));
+      var foreignKey = catalog.Schemas[schema].Tables[table].CreateForeignKey(foreignKeyName);
+      foreignKey.Columns.Add(catalog.Schemas[schema].Tables[table].TableColumns[column]);
+      foreignKey.ReferencedTable = catalog.Schemas[schema].Tables[referencedTable];
+      foreignKey.ReferencedColumns.Add(catalog.Schemas[schema].Tables[referencedTable].TableColumns[referencedColumn]);
+      var alter = SqlDdl.Alter(catalog.Schemas[schema].Tables[table], SqlDdl.AddConstraint(foreignKey));
       var sqlComplieConfig = new SqlCompilerConfiguration();
       sqlComplieConfig.DatabaseQualifiedObjects = useDatabasePrefix;
       string commandText = sqlDriver.Compile(alter, sqlComplieConfig).GetCommandText();
@@ -783,9 +779,9 @@ namespace Xtensive.Orm.Tests.Storage
 
     private void CreatePrimaryKey(Catalog catalog, string schema, string table, string column, string primaryKeyName, bool useDatabasePrefix = false)
     {
-      var pK = catalog.Schemas[schema].Tables[table].CreatePrimaryKey(primaryKeyName,
+      var primaryKey = catalog.Schemas[schema].Tables[table].CreatePrimaryKey(primaryKeyName,
         catalog.Schemas[schema].Tables[table].TableColumns[column]);
-      var alter = SqlDdl.Alter(catalog.Schemas[schema].Tables[table], SqlDdl.AddConstraint(pK));
+      var alter = SqlDdl.Alter(catalog.Schemas[schema].Tables[table], SqlDdl.AddConstraint(primaryKey));
       var sqlComplieConfig = new SqlCompilerConfiguration();
       sqlComplieConfig.DatabaseQualifiedObjects = useDatabasePrefix;
       string commandText = sqlDriver.Compile(alter, sqlComplieConfig).GetCommandText();
@@ -838,7 +834,7 @@ namespace Xtensive.Orm.Tests.Storage
       isMultischemaTest = true;
     }
 
-    private void SetNoMulti()
+    private void ClearMultidatabaseAndMultischemaFlags()
     {
       isMultidatabaseTest = false;
       isMultischemaTest = false;
