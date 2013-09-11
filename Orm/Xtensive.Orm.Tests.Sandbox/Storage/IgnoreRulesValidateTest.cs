@@ -404,6 +404,113 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
+    public void IgnoreColumnsByMaskValidateTest()
+    {
+      ClearMultidatabaseAndMultischemaFlags();
+      var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
+      initDomain.Dispose();
+      Catalog catalog = GetCatalog();
+      CreateColumn(catalog, "dbo", "MyEntity2", "IgnoreFirstColumn", SqlType.VarChar);
+      CreateColumn(catalog, "dbo", "MyEntity2", "IgnoreSecondColumn", SqlType.VarChar);
+      CreateColumn(catalog, "dbo", "MyEntity2", "IgnoreThirdColumn", SqlType.VarChar);
+      var ignoreRules = new IgnoreRuleCollection();
+      ignoreRules.IgnoreColumn("Ignore*");
+      var validateDomain = BuildDomain(DomainUpgradeMode.Validate, typeof (Model3.MyEntity1), ignoreRules);
+      validateDomain.Dispose();
+    }
+
+    [Test]
+    public void IgnoreTablesByMaskValidateTest()
+    {
+      ClearMultidatabaseAndMultischemaFlags();
+      var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
+      initDomain.Dispose();
+      Catalog catalog = GetCatalog();
+      var addedColumnsNames = new[] {"Id", "FirstColumn", "SecondColumn"};
+      var addedColumnsTypes = new[] {SqlType.Int64, SqlType.VarChar, SqlType.VarChar};
+      CreateTable(catalog, "dbo", "IgnoredFirstTable", addedColumnsNames, addedColumnsTypes);
+      CreatePrimaryKey(catalog, "dbo", "IgnoredFirstTable", "Id", "PK_IgnoredFirstTable_Id");
+      CreateTable(catalog, "dbo", "IgnoredSecondTable", addedColumnsNames, addedColumnsTypes);
+      CreatePrimaryKey(catalog, "dbo", "IgnoredSecondTable", "Id", "PK_IgnoredSecondTable_Id");
+      var ignoreRules = new IgnoreRuleCollection();
+      ignoreRules.IgnoreTable("Ignored*");
+      var validateDomain = BuildDomain(DomainUpgradeMode.Validate, typeof (Model3.MyEntity1), ignoreRules);
+      validateDomain.Dispose();
+    }
+
+    [Test]
+    public void IgnoreAllColumnsInTableByMaskValidateTest()
+    {
+      ClearMultidatabaseAndMultischemaFlags();
+      var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
+      initDomain.Dispose();
+      Catalog catalog = GetCatalog();
+      var addedColumnsNames = new[] {"Id", "FirstColumn", "SecondColumn"};
+      var addedColumnsTypes = new[] {SqlType.Int64, SqlType.VarChar, SqlType.VarChar};
+      CreateTable(catalog, "dbo", "IgnoredTable", addedColumnsNames, addedColumnsTypes);
+      CreatePrimaryKey(catalog, "dbo", "IgnoredTable", "Id", "PK_IgnoredTable_Id");
+      var ignoreRules = new IgnoreRuleCollection();
+      ignoreRules.IgnoreColumn("*").WhenTable("IgnoredTable");
+      var validateDomain = BuildDomain(DomainUpgradeMode.Validate, typeof (Model3.MyEntity1), ignoreRules);
+    }
+
+    [Test]
+    public void UpgradeDomainWithIgnoreRuleByMaskInPerformModeTest()
+    {
+      ClearMultidatabaseAndMultischemaFlags();
+      var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
+      initDomain.Dispose();
+      Catalog catalog = GetCatalog();
+      CreateColumn(catalog, "dbo", "MyEntity2", "IgnoredFirstColumn", SqlType.VarChar);
+      CreateColumn(catalog, "dbo", "MyEntity2", "IgnoredSecondColumn", SqlType.VarChar);
+      var ignoreRules = new IgnoreRuleCollection();
+      ignoreRules.IgnoreColumn("Ignored*").WhenTable("MyEntity2");
+      using (var domain = BuildDomain(DomainUpgradeMode.Perform, typeof (Model3.MyEntity1), ignoreRules))
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        new Model3.MyEntity1 {FirstColumn = "Some text"};
+        new Model3.MyEntity2 {FirstColumn = "Second some test"};
+        transaction.Complete();
+      }
+      SqlTableRef myEntity2 = SqlDml.TableRef(catalog.Schemas["dbo"].Tables["MyEntity2"]);
+      SqlSelect select = SqlDml.Select(myEntity2);
+      select.Limit = 1;
+      var compileConfiguration = new SqlCompilerConfiguration();
+      compileConfiguration.DatabaseQualifiedObjects = false;
+      var commandText = sqlDriver.Compile(select, compileConfiguration).GetCommandText();
+      Assert.That(ExecuteQuery(commandText, 2), Is.EqualTo(DBNull.Value));
+      Assert.That(ExecuteQuery(commandText, 3), Is.EqualTo(DBNull.Value));
+    }
+
+    [Test]
+    public void UpgradeDomainWithIgnoreRuleByMaskInPerformSafelyModeTest()
+    {
+      ClearMultidatabaseAndMultischemaFlags();
+      var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
+      initDomain.Dispose();
+      Catalog catalog = GetCatalog();
+      CreateColumn(catalog, "dbo", "MyEntity2", "IgnoredFirstColumn", SqlType.VarChar);
+      CreateColumn(catalog, "dbo", "MyEntity2", "IgnoredSecondColumn", SqlType.VarChar);
+      var ignoreRules = new IgnoreRuleCollection();
+      ignoreRules.IgnoreColumn("Ignored*");
+      using (var domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof (Model3.MyEntity1), ignoreRules))
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        new Model3.MyEntity1 { FirstColumn = "Some text" };
+        new Model3.MyEntity2 { FirstColumn = "Second some test" };
+        transaction.Complete();
+      }
+      SqlTableRef myEntity2 = SqlDml.TableRef(catalog.Schemas["dbo"].Tables["MyEntity2"]);
+      SqlSelect select = SqlDml.Select(myEntity2);
+      select.Limit = 1;
+      var compileConfiguration = new SqlCompilerConfiguration();
+      compileConfiguration.DatabaseQualifiedObjects = false;
+      var commandText = sqlDriver.Compile(select, compileConfiguration).GetCommandText();
+      Assert.That(ExecuteQuery(commandText, 2), Is.EqualTo(DBNull.Value));
+      Assert.That(ExecuteQuery(commandText, 3), Is.EqualTo(DBNull.Value));
+    }
+
+    [Test]
     public void MultischemaValidateTest()
     {
       SetMultischema();
