@@ -2052,11 +2052,29 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ignore rule can&apos;t be applied to database or schema only..
+        ///   Looks up a localized string similar to Ignore rule &apos;{0}&apos; contains invalid column name &apos;{1}&apos;..
         /// </summary>
-        internal static string ExIgnoreRuleCantBeAppliedToDatabaseOrSchemaOnly {
+        internal static string ExIgnoreRuleXContainsInvalidColumnNameY {
             get {
-                return ResourceManager.GetString("ExIgnoreRuleCantBeAppliedToDatabaseOrSchemaOnly", resourceCulture);
+                return ResourceManager.GetString("ExIgnoreRuleXContainsInvalidColumnNameY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore rule &apos;{0}&apos; contains invalid table name &apos;{1}&apos;..
+        /// </summary>
+        internal static string ExIgnoreRuleXContainsInvalidTableNameY {
+            get {
+                return ResourceManager.GetString("ExIgnoreRuleXContainsInvalidTableNameY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ignore rule &apos;{0}&apos; must be applied to column or table..
+        /// </summary>
+        internal static string ExIgnoreRuleXMustBeAppliedToColumnOrTable {
+            get {
+                return ResourceManager.GetString("ExIgnoreRuleXMustBeAppliedToColumnOrTable", resourceCulture);
             }
         }
         
@@ -4215,7 +4233,7 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Table &apos;{0}&apos; can&apos;t be removed due to the foreign key &apos;{1}&apos; of a ignored table or column.
+        ///   Looks up a localized string similar to Table &apos;{0}&apos; can&apos;t be removed due to the foreign key &apos;{1}&apos; of a ignored table or column..
         /// </summary>
         internal static string ExTableXCantBeRemovedDueToForeignKeyYOfIgnoredTableOrColumn {
             get {
@@ -4224,7 +4242,7 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Table &apos;{0}&apos; can&apos;t be removed due to the ignored column &apos;{1}&apos;.
+        ///   Looks up a localized string similar to Table &apos;{0}&apos; can&apos;t be removed due to the ignored column &apos;{1}&apos;..
         /// </summary>
         internal static string ExTableXCantBeRemovedDueToTheIgnoredColumnY {
             get {
