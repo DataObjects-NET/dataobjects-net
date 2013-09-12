@@ -175,7 +175,7 @@ namespace Xtensive.Orm
       try {
         if (inner!=null)
           throw new InvalidOperationException(Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
-        ValidationContext.ValidateAll(ValidationReason.Commit);
+        ValidationContext.Validate(ValidationReason.Commit);
         Session.CommitTransaction(this);
       }
       catch {

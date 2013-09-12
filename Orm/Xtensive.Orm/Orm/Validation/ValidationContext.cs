@@ -35,15 +35,7 @@ namespace Xtensive.Orm.Validation
         };
     }
 
-    public EntityErrorInfo ValidateAndGetErrors(Entity target)
-    {
-      if (!isEnabled)
-        return null;
-
-      return ValidateEntity(target);
-    }
-
-    public void ValidateAll(ValidationReason reason)
+    public void Validate(ValidationReason reason)
     {
       if (!isEnabled)
         return;
@@ -55,7 +47,15 @@ namespace Xtensive.Orm.Validation
         };
     }
 
-    public IList<EntityErrorInfo> ValidateAllAndGetErrors()
+    public EntityErrorInfo ValidateAndGetErrors(Entity target)
+    {
+      if (!isEnabled)
+        return null;
+
+      return ValidateEntity(target);
+    }
+
+    public IList<EntityErrorInfo> ValidateAndGetErrors()
     {
       if (!isEnabled)
         return new List<EntityErrorInfo>();

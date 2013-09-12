@@ -19,7 +19,7 @@ namespace Xtensive.Orm
     /// </summary>
     public void Validate()
     {
-      ValidationContext.ValidateAll(ValidationReason.UserRequest);
+      ValidationContext.Validate(ValidationReason.UserRequest);
     }
 
     /// <summary>
@@ -29,7 +29,7 @@ namespace Xtensive.Orm
     /// <returns>List exceptions occured during validation.</returns>
     public IList<EntityErrorInfo> ValidateAndGetErrors()
     {
-      return ValidationContext.ValidateAllAndGetErrors();
+      return ValidationContext.ValidateAndGetErrors();
     }
 
     /// <summary>
