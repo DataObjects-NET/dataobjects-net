@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Validation
 {
@@ -19,7 +20,12 @@ namespace Xtensive.Orm.Validation
     public IList<EntityErrorInfo> ValidationErrors
     {
       get { return validationErrors; }
-      set { validationErrors = value; }
+      set
+      {
+        if (validationErrors!=null)
+          throw Exceptions.AlreadyInitialized("ValidationErrors");
+        validationErrors = value;
+      }
     }
 
     /// <summary>

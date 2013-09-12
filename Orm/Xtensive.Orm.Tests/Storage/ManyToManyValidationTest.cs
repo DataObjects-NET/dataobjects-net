@@ -72,7 +72,6 @@ namespace Xtensive.Orm.Tests.Storage
       protected override void OnValidate()
       {
         ValidationCount++;
-        Owner.Validate();
       }
 
       protected EntitySetValidatedByOwner(Entity owner, FieldInfo field)

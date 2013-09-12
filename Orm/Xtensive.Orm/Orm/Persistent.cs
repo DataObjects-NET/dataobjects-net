@@ -498,29 +498,6 @@ namespace Xtensive.Orm
 
     #endregion
 
-    #region Validation
-
-    public void Validate()
-    {
-    }
-
-    public IEnumerable<ValidationResult> ValidateAndGetErrors()
-    {
-      throw new NotImplementedException();
-    }
-
-    public IEnumerable<ValidationResult> ValidateAndGetErrors(string field)
-    {
-      return ValidateAndGetErrors(TypeInfo.Fields[field]);
-    }
-
-    public IEnumerable<ValidationResult> ValidateAndGetErrors(FieldInfo field)
-    {
-      throw new NotImplementedException();
-    }
-
-    #endregion
-
     #region User-level event-like members
 
     /// <summary>
@@ -712,18 +689,26 @@ namespace Xtensive.Orm
     #region IDataErrorInfo members
 
     /// <inheritdoc/>
-    string IDataErrorInfo.this[string columnName] {
-      get {
-        var error = ValidateAndGetErrors(columnName).FirstOrDefault();
-        return error==null ? string.Empty : error.ErrorMessage;
+    string IDataErrorInfo.this[string columnName]
+    {
+      get
+      {
+        if (!CanBeValidated)
+          return string.Empty;
+        var result = GetValidationResult(columnName);
+        return result!=null ? result.ErrorMessage : string.Empty;
       }
     }
 
     /// <inheritdoc/>
-    string IDataErrorInfo.Error {
-      get {
-        var error = ValidateAndGetErrors().FirstOrDefault();
-        return error==null ? string.Empty : error.ErrorMessage;
+    string IDataErrorInfo.Error
+    {
+      get
+      {
+        if (!CanBeValidated)
+          return string.Empty;
+        var result = GetValidationResult();
+        return result!=null ? result.ErrorMessage : string.Empty;
       }
     }
 
@@ -732,6 +717,10 @@ namespace Xtensive.Orm
     #region Private / Internal methods
 
     internal abstract void EnsureIsFetched(FieldInfo field);
+
+    internal abstract ValidationResult GetValidationResult();
+
+    internal abstract ValidationResult GetValidationResult(string fieldName);
 
     internal IFieldValueAdapter GetFieldValueAdapter(FieldInfo field, Func<Persistent, FieldInfo, IFieldValueAdapter> ctor)
     {

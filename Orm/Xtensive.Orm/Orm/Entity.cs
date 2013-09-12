@@ -389,15 +389,34 @@ namespace Xtensive.Orm
       return true;
     }
 
+    /// <summary>
+    /// Performs immediate validation of this instance.
+    /// </summary>
+    public void Validate()
+    {
+      if (CanBeValidated)
+        Session.ValidationContext.Validate(this);
+    }
+
     #endregion
 
-    #region Private \ internal methods
+    #region Private / internal methods
 
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
     internal void EnsureNotRemoved()
     {
       if (IsRemoved)
         throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+    }
+
+    internal override sealed ValidationResult GetValidationResult()
+    {
+      return Session.ValidationContext.ValidateOnceAndGetErrors(this).FirstOrDefault(r => r.Field==null);
+    }
+
+    internal override sealed ValidationResult GetValidationResult(string fieldName)
+    {
+      return Session.ValidationContext.ValidateOnceAndGetErrors(this).FirstOrDefault(f => f.Field!=null && f.Field.Name==fieldName);
     }
 
     internal override sealed void EnsureIsFetched(FieldInfo field)
@@ -544,7 +563,7 @@ namespace Xtensive.Orm
       OnInitialize();
 
       if (!materialize && CanBeValidated)
-        Session.ValidationContext.EnqueueValidation(this);
+        Session.ValidationContext.RegisterForValidation(this);
     }
 
     internal override sealed void SystemInitializationError(Exception error)
@@ -640,7 +659,7 @@ namespace Xtensive.Orm
         if (subscriptionInfo.Second != null)
           ((Action<Key, FieldInfo, object>)subscriptionInfo.Second).Invoke(subscriptionInfo.First, field, value);
         OnSettingFieldValueAttempt(field, value);
-        Session.ValidationContext.ValidateImmediate(this, field, value);
+        Session.ValidationContext.ValidateSetAttempt(this, field, value);
       }
     }
 
@@ -694,7 +713,7 @@ namespace Xtensive.Orm
           return;
 
         if (CanBeValidated)
-          Session.ValidationContext.EnqueueValidation(this);
+          Session.ValidationContext.RegisterForValidation(this);
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
         if (subscriptionInfo.Second!=null)

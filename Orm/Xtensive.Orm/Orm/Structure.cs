@@ -7,6 +7,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.Serialization;
 using Xtensive.Comparison;
 using Xtensive.Core;
@@ -162,7 +163,7 @@ namespace Xtensive.Orm
           .Invoke(subscriptionInfo.First, Field);
       OnInitialize();
       if (!materialize && CanBeValidated)
-        Session.ValidationContext.EnqueueValidation(Entity);
+        Session.ValidationContext.RegisterForValidation(Entity);
     }
 
     internal override sealed void SystemInitializationError(Exception error)
@@ -262,7 +263,7 @@ namespace Xtensive.Orm
       if (!Session.IsSystemLogicOnly) {
         using (Session.Operations.EnableSystemOperationRegistration()) {
           if (CanBeValidated)
-            Session.ValidationContext.EnqueueValidation(Entity);
+            Session.ValidationContext.RegisterForValidation(Entity);
           var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
           if (subscriptionInfo.Second!=null)
             ((Action<Key, FieldInfo, FieldInfo, object, object>) subscriptionInfo.Second)
@@ -364,6 +365,16 @@ namespace Xtensive.Orm
     {
       if (Owner!=null)
         Owner.EnsureIsFetched(field);
+    }
+
+    internal override sealed ValidationResult GetValidationResult()
+    {
+      return Session.ValidationContext.ValidateOnceAndGetErrors(Entity).FirstOrDefault(r => r.Field.Equals(Field));
+    }
+
+    internal override sealed ValidationResult GetValidationResult(string fieldName)
+    {
+      return Session.ValidationContext.ValidateOnceAndGetErrors(Entity).FirstOrDefault(f => f.Field!=null && f.Field.Name==fieldName);
     }
 
     private static Key GetOwnerEntityKey(Persistent owner)

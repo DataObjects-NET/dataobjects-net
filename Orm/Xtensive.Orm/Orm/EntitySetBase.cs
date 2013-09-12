@@ -190,7 +190,7 @@ namespace Xtensive.Orm
           return;
 
         if (CanBeValidated)
-          Session.ValidationContext.EnqueueValidation(Owner);
+          Session.ValidationContext.RegisterForValidation(Owner);
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.AddEntitySetItemEventKey);
         if (subscriptionInfo.Second!=null)
@@ -235,7 +235,7 @@ namespace Xtensive.Orm
           return;
 
         if (CanBeValidated)
-          Session.ValidationContext.EnqueueValidation(Owner);
+          Session.ValidationContext.RegisterForValidation(Owner);
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntitySetItemEventKey);
         if (subscriptionInfo.Second!=null)
@@ -283,7 +283,7 @@ namespace Xtensive.Orm
           return;
 
         if (CanBeValidated)
-          Session.ValidationContext.EnqueueValidation(Owner);
+          Session.ValidationContext.RegisterForValidation(Owner);
 
         using (Session.Operations.EnableSystemOperationRegistration()) {
           var subscriptionInfo = GetSubscription(EntityEventBroker.ClearEntitySetEventKey);

@@ -28,6 +28,14 @@ namespace Xtensive.Orm.Tests.Storage.DataErrorInfoTestModel
     [Field]
     [RangeConstraint(Min = 1)]
     public int Age { get; set; }
+
+    public bool IsValid { get; set; }
+
+    protected override void OnValidate()
+    {
+      if (!IsValid)
+        throw new InvalidOperationException("Person is invalid.");
+    }
   }
 }
 
@@ -50,17 +58,21 @@ namespace Xtensive.Orm.Tests.Storage
           var person = new Person();
           var personErrorInfo = ((IDataErrorInfo) person);
 
-          Assert.AreEqual("Name is empty.", personErrorInfo["Name"]);
-          Assert.AreEqual("Age is negative.", personErrorInfo["Age"]);
+          Assert.AreEqual("Person is invalid.", personErrorInfo.Error);
+          Assert.AreEqual("Value should not be null.", personErrorInfo["Name"]);
+          Assert.AreEqual("Value should not be less than 1.", personErrorInfo["Age"]);
 
           person.Name = "Alex";
           person.Age = 26;
-
+          person.IsValid = true;
+          session.ValidateAndGetErrors();
+          Assert.AreEqual(string.Empty, personErrorInfo.Error);
           Assert.AreEqual(string.Empty, personErrorInfo["Name"]);
           Assert.AreEqual(string.Empty, personErrorInfo["Age"]);
 
           person.Age = -1;
-          Assert.AreEqual("Age is negative.", personErrorInfo["Age"]);
+          session.ValidateAndGetErrors();
+          Assert.AreEqual("Value should not be less than 1.", personErrorInfo["Age"]);
 
           AssertEx.Throws<ValidationFailedException>(session.Validate);
         }

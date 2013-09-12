@@ -22,17 +22,19 @@ namespace Xtensive.Orm.Validation
     /// <summary>
     /// Gets or sets validation errors.
     /// </summary>
-    public ICollection<ValidationResult> Errors { get; set; }
+    public IList<ValidationResult> Errors { get; private set; }
 
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
     /// <param name="target">Validated entity.</param>
-    public EntityErrorInfo(Entity target)
+    public EntityErrorInfo(Entity target, IList<ValidationResult> errors)
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
+      ArgumentValidator.EnsureArgumentNotNull(errors, "errors");
+
       Target = target;
-      Errors = new List<ValidationResult>();
+      Errors = errors;
     }
   }
 }

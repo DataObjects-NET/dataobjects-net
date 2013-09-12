@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.09.11
 
-namespace Xtensive.Orm.Internals
+namespace Xtensive.Orm.Validation
 {
   internal enum ValidationReason
   {

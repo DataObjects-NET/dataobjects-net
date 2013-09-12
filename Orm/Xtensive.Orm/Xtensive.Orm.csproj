@@ -55,7 +55,7 @@
     <Compile Include="Orm\Aspects\TransactionalBehavior.cs" />
     <Compile Include="Orm\Attributes\CompilerAttribute.cs" />
     <Compile Include="Orm\Attributes\CompilerContainerAttribute.cs" />
-    <Compile Include="Orm\Internals\ValidationReason.cs" />
+    <Compile Include="Orm\Validation\Internals\ValidationReason.cs" />
     <Compile Include="Orm\Validation\EntityErrorInfo.cs" />
     <Compile Include="Orm\Validation\EntitySetFieldValidator.cs" />
     <Compile Include="Orm\Validation\EntityValidator.cs" />
@@ -63,6 +63,8 @@
     <Compile Include="Orm\Validation\Interfaces\IObjectValidator.cs" />
     <Compile Include="Orm\Validation\Interfaces\IPropertyValidator.cs" />
     <Compile Include="Orm\Validation\Interfaces\IValidator.cs" />
+    <Compile Include="Orm\Validation\Internals\RealValidationContext.cs" />
+    <Compile Include="Orm\Validation\Internals\VoidValidationContext.cs" />
     <Compile Include="Orm\Validation\ObjectValidator.cs" />
     <Compile Include="Orm\Validation\PropertyValidator.cs" />
     <Compile Include="Orm\Validation\StructureFieldValidator.cs" />
@@ -405,7 +407,7 @@
     <Compile Include="Orm\Validation\Constraints\PastConstraint.cs" />
     <Compile Include="Orm\Validation\Constraints\RangeConstraint.cs" />
     <Compile Include="Orm\Validation\Constraints\RegexConstraint.cs" />
-    <Compile Include="Orm\Validation\ValidationContext.cs" />
+    <Compile Include="Orm\Validation\Internals\ValidationContext.cs" />
     <Compile Include="Orm\Validation\ValidationMode.cs" />
     <Compile Include="Orm\Linq\Expressions\Visitors\EnumRewriter.cs" />
     <Compile Include="Orm\Operations\EntityInitializeOperation.cs" />
