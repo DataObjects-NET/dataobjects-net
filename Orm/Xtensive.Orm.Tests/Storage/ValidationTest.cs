@@ -237,15 +237,17 @@ namespace Xtensive.Orm.Tests.Storage.Validation
         }
         using (session.OpenTransaction()) {
           // Created, but not modified invalid object.
-          AssertEx.Throws<ValidationFailedException>(() => new Mouse());
+          AssertEx.Throws<ValidationFailedException>(() => {
+            new Mouse();
+            session.Validate();
+          });
         }
         using (session.OpenTransaction()) {
           // Invalid modification of existing object.
           AssertEx.Throws<ValidationFailedException>(() => {
-            Mouse m;
-            m = new Mouse {ButtonCount = 1, ScrollingCount = 1, Led = new Led {Brightness = 1, Precision = 1}};
-            session.Validate();
+            var m = new Mouse {ButtonCount = 1, ScrollingCount = 1, Led = new Led {Brightness = 1, Precision = 1}};
             m.ScrollingCount = 2;
+            session.Validate();
           });
         }
         using (session.OpenTransaction()) {
