@@ -28,7 +28,6 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string KeyGeneratorCacheSizeElementName = "generatorCacheSize";
     private const string QueryCacheSizeElementName = "queryCacheSize";
     private const string RecordSetMappingCacheSizeElementName = "recordSetMappingCacheSizeSize";
-    private const string AutoValidationElementName = "autoValidation";
     private const string DefaultSchemaElementName = "defaultSchema";
     private const string DefaultDatabaseElementName = "defaultDatabase";
     private const string SessionsElementName = "sessions";
@@ -151,16 +150,6 @@ namespace Xtensive.Orm.Configuration.Elements
     {
       get { return (int) this[RecordSetMappingCacheSizeElementName]; }
       set { this[RecordSetMappingCacheSizeElementName] = value; }
-    }
-
-    /// <summary>
-    /// <see cref="DomainConfiguration.AutoValidation" copy="true"/>
-    /// </summary>
-    [ConfigurationProperty(AutoValidationElementName, DefaultValue = DomainConfiguration.DefaultAutoValidation)]
-    public bool AutoValidation
-    {
-      get { return (bool) this[AutoValidationElementName]; }
-      set { this[AutoValidationElementName] = value; }
     }
 
     /// <summary>
@@ -352,7 +341,6 @@ namespace Xtensive.Orm.Configuration.Elements
         KeyGeneratorCacheSize = KeyGeneratorCacheSize,
         QueryCacheSize = QueryCacheSize,
         RecordSetMappingCacheSize = RecordSetMappingCacheSize,
-        AutoValidation = AutoValidation,
         DefaultSchema = DefaultSchema,
         DefaultDatabase = DefaultDatabase,
         UpgradeMode = (DomainUpgradeMode) Enum.Parse(typeof (DomainUpgradeMode), UpgradeMode, true),

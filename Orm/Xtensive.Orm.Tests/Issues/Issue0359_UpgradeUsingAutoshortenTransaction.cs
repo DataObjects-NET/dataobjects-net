@@ -32,7 +32,6 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = DomainConfigurationFactory.Create();
-      config.AutoValidation = true;
       config.ForeignKeyMode = ForeignKeyMode.All;
       config.KeyGeneratorCacheSize = 32;
 

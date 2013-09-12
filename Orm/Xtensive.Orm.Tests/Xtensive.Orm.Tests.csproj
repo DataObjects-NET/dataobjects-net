@@ -116,7 +116,6 @@
     <Compile Include="Issues\Issue0717_VersionCheckBug.cs" />
     <Compile Include="Issues\Issue0725_DisconnectedStateDisconnectBug.cs" />
     <Compile Include="Issues\Issue0733_UseINNER_JOIN.cs" />
-    <Compile Include="Issues\Issue0736_AutoValidationCloning.cs" />
     <Compile Include="Issues\Issue0737_PersistentFieldState.cs" />
     <Compile Include="Issues\Issue0751_EntitySetEquals.cs" />
     <Compile Include="Issues\Issue0754_CopyFieldHint_MoveFieldHint\Issue0754_CopyFieldHint_MoveFieldHint.cs" />
