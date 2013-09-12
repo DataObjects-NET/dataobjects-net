@@ -682,8 +682,8 @@
   <data name="ExSessionIsNotOpen" xml:space="preserve">
     <value>Session is not open. Use Session.Open(...) to open it.</value>
   </data>
-  <data name="ExAssemblyXIsNotProcessedByWeaver" xml:space="preserve">
-    <value>Assembly '{0}' is not processed by weaver. See section 2 of Manual for details.</value>
+  <data name="ExUnableToFindFactoryMethodForTypeXMakeSureAssemblyYProcessedByWeaver" xml:space="preserve">
+    <value>Unable to find factory method for type '{0}'. Make sure assembly '{0}' is processed by weaver. See section 2 of Manual for details.</value>
   </data>
   <data name="ExActiveSerializationContextIsNotFound" xml:space="preserve">
     <value>Active serialization context is not found.</value>

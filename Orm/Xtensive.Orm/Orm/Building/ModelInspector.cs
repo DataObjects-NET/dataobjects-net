@@ -238,7 +238,6 @@ namespace Xtensive.Orm.Building
       }
 
       if (typeDef.IsEntity) {
-        Validator.EnsureUnderlyingTypeIsAspected(typeDef);
         // Should we remove it or not?
         var hierarchyDef = context.ModelDef.FindHierarchy(typeDef);
         if (hierarchyDef == null) {

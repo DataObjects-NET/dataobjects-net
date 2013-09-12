@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Reflection;
@@ -17,8 +16,6 @@ namespace Xtensive.Orm.Building
 {
   internal static class Validator
   {
-    private static readonly Assembly OrmAssembly = typeof (Validator).Assembly;
-
     private static readonly HashSet<Type> ValidFieldTypes = new HashSet<Type>();
     private static readonly Regex ColumnNamingRule;
     private static readonly Regex TypeNamingRule;
@@ -184,19 +181,6 @@ namespace Xtensive.Orm.Building
 
     internal static void ValidateType(TypeDef typeDef, HierarchyDef hierarchyDef)
     {
-    }
-
-    public static void EnsureUnderlyingTypeIsAspected(TypeDef type)
-    {
-      var underlyingType = type.UnderlyingType;
-      if (underlyingType.Assembly==OrmAssembly)
-        return;
-      var constructor = underlyingType.GetConstructor(
-        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, new[] {typeof (Session), typeof (EntityState)});
-      if (constructor!=null)
-        return;
-      var assemblyName = underlyingType.Assembly.GetName().FullName;
-      throw new DomainBuilderException(string.Format(Strings.ExAssemblyXIsNotProcessedByWeaver, assemblyName));
     }
 
     public static void EnsureTypeIsPersistent(Type type)

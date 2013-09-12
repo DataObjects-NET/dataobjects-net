@@ -62,7 +62,9 @@ namespace Xtensive.Orm.Internals
       var parameters = new[] {typeof (TArg1), typeof (TArg2)};
       var method = type.GetMethod(methodName, BindingFlags.Static | BindingFlags.NonPublic, null, parameters, null);
       if (method==null)
-        throw new InvalidOperationException(string.Format(Strings.ExAssemblyXIsNotProcessedByWeaver, type.Assembly));
+        throw new InvalidOperationException(string.Format(
+          Strings.ExUnableToFindFactoryMethodForTypeXMakeSureAssemblyYProcessedByWeaver,
+          type.FullName, type.Assembly));
       return (Func<TArg1, TArg2, TResult>) Delegate.CreateDelegate(typeof (Func<TArg1, TArg2, TResult>), method);
     }
   }
