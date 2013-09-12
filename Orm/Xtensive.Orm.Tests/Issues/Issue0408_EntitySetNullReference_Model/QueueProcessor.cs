@@ -24,12 +24,14 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
       using (var session = domain.OpenSession())
       {
         QueueProcessor queueProcessor = null;
+        IList<object> result;
         using (TransactionScope transactionScope = session.OpenTransaction())
         {
           queueProcessor = GetQueueProcessorByKey(key);
           transactionScope.Complete();
+          result = queueProcessor.GetWork();
         }
-        return queueProcessor.GetWork();
+        return result;
       }
     }
 
