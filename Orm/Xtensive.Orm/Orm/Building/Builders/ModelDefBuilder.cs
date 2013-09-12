@@ -12,6 +12,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Internals;
+using Xtensive.Orm.Validation;
 using Xtensive.Reflection;
 using Xtensive.Sorting;
 
@@ -88,6 +89,10 @@ namespace Xtensive.Orm.Building.Builders
         modelDef.Types.Add(typeDef);
 
         ProcessFullTextIndexes(typeDef);
+
+        var validators = type.GetCustomAttributes(false).OfType<IObjectValidator>();
+        foreach (var validator in validators)
+          typeDef.Validators.Add(validator);
 
         return typeDef;
       }
@@ -271,6 +276,10 @@ namespace Xtensive.Orm.Building.Builders
         var versionAttribute = propertyInfo.GetAttribute<VersionAttribute>(AttributeSearchOptions.InheritAll);
         if (versionAttribute!=null)
           attributeProcessor.Process(fieldDef, versionAttribute);
+        // Validators
+        var validators = propertyInfo.GetCustomAttributes(false).OfType<IPropertyValidator>();
+        foreach (var validator in validators)
+          fieldDef.Validators.Add(validator);
       }
 
       return fieldDef;

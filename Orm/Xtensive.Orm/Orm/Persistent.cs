@@ -5,29 +5,19 @@
 // Created:    2007.08.03
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Transactions;
-using Xtensive.Aspects;
 using Xtensive.Core;
-
-using Xtensive.IoC;
-using Xtensive.Orm.Validation;
-using Xtensive.Reflection;
-using Xtensive.Tuples;
-using Xtensive.Orm;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
 using Xtensive.Orm.PairIntegrity;
 using Xtensive.Orm.ReferentialIntegrity;
-
-using Xtensive.Orm.Services;
+using Xtensive.Orm.Validation;
+using Xtensive.Tuples;
 using Activator = Xtensive.Orm.Internals.Activator;
-using AggregateException = Xtensive.Core.AggregateException;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 using OperationType = Xtensive.Orm.PairIntegrity.OperationType;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -40,10 +30,7 @@ namespace Xtensive.Orm
   /// <seealso cref="Entity"/>
   /// <seealso cref="Structure"/>
   [SystemType]
-  [Initializable]
-  [PersistentAspect]
   public abstract class Persistent : SessionBound,
-    IValidationAware,
     INotifyPropertyChanged,
     IDataErrorInfo
   {
@@ -58,7 +45,6 @@ namespace Xtensive.Orm
 
       // public int Id;
       public TransactionScope TransactionScope;
-      public ICompletableScope InconsistentRegion;
       public ICompletableScope OperationScope;
       public CtorTransactionInfo Previous;
 
@@ -75,46 +61,20 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets <see cref="Xtensive.Orm.Model.TypeInfo"/> object describing structure of persistent object.
     /// </summary>
-    [Infrastructure]
     public abstract TypeInfo TypeInfo { get; }
 
     /// <summary>
     /// Gets the underlying tuple.
     /// </summary>
-    [Infrastructure]
     protected internal abstract Tuple Tuple { get; }
 
+    /// <summary>
+    /// Gets a value indicating whether validation can be performed for this entity.
+    /// </summary>
+    protected internal abstract bool CanBeValidated { get; }
+
     /// <inheritdoc/>
-    [Infrastructure]
     public abstract event PropertyChangedEventHandler PropertyChanged;
-
-    internal IFieldValueAdapter GetFieldValueAdapter (FieldInfo field, Func<Persistent, FieldInfo, IFieldValueAdapter> ctor)
-    {
-      if (field.ReflectedType.IsInterface)
-        field = TypeInfo.FieldMap[field];
-      // Building adapter container if necessary
-      if (fieldAdapters==null) {
-        int maxAdapterIndex = TypeInfo.Fields.Select(f => f.AdapterIndex).Max();
-        fieldAdapters = new IFieldValueAdapter[maxAdapterIndex + 1];
-      }
-
-      // Building adapter
-      var adapter = fieldAdapters[field.AdapterIndex];
-      if (adapter != null)
-        return adapter;
-      adapter = ctor(this, field);
-      fieldAdapters[field.AdapterIndex] = adapter;
-      return adapter;
-    }
-
-    [Infrastructure]
-    internal abstract void EnsureIsFetched(FieldInfo field);
-
-    [Infrastructure]
-    internal TypeInfo GetTypeInfo()
-    {
-      return Session.Domain.Model.Types[GetType()];
-    }
 
     #region this[...], GetProperty, SetProperty members
 
@@ -122,7 +82,6 @@ namespace Xtensive.Orm
     /// Gets or sets the value of the field with specified name.
     /// </summary>
     /// <value>Field value.</value>
-    [Infrastructure]
     public object this[string name]
     {
       get { return GetProperty<object>(name); }
@@ -141,7 +100,6 @@ namespace Xtensive.Orm
     /// </remarks>
     /// <seealso cref="SetProperty{T}"/>
     /// <exception cref="ArgumentException">There is no persistent property with provided name.</exception>
-    [Infrastructure]
     public T GetProperty<T>(string fieldName)
     {
       object value;
@@ -177,7 +135,6 @@ namespace Xtensive.Orm
     /// </remarks>
     /// <seealso cref="GetProperty{T}"/>
     /// <exception cref="ArgumentException">There is no persistent property with provided name.</exception>
-    [Infrastructure]
     public void SetProperty<T>(string fieldName, T value)
     {
       var pair = fieldName.RevertibleSplitFirstAndTail(';', '.');
@@ -237,7 +194,6 @@ namespace Xtensive.Orm
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
-    [Transactional(TransactionalBehavior.Auto)]
     protected internal T GetFieldValue<T>(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
@@ -263,7 +219,6 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="field">The field.</param>
     /// <returns>Field value.</returns>
-    [Transactional(TransactionalBehavior.Auto)]
     protected internal object GetFieldValue(FieldInfo field)
     {
       if (field.ReflectedType.IsInterface)
@@ -400,7 +355,6 @@ namespace Xtensive.Orm
     /// <typeparam name="T">Field value type.</typeparam>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
-    [Transactional(TransactionalBehavior.Auto)]
     protected internal void SetFieldValue<T>(FieldInfo field, T value)
     {
       if (field.ReflectedType.IsInterface)
@@ -415,15 +369,9 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="field">The field.</param>
     /// <param name="value">The value to set.</param>
-    [Transactional(TransactionalBehavior.Auto)]
     protected internal void SetFieldValue(FieldInfo field, object value)
     {
-      SetFieldValue(field, value, null);
-    }
-
-    internal void SetFieldValue(FieldInfo field, object value, SyncContext syncContext)
-    {
-      SetFieldValue(field, value, syncContext, null);
+      SetFieldValue(field, value, null, null);
     }
 
     internal void SetFieldValue(FieldInfo field, object value, SyncContext syncContext, RemovalContext removalContext)
@@ -635,7 +583,6 @@ namespace Xtensive.Orm
     /// }
     /// </code>
     /// </example>
-    [Infrastructure]
     protected virtual void OnValidate()
     {
     }
@@ -739,86 +686,65 @@ namespace Xtensive.Orm
 
     #endregion
 
-    #region Equals & GetHashCode (just to ensure they're marked as [Infrastructure])
-
-    /// <inheritdoc/>
-    [Infrastructure]
-    public override bool Equals(object obj)
-    {
-      return base.Equals(obj);
-    }
-
-    /// <inheritdoc/>
-    [Infrastructure]
-    public override int GetHashCode()
-    {
-      return base.GetHashCode();
-    }
-
-    #endregion
-
-    #region IValidationAware members
-
-    /// <summary>
-    /// Gets a value indicating whether validation can be performed for this entity.
-    /// </summary>
-    protected internal abstract bool CanBeValidated { get; }
-
-    /// <inheritdoc/>
-    [Infrastructure]
-    void IValidationAware.OnValidate()
-    {
-      InnerOnValidate();
-    }
-
-    [Transactional(TransactionalBehavior.Auto)]
-    private void InnerOnValidate()
-    {
-      if (!CanBeValidated) // True for Structures which aren't bound to entities & removed entities
-        return;
-      this.CheckConstraints(); // Ensures all PropertyConstraintAspects will be executed
-                               // CheckConstraints is an extension method provided by Integrity
-      OnValidate(); // Runs custom validation logic: this OnValidate can be overriden
-    }
-
-    /// <inheritdoc/>
-    [Infrastructure]
-    ValidationContext IValidationAware.Context
-    {
-      get {
-        return (Session ?? Session.Demand()).ValidationContext;
-      }
-    }
-
-    #endregion
-
     #region IDataErrorInfo members
 
     /// <inheritdoc/>
-    [Transactional(TransactionalBehavior.Auto)]
-    string IDataErrorInfo.this[string columnName] {
-      get {
-        return GetErrorMessage(this.GetPropertyValidationError(columnName));
+    string IDataErrorInfo.this[string columnName]
+    {
+      get
+      {
+        if (!CanBeValidated)
+          return string.Empty;
+        var result = GetValidationResult(columnName);
+        return result!=null ? result.ErrorMessage : string.Empty;
       }
     }
 
     /// <inheritdoc/>
-    [Transactional(TransactionalBehavior.Auto)]
-    string IDataErrorInfo.Error {
-      get { 
-        try {
-          OnValidate();
+    string IDataErrorInfo.Error
+    {
+      get
+      {
+        if (!CanBeValidated)
           return string.Empty;
-        }
-        catch (Exception error) {
-          return GetErrorMessage(error);
-        }
+        var result = GetValidationResult();
+        return result!=null ? result.ErrorMessage : string.Empty;
       }
     }
 
     #endregion
 
-    #region Private \ Internal methods
+    #region Private / Internal methods
+
+    internal abstract void EnsureIsFetched(FieldInfo field);
+
+    internal abstract ValidationResult GetValidationResult();
+
+    internal abstract ValidationResult GetValidationResult(string fieldName);
+
+    internal IFieldValueAdapter GetFieldValueAdapter(FieldInfo field, Func<Persistent, FieldInfo, IFieldValueAdapter> ctor)
+    {
+      if (field.ReflectedType.IsInterface)
+        field = TypeInfo.FieldMap[field];
+      // Building adapter container if necessary
+      if (fieldAdapters==null) {
+        int maxAdapterIndex = TypeInfo.Fields.Select(f => f.AdapterIndex).Max();
+        fieldAdapters = new IFieldValueAdapter[maxAdapterIndex + 1];
+      }
+
+      // Building adapter
+      var adapter = fieldAdapters[field.AdapterIndex];
+      if (adapter != null)
+        return adapter;
+      adapter = ctor(this, field);
+      fieldAdapters[field.AdapterIndex] = adapter;
+      return adapter;
+    }
+
+    internal TypeInfo GetTypeInfo()
+    {
+      return Session.Domain.Model.Types[GetType()];
+    }
 
     internal FieldAccessor GetFieldAccessor(FieldInfo field)
     {
@@ -860,24 +786,6 @@ namespace Xtensive.Orm
       return state;
     }
 
-    private static string GetErrorMessage(Exception error)
-    {
-      string result;
-      if (error==null)
-        result = string.Empty;
-      else if (error is AggregateException) {
-        var ae = error as AggregateException;
-        var errors = ae.GetFlatExceptions();
-        if (errors.Count==1)
-          result = errors[0].Message;
-        else
-          result = ae.Message;
-      }
-      else 
-        result = error.Message;
-      return result ?? string.Empty;
-    }
-
     #endregion
 
     #region Initializable aspect support
@@ -889,7 +797,6 @@ namespace Xtensive.Orm
     /// <remarks>
     /// This method is called when custom constructor is finished.
     /// </remarks>
-    [Infrastructure]
     protected void Initialize(Type ctorType)
     {
       var type = GetType();
@@ -913,7 +820,6 @@ namespace Xtensive.Orm
     /// <remarks>
     /// This method is called when custom constructor is finished.
     /// </remarks>
-    [Infrastructure]
     protected void InitializationError(Type ctorType, Exception error)
     {
       var type = GetType();
@@ -934,7 +840,6 @@ namespace Xtensive.Orm
     /// <summary>
     /// Initializes this instance on materialization.
     /// </summary>
-    [Infrastructure]
     protected void InitializeOnMaterialize()
     {
       var successfully = false;
@@ -954,7 +859,6 @@ namespace Xtensive.Orm
     /// <remarks>
     /// This method is called when custom constructor is finished.
     /// </remarks>
-    [Infrastructure]
     protected void InitializationErrorOnMaterialize(Exception error)
     {
       try {
@@ -973,7 +877,6 @@ namespace Xtensive.Orm
     {
       CtorTransactionInfo.Current = new CtorTransactionInfo() {
         TransactionScope = Session.OpenAutoTransaction(),
-        InconsistentRegion = Session.DisableValidation(),
         Previous = CtorTransactionInfo.Current,
       };
     }
@@ -987,51 +890,28 @@ namespace Xtensive.Orm
     internal void LeaveCtorTransactionScope(bool successfully)
     {
       var cti = CtorTransactionInfo.Current;
-      if (cti == null)
+      if (cti==null)
         return;
       CtorTransactionInfo.Current = cti.Previous;
-      bool inconsistentRegionDisposed = false;
       try {
-        if (successfully) {
-          try {
-            cti.InconsistentRegion.Complete();
-            inconsistentRegionDisposed = true;
-            cti.InconsistentRegion.Dispose();
-            cti.InconsistentRegion = null;
-          } 
-          catch {
-            successfully = false;
-            throw;
-          }
-        }
         if (cti.OperationScope!=null)
           cti.OperationScope.Complete();
       }
       finally {
         try {
-          if (!inconsistentRegionDisposed)
-            cti.InconsistentRegion.Dispose();
+          if (cti.OperationScope!=null)
+            cti.OperationScope.Dispose();
         }
         catch {
           successfully = false;
           throw;
         }
         finally {
-          try {
-            if (cti.OperationScope != null)
-              cti.OperationScope.Dispose();
-          }
-          catch {
-            successfully = false;
-            throw;
-          }
-          finally {
-            var transactionScope = cti.TransactionScope;
-            if (transactionScope!=null) {
-              if (successfully)
-                transactionScope.Complete();
-              transactionScope.Dispose();
-            }
+          var transactionScope = cti.TransactionScope;
+          if (transactionScope!=null) {
+            if (successfully)
+              transactionScope.Complete();
+            transactionScope.Dispose();
           }
         }
       }
@@ -1039,6 +919,10 @@ namespace Xtensive.Orm
 
     #endregion
 
+    internal static void ExecuteOnValidate(Persistent target)
+    {
+      target.OnValidate();
+    }
 
     // Constructors
 

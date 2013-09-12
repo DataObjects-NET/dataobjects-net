@@ -43,8 +43,6 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.AutoValidation = true;
-      config.ValidationMode = ValidationMode.OnDemand;
       config.Types.Register(typeof (Guider).Assembly, typeof (Guider).Namespace);
       return config;
     }

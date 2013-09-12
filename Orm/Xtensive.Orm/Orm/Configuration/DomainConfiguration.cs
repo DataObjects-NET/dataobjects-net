@@ -5,13 +5,10 @@
 // Created:    2007.08.03
 
 using System;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using Xtensive.Core;
-
 using Xtensive.Orm.Configuration.Elements;
-
 using ConfigurationSection=Xtensive.Orm.Configuration.Elements.ConfigurationSection;
 
 namespace Xtensive.Orm.Configuration
@@ -55,12 +52,6 @@ namespace Xtensive.Orm.Configuration
     public const int DefaultRecordSetMappingCacheSize = 1024;
 
     /// <summary>
-    /// Default <see cref="DomainConfiguration.AutoValidation"/> value: 
-    /// <see langword="true" />.
-    /// </summary>
-    public const bool DefaultAutoValidation = true;
-
-    /// <summary>
     /// Default <see cref="DomainConfiguration.IncludeSqlInExceptions"/> value: 
     /// <see langword="true" />.
     /// </summary>
@@ -88,11 +79,9 @@ namespace Xtensive.Orm.Configuration
     private int keyGeneratorCacheSize = DefaultKeyGeneratorCacheSize;
     private int queryCacheSize = DefaultQueryCacheSize;
     private int recordSetMappingCacheSize = DefaultRecordSetMappingCacheSize;
-    private bool autoValidation = DefaultAutoValidation;
     private SessionConfigurationCollection sessions = new SessionConfigurationCollection();
     private DomainUpgradeMode upgradeMode = DomainUpgradeMode.Default;
     private ForeignKeyMode foreignKeyMode = ForeignKeyMode.Default;
-    private ValidationMode validationMode = ValidationMode.Default;
     private Type serviceContainerType;
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
     private string forcedServerVersion;
@@ -286,33 +275,6 @@ namespace Xtensive.Orm.Configuration
         this.EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         recordSetMappingCacheSize = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the value indicating whether changed entities should be validated or registered for validation automatically.
-    /// Default value is <see cref="DomainConfigurationElement.AutoValidation"/>.
-    /// </summary>
-    public bool AutoValidation
-    {
-      get { return autoValidation; }
-      set
-      {
-        this.EnsureNotLocked();
-        autoValidation = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the validation mode, that is used for validating entities within transactions.
-    /// </summary>
-    public ValidationMode ValidationMode
-    {
-      get { return validationMode; }
-      set
-      {
-        this.EnsureNotLocked();
-        validationMode = value;
       }
     }
 
@@ -620,8 +582,6 @@ namespace Xtensive.Orm.Configuration
       recordSetMappingCacheSize = configuration.RecordSetMappingCacheSize;
       sessions = (SessionConfigurationCollection) configuration.Sessions.Clone();
       upgradeMode = configuration.UpgradeMode;
-      autoValidation = configuration.AutoValidation;
-      validationMode = configuration.ValidationMode;
       foreignKeyMode = configuration.ForeignKeyMode;
       serviceContainerType = configuration.ServiceContainerType;
       includeSqlInExceptions = configuration.IncludeSqlInExceptions;

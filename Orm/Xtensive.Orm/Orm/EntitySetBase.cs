@@ -10,7 +10,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
-using Xtensive.Aspects;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -32,13 +31,10 @@ namespace Xtensive.Orm
   /// <summary>
   /// Abstract base for <see cref="EntitySet{TItem}"/>.
   /// </summary>
-  [EntitySetAspect]
-  [Initializable]
   public abstract class EntitySetBase : SessionBound,
     IFieldValueAdapter,
     INotifyPropertyChanged,
-    INotifyCollectionChanged,
-    IValidationAware
+    INotifyCollectionChanged
   {
     private static readonly string presentationFrameworkAssemblyPrefix = "PresentationFramework,";
     private static readonly string storageTestsAssemblyPrefix = "Xtensive.Orm.Tests";
@@ -53,15 +49,12 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the owner of this instance.
     /// </summary>
-    [Infrastructure]
     public Entity Owner { get { return owner; } }
 
     /// <inheritdoc/>
-    [Infrastructure] // Proxy
     Persistent IFieldValueAdapter.Owner { get { return Owner; } }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public FieldInfo Field { get; private set; }
 
     internal EntitySetState State { get; private set; }
@@ -196,8 +189,8 @@ namespace Xtensive.Orm
         if (Session.IsSystemLogicOnly)
           return;
 
-        if (Session.Domain.Configuration.AutoValidation)
-          this.Validate();
+        if (CanBeValidated)
+          Session.ValidationContext.RegisterForValidation(Owner);
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.AddEntitySetItemEventKey);
         if (subscriptionInfo.Second!=null)
@@ -241,8 +234,8 @@ namespace Xtensive.Orm
         if (Session.IsSystemLogicOnly)
           return;
 
-        if (Session.Domain.Configuration.AutoValidation)
-          this.Validate();
+        if (CanBeValidated)
+          Session.ValidationContext.RegisterForValidation(Owner);
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntitySetItemEventKey);
         if (subscriptionInfo.Second!=null)
@@ -289,8 +282,8 @@ namespace Xtensive.Orm
         if (Session.IsSystemLogicOnly)
           return;
 
-        if (Session.Domain.Configuration.AutoValidation)
-          this.Validate();
+        if (CanBeValidated)
+          Session.ValidationContext.RegisterForValidation(Owner);
 
         using (Session.Operations.EnableSystemOperationRegistration()) {
           var subscriptionInfo = GetSubscription(EntityEventBroker.ClearEntitySetEventKey);
@@ -316,7 +309,6 @@ namespace Xtensive.Orm
     #region INotifyXxxChanged & event support related methods
 
     /// <inheritdoc/>
-    [Infrastructure]
     public event PropertyChangedEventHandler PropertyChanged {
       add {
         Session.EntityEvents.AddSubscriber(GetOwnerKey(Owner), Field,
@@ -329,7 +321,6 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     public event NotifyCollectionChangedEventHandler CollectionChanged {
       add {
         Session.EntityEvents.AddSubscriber(GetOwnerKey(Owner), Field,
@@ -345,7 +336,6 @@ namespace Xtensive.Orm
     /// Raises <see cref="INotifyPropertyChanged.PropertyChanged"/> event.
     /// </summary>
     /// <param name="propertyName">Name of the changed property.</param>
-    [Infrastructure]
     protected void NotifyPropertyChanged(string propertyName)
     {
       if (!Session.EntityEvents.HasSubscribers)
@@ -362,7 +352,6 @@ namespace Xtensive.Orm
     /// <param name="action">The actual action.</param>
     /// <param name="item">The item, that was participating in the specified action.</param>
     /// <param name="index">The index on the item, if available.</param>
-    [Infrastructure]
     protected void NotifyCollectionChanged(NotifyCollectionChangedAction action, Entity item, int? index)
     {
       if (!Session.EntityEvents.HasSubscribers)
@@ -404,7 +393,6 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="eventKey">The event key.</param>
     /// <returns>Event subscription (delegate) for the specified event key.</returns>
-    [Infrastructure]
     protected Pair<Key, Delegate> GetSubscription(object eventKey)
     {
       var entityKey = GetOwnerKey(Owner);
@@ -421,7 +409,6 @@ namespace Xtensive.Orm
     /// <summary>
     /// Called when entity set is initialized.
     /// </summary>
-    [Infrastructure]
     protected virtual void OnInitialize()
     {
     }
@@ -430,7 +417,6 @@ namespace Xtensive.Orm
     /// Called when item is adding to entity set.
     /// </summary>
     /// <param name="item">The item.</param>
-    [Infrastructure]
     protected virtual void OnAdding(Entity item)
     {
     }
@@ -439,7 +425,6 @@ namespace Xtensive.Orm
     /// Called when item is added to entity set.
     /// </summary>
     /// <param name="item">The item.</param>
-    [Infrastructure]
     protected virtual void OnAdd(Entity item)
     {
     }
@@ -448,7 +433,6 @@ namespace Xtensive.Orm
     /// Called when item is removing from entity set.
     /// </summary>
     /// <param name="item">The item.</param>
-    [Infrastructure]
     protected virtual void OnRemoving(Entity item)
     {
     }
@@ -457,7 +441,6 @@ namespace Xtensive.Orm
     /// Called when item is removed from entity set.
     /// </summary>
     /// <param name="item">The item.</param>
-    [Infrastructure]
     protected virtual void OnRemove(Entity item)
     {
     }
@@ -465,7 +448,6 @@ namespace Xtensive.Orm
     /// <summary>
     /// Called when entity set is clearing.
     /// </summary>
-    [Infrastructure]
     protected virtual void OnClearing()
     {
     }
@@ -473,7 +455,6 @@ namespace Xtensive.Orm
     /// <summary>
     /// Called when entity set is cleared.
     /// </summary>
-    [Infrastructure]
     protected virtual void OnClear()
     {
     }
@@ -484,7 +465,6 @@ namespace Xtensive.Orm
     /// <remarks>
     /// Override this method to perform custom entity set validation.
     /// </remarks>
-    [Infrastructure]
     protected virtual void OnValidate()
     {
     }
@@ -492,7 +472,6 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets a value indicating whether validation can be performed for this entity.
     /// </summary>
-    [Infrastructure]
     protected internal virtual bool CanBeValidated {
       get { return Owner!=null && !Owner.IsRemoved;  }
     }
@@ -501,7 +480,6 @@ namespace Xtensive.Orm
 
     #region Add/Remove/Contains/Clear methods
 
-    [Transactional(TransactionalBehavior.Auto)]
     internal bool Contains(Entity item)
     {
       EnsureOwnerIsNotRemoved();
@@ -510,7 +488,6 @@ namespace Xtensive.Orm
       return Contains(item.Key, item);
     }
 
-    [Transactional(TransactionalBehavior.Auto)]
     internal bool Add(Entity item)
     {
       return Add(item, null, null);
@@ -577,7 +554,6 @@ namespace Xtensive.Orm
       }
     }
 
-    [Transactional(TransactionalBehavior.Auto)]
     internal bool Remove(Entity item)
     {
       return Remove(item, null, null);
@@ -763,33 +739,6 @@ namespace Xtensive.Orm
 
     #endregion
 
-    #region IValidationAware implementation
-
-    /// <inheritdoc/>
-    [Infrastructure]
-    void IValidationAware.OnValidate()
-    {
-      InnerOnValidate();
-    }
-
-    [Transactional]
-    private void InnerOnValidate()
-    {
-      if (!CanBeValidated) // True for EntitySets with removed owners
-        return;
-      OnValidate(); // Runs custom validation logic: this OnValidate can be overriden
-    }
-
-    /// <inheritdoc/>
-    [Infrastructure]
-    ValidationContext IValidationAware.Context {
-      get {
-        return Session.ValidationContext;
-      }
-    }
-
-    #endregion
-
     #region Private / internal members
 
     internal EntitySetState UpdateState(IEnumerable<Key> items, bool isFullyLoaded)
@@ -954,6 +903,11 @@ namespace Xtensive.Orm
       return null;
     }
 
+    internal static void ExecuteOnValidate(EntitySetBase target)
+    {
+      target.OnValidate();
+    }
+
     #endregion
 
 
@@ -962,8 +916,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Performs initialization (see <see cref="Initialize()"/>) of the <see cref="EntitySetBase"/> 
     /// if type of <see langword="this" /> is the same as <paramref name="ctorType"/>.
-    /// Invoked by <see cref="InitializableAttribute"/> aspect in the epilogue of any 
-    /// constructor of this type and its ancestors.
+    /// Automatically invoked in the epilogue of any constructor of this type and its ancestors.
     /// </summary>
     /// <param name="ctorType">The type, which constructor has invoked this method.</param>
     protected void Initialize(Type ctorType)

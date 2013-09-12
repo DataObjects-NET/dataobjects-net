@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Rse.Providers
   /// <see cref="BinaryProvider.Right"/> sources.
   /// </summary>
   [Serializable]
-  public class IntersectProvider : BinaryProvider
+  public sealed class IntersectProvider : BinaryProvider
   {
     protected override RecordSetHeader BuildHeader()
     {
@@ -44,6 +44,7 @@ namespace Xtensive.Orm.Rse.Providers
     public IntersectProvider(CompilableProvider left, CompilableProvider right)
       : base(ProviderType.Intersect, left, right)
     {
+      Initialize();
     }
   }
 }

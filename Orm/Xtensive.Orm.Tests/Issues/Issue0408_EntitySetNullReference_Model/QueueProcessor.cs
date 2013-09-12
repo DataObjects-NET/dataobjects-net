@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Xtensive.Aspects;
 using Xtensive.Orm;
 using System.Diagnostics;
 
@@ -20,22 +19,22 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
     [Field]
     public Container ProcessedContainer { get; set; }
 
-    [Infrastructure]
     public static IList<object> GetWork(string key, Domain domain)
     {
       using (var session = domain.OpenSession())
       {
         QueueProcessor queueProcessor = null;
+        IList<object> result;
         using (TransactionScope transactionScope = session.OpenTransaction())
         {
           queueProcessor = GetQueueProcessorByKey(key);
           transactionScope.Complete();
+          result = queueProcessor.GetWork();
         }
-        return queueProcessor.GetWork();
+        return result;
       }
     }
 
-    [Infrastructure]
     public static void Execute(string key, object workUnit, Domain domain)
     {
       using (var session = domain.OpenSession())
@@ -70,13 +69,11 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
     /// <summary>
     /// Process one document: override it with your implementation
     /// </summary>
-    [Transactional]
     public virtual void ProcessDocument(Document inputDocument) 
     { 
-      throw new NotImplementedException();  
+      throw new NotImplementedException();
     }
 
-    [Transactional]
     public virtual IList<object> GetWork()
     {
       if (InputContainer == null)

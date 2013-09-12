@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Reflection;
@@ -182,19 +181,6 @@ namespace Xtensive.Orm.Building
 
     internal static void ValidateType(TypeDef typeDef, HierarchyDef hierarchyDef)
     {
-    }
-
-    public static void EnsureUnderlyingTypeIsAspected(TypeDef type)
-    {
-      var constructor = type.UnderlyingType.GetConstructor(
-        BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, new[] {typeof (EntityState)});
-      if (constructor!=null)
-        return;
-      var typeName = type.UnderlyingType.GetFullName();
-      var assemblyName = type.UnderlyingType.Assembly.GetName().FullName;
-      throw new DomainBuilderException(String.Format(
-        Strings.ExPersistentAttributeIsNotSetOnTypeXOrAssemblyYIsNotProcessedByPostSharp,
-        typeName, assemblyName));
     }
 
     public static void EnsureTypeIsPersistent(Type type)

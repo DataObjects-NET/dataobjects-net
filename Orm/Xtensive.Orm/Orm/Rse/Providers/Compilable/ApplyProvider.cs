@@ -81,6 +81,7 @@ namespace Xtensive.Orm.Rse.Providers
       IsInlined = isInlined;
       SequenceType = applySequenceType;
       ApplyType = applyType;
+      Initialize();
     }
   }
 }

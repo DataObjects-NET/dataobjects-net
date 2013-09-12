@@ -33,7 +33,7 @@ namespace Xtensive.Orm
     {
       if (isDelayedQueryRunning || queryTasks.Count==0)
         return false;
-      EnsureTransactionIsStarted();
+      DemandTransaction();
       try {
         isDelayedQueryRunning = true;
         Handler.ExecuteQueryTasks(queryTasks, allowPartialExecution);

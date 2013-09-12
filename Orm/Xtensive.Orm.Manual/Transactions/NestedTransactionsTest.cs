@@ -41,11 +41,12 @@ namespace Xtensive.Orm.Manual.Transactions.NestedTransactions
     [Association(PairTo = "Friends")]
     public EntitySet<User> Friends { get; private set; }
 
-    [Transactional(TransactionalBehavior.New)]
     public void RemoveAndCancel()
     {
-      Remove();
-      throw new InvalidOperationException("Cancelled.");
+      using (Session.OpenTransaction(TransactionOpenMode.New)) {
+        Remove();
+        throw new InvalidOperationException("Cancelled.");
+      }
     }
 
     public User(Session session)

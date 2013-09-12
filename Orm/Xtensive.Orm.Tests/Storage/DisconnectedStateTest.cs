@@ -403,7 +403,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
 
 namespace Xtensive.Orm.Tests.Storage
 {
-  [TestFixture]
+  [TestFixture, Ignore("To be removed when DisconnectedState is eliminated.")]
   public class DisconnectedStateTest : AutoBuildTest
   {
     public override void TestFixtureSetUp()

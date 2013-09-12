@@ -25,13 +25,20 @@ namespace Xtensive.Orm.Metadata
     /// </summary>
     [Key]
     [Field]
-    public int Id { get; private set; }
+    public int Id
+    {
+      get { return GetFieldValue<int>("Id"); }
+    }
 
     /// <summary>
     /// Gets or sets the full type name.
     /// </summary>
     [Field(Length = 1000)]
-    public string Name { get; set; }
+    public string Name
+    {
+      get { return GetFieldValue<string>("Name"); }
+      set { SetFieldValue("Name", value); }
+    }
 
     /// <inheritdoc/>
     public override string ToString()
@@ -39,18 +46,16 @@ namespace Xtensive.Orm.Metadata
       return string.Format(Strings.MetadataTypeFormat, Name, Id);
     }
 
+    private static Type CreateObject(Session session, EntityState state)
+    {
+      return new Type(session, state);
+    }
+
     // Constructors
 
-    /// <summary>
-    ///   Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="id">The type identifier.</param>
-    /// <param name="name">The name of the type.</param>
-    /// <exception cref="Exception">Object is read-only.</exception>
-    public Type(int id, string name) 
-      : base(id)
+    private Type(Session session, EntityState state)
+      : base(session, state)
     {
-      Name = name;
     }
   }
 }

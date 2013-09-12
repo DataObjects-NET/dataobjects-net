@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Rse.Providers
   /// <see cref="BinaryProvider.Right"/> sources.
   /// </summary>
   [Serializable]
-  public class UnionProvider : BinaryProvider
+  public sealed class UnionProvider : BinaryProvider
   {
     protected override RecordSetHeader BuildHeader()
     {
@@ -71,6 +71,7 @@ namespace Xtensive.Orm.Rse.Providers
     public UnionProvider(CompilableProvider left, CompilableProvider right)
       : base(ProviderType.Union, left, right)
     {
+      Initialize();
     }
   }
 }

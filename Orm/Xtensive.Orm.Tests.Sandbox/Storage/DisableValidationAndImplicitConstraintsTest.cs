@@ -38,10 +38,8 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var entity = Query.All<MyEntity>().Single();
-        using (session.DisableValidation()) {
-          entity.Name = null;
-          entity.Name = "Bye";
-        }
+        entity.Name = null;
+        entity.Name = "Bye";
         tx.Complete();
       }
     }

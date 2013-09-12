@@ -130,7 +130,7 @@ namespace Xtensive.Orm
 
         try {
           using (this.OpenSystemLogicOnlyRegion()) {
-            EnsureTransactionIsStarted();
+            DemandTransaction();
             OrmLog.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
 
             EntityChangeRegistry itemsToPersist;

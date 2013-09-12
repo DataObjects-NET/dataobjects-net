@@ -5,48 +5,39 @@
 // Created:    2009.10.28
 
 using System;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
-using PostSharp.Aspects.Dependencies;
-using Xtensive.Aspects;
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Validation;
 
 namespace Xtensive.Orm.Tests._Manual.Validation
 {
   [Serializable]
-  [ProvideAspectRole(StandardRoles.Validation)]
-  [AspectRoleDependency(AspectDependencyAction.Commute, StandardRoles.Validation)]
-  [AspectTypeDependency(AspectDependencyAction.Conflict, typeof(InconsistentRegionAttribute))]
-  [AspectTypeDependency(AspectDependencyAction.Order, AspectDependencyPosition.After, typeof(ReplaceAutoProperty))]
-  public class PhoneNumberConstraint : PropertyConstraintAspect
+  public class PhoneNumberConstraint : PropertyValidator
   {
     private const string PhoneNumberPattern = "^[2-9]\\d{2}-\\d{3}-\\d{4}$";
 
-    [NonSerialized]
-    private Regex phoneNumberRegex;
+    private static readonly Regex Validator = new Regex(PhoneNumberPattern);
 
-    public override bool IsSupported(Type valueType)
+    public override void Configure(Domain domain, TypeInfo type, FieldInfo field)
     {
-      return valueType==typeof(string);
+      base.Configure(domain, type, field);
+
+      if (field.ValueType!=typeof (string))
+        ThrowConfigurationError(string.Format(Strings.FieldShouldBeOfTypeX, typeof (string).FullName));
     }
 
-    public override bool CheckValue(object value)
+    public override ValidationResult Validate(Entity target, object fieldValue)
     {
-      string phoneNumber = (string) value;
-      return
-        string.IsNullOrEmpty(phoneNumber) ||
-        phoneNumberRegex.IsMatch(phoneNumber);
+      var value = (string) fieldValue;
+      var isValid = string.IsNullOrEmpty(value) || Validator.IsMatch(value);
+      return isValid ? Success() : Error("Phone number is incorrect", fieldValue);
     }
 
-    protected override string GetDefaultMessage()
+    public override IPropertyValidator CreateNew()
     {
-      return "Phone number is incorrect";
-    }
-
-    protected override void Initialize()
-    {
-      base.Initialize();
-      phoneNumberRegex = new Regex(PhoneNumberPattern, RegexOptions.Compiled);
+      return new EmailConstraint {
+        IsImmediate = IsImmediate,
+      };
     }
   }
 }

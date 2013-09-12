@@ -1,6 +1,3 @@
-Imports Xtensive.Aspects
-Imports PostSharp.Extensibility
-Imports PostSharp.Aspects
 Imports Xtensive.Orm
 
 
@@ -49,22 +46,4 @@ Namespace Model
 
   End Class
 
-  <Serializable>
-  <MulticastAttributeUsage(MulticastTargets.Method, AllowMultiple: = false, Inheritance: = MulticastInheritance.Multicast)>
-  <AttributeUsage(AttributeTargets.Method, AllowMultiple: = false, Inherited: = true)>
-  Public Class SomeAspect
-    Inherits PostSharp.Aspects.OnMethodBoundaryAspect
-
-    Public NotOverridable Overrides Sub OnEntry(ByVal args As MethodExecutionArgs)
-      Console.WriteLine("Entry...")
-    End Sub
-  End Class
-
-
-  Public Class Test
-    <SomeAspect>
-    Public Sub Method()
-      Console.WriteLine("Hello!!!")
-    End Sub
-  End Class
 End Namespace

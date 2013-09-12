@@ -89,29 +89,36 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     ValidateEntityVersions = 1 << 12,
 
+    /// <summary>
+    /// Enables validation framework in this session.
+    /// </summary>
+    ValidateEntities = 1 << 13,
+
     // Profiles
 
     /// <summary>
     /// Predefined option set for server-side sessions (ASP.NET, ASP.NET MVC, services, etc.).
-    /// Includes only <see cref="None"/> flag.
+    /// Includes only <see cref="ValidateEntities"/> flag.
     /// </summary>
-    ServerProfile = None | (1 << 10),
+    ServerProfile = None | ValidateEntities | (1 << 10),
 
     /// <summary>
     /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).
     /// Combines 
     /// <see cref="AutoTransactionOpenMode"/> | 
-    /// <see cref="Disconnected"/> flags.
+    /// <see cref="Disconnected"/> |
+    /// <see cref="ValidateEntities"/> flags.
     /// </summary>
-    ClientProfile = AutoTransactionOpenMode | Disconnected,
+    ClientProfile = AutoTransactionOpenMode | ValidateEntities | Disconnected,
 
     /// <summary>
     /// Predefined option set for compatibility with previous versions of DataObjects.Net (4.3.* and earlier).
     /// Combines 
     /// <see cref="AutoTransactionOpenMode"/> | 
-    /// <see cref="AutoActivation"/> flags.
+    /// <see cref="AutoActivation"/> |
+    /// <see cref="ValidateEntities"/> flags.
     /// </summary>
-    LegacyProfile = AutoTransactionOpenMode | AutoActivation,
+    LegacyProfile = AutoTransactionOpenMode | ValidateEntities | AutoActivation,
 
     /// <summary>
     /// Default option set.

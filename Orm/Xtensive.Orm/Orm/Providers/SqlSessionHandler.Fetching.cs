@@ -19,13 +19,13 @@ namespace Xtensive.Orm.Providers
 
     public override StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
     {
-      Session.EnsureTransactionIsStarted();
+      Session.DemandTransaction();
       return prefetchManager.Prefetch(key, type, descriptors);
     }
 
     public override StrongReferenceContainer ExecutePrefetchTasks(bool skipPersist)
     {
-      Session.EnsureTransactionIsStarted();
+      Session.DemandTransaction();
       return prefetchManager.ExecuteTasks(skipPersist);
     }
 
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>The key of fetched <see cref="EntityState"/>.</returns>
     public override EntityState FetchEntityState(Key key)
     {
-      Session.EnsureTransactionIsStarted();
+      Session.DemandTransaction();
       var type = key.TypeReference.Type;
       prefetchManager.Prefetch(key, type,
         PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(Session.Domain, type));
@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="field">The field to fetch.</param>
     public override void FetchField(Key key, FieldInfo field)
     {
-      Session.EnsureTransactionIsStarted();
+      Session.DemandTransaction();
       var type = key.TypeReference.Type;
       var descriptor = new PrefetchFieldDescriptor(field, false, false);
       var descriptors = new List<PrefetchFieldDescriptor> {descriptor};
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="field">The field.</param>
     public override void FetchEntitySet(Key ownerKey, FieldInfo field, int? itemCountLimit)
     {
-      Session.EnsureTransactionIsStarted();
+      Session.DemandTransaction();
       var ownerType = ownerKey.TypeReference.Type;
       var descriptor = new PrefetchFieldDescriptor(field, itemCountLimit);
       var descriptors = new List<PrefetchFieldDescriptor> { descriptor };

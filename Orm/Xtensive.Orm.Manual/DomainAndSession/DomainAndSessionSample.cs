@@ -187,7 +187,6 @@ namespace Xtensive.Orm.Manual.DomainAndSession
       // Creating new Domain configuration
       var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
         UpgradeMode = DomainUpgradeMode.Recreate,
-        ValidationMode = ValidationMode.OnDemand
       };
       // Registering all types in the specified assembly and namespace
       config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);

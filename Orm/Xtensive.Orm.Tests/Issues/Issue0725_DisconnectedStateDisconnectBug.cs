@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0725.Model
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  [TestFixture]
+  [TestFixture, Ignore("To be removed when DisconnectedState is eliminated.")]
   public class Issue0725_DisconnectedStateDisconnectBugs : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Tests.Storage.DiartisBugsTest
     }
   }
 
-  [TestFixture]
+  [TestFixture, Ignore("To be removed when DisconnectedState is eliminated.")]
   public class DiartisBugsTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

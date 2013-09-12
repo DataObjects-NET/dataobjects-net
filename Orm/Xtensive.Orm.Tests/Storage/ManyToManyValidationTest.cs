@@ -5,15 +5,12 @@
 // Created:    2010.11.10
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Validation;
 using Xtensive.Orm.Tests.Storage.ManyToManyValidationTest_Model;
-using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Tests.Storage
 {
@@ -75,7 +72,6 @@ namespace Xtensive.Orm.Tests.Storage
       protected override void OnValidate()
       {
         ValidationCount++;
-        Owner.Validate();
       }
 
       protected EntitySetValidatedByOwner(Entity owner, FieldInfo field)
@@ -90,7 +86,6 @@ namespace Xtensive.Orm.Tests.Storage
     }
   }
 
-  [Serializable]
   public class ManyToManyValidationTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
@@ -103,36 +98,24 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void MainTest()
     {
-      Author author;
-      Book book;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        author = new Author {Name = "Vasya Pupkin"};
-        book = new Book {Title = "Mathematics"};
+        var author = new Author {Name = "Vasya Pupkin"};
+        var book = new Book {Title = "Mathematics"};
 
-        EnsureIsValidated(() => {
-          book.Authors.Add(author);
-        }, book, book.Authors);
-
-        EnsureIsValidated(() => {
-          book.Authors.Remove(author);
-        }, book, book.Authors);
-
-        EnsureIsValidated(() => {
-          book.Authors.Clear();
-        }, book, book.Authors);
+        EnsureIsValidated(session, () => book.Authors.Add(author), book, book.Authors);
+        EnsureIsValidated(session, () => book.Authors.Remove(author), book, book.Authors);
+        EnsureIsValidated(session, () => book.Authors.Clear(), book, book.Authors);
 
         tx.Complete();
       }
     }
 
-    private void EnsureIsValidated(Action action, params IHasValidationCount[] checkList)
+    private void EnsureIsValidated(Session session, Action action, params IHasValidationCount[] checkList)
     {
-      var originalValidationCounts = (
-        from o in checkList
-        select o.ValidationCount
-        ).ToArray();
+      var originalValidationCounts = checkList.Select(o => o.ValidationCount).ToArray();
       action.Invoke();
+      session.Validate();
       for (int i = 0; i < originalValidationCounts.Length; i++) {
         var originalValidationCount = originalValidationCounts[i];
         Assert.AreNotEqual(originalValidationCounts[i], checkList[i].ValidationCount);

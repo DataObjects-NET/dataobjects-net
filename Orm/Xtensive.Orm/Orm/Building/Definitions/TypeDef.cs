@@ -5,9 +5,11 @@
 // Created:    2007.08.27
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Orm.Validation;
 using Xtensive.Reflection;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Model;
@@ -140,6 +142,11 @@ namespace Xtensive.Orm.Building.Definitions
     }
 
     /// <summary>
+    /// Gets <see cref="IObjectValidator"/> instances associated with this type.
+    /// </summary>
+    public IList<IObjectValidator> Validators { get; private set; }
+
+    /// <summary>
     /// Gets or sets the type discriminator value.
     /// </summary>
     /// <value>The type discriminator value.</value>
@@ -237,6 +244,8 @@ namespace Xtensive.Orm.Building.Definitions
       implementors = IsInterface
         ? new NodeCollection<TypeDef>(this, "Implementors")
         : NodeCollection<TypeDef>.Empty;
+
+      Validators = new List<IObjectValidator>();
     }
   }
 }

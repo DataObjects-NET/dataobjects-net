@@ -6,7 +6,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Aspects;
 using Xtensive.Caching;
 using KeyCache = Xtensive.Caching.ICache<Xtensive.Orm.Key, Xtensive.Orm.Key>;
 
@@ -15,7 +14,6 @@ namespace Xtensive.Orm.Internals
   /// <summary>
   /// Describes cached state of <see cref="EntitySetBase"/>
   /// </summary>
-  [Infrastructure]
   public sealed class EntitySetState : TransactionalStateContainer<KeyCache>,
     IEnumerable<Key>,
     IInvalidatable

@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Providers;
@@ -17,7 +16,6 @@ namespace Xtensive.Orm.Services
   /// Provides access to core services bound to a <see cref="Session"/>.
   /// </summary>
   [Service(typeof(DirectSessionAccessor))]
-  [Infrastructure]
   public sealed class DirectSessionAccessor : SessionBound,
     ISessionService
   {

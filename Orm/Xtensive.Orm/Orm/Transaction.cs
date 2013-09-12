@@ -8,6 +8,8 @@ using System;
 using System.Transactions;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
 
 namespace Xtensive.Orm
@@ -26,9 +28,7 @@ namespace Xtensive.Orm
     public static Transaction Current {
       get {
         var session = Session.Current;
-        return session != null 
-          ? session.Transaction
-          : null;
+        return session != null ? session.Transaction : null;
       }
     }
 
@@ -41,11 +41,10 @@ namespace Xtensive.Orm
     /// <exception cref="InvalidOperationException"><see cref="Transaction.Current"/> <see cref="Transaction"/> is <see langword="null" />.</exception>
     public static Transaction Demand()
     {
-      var currentTransaction = Current;
-      if (currentTransaction==null)
-        throw new InvalidOperationException(
-          Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
-      return currentTransaction;
+      var current = Current;
+      if (current==null)
+        throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt);
+      return current;
     }
 
     /// <summary>
@@ -56,15 +55,11 @@ namespace Xtensive.Orm
     public static void Require(Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      if (session.Transaction != null)
-        return;
-      throw new InvalidOperationException(
-          Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
+      session.DemandTransaction();
     }
 
     #endregion
 
-    private ICompletableScope inconsistentRegion;
     private ExtensionCollection extensions;
     private Transaction inner;
 
@@ -120,12 +115,7 @@ namespace Xtensive.Orm
     /// Gets a value indicating whether this transaction is a nested transaction.
     /// </summary>
     public bool IsNested { get { return Outer!=null; } }
-    
-    /// <summary>
-    /// Gets the validation context of this <see cref="Transaction"/>.
-    /// </summary>    
-    public ValidationContext ValidationContext { get; private set; }
-    
+
     #region IHasExtensions Members
 
     /// <inheritdoc/>
@@ -138,6 +128,8 @@ namespace Xtensive.Orm
     }
 
     #endregion
+
+    internal ValidationContext ValidationContext { get; private set; }
 
     internal string SavepointName { get; private set; }
 
@@ -169,7 +161,7 @@ namespace Xtensive.Orm
     
     internal void Begin()
     {
-      BeginValidation();
+      ValidationContext.Reset();
       Session.BeginTransaction(this);
       if (Outer!=null)
         Outer.inner = this;
@@ -182,9 +174,8 @@ namespace Xtensive.Orm
       State = TransactionState.Committing;
       try {
         if (inner!=null)
-          throw new InvalidOperationException(
-            Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
-        CompleteValidation();
+          throw new InvalidOperationException(Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
+        ValidationContext.Validate(ValidationReason.Commit);
         Session.CommitTransaction(this);
       }
       catch {
@@ -205,7 +196,6 @@ namespace Xtensive.Orm
             inner.Rollback();
         }
         finally {
-          AbortValidation();
           Session.RollbackTransaction(this);
         }
       }
@@ -247,7 +237,9 @@ namespace Xtensive.Orm
       IsAutomatic = isAutomatic;
       IsDisconnected = session.IsDisconnected;
       TimeStamp = DateTime.UtcNow;
-      ValidationContext = new ValidationContext();
+      ValidationContext = session.Configuration.Supports(SessionOptions.ValidateEntities)
+        ? (ValidationContext) new RealValidationContext()
+        : new VoidValidationContext();
       
       if (outer!=null) {
         Outer = outer;

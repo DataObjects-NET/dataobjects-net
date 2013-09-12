@@ -45,6 +45,7 @@ namespace Xtensive.Orm.Rse.Providers
     {
       indexHeader = index.GetRecordSetHeader();
       Index = new IndexInfoRef(index);
+      Initialize();
     }
   }
 }

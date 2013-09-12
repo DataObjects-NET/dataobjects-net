@@ -132,11 +132,6 @@ namespace Xtensive.Orm.Rse
       return new StoreProvider(source, name);
     }
 
-    public static CompilableProvider ToRecordSet(this IEnumerable<Tuple> tuples, RecordSetHeader header)
-    {
-      return new RawProvider(header, tuples);
-    }
-
     public static CompilableProvider Distinct(this CompilableProvider source)
     {
       return new DistinctProvider(source);

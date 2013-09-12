@@ -18,20 +18,27 @@ namespace Xtensive.Orm.Metadata
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
   [TableMapping("Metadata.Assembly")]
-  public class Assembly : MetadataBase
+  public sealed class Assembly : MetadataBase
   {
     /// <summary>
     /// Gets the name of the assembly.
     /// </summary>
     [Key]
     [Field(Length = 1024)]
-    public string Name { get; private set; }
+    public string Name
+    {
+      get { return GetFieldValue<string>("Name"); }
+    }
 
     /// <summary>
     /// Gets or sets the assembly version.
     /// </summary>
     [Field(Length = 64)]
-    public string Version { get; set; }
+    public string Version
+    {
+      get { return GetFieldValue<string>("Version"); }
+      set { SetFieldValue("Version", value); }
+    }
 
     /// <inheritdoc/>
     public override string ToString()
@@ -39,29 +46,17 @@ namespace Xtensive.Orm.Metadata
       return string.Format(Strings.MetadataAssemblyFormat, Name, Version);
     }
 
+    private static Assembly CreateObject(Session session, EntityState state)
+    {
+      return new Assembly(session, state);
+    }
+
 
     // Constructors
 
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="name">The assembly name.</param>
-    /// <exception cref="Exception">Object is read-only.</exception>
-    public Assembly(string name) 
-      : base(name)
+    private Assembly(Session session, EntityState state)
+      : base(session, state)
     {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="name">The assembly name.</param>
-    /// <param name="version">The assembly version.</param>
-    /// <exception cref="Exception">Object is read-only.</exception>
-    public Assembly(string name, string version)
-      : base(name)
-    {
-      Version = version;
     }
   }
 }

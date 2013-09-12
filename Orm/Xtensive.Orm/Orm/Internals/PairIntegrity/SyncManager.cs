@@ -6,14 +6,12 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Aspects;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.ReferentialIntegrity;
 
 namespace Xtensive.Orm.PairIntegrity
 {
-  [Infrastructure]
   internal class SyncManager : SessionBound
   {
     public void ProcessRecursively(SyncContext context, RemovalContext removalContext, 
@@ -22,11 +20,8 @@ namespace Xtensive.Orm.PairIntegrity
     {
       if (context==null) {
         // We must create a new context
-        using (var region = owner.Session.DisableValidation()) {
-          context = CreateContext(removalContext, type, association, owner, target);
-          context.ProcessPendingActionsRecursively(finalizer);
-          region.Complete();
-        }
+        context = CreateContext(removalContext, type, association, owner, target);
+        context.ProcessPendingActionsRecursively(finalizer);
       }
       else {
         // If we are here, provided operation is meaningless -

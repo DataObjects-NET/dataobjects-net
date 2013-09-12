@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Providers
     public override ICompletableScope BeginEnumeration()
     {
       var tx = Session.OpenAutoTransaction();
-      Session.EnsureTransactionIsStarted();
+      Session.DemandTransaction();
       if (MaterializationContext!=null && MaterializationContext.MaterializationQueue!=null)
         return new EnumerationFinalizer(MaterializationContext.MaterializationQueue, tx);
       return tx;

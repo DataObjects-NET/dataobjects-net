@@ -5,9 +5,11 @@
 // Created:    2007.09.10
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Orm.Validation;
 using Xtensive.Reflection;
 using Xtensive.Orm.Model;
 using FieldAttributes=Xtensive.Orm.Model.FieldAttributes;
@@ -269,6 +271,11 @@ namespace Xtensive.Orm.Building.Definitions
     }
 
     /// <summary>
+    /// Gets of <see cref="IPropertyValidator"/> instances associated with this field.
+    /// </summary>
+    public IList<IPropertyValidator> Validators { get; private set; }
+
+    /// <summary>
     /// Performs additional custom processes before setting new name to this instance.
     /// </summary>
     /// <param name="newName">The new name of this instance.</param>
@@ -294,6 +301,7 @@ namespace Xtensive.Orm.Building.Definitions
       if ((valueType.IsClass || valueType.IsInterface) && !IsStructure)
         attributes |= FieldAttributes.Nullable;
       ValueType = valueType;
+      Validators = new List<IPropertyValidator>();
 
       // Nullable<T>
       if (valueType.IsGenericType && valueType.GetGenericTypeDefinition()==typeof (Nullable<>)) {

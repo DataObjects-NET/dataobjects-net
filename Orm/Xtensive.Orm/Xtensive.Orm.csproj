@@ -11,7 +11,6 @@
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <DontImportPostSharp>True</DontImportPostSharp>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -39,9 +38,6 @@
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PostSharp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL">
-      <HintPath>..\..\Lib\PostSharp\Reference Assemblies\.NET Framework 2.0\PostSharp.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -50,26 +46,37 @@
     <Reference Include="System.Transactions" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
-    <Reference Include="Xtensive.Aspects, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
     <Reference Include="Xtensive.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Orm\Aspects\TransactionalAttribute.cs" />
-    <Compile Include="Orm\Aspects\EntityAspect.cs" />
-    <Compile Include="Orm\Aspects\EntitySetAspect.cs" />
-    <Compile Include="Orm\Aspects\NonTransactionalAttribute.cs" />
-    <Compile Include="Orm\Aspects\PersistentAspect.cs" />
-    <Compile Include="Orm\Aspects\StructureAspect.cs" />
     <Compile Include="Orm\Aspects\TransactionalBehavior.cs" />
-    <Compile Include="Orm\Aspects\TransactionalTypeAttribute.cs" />
     <Compile Include="Orm\Attributes\CompilerAttribute.cs" />
     <Compile Include="Orm\Attributes\CompilerContainerAttribute.cs" />
+    <Compile Include="Orm\Validation\Internals\ValidationReason.cs" />
+    <Compile Include="Orm\Validation\EntityErrorInfo.cs" />
+    <Compile Include="Orm\Validation\EntitySetFieldValidator.cs" />
+    <Compile Include="Orm\Validation\EntityValidator.cs" />
+    <Compile Include="Orm\Validation\Exceptions\ValidationFailedException.cs" />
+    <Compile Include="Orm\Validation\Interfaces\IObjectValidator.cs" />
+    <Compile Include="Orm\Validation\Interfaces\IPropertyValidator.cs" />
+    <Compile Include="Orm\Validation\Interfaces\IValidator.cs" />
+    <Compile Include="Orm\Validation\Internals\RealValidationContext.cs" />
+    <Compile Include="Orm\Validation\Internals\VoidValidationContext.cs" />
+    <Compile Include="Orm\Validation\ObjectValidator.cs" />
+    <Compile Include="Orm\Validation\PropertyValidator.cs" />
+    <Compile Include="Orm\Validation\StructureFieldValidator.cs" />
+    <Compile Include="Orm\Validation\ValidationResult.cs" />
+    <Compile Include="Orm\Weaving\OverrideFieldNameAttribute.cs" />
+    <Compile Include="Orm\Weaving\PersistenceImplementation.cs" />
+    <Compile Include="Orm\Weaving\EntityInterfaceAttribute.cs" />
+    <Compile Include="Orm\Weaving\EntitySetTypeAttribute.cs" />
+    <Compile Include="Orm\Weaving\EntityTypeAttribute.cs" />
     <Compile Include="Orm\Attributes\KeyGeneratorKind.cs" />
+    <Compile Include="Orm\Weaving\ProcessedByWeaverAttribute.cs" />
+    <Compile Include="Orm\Weaving\StructureTypeAttribute.cs" />
     <Compile Include="Orm\Attributes\TypeAttribute.cs" />
     <Compile Include="Orm\Attributes\TypeDiscriminatorAttribute.cs" />
     <Compile Include="Orm\Attributes\MaterializedViewAttribute.cs" />
@@ -391,22 +398,16 @@
     <Compile Include="Orm\Upgrade\UpgradeActionSequence.cs" />
     <Compile Include="Orm\UrlInfo.cs" />
     <Compile Include="Orm\UrlInfoConverter.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\EmailConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\FutureConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\LengthConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\NotEmptyConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\NotNullConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\NotNullOrEmptyConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\PastConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\RangeConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\Constraints\RegexConstraint.cs" />
-    <Compile Include="Orm\Validation\Aspects\InconsistentRegionAttribute.cs" />
-    <Compile Include="Orm\Validation\Aspects\Internals\ConstraintRegistry.cs" />
-    <Compile Include="Orm\Validation\Aspects\PropertyConstraintAspect.cs" />
-    <Compile Include="Orm\Validation\Exceptions\ConstraintViolationException.cs" />
-    <Compile Include="Orm\Validation\Interfaces\IValidationAware.cs" />
-    <Compile Include="Orm\Validation\ValidationAwareExtensions.cs" />
-    <Compile Include="Orm\Validation\ValidationContext.cs" />
+    <Compile Include="Orm\Validation\Constraints\EmailConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\FutureConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\LengthConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\NotEmptyConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\NotNullConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\NotNullOrEmptyConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\PastConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\RangeConstraint.cs" />
+    <Compile Include="Orm\Validation\Constraints\RegexConstraint.cs" />
+    <Compile Include="Orm\Validation\Internals\ValidationContext.cs" />
     <Compile Include="Orm\Validation\ValidationMode.cs" />
     <Compile Include="Orm\Linq\Expressions\Visitors\EnumRewriter.cs" />
     <Compile Include="Orm\Operations\EntityInitializeOperation.cs" />
@@ -478,7 +479,6 @@
     <Compile Include="Orm\Internals\Pinner.cs" />
     <Compile Include="Orm\Exceptions\QueryTranslationException.cs" />
     <Compile Include="Orm\ObjectMapping\Mapper.cs" />
-    <Compile Include="Orm\Transaction.Validation.cs" />
     <Compile Include="Orm\Exceptions\ConnectionRequiredException.cs" />
     <Compile Include="Orm\Internals\Disconnected\SerializableEntityState.cs" />
     <Compile Include="Orm\Internals\Disconnected\SerializableReference.cs" />
@@ -811,7 +811,6 @@
     <Compile Include="Orm\Upgrade\Hints\RenameTypeHint.cs" />
     <Compile Include="Orm\Upgrade\Hints\UpgradeHint.cs" />
     <Compile Include="Orm\Upgrade\Interfaces\IUpgradeHandler.cs" />
-    <Compile Include="Orm\ValidationMode.cs" />
     <Compile Include="Orm\VersionInfo.cs" />
     <Compile Include="Orm\WellKnown.cs" />
     <Compile Include="Orm\Linq\Translator.Materialization.cs" />
@@ -1276,7 +1275,6 @@
       <LastGenOutput>MemberCompilerProvider-CreateCompiler.cs</LastGenOutput>
     </None>
     <None Include="Orm\Model\_Diagrams\Storage-Model-BaseTypes.cd" />
-    <None Include="Orm\Validation\_Diagrams\Integrity-ValidationAspects.cd" />
     <None Include="Orm\_Diagrams\Storage-Class-Attributes.cd" />
     <None Include="Orm\_Diagrams\Storage-Exceptions.cd" />
     <None Include="Orm\_Diagrams\Storage-DirectAccessors.cd" />
@@ -1293,9 +1291,6 @@
     <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
       <Link>Properties\ProductInfo.cs</Link>
     </Compile>
-    <EmbeddedResource Include="$(DO_SECURE_DIR)\PostSharp.license">
-      <Link>PostSharp.license</Link>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -1304,5 +1299,4 @@
     <Folder Include="Orm\Upgrade\Model\Stored\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\MSBuild\Weaving.targets" />
 </Project>

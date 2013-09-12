@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading;
 using System.Transactions;
 using NUnit.Framework;
-using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.Testing;
 using Xtensive.Orm.Configuration;

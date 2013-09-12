@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// Default implementation of SQL temporary data provider.
   /// </summary>
-  public class SqlStoreProvider : SqlTemporaryDataProvider
+  public sealed class SqlStoreProvider : SqlTemporaryDataProvider
   {
     private new StoreProvider Origin
     {
@@ -52,6 +52,7 @@ namespace Xtensive.Orm.Providers
       StoreProvider origin, ExecutableProvider source)
       : base(handlers, request, descriptor, origin, new[] {source})
     {
+      Initialize();
     }
   }
 }

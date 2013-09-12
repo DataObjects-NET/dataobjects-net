@@ -6,11 +6,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Core;
+using Xtensive.Orm.Validation;
 using Xtensive.Testing;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.ValidationContextTestModel;
-using AggregateException = Xtensive.Core.AggregateException;
 
 namespace Xtensive.Orm.Tests.Storage.ValidationContextTestModel
 {
@@ -48,21 +47,16 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
-
           Validatable first = null;
           Validatable second;
 
-          AssertEx.Throws<AggregateException>(() => {
-            using (var region = session.DisableValidation()) {
-              first = new Validatable();
-              region.Complete();
-            }
+          AssertEx.Throws<ValidationFailedException>(() => {
+            first = new Validatable();
+            session.Validate();
           });
 
-          using (var region = session.DisableValidation()) {
-            first.IsValid = true;
-            region.Complete();
-          }
+          first.IsValid = true;
+          session.Validate();
 
           transactionScope.Complete();
         }
@@ -75,13 +69,9 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession()) {
         var transactionScope = session.OpenTransaction();
 
-        AssertEx.Throws<Exception>(() => {
-          using (var region = session.DisableValidation()) {
-            var obj = new Validatable {IsValid = false};
-            session.Validate();
-            obj.IsValid = true;
-            region.Complete();
-          }
+        AssertEx.Throws<ValidationFailedException>(() => {
+          var obj = new Validatable {IsValid = false};
+          session.Validate();
         });
 
       }
@@ -94,18 +84,16 @@ namespace Xtensive.Orm.Tests.Storage
         var transactionScope = session.OpenTransaction();
 
         try {
-          using (var region = session.DisableValidation()) {
-            var obj = new Validatable();
-            region.Complete();
-          }
+          var obj = new Validatable();
+          session.Validate();
         }
-        catch (Exception) { }
+        catch (ValidationFailedException) {
+        }
 
         transactionScope.Complete();
 
-        AssertEx.Throws<InvalidOperationException>(transactionScope.Dispose);
+        AssertEx.Throws<ValidationFailedException>(transactionScope.Dispose);
       }
     }
-    
   }
 }

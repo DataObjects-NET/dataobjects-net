@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// Default implementation for SQL <see cref="IncludeProvider"/>.
   /// </summary>
-  public class SqlIncludeProvider : SqlTemporaryDataProvider
+  public sealed class SqlIncludeProvider : SqlTemporaryDataProvider
   {
     public const string RowFilterDataName = "RowFilterData";
     
@@ -77,6 +77,7 @@ namespace Xtensive.Orm.Providers
       : base(handlers, request, tableDescriptor, origin, new []{source})
     {
       this.filterDataSource = filterDataSource;
+      Initialize();
     }
   }
 }

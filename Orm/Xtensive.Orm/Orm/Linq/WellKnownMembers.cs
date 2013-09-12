@@ -310,7 +310,7 @@ namespace Xtensive.Orm.Linq
 
       // Structure
       CreateStructure = typeof (Internals.Activator)
-        .GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
+        .GetMethods(BindingFlags.Static | BindingFlags.Public)
         .Single(methodInfo =>
           methodInfo.Name=="CreateStructure"
           && methodInfo.GetParameters().Length==3
@@ -318,7 +318,7 @@ namespace Xtensive.Orm.Linq
 
       // EntitySet
       CreateEntitySet = typeof (Internals.Activator)
-        .GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
+        .GetMethods(BindingFlags.Static | BindingFlags.Public)
         .Single(methodInfo =>
           methodInfo.Name=="CreateEntitySet"
           && methodInfo.GetParameters().Length==2);

@@ -9,39 +9,30 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 <PropertyGroup>
-  <!-- Register configuration target for execution before PostSharp -->
-  <PostSharp21DependsOn>$(PostSharp21DependsOn);RegisterXtensiveAspectsWeaver</PostSharp21DependsOn>
-  
-  <!-- Autodetect root folder -->
-  <XtensiveOrmPath Condition="'$(XtensiveOrmPath)'==''">$(MSBuildThisFileDirectory)</XtensiveOrmPath>
-  
-  <!-- Enable integrated PostSharp unless explicitly disabled by user -->
-  <XtensiveOrmIntegratedPostSharp Condition="'$(XtensiveOrmIntegratedPostSharp)'==''">true</XtensiveOrmIntegratedPostSharp>
+  <!-- Register weaving target for execution after compilation -->
+  <CompileDependsOn>$(CompileDependsOn);XtensiveOrmRunWeaver</CompileDependsOn>
+  <!-- Autodetect weaver program unless overridden by user -->
+  <XtensiveOrmWeaver Condition="'$(XtensiveOrmWeaver)'==''">$(MSBuildThisFileDirectory)\Tools\Weaver.exe</XtensiveOrmWeaver>
+  <XtensiveOrmRunWeaverDependsOn>$(XtensiveOrmRunWeaverDependsOn)</XtensiveOrmRunWeaverDependsOn>
 </PropertyGroup>
 
-<!-- Validate that root path is set optionally triggering detection target -->
-<Target Name="ValidateXtensiveOrmPath">
-  <Error Condition="'$(XtensiveOrmPath)'==''"
-         Text="XtensiveOrmPath property is not set" />
-  <Error Condition="!Exists('$(XtensiveOrmPath)')"
-         Text="XtensiveOrmPath is set to '$(XtensiveOrmPath)' which does not exists" />
+<!-- Run weaver -->
+<Target Name="XtensiveOrmRunWeaver"
+        Inputs="@(IntermediateAssembly -> '%(FullPath)')"
+        Outputs="@(IntermediateAssembly -> '%(FullPath).weaver-stamp')"
+        DependsOnTargets="ResolveAssemblyReferences;_CopyFilesMarkedCopyLocal;$(XtensiveOrmRunWeaverDependsOn)">
+  <Error Condition="!Exists('$(XtensiveOrmWeaver)')"
+         Text="Weaver is not found at '$(XtensiveOrmWeaver)'" />
+  <Message Importance="low" Text="Using weaver at '$(XtensiveOrmWeaver)'"/>
   <PropertyGroup>
-    <XtensiveOrmPath Condition="!HasTrailingSlash('$(XtensiveOrmPath)')">$(XtensiveOrmPath)\</XtensiveOrmPath>
+    <XtensiveOrmWeaverParameters>/input:"@(IntermediateAssembly -> '%(FullPath)')" /makeBackup:true /writeStampFile:true</XtensiveOrmWeaverParameters>
+    <XtensiveOrmWeaverParameters Condition="'$(DebugSymbols)'=='true'">$(XtensiveOrmWeaverParameters) /processDebugSymbols:true</XtensiveOrmWeaverParameters>
+    <XtensiveOrmWeaverParameters Condition="$(SignAssembly)=='true'">$(XtensiveOrmWeaverParameters) /strongNameKey:"$(AssemblyOriginatorKeyFile)"</XtensiveOrmWeaverParameters>
+    <XtensiveOrmWeaverParameters>$(XtensiveOrmWeaverParameters) @(ReferencePath -> '/reference:"%(FullPath)"', ' ')</XtensiveOrmWeaverParameters>
   </PropertyGroup>
-  <Message Importance="low" Text="Using XtensiveOrmPath = '$(XtensiveOrmPath)'"/>
+  <Exec Command="$(XtensiveOrmWeaver) $(XtensiveOrmWeaverParameters)"
+        WorkingDirectory="$(MSBuildProjectDirectory)"
+        IgnoreExitCode="true" />
 </Target>
-
-<!-- Add tools folder to PostSharp plugin search path -->
-<Target Name="RegisterXtensiveAspectsWeaver" DependsOnTargets="ValidateXtensiveOrmPath">
-  <PropertyGroup>
-    <XtensiveAspectsWeaverPath>$(XtensiveOrmPath)Tools</XtensiveAspectsWeaverPath>
-    <PostSharpSearchPath>$(PostSharpSearchPath);$(XtensiveAspectsWeaverPath)</PostSharpSearchPath>
-  </PropertyGroup>
-  <Message Importance="low" Text="Added '$(XtensiveAspectsWeaverPath)' to PostSharpSearchPath"/>
-</Target>
-
-<!-- Import integrated PostSharp if required -->
-<Import Condition="'$(XtensiveOrmIntegratedPostSharp)'=='true'"
-        Project="Tools\PostSharp\PostSharp.targets" />
 
 </Project>

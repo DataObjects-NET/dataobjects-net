@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests._Manual.Validation
     public string LastName { get; set;} 
     
     [Field]
-    [PastConstraint(Mode = ConstrainMode.OnSetValue)]
+    [PastConstraint(IsImmediate = true)]
     public DateTime BirthDay { get; set; } 
 
     [Field]
@@ -38,12 +38,12 @@ namespace Xtensive.Orm.Tests._Manual.Validation
     [EmailConstraint]
     public string Email { get; set;}
 
+    [Field]
     [PhoneNumberConstraint]
     public string Phone { get; set;}
 
     [Field]
-    [RangeConstraint(Min = 0.8, Max = 2.23,
-      Message = "Incorrect '{PropertyName}' value: {value}, it can not be less than {Min} and greater than {Max}.")]
+    [RangeConstraint(Min = 0.8, Max = 2.23)]
     public double Height { get; set;}
 
     protected override void OnValidate()

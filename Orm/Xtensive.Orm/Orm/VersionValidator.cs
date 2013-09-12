@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
 
@@ -24,7 +23,6 @@ namespace Xtensive.Orm
   /// <summary>
   /// An attachable service validating versions inside the specified <see cref="Session"/>.
   /// </summary>
-  [Infrastructure]
   public sealed class VersionValidator : SessionBound, 
     IDisposable
   {

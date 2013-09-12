@@ -12,7 +12,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Aspects;
 using Xtensive.Caching;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -63,7 +62,6 @@ namespace Xtensive.Orm
   [Serializable]
   [SystemType]
   [DebuggerDisplay("{Key}")]
-  [EntityAspect]
   public abstract class Entity : Persistent,
     IEntity,
     ISerializable,
@@ -107,7 +105,6 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the <see cref="Key"/> that identifies this entity.
     /// </summary>
-    [Infrastructure]
     public Key Key
     {
       [DebuggerStepThrough]
@@ -166,7 +163,6 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets persistence state of the entity.
     /// </summary>
-    [Infrastructure]
     public PersistenceState PersistenceState
     {
       [DebuggerStepThrough]
@@ -197,16 +193,14 @@ namespace Xtensive.Orm
     #region IIdentified members
 
     /// <inheritdoc/>
-    [Infrastructure] // Proxy
-      Key IIdentified<Key>.Identifier
+    Key IIdentified<Key>.Identifier
     {
       [DebuggerStepThrough]
       get { return Key; }
     }
 
     /// <inheritdoc/>
-    [Infrastructure] // Proxy
-      object IIdentified.Identifier
+    object IIdentified.Identifier
     {
       [DebuggerStepThrough]
       get { return Key; }
@@ -217,14 +211,12 @@ namespace Xtensive.Orm
     #region IHasVersion members
 
     /// <inheritdoc/>
-    [Infrastructure]
     VersionInfo IHasVersion<VersionInfo>.Version {
       [DebuggerStepThrough]
       get { return VersionInfo; }
     }
 
     /// <inheritdoc/>
-    [Infrastructure]
     object IHasVersion.Version {
       [DebuggerStepThrough]
       get { return VersionInfo; }
@@ -397,15 +389,34 @@ namespace Xtensive.Orm
       return true;
     }
 
+    /// <summary>
+    /// Performs immediate validation of this instance.
+    /// </summary>
+    public void Validate()
+    {
+      if (CanBeValidated)
+        Session.ValidationContext.Validate(this);
+    }
+
     #endregion
 
-    #region Private \ internal methods
+    #region Private / internal methods
 
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
     internal void EnsureNotRemoved()
     {
       if (IsRemoved)
         throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+    }
+
+    internal override sealed ValidationResult GetValidationResult()
+    {
+      return Session.ValidationContext.ValidateOnceAndGetErrors(this).FirstOrDefault(r => r.Field==null);
+    }
+
+    internal override sealed ValidationResult GetValidationResult(string fieldName)
+    {
+      return Session.ValidationContext.ValidateOnceAndGetErrors(this).FirstOrDefault(f => f.Field!=null && f.Field.Name==fieldName);
     }
 
     internal override sealed void EnsureIsFetched(FieldInfo field)
@@ -547,11 +558,12 @@ namespace Xtensive.Orm
 
       var subscriptionInfo = GetSubscription(EntityEventBroker.InitializePersistentEventKey);
       if (subscriptionInfo.Second!=null)
-        ((Action<Key>) subscriptionInfo.Second)
-          .Invoke(subscriptionInfo.First);
+        ((Action<Key>) subscriptionInfo.Second).Invoke(subscriptionInfo.First);
+
       OnInitialize();
-      if (!materialize && CanBeValidated && Session.Domain.Configuration.AutoValidation)
-        this.Validate();
+
+      if (!materialize && CanBeValidated)
+        Session.ValidationContext.RegisterForValidation(this);
     }
 
     internal override sealed void SystemInitializationError(Exception error)
@@ -628,7 +640,9 @@ namespace Xtensive.Orm
     internal override sealed void SystemSetValueAttempt(FieldInfo field, object value)
     {
       EnsureNotRemoved();
+
       OrmLog.Debug(Strings.LogSessionXSettingValueKeyYFieldZ, Session, Key, field);
+
       if (field.IsPrimaryKey)
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
 
@@ -645,6 +659,7 @@ namespace Xtensive.Orm
         if (subscriptionInfo.Second != null)
           ((Action<Key, FieldInfo, object>)subscriptionInfo.Second).Invoke(subscriptionInfo.First, field, value);
         OnSettingFieldValueAttempt(field, value);
+        Session.ValidationContext.ValidateSetAttempt(this, field, value);
       }
     }
 
@@ -697,8 +712,8 @@ namespace Xtensive.Orm
         if (Session.IsSystemLogicOnly)
           return;
 
-        if (Session.Domain.Configuration.AutoValidation)
-          this.Validate();
+        if (CanBeValidated)
+          Session.ValidationContext.RegisterForValidation(this);
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
         if (subscriptionInfo.Second!=null)
@@ -731,7 +746,6 @@ namespace Xtensive.Orm
 
     #region Serialization-related methods
 
-    [Infrastructure]
     [SecurityCritical]
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
     {
@@ -740,7 +754,6 @@ namespace Xtensive.Orm
       }
     }
 
-    [Infrastructure]
     void IDeserializationCallback.OnDeserialization(object sender)
     {
       using (Session.OpenSystemLogicOnlyRegion()) {
@@ -802,7 +815,6 @@ namespace Xtensive.Orm
     }
 
     // Is used for EntitySetItem<,> instance construction
-    [Infrastructure]
     internal Entity(Session session, Tuple keyTuple)
       : base(session)
     {
@@ -925,7 +937,6 @@ namespace Xtensive.Orm
     /// <remarks>
     /// Used internally to initialize the entity on materialization.
     /// </remarks>
-    [Infrastructure]
     protected Entity(EntityState state)
     {
       try {
@@ -951,7 +962,6 @@ namespace Xtensive.Orm
     /// <remarks>
     /// Used internally to initialize the entity on materialization.
     /// </remarks>
-    [Infrastructure]
     protected Entity(Session session, EntityState state)
       : base(session)
     {
@@ -975,7 +985,6 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="info">The <see cref="SerializationInfo"/>.</param>
     /// <param name="context">The <see cref="StreamingContext"/>.</param>
-    [Infrastructure]
     protected Entity(SerializationInfo info, StreamingContext context)
     {
       bool successfully = false;

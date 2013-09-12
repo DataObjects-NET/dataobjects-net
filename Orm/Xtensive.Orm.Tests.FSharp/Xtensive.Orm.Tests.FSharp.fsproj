@@ -10,7 +10,6 @@
     <RootNamespace>Xtensive.Orm.Tests.FSharp</RootNamespace>
     <AssemblyName>Xtensive.Orm.Tests.FSharp</AssemblyName>
     <Name>Xtensive.Orm.Tests.FSharp</Name>
-    <DontImportPostSharp>True</DontImportPostSharp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -54,9 +53,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Transactions" />
     <Reference Include="WindowsBase" />
-    <Reference Include="Xtensive.Aspects">
-      <HintPath>..\..\Bin\Latest\Xtensive.Aspects.dll</HintPath>
-    </Reference>
     <Reference Include="Xtensive.Core">
       <HintPath>..\..\Bin\Latest\Xtensive.Core.dll</HintPath>
     </Reference>
@@ -76,7 +72,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="!Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildBinPath)\Microsoft.Build.Tasks.v4.0.dll')" />
-  <Import Project="..\..\MSBuild\Weaving.targets" />
+  <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.
 	<Target Name="BeforeBuild">

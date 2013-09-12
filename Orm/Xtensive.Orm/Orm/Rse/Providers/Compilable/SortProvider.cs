@@ -7,25 +7,15 @@
 using System;
 using Xtensive.Collections;
 
-using Xtensive.Orm.Rse.Providers;
-
 namespace Xtensive.Orm.Rse.Providers
 {  
   /// <summary>
   /// Compilable provider that sorts the 
   /// <see cref="UnaryProvider.Source"/> by <see cref="OrderProviderBase.Order"/>.
   /// </summary>
-  [Serializable]  
+  [Serializable]
   public sealed class SortProvider : OrderProviderBase
   {
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      base.Initialize();
-//      SetActualOrdering(ExpectedOrder);
-    }
-
-
     // Constructors
 
     /// <summary>
@@ -36,6 +26,7 @@ namespace Xtensive.Orm.Rse.Providers
     public SortProvider(CompilableProvider source, DirectionCollection<int> order)
       : base(ProviderType.Sort, source, order)
     {
+      Initialize();
     }
   }
 }

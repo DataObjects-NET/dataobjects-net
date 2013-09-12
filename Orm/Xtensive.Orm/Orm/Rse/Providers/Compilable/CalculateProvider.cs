@@ -86,6 +86,7 @@ namespace Xtensive.Orm.Rse.Providers
         columns.SetValue(col, i);
       }
       CalculatedColumns = columns;
+      Initialize();
     }
   }
 }

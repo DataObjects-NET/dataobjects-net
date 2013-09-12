@@ -7,7 +7,7 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using AggregateException = Xtensive.Core.AggregateException;
+using Xtensive.Orm.Validation;
 
 namespace Xtensive.Orm.Tests._Manual.Validation
 {
@@ -27,26 +27,23 @@ namespace Xtensive.Orm.Tests._Manual.Validation
       using (var session = Domain.OpenSession()) {
         try {
           using (var transactionScope = session.OpenTransaction()) {
-            using (var inconsistencyRegion = session.DisableValidation()) {
-
-              var person = new Person (session) {
-                FirstName = "Mike",
-                LastName = "Grooovy",
-                Height = 1.5,
-                BirthDay = new DateTime(1983, 03, 16),
-                IsSubscribedOnNews = true,
-                Email = "mike@grooovy.com"
-              };
-
-              inconsistencyRegion.Complete();
-            }
+            var person = new Person(session) {
+              FirstName = "Mike",
+              LastName = "Grooovy",
+              Height = 1.5,
+              BirthDay = new DateTime(1983, 03, 16),
+              IsSubscribedOnNews = true,
+              Email = "mike@grooovy.com"
+            };
+            session.Validate();
             transactionScope.Complete();
           }
         }
-        catch (AggregateException exception) {
+        catch (ValidationFailedException exception) {
           Console.WriteLine("Following validation errors were found:");
-          foreach (var error in exception.GetFlatExceptions())
-            Console.WriteLine(error.Message);
+          foreach (var errorInfo in exception.ValidationErrors)
+            foreach (var error in errorInfo.Errors)
+              Console.WriteLine("{0}: {1}", errorInfo.Target, error.ErrorMessage);
         }
       }
     }

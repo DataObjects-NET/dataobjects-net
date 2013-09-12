@@ -6,7 +6,6 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Aspects;
 using Xtensive.Caching;
 using Xtensive.Core;
 using Xtensive.Tuples;
@@ -20,7 +19,6 @@ namespace Xtensive.Orm
   /// <summary>
   /// The underlying state of the <see cref="Orm.Entity"/>.
   /// </summary>
-  [Infrastructure]
   [DebuggerDisplay("Key = {key}, Tuple = {state}, PersistenceState = {persistenceState}")]
   public sealed class EntityState : TransactionalStateContainer<Tuple>, 
     IEquatable<EntityState>,

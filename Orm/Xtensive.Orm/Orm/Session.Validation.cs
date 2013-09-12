@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
 
 namespace Xtensive.Orm
@@ -14,37 +14,12 @@ namespace Xtensive.Orm
   public partial class Session 
   {
     /// <summary>
-    /// Opens the "inconsistent region" - the code region, in which validation is
-    /// just queued for delayed execution rather then performed immediately.
-    /// Actual validation will happen on disposal of <see cref="ICompletableScope"/>.
-    /// </summary>
-    /// <returns>
-    /// <see cref="IDisposable"/> object, which disposal will identify the end of the region.
-    /// </returns>
-    /// <remarks>
-    /// <para>
-    /// The beginning of the region is the place where this method is called.
-    /// </para>
-    /// <para>
-    /// The end of the region is the place where returned <see cref="IDisposable"/> object is disposed.
-    /// The validation of all queued to validate objects will be performed during disposal, if
-    /// <see cref="ICompletableScope.Complete"/> method was called on
-    /// <see cref="ICompletableScope"/> object before disposal.
-    /// </para>
-    /// </remarks>
-    public ICompletableScope DisableValidation()
-    {
-      return ValidationContext.DisableValidation();
-    }
-
-    /// <summary>
     /// Validates all instances registered in <see cref="ValidationContext"/>
-    /// of current <see cref="Session"/> regardless if inconsistency
-    /// regions are open or not.
+    /// of current <see cref="Session"/>.
     /// </summary>
     public void Validate()
     {
-      ValidationContext.Validate();
+      ValidationContext.Validate(ValidationReason.UserRequest);
     }
 
     /// <summary>
@@ -52,7 +27,7 @@ namespace Xtensive.Orm
     /// and returns all validation exceptions.
     /// </summary>
     /// <returns>List exceptions occured during validation.</returns>
-    public IList<Exception> ValidateAndGetErrors()
+    public IList<EntityErrorInfo> ValidateAndGetErrors()
     {
       return ValidationContext.ValidateAndGetErrors();
     }
@@ -62,8 +37,7 @@ namespace Xtensive.Orm
     /// </summary>
     /// <exception cref="InvalidOperationException">Can not get validation context: There is no active transaction.</exception>
     internal ValidationContext ValidationContext {
-      get
-      {
+      get {
         var transaction = Transaction;
         if (transaction==null)
           throw new InvalidOperationException(Strings.ExCanNotGetValidationContextThereIsNoActiveTransaction);

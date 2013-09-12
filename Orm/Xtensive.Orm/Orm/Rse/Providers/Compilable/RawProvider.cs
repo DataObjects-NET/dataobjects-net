@@ -67,16 +67,7 @@ namespace Xtensive.Orm.Rse.Providers
     {
       Source = source;
       this.header = header;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
-    /// <param name="source">The <see cref="Source"/> property value.</param>
-    public RawProvider(RecordSetHeader header, IEnumerable<Tuple> source)
-      : this(header, () => source)
-    {
+      Initialize();
     }
   }
 }

@@ -46,6 +46,7 @@ namespace Xtensive.Orm.Rse.Providers
     {
       Predicate = predicate;
       JoinType = joinType;
+      Initialize();
     }
   }
 }

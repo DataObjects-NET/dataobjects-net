@@ -52,7 +52,8 @@ namespace Xtensive.Orm.Rse.Providers
     public SelectProvider(CompilableProvider provider, int[] columnIndexes)
       : base(ProviderType.Select, provider)
     {
-      this.columnIndexes = columnIndexes;      
+      this.columnIndexes = columnIndexes;
+      Initialize();
     }
   }
 }

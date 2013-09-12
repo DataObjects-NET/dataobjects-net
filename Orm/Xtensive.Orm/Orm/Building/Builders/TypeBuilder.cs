@@ -13,6 +13,7 @@ using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Validation;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
@@ -41,8 +42,12 @@ namespace Xtensive.Orm.Building.Builders
           MappingName = typeDef.MappingName,
           MappingDatabase = typeDef.MappingDatabase,
           MappingSchema = typeDef.MappingSchema,
-          HasVersionRoots = typeDef.UnderlyingType.GetInterfaces().Any(type => type==typeof (IHasVersionRoots))
+          HasVersionRoots = typeDef.UnderlyingType.GetInterfaces().Any(type => type==typeof (IHasVersionRoots)),
+          Validators = typeDef.Validators,
         };
+
+        if (typeInfo.IsEntity && DeclaresOnValidate(typeInfo.UnderlyingType))
+          typeInfo.Validators.Add(new EntityValidator());
 
         if (typeDef.StaticTypeId!=null)
           typeInfo.TypeId = typeDef.StaticTypeId.Value;
@@ -211,8 +216,15 @@ namespace Xtensive.Orm.Building.Builders
         ItemType = fieldDef.ItemType,
         Length = fieldDef.Length,
         Scale = fieldDef.Scale,
-        Precision = fieldDef.Precision
+        Precision = fieldDef.Precision,
+        Validators = fieldDef.Validators,
       };
+
+      if (fieldInfo.IsStructure && DeclaresOnValidate(fieldInfo.ValueType))
+        fieldInfo.Validators.Add(new StructureFieldValidator());
+
+      if (fieldInfo.IsEntitySet && DeclaresOnValidate(fieldInfo.ValueType))
+        fieldInfo.Validators.Add(new EntitySetFieldValidator());
 
       type.Fields.Add(fieldInfo);
 
@@ -246,6 +258,7 @@ namespace Xtensive.Orm.Building.Builders
         if (fieldDef.IsTypeDiscriminator)
           type.Hierarchy.TypeDiscriminatorMap.Field = fieldInfo;
       }
+
       return fieldInfo;
     }
 
@@ -486,6 +499,18 @@ namespace Xtensive.Orm.Building.Builders
     {
       var valueType = key.SingleColumnType;
       return valueType!=null && KeyGeneratorFactory.IsSequenceBacked(valueType);
+    }
+
+    private bool DeclaresOnValidate(Type type)
+    {
+      try {
+        var method = type.GetMethod("OnValidate", BindingFlags.Instance | BindingFlags.NonPublic);
+        return method!=null && method.DeclaringType!=null && method.DeclaringType.Assembly!=GetType().Assembly;
+      }
+      catch(AmbiguousMatchException) {
+        // Many OnValidate methods, assume OnValidate() is overridden
+        return true;
+      }
     }
 
     #endregion

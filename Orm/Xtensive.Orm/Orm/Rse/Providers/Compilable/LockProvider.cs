@@ -39,6 +39,7 @@ namespace Xtensive.Orm.Rse.Providers
     {
       LockMode = () => lockMode;
       LockBehavior = () => lockBehavior;
+      Initialize();
     }
 
     /// <summary>
@@ -52,6 +53,7 @@ namespace Xtensive.Orm.Rse.Providers
     {
       LockMode = lockMode;
       LockBehavior = lockBehavior;
+      Initialize();
     }
   }
 }

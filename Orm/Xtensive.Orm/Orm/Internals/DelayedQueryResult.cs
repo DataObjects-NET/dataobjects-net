@@ -55,10 +55,7 @@ namespace Xtensive.Orm.Internals
     /// <param name="parameterContext">The parameter context.</param>
     internal DelayedQueryResult(Session session, TranslatedQuery<TResult> translatedQuery, ParameterContext parameterContext)
     {
-      if (session.Transaction==null)
-        throw new InvalidOperationException(Strings.ExTransactionRequired);
-
-      Transaction = session.Transaction;
+      Transaction = session.DemandTransaction();
 
       materializer = translatedQuery.Materializer;
       tupleParameterBindings = translatedQuery.TupleParameterBindings;

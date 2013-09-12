@@ -12,6 +12,7 @@ using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
+using Xtensive.Orm.Validation;
 using Xtensive.Tuples;
 using Xtensive.Tuples.Transform;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -50,6 +51,7 @@ namespace Xtensive.Orm.Model
     private ReadOnlyList<AssociationInfo>      removalSequence;
     private ReadOnlyList<FieldInfo>            versionFields;
     private IList<ColumnInfo> versionColumns;
+    private IList<IObjectValidator> validators;
     private Type                               underlyingType;
     private HierarchyInfo                      hierarchy;
     private int                                typeId = NoTypeId;
@@ -384,6 +386,25 @@ namespace Xtensive.Orm.Model
       }
     }
 
+    /// <summary>
+    /// Gets <see cref="IObjectValidator"/> instances
+    /// associated with this type.
+    /// </summary>
+    public IList<IObjectValidator> Validators
+    {
+      get { return validators; }
+      internal set
+      {
+        this.EnsureNotLocked();
+        validators = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets value indicating if this type has validators (including field validators).
+    /// </summary>
+    public bool HasValidators { get; private set; }
+
     internal FieldAccessorProvider Accessors { get; private set; }
 
     /// <summary>
@@ -622,6 +643,8 @@ namespace Xtensive.Orm.Model
         }
       }
 
+      HasValidators = validators.Count > 0 || fields.Any(f => f.HasValidators);
+
       // Selecting master parts from paired associations & single associations
       var associations = model.Associations.Find(this)
         .Where(a => a.IsMaster)
@@ -677,6 +700,8 @@ namespace Xtensive.Orm.Model
 
       if (!recursive)
         return;
+
+      validators = new ReadOnlyList<IObjectValidator>(validators.ToList());
 
       affectedIndexes.Lock(true);
       indexes.Lock(true);

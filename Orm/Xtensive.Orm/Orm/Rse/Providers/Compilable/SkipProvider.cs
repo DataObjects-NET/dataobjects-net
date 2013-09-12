@@ -37,6 +37,7 @@ namespace Xtensive.Orm.Rse.Providers
       : base(ProviderType.Skip, provider)
     {
       Count = count;
+      Initialize();
     }
 
     /// <summary>
@@ -48,6 +49,7 @@ namespace Xtensive.Orm.Rse.Providers
       : base(ProviderType.Skip, provider)
     {
       Count = () => count;
+      Initialize();
     }
   }
 }

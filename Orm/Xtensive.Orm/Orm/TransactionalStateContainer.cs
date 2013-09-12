@@ -5,15 +5,12 @@
 // Created:    2008.11.05
 
 using System;
-using Xtensive.Aspects;
-
 
 namespace Xtensive.Orm
 {
   /// <summary>
   /// An abstract base class for objects having associated transactional state.
   /// </summary>
-  [Infrastructure]
   public abstract class TransactionalStateContainer<TState> : SessionBound
   {
     private TState state;
@@ -103,9 +100,7 @@ namespace Xtensive.Orm
 
     private void BindToCurrentTransaction(bool skipValidation)
     {
-      var currentTransaction = Session.Transaction;
-      if (currentTransaction==null)
-        throw new InvalidOperationException(Strings.ExTransactionRequired);
+      var currentTransaction = Session.DemandTransaction();
       if (!skipValidation)
         if (Transaction==null || !Transaction.AreChangesVisibleTo(currentTransaction))
           throw new InvalidOperationException(Strings.ExCanNotMarkStateAsModifiedItIsNotValidInCurrentTransaction);

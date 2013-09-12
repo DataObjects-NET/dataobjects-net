@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Rse.Providers
   /// over the <see cref="UnaryProvider.Source"/>.
   /// </summary>
   [Serializable]
-  public class FilterProvider : UnaryProvider
+  public sealed class FilterProvider : UnaryProvider
   {
     private Func<Tuple, bool> compiledPredicate;
 
@@ -57,6 +57,7 @@ namespace Xtensive.Orm.Rse.Providers
       : base(ProviderType.Filter, source)
     {
       Predicate = predicate;
+      Initialize();
     }
   }
 }

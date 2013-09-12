@@ -1,3 +1,5 @@
 [main] New improved version of Xtensive.Tuples
+[main] Validation framework is heavily reworked
+[main] PostSharp is replaced with custom persistence weaver
 [main] Added String.Like extension method with support in LINQ translator
 [main] Persist is optimized to avoid sorting entities that do not have incoming/outgoing FK

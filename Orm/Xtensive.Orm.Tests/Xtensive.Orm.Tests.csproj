@@ -11,7 +11,6 @@
     <RootNamespace>Xtensive.Orm.Tests</RootNamespace>
     <AssemblyName>Xtensive.Orm.Tests</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <DontImportPostSharp>True</DontImportPostSharp>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -58,7 +57,6 @@
     <Reference Include="nunit.framework, Version=2.2.7.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
-    <Reference Include="PostSharp, Version=2.1.0.0, Culture=neutral, PublicKeyToken=b13fd38b8f9c99d7, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -73,9 +71,6 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
-    <Reference Include="Xtensive.Aspects, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
     <Reference Include="Xtensive.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
@@ -91,12 +86,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DomainConfigurationFactoryTest.cs" />
-    <Compile Include="Integrity\ConstraintsTest.cs" />
-    <Compile Include="Integrity\TestResources.Designer.cs">
-      <DependentUpon>TestResources.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <Compile Include="Interfaces\DoubleIndexedInterfaceTest.cs" />
     <Compile Include="Interfaces\InterfaceImplementationTest.cs" />
     <Compile Include="Issues\CustomCompilerException.cs" />
@@ -127,7 +116,6 @@
     <Compile Include="Issues\Issue0717_VersionCheckBug.cs" />
     <Compile Include="Issues\Issue0725_DisconnectedStateDisconnectBug.cs" />
     <Compile Include="Issues\Issue0733_UseINNER_JOIN.cs" />
-    <Compile Include="Issues\Issue0736_AutoValidationCloning.cs" />
     <Compile Include="Issues\Issue0737_PersistentFieldState.cs" />
     <Compile Include="Issues\Issue0751_EntitySetEquals.cs" />
     <Compile Include="Issues\Issue0754_CopyFieldHint_MoveFieldHint\Issue0754_CopyFieldHint_MoveFieldHint.cs" />
@@ -295,7 +283,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>InterfaceAssociationsModelGenerator.tt</DependentUpon>
     </Compile>
-    <Compile Include="Storage\AutoPropertyTest.cs" />
     <Compile Include="Storage\FieldDefaultValueTest.cs" />
     <Compile Include="Storage\CustomEntityConnectionTest.cs" />
     <Compile Include="Issues\Issue0597_OpenGenericsInDomainModel.cs" />
@@ -429,7 +416,6 @@
     <Compile Include="Storage\DisableSaveChangesTest.cs" />
     <Compile Include="Storage\SerializedQueryTest.cs" />
     <Compile Include="Storage\TransactionModesTest.cs" />
-    <Compile Include="Storage\AutoTransactionsTest.cs" />
     <Compile Include="Storage\DisconnectedStateTest.cs" />
     <Compile Include="Storage\LegacyDb\AnimalDbBaseTest.cs" />
     <Compile Include="Storage\Performance\DoOracleCrudTest.cs" />
@@ -573,7 +559,6 @@
     <Compile Include="ObjectModel\NorthwindDO.cs" />
     <Compile Include="Rse\HeaderParseTest.cs" />
     <Compile Include="Storage\ConstraintsTest.cs" />
-    <Compile Include="Storage\AspectsTest.cs" />
     <Compile Include="Storage\CoreServicesTest.cs" />
     <Compile Include="Storage\CustomEntitySetTest.cs" />
     <Compile Include="Storage\ForeignKeyTest.cs" />
@@ -599,7 +584,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Storage\ActivatorTest.cs" />
     <Compile Include="Storage\ReferentialIntegrityTest.cs" />
-    <Compile Include="Storage\SessionBoundTest.cs" />
     <Compile Include="Storage\LazyLoadTest.cs" />
     <Compile Include="Storage\StructureTest.cs" />
     <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
@@ -641,16 +625,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Integrity\TestResources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>TestResources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Northwind.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\MSBuild\Weaving.targets" />
+  <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
 </Project>

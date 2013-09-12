@@ -5,7 +5,6 @@
 // Created:    2008.11.06
 
 using System;
-using Xtensive.Aspects;
 using Xtensive.Core;
 
 using Xtensive.IoC;
@@ -18,7 +17,6 @@ namespace Xtensive.Orm.Services
   /// Provides access to low-level operations with <see cref="EntitySetBase"/> descendants.
   /// </summary>
   [Service(typeof(DirectEntitySetAccessor))]
-  [Infrastructure]
   public sealed class DirectEntitySetAccessor : SessionBound,
     ISessionService
   {

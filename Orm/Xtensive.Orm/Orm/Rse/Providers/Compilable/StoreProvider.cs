@@ -57,6 +57,8 @@ namespace Xtensive.Orm.Rse.Providers
       Name = name;
 
       this.header = header;
+
+      Initialize();
     }
 
     /// <summary>
@@ -74,6 +76,8 @@ namespace Xtensive.Orm.Rse.Providers
       Source = source;
 
       header = source.Header;
+
+      Initialize();
     }
 
     /// <summary>
@@ -89,6 +93,8 @@ namespace Xtensive.Orm.Rse.Providers
       Source = source;
 
       header = source.Header;
+
+      Initialize();
     }
   }
 }

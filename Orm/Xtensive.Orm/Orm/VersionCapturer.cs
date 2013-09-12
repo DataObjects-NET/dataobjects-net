@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Aspects;
 using Xtensive.Core;
 
 using Xtensive.Tuples.Transform;
@@ -19,7 +18,6 @@ namespace Xtensive.Orm
   /// and writing the information on their original version to <see cref="Versions"/> set
   /// (<see cref="VersionSet"/>).
   /// </summary>
-  [Infrastructure]
   public sealed class VersionCapturer : SessionBound, 
     IDisposable
   {

@@ -81,13 +81,12 @@ namespace Xtensive.Orm.Tests.Issues
           new KeyValuePair<Key, VersionInfo>(key, expectedVersion),
         });
 
-      using (VersionValidator.Attach(Session.Demand(), expectedVersions)) {
-        using (var tx = Session.Demand().OpenTransaction()) {
-          var entity = Session.Demand().Query.Single<T>(key);
-          using (var ir = Session.Demand().DisableValidation()) {
-            updater.Invoke(entity);
-            ir.Complete();
-          }
+      var session = Session.Demand();
+      using (VersionValidator.Attach(session, expectedVersions)) {
+        using (var tx = session.OpenTransaction()) {
+          var entity = session.Query.Single<T>(key);
+          updater.Invoke(entity);
+          session.Validate();
           tx.Complete();
         }
       }

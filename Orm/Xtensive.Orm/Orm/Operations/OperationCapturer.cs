@@ -5,9 +5,7 @@
 // Created:    2009.10.22
 
 using System;
-using Xtensive.Aspects;
 using Xtensive.Core;
-
 
 namespace Xtensive.Orm.Operations
 {
@@ -16,7 +14,6 @@ namespace Xtensive.Orm.Operations
   /// and writing their sequence to <see cref="Operations"/> instance 
   /// (<see cref="IOperationLogger"/>).
   /// </summary>
-  [Infrastructure]
   public sealed class OperationCapturer : SessionBound, 
     IDisposable
   {

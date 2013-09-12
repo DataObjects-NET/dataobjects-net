@@ -7,7 +7,6 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using Xtensive.Aspects;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Providers;
@@ -17,7 +16,7 @@ namespace Xtensive.Orm.Services
   /// <summary>
   /// Transforms LINQ queries into various representations.
   /// </summary>
-  [Service(typeof (QueryFormatter), Singleton = true), Infrastructure]
+  [Service(typeof (QueryFormatter), Singleton = true)]
   public sealed class QueryFormatter : SessionBound, ISessionService
   {
     private readonly CommandFactory commandFactory;
