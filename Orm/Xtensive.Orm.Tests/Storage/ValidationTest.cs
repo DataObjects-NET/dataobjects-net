@@ -156,9 +156,13 @@ namespace Xtensive.Orm.Tests.Storage.Validation
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-
           var target = new ValidationTarget();
           target.Name = "name";
+          target.Description = "blah";
+          AssertEx.Throws<ArgumentException>(() => target.Name = null);
+          AssertEx.Throws<ArgumentException>(() => target.Name = string.Empty);
+          AssertEx.Throws<ArgumentException>(() => target.Description = null);
+          AssertEx.Throws<ArgumentException>(() => target.Description = string.Empty);
         }
       }
     }

@@ -640,6 +640,7 @@ namespace Xtensive.Orm
         if (subscriptionInfo.Second != null)
           ((Action<Key, FieldInfo, object>)subscriptionInfo.Second).Invoke(subscriptionInfo.First, field, value);
         OnSettingFieldValueAttempt(field, value);
+        Session.ValidationContext.ValidateImmediate(this, field, value);
       }
     }
 

@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Orm.Internals;
+using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Validation
 {
@@ -33,6 +35,21 @@ namespace Xtensive.Orm.Validation
         throw new ValidationFailedException(GetErrorMessage(ValidationReason.UserRequest)) {
           ValidationErrors = new List<EntityErrorInfo> {result}
         };
+    }
+
+    public void ValidateImmediate(Entity target, FieldInfo field, object value)
+    {
+      if (!isEnabled)
+        return;
+
+      if (!field.HasImmediateValidators)
+        return;
+
+      foreach (var validator in field.Validators.Where(v => v.IsImmediate)) {
+        var result = validator.Validate(target, value);
+        if (result.IsError)
+          throw new ArgumentException(result.ErrorMessage, "value");
+      }
     }
 
     public void Validate(ValidationReason reason)
