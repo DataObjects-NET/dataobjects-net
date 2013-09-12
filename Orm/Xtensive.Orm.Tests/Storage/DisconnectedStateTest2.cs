@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Storage.DisconnectedStateTest2
     public Book Book { get; set; }
   }
 
-  [TestFixture]
+  [TestFixture, Ignore("To be removed when DisconnectedState is eliminated.")]
   public class DisconnectedStateTest2 : AutoBuildTest
   {
     private const string NewBookTitle = "New Book";
