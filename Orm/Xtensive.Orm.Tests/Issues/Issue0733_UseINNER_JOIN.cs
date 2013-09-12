@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Tests.Issues
       public string ID { get; private set; }
 
       [Field]
-      [Association(PairTo = "AbiturAd.State")]
+      [Association(PairTo = "State")]
       public EntitySet<AbiturAd> AbiturAds { get; set; }
     }
 
