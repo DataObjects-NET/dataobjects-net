@@ -314,26 +314,25 @@ namespace Xtensive.Orm.Tests.Storage.Validation
     {
       using (var session = Domain.OpenSession()) 
       using (session.OpenTransaction()) {
+        Reference reference1 = null;
         AssertEx.Throws<ValidationFailedException>(() => {
-          var reference1 = new Reference();
+          reference1 = new Reference();
           session.Validate();
         });
-        var reference2 = new Reference {
-          Title = "Test"
-        };
+        reference1.Remove();
+        var reference2 = new Reference {Title = "Test"};
         session.Validate();
-        var reference = new Reference("Test");
 
+        var reference3 = new Reference("Test");
+        Referrer referrer2 = null;
         AssertEx.Throws<ValidationFailedException>(() => {
-          var referrer1 = new Referrer();
+          referrer2 = new Referrer();
           session.Validate();
         });
-        var referrer2 = new Referrer {
-          Title = "Test",
-          Reference = reference
-        };
+        referrer2.Remove();
+        var referrer3 = new Referrer {Title = "Test", Reference = reference3};
         session.Validate();
-        var referrer = new Referrer(reference, "Test");
+        var referrer1 = new Referrer(reference3, "Test");
       }
     }
 
