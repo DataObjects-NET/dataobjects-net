@@ -32,7 +32,10 @@ namespace Xtensive.Orm.Tests.Storage
           book.Text = null;
 
           // Title has length constraint (10 symbols) so InvalidOperationException is expected
-          AssertEx.ThrowsInvalidOperationException(() => book.Title = "01234567890");
+          AssertEx.Throws<StorageException>(() => {
+            book.Title = "01234567890";
+            session.SaveChanges();
+          });
         }
       }
     }
