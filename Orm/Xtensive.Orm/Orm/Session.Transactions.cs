@@ -300,11 +300,12 @@ namespace Xtensive.Orm
       }
     }
 
-    internal void EnsureTransactionIsStarted()
+    internal Transaction DemandTransaction()
     {
-      var transaction = Transaction;
-      if (transaction==null)
-        throw new InvalidOperationException(Strings.ExTransactionRequired);
+      var result = Transaction;
+      if (result==null)
+        throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt);
+      return result;
     }
 
     /// <exception cref="InvalidOperationException">Can't create a transaction

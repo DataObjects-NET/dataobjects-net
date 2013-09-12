@@ -323,11 +323,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Active Transaction is required for this operation. Use Transaction.Open(...) to open it..
+        ///   Looks up a localized string similar to Active Transaction is required for this operation. Use Session.OpenTransaction(...) to open it..
         /// </summary>
-        internal static string ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt {
+        internal static string ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt {
             get {
-                return ResourceManager.GetString("ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt", resourceCulture);
+                return ResourceManager.GetString("ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt", resourceCulture);
             }
         }
         
@@ -4251,29 +4251,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Transaction is required..
-        /// </summary>
-        internal static string ExTransactionIsRequired {
-            get {
-                return ResourceManager.GetString("ExTransactionIsRequired", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to A transaction is running, but there should be no active transaction..
         /// </summary>
         internal static string ExTransactionIsRunning {
             get {
                 return ResourceManager.GetString("ExTransactionIsRunning", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to process operation without a transaction. Use Transaction.Open(...) to open it..
-        /// </summary>
-        internal static string ExTransactionRequired {
-            get {
-                return ResourceManager.GetString("ExTransactionRequired", resourceCulture);
             }
         }
         

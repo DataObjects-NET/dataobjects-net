@@ -331,9 +331,6 @@
   <data name="ExIndexFieldXIsIncorrect" xml:space="preserve">
     <value>Index field '{0}' is incorrect.</value>
   </data>
-  <data name="ExTransactionRequired" xml:space="preserve">
-    <value>Unable to process operation without a transaction. Use Transaction.Open(...) to open it.</value>
-  </data>
   <data name="ExTypeNotFoundInModel" xml:space="preserve">
     <value>Type '{0}' is not found in model.</value>
   </data>
@@ -1405,9 +1402,6 @@ Referenced Entity Key: {4}</value>
   <data name="ExServiceXIsNotSupported" xml:space="preserve">
     <value>Service '{0}' is not supported.</value>
   </data>
-  <data name="ExTransactionIsRequired" xml:space="preserve">
-    <value>Transaction is required.</value>
-  </data>
   <data name="ExXIsObsoleteUseYAndZInstead" xml:space="preserve">
     <value>{0} is obsolete. Use {1} and {2} instead.</value>
   </data>
@@ -1594,8 +1588,8 @@ SessionOptions.AllowSwitching flag to avoid this exception, if this is intention
   <data name="ExTypeOfXMustBeADescendantOfYType" xml:space="preserve">
     <value>Type of '{0}' must be a descendant of {1} type.</value>
   </data>
-  <data name="ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt" xml:space="preserve">
-    <value>Active Transaction is required for this operation. Use Transaction.Open(...) to open it.</value>
+  <data name="ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt" xml:space="preserve">
+    <value>Active Transaction is required for this operation. Use Session.OpenTransaction(...) to open it.</value>
   </data>
   <data name="ExLegacySchemaIsNotCompatible_DetailsX" xml:space="preserve">
     <value>Legacy schema is not compatible. Details: 

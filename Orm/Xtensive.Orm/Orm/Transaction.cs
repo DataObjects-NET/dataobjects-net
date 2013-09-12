@@ -43,7 +43,7 @@ namespace Xtensive.Orm
     {
       var current = Current;
       if (current==null)
-        throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
+        throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt);
       return current;
     }
 
@@ -55,9 +55,7 @@ namespace Xtensive.Orm
     public static void Require(Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      if (session.Transaction!=null)
-        return;
-      throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseTransactionOpenToOpenIt);
+      session.DemandTransaction();
     }
 
     #endregion

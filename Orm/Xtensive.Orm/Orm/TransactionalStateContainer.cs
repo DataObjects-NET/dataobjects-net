@@ -100,9 +100,7 @@ namespace Xtensive.Orm
 
     private void BindToCurrentTransaction(bool skipValidation)
     {
-      var currentTransaction = Session.Transaction;
-      if (currentTransaction==null)
-        throw new InvalidOperationException(Strings.ExTransactionRequired);
+      var currentTransaction = Session.DemandTransaction();
       if (!skipValidation)
         if (Transaction==null || !Transaction.AreChangesVisibleTo(currentTransaction))
           throw new InvalidOperationException(Strings.ExCanNotMarkStateAsModifiedItIsNotValidInCurrentTransaction);
