@@ -637,7 +637,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           Assert.IsNull(previousState.Tuple);
         }
         using (var nestedSession = Domain.OpenSession())
-        using (var tx = session.OpenTransaction()) {
+        using (var tx = nestedSession.OpenTransaction()) {
           new Customer(idValue) {Age = 25, City = "A"};
           tx.Complete();
         }
