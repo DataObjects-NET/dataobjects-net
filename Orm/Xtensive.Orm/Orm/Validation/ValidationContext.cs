@@ -7,21 +7,27 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Orm.Internals;
-using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Validation
 {
   internal sealed class ValidationContext
   {
+    private readonly bool isEnabled;
     private HashSet<Entity> entitiesToValidate;
 
     public void Reset()
     {
+      if (!isEnabled)
+        return;
+
       entitiesToValidate = null;
     }
 
     public void Validate(Entity target)
     {
+      if (!isEnabled)
+        return;
+
       var result = ValidateEntity(target);
       if (result!=null)
         throw new ValidationFailedException(GetErrorMessage(ValidationReason.UserRequest)) {
@@ -31,11 +37,17 @@ namespace Xtensive.Orm.Validation
 
     public EntityErrorInfo ValidateAndGetErrors(Entity target)
     {
+      if (!isEnabled)
+        return null;
+
       return ValidateEntity(target);
     }
 
     public void ValidateAll(ValidationReason reason)
     {
+      if (!isEnabled)
+        return;
+
       var errors = GetValidationErrors();
       if (errors.Count > 0)
         throw new ValidationFailedException(GetErrorMessage(reason)) {
@@ -45,13 +57,20 @@ namespace Xtensive.Orm.Validation
 
     public IList<EntityErrorInfo> ValidateAllAndGetErrors()
     {
+      if (!isEnabled)
+        return new List<EntityErrorInfo>();
+
       return GetValidationErrors();
     }
 
     public void EnqueueValidation(Entity target)
     {
+      if (!isEnabled)
+        return;
+
       if (!target.TypeInfo.HasValidators)
         return;
+
       if (entitiesToValidate==null)
         entitiesToValidate = new HashSet<Entity>();
       entitiesToValidate.Add(target);
@@ -123,6 +142,11 @@ namespace Xtensive.Orm.Validation
           errorInfo = new EntityErrorInfo(target);
         errorInfo.Errors.Add(result);
       }
+    }
+
+    public ValidationContext(bool isEnabled)
+    {
+      this.isEnabled = isEnabled;
     }
   }
 }

@@ -8,6 +8,7 @@ using System;
 using System.Transactions;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
 
@@ -238,7 +239,7 @@ namespace Xtensive.Orm
       IsAutomatic = isAutomatic;
       IsDisconnected = session.IsDisconnected;
       TimeStamp = DateTime.UtcNow;
-      ValidationContext = new ValidationContext();
+      ValidationContext = new ValidationContext(session.Configuration.Supports(SessionOptions.ValidateEntities));
       
       if (outer!=null) {
         Outer = outer;
