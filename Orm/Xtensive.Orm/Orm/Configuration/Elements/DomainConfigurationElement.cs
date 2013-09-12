@@ -36,7 +36,6 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string DatabasesElementName = "databases";
     private const string KeyGeneratorsElementName = "keyGenerators";
     private const string ServicesElementName = "services";
-    private const string ValidationModeElementName = "validationMode";
     private const string CollationElementName = "collation";
     private const string ServiceContainerTypeElementName = "serviceContainerType";
     private const string IncludeSqlInExceptionsElementName = "includeSqlInExceptions";
@@ -192,16 +191,6 @@ namespace Xtensive.Orm.Configuration.Elements
     {
       get { return (string) this[ForeignKeyModeElementName]; }
       set { this[ForeignKeyModeElementName] = value; }
-    }
-
-    /// <summary>
-    /// <see cref="DomainConfiguration.ValidationMode" copy="true"/>
-    /// </summary>
-    [ConfigurationProperty(ValidationModeElementName, DefaultValue = "Default")]
-    public string ValidationMode
-    {
-      get { return (string) this[ValidationModeElementName]; }
-      set { this[ValidationModeElementName] = value; }
     }
 
     /// <summary>
@@ -366,7 +355,6 @@ namespace Xtensive.Orm.Configuration.Elements
         AutoValidation = AutoValidation,
         DefaultSchema = DefaultSchema,
         DefaultDatabase = DefaultDatabase,
-        ValidationMode = (ValidationMode) Enum.Parse(typeof (ValidationMode), ValidationMode, true),
         UpgradeMode = (DomainUpgradeMode) Enum.Parse(typeof (DomainUpgradeMode), UpgradeMode, true),
         ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true),
         SchemaSyncExceptionFormat = (SchemaSyncExceptionFormat) Enum.Parse(typeof (SchemaSyncExceptionFormat), SchemaSyncExceptionFormat, true),

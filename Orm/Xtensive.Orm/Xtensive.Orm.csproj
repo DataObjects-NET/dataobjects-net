@@ -405,7 +405,6 @@
     <Compile Include="Orm\Validation\Constraints\PastConstraint.cs" />
     <Compile Include="Orm\Validation\Constraints\RangeConstraint.cs" />
     <Compile Include="Orm\Validation\Constraints\RegexConstraint.cs" />
-    <Compile Include="Orm\Validation\Exceptions\ConstraintViolationException.cs" />
     <Compile Include="Orm\Validation\ValidationContext.cs" />
     <Compile Include="Orm\Validation\ValidationMode.cs" />
     <Compile Include="Orm\Linq\Expressions\Visitors\EnumRewriter.cs" />
@@ -810,7 +809,6 @@
     <Compile Include="Orm\Upgrade\Hints\RenameTypeHint.cs" />
     <Compile Include="Orm\Upgrade\Hints\UpgradeHint.cs" />
     <Compile Include="Orm\Upgrade\Interfaces\IUpgradeHandler.cs" />
-    <Compile Include="Orm\ValidationMode.cs" />
     <Compile Include="Orm\VersionInfo.cs" />
     <Compile Include="Orm\WellKnown.cs" />
     <Compile Include="Orm\Linq\Translator.Materialization.cs" />

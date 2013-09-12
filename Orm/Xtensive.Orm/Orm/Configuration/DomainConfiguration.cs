@@ -92,7 +92,6 @@ namespace Xtensive.Orm.Configuration
     private SessionConfigurationCollection sessions = new SessionConfigurationCollection();
     private DomainUpgradeMode upgradeMode = DomainUpgradeMode.Default;
     private ForeignKeyMode foreignKeyMode = ForeignKeyMode.Default;
-    private ValidationMode validationMode = ValidationMode.Default;
     private Type serviceContainerType;
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
     private string forcedServerVersion;
@@ -300,19 +299,6 @@ namespace Xtensive.Orm.Configuration
       {
         this.EnsureNotLocked();
         autoValidation = value;
-      }
-    }
-
-    /// <summary>
-    /// Gets or sets the validation mode, that is used for validating entities within transactions.
-    /// </summary>
-    public ValidationMode ValidationMode
-    {
-      get { return validationMode; }
-      set
-      {
-        this.EnsureNotLocked();
-        validationMode = value;
       }
     }
 
@@ -621,7 +607,6 @@ namespace Xtensive.Orm.Configuration
       sessions = (SessionConfigurationCollection) configuration.Sessions.Clone();
       upgradeMode = configuration.UpgradeMode;
       autoValidation = configuration.AutoValidation;
-      validationMode = configuration.ValidationMode;
       foreignKeyMode = configuration.ForeignKeyMode;
       serviceContainerType = configuration.ServiceContainerType;
       includeSqlInExceptions = configuration.IncludeSqlInExceptions;

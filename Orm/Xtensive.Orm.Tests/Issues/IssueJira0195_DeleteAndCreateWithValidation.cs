@@ -44,7 +44,6 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var config = base.BuildConfiguration();
       config.AutoValidation = true;
-      config.ValidationMode = ValidationMode.OnDemand;
       config.Types.Register(typeof (Guider).Assembly, typeof (Guider).Namespace);
       return config;
     }

@@ -18,7 +18,6 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.ValidationMode = ValidationMode.OnDemand;
       config.Types.Register(typeof (Validatable));
       return config;
     }
