@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Metadata
       return Name;
     }
 
-    private Extension CreateObject(Session session, EntityState state)
+    private static Extension CreateObject(Session session, EntityState state)
     {
       return new Extension(session, state);
     }
