@@ -32,7 +32,6 @@ namespace Xtensive.Orm.Weaver.Stages
         WriteWithWrapping(writer, string.Empty, indent, type.ToString());
         foreach (var property in type.Properties.Values)
           WriteWithWrapping(writer, indent, indent, property.ToString());
-        writer.WriteLine();
       }
     }
 
