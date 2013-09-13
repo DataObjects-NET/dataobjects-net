@@ -49,13 +49,9 @@ namespace Xtensive.Orm.Weaver.Stages
           if (current.Kind==PersistentTypeKind.EntityInterface)
             isPersistent = true;
         }
-        TypeInfo result;
-        if (isPersistent) {
-          result = new TypeInfo(type, PersistentTypeKind.EntityInterface) {Interfaces = interfaces};
-          InspectProperties(result);
-        }
-        else
-          result = new TypeInfo(type, PersistentTypeKind.None);
+        var kind = isPersistent ? PersistentTypeKind.EntityInterface : PersistentTypeKind.None;
+        var result = new TypeInfo(type, kind) {Interfaces = interfaces};
+        InspectProperties(result);
         processedTypes.Add(identity, result);
         return result;
       }
