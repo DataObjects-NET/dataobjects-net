@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Upgrade
 
       public override IEnumerable<T> Get(NodeCollection<T> items)
       {
-        return items.Where(el=>comparer.Compare(el.Name,searchingName)==0).ToList();
+        return items.Where(el=>comparer.Compare(el.Name, searchingName)==0).ToList();
       }
 
       public NameMatcher(string name)
@@ -29,32 +29,30 @@ namespace Xtensive.Orm.Upgrade
 
     class PatternMatcher : RuleMatcher<T>
     {
-      private readonly string searchingPattern;
-      private readonly static Dictionary<string, Regex> Regexes = new Dictionary<string, Regex>();
+      private readonly Regex matcher;
 
       public override IEnumerable<T> Get(NodeCollection<T> items)
       {
-        return items.Where(el => IsMatch(el.Name, searchingPattern)).ToList();
+        return items.Where(el => IsMatch(el.Name)).ToList();
       }
 
-      private static bool IsMatch(string value, string pattern)
+      private bool IsMatch(string value)
       {
-        Regex regex;
-        Regexes.TryGetValue(pattern, out regex);
-        if (regex != null)
-          return regex.IsMatch(value);
+        return matcher.IsMatch(value);
+      }
+
+      private string CreateRegexPattern(string pattern)
+      {
         var substrings = pattern.Split(maskSymbol.ToCharArray());
         for (int i = 0; i<substrings.Length; i++) {
           substrings[i] = Regex.Escape(substrings[i]);
         }
-        regex = new Regex(string.Join(".*", substrings));
-        Regexes.Add(pattern, regex);
-        return regex.IsMatch(value);
+        return string.Join(".*", substrings);
       }
 
       public PatternMatcher(string pattern)
       {
-        searchingPattern = pattern;
+        matcher = new Regex(CreateRegexPattern(pattern));
       }
     }
 
@@ -78,7 +76,7 @@ namespace Xtensive.Orm.Upgrade
       return (string.IsNullOrEmpty(name) || name==maskSymbol);
     }
 
-    public static RuleMatcher<T> GetMatcher (string pattern)
+    public static RuleMatcher<T> GetMatcher(string pattern)
     {
       if(IsOnlyMaskSymbol(pattern))
         return new AllMatcher();
