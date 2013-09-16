@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -23,6 +24,8 @@ namespace Xtensive.Orm.Upgrade
     private readonly SchemaExtractionResult targetModel;
     private readonly MappingResolver mappingResolver;
     private readonly StringComparer stringComparer = StringComparer.OrdinalIgnoreCase;
+
+    private List<ForeignKey> foreignKeysOfSchema; 
     
     /// <summary>
     /// Runs handling of <see cref="IgnoreRuleCollection"/>
@@ -40,60 +43,42 @@ namespace Xtensive.Orm.Upgrade
 
     private void VisitSchema(Schema schema, IgnoreRule rule)
     {
-      if (!string.IsNullOrEmpty(rule.Table) && !IsOnlyMaskSymbol(rule.Table)) {
-        if(IsContainsMaskSymbol(rule.Table)) {
-          var matchedTables = schema.Tables.Where(t => IsMatch(t.Name, rule.Table)).ToList();
-          foreach (var table in matchedTables) {
-            RemoveTable(schema.Tables, table);
-          }
-        }
-        else {
-          var table = schema.Tables[rule.Table];
-          if(table!=null)
-            if (!string.IsNullOrEmpty(rule.Column) && !IsOnlyMaskSymbol(rule.Column)) 
-              VisitTable(schema.Tables, table, rule);
-            else
-              RemoveTable(schema.Tables, table);
-        }
-      }
-      else 
-        foreach (var table in schema.Tables)
-          VisitTable(schema.Tables, table, rule);
+      foreignKeysOfSchema = schema.Tables.SelectMany(t => t.TableConstraints.OfType<ForeignKey>()).ToList();
+      var matcher =  RuleMatcher<Table>.GetMatcher(rule.Table);
+      var matchedTables = matcher.Get(schema.Tables);
+      if(!IsOnlyMaskSymbol(rule.Column))
+        foreach (var table in matchedTables)
+          VisitTable(table, rule);
+      else
+        foreach (var table in matchedTables)
+          RemoveTable(schema.Tables, table);
     }
 
-    private void VisitTable(PairedNodeCollection<Schema,Table> tables, Table table, IgnoreRule rule)
+    private void VisitTable(Table table, IgnoreRule rule)
     {
-      if(IsContainsMaskSymbol(rule.Column)) {
-        var matchedColumns = table.TableColumns.Where(c => IsMatch(c.Name, rule.Column)).ToList();
-        foreach (var matchedColumn in matchedColumns) {
-          RemoveColumn(tables, table.TableColumns,matchedColumn);
-        }
-      }
-      else {
-        var column = table.TableColumns[rule.Column];
-        if(column!=null)
-          RemoveColumn(tables, table.TableColumns, column);
-      }
+      var matcher = RuleMatcher<TableColumn>.GetMatcher(rule.Column);
+      var matchedColumns = matcher.Get(table.TableColumns);
+      foreach (var matchedColumn in matchedColumns)
+        RemoveColumn(table.TableColumns, matchedColumn);
     }
 
     private void RemoveTable(PairedNodeCollection<Schema, Table> tables, Table tableToRemove)
     {
-      var foreignKeys = tables.SelectMany(t => t.TableConstraints.OfType<ForeignKey>()).ToList();
-      foreach (var foreignKey in foreignKeys)
+      foreach (var foreignKey in foreignKeysOfSchema)
         if (foreignKey.Owner==tableToRemove || foreignKey.ReferencedTable==tableToRemove) {
           if (foreignKey.Owner==tableToRemove) {
             var resolvedTableName = mappingResolver.GetNodeName(foreignKey.ReferencedTable);
             if (!targetModel.LockedTables.ContainsKey(resolvedTableName))
               targetModel.LockedTables.Add(resolvedTableName,string.Format(Strings.ExTableXCantBeRemovedDueToForeignKeyYOfIgnoredTableOrColumn, foreignKey.ReferencedTable.Name, foreignKey.Name));
           }
-          tables.First(table => table==foreignKey.Owner).TableConstraints.Remove(foreignKey);
+          foreignKey.Owner.TableConstraints.Remove(foreignKey);
         }
       tables.Remove(tableToRemove);
     }
 
-    private void RemoveColumn(PairedNodeCollection<Schema, Table> tables, PairedNodeCollection<Table, TableColumn> columns, TableColumn columnToRemove)
+    private void RemoveColumn(PairedNodeCollection<Table, TableColumn> columns, TableColumn columnToRemove)
     {
-      RemoveForeignKeys(tables, columnToRemove);
+      RemoveForeignKeys(columnToRemove);
       RemoveIndexes(columnToRemove.Table, columnToRemove.Name);
       var resolvedTableName = mappingResolver.GetNodeName(columnToRemove.Table);
       if(!targetModel.LockedTables.ContainsKey(resolvedTableName))
@@ -101,12 +86,11 @@ namespace Xtensive.Orm.Upgrade
       columns.Remove(columnToRemove);
     }
 
-    private void RemoveForeignKeys(PairedNodeCollection<Schema, Table> tables, TableColumn referencedColumn)
+    private void RemoveForeignKeys(TableColumn referencedColumn)
     {
-      var foregnKeys = tables.SelectMany(t => t.TableConstraints.OfType<ForeignKey>()).ToList();
-      foreach (var foreignKey in foregnKeys) {
+      foreach (var foreignKey in foreignKeysOfSchema) {
         if (foreignKey.ReferencedColumns.Contains(referencedColumn))
-          tables.First(table=>table==foreignKey.Owner).TableConstraints.Remove(foreignKey);
+          foreignKey.Owner.TableConstraints.Remove(foreignKey);
 
         if (foreignKey.Columns.Contains(referencedColumn)) {
           if (foreignKey.Owner==referencedColumn.Table) {
@@ -114,7 +98,7 @@ namespace Xtensive.Orm.Upgrade
             if (!targetModel.LockedTables.ContainsKey(resolvedTableName))
               targetModel.LockedTables.Add(resolvedTableName, string.Format(Strings.ExTableXCantBeRemovedDueToForeignKeyYOfIgnoredTableOrColumn, foreignKey.ReferencedTable.Name, foreignKey.Name));
           }
-          tables.First(table=>table==foreignKey.Owner).TableConstraints.Remove(foreignKey);
+          foreignKey.Owner.TableConstraints.Remove(foreignKey);
         }
       }
     }
@@ -122,27 +106,16 @@ namespace Xtensive.Orm.Upgrade
     private void RemoveIndexes(DataTable table, string columnName)
     {
       var indexes = table.Indexes.Select(index => index)
-        .Where(elem=>elem.Columns.Count(el => el.Name==columnName)>0)
+        .Where(elem=>elem.Columns.Count(el => stringComparer.Compare(el.Name,columnName)==0)>0)
         .ToList();
       foreach (var index in indexes) {
         table.Indexes.Remove(index);
       }
     }
 
-    private bool IsMatch(string value, string pattern)
-    {
-      var regexp = pattern.Replace("*", ".*");
-      return Regex.IsMatch(value, regexp);
-    }
-
-    private bool IsContainsMaskSymbol(string name)
-    {
-      return name.Contains(maskSymbol);
-    }
-
     private bool IsOnlyMaskSymbol(string name)
     {
-      return (name.Contains(maskSymbol) && name.Length==1);
+      return (string.IsNullOrEmpty(name) || name == maskSymbol);
     }
 
     //Constructor

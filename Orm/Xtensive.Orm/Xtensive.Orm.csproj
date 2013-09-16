@@ -218,6 +218,7 @@
     <Compile Include="Orm\Providers\ProviderAttribute.cs" />
     <Compile Include="Orm\Providers\ProviderFeatures.cs" />
     <Compile Include="Orm\Providers\ProviderInfo.cs" />
+    <Compile Include="Orm\Upgrade\Internals\RuleMatcher.cs" />
     <Compile Include="Orm\Upgrade\Internals\SchemaExtractor.cs" />
     <Compile Include="Orm\Upgrade\Internals\SchemaUpgrader.cs" />
     <Compile Include="Orm\Providers\SessionHandler.cs" />
