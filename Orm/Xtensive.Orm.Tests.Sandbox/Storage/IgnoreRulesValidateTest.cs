@@ -295,8 +295,8 @@ namespace Xtensive.Orm.Tests.Storage
     public void IgnoreSimpleTableTest()
     {
       ClearMultidatabaseAndMultischemaFlags();
-      var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
-      initDomain.Dispose();
+      var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
+      initialDomain.Dispose();
 
       Catalog catalog = GetCatalog();
       var addedColumnsNames = new[] {"Id", "FirstColumn"};
@@ -313,8 +313,8 @@ namespace Xtensive.Orm.Tests.Storage
     public void IgnoreReferencedTableTest()
     {
       ClearMultidatabaseAndMultischemaFlags();
-      var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
-      initDomain.Dispose();
+      var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
+      initialDomain.Dispose();
 
       Catalog catalog = GetCatalog();
       var addedColumnsNames = new[] {"Id", "FirstColumn", "MyEntity2Id"};
@@ -407,8 +407,8 @@ namespace Xtensive.Orm.Tests.Storage
     public void IgnoreColumnsByMaskValidateTest()
     {
       ClearMultidatabaseAndMultischemaFlags();
-      var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
-      initDomain.Dispose();
+      var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
+      initialDomain.Dispose();
       Catalog catalog = GetCatalog();
       CreateColumn(catalog, "dbo", "MyEntity2", "IgnoreFirstColumn", SqlType.VarChar);
       CreateColumn(catalog, "dbo", "MyEntity2", "IgnoreSecondColumn", SqlType.VarChar);
@@ -423,8 +423,8 @@ namespace Xtensive.Orm.Tests.Storage
     public void IgnoreTablesByMaskValidateTest()
     {
       ClearMultidatabaseAndMultischemaFlags();
-      var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
-      initDomain.Dispose();
+      var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
+      initialDomain.Dispose();
       Catalog catalog = GetCatalog();
       var addedColumnsNames = new[] {"Id", "FirstColumn", "SecondColumn"};
       var addedColumnsTypes = new[] {SqlType.Int64, SqlType.VarChar, SqlType.VarChar};
@@ -442,8 +442,8 @@ namespace Xtensive.Orm.Tests.Storage
     public void IgnoreAllColumnsInTableByMaskValidateTest()
     {
       ClearMultidatabaseAndMultischemaFlags();
-      var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
-      initDomain.Dispose();
+      var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
+      initialDomain.Dispose();
       Catalog catalog = GetCatalog();
       var addedColumnsNames = new[] {"Id", "FirstColumn", "SecondColumn"};
       var addedColumnsTypes = new[] {SqlType.Int64, SqlType.VarChar, SqlType.VarChar};
@@ -458,8 +458,8 @@ namespace Xtensive.Orm.Tests.Storage
     public void UpgradeDomainWithIgnoreRuleByMaskInPerformModeTest()
     {
       ClearMultidatabaseAndMultischemaFlags();
-      var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
-      initDomain.Dispose();
+      var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
+      initialDomain.Dispose();
       Catalog catalog = GetCatalog();
       CreateColumn(catalog, "dbo", "MyEntity2", "IgnoredFirstColumn", SqlType.VarChar);
       CreateColumn(catalog, "dbo", "MyEntity2", "IgnoredSecondColumn", SqlType.VarChar);
@@ -485,8 +485,8 @@ namespace Xtensive.Orm.Tests.Storage
     public void UpgradeDomainWithIgnoreRuleByMaskInPerformSafelyModeTest()
     {
       ClearMultidatabaseAndMultischemaFlags();
-      var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
-      initDomain.Dispose();
+      var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
+      initialDomain.Dispose();
       Catalog catalog = GetCatalog();
       CreateColumn(catalog, "dbo", "MyEntity2", "IgnoredFirstColumn", SqlType.VarChar);
       CreateColumn(catalog, "dbo", "MyEntity2", "IgnoredSecondColumn", SqlType.VarChar);
@@ -516,8 +516,8 @@ namespace Xtensive.Orm.Tests.Storage
       var catalog = GetCatalog();
       CreateSchema(catalog, "Model1");
       CreateSchema(catalog, "Model2");
-      var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model1.Customer), typeof (Model3.MyEntity1));
-      initDomain.Dispose();
+      var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model1.Customer), typeof (Model3.MyEntity1));
+      initialDomain.Dispose();
       catalog = GetCatalog();
       CreateColumn(catalog, "Model2", "MyEntity2", "ReferencedIgnoredColumn", SqlType.Int64);
       CreateForeignKey(catalog, "Model2", "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID");
@@ -544,8 +544,8 @@ namespace Xtensive.Orm.Tests.Storage
       SetMultidatabase();
       Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
       isMultidatabaseTest = true;
-      var initDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model1.Customer), typeof (Model3.MyEntity1));
-      initDomain.Dispose();
+      var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model1.Customer), typeof (Model3.MyEntity1));
+      initialDomain.Dispose();
       var secondCatalog = GetCatalog(Multimapping.MultidatabaseTest.Database2Name);
       CreateColumn(secondCatalog, "dbo", "MyEntity2", "ReferencedIgnoredColumn", SqlType.Int64, true);
       CreateForeignKey(secondCatalog, "dbo", "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID", true);
@@ -839,7 +839,9 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var connection = sqlDriver.CreateConnection()) {
         connection.Open();
-        connection.CreateCommand(commandText).ExecuteNonQuery();
+        var command = connection.CreateCommand(commandText);
+        command.ExecuteNonQuery();
+        command.Dispose();
         connection.Close();
       }
     }
@@ -849,9 +851,12 @@ namespace Xtensive.Orm.Tests.Storage
       var result = new object();
       using (var connection = sqlDriver.CreateConnection()) {
         connection.Open();
-        var reader = connection.CreateCommand(commandText).ExecuteReader();
+        var command = connection.CreateCommand(commandText);
+        var reader = command.ExecuteReader();
         if (reader.Read())
           result = reader.GetValue(returnedColumnIndex);
+        reader.Dispose();
+        command.Dispose();
         connection.Close();
       }
       return result;
