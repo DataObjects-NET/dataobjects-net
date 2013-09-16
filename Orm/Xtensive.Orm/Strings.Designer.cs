@@ -2052,24 +2052,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ignore rule &apos;{0}&apos; contains invalid column name &apos;{1}&apos;..
-        /// </summary>
-        internal static string ExIgnoreRuleXContainsInvalidColumnNameY {
-            get {
-                return ResourceManager.GetString("ExIgnoreRuleXContainsInvalidColumnNameY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Ignore rule &apos;{0}&apos; contains invalid table name &apos;{1}&apos;..
-        /// </summary>
-        internal static string ExIgnoreRuleXContainsInvalidTableNameY {
-            get {
-                return ResourceManager.GetString("ExIgnoreRuleXContainsInvalidTableNameY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Ignore rule &apos;{0}&apos; must be applied to column or table..
         /// </summary>
         internal static string ExIgnoreRuleXMustBeAppliedToColumnOrTable {

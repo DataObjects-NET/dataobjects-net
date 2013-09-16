@@ -609,20 +609,9 @@ namespace Xtensive.Orm.Configuration
       foreach (var ignoreRule in IgnoreRules) {
         if (string.IsNullOrEmpty(ignoreRule.Table) && string.IsNullOrEmpty(ignoreRule.Column))
           throw new InvalidOperationException(string.Format(Strings.ExIgnoreRuleXMustBeAppliedToColumnOrTable, ignoreRule));
-        if (IsContainsRegExSpecialChars(ignoreRule.Table))
-          throw new InvalidOperationException(string.Format(Strings.ExIgnoreRuleXContainsInvalidTableNameY, ignoreRule, ignoreRule.Table));
-        if (IsContainsRegExSpecialChars(ignoreRule.Column))
-          throw new InvalidOperationException(string.Format(Strings.ExIgnoreRuleXContainsInvalidColumnNameY, ignoreRule, ignoreRule.Column));
       }
     }
 
-    private bool IsContainsRegExSpecialChars(string valueToValidate)
-    {
-      const string specialChars = @"[]\/^$|?+(){}";
-      if (valueToValidate.IsNullOrEmpty())
-        return false;
-      return valueToValidate.Any(symbol => specialChars.Contains(symbol));
-    }
     /// <inheritdoc/>
     protected override ConfigurationBase CreateClone()
     {

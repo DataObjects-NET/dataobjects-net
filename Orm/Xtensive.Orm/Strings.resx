@@ -2476,10 +2476,4 @@ Error: {1}</value>
   <data name="ExTableXCantBeRemovedDueToTheIgnoredColumnY">
     <value xml:space="preserve">Table '{0}' can't be removed due to the ignored column '{1}'.</value>
   </data>
-  <data name="ExIgnoreRuleXContainsInvalidTableNameY">
-    <value xml:space="preserve">Ignore rule '{0}' contains invalid table name '{1}'.</value>
-  </data>
-  <data name="ExIgnoreRuleXContainsInvalidColumnNameY">
-    <value xml:space="preserve">Ignore rule '{0}' contains invalid column name '{1}'.</value>
-  </data>
 </root>

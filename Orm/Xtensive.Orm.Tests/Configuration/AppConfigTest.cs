@@ -195,22 +195,6 @@ namespace Xtensive.Orm.Tests.Configuration
       good.Lock();
     }
 
-    [Test]
-    [ExpectedException(typeof(InvalidOperationException))]
-    public void IgnoreRuleInvalidTableNameTest()
-    {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "IgnoreRuleInvalidTableNameTest");
-      configuration.Lock();
-    }
-
-    [Test]
-    [ExpectedException(typeof(InvalidOperationException))]
-    public void IgnoreRuleInvalidColumnNameTest()
-    {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "IgnoreRuleInvalidColumnNameTest");
-      configuration.Lock();
-    }
-
     private void ValidateIgnoringConfiguration(DomainConfiguration configuration)
     {
       Assert.That(configuration.DefaultDatabase, Is.EqualTo("main"));
