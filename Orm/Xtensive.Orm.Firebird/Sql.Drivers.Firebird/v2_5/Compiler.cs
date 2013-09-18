@@ -189,6 +189,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             node.Arguments[1] - 1),
             node.Arguments[2] - 1));
           return;
+        case SqlFunctionType.DateTimeToStringIso:
+          Visit(DateTimeToStringIso(node.Arguments[0]));
+          return;
       }
 
       base.Visit(node);
@@ -287,6 +290,14 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       return SqlDml.FunctionCall("BIN_XOR", left, right);
     }
 
+    protected static SqlConcat DateTimeToStringIso(SqlExpression dateTime)
+    {
+      var date = SqlDml.Substring(dateTime, 0, 10);
+      var time = SqlDml.Substring(dateTime, 11, 8);
+
+      return SqlDml.Concat(date, SqlDml.Literal("T"), time);
+    }
+    
     #endregion
 
     protected internal Compiler(SqlDriver driver)

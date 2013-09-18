@@ -79,8 +79,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       case SqlFunctionType.DateTimeAddYears:
         (node.Arguments[0] + node.Arguments[1] * OneYearInterval).AcceptVisitor(this);
         return;
+      case SqlFunctionType.DateTimeToStringIso:
+        DateTimeToStringIso(node.Arguments[0]).AcceptVisitor(this);
+        return;
       }
       base.Visit(node);
+    }
+
+
+    private static SqlExpression DateTimeToStringIso(SqlExpression dateTime)
+    {
+      return SqlDml.FunctionCall("To_Char", dateTime, "YYYY-MM-DD\"T\"HH24:MI:SS");
     }
 
     // Constructors

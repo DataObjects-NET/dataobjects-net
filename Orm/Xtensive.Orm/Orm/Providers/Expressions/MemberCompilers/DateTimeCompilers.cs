@@ -318,5 +318,25 @@ namespace Xtensive.Orm.Providers
 
       return result;
     }
+
+    [Compiler(typeof(DateTime), "ToString")]
+    public static SqlExpression DateTimeToStringIso(SqlExpression _this)
+    {
+      throw new NotSupportedException(Strings.ExDateTimeToStringMethodIsNotSupported);
+    }
+
+    [Compiler(typeof(DateTime), "ToString")]
+    public static SqlExpression DateTimeToStringIso(SqlExpression _this, [Type(typeof(string))] SqlExpression value)
+    {
+      var stringValue = value as SqlLiteral<string>;
+
+      if (stringValue==null)
+        throw new NotSupportedException(Strings.ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported);
+      
+      if (!stringValue.Value.Equals("s"))
+        throw new NotSupportedException(Strings.ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported);
+
+      return SqlDml.DateTimeToStringIso(_this);
+    }
   }
 }

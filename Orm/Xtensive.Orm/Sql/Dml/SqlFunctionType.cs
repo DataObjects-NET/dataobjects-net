@@ -64,6 +64,7 @@ namespace Xtensive.Sql.Dml
     DateTimeAddYears,
     DateTimeAddMonths,
     DateTimeTruncate,
+    DateTimeToStringIso,
     IntervalConstruct,
     IntervalToMilliseconds,
     IntervalToNanoseconds,
