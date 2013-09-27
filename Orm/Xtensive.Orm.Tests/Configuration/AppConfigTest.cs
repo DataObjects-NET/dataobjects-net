@@ -5,6 +5,7 @@
 // Created:    2008.08.06
 
 using System;
+using System.Configuration;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Linq;
@@ -178,6 +179,74 @@ namespace Xtensive.Orm.Tests.Configuration
 
       convention.NamingRules = validRules1;
       convention.NamingRules = validRules2;
+    }
+    
+    [Test]
+    public void ReferencedConnectionStringTest()
+    {
+      var configuration = DomainConfiguration.Load("AppConfigTest", "DomainWithReferencedConnectionStrings");
+      var domainConnectionString = ConfigurationManager.ConnectionStrings["DomainConnectionString"].ConnectionString;
+      var sessionConnectionString = ConfigurationManager.ConnectionStrings["SessionConnectionString"].ConnectionString;
+      ValidateConnectionString(domainConnectionString, configuration.ConnectionInfo);
+      ValidateConnectionString(sessionConnectionString, configuration.Sessions.Default.ConnectionInfo);
+    }
+
+    private void ValidateConnectionString(string expected, ConnectionInfo actual)
+    {
+      Assert.That(actual, Is.Not.Null);
+      Assert.That(actual.ConnectionString, Is.EqualTo(expected));
+    }
+
+    [Test]
+    public void DefaultConfigurationTest()
+    {
+      var actualDomainConfiguration = DomainConfiguration.Load("AppConfigTest", "DomainWithoutConfiguration");
+      var expectedDomainConfiguration = new DomainConfiguration();
+      ValidateDomainConfiguration(expectedDomainConfiguration, actualDomainConfiguration);
+      ValidateNamingCovention(expectedDomainConfiguration.NamingConvention, actualDomainConfiguration.NamingConvention);
+      ValidateSessionConfiguration(new SessionConfiguration(), actualDomainConfiguration.Sessions.Default);
+    }
+
+    private void ValidateSessionConfiguration(SessionConfiguration expected, SessionConfiguration actual)
+    {
+      Assert.That(actual.BatchSize, Is.EqualTo(expected.BatchSize));
+      Assert.That(actual.CacheSize, Is.EqualTo(expected.CacheSize));
+      Assert.That(actual.CacheType, Is.EqualTo(expected.CacheType));
+      Assert.That(actual.ConnectionInfo, Is.EqualTo(expected.ConnectionInfo));
+      Assert.That(actual.DefaultCommandTimeout, Is.EqualTo(expected.DefaultCommandTimeout));
+      Assert.That(actual.DefaultIsolationLevel, Is.EqualTo(expected.DefaultIsolationLevel));
+      Assert.That(actual.EntityChangeRegistrySize, Is.EqualTo(expected.EntityChangeRegistrySize));
+      Assert.That(actual.Options, Is.EqualTo(expected.Options));
+      Assert.That(actual.Password, Is.EqualTo(expected.Password));
+      Assert.That(actual.ReaderPreloading, Is.EqualTo(expected.ReaderPreloading));
+      Assert.That(actual.ServiceContainerType, Is.EqualTo(expected.ServiceContainerType));
+      Assert.That(actual.Type, Is.EqualTo(expected.Type));
+      Assert.That(actual.UserName, Is.EqualTo(expected.UserName));
+    }
+
+    private static void ValidateDomainConfiguration(DomainConfiguration expected, DomainConfiguration actual)
+    {
+      Assert.That(actual.AutoValidation, Is.EqualTo(expected.AutoValidation));
+      Assert.That(actual.ConnectionInfo, Is.EqualTo(expected.ConnectionInfo));
+      Assert.That(actual.DefaultSchema, Is.EqualTo(expected.DefaultSchema));
+      Assert.That(actual.ForcedServerVersion, Is.EqualTo(expected.ForcedServerVersion));
+      Assert.That(actual.ForeignKeyMode, Is.EqualTo(expected.ForeignKeyMode));
+      Assert.That(actual.IncludeSqlInExceptions, Is.EqualTo(expected.IncludeSqlInExceptions));
+      Assert.That(actual.KeyCacheSize, Is.EqualTo(expected.KeyCacheSize));
+      Assert.That(actual.KeyGeneratorCacheSize, Is.EqualTo(expected.KeyGeneratorCacheSize));
+      Assert.That(actual.QueryCacheSize, Is.EqualTo(expected.QueryCacheSize));
+      Assert.That(actual.RecordSetMappingCacheSize, Is.EqualTo(expected.RecordSetMappingCacheSize));
+      Assert.That(actual.SchemaSyncExceptionFormat, Is.EqualTo(expected.SchemaSyncExceptionFormat));
+      Assert.That(actual.ServiceContainerType, Is.EqualTo(expected.ServiceContainerType));
+      Assert.That(actual.UpgradeMode, Is.EqualTo(expected.UpgradeMode));
+      Assert.That(actual.ValidationMode, Is.EqualTo(expected.ValidationMode));
+    }
+
+    private static void ValidateNamingCovention(NamingConvention expected, NamingConvention actual)
+    {
+      Assert.That(actual.LetterCasePolicy, Is.EqualTo(expected.LetterCasePolicy));
+      Assert.That(actual.NamespacePolicy, Is.EqualTo(expected.NamespacePolicy));
+      Assert.That(actual.NamingRules, Is.EqualTo(expected.NamingRules));
     }
   }
 }

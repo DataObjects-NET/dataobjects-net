@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Configuration
     private ValidationMode validationMode = ValidationMode.Default;
     private Type serviceContainerType;
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
-    private string forcedServerVersion;
+    private string forcedServerVersion = string.Empty;
     private bool buildInParallel = DefaultBuildInParallel;
     private bool allowCyclicDatabaseDependencies;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
