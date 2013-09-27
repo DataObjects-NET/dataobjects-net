@@ -106,9 +106,9 @@ namespace Xtensive.Orm.Configuration
     private bool? isMultidatabase;
     private bool? isMultischema;
 
-    private string collation;
-    private string nativeLibraryCacheFolder;
-    private string connectionInitializationSql;
+    private string collation = string.Empty;
+    private string nativeLibraryCacheFolder = string.Empty;
+    private string connectionInitializationSql = string.Empty;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.

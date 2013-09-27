@@ -69,7 +69,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
     {
       string basePath;
 
-      if (nativeLibraryCacheFolder!=null) {
+      if (!string.IsNullOrEmpty(nativeLibraryCacheFolder)) {
         basePath = nativeLibraryCacheFolder;
       }
       else {

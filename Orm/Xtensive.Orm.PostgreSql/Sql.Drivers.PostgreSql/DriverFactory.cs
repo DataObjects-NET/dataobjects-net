@@ -62,9 +62,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       using (var connection = new NpgsqlConnection(connectionString)) {
         connection.Open();
         SqlHelper.ExecuteInitializationSql(connection, configuration);
-        var version = configuration.ForcedServerVersion!=null
-          ? new Version(configuration.ForcedServerVersion)
-          : connection.PostgreSqlVersion;
+        var version = string.IsNullOrEmpty(configuration.ForcedServerVersion)
+          ? connection.PostgreSqlVersion
+          : new Version(configuration.ForcedServerVersion);
         var builder = new NpgsqlConnectionStringBuilder(connectionString);
         var dataSource = string.Format(DataSourceFormat, builder.Host, builder.Port, builder.Database);
         var coreServerInfo = new CoreServerInfo {
