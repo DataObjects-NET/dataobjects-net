@@ -167,7 +167,14 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <returns>The result of conversion.</returns>
     public SessionConfiguration ToNative()
     {
-      var connectionInfo = GetConnectionInfo();
+      // Minor hack:
+      // We should not require user to specify provider name.
+      // We actually know it when opening new session.
+      // However, we do not know it in this method
+      // We are going easy way and substituting a fake provider.
+      // SQL SessionHandler is aware of this and always uses correct provider.
+
+      var connectionInfo = ConnectionInfoParser.GetConnectionInfo(ConnectionUrl, "_dummy_", ConnectionString);
 
       var result = new SessionConfiguration(Name) {
         UserName = UserName,
@@ -184,27 +191,6 @@ namespace Xtensive.Orm.Configuration.Elements
         ConnectionInfo = connectionInfo,
       };
       return result;
-    }
-
-    private ConnectionInfo GetConnectionInfo()
-    {
-      // Minor hack:
-      // We should not require user to specify provider name.
-      // We actually know it when opening new session.
-      // However, we do not know it in this method
-      // We are going easy way and substituting a fake provider.
-      // SQL SessionHandler is aware of this and always uses correct provider.
-
-      var connectionStringSpecified = !string.IsNullOrEmpty(ConnectionString);
-      var connectionUrlSpecified = !string.IsNullOrEmpty(ConnectionUrl);
-      if (connectionStringSpecified && connectionUrlSpecified)
-        throw new InvalidOperationException(
-          Strings.ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrConnectionStringElement);
-      if (connectionStringSpecified)
-        return new ConnectionInfo("_dummy_", ConnectionString);
-      if (connectionUrlSpecified)
-        return new ConnectionInfo(ConnectionUrl);
-      return null;
     }
   }
 }

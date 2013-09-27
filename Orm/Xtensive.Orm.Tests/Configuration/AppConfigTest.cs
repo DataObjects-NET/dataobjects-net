@@ -4,8 +4,10 @@
 // Created by: Alexey Gamzov
 // Created:    2008.08.06
 
+using System.Configuration;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Testing;
 using Xtensive.Sql;
@@ -91,6 +93,22 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(configuration.SchemaSyncExceptionFormat, Is.EqualTo(SchemaSyncExceptionFormat.Brief));
       var clone = configuration.Clone();
       Assert.That(clone.SchemaSyncExceptionFormat, Is.EqualTo(SchemaSyncExceptionFormat.Brief));
+    }
+
+    [Test]
+    public void ReferencedConnectionStringTest()
+    {
+      var configuration = DomainConfiguration.Load("AppConfigTest", "DomainWithReferencedConnectionStrings");
+      var domainConnectionString = ConfigurationManager.ConnectionStrings["DomainConnectionString"].ConnectionString;
+      var sessionConnectionString = ConfigurationManager.ConnectionStrings["SessionConnectionString"].ConnectionString;
+      ValidateConnectionString(domainConnectionString, configuration.ConnectionInfo);
+      ValidateConnectionString(sessionConnectionString, configuration.Sessions.Default.ConnectionInfo);
+    }
+
+    private void ValidateConnectionString(string expected, ConnectionInfo actual)
+    {
+      Assert.That(actual, Is.Not.Null);
+      Assert.That(actual.ConnectionString, Is.EqualTo(expected));
     }
 
     [Test]
