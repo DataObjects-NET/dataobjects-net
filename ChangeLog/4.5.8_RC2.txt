@@ -1,5 +1,7 @@
 [main] Fixed invalid key comparison under certain conditions
 [main] Fixed EntitySet caching invalid state within DisableSaveChanges() scope
 [main] Fixed overflow when storing large TimeSpan values
+[main] Fixed invalid default values for SessionConfiguration.DefaultIsolationLevel and SessionConfiguration.Options
+[main] Fixed support for referencing connection strings in SessionConfiguration
 [mysql] Fixed translation of bitwise operations
 [mysql] Fixed translation of DateTime.DayOfWeek and DateTime.DayOfYear

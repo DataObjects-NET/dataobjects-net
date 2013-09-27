@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Configuration
     private ForeignKeyMode foreignKeyMode = ForeignKeyMode.Default;
     private Type serviceContainerType;
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
-    private string forcedServerVersion;
+    private string forcedServerVersion = string.Empty;
     private bool buildInParallel = DefaultBuildInParallel;
     private bool allowCyclicDatabaseDependencies;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
@@ -95,9 +95,9 @@ namespace Xtensive.Orm.Configuration
     private bool? isMultidatabase;
     private bool? isMultischema;
 
-    private string collation;
-    private string nativeLibraryCacheFolder;
-    private string connectionInitializationSql;
+    private string collation = string.Empty;
+    private string nativeLibraryCacheFolder = string.Empty;
+    private string connectionInitializationSql = string.Empty;
 
     /// <summary>
     /// Gets or sets the name of the section where storage configuration is configuration.

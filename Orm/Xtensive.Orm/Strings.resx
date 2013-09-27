@@ -2476,4 +2476,10 @@ Error: {1}</value>
   <data name="Validators">
     <value xml:space="preserve">Validators</value>
   </data>
+  <data name="ExConnectionStringWithNameXIsNotFound" xml:space="preserve">
+    <value>Connection string with name '{0}' is not found.</value>
+  </data>
+  <data name="ExConnectionStringWithNameXIsNullOrEmpty" xml:space="preserve">
+    <value>Connection string with name '{0}' is null or empty.</value>
+  </data>
 </root>

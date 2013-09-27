@@ -301,7 +301,7 @@ namespace Xtensive.Orm.Configuration.Elements
     public string ForcedServerVersion
     {
       get { return (string) this[ForcedServerVersionElementName]; }
-      set { this[ForcedServerVersion] = value; }
+      set { this[ForcedServerVersionElementName] = value; }
     }
 
     /// <summary>
@@ -331,11 +331,9 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <returns>The result of conversion.</returns>
     public DomainConfiguration ToNative()
     {
-      var connectionInfo = GetConnectionInfo();
-
       var config = new DomainConfiguration {
         Name = Name,
-        ConnectionInfo = connectionInfo,
+        ConnectionInfo = ConnectionInfoParser.GetConnectionInfo(ConnectionUrl, Provider, ConnectionString),
         NamingConvention = NamingConvention.ToNative(),
         KeyCacheSize = KeyCacheSize,
         KeyGeneratorCacheSize = KeyGeneratorCacheSize,
@@ -368,34 +366,6 @@ namespace Xtensive.Orm.Configuration.Elements
         config.KeyGenerators.Add(element.ToNative());
 
       return config;
-    }
-
-    private ConnectionInfo GetConnectionInfo()
-    {
-      bool connectionUrlSpecified = !string.IsNullOrEmpty(ConnectionUrl);
-      bool connectionStringSpecified = !string.IsNullOrEmpty(ConnectionString) && !string.IsNullOrEmpty(Provider);
-
-      if (connectionUrlSpecified && connectionStringSpecified)
-        throw new InvalidOperationException(
-          Strings.ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrProviderAndConnectionStringElements);
-
-      if (connectionUrlSpecified)
-        return new ConnectionInfo(ConnectionUrl);
-
-      string actualConnectionString = ConnectionString;
-      if (connectionStringSpecified) {
-        if (ConnectionString.StartsWith("#")) {
-          string connectionStringName = ConnectionString.Substring(1);
-          actualConnectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
-          if (string.IsNullOrEmpty(actualConnectionString))
-            throw new InvalidOperationException();
-        }
-        return new ConnectionInfo(Provider, actualConnectionString);
-      }
-
-      // Neither connection string, nor connection url specified.
-      // Leave connection information undefined.
-      return null;
     }
   }
 }

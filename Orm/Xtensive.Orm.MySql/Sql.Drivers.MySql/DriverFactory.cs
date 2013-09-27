@@ -67,7 +67,10 @@ namespace Xtensive.Sql.Drivers.MySql
       using (var connection = new MySqlConnection(connectionString)) {
         connection.Open();
         SqlHelper.ExecuteInitializationSql(connection, configuration);
-        var version = ParseVersion(configuration.ForcedServerVersion ?? connection.ServerVersion);
+        var versionString = string.IsNullOrEmpty(configuration.ForcedServerVersion)
+          ? connection.ServerVersion
+          : configuration.ForcedServerVersion;
+        var version = ParseVersion(versionString);
 
         var builder = new MySqlConnectionStringBuilder(connectionString);
         string dataSource = string.Format(DataSourceFormat, builder.Server, builder.Port, builder.Database);

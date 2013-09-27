@@ -1077,6 +1077,24 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connection string with name &apos;{0}&apos; is not found..
+        /// </summary>
+        internal static string ExConnectionStringWithNameXIsNotFound {
+            get {
+                return ResourceManager.GetString("ExConnectionStringWithNameXIsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection string with name &apos;{0}&apos; is null or empty..
+        /// </summary>
+        internal static string ExConnectionStringWithNameXIsNullOrEmpty {
+            get {
+                return ResourceManager.GetString("ExConnectionStringWithNameXIsNullOrEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Constraint belongs to other domain..
         /// </summary>
         internal static string ExConstraintBelongsToOtherDomain {

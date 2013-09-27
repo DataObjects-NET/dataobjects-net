@@ -49,13 +49,6 @@ namespace Xtensive.Sql
 
       var connectionString = GetConnectionString(connectionInfo);
       configuration = configuration.Clone();
-
-      // Simplify handling for all servers
-      if (configuration.ForcedServerVersion==string.Empty)
-        configuration.ForcedServerVersion = null;
-      if (configuration.NativeLibraryCacheFolder==string.Empty)
-        configuration.NativeLibraryCacheFolder = null; 
-
       var driver = CreateDriver(connectionString, configuration);
       driver.Initialize(this);
       return driver;
