@@ -180,20 +180,5 @@ namespace Xtensive.Orm.Configuration
       Add(result);
       return result;
     }
-
-    private void ApplyDefaultSettings(SessionConfiguration config)
-    {
-      if (string.IsNullOrEmpty(config.UserName))
-        config.UserName = Default.UserName;
-      if (string.IsNullOrEmpty(config.Password))
-        config.Password = Default.Password;
-      if (config.CacheSize!=Default.CacheSize && config.CacheSize==SessionConfiguration.DefaultCacheSize)
-        config.CacheSize = Default.CacheSize;
-      if (config.CacheType != Default.CacheType && config.CacheType == SessionCacheType.Default)
-        config.CacheType = Default.CacheType;
-      if (config.DefaultIsolationLevel != Default.DefaultIsolationLevel
-        && config.DefaultIsolationLevel == SessionConfiguration.DefaultDefaultIsolationLevel)
-        config.DefaultIsolationLevel = Default.DefaultIsolationLevel;
-    }
   }
 }
