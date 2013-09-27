@@ -248,7 +248,7 @@ namespace Xtensive.Orm.Configuration.Elements
     public string ForcedServerVersion
     {
       get { return (string) this[ForcedServerVersionElementName]; }
-      set { this[ForcedServerVersion] = value; }
+      set { this[ForcedServerVersionElementName] = value; }
     }
 
     /// <summary>

@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <summary>
     /// <see cref="SessionConfiguration.Options" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(OptionsElementName, DefaultValue = "LegacyProfile")]
+    [ConfigurationProperty(OptionsElementName, DefaultValue = "Default")]
     public string Options {
       get { return (string)this[OptionsElementName]; }
       set { this[OptionsElementName] = value; }
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <summary>
     /// <see cref="SessionConfiguration.DefaultIsolationLevel" copy="true" />
     /// </summary>
-    [ConfigurationProperty(IsolationLevelElementName, DefaultValue = "ReadCommitted")]
+    [ConfigurationProperty(IsolationLevelElementName, DefaultValue = "RepeatableRead")]
     public string DefaultIsolationLevel {
       get { return (string) this[IsolationLevelElementName]; }
       set { this[IsolationLevelElementName] = value; }
