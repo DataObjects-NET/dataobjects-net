@@ -10,7 +10,7 @@ using Xtensive.Core;
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// Recycled field
+  /// Recycled field definition.
   /// </summary>
   public class RecycledFieldDefinition : RecycledDefinition
   {
@@ -35,18 +35,18 @@ namespace Xtensive.Orm
     public string OriginalFieldName { get; private set; }
 
     /// <summary>
-    /// Initializes a new instance of this class.
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="ownerType">Owner type with recycled field.</param>
     /// <param name="fieldName">Name of recycled field.</param>
     /// <param name="fieldType">Type of recycled field.</param>
     public RecycledFieldDefinition(Type ownerType, string fieldName, Type fieldType)
     {
-      SetRequiredFields(ownerType, fieldName, fieldType);
+      Initialize(ownerType, fieldName, fieldType);
     }
 
     /// <summary>
-    /// Initializes a new instance of this class.
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="ownerType">Owner type with recycled field.</param>
     /// <param name="fieldName">Name of recycled field.</param>
@@ -54,16 +54,18 @@ namespace Xtensive.Orm
     /// <param name="originalFieldName">Original field name.</param>
     public RecycledFieldDefinition(Type ownerType, string fieldName, Type fieldType, string originalFieldName)
     {
-      SetRequiredFields(ownerType, fieldName, fieldType);
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(originalFieldName, "OriginalFieldName");
+      Initialize(ownerType, fieldName, fieldType);
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(originalFieldName, "originalFieldName");
+
       OriginalFieldName = originalFieldName;
     }
 
-    private void SetRequiredFields(Type ownerType, string fieldName, Type fieldType)
+    private void Initialize(Type ownerType, string fieldName, Type fieldType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(ownerType, "OwnerType");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, "FieldName");
-      ArgumentValidator.EnsureArgumentNotNull(fieldType, "FieldType");
+      ArgumentValidator.EnsureArgumentNotNull(ownerType, "ownerType");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(fieldName, "fieldName");
+      ArgumentValidator.EnsureArgumentNotNull(fieldType, "fieldType");
+
       OwnerType = ownerType;
       FieldName = fieldName;
       FieldType = fieldType;
@@ -71,14 +73,10 @@ namespace Xtensive.Orm
 
     public override string ToString()
     {
-      var str = string.Format(
-        "Owner {0}, field {1}, type {2}",
-        OwnerType,
-        FieldName,
-        FieldType);
-      if (!string.IsNullOrEmpty(OriginalFieldName))
-        str += ", original " + OriginalFieldName;
-      return str;
+      var fieldName = !string.IsNullOrEmpty(OriginalFieldName)
+        ? string.Format("{0}({1})", FieldName, OriginalFieldName)
+        : FieldName;
+      return string.Format("RecycledFieldDefinition(Owner: {0}, Field: {1}, Type: {2})", OwnerType.Name, fieldName, FieldType.Name);
     }
   }
 }

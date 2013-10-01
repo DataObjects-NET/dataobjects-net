@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Building.Builders
     private UpgradeStage stage;
     private IModelFilter modelFilter;
     private object upgradeContextCookie;
-    private ReadOnlyCollection<RecycledDefinition> recycledDefinitions;
+    private ICollection<RecycledDefinition> recycledDefinitions;
 
     /// <summary>
     /// Gets <see cref="DomainConfiguration"/> for domain.
@@ -83,8 +83,15 @@ namespace Xtensive.Orm.Building.Builders
       set
       {
         this.EnsureNotLocked();
-        recycledDefinitions = value==null ? null : new ReadOnlyCollection<RecycledDefinition>(value.ToArray());
+        recycledDefinitions = value;
       }
+    }
+
+    public override void Lock(bool recursive)
+    {
+      base.Lock(recursive);
+      if (recycledDefinitions!=null)
+        recycledDefinitions = new ReadOnlyCollection<RecycledDefinition>(recycledDefinitions.ToArray());
     }
 
     // Constructors

@@ -56,6 +56,9 @@ namespace Xtensive.Orm.Tests.Upgrade
 
         [Field]
         public Shape Shape { get; set; }
+
+        [Field]
+        public int Code { get; set; }
       }
 
       public class Upgrader : UpgradeHandler
@@ -109,7 +112,7 @@ namespace Xtensive.Orm.Tests.Upgrade
           recycledDefinitions.Add(recycledDefinition);
 
           //field Recycled without originalName
-          recycledDefinition = new RecycledFieldDefinition(typeof (MyEntity), "OldNameWithoutOriginal", typeof (int));
+          recycledDefinition = new RecycledFieldDefinition(typeof (MyEntity), "Code", typeof (int));
           recycledDefinitions.Add(recycledDefinition);
 
           //link Recycled
@@ -127,13 +130,13 @@ namespace Xtensive.Orm.Tests.Upgrade
           var myEntities = session.Query.All<MyEntity>().ToList();
           foreach (var myEntity in myEntities) {
             var oldName = myEntity.GetProperty<string>("OldName");
-            var oldNameWithoutOriginal = myEntity.GetProperty<int>("OldNameWithoutOriginal");
+            var oldCode = myEntity.GetProperty<int>("Code");
             var oldPerson = myEntity.GetProperty<Person>("OldPerson");
             var oldShape = myEntity.GetProperty<Shape>("OldShape");
             myEntity.Name = "Old" + oldName;
             myEntity.Person = new Person {Age = oldPerson.Age * 2};
             myEntity.Shape = new Shape {Growth = oldShape.Growth * 2, Weight = oldShape.Weight * 2};
-            Assert.That(oldNameWithoutOriginal, Is.EqualTo(0));
+            Assert.That(oldCode, Is.EqualTo(123));
           }
         }
       }
@@ -152,12 +155,14 @@ namespace Xtensive.Orm.Tests.Upgrade
         var entityV1 = new V1.MyEntity {
           Name = "MyName1",
           Person = new Person {Age = 10},
-          Shape = new Shape {Growth = 100, Weight = 50}
+          Shape = new Shape {Growth = 100, Weight = 50},
+          Code = 123,
         };
         var entityV2 = new V1.MyEntity {
           Name = "MyName2",
           Person = new Person {Age = 20},
-          Shape = new Shape {Growth = 200, Weight = 100}
+          Shape = new Shape {Growth = 200, Weight = 100},
+          Code = 123,
         };
         tx.Complete();
       }

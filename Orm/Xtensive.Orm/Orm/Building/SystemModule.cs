@@ -6,10 +6,10 @@
 
 using System;
 using System.Linq;
+using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Metadata;
 using Xtensive.Orm.Upgrade;
-using Xtensive.Orm.Upgrade.Model;
 using Type = Xtensive.Orm.Metadata.Type;
 
 namespace Xtensive.Orm.Building
@@ -24,23 +24,28 @@ namespace Xtensive.Orm.Building
     /// <inheritdoc/>
     public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
-      if (context.BuilderConfiguration.Stage==UpgradeStage.Upgrading &&
-        context.BuilderConfiguration.RecycledDefinitions!=null) {
-        var recycledFieldDefinitions =
-          context.BuilderConfiguration.RecycledDefinitions.OfType<RecycledFieldDefinition>();
-        foreach (var recycledFieldDefinition in recycledFieldDefinitions) {
-          var entity = model.Types.TryGetValue(recycledFieldDefinition.OwnerType);
-          if (entity==null)
-            throw new ArgumentException(
-              string.Format(
-                Strings.ExUnableToProcessRecycledFieldDefinitionXOwnerTypeIsNotRegisteredInModel,
-                recycledFieldDefinition.OwnerType));
-          entity.DefineField(recycledFieldDefinition.FieldName, recycledFieldDefinition.FieldType);
-        }
-      }
-      if (context.Configuration.ConnectionInfo.Provider!=WellKnown.Provider.MySql)
-        return;
+      var builderConfiguration = context.BuilderConfiguration;
+      if (builderConfiguration.Stage==UpgradeStage.Upgrading && builderConfiguration.RecycledDefinitions!=null)
+        ProcessRecycledDefinitions(builderConfiguration, model);
 
+      if (context.Configuration.ConnectionInfo.Provider==WellKnown.Provider.MySql)
+        ApplyModelFixesForMySql(model);
+    }
+
+    private static void ProcessRecycledDefinitions(DomainBuilderConfiguration configuration, DomainModelDef model)
+    {
+      var fieldDefinitions = configuration.RecycledDefinitions.OfType<RecycledFieldDefinition>();
+      foreach (var definition in fieldDefinitions) {
+        var entity = model.Types.TryGetValue(definition.OwnerType);
+        if (entity==null)
+          throw new InvalidOperationException(string.Format(
+            Strings.ExUnableToProcessRecycledFieldDefinitionXOwnerTypeIsNotRegisteredInModel, definition.OwnerType));
+        entity.DefineField(definition.FieldName, definition.FieldType);
+      }
+    }
+
+    private static void ApplyModelFixesForMySql(DomainModelDef model)
+    {
       BuildLog.Info("Applying changes to Metadata-related types for MySQL");
 
       // Fixing length of Assembly.Name field

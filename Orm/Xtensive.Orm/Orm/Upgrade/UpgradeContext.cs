@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data.Common;
 using System.Reflection;
 using Xtensive.Collections;
@@ -82,7 +83,7 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets the recycled definitions.
     /// </summary>
-    public ICollection<RecycledDefinition> RecycledDefinitions { get; internal set; }
+    public ICollection<RecycledDefinition> RecycledDefinitions { get; private set; }
 
     /// <summary>
     /// Gets the schema upgrade hints.
@@ -179,6 +180,7 @@ namespace Xtensive.Orm.Upgrade
       Configuration = configuration;
       Stage = configuration.UpgradeMode.IsMultistage() ? UpgradeStage.Upgrading : UpgradeStage.Final;
       Hints = new SetSlim<UpgradeHint>();
+      RecycledDefinitions = new List<RecycledDefinition>();
       Cookie = new object();
     }
   }

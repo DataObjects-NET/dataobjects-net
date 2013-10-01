@@ -273,11 +273,10 @@ namespace Xtensive.Orm.Upgrade
 
     private Func<Domain> CreateBuilder(UpgradeStage stage)
     {
-      if (stage==UpgradeStage.Upgrading) {
-        foreach (var handler in context.OrderedUpgradeHandlers) {
+      if (stage==UpgradeStage.Upgrading)
+        foreach (var handler in context.OrderedUpgradeHandlers)
           handler.OnConfigureUpgradeDomain();
-        }
-      }
+
       var configuration = new DomainBuilderConfiguration {
         DomainConfiguration = context.Configuration,
         Stage = stage,
@@ -286,6 +285,7 @@ namespace Xtensive.Orm.Upgrade
         UpgradeContextCookie = context.Cookie,
         RecycledDefinitions = context.RecycledDefinitions
       };
+
       configuration.Lock();
       Func<DomainBuilderConfiguration, Domain> builder = DomainBuilder.Run;
       return builder.Bind(configuration);

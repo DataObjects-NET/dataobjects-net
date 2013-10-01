@@ -7,7 +7,7 @@
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// Abstract class to define recycled type or column without touching persistent model.
+  /// Definition of a recycled model item.
   /// </summary>
   public abstract class RecycledDefinition
   {
