@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Upgrade
 
     private readonly string collationName;
     private readonly ActionSequence actions;
-    private readonly SqlExtractionResult sqlModel;
+    private readonly SchemaExtractionResult sqlModel;
     private readonly StorageModel sourceModel;
     private readonly StorageModel targetModel;
     private readonly StorageDriver driver;
@@ -278,6 +278,10 @@ namespace Xtensive.Orm.Upgrade
     {
       var tableInfo = (TableInfo) action.Difference.Source;
       var table = FindTable(tableInfo);
+      string lockedTable;
+      sqlModel.LockedTables.TryGetValue(resolver.GetNodeName(table), out lockedTable);
+      if (!lockedTable.IsNullOrEmpty())
+        throw new SchemaSynchronizationException(lockedTable);
       currentOutput.RegisterCommand(SqlDdl.Drop(table));
       table.Schema.Tables.Remove(table);
     }
@@ -304,8 +308,11 @@ namespace Xtensive.Orm.Upgrade
 
     private void RecreateTableWithNewName(Table oldTable, Schema newSchema, string newName)
     {
+      string lockedTable;
+      sqlModel.LockedTables.TryGetValue(resolver.GetNodeName(oldTable), out lockedTable);
+      if (!lockedTable.IsNullOrEmpty())
+        throw new SchemaSynchronizationException(lockedTable);
       var newTable = newSchema.CreateTable(newName);
-
       // Clone table definition
       foreach (var oldColumn in oldTable.TableColumns) {
         var newColumn = newTable.CreateColumn(oldColumn.Name, oldColumn.DataType);
@@ -978,6 +985,10 @@ namespace Xtensive.Orm.Upgrade
     {
       var node = resolver.Resolve(sqlModel, sequenceInfo.Name);
       var sequenceTable = node.GetTable();
+      string lockedTable;
+      sqlModel.LockedTables.TryGetValue(resolver.GetNodeName(sequenceTable), out lockedTable);
+      if (!lockedTable.IsNullOrEmpty())
+        throw new SchemaSynchronizationException(lockedTable);
       currentOutput.RegisterCommand(SqlDdl.Drop(sequenceTable));
       node.Schema.Tables.Remove(sequenceTable);
     }
@@ -1130,7 +1141,7 @@ namespace Xtensive.Orm.Upgrade
 
     public SqlActionTranslator(
       HandlerAccessor handlers, ISqlExecutor sqlExecutor,
-      ActionSequence actions, SqlExtractionResult sqlModel, StorageModel sourceModel, StorageModel targetModel,
+      ActionSequence actions, SchemaExtractionResult sqlModel, StorageModel sourceModel, StorageModel targetModel,
       List<string> enforceChangedColumns, bool allowCreateConstraints)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");

@@ -44,6 +44,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string SchemaSyncExceptionFormatElementName = "schemaSyncExceptionFormat";
     private const string NativeLibraryCacheFolderElementName = "nativeLibraryCacheFolder";
     private const string ConnectionInitializationSqlElementName = "connectionInitializationSql";
+    private const string IgnoreRulesElementName = "ignoreRules";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -324,6 +325,13 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[ConnectionInitializationSqlElementName] = value; }
     }
 
+    [ConfigurationProperty(IgnoreRulesElementName, IsDefaultCollection = false)]
+    [ConfigurationCollection(typeof (ConfigurationCollection<IgnoreRuleElement>), AddItemName = "rule")]
+    public ConfigurationCollection<IgnoreRuleElement> IgnoreRules
+    {
+      get { return (ConfigurationCollection<IgnoreRuleElement>) this[IgnoreRulesElementName]; }
+    }
+
     /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="DomainConfiguration"/> object.
@@ -364,6 +372,8 @@ namespace Xtensive.Orm.Configuration.Elements
         config.Databases.Add(element.ToNative());
       foreach (var element in KeyGenerators)
         config.KeyGenerators.Add(element.ToNative());
+      foreach (var element in IgnoreRules)
+        config.IgnoreRules.Add(element.ToNative());
 
       return config;
     }

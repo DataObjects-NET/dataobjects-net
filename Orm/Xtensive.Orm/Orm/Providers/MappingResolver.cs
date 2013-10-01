@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Upgrade;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
 
@@ -33,7 +34,7 @@ namespace Xtensive.Orm.Providers
         return node.Name;
       }
 
-      public override MappingResolveResult Resolve(SqlExtractionResult model, string nodeName)
+      public override MappingResolveResult Resolve(SchemaExtractionResult model, string nodeName)
       {
         var schema = model.Catalogs.Single().Schemas.Single();
         return new MappingResolveResult(schema, nodeName);
@@ -76,7 +77,7 @@ namespace Xtensive.Orm.Providers
         return FormatNodeName(node.Schema.Name, node.Name);
       }
 
-      public override MappingResolveResult Resolve(SqlExtractionResult model, string nodeName)
+      public override MappingResolveResult Resolve(SchemaExtractionResult model, string nodeName)
       {
         var names = nodeName.Split(Separator);
         var schema = model.Catalogs.Single().Schemas[names[0]];
@@ -148,7 +149,7 @@ namespace Xtensive.Orm.Providers
         return FormatNodeName(schema.Catalog.Name, schema.Name, node.Name);
       }
 
-      public override MappingResolveResult Resolve(SqlExtractionResult model, string nodeName)
+      public override MappingResolveResult Resolve(SchemaExtractionResult model, string nodeName)
       {
         var names = nodeName.Split(Separator);
         var catalog = model.Catalogs[names[0]];
@@ -225,7 +226,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    public Schema GetSchema(SqlExtractionResult model, string mappingDatabase, string mappingSchema)
+    public Schema GetSchema(SchemaExtractionResult model, string mappingDatabase, string mappingSchema)
     {
       var sampleNameNode = GetNodeName(mappingDatabase, mappingSchema, "sample");
       return Resolve(model, sampleNameNode).Schema;
@@ -240,7 +241,7 @@ namespace Xtensive.Orm.Providers
 
     public abstract string GetNodeName(SchemaNode node);
 
-    public abstract MappingResolveResult Resolve(SqlExtractionResult model, string nodeName);
+    public abstract MappingResolveResult Resolve(SchemaExtractionResult model, string nodeName);
 
     public abstract IEnumerable<SqlExtractionTask> GetSchemaTasks();
 

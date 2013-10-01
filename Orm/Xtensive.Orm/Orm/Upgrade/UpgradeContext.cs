@@ -157,7 +157,7 @@ namespace Xtensive.Orm.Upgrade
 
     internal StorageModel ExtractedModelCache { get; set; }
 
-    internal SqlExtractionResult ExtractedSqlModelCache { get; set; }
+    internal SchemaExtractionResult ExtractedSqlModelCache { get; set; }
 
     internal MetadataSet Metadata { get; set; }
 

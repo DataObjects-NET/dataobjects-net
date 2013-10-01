@@ -1953,6 +1953,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ignore rule &apos;{0}&apos; must be applied to column or table..
+        /// </summary>
+        internal static string ExIgnoreRuleXMustBeAppliedToColumnOrTable {
+            get {
+                return ResourceManager.GetString("ExIgnoreRuleXMustBeAppliedToColumnOrTable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Implementors of {0} interface belong to hierarchies one of which includes TypeId, but another doesn&apos;t: {1} &amp; {2}..
         /// </summary>
         internal static string ExImplementorsOfXInterfaceBelongToHierarchiesOneOfWhichIncludesTypeIdButAnotherDoesntYZ {
@@ -4085,6 +4094,24 @@ namespace Xtensive {
         internal static string ExTablePropertyIsNotSet {
             get {
                 return ResourceManager.GetString("ExTablePropertyIsNotSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Table &apos;{0}&apos; can&apos;t be removed due to the foreign key &apos;{1}&apos; of a ignored table or column..
+        /// </summary>
+        internal static string ExTableXCantBeRemovedDueToForeignKeyYOfIgnoredTableOrColumn {
+            get {
+                return ResourceManager.GetString("ExTableXCantBeRemovedDueToForeignKeyYOfIgnoredTableOrColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Table &apos;{0}&apos; can&apos;t be removed due to the ignored column &apos;{1}&apos;..
+        /// </summary>
+        internal static string ExTableXCantBeRemovedDueToTheIgnoredColumnY {
+            get {
+                return ResourceManager.GetString("ExTableXCantBeRemovedDueToTheIgnoredColumnY", resourceCulture);
             }
         }
         

@@ -112,6 +112,11 @@
     <Compile Include="Orm\Building\PrefetchActionContainer.cs" />
     <Compile Include="Orm\Configuration\Internals\ConnectionInfoParser.cs" />
     <Compile Include="Orm\Configuration\ConfigurationBase.cs" />
+    <Compile Include="Orm\Configuration\Elements\IgnoreRuleElement.cs" />
+    <Compile Include="Orm\Configuration\IgnoreRule.cs" />
+    <Compile Include="Orm\Configuration\IgnoreRuleCollection.cs" />
+    <Compile Include="Orm\Configuration\IgnoreRuleConstructionFlow.cs" />
+    <Compile Include="Orm\Configuration\Interfaces\IIgnoreRuleConstructionFlow.cs" />
     <Compile Include="Orm\ConflictHandlingMethod.cs" />
     <Compile Include="Orm\Interfaces\IModule2.cs" />
     <Compile Include="Orm\Interfaces\IQueryPreprocessor2.cs" />
@@ -194,6 +199,7 @@
     <Compile Include="Orm\Providers\TemporaryTables\RealTemporaryTableBackEnd.cs" />
     <Compile Include="Orm\Providers\TemporaryTables\TemporaryTableBackend.cs" />
     <Compile Include="Orm\TargetKind.cs" />
+    <Compile Include="Orm\Upgrade\Internals\MatchingHelper.cs" />
     <Compile Include="Orm\Upgrade\Internals\PartialIndexInfoMap.cs" />
     <Compile Include="Orm\Upgrade\Internals\FutureResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\AssemblyMetadata.cs" />
@@ -221,6 +227,7 @@
     <Compile Include="Orm\Providers\ProviderAttribute.cs" />
     <Compile Include="Orm\Providers\ProviderFeatures.cs" />
     <Compile Include="Orm\Providers\ProviderInfo.cs" />
+    <Compile Include="Orm\Upgrade\Internals\RuleMatcher.cs" />
     <Compile Include="Orm\Upgrade\Internals\SchemaExtractor.cs" />
     <Compile Include="Orm\Upgrade\Internals\SchemaUpgrader.cs" />
     <Compile Include="Orm\Providers\SessionHandler.cs" />
@@ -314,6 +321,7 @@
     <Compile Include="Orm\Providers\SqlTemporaryDataProvider.cs" />
     <Compile Include="Orm\Model\Stored\StoredPartialIndexFilterInfoCollection.cs" />
     <Compile Include="Orm\Model\Stored\StoredPartialIndexFilterInfo.cs" />
+    <Compile Include="Orm\Upgrade\SchemaExtractionResult.cs" />
     <Compile Include="Orm\RecycledFieldDefinition.cs" />
     <Compile Include="Orm\RecyledDefinition.cs" />
     <Compile Include="Orm\Upgrade\SqlUpgradeStage.cs" />
@@ -398,6 +406,7 @@
     <Compile Include="Orm\Upgrade\Internals\TypeIdProvider.cs" />
     <Compile Include="Orm\Upgrade\Internals\UpgradeActionSequenceBuilder.cs" />
     <Compile Include="Orm\Upgrade\Internals\UpgradeServiceAccessor.cs" />
+    <Compile Include="Orm\Upgrade\Internals\IgnoreRulesHandler.cs" />
     <Compile Include="Orm\Upgrade\UpgradeActionSequence.cs" />
     <Compile Include="Orm\UrlInfo.cs" />
     <Compile Include="Orm\UrlInfoConverter.cs" />

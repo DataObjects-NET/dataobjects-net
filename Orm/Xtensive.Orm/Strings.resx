@@ -2461,6 +2461,15 @@ Error: {1}</value>
   <data name="ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed">
     <value xml:space="preserve">Non-LINQ calls are not supported within Query.ExecuteDelayed</value>
   </data>
+  <data name="ExIgnoreRuleXMustBeAppliedToColumnOrTable">
+    <value xml:space="preserve">Ignore rule '{0}' must be applied to column or table.</value>
+  </data>
+  <data name="ExTableXCantBeRemovedDueToForeignKeyYOfIgnoredTableOrColumn">
+    <value xml:space="preserve">Table '{0}' can't be removed due to the foreign key '{1}' of a ignored table or column.</value>
+  </data>
+  <data name="ExTableXCantBeRemovedDueToTheIgnoredColumnY">
+    <value xml:space="preserve">Table '{0}' can't be removed due to the ignored column '{1}'.</value>
+  </data>
   <data name="FieldShouldBeOfTypeX">
     <value xml:space="preserve">Field should be of type '{0}'.</value>
   </data>

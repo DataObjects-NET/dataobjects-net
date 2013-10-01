@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly StorageDriver driver;
     private readonly SqlConnection connection;
 
-    public void UpgradeSchema(SqlExtractionResult extractedSchema,
+    public void UpgradeSchema(SchemaExtractionResult extractedSchema,
       StorageModel sourceModel, StorageModel targetModel, ActionSequence upgradeActions)
     {
       var enforceChangedColumns = context.Hints
