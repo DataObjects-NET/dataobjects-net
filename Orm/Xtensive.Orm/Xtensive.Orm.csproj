@@ -191,6 +191,7 @@
     <Compile Include="Orm\Providers\TemporaryTables\RealTemporaryTableBackEnd.cs" />
     <Compile Include="Orm\Providers\TemporaryTables\TemporaryTableBackend.cs" />
     <Compile Include="Orm\TargetKind.cs" />
+    <Compile Include="Orm\Upgrade\Internals\MatchingHelper.cs" />
     <Compile Include="Orm\Upgrade\Internals\PartialIndexInfoMap.cs" />
     <Compile Include="Orm\Upgrade\Internals\FutureResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\AssemblyMetadata.cs" />

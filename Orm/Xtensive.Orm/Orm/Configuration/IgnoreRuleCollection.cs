@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Configuration
     /// <returns><see cref="IgnoreRule"/> construction flow</returns>
     public IIgnoreRuleConstructionFlow IgnoreTable(string tableName)
     {
-      var rule = new IgnoreRule{Table = tableName};
+      var rule = new IgnoreRule {Table = tableName};
       Add(rule);
       return new IgnoreRuleConstructionFlow(rule);
     }
@@ -33,28 +33,26 @@ namespace Xtensive.Orm.Configuration
     /// <returns><see cref="IgnoreRule"/> construction flow</returns>
     public IIgnoreRuleConstructionFlow IgnoreColumn(string columnName)
     {
-      var rule = new IgnoreRule{Column = columnName};
+      var rule = new IgnoreRule {Column = columnName};
       Add(rule);
       return new IgnoreRuleConstructionFlow(rule);
     }
-    
+
     /// <inheritdoc />
     public object Clone()
     {
       var result = new IgnoreRuleCollection();
-      foreach (var rule in this) {
+      foreach (var rule in this)
         result.Add(rule.Clone());
-      }
       return result;
     }
 
     /// <inheritdoc />
-    public void Lock(bool recursive)
+    public override void Lock(bool recursive)
     {
-      if(recursive)
-        foreach (var rule in this) {
+      if (recursive)
+        foreach (var rule in this)
           rule.Lock(true);
-        }
       base.Lock(recursive);
     }
   }

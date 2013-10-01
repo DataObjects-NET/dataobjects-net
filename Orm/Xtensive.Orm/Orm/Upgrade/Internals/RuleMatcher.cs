@@ -1,62 +1,60 @@
-﻿using System;
+﻿// Copyright (C) 2013 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2013.08.20
+
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Upgrade
 {
-  internal abstract class RuleMatcher<T> where T:Node
+  internal abstract class RuleMatcher<T>
+    where T : Node
   {
-    private const string maskSymbol = "*";
-
-    class NameMatcher : RuleMatcher<T>
+    private class NameMatcher : RuleMatcher<T>
     {
-      private readonly string searchingName;
-      private readonly StringComparer comparer = StringComparer.OrdinalIgnoreCase;
+      private readonly string itemName;
 
       public override IEnumerable<T> Get(NodeCollection<T> items)
       {
-        return items.Where(el=>comparer.Compare(el.Name, searchingName)==0).ToList();
+        var result = items[itemName];
+        if (result!=null)
+          yield return result;
       }
 
-      public NameMatcher(string name)
+      public NameMatcher(string itemName)
       {
-        searchingName = name;
+        this.itemName = itemName;
       }
     }
 
-    class PatternMatcher : RuleMatcher<T>
+    private class PatternMatcher : RuleMatcher<T>
     {
       private readonly Regex matcher;
 
       public override IEnumerable<T> Get(NodeCollection<T> items)
       {
-        return items.Where(el => IsMatch(el.Name)).ToList();
-      }
-
-      private bool IsMatch(string value)
-      {
-        return matcher.IsMatch(value);
+        return items.Where(item => matcher.IsMatch(item.Name)).ToList();
       }
 
       private string CreateRegexPattern(string pattern)
       {
-        var substrings = pattern.Split(maskSymbol.ToCharArray());
-        for (int i = 0; i<substrings.Length; i++) {
-          substrings[i] = Regex.Escape(substrings[i]);
-        }
-        return string.Join(".*", substrings);
+        var items = pattern.Split(MatchingHelper.WildcardSymbol.ToCharArray());
+        for (int i = 0; i < items.Length; i++)
+          items[i] = Regex.Escape(items[i]);
+        return string.Format("^{0}$", string.Join(".*", items));
       }
 
       public PatternMatcher(string pattern)
       {
-        matcher = new Regex(CreateRegexPattern(pattern));
+        matcher = new Regex(CreateRegexPattern(pattern), RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
       }
     }
 
-    class AllMatcher : RuleMatcher<T>
+    private class AllMatcher : RuleMatcher<T>
     {
       public override IEnumerable<T> Get(NodeCollection<T> items)
       {
@@ -64,23 +62,13 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    public abstract IEnumerable<T> Get(NodeCollection<T> items); 
+    public abstract IEnumerable<T> Get(NodeCollection<T> items);
 
-    private static bool NameIsMasked(string name)
+    public static RuleMatcher<T> Create(string pattern)
     {
-      return (!string.IsNullOrEmpty(name)) && name.Contains(maskSymbol);
-    }
-
-    private static bool IsOnlyMaskSymbol(string name)
-    {
-      return (string.IsNullOrEmpty(name) || name==maskSymbol);
-    }
-
-    public static RuleMatcher<T> GetMatcher(string pattern)
-    {
-      if(IsOnlyMaskSymbol(pattern))
+      if (MatchingHelper.IsMatchAll(pattern))
         return new AllMatcher();
-      if(NameIsMasked(pattern))
+      if (MatchingHelper.ContainsWildcardSymbols(pattern))
         return new PatternMatcher(pattern);
       return new NameMatcher(pattern);
     }
