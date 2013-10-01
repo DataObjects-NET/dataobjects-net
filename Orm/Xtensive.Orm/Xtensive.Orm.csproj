@@ -314,6 +314,8 @@
     <Compile Include="Orm\Providers\SqlTemporaryDataProvider.cs" />
     <Compile Include="Orm\Model\Stored\StoredPartialIndexFilterInfoCollection.cs" />
     <Compile Include="Orm\Model\Stored\StoredPartialIndexFilterInfo.cs" />
+    <Compile Include="Orm\RecycledFieldDefinition.cs" />
+    <Compile Include="Orm\RecyledDefinition.cs" />
     <Compile Include="Orm\Upgrade\SqlUpgradeStage.cs" />
     <Compile Include="Orm\Providers\StorageExceptionBuilder.cs" />
     <Compile Include="Orm\Providers\TemporaryTables\TemporaryTableDescriptor.cs" />

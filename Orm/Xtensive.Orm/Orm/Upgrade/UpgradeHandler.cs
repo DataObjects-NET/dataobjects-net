@@ -5,8 +5,8 @@
 // Created:    2009.04.30
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using System.Linq;
@@ -68,6 +68,14 @@ namespace Xtensive.Orm.Upgrade
 
     /// <inheritdoc/>
     public UpgradeContext UpgradeContext { get; private set; }
+
+    /// <inheritdoc/>
+    public void OnConfigureUpgradeDomain()
+    {
+      var definitions = new List<RecycledDefinition>();
+      AddRecycledDefinitions(definitions);
+      ProcessRecycledDefinitions(definitions);
+    }
 
     /// <inheritdoc/>
     public virtual void OnPrepare()
@@ -171,7 +179,7 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     /// <param name="hints">A set of hints to add new hints to
     /// (a shortcut to <see cref="Upgrade.UpgradeContext.Hints"/> collection).</param>
-    protected virtual void AddUpgradeHints(ISet<UpgradeHint> hints)
+    protected virtual void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
     {
     }
 
@@ -221,7 +229,7 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     /// <param name="hints">A set of hints to add new hints to
     /// (a shortcut to <see cref="Upgrade.UpgradeContext.Hints"/> collection).</param>
-    protected virtual void AddAutoHints(ISet<UpgradeHint> hints)
+    protected virtual void AddAutoHints(Collections.ISet<UpgradeHint> hints)
     {
       var context = UpgradeContext;
       var types = Assembly.GetTypes();
@@ -253,7 +261,6 @@ namespace Xtensive.Orm.Upgrade
           select similarHint;
         if (!similarHints.Any())
           hints.Add(renameHint);
-        // TODO: Add table rename hint as well
       }
 
       var recycledProperties =
@@ -269,11 +276,31 @@ namespace Xtensive.Orm.Upgrade
 
       foreach (var r in recycledProperties) {
         var oldName = r.Attribute.OriginalName;
-        if (!oldName.IsNullOrEmpty()) {
-          // TODO: Add column rename hint here
+        if (!string.IsNullOrEmpty(oldName))
           hints.Add(new RenameFieldHint(r.Property.DeclaringType, oldName, r.Property.Name));
-        }
       }
+    }
+
+    private void ProcessRecycledDefinitions(ICollection<RecycledDefinition> definitions)
+    {
+      if (definitions.Count==0)
+        return;
+      var hints = UpgradeContext.Hints;
+      var allDefinitions = UpgradeContext.RecycledDefinitions;
+      var recycledFieldDefinitions = definitions.OfType<RecycledFieldDefinition>();
+      foreach (var definition in recycledFieldDefinitions) {
+        allDefinitions.Add(definition);
+        if (!string.IsNullOrEmpty(definition.OriginalFieldName) && definition.FieldName!=definition.OriginalFieldName)
+          hints.Add(new RenameFieldHint(definition.OwnerType, definition.OriginalFieldName, definition.FieldName));
+      }
+    }
+
+    /// <summary>
+    /// Override this method to add recycled definitions.
+    /// </summary>
+    /// <param name="recycledDefinitions">Collection to put recycled definitions to.</param>
+    protected virtual void AddRecycledDefinitions(ICollection<RecycledDefinition> recycledDefinitions)
+    {
     }
 
     /// <summary>

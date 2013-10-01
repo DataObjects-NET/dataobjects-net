@@ -2482,4 +2482,7 @@ Error: {1}</value>
   <data name="ExConnectionStringWithNameXIsNullOrEmpty" xml:space="preserve">
     <value>Connection string with name '{0}' is null or empty.</value>
   </data>
+  <data name="ExUnableToProcessRecycledFieldDefinitionXOwnerTypeIsNotRegisteredInModel">
+    <value xml:space="preserve">Unable to process recycled field definition '{0}': owner type is not registered in model.</value>
+  </data>
 </root>

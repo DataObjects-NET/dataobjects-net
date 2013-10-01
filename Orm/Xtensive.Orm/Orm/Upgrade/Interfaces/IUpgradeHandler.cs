@@ -40,6 +40,11 @@ namespace Xtensive.Orm.Upgrade
     UpgradeContext UpgradeContext { get; }
 
     /// <summary>
+    /// Override this method to perform actions before created upgrade domain
+    /// </summary>
+    void OnConfigureUpgradeDomain();
+
+    /// <summary>
     /// Override this method to perform actions before any operation on database
     /// is performed.
     /// </summary>
