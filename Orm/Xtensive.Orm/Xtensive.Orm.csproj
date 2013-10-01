@@ -1275,20 +1275,6 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MemberCompilerProvider-CreateCompiler.cs</LastGenOutput>
     </None>
-    <None Include="Orm\Model\_Diagrams\Storage-Model-BaseTypes.cd" />
-    <None Include="Orm\_Diagrams\Storage-Class-Attributes.cd" />
-    <None Include="Orm\_Diagrams\Storage-Exceptions.cd" />
-    <None Include="Orm\_Diagrams\Storage-DirectAccessors.cd" />
-    <None Include="Orm\_Diagrams\Storage-Keys.cd" />
-    <None Include="Orm\_Diagrams\Storage-Property-Attributes.cd" />
-    <None Include="Orm\_Diagrams\Storage-Upgrade-Hints.cd" />
-    <None Include="Orm\_Diagrams\Storage-Validation-Constraints.cd" />
-    <None Include="Orm\_Diagrams\Storage-Domain.cd" />
-    <None Include="Orm\_Diagrams\Storage-DisconnectedState.cd" />
-    <None Include="Orm\_Diagrams\Storage-EntitySet.cd" />
-    <None Include="Orm\_Diagrams\Storage-Persistents.cd" />
-    <None Include="Orm\_Diagrams\Storage-SessionTransaction.cd" />
-    <None Include="Orm\_Diagrams\Storage-Upgrade.cd" />
     <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
       <Link>Properties\ProductInfo.cs</Link>
     </Compile>
