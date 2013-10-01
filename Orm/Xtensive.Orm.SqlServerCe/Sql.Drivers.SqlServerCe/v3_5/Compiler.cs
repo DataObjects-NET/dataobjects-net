@@ -115,6 +115,9 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
           node.Arguments[1] - 1),
           node.Arguments[2] - 1));
         return;
+      case SqlFunctionType.DateTimeToStringIso:
+        Visit(DateTimeToStringIso(node.Arguments[0]));
+        return;
       }
 
       base.Visit(node);
@@ -324,6 +327,12 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
     {
       return SqlDml.FunctionCall("DATEADD", SqlDml.Native("NS"), nanoseconds, date);
     }
+
+    protected static SqlUserFunctionCall DateTimeToStringIso(SqlExpression dateTime)
+    {
+      return SqlDml.FunctionCall("CONVERT", SqlDml.Native("NVARCHAR(19)"), dateTime, SqlDml.Native("126"));
+    }
+
 
     #endregion
 

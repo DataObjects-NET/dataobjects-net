@@ -2485,4 +2485,10 @@ Error: {1}</value>
   <data name="ExUnableToProcessRecycledFieldDefinitionXOwnerTypeIsNotRegisteredInModel">
     <value xml:space="preserve">Unable to process recycled field definition '{0}': owner type is not registered in model.</value>
   </data>
+	<data name="ExDateTimeToStringMethodIsNotSupported">
+		<value xml:space="preserve">DateTime.ToString() method is not supported, use the DateTime.ToString("s").</value>
+	</data>
+	<data name="ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported">
+		<value xml:space="preserve">Translation of DateTime.ToString(string) with arbitrary arguments is not supported. Use DateTime.ToString("s").</value>
+	</data>
 </root>

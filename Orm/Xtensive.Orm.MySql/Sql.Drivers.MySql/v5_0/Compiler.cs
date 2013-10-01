@@ -176,6 +176,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
             node.Arguments[1] - 1),
             node.Arguments[2] - 1));
           return;
+        case SqlFunctionType.DateTimeToStringIso:
+          Visit(DateTimeToStringIso(node.Arguments[0]));
+          return;
       }
 
       base.Visit(node);
@@ -241,6 +244,12 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     private static SqlUserFunctionCall DateAddMicrosecond(SqlExpression date, SqlExpression microseconds)
     {
       return SqlDml.FunctionCall("TIMESTAMPADD", SqlDml.Native("MICROSECOND"), microseconds, date);
+    }
+
+
+    protected static SqlUserFunctionCall DateTimeToStringIso(SqlExpression dateTime)
+    {
+      return SqlDml.FunctionCall("DATE_FORMAT", dateTime, "%Y-%m-%dT%T");
     }
 
     #endregion

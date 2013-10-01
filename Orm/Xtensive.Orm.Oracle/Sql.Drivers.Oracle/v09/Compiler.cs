@@ -54,6 +54,9 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       case SqlFunctionType.CharLength:
         SqlDml.Coalesce(SqlDml.FunctionCall("LENGTH", node.Arguments[0]), 0).AcceptVisitor(this);
         return;
+      case SqlFunctionType.DateTimeToStringIso:
+        DateTimeToStringIso(node.Arguments[0]).AcceptVisitor(this);
+        return;
       default:
         base.Visit(node);
         return;
@@ -229,6 +232,11 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     private static SqlExpression Position(SqlExpression substring, SqlExpression _string) //TODO : look into this (Malisa)
     {
       return SqlDml.FunctionCall("INSTR", _string, substring) - 1;
+    }
+
+    private static SqlExpression DateTimeToStringIso(SqlExpression dateTime)
+    {
+      return SqlDml.FunctionCall("To_Char", dateTime, "YYYY-MM-DD\"T\"HH24:MI:SS");
     }
 
     private static SqlExpression AnsiString(string value)

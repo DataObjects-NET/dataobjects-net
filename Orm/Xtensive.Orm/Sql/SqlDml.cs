@@ -595,6 +595,12 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.DateTimeAddMonths, source, months);
     }
 
+    public static SqlFunctionCall DateTimeToStringIso(SqlExpression expression)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
+      return new SqlFunctionCall(SqlFunctionType.DateTimeToStringIso, expression);
+    }
+
     public static SqlFunctionCall DateTimeTruncate(SqlExpression source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");

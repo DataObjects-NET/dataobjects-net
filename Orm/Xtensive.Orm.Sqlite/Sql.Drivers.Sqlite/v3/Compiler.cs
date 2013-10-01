@@ -176,6 +176,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         case SqlFunctionType.DateTimeConstruct:
           DateTimeConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2]).AcceptVisitor(this);
           return;
+        case SqlFunctionType.DateTimeToStringIso:
+          DateTimeToStringIso(node.Arguments[0]).AcceptVisitor(this);
+          return;
       }
       base.Visit(node);
     }
@@ -283,6 +286,11 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private static SqlCast CastToLong(SqlExpression arg)
     {
       return SqlDml.Cast(arg, SqlType.Int64);
+    }
+
+    private static SqlExpression DateTimeToStringIso(SqlExpression dateTime)
+    {
+      return SqlDml.FunctionCall("strftime", "%Y-%m-%dT%H:%M:%S", dateTime);
     }
 
     // Constructors
