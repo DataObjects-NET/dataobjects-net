@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Tests.Linq
       foreach (var o in query)
         listOfElements.Add(o);
       if (listOfElements.Count==0) {
-        Log.Info("NULL");
+        TestLog.Info("NULL");
         return;
       }
 
@@ -64,19 +64,19 @@ namespace Xtensive.Orm.Tests.Linq
 
           if (document.DocumentElement.ChildNodes[0].Attributes["group"]==null) {
             foreach (var s in groupHeader)
-              Log.Info(s);
+              TestLog.Info(s);
             OutputLog(document, null);
           }
           else
             OutputLog(document, groupHeader);
         }
         else {
-          Log.Info("Correct output is impossible.");
+          TestLog.Info("Correct output is impossible.");
 //          EnumerateAll(query);
         }
       }
       catch {
-        Log.Info("Errors occurred during execution.");
+        TestLog.Info("Errors occurred during execution.");
 //        EnumerateAll(query);
       }
       }
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Linq
           Dump(new[] {value}, showResults);
         }
         catch {
-          Log.Info(value==null ? "NULL" : value.ToString());
+          TestLog.Info(value==null ? "NULL" : value.ToString());
         }
       }
     }
@@ -355,20 +355,20 @@ namespace Xtensive.Orm.Tests.Linq
     {
       int currentGroup = 1;
       if (groupHeader!=null) {
-        Log.Info(String.Empty);
-        Log.Info(CreateFillString(fillStringLength + 1, '*'));
-        Log.Info("|  Key = " + document.DocumentElement.ChildNodes[0].Attributes["key"].Value);
+        TestLog.Info(String.Empty);
+        TestLog.Info(CreateFillString(fillStringLength + 1, '*'));
+        TestLog.Info("|  Key = " + document.DocumentElement.ChildNodes[0].Attributes["key"].Value);
         foreach (var s in groupHeader)
-          Log.Info(s);
+          TestLog.Info(s);
       }
 
       foreach (XmlNode node in document.DocumentElement.ChildNodes) {
         if (groupHeader!=null && Int32.Parse(node.Attributes["group"].Value) > currentGroup) {
-          Log.Info(String.Empty);
-          Log.Info(CreateFillString(fillStringLength + 1, '*'));
-          Log.Info("|  Key = " + node.Attributes["key"].Value);
+          TestLog.Info(String.Empty);
+          TestLog.Info(CreateFillString(fillStringLength + 1, '*'));
+          TestLog.Info("|  Key = " + node.Attributes["key"].Value);
           foreach (var s in groupHeader)
-            Log.Info(s);
+            TestLog.Info(s);
           currentGroup++;
         }
 
@@ -422,7 +422,7 @@ namespace Xtensive.Orm.Tests.Linq
             }
           }
         }
-        Log.Info(CreateFillString(fillStringLength + 1, '='));
+        TestLog.Info(CreateFillString(fillStringLength + 1, '='));
       }
     }
 
@@ -464,9 +464,9 @@ namespace Xtensive.Orm.Tests.Linq
       if (separateLine.ToString().EndsWith(" "))
         separateLine.Replace(" ", "|", str.Length - 1, 1);
 
-      Log.Info(str.ToString());
+      TestLog.Info(str.ToString());
       if (drawSeporateLine)
-        Log.Info(separateLine.ToString());
+        TestLog.Info(separateLine.ToString());
     }
 
     private MemberType GetMemberType(Type type)

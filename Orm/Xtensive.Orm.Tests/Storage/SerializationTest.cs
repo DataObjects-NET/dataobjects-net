@@ -9,7 +9,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 using NUnit.Framework;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Serialization;
 using Xtensive.Orm.Tests.SerializationTestModel;

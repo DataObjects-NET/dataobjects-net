@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.ValidationContextClientProfileModel;
 using Xtensive.Orm.Validation;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Storage
 {

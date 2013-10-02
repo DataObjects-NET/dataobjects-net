@@ -6,7 +6,7 @@ using Xtensive.Diagnostics;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.Storage.Performance.CrudModel;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Tests.Storage.Performance
@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
     private void CombinedTest(int baseCount, int insertCount)
     {
       if (warmup)
-        Log.Info("Warming up...");
+        TestLog.Info("Warming up...");
       InsertTest(insertCount);
       MaterializeTest(baseCount);
       MaterializeAnonymousTypeTest(baseCount);

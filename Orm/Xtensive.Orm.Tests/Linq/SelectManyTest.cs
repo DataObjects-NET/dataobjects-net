@@ -439,7 +439,7 @@ namespace Xtensive.Orm.Tests.Linq
         select new {OrderId = o.Id, d.UnitPrice};
 
       var count = q.Count();
-      Log.Info("Records count: {0}", count);
+      TestLog.Info("Records count: {0}", count);
       QueryDumper.Dump(q);
     }
   }

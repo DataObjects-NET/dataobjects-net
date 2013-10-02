@@ -94,8 +94,8 @@ namespace Xtensive.Orm.Tests
         return Domain.Build(configuration);
       }
       catch (Exception e) {
-        Log.Error(GetType().GetFullName());
-        Log.Error(e);
+        TestLog.Error(GetType().GetFullName());
+        TestLog.Error(e);
         throw;
       }
     }

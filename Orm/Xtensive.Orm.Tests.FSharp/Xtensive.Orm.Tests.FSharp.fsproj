@@ -53,12 +53,6 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Transactions" />
     <Reference Include="WindowsBase" />
-    <Reference Include="Xtensive.Core">
-      <HintPath>..\..\Bin\Latest\Xtensive.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Xtensive.Testing">
-      <HintPath>..\..\Bin\Latest\Xtensive.Testing.dll</HintPath>
-    </Reference>
     <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj">
       <Name>Xtensive.Orm.Tests.Framework</Name>
       <Project>{f2ce47f7-8170-4fc4-b619-d32e6398d4f9}</Project>

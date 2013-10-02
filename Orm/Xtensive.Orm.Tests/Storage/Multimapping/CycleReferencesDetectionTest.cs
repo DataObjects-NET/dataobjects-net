@@ -11,7 +11,7 @@ using Xtensive.Orm.Tests.Storage.Multimapping.CycleReferencesDetectionModel.Name
 using Xtensive.Orm.Tests.Storage.Multimapping.CycleReferencesDetectionModel.Namespace2;
 using Xtensive.Orm.Tests.Storage.Multimapping.CycleReferencesDetectionModel.Namespace3;
 using Xtensive.Orm.Tests.Storage.Multimapping.CycleReferencesDetectionModel.Namespace4;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Storage.Multimapping
 {

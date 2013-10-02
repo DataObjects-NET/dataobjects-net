@@ -14,7 +14,7 @@ using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.Storage.MemoryProviderTestModel;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Sql;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Storage
 {

@@ -12,7 +12,7 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
 using Xtensive.Storage.DisconnectedTests.Model;
 using Xtensive.Orm.Operations;
@@ -1486,7 +1486,7 @@ namespace Xtensive.Orm.Tests.Storage
           using (var transactionScope = session.OpenTransaction()) {
             using (state.Connect()) {
               customer1Key = session.Query.All<Customer>().First(customer => customer.Name=="Customer1").Key;
-              Log.Info("Key: {0}", customer1Key);
+              TestLog.Info("Key: {0}", customer1Key);
             }
             transactionScope.Complete();
           }

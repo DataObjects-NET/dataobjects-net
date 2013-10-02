@@ -10,7 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;

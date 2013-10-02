@@ -7,7 +7,7 @@
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Upgrade.TwoUpgradeHandlersTestModel;
 using Xtensive.Orm.Upgrade;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {

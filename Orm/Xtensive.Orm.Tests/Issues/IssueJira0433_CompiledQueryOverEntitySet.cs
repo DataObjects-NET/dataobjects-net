@@ -9,7 +9,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0433_CompiledQueryOverEntitySetModel;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Issues
 {

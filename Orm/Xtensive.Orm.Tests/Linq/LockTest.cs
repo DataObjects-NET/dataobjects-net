@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Transactions;
 using NUnit.Framework;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.ObjectModel;

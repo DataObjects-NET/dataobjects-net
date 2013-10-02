@@ -231,7 +231,7 @@ namespace Xtensive.Orm.Tests.Issues
       int depth;
       if (entry.CheckDirection(direction, out depth))
         stack.Pop();
-      Log.Info("{0}", message.Indent(depth * 2));
+      TestLog.Info("{0}", message.Indent(depth * 2));
     }
   }
 }

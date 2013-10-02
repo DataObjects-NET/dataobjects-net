@@ -11,7 +11,6 @@ namespace Xtensive.Orm.Weaver
 {
   internal sealed class ReferenceRegistry
   {
-    public AssemblyNameReference CoreAssembly { get; set; }
     public AssemblyNameReference OrmAssembly { get; set; }
 
     // mscorlib

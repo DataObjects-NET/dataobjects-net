@@ -6,7 +6,7 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Orm.Tests.Issues.Issue0634_PairToMisuse_Model;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0634_PairToMisuse_Model

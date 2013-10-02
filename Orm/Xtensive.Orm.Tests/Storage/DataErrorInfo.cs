@@ -8,7 +8,7 @@ using System;
 using System.ComponentModel;
 using NUnit.Framework;
 using Xtensive.Orm.Validation;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.DataErrorInfoTestModel;
 

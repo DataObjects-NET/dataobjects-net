@@ -190,7 +190,7 @@ namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
       if (target!=expectedTarget)
         return;
 
-      Log.Info("Before '{0}'", operation);
+      TestLog.Info("Before '{0}'", operation);
       var lastOperation = (lastOperationIndex < 0) ? null : expectedOperations[lastOperationIndex];
       if (lastOperation != operation) {
         if (lastOperationState!=-2 && lastOperationState!=1)
@@ -214,7 +214,7 @@ namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
       if (target!=expectedTarget)
         return;
 
-      Log.Info("In     '{0}'", operation);
+      TestLog.Info("In     '{0}'", operation);
       var lastOperation = (lastOperationIndex < 0) ? null : expectedOperations[lastOperationIndex];
       if (lastOperation != operation)
         Assert.Fail("Invalid notification order: no 'before' event.");
@@ -233,7 +233,7 @@ namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
       if (target!=expectedTarget)
         return;
 
-      Log.Info("After  '{0}'", operation);
+      TestLog.Info("After  '{0}'", operation);
       var lastOperation = (lastOperationIndex < 0) ? null : expectedOperations[lastOperationIndex];
       if (lastOperation != operation)
         Assert.Fail("Invalid notification order: no 'before' event.");

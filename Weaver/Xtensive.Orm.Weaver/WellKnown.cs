@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Weaver
     public static readonly ReadOnlyCollection<byte> XtensivePublicKeyToken;
 
     public static readonly string OrmAssemblyFullName;
-    public static readonly string CoreAssemblyFullName;
 
     public static readonly string EntityType = "Xtensive.Orm.Entity";
     public static readonly string EntityInterface = "Xtensive.Orm.IEntity";
@@ -45,8 +44,6 @@ namespace Xtensive.Orm.Weaver
     static WellKnown()
     {
       OrmAssemblyFullName = GetFullAssemblyName("Xtensive.Orm");
-      CoreAssemblyFullName = GetFullAssemblyName("Xtensive.Core");
-
       XtensivePublicKeyToken = new ReadOnlyCollection<byte>(WeavingHelper.ParsePublicKeyToken(ThisAssembly.PublicKeyToken));
     }
   }

@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.RegistryModel1;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.RegistryModel1
 {

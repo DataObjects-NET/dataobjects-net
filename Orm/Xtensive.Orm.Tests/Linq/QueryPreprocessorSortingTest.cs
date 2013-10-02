@@ -12,7 +12,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Linq;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Linq
 {

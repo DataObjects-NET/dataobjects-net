@@ -10,7 +10,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
   {
     public override void ProcessDocument(Document inputDocument)
     {
-      Log.Info("Entered EchoProcessor.Process() ");
+      TestLog.Info("Entered EchoProcessor.Process() ");
 
       Document outputDocument = OutputContainer.CreateDocument<Document>("output test document");
       MoveDocumentsToOutputAndDoneContainers(outputDocument, inputDocument);

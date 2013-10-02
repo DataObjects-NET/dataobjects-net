@@ -10,7 +10,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Collections;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Tuples;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;

@@ -11,7 +11,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm.Linq.MemberCompilation;
 using Xtensive.Reflection;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Linq
 {

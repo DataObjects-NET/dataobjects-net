@@ -8,9 +8,9 @@ using System;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Tests.Sql;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
-using Xtensive.Orm.Tests.Sql;
 
 namespace Xtensive.Orm.Tests
 {

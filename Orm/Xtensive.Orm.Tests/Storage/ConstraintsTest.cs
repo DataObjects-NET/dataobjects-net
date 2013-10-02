@@ -6,7 +6,7 @@
 
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.BookAuthorModel;
 

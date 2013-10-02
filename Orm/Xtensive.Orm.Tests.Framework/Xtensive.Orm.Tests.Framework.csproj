@@ -34,9 +34,6 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -55,36 +52,64 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.XML" />
     <Reference Include="WindowsBase" />
-    <Reference Include="Xtensive.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="Xtensive.Diagnostics.log4net, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="Xtensive.Testing, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssertEx.cs" />
     <Compile Include="AutoBuildTest.cs" />
     <Compile Include="DomainConfigurationFactory.cs" />
     <Compile Include="DomainModelExtensions.cs" />
     <Compile Include="Dynamic.cs" />
+    <Compile Include="InstanceGenerationUtils.cs" />
+    <Compile Include="InstanceGeneratorProvider.cs" />
+    <Compile Include="Interfaces\IInstanceGenerator.cs" />
+    <Compile Include="Interfaces\IInstanceGeneratorBase.cs" />
+    <Compile Include="Interfaces\IInstanceGeneratorProvider.cs" />
+    <Compile Include="Internals\ArrayInstanceGenerator.cs" />
+    <Compile Include="Internals\BooleanInstanceGenerator.cs" />
+    <Compile Include="Internals\ByteInstanceGenerator.cs" />
+    <Compile Include="Internals\CharInstanceGenerator.cs" />
+    <Compile Include="Internals\DateTimeInstanceGenerator.cs" />
+    <Compile Include="Internals\DecimalInstanceGenerator.cs" />
+    <Compile Include="Internals\DoubleInstanceGenerator.cs" />
+    <Compile Include="Internals\EnumInstanceGenerator.cs" />
+    <Compile Include="Internals\GuidInstanceGenerator.cs" />
+    <Compile Include="Internals\InstanceGeneratorBase.cs" />
+    <Compile Include="Internals\Int16InstanceGenerator.cs" />
+    <Compile Include="Internals\Int32InstanceGenerator.cs" />
+    <Compile Include="Internals\Int64InstanceGenerator.cs" />
+    <Compile Include="Internals\KeyValuePairInstanceGenerator.cs" />
+    <Compile Include="Internals\NullableInstanceGenerator.cs" />
+    <Compile Include="Internals\PairInstanceGenerator.cs" />
+    <Compile Include="Internals\SByteInstanceGenerator.cs" />
+    <Compile Include="Internals\SingleInstanceGenerator.cs" />
+    <Compile Include="Internals\StringInstanceGenerator.cs" />
+    <Compile Include="Internals\TripletInstanceGenerator.cs" />
+    <Compile Include="Internals\TupleInstanceGenerator.cs" />
+    <Compile Include="Internals\UInt16InstanceGenerator.cs" />
+    <Compile Include="Internals\UInt32InstanceGenerator.cs" />
+    <Compile Include="Internals\UInt64InstanceGenerator.cs" />
+    <Compile Include="RandomManager.cs" />
+    <Compile Include="SeedVariatorType.cs" />
     <Compile Include="StorageProviderInfo.cs" />
     <Compile Include="TestConfiguration.cs" />
     <Compile Include="IndexInfoExtensions.cs" />
     <Compile Include="InheritanceSchemaModifier.cs" />
-    <Compile Include="Log.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Require.cs" />
     <Compile Include="StorageProvider.cs" />
     <Compile Include="StorageProviderVersion.cs" />
     <Compile Include="StorageTestHelper.cs" />
+    <Compile Include="TestHelper.cs" />
+    <Compile Include="TestInfo.cs" />
+    <Compile Include="TestLog.cs" />
     <Compile Include="TypeIdBehavior.cs" />
     <Compile Include="TypeIdModifier.cs" />
     <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
       <Link>Properties\ProductInfo.cs</Link>
     </Compile>
+    <Compile Include="WrappingInstanceGenerator{T,TBase1,TBase2, TBase3}.cs" />
+    <Compile Include="WrappingInstanceGenerator{T,TBase1,TBase2}.cs" />
+    <Compile Include="WrappingInstanceGenerator{T,TBase}.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Connections.config">
@@ -93,16 +118,17 @@
     <None Include="DO-Tests.sql" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Xtensive.Orm.Tests.Sql\Xtensive.Orm.Tests.Sql.csproj">
+      <Project>{52FD4F16-3718-4828-A1EA-DFD34044FA25}</Project>
+      <Name>Xtensive.Orm.Tests.Sql</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj">
       <Project>{628737E8-3581-4793-99C8-9A4D2D83FEA0}</Project>
       <Name>Xtensive.Orm</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xtensive.Orm.Tests.Sql\Xtensive.Orm.Tests.Sql.csproj">
-      <Project>{52FD4F16-3718-4828-A1EA-DFD34044FA25}</Project>
-      <Name>Xtensive.Sql.Tests</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DO-Tests-Plus.sql" />
     <Content Include="DO-Tests.sdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

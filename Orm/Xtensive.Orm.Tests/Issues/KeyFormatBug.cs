@@ -90,8 +90,8 @@ namespace Xtensive.Orm.Tests.Issues.KeyFormatBug
         var key = entity.Key;
 
         string formattedKey = key.Format();
-        Log.Info("Key.ToString() result: {0}", key.ToString());
-        Log.Info("Key.Format()   result: {0}", formattedKey);
+        TestLog.Info("Key.ToString() result: {0}", key.ToString());
+        TestLog.Info("Key.Format()   result: {0}", formattedKey);
         Assert.True(formattedKey.Contains("Child"));
         Assert.False(formattedKey.Contains("Base"));
         

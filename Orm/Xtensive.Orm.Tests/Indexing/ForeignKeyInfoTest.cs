@@ -8,7 +8,7 @@ using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Orm.Upgrade.Model;
 using NUnit.Framework;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Indexing
 {

@@ -176,14 +176,14 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
 
     private void Book_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-      Log.Info("PropertyChanged: Sender = {0}, Property = {1}", sender, e.PropertyName);
+      TestLog.Info("PropertyChanged: Sender = {0}, Property = {1}", sender, e.PropertyName);
       lastSenderObject = sender;
       lastChangedProperty = e.PropertyName;
     }
 
     private void RelatedBooks_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-      Log.Info("CollectionChanged: Sender = {0}, Action = {1}", sender, e.Action);
+      TestLog.Info("CollectionChanged: Sender = {0}, Action = {1}", sender, e.Action);
       lastSenderCollection = sender;
       lastChangeAction = e.Action;
     }

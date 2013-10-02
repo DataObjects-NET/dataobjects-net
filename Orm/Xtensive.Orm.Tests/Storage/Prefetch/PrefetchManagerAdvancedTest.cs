@@ -12,7 +12,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Orm.Model;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Internals;

@@ -17,11 +17,6 @@ namespace Xtensive.Orm.Weaver.Stages
       var registry = context.References;
       var mscorlibAssembly = context.TargetModule.TypeSystem.Corlib;
 
-      var coreAssembly = FindReference(context, WellKnown.CoreAssemblyFullName);
-      if (coreAssembly==null)
-        return ActionResult.Failure;
-      registry.CoreAssembly = coreAssembly;
-
       var ormAssembly = FindReference(context, WellKnown.OrmAssemblyFullName);
       if (ormAssembly==null)
         return ActionResult.Failure;
@@ -40,7 +35,7 @@ namespace Xtensive.Orm.Weaver.Stages
       registry.CompilerGeneratedAttributeConstructor = ImportConstructor(context, mscorlibAssembly, WellKnown.CompilerGeneratedAttribute);
 
       // Xtensive.Core
-      registry.Tuple = ImportType(context, coreAssembly, "Xtensive.Tuples.Tuple");
+      registry.Tuple = ImportType(context, ormAssembly, "Xtensive.Tuples.Tuple");
 
       // Xtensive.Orm
       registry.Session = ImportType(context, ormAssembly, "Xtensive.Orm.Session");

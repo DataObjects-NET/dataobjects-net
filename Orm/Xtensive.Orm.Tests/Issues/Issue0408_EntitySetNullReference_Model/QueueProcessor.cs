@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
         using (TransactionScope transactionScope = Session.OpenTransaction())
         {
           string message = String.Format("Exception caught in {0}.Execute() : '", this.Name);
-          Log.Error(message, ex);
+          TestLog.Error(message, ex);
 
           transactionScope.Complete();
         }
@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
       }
       else
       {
-        Log.Warning("No ContainerForDoneInputDocuments is defined for '{0}' DocumentProcessor", this.Name);
+        TestLog.Warning("No ContainerForDoneInputDocuments is defined for '{0}' DocumentProcessor", this.Name);
       }
     }
 
@@ -162,7 +162,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
     {
       if (inputDocument == null)
       {
-        Log.Warning("Cannot find document to process because {0} is not a Document", inputDocument);
+        TestLog.Warning("Cannot find document to process because {0} is not a Document", inputDocument);
         return null;
       }
 
@@ -183,7 +183,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
       {
         if (documentsMatchingDocType.Count > 1)
         {
-          Log.Debug("Found {0} documents matching DocumentType={1} in this group. Returning the document in innermost group : {2}", documentsMatchingDocType.Count, documentTypeToProcess, documentsMatchingDocType[0].Name);
+          TestLog.Debug("Found {0} documents matching DocumentType={1} in this group. Returning the document in innermost group : {2}", documentsMatchingDocType.Count, documentTypeToProcess, documentsMatchingDocType[0].Name);
         }
         return documentsMatchingDocType[0];
       }

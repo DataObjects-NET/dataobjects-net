@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Xtensive.Caching;
 using Xtensive.Core;
 using Xtensive.Reflection;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Tests.Configuration
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tests.Configuration
       var d = Domain.Build(config);
       using (var s = d.OpenSession()) {
         var cacheType = s.EntityStateCache.GetType();
-        Log.Debug("Session CacheType: {0}", cacheType.Name);
+        TestLog.Debug("Session CacheType: {0}", cacheType.Name);
         Assert.IsTrue(cacheType.IsOfGenericType(expectedType));
       }
       d.DisposeSafely();

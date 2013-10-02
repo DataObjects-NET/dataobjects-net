@@ -9,7 +9,7 @@ using System.Configuration;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Linq;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Configuration;

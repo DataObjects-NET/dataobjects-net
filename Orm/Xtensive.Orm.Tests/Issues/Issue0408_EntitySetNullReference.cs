@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Tests.Issues
         domainConfig.NamingConvention.NamespacePolicy = NamespacePolicy.AsIs;
 
         // Load assemblies with persistent classes from configuration :
-        Log.Info("Loading plugins...");
+        TestLog.Info("Loading plugins...");
 
         domainConfig.Types.Register(typeof(QueueProcessor).Assembly, typeof(QueueProcessor).Namespace);
 
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
       catch (DomainBuilderException e)
       {
-        Log.Error("Domain build failed: " + e.ToString());
+        TestLog.Error("Domain build failed: " + e.ToString());
         throw;
       }
 

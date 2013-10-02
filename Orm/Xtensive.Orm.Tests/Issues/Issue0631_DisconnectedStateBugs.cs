@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Tests.Issues
       var sb = new StringBuilder();
       foreach (var o in operations)
         sb.AppendLine(o.ToString());
-      Log.Info("Operations:\r\n{0}", sb.ToString().Indent(2));
+      TestLog.Info("Operations:\r\n{0}", sb.ToString().Indent(2));
     }
   }
 }

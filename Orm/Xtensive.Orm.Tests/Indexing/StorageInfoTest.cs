@@ -7,7 +7,7 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Modelling.Actions;
 using Xtensive.Orm.Upgrade.Model;
 using AggregateException = Xtensive.Core.AggregateException;
@@ -75,8 +75,8 @@ namespace Xtensive.Orm.Tests.Indexing
     [Test]
     public void StorageLogTest()
     {
-      Log.Info("Actions:");
-      Log.Info("{0}", storage.Actions);
+      TestLog.Info("Actions:");
+      TestLog.Info("{0}", storage.Actions);
     }
 
     [Test]

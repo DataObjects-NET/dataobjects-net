@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
     /// <param name="destinationDocument"></param>
     protected void PropagateAllGroups(Document sourceDocument, Document destinationDocument)
     {
-      Log.Debug("Propagating to document {0} all groups of document {1}.", destinationDocument, sourceDocument);
+      TestLog.Debug("Propagating to document {0} all groups of document {1}.", destinationDocument, sourceDocument);
 
       //// Does the source document belong to any group(s) ?
       //QueryResult qr;
@@ -67,12 +67,12 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
 
           // propagate all groups of sourceDocument to destinationDocument
           link.LinkSource.CreateNewLinkfromMe(destinationDocument, link.LinkSemantic);
-          Log.Debug("Document/ID={0} inherits a link from Document/ID={1}. Head of the group is Document/ID={2}. (LinkSemantic={3})", destinationDocument.Id, sourceDocument.Id, link.LinkSource.Id, link.LinkSemantic);
+          TestLog.Debug("Document/ID={0} inherits a link from Document/ID={1}. Head of the group is Document/ID={2}. (LinkSemantic={3})", destinationDocument.Id, sourceDocument.Id, link.LinkSource.Id, link.LinkSemantic);
         }
       }
       else
       {
-        Log.Warning("Creating a new group from this document because no links point to it. (Document is {0})", sourceDocument); 
+        TestLog.Warning("Creating a new group from this document because no links point to it. (Document is {0})", sourceDocument); 
         sourceDocument.CreateNewGroupAndAddThis(); 
       }
     }
@@ -105,7 +105,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
       {
         throw new ArgumentNullException("container", "The container must be non-null.");
       }
-      Log.Debug("Moving " + document + " from " + document.Container + " to  " + container);
+      TestLog.Debug("Moving " + document + " from " + document.Container + " to  " + container);
       document.Container = container;
     }
 

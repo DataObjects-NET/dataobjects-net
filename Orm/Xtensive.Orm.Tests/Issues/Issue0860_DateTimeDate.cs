@@ -3,7 +3,6 @@ using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Tests.Issues.Issue0860_DateTimeDateModel;
-using Xtensive.Testing;
 using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 using System.Linq;

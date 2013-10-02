@@ -17,7 +17,6 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Upgrade;
-using Xtensive.Testing;
 using Mode = Xtensive.Orm.DomainUpgradeMode;
 
 namespace Xtensive.Orm.Tests.Upgrade

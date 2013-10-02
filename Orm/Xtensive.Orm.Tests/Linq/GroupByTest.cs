@@ -15,7 +15,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Tests.Linq

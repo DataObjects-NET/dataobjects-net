@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using NUnit.Framework;
 
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;

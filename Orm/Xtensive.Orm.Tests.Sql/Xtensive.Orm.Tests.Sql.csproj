@@ -45,9 +45,6 @@
       <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="System.XML" />
-    <Reference Include="Xtensive.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CloneTests.cs" />

@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0408_EntitySetNullReference_Model
     public void CreateNewGroupAndAddThis()
     {
       CreateNewLinkfromMe(this, LinkSemantic.GroupHeadToDocumentInGroup);
-      Log.Debug("Starting a new group : head document is " + this);
+      TestLog.Debug("Starting a new group : head document is " + this);
     }
 
     /// <summary>

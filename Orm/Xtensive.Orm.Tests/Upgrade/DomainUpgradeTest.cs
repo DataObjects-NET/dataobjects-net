@@ -13,7 +13,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Tests.Upgrade.Model.Version1;
 using Xtensive.Orm.Tests.Upgrade.Model.Version2;
 using Xtensive.Orm.Providers;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Address = Xtensive.Orm.Tests.Upgrade.Model.Version1.Address;
 using Boy = Xtensive.Orm.Tests.Upgrade.Model.Version2.Boy;
 using BusinessContact = Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact;

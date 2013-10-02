@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Orm.Upgrade.Model;
 using AggregateException = Xtensive.Core.AggregateException;
 

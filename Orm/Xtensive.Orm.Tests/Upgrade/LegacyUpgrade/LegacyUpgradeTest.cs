@@ -7,7 +7,7 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Sql;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Sql;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Upgrade.LegacyUpgradeTest.Model;

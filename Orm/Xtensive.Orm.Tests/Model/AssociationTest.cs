@@ -8,7 +8,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Rse;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Configuration;
@@ -154,7 +154,7 @@ namespace Xtensive.Orm.Tests.Model
           foreach (Tuple tuple in rs.GetRecordSet(Session.Current)) {
             var rs2 = a1.TypeInfo.Indexes.PrimaryIndex.GetQuery();
             foreach (Tuple tuple2 in rs2.GetRecordSet(Session.Current)) {
-              Log.Debug(tuple2.ToString());
+              TestLog.Debug(tuple2.ToString());
             }
           }
           // Rollback

@@ -25,12 +25,12 @@ namespace Xtensive.Orm.Tests.Storage.StructureModel
 
     protected override void OnSettingFieldValue(FieldInfo field, object value)
     {
-      Log.Debug("Structure field setting. Field: {0}; Value: {1}", field.Name, value);
+      TestLog.Debug("Structure field setting. Field: {0}; Value: {1}", field.Name, value);
     }
 
     protected override void OnSetFieldValue(FieldInfo field, object oldValue, object newValue)
     {
-      Log.Debug("Structure field set. Field: {0}; Value: {1}", field.Name, newValue);
+      TestLog.Debug("Structure field set. Field: {0}; Value: {1}", field.Name, newValue);
     }
 
     public Point()
@@ -60,12 +60,12 @@ namespace Xtensive.Orm.Tests.Storage.StructureModel
 
     protected override void OnSettingFieldValue(FieldInfo field, object value)
     {
-      Log.Debug("Entity field setting. Field: {0}; Value: {1}", field.Name, value);
+      TestLog.Debug("Entity field setting. Field: {0}; Value: {1}", field.Name, value);
     }
 
     protected override void OnSetFieldValue(FieldInfo field, object oldValue, object newValue)
     {
-      Log.Debug("Entity field set. Field: {0}; Value: {1}", field.Name, newValue);
+      TestLog.Debug("Entity field set. Field: {0}; Value: {1}", field.Name, newValue);
     }
 
 

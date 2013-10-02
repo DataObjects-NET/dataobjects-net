@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Diagnostics;
-using Xtensive.Testing;
+using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.ReferentialIntegrityModel;
 
@@ -181,8 +181,8 @@ namespace Xtensive.Orm.Tests.Storage
           a = new A();
           c = new C();
           a.C = c;
-          Log.Debug(a.Key.ToString());
-          Log.Debug(c.Key.ToString());
+          TestLog.Debug(a.Key.ToString());
+          TestLog.Debug(c.Key.ToString());
           a.Remove();
           Session.Current.SaveChanges();
         }
