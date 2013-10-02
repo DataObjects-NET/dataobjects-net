@@ -165,10 +165,7 @@
     <Content Include="Sqlite\history.sql" />
     <Content Include="Sqlite\Northwind.Sqlite3.sql" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="MySQL\v5_1\" />
-    <Folder Include="MySQL\v5_5\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm.Firebird\Xtensive.Orm.Firebird.csproj">
       <Project>{86D95846-57DD-4032-A2B2-3423D1C71CDD}</Project>
