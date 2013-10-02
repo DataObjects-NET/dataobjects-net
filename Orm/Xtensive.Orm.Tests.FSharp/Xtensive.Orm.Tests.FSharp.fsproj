@@ -35,7 +35,7 @@
     <Compile Include="Model.fs" />
     <Compile Include="Test.fs" />
     <None Include="app.config" />
-    <None Include="..\Xtensive.Orm.Tests.Core\Connections.config">
+    <None Include="..\Xtensive.Orm.Tests.Framework\Connections.config">
       <Link>Connections.config</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -59,8 +59,8 @@
     <Reference Include="Xtensive.Testing">
       <HintPath>..\..\Bin\Latest\Xtensive.Testing.dll</HintPath>
     </Reference>
-    <ProjectReference Include="..\Xtensive.Orm.Tests.Core\Xtensive.Orm.Tests.Core.csproj">
-      <Name>Xtensive.Orm.Tests.Core</Name>
+    <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj">
+      <Name>Xtensive.Orm.Tests.Framework</Name>
       <Project>{f2ce47f7-8170-4fc4-b619-d32e6398d4f9}</Project>
       <Private>True</Private>
     </ProjectReference>

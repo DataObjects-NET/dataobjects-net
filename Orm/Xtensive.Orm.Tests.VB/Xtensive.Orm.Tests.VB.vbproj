@@ -114,7 +114,7 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="..\Xtensive.Orm.Tests.Core\Connections.config">
+    <None Include="..\Xtensive.Orm.Tests.Framework\Connections.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="My Project\Application.myapp">
@@ -132,9 +132,9 @@
       <Project>{628737E8-3581-4793-99C8-9A4D2D83FEA0}</Project>
       <Name>Xtensive.Orm</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xtensive.Orm.Tests.Core\Xtensive.Orm.Tests.Core.csproj">
+    <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj">
       <Project>{F2CE47F7-8170-4FC4-B619-D32E6398D4F9}</Project>
-      <Name>Xtensive.Orm.Tests.Core</Name>
+      <Name>Xtensive.Orm.Tests.Framework</Name>
     </ProjectReference>
     <ProjectReference Include="..\Xtensive.Orm.Tests\Xtensive.Orm.Tests.csproj">
       <Project>{FF9927DD-5D2E-4C57-B81F-2CD10CEE50DC}</Project>

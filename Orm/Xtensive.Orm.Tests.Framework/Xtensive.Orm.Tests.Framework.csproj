@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Xtensive.Orm.Tests</RootNamespace>
-    <AssemblyName>Xtensive.Orm.Tests.Core</AssemblyName>
+    <AssemblyName>Xtensive.Orm.Tests.Framework</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
