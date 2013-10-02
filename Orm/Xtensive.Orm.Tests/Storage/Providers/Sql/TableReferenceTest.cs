@@ -13,7 +13,7 @@ using Xtensive.Sql;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Sql.Tests;
+using Xtensive.Orm.Tests.Sql;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.Providers.Sql.TableReferenceTestModel;
 

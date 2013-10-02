@@ -6,7 +6,7 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Sql.Tests;
+using Xtensive.Orm.Tests.Sql;
 using Xtensive.Testing;
 using Xtensive.Sql;
 using Xtensive.Orm.Configuration;

@@ -9,7 +9,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Orm.Configuration;
-using Xtensive.Sql.Tests;
+using Xtensive.Orm.Tests.Sql;
 
 namespace Xtensive.Orm.Tests.Issues
 {

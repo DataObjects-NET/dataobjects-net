@@ -12,7 +12,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version1;
 using Xtensive.Orm.Upgrade.Model;
-using Xtensive.Sql.Tests;
+using Xtensive.Orm.Tests.Sql;
 using Xtensive.Testing;
 using Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version2;
 using M1 = Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version1;

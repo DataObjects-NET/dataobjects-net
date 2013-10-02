@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Net40-Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{52FD4F16-3718-4828-A1EA-DFD34044FA25}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Xtensive.Orm.Tests.Sql</RootNamespace>
+    <AssemblyName>Xtensive.Orm.Tests.Sql</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net40\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net40\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="nunit.framework, Version=2.2.7.0, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="System.Data.SqlServerCe, Version=3.5.1.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="System.XML" />
+    <Reference Include="Xtensive.Core, Version=4.5.0.0, Culture=neutral, PublicKeyToken=93a6c53d77a5296c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CloneTests.cs" />
+    <Compile Include="CollectionTest.cs" />
+    <Compile Include="ExceptionTypesTest.cs" />
+    <Compile Include="Firebird\DateTimeIntervalTest.cs" />
+    <Compile Include="Firebird\ExceptionTypesTest.cs" />
+    <Compile Include="Firebird\ExtractorTest.cs" />
+    <Compile Include="Firebird\IndexTest.cs" />
+    <Compile Include="Firebird\SavepointTest.cs" />
+    <Compile Include="Firebird\TestHelpers.cs" />
+    <Compile Include="Firebird\TypeMappingTest.cs" />
+    <Compile Include="Firebird\v2_5\DateTimeIntervalTest.cs" />
+    <Compile Include="Firebird\v2_5\ExceptionTypesTest.cs" />
+    <Compile Include="Firebird\v2_5\ExtractorTest.cs" />
+    <Compile Include="Firebird\v2_5\IndexTest.cs" />
+    <Compile Include="Firebird\v2_5\SavepointsTest.cs" />
+    <Compile Include="Firebird\v2_5\TypeMappingTest.cs" />
+    <Compile Include="IndexTest.cs" />
+    <Compile Include="MySQL\Sakila.cs" />
+    <Compile Include="MySQL\v5_0\DateTimeIntervalTests.cs" />
+    <Compile Include="MySQL\v5_0\ExtractorTest.cs" />
+    <Compile Include="MySQL\v5_0\MiscTests.cs" />
+    <Compile Include="MySQL\v5_0\SakilaExtractorTest.cs" />
+    <Compile Include="MySQL\v5_0\TypeMappingTests.cs" />
+    <Compile Include="Oracle\ExtractorTest.cs" />
+    <Compile Include="Oracle\v10\ExceptionTypesTest.cs" />
+    <Compile Include="Oracle\v10\SavepointsTest.cs" />
+    <Compile Include="Oracle\v11\ExceptionTypesTest.cs" />
+    <Compile Include="Oracle\v11\SavepointsTest.cs" />
+    <Compile Include="Oracle\TypeMappingTest.cs" />
+    <Compile Include="Oracle\v10\DateTimeIntervalTest.cs" />
+    <Compile Include="Oracle\v10\ExtractorTest.cs" />
+    <Compile Include="Oracle\v10\TypeMappingTest.cs" />
+    <Compile Include="Oracle\v10\UberTest.cs" />
+    <Compile Include="Oracle\v11\DateTimeIntervalTest.cs" />
+    <Compile Include="Oracle\v11\ExtractorTest.cs" />
+    <Compile Include="Oracle\v11\TypeMappingTest.cs" />
+    <Compile Include="Oracle\v11\UberTest.cs" />
+    <Compile Include="PostgreSql\ExtractorTest.cs" />
+    <Compile Include="PostgreSql\v8_3\ExceptionTypesTest.cs" />
+    <Compile Include="PostgreSql\v8_3\ExtractorTest.cs" />
+    <Compile Include="PostgreSql\v8_3\IndexTest.cs" />
+    <Compile Include="PostgreSql\v8_3\SavepointsTest.cs" />
+    <Compile Include="PostgreSql\v8_4\ExceptionTypesTest.cs" />
+    <Compile Include="PostgreSql\v8_4\ExtractorTest.cs" />
+    <Compile Include="PostgreSql\v8_4\IndexTest.cs" />
+    <Compile Include="PostgreSql\v8_4\SavepointsTest.cs" />
+    <Compile Include="SavepointsTest.cs" />
+    <Compile Include="Sqlite\ExtractorTest.cs" />
+    <Compile Include="Sqlite\Northwind.cs" />
+    <Compile Include="Sqlite\v3\DateTimeIntervalTests.cs" />
+    <Compile Include="Sqlite\v3\MiscTests.cs" />
+    <Compile Include="Sqlite\v3\NorthwindTest.cs" />
+    <Compile Include="Sqlite\v3\TypeMappingTests.cs" />
+    <Compile Include="SqlServerCe\DateTimeIntervalTest.cs" />
+    <Compile Include="SqlServerCe\ExceptionTypesTest.cs" />
+    <Compile Include="SqlServerCe\ExtractorTest.cs" />
+    <Compile Include="SqlServerCe\TypeMappingTest.cs" />
+    <Compile Include="SqlServer\ErrorMessageParserTest.cs" />
+    <Compile Include="SqlServer\v09\ExceptionTypesTest.cs" />
+    <Compile Include="SqlServer\v09\IndexTest.cs" />
+    <Compile Include="SqlServer\v09\SavepointsTest.cs" />
+    <Compile Include="SqlServer\v09\TypeMappingTest.cs" />
+    <Compile Include="PostgreSql\v8_3\TypeMappingTest.cs" />
+    <Compile Include="PostgreSql\v8_4\TypeMappingTest.cs" />
+    <Compile Include="SqlServer\v10\ExtractorTest.cs" />
+    <Compile Include="SqlTest.cs" />
+    <Compile Include="TestConnectionString.cs" />
+    <Compile Include="TestSqlDriver.cs" />
+    <Compile Include="TypeMappingTest.cs" />
+    <Compile Include="DriverFactoryTest.cs" />
+    <Compile Include="DateTimeIntervalTest.cs" />
+    <Compile Include="SqlServer\AdventureWorks.cs" />
+    <Compile Include="SqlServer\v09\CompilerTests.cs" />
+    <Compile Include="SqlServer\v09\DateTimeIntervalTest.cs" />
+    <Compile Include="SqlServer\v09\ExtractorTest.cs" />
+    <Compile Include="SqlServer\v09\MiscTests.cs" />
+    <Compile Include="SqlServer\v09\MSSQLExtractorTests.cs" />
+    <Compile Include="SqlServer\v09\MSSQLTests.cs" />
+    <Compile Include="PostgreSql\CatalogComparer.cs" />
+    <Compile Include="PostgreSql\SqlDomTests.cs" />
+    <Compile Include="PostgreSql\v8_3\DateTimeIntervalTest.cs" />
+    <Compile Include="PostgreSql\v8_3\SqlDomTests.cs" />
+    <Compile Include="PostgreSql\v8_4\DateTimeIntervalTest.cs" />
+    <Compile Include="PostgreSql\v8_4\SqlDomTests.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReplaceTests.cs" />
+    <Compile Include="TestUrl.cs" />
+    <Compile Include="Oracle\UberTest.cs" />
+    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
+      <Link>Properties\ProductInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Sqlite\Northwind.sl3">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="SqlServerCe\DO40-Test.sdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SqlServerCe\Northwind.sdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="MySQL\SakilaDb\CreateTestUser.sql" />
+    <Content Include="MySQL\SakilaDb\sakila-data.sql" />
+    <Content Include="MySQL\SakilaDb\sakila-schema.sql" />
+    <Content Include="Sqlite\history.sql" />
+    <Content Include="Sqlite\Northwind.Sqlite3.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="MySQL\v5_1\" />
+    <Folder Include="MySQL\v5_5\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Xtensive.Orm.Firebird\Xtensive.Orm.Firebird.csproj">
+      <Project>{86D95846-57DD-4032-A2B2-3423D1C71CDD}</Project>
+      <Name>Xtensive.Orm.Firebird</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xtensive.Orm.MySql\Xtensive.Orm.MySql.csproj">
+      <Project>{73CB316C-E468-4FA1-AF7C-2AA499395DDA}</Project>
+      <Name>Xtensive.Orm.MySql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xtensive.Orm.Oracle\Xtensive.Orm.Oracle.csproj">
+      <Project>{EDF3607D-6036-4F1D-B043-CBC6968081E3}</Project>
+      <Name>Xtensive.Orm.Oracle</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xtensive.Orm.PostgreSql\Xtensive.Orm.PostgreSql.csproj">
+      <Project>{1362BC41-A755-4888-BC31-17DC9D16068B}</Project>
+      <Name>Xtensive.Orm.PostgreSql</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xtensive.Orm.Sqlite\Xtensive.Orm.Sqlite.csproj">
+      <Project>{F23EF4D3-B75F-4A68-90A3-2440D7B1816B}</Project>
+      <Name>Xtensive.Orm.Sqlite</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xtensive.Orm.SqlServerCe\Xtensive.Orm.SqlServerCe.csproj">
+      <Project>{B1D74FC1-C742-4F3A-A46C-8C7F6A1DC61C}</Project>
+      <Name>Xtensive.Orm.SqlServerCe</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj">
+      <Project>{628737E8-3581-4793-99C8-9A4D2D83FEA0}</Project>
+      <Name>Xtensive.Orm</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

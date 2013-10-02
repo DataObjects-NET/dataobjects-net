@@ -10,7 +10,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
-using Xtensive.Sql.Tests;
+using Xtensive.Orm.Tests.Sql;
 
 namespace Xtensive.Orm.Tests
 {

@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Services;
 using Xtensive.Orm.Upgrade;
+using Xtensive.Sql.Drivers.SqlServer;
 using M1 = Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3.Model.Version1;
 using M2 = Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3.Model.Version2;
 
@@ -94,8 +95,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3
     {
       if (runningVersion=="1") {
         // Save connection string for future operation.
-        connectionString = new Sql.Drivers.SqlServer.DriverFactory()
-          .GetConnectionString(UpgradeContext.Configuration.ConnectionInfo);
+        connectionString = new DriverFactory().GetConnectionString(UpgradeContext.Configuration.ConnectionInfo);
       }
 
       if (runningVersion!="2")
