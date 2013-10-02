@@ -475,8 +475,6 @@
     <Compile Include="Orm\Configuration\DomainTypeRegistry.cs" />
     <Compile Include="Orm\Interfaces\IDomainService.cs" />
     <Compile Include="Orm\Interfaces\ISessionService.cs" />
-    <Compile Include="Orm\ObjectMapping\GraphComparisonResult.cs" />
-    <Compile Include="Orm\ObjectMapping\Interfaces\IHasBinaryVersion.cs" />
     <Compile Include="Orm\Services\Old\PersistentStateAccessor.cs" />
     <Compile Include="Orm\PersistentFieldState.cs" />
     <Compile Include="Orm\Services\Old\SessionStateAccessor.cs" />
@@ -490,7 +488,6 @@
     <Compile Include="Orm\Interfaces\ISessionBound.cs" />
     <Compile Include="Orm\Internals\Pinner.cs" />
     <Compile Include="Orm\Exceptions\QueryTranslationException.cs" />
-    <Compile Include="Orm\ObjectMapping\Mapper.cs" />
     <Compile Include="Orm\Exceptions\ConnectionRequiredException.cs" />
     <Compile Include="Orm\Internals\Disconnected\SerializableEntityState.cs" />
     <Compile Include="Orm\Internals\Disconnected\SerializableReference.cs" />

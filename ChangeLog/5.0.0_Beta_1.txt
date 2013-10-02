@@ -7,3 +7,4 @@
 [main] Added support for DateTime.ToString("s") in LINQ
 [main] Added support for ignoring particular tables and/or columns during Domain.Build
 [main] Added support for defining recycled fields via external definitions
+[main] Object-to-object mapper is removed

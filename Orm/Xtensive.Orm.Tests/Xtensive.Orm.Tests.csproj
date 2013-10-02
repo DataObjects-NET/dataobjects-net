@@ -410,9 +410,6 @@
     <Compile Include="ObjectModel\Interfaces\Slavery.cs" />
     <Compile Include="Rse\IncludeProviderTest.cs" />
     <Compile Include="Storage\BatchingTest.cs" />
-    <Compile Include="Storage\ObjectMapping\DtoModel.cs" />
-    <Compile Include="Storage\ObjectMapping\Model.cs" />
-    <Compile Include="Storage\ObjectMapping\MapperTest.cs" />
     <Compile Include="Storage\DisableSaveChangesTest.cs" />
     <Compile Include="Storage\SerializedQueryTest.cs" />
     <Compile Include="Storage\TransactionModesTest.cs" />

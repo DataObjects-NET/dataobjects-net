@@ -14,8 +14,6 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Diagnostics;
-using Xtensive.Tests.ObjectMapping.SourceModel;
-using Xtensive.Tests.ObjectMapping.TargetModel;
 
 namespace Xtensive.Tests.Linq
 {
@@ -27,14 +25,6 @@ namespace Xtensive.Tests.Linq
     {
       Expression<Func<int, IEnumerable>> lambda = n => Enumerable.Range(1, n);
       lambda.CachingCompile();
-    }
-
-    [Test]
-    public void NewExpressionForStructureCompileTest()
-    {
-      Expression<Func<CompositeStructure1, CompositeStructure2Dto>> expression =
-        c => new CompositeStructure2Dto {AuxInt = c.Structure.AuxInt};
-      expression.CachingCompile();
     }
 
     #region Performance testing

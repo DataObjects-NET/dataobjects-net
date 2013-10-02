@@ -81,7 +81,6 @@
     <Compile Include="Indexes\TestFixture.cs" />
     <Compile Include="Intro\CheatSheetTest.cs" />
     <Compile Include="Intro\HelloWorldTest.cs" />
-    <Compile Include="ObjectMapper\ObjectMapperTest.cs" />
     <Compile Include="Persistent\TestFixture.cs" />
     <Compile Include="Prefetch\PrefetchTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
