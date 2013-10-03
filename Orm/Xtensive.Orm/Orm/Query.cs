@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Xtensive.Orm.Internals;
 
 namespace Xtensive.Orm
@@ -18,6 +19,7 @@ namespace Xtensive.Orm
   /// create future (delayed) and compiled queries,
   /// and finally, resolve <see cref="Key"/>s to <see cref="Entity">entities</see>.
   /// </summary>
+  [PublicAPI]
   public static class Query
   {
     /// <summary>
@@ -60,7 +62,7 @@ namespace Xtensive.Orm
     /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
     /// allowing to continue building the query.
     /// </returns>
-    public static IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria) 
+    public static IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria)
       where T: Entity
     {
       return Session.Demand().Query.FreeText<T>(searchCriteria);
@@ -75,7 +77,7 @@ namespace Xtensive.Orm
     /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
     /// allowing to continue building the query.
     /// </returns>
-    public static IQueryable<FullTextMatch<T>> FreeText<T>(Expression<Func<string>> searchCriteria) 
+    public static IQueryable<FullTextMatch<T>> FreeText<T>(Expression<Func<string>> searchCriteria)
       where T: Entity
     {
       return Session.Demand().Query.FreeText<T>(searchCriteria);
@@ -104,7 +106,7 @@ namespace Xtensive.Orm
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
-    public static Entity SingleOrDefault(Key key)
+    [CanBeNull] public static Entity SingleOrDefault(Key key)
     {
       return Session.Demand().Query.SingleOrDefault(key);
     }
@@ -150,7 +152,7 @@ namespace Xtensive.Orm
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// </returns>
-    public static T SingleOrDefault<T>(Key key)
+    [CanBeNull] public static T SingleOrDefault<T>(Key key)
       where T : class, IEntity
     {
       return Session.Demand().Query.SingleOrDefault<T>(key);
@@ -165,7 +167,7 @@ namespace Xtensive.Orm
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
     /// </returns>
-    public static T SingleOrDefault<T>(params object[] keyValues)
+    [CanBeNull] public static T SingleOrDefault<T>(params object[] keyValues)
       where T : class, IEntity
     {
       return Session.Demand().Query.SingleOrDefault<T>(keyValues);

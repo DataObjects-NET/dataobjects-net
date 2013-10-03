@@ -50,6 +50,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Annotations.cs" />
     <Compile Include="Arithmetic\Arithmetic.cs" />
     <Compile Include="Arithmetic\ArithmeticBase.cs" />
     <Compile Include="Arithmetic\ArithmeticProvider.cs" />

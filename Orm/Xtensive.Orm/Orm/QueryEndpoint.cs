@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
@@ -119,10 +120,10 @@ namespace Xtensive.Orm
     /// <exception cref="KeyNotFoundException">Entity with the specified key is not found.</exception>
     public Entity Single(Key key)
     {
-      if (key == null)
+      if (key==null)
         return null;
       var result = SingleOrDefault(key);
-      if (result == null)
+      if (result==null)
         throw new KeyNotFoundException(String.Format(
           Strings.EntityWithKeyXDoesNotExist, key));
       return result;
@@ -137,7 +138,7 @@ namespace Xtensive.Orm
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// <see langword="null"/>, if there is no such entity.
     /// </returns>
-    public Entity SingleOrDefault(Key key)
+    [CanBeNull] public Entity SingleOrDefault(Key key)
     {
       if (key==null)
         return null;
@@ -201,7 +202,7 @@ namespace Xtensive.Orm
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="key"/> identifies.
     /// </returns>
-    public T SingleOrDefault<T>(Key key)
+    [CanBeNull] public T SingleOrDefault<T>(Key key)
       where T : class, IEntity
     {
       return (T)(object)SingleOrDefault(key);
@@ -216,7 +217,7 @@ namespace Xtensive.Orm
     /// <returns>
     /// The <see cref="Entity"/> specified <paramref name="keyValues"/> identify.
     /// </returns>
-    public T SingleOrDefault<T>(params object[] keyValues)
+    [CanBeNull] public T SingleOrDefault<T>(params object[] keyValues)
       where T : class, IEntity
     {
       return (T)(object)SingleOrDefault(GetKeyByValues<T>(keyValues));

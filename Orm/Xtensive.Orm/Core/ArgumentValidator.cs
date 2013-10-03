@@ -5,6 +5,7 @@
 // Created:    2007.10.01
 
 using System;
+using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Comparison;
 
@@ -22,7 +23,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="value">Value to compare with <see langword="null"/>.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
-    public static void EnsureArgumentNotNull(object value, string parameterName)
+    public static void EnsureArgumentNotNull(object value, [InvokerParameterName] string parameterName)
     {
       if (value==null) {
         EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
@@ -37,7 +38,7 @@ namespace Xtensive.Core
     /// <param name="value">Value to compare with <see langword="null"/>.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The type of default value.</typeparam>
-    public static void EnsureArgumentIsNotDefault<T>(T value, string parameterName)
+    public static void EnsureArgumentIsNotDefault<T>(T value, [InvokerParameterName] string parameterName)
     {
       if (default(T)==null) {
         if (value==null) {
@@ -57,7 +58,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="value">Value to check.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
-    public static void EnsureArgumentNotNullOrEmpty(string value, string parameterName)
+    public static void EnsureArgumentNotNullOrEmpty(string value, [InvokerParameterName] string parameterName)
     {
       if (value == null) {
         EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
@@ -76,7 +77,7 @@ namespace Xtensive.Core
     /// <param name="value">Value to compare check.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The expected type of value.</typeparam>
-    public static void EnsureArgumentIs<T>(object value, string parameterName)
+    public static void EnsureArgumentIs<T>(object value, [InvokerParameterName] string parameterName)
     {
       EnsureArgumentNotNull(value, parameterName);
       if (!(value is T)) {
@@ -92,7 +93,7 @@ namespace Xtensive.Core
     /// <param name="value">Value to compare check.</param>
     /// <param name="type">The expected type of value.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
-    public static void EnsureArgumentIs(object value, Type type, string parameterName)
+    public static void EnsureArgumentIs(object value, Type type, [InvokerParameterName] string parameterName)
     {
       EnsureArgumentNotNull(value, parameterName);
       if (!type.IsAssignableFrom(value.GetType())) {
@@ -108,7 +109,7 @@ namespace Xtensive.Core
     /// <param name="value">Value to compare check.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The expected type of value.</typeparam>
-    public static void EnsureArgumentIsNullOr<T>(object value, string parameterName)
+    public static void EnsureArgumentIsNullOr<T>(object value, [InvokerParameterName] string parameterName)
     {
       if (value==null)
         return;
@@ -127,7 +128,7 @@ namespace Xtensive.Core
     /// <param name="upperBoundary">Upper range boundary (inclusively).</param>
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The type of value.</typeparam>
-    public static void EnsureArgumentIsInRange<T>(T value, T lowerBoundary, T upperBoundary, string parameterName)
+    public static void EnsureArgumentIsInRange<T>(T value, T lowerBoundary, T upperBoundary, [InvokerParameterName] string parameterName)
       where T: struct, IComparable<T>
     {
       if (value.CompareTo(lowerBoundary)<0 || value.CompareTo(upperBoundary)>0) {
@@ -144,7 +145,7 @@ namespace Xtensive.Core
     /// <param name="boundary">Value boundary.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The type of value.</typeparam>
-    public static void EnsureArgumentIsGreaterThan<T>(T value, T boundary, string parameterName)
+    public static void EnsureArgumentIsGreaterThan<T>(T value, T boundary, [InvokerParameterName] string parameterName)
       where T: struct, IComparable<T>
     {
       if (value.CompareTo(boundary) > 0)
@@ -162,7 +163,7 @@ namespace Xtensive.Core
     /// <param name="boundary">Value boundary.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The type of value.</typeparam>
-    public static void EnsureArgumentIsGreaterThanOrEqual<T>(T value, T boundary, string parameterName)
+    public static void EnsureArgumentIsGreaterThanOrEqual<T>(T value, T boundary, [InvokerParameterName] string parameterName)
       where T: struct, IComparable<T>
     {
       if (value.CompareTo(boundary) >= 0)
@@ -180,7 +181,7 @@ namespace Xtensive.Core
     /// <param name="boundary">Value boundary.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The type of value.</typeparam>
-    public static void EnsureArgumentIsLessThan<T>(T value, T boundary, string parameterName)
+    public static void EnsureArgumentIsLessThan<T>(T value, T boundary, [InvokerParameterName] string parameterName)
       where T: struct, IComparable<T>
     {
       if (value.CompareTo(boundary) < 0)
@@ -198,7 +199,7 @@ namespace Xtensive.Core
     /// <param name="boundary">Value boundary.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The type of value.</typeparam>
-    public static void EnsureArgumentIsLessThanOrEqual<T>(T value, T boundary, string parameterName)
+    public static void EnsureArgumentIsLessThanOrEqual<T>(T value, T boundary, [InvokerParameterName] string parameterName)
       where T: struct, IComparable<T>
     {
       if (value.CompareTo(boundary) <= 0)

@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
+using JetBrains.Annotations;
 using Xtensive.Reflection;
 using Xtensive.Diagnostics;
 using Xtensive.IoC;
@@ -38,7 +39,7 @@ namespace Xtensive.Core
     /// <param name="url">Invalid URL.</param>
     /// <param name="parameterName">Name of method parameter where URL was passed (<see langword="null"/> if none).</param>
     /// <returns>Newly created exception.</returns>
-    public static Exception InvalidUrl(string url, string parameterName)
+    public static Exception InvalidUrl(string url, [InvokerParameterName] string parameterName)
     {
       if (parameterName.IsNullOrEmpty())
         return new InvalidOperationException(string.Format(Strings.ExInvalidUrl, url));
@@ -94,7 +95,7 @@ namespace Xtensive.Core
     /// <param name="parameterName">Name of the method parameter (<see langword="null"/> if none).</param>
     /// <returns>Newly created exception.</returns>
     /// <typeparam name="T">The type of the value.</typeparam>
-    public static Exception InvalidArgument<T>(T value, string parameterName)
+    public static Exception InvalidArgument<T>(T value, [InvokerParameterName] string parameterName)
     {
       if (parameterName.IsNullOrEmpty())
         return new InvalidOperationException(string.Format(
@@ -109,7 +110,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="parameterName">Name of the method parameter (<see langword="null"/> if none).</param>
     /// <returns>Newly created exception.</returns>
-    public static Exception ObjectIsReadOnly(string parameterName)
+    public static Exception ObjectIsReadOnly([InvokerParameterName] string parameterName)
     {
       if (parameterName.IsNullOrEmpty())
         return new NotSupportedException(Strings.ExObjectIsReadOnly);
@@ -122,7 +123,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="parameterName">Name of the method parameter (<see langword="null"/> if none).</param>
     /// <returns>Newly created exception.</returns>
-    public static Exception CollectionIsEmpty(string parameterName)
+    public static Exception CollectionIsEmpty([InvokerParameterName] string parameterName)
     {
       if (parameterName.IsNullOrEmpty())
         return new InvalidOperationException(Strings.ExCollectionIsEmpty);
@@ -135,7 +136,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="parameterName">Name of the method parameter (<see langword="null"/> if none).</param>
     /// <returns>Newly created exception.</returns>
-    public static Exception CollectionIsReadOnly(string parameterName)
+    public static Exception CollectionIsReadOnly([InvokerParameterName] string parameterName)
     {
       if (parameterName.IsNullOrEmpty())
         return new NotSupportedException(Strings.ExCollectionIsReadOnly);
@@ -148,7 +149,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="parameterName">Name of the method parameter (<see langword="null"/> if none).</param>
     /// <returns>Newly created exception.</returns>
-    public static Exception CollectionHasBeenChanged(string parameterName)
+    public static Exception CollectionHasBeenChanged([InvokerParameterName] string parameterName)
     {
       if (parameterName.IsNullOrEmpty())
         return new InvalidOperationException(Strings.ExCollectionHasBeenChanged);

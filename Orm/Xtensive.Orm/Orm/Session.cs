@@ -10,6 +10,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using JetBrains.Annotations;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
@@ -367,7 +368,7 @@ namespace Xtensive.Orm
     /// <exception cref="ReferentialIntegrityException">
     /// Entity is associated with another entity with <see cref="OnRemoveAction.Deny"/> on-remove action.
     /// </exception>
-    public void Remove<T>(IEnumerable<T> entities)
+    public void Remove<T>([InstantHandle] IEnumerable<T> entities)
       where T : IEntity
     {
       using (var tx = OpenAutoTransaction()) {

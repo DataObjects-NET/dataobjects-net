@@ -5,6 +5,7 @@
 // Created:    2009.02.09
 
 using System;
+using JetBrains.Annotations;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Orm
@@ -15,6 +16,7 @@ namespace Xtensive.Orm
   /// </summary>
   [Serializable]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
+  [MeansImplicitUse]
   public sealed class CompilerAttribute: Attribute
   {
     /// <summary>
