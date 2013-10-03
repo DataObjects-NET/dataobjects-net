@@ -58,6 +58,7 @@ namespace Xtensive.Orm
   /// </example>
   /// <seealso cref="Domain"/>
   /// <seealso cref="SessionBound" />
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   public partial class Session : DomainBound,
     IVersionSetProvider,
     IContext<SessionScope>, 

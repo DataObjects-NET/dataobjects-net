@@ -17,6 +17,7 @@ namespace Xtensive.Orm
   /// create future (delayed) and compiled queries,
   /// and finally, resolve <see cref="Key"/>s to <see cref="Entity">entities</see>.
   /// </summary>
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   public sealed class QueryEndpoint
   {
     private readonly Session session;

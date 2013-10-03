@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using JetBrains.Annotations;
 using Xtensive.Caching;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -29,6 +30,7 @@ namespace Xtensive.Orm
   /// <sample>
   /// <code lang="cs" source="..\Xtensive.Orm\Xtensive.Orm.Manual\DomainAndSession\DomainAndSessionSample.cs" region="Domain sample"></code>
   /// </sample>
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   public sealed class Domain : IDisposable, IHasExtensions
   {
     private readonly object disposeGuard = new object();

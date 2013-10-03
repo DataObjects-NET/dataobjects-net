@@ -5,7 +5,7 @@
 // Created:    2008.01.11
 
 using System;
-
+using JetBrains.Annotations;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm
@@ -39,6 +39,7 @@ namespace Xtensive.Orm
   /// </example>
   [Serializable]
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+  [BaseTypeRequired(typeof (Entity))]
   public sealed class HierarchyRootAttribute : StorageAttribute
   {
     /// <summary>

@@ -17,7 +17,7 @@ namespace Xtensive.Orm
   [Serializable]
   [AttributeUsage(AttributeTargets.Method, AllowMultiple = false, Inherited = false)]
   [MeansImplicitUse]
-  public sealed class CompilerAttribute: Attribute
+  public sealed class CompilerAttribute : Attribute
   {
     /// <summary>
     /// Gets or sets the type full name of the target.

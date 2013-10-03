@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 
@@ -23,13 +24,13 @@ namespace Xtensive.Orm
     /// Returns the number of elements in <paramref name="source"/> sequence.
     /// </summary>
     /// <param name="source">The source sequence.</param>
-    public static int Count(this IQueryable source)
+    public static int Count([InstantHandle] this IQueryable source)
     {
-      if (source == null) throw new ArgumentNullException("source");
-      return (int)source.Provider.Execute(
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      return (int) source.Provider.Execute(
         Expression.Call(
-          typeof(Queryable), "Count",
-          new[] { source.ElementType }, source.Expression));
+          typeof (Queryable), "Count",
+          new[] {source.ElementType}, source.Expression));
     }
 
     /// <summary>
@@ -247,7 +248,7 @@ namespace Xtensive.Orm
     /// Entity is associated with another entity with <see cref="OnRemoveAction.Deny"/> on-remove action.
     /// </exception>
     [Obsolete("Use Session.Remove() instead.")]
-    public static void Remove<T>(this IEnumerable<T> entities)
+    public static void Remove<T>([InstantHandle] this IEnumerable<T> entities)
       where T : IEntity
     {
       var session = Session.Current;
