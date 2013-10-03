@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Issues
           new Target(session);
           session.SaveChanges();
 
-          session.Query.All<Target>().Remove();
+          session.Remove(session.Query.All<Target>());
           // Rollback
         }
       }

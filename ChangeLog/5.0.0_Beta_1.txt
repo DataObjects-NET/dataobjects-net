@@ -10,3 +10,4 @@
 [main] Object-to-object mapper is removed
 [main] Xtensive.Core and Xtensive.Aspects assemblies are removed
 [main] Added ReSharper annotations in public API
+[main] IEnumerable<IEntity>.Remove() extension method is marked as obsolete

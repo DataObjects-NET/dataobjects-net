@@ -310,7 +310,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (var t = session.OpenTransaction()) {
           const int operationCount = containersCount*3 + containersCount*itemCount*2;
           using (new Measurement("Remove...", operationCount)) {
-            session.Query.All<Container>().Remove();
+            session.Remove(session.Query.All<Container>());
             session.SaveChanges();
           }
 

@@ -153,9 +153,10 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void Reset()
     {
-      Query.All<Item>().Remove();
-      Query.All<Owner>().Remove();
-      Query.All<Target>().Remove();
+      var session = Session.Demand();
+      session.Remove(Query.All<Item>());
+      session.Remove(Query.All<Owner>());
+      session.Remove(Query.All<Target>());
     }
   }
 }

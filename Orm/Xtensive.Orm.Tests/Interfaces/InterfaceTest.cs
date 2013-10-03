@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Tests.Interfaces
           Assert.AreEqual(2, p.Pets.Count);
 
           p.Remove();
-          session.Query.All<IAnimal>().Remove();
+          session.Remove(session.Query.All<IAnimal>());
 
           new Animal1() { PetName = "A" };
           new Animal1() { PetName = "B" };

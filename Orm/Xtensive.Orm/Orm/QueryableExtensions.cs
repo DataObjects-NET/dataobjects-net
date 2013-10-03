@@ -246,6 +246,7 @@ namespace Xtensive.Orm
     ///  <exception cref="ReferentialIntegrityException">
     /// Entity is associated with another entity with <see cref="OnRemoveAction.Deny"/> on-remove action.
     /// </exception>
+    [Obsolete("Use Session.Remove() instead.")]
     public static void Remove<T>(this IEnumerable<T> entities)
       where T : IEntity
     {
