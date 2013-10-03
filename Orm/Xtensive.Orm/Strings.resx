@@ -395,9 +395,6 @@
   <data name="TupleFormat" xml:space="preserve">
     <value>({0})</value>
   </data>
-  <data name="NotAvailable" xml:space="preserve">
-    <value>n\a</value>
-  </data>
   <data name="Null" xml:space="preserve">
     <value>null</value>
   </data>
@@ -547,9 +544,6 @@
   </data>
   <data name="ExUnknownExpressionType" xml:space="preserve">
     <value>Unknown expression type: '{0} ({1})'</value>
-  </data>
-  <data name="ExTypeXShouldNotBeGeneric" xml:space="preserve">
-    <value>Type {0} should not be generic.</value>
   </data>
   <data name="ExEscapeCharacterMustDifferFromDelimiterCharacter" xml:space="preserve">
     <value>Escape character must differ from delimiter character.</value>
@@ -968,9 +962,6 @@
   <data name="ExEnumerationIsNotStarted" xml:space="preserve">
     <value>Enumeration is not started.</value>
   </data>
-  <data name="ExEnumerationIsAlreadyFinished" xml:space="preserve">
-    <value>Enumeration is already finished.</value>
-  </data>
   <data name="ExUnableToFindColumnInPrimaryIndex" xml:space="preserve">
     <value>Unable to find column '{0}' of index '{1}' in primary index.</value>
   </data>
@@ -1077,9 +1068,6 @@
   </data>
   <data name="ExRequestIsNotPrepared">
     <value xml:space="preserve">Request is not prepared</value>
-  </data>
-  <data name="ExCouldNotLoadTypesFromAssembly" xml:space="preserve">
-    <value>Could not load types from assembly '{0}'.</value>
   </data>
   <data name="ExThereAreNoSuitableTypes" xml:space="preserve">
     <value>There are no suitable types in '{0}'.</value>
@@ -1440,9 +1428,6 @@
   </data>
   <data name="ExSessionWithNameXAlreadyExists" xml:space="preserve">
     <value>Session with name '{0}' already exists.</value>
-  </data>
-  <data name="ExUnknownExpressionType" xml:space="preserve">
-    <value>Unknown expression type: '{0} ({1})'.</value>
   </data>
   <data name="SystemTypes" xml:space="preserve">
     <value>system types</value>
@@ -1999,14 +1984,8 @@ Referenced Entity Key: {4}</value>
   <data name="ExForeignKeyValueHaveNotBeenLoaded" xml:space="preserve">
     <value>The foreign key's value have not been loaded.</value>
   </data>
-  <data name="ExSpecifiedExpressionIsNotMemberExpression" xml:space="preserve">
-    <value>The specified expression is not MemberExpression</value>
-  </data>
   <data name="ExAccessToTypeMemberCanNotBeExtractedFromSpecifiedExpression" xml:space="preserve">
     <value>The access to a type's member can not be extracted from the specified expression.</value>
-  </data>
-  <data name="ExAccessedMemberIsNotProperty" xml:space="preserve">
-    <value>The accessed member is not a property.</value>
   </data>
   <data name="ExSpecifiedPropertyXIsNotPersistent" xml:space="preserve">
     <value>The specified property {0} is not persistent.</value>
@@ -2884,9 +2863,6 @@ Error: {1}</value>
   <data name="AspectExApplyingXToPropertyYFailedZ" xml:space="preserve">
     <value>Applying [{0}] to property '{1}' failed. {2}</value>
   </data>
-  <data name="Null" xml:space="preserve">
-    <value>null</value>
-  </data>
   <data name="ExValidationContextIsInvalid" xml:space="preserve">
     <value>Validation context is in invalid state. This means that some validation error has happened, but later it was suppressed.</value>
   </data>
@@ -3200,7 +3176,7 @@ Error: {1}</value>
     <value>Compiler for {0} is already registered.</value>
   </data>
   <data name="ExTypeXShouldNotBeGeneric" xml:space="preserve">
-    <value>Type {0} should not be generic.</value>
+    <value>Type '{0}' should not be generic.</value>
   </data>
   <data name="LogFailedToExtractMetadataFromXYZ">
     <value xml:space="preserve">Failed to extract metadata from '{0}.{1}': {2}</value>

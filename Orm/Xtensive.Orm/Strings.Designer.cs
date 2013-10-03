@@ -1671,7 +1671,7 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Could not load types from assembly &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Could not load types from the assembly &apos;{0}&apos;..
         /// </summary>
         internal static string ExCouldNotLoadTypesFromAssembly {
             get {
@@ -5511,7 +5511,7 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The specified expression is not MemberExpression.
+        ///   Looks up a localized string similar to The specified expression is not a MemberExpression..
         /// </summary>
         internal static string ExSpecifiedExpressionIsNotMemberExpression {
             get {
@@ -6431,7 +6431,7 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type {0} should not be generic..
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; should not be generic..
         /// </summary>
         internal static string ExTypeXShouldNotBeGeneric {
             get {
@@ -6946,7 +6946,7 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unknown expression type: &apos;{0} ({1})&apos;..
+        ///   Looks up a localized string similar to Unknown expression type: &apos;{0} ({1})&apos;.
         /// </summary>
         internal static string ExUnknownExpressionType {
             get {
