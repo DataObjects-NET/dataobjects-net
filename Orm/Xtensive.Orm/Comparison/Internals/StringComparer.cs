@@ -20,7 +20,7 @@ namespace Xtensive.Comparison
     [NonSerialized]
     private Func<string, string, CompareOptions, int> stringCompare;
     [NonSerialized]
-    private Predicate<string, string, CompareOptions> stringIsSuffix;
+    private Func<string, string, CompareOptions, bool> stringIsSuffix;
 
     protected override IAdvancedComparer<string> CreateNew(ComparisonRules rules)
     {

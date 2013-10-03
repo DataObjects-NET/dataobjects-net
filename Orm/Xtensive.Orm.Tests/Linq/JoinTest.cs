@@ -282,7 +282,7 @@ namespace Xtensive.Orm.Tests.Linq
           c => c.Id,
           p => p.Id,
           (c, pGroup) => pGroup,
-          AdvancedComparer<int>.Default.EqualityComparerImplementation);
+          EqualityComparer<int>.Default);
       AssertEx.Throws<QueryTranslationException>(() => result.ToList());
     }
 

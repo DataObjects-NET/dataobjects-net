@@ -330,10 +330,10 @@ namespace Xtensive.Orm
       if (ReferenceEquals(this, other))
         return true;
       var thisIsBound = IsBoundToEntity;
-      var otherisBound = other.IsBoundToEntity;
-      if (thisIsBound || otherisBound)
-        return InnerEquals(other, thisIsBound, otherisBound);
-      return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
+      var otherIsBound = other.IsBoundToEntity;
+      if (thisIsBound || otherIsBound)
+        return InnerEquals(other, thisIsBound, otherIsBound);
+      return Equals(Tuple, other.Tuple);
     }
 
     private bool InnerEquals(Structure other, bool thisIsBound, bool otherIsBound)
@@ -348,7 +348,7 @@ namespace Xtensive.Orm
         if (other.Entity.IsRemoved && !Session.Configuration.Supports(SessionOptions.ReadRemovedObjects))
           throw new InvalidOperationException(Strings.ExEntityIsRemoved);
       }
-      return AdvancedComparer<Tuple>.Default.Equals(Tuple, other.Tuple);
+      return Equals(Tuple, other.Tuple);
     }
 
     /// <inheritdoc/>

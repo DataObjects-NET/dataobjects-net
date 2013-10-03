@@ -6,10 +6,6 @@
 // Created:    2007.07.04
 
 using System;
-using System.Collections.Generic;
-using Xtensive.Comparison;
-using Xtensive.Reflection;
-
 
 namespace Xtensive.Collections
 {
@@ -26,22 +22,6 @@ namespace Xtensive.Collections
     /// </summary>
     public static TItem[] EmptyArray {
       get { return emptyArray; }
-    }
-
-    /// <summary>
-    /// Creates a new 1-dimensional array of specified <paramref name="size"/>,
-    /// if <paramref name="size"/> isn't <see langword="0"/>;
-    /// otherwise, returns <see cref="EmptyArray"/>.
-    /// </summary>
-    /// <param name="size">Size of the array to create.</param>
-    /// <returns>Created array, if <paramref name="size"/> isn't <see langword="0"/>;
-    /// otherwise, <see cref="EmptyArray"/>.</returns>
-    public static TItem[] Create(int size)
-    {
-      if (size!=0)
-        return new TItem[size];
-      else
-        return emptyArray;
     }
   }
 }

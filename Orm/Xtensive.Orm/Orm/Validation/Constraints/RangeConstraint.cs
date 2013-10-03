@@ -5,6 +5,7 @@
 // Created:    2008.07.25
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Comparison;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
@@ -33,7 +34,7 @@ namespace Xtensive.Orm.Validation
 
     private sealed class ValidationHandler<TValue> : ValidationHandler
     {
-      private Func<TValue, TValue, int> comparer;
+      private static readonly IComparer<TValue> Comparer = Comparer<TValue>.Default;
 
       private bool hasMin;
       private bool hasMax;
@@ -43,8 +44,6 @@ namespace Xtensive.Orm.Validation
 
       protected override void Configure(object minObj, object maxObj)
       {
-        comparer = AdvancedComparer<TValue>.System.Compare;
-
         if (minObj!=null) {
           min = (TValue) Convert.ChangeType(minObj, typeof (TValue));
           hasMin = true;
@@ -60,8 +59,8 @@ namespace Xtensive.Orm.Validation
       {
         var typedValue = (TValue) value;
 
-        return (!hasMin || comparer.Invoke(typedValue, min) >= 0)
-          && (!hasMax || comparer.Invoke(typedValue, max) <= 0);
+        return (!hasMin || Comparer.Compare(typedValue, min) >= 0)
+          && (!hasMax || Comparer.Compare(typedValue, max) <= 0);
       }
     }
 

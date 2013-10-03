@@ -157,7 +157,6 @@
     <Compile Include="Comparison\Internals\AssemblyComparer.cs" />
     <Compile Include="Comparison\Internals\BaseComparerWrapper.cs" />
     <Compile Include="Comparison\Internals\BooleanComparer.cs" />
-    <Compile Include="Comparison\Internals\BoxComparer.cs" />
     <Compile Include="Comparison\Internals\ByteComparer.cs" />
     <Compile Include="Comparison\Internals\CharComparer.cs" />
     <Compile Include="Comparison\Internals\DecimalComparer.cs" />
@@ -255,7 +254,6 @@
     <Compile Include="Core\AliasGenerator.cs" />
     <Compile Include="Core\ArgumentValidator.cs" />
     <Compile Include="Core\AssociateProvider.cs" />
-    <Compile Include="Core\Box.cs" />
     <Compile Include="Core\Cloner.cs" />
     <Compile Include="Core\ConfigurationCollection.cs" />
     <Compile Include="Core\ConfigurationCollectionElementBase.cs" />

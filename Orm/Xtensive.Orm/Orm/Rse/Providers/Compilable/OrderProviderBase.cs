@@ -36,18 +36,13 @@ namespace Xtensive.Orm.Rse.Providers
     public MapTransform OrderKeyExtractorTransform { get; private set; }
 
     /// <summary>
-    /// Gets the <see cref="Order"/> key comparer.
-    /// </summary>
-    public AdvancedComparer<Tuple> OrderKeyComparer { get; private set; }
-
-    /// <summary>
     /// Extracts the key part from <paramref name="tuple"/> using <see cref="OrderKeyExtractorTransform"/>.
     /// </summary>
     /// <param name="tuple">The tuple to extract the key from.</param>
     /// <returns>A tuple containing extracted order key.</returns>
     public Tuple OrderKeyExtractor(Tuple tuple)
     {
-      return OrderKeyExtractorTransform.Apply(TupleTransformType.Auto, tuple); ;
+      return OrderKeyExtractorTransform.Apply(TupleTransformType.Auto, tuple);
     }
 
     /// <inheritdoc/>
@@ -79,12 +74,8 @@ namespace Xtensive.Orm.Rse.Providers
         comparisonRules[i] = new ComparisonRule(orderItem.Value, culture);
       }
 
-      var orderKeyDescriptor = TupleDescriptor.Create(
-        Order.Select(p => Header.Columns[p.Key].Type));
-      OrderKeyExtractorTransform = new MapTransform(true, orderKeyDescriptor, 
-        Order.Select(p => p.Key).ToArray());
-      OrderKeyComparer = AdvancedComparer<Tuple>.Default.ApplyRules(
-        new ComparisonRules(ComparisonRule.Positive, comparisonRules, ComparisonRules.None));
+      var orderKeyDescriptor = TupleDescriptor.Create(Order.Select(p => Header.Columns[p.Key].Type));
+      OrderKeyExtractorTransform = new MapTransform(true, orderKeyDescriptor, Order.Select(p => p.Key).ToArray());
     }
 
 
