@@ -16,7 +16,7 @@ namespace Xtensive.IoC
       get { return typeof (object); }
     }
 
-    protected override bool IsAcceptable(TypeRegistry registry, TypeRegistration registration, Type type)
+    protected override bool IsAcceptable(TypeRegistration registration, Type type)
     {
       return true;
     }

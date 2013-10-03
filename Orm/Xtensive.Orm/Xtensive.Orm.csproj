@@ -1267,7 +1267,6 @@
     <Compile Include="Orm\Session.QueryTasks.cs" />
     <Compile Include="Orm\Session.Open.cs" />
     <Compile Include="Orm\Building\Builders\IndexBuilder.FullText.cs" />
-    <Compile Include="Reflection\AssemblyHelper.cs" />
     <Compile Include="Reflection\AttributeHelper.cs" />
     <Compile Include="Reflection\AttributeSearchOptions.cs" />
     <Compile Include="Reflection\DelegateHelper.cs" />

@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Xtensive.Reflection;
 using Xtensive.Sql;
@@ -63,11 +64,18 @@ namespace Xtensive.Orm.Building.Builders
       case WellKnown.Provider.Firebird:
       case WellKnown.Provider.MySql:
       case WellKnown.Provider.Sqlite:
-        return AssemblyHelper.LoadExtensionAssembly(string.Format(assemblyFormat, providerName));
+        return LoadExtensionAssembly(string.Format(assemblyFormat, providerName));
       default:
         throw new NotSupportedException(
           string.Format(Strings.ExProviderXIsNotSupportedUseOneOfTheFollowingY, providerName, WellKnown.Provider.All));
       }
+    }
+
+    private static Assembly LoadExtensionAssembly(string extensionAssemblyName)
+    {
+      var mainAssemblyRef = typeof (ProviderDescriptor).Assembly.GetName();
+      var extensionAssemblyFullName = mainAssemblyRef.FullName.Replace(mainAssemblyRef.Name, extensionAssemblyName);
+      return Assembly.Load(extensionAssemblyFullName);
     }
 
     // Constructors

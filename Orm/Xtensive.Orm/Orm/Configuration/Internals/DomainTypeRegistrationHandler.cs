@@ -28,10 +28,10 @@ namespace Xtensive.Orm.Configuration
       get { return objectType; }
     }
 
-    protected override bool IsAcceptable(TypeRegistry registry, TypeRegistration registration, Type type)
+    protected override bool IsAcceptable(TypeRegistration registration, Type type)
     {
       // Disallow implicit (via assembly scan) registration of types in Orm.Providers namespace
-      return base.IsAcceptable(registry, registration, type)
+      return base.IsAcceptable(registration, type)
         && (registration.Type!=null || !type.FullName.StartsWith(providersNamespace));
     }
 
