@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
 
     public string FullName {
       get {
-        return "{Name} {SecondName}".FormatWith(this);
+        return string.Format("{0} {1}", Name, SecondName);
       }
     }
 
@@ -53,11 +53,9 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
 
     public string ToString(bool withFriends)
     {
-      if (withFriends) {
+      if (withFriends)
         return string.Format("Person('{0}', Friends={1})", FullName, Friends.ToCommaDelimitedString());
-      }
-      else
-        return "Person('{0}')".FormatWith(FullName);
+      return string.Format("Person('{0}')", FullName);
     }
 
     public Person(Session session, string fullName)
@@ -96,11 +94,9 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
 
     public string ToString(bool withPersons)
     {
-      if (withPersons) {
+      if (withPersons)
         return string.Format("Company('{0}', Employees: {1})", Name, Employees.ToCommaDelimitedString());
-      }
-      else
-        return "Company('{0}')".FormatWith(Name);
+      return string.Format("Company('{0}')", Name);
     }
 
     public Company(Session session, string name)

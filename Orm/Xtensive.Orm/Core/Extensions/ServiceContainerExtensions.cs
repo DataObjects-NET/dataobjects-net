@@ -103,13 +103,8 @@ namespace Xtensive.Core
       if (service!=null)
         return;
       if (name==null)
-        throw new ActivationException(
-          Strings.ExServiceOfTypeXIsNotAvailable.FormatWith(
-            serviceType.GetShortName()));
-      else {
-        object arg1 = serviceType.GetShortName();
-        throw new ActivationException(string.Format(Strings.ExServiceWithNameXOfTypeYIsNotAvailable, name, arg1));
-      }
+        throw new ActivationException(string.Format(Strings.ExServiceOfTypeXIsNotAvailable, serviceType.GetShortName()));
+      throw new ActivationException(string.Format(Strings.ExServiceWithNameXOfTypeYIsNotAvailable, name, serviceType.GetShortName()));
     }
 
     #endregion

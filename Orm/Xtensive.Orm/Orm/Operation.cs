@@ -150,7 +150,7 @@ namespace Xtensive.Orm
     private string FormatOperations(string title, IEnumerable<IOperation> operations)
     {
       // Shouldn't be moved to resources
-      return "  {0}:\r\n".FormatWith(title) +
+      return string.Format("  {0}:\r\n", title) +
         operations.ToDelimitedString(Environment.NewLine).ToString().Indent(4);
     }
 

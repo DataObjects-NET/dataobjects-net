@@ -31,7 +31,7 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="result">The schema comparison result.</param>
     public SchemaSynchronizationException(SchemaComparisonResult result)
-      : this(Strings.ExExtractedSchemaIsNotEqualToTheTargetSchema_DetailsX.FormatWith(result))
+      : this(string.Format(Strings.ExExtractedSchemaIsNotEqualToTheTargetSchema_DetailsX, result))
     {
       ComparisonResult = result;
     }

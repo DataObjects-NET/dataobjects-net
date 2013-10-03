@@ -61,7 +61,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override string ToString()
     {
-      return "{0}:\r\n".FormatWith(Strings.KeyMapping) + (
+      return string.Format("{0}:\r\n", Strings.KeyMapping) + (
         from pair in map
         let pairKeyString = pair.Key.ToString()
         orderby pairKeyString

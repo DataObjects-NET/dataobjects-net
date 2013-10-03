@@ -118,7 +118,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override string ToString()
     {
-      var sb = new StringBuilder("{0}:\r\n".FormatWith(Strings.Operations));
+      var sb = new StringBuilder(string.Format("{0}:\r\n", Strings.Operations));
       foreach (var o in operations)
         sb.AppendLine(o.ToString().Indent(2));
       return sb.ToString().Trim();
@@ -149,8 +149,8 @@ namespace Xtensive.Orm
         if (uniqueOperations==null)
           uniqueOperations = new HashSet<IUniqueOperation>();
         if (!uniqueOperations.Add(uniqueOperation) && !uniqueOperation.IgnoreIfDuplicate)
-          throw new InvalidOperationException(
-            Strings.ExDuplicateForOperationXIsFound.FormatWith(uniqueOperation));
+          throw new InvalidOperationException(string.Format(
+            Strings.ExDuplicateForOperationXIsFound, uniqueOperation));
       }
     }
 

@@ -290,7 +290,7 @@ namespace Xtensive.Orm
         return;
       switch (identifierType) {
       case EntityIdentifierType.Auto:
-        string identifier = "#{0}".FormatWith(operations.GetNextIdentifier().ToString("0000"));
+        string identifier = string.Format("#{0}", operations.GetNextIdentifier().ToString("0000"));
         operations.RegisterEntityIdentifier(Key, identifier);
         break;
       case EntityIdentifierType.None:

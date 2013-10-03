@@ -274,12 +274,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
       {
         foreach (var sequence in theCatalog.DefaultSchema.Sequences) {
-          using (
-            var reader = Connection
-              .CreateCommand(
-                GetExtractSequenceValueQuery().FormatWith(
-                  Driver.Translator.QuoteIdentifier(sequence.Name)))
-              .ExecuteReader(CommandBehavior.SingleResult)) {
+          var query = string.Format(GetExtractSequenceValueQuery(), Driver.Translator.QuoteIdentifier(sequence.Name));
+          using (var command = Connection.CreateCommand(query))
+          using (var reader = command.ExecuteReader(CommandBehavior.SingleResult)) {
             while (reader.Read())
               sequence.SequenceDescriptor.MinValue = reader.GetInt64(0);
           }

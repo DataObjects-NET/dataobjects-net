@@ -139,7 +139,7 @@ namespace Xtensive.Storage.DisconnectedTests.Model
 
       public override string Description {
         get {
-          return "{0}, Product = {1}, Order = {2}".FormatWith(Title, product, order);
+          return string.Format("{0}, Product = {1}, Order = {2}", Title, product, order);
         }
       }
 

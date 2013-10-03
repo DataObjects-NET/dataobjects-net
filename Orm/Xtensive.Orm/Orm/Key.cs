@@ -293,8 +293,7 @@ namespace Xtensive.Orm
 
       var typeInfo = domain.Model.Types.Find(typeName);
       if (typeInfo==null)
-        throw new InvalidOperationException(
-          Strings.ExTypeWithNameXIsNotRegistered.FormatWith(typeName));
+        throw new InvalidOperationException(string.Format(Strings.ExTypeWithNameXIsNotRegistered, typeName));
       var value = typeInfo.Key.TupleDescriptor.Parse(valueString);
       return Create(domain, typeInfo, TypeReferenceAccuracy.Hierarchy, value);
     }

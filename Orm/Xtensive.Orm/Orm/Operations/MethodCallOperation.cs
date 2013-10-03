@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Operations
     /// <inheritdoc/>
     public override string Description {
       get {
-        return "{0}: {1}({2})".FormatWith(
+        return string.Format("{0}: {1}({2})",
           Title, executeAction.Method.GetShortName(true), arguments.ToCommaDelimitedString());
       }
     }

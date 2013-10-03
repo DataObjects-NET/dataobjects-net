@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Xtensive.Collections;
 
 namespace Xtensive.Core
 {
@@ -18,73 +17,6 @@ namespace Xtensive.Core
   /// </summary>
   public static class StringExtensions
   {
-    private const string ThisMemberName = "this";
-    private static readonly Regex formatWithRegex = new Regex(
-      @"\{\{|\{([\w\.\[\]]+)((?:[,:][^}]+)?\})",
-      RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
-    /// <summary>
-    /// Formats the specified <paramref name="format"/> string 
-    /// using <see cref="string.Format(string,object)"/> method.
-    /// </summary>
-    /// <param name="format">The format string.</param>
-    /// <param name="arg0">The first argument.</param>
-    /// <returns>Formatted string.</returns>
-    public static string FormatWith(this string format, object arg0)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(format, "format");
-      
-      var arguments = new List<object>();
-      var rewrittenFormat = formatWithRegex.Replace(format, m => {
-        var propertyName = m.Groups[1].Value.Trim();
-        if (propertyName.Length==0)
-          return m.Value;
-        arguments.Add(
-          (propertyName=="0" || propertyName==ThisMemberName) 
-            ? arg0 
-            : Eval(arg0, propertyName));
-        return "{" + (arguments.Count - 1) + m.Groups[2].Value;
-      });
-
-      return string.Format(rewrittenFormat, arguments.ToArray());
-    }
-
-    /// <summary>
-    /// Formats the specified <paramref name="format"/> string 
-    /// using <see cref="string.Format(string,object,object,object)"/> method.
-    /// </summary>
-    /// <param name="format">The format string.</param>
-    /// <param name="arg0">The first argument.</param>
-    /// <param name="arg1">The second argument.</param>
-    /// <param name="arg2">The third argument.</param>
-    /// <returns>Formatted string.</returns>
-    public static string FormatWith(this string format, object arg0, object arg1, object arg2)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(format, "format");
-      return string.Format(format, arg0, arg1, arg2);
-    }
-
-    /// <exception cref="ArgumentNullException"><paramref name="expression" /> is <c>null</c>.</exception>
-    private static object Eval(object arg, string expression)
-    {
-      if (expression == null)
-        throw new ArgumentNullException("expression");
-      expression = expression.Trim();
-      if (expression.Length == 0)
-        throw new ArgumentNullException("expression");
-      if (arg == null)
-        return null;
-      var expressionParts = expression.Split('.');
-      object propertyValue = arg;
-      foreach (string propertyName in expressionParts) {
-        if (propertyValue == null)
-          break;
-        var propertyInfo = propertyValue.GetType().GetProperty(propertyName);
-        propertyValue = propertyInfo.GetValue(propertyValue, ArrayUtils<object>.EmptyArray);
-      }
-      return propertyValue;
-    }
-    
     /// <summary>
     /// Cuts the specified <paramref name="suffix"/> from <paramref name="value"/>.
     /// </summary>
@@ -96,7 +28,7 @@ namespace Xtensive.Core
     {
       if (!value.EndsWith(suffix))
         return value;
-      return value.Substring(0, value.Length - suffix.Length);        
+      return value.Substring(0, value.Length - suffix.Length);
     }
 
     /// <summary>
@@ -110,7 +42,7 @@ namespace Xtensive.Core
     {
       if (!value.StartsWith(prefix))
         return value;
-      return value.Substring(prefix.Length);        
+      return value.Substring(prefix.Length);
     }
 
     /// <summary>

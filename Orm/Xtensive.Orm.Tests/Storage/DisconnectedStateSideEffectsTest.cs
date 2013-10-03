@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Tests.Storage.DisconnectedStateSideEffectsTest
         throw new ArgumentException("Title is wrong.", "title");
       if (title.ToLower().Contains(Famous)) {
         var book = new Book() {
-          Title = "A book of famous author '{0}'".FormatWith(title)
+          Title = string.Format("A book of famous author '{0}'", title)
         };
       }
     }
@@ -255,8 +255,8 @@ namespace Xtensive.Orm.Tests.Storage.DisconnectedStateSideEffectsTest
         using (ds.Attach(session))
         using (ds.Connect()) {
           testAuthor = new Author("Author 1");
-          AssertEx.ThrowsArgumentException(() => new Author("Author 2 ({0})".FormatWith(Author.Error)));
-          new Author("Author 3 ({0})".FormatWith(Author.Famous));
+          AssertEx.ThrowsArgumentException(() => new Author(string.Format("Author 2 ({0})", Author.Error)));
+          new Author(string.Format("Author 3 ({0})", Author.Famous));
           ds.ApplyChanges();
         }
         var author1 = session.Query.All<Author>().Where(b => b.Title.StartsWith("Author 1")).SingleOrDefault();
@@ -278,8 +278,8 @@ namespace Xtensive.Orm.Tests.Storage.DisconnectedStateSideEffectsTest
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var testAuthor = new Author("Author 1");
-        AssertEx.ThrowsArgumentException(() => new Author("Author 2 ({0})".FormatWith(Author.Error)));
-        new Author("Author 3 ({0})".FormatWith(Author.Famous));
+        AssertEx.ThrowsArgumentException(() => new Author(string.Format("Author 2 ({0})", Author.Error)));
+        new Author(string.Format("Author 3 ({0})", Author.Famous));
         session.SaveChanges();
 
         var author1 = session.Query.All<Author>().Where(b => b.Title.StartsWith("Author 1")).SingleOrDefault();

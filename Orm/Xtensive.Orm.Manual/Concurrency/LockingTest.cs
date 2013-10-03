@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Manual.Concurrency.Locking
       var startTime = DateTime.UtcNow;
       var threadNumber = Interlocked.Increment(ref threadCount);
       try {
-        string threadName = "Thread {0}".FormatWith(threadNumber).Indent(2 + (int) (threadNumber-1)*5);
+        string threadName = string.Format("Thread {0}", threadNumber).Indent(2 + (int) (threadNumber - 1) * 5);
         using (var session = GetDomain().OpenSession()) {
           while ((DateTime.UtcNow - startTime).TotalMilliseconds < TestTime) {
             try {

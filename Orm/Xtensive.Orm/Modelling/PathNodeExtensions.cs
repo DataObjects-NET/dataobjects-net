@@ -30,7 +30,7 @@ namespace Xtensive.Modelling
     {
       var result = node.Resolve(path);
       if (result==null && throwIfNone)
-        throw new InvalidOperationException(Strings.ExPathXNotFound.FormatWith(path));
+        throw new InvalidOperationException(string.Format(Strings.ExPathXNotFound, path));
       return result;
     }
   }

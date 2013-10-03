@@ -15,21 +15,6 @@ namespace Xtensive.Orm.Tests.Core.Helpers
   public class StringExtensionsTest
   {
     [Test]
-    public void FormatWithTest()
-    {
-      // Compatibility with default behavior
-      Assert.AreEqual("1", "{0}".FormatWith(1));
-      // New behavior with formatting & this
-      Assert.AreEqual("1", "{this}".FormatWith(1));
-      Assert.AreEqual(" 1", "{this,2}".FormatWith(1));
-      Assert.AreEqual(" 1.1", "{this,4:F1}".FormatWith(1.1).Replace(",", "."));
-      // New behavior (property access)
-      Assert.AreEqual("A,B", "{X},{Y}".FormatWith(new {X = "A", Y = "B"}));
-      Assert.AreEqual("1",  "{Seconds}".FormatWith(TimeSpan.FromSeconds(61)));
-      Assert.AreEqual("61", "{TotalSeconds}".FormatWith(TimeSpan.FromSeconds(61)));
-    }
-
-    [Test]
     public void RevertibleSplitJoinTest()
     {
       Assert.AreEqual("A,B,C", new[] {"A", "B", "C"}.RevertibleJoin('\\', ','));

@@ -138,7 +138,7 @@ namespace Xtensive.Core
       var me = expression as MemberExpression;
       if (me==null)
         throw new ArgumentException(
-          Strings.ExInvalidArgumentType.FormatWith(typeof (MemberExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (MemberExpression)), "expression");
       return me.Member;
     }
 
@@ -154,7 +154,7 @@ namespace Xtensive.Core
       var fi = mi as FieldInfo;
       if (fi==null)
         throw new ArgumentException(
-          Strings.ExExpression0MustReferenceField.FormatWith(expression.ToString(true)));
+          string.Format(Strings.ExExpression0MustReferenceField, expression.ToString(true)));
       return fi;
     }
 
@@ -170,7 +170,7 @@ namespace Xtensive.Core
       var pi = mi as PropertyInfo;
       if (pi==null)
         throw new ArgumentException(
-          Strings.ExExpression0MustReferenceProperty.FormatWith(expression.ToString(true)));
+          string.Format(Strings.ExExpression0MustReferenceProperty, expression.ToString(true)));
       return pi;
     }
 
@@ -187,7 +187,7 @@ namespace Xtensive.Core
       var mce = expression as MethodCallExpression;
       if (mce==null)
         throw new ArgumentException(
-          Strings.ExInvalidArgumentType.FormatWith(typeof (MethodCallExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (MethodCallExpression)), "expression");
       return mce.Method;
     }
 
@@ -204,7 +204,7 @@ namespace Xtensive.Core
       var ie = expression as IndexExpression;
       if (ie==null)
         throw new ArgumentException(
-          Strings.ExInvalidArgumentType.FormatWith(typeof (IndexExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (IndexExpression)), "expression");
       return ie.Indexer;
     }
 
@@ -221,7 +221,7 @@ namespace Xtensive.Core
       var ne = expression as NewExpression;
       if (ne==null)
         throw new ArgumentException(
-          Strings.ExInvalidArgumentType.FormatWith(typeof (NewExpression)), "expression");
+          string.Format(Strings.ExInvalidArgumentType, typeof (NewExpression)), "expression");
       return ne.Constructor;
     }
 

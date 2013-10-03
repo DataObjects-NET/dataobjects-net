@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
     public override string ToString()
     {
-      return "Transaction #{0} ({1}, {2}ms)".FormatWith(
+      return string.Format("Transaction #{0} ({1}, {2} ms)",
         Id, TimeStamp, Duration.TotalMilliseconds);
     }
 

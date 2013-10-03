@@ -141,7 +141,7 @@ namespace Xtensive.IoC
     /// <returns>Formatted error message.</returns>
     protected virtual string FormatActivationErrorMessage(Exception exception, Type serviceType, string name)
     {
-      return Strings.ExCannotActivateServiceXWithKeyYErrorZ.FormatWith(serviceType.GetShortName(), name, exception);
+      return string.Format(Strings.ExCannotActivateServiceXWithKeyYErrorZ, serviceType.GetShortName(), name, exception);
     }
 
     #endregion

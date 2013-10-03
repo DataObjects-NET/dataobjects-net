@@ -217,9 +217,8 @@ namespace Xtensive.IoC
     {
       ArgumentValidator.EnsureArgumentNotNull(containerType, "containerType");
       if (!typeof(IServiceContainer).IsAssignableFrom(containerType))
-        throw new ArgumentException(
-          Strings.ExContainerTypeMustImplementX.FormatWith(typeof(IServiceContainer).GetShortName()), 
-          "containerType");
+        throw new ArgumentException(string.Format(
+          Strings.ExContainerTypeMustImplementX, typeof(IServiceContainer).GetShortName()), "containerType");
 
       var possibleArgs =
         Enumerable.Empty<object[]>()
