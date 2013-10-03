@@ -43,10 +43,7 @@ namespace Xtensive.Tests.Collections
         ++index;
       }
 
-       foreach (var b in buffer1) {
-        Assert.That(buffer2.Contains(null));
-        ++index;
-      }
+      Assert.That(buffer2.Contains(null)); 
     }
 
 
@@ -82,10 +79,7 @@ namespace Xtensive.Tests.Collections
         ++index;
       }
 
-      foreach (var buf in buffer2) {
-        Assert.That(buffer2.Contains(null));
-        ++index;
-      }
+      Assert.That(buffer2.Contains(null));
     }
 
     [Test]

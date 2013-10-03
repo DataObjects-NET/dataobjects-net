@@ -36,8 +36,10 @@ namespace Xtensive.Collections
     private static readonly IEqualityComparer<T> Comparer = EqualityComparer<T>.Default; 
 
     private int totalSize;
-    private int maxNodeSize;
-    private int tailNodeSize;   
+    private int currentNodeSize;
+    private int tailNodeSize;
+    private const int initialNodeSize = 4;
+    private readonly int maxNodeSize;
     private Node<T> headNode;
     private Node<T> tailNode;
 
@@ -81,11 +83,13 @@ namespace Xtensive.Collections
     public void Add(T item)
     {
       if (headNode==null) {
-        headNode = tailNode = new Node<T>(maxNodeSize);
+        headNode = tailNode = new Node<T>(currentNodeSize);
         tailNodeSize = 0;
       }
-      else if (tailNodeSize==maxNodeSize) {
-        var newTailNode = new Node<T>(maxNodeSize);
+      else if (tailNodeSize==currentNodeSize) {
+        currentNodeSize = Math.Min(currentNodeSize * 2, maxNodeSize);
+
+        var newTailNode = new Node<T>(currentNodeSize);
         tailNodeSize = 0;
         tailNode.Next = newTailNode;
         tailNode = newTailNode;
@@ -100,7 +104,7 @@ namespace Xtensive.Collections
       headNode = null;
       tailNode = null;
       totalSize = 0;
-      maxNodeSize = 0;
+      currentNodeSize = 0;
       tailNodeSize = 0;
     }
 
@@ -148,6 +152,7 @@ namespace Xtensive.Collections
     {
       const int largeObjectHeapItemSize = 85000;
       maxNodeSize = largeObjectHeapItemSize / IntPtr.Size;
+      currentNodeSize = initialNodeSize;
     }
 
     /// <summary>
@@ -158,6 +163,7 @@ namespace Xtensive.Collections
     {
       ArgumentValidator.EnsureArgumentIsInRange(maxNodeSize, 1, int.MaxValue, "maxNodeSize");
       this.maxNodeSize = maxNodeSize;
+      currentNodeSize = initialNodeSize;
     }
 
     /// <summary>
