@@ -45,25 +45,7 @@ namespace Xtensive.Orm.Rse
       }
     }
 
-    /// <summary>
-    /// Gets the index of the group by provided <paramref name="segment"/>.
-    /// </summary>
-    /// <param name="segment">Segment of record' columns.</param>
-    public int GetGroupIndexBySegment(Segment<int> segment)
-    {
-      int index = 0;
-      foreach (var columnGroup in this) {
-        Func<int, bool> predicate = i => i >= segment.Offset && i < segment.EndOffset;
-        if (columnGroup.Keys.Any(predicate))
-          return index;
-        if (columnGroup.Columns.Any(predicate))
-          return index;
-        index++;
-      }
-      throw new InvalidOperationException(Strings.ExColumnGroupCouldNotBeFound);
-    } 
 
-    
     // Constructors
 
     /// <summary>
