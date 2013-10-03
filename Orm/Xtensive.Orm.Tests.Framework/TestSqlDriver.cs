@@ -7,25 +7,14 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Orm;
+using Xtensive.Orm.Building.Builders;
 using Xtensive.Sql;
-using Xtensive.Sql.Drivers.SqlServer;
 
-namespace Xtensive.Orm.Tests.Sql
+namespace Xtensive.Orm.Tests
 {
   public static class TestSqlDriver
   {
-    private static readonly Dictionary<ConnectionInfo, SqlDriver> DriverCache = new Dictionary<ConnectionInfo, SqlDriver>();
-
-    private static readonly Dictionary<string, Type> FactoryRegistry = new Dictionary<string, Type> {
-        {WellKnown.Provider.SqlServer, typeof (DriverFactory)},
-        {WellKnown.Provider.SqlServerCe, typeof (Xtensive.Sql.Drivers.SqlServerCe.DriverFactory)},
-        {WellKnown.Provider.Oracle, typeof (Xtensive.Sql.Drivers.Oracle.DriverFactory)},
-        {WellKnown.Provider.PostgreSql, typeof (Xtensive.Sql.Drivers.PostgreSql.DriverFactory)},
-        {WellKnown.Provider.Firebird, typeof (Xtensive.Sql.Drivers.Firebird.DriverFactory)},
-        {WellKnown.Provider.MySql, typeof (Xtensive.Sql.Drivers.MySql.DriverFactory)},
-        {WellKnown.Provider.Sqlite, typeof (Xtensive.Sql.Drivers.Sqlite.DriverFactory)},
-      };
+    private static readonly Dictionary<string, SqlDriverFactory> FactoryCache = new Dictionary<string, SqlDriverFactory>();
 
     public static SqlDriver Create(UrlInfo connectionUrl)
     {
@@ -54,15 +43,19 @@ namespace Xtensive.Orm.Tests.Sql
 
     private static SqlDriver BuildDriver(ConnectionInfo connectionInfo)
     {
-      lock (DriverCache) {
-        SqlDriver driver;
-        if (!DriverCache.TryGetValue(connectionInfo, out driver)) {
-          var factoryType = FactoryRegistry[connectionInfo.Provider];
-          var factory = (SqlDriverFactory) Activator.CreateInstance(factoryType);
-          driver = factory.GetDriver(connectionInfo);
-          DriverCache.Add(connectionInfo, driver);
+      return GetFactory(connectionInfo.Provider).GetDriver(connectionInfo);
+    }
+
+    private static SqlDriverFactory GetFactory(string provider)
+    {
+      lock (FactoryCache) {
+        SqlDriverFactory factory;
+        if (!FactoryCache.TryGetValue(provider, out factory)) {
+          var descriptor = ProviderDescriptor.Get(provider);
+          factory = (SqlDriverFactory) Activator.CreateInstance(descriptor.DriverFactory);
+          FactoryCache.Add(provider, factory);
         }
-        return driver;
+        return factory;
       }
     }
   }

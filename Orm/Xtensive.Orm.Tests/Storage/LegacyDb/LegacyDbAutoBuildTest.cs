@@ -4,9 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2009.11.28
 
-using Xtensive.Sql;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Sql;
 
 namespace Xtensive.Orm.Tests.Storage.LegacyDb
 {

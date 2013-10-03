@@ -29,9 +29,7 @@ namespace Xtensive.Orm.Tests
       Console.WriteLine("ConnectionString: " + stringConnectionInfo);
       Console.WriteLine();
 
-      var providerDescriptor = ProviderDescriptor.Get(urlConnectionInfo.Provider);
-      var driverFactory = (SqlDriverFactory) Activator.CreateInstance(providerDescriptor.DriverFactory);
-      var driver = driverFactory.GetDriver(urlConnectionInfo);
+      var driver = TestSqlDriver.Create(urlConnectionInfo);
       var providerInfo = ProviderInfoBuilder.Build(urlConnectionInfo.Provider, driver);
 
       Console.WriteLine("Features: " + providerInfo.ProviderFeatures);

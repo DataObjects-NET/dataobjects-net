@@ -15,7 +15,6 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Xtensive.Orm.Tests.Sql;
 using Model1 = Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel1;
 using Model2 = Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel2;
 using Model3 = Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel3;

@@ -716,10 +716,6 @@
       <Project>{F2CE47F7-8170-4FC4-B619-D32E6398D4F9}</Project>
       <Name>Xtensive.Orm.Tests.Framework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xtensive.Orm.Tests.Sql\Xtensive.Orm.Tests.Sql.csproj">
-      <Project>{52FD4F16-3718-4828-A1EA-DFD34044FA25}</Project>
-      <Name>Xtensive.Sql.Tests</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Northwind.xml">

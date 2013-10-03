@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Tests.Sql;
 
 namespace Xtensive.Orm.Tests
 {

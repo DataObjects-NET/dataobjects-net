@@ -114,7 +114,6 @@
     <Compile Include="SqlServer\v10\ExtractorTest.cs" />
     <Compile Include="SqlTest.cs" />
     <Compile Include="TestConnectionString.cs" />
-    <Compile Include="TestSqlDriver.cs" />
     <Compile Include="TypeMappingTest.cs" />
     <Compile Include="DriverFactoryTest.cs" />
     <Compile Include="DateTimeIntervalTest.cs" />
@@ -164,29 +163,9 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\Xtensive.Orm.Firebird\Xtensive.Orm.Firebird.csproj">
-      <Project>{86D95846-57DD-4032-A2B2-3423D1C71CDD}</Project>
-      <Name>Xtensive.Orm.Firebird</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xtensive.Orm.MySql\Xtensive.Orm.MySql.csproj">
-      <Project>{73CB316C-E468-4FA1-AF7C-2AA499395DDA}</Project>
-      <Name>Xtensive.Orm.MySql</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xtensive.Orm.Oracle\Xtensive.Orm.Oracle.csproj">
-      <Project>{EDF3607D-6036-4F1D-B043-CBC6968081E3}</Project>
-      <Name>Xtensive.Orm.Oracle</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xtensive.Orm.PostgreSql\Xtensive.Orm.PostgreSql.csproj">
-      <Project>{1362BC41-A755-4888-BC31-17DC9D16068B}</Project>
-      <Name>Xtensive.Orm.PostgreSql</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xtensive.Orm.Sqlite\Xtensive.Orm.Sqlite.csproj">
-      <Project>{F23EF4D3-B75F-4A68-90A3-2440D7B1816B}</Project>
-      <Name>Xtensive.Orm.Sqlite</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xtensive.Orm.SqlServerCe\Xtensive.Orm.SqlServerCe.csproj">
-      <Project>{B1D74FC1-C742-4F3A-A46C-8C7F6A1DC61C}</Project>
-      <Name>Xtensive.Orm.SqlServerCe</Name>
+    <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj">
+      <Project>{F2CE47F7-8170-4FC4-B619-D32E6398D4F9}</Project>
+      <Name>Xtensive.Orm.Tests.Framework</Name>
     </ProjectReference>
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj">
       <Project>{628737E8-3581-4793-99C8-9A4D2D83FEA0}</Project>
