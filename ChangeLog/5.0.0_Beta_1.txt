@@ -9,4 +9,4 @@
 [main] Added support for defining recycled fields via external definitions
 [main] Object-to-object mapper is removed
 [main] Xtensive.Core and Xtensive.Aspects assemblies are removed
-
+[main] Added ReSharper annotations in public API
