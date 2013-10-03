@@ -68,6 +68,7 @@
     <Compile Include="Caching\WeakestCacheTest.cs" />
     <Compile Include="Collections\FlagCollectionTest.cs" />
     <Compile Include="Collections\SetTestA.cs" />
+    <Compile Include="UrlInfoTest.cs" />
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
