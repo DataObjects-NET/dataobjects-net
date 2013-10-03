@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       var all = new[] {dt1, dt2};
       
       var clone = Cloner.Clone(all);
-      AssertEx.AreEqual(all, clone);
+      AssertEx.HasSameElements(all, clone);
 
       var dt1Clone = clone[0];
       var dt2Clone = clone[1];

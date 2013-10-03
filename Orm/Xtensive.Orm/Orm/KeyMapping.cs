@@ -65,7 +65,7 @@ namespace Xtensive.Orm
         from pair in map
         let pairKeyString = pair.Key.ToString()
         orderby pairKeyString
-        select "  {0} => {1}".FormatWith(pairKeyString, pair.Value)
+        select string.Format("  {0} => {1}", pairKeyString, pair.Value)
         ).ToDelimitedString(Environment.NewLine);
     }
 

@@ -53,7 +53,7 @@ namespace Xtensive.Orm
       Entity referencingObject, 
       Entity referencedObject)
       : base(
-        Strings.ReferentialIntegrityViolationOnAttemptToRemoveXKeyY.FormatWith(
+        string.Format(Strings.ReferentialIntegrityViolationOnAttemptToRemoveXKeyY,
           initiator.GetType().GetFullName(), initiator.Key,
           association, referencingObject.Key, referencedObject.Key))
     {

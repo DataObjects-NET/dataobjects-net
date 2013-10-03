@@ -6,13 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Xtensive.Collections;
-using Xtensive.Core;
-
 
 namespace Xtensive.Core
 {
@@ -25,34 +22,6 @@ namespace Xtensive.Core
     private static readonly Regex formatWithRegex = new Regex(
       @"\{\{|\{([\w\.\[\]]+)((?:[,:][^}]+)?\})",
       RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
-    /// <summary>
-    /// Formats the specified <paramref name="format"/> string 
-    /// using <see cref="string.Format(string,object[])"/> method.
-    /// </summary>
-    /// <param name="format">The format string.</param>
-    /// <param name="formatProvider">The format provider.</param>
-    /// <param name="arguments">The arguments.</param>
-    /// <returns>Formatted string.</returns>
-    public static string FormatWith(this string format, IFormatProvider formatProvider, params object[] arguments)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(format, "format");
-      ArgumentValidator.EnsureArgumentNotNull(formatProvider, "formatProvider");
-      return string.Format(formatProvider, format, arguments);
-    }
-
-    /// <summary>
-    /// Formats the specified <paramref name="format"/> string 
-    /// using <see cref="string.Format(string,object[])"/> method.
-    /// </summary>
-    /// <param name="format">The format string.</param>
-    /// <param name="arguments">The arguments.</param>
-    /// <returns>Formatted string.</returns>
-    public static string FormatWith(this string format, params object[] arguments)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(format, "format");
-      return string.Format(format, arguments);
-    }
 
     /// <summary>
     /// Formats the specified <paramref name="format"/> string 
@@ -79,21 +48,7 @@ namespace Xtensive.Core
 
       return string.Format(rewrittenFormat, arguments.ToArray());
     }
-    
-    /// <summary>
-    /// Formats the specified <paramref name="format"/> string 
-    /// using <see cref="string.Format(string,object,object)"/> method.
-    /// </summary>
-    /// <param name="format">The format string.</param>
-    /// <param name="arg0">The first argument.</param>
-    /// <param name="arg1">The second argument.</param>
-    /// <returns>Formatted string.</returns>
-    public static string FormatWith(this string format, object arg0, object arg1)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(format, "format");
-      return string.Format(format, arg0, arg1);
-    }
-    
+
     /// <summary>
     /// Formats the specified <paramref name="format"/> string 
     /// using <see cref="string.Format(string,object,object,object)"/> method.
@@ -145,25 +100,6 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Cuts the specified <paramref name="suffix"/> from <paramref name="value"/>.
-    /// </summary>
-    /// <param name="value">The original string value.</param>
-    /// <param name="suffix">The suffix to cut.</param>
-    /// <param name="isCut">Upon return contains <see langword="true"/>
-    /// if suffix was cut, otherwise <see langword="false"/></param>
-    /// <returns>String without <paramref name="suffix"/> if it was found; 
-    /// otherwise, original <paramref name="value"/>.</returns>
-    public static string TryCutSuffix(this string value, string suffix, out bool isCut)
-    {
-      if (!value.EndsWith(suffix)) {
-        isCut = false;
-        return value;
-      }
-      isCut = true;
-      return value.Substring(0, value.Length - suffix.Length);       
-    }
-
-    /// <summary>
     /// Cuts the specified <paramref name="prefix"/> from <paramref name="value"/>.
     /// </summary>
     /// <param name="value">The original string value.</param>
@@ -175,25 +111,6 @@ namespace Xtensive.Core
       if (!value.StartsWith(prefix))
         return value;
       return value.Substring(prefix.Length);        
-    }
-
-    /// <summary>
-    /// Cuts the specified <paramref name="prefix"/> from <paramref name="value"/>.
-    /// </summary>
-    /// <param name="value">The original string value.</param>
-    /// <param name="prefix">The prefix to cut.</param>
-    /// <param name="isCut">Upon return contains <see langword="true"/>
-    /// if prefix was cut, otherwise <see langword="false"/></param>
-    /// <returns>String without <paramref name="prefix"/> if it was found; 
-    /// otherwise, original <paramref name="value"/>.</returns>
-    public static string TryCutPrefix(this string value, string prefix, out bool isCut)
-    {
-      if (!value.StartsWith(prefix)) {
-        isCut = false;
-        return value;
-      }
-      isCut = true;
-      return value.Substring(prefix.Length); 
     }
 
     /// <summary>

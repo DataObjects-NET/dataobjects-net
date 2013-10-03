@@ -50,69 +50,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
         Assert.AreEqual(count, readOnlySet.Count);
       }
     }
-
-    [Test]
-    [ExpectedException(typeof (NotSupportedException))]
-    public void Test_IntersectionWith()
-    {
-      set.Add("Element");
-      int count = readOnlySet.Count;
-      try {
-        readOnlySet.IntersectWith(new SetSlim<string>());
-      }
-      finally {
-        Assert.AreEqual(count, readOnlySet.Count);
-      }
-    }
-
-    [Test]
-    [ExpectedException(typeof (NotSupportedException))]
-    public void Test_UnionWith()
-    {
-      set.Add("Element");
-      int count = readOnlySet.Count;
-      try {
-        SetSlim<string> newSet = new SetSlim<string>();
-        newSet.Add("Element 2");
-        readOnlySet.UnionWith(newSet);
-      }
-      finally {
-        Assert.AreEqual(count, readOnlySet.Count);
-      }
-    }
-
-    [Test]
-    [ExpectedException(typeof (NotSupportedException))]
-    public void Test_DifferenceWith()
-    {
-      set.Add("Element");
-      int count = readOnlySet.Count;
-      try {
-        SetSlim<string> newSet = new SetSlim<string>();
-        newSet.Add("Element");
-        readOnlySet.ExceptWith(newSet);
-      }
-      finally {
-        Assert.AreEqual(count, readOnlySet.Count);
-      }
-    }
-
-    [Test]
-    [ExpectedException(typeof (NotSupportedException))]
-    public void Test_SymmetricDifferenceWith()
-    {
-      set.Add("Element");
-      int count = readOnlySet.Count;
-      try {
-        SetSlim<string> newSet = new SetSlim<string>();
-        newSet.Add("Element 2");
-        readOnlySet.SymmetricExceptWith(newSet);
-      }
-      finally {
-        Assert.AreEqual(count, readOnlySet.Count);
-      }
-    }
-
+    
     [Test]
     public void CopyToTest()
     {

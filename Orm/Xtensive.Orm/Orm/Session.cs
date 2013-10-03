@@ -292,8 +292,7 @@ namespace Xtensive.Orm
       if (currentSession.Transaction==null || (allowSwitching && currentSession.allowSwitching))
         return new SessionScope(this);
       throw new InvalidOperationException(
-        Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked
-          .FormatWith(this, currentSession));
+        string.Format(Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked, this, currentSession));
     }
 
     /// <summary>

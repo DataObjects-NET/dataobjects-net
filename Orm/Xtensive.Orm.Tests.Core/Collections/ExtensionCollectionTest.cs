@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
       AssertEx.Throws<InstanceIsLockedException>(() => c.Set(this));
 
       var cc = (ExtensionCollection) c.Clone();
-      AssertEx.AreEqual(c, cc);
+      AssertEx.HasSameElements(c, cc);
 
       var o = new object();
       cc.Set(o);

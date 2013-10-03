@@ -354,37 +354,6 @@ namespace Xtensive.Core.Tests.Performance
       Assert.IsTrue(set1.SetEquals(set9));
     }
 
-    [Test]
-    public void DisjointSets()
-    {
-      ISet<int> set1 = new Set<int>(new int[] {6, 7, 1, 11, 9, 3, 8});
-      ISet<int> set2 = new Set<int>();
-      ISet<int> set3 = new Set<int>();
-      ISet<int> set4 = new Set<int>(new int[] {9, 1, 8, 3, 7, 6, 11});
-      ISet<int> set5 = new Set<int>(new int[] {17, 3, 12, 10});
-      ISet<int> set6 = new Set<int>(new int[] {19, 14, 0, 2});
-
-      Assert.IsFalse(set1.IsDisjointWith(set1));
-      Assert.IsTrue(set2.IsDisjointWith(set2));
-
-      Assert.IsTrue(set1.IsDisjointWith(set2));
-      Assert.IsTrue(set2.IsDisjointWith(set1));
-
-      Assert.IsTrue(set2.IsDisjointWith(set3));
-      Assert.IsTrue(set3.IsDisjointWith(set2));
-
-      Assert.IsFalse(set1.IsDisjointWith(set4));
-      Assert.IsFalse(set4.IsDisjointWith(set1));
-
-      Assert.IsFalse(set1.IsDisjointWith(set5));
-      Assert.IsFalse(set5.IsDisjointWith(set1));
-
-      Assert.IsTrue(set1.IsDisjointWith(set6));
-      Assert.IsTrue(set6.IsDisjointWith(set1));
-
-      Assert.IsTrue(set5.IsDisjointWith(set6));
-      Assert.IsTrue(set6.IsDisjointWith(set5));
-    }
 
     [Test]
     public void Intersect()

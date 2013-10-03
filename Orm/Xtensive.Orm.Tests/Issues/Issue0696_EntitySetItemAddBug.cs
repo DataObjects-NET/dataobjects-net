@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Tests.Issues
         if (association == null)
           return;
         CheckDirection(association, e.Entity, (Entity)e.NewValue, direction, 
-          "{0}, Field = {1}, Entity = {2}, Value = {3}".FormatWith(description,
+          string.Format("{0}, Field = {1}, Entity = {2}, Value = {3}", description,
             e.Field.UnderlyingProperty.GetShortName(true), e.Entity, e.NewValue));
       };
     }
@@ -201,7 +201,7 @@ namespace Xtensive.Orm.Tests.Issues
         if (association==null)
           return;
         CheckDirection(association, e.Entity, (Entity)e.Value, direction, 
-          "{0}, Field = {1}, Entity = {2}, Value = {3}".FormatWith(description,
+          string.Format("{0}, Field = {1}, Entity = {2}, Value = {3}", description,
             e.Field.UnderlyingProperty.GetShortName(true), e.Entity, e.Value));
       };
     }
@@ -212,7 +212,7 @@ namespace Xtensive.Orm.Tests.Issues
         if (e.Field.Associations.LastOrDefault() == null)
           return;
         CheckDirection(e.EntitySet.Field.GetAssociation(e.Item.TypeInfo), e.Entity, e.Item, direction,
-          "{0}, Field = {1}, Owner = {2}, Item = {3}".FormatWith(description, 
+          string.Format("{0}, Field = {1}, Owner = {2}, Item = {3}", description, 
             e.EntitySet.Field.UnderlyingProperty.GetShortName(true), e.Entity, e.Item));
       };
     }

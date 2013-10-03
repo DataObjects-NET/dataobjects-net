@@ -681,7 +681,7 @@ namespace Xtensive.Reflection
               type.GetGenericArguments()
                 .Take(declaringType.GetGenericArguments().Length)
                 .ToArray());
-        return "{0}+{1}".FormatWith(declaringType.GetFullName(), type.GetFullNameBase());
+        return string.Format("{0}+{1}", declaringType.GetFullName(), type.GetFullNameBase());
       }
       return type.GetFullNameBase();
     }
@@ -750,7 +750,7 @@ namespace Xtensive.Reflection
               type.GetGenericArguments()
                 .Take(declaringType.GetGenericArguments().Length)
                 .ToArray());
-        return "{0}+{1}".FormatWith(declaringType.GetShortName(), type.GetShortNameBase());
+        return string.Format("{0}+{1}", declaringType.GetShortName(), type.GetShortNameBase());
       }
       return type.GetShortNameBase();
     }

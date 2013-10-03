@@ -90,13 +90,6 @@ namespace Xtensive.Collections
 
     /// <inheritdoc/>
     /// <exception cref="NotSupportedException">Always thrown by this method.</exception>
-    public int RemoveWhere(Predicate<T> match)
-    {
-      throw Exceptions.CollectionIsReadOnly(null);
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Always thrown by this method.</exception>
     public void Clear()
     {
       throw Exceptions.CollectionIsReadOnly(null);

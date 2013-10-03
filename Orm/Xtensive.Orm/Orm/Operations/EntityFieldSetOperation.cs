@@ -43,8 +43,9 @@ namespace Xtensive.Orm.Operations
 
     /// <inheritdoc/>
     public override string Description {
-      get {
-        return "{0}, Value = {1}".FormatWith(base.Description, Value ?? ValueKey);
+      get
+      {
+        return string.Format("{0}, Value = {1}", base.Description, Value ?? ValueKey);
       }
     }
 

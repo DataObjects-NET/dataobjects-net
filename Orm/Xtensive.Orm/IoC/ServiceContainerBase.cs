@@ -129,7 +129,7 @@ namespace Xtensive.IoC
     /// <returns>Formatted error message.</returns>
     protected virtual string FormatActivationErrorMessage(Exception exception, Type serviceType)
     {
-      return Strings.ExCannotActivateServiceXErrorY.FormatWith(serviceType.GetShortName(), exception);
+      return string.Format(Strings.ExCannotActivateServiceXErrorY, serviceType.GetShortName(), exception);
     }
 
     /// <summary>

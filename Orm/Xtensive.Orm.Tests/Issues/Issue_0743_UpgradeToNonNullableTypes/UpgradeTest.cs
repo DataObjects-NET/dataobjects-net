@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes
           Assert.AreEqual("Person", person1.Name);
           Assert.AreEqual(30, person1.Age);
           Assert.AreEqual(person2, person1.Friend);
-          AssertEx.AreEqual(new byte[] {1,2,3}, person1.Bytes);
+          AssertEx.HasSameElements(new byte[] {1,2,3}, person1.Bytes);
 
           Assert.AreEqual(string.Empty, person2.Name);
           Assert.AreEqual(-1, person2.Age);
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0743_UpgradeToNonNullableTypes
             Assert.AreEqual(1, person.DefaultTest2);
             Assert.AreEqual(new DateTime(1900,01,01), person.DefaultTest3);
             if (person.Bytes.Length!=3)
-              AssertEx.AreEqual(new byte[] {0}, person.Bytes);
+              AssertEx.HasSameElements(new byte[] {0}, person.Bytes);
             // Structure defaults test
             Assert.AreEqual("A", person.DefaultTest4.DefaultTest1);
             Assert.AreEqual(1, person.DefaultTest4.DefaultTest2);

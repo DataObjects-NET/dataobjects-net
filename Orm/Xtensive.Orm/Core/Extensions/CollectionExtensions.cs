@@ -31,23 +31,6 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Converts <paramref name="source"/> collection to an array with type case.
-    /// </summary>
-    /// <typeparam name="TItem">The type of collection items.</typeparam>
-    /// <typeparam name="TNewItem">The type of array (result) items.</typeparam>
-    /// <param name="source">Collection to convert.</param>
-    /// <returns>An array containing all the items from the <paramref name="source"/>.</returns>
-    public static TNewItem[] ToArray<TItem, TNewItem>(this ICollection<TItem> source)
-      where TNewItem: TItem
-    {
-      var items = new TNewItem[source.Count];
-      int i = 0;
-      foreach (TItem item in source)
-        items[i++] = (TNewItem)item;
-      return items;
-    }
-
-    /// <summary>
     /// Copies the items from <paramref name="source"/> collection
     /// to <paramref name="target"/> array starting from specified
     /// <paramref name="targetIndex"/>.

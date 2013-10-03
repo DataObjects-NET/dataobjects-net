@@ -7,8 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Comparison;
-using Xtensive.Core;
 using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Collections
@@ -58,12 +56,14 @@ namespace Xtensive.Collections
     public SetSlim(IEnumerable<TItem> items)
       : base(items is SetBase<TItem> ? (items as SetBase<TItem>).Comparer : null)
     {
-      ICollection<TItem> collection = items as ICollection<TItem>;
+      var collection = items as ICollection<TItem>;
       dictionary = collection!=null
         ? new Dictionary<TItem, TItem>(collection.Count, Comparer)
         : new Dictionary<TItem, TItem>(Comparer);
       ContainsNull = false;
-      this.UnionWith(items);
+      if (items!=null)
+        foreach (var item in items)
+          Add(item);
     }
 
     /// <summary>
@@ -74,7 +74,9 @@ namespace Xtensive.Collections
     public SetSlim(IEnumerable<TItem> items, IEqualityComparer<TItem> comparer)
       : this(comparer)
     {
-      this.UnionWith(items);
+      if (items!=null)
+        foreach (var item in items)
+          Add(item);
     }
   }
 }

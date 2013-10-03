@@ -4,9 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2007.10.22
 
-using System;
 using System.Collections.Generic;
-using Xtensive.Comparison;
 
 namespace Xtensive.Collections
 {
@@ -14,7 +12,7 @@ namespace Xtensive.Collections
   /// Generic set of items.
   /// </summary>
   /// <typeparam name="TItem">The type of the item.</typeparam>
-  public interface ISet<TItem>: ICollection<TItem>
+  public interface ISet<TItem> : ICollection<TItem>
   {
     /// <summary>
     /// Gets the specified item.
@@ -36,12 +34,5 @@ namespace Xtensive.Collections
     /// <param name="item">Item to add to the set.</param>
     /// <returns><see langword="True"/> if the element is added to the <see cref="ISet{TItem}"/> object; otherwise, <see langword="false"/>.</returns>
     new bool Add(TItem item);
-
-    /// <summary>
-    /// Removes all elements that match the conditions defined by the specified predicate from a <see cref="ISet{TItem}"/> collection.
-    /// </summary>
-    /// <param name="match">The <see cref="Predicate{T}"/> delegate that defines the conditions of the elements to remove.</param>
-    /// <returns>The number of elements that were removed from the <see cref="ISet{TItem}"/> collection.</returns>
-    int RemoveWhere(Predicate<TItem> match);
   }
 }

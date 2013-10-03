@@ -127,7 +127,14 @@ namespace Xtensive.Orm.Tests.Core.Reflection
 
       data = ExecutionData.Create();
       DelegateHelper.ExecuteDelegates(delegates, ref data, Direction.Negative);
-      Assert.IsTrue(AdvancedComparer<IEnumerable<Type>>.Default.Equals(types, data.CalledForTypes.Reverse()));
+      Assert.IsTrue(AdvancedComparer<IEnumerable<Type>>.Default.Equals(types, Reverse(data.CalledForTypes)));
+    }
+
+    public static IEnumerable<TItem> Reverse<TItem>(IList<TItem> list)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(list, "list");
+      for (int i = list.Count-1; i>=0; i--)
+        yield return list[i];
     }
 
     private bool SequenceAStep<T>(ref ExecutionData data, int index)

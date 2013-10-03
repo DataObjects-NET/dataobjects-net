@@ -216,10 +216,10 @@ namespace Xtensive.Orm.Upgrade
       var handlers = new Dictionary<Assembly, IUpgradeHandler>();
       foreach (var group in userHandlers) {
         var candidates = group.ToList();
-        if (candidates.Count > 1)
+        if (candidates.Count > 1) {
           throw new DomainBuilderException(
-            Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY.FormatWith(
-              typeof (IUpgradeHandler).GetShortName(), group.Key));
+            string.Format(Strings.ExMoreThanOneEnabledXIsProvidedForAssemblyY, typeof (IUpgradeHandler).GetShortName(), @group.Key));
+        }
         handlers.Add(group.Key, candidates[0]);
       }
 

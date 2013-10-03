@@ -164,7 +164,7 @@ namespace Xtensive.Orm.Tests.Storage.OperationOrderTest
       else
         return;
 
-      string operation = "{0}.{1}".FormatWith(prefix, suffix);
+      string operation = string.Format("{0}.{1}", prefix, suffix);
       InOperation(target, operation);
     }
 

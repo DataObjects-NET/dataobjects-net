@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Model.Stored
     /// <inheritdoc/>
     public override string ToString()
     {
-      return Name ?? FormatString.FormatWith(ReferencingField.DeclaringType.Name, ReferencingField.Name);
+      return Name ?? string.Format(FormatString, ReferencingField.DeclaringType.Name, ReferencingField.Name);
     }
   }
 }

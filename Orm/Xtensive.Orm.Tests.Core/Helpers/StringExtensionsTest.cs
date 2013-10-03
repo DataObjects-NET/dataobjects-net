@@ -33,23 +33,23 @@ namespace Xtensive.Orm.Tests.Core.Helpers
     public void RevertibleSplitJoinTest()
     {
       Assert.AreEqual("A,B,C", new[] {"A", "B", "C"}.RevertibleJoin('\\', ','));
-      AssertEx.AreEqual(new[] {"A", "B", "C"}, "A,B,C".RevertibleSplit('\\', ','));
+      AssertEx.HasSameElements(new[] {"A", "B", "C"}, "A,B,C".RevertibleSplit('\\', ','));
 
       Assert.AreEqual("A,B", new[] {"A", "B"}.RevertibleJoin('\\', ','));
-      AssertEx.AreEqual(new[] {"A", "B"}, "A,B".RevertibleSplit('\\', ','));
+      AssertEx.HasSameElements(new[] {"A", "B"}, "A,B".RevertibleSplit('\\', ','));
 
       Assert.AreEqual("A", new[] {"A"}.RevertibleJoin('\\', ','));
-      AssertEx.AreEqual(new[] {"A"}, "A".RevertibleSplit('\\', ','));
+      AssertEx.HasSameElements(new[] {"A"}, "A".RevertibleSplit('\\', ','));
 
       Assert.AreEqual("", new[] {""}.RevertibleJoin('\\', ','));
       Assert.AreEqual("", new string[] {}.RevertibleJoin('\\', ','));
-      AssertEx.AreEqual(new[] {""}, "".RevertibleSplit('\\', ','));
+      AssertEx.HasSameElements(new[] {""}, "".RevertibleSplit('\\', ','));
 
       Assert.AreEqual("\\,", new[] {","}.RevertibleJoin('\\', ','));
-      AssertEx.AreEqual(new[] {","}, "\\,".RevertibleSplit('\\', ','));
+      AssertEx.HasSameElements(new[] {","}, "\\,".RevertibleSplit('\\', ','));
 
       Assert.AreEqual("\\,,", new[] {",",""}.RevertibleJoin('\\', ','));
-      AssertEx.AreEqual(new[] {",", ""}, "\\,,".RevertibleSplit('\\', ','));
+      AssertEx.HasSameElements(new[] {",", ""}, "\\,,".RevertibleSplit('\\', ','));
     }
 
     [Test]

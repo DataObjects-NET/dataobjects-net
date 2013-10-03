@@ -97,7 +97,8 @@ namespace Xtensive.Collections
       if (extensions!=null)
         foreach (KeyValuePair<Type, object> pair in extensions) {
           var lockable = pair.Value as ILockable;
-          lockable.LockSafely(recursive);
+          if (lockable!=null)
+            lockable.Lock(recursive);
         }
     }
 

@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version1
 
     public override string ToString()
     {
-      return "{0} (Statuses: {1})".FormatWith(Title, Statuses.ToCommaDelimitedString());
+      return string.Format("{0} (Statuses: {1})", Title, Statuses.ToCommaDelimitedString());
     }
   }
 

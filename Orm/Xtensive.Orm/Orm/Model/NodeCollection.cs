@@ -42,10 +42,11 @@ namespace Xtensive.Orm.Model
     /// Gets the full name.
     /// </summary>
     public string FullName {
-      get {
+      get
+      {
         return Owner==null 
           ? Name
-          : Strings.NodeCollectionFullNameFormat.FormatWith(Owner.Name, Name);
+          : string.Format(Strings.NodeCollectionFullNameFormat, Owner.Name, Name);
       }
     }
 

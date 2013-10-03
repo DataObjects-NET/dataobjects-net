@@ -141,8 +141,8 @@ namespace Xtensive.Orm.Tests.Core.Helpers
                     .Select(n => n.Item)
                     .ToArray();
 
-            AssertEx.AreEqual(expected, actual);
-            AssertEx.AreEqual(loops, actualLoops);
+            AssertEx.HasSameElements(expected, actual);
+            AssertEx.HasSameElements(loops, actualLoops);
 
             List<NodeConnection<T, object>> removedEdges;
             List<T> sortWithRemove = TopologicalSorter.Sort(data, connector, out removedEdges);

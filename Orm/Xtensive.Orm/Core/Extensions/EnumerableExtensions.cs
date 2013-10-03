@@ -11,7 +11,6 @@ using System.Linq;
 using System.Text;
 using Xtensive.Collections;
 using Xtensive.Collections.Graphs;
-using Xtensive.Comparison;
 using Xtensive.Core;
 
 
@@ -114,20 +113,6 @@ namespace Xtensive.Core
     /// <typeparam name="T">Type of the sequence item.</typeparam>
     /// <param name="items">The sequence to apply the <paramref name="action"/> to.</param>
     /// <param name="action">The action to apply.</param>
-    public static void ForEach<T>(this IEnumerable<T> items, Action<T, int> action)
-    {
-      int i = 0;
-      foreach (var item in items)
-        action.Invoke(item, i++);
-    }
-
-    /// <summary>
-    /// Applies the specified <paramref name="action"/> to all the items 
-    /// from the <paramref name="items"/> sequence.
-    /// </summary>
-    /// <typeparam name="T">Type of the sequence item.</typeparam>
-    /// <param name="items">The sequence to apply the <paramref name="action"/> to.</param>
-    /// <param name="action">The action to apply.</param>
     public static void ForEach<T>(this IEnumerable<T> items, Action<T> action)
     {
       foreach (var item in items)
@@ -145,27 +130,6 @@ namespace Xtensive.Core
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       return new HashSet<T>(source);
-    }
-
-    /// <summary>
-    /// Converts the sequence to the <see cref="HashSet{T}"/>.
-    /// </summary>
-    /// <typeparam name="T">The type of sequence item.</typeparam>
-    /// <param name="source">The sequence to convert.</param>
-    /// <param name="ensureNoDuplicates">If set to <see langword="true"/>, an exception 
-    /// will be thrown if there are duplicates;
-    /// otherwise result will contain only unique items.</param>
-    /// <returns>A new <see cref="HashSet{T}"/> instance containing 
-    /// all the unique items from the <paramref name="source"/> sequence.</returns>
-    public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source, bool ensureNoDuplicates)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      if (!ensureNoDuplicates)
-        return new HashSet<T>(source);
-      var hashSet = new HashSet<T>();
-      foreach (var item in source)
-        hashSet.AddOne(item);
-      return hashSet;
     }
 
     /// <summary>
@@ -267,33 +231,6 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Determines whether this <see cref="IEnumerable{T}"/> equals to another, 
-    /// i.e. contains the same items in the same order.
-    /// </summary>
-    /// <typeparam name="TItem">The type of item.</typeparam>
-    /// <param name="items">This <see cref="IEnumerable{T}"/>.</param>
-    /// <param name="other">The <see cref="IEnumerable{T}"/> to compare with.</param>
-    /// <returns>
-    /// <see langword="true"/> if this <see cref="IEnumerable{T}"/> equals to the specified <see cref="IEnumerable{T}"/>; otherwise, <see langword="false"/>.
-    /// </returns>
-    public static bool EqualsTo<TItem>(this IEnumerable<TItem> items, IEnumerable<TItem> other)
-    {     
-      long? thisCount = items.TryGetLongCount();
-      if (thisCount.HasValue) {
-        long? otherCount = other.TryGetCount();
-        if (otherCount.HasValue && otherCount!=thisCount)
-          return false;
-      }           
-
-      using (IEnumerator<TItem> enumerator = items.GetEnumerator())
-        foreach (var item in other) {
-          if (!enumerator.MoveNext() || !AdvancedComparerStruct<TItem>.System.Equals(enumerator.Current, item))
-            return false;
-      }
-      return true;
-    }
-
-    /// <summary>
     /// Constructs <see cref="IEnumerable{T}"/> from
     /// this <see cref="IEnumerable{T}"/> and specified <see cref="IEnumerable{T}"/>
     /// by creating a <see cref="Pair{TFirst,TSecond}"/> from each pair of items.
@@ -318,64 +255,6 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Constructs <see cref="IEnumerable{T}"/> from
-    /// this <see cref="IEnumerable{T}"/> and specified <see cref="IEnumerable{T}"/>
-    /// by applying <paramref name="projector"/> for each pair of items.
-    /// If one input <see cref="IEnumerable{T}"/> is short, it is extended with default values.
-    /// </summary>
-    /// <typeparam name="TLeft">Type of first <see cref="IEnumerable{T}"/>.</typeparam>
-    /// <typeparam name="TRight">Type of second <see cref="IEnumerable{T}"/>.</typeparam>
-    /// <typeparam name="TResult">Type of result.</typeparam>
-    /// <param name="leftSequence">First <see cref="IEnumerable{T}"/>.</param>
-    /// <param name="rightSequence">Second <see cref="IEnumerable{T}"/>.</param>
-    /// <param name="projector">A delegate constructing <typeparamref name="TResult"/> from 
-    /// <typeparamref name="TLeft"/> and <typeparamref name="TRight"/> values.</param>
-    /// <returns>Result of applying <paramref name="projector"/> for each pair of items.</returns>
-    public static IEnumerable<TResult> ZipExtend<TLeft, TRight, TResult>(
-      this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence, Func<TLeft, TRight, TResult> projector)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(leftSequence, "leftSequence");
-      ArgumentValidator.EnsureArgumentNotNull(rightSequence, "rightSequence");
-      ArgumentValidator.EnsureArgumentNotNull(projector, "projector");
-
-      using (var leftEnum = leftSequence.GetEnumerator())
-      using (var rightEnum = rightSequence.GetEnumerator()) {
-        bool hasLeft = leftEnum.MoveNext();
-        bool hasRight = rightEnum.MoveNext();
-        while (hasLeft && hasRight) {
-          yield return projector(leftEnum.Current, rightEnum.Current);
-          hasLeft = leftEnum.MoveNext();
-          hasRight = rightEnum.MoveNext();
-        }
-        while (hasLeft) {
-          yield return projector(leftEnum.Current, default(TRight));
-          hasLeft = leftEnum.MoveNext();
-        }
-        while (hasRight) {
-          yield return projector(default(TLeft), rightEnum.Current);
-          hasRight = rightEnum.MoveNext();
-        }
-      }
-    }
-
-    /// <summary>
-    /// Constructs <see cref="IEnumerable{T}"/> from
-    /// this <see cref="IEnumerable{T}"/> and specified <see cref="IEnumerable{T}"/>
-    /// by creating a <see cref="Pair{TFirst,TSecond}"/> from each pair of items.
-    /// If one input <see cref="IEnumerable{T}"/> is short, it is extended with default values.
-    /// </summary>
-    /// <typeparam name="TLeft">Type of first <see cref="IEnumerable{T}"/>.</typeparam>
-    /// <typeparam name="TRight">Type of second <see cref="IEnumerable{T}"/>.</typeparam>
-    /// <param name="leftSequence">First <see cref="IEnumerable{T}"/>.</param>
-    /// <param name="rightSequence">Second <see cref="IEnumerable{T}"/>.</param>
-    /// <returns>Zip result.</returns>
-    public static IEnumerable<Pair<TLeft, TRight>> ZipExtend<TLeft, TRight>(
-      this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence)
-    {
-      return ZipExtend(leftSequence, rightSequence, (l, r) => new Pair<TLeft, TRight>(l, r));
-    }
-
-    /// <summary>
     /// If <paramref name="sequence"/> is not <see langword="null"/>, creates an array from <see cref="IEnumerable{T}"/>.
     /// Otherwise, returns empty array.
     /// </summary>
@@ -397,28 +276,6 @@ namespace Xtensive.Core
     public static IEnumerable<int> GetItems(this Segment<int> segment)
     {
       return Enumerable.Range(segment.Offset, segment.Length);
-    }
-
-    /// <summary>
-    /// Gets the items from the segment.
-    /// </summary>
-    /// <param name="segment">The segment.</param>
-    /// <returns></returns>
-    public static IEnumerable<long> GetItems(this Segment<long> segment)
-    {
-      for (long i = segment.Offset; i < segment.EndOffset; i++)
-        yield return i;
-    }
-
-    /// <summary>
-    /// Gets the items from the segment.
-    /// </summary>
-    /// <param name="segment">The segment.</param>
-    /// <returns></returns>
-    public static IEnumerable<short> GetItems(this Segment<short> segment)
-    {
-      for (short i = segment.Offset; i < segment.EndOffset; i++)
-        yield return i;
     }
 
     /// <summary>
@@ -501,36 +358,6 @@ namespace Xtensive.Core
     public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source, int firstFastCount)
     {
       return source.Batch(firstFastCount, defaultInitialBatchSize, defaultMaximalBatchSize);
-    }
-
-    /// <summary>
-    /// Invokes the specified delegate before the enumeration of each batch.
-    /// </summary>
-    /// <typeparam name="T">The type of enumerated items.</typeparam>
-    /// <param name="source">The source sequence.</param>
-    /// <param name="action">The delegate that will be invoked before 
-    /// the enumeration of each batch.</param>
-    /// <returns>The source sequence.</returns>
-    public static IEnumerable<IEnumerable<T>> ApplyBefore<T>(this IEnumerable<IEnumerable<T>> source,
-      Action action)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(action, "action");
-      return source.ApplyBeforeAndAfter(action, null);
-    }
-
-    /// <summary>
-    /// Invokes the specified delegate after the enumeration of each batch.
-    /// </summary>
-    /// <typeparam name="T">The type of enumerated items.</typeparam>
-    /// <param name="source">The source sequence.</param>
-    /// <param name="action">The delegate that will be invoked after 
-    /// the enumeration of each batch.</param>
-    /// <returns>The source sequence.</returns>
-    public static IEnumerable<IEnumerable<T>> ApplyAfter<T>(this IEnumerable<IEnumerable<T>> source,
-      Action action)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(action, "action");
-      return source.ApplyBeforeAndAfter(null, action);
     }
 
     /// <summary>

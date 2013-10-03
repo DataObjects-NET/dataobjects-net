@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
     public override string ToString()
     {
-      return "{0,7} {1}\r\n{2,7} Current state: {3}".FormatWith(
+      return string.Format("{0,7} {1}\r\n{2,7} Current state: {3}",
         ChangeType,
         EntityAsString,
         string.Empty,
@@ -160,7 +160,8 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
     public override string ToString()
     {
-      return "{0} {1}, Id: #{2}, Pets: {3}".FormatWith(GetType().GetShortName(), Name, 
+      return string.Format("{0} {1}, Id: #{2}, Pets: {3}",
+        GetType().GetShortName(), Name,
         Id, Pets.Select(p => p.Name).ToCommaDelimitedString());
     }
 
@@ -184,7 +185,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
 
     public override string ToString()
     {
-      return "{0} {1}, Id: #{2}, Owner: {3}".FormatWith(GetType().GetShortName(), Name, 
+      return string.Format("{0} {1}, Id: #{2}, Owner: {3}", GetType().GetShortName(), Name,
         Id, Owner==null ? "none" : Owner.Name);
     }
 

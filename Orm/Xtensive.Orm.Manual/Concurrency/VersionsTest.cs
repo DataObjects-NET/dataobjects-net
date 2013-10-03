@@ -53,8 +53,9 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
 
     public string ToString(bool withFriends)
     {
-      if (withFriends)
-        return "Person('{0}', Friends={{1}})".FormatWith(FullName, Friends.ToCommaDelimitedString());
+      if (withFriends) {
+        return string.Format("Person('{0}', Friends={1})", FullName, Friends.ToCommaDelimitedString());
+      }
       else
         return "Person('{0}')".FormatWith(FullName);
     }
@@ -95,8 +96,9 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
 
     public string ToString(bool withPersons)
     {
-      if (withPersons)
-        return "Company('{0}', Employees: {1})".FormatWith(Name, Employees.ToCommaDelimitedString());
+      if (withPersons) {
+        return string.Format("Company('{0}', Employees: {1})", Name, Employees.ToCommaDelimitedString());
+      }
       else
         return "Company('{0}')".FormatWith(Name);
     }

@@ -77,47 +77,6 @@ namespace Xtensive.Core
 
     #endregion
 
-    #region Reverse methods
-
-    /// <summary>
-    /// Returns an enumerable enumerating specified <paramref name="list"/> in backward direction.
-    /// </summary>
-    /// <typeparam name="TItem">The type of item.</typeparam>
-    /// <param name="list">The list to enumerate in backward direction.</param>
-    /// <returns>Enumerable enumerating specified <paramref name="list"/> in backward direction.</returns>
-    public static IEnumerable<TItem> Reverse<TItem>(this IList<TItem> list)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(list, "list");
-      for (int i = list.Count-1; i>=0; i--)
-        yield return list[i];
-    }
-
-    #endregion
-
-    #region Segment method
-
-    /// <summary>
-    /// Enumerates segment of a list.
-    /// </summary>
-    /// <typeparam name="TItem">The type of the list item.</typeparam>
-    /// <param name="items">The list to enumerate the segment of.</param>
-    /// <param name="offset">Segment offset.</param>
-    /// <param name="length">Segment length.</param>
-    /// <returns>An enumerable iterating through the segment.</returns>
-    public static IEnumerable<TItem> Segment<TItem>(this IList<TItem> items, int offset, int length)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(items, "items");
-      int lastIndex = offset + length;
-      if (offset<0)
-        offset = 0;
-      if (lastIndex>items.Count)
-        lastIndex = items.Count;
-      for (int i = offset; i < lastIndex; i++)
-        yield return items[i];
-    }
-
-    #endregion
-
     /// <summary>
     /// Ensures <paramref name="index"/> is in range of <paramref name="list"/> indexes.
     /// </summary>

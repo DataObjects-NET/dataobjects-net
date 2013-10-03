@@ -61,8 +61,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
       using (var session = domain.OpenSession()) {
         using (session.OpenTransaction()) {
           var person = session.Query.All<Model.Version2.Person>().Single();
-          AssertEx.AreEqual("Person", person.Name);
-          AssertEx.AreEqual(new byte[] {1, 2, 3}, person.Bytes);
+          AssertEx.HasSameElements("Person", person.Name);
+          AssertEx.HasSameElements(new byte[] {1, 2, 3}, person.Bytes);
 
           var bytesColumn = GetColumnInfo(domain.StorageModel, person.TypeInfo, "Bytes");
           Assert.AreEqual(null, bytesColumn.Type.Length);

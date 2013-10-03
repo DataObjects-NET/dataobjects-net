@@ -109,7 +109,6 @@
     <Compile Include="Collections\Interfaces\IFilterable.cs" />
     <Compile Include="Collections\Interfaces\INamedValueCollection.cs" />
     <Compile Include="Collections\Interfaces\IPriorityQueue.cs" />
-    <Compile Include="Collections\Interfaces\ISet.cs" />
     <Compile Include="Collections\Interfaces\ISet{T}.cs" />
     <Compile Include="Collections\Interfaces\ITopDeque{K,V}.cs" />
     <Compile Include="Collections\Interfaces\ITypeRegistrationProcessor.cs" />
@@ -292,7 +291,6 @@
     <Compile Include="Core\Extensions\LockableExtensions.cs" />
     <Compile Include="Core\Extensions\ParameterContextExtensions.cs" />
     <Compile Include="Core\Extensions\ServiceContainerExtensions.cs" />
-    <Compile Include="Core\Extensions\SetExtensions.cs" />
     <Compile Include="Core\Extensions\StringBuilderExtensions.cs" />
     <Compile Include="Core\Extensions\StringExtensions.cs" />
     <Compile Include="Core\HasVersion{TValue,TVersion}.cs" />

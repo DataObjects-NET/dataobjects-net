@@ -115,21 +115,6 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    public virtual int RemoveWhere(Predicate<TItem> match)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(match, "match");
-      this.EnsureNotLocked();
-      List<TItem> list = new List<TItem>();
-      foreach (TItem item in this)
-        if (match(item))
-          list.Add(item);
-      int count = list.Count;
-      if (count > 0)
-        this.ExceptWith(list);
-      return count;
-    }
-
-    /// <inheritdoc/>
     void ICollection<TItem>.Add(TItem value)
     {
       Add(value);

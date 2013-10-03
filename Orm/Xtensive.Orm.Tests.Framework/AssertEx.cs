@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using NUnit.Framework;
 using Xtensive.Collections;
@@ -49,13 +50,14 @@ namespace Xtensive.Orm.Tests
       Assert.IsFalse(r.IsMatch(source));
     }
 
-    public static void AreEqual<T>(IEnumerable<T> a, IEnumerable<T> b)
+    public static void HasSameElements<T>(IEnumerable<T> expected, IEnumerable<T> actual)
     {
-      if (a==null)
-        Assert.IsNull(b);
+      if (expected==null)
+        Assert.IsNull(actual);
       else {
-        SetSlim<T> aSet = new SetSlim<T>(a);
-        Assert.IsTrue(aSet.IsEqualTo(b), "Collections aren't equal.");
+        var expectedSet = new Set<T>(expected);
+        var hasAll = actual.Aggregate(true, (result, current) => result && expectedSet.Contains(current));
+        Assert.IsTrue(hasAll, "Collections do not have same elements");
       }
     }
 

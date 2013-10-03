@@ -16,8 +16,7 @@ namespace Xtensive.Orm.Configuration
   /// </summary>
   [Serializable]
   public class NamingConvention : LockableBase,
-    ICloneable,
-    IEquatable<NamingConvention>
+    ICloneable
   {
     private LetterCasePolicy letterCasePolicy;
     private NamespacePolicy namespacePolicy;
@@ -101,55 +100,6 @@ namespace Xtensive.Orm.Configuration
       result.namespacePolicy = namespacePolicy;
       result.namingRules = namingRules;
       result.namespaceSynonyms = new Dictionary<string, string>(namespaceSynonyms);
-      return result;
-    }
-
-    #endregion
-
-    #region Equals, GetHashCode methods
-
-    /// <summary>
-    /// Indicates whether the current object is equal to another object of the same type. 
-    /// </summary>
-    /// <param name="other">The object to compare with this object.</param>
-    /// <returns><see langword="true"/> if the current object is equal to the other parameter; otherwise, <see langword="false"/>.</returns>
-    public bool Equals(NamingConvention other)
-    {
-      if (other==null)
-        return false;
-      if (letterCasePolicy!=other.letterCasePolicy)
-        return false;
-      if (namespacePolicy!=other.namespacePolicy)
-        return false;
-      if (namingRules!=other.namingRules)
-        return false;
-      if (!namespaceSynonyms.EqualsTo(other.namespaceSynonyms))
-        return false;
-
-      return true;
-    }
-
-    /// <summary>
-    /// Indicates whether the current object is equal to another object of the same type. 
-    /// </summary>
-    /// <param name="obj">The object to compare with this object.</param>
-    /// <returns><see langword="true"/> if the current object is equal to the other parameter; otherwise, <see langword="false"/>.</returns>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(this, obj))
-        return true;
-      return Equals(obj as NamingConvention);
-    }
-
-    /// <summary>
-    /// Returns the hash code for this instance.
-    /// </summary>
-    /// <returns>A 32-bit signed integer hash code.</returns>
-    public override int GetHashCode()
-    {
-      int result = letterCasePolicy.GetHashCode();
-      result = 29 * result + namespacePolicy.GetHashCode();
-      result = 29 * result + namingRules.GetHashCode();
       return result;
     }
 

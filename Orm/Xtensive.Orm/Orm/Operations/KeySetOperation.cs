@@ -26,8 +26,9 @@ namespace Xtensive.Orm.Operations
   {
     /// <inheritdoc/>
     public override string Description {
-      get {
-        return "{0}:\r\n{1}".FormatWith(Title, EnumerableExtensions.ToDelimitedString<Key>(Keys, "\r\n").Indent(2));
+      get
+      {
+        return string.Format("{0}:\r\n{1}", Title, Keys.ToDelimitedString("\r\n").Indent(2));
       }
     }
 

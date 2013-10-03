@@ -5,6 +5,7 @@
 // Created:    2010.02.02
 
 using System;
+using JetBrains.Annotations;
 using Xtensive.Reflection;
 using Xtensive.IoC;
 
@@ -14,6 +15,7 @@ namespace Xtensive.Core
   /// <summary>
   /// <see cref="IServiceContainer"/> related extension methods.
   /// </summary>
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   public static class ServiceContainerExtensions
   {
     /// <summary>
@@ -86,7 +88,7 @@ namespace Xtensive.Core
       return service;
     }
 
-    #region Private \ internal methods
+    #region Private / internal methods
 
     private static void EnsureNotNull<TService>(TService service, string name)
     {
@@ -104,10 +106,10 @@ namespace Xtensive.Core
         throw new ActivationException(
           Strings.ExServiceOfTypeXIsNotAvailable.FormatWith(
             serviceType.GetShortName()));
-      else
-        throw new ActivationException(
-          Strings.ExServiceWithNameXOfTypeYIsNotAvailable.FormatWith(
-            name, serviceType.GetShortName()));
+      else {
+        object arg1 = serviceType.GetShortName();
+        throw new ActivationException(string.Format(Strings.ExServiceWithNameXOfTypeYIsNotAvailable, name, arg1));
+      }
     }
 
     #endregion

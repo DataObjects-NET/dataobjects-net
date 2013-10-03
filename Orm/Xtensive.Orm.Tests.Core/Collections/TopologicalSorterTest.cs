@@ -145,8 +145,8 @@ namespace Xtensive.Orm.Tests.Core.Collections
             var actual = result.SortedNodes.Select(n => n.Value).ToArray();
             var actualLoops = result.LoopNodes.Select(n => n.Value).ToArray();
 
-            AssertEx.AreEqual(expected, actual);
-            AssertEx.AreEqual(loops, actualLoops);
+            AssertEx.HasSameElements(expected, actual);
+            AssertEx.HasSameElements(loops, actualLoops);
             Assert.AreEqual(selfReferencingEdgeCount, result.BrokenEdges.Count);
 
             // With edge breaker (any edge can be broken)
