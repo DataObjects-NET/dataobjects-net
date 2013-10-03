@@ -5,10 +5,7 @@
 // Created:    2008.02.09
 
 using System;
-using System.IO;
 using System.Threading;
-using NUnit.Framework;
-using Xtensive.Core;
 
 namespace Xtensive.Orm.Tests
 {
@@ -17,65 +14,6 @@ namespace Xtensive.Orm.Tests
   /// </summary>
   public static class TestHelper
   {
-    private const string TestFolderNameFormat = "XtensiveUnitTest_{0:D2}";
-    private const int MaxTestFolderCount = 99;
-    private static volatile string testFolderName = null;
-    private static object _lock = new object();
-
-    /// <summary>
-    /// Gets temporary folder name (for tests only).
-    /// </summary>
-    /// <remarks>
-    /// The folder name is generated automatically.
-    /// Such folders are removed either in <see cref="AppDomain.DomainUnload"/> (if possible),
-    /// or on the next attempt to read this property after the next application startup.
-    /// </remarks>
-    public static string TestFolderName {
-      get {
-        if (testFolderName==null) lock (_lock) if (testFolderName==null) {
-          string tempFolder = Environment.GetEnvironmentVariable("TEMP");
-          if (tempFolder.IsNullOrEmpty())
-            tempFolder = "C:\\Temp";
-          bool done = false;
-          for (int i = 0; i<MaxTestFolderCount; i++) {
-            string folderName = Path.Combine(tempFolder, string.Format(TestFolderNameFormat, i));
-            if (Directory.Exists(folderName)) 
-              try {
-                Directory.Delete(folderName, true);
-              }
-              catch {
-                continue;
-              }
-            if (!done) {
-              try {
-                Directory.CreateDirectory(folderName);
-              }
-              catch {
-                continue;
-              }
-              testFolderName = folderName;
-              AppDomain.CurrentDomain.DomainUnload += delegate(object sender, EventArgs e) {
-                if (testFolderName==null) lock (_lock) if (testFolderName==null) {
-                  if (Directory.Exists(folderName))
-                    try {
-                      Directory.Delete(folderName, true);
-                    }
-                    catch {
-                    }
-                }
-              };
-              done = true;
-            }
-          }
-          if (!done)
-            throw new InvalidOperationException(string.Format("Can't create temporary test folder, paths tried: \"{0}\"...\"{1}\".", 
-              string.Format(TestFolderNameFormat, 0),
-              string.Format(TestFolderNameFormat, MaxTestFolderCount)));
-        }
-        return testFolderName;
-      }
-    }
-
     /// <summary>
     /// Ensures full garbage collection.
     /// </summary>
