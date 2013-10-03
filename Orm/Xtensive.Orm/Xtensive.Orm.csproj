@@ -1270,7 +1270,6 @@
     <Compile Include="Reflection\AttributeHelper.cs" />
     <Compile Include="Reflection\AttributeSearchOptions.cs" />
     <Compile Include="Reflection\DelegateHelper.cs" />
-    <Compile Include="Reflection\EmitHelper.cs" />
     <Compile Include="Reflection\ExecutionSequenceHandler.cs" />
     <Compile Include="Reflection\InterfaceMapping.cs" />
     <Compile Include="Reflection\MemberHelper.cs" />
