@@ -5,8 +5,6 @@
 // Created:    2012.05.17
 
 using System;
-using System.Collections.Generic;
-using Xtensive.Arithmetic;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
@@ -15,11 +13,11 @@ namespace Xtensive.Orm.Internals.KeyGenerators
 {
   internal sealed class CachingSequence<TValue>
   {
-    private static readonly Arithmetic<TValue> ValueArithmetic = Arithmetic<TValue>.Default;
-
     private readonly IStorageSequenceAccessor accessor;
-    private readonly Queue<TValue> cachedValues = new Queue<TValue>();
     private readonly object syncRoot;
+
+    private long nextValue;
+    private long nextValueBound;
 
     public TValue GetNextValue(SequenceInfo sequenceInfo, Session session)
     {
@@ -33,29 +31,30 @@ namespace Xtensive.Orm.Internals.KeyGenerators
     public void Reset()
     {
       if (syncRoot==null) {
-        cachedValues.Clear();
+        ResetUnsafe();
         return;
       }
 
       lock (syncRoot)
-        cachedValues.Clear();
+        ResetUnsafe();
+    }
+
+    private void ResetUnsafe()
+    {
+      nextValue = 0;
+      nextValueBound = 0;
     }
 
     private TValue GetNextValueUnsafe(SequenceInfo sequenceInfo, Session session)
     {
-      if (cachedValues.Count==0)
-        CacheValues(sequenceInfo, session);
-      return cachedValues.Dequeue();
-    }
-
-    private void CacheValues(SequenceInfo sequenceInfo, Session session)
-    {
-      var values = accessor.NextBulk(sequenceInfo, session);
-      var current = (TValue) Convert.ChangeType(values.Offset, typeof (TValue));
-      for (int i = 0; i < values.Length; i++) {
-        cachedValues.Enqueue(current);
-        current = ValueArithmetic.Add(current, ValueArithmetic.One);
+      if (nextValue==nextValueBound) {
+        var values = accessor.NextBulk(sequenceInfo, session);
+        nextValue = values.Offset;
+        nextValueBound = values.EndOffset;
       }
+      var result = nextValue;
+      nextValue++;
+      return (TValue) Convert.ChangeType(result, typeof (TValue));
     }
 
     // Constructors
