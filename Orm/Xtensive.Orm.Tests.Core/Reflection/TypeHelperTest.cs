@@ -252,12 +252,12 @@ namespace Xtensive.Orm.Tests.Core.Reflection
     [Test]
     public void CreateDummyTypeTest()
     {
-      Type t1 = TypeHelper.CreateDummyType("Test1", typeof(object));
+      Type t1 = TypeHelper.CreateDummyType("Test1", typeof(object), false);
       Assert.IsNotNull(t1);
       AssertEx.IsPatternMatch(t1.Name, "Test1*");
       TestLog.Info("t1 name: {0}", t1.GetFullName());
       
-      Type t2 = TypeHelper.CreateDummyType("Test2", typeof(object));
+      Type t2 = TypeHelper.CreateDummyType("Test2", typeof(object), false);
       Assert.IsNotNull(t2);
       AssertEx.IsPatternMatch(t2.Name, "Test2*");
       TestLog.Info("t2 name: {0}", t2.GetFullName());

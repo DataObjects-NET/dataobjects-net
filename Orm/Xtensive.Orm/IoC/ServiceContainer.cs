@@ -106,10 +106,8 @@ namespace Xtensive.IoC
       if (cInfo==null)
         return null;
       var pInfos = cachedInfo.Second;
-      if (pInfos.Length==0) {
-        var activator = DelegateHelper.CreateConstructorDelegate<Func<object>>(mappedType);
-        return activator.Invoke();
-      }
+      if (pInfos.Length==0)
+        return Activator.CreateInstance(mappedType);
       var args = new object[pInfos.Length];
       creating.Add(serviceInfo.Type);
       try {

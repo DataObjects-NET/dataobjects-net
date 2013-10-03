@@ -124,19 +124,6 @@ namespace Xtensive.Reflection
       return InnerCreateGetMemberDelegate<TObject, TValue, Func<TObject, TValue>>(memberName);
     }
 
-    /// <summary>
-    /// Creates property \ member getter delegate.
-    /// </summary>
-    /// <typeparam name="TObject">Declaring type.</typeparam>
-    /// <typeparam name="TValue">Member type.</typeparam>
-    /// <param name="memberName">Member name.</param>
-    /// <returns><see cref="Func{A,R}"/> delegate 
-    /// that gets member value.</returns>
-    public static Converter<TObject, TValue> CreateGetMemberConverterDelegate<TObject, TValue>(string memberName)
-    {
-      return InnerCreateGetMemberDelegate<TObject, TValue, Converter<TObject, TValue>>(memberName);
-    }
-
     private static TDelegateType InnerCreateGetMemberDelegate<TObject, TValue, TDelegateType>(string memberName)
       where TDelegateType : class
     {
@@ -438,76 +425,6 @@ namespace Xtensive.Reflection
       }
     }
 
-
-    /// <summary>
-    /// Creates constructor invocation delegate.
-    /// </summary>
-    /// <typeparam name="TDelegate">The type of the delegate to return.</typeparam>
-    /// <param name="type">The type to create the constructor invocation delegate for.</param>
-    /// <returns>Constructor invocation delegate.</returns>
-    /// <exception cref="ArgumentException"><paramref name="type"/> is an abstract type.</exception>
-    public static TDelegate CreateConstructorDelegate<TDelegate>(Type type)
-      where TDelegate : class
-    {
-      if (type.IsAbstract)
-        throw new ArgumentException(string.Format(
-          Strings.ExTypeXMustBeNonAbstractType, type.GetShortName()), "type");
-      Type delegateType = typeof (TDelegate);
-      var methodKey  = new MethodCallDelegateKey(ctorMethodName, type, delegateType);
-      Delegate result = GetCachedDelegate(methodKey);
-      if (result == null)
-        lock (cachedDelegates.SyncRoot) {
-          result = GetCachedDelegate(methodKey);
-          if (result != null)
-            return (TDelegate) (object) result;
-
-          // Trying to get protected constructor first
-          try {
-            result = (Delegate) (object) CreateProtectedConstructorDelegate<TDelegate>(type);
-          }
-          catch {}
-          if (result==null) {
-            // Nothing is found, trying the public one
-            Type[] parameterTypes = delegateType.GetInvokeMethod().GetParameterTypes();
-            DynamicMethod dm = new DynamicMethod(createMethodName, type, parameterTypes);
-            ILGenerator il = dm.GetILGenerator();
-            for (int i = 0; i < parameterTypes.Length; i++)
-              il.Emit(OpCodes.Ldarg, i);
-            il.Emit(OpCodes.Newobj, type.GetConstructor(parameterTypes));
-            il.Emit(OpCodes.Ret);
-            result = dm.CreateDelegate(delegateType);
-          }
-          AddCachedDelegate(methodKey, result);
-        }
-      return (TDelegate) (object) result;
-    }
-
-    /// <summary>
-    /// Creates protected constructor invocation delegate.
-    /// </summary>
-    /// <typeparam name="TDelegate">The type of the delegate to return.</typeparam>
-    /// <param name="type">The type to create the protected constructor invocation delegate for.</param>
-    /// <returns>Protected constructor invocation delegate.</returns>
-    /// <exception cref="ArgumentException"><paramref name="type"/> is an abstract type.</exception>
-    public static TDelegate CreateProtectedConstructorDelegate<TDelegate>(Type type)
-      where TDelegate : class
-    {
-      if (type.IsAbstract)
-        throw new ArgumentException(string.Format(
-          Strings.ExTypeXMustBeNonAbstractType, type.GetShortName()), "type");
-      Type delegateType = typeof (TDelegate);
-      var methodKey  = new MethodCallDelegateKey(ctorMethodName, type, delegateType);
-      Delegate result = GetCachedDelegate(methodKey);
-      if (result == null)
-        lock (cachedDelegates.SyncRoot) {
-          result = GetCachedDelegate(methodKey);
-          if (result != null)
-            return (TDelegate) (object) result;
-          result = (Delegate)(object)CreateDelegate<TDelegate>(null, type, AspectedFactoryMethodName, ArrayUtils<Type>.EmptyArray);
-          AddCachedDelegate(methodKey, result);
-        }
-      return (TDelegate) (object) result;
-    }
 
     /// <summary>
     /// Creates a delegate type that represents a delegate that calls a method with specified signature.

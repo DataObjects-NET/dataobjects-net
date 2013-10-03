@@ -339,19 +339,6 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="namePrefix">Prefix to include into type name.</param>
     /// <param name="inheritFrom">The type to inherit the dummy type from.</param>
-    /// <returns><see cref="Type"/> object of newly created type.</returns>
-    public static Type CreateDummyType(string namePrefix, Type inheritFrom)
-    {
-      return CreateDummyType(namePrefix, inheritFrom, false);
-    }
-
-    /// <summary>
-    /// Creates new dummy type. Such types can be used
-    /// as generic arguments (to instantiate unique generic
-    /// instances).
-    /// </summary>
-    /// <param name="namePrefix">Prefix to include into type name.</param>
-    /// <param name="inheritFrom">The type to inherit the dummy type from.</param>
     /// <param name="implementProtectedConstructorAccessor">If <see langword="true"/>, static method with name <see cref="DelegateHelper.AspectedFactoryMethodName"/> will be created for each constructor.</param>
     /// <returns><see cref="Type"/> object of newly created type.</returns>
     public static Type CreateDummyType(string namePrefix, Type inheritFrom, bool implementProtectedConstructorAccessor)
@@ -366,16 +353,6 @@ namespace Xtensive.Reflection
       return CreateInheritedDummyType(typeName, inheritFrom, implementProtectedConstructorAccessor);
     }
 
-    /// <summary>
-    /// Creates new dummy type inherited from another type.
-    /// </summary>
-    /// <param name="typeName">Type name.</param>
-    /// <param name="inheritFrom">The type to inherit the dummy type from.</param>
-    /// <returns>New type.</returns>
-    public static Type CreateInheritedDummyType(string typeName, Type inheritFrom)
-    {
-      return CreateInheritedDummyType(typeName, inheritFrom, false);
-    }
     /// <summary>
     /// Creates new dummy type inherited from another type.
     /// </summary>

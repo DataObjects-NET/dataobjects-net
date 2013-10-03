@@ -156,26 +156,6 @@ namespace Xtensive.Reflection
     }
 
     /// <summary>
-    /// Determines whether the specified <paramref name="member"/>
-    /// is explicit or implicit implementation of some interface member.
-    /// </summary>
-    /// <param name="member">The member to check.</param>
-    /// <returns>Check result.</returns>
-    public static bool IsImplementation(this MemberInfo member)
-    {
-      var mi = member as MethodInfo;
-      var pi = member as PropertyInfo;
-      var ei = member as EventInfo;
-      if (mi!=null)
-        return mi.GetInterfaceMember()!=null;
-      if (pi!=null)
-        return (pi.GetGetMethod(true) ?? pi.GetSetMethod(true)).IsImplementation();
-      if (ei!=null)
-        return (ei.GetAddMethod(true) ?? ei.GetRemoveMethod(true)).IsImplementation();
-      return false;
-    }
-
-    /// <summary>
     /// Gets the interface member implementation in its implementor.
     /// </summary>
     /// <param name="member">The member to get the implementation member for.</param>
@@ -316,24 +296,6 @@ namespace Xtensive.Reflection
         .Append(".")
         .Append(member.GetShortName(false))
         .ToString();
-    }
-
-    /// <summary>
-    /// Gets the type of the member.
-    /// </summary>
-    /// <param name="mi">The <see cref="MemberInfo"/>.</param>
-    public static Type GetMemberType(MemberInfo mi)
-    {
-      var fi = mi as FieldInfo;
-      if (fi != null)
-        return fi.FieldType;
-      var pi = mi as PropertyInfo;
-      if (pi != null)
-        return pi.PropertyType;
-      var ei = mi as EventInfo;
-      if (ei != null)
-        return ei.EventHandlerType;
-      return null;
     }
   }
 }
