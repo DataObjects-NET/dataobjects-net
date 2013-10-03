@@ -1275,7 +1275,6 @@
     <Compile Include="Reflection\InterfaceMapping.cs" />
     <Compile Include="Reflection\MemberHelper.cs" />
     <Compile Include="Reflection\MethodHelper.cs" />
-    <Compile Include="Reflection\ResourceHelper.cs" />
     <Compile Include="Reflection\SequenceHelper.cs" />
     <Compile Include="Reflection\TypeHelper.cs" />
     <Compile Include="Reflection\WellKnown.cs" />

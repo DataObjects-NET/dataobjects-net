@@ -208,7 +208,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Reflection\AttributeHelperTest.cs" />
     <Compile Include="Reflection\DelegateHelperCreateDelegateTest.cs" />
-    <Compile Include="Reflection\ResourceHelperTest.cs" />
     <Compile Include="Reflection\TypeHelperTest.cs" />
     <Compile Include="Reflection\TypeHelperTestModel.cs" />
     <Compile Include="Resources\TestResources.Designer.cs">
