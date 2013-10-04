@@ -3256,4 +3256,7 @@ Error: {1}</value>
 	<data name="ExTranslationOfDateTimeToStringWithArbitraryArgumentsIsNotSupported">
 		<value xml:space="preserve">Translation of DateTime.ToString(string) with arbitrary arguments is not supported. Use DateTime.ToString("s").</value>
 	</data>
+  <data name="ExChainedBufferRemoveMethodIsNotSupported">
+    <value xml:space="preserve">ChainedBuffer.Remove() method is not supported.</value>
+  </data>
 </root>

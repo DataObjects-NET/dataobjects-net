@@ -57,6 +57,7 @@
     <Compile Include="Arithmetics\AritmeticsTest.cs" />
     <Compile Include="Caching\InfiniteCacheTest.cs" />
     <Compile Include="Caching\LruCacheTest.cs" />
+    <Compile Include="Collections\ChainedBufferTest.cs" />
     <Compile Include="Collections\CollectionBaseTest.cs" />
     <Compile Include="Collections\EnumerableExtensionsTest.cs" />
     <Compile Include="Collections\ExtensionCollectionTest.cs" />

@@ -79,6 +79,7 @@
     <Compile Include="Caching\WeakestCache.cs" />
     <Compile Include="Collections\ArrayUtils.cs" />
     <Compile Include="Collections\BindingCollection.cs" />
+    <Compile Include="Collections\ChainedBuffer.cs" />
     <Compile Include="Collections\ChangeNotifierEventArgs.cs" />
     <Compile Include="Collections\ClassifiedCollection.cs" />
     <Compile Include="Collections\CollectionBase.cs" />
