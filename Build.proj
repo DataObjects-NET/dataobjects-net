@@ -19,13 +19,6 @@
 <ItemGroup>
   <!-- ProductInfo -->
   <ProductInfo Include="ProductInfo\ProductInfo.proj" />
-  <!-- Templates -->
-  <TemplatesCS Include="Templates\Templates.proj">
-    <Properties>Language=CSharp</Properties>
-  </TemplatesCS>
-  <TemplatesVB Include="Templates\Templates.proj">
-    <Properties>Language=VisualBasic</Properties>
-  </TemplatesVB>
   <!-- Binaries -->
   <BinariesNet40 Include="BuildBinaries.proj">
     <Properties>Framework=Net40;Configuration=$(Configuration)</Properties>
@@ -67,16 +60,6 @@
         SkipUnchangedFiles="true" />
 </Target>
 
-<!-- Templates -->
-<Target Name="BuildTemplates" DependsOnTargets="BuildProductInfo">
-  <MSBuild Projects="@(TemplatesCS)" Targets="Build" />
-  <MSBuild Projects="@(TemplatesVB)" Targets="Build" />
-</Target>
-<Target Name="CleanTemplates" DependsOnTargets="BuildProductInfo">
-  <MSBuild Projects="@(TemplatesCS)" Targets="Clean" />
-  <MSBuild Projects="@(TemplatesVB)" Targets="Clean" />
-</Target>
-
 <!-- Binaries -->
 <Target Name="BuildBinaries" DependsOnTargets="BuildProductInfo">
   <MSBuild Projects="@(BinariesNet40)" Targets="Build" />
@@ -94,7 +77,7 @@
 
 <!-- Distribution -->
 <Target Name="BuildDist"
-        DependsOnTargets="CopyTargetsFile;BuildProductInfo;BuildChangeLog;BuildBinaries;BuildTemplates">
+        DependsOnTargets="CopyTargetsFile;BuildProductInfo;BuildChangeLog;BuildBinaries">
   <MSBuild Projects="@(Distributions)" Targets="Build" />
 </Target>
 <Target Name="CleanDist" DependsOnTargets="BuildProductInfo">
@@ -104,7 +87,7 @@
 
 <!-- All-in-one targets -->
 <Target Name="Build" DependsOnTargets="BuildDist" />
-<Target Name="Clean" DependsOnTargets="CleanBinaries;CleanDist;CleanTemplates" />
+<Target Name="Clean" DependsOnTargets="CleanBinaries;CleanDist" />
 <Target Name="Rebuild">
   <CallTarget Targets="Clean" />
   <CallTarget Targets="Build" />
