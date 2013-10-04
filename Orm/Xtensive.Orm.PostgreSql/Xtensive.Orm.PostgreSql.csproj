@@ -52,6 +52,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Xtensive.Orm\Properties\Visibility.cs">
+      <Link>Properties\Visibility.cs</Link>
+    </Compile>  
     <Compile Include="Sql.Drivers.PostgreSql\Connection.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\Driver.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\DriverFactory.cs" />

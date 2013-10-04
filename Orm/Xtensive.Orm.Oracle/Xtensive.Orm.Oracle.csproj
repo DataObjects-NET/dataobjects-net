@@ -50,6 +50,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Xtensive.Orm\Properties\Visibility.cs">
+      <Link>Properties\Visibility.cs</Link>
+    </Compile>
     <Compile Include="Sql.Drivers.Oracle\BinaryLargeObject.cs" />
     <Compile Include="Sql.Drivers.Oracle\CharacterLargeObject.cs" />
     <Compile Include="Sql.Drivers.Oracle\Connection.cs" />

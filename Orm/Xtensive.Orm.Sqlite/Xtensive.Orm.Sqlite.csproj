@@ -49,6 +49,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Xtensive.Orm\Properties\Visibility.cs">
+      <Link>Properties\Visibility.cs</Link>
+    </Compile>
     <Compile Include="Sql.Drivers.Sqlite\Collations\CurrentCultureCollation.cs" />
     <Compile Include="Sql.Drivers.Sqlite\Collations\CurrentCultureIgnoreCaseCollation.cs" />
     <Compile Include="Sql.Drivers.Sqlite\Collations\InvariantCultureCollation.cs" />

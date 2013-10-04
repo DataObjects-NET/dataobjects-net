@@ -47,6 +47,9 @@
     <Reference Include="System.Data.SqlServerCe, Version=3.5.1.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Xtensive.Orm\Properties\Visibility.cs">
+      <Link>Properties\Visibility.cs</Link>
+    </Compile>
     <Compile Include="Sql.Drivers.SqlServerCe\Connection.cs" />
     <Compile Include="Sql.Drivers.SqlServerCe\Driver.cs" />
     <Compile Include="Sql.Drivers.SqlServerCe\DriverFactory.cs" />

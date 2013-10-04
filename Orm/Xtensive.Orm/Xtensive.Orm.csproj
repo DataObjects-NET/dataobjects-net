@@ -357,6 +357,7 @@
     <Compile Include="Diagnostics\RuntimeInfo.cs" />
     <Compile Include="Diagnostics\StringLog.cs" />
     <Compile Include="Diagnostics\TextualLogImplementationBase.cs" />
+    <Compile Include="Properties\Visibility.cs" />
     <Compile Include="Internals\DocTemplates\ClassDocTemplate.cs" />
     <Compile Include="Internals\DocTemplates\DisposableDocTemplate.cs" />
     <Compile Include="Internals\DocTemplates\HasStaticDefaultDocTemplate.cs" />
