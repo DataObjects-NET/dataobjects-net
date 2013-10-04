@@ -13,7 +13,6 @@
 </PropertyGroup>
 
 <PropertyGroup Condition="'$(EnableAllDist)'=='true' and '$(Configuration)'=='Release'">
-  <EnableSetup>true</EnableSetup>
   <EnableNuGet>true</EnableNuGet>
 </PropertyGroup>
 
@@ -37,9 +36,6 @@
   </BinariesNet45>
   -->
   <!-- Distribution -->
-  <Distributions Include="Dist\Setup.proj" Condition="'$(EnableSetup)'=='true'">
-    <Properties>Configuration=$(Configuration)</Properties>
-  </Distributions>
   <Distributions Include="Dist\Zip.Binaries.proj" Condition="'$(EnableBinariesZip)'=='true'">
     <Properties>Configuration=$(Configuration)</Properties>
   </Distributions>
