@@ -2845,6 +2845,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Instance is empty..
+        /// </summary>
+        internal static string ExInstanceIsEmpty {
+            get {
+                return ResourceManager.GetString("ExInstanceIsEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Instance is locked..
         /// </summary>
         internal static string ExInstanceIsLocked {

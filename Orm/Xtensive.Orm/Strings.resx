@@ -3259,4 +3259,7 @@ Error: {1}</value>
   <data name="ExChainedBufferRemoveMethodIsNotSupported">
     <value xml:space="preserve">ChainedBuffer.Remove() method is not supported.</value>
   </data>
+  <data name="ExInstanceIsEmpty">
+    <value xml:space="preserve">Instance is empty.</value>
+  </data>
 </root>

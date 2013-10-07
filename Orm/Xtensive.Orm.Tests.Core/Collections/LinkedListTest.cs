@@ -18,10 +18,10 @@ namespace Xtensive.Orm.Tests.Core.Collections
     [Test]
     public void AddTest()
     {
-      var list = new LinkedList<int>(0);
-      list = list.AppendHead(1);
-      list = list.AppendHead(2);
-      list = list.AppendHead(3);
+      var list = new SinglyLinkedList<int>(0);
+      list = list.Add(1);
+      list = list.Add(2);
+      list = list.Add(3);
       Assert.AreEqual(4, list.Count);
       Assert.IsTrue(list.SequenceEqual(new []{3,2,1,0}));
     }
@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
     [Test]
     public void SequenceTest()
     {
-      var list = new LinkedList<int>(new[] {0, 1, 2, 3});
+      var list = new SinglyLinkedList<int>(new[] {0, 1, 2, 3});
       Assert.AreEqual(4, list.Count);
       Assert.IsTrue(list.SequenceEqual(new[] {0, 1, 2, 3}));
     }

@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
@@ -20,7 +21,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private readonly Session session;
     private readonly SessionHandler sessionHandler;
     private readonly IEnumerable<T> source;
-    private readonly Collections.LinkedList<KeyExtractorNode<T>> nodes;
+    private readonly SinglyLinkedList<KeyExtractorNode<T>> nodes;
 
     private Queue<Key> unknownTypeQueue;
     private Queue<Pair<IEnumerable<Key>, IHasNestedNodes>> prefetchQueue;
@@ -32,7 +33,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var node = NodeBuilder.Build(session.Domain.Model, expression);
       if (node==null)
         return this;
-      return new PrefetchFacade<T>(session, source, nodes.AppendHead(node));
+      return new PrefetchFacade<T>(session, source, nodes.Add(node));
     }
 
     public IEnumerator<T> GetEnumerator()
@@ -144,16 +145,16 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       this.session = session;
       source = new PrefetchKeyIterator<T>(session, keySource);
-      nodes = Collections.LinkedList<KeyExtractorNode<T>>.Empty;
+      nodes = SinglyLinkedList<KeyExtractorNode<T>>.Empty;
       sessionHandler = this.session.Handler;
     }
 
     public PrefetchFacade(Session session, IEnumerable<T> source)
-      : this(session, source, Collections.LinkedList<KeyExtractorNode<T>>.Empty)
+      : this(session, source, SinglyLinkedList<KeyExtractorNode<T>>.Empty)
     {
     }
 
-    private PrefetchFacade(Session session, IEnumerable<T> source, Collections.LinkedList<KeyExtractorNode<T>> nodes)
+    private PrefetchFacade(Session session, IEnumerable<T> source, SinglyLinkedList<KeyExtractorNode<T>> nodes)
     {
       this.session = session;
       this.source = source;

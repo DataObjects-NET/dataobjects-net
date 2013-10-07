@@ -7,32 +7,32 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-
 
 namespace Xtensive.Collections
 {
   /// <summary>
-  /// Single-linked immutable list.
+  /// Singly-linked immutable list.
   /// </summary>
   /// <typeparam name="T">The type of elements.</typeparam>
   [Serializable]
-  public sealed class LinkedList<T> : IEnumerable<T>
+  public sealed class SinglyLinkedList<T> : IEnumerable<T>
   {
     /// <summary>
-    /// Gets the empty <see cref="LinkedList{T}"/>.
+    /// Gets the empty <see cref="SinglyLinkedList{T}"/>.
     /// </summary>
-    public static LinkedList<T> Empty { get; private set; }
-    private T head;
+    public static SinglyLinkedList<T> Empty { get; private set; }
+
+    private readonly T head;
 
     /// <summary>
     /// Gets the value of the head node.
     /// </summary>
     public T Head
     {
-      get {
-        if (Count == 0)
-          throw new NotSupportedException("Current instance is empty.");
+      get
+      {
+        if (Count==0)
+          throw new NotSupportedException(Strings.ExInstanceIsEmpty);
         return head;
       }
     }
@@ -40,29 +40,29 @@ namespace Xtensive.Collections
     /// <summary>
     /// Gets the tail of the current insttance.
     /// </summary>
-    public LinkedList<T> Tail { get; private set; }
+    public SinglyLinkedList<T> Tail { get; private set; }
 
     /// <inheritdoc/>
     public long Count { get; private set; }
 
 
     /// <summary>
-    /// Appends the head value and returns new instance of <see cref="LinkedList{T}"/>.
+    /// Appends the head value and returns new instance of <see cref="SinglyLinkedList{T}"/>.
     /// </summary>
     /// <param name="value">The value.</param>
-    /// <returns>New instance of <see cref="LinkedList{T}"/> with provided <paramref name="value"/> as a head node.</returns>
-    public LinkedList<T> AppendHead(T value)
+    /// <returns>New instance of <see cref="SinglyLinkedList{T}"/> with provided <paramref name="value"/> as a head node.</returns>
+    public SinglyLinkedList<T> Add(T value)
     {
-      return new LinkedList<T>(value, this);
+      return new SinglyLinkedList<T>(value, this);
     }
 
     /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
     {
-      if (Count == 0)
+      if (Count==0)
         yield break;
       var list = this;
-      while (list != Empty) {
+      while (list!=Empty) {
         yield return list.head;
         list = list.Tail;
       }
@@ -74,7 +74,9 @@ namespace Xtensive.Collections
       return GetEnumerator();
     }
 
-    private LinkedList()
+    // Constructors
+
+    private SinglyLinkedList()
     {
       head = default(T);
       Tail = null;
@@ -82,10 +84,10 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    ///  <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="value">The value.</param>
-    public LinkedList(T value)
+    public SinglyLinkedList(T value)
     {
       head = value;
       Tail = Empty;
@@ -93,32 +95,32 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    ///  <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="source">The source elements.</param>
-    public LinkedList(IEnumerable<T> source)
+    public SinglyLinkedList(IEnumerable<T> source)
     {
       using (var enumerator = source.GetEnumerator()) {
         if (!enumerator.MoveNext()) 
           return;
         head = enumerator.Current;
         Tail = enumerator.MoveNext()
-          ? new LinkedList<T>(enumerator)
+          ? new SinglyLinkedList<T>(enumerator)
           : Empty;
         Count = 1 + Tail.Count;
       }
     }
 
-    private LinkedList(IEnumerator<T> source)
+    private SinglyLinkedList(IEnumerator<T> source)
     {
       head = source.Current;
       Tail = source.MoveNext() 
-        ? new LinkedList<T>(source) 
+        ? new SinglyLinkedList<T>(source) 
         : Empty;
       Count = 1 + Tail.Count;
     }
 
-    private LinkedList(T head, LinkedList<T> tail)
+    private SinglyLinkedList(T head, SinglyLinkedList<T> tail)
     {
       this.head = head;
       Tail = tail;
@@ -126,11 +128,11 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    ///  <see cref="ClassDocTemplate.TypeInitializer" copy="true"/>
+    /// Initializes this type.
     /// </summary>
-    static LinkedList()
+    static SinglyLinkedList()
     {
-      Empty = new LinkedList<T>();
+      Empty = new SinglyLinkedList<T>();
     }
   }
 }

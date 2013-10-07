@@ -120,7 +120,7 @@
     <Compile Include="Collections\Internals\TypeBasedDictionaryItem.cs" />
     <Compile Include="Collections\Internals\TypePair.cs" />
     <Compile Include="Collections\LazyDictionary.cs" />
-    <Compile Include="Collections\LinkedList.cs" />
+    <Compile Include="Collections\SinglyLinkedList.cs" />
     <Compile Include="Collections\NamedValueCollection.cs" />
     <Compile Include="Collections\NativeTypeClassifier.cs" />
     <Compile Include="Collections\PriorityQueue.cs" />
