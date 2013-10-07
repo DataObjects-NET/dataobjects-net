@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Text;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Comparison
@@ -264,7 +264,7 @@ namespace Xtensive.Comparison
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="value">Initial <see cref="Value"/> property value.</param>
     public ComparisonRules(ComparisonRule value)
@@ -274,7 +274,7 @@ namespace Xtensive.Comparison
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="value">Initial <see cref="Value"/> property value.</param>
     /// <param name="composite">Initial <see cref="Composite"/> property value.
@@ -285,7 +285,7 @@ namespace Xtensive.Comparison
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="value">Initial <see cref="Value"/> property value.</param>
     /// <param name="composite">Initial <see cref="Composite"/> property value.</param>

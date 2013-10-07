@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
@@ -26,28 +25,16 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 
     // Constructors
 
-    /// <inheritdoc/>
     public KeyColumnRef(IndexInfo parent)
       : base(parent)
     {
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="parent">The parent index.</param>
-    /// <param name="column">The referenced column.</param>
     public KeyColumnRef(IndexInfo parent, ColumnInfo column)
       : base(parent, column)
     {
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="parent">The parent index.</param>
-    /// <param name="column">The referenced column.</param>
-    /// <param name="direction">The direction.</param>
     public KeyColumnRef(IndexInfo parent, ColumnInfo column, Direction direction)
       : base(parent, column, direction)
     {

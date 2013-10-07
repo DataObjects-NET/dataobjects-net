@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Tuples
@@ -170,7 +170,7 @@ namespace Xtensive.Tuples
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="origin">Initial <see cref="Origin"/> property value.</param>
     public DifferentialTuple(Tuple origin)
@@ -181,7 +181,7 @@ namespace Xtensive.Tuples
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="origin">Initial <see cref="Origin"/> property value.</param>
     /// <param name="difference">Initial <see cref="Difference"/> property value.</param>

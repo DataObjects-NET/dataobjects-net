@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Modelling.Actions
 {

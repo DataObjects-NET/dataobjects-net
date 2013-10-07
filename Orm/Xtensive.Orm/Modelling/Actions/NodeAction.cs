@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Text;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 using Xtensive.Modelling.Comparison;
 

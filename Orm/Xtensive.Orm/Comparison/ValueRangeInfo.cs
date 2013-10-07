@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Arithmetic;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Comparison
@@ -118,7 +118,7 @@ namespace Xtensive.Comparison
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="hasMinValue">if set to <see langword="true"/> then this instance has the smallest possible value of <typeparamref name="T"/>.</param>
     /// <param name="minValue">The smallest possible value of <typeparamref name="T"/>.</param>

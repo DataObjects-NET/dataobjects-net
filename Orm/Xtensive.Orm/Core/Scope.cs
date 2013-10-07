@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Security;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Core
@@ -94,7 +94,7 @@ namespace Xtensive.Core
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="service">The context of this scope.</param>
     protected internal Scope(TContext service)
@@ -104,7 +104,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// Does not invoke <see cref="Activate"/> method.
     /// </summary>
     /// <exception cref="SecurityException">Only one ancestor of each instance

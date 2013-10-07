@@ -7,7 +7,7 @@
 using System;
 using System.Globalization;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Comparison
@@ -170,7 +170,7 @@ namespace Xtensive.Comparison
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="direction">Initial <see cref="Core.Direction"/> property value.</param>
     public ComparisonRule(Direction direction)
@@ -179,7 +179,7 @@ namespace Xtensive.Comparison
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="direction">Initial <see cref="Core.Direction"/> property value.</param>
     /// <param name="culture">Initial <see cref="Culture"/> property value.</param>

@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Modelling.Actions;
 
 

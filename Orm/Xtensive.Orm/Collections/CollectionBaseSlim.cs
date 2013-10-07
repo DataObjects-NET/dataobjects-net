@@ -9,7 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Collections
@@ -185,7 +185,7 @@ namespace Xtensive.Collections
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public CollectionBaseSlim()
       : this(0)
@@ -193,7 +193,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="capacity">The capacity.</param>
     public CollectionBaseSlim(int capacity)
@@ -202,7 +202,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="collection">The collection.</param>
     public CollectionBaseSlim(IEnumerable<TItem> collection)

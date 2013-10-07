@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Diagnostics
 {
@@ -25,7 +25,7 @@ namespace Xtensive.Diagnostics
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="name">Log name.</param>
     public DebugLog(string name)

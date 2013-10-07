@@ -5,7 +5,7 @@
 // Created:    2009.03.26
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Modelling.Comparison.Hints
 {

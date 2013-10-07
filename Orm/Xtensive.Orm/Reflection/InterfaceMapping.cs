@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 using ReflectionInterfaceMapping=System.Reflection.InterfaceMapping;
 using System.Linq;
 

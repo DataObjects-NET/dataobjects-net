@@ -5,7 +5,7 @@
 // Created:    2009.10.12
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Diagnostics
 {

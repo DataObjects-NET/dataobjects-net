@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 
 
@@ -235,7 +235,7 @@ namespace Xtensive.Diagnostics
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="realLog">Real log to wrap.</param>
     protected LogImplementationBase(IRealLog realLog)

@@ -9,7 +9,7 @@ using System.Collections;
 using Xtensive.Collections;
 using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Tuples.Transform.Internals
 {
@@ -59,7 +59,7 @@ namespace Xtensive.Tuples.Transform.Internals
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="tuple">Tuple to provide read-only wrapper for.</param>
     public ReadOnlyTransformTuple(Tuple tuple)

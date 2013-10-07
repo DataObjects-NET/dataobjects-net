@@ -5,7 +5,7 @@
 // Created:    2007.10.03
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Core
 {
@@ -34,7 +34,7 @@ namespace Xtensive.Core
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="onDispose">Action to execute on disposal.</param>
     public Disposable(Action<bool> onDispose)

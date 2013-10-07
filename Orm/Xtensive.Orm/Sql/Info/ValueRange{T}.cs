@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Sql.Info
 {

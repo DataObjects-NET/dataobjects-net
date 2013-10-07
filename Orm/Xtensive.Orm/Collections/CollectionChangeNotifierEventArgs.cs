@@ -5,7 +5,7 @@
 // Created:    2007.03.01
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Collections
 {
@@ -37,7 +37,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="item">The item.</param>
     /// <param name="index">The index.</param>
@@ -48,7 +48,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="item">The item.</param>
     public CollectionChangeNotifierEventArgs(TItem item)

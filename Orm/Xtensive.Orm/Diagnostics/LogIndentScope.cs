@@ -5,7 +5,7 @@
 // Created:    2007.10.11
 
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 
 namespace Xtensive.Diagnostics
@@ -68,7 +68,7 @@ namespace Xtensive.Diagnostics
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public LogIndentScope()
       : base(LogIndent.Create(CurrentIndent+1))

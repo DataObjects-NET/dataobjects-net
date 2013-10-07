@@ -6,7 +6,7 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Modelling.Attributes
 {

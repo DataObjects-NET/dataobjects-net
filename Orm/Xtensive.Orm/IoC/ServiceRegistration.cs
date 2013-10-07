@@ -8,7 +8,7 @@ using System;
 using Xtensive.Collections;
 using Xtensive.Core;
 using System.Linq;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 
 namespace Xtensive.IoC

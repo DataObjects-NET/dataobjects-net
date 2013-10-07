@@ -16,7 +16,7 @@ using System.Text.RegularExpressions;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Comparison;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm
 {

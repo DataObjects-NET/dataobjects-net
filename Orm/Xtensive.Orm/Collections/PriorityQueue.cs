@@ -13,7 +13,7 @@ using System.Security;
 using System.Security.Permissions;
 using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Collections

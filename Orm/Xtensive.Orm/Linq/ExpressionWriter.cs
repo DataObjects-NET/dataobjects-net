@@ -13,7 +13,7 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 
 namespace Xtensive.Linq

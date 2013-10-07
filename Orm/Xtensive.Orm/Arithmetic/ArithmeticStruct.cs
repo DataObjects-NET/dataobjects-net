@@ -8,7 +8,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Internals.DocTemplates;
+
 using A=Xtensive.Arithmetic;
 
 namespace Xtensive.Arithmetic
@@ -102,7 +102,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="arithmetic">Arithmetic to provide the delegates for.</param>
     private ArithmeticStruct(Arithmetic<T> arithmetic)

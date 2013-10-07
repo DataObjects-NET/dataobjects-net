@@ -8,7 +8,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Internals.DocTemplates;
+
 using C=Xtensive.Conversion;
 
 namespace Xtensive.Conversion
@@ -55,7 +55,7 @@ namespace Xtensive.Conversion
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="advancedConverter">Converter to provide the delegates for.</param>
     private AdvancedConverterStruct(AdvancedConverter<TFrom, TTo> advancedConverter)

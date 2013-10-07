@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Modelling.Comparison.Hints
 {

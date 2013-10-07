@@ -11,7 +11,7 @@ using System.Diagnostics;
 using Xtensive.Collections;
 using Xtensive.Conversion;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Caching
 {
@@ -234,7 +234,7 @@ namespace Xtensive.Caching
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="maxSize"><see cref="MaxSize"/> property value.</param>
     /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
@@ -244,7 +244,7 @@ namespace Xtensive.Caching
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="maxSize"><see cref="MaxSize"/> property value.</param>
     /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
@@ -255,7 +255,7 @@ namespace Xtensive.Caching
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="maxSize"><see cref="MaxSize"/> property value.</param>
     /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>

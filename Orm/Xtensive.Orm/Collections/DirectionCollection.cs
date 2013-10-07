@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Conversion;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Collections
 {
@@ -29,7 +29,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="enumerable">Initial content of collection.</param>
     public DirectionCollection(IEnumerable<KeyValuePair<T, Direction>> enumerable)
@@ -45,7 +45,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="items">Initial content of collection.</param>
     public DirectionCollection(params T[] items)
@@ -62,7 +62,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public DirectionCollection()
       : base(new Biconverter<Direction, bool>(

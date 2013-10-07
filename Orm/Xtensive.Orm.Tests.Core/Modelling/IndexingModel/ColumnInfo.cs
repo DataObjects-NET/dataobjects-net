@@ -6,10 +6,8 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
-using Xtensive.Orm.Tests.Core.Modelling.IndexingModel.Resources;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 {

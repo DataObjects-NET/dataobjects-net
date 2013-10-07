@@ -7,10 +7,8 @@
 using System;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
-using Xtensive.Orm.Tests.Core.Modelling.IndexingModel.Resources;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 {
@@ -89,12 +87,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 
 
     // Constructors
-
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="table">The parent table.</param>
-    /// <param name="name">The index name.</param>
     public PrimaryIndexInfo(TableInfo table, string name)
       : base(table, name)
     {

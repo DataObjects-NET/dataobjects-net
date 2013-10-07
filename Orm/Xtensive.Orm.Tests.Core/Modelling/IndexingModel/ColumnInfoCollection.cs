@@ -5,7 +5,6 @@
 // Created:    2009.03.20
 
 using System;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel

@@ -8,7 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Conversion
 {
@@ -44,7 +44,7 @@ namespace Xtensive.Conversion
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="innerEnumerable">Enumerable to wrap.</param>
     /// <param name="converter">Item converter to use.</param>

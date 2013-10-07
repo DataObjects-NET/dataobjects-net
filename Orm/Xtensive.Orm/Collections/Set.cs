@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Collections;
 
 namespace Xtensive.Collections
@@ -330,7 +330,7 @@ namespace Xtensive.Collections
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public Set() 
       : this((IEqualityComparer<TItem>)null)
@@ -338,7 +338,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="comparer">Equality comparer for the set type.</param>
     public Set(IEqualityComparer<TItem> comparer) 
@@ -348,7 +348,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="items">Collection to copy the items from.</param>
     public Set(IEnumerable<TItem> items) 
@@ -358,7 +358,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="items">Collection to copy the items from.</param>
     /// <param name="comparer">Equality comparer for the set type.</param>

@@ -7,7 +7,7 @@
 using System;
 using System.Reflection;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 using Xtensive.Modelling.Attributes;
 

@@ -6,7 +6,6 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling.Attributes;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
@@ -65,12 +64,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="parent">The parent table.</param>
-    /// <param name="name">The index.</param>
-    /// <inheritdoc/>
     protected IndexInfo(TableInfo parent, string name)
       : base(parent, name)
     {

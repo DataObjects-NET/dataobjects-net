@@ -8,7 +8,6 @@ using System;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
@@ -45,11 +44,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     {
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="message">The message.</param>
-    /// <param name="nodePath">The path of the invalid node.</param>
     public ValidationException(string message, string nodePath)
       : base(message)
     {

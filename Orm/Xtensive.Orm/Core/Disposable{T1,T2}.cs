@@ -5,7 +5,7 @@
 // Created:    2007.10.03
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Core
 {
@@ -38,7 +38,7 @@ namespace Xtensive.Core
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="parameter1">First parameter to pass to the <paramref name="onDispose"/> action.</param>
     /// <param name="parameter2">Second parameter to pass to the <paramref name="onDispose"/> action.</param>

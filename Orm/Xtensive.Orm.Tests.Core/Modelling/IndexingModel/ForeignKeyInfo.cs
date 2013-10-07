@@ -7,10 +7,8 @@
 using System;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling;
 using Xtensive.Modelling.Attributes;
-using Xtensive.Orm.Tests.Core.Modelling.IndexingModel.Resources;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
@@ -120,12 +118,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="parent">The parent table.</param>
-    /// <param name="name">The name of foreign key.</param>
-    /// <inheritdoc/>
     public ForeignKeyInfo(TableInfo parent, string name)
       : base(parent, name)
     {

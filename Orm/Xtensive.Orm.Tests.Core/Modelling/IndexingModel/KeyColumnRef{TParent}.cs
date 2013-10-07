@@ -6,9 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling.Attributes;
-using Xtensive.Orm.Tests.Core.Modelling.IndexingModel.Resources;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 {
@@ -61,23 +59,12 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     {
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="parent">The parent index.</param>
-    /// <param name="column">The referenced column.</param>
     public KeyColumnRef(TParent parent, ColumnInfo column)
       : base(parent, column)
     {
       Direction = Direction.Positive;
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="parent">The parent index.</param>
-    /// <param name="column">The referenced column.</param>
-    /// <param name="direction">The direction.</param>
     public KeyColumnRef(TParent parent, ColumnInfo column, Direction direction)
       : base(parent, column)
     {

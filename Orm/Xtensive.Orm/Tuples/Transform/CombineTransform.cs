@@ -12,7 +12,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Tuples.Transform;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Tuples.Transform
@@ -63,7 +63,7 @@ namespace Xtensive.Tuples.Transform
     // Constructors
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="isReadOnly"><see cref="MapTransform.IsReadOnly"/> property value.</param>
     /// <param name="sources">Source tuple descriptors.</param>

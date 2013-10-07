@@ -6,7 +6,7 @@
 
 using System;
 using System.Text;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Modelling.Comparison
 {

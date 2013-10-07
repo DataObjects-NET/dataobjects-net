@@ -6,8 +6,6 @@
 
 using System;
 
-using Xtensive.Internals.DocTemplates;
-
 namespace Xtensive.Orm.Tests
 {
   /// <summary>

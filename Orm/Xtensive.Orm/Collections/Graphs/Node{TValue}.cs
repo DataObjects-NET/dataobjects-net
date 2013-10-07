@@ -5,7 +5,7 @@
 // Created:    2012.02.22
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Collections.Graphs
 {

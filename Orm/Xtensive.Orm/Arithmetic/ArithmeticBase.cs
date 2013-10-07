@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Arithmetic
@@ -108,7 +108,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="provider">Arithmetic provider this arithmetic is bound to.</param>
     /// <param name="rules">Arithmetic rules.</param>

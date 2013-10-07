@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Xtensive.Reflection;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Linq

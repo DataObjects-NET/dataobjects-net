@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 
 

@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Arithmetic;
 using Xtensive.Comparison;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Core

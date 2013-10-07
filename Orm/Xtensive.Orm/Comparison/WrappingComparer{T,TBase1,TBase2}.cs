@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Comparison
 {
@@ -32,7 +32,7 @@ namespace Xtensive.Comparison
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="provider">Comparer provider this comparer is bound to.</param>
     /// <param name="comparisonRules">Comparison rules.</param>

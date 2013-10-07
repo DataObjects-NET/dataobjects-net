@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Collections
@@ -269,7 +269,7 @@ namespace Xtensive.Collections
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="dictionary">The dictionary to copy or wrap.</param>
     /// <param name="copy">Indicates whether <paramref name="dictionary"/> must be copied or wrapped.</param> 
@@ -284,7 +284,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="dictionary">The dictionary to wrap.</param>
     public ReadOnlyDictionary(IDictionary<TKey, TValue> dictionary)

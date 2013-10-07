@@ -1,5 +1,5 @@
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Modelling.Actions
 {

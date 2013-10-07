@@ -6,7 +6,7 @@
 
 using System;
 using System.Runtime.Serialization;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Core
@@ -19,7 +19,7 @@ namespace Xtensive.Core
   public class InstanceIsLockedException : InvalidOperationException
   {
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public InstanceIsLockedException()
       : base(Strings.ExInstanceIsLocked)
@@ -27,7 +27,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="text">Text of message.</param>
     public InstanceIsLockedException(string text)

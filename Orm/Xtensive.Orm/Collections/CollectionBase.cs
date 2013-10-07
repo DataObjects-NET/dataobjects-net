@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Collections;
 
 namespace Xtensive.Collections
@@ -456,7 +456,7 @@ namespace Xtensive.Collections
     // Constructors
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public CollectionBase()
       : this(0)
@@ -464,7 +464,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="capacity">The capacity.</param>
     public CollectionBase(int capacity)
@@ -474,7 +474,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="collection">The collection.</param>
     public CollectionBase(IEnumerable<TItem> collection)

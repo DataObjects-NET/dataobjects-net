@@ -13,7 +13,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
 using Xtensive.Reflection;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC.Configuration;
 
 using AttributeSearchOptions = Xtensive.Reflection.AttributeSearchOptions;

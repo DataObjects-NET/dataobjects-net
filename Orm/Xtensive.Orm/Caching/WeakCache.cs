@@ -13,7 +13,7 @@ using System.Security;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Caching
 {
@@ -266,7 +266,7 @@ namespace Xtensive.Caching
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="trackResurrection">The <see cref="TrackResurrection"/> property value.</param>
     /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>

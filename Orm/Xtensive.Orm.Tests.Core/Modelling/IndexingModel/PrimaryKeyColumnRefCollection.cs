@@ -5,7 +5,6 @@
 // Created:    2009.03.20
 
 using System;
-using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 {
@@ -17,10 +16,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   {
     // Constructors
     
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="parent">The parent.</param>
     public PrimaryKeyColumnRefCollection(SecondaryIndexInfo parent)
       : base(parent, "PrimaryKeyColumns")
     {

@@ -5,7 +5,7 @@
 // Created:    2007.10.15
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Collections
 {
@@ -27,7 +27,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="changeInfo">The info.</param>
     public ChangeNotifierEventArgs(object changeInfo)
@@ -36,7 +36,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public ChangeNotifierEventArgs()
     {

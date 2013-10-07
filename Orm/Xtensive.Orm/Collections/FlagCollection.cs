@@ -15,7 +15,7 @@ using System.Security;
 using System.Security.Permissions;
 using Xtensive.Conversion;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Collections
@@ -347,7 +347,7 @@ namespace Xtensive.Collections
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="converter"><see cref="Converter"/> property value.</param>
     public FlagCollection(Biconverter<TFlag, bool> converter)
@@ -357,7 +357,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="converter"><see cref="Converter"/> property value.</param>
     /// <param name="enumerable">Initial content of collection.</param>

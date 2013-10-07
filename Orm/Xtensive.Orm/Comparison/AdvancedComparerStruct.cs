@@ -10,7 +10,7 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Comparison
 {
@@ -86,7 +86,7 @@ namespace Xtensive.Comparison
     // Constructors
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="comparer">Comparer to provide the delegates for.</param>
     private AdvancedComparerStruct(AdvancedComparer<T> comparer)

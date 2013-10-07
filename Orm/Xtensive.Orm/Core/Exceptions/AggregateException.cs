@@ -13,7 +13,7 @@ using System.Security.Permissions;
 using System.Text;
 using Xtensive.Collections;
 using System.Linq;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Core
@@ -89,7 +89,7 @@ namespace Xtensive.Core
     // Constructors
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public AggregateException()
       : base(Strings.ExASetOfExceptionsIsCaught)
@@ -97,7 +97,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="text">Text of message.</param>
     public AggregateException(string text)
@@ -106,7 +106,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="message">Text of message.</param>
     /// <param name="innerException">Inner exception.</param>
@@ -117,7 +117,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="exceptions">Inner exceptions.</param>
     public AggregateException(IEnumerable<Exception> exceptions) 
@@ -127,7 +127,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="message">Text of message.</param>
     /// <param name="exceptions">Inner exceptions.</param>

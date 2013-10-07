@@ -8,7 +8,7 @@ using System.Diagnostics;
 using System.Text;
 using System;
 
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Diagnostics
 {
@@ -49,7 +49,7 @@ namespace Xtensive.Diagnostics
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="name">Log name.</param>
     public StringLog(string name) 

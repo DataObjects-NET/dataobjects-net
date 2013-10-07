@@ -8,7 +8,6 @@ using System;
 using System.Diagnostics;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.IoC;
 
 namespace Xtensive.Orm.Tests
@@ -17,9 +16,6 @@ namespace Xtensive.Orm.Tests
   /// Default <see cref="IInstanceGenerator{T}"/> provider. 
   /// Provides default instance generator for the specified type.
   /// </summary>
-  /// <remarks>
-  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
-  /// </remarks>
   [Serializable]
   public class InstanceGeneratorProvider : AssociateProvider, IInstanceGeneratorProvider
   {
@@ -27,7 +23,6 @@ namespace Xtensive.Orm.Tests
     private ThreadSafeDictionary<Type, IInstanceGeneratorBase> generators = 
       ThreadSafeDictionary<Type, IInstanceGeneratorBase>.Create(new object());
 
-    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
     public static InstanceGeneratorProvider Default {
       [DebuggerStepThrough]
       get { return @default; }

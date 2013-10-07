@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Tuples.Transform
 {
@@ -76,7 +76,7 @@ namespace Xtensive.Tuples.Transform
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="tuple">Tuple to provide the wrapper for.</param>
     protected WrappingTransformTupleBase(Tuple tuple)

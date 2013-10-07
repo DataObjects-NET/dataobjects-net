@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Sorting
 {

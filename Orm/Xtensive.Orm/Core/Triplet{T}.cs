@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Comparison;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Core
@@ -106,7 +106,7 @@ namespace Xtensive.Core
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="first">A first value in triplet.</param>
     /// <param name="second">A second value in triplet.</param>

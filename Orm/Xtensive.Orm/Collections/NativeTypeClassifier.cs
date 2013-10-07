@@ -10,7 +10,7 @@ using System.Diagnostics;
 
 using Xtensive.Reflection;
 using System.Linq;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Collections
 {

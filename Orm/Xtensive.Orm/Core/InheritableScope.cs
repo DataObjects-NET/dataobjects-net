@@ -6,7 +6,7 @@
 
 using System;
 using System.Security;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Core

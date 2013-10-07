@@ -4,9 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2010.01.14
 
-
 using System;
-using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 {
@@ -19,9 +17,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
     public FullTextColumnRefCollection(FullTextIndexInfo parent)
       : base(parent, "Columns")
     {

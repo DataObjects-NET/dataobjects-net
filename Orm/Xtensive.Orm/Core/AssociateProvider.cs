@@ -13,7 +13,7 @@ using System.Text;
 using System.Threading;
 using Xtensive.Collections;
 using Xtensive.Comparison;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.Reflection;
 
 
@@ -280,7 +280,7 @@ namespace Xtensive.Core
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     protected AssociateProvider()
     {

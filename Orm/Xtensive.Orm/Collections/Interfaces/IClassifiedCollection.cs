@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Collections
 {

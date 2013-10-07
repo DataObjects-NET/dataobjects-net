@@ -5,7 +5,6 @@
 // Created:    2009.04.20
 
 using System;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
@@ -16,7 +15,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   [Serializable]
   public sealed class ForeignKeyColumnRef : Ref<ColumnInfo, ForeignKeyInfo>
   {
-    /// <inheritdoc/>
     protected override Nesting CreateNesting()
     {
       return new Nesting<ForeignKeyColumnRef, ForeignKeyInfo, ForeignKeyColumnCollection>(
@@ -26,18 +24,11 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 
     // Constructor
 
-    /// <inheritdoc/>
     public ForeignKeyColumnRef(ForeignKeyInfo parent)
       : base(parent)
     {
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="parent">The foreign key.</param>
-    /// <param name="column">The column.</param>
-    /// <inheritdoc/>
     public ForeignKeyColumnRef(ForeignKeyInfo parent, ColumnInfo column)
       : base(parent)
     {

@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Reflection;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 
 namespace Xtensive.Diagnostics

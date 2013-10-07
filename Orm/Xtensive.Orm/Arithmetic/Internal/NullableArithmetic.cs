@@ -5,7 +5,7 @@
 // Created:    2008.02.06
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Arithmetic
 {
@@ -91,7 +91,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public NullableArithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)

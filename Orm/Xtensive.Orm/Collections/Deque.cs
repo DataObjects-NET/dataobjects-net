@@ -11,7 +11,7 @@ using System.Security;
 using System.Security.Permissions;
 using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Collections
@@ -572,7 +572,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public Deque()
       : this(minimalCapacity)
@@ -580,7 +580,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="initialCapacity">The initial <see cref="Capacity"/> property value.</param>
     public Deque(int initialCapacity)
@@ -594,7 +594,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="initialCapacity">The initial <see cref="Capacity"/> property value.</param>
     /// <param name="growFactor">The factor by which the capacity of the <see cref="Deque{T}"/> is expanded.</param>
@@ -605,7 +605,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="source">The initial contents of the <see cref="Deque{T}"/>.</param>
     public Deque(IEnumerable<T> source)
@@ -618,7 +618,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="source">The initial contents of the <see cref="Deque{T}"/>.</param>
     /// <param name="growFactor">The factor by which the capacity of the <see cref="Deque{T}"/> is expanded.</param>

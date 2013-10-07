@@ -10,7 +10,7 @@ using System.Diagnostics;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
-using Xtensive.Internals.DocTemplates;
+
 
 using Xtensive.Tuples.Transform.Internals;
 
@@ -264,7 +264,7 @@ namespace Xtensive.Tuples.Transform
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="isReadOnly"><see cref="IsReadOnly"/> property value.</param>
     /// <param name="descriptor">Initial <see cref="TupleTransformBase.Descriptor"/> property value.</param>
@@ -276,7 +276,7 @@ namespace Xtensive.Tuples.Transform
     }
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="isReadOnly"><see cref="IsReadOnly"/> property value.</param>
     /// <param name="descriptor">Initial <see cref="TupleTransformBase.Descriptor"/> property value.</param>
@@ -288,7 +288,7 @@ namespace Xtensive.Tuples.Transform
     }
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="isReadOnly"><see cref="IsReadOnly"/> property value.</param>
     /// <param name="descriptor">Initial <see cref="TupleTransformBase.Descriptor"/> property value.</param>
@@ -301,7 +301,7 @@ namespace Xtensive.Tuples.Transform
     }
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="isReadOnly"><see cref="IsReadOnly"/> property value.</param>
     protected MapTransform(bool isReadOnly)

@@ -12,7 +12,7 @@ using System.Reflection;
 using Xtensive.Collections;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 

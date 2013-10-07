@@ -12,7 +12,7 @@ using System.Security;
 using System.Security.Permissions;
 using System.Threading;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Comparison
@@ -134,7 +134,7 @@ namespace Xtensive.Comparison
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="implementation">Implementation to provide the delegates for.</param>
     public AdvancedComparer(IAdvancedComparer<T> implementation)
@@ -144,7 +144,7 @@ namespace Xtensive.Comparison
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="comparer">Comparer to provide the delegates for.</param>
     /// <param name="equalityComparer">Equality comparer to provide the delegates for.</param>
@@ -154,7 +154,7 @@ namespace Xtensive.Comparison
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="comparer">Comparer to provide the delegates for.</param>
     public AdvancedComparer(IComparer<T> comparer)
@@ -163,7 +163,7 @@ namespace Xtensive.Comparison
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="equalityComparer">Equality comparer to provide the delegates for.</param>
     public AdvancedComparer(IEqualityComparer<T> equalityComparer)

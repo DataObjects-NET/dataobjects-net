@@ -6,7 +6,7 @@
 
 using System;
 using JetBrains.Annotations;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm
 {

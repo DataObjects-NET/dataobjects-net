@@ -11,7 +11,7 @@ using System.Text;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Collections;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 
 
@@ -116,7 +116,7 @@ namespace Xtensive.Comparison
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     protected ComparerProvider()
     {

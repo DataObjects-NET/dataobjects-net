@@ -8,7 +8,7 @@ using System;
 using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Core
 {
@@ -29,7 +29,7 @@ namespace Xtensive.Core
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="implementation"><see cref="Implementation"/> property value.</param>
     public MethodCacheBase(TImplementation implementation)

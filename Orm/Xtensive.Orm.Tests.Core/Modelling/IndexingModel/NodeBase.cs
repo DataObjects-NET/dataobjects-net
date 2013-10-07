@@ -5,7 +5,6 @@
 // Created:    2009.03.20
 
 using System;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
@@ -57,11 +56,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     
     //Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="parent">The parent.</param>
-    /// <param name="name">The name.</param>
     protected NodeBase(TParent parent, string name)
       : base(parent, name)
     {

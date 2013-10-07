@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Tuples.Transform.Internals
 {

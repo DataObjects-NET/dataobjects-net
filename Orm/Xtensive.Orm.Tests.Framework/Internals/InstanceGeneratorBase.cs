@@ -8,9 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
 
 namespace Xtensive.Orm.Tests
 {
@@ -61,7 +59,7 @@ namespace Xtensive.Orm.Tests
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="provider">Instance generator provider this generator is bound to.</param>
     public InstanceGeneratorBase(IInstanceGeneratorProvider provider)
@@ -70,7 +68,6 @@ namespace Xtensive.Orm.Tests
       this.provider = provider;
     }
 
-    /// <see cref="SerializableDocTemplate.OnDeserialization" copy="true" />
     public virtual void OnDeserialization(object sender)
     {
       if (provider==null || provider.GetType()==typeof (InstanceGeneratorProvider))

@@ -11,7 +11,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 using Xtensive.Tuples.Packed;
 
@@ -594,7 +594,7 @@ namespace Xtensive.Tuples
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     protected Tuple()
     {

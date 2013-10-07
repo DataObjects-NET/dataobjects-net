@@ -5,7 +5,6 @@
 // Created:    2009.03.24
 
 using System;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
@@ -19,10 +18,6 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
   {
     // Constructors
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="storage">The storage.</param>
     public TableInfoCollection(StorageInfo storage)
       : base(storage, "Tables")
     {

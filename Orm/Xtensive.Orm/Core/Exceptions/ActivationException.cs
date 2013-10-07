@@ -6,7 +6,7 @@
 
 using System;
 using System.Runtime.Serialization;
-using Xtensive.Internals.DocTemplates;
+
 using Xtensive.IoC;
 
 namespace Xtensive.Core

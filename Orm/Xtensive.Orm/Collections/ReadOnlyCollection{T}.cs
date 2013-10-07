@@ -10,7 +10,7 @@ using System.Collections;
 using System.Diagnostics;
 using Xtensive.Core;
 
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Collections
@@ -147,7 +147,7 @@ namespace Xtensive.Collections
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="collection">The collection to copy or wrap.</param>
     /// <param name="copy">Indicates whether <paramref name="collection"/> must be copied or wrapped.</param> 
@@ -161,7 +161,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="collection">The collection to wrap.</param>
     public ReadOnlyCollection(ICollection<T> collection) 

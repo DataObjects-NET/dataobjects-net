@@ -5,7 +5,7 @@
 // Created:    2009.08.13
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Orm
 {

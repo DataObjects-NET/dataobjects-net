@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Arithmetic;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Arithmetic
 {
@@ -133,7 +133,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public ByteArithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
@@ -264,7 +264,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public SByteArithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
@@ -395,7 +395,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public CharArithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
@@ -526,7 +526,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public Int16Arithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
@@ -657,7 +657,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public UInt16Arithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
@@ -788,7 +788,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public Int32Arithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
@@ -919,7 +919,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public UInt32Arithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
@@ -1050,7 +1050,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public Int64Arithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
@@ -1181,7 +1181,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public UInt64Arithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
@@ -1312,7 +1312,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public DecimalArithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
@@ -1443,7 +1443,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public SingleArithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)
@@ -1574,7 +1574,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     public DoubleArithmetic(IArithmeticProvider provider, ArithmeticRules rule)
       : base(provider, rule)

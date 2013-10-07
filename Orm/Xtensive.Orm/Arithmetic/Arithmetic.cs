@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Arithmetic

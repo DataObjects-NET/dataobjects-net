@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Sql.Info
 {

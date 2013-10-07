@@ -5,7 +5,7 @@
 // Created:    2007.10.03
 
 using System;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Conversion
 {
@@ -88,7 +88,7 @@ namespace Xtensive.Conversion
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="convertForward">Forward converter.</param>
     /// <param name="convertBackward">Backward converter.</param>
@@ -99,7 +99,7 @@ namespace Xtensive.Conversion
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="forwardConverter">Forward converter.</param>
     /// <param name="backwardConverter">Backward converter.</param>

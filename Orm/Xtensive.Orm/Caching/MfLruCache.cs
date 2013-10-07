@@ -11,7 +11,7 @@ using System.Diagnostics;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Caching
 {
@@ -422,7 +422,7 @@ namespace Xtensive.Caching
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="lruCapacity">The <see cref="LruCapacity"/> property value.</param>
     /// <param name="mfuCapacity">The <see cref="MfuCapacity"/> property value.</param>
@@ -435,7 +435,7 @@ namespace Xtensive.Caching
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="lruCapacity">The <see cref="LruCapacity"/> property value.</param>
     /// <param name="mfuCapacity">The <see cref="MfuCapacity"/> property value.</param>

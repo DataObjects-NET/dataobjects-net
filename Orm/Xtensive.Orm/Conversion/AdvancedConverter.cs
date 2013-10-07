@@ -9,7 +9,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 namespace Xtensive.Conversion
@@ -59,7 +59,7 @@ namespace Xtensive.Conversion
     // Constructos
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="implementation">Advanced converter to provide the delegates for.</param>
     public AdvancedConverter(IAdvancedConverter<TFrom, TTo> implementation)

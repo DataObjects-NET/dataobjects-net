@@ -5,7 +5,6 @@
 // Created:    2009.03.24
 
 using System;
-using Xtensive.Internals.DocTemplates;
 using Xtensive.Modelling;
 
 namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
@@ -26,17 +25,11 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
 
     // Constructors
 
-    /// <inheritdoc/>
     public ValueColumnRef(PrimaryIndexInfo parent)
       : base(parent)
     {
     }
 
-    /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
-    /// </summary>
-    /// <param name="parent">The parent index.</param>
-    /// <param name="column">The referenced column.</param>
     public ValueColumnRef(PrimaryIndexInfo parent, ColumnInfo column)
       : base(parent, column)
     {

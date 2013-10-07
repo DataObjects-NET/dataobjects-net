@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 namespace Xtensive.Conversion
 {
@@ -33,7 +33,7 @@ namespace Xtensive.Conversion
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="provider">The provider this advanced converter is bound to.</param>
     public AdvancedConverterBase(IAdvancedConverterProvider provider)

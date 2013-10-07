@@ -7,7 +7,7 @@
 using System;
 using System.Threading;
 using Xtensive.Core;
-using Xtensive.Internals.DocTemplates;
+
 
 
 
@@ -137,7 +137,7 @@ namespace Xtensive.Diagnostics
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true" />
+    /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="name">Log name.</param>
     protected TextualLogImplementationBase(string name)
