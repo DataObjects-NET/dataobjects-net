@@ -9,28 +9,27 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 <PropertyGroup>
-  <!-- Register weaving target for execution after compilation -->
-  <CompileDependsOn>$(CompileDependsOn);XtensiveOrmRunWeaver</CompileDependsOn>
-  <!-- Autodetect weaver program unless overridden by user -->
-  <XtensiveOrmWeaver Condition="'$(XtensiveOrmWeaver)'==''">$(MSBuildThisFileDirectory)\Tools\Weaver.exe</XtensiveOrmWeaver>
-  <XtensiveOrmRunWeaverDependsOn>$(XtensiveOrmRunWeaverDependsOn)</XtensiveOrmRunWeaverDependsOn>
+  <CompileDependsOn>$(CompileDependsOn);XtensiveOrmBuild</CompileDependsOn>
+  <XtensiveOrmPath Condition="'$(XtensiveOrmPath)'==''">$(MSBuildThisFileDirectory)</XtensiveOrmPath>
+  <XtensiveOrmPath Condition="!HasTrailingSlash('$(XtensiveOrmPath)')">$(XtensiveOrmPath)\</XtensiveOrmPath>
+  <XtensiveOrmWeaver Condition="'$(XtensiveOrmWeaver)'==''">$(XtensiveOrmPath)Tools\Weaver.exe</XtensiveOrmWeaver>
+  <XtensiveOrmBuildDependsOn>$(XtensiveOrmBuildDependsOn)</XtensiveOrmBuildDependsOn>
 </PropertyGroup>
 
-<!-- Run weaver -->
-<Target Name="XtensiveOrmRunWeaver"
+<Target Name="XtensiveOrmBuild"
         Inputs="@(IntermediateAssembly -> '%(FullPath)')"
         Outputs="@(IntermediateAssembly -> '%(FullPath).weaver-stamp')"
-        DependsOnTargets="ResolveAssemblyReferences;_CopyFilesMarkedCopyLocal;$(XtensiveOrmRunWeaverDependsOn)">
+        DependsOnTargets="ResolveAssemblyReferences;_CopyFilesMarkedCopyLocal;$(XtensiveOrmBuildDependsOn)">
   <Error Condition="!Exists('$(XtensiveOrmWeaver)')"
          Text="Weaver is not found at '$(XtensiveOrmWeaver)'" />
-  <Message Importance="low" Text="Using weaver at '$(XtensiveOrmWeaver)'"/>
+  <Message Importance="low" Text="Using weaver at '$(XtensiveOrmWeaver)'" />
   <PropertyGroup>
-    <XtensiveOrmWeaverParameters>/input:"@(IntermediateAssembly -> '%(FullPath)')" /makeBackup:true /writeStampFile:true</XtensiveOrmWeaverParameters>
-    <XtensiveOrmWeaverParameters Condition="'$(DebugSymbols)'=='true'">$(XtensiveOrmWeaverParameters) /processDebugSymbols:true</XtensiveOrmWeaverParameters>
-    <XtensiveOrmWeaverParameters Condition="$(SignAssembly)=='true'">$(XtensiveOrmWeaverParameters) /strongNameKey:"$(AssemblyOriginatorKeyFile)"</XtensiveOrmWeaverParameters>
-    <XtensiveOrmWeaverParameters>$(XtensiveOrmWeaverParameters) @(ReferencePath -> '/reference:"%(FullPath)"', ' ')</XtensiveOrmWeaverParameters>
+    <XtensiveOrmWeaverCmd>"$(XtensiveOrmWeaver)" /input:"@(IntermediateAssembly -> '%(FullPath)')" /makeBackup:true /writeStampFile:true</XtensiveOrmWeaverCmd>
+    <XtensiveOrmWeaverCmd Condition="'$(DebugSymbols)'=='true'">$(XtensiveOrmWeaverCmd) /processDebugSymbols:true</XtensiveOrmWeaverCmd>
+    <XtensiveOrmWeaverCmd Condition="'$(SignAssembly)'=='true'">$(XtensiveOrmWeaverCmd) /strongNameKey:"$(AssemblyOriginatorKeyFile)"</XtensiveOrmWeaverCmd>
+    <XtensiveOrmWeaverCmd>$(XtensiveOrmWeaverCmd) @(ReferencePath -> '/reference:"%(FullPath)"', ' ')</XtensiveOrmWeaverCmd>
   </PropertyGroup>
-  <Exec Command="$(XtensiveOrmWeaver) $(XtensiveOrmWeaverParameters)"
+  <Exec Command="$(XtensiveOrmWeaverCmd)"
         WorkingDirectory="$(MSBuildProjectDirectory)"
         IgnoreExitCode="true" />
 </Target>
