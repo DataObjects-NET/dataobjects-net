@@ -72,7 +72,7 @@ namespace Xtensive.Conversion
     // Destructor
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// Releases resources associated with this instance.
     /// </summary>
     public void Dispose()
     {

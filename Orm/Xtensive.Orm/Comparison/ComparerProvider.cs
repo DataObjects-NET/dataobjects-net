@@ -7,13 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using Xtensive.Core;
 using Xtensive.Reflection;
-using Xtensive.Collections;
-
-using Xtensive.IoC;
-
 
 namespace Xtensive.Comparison
 {
@@ -21,9 +16,6 @@ namespace Xtensive.Comparison
   /// Default <see cref="IComparer{T}"/> provider. 
   /// Provides default comparer for the specified type.
   /// </summary>
-  /// <remarks>
-  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
-  /// </remarks>
   [Serializable]
   public class ComparerProvider : AssociateProvider,
     IComparerProvider
@@ -31,7 +23,9 @@ namespace Xtensive.Comparison
     private static readonly ComparerProvider defaultProvider = new ComparerProvider();
     private static readonly SystemComparerProvider systemProvider = SystemComparerProvider.Instance;
 
-    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    /// <summary>
+    /// Gets default instance of this type.
+    /// </summary>
     public static ComparerProvider Default
     {
       [DebuggerStepThrough]

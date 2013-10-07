@@ -167,7 +167,9 @@ namespace Xtensive.IoC
 
     // IDisposable implementation
 
-    /// <see cref="DisposableDocTemplate.Dispose()"/>
+    /// <summary>
+    /// Releases resources associated with this instance.
+    /// </summary>
     public virtual void Dispose()
     {
     }

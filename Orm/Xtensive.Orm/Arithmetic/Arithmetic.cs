@@ -18,9 +18,6 @@ namespace Xtensive.Arithmetic
   /// Provides delegates allowing to call <see cref="IArithmetic{T}"/> methods faster.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IArithmetic{T}"/> generic argument.</typeparam>
-  /// <remarks>
-  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
-  /// </remarks>
   [Serializable]
   public sealed class Arithmetic<T> : MethodCacheBase<IArithmetic<T>>
   {
@@ -98,7 +95,7 @@ namespace Xtensive.Arithmetic
     /// Creates a new instance of <see cref="Arithmetic{T}"/> 
     /// with specified arithmetic rules applied.
     /// </summary>
-    public Func<ArithmeticRules, Arithmetic<T>> ApplyRules;
+    public readonly Func<ArithmeticRules, Arithmetic<T>> ApplyRules;
 
 
     // Constructors

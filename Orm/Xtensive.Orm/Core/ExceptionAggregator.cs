@@ -354,7 +354,9 @@ namespace Xtensive.Core
 
     // Descructor
 
-    /// <see cref="ClassDocTemplate.Dispose" copy="true"/>
+    /// <summary>
+    /// Releases resources associated with this instance.
+    /// </summary>
     /// <exception cref="AggregateException">Thrown if at least one exception was caught 
     /// by <see cref="Execute"/> methods.</exception>
     public void Dispose()

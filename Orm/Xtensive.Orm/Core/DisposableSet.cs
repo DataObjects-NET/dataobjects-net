@@ -87,7 +87,9 @@ namespace Xtensive.Core
     {
     }
 
-    /// <see cref="ClassDocTemplate.Dispose"/>
+    /// <summary>
+    /// Releases resources associated with this instance.
+    /// </summary>
     void IDisposable.Dispose() 
     {
       try {

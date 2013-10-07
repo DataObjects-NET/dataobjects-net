@@ -16,15 +16,14 @@ namespace Xtensive.Tuples.Transform
   /// <summary>
   /// Describes read-only tuple transformation.
   /// </summary>
-  /// <remarks>
-  /// <para id="About"><see cref="SingletonDocTemplate" copy="true" /></para>
-  /// </remarks>
   [Serializable]
   public sealed class ReadOnlyTransform : TupleTransformBase
   {
     private static readonly ReadOnlyTransform instance = new ReadOnlyTransform();
 
-    /// <see cref="SingletonDocTemplate.Instance" copy="true"/>
+    /// <summary>
+    /// Gets the only instance of this type.
+    /// </summary>
     public static ReadOnlyTransform Instance {
       [DebuggerStepThrough]
       get { return instance; }

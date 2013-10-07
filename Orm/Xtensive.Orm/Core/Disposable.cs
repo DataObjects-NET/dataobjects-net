@@ -45,7 +45,10 @@ namespace Xtensive.Core
 
     // Destructor
 
-    /// <see cref="DisposableDocTemplate.Dispose(bool)" copy="true" />
+    /// <summary>
+    /// Releases resources associated with this instance.
+    /// </summary>
+    /// <param name="disposing"></param>
     protected virtual void Dispose(bool disposing) 
     {
       onDispose(disposing);
@@ -53,8 +56,10 @@ namespace Xtensive.Core
         GC.SuppressFinalize(this); 
     }
 
-    /// <see cref="DisposableDocTemplate.Dispose()" copy="true" />
-    public void Dispose() 
+    /// <summary>
+    /// Releases resources associated with this instance.
+    /// </summary>
+    public void Dispose()
     {
       Dispose(true);
     }

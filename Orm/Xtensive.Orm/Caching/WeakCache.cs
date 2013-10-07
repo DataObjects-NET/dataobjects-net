@@ -10,10 +10,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
-
 
 namespace Xtensive.Caching
 {
@@ -248,7 +246,7 @@ namespace Xtensive.Caching
 
     #endregion
 
-    #region Private \ internal methods
+    #region Private / internal methods
 
     private void RegisterOperation(int weight)
     {
@@ -281,7 +279,7 @@ namespace Xtensive.Caching
     // Dispose pattern
 
     /// <summary>
-    /// <see cref="DisposableDocTemplate.Dispose(bool)" copy="true"/>
+    /// Releases resources associated with this instance.
     /// </summary>
     [SecuritySafeCritical]
     protected virtual void Dispose(bool disposing)
@@ -297,7 +295,7 @@ namespace Xtensive.Caching
     }
 
     /// <summary>
-    /// <see cref="DisposableDocTemplate.Dispose()" copy="true"/>
+    /// Releases resources associated with this instance.
     /// </summary>
     public void Dispose()
     {
@@ -306,7 +304,7 @@ namespace Xtensive.Caching
     }
 
     /// <summary>
-    /// <see cref="DisposableDocTemplate.Dtor" copy="true"/>
+    /// Releases resources associated with this instance.
     /// /// </summary>
     ~WeakCache()
     {

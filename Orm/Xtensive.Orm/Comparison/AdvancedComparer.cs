@@ -9,11 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Security.Permissions;
-using System.Threading;
 using Xtensive.Core;
-
-
 
 namespace Xtensive.Comparison
 {
@@ -21,9 +17,6 @@ namespace Xtensive.Comparison
   /// Provides delegates allowing to call comparison methods faster.
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IAdvancedComparer{T}"/> generic argument.</typeparam>
-  /// <remarks>
-  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
-  /// </remarks>
   [Serializable]
   public sealed class AdvancedComparer<T>: MethodCacheBase<IAdvancedComparer<T>>
   {

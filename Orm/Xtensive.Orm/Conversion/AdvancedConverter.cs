@@ -19,9 +19,6 @@ namespace Xtensive.Conversion
   /// </summary>
   /// <typeparam name="TFrom">Type of the first <see cref="IAdvancedConverter{TFrom,TTo}"/> generic argument.</typeparam>
   /// <typeparam name="TTo">Type of the second <see cref="IAdvancedConverter{TFrom,TTo}"/> generic argument.</typeparam>
-  /// <remarks>
-  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
-  /// </remarks>
   [Serializable]
   public sealed class AdvancedConverter<TFrom, TTo> : MethodCacheBase<IAdvancedConverter<TFrom, TTo>>
   {

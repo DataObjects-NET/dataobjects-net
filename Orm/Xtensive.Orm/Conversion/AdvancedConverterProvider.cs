@@ -18,9 +18,6 @@ namespace Xtensive.Conversion
   /// Default <see cref="IAdvancedConverter{TFrom,TTo}"/> provider. 
   /// Provides default converter for specified types.
   /// </summary>
-  /// <remarks>
-  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
-  /// </remarks>
   [Serializable]
   public class AdvancedConverterProvider : AssociateProvider, IAdvancedConverterProvider
   {
@@ -32,7 +29,9 @@ namespace Xtensive.Conversion
     [ThreadStatic]
     private static readonly Dictionary<Pair<Type>, bool> inProgress = new Dictionary<Pair<Type>, bool>();
 
-    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    /// <summary>
+    /// Gets default instance of this type.
+    /// </summary>
     public static IAdvancedConverterProvider Default
     {
       [DebuggerStepThrough]

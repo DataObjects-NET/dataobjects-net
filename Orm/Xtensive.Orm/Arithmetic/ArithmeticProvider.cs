@@ -16,9 +16,6 @@ namespace Xtensive.Arithmetic
   /// Default <see cref="IArithmetic{T}"/> provider. 
   /// Provides default arithmetic for the specified type.
   /// </summary>
-  /// <remarks>
-  /// <para id="About"><see cref="HasStaticDefaultDocTemplate" copy="true" /></para>
-  /// </remarks>
   /// <assert>
   /// <summary>
   /// Default <see cref="IArithmetic{T}"/> provider. 
@@ -37,7 +34,9 @@ namespace Xtensive.Arithmetic
   {
     private static readonly ArithmeticProvider @default = new ArithmeticProvider();
 
-    /// <see cref="HasStaticDefaultDocTemplate.Default" copy="true" />
+    /// <summary>
+    /// Gets default instance of this type.
+    /// </summary>
     public static IArithmeticProvider Default
     {
       [DebuggerStepThrough]
