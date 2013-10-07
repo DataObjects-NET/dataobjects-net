@@ -114,7 +114,7 @@ namespace Xtensive.Core
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="name">The <see cref="Name"/> property value.</param>
     /// <param name="expectedValue">The expected value of this parameter.</param>
@@ -128,7 +128,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="name">The <see cref="Name"/> property value.</param>
     [DebuggerStepThrough]

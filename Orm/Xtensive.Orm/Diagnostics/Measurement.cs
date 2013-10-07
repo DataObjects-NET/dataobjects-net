@@ -144,7 +144,7 @@ namespace Xtensive.Diagnostics
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public Measurement()
       : this(MeasurementOptions.Default)
@@ -152,7 +152,7 @@ namespace Xtensive.Diagnostics
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="operationCount">The operation count.</param>
     public Measurement(int operationCount)
@@ -161,7 +161,7 @@ namespace Xtensive.Diagnostics
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="name">The measurement name.</param>
     public Measurement(string name)
@@ -170,7 +170,7 @@ namespace Xtensive.Diagnostics
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="name">The measurement  name.</param>
     /// <param name="operationCount">The operation count.</param>
@@ -180,7 +180,7 @@ namespace Xtensive.Diagnostics
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="options">The measurement options.</param>
     public Measurement(MeasurementOptions options)
@@ -189,7 +189,7 @@ namespace Xtensive.Diagnostics
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="options">The measurement options.</param>
     /// <param name="operationCount">The operation count.</param>
@@ -199,7 +199,7 @@ namespace Xtensive.Diagnostics
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="name">The measurement name.</param>
     /// <param name="options">The measurement options.</param>
@@ -209,7 +209,7 @@ namespace Xtensive.Diagnostics
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="name">The measurement name.</param>
     /// <param name="options">The measurement options.</param>

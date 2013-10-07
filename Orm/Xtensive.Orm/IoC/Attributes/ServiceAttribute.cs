@@ -48,7 +48,7 @@ namespace Xtensive.IoC
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="type">The type of the service.</param>
     public ServiceAttribute(Type type)
@@ -57,7 +57,7 @@ namespace Xtensive.IoC
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="type">The type of the service.</param>
     /// <param name="name">The name of the service.</param>

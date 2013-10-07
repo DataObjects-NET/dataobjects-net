@@ -18,14 +18,14 @@ namespace Xtensive.Core
   public class ActivationException : Exception
   {
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public ActivationException()
     {
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="message">The message.</param>
     public ActivationException(string message) 
@@ -34,7 +34,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///	Initializes new instance of this type.
     /// </summary>
     /// <param name="message">The message.</param>
     /// <param name="innerException">The inner exception.</param>

@@ -95,7 +95,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="provider">A value for <see cref="Provider"/>.</param>
     /// <param name="connectionString">A value for <see cref="ConnectionString"/>.</param>
@@ -109,7 +109,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="connectionUrl">A value for <see cref="ConnectionUrl"/>.</param>
     public ConnectionInfo(UrlInfo connectionUrl)
@@ -121,7 +121,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///	Initializes new instance of this type.
     /// </summary>
     /// <param name="connectionUrl">The connection URL.</param>
     public ConnectionInfo(string connectionUrl)

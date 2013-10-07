@@ -322,7 +322,7 @@ namespace Xtensive.IoC
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public ServiceContainer()
       : this(null, null)
@@ -330,7 +330,7 @@ namespace Xtensive.IoC
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="configuration">The configuration.</param>
     public ServiceContainer(IEnumerable<ServiceRegistration> configuration)
@@ -339,7 +339,7 @@ namespace Xtensive.IoC
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="configuration">The configuration.</param>
     /// <param name="parent">The parent container.</param>

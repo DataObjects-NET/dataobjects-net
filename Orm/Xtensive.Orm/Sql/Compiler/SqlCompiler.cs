@@ -1639,7 +1639,7 @@ namespace Xtensive.Sql.Compiler
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="driver">The driver.</param>
     protected SqlCompiler(SqlDriver driver)

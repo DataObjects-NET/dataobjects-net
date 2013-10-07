@@ -133,7 +133,7 @@ namespace Xtensive.Modelling.Actions
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     protected NodeAction()
     {

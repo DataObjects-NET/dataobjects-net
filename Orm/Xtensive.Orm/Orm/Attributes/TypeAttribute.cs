@@ -25,7 +25,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="type">The type.</param>
     public TypeAttribute(Type type)

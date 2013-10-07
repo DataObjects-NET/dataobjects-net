@@ -45,7 +45,7 @@ namespace Xtensive.Collections
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="exactType">If set to <see langword="true"/>, exact item type is used as classifier;
     /// otherwise all its base types and interfaces are used.</param>
@@ -55,7 +55,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="exactType">If set to <see langword="true"/>, exact item type is used as classifier;
     /// otherwise all its base types and interfaces are used.</param>

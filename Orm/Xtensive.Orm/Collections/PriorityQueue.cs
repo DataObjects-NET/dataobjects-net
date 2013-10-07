@@ -275,7 +275,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public PriorityQueue()
       : this(Direction.Positive)
@@ -283,7 +283,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="direction">Initial <see cref="Direction"/> property value.</param>
     public PriorityQueue(Direction direction)
@@ -293,7 +293,7 @@ namespace Xtensive.Collections
 
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="direction">Initial <see cref="Direction"/> property value.</param>
     /// <param name="initialCapacity">Initial <see cref="Capacity"/> property value.</param>
@@ -303,7 +303,7 @@ namespace Xtensive.Collections
     }
  
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="direction">Initial <see cref="Direction"/> property value.</param>
     /// <param name="initialCapacity">Initial <see cref="Capacity"/> property value.</param>

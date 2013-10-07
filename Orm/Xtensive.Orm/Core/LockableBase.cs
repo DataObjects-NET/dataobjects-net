@@ -50,7 +50,7 @@ namespace Xtensive.Core
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     protected LockableBase()
       : this (false)
@@ -58,7 +58,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="isLocked">Initial <see cref="IsLocked"/> property value.</param>
     protected LockableBase(bool isLocked)

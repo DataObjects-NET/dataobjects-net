@@ -52,7 +52,7 @@ namespace Xtensive.Core
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes new instance of this type.
     /// </summary>
     /// <param name="disposable1">The first disposable.</param>
     /// <param name="disposable2">The second disposable.</param>

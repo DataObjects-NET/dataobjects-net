@@ -265,7 +265,7 @@ namespace Xtensive.Caching
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="maxSize"><see cref="MaxSize"/> property value.</param>
     /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>

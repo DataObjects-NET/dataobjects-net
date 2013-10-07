@@ -147,7 +147,7 @@ namespace Xtensive.Sql.Info
     public abstract int GetStringIndexingBase();
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="driver">The driver.</param>
     protected ServerInfoProvider(SqlDriver driver)

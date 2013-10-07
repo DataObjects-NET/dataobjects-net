@@ -110,7 +110,7 @@ namespace Xtensive.Conversion
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="biconverter">The biconverter.</param>
     public Biconverter(IBiconverter<TFrom, TTo> biconverter)

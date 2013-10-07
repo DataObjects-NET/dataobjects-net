@@ -376,7 +376,7 @@ namespace Xtensive.Modelling
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="parent"><see cref="Parent"/> property value.</param>
     /// <param name="name"><see cref="Name"/> property value.</param>

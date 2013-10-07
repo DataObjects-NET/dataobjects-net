@@ -61,7 +61,7 @@ namespace Xtensive.Sorting
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="source">The source.</param>
     /// <param name="destination">The destination.</param>
@@ -72,7 +72,7 @@ namespace Xtensive.Sorting
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="source">The source.</param>
     /// <param name="destination">The destination.</param>

@@ -98,7 +98,7 @@ namespace Xtensive.Modelling.Actions
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="path">The <see cref="Path"/> value.</param>
     public PathNodeReference(string path)

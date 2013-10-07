@@ -16,7 +16,7 @@ namespace Xtensive.Diagnostics
   public class LogImplementation : LogImplementationBase
   {
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="realLog">Real log to wrap.</param>
     public LogImplementation(IRealLog realLog)

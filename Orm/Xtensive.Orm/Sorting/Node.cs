@@ -181,7 +181,7 @@ namespace Xtensive.Sorting
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="item">The item.</param>
     public Node(TNodeItem item)

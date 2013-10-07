@@ -202,7 +202,7 @@ namespace Xtensive.Modelling
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="propertyInfo">The property info this accessor is bound to.</param>
     public PropertyAccessor(PropertyInfo propertyInfo)

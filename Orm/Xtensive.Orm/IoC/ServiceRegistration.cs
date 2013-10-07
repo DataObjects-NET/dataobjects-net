@@ -98,7 +98,7 @@ namespace Xtensive.IoC
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="type">The type of the service.</param>
     /// <param name="mappedInstance">The instance it is mapped to.</param>
@@ -108,7 +108,7 @@ namespace Xtensive.IoC
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="type">The type of the service.</param>
     /// <param name="name">The name of the service.</param>
@@ -123,7 +123,7 @@ namespace Xtensive.IoC
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="type">The type of the service.</param>
     /// <param name="mappedType">The type it is mapped to.</param>
@@ -134,7 +134,7 @@ namespace Xtensive.IoC
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="type">The type of the service.</param>
     /// <param name="name">The name of the service.</param>

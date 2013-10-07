@@ -108,7 +108,7 @@ namespace Xtensive.Modelling.Comparison
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <exception cref="InvalidOperationException">No current Comparer.</exception>
     public ComparisonContext()

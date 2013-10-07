@@ -78,7 +78,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes new instance of this type.
     /// </summary>
     /// <param name="model">The model.</param>
     /// <param name="path">The path.</param>

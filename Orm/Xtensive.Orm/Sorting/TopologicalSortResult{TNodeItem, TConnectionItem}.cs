@@ -25,7 +25,7 @@ namespace Xtensive.Sorting
     public List<Node<TNodeItem, TConnectionItem>> Loops { get; private set;}
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="result">The sorting result.</param>
     /// <param name="loops">The found loops.</param>

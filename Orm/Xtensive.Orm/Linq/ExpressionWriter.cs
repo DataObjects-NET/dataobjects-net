@@ -598,7 +598,7 @@ namespace Xtensive.Linq
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="writer">The writer to write to.</param>
     public ExpressionWriter(TextWriter writer)
@@ -607,7 +607,7 @@ namespace Xtensive.Linq
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="writer">The writer to write to.</param>
     /// <param name="indentSize">Size of the indent to use.</param>

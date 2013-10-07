@@ -68,7 +68,7 @@ namespace Xtensive.Sql.Model
     // Constructors
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public NodeCollection()
       : this(0)
@@ -76,7 +76,7 @@ namespace Xtensive.Sql.Model
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="capacity">The initial collection capacity.</param>
     public NodeCollection(int capacity)

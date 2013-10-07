@@ -67,7 +67,7 @@ namespace Xtensive.Collections.Graphs
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public Edge()
     {

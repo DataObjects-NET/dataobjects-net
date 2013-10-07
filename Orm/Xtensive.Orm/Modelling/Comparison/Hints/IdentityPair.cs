@@ -39,7 +39,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="source">The source node path.</param>
     /// <param name="target">The target node path.</param>

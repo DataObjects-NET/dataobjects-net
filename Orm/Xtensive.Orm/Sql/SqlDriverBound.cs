@@ -19,7 +19,7 @@ namespace Xtensive.Sql
     public SqlDriver Driver { get; private set; }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="driver">The driver.</param>
     public SqlDriverBound(SqlDriver driver)

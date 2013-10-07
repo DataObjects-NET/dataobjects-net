@@ -56,7 +56,7 @@ namespace Xtensive.Conversion
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="innerEnumerator">The inner enumerator.</param>
     /// <param name="converter">The converter.</param>

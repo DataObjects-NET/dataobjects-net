@@ -41,7 +41,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="path">The ignored node path.</param>
     public IgnoreHint(string path)

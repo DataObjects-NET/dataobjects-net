@@ -150,14 +150,14 @@ namespace Xtensive.IoC
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     protected ServiceContainerBase()
     {
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="parent"><see cref="Parent"/> property value.</param>
     protected ServiceContainerBase(IServiceContainer parent)

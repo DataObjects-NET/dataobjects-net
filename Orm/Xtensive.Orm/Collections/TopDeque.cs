@@ -291,7 +291,7 @@ namespace Xtensive.Collections
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public TopDeque()
     {
@@ -300,7 +300,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="capacity">The initial capacity.</param>
     public TopDeque(int capacity)
@@ -310,7 +310,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="keyComparer">The key comparer.</param>
     public TopDeque(IEqualityComparer<K> keyComparer)
@@ -320,7 +320,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="keyComparer">The key comparer.</param>
     /// <param name="capacity">The initial capacity.</param>

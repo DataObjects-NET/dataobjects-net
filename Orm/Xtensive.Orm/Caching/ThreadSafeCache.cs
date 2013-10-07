@@ -153,7 +153,7 @@ namespace Xtensive.Caching
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="chainedCache">The chained cache.</param>
     /// <param name="syncRoot">The sync root.</param>
@@ -165,7 +165,7 @@ namespace Xtensive.Caching
     }
 
     /// <summary>
-    ///	<see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///	Initializes new instance of this type.
     /// </summary>
     /// <param name="chainedCache">The chained cache.</param>
     public ThreadSafeCache(ICache<TKey, TItem> chainedCache)

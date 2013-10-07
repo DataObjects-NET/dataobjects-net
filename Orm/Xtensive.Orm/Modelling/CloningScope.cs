@@ -48,7 +48,7 @@ namespace Xtensive.Modelling
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="context">The context.</param>
     public CloningScope(CloningContext context)

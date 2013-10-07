@@ -38,7 +38,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes new instance of this type.
     /// </summary>
     /// <param name="targetType">Target type.</param>
     /// <param name="conflictHandlingMethod">The conflict handling method.</param>
@@ -49,7 +49,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    ///   <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    ///   Initializes new instance of this type.
     /// </summary>
     /// <param name="targetType">Target type.</param>
     public CompilerContainerAttribute(Type targetType)

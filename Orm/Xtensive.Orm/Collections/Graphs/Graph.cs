@@ -86,7 +86,7 @@ namespace Xtensive.Collections.Graphs
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public Graph()
     {
@@ -94,7 +94,7 @@ namespace Xtensive.Collections.Graphs
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="nodes">Graph nodes.</param>
     public Graph(List<TNode> nodes)
@@ -103,7 +103,7 @@ namespace Xtensive.Collections.Graphs
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="nodes">Graph nodes.</param>
     public Graph(IEnumerable<TNode> nodes)

@@ -263,7 +263,7 @@ namespace Xtensive.Linq
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     protected ExpressionVisitor()
       : this(false)
@@ -271,7 +271,7 @@ namespace Xtensive.Linq
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="isCaching">Indicates whether visit result 
     /// should be cached and resolved by cache when possible.</param>

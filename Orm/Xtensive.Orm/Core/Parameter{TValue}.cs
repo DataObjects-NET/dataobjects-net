@@ -59,7 +59,7 @@ namespace Xtensive.Core
     {}
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="expectedValue">The expected value of this parameter.</param>
     [DebuggerStepThrough]
@@ -75,7 +75,7 @@ namespace Xtensive.Core
 
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="onOutOfScope">Out of scope action. 
     /// Action argument is parameter's value within disposed scope.</param>
@@ -84,7 +84,7 @@ namespace Xtensive.Core
     {}
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="onOutOfScope">Out of scope action. 
     /// Action argument is parameter's value within disposed scope.</param>
@@ -94,7 +94,7 @@ namespace Xtensive.Core
     {}
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="name">The <see cref="Parameter.Name"/> property value.</param>
     /// <param name="onOutOfScope">Out of scope action. 
@@ -106,7 +106,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="name">The <see cref="Parameter.Name"/> property value.</param>
     /// <param name="onOutOfScope">Out of scope action. 

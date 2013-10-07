@@ -44,7 +44,7 @@ namespace Xtensive.Reflection
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="source">The source mapping.</param>
     public InterfaceMapping(ReflectionInterfaceMapping source)

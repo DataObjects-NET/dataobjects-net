@@ -87,14 +87,14 @@ namespace Xtensive.Sql.Dml
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public SqlColumnCollection()
     {
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public SqlColumnCollection(IList<SqlColumn> list)
       : base(list)

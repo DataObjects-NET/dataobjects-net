@@ -71,7 +71,7 @@ namespace Xtensive.Tuples.Transform.Internals
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="transform">The transform.</param>
     /// <param name="sources">Source tuples.</param>

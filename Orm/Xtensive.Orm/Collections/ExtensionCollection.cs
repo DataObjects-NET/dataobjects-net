@@ -136,14 +136,14 @@ namespace Xtensive.Collections
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public ExtensionCollection()
     {
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="source">The source to copy into this collection.</param>
     public ExtensionCollection(IExtensionCollection source)

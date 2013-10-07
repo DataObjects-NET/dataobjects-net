@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="parent">The parent.</param>
     public ColumnInfoCollection(Node parent)

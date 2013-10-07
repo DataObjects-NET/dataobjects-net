@@ -104,7 +104,7 @@ namespace Xtensive.Arithmetic
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="info">The info.</param>
     /// <param name="context">The context.</param>
@@ -126,7 +126,7 @@ namespace Xtensive.Arithmetic
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="implementation"><see cref="MethodCacheBase{TImplementation}.Implementation"/> property value.</param>
     public Arithmetic(IArithmetic<T> implementation)

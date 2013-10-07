@@ -36,7 +36,7 @@ namespace Xtensive.Modelling.Actions
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="context">The context.</param>
     public ActionHandlerScope(ActionHandler context)

@@ -56,7 +56,7 @@ namespace Xtensive.Sql.Info
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="minValue">The min value.</param>
     /// <param name="maxValue">The max value.</param>
@@ -66,7 +66,7 @@ namespace Xtensive.Sql.Info
     }
     
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="minValue">The min value.</param>
     /// <param name="maxValue">The max value.</param>

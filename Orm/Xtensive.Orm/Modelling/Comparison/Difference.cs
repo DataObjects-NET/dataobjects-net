@@ -59,7 +59,7 @@ namespace Xtensive.Modelling.Comparison
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="source">The <see cref="Source"/> value.</param>
     /// <param name="target">The <see cref="Target"/> value.</param>

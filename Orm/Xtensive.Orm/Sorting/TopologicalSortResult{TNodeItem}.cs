@@ -23,7 +23,7 @@ namespace Xtensive.Sorting
     public List<TNodeItem> Result { get; private set;}
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="result">The sorting result.</param>
     public TopologicalSortResult(List<TNodeItem> result)

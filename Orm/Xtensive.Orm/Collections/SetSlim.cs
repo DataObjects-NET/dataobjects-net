@@ -31,7 +31,7 @@ namespace Xtensive.Collections
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public SetSlim()
       : this((IEqualityComparer<TItem>)null)
@@ -39,7 +39,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="comparer">The equality comparer to use.</param>
     public SetSlim(IEqualityComparer<TItem> comparer)
@@ -50,7 +50,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="items">Collection to copy the items from.</param>
     public SetSlim(IEnumerable<TItem> items)
@@ -67,7 +67,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="items">Collection to copy the items from.</param>
     /// <param name="comparer">The equality comparer to use.</param>

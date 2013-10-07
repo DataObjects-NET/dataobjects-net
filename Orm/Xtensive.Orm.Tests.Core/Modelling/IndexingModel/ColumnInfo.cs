@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="table">The parent table.</param>
     /// <param name="name">The name.</param>
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="table">The parent table.</param>
     /// <param name="name">The column name.</param>

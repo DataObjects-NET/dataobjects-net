@@ -115,7 +115,7 @@ namespace Xtensive.Core
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="offset">Segment offset.</param>
     /// <param name="length">Segment length.</param>

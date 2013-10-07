@@ -18,7 +18,7 @@ namespace Xtensive.Modelling.Attributes
   internal sealed class SystemPropertyAttribute : Attribute
   {
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     internal SystemPropertyAttribute()
     {

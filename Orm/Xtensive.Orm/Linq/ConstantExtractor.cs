@@ -85,7 +85,7 @@ namespace Xtensive.Linq
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="lambda">An expression to process.</param>
     public ConstantExtractor(LambdaExpression lambda)
@@ -94,7 +94,7 @@ namespace Xtensive.Linq
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="lambda">An expression to process.</param>
     /// <param name="constantFilter">The constant filter.

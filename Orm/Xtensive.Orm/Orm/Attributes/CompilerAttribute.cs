@@ -49,7 +49,7 @@ namespace Xtensive.Orm
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="targetType">Type of the target.</param>
     /// <param name="targetMember">The target method.</param>
@@ -62,7 +62,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="targetTypeAssemblyQualifiedName">Assembly qualified name of target type.</param>
     /// <param name="targetMember">The target method.</param>
@@ -75,7 +75,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="targetType">Type of the target.</param>
     /// <param name="targetMember">The target member.</param>
@@ -89,7 +89,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="targetTypeAssemblyQualifiedName">Assembly qualified name of target type.</param>
     /// <param name="targetMember">The target member.</param>
@@ -103,7 +103,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="targetType">Type of the target.</param>
     /// <param name="targetMember">The target member.</param>
@@ -117,7 +117,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="targetTypeAssemblyQualifiedName">Assembly qualified name of target type.</param>
     /// <param name="targetMember">The target member.</param>
@@ -131,7 +131,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="targetType">Type of the target.</param>
     /// <param name="targetMember">The target member.</param>
@@ -146,7 +146,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="targetTypeAssemblyQualifiedName">Assembly qualified name of target type.</param>
     /// <param name="targetMember">The target member.</param>

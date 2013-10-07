@@ -101,7 +101,7 @@ namespace Xtensive.Modelling
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="node"><see cref="Node"/> property value.</param>
     /// <param name="propertyName"><see cref="Nesting.PropertyName"/> property value.</param>
@@ -111,7 +111,7 @@ namespace Xtensive.Modelling
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="node"><see cref="Node"/> property value.</param>
     public Nesting(TNode node)

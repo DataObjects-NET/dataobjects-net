@@ -84,7 +84,7 @@ namespace Xtensive.Comparison
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public CastingComparer(AdvancedComparer<TSource> sourceComparer)
       : base(sourceComparer.Provider, sourceComparer.ComparisonRules)

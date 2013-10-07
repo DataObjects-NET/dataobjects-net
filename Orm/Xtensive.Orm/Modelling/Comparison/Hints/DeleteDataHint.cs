@@ -40,7 +40,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public DeleteDataHint(string sourceTablePath,  IList<IdentityPair> identities)
       : base(sourceTablePath, identities)
@@ -48,7 +48,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="postCopy"><see cref="PostCopy"/> property value.</param>
     public DeleteDataHint(string sourceTablePath,  IList<IdentityPair> identities, bool postCopy)

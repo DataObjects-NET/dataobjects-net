@@ -144,7 +144,7 @@ namespace Xtensive.Collections
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="classifier">The classifier function.</param>
     public ClassifiedCollection(Func<TItem, TClass[]> classifier)
@@ -153,7 +153,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="classifier">The classifier function.</param>
     /// <param name="isSet">Indicates whether this instance behaves like a set.</param>

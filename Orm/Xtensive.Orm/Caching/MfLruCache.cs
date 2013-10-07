@@ -398,7 +398,7 @@ namespace Xtensive.Caching
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="lruCapacity">The <see cref="LruCapacity"/> property value.</param>
     /// <param name="mfuCapacity">The <see cref="MfuCapacity"/> property value.</param>
@@ -409,7 +409,7 @@ namespace Xtensive.Caching
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="lruCapacity">The <see cref="LruCapacity"/> property value.</param>
     /// <param name="mfuCapacity">The <see cref="MfuCapacity"/> property value.</param>

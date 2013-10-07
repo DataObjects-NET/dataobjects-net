@@ -32,7 +32,7 @@ namespace Xtensive.Diagnostics
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="name">Log name.</param>
     public DebugOnlyConsoleLog(string name)

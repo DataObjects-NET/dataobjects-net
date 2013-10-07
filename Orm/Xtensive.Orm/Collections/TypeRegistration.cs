@@ -97,7 +97,7 @@ namespace Xtensive.Collections
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="type">The type to register.</param>
     public TypeRegistration(Type type)
@@ -107,7 +107,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="assembly">The assembly to register.</param>
     public TypeRegistration(Assembly assembly)
@@ -117,7 +117,7 @@ namespace Xtensive.Collections
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="assembly">The assembly to register.</param>
     /// <param name="namespace">The namespace to register.</param>

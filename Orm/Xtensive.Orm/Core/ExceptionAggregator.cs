@@ -325,7 +325,7 @@ namespace Xtensive.Core
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public ExceptionAggregator()
       : this(null, null)
@@ -333,7 +333,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="exceptionMessage">The message of <see cref="AggregateException"/>.</param>
     public ExceptionAggregator(string exceptionMessage)
@@ -342,7 +342,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="exceptionHandler">The exception handler.</param>
     /// <param name="exceptionMessage">The message of <see cref="AggregateException"/>.</param>

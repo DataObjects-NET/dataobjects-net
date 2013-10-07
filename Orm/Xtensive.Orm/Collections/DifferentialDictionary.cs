@@ -305,7 +305,7 @@ namespace Xtensive.Collections
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="origin">The original dictionary.</param>
     public DifferentialDictionary(IDictionary<TKey, TValue> origin)

@@ -69,7 +69,7 @@ namespace Xtensive.Core
     // Constructors
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="initialContent">The initial content.</param>
     public DisposableSet(IEnumerable initialContent)
@@ -81,7 +81,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.Ctor" copy="true"/>
+    /// Initializes new instance of this type.
     /// </summary>
     public DisposableSet()
     {
