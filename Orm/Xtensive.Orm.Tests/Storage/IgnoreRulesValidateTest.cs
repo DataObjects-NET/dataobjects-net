@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Tests.Storage.IgnoreRulesValidateModel1
     [Field, Key]
     public long Id { get; private set; }
 
-    [Field]
+    [Field(Length = 100)]
     public string SomeIgnoredField { get; set; }
 
     [Field]
@@ -268,7 +268,8 @@ namespace Xtensive.Orm.Tests.Storage
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
-      CreateColumn(catalog, "dbo", "MyEntity2", "SimpleIgnoredColumn", SqlType.VarChar);
+      var schema = catalog.DefaultSchema.Name;
+      CreateColumn(catalog, schema, "MyEntity2", "SimpleIgnoredColumn", new SqlValueType(SqlType.VarChar, 25));
       IgnoreRuleCollection ignoreRuleCollection = new IgnoreRuleCollection();
       ignoreRuleCollection.IgnoreColumn("SimpleIgnoredColumn").WhenTable("MyEntity2");
       var validatedDomain = BuildDomain(DomainUpgradeMode.Validate, typeof (Model3.MyEntity1), ignoreRuleCollection);
@@ -282,10 +283,11 @@ namespace Xtensive.Orm.Tests.Storage
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
-      CreateColumn(catalog, "dbo", "MyEntity2", "ReferencedIgnoredColumn", SqlType.Int64);
-      CreateForeignKey(catalog, "dbo", "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID");
+      var schema = catalog.DefaultSchema.Name;
+      CreateColumn(catalog, schema, "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64));
+      CreateForeignKey(catalog, schema, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity1_MyEntity1ID");
       var ignoreRuleCollection = new IgnoreRuleCollection();
-      ignoreRuleCollection.IgnoreColumn("ReferencedIgnoredColumn").WhenTable("MyEntity2").WhenSchema("dbo");
+      ignoreRuleCollection.IgnoreColumn("ReferencedIgnoredColumn").WhenTable("MyEntity2").WhenSchema(schema);
       var validatedDomain = BuildDomain(DomainUpgradeMode.Validate, typeof (Model3.MyEntity1), ignoreRuleCollection);
       validatedDomain.Dispose();
     }
@@ -298,10 +300,11 @@ namespace Xtensive.Orm.Tests.Storage
       initialDomain.Dispose();
 
       Catalog catalog = GetCatalog();
+      var schema = catalog.DefaultSchema.Name;
       var addedColumnsNames = new[] {"Id", "FirstColumn"};
-      var addedColumnsTypes = new[] {SqlType.Int32, SqlType.VarChar};
-      CreateTable(catalog, "dbo", "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
-      CreatePrimaryKey(catalog, "dbo", "MyIgnoredEntity", "Id", "PK_MyIgnoredEntity_Id");
+      var addedColumnsTypes = new[] {new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.VarChar, 25)};
+      CreateTable(catalog, schema, "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
+      CreatePrimaryKey(catalog, schema, "MyIgnoredEntity", "Id", "PK_MyIgnoredEntity_Id");
       var ignoreRules = new IgnoreRuleCollection();
       ignoreRules.IgnoreTable("MyIgnoredEntity");
       var validateDomain = BuildDomain(DomainUpgradeMode.Validate, typeof (Model3.MyEntity1), ignoreRules);
@@ -316,11 +319,12 @@ namespace Xtensive.Orm.Tests.Storage
       initialDomain.Dispose();
 
       Catalog catalog = GetCatalog();
+      var schema = catalog.DefaultSchema.Name;
       var addedColumnsNames = new[] {"Id", "FirstColumn", "MyEntity2Id"};
-      var addedColumnsTypes = new[] {SqlType.Int32, SqlType.VarChar, SqlType.Int64};
-      CreateTable(catalog, "dbo", "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
-      CreatePrimaryKey(catalog, "dbo", "MyIgnoredEntity", "Id", "PK_MyIgnoredEntity_Id");
-      CreateForeignKey(catalog, "dbo", "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id");
+      var addedColumnsTypes = new[] {new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.VarChar, 25), new SqlValueType(SqlType.Int64)};
+      CreateTable(catalog, schema, "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
+      CreatePrimaryKey(catalog, schema, "MyIgnoredEntity", "Id", "PK_MyIgnoredEntity_Id");
+      CreateForeignKey(catalog, schema, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id");
       var ignoreRules = new IgnoreRuleCollection();
       ignoreRules.IgnoreTable("MyIgnoredEntity");
       var validateDomain = BuildDomain(DomainUpgradeMode.Validate, typeof (Model3.MyEntity1), ignoreRules);
@@ -335,20 +339,21 @@ namespace Xtensive.Orm.Tests.Storage
       initialDomain.Dispose();
 
       Catalog catalog = GetCatalog();
-      CreateColumn(catalog, "dbo", "Myentity2", "SimpleIgnoredColumn", SqlType.VarChar);
+      var schema = catalog.DefaultSchema.Name;
+      CreateColumn(catalog, schema, "Myentity2", "SimpleIgnoredColumn", new SqlValueType(SqlType.VarChar, 25));
       IgnoreRuleCollection ignoreRuleCollection = new IgnoreRuleCollection();
       ignoreRuleCollection.IgnoreColumn("SimpleIgnoredColumn").WhenTable("MyEntity2");
       using (var validatedDomain = BuildDomain(DomainUpgradeMode.Validate, typeof (Model3.MyEntity1), ignoreRuleCollection))
       using (var session = validatedDomain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        new Model3.MyEntity2() { FirstColumn = "some test" };
+        new Model3.MyEntity2 {FirstColumn = "some test"};
         transaction.Complete();
       }
-      ValidateMyEntity(catalog, "dbo");
+      ValidateMyEntity(catalog, schema);
     }
 
     [Test]
-    [ExpectedException(typeof(CheckConstraintViolationException))]
+    [ExpectedException(typeof (CheckConstraintViolationException))]
     public void InsertIntoTableWithNotNullableIgnoredColumnTest()
     {
       ClearMultidatabaseAndMultischemaFlags();
@@ -356,30 +361,35 @@ namespace Xtensive.Orm.Tests.Storage
       initialDomain.Dispose();
 
       Catalog catalog = GetCatalog();
-      catalog.Schemas["dbo"].Tables["MyEntity2"].CreateColumn("SimpleIgnoredColumn", new SqlValueType(SqlType.VarChar, 30)).IsNullable = false;
-      SqlAlterTable alter = SqlDdl.Alter(catalog.Schemas["dbo"].Tables["MyEntity2"],
-        SqlDdl.AddColumn(catalog.Schemas["dbo"].Tables["MyEntity2"].TableColumns["SimpleIgnoredColumn"]));
+      var schema = catalog.Schemas[catalog.DefaultSchema.Name];
+      if (schema == null)
+        schema = catalog.Schemas[0];
+
+      schema.Tables["MyEntity2"].CreateColumn("SimpleIgnoredColumn", new SqlValueType(SqlType.VarChar, 30)).IsNullable = false;
+      SqlAlterTable alter = SqlDdl.Alter(schema.Tables["MyEntity2"],
+        SqlDdl.AddColumn(schema.Tables["MyEntity2"].TableColumns["SimpleIgnoredColumn"]));
       var commandText = sqlDriver.Compile(alter).GetCommandText();
       ExecuteNonQuery(commandText);
       IgnoreRuleCollection ignoreRuleCollection = new IgnoreRuleCollection();
-      ignoreRuleCollection.IgnoreColumn("SimpleIgnoredColumn").WhenTable("MyEntity2");
+      ignoreRuleCollection.IgnoreColumn("SimpleIgnoredColumn").WhenTable("MyEntity2").WhenSchema(schema.Name);
       using (var validatedDomain = BuildDomain(DomainUpgradeMode.Validate, typeof (Model3.MyEntity1), ignoreRuleCollection))
       using (var session = validatedDomain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        new Model3.MyEntity2 { FirstColumn = "some test" };
+        new Model3.MyEntity2 {FirstColumn = "some test"};
         transaction.Complete();
       }
     }
 
     [Test]
-    [ExpectedException(typeof(SchemaSynchronizationException))]
+    [ExpectedException(typeof (SchemaSynchronizationException))]
     public void DropTableWithIgnoredColumnTest()
     {
       ClearMultidatabaseAndMultischemaFlags();
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
-      CreateColumn(catalog, "dbo", "MyEntity2", "SimpleIgnoredColumn", SqlType.VarChar);
+      var schema = catalog.DefaultSchema.Name;
+      CreateColumn(catalog, schema, "MyEntity2", "SimpleIgnoredColumn", new SqlValueType(SqlType.VarChar, 25));
       IgnoreRuleCollection ignoreRuleCollection = new IgnoreRuleCollection();
       ignoreRuleCollection.IgnoreColumn("SimpleIgnoredColumn").WhenTable("MyEntity2");
       var performDomain = BuildDomain(DomainUpgradeMode.Perform, typeof (Model4.MyEntity1), ignoreRuleCollection);
@@ -387,18 +397,19 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    [ExpectedException(typeof(SchemaSynchronizationException))]
+    [ExpectedException(typeof (SchemaSynchronizationException))]
     public void DropReferencedTableTest()
     {
       ClearMultidatabaseAndMultischemaFlags();
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
-      CreateColumn(catalog, "dbo", "MyEntity2", "ReferencedIgnoredColumn", SqlType.Int64);
-      CreateForeignKey(catalog, "dbo", "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID");
+      var schema = catalog.DefaultSchema.Name;
+      CreateColumn(catalog, schema, "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64));
+      CreateForeignKey(catalog, schema, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity1_MyEntity1ID");
       var ignoreRuleCollection = new IgnoreRuleCollection();
-      ignoreRuleCollection.IgnoreColumn("ReferencedIgnoredColumn").WhenTable("MyEntity2").WhenSchema("dbo");
-      var performDomain = BuildDomain(DomainUpgradeMode.Perform, typeof(Model4.MyEntity1), ignoreRuleCollection);
+      ignoreRuleCollection.IgnoreColumn("ReferencedIgnoredColumn").WhenTable("MyEntity2").WhenSchema(schema);
+      var performDomain = BuildDomain(DomainUpgradeMode.Perform, typeof (Model4.MyEntity1), ignoreRuleCollection);
       performDomain.Dispose();
     }
 
@@ -409,9 +420,10 @@ namespace Xtensive.Orm.Tests.Storage
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
-      CreateColumn(catalog, "dbo", "MyEntity2", "IgnoreFirstColumn", SqlType.VarChar);
-      CreateColumn(catalog, "dbo", "MyEntity2", "IgnoreSecondColumn", SqlType.VarChar);
-      CreateColumn(catalog, "dbo", "MyEntity2", "IgnoreThirdColumn", SqlType.VarChar);
+      var schema = catalog.DefaultSchema.Name;
+      CreateColumn(catalog, schema, "MyEntity2", "IgnoreFirstColumn", new SqlValueType(SqlType.VarChar, 25));
+      CreateColumn(catalog, schema, "MyEntity2", "IgnoreSecondColumn", new SqlValueType(SqlType.VarChar, 25));
+      CreateColumn(catalog, schema, "MyEntity2", "IgnoreThirdColumn", new SqlValueType(SqlType.VarChar, 25));
       var ignoreRules = new IgnoreRuleCollection();
       ignoreRules.IgnoreColumn("Ignore*");
       var validateDomain = BuildDomain(DomainUpgradeMode.Validate, typeof (Model3.MyEntity1), ignoreRules);
@@ -425,12 +437,13 @@ namespace Xtensive.Orm.Tests.Storage
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
+      var schema = catalog.DefaultSchema.Name;
       var addedColumnsNames = new[] {"Id", "FirstColumn", "SecondColumn"};
-      var addedColumnsTypes = new[] {SqlType.Int64, SqlType.VarChar, SqlType.VarChar};
-      CreateTable(catalog, "dbo", "IgnoredFirstTable", addedColumnsNames, addedColumnsTypes);
-      CreatePrimaryKey(catalog, "dbo", "IgnoredFirstTable", "Id", "PK_IgnoredFirstTable_Id");
-      CreateTable(catalog, "dbo", "IgnoredSecondTable", addedColumnsNames, addedColumnsTypes);
-      CreatePrimaryKey(catalog, "dbo", "IgnoredSecondTable", "Id", "PK_IgnoredSecondTable_Id");
+      var addedColumnsTypes = new[] {new SqlValueType(SqlType.Int64), new SqlValueType(SqlType.VarChar, 25), new SqlValueType(SqlType.VarChar, 25)};
+      CreateTable(catalog, schema, "IgnoredFirstTable", addedColumnsNames, addedColumnsTypes);
+      CreatePrimaryKey(catalog, schema, "IgnoredFirstTable", "Id", "PK_IgnoredFirstTable_Id");
+      CreateTable(catalog, schema, "IgnoredSecondTable", addedColumnsNames, addedColumnsTypes);
+      CreatePrimaryKey(catalog, schema, "IgnoredSecondTable", "Id", "PK_IgnoredSecondTable_Id");
       var ignoreRules = new IgnoreRuleCollection();
       ignoreRules.IgnoreTable("Ignored*");
       var validateDomain = BuildDomain(DomainUpgradeMode.Validate, typeof (Model3.MyEntity1), ignoreRules);
@@ -444,10 +457,11 @@ namespace Xtensive.Orm.Tests.Storage
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
+      var schema = catalog.DefaultSchema.Name;
       var addedColumnsNames = new[] {"Id", "FirstColumn", "SecondColumn"};
-      var addedColumnsTypes = new[] {SqlType.Int64, SqlType.VarChar, SqlType.VarChar};
-      CreateTable(catalog, "dbo", "IgnoredTable", addedColumnsNames, addedColumnsTypes);
-      CreatePrimaryKey(catalog, "dbo", "IgnoredTable", "Id", "PK_IgnoredTable_Id");
+      var addedColumnsTypes = new[] {new SqlValueType(SqlType.Int64), new SqlValueType(SqlType.VarChar, 25), new SqlValueType(SqlType.VarChar, 25)};
+      CreateTable(catalog, schema, "IgnoredTable", addedColumnsNames, addedColumnsTypes);
+      CreatePrimaryKey(catalog, schema, "IgnoredTable", "Id", "PK_IgnoredTable_Id");
       var ignoreRules = new IgnoreRuleCollection();
       ignoreRules.IgnoreColumn("*").WhenTable("IgnoredTable");
       var validateDomain = BuildDomain(DomainUpgradeMode.Validate, typeof (Model3.MyEntity1), ignoreRules);
@@ -460,8 +474,11 @@ namespace Xtensive.Orm.Tests.Storage
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
-      CreateColumn(catalog, "dbo", "MyEntity2", "IgnoredFirstColumn", SqlType.VarChar);
-      CreateColumn(catalog, "dbo", "MyEntity2", "IgnoredSecondColumn", SqlType.VarChar);
+      var schema = catalog.Schemas[catalog.DefaultSchema.Name];
+      if (schema == null)
+        schema = catalog.Schemas[0];
+      CreateColumn(catalog, schema.Name, "MyEntity2", "IgnoredFirstColumn", new SqlValueType(SqlType.VarChar, 25));
+      CreateColumn(catalog, schema.Name, "MyEntity2", "IgnoredSecondColumn", new SqlValueType(SqlType.VarChar, 25));
       var ignoreRules = new IgnoreRuleCollection();
       ignoreRules.IgnoreColumn("Ignored*").WhenTable("MyEntity2");
       using (var domain = BuildDomain(DomainUpgradeMode.Perform, typeof (Model3.MyEntity1), ignoreRules))
@@ -471,7 +488,7 @@ namespace Xtensive.Orm.Tests.Storage
         new Model3.MyEntity2 {FirstColumn = "Second some test"};
         transaction.Complete();
       }
-      SqlTableRef myEntity2 = SqlDml.TableRef(catalog.Schemas["dbo"].Tables["MyEntity2"]);
+      SqlTableRef myEntity2 = SqlDml.TableRef(schema.Tables["MyEntity2"]);
       SqlSelect select = SqlDml.Select(myEntity2);
       var compileConfiguration = new SqlCompilerConfiguration();
       compileConfiguration.DatabaseQualifiedObjects = false;
@@ -487,18 +504,21 @@ namespace Xtensive.Orm.Tests.Storage
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       Catalog catalog = GetCatalog();
-      CreateColumn(catalog, "dbo", "MyEntity2", "IgnoredFirstColumn", SqlType.VarChar);
-      CreateColumn(catalog, "dbo", "MyEntity2", "IgnoredSecondColumn", SqlType.VarChar);
+      var schema = catalog.Schemas[catalog.DefaultSchema.Name];
+      if (schema == null)
+        schema = catalog.Schemas[0];
+      CreateColumn(catalog, schema.Name, "MyEntity2", "IgnoredFirstColumn", new SqlValueType(SqlType.VarChar, 25));
+      CreateColumn(catalog, schema.Name, "MyEntity2", "IgnoredSecondColumn", new SqlValueType(SqlType.VarChar, 25));
       var ignoreRules = new IgnoreRuleCollection();
       ignoreRules.IgnoreColumn("Ignored*");
       using (var domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof (Model3.MyEntity1), ignoreRules))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        new Model3.MyEntity1 { FirstColumn = "Some text" };
-        new Model3.MyEntity2 { FirstColumn = "Second some test" };
+        new Model3.MyEntity1 {FirstColumn = "Some text"};
+        new Model3.MyEntity2 {FirstColumn = "Second some test"};
         transaction.Complete();
       }
-      SqlTableRef myEntity2 = SqlDml.TableRef(catalog.Schemas["dbo"].Tables["MyEntity2"]);
+      SqlTableRef myEntity2 = SqlDml.TableRef(schema.Tables["MyEntity2"]);
       SqlSelect select = SqlDml.Select(myEntity2);
       var compileConfiguration = new SqlCompilerConfiguration();
       compileConfiguration.DatabaseQualifiedObjects = false;
@@ -511,17 +531,17 @@ namespace Xtensive.Orm.Tests.Storage
     public void MultischemaValidateTest()
     {
       SetMultischema();
-      Require.AllFeaturesSupported(ProviderFeatures.Multischema);
+      Require.AllFeaturesSupported(ProviderFeatures.Multischema | ProviderFeatures.Multidatabase);
       var catalog = GetCatalog();
       CreateSchema(catalog, "Model1");
       CreateSchema(catalog, "Model2");
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model1.Customer), typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       catalog = GetCatalog();
-      CreateColumn(catalog, "Model2", "MyEntity2", "ReferencedIgnoredColumn", SqlType.Int64);
+      CreateColumn(catalog, "Model2", "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64));
       CreateForeignKey(catalog, "Model2", "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID");
       var addedColumnsNames = new[] {"Id", "FirstColumn", "MyEntity2Id"};
-      var addedColumnsTypes = new[] {SqlType.Int32, SqlType.VarChar, SqlType.Int64};
+      var addedColumnsTypes = new[] {new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.VarChar, 25), new SqlValueType(SqlType.Int64)};
       CreateTable(catalog, "Model2", "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
       CreatePrimaryKey(catalog, "Model2", "MyIgnoredEntity", "Id", "PK_MyIgnoreTable_Id");
       CreateForeignKey(catalog, "Model2", "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id");
@@ -546,10 +566,10 @@ namespace Xtensive.Orm.Tests.Storage
       var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model1.Customer), typeof (Model3.MyEntity1));
       initialDomain.Dispose();
       var secondCatalog = GetCatalog(Multimapping.MultidatabaseTest.Database2Name);
-      CreateColumn(secondCatalog, "dbo", "MyEntity2", "ReferencedIgnoredColumn", SqlType.Int64, true);
+      CreateColumn(secondCatalog, "dbo", "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64), true);
       CreateForeignKey(secondCatalog, "dbo", "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID", true);
       var addedColumnsNames = new[] {"Id", "FirstColumn", "MyEntity2Id"};
-      var addedColumnsTypes = new[] {SqlType.Int32, SqlType.VarChar, SqlType.Int64};
+      var addedColumnsTypes = new[] {new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.VarChar, 25), new SqlValueType(SqlType.Int64)};
       CreateTable(secondCatalog, "dbo", "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes, true);
       CreatePrimaryKey(secondCatalog, "dbo", "MyIgnoredEntity", "Id", "PK_MyIgnoreTable_Id", true);
       CreateForeignKey(secondCatalog, "dbo", "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id", true);
@@ -568,7 +588,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void MultischemaUpgrageInPerformModeTest()
     {
       SetMultischema();
-      Require.AllFeaturesSupported(ProviderFeatures.Multischema);
+      Require.AllFeaturesSupported(ProviderFeatures.Multischema | ProviderFeatures.Multidatabase);
       isMultischemaTest = true;
       var catalog = GetCatalog();
       CreateSchema(catalog, "Model1");
@@ -576,10 +596,10 @@ namespace Xtensive.Orm.Tests.Storage
       BuildDomainAndFillData();
 
       catalog = GetCatalog();
-      CreateColumn(catalog, "Model2", "MyEntity2", "ReferencedIgnoredColumn", SqlType.Int64);
+      CreateColumn(catalog, "Model2", "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64));
       CreateForeignKey(catalog, "Model2", "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID");
       var addedColumnsNames = new[] {"Id", "FirstColumn", "MyEntity2Id"};
-      var addedColumnsTypes = new[] {SqlType.Int32, SqlType.VarChar, SqlType.Int64};
+      var addedColumnsTypes = new[] {new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.VarChar, 25), new SqlValueType(SqlType.Int64)};
       CreateTable(catalog, "Model2", "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
       CreatePrimaryKey(catalog, "Model2", "MyIgnoredEntity", "Id", "PK_MyIgnoreTable_Id");
       CreateForeignKey(catalog, "Model2", "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id");
@@ -603,7 +623,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void MultischemaUpgrageInPerformSafelyModeTest()
     {
       SetMultischema();
-      Require.AllFeaturesSupported(ProviderFeatures.Multischema);
+      Require.AllFeaturesSupported(ProviderFeatures.Multischema | ProviderFeatures.Multidatabase);
       isMultischemaTest = true;
       var catalog = GetCatalog();
       CreateSchema(catalog, "Model1");
@@ -611,10 +631,10 @@ namespace Xtensive.Orm.Tests.Storage
       BuildDomainAndFillData();
 
       catalog = GetCatalog();
-      CreateColumn(catalog, "Model2", "MyEntity2", "ReferencedIgnoredColumn", SqlType.Int64);
+      CreateColumn(catalog, "Model2", "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64));
       CreateForeignKey(catalog, "Model2", "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID");
       var addedColumnsNames = new[] {"Id", "FirstColumn", "MyEntity2Id"};
-      var addedColumnsTypes = new[] {SqlType.Int32, SqlType.VarChar, SqlType.Int64};
+      var addedColumnsTypes = new[] {new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.VarChar, 25), new SqlValueType(SqlType.Int64)};
       CreateTable(catalog, "Model2", "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
       CreatePrimaryKey(catalog, "Model2", "MyIgnoredEntity", "Id", "PK_MyIgnoreTable_Id");
       CreateForeignKey(catalog, "Model2", "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id");
@@ -643,10 +663,10 @@ namespace Xtensive.Orm.Tests.Storage
       BuildDomainAndFillData();
 
       var secondCatalog = GetCatalog(Multimapping.MultidatabaseTest.Database2Name);
-      CreateColumn(secondCatalog, "dbo", "MyEntity2", "ReferencedIgnoredColumn", SqlType.Int64, true);
+      CreateColumn(secondCatalog, "dbo", "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64), true);
       CreateForeignKey(secondCatalog, "dbo", "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID", true);
       var addedColumnsNames = new[] {"Id", "FirstColumn", "MyEntity2Id"};
-      var addedColumnsTypes = new[] {SqlType.Int32, SqlType.VarChar, SqlType.Int64};
+      var addedColumnsTypes = new[] {new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.VarChar), new SqlValueType(SqlType.Int64)};
       CreateTable(secondCatalog, "dbo", "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes, true);
       CreatePrimaryKey(secondCatalog, "dbo", "MyIgnoredEntity", "Id", "PK_MyIgnoreTable_Id", true);
       CreateForeignKey(secondCatalog, "dbo", "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id", true);
@@ -675,10 +695,10 @@ namespace Xtensive.Orm.Tests.Storage
       BuildDomainAndFillData();
 
       var secondCatalog = GetCatalog(Multimapping.MultidatabaseTest.Database2Name);
-      CreateColumn(secondCatalog, "dbo", "MyEntity2", "ReferencedIgnoredColumn", SqlType.Int64, true);
+      CreateColumn(secondCatalog, "dbo", "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64), true);
       CreateForeignKey(secondCatalog, "dbo", "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID", true);
       var addedColumnsNames = new[] {"Id", "FirstColumn", "MyEntity2Id"};
-      var addedColumnsTypes = new[] {SqlType.Int32, SqlType.VarChar, SqlType.Int64};
+      var addedColumnsTypes = new[] {new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.VarChar, 25), new SqlValueType(SqlType.Int64)};
       CreateTable(secondCatalog, "dbo", "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes, true);
       CreatePrimaryKey(secondCatalog, "dbo", "MyIgnoredEntity", "Id", "PK_MyIgnoreTable_Id", true);
       CreateForeignKey(secondCatalog, "dbo", "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id", true);
@@ -709,15 +729,15 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     private Domain BuildDomain(DomainUpgradeMode mode, Type fstSourceType,
-      Type scndSourceType,  IgnoreRuleCollection ignoreRules = null)
+      Type scndSourceType, IgnoreRuleCollection ignoreRules = null)
     {
       var config = DomainConfigurationFactory.Create();
       config.UpgradeMode = mode;
       if (isMultischemaTest) {
-        config.MappingRules.Map(fstSourceType.Assembly,fstSourceType.Namespace).ToSchema("Model1");
+        config.MappingRules.Map(fstSourceType.Assembly, fstSourceType.Namespace).ToSchema("Model1");
         config.MappingRules.Map(scndSourceType.Assembly, scndSourceType.Namespace).ToSchema("Model2");
       }
-      else if(isMultidatabaseTest) {
+      else if (isMultidatabaseTest) {
         config.MappingRules.Map(fstSourceType.Assembly, fstSourceType.Namespace).ToDatabase(Multimapping.MultidatabaseTest.Database1Name);
         config.MappingRules.Map(scndSourceType.Assembly, scndSourceType.Namespace).ToDatabase(Multimapping.MultidatabaseTest.Database2Name);
       }
@@ -744,7 +764,7 @@ namespace Xtensive.Orm.Tests.Storage
         book.Authors.Add(author);
         var customer = new Model1.Customer {FirstName = "Алексей", LastName = "Кулаков", Birthday = new DateTime(1988, 8, 31)};
         var order = new Model1.Order {Book = book, Customer = customer, SomeIgnoredField = "Secret information for FBI :)"};
-        if(isMultidatabaseTest || isMultischemaTest) {
+        if (isMultidatabaseTest || isMultischemaTest) {
           new Model3.MyEntity1 {FirstColumn = "first"};
           new Model3.MyEntity2 {FirstColumn = "first"};
         }
@@ -773,25 +793,25 @@ namespace Xtensive.Orm.Tests.Storage
 
     private void UpgradeDomain(DomainUpgradeMode mode, IgnoreRuleCollection ignoreRules)
     {
-      using (var performDomain = BuildDomain(mode, typeof(Model2.Customer), typeof(Model3.MyEntity1), ignoreRules))
+      using (var performDomain = BuildDomain(mode, typeof (Model2.Customer), typeof(Model3.MyEntity1), ignoreRules))
       using (var session = performDomain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var currentCustomer = session.Query.All<Model2.Customer>().First(c => c.LastName == "Кулаков");
-        var order = session.Query.All<Model2.Order>().First(o => o.Customer.LastName == currentCustomer.LastName);
-        var newCustomer = new Model2.Customer { FirstName = "Fred", LastName = "Smith", Birthday = new DateTime(1998, 7, 9) };
+        var currentCustomer = session.Query.All<Model2.Customer>().First(c => c.LastName=="Кулаков");
+        var order = session.Query.All<Model2.Order>().First(o => o.Customer.LastName==currentCustomer.LastName);
+        var newCustomer = new Model2.Customer {FirstName = "Fred", LastName = "Smith", Birthday = new DateTime(1998, 7, 9)};
         order.Customer = newCustomer;
         changedOrderKey = order.Key;
-        var currentEntity = session.Query.All<Model3.MyEntity2>().First(ent => ent.FirstColumn == "first");
+        var currentEntity = session.Query.All<Model3.MyEntity2>().First(ent => ent.FirstColumn=="first");
         currentEntity.FirstColumn = "second";
         transaction.Complete();
       }
     }
-    
+
     private void BuildDomainInValidateMode()
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Validate;
-      configuration.Types.Register(typeof (Model1.Customer).Assembly, typeof (Model1.Customer).Namespace);
+      configuration.Types.Register(typeof(Model1.Customer).Assembly, typeof(Model1.Customer).Namespace);
       using (var domain = Domain.Build(configuration))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -805,7 +825,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var validateDomain = BuildDomain(DomainUpgradeMode.Validate, typeof(Model1.Customer), typeof(Model3.MyEntity1), ignoreRules))
       using (var session = validateDomain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var result = session.Query.All<Model1.Order>().First(o => o.Key == changedOrderKey);
+        var result = session.Query.All<Model1.Order>().First(o => o.Key==changedOrderKey);
         Assert.That(result.SomeIgnoredField, Is.EqualTo("Secret information for FBI :)"));
       }
     }
@@ -863,7 +883,10 @@ namespace Xtensive.Orm.Tests.Storage
 
     private void ValidateMyEntity(Catalog catalog, string schema, bool useDatabasePrefix = false)
     {
-      SqlTableRef myEntity2 = SqlDml.TableRef(catalog.Schemas[schema].Tables["MyEntity2"]);
+      var schemaForValidete = catalog.Schemas[schema];
+      if (schemaForValidete == null)
+        schemaForValidete = catalog.Schemas[0];
+      SqlTableRef myEntity2 = SqlDml.TableRef(schemaForValidete.Tables["MyEntity2"]);
       SqlSelect select = SqlDml.Select(myEntity2);
       var compileConfiguration = new SqlCompilerConfiguration();
       compileConfiguration.DatabaseQualifiedObjects = useDatabasePrefix;
@@ -874,11 +897,14 @@ namespace Xtensive.Orm.Tests.Storage
     private void CreateForeignKey(Catalog catalog, string schema, string table, string column, string referencedTable,
       string referencedColumn, string foreignKeyName, bool useDatabasePrefix = false)
     {
-      var foreignKey = catalog.Schemas[schema].Tables[table].CreateForeignKey(foreignKeyName);
-      foreignKey.Columns.Add(catalog.Schemas[schema].Tables[table].TableColumns[column]);
-      foreignKey.ReferencedTable = catalog.Schemas[schema].Tables[referencedTable];
-      foreignKey.ReferencedColumns.Add(catalog.Schemas[schema].Tables[referencedTable].TableColumns[referencedColumn]);
-      var alter = SqlDdl.Alter(catalog.Schemas[schema].Tables[table], SqlDdl.AddConstraint(foreignKey));
+      var schemaForAlter = catalog.Schemas[schema];
+      if (schemaForAlter == null)
+        schemaForAlter = catalog.Schemas[0];
+      var foreignKey = schemaForAlter.Tables[table].CreateForeignKey(foreignKeyName);
+      foreignKey.Columns.Add(schemaForAlter.Tables[table].TableColumns[column]);
+      foreignKey.ReferencedTable = schemaForAlter.Tables[referencedTable];
+      foreignKey.ReferencedColumns.Add(schemaForAlter.Tables[referencedTable].TableColumns[referencedColumn]);
+      var alter = SqlDdl.Alter(schemaForAlter.Tables[table], SqlDdl.AddConstraint(foreignKey));
       var sqlComplieConfig = new SqlCompilerConfiguration();
       sqlComplieConfig.DatabaseQualifiedObjects = useDatabasePrefix;
       string commandText = sqlDriver.Compile(alter, sqlComplieConfig).GetCommandText();
@@ -887,31 +913,40 @@ namespace Xtensive.Orm.Tests.Storage
 
     private void CreatePrimaryKey(Catalog catalog, string schema, string table, string column, string primaryKeyName, bool useDatabasePrefix = false)
     {
-      var primaryKey = catalog.Schemas[schema].Tables[table].CreatePrimaryKey(primaryKeyName,
-        catalog.Schemas[schema].Tables[table].TableColumns[column]);
-      var alter = SqlDdl.Alter(catalog.Schemas[schema].Tables[table], SqlDdl.AddConstraint(primaryKey));
+      var schemaForAlter = catalog.Schemas[schema];
+      if (schemaForAlter == null)
+        schemaForAlter = catalog.Schemas[0];
+      var primaryKey =schemaForAlter.Tables[table].CreatePrimaryKey(primaryKeyName,
+        schemaForAlter.Tables[table].TableColumns[column]);
+      var alter = SqlDdl.Alter(schemaForAlter.Tables[table], SqlDdl.AddConstraint(primaryKey));
       var sqlComplieConfig = new SqlCompilerConfiguration();
       sqlComplieConfig.DatabaseQualifiedObjects = useDatabasePrefix;
       string commandText = sqlDriver.Compile(alter, sqlComplieConfig).GetCommandText();
       ExecuteNonQuery(commandText);
     }
 
-    private void CreateColumn(Catalog catalog, string schema, string table, string columnName, SqlType columnType, bool useDatabasePrefix = false)
+    private void CreateColumn(Catalog catalog, string schema, string table, string columnName, SqlValueType columnType, bool useDatabasePrefix = false)
     {
-      var column = catalog.Schemas[schema].Tables[table].CreateColumn(columnName, new SqlValueType(columnType));
+      var schemaForAlter = catalog.Schemas[schema];
+      if (schemaForAlter==null)
+        schemaForAlter = catalog.Schemas[0];
+      var column = schemaForAlter.Tables[table].CreateColumn(columnName, columnType);
       column.IsNullable = true;
-      SqlAlterTable alter = SqlDdl.Alter(catalog.Schemas[schema].Tables[table], SqlDdl.AddColumn(column));
+      SqlAlterTable alter = SqlDdl.Alter(schemaForAlter.Tables[table], SqlDdl.AddColumn(column));
       var sqlComplieConfig = new SqlCompilerConfiguration();
       sqlComplieConfig.DatabaseQualifiedObjects = useDatabasePrefix;
       string commandText = sqlDriver.Compile(alter, sqlComplieConfig).GetCommandText();
       ExecuteNonQuery(commandText);
     }
 
-    private void CreateTable(Catalog catalog, string schema, string tableName, string[] columns, SqlType[] columnTypes, bool useDatabasePrefix = false)
+    private void CreateTable(Catalog catalog, string schema, string tableName, string[] columns, SqlValueType[] columnTypes, bool useDatabasePrefix = false)
     {
-      var table = catalog.Schemas[schema].CreateTable(tableName);
+      var schemaForAlter = catalog.Schemas[schema];
+      if (schemaForAlter == null)
+        schemaForAlter = catalog.Schemas[0];
+      var table = schemaForAlter.CreateTable(tableName);
       for (var i = 0; i < columns.Count(); i++) {
-        new TableColumn(table, columns[i], new SqlValueType(columnTypes[i]));
+        new TableColumn(table, columns[i], columnTypes[i]);
       }
       SqlCreateTable create = SqlDdl.Create(table);
       var sqlComplieConfig = new SqlCompilerConfiguration();
