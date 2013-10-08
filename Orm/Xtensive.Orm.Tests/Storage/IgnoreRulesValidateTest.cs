@@ -353,7 +353,6 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    [ExpectedException(typeof (CheckConstraintViolationException))]
     public void InsertIntoTableWithNotNullableIgnoredColumnTest()
     {
       ClearMultidatabaseAndMultischemaFlags();
@@ -372,12 +371,14 @@ namespace Xtensive.Orm.Tests.Storage
       ExecuteNonQuery(commandText);
       IgnoreRuleCollection ignoreRuleCollection = new IgnoreRuleCollection();
       ignoreRuleCollection.IgnoreColumn("SimpleIgnoredColumn").WhenTable("MyEntity2").WhenSchema(schema.Name);
-      using (var validatedDomain = BuildDomain(DomainUpgradeMode.Validate, typeof (Model3.MyEntity1), ignoreRuleCollection))
-      using (var session = validatedDomain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        new Model3.MyEntity2 {FirstColumn = "some test"};
-        transaction.Complete();
-      }
+      Assert.Throws(Is.InstanceOf(typeof (StorageException)), () => {
+        using (var validatedDomain = BuildDomain(DomainUpgradeMode.Validate, typeof (Model3.MyEntity1), ignoreRuleCollection))
+        using (var session = validatedDomain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          new Model3.MyEntity2 {FirstColumn = "some test"};
+          transaction.Complete();
+        }
+      });
     }
 
     [Test]
@@ -759,10 +760,10 @@ namespace Xtensive.Orm.Tests.Storage
         domain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model1.Customer));
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var author = new Model1.Author {FirstName = "Иван", LastName = "Гончаров", Birthday = new DateTime(1812, 6, 18)};
-        var book = new Model1.Book {ISBN = "9780140440409", Title = "Обломов"};
+        var author = new Model1.Author {FirstName = "Ivan", LastName = "Goncharov", Birthday = new DateTime(1812, 6, 18)};
+        var book = new Model1.Book {ISBN = "9780140440409", Title = "Oblomov"};
         book.Authors.Add(author);
-        var customer = new Model1.Customer {FirstName = "Алексей", LastName = "Кулаков", Birthday = new DateTime(1988, 8, 31)};
+        var customer = new Model1.Customer {FirstName = "Alexey", LastName = "Kulakov", Birthday = new DateTime(1988, 8, 31)};
         var order = new Model1.Order {Book = book, Customer = customer, SomeIgnoredField = "Secret information for FBI :)"};
         if (isMultidatabaseTest || isMultischemaTest) {
           new Model3.MyEntity1 {FirstColumn = "first"};
@@ -782,7 +783,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var domain = BuildDomain(mode, typeof (Model2.Customer), ignoreRules))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var currentCustomer = session.Query.All<Model2.Customer>().First(c => c.LastName=="Кулаков");
+        var currentCustomer = session.Query.All<Model2.Customer>().First(c => c.LastName=="Kulakov");
         var order = session.Query.All<Model2.Order>().First(o => o.Customer.LastName==currentCustomer.LastName);
         var newCustomer = new Model2.Customer {FirstName = "Fred", LastName = "Smith", Birthday = new DateTime(1998, 7, 9)};
         order.Customer = newCustomer;
