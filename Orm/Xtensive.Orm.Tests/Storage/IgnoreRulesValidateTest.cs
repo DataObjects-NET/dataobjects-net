@@ -797,7 +797,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var performDomain = BuildDomain(mode, typeof (Model2.Customer), typeof(Model3.MyEntity1), ignoreRules))
       using (var session = performDomain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var currentCustomer = session.Query.All<Model2.Customer>().First(c => c.LastName=="Кулаков");
+        var currentCustomer = session.Query.All<Model2.Customer>().First(c => c.LastName=="Kulakov");
         var order = session.Query.All<Model2.Order>().First(o => o.Customer.LastName==currentCustomer.LastName);
         var newCustomer = new Model2.Customer {FirstName = "Fred", LastName = "Smith", Birthday = new DateTime(1998, 7, 9)};
         order.Customer = newCustomer;
