@@ -358,6 +358,10 @@
     <Compile Include="Diagnostics\RuntimeInfo.cs" />
     <Compile Include="Diagnostics\StringLog.cs" />
     <Compile Include="Diagnostics\TextualLogImplementationBase.cs" />
+    <Compile Include="Orm\Configuration\Elements\LogElement.cs" />
+    <Compile Include="Orm\Configuration\Elements\LoggingElement.cs" />
+    <Compile Include="Orm\Configuration\LogConfiguration.cs" />
+    <Compile Include="Orm\Configuration\LoggingConfiguration.cs" />
     <Compile Include="Properties\Visibility.cs" />
     <Compile Include="IoC\Attributes\ServiceAttribute.cs" />
     <Compile Include="IoC\Attributes\ServiceConstructorAttribute.cs" />
