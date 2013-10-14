@@ -470,7 +470,7 @@ namespace Xtensive
 
   internal static class CoreLog
   {
-    private static string Name = "Xtensive.Core";
+    private static string Name = "Xtensive.Orm.Core";
     private static readonly BaseLog instance;
 
     public static BaseLog Instance {

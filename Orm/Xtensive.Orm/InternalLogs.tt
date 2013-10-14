@@ -134,6 +134,6 @@ namespace Xtensive
    new Tuple<string, string>("UpgradeLog", "Xtensive.Orm.Upgrade"), 
    new Tuple<string, string>("BuildLog", "Xtensive.Orm.Building"),
    new Tuple<string, string>("SqlLog", "Xtensive.Storage.Providers.Sql"),
-   new Tuple<string, string>("CoreLog", "Xtensive.Core"),
+   new Tuple<string, string>("CoreLog", "Xtensive.Orm.Core"),
    new Tuple<string, string>("TestLog", "Xtensive.Orm.Tests")};
  #>
