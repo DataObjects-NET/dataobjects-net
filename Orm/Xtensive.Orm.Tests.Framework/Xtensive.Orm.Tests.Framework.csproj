@@ -102,7 +102,6 @@
     <Compile Include="StorageTestHelper.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="TestInfo.cs" />
-    <Compile Include="TestLog.cs" />
     <Compile Include="TestSqlDriver.cs" />
     <Compile Include="TypeIdBehavior.cs" />
     <Compile Include="TypeIdModifier.cs" />

@@ -420,9 +420,9 @@ namespace Xtensive.Orm.Providers
       if (fixBooleanExpressions)
         booleanExpressionConverter = new BooleanExpressionConverter(driver);
       if (lambda.Parameters.Count!=sourceColumns.Length)
-        throw Exceptions.InternalError(Strings.ExParametersCountIsNotSameAsSourceColumnListsCount, Orm.OrmLog.Instance);
+        throw Exceptions.InternalError(Strings.ExParametersCountIsNotSameAsSourceColumnListsCount, OrmLog.Instance);
       if (sourceColumns.Any(list => list.Any(c => c.IsNullReference())))
-        throw Exceptions.InternalError(Strings.ExSourceColumnListContainsNullValues, Orm.OrmLog.Instance);
+        throw Exceptions.InternalError(Strings.ExSourceColumnListContainsNullValues, OrmLog.Instance);
       sourceMapping = new Dictionary<ParameterExpression, List<SqlExpression>>();
     }
   }

@@ -7,6 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Xtensive.Orm.Logging;
 using Xtensive.Reflection;
 using Xtensive.Diagnostics;
 using Xtensive.IoC;
@@ -26,7 +27,7 @@ namespace Xtensive.Core
     /// <param name="log"><see cref="ILog"/> instance to log the problem;
     /// <see langword="null"/> means logging is not necessary.</param>
     /// <returns>Newly created exception.</returns>
-    public static InvalidOperationException InternalError(string description, ILog log)
+    public static InvalidOperationException InternalError(string description, BaseLog log)
     {
       return (InvalidOperationException)
         log.Error(new InvalidOperationException(
