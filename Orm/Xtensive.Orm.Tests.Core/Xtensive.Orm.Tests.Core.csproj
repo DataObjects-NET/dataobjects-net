@@ -69,6 +69,10 @@
     <Compile Include="Caching\WeakestCacheTest.cs" />
     <Compile Include="Collections\FlagCollectionTest.cs" />
     <Compile Include="Collections\SetTestA.cs" />
+    <Compile Include="Logging\InternalLogProviderTests.cs" />
+    <Compile Include="Logging\LogManagerTests.cs" />
+    <Compile Include="Logging\WriteToLogInstanceTests.cs" />
+    <Compile Include="Logging\WriteToLogTests.cs" />
     <Compile Include="UrlInfoTest.cs" />
     <None Include="App.config">
       <SubType>Designer</SubType>
