@@ -8,7 +8,7 @@ using System;
 
 namespace Xtensive.Orm.Logging
 {
-  public sealed class ConsoleWriter : ILogWriter
+  internal sealed class ConsoleWriter : ILogWriter
   {
     /// <inheritdoc/>
     public void Write(LogEventInfo logEvent)

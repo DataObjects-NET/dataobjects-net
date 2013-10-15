@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace Xtensive.Orm.Logging
 {
-  public sealed class DebugOnlyConsoleWriter : ILogWriter
+  internal sealed class DebugOnlyConsoleWriter : ILogWriter
   {
     private bool debuggerIsAttached;
     private Timer debuggerAttachedRenewTimer;

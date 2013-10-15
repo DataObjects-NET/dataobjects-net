@@ -8,7 +8,7 @@ using System.IO;
 
 namespace Xtensive.Orm.Logging
 {
-  public sealed class FileWriter : ILogWriter
+  internal sealed class FileWriter : ILogWriter
   {
     private readonly string fileName;
 
