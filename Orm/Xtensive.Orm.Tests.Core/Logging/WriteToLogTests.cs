@@ -1,4 +1,10 @@
-﻿using System;
+﻿// Copyright (C) 2013 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2013.10.14
+
+using System;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
