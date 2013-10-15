@@ -4,6 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2013.09.27
 
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using Xtensive.Core;
@@ -41,7 +42,9 @@ namespace Xtensive.Orm.Configuration
     public static LoggingConfiguration Load()
     {
       var section = (ConfigurationSection)ConfigurationManager.GetSection("Xtensive.Orm");
-      var configuration = section != null ? section.Logging.ToNative() : new LoggingConfiguration();
+      if (section==null)
+        throw new InvalidOperationException(string.Format(Strings.ExSectionIsNotFoundInApplicationConfigurationFile, "Xtensive.Orm"));
+      var configuration = section.Logging.ToNative();
       return configuration;
     }
 
@@ -54,7 +57,9 @@ namespace Xtensive.Orm.Configuration
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, "sectionName");
       var section = (ConfigurationSection)ConfigurationManager.GetSection(sectionName);
-      var configuration = section != null ? section.Logging.ToNative() : new LoggingConfiguration();
+      if (section==null)
+        throw new InvalidOperationException(string.Format(Strings.ExSectionIsNotFoundInApplicationConfigurationFile, "Xtensive.Orm"));
+      var configuration = section.Logging.ToNative();
       return configuration;
     }
 
