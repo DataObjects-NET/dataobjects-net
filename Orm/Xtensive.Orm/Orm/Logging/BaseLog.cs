@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Logging
     {
       ArgumentValidator.EnsureArgumentNotNull(message, "message");
       string title = (parameters!=null) ? string.Format(message, parameters) : message;
-      Debug(string.Format(Strings.LogRegionBegin, title), null);
+      Info(string.Format(Strings.LogRegionBegin, title), null);
       if (indent==null)
         indent = "";
       var oldIndent = indent;
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Logging
       return new Disposable(
         delegate(bool disposing) {
           indent = oldIndent;
-          Debug(string.Format(Strings.LogRegionEnd, title), null);
+          Info(string.Format(Strings.LogRegionEnd, title), null);
         });
     }
 
