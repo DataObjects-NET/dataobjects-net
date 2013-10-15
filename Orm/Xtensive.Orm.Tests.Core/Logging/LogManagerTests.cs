@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Logging;
-using Xtensive.Orm.Logging.Internals;
 
 namespace Xtensive.Orm.Tests.Core.Logging
 {

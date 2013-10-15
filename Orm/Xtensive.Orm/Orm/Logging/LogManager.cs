@@ -9,7 +9,6 @@ using System.Configuration;
 using System.Runtime.CompilerServices;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Logging.Internals;
 using ConfigurationSection = Xtensive.Orm.Configuration.Elements.ConfigurationSection;
 
 namespace Xtensive.Orm.Logging

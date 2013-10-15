@@ -11,7 +11,7 @@ using Xtensive.Orm.Configuration;
 "f37c6a033d1a2a5354fc97226fc469128e49e6a479ac5d1dd69d7da5607d0dc4ede0765d477745" +
 "1034dc3a15f1532d010db3e633e62fc5e67a3ed175457acb9dc6c9d39ccc8ecfdaae62df34d488" +
 "c45009b2")]
-namespace Xtensive.Orm.Logging.Internals
+namespace Xtensive.Orm.Logging
 {
   
   internal sealed class InternalLogProvider : LogProvider

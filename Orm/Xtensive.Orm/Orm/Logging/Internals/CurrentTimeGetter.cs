@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Orm.Logging.Internals
+namespace Xtensive.Orm.Logging
 {
   internal sealed class CurrentTimeGetter
   {
