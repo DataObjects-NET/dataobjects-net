@@ -17,10 +17,7 @@ namespace Xtensive.Orm.Logging
     /// <inheritdoc/>
     public override IDisposable DebugRegion(string message, params object[] parameters)
     {
-      return new Disposable(
-        delegate(bool disposing)
-        {
-        });
+      return null;
     }
 
     /// <inheritdoc/>
