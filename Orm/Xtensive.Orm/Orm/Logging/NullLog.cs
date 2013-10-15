@@ -31,6 +31,12 @@ namespace Xtensive.Orm.Logging
     }
 
     /// <inheritdoc/>
+    public override IDisposable InfoRegion(string message, params object[] parameters)
+    {
+      return null;
+    }
+
+    /// <inheritdoc/>
     public override void Warn(string message, object[] parameters, Exception exception = null)
     {
     }
