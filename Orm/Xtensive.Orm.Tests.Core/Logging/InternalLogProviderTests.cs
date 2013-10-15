@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Tests.Core.Logging
     public void DefaultInitializationTest()
     {
       var logProvider = new InternalLogProvider();
-      var logger = logProvider.GetLog("dflgjljdfhldkfh");
+      var logger = logProvider.GetLog("someLogNameWhichDoesNotContainsInLogList");
       Assert.That(logger, Is.InstanceOf<NullLog>());
     }
 
