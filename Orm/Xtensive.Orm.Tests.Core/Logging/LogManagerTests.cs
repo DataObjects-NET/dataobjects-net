@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Core.Logging
     {
       var configuration = new LoggingConfiguration();
       var logs = new List<LogConfiguration>();
-      logs.Add(new LogConfiguration("FileLog", @"D:\log.txt"));
+      logs.Add(new LogConfiguration("FileLog", "log.txt"));
       logs.Add(new LogConfiguration("ConsoleLog", "Console"));
       logs.Add(new LogConfiguration("DebugOnlyConsoleLog, AnotherFileLog", "None"));
       configuration.Logs = logs;

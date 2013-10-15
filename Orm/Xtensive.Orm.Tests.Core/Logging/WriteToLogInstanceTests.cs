@@ -128,12 +128,15 @@ namespace Xtensive.Orm.Tests.Core.Logging
     [Test]
     public void WriteToFileAbsolutePath()
     {
-      string filePath = @"D:\log.txt";
+      string filePath = Path.GetFullPath("log.txt");
+      var localConfiguration = new LoggingConfiguration();
+      localConfiguration.Logs.Add(new LogConfiguration("FileLog", filePath));
+
       if (File.Exists(filePath))
         File.Delete(filePath);
       LogManager.Reset();
-      LogManager.Initialize(configuration);
-      var logger = LogManager.GetLog("FirstLogName");
+      LogManager.Initialize(localConfiguration);
+      var logger = LogManager.GetLog("FileLog");
 
       logger.Debug("Test message", null);
       logger.Debug("Test message with parameter {0}", new object[] { 1 });
