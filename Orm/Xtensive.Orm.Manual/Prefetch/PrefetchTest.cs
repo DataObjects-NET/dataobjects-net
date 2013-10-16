@@ -6,10 +6,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Orm.Configuration;
 using System.Linq;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Services;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Manual.Prefetch
 {
@@ -55,9 +55,8 @@ namespace Xtensive.Orm.Manual.Prefetch
     [Test]
     public void MainTest()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-        UpgradeMode = DomainUpgradeMode.Recreate
-      };
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
       var domain = Domain.Build(config);
 
@@ -118,9 +117,8 @@ namespace Xtensive.Orm.Manual.Prefetch
     [Test]
     public void MultipleBatchesTest()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-        UpgradeMode = DomainUpgradeMode.Recreate
-      };
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
       var domain = Domain.Build(config);
 

@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using NUnit.Framework;
-using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Manual.Entities
 {
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Manual.Entities
     [Test]
     public void MainTest()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(Product));
 //      config.Types.Register(typeof(Document).Assembly, typeof(Document).Namespace);

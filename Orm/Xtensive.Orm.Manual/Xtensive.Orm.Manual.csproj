@@ -95,6 +95,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Connections.config" />
     <None Include="FutureQueries\FutureQueries.sql" />
     <None Include="Prefetch\Prefetch.sql" />
     <None Include="Structures\DatabaseSchema.png" />

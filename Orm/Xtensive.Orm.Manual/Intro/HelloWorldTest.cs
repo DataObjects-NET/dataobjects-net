@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Manual.Intro.HelloWorld
 {
@@ -33,9 +34,7 @@ namespace Xtensive.Orm.Manual.Intro.HelloWorld
     public void MainTest()
     {
       // Creatign new Domain configuration
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-        UpgradeMode = DomainUpgradeMode.Recreate
-      };
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
       // Modifying it by registering the persistent types
       config.Types.Register(typeof(MyEntity).Assembly, typeof(MyEntity).Namespace);
       // And finally building the domain

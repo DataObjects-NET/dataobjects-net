@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Manual.Structures
 {
@@ -56,7 +57,7 @@ namespace Xtensive.Orm.Manual.Structures
     [Test]
     public void MainTest()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof (Range).Assembly, typeof (Range).Namespace);
       var domain = Domain.Build(config);

@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
-using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Manual.ModellingDomain.IndexAttribute_
 {
@@ -46,9 +45,8 @@ namespace Xtensive.Orm.Manual.ModellingDomain.IndexAttribute_
     [Test]
     public void MainTest()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-        UpgradeMode = DomainUpgradeMode.Recreate
-      };
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(Person));
       var domain = Domain.Build(config);
 

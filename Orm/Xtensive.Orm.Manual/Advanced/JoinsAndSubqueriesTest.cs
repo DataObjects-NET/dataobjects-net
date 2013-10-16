@@ -6,8 +6,8 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Orm.Configuration;
 using System.Linq;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Manual.Advanced.JoinsAndSubqueriesTest
 {
@@ -86,9 +86,8 @@ namespace Xtensive.Orm.Manual.Advanced.JoinsAndSubqueriesTest
     private Domain GetDomain()
     {
       if (existingDomain==null) {
-        var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-          UpgradeMode = DomainUpgradeMode.Recreate
-        };
+        var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+        config.UpgradeMode = DomainUpgradeMode.Recreate;
         config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
         var domain = Domain.Build(config);
 

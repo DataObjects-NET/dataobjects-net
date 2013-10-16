@@ -8,8 +8,8 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Services;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Manual.Services
 {
@@ -153,9 +153,7 @@ namespace Xtensive.Orm.Manual.Services
 
     private static Domain BuildDomain()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-        UpgradeMode = DomainUpgradeMode.Recreate
-      };
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
       config.Types.Register(typeof(Simple).Assembly, typeof(Simple).Namespace);
       return Domain.Build(config);
     }

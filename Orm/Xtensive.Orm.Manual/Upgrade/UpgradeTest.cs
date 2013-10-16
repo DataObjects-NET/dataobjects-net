@@ -9,7 +9,6 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
-using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Manual.Upgrade
 {
@@ -41,7 +40,7 @@ namespace Xtensive.Orm.Manual.Upgrade
 
     private void BuildFirstDomain()
     {
-      var domainConfig = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      var domainConfig = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
       domainConfig.Types.Register(myAssembly, typeof (Model_1.Order).Namespace);
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       var domain = Domain.Build(domainConfig);
@@ -61,7 +60,7 @@ namespace Xtensive.Orm.Manual.Upgrade
 
     private void BuildSecondDomain()
     {
-      var domainConfig = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      var domainConfig = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
       domainConfig.Types.Register(myAssembly, typeof (Model_2.Order).Namespace);
       domainConfig.UpgradeMode = DomainUpgradeMode.PerformSafely;
       var domain = Domain.Build(domainConfig);
@@ -88,7 +87,7 @@ namespace Xtensive.Orm.Manual.Upgrade
 
     public void BuildThirdDomain()
     {
-      var domainConfig = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      var domainConfig = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
       domainConfig.Types.Register(myAssembly, typeof (Model_3.Order).Namespace);
       domainConfig.UpgradeMode = DomainUpgradeMode.PerformSafely;
       var domain = Domain.Build(domainConfig);
@@ -109,7 +108,7 @@ namespace Xtensive.Orm.Manual.Upgrade
 
     public void BuildFourthDomain()
     {
-      var domainConfig = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      var domainConfig = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
       domainConfig.Types.Register(myAssembly, typeof (Model_4.Order).Namespace);
       domainConfig.UpgradeMode = DomainUpgradeMode.PerformSafely;
       var domain = Domain.Build(domainConfig);

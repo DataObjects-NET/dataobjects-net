@@ -12,6 +12,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Rse;
+using Xtensive.Orm.Tests;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Manual.Concurrency.Locking
@@ -164,9 +165,8 @@ namespace Xtensive.Orm.Manual.Concurrency.Locking
     private Domain GetDomain()
     {
       if (existingDomain==null) {
-        var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-          UpgradeMode = DomainUpgradeMode.Recreate
-        };
+        var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+        config.UpgradeMode = DomainUpgradeMode.Recreate;
         config.Sessions.Add(new SessionConfiguration("Default") {
           DefaultIsolationLevel = IsolationLevel.Serializable
         });

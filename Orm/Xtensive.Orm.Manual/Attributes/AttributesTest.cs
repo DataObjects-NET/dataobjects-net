@@ -8,8 +8,8 @@ using System;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.IoC;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Tests;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -139,9 +139,8 @@ namespace Xtensive.Orm.Manual.Attributes
     [Test]
     public void MainTest()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-        UpgradeMode = DomainUpgradeMode.Recreate
-      };
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof (Author).Assembly, typeof (Author).Namespace);
       var domain = Domain.Build(config);
 

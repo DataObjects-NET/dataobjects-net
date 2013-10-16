@@ -8,7 +8,6 @@ using System;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm;
-using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Manual.Transactions.NestedTransactions
 {
@@ -102,9 +101,8 @@ namespace Xtensive.Orm.Manual.Transactions.NestedTransactions
     public void MainTest()
     {
       // Creatign new Domain configuration
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-        UpgradeMode = DomainUpgradeMode.Recreate
-      };
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
       // Modifying it by registering the persistent types
       config.Types.Register(typeof(User).Assembly, typeof(User).Namespace);
       // And finally building the domain

@@ -11,8 +11,8 @@ using NUnit.Framework;
 using Xtensive.Caching;
 using Xtensive.Core;
 using Xtensive.Linq;
-using Xtensive.Orm.Configuration;
 using System.Linq;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Manual.Caching
 {
@@ -134,9 +134,8 @@ namespace Xtensive.Orm.Manual.Caching
     [Test]
     public void MainTest()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-        UpgradeMode = DomainUpgradeMode.Recreate
-      };
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(Product).Assembly, typeof(Product).Namespace);
       config.Types.Register(typeof(CustomLinqCompilerContainer));
       var domain = Domain.Build(config);

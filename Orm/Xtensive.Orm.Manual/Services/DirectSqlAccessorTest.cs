@@ -9,7 +9,6 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Tests;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Services;
 
 namespace Xtensive.Orm.Manual.Services
@@ -39,7 +38,7 @@ namespace Xtensive.Orm.Manual.Services
     [Test]
     public void CombinedTest()
     {
-      var domain = BuildDomain(true);
+      var domain = BuildDomain();
 
       using (var session = domain.OpenSession()) {
         var directSql = session.Services.Demand<DirectSqlAccessor>();
@@ -67,18 +66,10 @@ namespace Xtensive.Orm.Manual.Services
       }
     }
 
-    private static Domain BuildDomain(bool sql)
+    private static Domain BuildDomain()
     {
-      DomainConfiguration config;
-      if (sql)
-        config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-          UpgradeMode = DomainUpgradeMode.Recreate
-        };
-      else
-        config = new DomainConfiguration("memory://localhost/DO40-Tests")  {
-          UpgradeMode = DomainUpgradeMode.Recreate
-        };
-
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(Simple).Assembly, typeof(Simple).Namespace);
       return Domain.Build(config);
     }

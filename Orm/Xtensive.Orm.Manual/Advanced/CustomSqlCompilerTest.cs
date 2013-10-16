@@ -7,9 +7,9 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Linq;
+using Xtensive.Orm.Tests;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Orm.Configuration;
 using System.Linq;
 
 namespace Xtensive.Orm.Manual.Advanced.CustomSqlCompiler
@@ -138,9 +138,8 @@ namespace Xtensive.Orm.Manual.Advanced.CustomSqlCompiler
     private Domain GetDomain()
     {
       if (existingDomain==null) {
-        var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-          UpgradeMode = DomainUpgradeMode.Recreate
-        };
+        var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+        config.UpgradeMode = DomainUpgradeMode.Recreate;
         config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
         config.Types.Register(typeof (CustomSqlCompilerContainer));
         var domain = Domain.Build(config);

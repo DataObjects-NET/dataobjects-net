@@ -11,7 +11,6 @@ using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Tests;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
 using Xtensive.Reflection;
@@ -294,9 +293,8 @@ namespace Xtensive.Orm.Manual.Concurrency.Versions
     private Domain GetDomain()
     {
       if (existingDomain==null) {
-        var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-          UpgradeMode = DomainUpgradeMode.Recreate
-        };
+        var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+        config.UpgradeMode = DomainUpgradeMode.Recreate;
         config.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
         var domain = Domain.Build(config);
         existingDomain = domain;

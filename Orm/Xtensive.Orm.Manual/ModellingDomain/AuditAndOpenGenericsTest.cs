@@ -11,7 +11,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Definitions;
-using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
@@ -336,9 +336,8 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
     [Test]
     public void MainTest()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-        UpgradeMode = DomainUpgradeMode.Recreate
-      };
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof(Person).Assembly, typeof(Person).Namespace);
       var domain = Domain.Build(config);
 

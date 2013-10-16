@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Manual.Indexes
 {
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Manual.Indexes
     [Test]
     public void MainTest()
     {
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests");
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       config.Types.Register(typeof (Pet).Assembly, typeof (Pet).Namespace);
       var domain = Domain.Build(config);

@@ -7,7 +7,7 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Manual.Legacy.CustomKeyGenerators
 {
@@ -88,9 +88,8 @@ namespace Xtensive.Orm.Manual.Legacy.CustomKeyGenerators
     public void CombinedTest()
     {
       // Creating new Domain configuration
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-        UpgradeMode = DomainUpgradeMode.Recreate
-      };
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
       // Registering all types in the specified assembly and namespace
       config.Types.Register(typeof (Author).Assembly, typeof(Author).Namespace);
       // And finally building the domain

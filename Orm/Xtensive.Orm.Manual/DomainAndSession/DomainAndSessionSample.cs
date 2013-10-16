@@ -8,6 +8,7 @@ using System;
 using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Manual.DomainAndSession
 {
@@ -56,9 +57,8 @@ namespace Xtensive.Orm.Manual.DomainAndSession
       #region Domain sample
 
       // Creating new Domain configuration
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-        UpgradeMode = DomainUpgradeMode.Recreate
-      };
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
       // Registering all types in the specified assembly and namespace
       config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
       // And finally building the domain
@@ -83,11 +83,8 @@ namespace Xtensive.Orm.Manual.DomainAndSession
       #region Connection string sample
 
       // Creating new Domain configuration
-      var config = new DomainConfiguration("sqlserver", 
-        "Data Source=localhost; Initial Catalog=DO40-Tests; " + 
-        "Integrated Security=True; MultipleActiveResultSets=true;") {
-        UpgradeMode = DomainUpgradeMode.Recreate
-      };
+      var config = DomainConfigurationFactory.CreateForConnectionStringTest();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
       // Registering all types in the specified assembly and namespace
       config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
       // And finally building the domain
@@ -117,9 +114,8 @@ namespace Xtensive.Orm.Manual.DomainAndSession
       #region Session sample
 
       // Creating new Domain configuration
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-        UpgradeMode = DomainUpgradeMode.Recreate
-      };
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
 
       // Registering all types in the specified assembly and namespace
       config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
@@ -185,9 +181,8 @@ namespace Xtensive.Orm.Manual.DomainAndSession
     public void SessionConfigurationTest()
     {
       // Creating new Domain configuration
-      var config = new DomainConfiguration("sqlserver://localhost/DO40-Tests") {
-        UpgradeMode = DomainUpgradeMode.Recreate,
-      };
+      var config = DomainConfigurationFactory.CreateWithoutSessionConfigurations();
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
       // Registering all types in the specified assembly and namespace
       config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
       // And finally building the domain
