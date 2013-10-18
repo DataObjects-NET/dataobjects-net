@@ -19,6 +19,11 @@ namespace Xtensive.Orm.Logging
     private readonly ILogWriter logWriter;
     public string Name;
 
+    public virtual bool IsLogged(LogEventTypes eventTypes)
+    {
+      return true;
+    }
+
     /// <summary>
     /// Creates region. Within the region, all messages are indented.
     /// </summary>

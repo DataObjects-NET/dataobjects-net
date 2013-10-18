@@ -14,7 +14,7 @@ namespace Xtensive
 
     public static bool IsLogged(LogEventTypes type)
     {
-      return true;
+      return instance.IsLogged(type);
     }
 
     public static IDisposable DebugRegion(string format, params object[] args)
@@ -131,7 +131,7 @@ namespace Xtensive
 
     public static bool IsLogged(LogEventTypes type)
     {
-      return true;
+      return instance.IsLogged(type);
     }
 
     public static IDisposable DebugRegion(string format, params object[] args)
@@ -248,7 +248,7 @@ namespace Xtensive
 
     public static bool IsLogged(LogEventTypes type)
     {
-      return true;
+      return instance.IsLogged(type);
     }
 
     public static IDisposable DebugRegion(string format, params object[] args)
@@ -365,7 +365,7 @@ namespace Xtensive
 
     public static bool IsLogged(LogEventTypes type)
     {
-      return true;
+      return instance.IsLogged(type);
     }
 
     public static IDisposable DebugRegion(string format, params object[] args)
@@ -482,7 +482,7 @@ namespace Xtensive
 
     public static bool IsLogged(LogEventTypes type)
     {
-      return true;
+      return instance.IsLogged(type);
     }
 
     public static IDisposable DebugRegion(string format, params object[] args)
@@ -599,7 +599,7 @@ namespace Xtensive
 
     public static bool IsLogged(LogEventTypes type)
     {
-      return true;
+      return instance.IsLogged(type);
     }
 
     public static IDisposable DebugRegion(string format, params object[] args)

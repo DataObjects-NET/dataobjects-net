@@ -14,6 +14,11 @@ namespace Xtensive.Orm.Logging
   /// </summary>
   public sealed class NullLog : BaseLog
   {
+    public override bool IsLogged(LogEventTypes eventTypes)
+    {
+      return false;
+    }
+
     /// <inheritdoc/>
     public override IDisposable DebugRegion(string message, params object[] parameters)
     {
