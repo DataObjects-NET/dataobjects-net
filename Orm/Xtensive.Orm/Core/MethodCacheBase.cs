@@ -37,13 +37,21 @@ namespace Xtensive.Core
       Implementation = implementation;
     }
 
-    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    /// <summary>
+    /// Deserializes instance of this type.
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="context"></param>
     protected MethodCacheBase(SerializationInfo info, StreamingContext context)
     {
       Implementation = (TImplementation)info.GetValue("Implementation", typeof(TImplementation));
     }
 
-    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
+    /// <summary>
+    /// Serializes instance of this type.
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="context"></param>
     [SecurityCritical]
     public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {

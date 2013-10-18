@@ -289,7 +289,10 @@ namespace Xtensive.Core
       cache = ThreadSafeDictionary<TypePair, object>.Create(_lock);
     }
 
-    /// <see cref="SerializableDocTemplate.OnDeserialization"/>
+    /// <summary>
+    /// Performs post-deserialization actions.
+    /// </summary>
+    /// <param name="sender"></param>
     public virtual void OnDeserialization(object sender)
     {
       _lock = new object();

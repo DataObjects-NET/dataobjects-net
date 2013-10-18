@@ -84,13 +84,23 @@ namespace Xtensive.Core
       }
     }
 
-    /// <see cref="ClassDocTemplate.OperatorEq"/>
+    /// <summary>
+    /// Checks specified objects for equality.
+    /// </summary>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <returns></returns>
     public static bool operator ==(Triplet<TFirst, TSecond, TThird> left, Triplet<TFirst, TSecond, TThird> right)
     {
       return left.Equals(right);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorNeq"/>
+    /// <summary>
+    /// Checks specified objects for inequality.
+    /// </summary>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <returns></returns>
     public static bool operator !=(Triplet<TFirst, TSecond, TThird> left, Triplet<TFirst, TSecond, TThird> right)
     {
       return !left.Equals(right);

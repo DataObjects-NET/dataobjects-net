@@ -399,13 +399,23 @@ namespace Xtensive.Orm
       return (url!=null ? url.GetHashCode() : 0);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorEq"/>
+    /// <summary>
+    /// Checks specified objects for equality.
+    /// </summary>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <returns></returns>
     public static bool operator ==(UrlInfo left, UrlInfo right)
     {
       return Equals(left, right);
     }
 
-    /// <see cref="ClassDocTemplate.OperatorNeq"/>
+    /// <summary>
+    /// Checks specified objects for inequality.
+    /// </summary>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <returns></returns>
     public static bool operator !=(UrlInfo left, UrlInfo right)
     {
       return !Equals(left, right);

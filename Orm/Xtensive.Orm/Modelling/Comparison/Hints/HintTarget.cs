@@ -57,16 +57,22 @@ namespace Xtensive.Modelling.Comparison.Hints
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.OperatorEq" copy="true"/>
+    /// Checks specified objects for equality.
     /// </summary>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <returns></returns>
     public static bool operator ==(HintTarget left, HintTarget right)
     {
       return left.Equals(right);
     }
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.OperatorNeq" copy="true"/>
+    /// Checks specified objects for inequality.
     /// </summary>
+    /// <param name="left"></param>
+    /// <param name="right"></param>
+    /// <returns></returns>
     public static bool operator !=(HintTarget left, HintTarget right)
     {
       return !left.Equals(right);

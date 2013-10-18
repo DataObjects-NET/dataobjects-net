@@ -16,13 +16,12 @@ namespace Xtensive.Comparison
   /// Compares two objects by their reference values.
   /// </summary>
   /// <typeparam name="T">Type of the object to compare.</typeparam>
-  /// <remarks>
-  /// <para id="About"><see cref="SingletonDocTemplate" copy="true" /></para>
-  /// </remarks>
   [Serializable]
   public sealed class ReferenceEqualityComparer<T> : IEqualityComparer<T>
   {
-    /// <see cref="SingletonDocTemplate.Instance" copy="true" />
+    /// <summary>
+    /// Gets the only instance of this type.
+    /// </summary>
     public static ReferenceEqualityComparer<T> Instance = new ReferenceEqualityComparer<T>();
 
     /// <inheritdoc/>

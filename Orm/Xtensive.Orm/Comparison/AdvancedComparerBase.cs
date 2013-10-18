@@ -169,7 +169,10 @@ namespace Xtensive.Comparison
       DefaultDirectionMultiplier = comparisonRules.Value.Direction==Direction.Negative ? -1 : 1;
     }
 
-    /// <see cref="SerializableDocTemplate.OnDeserialization" copy="true" />
+    /// <summary>
+    /// Performs post-deserialization actions.
+    /// </summary>
+    /// <param name="sender"></param>
     public virtual void OnDeserialization(object sender)
     {
       if (provider==null) 

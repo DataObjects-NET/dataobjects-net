@@ -377,7 +377,11 @@ namespace Xtensive.Collections
 
     #region ISerializable members
 
-    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    /// <summary>
+    /// Deserializes instance of this type.
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="context"></param>
     protected FlagCollection(SerializationInfo info, StreamingContext context)
       : base(info.GetBoolean("IsLocked"))
     {
@@ -388,7 +392,11 @@ namespace Xtensive.Collections
       flags = new BitVector32(info.GetInt32("Flags"));
     }
 
-    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
+    /// <summary>
+    /// Serializes instance of this type.
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="context"></param>
     [SecurityCritical]
     public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {

@@ -49,10 +49,8 @@ namespace Xtensive.Core
     // Type initializer
 
     /// <summary>
-    /// <see cref="ClassDocTemplate.TypeInitializer" copy="true"/>
+    /// Initializes this type.
     /// </summary>
-    /// <exception cref="SecurityException">Only one ancestor of each instance
-    /// of this generic type is allowed.</exception>
     static InheritableScope()
     {
       var ancestorType = typeof(TBaseAncestor);

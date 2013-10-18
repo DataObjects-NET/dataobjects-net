@@ -76,8 +76,9 @@ namespace Xtensive.Core
 
 
     /// <summary>
-    /// <see cref="DisposableDocTemplate.Dispose(bool)"/>
+    /// Releases resources associated with this instance.
     /// </summary>
+    /// <param name="disposing"></param>
     protected virtual void Dispose(bool disposing) 
     {
     }

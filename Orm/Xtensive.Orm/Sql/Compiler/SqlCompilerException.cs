@@ -25,7 +25,11 @@ namespace Xtensive.Sql.Compiler
 
     // Serialization
 
-    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    /// <summary>
+    /// Deserializes instance of this type.
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="context"></param>
     protected SqlCompilerException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {

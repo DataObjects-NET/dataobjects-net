@@ -13,9 +13,6 @@ namespace Xtensive.Orm.Configuration
   /// <summary>
   /// Base class for configuration.
   /// </summary>
-  /// <remarks>
-  /// <para id="Ctor"><see cref="ParameterlessCtorClassDocTemplate"/></para>
-  /// </remarks>
   [Serializable]
   public abstract class ConfigurationBase: LockableBase, ICloneable
   {

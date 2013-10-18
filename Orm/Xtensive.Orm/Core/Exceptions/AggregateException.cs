@@ -140,14 +140,22 @@ namespace Xtensive.Core
 
     // Serialization
 
-    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    /// <summary>
+    /// Deserializes instance of this type.
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="context"></param>
     protected AggregateException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
       exceptions = (ReadOnlyList<Exception>)info.GetValue("Exceptions", typeof (ReadOnlyList<Exception>));
     }
 
-    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
+    /// <summary>
+    /// Serializes instance of this type.
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="context"></param>
     [SecurityCritical]
     public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {

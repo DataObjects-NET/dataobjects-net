@@ -630,7 +630,11 @@ namespace Xtensive.Collections
 
     #region ISerializable Members
 
-    /// <see cref="SerializableDocTemplate.GetObjectData" copy="true" />
+    /// <summary>
+    /// Serializes instance of this type.
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="context"></param>
     [SecurityCritical]
     public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
@@ -640,7 +644,11 @@ namespace Xtensive.Collections
       info.AddValue("GrowFactor", growFactor);
     }
 
-    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    /// <summary>
+    /// Deserializes instance of this type.
+    /// </summary>
+    /// <param name="info"></param>
+    /// <param name="context"></param>
     protected Deque(SerializationInfo info, StreamingContext context)
     {
       items = (T[])info.GetValue("Items", typeof (T[]));

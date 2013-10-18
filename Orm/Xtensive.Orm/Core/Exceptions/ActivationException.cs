@@ -34,7 +34,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    ///	Initializes new instance of this type.
+    /// Initializes new instance of this type.
     /// </summary>
     /// <param name="message">The message.</param>
     /// <param name="innerException">The inner exception.</param>
@@ -44,8 +44,10 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// <see cref="SerializableDocTemplate.Ctor" copy="true" />
+    /// Deserializes instance of this type.
     /// </summary>
+    /// <param name="info"></param>
+    /// <param name="context"></param>
     protected ActivationException(SerializationInfo info, StreamingContext context) 
       : base(info, context)
     {

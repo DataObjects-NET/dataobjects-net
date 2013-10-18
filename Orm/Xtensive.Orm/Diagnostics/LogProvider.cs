@@ -15,15 +15,14 @@ namespace Xtensive.Diagnostics
   /// <summary>
   /// Provides (creates or resolves) <see cref="ILog"/> instances by their name.
   /// </summary>
-  /// <remarks>
-  /// <para id="About"><see cref="SingletonDocTemplate" copy="true" /></para>
-  /// </remarks>
   [Serializable]
   public static class LogProvider
   {
     private static readonly ILogProvider instance;
 
-    /// <see cref="SingletonDocTemplate.Instance" copy="true"/>
+    /// <summary>
+    /// Gets the only instance of this type.
+    /// </summary>
     public static ILogProvider Instance {
       [DebuggerStepThrough]
       get { return instance; }
