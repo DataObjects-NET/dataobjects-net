@@ -1,5 +1,4 @@
 using System;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Logging;
 
 namespace Xtensive

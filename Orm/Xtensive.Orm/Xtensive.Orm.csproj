@@ -338,7 +338,9 @@
     <Compile Include="Diagnostics\Interfaces\IRealLog.cs" />
     <Compile Include="Diagnostics\LogCaptureScope.cs" />
     <Compile Include="Diagnostics\LogEventHandler.cs" />
-    <Compile Include="Diagnostics\LogEventTypes.cs" />
+    <Compile Include="Diagnostics\LogEventTypes.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Diagnostics\LogEventTypesExtensions.cs" />
     <Compile Include="Diagnostics\LogFormat.cs" />
     <Compile Include="Diagnostics\LogImplementation.cs" />
@@ -375,6 +377,7 @@
     <Compile Include="Orm\Logging\Internals\InternalLogProvider.cs" />
     <Compile Include="Orm\Logging\Log.cs" />
     <Compile Include="Orm\Logging\LogEventInfo.cs" />
+    <Compile Include="Orm\Logging\LogEventTypes.cs" />
     <Compile Include="Orm\Logging\LogLevel.cs" />
     <Compile Include="Orm\Logging\LogManager.cs" />
     <Compile Include="Orm\Logging\LogProvider.cs" />

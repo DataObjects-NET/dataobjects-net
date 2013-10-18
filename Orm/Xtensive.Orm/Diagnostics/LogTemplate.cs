@@ -163,7 +163,7 @@ namespace Xtensive.Diagnostics
 
       Instance = LogProvider.GetLog(logName);
 
-      if (CoreLog.IsLogged(LogEventTypes.Info))
+      if (CoreLog.IsLogged(Orm.Logging.LogEventTypes.Info))
         CoreLog.Info("{0} log initialized.", Instance);
     }
   }

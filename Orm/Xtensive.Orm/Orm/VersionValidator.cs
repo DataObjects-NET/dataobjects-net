@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
+using Xtensive.Orm.Logging;
 
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;

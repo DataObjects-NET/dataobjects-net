@@ -13,7 +13,7 @@ using System.Threading;
 using JetBrains.Annotations;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
+using Xtensive.Orm.Logging;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
