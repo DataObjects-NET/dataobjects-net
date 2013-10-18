@@ -121,8 +121,9 @@ namespace Xtensive
 
     static <#= item.Item1 #>()
     {
-      LogManager.AutoInitialize();
-      instance = LogManager.GetLog(Name);
+      var manager = LogManager.Default;
+      manager.AutoInitialize();
+      instance = manager.GetLog(Name);
     }
   }
 

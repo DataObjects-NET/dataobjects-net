@@ -16,23 +16,13 @@ namespace Xtensive.Orm.Tests.Core.Logging
   [TestFixture]
   public class WriteToLogTests
   {
-    private LoggingConfiguration configuration;
     private const string filePath = "Log.txt";
-
-    [TestFixtureSetUp]
-    public void Setup()
-    {
-      configuration = LoggingConfiguration.Load("LoggingUsedConfiguration");
-    }
 
     [Test]
     public void OrmLogTest()
     {
       if (File.Exists(filePath))
         File.Delete(filePath);
-      LogManager.Reset();
-      LogManager.Initialize(configuration);
-
       OrmLog.Debug("Test message", null);
       OrmLog.Debug("Test message with parameter {0}", new object[] { 1 });
       OrmLog.Debug(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
@@ -82,9 +72,6 @@ namespace Xtensive.Orm.Tests.Core.Logging
     {
       if (File.Exists(filePath))
         File.Delete(filePath);
-      LogManager.Reset();
-      LogManager.Initialize(configuration);
-
       BuildLog.Debug("Test message", null);
       BuildLog.Debug("Test message with parameter {0}", new object[] { 1 });
       BuildLog.Debug(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
@@ -134,8 +121,6 @@ namespace Xtensive.Orm.Tests.Core.Logging
     {
       if (File.Exists(filePath))
         File.Delete(filePath);
-      LogManager.Reset();
-      LogManager.Initialize(configuration);
       UpgradeLog.Debug("Test message", null);
       UpgradeLog.Debug("Test message with parameter {0}", new object[] { 1 });
       UpgradeLog.Debug(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
@@ -185,8 +170,6 @@ namespace Xtensive.Orm.Tests.Core.Logging
     {
       if (File.Exists(filePath))
         File.Delete(filePath);
-      LogManager.Reset();
-      LogManager.Initialize(configuration);
       SqlLog.Debug("Test message", null);
       SqlLog.Debug("Test message with parameter {0}", new object[] { 1 });
       SqlLog.Debug(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
@@ -226,108 +209,6 @@ namespace Xtensive.Orm.Tests.Core.Logging
       SqlLog.FatalError("Test message {0}", null);
       SqlLog.FatalError(new Exception("Some exeption"));
       SqlLog.FatalError(null, new object[] { 1 });
-
-      Assert.IsTrue(File.Exists(filePath));
-      Assert.AreEqual(File.ReadAllLines(filePath).Count(), 35);
-    }
-
-    [Test]
-    public void CoreLogTest()
-    {
-      if (File.Exists(filePath))
-        File.Delete(filePath);
-      LogManager.Reset();
-      LogManager.Initialize(configuration);
-      CoreLog.Debug("Test message", null);
-      CoreLog.Debug("Test message with parameter {0}", new object[] { 1 });
-      CoreLog.Debug(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
-      CoreLog.Debug("Test message", new object[] { 1 });
-      CoreLog.Debug("Test message {0}", null);
-      CoreLog.Debug(new Exception("Some exeption"));
-      CoreLog.Debug(null, new object[] { 1 });
-
-      CoreLog.Info("Test message", null);
-      CoreLog.Info("Test message with parameter {0}", new object[] { 1 });
-      CoreLog.Info(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
-      CoreLog.Info("Test message", new object[] { 1 });
-      CoreLog.Info("Test message {0}", null);
-      CoreLog.Info(new Exception("Some exeption"));
-      CoreLog.Info(null, new object[] { 1 });
-
-      CoreLog.Warning("Test message", null);
-      CoreLog.Warning("Test message with parameter {0}", new object[] { 1 });
-      CoreLog.Warning(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
-      CoreLog.Warning("Test message", new object[] { 1 });
-      CoreLog.Warning("Test message {0}", null);
-      CoreLog.Warning(new Exception("Some exeption"));
-      CoreLog.Warning(null, new object[] { 1 });
-
-      CoreLog.Error("Test message", null);
-      CoreLog.Error("Test message with parameter {0}", new object[] { 1 });
-      CoreLog.Error(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
-      CoreLog.Error("Test message", new object[] { 1 });
-      CoreLog.Error("Test message {0}", null);
-      CoreLog.Error(new Exception("Some exeption"));
-      CoreLog.Error(null, new object[] { 1 });
-
-      CoreLog.FatalError("Test message", null);
-      CoreLog.FatalError("Test message with parameter {0}", new object[] { 1 });
-      CoreLog.FatalError(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
-      CoreLog.FatalError("Test message", new object[] { 1 });
-      CoreLog.FatalError("Test message {0}", null);
-      CoreLog.FatalError(new Exception("Some exeption"));
-      CoreLog.FatalError(null, new object[] { 1 });
-
-      Assert.IsTrue(File.Exists(filePath));
-      Assert.AreEqual(File.ReadAllLines(filePath).Count(), 35);
-    }
-
-    [Test]
-    public void TestLogTest()
-    {
-      if (File.Exists(filePath))
-        File.Delete(filePath);
-      LogManager.Reset();
-      LogManager.Initialize(configuration);
-      TestLog.Debug("Test message", null);
-      TestLog.Debug("Test message with parameter {0}", new object[] { 1 });
-      TestLog.Debug(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
-      TestLog.Debug("Test message", new object[] { 1 });
-      TestLog.Debug("Test message {0}", null);
-      TestLog.Debug(new Exception("Some exeption"));
-      TestLog.Debug(null, new object[] { 1 });
-
-      TestLog.Info("Test message", null);
-      TestLog.Info("Test message with parameter {0}", new object[] { 1 });
-      TestLog.Info(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
-      TestLog.Info("Test message", new object[] { 1 });
-      TestLog.Info("Test message {0}", null);
-      TestLog.Info(new Exception("Some exeption"));
-      TestLog.Info(null, new object[] { 1 });
-
-      TestLog.Warning("Test message", null);
-      TestLog.Warning("Test message with parameter {0}", new object[] { 1 });
-      TestLog.Warning(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
-      TestLog.Warning("Test message", new object[] { 1 });
-      TestLog.Warning("Test message {0}", null);
-      TestLog.Warning(new Exception("Some exeption"));
-      TestLog.Warning(null, new object[] { 1 });
-
-      TestLog.Error("Test message", null);
-      TestLog.Error("Test message with parameter {0}", new object[] { 1 });
-      TestLog.Error(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
-      TestLog.Error("Test message", new object[] { 1 });
-      TestLog.Error("Test message {0}", null);
-      TestLog.Error(new Exception("Some exeption"));
-      TestLog.Error(null, new object[] { 1 });
-
-      TestLog.FatalError("Test message", null);
-      TestLog.FatalError("Test message with parameter {0}", new object[] { 1 });
-      TestLog.FatalError(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
-      TestLog.FatalError("Test message", new object[] { 1 });
-      TestLog.FatalError("Test message {0}", null);
-      TestLog.FatalError(new Exception("Some exeption"));
-      TestLog.FatalError(null, new object[] { 1 });
 
       Assert.IsTrue(File.Exists(filePath));
       Assert.AreEqual(File.ReadAllLines(filePath).Count(), 35);

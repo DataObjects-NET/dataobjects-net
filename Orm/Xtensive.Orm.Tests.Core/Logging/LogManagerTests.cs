@@ -18,8 +18,8 @@ namespace Xtensive.Orm.Tests.Core.Logging
     [Test]
     public void LogManagerInitializationFromConfigLogs()
     {
-      LogManager.Reset();
-      LogManager.Initialize();
+      LogManager manager = new LogManager();
+      manager.Initialize();
     }
 
     [Test]
@@ -31,42 +31,42 @@ namespace Xtensive.Orm.Tests.Core.Logging
       logs.Add(new LogConfiguration("ConsoleLog", "Console"));
       logs.Add(new LogConfiguration("DebugOnlyConsoleLog, AnotherFileLog", "None"));
       configuration.Logs = logs;
-      LogManager.Reset();
-      LogManager.Initialize(configuration);
+      LogManager manager = new LogManager(); 
+      manager.Initialize(configuration);
     }
 
     [Test]
     public void LogManagerInitializationByProvider()
     {
       var provider = new InternalLogProvider();
-      LogManager.Reset();
-      LogManager.Initialize(provider);
+      LogManager manager = new LogManager();
+      manager.Initialize(provider);
     }
 
     [Test]
     [ExpectedException(typeof(InvalidOperationException))]
     public void TryGetLogBeforeInitialization()
     {
-      LogManager.Reset();
-      LogManager.GetLog("FileLog");
-      LogManager.Initialize();
+      LogManager manager = new LogManager();
+      manager.GetLog("FileLog");
+      manager.Initialize();
     }
 
     [Test]
     [ExpectedException(typeof(InvalidOperationException))]
     public void LogManagerAutoInitializationBeforeInitializationTest()
     {
-      LogManager.Reset();
-      LogManager.AutoInitialize();
-      LogManager.Initialize();
+      LogManager manager = new LogManager();
+      manager.AutoInitialize();
+      manager.Initialize();
     }
 
     [Test]
     public void LogManagerAutoInitializationAfterInitializationTest()
     {
-      LogManager.Reset();
-      LogManager.Initialize();
-      LogManager.AutoInitialize();
+      LogManager manager = new LogManager();
+      manager.Initialize();
+      manager.AutoInitialize();
     }
   }
 }

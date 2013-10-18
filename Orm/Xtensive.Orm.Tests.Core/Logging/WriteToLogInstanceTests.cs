@@ -28,9 +28,9 @@ namespace Xtensive.Orm.Tests.Core.Logging
     [Test]
     public void WriteToConsole()
     {
-      LogManager.Reset();
-      LogManager.Initialize(configuration);
-      var logger = LogManager.GetLog("LogName");
+      var manager = new LogManager();
+      manager.Initialize(configuration);
+      var logger = manager.GetLog("LogName");
 
       logger.Debug("Test message", null);
       logger.Debug("Test message with parameter {0}", new object[] { 1 });
@@ -79,9 +79,9 @@ namespace Xtensive.Orm.Tests.Core.Logging
     {
       if (!Debugger.IsAttached)
         throw new IgnoreException("This test requeres to attach a debugger.");
-      LogManager.Reset();
-      LogManager.Initialize(configuration);
-      var logger = LogManager.GetLog("SomeLogName");
+      var manager = new LogManager();
+      manager.Initialize(configuration);
+      var logger = manager.GetLog("SomeLogName");
 
       logger.Debug("Test message", null);
       logger.Debug("Test message with parameter {0}", new object[] { 1 });
@@ -134,9 +134,9 @@ namespace Xtensive.Orm.Tests.Core.Logging
 
       if (File.Exists(filePath))
         File.Delete(filePath);
-      LogManager.Reset();
-      LogManager.Initialize(localConfiguration);
-      var logger = LogManager.GetLog("FileLog");
+      var manager = new LogManager();
+      manager.Initialize(localConfiguration);
+      var logger = manager.GetLog("FileLog");
 
       logger.Debug("Test message", null);
       logger.Debug("Test message with parameter {0}", new object[] { 1 });
@@ -189,9 +189,9 @@ namespace Xtensive.Orm.Tests.Core.Logging
       string filePath = "log.txt";
       if (File.Exists(filePath))
         File.Delete(filePath);
-      LogManager.Reset();
-      LogManager.Initialize(configuration);
-      var logger = LogManager.GetLog("FileLog");
+      var manager = new LogManager();
+      manager.Initialize(configuration);
+      var logger = manager.GetLog("FileLog");
 
       logger.Debug("Test message", null);
       logger.Debug("Test message with parameter {0}", new object[] { 1 });

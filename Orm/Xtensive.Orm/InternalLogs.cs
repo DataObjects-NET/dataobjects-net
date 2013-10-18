@@ -115,8 +115,9 @@ namespace Xtensive
 
     static OrmLog()
     {
-      LogManager.AutoInitialize();
-      instance = LogManager.GetLog(Name);
+      var manager = LogManager.Default;
+      manager.AutoInitialize();
+      instance = manager.GetLog(Name);
     }
   }
 
@@ -231,8 +232,9 @@ namespace Xtensive
 
     static UpgradeLog()
     {
-      LogManager.AutoInitialize();
-      instance = LogManager.GetLog(Name);
+      var manager = LogManager.Default;
+      manager.AutoInitialize();
+      instance = manager.GetLog(Name);
     }
   }
 
@@ -347,8 +349,9 @@ namespace Xtensive
 
     static BuildLog()
     {
-      LogManager.AutoInitialize();
-      instance = LogManager.GetLog(Name);
+      var manager = LogManager.Default;
+      manager.AutoInitialize();
+      instance = manager.GetLog(Name);
     }
   }
 
@@ -463,8 +466,9 @@ namespace Xtensive
 
     static SqlLog()
     {
-      LogManager.AutoInitialize();
-      instance = LogManager.GetLog(Name);
+      var manager = LogManager.Default;
+      manager.AutoInitialize();
+      instance = manager.GetLog(Name);
     }
   }
 
@@ -579,8 +583,9 @@ namespace Xtensive
 
     static CoreLog()
     {
-      LogManager.AutoInitialize();
-      instance = LogManager.GetLog(Name);
+      var manager = LogManager.Default;
+      manager.AutoInitialize();
+      instance = manager.GetLog(Name);
     }
   }
 
@@ -695,8 +700,9 @@ namespace Xtensive
 
     static TestLog()
     {
-      LogManager.AutoInitialize();
-      instance = LogManager.GetLog(Name);
+      var manager = LogManager.Default;
+      manager.AutoInitialize();
+      instance = manager.GetLog(Name);
     }
   }
 

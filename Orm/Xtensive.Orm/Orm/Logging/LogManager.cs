@@ -18,13 +18,19 @@ namespace Xtensive.Orm.Logging
   /// </summary>
   public sealed class LogManager
   {
-    private static readonly object syncObj = new object();
-    private static LogProvider provider;
+    private readonly object syncObj = new object();
+    private static readonly LogManager defaultInstance = new LogManager();
+    private LogProvider provider;
 
+    /// <summary>
+    /// Gets default <see cref="LogManager"/> instance.
+    /// </summary>
+    public static LogManager Default { get { return defaultInstance; } }
+    
     /// <summary>
     /// Initialaze manager by creation logs from default section of configuration file.
     /// </summary>
-    public static void Initialize()
+    public void Initialize()
     {
       var configuration = LoggingConfiguration.Load();
       Initialize(configuration);
@@ -34,7 +40,7 @@ namespace Xtensive.Orm.Logging
     /// Initialaze manager by privider.
     /// </summary>
     /// <param name="logProvider">Instance of class, which implements <see cref="LogProvider"/>.</param>
-    public static void Initialize(LogProvider logProvider)
+    public void Initialize(LogProvider logProvider)
     {
       ArgumentValidator.EnsureArgumentNotNull(logProvider, "logProvider");
       lock (syncObj) {
@@ -47,7 +53,7 @@ namespace Xtensive.Orm.Logging
     /// Initialaze manager by <see cref="LoggingConfiguration"/> instance.
     /// </summary>
     /// <param name="configuration">Configuration of logging.</param>
-    public static void Initialize(LoggingConfiguration configuration)
+    public void Initialize(LoggingConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       lock (syncObj) {
@@ -65,27 +71,19 @@ namespace Xtensive.Orm.Logging
       }
     }
 
-    private static void EnsureIsNotInitialized()
+    private void EnsureIsNotInitialized()
     {
       if(provider!=null)
         throw new InvalidOperationException(Strings.ExLogManagerAlreadyInitialized);
     }
 
-    internal static void AutoInitialize()
+    internal void AutoInitialize()
     {
-      var section = (ConfigurationSection) ConfigurationManager.GetSection("Xtensive.Orm");
-      var configuration = section != null ? section.Logging.ToNative() : new LoggingConfiguration();
+      var configuration = LoggingConfiguration.Load() ?? new LoggingConfiguration();
       lock (syncObj) {
         if (provider==null) {
           Initialize(configuration);
         }
-      }
-    }
-
-    internal static void Reset()
-    {
-      lock (syncObj) {
-        provider = null;
       }
     }
 
@@ -94,7 +92,7 @@ namespace Xtensive.Orm.Logging
     /// </summary>
     /// <param name="logName">Name of log.</param>
     /// <returns>Founded log or default.</returns>
-    public static BaseLog GetLog(string logName)
+    public BaseLog GetLog(string logName)
     {
       lock (syncObj) {
         if (provider==null)
