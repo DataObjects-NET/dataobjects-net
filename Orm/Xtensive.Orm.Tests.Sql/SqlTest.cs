@@ -16,7 +16,10 @@ namespace Xtensive.Orm.Tests.Sql
 {
   public abstract class SqlTest
   {
-    protected abstract string Url { get; }
+    protected virtual string Url
+    {
+      get { return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl.Url; }
+    }
 
     protected SqlConnection Connection { get; private set; }
     protected SqlDriver Driver { get; private set; }
