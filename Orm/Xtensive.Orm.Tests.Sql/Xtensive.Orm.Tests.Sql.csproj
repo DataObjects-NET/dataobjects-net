@@ -88,11 +88,10 @@
     <Compile Include="PostgreSql\ExtractorTest.cs" />
     <Compile Include="PostgreSql\v8_3\ExceptionTypesTest.cs" />
     <Compile Include="PostgreSql\v8_3\ExtractorTest.cs" />
-    <Compile Include="PostgreSql\v8_3\IndexTest.cs" />
+    <Compile Include="PostgreSql\IndexTest.cs" />
     <Compile Include="PostgreSql\v8_3\SavepointsTest.cs" />
     <Compile Include="PostgreSql\v8_4\ExceptionTypesTest.cs" />
     <Compile Include="PostgreSql\v8_4\ExtractorTest.cs" />
-    <Compile Include="PostgreSql\v8_4\IndexTest.cs" />
     <Compile Include="PostgreSql\v8_4\SavepointsTest.cs" />
     <Compile Include="SavepointsTest.cs" />
     <Compile Include="Sqlite\ExtractorTest.cs" />
@@ -140,6 +139,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\Xtensive.Orm.Tests.Framework\Connections.config">
+      <Link>Connections.config</Link>
+    </None>
+    <None Include="App.config" />
     <None Include="Sqlite\Northwind.sl3">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
