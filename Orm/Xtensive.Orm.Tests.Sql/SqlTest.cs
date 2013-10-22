@@ -27,6 +27,7 @@ namespace Xtensive.Orm.Tests.Sql
     [TestFixtureSetUp]
     public void RealTestFixtureSetUp()
     {
+      CheckRequirements();
       try {
         TestFixtureSetUp();
       }
@@ -65,6 +66,10 @@ namespace Xtensive.Orm.Tests.Sql
     {
       if (Connection!=null && Connection.State==ConnectionState.Open)
         Connection.Close();
+    }
+
+    protected virtual void CheckRequirements()
+    {
     }
 
     protected Catalog ExtractCatalog()
