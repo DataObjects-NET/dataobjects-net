@@ -113,8 +113,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
     [TestFixtureTearDown]
     public virtual void TearDown()
     {
-      ExecuteQuery(CleanUpScript);
-      isTestsIgnored = false;
+      if(!isTestsIgnored)
+        ExecuteQuery(CleanUpScript);
     }
   }
 
@@ -176,6 +176,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
 
   public class MSSQLExtractor_TestColumnTypeExtraction : MSSQLExtractorTestBase
   {
+    private StringComparer comparer = StringComparer.CurrentCultureIgnoreCase;
+
     public override string CleanUpScript
     {
       get { return "drop table dataTypesTestTable"; }
@@ -219,8 +221,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
       Assert.IsTrue(table.TableColumns["binary_l50"].DataType.Length==50);
       Assert.IsTrue(table.TableColumns["binary_l50"].DataType.Type==SqlType.Binary);
       Assert.IsTrue(table.TableColumns["bit_l1"].DataType.Type==SqlType.Boolean);
-      Assert.IsTrue(table.TableColumns["char_10"].DataType.Length==10);
-      Assert.IsTrue(table.TableColumns["char_10"].DataType.TypeName=="char");
+      Assert.IsTrue(table.TableColumns["char_10"].DataType.Length==5);
+      Assert.IsTrue(table.TableColumns["char_10"].DataType.Type==SqlType.Char);
       Assert.IsTrue(table.TableColumns["datetime_l8"].DataType.Type==SqlType.DateTime);
       Assert.IsTrue(table.TableColumns["decimal_p18_s0"].DataType.Type==SqlType.Decimal);
       Assert.IsTrue(table.TableColumns["decimal_p18_s0"].DataType.Precision==18);
@@ -232,7 +234,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
       Assert.IsTrue(table.TableColumns["float_p53"].DataType.Precision==null);
       Assert.IsTrue(table.TableColumns["float_p53"].DataType.Scale==null);
       Assert.IsTrue(table.TableColumns["image_16"].DataType.Type==SqlType.VarBinaryMax);
-      Assert.IsTrue(table.TableColumns["money_p19_s4_l8"].DataType.TypeName=="money");
+      Assert.IsTrue(comparer.Compare(table.TableColumns["money_p19_s4_l8"].DataType.TypeName, "money")==0);
       Assert.IsTrue(table.TableColumns["money_p19_s4_l8"].DataType.Precision==19);
       Assert.IsTrue(table.TableColumns["money_p19_s4_l8"].DataType.Scale==4);
       Assert.IsTrue(table.TableColumns["nchar_l100"].DataType.Type==SqlType.Char);
@@ -245,18 +247,18 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
       Assert.IsTrue(table.TableColumns["real_p24_s0_l4"].DataType.Type==SqlType.Float);
       Assert.IsTrue(table.TableColumns["real_p24_s0_l4"].DataType.Precision==null);
       Assert.IsTrue(table.TableColumns["real_p24_s0_l4"].DataType.Scale==null);
-      Assert.IsTrue(table.TableColumns["smalldatetime_l4"].DataType.TypeName=="smalldatetime");
+      Assert.IsTrue(table.TableColumns["smalldatetime_l4"].DataType.Type==SqlType.DateTime);
       Assert.IsTrue(table.TableColumns["smallint_l2"].DataType.Type==SqlType.Int16);
-      Assert.IsTrue(table.TableColumns["small_money_p10_s4_l4"].DataType.TypeName=="smallmoney");
-      Assert.IsTrue(table.TableColumns["sql_variant_"].DataType.TypeName=="sql_variant");
-      Assert.IsTrue(table.TableColumns["text_16"].DataType.TypeName=="text");
-      Assert.IsTrue(table.TableColumns["timestamp_l8"].DataType.TypeName=="timestamp");
+      Assert.IsTrue(comparer.Compare(table.TableColumns["small_money_p10_s4_l4"].DataType.TypeName, "smallmoney")==0);
+      Assert.IsTrue(comparer.Compare(table.TableColumns["sql_variant_"].DataType.TypeName, "sql_variant")==0);
+      Assert.IsTrue(table.TableColumns["text_16"].DataType.Type==SqlType.VarCharMax);
+      Assert.IsTrue(comparer.Compare(table.TableColumns["timestamp_l8"].DataType.TypeName, "timestamp")==0);
       Assert.IsTrue(table.TableColumns["tinyint_1_p3_s0_l1"].DataType.Type==SqlType.UInt8);
       Assert.IsTrue(table.TableColumns["uniqueidentifier_l16"].DataType.Type==SqlType.Guid);
       Assert.IsTrue(table.TableColumns["varbinary_l150"].DataType.Type==SqlType.VarBinary);
       Assert.IsTrue(table.TableColumns["varbinary_l150"].DataType.Length==150);
-      Assert.IsTrue(table.TableColumns["varchar_l50"].DataType.TypeName=="varchar");
-      Assert.IsTrue(table.TableColumns["varchar_l50"].DataType.Length==50);
+      Assert.IsTrue(table.TableColumns["varchar_l50"].DataType.Type==SqlType.VarChar);
+      Assert.IsTrue(table.TableColumns["varchar_l50"].DataType.Length==25);
     }
   }
 
