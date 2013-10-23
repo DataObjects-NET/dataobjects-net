@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Tests.Sql
     protected override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      typeMappings = Driver.TypeMappings.ToArray();
+      typeMappings = Driver.TypeMappings.Where(mapping => StringComparer.CurrentCultureIgnoreCase.Compare(mapping.Type.Namespace, "System")==0).ToArray();
       testValues = typeMappings
         .Select(mapping => GetTestValues(mapping.Type))
         .ToArray();
