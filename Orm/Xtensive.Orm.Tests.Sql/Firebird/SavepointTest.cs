@@ -9,23 +9,22 @@ using System;
 
 namespace Xtensive.Orm.Tests.Sql.Firebird
 {
-    public abstract class SavepointTest : SavepointsTest
+  public abstract class SavepointTest : SavepointsTest
+  {
+    public override void SetUp()
     {
-        public override void SetUp()
-        {
-            TestHelpers.StartTraceToLogFile(this);
-            base.SetUp();
-            // hack because Visual Nunit doesn't use TestFixtureSetUp attribute, just SetUp attribute
-            RealTestFixtureSetUp();
-        }
-
-        public override void TearDown()
-        {
-            base.TearDown();
-            // hack because Visual Nunit doesn't use TestFixtureTearDown attribute, just TearDown attribute
-            RealTestFixtureTearDown();
-            TestHelpers.StopTraceToLogFile(this);
-        }
-
+      TestHelpers.StartTraceToLogFile(this);
+      base.SetUp();
+      // hack because Visual Nunit doesn't use TestFixtureSetUp attribute, just SetUp attribute
+      RealTestFixtureSetUp();
     }
+
+    public override void TearDown()
+    {
+      base.TearDown();
+      // hack because Visual Nunit doesn't use TestFixtureTearDown attribute, just TearDown attribute
+      RealTestFixtureTearDown();
+      TestHelpers.StopTraceToLogFile(this);
+    }
+  }
 }

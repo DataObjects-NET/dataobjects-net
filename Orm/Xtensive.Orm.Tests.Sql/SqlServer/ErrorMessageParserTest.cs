@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     {
       var actual = parser.Parse(code, input);
       Assert.AreEqual(expected.Length, actual.Count);
-      for (int i = 0; i < expected.Length; i++) {
+      for (int i = 0; i<expected.Length; i++) {
         Assert.AreEqual(expected[i], actual[i + 1]);
       }
     }

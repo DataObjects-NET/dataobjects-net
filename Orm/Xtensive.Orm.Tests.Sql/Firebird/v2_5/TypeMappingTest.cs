@@ -9,25 +9,23 @@ using System.Diagnostics;
 
 namespace Xtensive.Orm.Tests.Sql.Firebird.v2_5
 {
-    [TestFixture, Explicit]
-    public class TypeMappingTest : Firebird.TypeMappingTest
+  [TestFixture, Explicit]
+  public class TypeMappingTest : Firebird.TypeMappingTest
+  {
+    public override void SetUp()
     {
-        protected override string Url { get { return TestUrl.Firebird25; } }
-
-        public override void SetUp()
-        {
-            base.SetUp();
-            TestHelpers.StartTraceToLogFile(this);
-        }
-
-        public override void TearDown()
-        {
-            base.TearDown();
-            TestHelpers.StopTraceToLogFile(this);
-        }
-
-        public TypeMappingTest()
-        {
-        }
+      base.SetUp();
+      TestHelpers.StartTraceToLogFile(this);
     }
+
+    public override void TearDown()
+    {
+      base.TearDown();
+      TestHelpers.StopTraceToLogFile(this);
+    }
+
+    public TypeMappingTest()
+    {
+    }
+  }
 }
