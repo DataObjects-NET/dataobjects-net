@@ -47,7 +47,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
 
   public abstract class MSSQLExtractorTestBase
   {
-    private const string connectionUrl = TestUrl.SqlServer2005;
+    private readonly string connectionUrl = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl.Url;
+    private bool isTestsIgnored = true;
 
     public virtual string CleanUpScript
     {
@@ -96,10 +97,24 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
       }
     }
 
+    [TestFixtureSetUp]
+    protected virtual void SetUp()
+    {
+      CheckRequirements();
+      isTestsIgnored = false;
+    }
+
+    protected virtual void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+      Require.ProviderVersionAtMost(new Version(9, 0, 5000));
+    }
+
     [TestFixtureTearDown]
     public virtual void TearDown()
     {
       ExecuteQuery(CleanUpScript);
+      isTestsIgnored = false;
     }
   }
 

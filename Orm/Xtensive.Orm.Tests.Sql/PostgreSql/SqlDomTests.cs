@@ -20,7 +20,17 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
   [TestFixture, Explicit]
   public abstract class SqlDomTests
   {
-    protected abstract string Url { get; }
+    private UrlInfo connectionUrl = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl;
+
+    protected UrlInfo ConnectionUrlInfo
+    {
+      get { return connectionUrl; }
+    }
+
+    protected string Url
+    {
+      get { return ConnectionUrlInfo.Url; }
+    }
 
     protected SqlDriver Driver { get; private set; }
 
@@ -28,9 +38,14 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
     protected Catalog MyCatalog { get; private set; }
 
+    protected virtual void CheckRequirements()
+    {
+    }
+
     [TestFixtureSetUp]
     public virtual void FixtureSetup()
     {
+      CheckRequirements();
       Driver = TestSqlDriver.Create(Url);
       CreateModel();
       Connection = Driver.CreateConnection();

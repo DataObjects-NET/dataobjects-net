@@ -12,6 +12,10 @@ namespace Xtensive.Orm.Tests.Sql
     [TestFixture]
     public class DriverFactoryTest
     {
+        private string provider = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).Provider;
+        protected string Url = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl.Url;
+        protected string ConnectionString = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage + "cs").ConnectionString;
+
         [Test]
         public void ConnectionUrlTest()
         {
@@ -40,17 +44,16 @@ namespace Xtensive.Orm.Tests.Sql
         [Test]
         public void ServerInfoTest()
         {
-            var driver = TestSqlDriver.Create(TestUrl.SqlServer2005);
+            Require.ProviderIs(StorageProvider.SqlServer);
+            Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2005);
+            var driver = TestSqlDriver.Create(Url);
             Assert.Greater(driver.CoreServerInfo.ServerVersion.Major, 8);
         }
 
         [Test]
         public void ProviderTest()
         {
-            TestProvider("sqlserver", TestConnectionString.SqlServer2005, TestUrl.SqlServer2005);
-            TestProvider("postgresql", TestConnectionString.PostgreSql84, TestUrl.PostgreSql84);
-            TestProvider("mysql", TestConnectionString.MySql50, TestUrl.MySql50);
-            // TestProvider("oracle", TestConnectionString.Oracle11, TestUrl.Oracle11);
+            TestProvider(provider, ConnectionString, Url);
         }
 
         private static void TestProvider(string providerName, string connectionString, string connectionUrl)

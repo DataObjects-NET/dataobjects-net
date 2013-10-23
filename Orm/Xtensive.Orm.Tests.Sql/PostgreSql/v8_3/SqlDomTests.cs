@@ -9,6 +9,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql.v8_3
   [TestFixture]
   public class SqlDomTests : PostgreSql.SqlDomTests
   {
-    protected override string Url { get { return TestUrl.PostgreSql83; } }
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+    }
   }
 }
