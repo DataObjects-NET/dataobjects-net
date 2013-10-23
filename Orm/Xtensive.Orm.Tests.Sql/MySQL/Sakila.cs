@@ -85,6 +85,11 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
             }
             return result;
         }
+        
+        public void IgnoreMe(string message)
+        {
+          throw new IgnoreException(message);
+        }
 
         public Catalog Catalog { get; protected set; }
 

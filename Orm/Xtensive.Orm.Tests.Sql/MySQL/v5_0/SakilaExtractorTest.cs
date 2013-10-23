@@ -96,6 +96,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
         [TestFixtureSetUp]
         public override void SetUp()
         {
+            IgnoreMe("Ignored due to Sakila");
             sqlDriver = TestSqlDriver.Create(TestUrl.MySql50);
             sqlConnection = sqlDriver.CreateConnection();
 
