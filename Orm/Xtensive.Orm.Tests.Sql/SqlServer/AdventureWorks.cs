@@ -80,9 +80,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
     public Catalog Catalog { get; protected set; }
 
+    protected void IgnoreMe()
+    {
+      throw new IgnoreException("temporary ignored due to AdventureWorks");
+    }
+
     [TestFixtureSetUp]
     public virtual void SetUp()
     {
+      IgnoreMe();
 //      BinaryModelProvider bmp = new BinaryModelProvider(@"C:/Debug/AdventureWorks.bin");
 //      model = Database.Model.Build(bmp);
 //

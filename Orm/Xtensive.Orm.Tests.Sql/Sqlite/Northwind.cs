@@ -76,6 +76,11 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       return result;
     }
 
+    protected void IgnoreMe(string message)
+    {
+      throw new IgnoreException(message);
+    }
+
     public Catalog Catalog { get; protected set; }
 
     [TestFixtureSetUp]

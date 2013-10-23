@@ -92,6 +92,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite.v3
     [TestFixtureSetUp]
     public override void SetUp()
     {
+      IgnoreMe("Ignored due to Northwind");
       sqlDriver = TestSqlDriver.Create(TestUrl.Sqlite3);
       sqlConnection = sqlDriver.CreateConnection();
 

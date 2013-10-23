@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServerCe
   [TestFixture, Explicit]
   public class ExtractorTest : SqlTest
   {
-    [Test]
+    [Test, Ignore("Ignored due to Northwind")]
     public void BaseTest()
     {
       var schema = ExtractDefaultSchema();

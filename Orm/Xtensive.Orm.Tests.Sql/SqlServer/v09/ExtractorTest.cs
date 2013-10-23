@@ -18,6 +18,16 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
   {
     protected override string Url { get { return TestUrl.SqlServer2005Aw; } }
 
+    protected override void TestFixtureSetUp()
+    {
+      IgnoreMe();
+    }
+
+    private void IgnoreMe()
+    {
+      throw new IgnoreException("temporary ignored due to AdventureWorks");
+    }
+
     [Test]
     public void Extract()
     {

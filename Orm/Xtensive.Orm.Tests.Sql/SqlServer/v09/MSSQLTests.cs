@@ -88,6 +88,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
     [TestFixtureSetUp]
     public override void SetUp()
     {
+      IgnoreMe();
       sqlDriver = TestSqlDriver.Create(TestUrl.SqlServer2005Aw);
       sqlConnection = sqlDriver.CreateConnection();
 
