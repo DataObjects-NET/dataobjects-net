@@ -11,6 +11,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql.v8_3
   [TestFixture]
   public class SavepointsTest : Sql.SavepointsTest
   {
-    protected override string Url { get { return TestUrl.PostgreSql83; } }
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+    }
   }
 }

@@ -13,11 +13,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql.v8_3
   [TestFixture]
   public class ExtractorTest : PostgreSql.ExtractorTest
   {
-    protected override string Url
-    {
-      get { return TestUrl.PostgreSql83; }
-    }
-
     [Test]
     public void FullTextIndexExtractorTest()
     {

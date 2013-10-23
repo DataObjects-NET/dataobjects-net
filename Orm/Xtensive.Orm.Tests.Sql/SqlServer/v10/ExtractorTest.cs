@@ -4,7 +4,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v10
 {
   public class ExtractorTest : v09.ExtractorTest
   {
-    protected override string Url { get { return TestUrl.SqlServer2008; } }
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2008);
+    }
 
     [Test]
     public void ExtractUDTTest()

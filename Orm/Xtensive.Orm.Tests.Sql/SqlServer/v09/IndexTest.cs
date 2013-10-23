@@ -15,11 +15,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
   [Serializable]
   public class IndexTest2005 : IndexTest
   {
-    protected override string Url
-    {
-      get { return TestUrl.SqlServer2005; }
-    }
-
     protected override void CreateTable()
     {
       Table t;
@@ -39,6 +34,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
       c2.IsNullable = true;
 
       ExecuteNonQuery(SqlDdl.Create(t));
+    }
+
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2005);
     }
 
     [Test]
@@ -67,15 +68,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
     {
       if (GetType() == typeof(IndexTest2005))
         Assert.Ignore("Filtered indexes are not supported.");
-    }
-  }
-
-  [Serializable]
-  public class IndexTest2008 : IndexTest2005
-  {
-    protected override string Url
-    {
-      get { return TestUrl.SqlServer2008; }
     }
   }
 }

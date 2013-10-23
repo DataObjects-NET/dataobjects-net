@@ -14,9 +14,10 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql.v8_3
 {
   public class IndexTest : Sql.IndexTest
   {
-    protected override string Url
+    protected override void CheckRequirements()
     {
-      get { return TestUrl.PostgreSql83; }
+      Require.ProviderIs(StorageProvider.PostgreSql);
+      Require.ProviderVersionAtLeast(StorageProviderVersion.PostgreSql83);
     }
 
     protected override void CreateTable()

@@ -14,6 +14,11 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
   [TestFixture, Explicit]
   public abstract class ExtractorTest : SqlTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+    }
+
     [Test]
     public void ExpressionIndexExtractorTest()
     {

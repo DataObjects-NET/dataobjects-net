@@ -8,9 +8,12 @@ using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Sql.Firebird.v2_5
 {
-    [TestFixture, Explicit]
-    public class ExceptionTypesTest : Firebird.ExceptionTypesTest
+  [TestFixture, Explicit]
+  public class ExceptionTypesTest : Firebird.ExceptionTypesTest
+  {
+    protected override void CheckRequirements()
     {
-        protected override string Url { get { return TestUrl.Firebird25; } }
+      Require.ProviderIs(StorageProvider.Firebird);
     }
+  }
 }

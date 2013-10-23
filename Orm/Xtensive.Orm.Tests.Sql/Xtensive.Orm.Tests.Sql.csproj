@@ -73,26 +73,17 @@
     <Compile Include="MySQL\v5_0\TypeMappingTests.cs" />
     <Compile Include="Oracle\ExtractorTest.cs" />
     <Compile Include="Oracle\v10\ExceptionTypesTest.cs" />
+    <Compile Include="Oracle\v10\ExtractorTest.cs" />
     <Compile Include="Oracle\v10\SavepointsTest.cs" />
-    <Compile Include="Oracle\v11\ExceptionTypesTest.cs" />
-    <Compile Include="Oracle\v11\SavepointsTest.cs" />
     <Compile Include="Oracle\TypeMappingTest.cs" />
     <Compile Include="Oracle\v10\DateTimeIntervalTest.cs" />
-    <Compile Include="Oracle\v10\ExtractorTest.cs" />
     <Compile Include="Oracle\v10\TypeMappingTest.cs" />
     <Compile Include="Oracle\v10\UberTest.cs" />
-    <Compile Include="Oracle\v11\DateTimeIntervalTest.cs" />
-    <Compile Include="Oracle\v11\ExtractorTest.cs" />
-    <Compile Include="Oracle\v11\TypeMappingTest.cs" />
-    <Compile Include="Oracle\v11\UberTest.cs" />
     <Compile Include="PostgreSql\ExtractorTest.cs" />
     <Compile Include="PostgreSql\v8_3\ExceptionTypesTest.cs" />
     <Compile Include="PostgreSql\v8_3\ExtractorTest.cs" />
-    <Compile Include="PostgreSql\IndexTest.cs" />
+    <Compile Include="PostgreSql\v8_3\IndexTest.cs" />
     <Compile Include="PostgreSql\v8_3\SavepointsTest.cs" />
-    <Compile Include="PostgreSql\v8_4\ExceptionTypesTest.cs" />
-    <Compile Include="PostgreSql\v8_4\ExtractorTest.cs" />
-    <Compile Include="PostgreSql\v8_4\SavepointsTest.cs" />
     <Compile Include="SavepointsTest.cs" />
     <Compile Include="Sqlite\ExtractorTest.cs" />
     <Compile Include="Sqlite\Northwind.cs" />
@@ -110,7 +101,6 @@
     <Compile Include="SqlServer\v09\SavepointsTest.cs" />
     <Compile Include="SqlServer\v09\TypeMappingTest.cs" />
     <Compile Include="PostgreSql\v8_3\TypeMappingTest.cs" />
-    <Compile Include="PostgreSql\v8_4\TypeMappingTest.cs" />
     <Compile Include="SqlServer\v10\ExtractorTest.cs" />
     <Compile Include="SqlTest.cs" />
     <Compile Include="TestConnectionString.cs" />
@@ -128,7 +118,6 @@
     <Compile Include="PostgreSql\SqlDomTests.cs" />
     <Compile Include="PostgreSql\v8_3\DateTimeIntervalTest.cs" />
     <Compile Include="PostgreSql\v8_3\SqlDomTests.cs" />
-    <Compile Include="PostgreSql\v8_4\DateTimeIntervalTest.cs" />
     <Compile Include="PostgreSql\v8_4\SqlDomTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReplaceTests.cs" />
@@ -165,7 +154,9 @@
     <Content Include="Sqlite\history.sql" />
     <Content Include="Sqlite\Northwind.Sqlite3.sql" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Oracle\v11\" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj">
       <Project>{F2CE47F7-8170-4FC4-B619-D32E6398D4F9}</Project>

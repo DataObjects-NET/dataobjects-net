@@ -11,7 +11,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
   [TestFixture]
   public class DateTimeIntervalTest : Sql.DateTimeIntervalTest
   {
-    protected override string Url { get { return TestUrl.SqlServer2005; } }
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2005);
+    }
 
     public override void DateTimeSubtractIntervalTest()
     {

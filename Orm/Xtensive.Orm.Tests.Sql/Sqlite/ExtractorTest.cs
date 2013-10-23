@@ -43,9 +43,9 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       }
     }
 
-    protected override string Url
+    protected override void CheckRequirements()
     {
-      get { return TestUrl.Sqlite3; }
+      Require.ProviderIs(StorageProvider.Sqlite);
     }
   }
 }

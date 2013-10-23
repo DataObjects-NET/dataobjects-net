@@ -11,6 +11,10 @@ namespace Xtensive.Orm.Tests.Sql.Oracle.v10
   [TestFixture, Explicit]
   public class TypeMappingTest : Oracle.TypeMappingTest
   {
-    protected override string Url { get { return TestUrl.Oracle10; } }
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Oracle);
+      Require.ProviderVersionAtLeast(StorageProviderVersion.Oracle10);
+    }
   }
 }

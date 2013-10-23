@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+﻿// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -11,6 +11,10 @@ namespace Xtensive.Orm.Tests.Sql.Oracle.v10
   [TestFixture, Explicit]
   public class UberTest : Oracle.UberTest
   {
-    protected override string Url { get {return TestUrl.Oracle10; } }
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Oracle);
+      Require.ProviderVersionAtLeast(StorageProviderVersion.Oracle10);
+    }
   }
 }
