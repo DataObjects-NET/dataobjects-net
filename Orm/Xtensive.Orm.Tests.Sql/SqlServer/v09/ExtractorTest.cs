@@ -20,10 +20,16 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
 
     protected override void TestFixtureSetUp()
     {
+      Ignore();
+      base.TestFixtureSetUp();
+    }
+
+    protected virtual void Ignore()
+    {
       IgnoreMe();
     }
 
-    private void IgnoreMe()
+     void IgnoreMe()
     {
       throw new IgnoreException("temporary ignored due to AdventureWorks");
     }

@@ -4,6 +4,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v10
 {
   public class ExtractorTest : v09.ExtractorTest
   {
+    protected override string Url
+    {
+      get { return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl.Url; }
+    }
+
+    protected override void Ignore()
+    {
+    }
+
     protected override void CheckRequirements()
     {
       Require.ProviderIs(StorageProvider.SqlServer);

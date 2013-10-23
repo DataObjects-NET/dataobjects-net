@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       var url = UrlInfo.Parse(TestUrl.SqlServer2005Aw);
       Assert.AreEqual(url.Protocol, "sqlserver");
-      Assert.AreEqual(url.Host, "localhost");
+      Assert.AreEqual(url.Host, "appserver");
       Assert.AreEqual(url.Resource, "AdventureWorks");
 
       url = UrlInfo.Parse("sqlserver://localhost/database");

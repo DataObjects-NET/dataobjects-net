@@ -117,7 +117,10 @@ namespace Xtensive.Orm.Tests.Sql
       }
 
       Assert.IsTrue(passed);
-      Assert.AreNotEqual(c1, c2);
+      Assert.AreNotSame(c1, c2);
+      //Possibly NUnit compares items of IEnumirable
+      //and if they the same it sugests two objects are equals 
+      //Assert.AreNotEqual(c1, c2);
       Assert.AreEqual(c1.NodeType, c2.NodeType);
       Assert.AreEqual(c1.Value, c2.Value);
       Assert.AreEqual(c1.Else, c2.Else);
@@ -330,7 +333,7 @@ namespace Xtensive.Orm.Tests.Sql
       }
 
       Assert.IsTrue(passed);
-      Assert.AreNotEqual(r, rReplacing);
+      Assert.AreNotSame(r, rReplacing);
       Assert.AreEqual(r.NodeType, rReplacing.NodeType);
       Assert.AreEqual(r.Count, rReplacing.Count);
       for (int i = 0, l = r.Count; i<l; i++)
