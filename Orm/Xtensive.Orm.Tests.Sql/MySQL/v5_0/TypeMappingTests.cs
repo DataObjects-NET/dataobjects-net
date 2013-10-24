@@ -13,9 +13,14 @@ using Xtensive.Orm.Tests.Sql;
 
 namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
 {
-    [TestFixture, Explicit]
+    [TestFixture, Explicit, Ignore("Ignored due to Sakila")]
     public class TypeMappingTest : Sql.TypeMappingTest
     {
         protected override string Url { get { return TestUrl.MySql50; } }
+
+        protected override void TestFixtureSetUp()
+        {
+          
+        }
     }
 }

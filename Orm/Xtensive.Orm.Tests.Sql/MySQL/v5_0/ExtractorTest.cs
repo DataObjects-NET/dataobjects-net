@@ -12,7 +12,7 @@ using Xtensive.Sql.Model;
     
 namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
 {
-    [TestFixture]
+    [TestFixture, Ignore("Ignored due to Sakila")]
     public class ExtractorTest : SqlTest
     {
         protected override string Url { get { return TestUrl.MySql50; } }
@@ -74,6 +74,10 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
                )";
 
         #endregion
+
+        protected override void TestFixtureSetUp()
+        {
+        }
 
         private void DropBadTables()
         {
