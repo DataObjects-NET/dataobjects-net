@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     protected void CreateModel()
     {
       {
-        MyCatalog = new Catalog("do40test");
+        MyCatalog = new Catalog(ConnectionUrlInfo.GetDatabase());
 
         ForeignKey fk;
         Index idx;
@@ -1500,6 +1500,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       }
       finally {
         Connection.Rollback();
+        var t = MyCatalog.DefaultSchema.Tables["unique_perd_test"];
+        if (t != null)
+          MyCatalog.DefaultSchema.Tables.Remove(t);
       }
     }
 
@@ -1692,6 +1695,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       }
       finally {
         Connection.Rollback();
+        var t = MyCatalog.DefaultSchema.Tables["match_pred_test"];
+        if (t!=null)
+          MyCatalog.DefaultSchema.Tables.Remove(t);
       }
     }
 
@@ -1778,6 +1784,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       }
       finally {
         Connection.Rollback();
+        var t = MyCatalog.DefaultSchema.Tables["agg_test"];
+        if (t != null)
+          MyCatalog.DefaultSchema.Tables.Remove(t);
       }
     }
 
@@ -2055,6 +2064,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       }
       finally {
         Connection.Rollback();
+        var t = MyCatalog.DefaultSchema.Tables["cursor_test"];
+        if (t != null)
+          MyCatalog.DefaultSchema.Tables.Remove(t);
       }
     }
 
