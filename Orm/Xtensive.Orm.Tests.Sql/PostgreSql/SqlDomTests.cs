@@ -1845,7 +1845,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       }
     }
 
-    [Test]
+    [Test, Ignore("SQLFIXME")]
     public void UnionAndIntersectTest()
     {
       SqlSelect q = SqlDml.Select(SqlDml.QueryRef(

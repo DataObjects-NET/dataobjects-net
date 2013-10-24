@@ -340,7 +340,7 @@ namespace Xtensive.Orm.Tests.Sql
         Assert.AreEqual(r[i], rReplacing[i]);
     }
 
-    [Test]
+    [Test, Ignore("FixGetEnumerator")]
     public void SqlSubSelectReplacingTest()
     {
       SqlSelect s = SqlDml.Select();
