@@ -20,6 +20,8 @@ namespace Xtensive.Orm.Weaver
 
     public bool HasTransformations { get { return WeavingTasks.Count > 0; } }
 
+    public bool SkipProcessing { get; set; }
+
     public IList<WeavingTask> WeavingTasks { get; set; }
 
     public ModuleDefinition TargetModule { get; set; }

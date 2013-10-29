@@ -8,6 +8,11 @@ namespace Xtensive.Orm.Weaver
 {
   internal abstract class ProcessorStage
   {
+    public virtual bool CanExecute(ProcessorContext context)
+    {
+      return !context.SkipProcessing;
+    }
+
     public abstract ActionResult Execute(ProcessorContext context);
   }
 }

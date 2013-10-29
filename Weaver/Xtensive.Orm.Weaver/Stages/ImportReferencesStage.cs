@@ -18,8 +18,10 @@ namespace Xtensive.Orm.Weaver.Stages
       var mscorlibAssembly = context.TargetModule.TypeSystem.Corlib;
 
       var ormAssembly = FindReference(context, WellKnown.OrmAssemblyFullName);
-      if (ormAssembly==null)
-        return ActionResult.Failure;
+      if (ormAssembly==null) {
+        context.SkipProcessing = true;
+        return ActionResult.Success;
+      }
       registry.OrmAssembly = ormAssembly;
 
       var stringType = context.TargetModule.TypeSystem.String;
@@ -107,12 +109,6 @@ namespace Xtensive.Orm.Weaver.Stages
       var comparer = WeavingHelper.AssemblyNameComparer;
       var reference = context.TargetModule.AssemblyReferences
         .FirstOrDefault(r => comparer.Equals(r.FullName, assemblyName));
-
-      if (reference==null) {
-        context.Logger.Write(MessageCode.ErrorTargetAssemblyHasNoExpectedReference, assemblyName);
-        return null;
-      }
-
       return reference;
     }
 

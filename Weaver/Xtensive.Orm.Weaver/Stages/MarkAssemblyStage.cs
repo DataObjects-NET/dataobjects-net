@@ -12,8 +12,7 @@ namespace Xtensive.Orm.Weaver.Stages
   {
     public override ActionResult Execute(ProcessorContext context)
     {
-      if (context.HasTransformations)
-        context.WeavingTasks.Add(new AddAttributeTask(
+      context.WeavingTasks.Add(new AddAttributeTask(
           context.TargetModule.Assembly, context.References.ProcessedByWeaverAttributeConstructor));
       return ActionResult.Success;
     }

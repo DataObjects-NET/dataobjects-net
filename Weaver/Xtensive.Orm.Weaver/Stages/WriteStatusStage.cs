@@ -5,17 +5,18 @@
 // Created:    2013.08.21
 
 using System.IO;
-using System.Linq;
 
 namespace Xtensive.Orm.Weaver.Stages
 {
   internal sealed class WriteStatusStage : ProcessorStage
   {
+    public override bool CanExecute(ProcessorContext context)
+    {
+      return base.CanExecute(context) && context.Configuration.WriteStatusFile;
+    }
+
     public override ActionResult Execute(ProcessorContext context)
     {
-      if (!context.Configuration.WriteStatusFile)
-        return ActionResult.Success;
-
       var statusFile = FileHelper.GetStatusFile(context.OutputFile);
 
       using (var writer = new StreamWriter(statusFile))

@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Weaver
     private static ActionResult ExecuteStage(ProcessorContext context, ProcessorStage stage)
     {
       try {
-        return stage.Execute(context);
+        return stage.CanExecute(context) ? stage.Execute(context) : ActionResult.Success;
       }
       catch (StageFailedException) {
         return ActionResult.Failure;

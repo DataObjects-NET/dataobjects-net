@@ -23,6 +23,7 @@ namespace Xtensive.Orm.Weaver.Stages
         if (result.Kind!=PersistentTypeKind.None)
           context.PersistentTypes.Add(result);
       }
+      context.SkipProcessing = context.PersistentTypes.Count==0;
       return ActionResult.Success;
     }
 

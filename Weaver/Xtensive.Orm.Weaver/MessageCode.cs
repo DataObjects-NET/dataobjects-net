@@ -13,7 +13,6 @@ namespace Xtensive.Orm.Weaver
     ErrorInternal = 1,
     ErrorInputFileIsNotFound,
     ErrorStrongNameKeyIsNotFound,
-    ErrorTargetAssemblyHasNoExpectedReference,
     ErrorUnableToLocateOrmAssembly,
     ErrorUnableToFindReferencedAssembly,
     ErrorUnableToRemoveBackingField,

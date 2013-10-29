@@ -80,7 +80,6 @@ namespace Xtensive.Orm.Weaver
       RegisterMessage(MessageCode.ErrorInternal, "Internal error");
       RegisterMessage(MessageCode.ErrorInputFileIsNotFound, "Input file is not found");
       RegisterMessage(MessageCode.ErrorStrongNameKeyIsNotFound, "Strong name key file is not found");
-      RegisterMessage(MessageCode.ErrorTargetAssemblyHasNoExpectedReference, "Target assembly does not have expected reference");
       RegisterMessage(MessageCode.ErrorUnableToLocateOrmAssembly, "Unable to locate Xtensive.Orm assembly");
       RegisterMessage(MessageCode.ErrorUnableToFindReferencedAssembly, "Unable to find referenced assembly");
       RegisterMessage(MessageCode.ErrorUnableToRemoveBackingField, "Unable to remove backing field");
