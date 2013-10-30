@@ -5,6 +5,7 @@
 // Created:    2008.08.11
 
 using System.Configuration;
+using JetBrains.Annotations;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Configuration.Elements
@@ -15,6 +16,18 @@ namespace Xtensive.Orm.Configuration.Elements
   public class ConfigurationSection : System.Configuration.ConfigurationSection
   {
     private const string DomainCollectionElementName = "domains";
+    private const string XmlNamespaceElementName = "xmlns";
+
+    /// <summary>
+    /// Gets or sets XML namespace.
+    /// </summary>
+    [ConfigurationProperty(XmlNamespaceElementName)]
+    [UsedImplicitly]
+    public string XmlNamespace
+    {
+      get { return (string) this[XmlNamespaceElementName]; }
+      set { this[XmlNamespaceElementName] = value; }
+    }
 
     /// <summary>
     /// Gets the collection of domain configurations.
