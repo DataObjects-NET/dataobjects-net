@@ -74,6 +74,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\SchemaTest.cs" />
     <Compile Include="DomainConfigurationFactoryTest.cs" />
     <Compile Include="Interfaces\DoubleIndexedInterfaceTest.cs" />
     <Compile Include="Interfaces\InterfaceImplementationTest.cs" />
@@ -689,6 +690,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\Static\Xml\Xtensive.Orm.xsd">
+      <Link>Xtensive.Orm.xsd</Link>
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
