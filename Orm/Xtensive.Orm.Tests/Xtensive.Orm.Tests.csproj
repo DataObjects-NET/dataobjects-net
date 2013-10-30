@@ -690,7 +690,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Static\Xml\Xtensive.Orm.xsd">
+    <None Include="..\..\Static\Content\Xtensive.Orm.xsd">
       <Link>Xtensive.Orm.xsd</Link>
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
