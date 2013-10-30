@@ -945,7 +945,6 @@
     <Compile Include="Orm\EntitySetEventArgs.cs" />
     <Compile Include="Orm\EntityFieldValueSetCompletedEventArgs.cs" />
     <Compile Include="Orm\EntityFieldValueSetEventArgs.cs" />
-    <Compile Include="Orm\Configuration\Elements\BuilderElement.cs" />
     <Compile Include="Orm\Configuration\Elements\ConfigurationSection.cs" />
     <Compile Include="Orm\Configuration\Elements\DomainConfigurationElement.cs" />
     <Compile Include="Orm\Configuration\Elements\NamespaceSynonymElement.cs" />
