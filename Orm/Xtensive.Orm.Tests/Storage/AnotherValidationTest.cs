@@ -9,11 +9,11 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Validation;
-using model1 = Xtensive.Orm.Tests.Storage.Validation.ValidationModel;
-using model2 = Xtensive.Orm.Tests.Storage.Validation.ImmediateValidationModel;
+using model1 = Xtensive.Orm.Tests.Storage.AnotherValidation.ValidationModel;
+using model2 = Xtensive.Orm.Tests.Storage.AnotherValidation.ImmediateValidationModel;
 
 #region Models
-namespace Xtensive.Orm.Tests.Storage.Validation.ValidationModel
+namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ValidationModel
 {
   public class Passport : Structure
   {
@@ -204,7 +204,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation.ValidationModel
   }
 }
 
-namespace Xtensive.Orm.Tests.Storage.Validation.ImmediateValidationModel
+namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ImmediateValidationModel
 {
   public class Passport : Structure
   {
@@ -396,7 +396,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation.ImmediateValidationModel
 }
 #endregion
 
-namespace Xtensive.Orm.Tests.Storage.Validation
+namespace Xtensive.Orm.Tests.Storage.AnotherValidation
 {
   [TestFixture]
   class AnotherValidationTest : AutoBuildTest
