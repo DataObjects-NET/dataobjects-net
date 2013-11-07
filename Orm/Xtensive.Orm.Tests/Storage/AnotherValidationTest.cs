@@ -55,6 +55,12 @@ namespace Xtensive.Orm.Tests.Storage.Validation.ValidationModel
     public string ShortName { get; set; }
 
     [Field]
+    public ChildClass Field1 { get; set; }
+
+    [Field]
+    public SecondChildClass Field2 { get; set; }  
+
+    [Field]
     [Association(PairTo = "Measure")]
     public EntitySet<Product> Products { get; set; }
   }
@@ -146,6 +152,56 @@ namespace Xtensive.Orm.Tests.Storage.Validation.ValidationModel
     [Field, NotNullConstraint]
     public Product Product { get; set; }
   }
+  
+  public class BaseEntity : Entity
+  {
+    [Field, Key]
+    public int Id { get; set; }
+
+    [Field, NotEmptyConstraint]
+    public string NotEmptyString { get; set; }
+
+    [Field, NotNullOrEmptyConstraint]
+    public string NotNullOrEmptyString { get; set; }
+
+    [Field, NotNullConstraint]
+    public string NotNullString { get; set; }
+
+    [Field, LengthConstraint(Min = 2, Max = 10)]
+    public string LimitedLengthString { get; set; }
+
+    [Field, PastConstraint]
+    public DateTime PastDateTime { get; set; }
+
+    [Field, FutureConstraint]
+    public DateTime FutureDateTime { get; set; }
+
+    [Field, RangeConstraint(Min = 3, Max = 10)]
+    public int IntValueInRange { get; set; }
+
+    [Field, RegexConstraint(Pattern = @"^(\%){3,10}$")]
+    public string StringForRegexValidation { get; set; }
+
+    [Field]
+    public virtual string overridedField { get; set; }
+
+    [NotNullOrEmptyConstraint]
+    public virtual string propertyBecomesField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class ChildClass : BaseEntity
+  {
+    [NotEmptyConstraint]
+    public override string overridedField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class SecondChildClass: BaseEntity
+  {
+    [Field]
+    public override string propertyBecomesField { get; set; }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Storage.Validation.ImmediateValidationModel
@@ -188,6 +244,12 @@ namespace Xtensive.Orm.Tests.Storage.Validation.ImmediateValidationModel
 
     [Field(Nullable = true)]
     public string ShortName { get; set; }
+
+    [Field]
+    public ChildClass Field1 { get; set; }
+
+    [Field]
+    public SecondChildClass Field2 { get; set; }  
 
     [Field]
     [Association(PairTo = "Measure")]
@@ -282,6 +344,55 @@ namespace Xtensive.Orm.Tests.Storage.Validation.ImmediateValidationModel
     public Product Product { get; set; }
   }
 
+  public class BaseEntity : Entity
+  {
+    [Field ,Key]
+    public int Id { get; set; }
+
+    [Field, NotEmptyConstraint(IsImmediate = true)]
+    public string NotEmptyString { get; set; }
+
+    [Field, NotNullOrEmptyConstraint(IsImmediate = true)]
+    public string NotNullOrEmptyString { get; set; }
+
+    [Field, NotNullConstraint(IsImmediate = true)]
+    public string NotNullString { get; set; }
+
+    [Field, LengthConstraint(Min = 2, Max = 10, IsImmediate = true)]
+    public string LimitedLengthString { get; set; }
+
+    [Field, PastConstraint(IsImmediate = true)]
+    public DateTime PastDateTime { get; set; }
+
+    [Field, FutureConstraint(IsImmediate = true)]
+    public DateTime FutureDateTime { get; set; }
+
+    [Field, RangeConstraint(Min = 3, Max = 10, IsImmediate = true)]
+    public int IntValueInRange { get; set; }
+
+    [Field, RegexConstraint(Pattern = @"^(\%){3,10}$", IsImmediate = true)]
+    public string StringForRegexValidation { get; set; }
+
+    [Field]
+    public virtual string overridedField { get; set; }
+
+    [NotNullOrEmptyConstraint(IsImmediate = true)]
+    public virtual string propertyBecomesField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class ChildClass : BaseEntity
+  {
+    [NotEmptyConstraint(IsImmediate = true)]
+    public override string overridedField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class SecondChildClass : BaseEntity
+  {
+    [Field]
+    public override string propertyBecomesField { get; set; }
+  }
 }
 #endregion
 
@@ -369,6 +480,30 @@ namespace Xtensive.Orm.Tests.Storage.Validation
         var passport = new model1.Passport {Number = "357867", Series = "2233", Department = "\"Horns & Hooves\" Corp.", DepartmentNumber = "358-845", DistributeDate = new DateTime(2012, 12, 1)};
         var customer = new model1.Customer {FirstName = "Henry", LastName = "Smith", Birthday = new DateTime(1969, 3, 8), Passport = passport, Email = "login@domain.ru", Phone = "+79879454568"};
         var order = new model1.Order {Product = product, Customer = customer, Date = DateTime.Now, DeliveryDate = DateTime.Now.AddDays(2), DeliveryIsOrdered = true};
+        var childClass = new model1.ChildClass {
+          NotEmptyString = "d",
+          NotNullOrEmptyString = "sdf",
+          NotNullString = "skdjfh",
+          FutureDateTime = DateTime.Now.AddDays(2),
+          IntValueInRange = 5,
+          PastDateTime = DateTime.Now,
+          StringForRegexValidation = "%%%%",
+          overridedField = "sdfd",
+          propertyBecomesField = "sdfljdkf",
+          LimitedLengthString = "uuuuu"
+        };
+        var secondChildClass = new model1.SecondChildClass {
+          NotEmptyString = "d",
+          NotNullOrEmptyString = "sdf",
+          NotNullString = "skdjfh",
+          FutureDateTime = DateTime.Now.AddDays(2),
+          IntValueInRange = 5,
+          PastDateTime = DateTime.Now,
+          StringForRegexValidation = "%%%%",
+          overridedField = "sdfd",
+          propertyBecomesField = "sdfljdkf",
+          LimitedLengthString = "uuuuu"
+        };
         session.Validate();
         transaction.Complete();
       }
@@ -1073,6 +1208,642 @@ namespace Xtensive.Orm.Tests.Storage.Validation
             new model2.Order {Customer = customer, Product = product, Date = DateTime.Now, DeliveryIdOrdered = true, DeliveryDate = DateTime.Now};
             session.Validate();
           });
+      }
+    }
+
+    [Test]
+    public void InheritedFieldsValidationOnValidDataAdditionTest()
+    {
+      using (var domain = BuildDomain(false))
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        Assert.DoesNotThrow(
+          () => {
+            var measure = new model1.Measure {
+                Name = "measure",
+                Field1 = new model1.ChildClass {
+                    NotEmptyString = "d",
+                    NotNullOrEmptyString = "sdf",
+                    NotNullString = "skdjfh",
+                    FutureDateTime = DateTime.Now.AddDays(2),
+                    IntValueInRange = 5,
+                    PastDateTime = DateTime.Now,
+                    StringForRegexValidation = "%%%%",
+                    overridedField = "sdfd",
+                    propertyBecomesField = "sdfljdkf",
+                    LimitedLengthString = "uuuuu"
+                  }
+                };
+            session.Validate();
+          });
+      }
+    }
+
+    [Test]
+    public void ImmediateInheritedFieldsValidationOnValidDataAdditionTest()
+    {
+      using (var domain = BuildDomain(true))
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        Assert.DoesNotThrow(
+          () => {
+            var measure = new model2.Measure {
+                Name = "measure",
+                Field1 = new model2.ChildClass {
+                    NotEmptyString = "d",
+                    NotNullOrEmptyString = "sdf",
+                    NotNullString = "skdjfh",
+                    FutureDateTime = DateTime.Now.AddDays(2),
+                    IntValueInRange = 5,
+                    PastDateTime = DateTime.Now,
+                    StringForRegexValidation = "%%%%",
+                    overridedField = "sdfd",
+                    propertyBecomesField = "sdfljdkf",
+                    LimitedLengthString = "uuuuu"
+                  }
+                };
+          });
+      }
+    }
+
+    [Test]
+    public void InheritedFieldsConstraintsOnNotValidDataAdditionTest()
+    {
+      using (var domain = BuildDomain(false))
+      using (var session = domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              var measure = new model1.Measure {
+                Name = "measure",
+                Field1 = new model1.ChildClass {
+                  NotEmptyString = "",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              var measure = new model1.Measure {
+                Name = "measure",
+                Field1 = new model1.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              }; 
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              var measure = new model1.Measure {
+                Name = "measure",
+                Field1 = new model1.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = null,
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              var measure = new model1.Measure {
+                Name = "measure",
+                Field1 = new model1.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = null,
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              var measure = new model1.Measure {
+                Name = "measure",
+                Field1 = new model1.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now,
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              var measure = new model1.Measure {
+                Name = "measure",
+                Field1 = new model1.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 11,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              var measure = new model1.Measure {
+                Name = "measure",
+                Field1 = new model1.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now.AddSeconds(2),
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              var measure = new model1.Measure {
+                Name = "measure",
+                Field1 = new model1.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%&%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              var measure = new model1.Measure {
+                Name = "measure",
+                Field1 = new model1.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuujhgdfhjdfhgjfdhgfjdhghfg"
+                }
+              };
+              session.Validate();
+            });
+        }
+      }
+    }
+
+    [Test]
+    public void ImmediateInheritedFieldsConstraintsOnNotValidDataAdditionTest()
+    {
+      using (var domain = BuildDomain(true))
+      using (var session = domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              var measure = new model2.Measure {
+                Name = "measure",
+                Field1 = new model2.ChildClass {
+                  NotEmptyString = "",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              var measure = new model2.Measure {
+                Name = "measure",
+                Field1 = new model2.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              var measure = new model2.Measure {
+                Name = "measure",
+                Field1 = new model2.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = null,
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              var measure = new model2.Measure {
+                Name = "measure",
+                Field1 = new model2.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = null,
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              var measure = new model2.Measure {
+                Name = "measure",
+                Field1 = new model2.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now,
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              var measure = new model2.Measure {
+                Name = "measure",
+                Field1 = new model2.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 11,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              var measure = new model2.Measure {
+                Name = "measure",
+                Field1 = new model2.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now.AddSeconds(2),
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              var measure = new model2.Measure {
+                Name = "measure",
+                Field1 = new model2.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%&%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              var measure = new model2.Measure {
+                Name = "measure",
+                Field1 = new model2.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "sdfd",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuujhgdfhjdfhgjfdhgfjdhghfg"
+                }
+              };
+            });
+        }
+      }
+    }
+
+    [Test]
+    public void OverridedFieldConsraintAdditionTest()
+    {
+      using (var domain = BuildDomain(false))
+      using (var session = domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              var measure = new model1.Measure {
+                Name = "measure",
+                Field1 = new model1.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.DoesNotThrow(
+            () => {
+              var measure1 = new model1.Measure {
+                Name = "measure",
+                Field2 = new model1.SecondChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+              session.Validate();
+            });
+        }
+      }
+    }
+
+    [Test]
+    public void ImmediateOverridedFieldConsraintAdditionTest()
+    {
+      using (var domain = BuildDomain(true))
+      using (var session = domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              var measure = new model2.Measure {
+                Name = "measure",
+                Field1 = new model2.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.DoesNotThrow(
+            () => {
+              var measure = new model2.Measure {
+                Name = "measure",
+                Field2 = new model2.SecondChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "",
+                  propertyBecomesField = "sdfljdkf",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+            });
+        }
+      }
+    }
+
+    [Test]
+    public void InteritedPropertyBecomesFieldAdditionTest()
+    {
+      using (var domain = BuildDomain(false))
+      using (var session = domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
+          Assert.DoesNotThrow(
+            () => {
+              var measure = new model1.Measure {
+                Name = "measure",
+                Field1 = new model1.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "ddd",
+                  propertyBecomesField = null,
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.DoesNotThrow(
+            () => {
+              var measure = new model1.Measure {
+                Name = "measure",
+                Field2 = new model1.SecondChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "dfdf",
+                  propertyBecomesField = "",
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+              session.Validate();
+            });
+        }
+      }
+    }
+
+    [Test]
+    public void ImmediateInteritedPropertyBecomesFieldAdditionTest()
+    {
+      using (var domain = BuildDomain(true))
+      using (var session = domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
+          Assert.DoesNotThrow(
+            () => {
+              var measure = new model2.Measure {
+                Name = "measure",
+                Field1 = new model2.ChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "ddd",
+                  propertyBecomesField = null,
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.DoesNotThrow(
+            () => {
+              var measure = new model2.Measure {
+                Name = "measure",
+                Field2 = new model2.SecondChildClass {
+                  NotEmptyString = "d",
+                  NotNullOrEmptyString = "sdf",
+                  NotNullString = "skdjfh",
+                  FutureDateTime = DateTime.Now.AddDays(2),
+                  IntValueInRange = 5,
+                  PastDateTime = DateTime.Now,
+                  StringForRegexValidation = "%%%%",
+                  overridedField = "dfdf",
+                  propertyBecomesField = null,
+                  LimitedLengthString = "uuuuu"
+                }
+              };
+            });
+        }
       }
     }
     #endregion
@@ -1936,6 +2707,321 @@ namespace Xtensive.Orm.Tests.Storage.Validation
           Assert.Throws<ArgumentException>(
             () => {
               order.DeliveryDate = DateTime.Now;
+            });
+        }
+      }
+    }
+
+    [Test]
+    public void InheritedFieldsValidationOnValidDataChangingTest()
+    {
+      using (var domain = BuildDomain(false))
+      using (var session = domain.OpenSession()) {
+        model1.ChildClass childClass;
+        using (var transaction = session.OpenTransaction()) {
+          childClass = session.Query.All<model1.ChildClass>().First();
+          transaction.Complete();
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.DoesNotThrow(
+            () => {
+              childClass.NotEmptyString = "d";
+              childClass.NotNullOrEmptyString = "sdf";
+              childClass.NotNullString = "skdjfh";
+              childClass.FutureDateTime = DateTime.Now.AddDays(2);
+              childClass.IntValueInRange = 5;
+              childClass.PastDateTime = DateTime.Now;
+              childClass.StringForRegexValidation = "%%%%";
+              childClass.overridedField = "sdfd";
+              childClass.propertyBecomesField = "sdfljdkf";
+              childClass.LimitedLengthString = "uuuuu";
+              session.Validate();
+            });
+        }
+      }
+    }
+
+    [Test]
+    public void ImmediateInheritedFieldsValidationOnValidDataChangingTest()
+    {
+      using (var domain = BuildDomain(true))
+      using (var session = domain.OpenSession()) {
+        model2.ChildClass childClass;
+        using (var transaction = session.OpenTransaction()) {
+          childClass = session.Query.All<model2.ChildClass>().First();
+          transaction.Complete();
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.DoesNotThrow(
+            () => {
+              childClass.NotEmptyString = "d";
+              childClass.NotNullOrEmptyString = "sdf";
+              childClass.NotNullString = "skdjfh";
+              childClass.FutureDateTime = DateTime.Now.AddDays(2);
+              childClass.IntValueInRange = 5;
+              childClass.PastDateTime = DateTime.Now;
+              childClass.StringForRegexValidation = "%%%%";
+              childClass.overridedField = "sdfd";
+              childClass.propertyBecomesField = "sdfljdkf";
+              childClass.LimitedLengthString = "uuuuu";
+            });
+        }
+      }
+    }
+
+    [Test]
+    public void InheritedFieldsConstraintsOnNotValidDataChangingTest()
+    {
+      using (var domain = BuildDomain(false))
+      using (var session = domain.OpenSession()) {
+        model1.ChildClass childClass;
+        using (var transaction = session.OpenTransaction()) {
+          childClass = session.Query.All<model1.ChildClass>().First();
+          transaction.Complete();
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              childClass.NotEmptyString = "";
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              childClass.NotNullOrEmptyString = "";
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              childClass.NotNullOrEmptyString = null;
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              childClass.NotNullString = null;
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              childClass.FutureDateTime = DateTime.Now;
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              childClass.IntValueInRange = 11;
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              childClass.PastDateTime = DateTime.Now.AddSeconds(2);
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              childClass.StringForRegexValidation = "%&%%";
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              childClass.LimitedLengthString = "uuuuujhgdfhjdfhgjfdhgfjdhghfg";
+              session.Validate();
+            });
+        }
+      }
+    }
+
+    [Test]
+    public void ImmediateInheritedFieldsConstraintsOnNotValidDataChangingTest()
+    {
+      using (var domain = BuildDomain(true))
+      using (var session = domain.OpenSession()) {
+        model2.ChildClass childClass;
+        using (var transaction = session.OpenTransaction()) {
+          childClass = session.Query.All<model2.ChildClass>().First();
+          transaction.Complete();
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              childClass.NotEmptyString = "";
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              childClass.NotNullOrEmptyString = "";
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              childClass.NotNullOrEmptyString = null;
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              childClass.NotNullString = null;
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              childClass.FutureDateTime = DateTime.Now;
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              childClass.IntValueInRange = 11;
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              childClass.PastDateTime = DateTime.Now.AddSeconds(2);
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              childClass.StringForRegexValidation = "%&%%";
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              childClass.LimitedLengthString = "uuuuujhgdfhjdfhgjfdhgfjdhghfg";
+            });
+        }
+      }
+    }
+
+    [Test]
+    public void OverridedFieldConsraintChangingTest()
+    {
+      using (var domain = BuildDomain(false))
+      using (var session = domain.OpenSession()) {
+        model1.ChildClass childClass;
+        model1.SecondChildClass secondChildClass;
+        using (var transaction = session.OpenTransaction()) {
+          childClass = session.Query.All<model1.ChildClass>().First();
+          secondChildClass = session.Query.All<model1.SecondChildClass>().First();
+          transaction.Complete();
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ValidationFailedException>(
+            () => {
+              childClass.overridedField = "";
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.DoesNotThrow(
+            () => {
+              secondChildClass.overridedField = "";
+              session.Validate();
+            });
+        }
+      }
+    }
+
+    [Test]
+    public void ImmediateOverridedFieldConsraintChangingTest()
+    {
+      using (var domain = BuildDomain(true))
+      using (var session = domain.OpenSession()) {
+        model2.ChildClass childClass;
+        model2.SecondChildClass secondChildClass;
+        using (var transaction = session.OpenTransaction()) {
+          childClass = session.Query.All<model2.ChildClass>().First();
+          secondChildClass = session.Query.All<model2.SecondChildClass>().First();
+          transaction.Complete();
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.Throws<ArgumentException>(
+            () => {
+              childClass.overridedField = "";
+            });
+        }
+        using (var transaction = session.OpenTransaction())
+        {
+          Assert.DoesNotThrow(
+            () => {
+              secondChildClass.overridedField = "";
+            });
+        }
+      }
+    }
+
+    [Test]
+    public void InteritedPropertyBecomesFieldChangingTest()
+    {
+      using (var domain = BuildDomain(false))
+      using (var session = domain.OpenSession()) {
+        model1.ChildClass childClass;
+        model1.SecondChildClass secondChildClass;
+        using (var transaction = session.OpenTransaction()) {
+          childClass = session.Query.All<model1.ChildClass>().First();
+          secondChildClass = session.Query.All<model1.SecondChildClass>().First();
+          transaction.Complete();
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.DoesNotThrow(
+            () => {
+              childClass.propertyBecomesField = null;
+              session.Validate();
+            });
+        }
+        using (var transaction = session.OpenTransaction()) {
+          Assert.DoesNotThrow(
+            () => {
+              secondChildClass.propertyBecomesField = null;
+              session.Validate();
+            });
+        }
+      }
+    }
+
+    [Test]
+    public void ImmediateInteritedPropertyBecomesFieldChangingTest()
+    {
+      using (var domain = BuildDomain(true))
+      using (var session = domain.OpenSession()) {
+        model2.ChildClass childClass;
+        model2.SecondChildClass secondChildClass;
+        using (var transaction = session.OpenTransaction()) {
+          childClass = session.Query.All<model2.ChildClass>().First();
+          secondChildClass = session.Query.All<model2.SecondChildClass>().First();
+          transaction.Complete();
+        }
+        using (var transaction = session.OpenTransaction())
+        {
+          Assert.DoesNotThrow(
+            () => {
+              childClass.propertyBecomesField = null;
+            });
+        }
+        using (var transaction = session.OpenTransaction())
+        {
+          Assert.DoesNotThrow(
+            () => {
+              secondChildClass.propertyBecomesField = null;
             });
         }
       }
