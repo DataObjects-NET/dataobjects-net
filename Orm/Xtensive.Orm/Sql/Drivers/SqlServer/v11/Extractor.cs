@@ -19,16 +19,21 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
 
     private void ExtractSequences()
     {
-      string query =
-        " select" +
-        "   schema_id, name, start_value, increment," +
-        "   minimum_value, maximum_value, is_cycling, current_value" +
-        " from" +
-        "   sys.sequences";
+      string query = @"
+  SELECT
+    schema_id,
+    name,
+    start_value,
+    increment,
+    minimum_value,
+    maximum_value,
+    is_cycling,
+    current_value
+  FROM sys.sequences";
 
       if (schema!=null)
-        query += " where schema_id = " + schemaId;
-      query += " order by schema_id, object_id";
+        query += " WHERE schema_id = " + schemaId;
+      query += " ORDER BY schema_id, object_id";
       query = AddCatalog(query);
 
       var currentSchemaId = schemaId;

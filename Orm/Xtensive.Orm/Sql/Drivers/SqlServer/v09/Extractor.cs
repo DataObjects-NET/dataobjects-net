@@ -56,7 +56,15 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     // All schemas
     private void ExtractSchemas()
     {
-      string query = "select s.schema_id, s.name, dp.name from sys.schemas as s inner join sys.database_principals as dp on s.principal_id = dp.principal_id where s.schema_id < 16384";
+      string query = @"
+  SELECT
+    s.schema_id,
+    s.name,
+    dp.name
+  FROM sys.schemas AS s
+  INNER JOIN sys.database_principals AS dp
+    ON s.principal_id = dp.principal_id
+  WHERE s.schema_id < 16384";
       query = AddCatalog(query);
 
       using (var cmd = Connection.CreateCommand(query))
@@ -79,7 +87,20 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     // Types & domains must be extracted for all schemas
     private void ExtractTypes()
     {
-      string query = "select schema_id, user_type_id, system_type_id, name, precision, scale, max_length, is_user_defined from sys.types order by is_user_defined, user_type_id";
+      string query = @"
+  SELECT 
+    schema_id,
+    user_type_id,
+    system_type_id,
+    name,
+    precision,
+    scale,
+    max_length,
+    is_user_defined 
+  FROM sys.types
+  ORDER BY 
+    is_user_defined,
+    user_type_id";
       query = AddCatalog(query);
 
       int currentSchemaId = schemaId;
@@ -111,10 +132,30 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     private void ExtractTablesAndViews()
     {
-      string query = "select t.schema_id, t.object_id, t.name, t.type from (select schema_id, object_id, name, 0 type from sys.tables union select schema_id, object_id, name, 1 type from sys.views) as t";
+      string query = @"
+  SELECT
+    t.schema_id,
+    t.object_id,
+    t.name,
+    t.type
+  FROM (
+    SELECT
+      schema_id,
+      object_id,
+      name,
+      0 type
+    FROM sys.tables 
+    UNION 
+    SELECT
+      schema_id,
+      object_id,
+      name,
+      1 type
+    FROM sys.views
+    ) AS t";
       if (this.schema!=null)
-        query += " where t.schema_id = " + schemaId;
-      query += " order by t.schema_id, t.object_id";
+        query += " WHERE t.schema_id = " + schemaId;
+      query += " ORDER BY t.schema_id, t.object_id";
       query = AddCatalog(query);
 
       var currentSchemaId = schemaId;
@@ -136,10 +177,46 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     private void ExtractColumns()
     {
       var trimChars = new[] {'(', ')'};
-      string query = "select t.schema_id, c.object_id, c.column_id, c.name, c.user_type_id, c.precision, c.scale, c.max_length, c.collation_name, c.is_nullable, c.is_identity, dc.name, dc.definition, cc.is_persisted, cc.definition from sys.columns as c inner join (select schema_id, object_id, 0 as type from sys.tables union select schema_id, object_id, 1 as type from sys.views) as t on c.object_id = t.object_id left outer join sys.default_constraints as dc on c.object_id = dc.parent_object_id and c.column_id = dc.parent_column_id  left outer join sys.computed_columns as cc on c.object_id = cc.object_id and c.column_id = cc.column_id";
+      string query = @"
+  SELECT
+    t.schema_id,
+    c.object_id,
+    c.column_id,
+    c.name,
+    c.user_type_id,
+    c.precision,
+    c.scale,
+    c.max_length,
+    c.collation_name,
+    c.is_nullable,
+    c.is_identity,
+    dc.name,
+    dc.definition,
+    cc.is_persisted,
+    cc.definition
+  FROM sys.columns AS c 
+  INNER JOIN (
+    SELECT
+      schema_id,
+      object_id,
+      0 as type
+    FROM sys.tables
+    UNION
+    SELECT
+      schema_id,
+      object_id,
+      1 AS type
+    FROM sys.views
+    ) AS t ON c.object_id = t.object_id
+  LEFT OUTER JOIN sys.default_constraints AS dc
+    ON c.object_id = dc.parent_object_id 
+      AND c.column_id = dc.parent_column_id
+  LEFT OUTER JOIN sys.computed_columns AS cc 
+    ON c.object_id = cc.object_id 
+      AND c.column_id = cc.column_id";
       if (this.schema!=null)
-        query += " where t.schema_id = " + schemaId;
-      query += " order by t.schema_id, c.object_id, c.column_id";
+        query += " WHERE t.schema_id = " + schemaId;
+      query += " ORDER BY t.schema_id, c.object_id, c.column_id";
       query = AddCatalog(query);
 
       int currentTableId = 0;
@@ -198,10 +275,22 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         }
       }
 
-      query = "select t.schema_id, ic.object_id, ic.column_id, ic.seed_value, ic.increment_value, ic.last_value from sys.identity_columns as ic inner join sys.tables as t on ic.object_id = t.object_id where seed_value is not null and increment_value is not null";
+      query = @"
+  SELECT
+    t.schema_id,
+    ic.object_id,
+    ic.column_id,
+    ic.seed_value,
+    ic.increment_value,
+    ic.last_value
+  FROM sys.identity_columns AS ic 
+  INNER JOIN sys.tables AS t 
+    ON ic.object_id = t.object_id
+  WHERE seed_value IS NOT NULL
+    AND increment_value IS NOT NULL";
       if (schema!=null)
-        query += " and t.schema_id = " + schemaId;
-      query += " order by t.schema_id, ic.object_id";
+        query += " AND t.schema_id = " + schemaId;
+      query += " ORDER BY t.schema_id, ic.object_id";
       query = AddCatalog(query);
 
       using (var cmd = Connection.CreateCommand(query))
@@ -228,10 +317,47 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     protected virtual string GetIndexQuery()
     {
-      string query = "select t.schema_id, t.object_id, t.type, i.index_id, i.name, i.type, i.is_primary_key, i.is_unique, i.is_unique_constraint, i.fill_factor, ic.column_id, 0, ic.key_ordinal, ic.is_descending_key, ic.is_included_column, NULL, NULL from sys.indexes i inner join (select schema_id, object_id, 0 as type from sys.tables union select schema_id, object_id, 1 as type from sys.views) as t on i.object_id = t.object_id inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id where i.type <> 3";
+      string query = @"
+  SELECT
+    t.schema_id,
+    t.object_id,
+    t.type,
+    i.index_id,
+    i.name,
+    i.type,
+    i.is_primary_key,
+    i.is_unique,
+    i.is_unique_constraint,
+    i.fill_factor,
+    ic.column_id,
+    0,
+    ic.key_ordinal,
+    ic.is_descending_key,
+    ic.is_included_column,
+    NULL,
+    NULL
+  FROM sys.indexes i
+  INNER JOIN (
+    SELECT
+      schema_id,
+      object_id,
+      0 AS type
+    FROM sys.tables
+    UNION
+    SELECT
+      schema_id,
+      object_id,
+      1 AS type
+    FROM sys.views
+    ) AS t
+      ON i.object_id = t.object_id
+  INNER JOIN sys.index_columns ic
+    ON i.object_id = ic.object_id
+      AND i.index_id = ic.index_id
+  WHERE i.type <> 3";
       if (schema!=null)
-        query += " and schema_id = " + schemaId;
-      query += " order by t.schema_id, t.object_id, i.index_id, ic.is_included_column, ic.key_ordinal";
+        query += " AND schema_id = " + schemaId;
+      query += " ORDER BY t.schema_id, t.object_id, i.index_id, ic.is_included_column, ic.key_ordinal";
       query = AddCatalog(query);
       return query;
     }
@@ -315,10 +441,24 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     private void ExtractForeignKeys()
     {
-      string query = "select fk.schema_id, fk.object_id, fk.name, fk.delete_referential_action, fk.update_referential_action, fkc.constraint_column_id, fkc.parent_object_id, fkc.parent_column_id, fkc.referenced_object_id, fkc.referenced_column_id from sys.foreign_keys fk inner join sys.foreign_key_columns fkc on fk.object_id = fkc.constraint_object_id";
+      string query = @"
+  SELECT
+    fk.schema_id,
+    fk.object_id,
+    fk.name,
+    fk.delete_referential_action,
+    fk.update_referential_action,
+    fkc.constraint_column_id,
+    fkc.parent_object_id,
+    fkc.parent_column_id,
+    fkc.referenced_object_id,
+    fkc.referenced_column_id
+  FROM sys.foreign_keys fk
+  INNER JOIN sys.foreign_key_columns fkc
+    ON fk.object_id = fkc.constraint_object_id";
       if (schema!=null)
-        query += " where fk.schema_id = " + schemaId;
-      query += " order by fk.schema_id, fkc.parent_object_id, fk.object_id, fkc.constraint_column_id";
+        query += " WHERE fk.schema_id = " + schemaId;
+      query += " ORDER BY fk.schema_id, fkc.parent_object_id, fk.object_id, fkc.constraint_column_id";
       query = AddCatalog(query);
 
       int tableId = 0, constraintId = 0;
@@ -346,10 +486,32 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     protected virtual void ExtractFulltextIndexes()
     {
-      string query = "select t.schema_id, fic.object_id, fi.unique_index_id, fc.name, fc.is_default, fic.column_id, fic.type_column_id, fl.name, i.name from sys.tables t inner join sys.fulltext_index_columns as fic on t.object_id = fic.object_id inner join sys.fulltext_languages as fl on fic.language_id = fl.lcid inner join sys.fulltext_indexes fi on fic.object_id = fi.object_id inner join sys.fulltext_catalogs fc on fc.fulltext_catalog_id = fi.fulltext_catalog_id inner join sys.indexes as i on fic.object_id = i.object_id and fi.unique_index_id = i.index_id";
+      string query = @"
+  SELECT
+    t.schema_id,
+    fic.object_id,
+    fi.unique_index_id,
+    fc.name,
+    fc.is_default,
+    fic.column_id,
+    fic.type_column_id,
+    fl.name,
+    i.name
+  FROM sys.tables t
+  INNER JOIN sys.fulltext_index_columns AS fic
+    ON t.object_id = fic.object_id 
+  INNER JOIN sys.fulltext_languages AS fl
+    ON fic.language_id = fl.lcid
+  INNER JOIN sys.fulltext_indexes fi
+    ON fic.object_id = fi.object_id
+  INNER JOIN sys.fulltext_catalogs fc
+    ON fc.fulltext_catalog_id = fi.fulltext_catalog_id
+  INNER JOIN sys.indexes AS i 
+    ON fic.object_id = i.object_id
+      AND fi.unique_index_id = i.index_id";
       if (schema!=null)
-        query += " where t.schema_id = " + schemaId;
-      query += " order by t.schema_id, fic.object_id, fic.column_id";
+        query += " WHERE t.schema_id = " + schemaId;
+      query += " ORDER BY t.schema_id, fic.object_id, fic.column_id";
       query = AddCatalog(query);
 
       int currentTableId = 0;
