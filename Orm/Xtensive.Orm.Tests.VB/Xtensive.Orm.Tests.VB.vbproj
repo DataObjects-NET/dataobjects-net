@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="Linq\DateTimeTest.vb" />
     <Compile Include="Linq\OperatorsTest.vb" />
+    <Compile Include="Linq\PersistentPropertyWeavingTest.vb" />
     <Compile Include="Linq\StringTest.vb" />
     <Compile Include="Model\Model.vb" />
     <Compile Include="Model\PersistenceTest.vb" />
