@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
+using Xtensive.Orm.Logging;
 
 
 using Xtensive.Tuples;

@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
+using Xtensive.Orm.Logging;
 
 
 namespace Xtensive.Caching

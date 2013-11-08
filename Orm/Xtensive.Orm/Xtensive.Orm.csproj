@@ -259,7 +259,6 @@
     <Compile Include="Core\ConfigurationCollection.cs" />
     <Compile Include="Core\ConfigurationCollectionElementBase.cs" />
     <Compile Include="Core\Context.cs" />
-    <Compile Include="Core\CoreLog.cs" />
     <Compile Include="Core\Direction.cs" />
     <Compile Include="Core\Disposable.cs" />
     <Compile Include="Core\DisposableSet.cs" />
@@ -339,7 +338,9 @@
     <Compile Include="Diagnostics\Interfaces\IRealLog.cs" />
     <Compile Include="Diagnostics\LogCaptureScope.cs" />
     <Compile Include="Diagnostics\LogEventHandler.cs" />
-    <Compile Include="Diagnostics\LogEventTypes.cs" />
+    <Compile Include="Diagnostics\LogEventTypes.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Diagnostics\LogEventTypesExtensions.cs" />
     <Compile Include="Diagnostics\LogFormat.cs" />
     <Compile Include="Diagnostics\LogImplementation.cs" />
@@ -358,6 +359,29 @@
     <Compile Include="Diagnostics\RuntimeInfo.cs" />
     <Compile Include="Diagnostics\StringLog.cs" />
     <Compile Include="Diagnostics\TextualLogImplementationBase.cs" />
+    <Compile Include="InternalLogs.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>InternalLogs.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Orm\Configuration\Elements\LogElement.cs" />
+    <Compile Include="Orm\Configuration\Elements\LoggingElement.cs" />
+    <Compile Include="Orm\Configuration\LogConfiguration.cs" />
+    <Compile Include="Orm\Configuration\LoggingConfiguration.cs" />
+    <Compile Include="Orm\Logging\BaseLog.cs" />
+    <Compile Include="Orm\Logging\Internals\ConsoleWriter.cs" />
+    <Compile Include="Orm\Logging\Internals\DebugOnlyConsoleWriter.cs" />
+    <Compile Include="Orm\Logging\Internals\FileWriter.cs" />
+    <Compile Include="Orm\Logging\Interfaces\ILogWriter.cs" />
+    <Compile Include="Orm\Logging\Internals\CurrentTimeGetter.cs" />
+    <Compile Include="Orm\Logging\Internals\InternalLogProvider.cs" />
+    <Compile Include="Orm\Logging\Log.cs" />
+    <Compile Include="Orm\Logging\LogEventInfo.cs" />
+    <Compile Include="Orm\Logging\LogEventTypes.cs" />
+    <Compile Include="Orm\Logging\LogLevel.cs" />
+    <Compile Include="Orm\Logging\LogManager.cs" />
+    <Compile Include="Orm\Logging\LogProvider.cs" />
+    <Compile Include="Orm\Logging\NullLog.cs" />
     <Compile Include="Properties\Visibility.cs" />
     <Compile Include="IoC\Attributes\ServiceAttribute.cs" />
     <Compile Include="IoC\Attributes\ServiceConstructorAttribute.cs" />
@@ -709,7 +733,6 @@
     <Compile Include="Orm\Providers\Expressions\MemberCompilers\VbDateAndTimeCompilers.cs" />
     <Compile Include="Orm\Providers\Expressions\MemberCompilers\VBStringsCompilers.cs" />
     <Compile Include="Orm\Providers\Interfaces\IProviderExecutor.cs" />
-    <Compile Include="Orm\Logging\SqlLog.cs" />
     <Compile Include="Orm\Providers\ModelMapping.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\MetadataExtractor.cs" />
     <Compile Include="Orm\Providers\Requests\ParameterBinding.cs" />
@@ -1040,8 +1063,6 @@
     <Compile Include="Orm\Building\Definitions\HierarchyDef.cs" />
     <Compile Include="Orm\Building\Definitions\TypeDefCollection.cs" />
     <Compile Include="Orm\Exceptions\DomainBuilderException.cs" />
-    <Compile Include="Orm\Logging\OrmLog.cs" />
-    <Compile Include="Orm\Logging\BuildLog.cs" />
     <Compile Include="Orm\Building\Builders\IndexBuilder.cs" />
     <Compile Include="Orm\Building\Definitions\IndexDef.cs" />
     <Compile Include="Orm\Building\Builders\AttributeProcessor.cs" />
@@ -1219,7 +1240,6 @@
     <Compile Include="Orm\Upgrade\Hints\CopyFieldHint.cs" />
     <Compile Include="Orm\Upgrade\Internals\DomainModelConverter.cs" />
     <Compile Include="Orm\Upgrade\Internals\HintGenerator.cs" />
-    <Compile Include="Orm\Logging\UpgradeLog.cs" />
     <Compile Include="Orm\Upgrade\Internals\SchemaComparer.cs" />
     <Compile Include="Orm\Upgrade\SchemaComparisonResult.cs" />
     <Compile Include="Orm\Upgrade\SchemaComparisonStatus.cs" />
@@ -1780,6 +1800,10 @@
       <LastGenOutput>ExpressionCompileExtensions.cs</LastGenOutput>
     </None>
     <None Include="DelegateGenerator.ttinclude" />
+    <None Include="InternalLogs.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>InternalLogs.cs</LastGenOutput>
+    </None>
     <None Include="Orm\Linq\MemberCompilation\MemberCompilerProvider-CreateCompiler.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MemberCompilerProvider-CreateCompiler.cs</LastGenOutput>

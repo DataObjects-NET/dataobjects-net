@@ -10,7 +10,7 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
+using Xtensive.Orm.Logging;
 using Xtensive.IoC;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;

@@ -3262,4 +3262,16 @@ Error: {1}</value>
   <data name="ExInstanceIsEmpty">
     <value xml:space="preserve">Instance is empty.</value>
   </data>
+  <data name="ExLogManagerAlreadyInitialized">
+    <value xml:space="preserve">LogManager already initialized.</value>
+  </data>
+  <data name="ExLogManagerMustBeInitializedBeforeUsing">
+    <value xml:space="preserve">LogManager must be initialized before using.</value>
+  </data>
+  <data name="ExProviderXDoesNotImplementLogProviderClass">
+    <value xml:space="preserve">Provider '{0}' does not implement LogProvider class.</value>
+  </data>
+  <data name="ExUnableToGetTypeOfProviderByNameX">
+    <value xml:space="preserve">Unable to get type of provider by name '{0}'.</value>
+  </data>
 </root>

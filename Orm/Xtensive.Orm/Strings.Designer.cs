@@ -3872,6 +3872,24 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to LogManager already initialized..
+        /// </summary>
+        internal static string ExLogManagerAlreadyInitialized {
+            get {
+                return ResourceManager.GetString("ExLogManagerAlreadyInitialized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to LogManager must be initialized before using..
+        /// </summary>
+        internal static string ExLogManagerMustBeInitializedBeforeUsing {
+            get {
+                return ResourceManager.GetString("ExLogManagerMustBeInitializedBeforeUsing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Loop in action dependency chain is detected..
         /// </summary>
         internal static string ExLoopInActionDependencyChain {
@@ -5003,6 +5021,15 @@ namespace Xtensive {
         internal static string ExProviderMustBeEitherCompilableProviderOrExecutableProvider {
             get {
                 return ResourceManager.GetString("ExProviderMustBeEitherCompilableProviderOrExecutableProvider", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Provider &apos;{0}&apos; does not implement LogProvider class..
+        /// </summary>
+        internal static string ExProviderXDoesNotImplementLogProviderClass {
+            get {
+                return ResourceManager.GetString("ExProviderXDoesNotImplementLogProviderClass", resourceCulture);
             }
         }
         
@@ -6644,6 +6671,15 @@ namespace Xtensive {
         internal static string ExUnableToFindMasterAssociation {
             get {
                 return ResourceManager.GetString("ExUnableToFindMasterAssociation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to get type of provider by name &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExUnableToGetTypeOfProviderByNameX {
+            get {
+                return ResourceManager.GetString("ExUnableToGetTypeOfProviderByNameX", resourceCulture);
             }
         }
         
