@@ -150,7 +150,7 @@ namespace Xtensive.Orm.Building.Builders
       defaultDatabase = context.Configuration.DefaultDatabase ?? string.Empty;
       defaultSchema = context.Configuration.DefaultSchema ?? string.Empty;
 
-      verbose = BuildLog.IsLogged(LogEventTypes.Info);
+      verbose = BuildLog.IsLogged(LogLevel.Info);
     }
   }
 }

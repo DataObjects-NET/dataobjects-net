@@ -157,7 +157,7 @@ namespace Xtensive.Orm
     {
       var result = Validate(key, version);
       if (throwOnFailure && !result) {
-        if (OrmLog.IsLogged(LogEventTypes.Info))
+        if (OrmLog.IsLogged(LogLevel.Info))
           OrmLog.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
             "None (VersionSet)", key, version, Get(key));
         throw new VersionConflictException(string.Format(

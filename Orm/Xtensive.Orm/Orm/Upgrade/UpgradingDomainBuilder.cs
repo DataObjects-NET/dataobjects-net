@@ -327,7 +327,7 @@ namespace Xtensive.Orm.Upgrade
         var extractedSchema = extractor.GetSchema();
         var targetSchema = domain.StorageModel = GetTargetModel(domain);
 
-        if (UpgradeLog.IsLogged(LogEventTypes.Info)) {
+        if (UpgradeLog.IsLogged(LogLevel.Info)) {
           UpgradeLog.Info(Strings.LogExtractedSchema);
           extractedSchema.Dump();
           UpgradeLog.Info(Strings.LogTargetSchema);
@@ -349,7 +349,7 @@ namespace Xtensive.Orm.Upgrade
         if (shouldDumpSchema)
           UpgradeLog.Info(result.ToString());
 
-        if (UpgradeLog.IsLogged(LogEventTypes.Info))
+        if (UpgradeLog.IsLogged(LogLevel.Info))
           UpgradeLog.Info(Strings.LogComparisonResultX, result);
 
         context.SchemaDifference = (NodeDifference) result.Difference;

@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Upgrade
 
       var result = translator.Translate();
 
-      if (SqlLog.IsLogged(LogEventTypes.Info))
+      if (SqlLog.IsLogged(LogLevel.Info))
         LogStatements(result);
 
       foreach (var handler in context.OrderedUpgradeHandlers)

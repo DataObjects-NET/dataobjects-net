@@ -23,7 +23,7 @@ namespace Xtensive.Diagnostics
       if ((logEventType & LogEventTypes.Error)!=0)
         return "Error";
       if ((logEventType & LogEventTypes.Warning)!=0)
-        return "Warn";
+        return "Warning";
       if ((logEventType & LogEventTypes.Info)!=0)
         return "Info";
       if ((logEventType & LogEventTypes.Debug)!=0)

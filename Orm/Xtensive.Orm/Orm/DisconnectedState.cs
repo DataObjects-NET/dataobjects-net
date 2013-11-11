@@ -590,7 +590,7 @@ namespace Xtensive.Orm
           && (!existingVersion.IsVoid)
             && existingVersion!=version;
       if (versionConflict && mergeMode == MergeMode.Strict) {
-        if (OrmLog.IsLogged(LogEventTypes.Info))
+        if (OrmLog.IsLogged(LogLevel.Info))
           OrmLog.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
             Session!=null ? Session.ToString() : "None (DisconnectedState)", 
             key, version, existingVersion);

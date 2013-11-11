@@ -15,6 +15,6 @@ namespace Xtensive.Orm.Logging
     Info,
     Warning,
     Error,
-    Fatal
+    FatalError
   }
 }

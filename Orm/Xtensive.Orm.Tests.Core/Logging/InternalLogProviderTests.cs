@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Tests.Core.Logging
       var logger = logProvider.GetLog("Trash");
 
       Assert.That(logger.Name, Is.EqualTo("Trash"));
-      Assert.That(logger, Is.InstanceOf<Log>());
+      Assert.That(logger, Is.InstanceOf<InternalLog>());
 
       logger = logProvider.GetLog("NullLog");
       Assert.That(logger.Name, Is.EqualTo(string.Empty));
@@ -37,31 +37,31 @@ namespace Xtensive.Orm.Tests.Core.Logging
 
       logger = logProvider.GetLog("FileLog");
       Assert.That(logger.Name, Is.EqualTo("FileLog"));
-      Assert.That(logger, Is.InstanceOf<Log>());
+      Assert.That(logger, Is.InstanceOf<InternalLog>());
 
       logger = logProvider.GetLog("AnotherLogName");
       Assert.That(logger.Name, Is.EqualTo("AnotherLogName"));
-      Assert.That(logger, Is.InstanceOf<Log>());
+      Assert.That(logger, Is.InstanceOf<InternalLog>());
 
       logger = logProvider.GetLog("LogName");
       Assert.That(logger.Name, Is.EqualTo("LogName"));
-      Assert.That(logger, Is.InstanceOf<Log>());
+      Assert.That(logger, Is.InstanceOf<InternalLog>());
 
       logger = logProvider.GetLog("SecondLogName");
       Assert.That(logger.Name, Is.EqualTo("SecondLogName"));
-      Assert.That(logger, Is.InstanceOf<Log>());
+      Assert.That(logger, Is.InstanceOf<InternalLog>());
 
       logger = logProvider.GetLog("FirstLogName");
       Assert.That(logger.Name, Is.EqualTo("FirstLogName"));
-      Assert.That(logger, Is.InstanceOf<Log>());
+      Assert.That(logger, Is.InstanceOf<InternalLog>());
 
       logger = logProvider.GetLog("SomeLogName");
       Assert.That(logger.Name, Is.EqualTo("SomeLogName"));
-      Assert.That(logger, Is.InstanceOf<Log>());
+      Assert.That(logger, Is.InstanceOf<InternalLog>());
 
       logger = logProvider.GetLog("LogNameNot in list");
-      Assert.That(logger.Name, Is.EqualTo("DefaultLog"));
-      Assert.That(logger, Is.InstanceOf<Log>());
+      Assert.That(logger.Name, Is.EqualTo("<default>"));
+      Assert.That(logger, Is.InstanceOf<InternalLog>());
     }
   }
 }

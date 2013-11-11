@@ -2,23 +2,20 @@
 <#@ output extension="cs" #>
 using System;
 using Xtensive.Orm.Logging;
+using JetBrains.Annotations;
 
 namespace Xtensive
 {
-<#
-	foreach (var item in pairs)
-	{
-#>
+<# foreach (var item in logs) { #>
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   internal static class <#= item.Item1 #>
   {
-    private static string Name = "<#= item.Item2 #>";
+    private static readonly string Name = "<#= item.Item2 #>";
     private static readonly BaseLog instance;
 
-    public static BaseLog Instance {
-      get { return instance; }
-    }
+    public static BaseLog Instance { get { return instance; } }
 
-    public static bool IsLogged(LogEventTypes type)
+    public static bool IsLogged(LogLevel type)
     {
       return instance.IsLogged(type);
     }
@@ -28,96 +25,30 @@ namespace Xtensive
       return instance.DebugRegion(format, args);
     }
 
-    public static void Debug(string format, params object[] args)
-    {
-      instance.Debug(format, args);
-    }
-
-    public static Exception Debug(Exception exception, string format, params object[] args)
-    {
-      instance.Debug(format, args, exception);
-      return exception;
-    }
-
-    public static Exception Debug(Exception exception)
-    {
-      instance.Debug(null, null, exception);
-      return exception;
-    }
-
     public static IDisposable InfoRegion(string format, params object[] args)
     {
       return instance.InfoRegion(format, args);
     }
 
-    public static void Info(string format, params object[] args)
+<# foreach (var level in logLevels) { #>
+    public static void <#= level #>(string format, params object[] args)
     {
-      instance.Info(format, args);
+      instance.<#= level #>(format, args);
     }
 
-    public static Exception Info(Exception exception, string format, params object[] args)
+    public static Exception <#= level #>(Exception exception, string format, params object[] args)
     {
-      instance.Info(format, args, exception);
+      instance.<#= level #>(format, args, exception);
       return exception;
     }
 
-    public static Exception Info(Exception exception)
+    public static Exception <#= level #>(Exception exception)
     {
-      instance.Info(null, null, exception);
+      instance.<#= level #>(null, null, exception);
       return exception;
     }
 
-    public static void Warning(string format, params object[] args)
-    {
-      instance.Warn(format, args);
-    }
-
-    public static Exception Warning(Exception exception, string format, params object[] args)
-    {
-      instance.Warn(format, args, exception);
-      return exception;
-    }
-
-    public static Exception Warning(Exception exception)
-    {
-      instance.Warn(null, null, exception);
-      return exception;
-    }
-
-    public static void Error(string format, params object[] args)
-    {
-      instance.Error(format, args);
-    }
-
-    public static Exception Error(Exception exception, string format, params object[] args)
-    {
-      instance.Error(format, args, exception);
-      return exception;
-    }
-
-    public static Exception Error(Exception exception)
-    {
-      instance.Error(null, null, exception);
-      return exception;
-    }
-
-    public static void FatalError(string format, params object[] args)
-    {
-      instance.Fatal(format, args);
-    }
-
-    public static Exception FatalError(Exception exception, string format, params object[] args)
-    {
-      instance.Fatal(format, args, exception);
-      return exception;
-    }
-
-    public static Exception FatalError(Exception exception)
-    {
-      instance.Fatal(null, null, exception);
-      return exception;
-    }
-
+<# } #>
     static <#= item.Item1 #>()
     {
       var manager = LogManager.Default;
@@ -126,14 +57,15 @@ namespace Xtensive
     }
   }
 
-<#}#>
+<# } #>
 }
  <#+
- Tuple<string, string>[] pairs = new Tuple<string, string>[] {
+ string[] logLevels = new[] {"Debug", "Info", "Warning", "Error", "FatalError"};
+ Tuple<string, string>[] logs = new Tuple<string, string>[] {
    new Tuple<string, string>("OrmLog", "Xtensive.Orm"),
-   new Tuple<string, string>("UpgradeLog", "Xtensive.Orm.Upgrade"), 
+   new Tuple<string, string>("UpgradeLog", "Xtensive.Orm.Upgrade"),
    new Tuple<string, string>("BuildLog", "Xtensive.Orm.Building"),
-   new Tuple<string, string>("SqlLog", "Xtensive.Storage.Providers.Sql"),
+   new Tuple<string, string>("SqlLog", "Xtensive.Orm.Sql"),
    new Tuple<string, string>("CoreLog", "Xtensive.Orm.Core"),
    new Tuple<string, string>("TestLog", "Xtensive.Orm.Tests")};
  #>

@@ -97,7 +97,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Indicates whether debug event logging is enabled.
-    /// Caches <see cref="ILogBase.IsLogged"/> method result for <see cref="LogEventTypes.Debug"/> event.
+    /// Caches <see cref="BaseLog.IsLogged"/> method result for <see cref="LogLevel.Debug"/> event.
     /// </summary>
     internal bool IsDebugEventLoggingEnabled { get; private set; }
 
@@ -413,7 +413,7 @@ namespace Xtensive.Orm
     internal Session(Domain domain, SessionConfiguration configuration, bool activate)
       : base(domain)
     {
-      IsDebugEventLoggingEnabled = OrmLog.IsLogged(LogEventTypes.Debug); // Just to cache this value
+      IsDebugEventLoggingEnabled = OrmLog.IsLogged(LogLevel.Debug); // Just to cache this value
 
       // Both Domain and Configuration are valid references here;
       // Configuration is already locked

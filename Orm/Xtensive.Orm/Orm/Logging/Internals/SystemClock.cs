@@ -8,16 +8,16 @@ using System;
 
 namespace Xtensive.Orm.Logging
 {
-  internal sealed class CurrentTimeGetter
+  internal static class SystemClock
   {
-    private static readonly object syncObject = new object();
+    private static readonly object syncRoot = new object();
     private static int lastTick = -1;
     private static DateTime lastDateTime = DateTime.MinValue;
 
-    internal static DateTime Now
+    public static DateTime Now
     {
       get {
-        lock (syncObject) {
+        lock (syncRoot) {
           var tickCount = Environment.TickCount;
           if (lastTick==tickCount)
             return lastDateTime;

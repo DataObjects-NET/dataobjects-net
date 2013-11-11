@@ -1,3 +1,9 @@
+// Copyright (C) 2013 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2013.09.27
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,7 +12,6 @@ using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Logging
 {
-  
   internal sealed class InternalLogProvider : LogProvider
   {
     private readonly StringComparer comparer;
@@ -21,14 +26,14 @@ namespace Xtensive.Orm.Logging
       return defaultLog;
     }
 
-    private bool LogIsDefault(string logName)
+    private bool IsDefaultLog(string logName)
     {
       return comparer.Compare(logName, "*")==0;
     }
 
-    private void HandleTargetGroup(KeyValuePair<string, List<LogConfiguration>> targetGroup)
+    private void ProcessLogGroup(KeyValuePair<string, List<LogConfiguration>> targetGroup)
     {
-      var writer = GetLogWriterByTarget(targetGroup.Key);
+      var writer = GetLogWriter(targetGroup.Key);
       if (writer==null) {
         CreateNullLogs(targetGroup.Value);
         return;
@@ -37,34 +42,36 @@ namespace Xtensive.Orm.Logging
         CreateLogs(log.Source, writer);
       }
     }
+
     private void CreateNullLogs(IEnumerable<LogConfiguration> configurations)
     {
       var nullLog = (defaultLog is NullLog) ? defaultLog : new NullLog();
       foreach (var logConfiguration in configurations) {
-        if (LogIsDefault(logConfiguration.Source)) {
+        if (IsDefaultLog(logConfiguration.Source)) {
           defaultLog = nullLog;
           continue;
         }
-        var sources = logConfiguration.Source.Replace(" ", "").Split(',');
-        foreach (var source in sources) {
+        foreach (var source in GetLogSources(logConfiguration.Source))
           logs[source] = nullLog;
-        }
       }
+    }
+
+    private static IEnumerable<string> GetLogSources(string source)
+    {
+      return source.Replace(" ", "").Split(',');
     }
 
     private void CreateLogs(string source, ILogWriter writer)
     {
-      if (LogIsDefault(source)) {
-        defaultLog = new Log("DefaultLog", writer);
+      if (IsDefaultLog(source)) {
+        defaultLog = new InternalLog("<default>", writer);
         return;
       }
-      var sources = source.Replace(" ","").Split(',');
-      foreach (var s in sources) {
-        logs[s] = new Log(s, writer);
-      }
+      foreach (var s in GetLogSources(source))
+        logs[s] = new InternalLog(s, writer);
     }
 
-    private ILogWriter GetLogWriterByTarget(string target)
+    private ILogWriter GetLogWriter(string target)
     {
       if (comparer.Compare(target, "Console")==0)
         return new ConsoleWriter();
@@ -74,8 +81,7 @@ namespace Xtensive.Orm.Logging
         return null;
       if (Path.IsPathRooted(target))
         return new FileWriter(target);
-      var fullpath = Path.GetFullPath(target);
-      return new FileWriter(fullpath);
+      return new FileWriter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, target));
     }
 
     public InternalLogProvider()
@@ -92,7 +98,7 @@ namespace Xtensive.Orm.Logging
       comparer = StringComparer.InvariantCultureIgnoreCase;
       var targetGroups = logConfigurations.GroupBy(e => e.Target).ToDictionary(e => e.Key, e => e.ToList());
       foreach (var targetGroup in targetGroups) {
-        HandleTargetGroup(targetGroup);
+        ProcessLogGroup(targetGroup);
       }
     }
   }

@@ -66,7 +66,7 @@ namespace Xtensive.Orm
     {
       var result = ValidateVersion(key, version);
       if (throwOnFailure && !result) {
-        if (OrmLog.IsLogged(LogEventTypes.Info))
+        if (OrmLog.IsLogged(LogLevel.Info))
           OrmLog.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
             Session, key, version, expectedVersionProvider.Invoke(key));
         throw new VersionConflictException(string.Format(

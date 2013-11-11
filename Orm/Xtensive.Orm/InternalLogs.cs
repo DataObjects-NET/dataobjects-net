@@ -1,18 +1,18 @@
 using System;
 using Xtensive.Orm.Logging;
+using JetBrains.Annotations;
 
 namespace Xtensive
 {
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   internal static class OrmLog
   {
-    private static string Name = "Xtensive.Orm";
+    private static readonly string Name = "Xtensive.Orm";
     private static readonly BaseLog instance;
 
-    public static BaseLog Instance {
-      get { return instance; }
-    }
+    public static BaseLog Instance { get { return instance; } }
 
-    public static bool IsLogged(LogEventTypes type)
+    public static bool IsLogged(LogLevel type)
     {
       return instance.IsLogged(type);
     }
@@ -20,6 +20,11 @@ namespace Xtensive
     public static IDisposable DebugRegion(string format, params object[] args)
     {
       return instance.DebugRegion(format, args);
+    }
+
+    public static IDisposable InfoRegion(string format, params object[] args)
+    {
+      return instance.InfoRegion(format, args);
     }
 
     public static void Debug(string format, params object[] args)
@@ -37,11 +42,6 @@ namespace Xtensive
     {
       instance.Debug(null, null, exception);
       return exception;
-    }
-
-    public static IDisposable InfoRegion(string format, params object[] args)
-    {
-      return instance.InfoRegion(format, args);
     }
 
     public static void Info(string format, params object[] args)
@@ -63,18 +63,18 @@ namespace Xtensive
 
     public static void Warning(string format, params object[] args)
     {
-      instance.Warn(format, args);
+      instance.Warning(format, args);
     }
 
     public static Exception Warning(Exception exception, string format, params object[] args)
     {
-      instance.Warn(format, args, exception);
+      instance.Warning(format, args, exception);
       return exception;
     }
 
     public static Exception Warning(Exception exception)
     {
-      instance.Warn(null, null, exception);
+      instance.Warning(null, null, exception);
       return exception;
     }
 
@@ -97,18 +97,18 @@ namespace Xtensive
 
     public static void FatalError(string format, params object[] args)
     {
-      instance.Fatal(format, args);
+      instance.FatalError(format, args);
     }
 
     public static Exception FatalError(Exception exception, string format, params object[] args)
     {
-      instance.Fatal(format, args, exception);
+      instance.FatalError(format, args, exception);
       return exception;
     }
 
     public static Exception FatalError(Exception exception)
     {
-      instance.Fatal(null, null, exception);
+      instance.FatalError(null, null, exception);
       return exception;
     }
 
@@ -120,16 +120,15 @@ namespace Xtensive
     }
   }
 
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   internal static class UpgradeLog
   {
-    private static string Name = "Xtensive.Orm.Upgrade";
+    private static readonly string Name = "Xtensive.Orm.Upgrade";
     private static readonly BaseLog instance;
 
-    public static BaseLog Instance {
-      get { return instance; }
-    }
+    public static BaseLog Instance { get { return instance; } }
 
-    public static bool IsLogged(LogEventTypes type)
+    public static bool IsLogged(LogLevel type)
     {
       return instance.IsLogged(type);
     }
@@ -137,6 +136,11 @@ namespace Xtensive
     public static IDisposable DebugRegion(string format, params object[] args)
     {
       return instance.DebugRegion(format, args);
+    }
+
+    public static IDisposable InfoRegion(string format, params object[] args)
+    {
+      return instance.InfoRegion(format, args);
     }
 
     public static void Debug(string format, params object[] args)
@@ -154,11 +158,6 @@ namespace Xtensive
     {
       instance.Debug(null, null, exception);
       return exception;
-    }
-
-    public static IDisposable InfoRegion(string format, params object[] args)
-    {
-      return instance.InfoRegion(format, args);
     }
 
     public static void Info(string format, params object[] args)
@@ -180,18 +179,18 @@ namespace Xtensive
 
     public static void Warning(string format, params object[] args)
     {
-      instance.Warn(format, args);
+      instance.Warning(format, args);
     }
 
     public static Exception Warning(Exception exception, string format, params object[] args)
     {
-      instance.Warn(format, args, exception);
+      instance.Warning(format, args, exception);
       return exception;
     }
 
     public static Exception Warning(Exception exception)
     {
-      instance.Warn(null, null, exception);
+      instance.Warning(null, null, exception);
       return exception;
     }
 
@@ -214,18 +213,18 @@ namespace Xtensive
 
     public static void FatalError(string format, params object[] args)
     {
-      instance.Fatal(format, args);
+      instance.FatalError(format, args);
     }
 
     public static Exception FatalError(Exception exception, string format, params object[] args)
     {
-      instance.Fatal(format, args, exception);
+      instance.FatalError(format, args, exception);
       return exception;
     }
 
     public static Exception FatalError(Exception exception)
     {
-      instance.Fatal(null, null, exception);
+      instance.FatalError(null, null, exception);
       return exception;
     }
 
@@ -237,16 +236,15 @@ namespace Xtensive
     }
   }
 
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   internal static class BuildLog
   {
-    private static string Name = "Xtensive.Orm.Building";
+    private static readonly string Name = "Xtensive.Orm.Building";
     private static readonly BaseLog instance;
 
-    public static BaseLog Instance {
-      get { return instance; }
-    }
+    public static BaseLog Instance { get { return instance; } }
 
-    public static bool IsLogged(LogEventTypes type)
+    public static bool IsLogged(LogLevel type)
     {
       return instance.IsLogged(type);
     }
@@ -254,6 +252,11 @@ namespace Xtensive
     public static IDisposable DebugRegion(string format, params object[] args)
     {
       return instance.DebugRegion(format, args);
+    }
+
+    public static IDisposable InfoRegion(string format, params object[] args)
+    {
+      return instance.InfoRegion(format, args);
     }
 
     public static void Debug(string format, params object[] args)
@@ -271,11 +274,6 @@ namespace Xtensive
     {
       instance.Debug(null, null, exception);
       return exception;
-    }
-
-    public static IDisposable InfoRegion(string format, params object[] args)
-    {
-      return instance.InfoRegion(format, args);
     }
 
     public static void Info(string format, params object[] args)
@@ -297,18 +295,18 @@ namespace Xtensive
 
     public static void Warning(string format, params object[] args)
     {
-      instance.Warn(format, args);
+      instance.Warning(format, args);
     }
 
     public static Exception Warning(Exception exception, string format, params object[] args)
     {
-      instance.Warn(format, args, exception);
+      instance.Warning(format, args, exception);
       return exception;
     }
 
     public static Exception Warning(Exception exception)
     {
-      instance.Warn(null, null, exception);
+      instance.Warning(null, null, exception);
       return exception;
     }
 
@@ -331,18 +329,18 @@ namespace Xtensive
 
     public static void FatalError(string format, params object[] args)
     {
-      instance.Fatal(format, args);
+      instance.FatalError(format, args);
     }
 
     public static Exception FatalError(Exception exception, string format, params object[] args)
     {
-      instance.Fatal(format, args, exception);
+      instance.FatalError(format, args, exception);
       return exception;
     }
 
     public static Exception FatalError(Exception exception)
     {
-      instance.Fatal(null, null, exception);
+      instance.FatalError(null, null, exception);
       return exception;
     }
 
@@ -354,16 +352,15 @@ namespace Xtensive
     }
   }
 
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   internal static class SqlLog
   {
-    private static string Name = "Xtensive.Storage.Providers.Sql";
+    private static readonly string Name = "Xtensive.Orm.Sql";
     private static readonly BaseLog instance;
 
-    public static BaseLog Instance {
-      get { return instance; }
-    }
+    public static BaseLog Instance { get { return instance; } }
 
-    public static bool IsLogged(LogEventTypes type)
+    public static bool IsLogged(LogLevel type)
     {
       return instance.IsLogged(type);
     }
@@ -371,6 +368,11 @@ namespace Xtensive
     public static IDisposable DebugRegion(string format, params object[] args)
     {
       return instance.DebugRegion(format, args);
+    }
+
+    public static IDisposable InfoRegion(string format, params object[] args)
+    {
+      return instance.InfoRegion(format, args);
     }
 
     public static void Debug(string format, params object[] args)
@@ -388,11 +390,6 @@ namespace Xtensive
     {
       instance.Debug(null, null, exception);
       return exception;
-    }
-
-    public static IDisposable InfoRegion(string format, params object[] args)
-    {
-      return instance.InfoRegion(format, args);
     }
 
     public static void Info(string format, params object[] args)
@@ -414,18 +411,18 @@ namespace Xtensive
 
     public static void Warning(string format, params object[] args)
     {
-      instance.Warn(format, args);
+      instance.Warning(format, args);
     }
 
     public static Exception Warning(Exception exception, string format, params object[] args)
     {
-      instance.Warn(format, args, exception);
+      instance.Warning(format, args, exception);
       return exception;
     }
 
     public static Exception Warning(Exception exception)
     {
-      instance.Warn(null, null, exception);
+      instance.Warning(null, null, exception);
       return exception;
     }
 
@@ -448,18 +445,18 @@ namespace Xtensive
 
     public static void FatalError(string format, params object[] args)
     {
-      instance.Fatal(format, args);
+      instance.FatalError(format, args);
     }
 
     public static Exception FatalError(Exception exception, string format, params object[] args)
     {
-      instance.Fatal(format, args, exception);
+      instance.FatalError(format, args, exception);
       return exception;
     }
 
     public static Exception FatalError(Exception exception)
     {
-      instance.Fatal(null, null, exception);
+      instance.FatalError(null, null, exception);
       return exception;
     }
 
@@ -471,16 +468,15 @@ namespace Xtensive
     }
   }
 
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   internal static class CoreLog
   {
-    private static string Name = "Xtensive.Orm.Core";
+    private static readonly string Name = "Xtensive.Orm.Core";
     private static readonly BaseLog instance;
 
-    public static BaseLog Instance {
-      get { return instance; }
-    }
+    public static BaseLog Instance { get { return instance; } }
 
-    public static bool IsLogged(LogEventTypes type)
+    public static bool IsLogged(LogLevel type)
     {
       return instance.IsLogged(type);
     }
@@ -488,6 +484,11 @@ namespace Xtensive
     public static IDisposable DebugRegion(string format, params object[] args)
     {
       return instance.DebugRegion(format, args);
+    }
+
+    public static IDisposable InfoRegion(string format, params object[] args)
+    {
+      return instance.InfoRegion(format, args);
     }
 
     public static void Debug(string format, params object[] args)
@@ -505,11 +506,6 @@ namespace Xtensive
     {
       instance.Debug(null, null, exception);
       return exception;
-    }
-
-    public static IDisposable InfoRegion(string format, params object[] args)
-    {
-      return instance.InfoRegion(format, args);
     }
 
     public static void Info(string format, params object[] args)
@@ -531,18 +527,18 @@ namespace Xtensive
 
     public static void Warning(string format, params object[] args)
     {
-      instance.Warn(format, args);
+      instance.Warning(format, args);
     }
 
     public static Exception Warning(Exception exception, string format, params object[] args)
     {
-      instance.Warn(format, args, exception);
+      instance.Warning(format, args, exception);
       return exception;
     }
 
     public static Exception Warning(Exception exception)
     {
-      instance.Warn(null, null, exception);
+      instance.Warning(null, null, exception);
       return exception;
     }
 
@@ -565,18 +561,18 @@ namespace Xtensive
 
     public static void FatalError(string format, params object[] args)
     {
-      instance.Fatal(format, args);
+      instance.FatalError(format, args);
     }
 
     public static Exception FatalError(Exception exception, string format, params object[] args)
     {
-      instance.Fatal(format, args, exception);
+      instance.FatalError(format, args, exception);
       return exception;
     }
 
     public static Exception FatalError(Exception exception)
     {
-      instance.Fatal(null, null, exception);
+      instance.FatalError(null, null, exception);
       return exception;
     }
 
@@ -588,16 +584,15 @@ namespace Xtensive
     }
   }
 
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   internal static class TestLog
   {
-    private static string Name = "Xtensive.Orm.Tests";
+    private static readonly string Name = "Xtensive.Orm.Tests";
     private static readonly BaseLog instance;
 
-    public static BaseLog Instance {
-      get { return instance; }
-    }
+    public static BaseLog Instance { get { return instance; } }
 
-    public static bool IsLogged(LogEventTypes type)
+    public static bool IsLogged(LogLevel type)
     {
       return instance.IsLogged(type);
     }
@@ -605,6 +600,11 @@ namespace Xtensive
     public static IDisposable DebugRegion(string format, params object[] args)
     {
       return instance.DebugRegion(format, args);
+    }
+
+    public static IDisposable InfoRegion(string format, params object[] args)
+    {
+      return instance.InfoRegion(format, args);
     }
 
     public static void Debug(string format, params object[] args)
@@ -622,11 +622,6 @@ namespace Xtensive
     {
       instance.Debug(null, null, exception);
       return exception;
-    }
-
-    public static IDisposable InfoRegion(string format, params object[] args)
-    {
-      return instance.InfoRegion(format, args);
     }
 
     public static void Info(string format, params object[] args)
@@ -648,18 +643,18 @@ namespace Xtensive
 
     public static void Warning(string format, params object[] args)
     {
-      instance.Warn(format, args);
+      instance.Warning(format, args);
     }
 
     public static Exception Warning(Exception exception, string format, params object[] args)
     {
-      instance.Warn(format, args, exception);
+      instance.Warning(format, args, exception);
       return exception;
     }
 
     public static Exception Warning(Exception exception)
     {
-      instance.Warn(null, null, exception);
+      instance.Warning(null, null, exception);
       return exception;
     }
 
@@ -682,18 +677,18 @@ namespace Xtensive
 
     public static void FatalError(string format, params object[] args)
     {
-      instance.Fatal(format, args);
+      instance.FatalError(format, args);
     }
 
     public static Exception FatalError(Exception exception, string format, params object[] args)
     {
-      instance.Fatal(format, args, exception);
+      instance.FatalError(format, args, exception);
       return exception;
     }
 
     public static Exception FatalError(Exception exception)
     {
-      instance.Fatal(null, null, exception);
+      instance.FatalError(null, null, exception);
       return exception;
     }
 

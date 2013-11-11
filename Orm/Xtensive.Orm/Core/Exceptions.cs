@@ -7,11 +7,9 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
+using Xtensive.Diagnostics;
 using Xtensive.Orm.Logging;
 using Xtensive.Reflection;
-using Xtensive.Diagnostics;
-using Xtensive.IoC;
-
 
 namespace Xtensive.Core
 {
@@ -29,9 +27,10 @@ namespace Xtensive.Core
     /// <returns>Newly created exception.</returns>
     public static InvalidOperationException InternalError(string description, BaseLog log)
     {
-      return (InvalidOperationException)
-        log.Error(new InvalidOperationException(
-          string.Format(Strings.ExInternalError, description)));
+      var message = string.Format(Strings.ExInternalError, description);
+      var exception = new InvalidOperationException(message);
+      log.Error(message, exception: exception);
+      return exception;
     }
 
     /// <summary>
