@@ -10,6 +10,8 @@ Imports NUnit.Framework
 Imports Xtensive.Orm.Configuration
 Imports Xtensive.Orm.Tests.Model.PersistentPropertyWeavingTestModel
 
+#If Never Then
+
 Namespace Linq
   Namespace PersistentPropertyWeavingTestModel
     <HierarchyRoot()> _
@@ -292,4 +294,5 @@ Namespace Linq
   End Class
 End Namespace
 
+#End If
 
