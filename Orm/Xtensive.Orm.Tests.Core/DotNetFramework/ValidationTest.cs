@@ -7,6 +7,7 @@
 using System;
 using System.Threading;
 using NUnit.Framework;
+using Xtensive.Orm.Logging;
 using Xtensive.Reflection;
 using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
@@ -61,7 +62,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       TryCatchExceptionLoop(h, 10);
       // Real test
       TestLog.Info("Try-catch test:");
-      using (new LogIndentScope()) {
+      using (IndentManager.IncreaseIndent()) {
         TestHelper.CollectGarbage();
         using (new Measurement("NoTryNoException ", MeasurementOptions.Log, count))
           NoTryNoExceptionLoop(h, count);
@@ -87,7 +88,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       holders = new Holder[count];
       FillHolders(holders);
       TestLog.Info("Null check test:");
-      using (new LogIndentScope()) {
+      using (IndentManager.IncreaseIndent()) {
         TestHelper.CollectGarbage();
         using (new Measurement("No check  ", MeasurementOptions.Log, count))
           NoCheckLoop(holders);

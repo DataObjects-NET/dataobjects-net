@@ -8,6 +8,7 @@ using System;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Orm.Logging;
 using Xtensive.Reflection;
 using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
@@ -87,7 +88,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       a = new Cloneable<T>[(int)(CloneTestArrayLength*speedFactor / 10 * 10)];
       TestLog.Info("Cloning test:");
       TestLog.Info("  Type: {0}, length: {1}", c.GetType().GetShortName(), a.Length);
-      using (new LogIndentScope()) {
+      using (IndentManager.IncreaseIndent()) {
         Cleanup();
         using (new Measurement("MemberwiseClone   ", MeasurementOptions.Log, a.Length))
           CloneByMCLoop(c, a);

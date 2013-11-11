@@ -7,6 +7,7 @@
 using System;
 using System.Threading;
 using NUnit.Framework;
+using Xtensive.Orm.Logging;
 using Xtensive.Reflection;
 using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
@@ -31,7 +32,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
 
       public void ExecuteLock(object argument)
       {
-        using (new LogIndentScope()) {
+        using (IndentManager.IncreaseIndent()) {
           bool log = !warmup && (int) argument==0;
           int lockCount = 0;
           int switchCount = 0;
@@ -54,7 +55,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
 
       public void ExecuteReadLock(object argument)
       {
-        using (new LogIndentScope()) {
+        using (IndentManager.IncreaseIndent()) {
           bool log = !warmup && (int) argument==0;
           int lockCount = 0;
           int switchCount = 0;
@@ -81,7 +82,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
 
       public void ExecuteWriteLock(object argument)
       {
-        using (new LogIndentScope()) {
+        using (IndentManager.IncreaseIndent()) {
           bool log = !warmup && (int) argument==0;
           int lockCount = 0;
           int switchCount = 0;
@@ -108,7 +109,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
 
       public void ExecuteWaitLock(object argument)
       {
-        using (new LogIndentScope()) {
+        using (IndentManager.IncreaseIndent()) {
           bool log = !warmup && (int) argument==0;
           int passCount = PassCount;
           Thread thread = Thread.CurrentThread;
@@ -130,7 +131,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
 
       public void ExecuteSleepLock(object argument)
       {
-        using (new LogIndentScope()) {
+        using (IndentManager.IncreaseIndent()) {
           bool log = !warmup && (int) argument==0;
           int passCount = PassCount;
           Thread thread = Thread.CurrentThread;
@@ -156,7 +157,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
         Action d = delegate {
           return;
         };
-        using (new LogIndentScope()) {
+        using (IndentManager.IncreaseIndent()) {
           bool log = !warmup && (int) argument==0;
           int passCount = PassCount;
           Thread thread = Thread.CurrentThread;

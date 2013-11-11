@@ -10,6 +10,7 @@ using System.Globalization;
 using NUnit.Framework;
 using Xtensive.Comparison;
 using Xtensive.Core;
+using Xtensive.Orm.Logging;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Xtensive.Diagnostics;
@@ -106,7 +107,7 @@ namespace Xtensive.Orm.Tests.Core.Performance
     public void InnerTest<T>(double speedFactor)
     {
       TestLog.Info("Type {0}:", typeof(T).GetShortName());
-      using (new LogIndentScope()) {
+      using (IndentManager.IncreaseIndent()) {
         TwoValuesTest<T>((int)(TwoValueTestIterations*speedFactor));
         ArrayTest<T>((int)(ArrayTestShortLength*speedFactor), ArrayTestShortIterations, 0);
         ArrayTest<T>((int)(ArrayTestShortLength*speedFactor), ArrayTestShortIterations, 0.5);
@@ -134,7 +135,7 @@ namespace Xtensive.Orm.Tests.Core.Performance
       SimpleComparisonLoop(c2, o1, o2, 1000);
       TestLog.Info("Values comparison:");
       TestLog.Info("  Type: {0}, instances: {1} x 2, {2}", typeof(T).GetShortName(), o1, o2);
-      using (new LogIndentScope()) {
+      using (IndentManager.IncreaseIndent()) {
         TestHelper.CollectGarbage();
         if (!TestInfo.IsProfileTestRunning) {
           using (new Measurement("Default  comparer (equal)    ", MeasurementOptions.Log, count))
@@ -168,7 +169,7 @@ namespace Xtensive.Orm.Tests.Core.Performance
       ArrayComparisonLoop(c2, array, 1);
       TestLog.Info("Array comparison (equality probability = {0}):", (int)(equalityProbability*100));
       TestLog.Info("  Type: {0}, array length: {1}", typeof(T).GetShortName(), length);
-      using (new LogIndentScope()) {
+      using (IndentManager.IncreaseIndent()) {
         TestHelper.CollectGarbage();
         if (!TestInfo.IsProfileTestRunning) {
           using (new Measurement("Default  comparer", MeasurementOptions.Log, (length - 1) * count))

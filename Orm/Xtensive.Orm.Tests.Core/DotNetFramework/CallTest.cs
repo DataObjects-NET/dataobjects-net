@@ -9,6 +9,7 @@ using System.Threading;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Logging;
 using Xtensive.Reflection;
 using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
@@ -194,7 +195,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       TestLog.Info("Regular call test:");
       TestLog.Info("  Type: {0}", typeof(T).GetShortName());
       FastCache<T>.Value = null;
-      using (new LogIndentScope()) {
+      using (Orm.Logging.IndentManager.IncreaseIndent()) {
         Cleanup();
         using (new Measurement("Method              ", MeasurementOptions.Log, iterations))
           CallClassMethod<T>(c, iterations);
@@ -224,7 +225,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       TestLog.Info("Regular call test (1 generic argument: {0}):", typeof(T1).GetShortName());
       TestLog.Info("  Type: {0}", typeof(T).GetShortName());
       FastCache<T>.Value = null;
-      using (new LogIndentScope()) {
+      using (IndentManager.IncreaseIndent()) {
         Cleanup();
         using (new Measurement("Method 1              ", MeasurementOptions.Log, iterations))
           CallClassGMethod1<T,T1>(c, iterations);
@@ -254,7 +255,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       TestLog.Info("Regular call test (2 generic arguments: {0}, {1}):", typeof(T1).GetShortName(), typeof(T2).GetShortName());
       TestLog.Info("  Type: {0}", typeof(T).GetShortName());
       FastCache<T>.Value = null;
-      using (new LogIndentScope()) {
+      using (IndentManager.IncreaseIndent()) {
         Cleanup();
         using (new Measurement("Method 2              ", MeasurementOptions.Log, iterations))
           CallClassGMethod2<T,T1,T2>(c, iterations);
@@ -287,7 +288,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       TestLog.Info("Virtual call test:");
       TestLog.Info("  Type: {0}", typeof(T).GetShortName());
       FastCache<T>.Value = null;
-      using (new LogIndentScope()) {
+      using (IndentManager.IncreaseIndent()) {
         Cleanup();
         using (new Measurement("Virtual method (typed)          ", MeasurementOptions.Log, iterations))
           CallClassVMethod(c, iterations);
@@ -334,7 +335,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       TestLog.Info("Virtual generic call test (1 generic argument: {0}):", typeof(T1).GetShortName());
       TestLog.Info("  Type: {0}", typeof(T).GetShortName());
       FastCache<T>.Value = null;
-      using (new LogIndentScope()) {
+      using (IndentManager.IncreaseIndent()) {
         Cleanup();
         using (new Measurement("Generic method 1 (class)                 ", MeasurementOptions.Log, iterations))
           CallClassGVMethod1<T,T1>(c, iterations);
@@ -378,7 +379,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       TestLog.Info("Virtual generic call test (2 generic arguments: {0}, {1}):", typeof(T1).GetShortName(), typeof(T2).GetShortName());
       TestLog.Info("  Type: {0}", typeof(T).GetShortName());
       FastCache<T>.Value = null;
-      using (new LogIndentScope()) {
+      using (IndentManager.IncreaseIndent()) {
         Cleanup();
         using (new Measurement("Generic method 2 (class)                 ", MeasurementOptions.Log, iterations))
           CallClassGVMethod2<T,T1,T2>(c, iterations);

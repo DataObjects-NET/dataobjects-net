@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Comparison;
+using Xtensive.Orm.Logging;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Xtensive.Diagnostics;
@@ -89,7 +90,7 @@ namespace Xtensive.Orm.Tests.Core.Testing
     public void TestSequence<T>(int size, double expectedShare, double shareTolerance)
     {
       TestLog.Info("{0} random sequence, {1} items:", typeof(T).GetShortName(), size);
-      using (new LogIndentScope()) {
+      using (IndentManager.IncreaseIndent()) {
         TestLog.Info("Expected probability: {0}, tolerance: {1}.", expectedShare, shareTolerance);
         // Testing the same sequence
         Random r1 = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);

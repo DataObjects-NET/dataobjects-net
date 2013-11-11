@@ -11,6 +11,7 @@ using Xtensive.Comparison;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Diagnostics;
+using Xtensive.Orm.Logging;
 using Xtensive.Reflection;
 using Xtensive.Orm.Tests;
 using Xtensive.Tuples;
@@ -77,7 +78,7 @@ namespace Xtensive.Orm.Tests.Core.Reflection
     {
       TupleDescriptor descriptor = TupleDescriptor.Create(types);
       TestLog.Info("Testing sequence {0}:", descriptor);
-      using (new LogIndentScope()) {
+      using (IndentManager.IncreaseIndent()) {
         // Logic test
         LogicTest(types, this, GetType(), "SequenceAStep");
         LogicTest(types, null, GetType(), "SequenceAStaticStep");
