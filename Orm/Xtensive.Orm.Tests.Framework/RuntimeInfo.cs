@@ -7,9 +7,8 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using Xtensive.Core;
 
-namespace Xtensive.Diagnostics
+namespace Xtensive.Orm.Tests
 {
   /// <summary>
   /// Provides various runtime related information.

@@ -9,7 +9,6 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Comparison;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Core.Comparison

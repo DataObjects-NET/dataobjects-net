@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Configuration.Elements
   public class LoggingElement : ConfigurationElement
   {
     private const string ProviderElementName = "provider";
-    private const string LogsCollectionElementName = "logs";
+    private const string LogsCollectionElementName = "";
     
     /// <summary>
     /// Gets or sets external provider. Provider's name specified as assembly qualified name."
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <summary>
     /// Gets or sets collection of <see cref="LogElement"/>
     /// </summary>
-    [ConfigurationProperty(LogsCollectionElementName, IsRequired = false)]
+    [ConfigurationProperty(LogsCollectionElementName, IsRequired = false, IsDefaultCollection = true)]
     [ConfigurationCollection(typeof(ConfigurationCollection<LogElement>), AddItemName = "log")]
     public ConfigurationCollection<LogElement> Logs
     {

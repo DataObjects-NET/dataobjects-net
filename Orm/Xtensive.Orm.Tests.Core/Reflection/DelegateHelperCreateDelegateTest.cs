@@ -10,7 +10,6 @@ using NUnit.Framework;
 using Xtensive.Comparison;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Logging;
 using Xtensive.Reflection;
 using Xtensive.Orm.Tests;

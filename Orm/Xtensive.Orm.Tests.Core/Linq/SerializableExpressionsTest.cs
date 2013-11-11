@@ -12,7 +12,6 @@ using System.Runtime.Serialization.Formatters.Soap;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Linq;
-using Xtensive.Diagnostics;
 using Xtensive.Linq.SerializableExpressions;
 
 namespace Xtensive.Orm.Tests.Core.Linq

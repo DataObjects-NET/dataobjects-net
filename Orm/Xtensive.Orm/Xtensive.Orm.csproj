@@ -323,42 +323,6 @@
     <Compile Include="Core\ThreadSafeCached.cs" />
     <Compile Include="Core\Triplet{TFirst,TSecond,TThird}.cs" />
     <Compile Include="Core\Triplet{T}.cs" />
-    <Compile Include="Diagnostics\Configuration\ConfigurationSection.cs" />
-    <Compile Include="Diagnostics\Configuration\LogElement.cs" />
-    <Compile Include="Diagnostics\ConsoleLog.cs" />
-    <Compile Include="Diagnostics\DebugInfo.cs" />
-    <Compile Include="Diagnostics\DebugLog.cs" />
-    <Compile Include="Diagnostics\DebugOnlyConsoleLog.cs" />
-    <Compile Include="Diagnostics\ErrorLog.cs" />
-    <Compile Include="Diagnostics\FileLog.cs" />
-    <Compile Include="Diagnostics\HighResolutionTime.cs" />
-    <Compile Include="Diagnostics\Interfaces\ILog.cs" />
-    <Compile Include="Diagnostics\Interfaces\ILogBase.cs" />
-    <Compile Include="Diagnostics\Interfaces\ILogProvider.cs" />
-    <Compile Include="Diagnostics\Interfaces\IRealLog.cs" />
-    <Compile Include="Diagnostics\LogCaptureScope.cs" />
-    <Compile Include="Diagnostics\LogEventHandler.cs" />
-    <Compile Include="Diagnostics\LogEventTypes.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Diagnostics\LogEventTypesExtensions.cs" />
-    <Compile Include="Diagnostics\LogFormat.cs" />
-    <Compile Include="Diagnostics\LogImplementation.cs" />
-    <Compile Include="Diagnostics\LogImplementationBase.cs" />
-    <Compile Include="Diagnostics\LogIndent.cs" />
-    <Compile Include="Diagnostics\LogIndentScope.cs" />
-    <Compile Include="Diagnostics\LogProvider.cs" />
-    <Compile Include="Diagnostics\LogProviderImplementation.cs" />
-    <Compile Include="Diagnostics\LogProviderImplementationBase.cs" />
-    <Compile Include="Diagnostics\LogProviderType.cs" />
-    <Compile Include="Diagnostics\LogTemplate.cs" />
-    <Compile Include="Diagnostics\Measurement.cs" />
-    <Compile Include="Diagnostics\MeasurementOptions.cs" />
-    <Compile Include="Diagnostics\NullLog.cs" />
-    <Compile Include="Diagnostics\RealLogImplementationBase.cs" />
-    <Compile Include="Diagnostics\RuntimeInfo.cs" />
-    <Compile Include="Diagnostics\StringLog.cs" />
-    <Compile Include="Diagnostics\TextualLogImplementationBase.cs" />
     <Compile Include="InternalLogs.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

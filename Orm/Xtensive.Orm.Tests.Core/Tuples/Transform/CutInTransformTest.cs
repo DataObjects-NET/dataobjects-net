@@ -8,7 +8,6 @@ using System;
 using NUnit.Framework;
 using Xtensive.Comparison;
 using Xtensive.Tuples;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
 using Xtensive.Tuples.Transform;
 using Tuple = Xtensive.Tuples.Tuple;

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace Xtensive.Diagnostics
+namespace Xtensive.Orm.Tests
 {
   /// <summary>
   /// <see cref="Measurement"/> options.

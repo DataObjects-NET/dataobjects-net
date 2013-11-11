@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Comparison;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;

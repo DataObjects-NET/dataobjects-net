@@ -8,7 +8,6 @@ using System;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
 
 namespace Xtensive.Orm.Tests.Core.Diagnostics
 {

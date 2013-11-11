@@ -10,7 +10,6 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Logging;
 using Xtensive.Reflection;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Core.DotNetFramework

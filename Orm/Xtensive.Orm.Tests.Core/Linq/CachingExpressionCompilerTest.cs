@@ -13,7 +13,6 @@ using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
-using Xtensive.Diagnostics;
 
 namespace Xtensive.Orm.Tests.Core.Linq
 {

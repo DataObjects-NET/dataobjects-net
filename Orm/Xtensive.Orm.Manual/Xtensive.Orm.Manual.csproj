@@ -92,9 +92,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Xtensive.Orm.Tests.Framework\Connections.config">
-      <Link>Connections.config</Link>
-    </None>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>

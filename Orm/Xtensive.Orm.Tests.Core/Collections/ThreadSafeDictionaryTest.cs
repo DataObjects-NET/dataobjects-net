@@ -9,7 +9,6 @@ using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Collections;
-using Xtensive.Diagnostics;
 
 namespace Xtensive.Orm.Tests.Core.Collections
 {

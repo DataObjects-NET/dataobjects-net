@@ -12,7 +12,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
 

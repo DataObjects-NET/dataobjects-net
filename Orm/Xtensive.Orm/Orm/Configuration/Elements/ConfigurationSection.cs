@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Configuration.Elements
   public class ConfigurationSection : System.Configuration.ConfigurationSection
   {
     private const string DomainCollectionElementName = "domains";
-    private const string LogsCollectionElementName = "logging";
+    private const string LoggingElementName = "logging";
     private const string XmlNamespaceElementName = "xmlns";
 
     /// <summary>
@@ -34,20 +34,19 @@ namespace Xtensive.Orm.Configuration.Elements
     /// Gets the collection of domain configurations.
     /// </summary>
     [ConfigurationProperty(DomainCollectionElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof(ConfigurationCollection<DomainConfigurationElement>), AddItemName = "domain")]
-    public ConfigurationCollection<DomainConfigurationElement> Domains {
-      get {
-        return (ConfigurationCollection<DomainConfigurationElement>)base[DomainCollectionElementName];
-      }
+    [ConfigurationCollection(typeof (ConfigurationCollection<DomainConfigurationElement>), AddItemName = "domain")]
+    public ConfigurationCollection<DomainConfigurationElement> Domains
+    {
+      get { return (ConfigurationCollection<DomainConfigurationElement>) base[DomainCollectionElementName]; }
     }
 
     /// <summary>
     /// Gets configuration of logging.
     /// </summary>
-    [ConfigurationProperty(LogsCollectionElementName, IsRequired = false)]
+    [ConfigurationProperty(LoggingElementName, IsRequired = false)]
     public LoggingElement Logging
     {
-      get { return (LoggingElement)this[LogsCollectionElementName]; }
+      get { return (LoggingElement) this[LoggingElementName]; }
     }
   }
 }

@@ -11,7 +11,6 @@ using Xtensive.Comparison;
 using Xtensive.Orm.Logging;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
 using Tuple = Xtensive.Tuples.Tuple;
 

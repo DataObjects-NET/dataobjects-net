@@ -8,9 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Core;
 
-
-
-namespace Xtensive.Diagnostics
+namespace Xtensive.Orm.Tests
 {
   /// <summary>
   /// Time and memory measurement helper.

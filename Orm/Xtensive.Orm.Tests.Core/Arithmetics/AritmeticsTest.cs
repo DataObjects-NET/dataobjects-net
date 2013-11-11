@@ -9,7 +9,6 @@ using System.Collections;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Arithmetic;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Core.Arithmetics

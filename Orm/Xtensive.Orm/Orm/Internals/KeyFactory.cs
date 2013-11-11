@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;

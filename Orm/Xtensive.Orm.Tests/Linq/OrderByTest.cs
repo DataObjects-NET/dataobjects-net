@@ -8,7 +8,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;

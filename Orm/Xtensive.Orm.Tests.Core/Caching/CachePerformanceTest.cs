@@ -11,7 +11,6 @@ using NUnit.Framework;
 using Xtensive.Caching;
 using Xtensive.Core;
 using Xtensive.Reflection;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Core.Caching

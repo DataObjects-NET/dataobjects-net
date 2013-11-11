@@ -57,9 +57,11 @@
   <ItemGroup>
     <Compile Include="AssertEx.cs" />
     <Compile Include="AutoBuildTest.cs" />
+    <Compile Include="DebugInfo.cs" />
     <Compile Include="DomainConfigurationFactory.cs" />
     <Compile Include="DomainModelExtensions.cs" />
     <Compile Include="Dynamic.cs" />
+    <Compile Include="HighResolutionTime.cs" />
     <Compile Include="InstanceGenerationUtils.cs" />
     <Compile Include="InstanceGeneratorProvider.cs" />
     <Compile Include="Interfaces\IInstanceGenerator.cs" />
@@ -89,7 +91,10 @@
     <Compile Include="Internals\UInt16InstanceGenerator.cs" />
     <Compile Include="Internals\UInt32InstanceGenerator.cs" />
     <Compile Include="Internals\UInt64InstanceGenerator.cs" />
+    <Compile Include="Measurement.cs" />
+    <Compile Include="MeasurementOptions.cs" />
     <Compile Include="RandomManager.cs" />
+    <Compile Include="RuntimeInfo.cs" />
     <Compile Include="SeedVariatorType.cs" />
     <Compile Include="StorageProviderInfo.cs" />
     <Compile Include="TestConfiguration.cs" />
@@ -113,8 +118,8 @@
     <Compile Include="WrappingInstanceGenerator{T,TBase}.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Connections.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Include="Orm.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="DO-Tests.sql" />
   </ItemGroup>

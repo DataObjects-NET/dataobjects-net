@@ -699,10 +699,6 @@
     <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="..\Xtensive.Orm.Tests.Framework\Connections.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Model\InterfaceAssociationsModelGenerator.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>InterfaceAssociationsModelGenerator.cs</LastGenOutput>

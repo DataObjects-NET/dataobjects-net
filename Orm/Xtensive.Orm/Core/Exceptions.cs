@@ -7,7 +7,6 @@
 using System;
 using System.Linq.Expressions;
 using JetBrains.Annotations;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Logging;
 using Xtensive.Reflection;
 
@@ -22,14 +21,13 @@ namespace Xtensive.Core
     /// Returns an exception informing internal error has occurred.
     /// </summary>
     /// <param name="description">Error description.</param>
-    /// <param name="log"><see cref="ILog"/> instance to log the problem;
+    /// <param name="log"><see cref="BaseLog"/> instance to log the problem;
     /// <see langword="null"/> means logging is not necessary.</param>
     /// <returns>Newly created exception.</returns>
     public static InvalidOperationException InternalError(string description, BaseLog log)
     {
-      var message = string.Format(Strings.ExInternalError, description);
-      var exception = new InvalidOperationException(message);
-      log.Error(message, exception: exception);
+      var exception = new InvalidOperationException(string.Format(Strings.ExInternalError, description));
+      log.Error(null, null, exception);
       return exception;
     }
 
