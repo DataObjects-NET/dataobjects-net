@@ -19,13 +19,13 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ValidationModel
   {
     [Field(Length = 6)]
     [NotNullConstraint]
-    [RegexConstraint(Pattern = "^[0-9]{6}$")]
+    [RegexConstraint("^[0-9]{6}$")]
     public string Number { get; set; }
 
     [Field(Length = 4)]
     [NotNullConstraint]
     [LengthConstraint(Min = 4, Max = 4)]
-    [RegexConstraint(Pattern = "^[0-9]+$")]
+    [RegexConstraint("^[0-9]+$")]
     public string Series { get; set; }
 
     [Field, NotNullOrEmptyConstraint]
@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ValidationModel
     [Field]
     [NotNullConstraint]
     [LengthConstraint(Min = 7, Max = 7)]
-    [RegexConstraint(Pattern = "^([0-9]{3})-([0-9]{3})$")]
+    [RegexConstraint("^([0-9]{3})-([0-9]{3})$")]
     public string DepartmentNumber { get; set; }
 
     [Field]
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ValidationModel
     [Field, EmailConstraint]
     public string Email { get; set; }
 
-    [Field, RegexConstraint(Pattern = @"^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$")]
+    [Field, RegexConstraint(@"^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$")]
     public string Phone { get; set; }
 
     [Field]
@@ -179,28 +179,28 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ValidationModel
     [Field, RangeConstraint(Min = 3, Max = 10)]
     public int IntValueInRange { get; set; }
 
-    [Field, RegexConstraint(Pattern = @"^(\%){3,10}$")]
+    [Field, RegexConstraint(@"^(\%){3,10}$")]
     public string StringForRegexValidation { get; set; }
 
     [Field]
-    public virtual string overridedField { get; set; }
+    public virtual string OverridedField { get; set; }
 
     [NotNullOrEmptyConstraint]
-    public virtual string propertyBecomesField { get; set; }
+    public virtual string PropertyBecomesField { get; set; }
   }
 
   [HierarchyRoot]
   public class ChildClass : BaseEntity
   {
     [NotEmptyConstraint]
-    public override string overridedField { get; set; }
+    public override string OverridedField { get; set; }
   }
 
   [HierarchyRoot]
   public class SecondChildClass: BaseEntity
   {
     [Field]
-    public override string propertyBecomesField { get; set; }
+    public override string PropertyBecomesField { get; set; }
   }
 }
 
@@ -210,13 +210,13 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ImmediateValidationModel
   {
     [Field(Length = 6)]
     [NotNullConstraint(IsImmediate = true)]
-    [RegexConstraint(Pattern = "^[0-9]{6}$", IsImmediate = true)]
+    [RegexConstraint("^[0-9]{6}$", IsImmediate = true)]
     public string Number { get; set; }
 
     [Field(Length = 4)]
     [NotNullConstraint(IsImmediate = true)]
     [LengthConstraint(Min = 4, Max = 4, IsImmediate = true)]
-    [RegexConstraint(Pattern = "^[0-9]+$", IsImmediate = true)]
+    [RegexConstraint("^[0-9]+$", IsImmediate = true)]
     public string Series { get; set; }
 
     [Field, NotNullOrEmptyConstraint(IsImmediate = true)]
@@ -225,7 +225,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ImmediateValidationModel
     [Field]
     [NotNullConstraint(IsImmediate = true)]
     [LengthConstraint(Min = 7, Max = 7, IsImmediate = true)]
-    [RegexConstraint(Pattern = "^([0-9]{3})-([0-9]{3})$", IsImmediate = true)]
+    [RegexConstraint("^([0-9]{3})-([0-9]{3})$", IsImmediate = true)]
     public string DepartmentNumber { get; set; }
 
     [Field]
@@ -274,7 +274,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ImmediateValidationModel
     [Field, EmailConstraint(IsImmediate = true)]
     public string Email { get; set; }
 
-    [Field, RegexConstraint(Pattern = @"^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$", IsImmediate = true)]
+    [Field, RegexConstraint(@"^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$", IsImmediate = true)]
     public string Phone { get; set; }
 
     [Field]
@@ -370,7 +370,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ImmediateValidationModel
     [Field, RangeConstraint(Min = 3, Max = 10, IsImmediate = true)]
     public int IntValueInRange { get; set; }
 
-    [Field, RegexConstraint(Pattern = @"^(\%){3,10}$", IsImmediate = true)]
+    [Field, RegexConstraint(@"^(\%){3,10}$", IsImmediate = true)]
     public string StringForRegexValidation { get; set; }
 
     [Field]
@@ -488,8 +488,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           IntValueInRange = 5,
           PastDateTime = DateTime.Now,
           StringForRegexValidation = "%%%%",
-          overridedField = "sdfd",
-          propertyBecomesField = "sdfljdkf",
+          OverridedField = "sdfd",
+          PropertyBecomesField = "sdfljdkf",
           LimitedLengthString = "uuuuu"
         };
         var secondChildClass = new model1.SecondChildClass {
@@ -500,8 +500,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
           IntValueInRange = 5,
           PastDateTime = DateTime.Now,
           StringForRegexValidation = "%%%%",
-          overridedField = "sdfd",
-          propertyBecomesField = "sdfljdkf",
+          OverridedField = "sdfd",
+          PropertyBecomesField = "sdfljdkf",
           LimitedLengthString = "uuuuu"
         };
         session.Validate();
@@ -1229,8 +1229,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
                     IntValueInRange = 5,
                     PastDateTime = DateTime.Now,
                     StringForRegexValidation = "%%%%",
-                    overridedField = "sdfd",
-                    propertyBecomesField = "sdfljdkf",
+                    OverridedField = "sdfd",
+                    PropertyBecomesField = "sdfljdkf",
                     LimitedLengthString = "uuuuu"
                   }
                 };
@@ -1284,8 +1284,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
                   IntValueInRange = 5,
                   PastDateTime = DateTime.Now,
                   StringForRegexValidation = "%%%%",
-                  overridedField = "sdfd",
-                  propertyBecomesField = "sdfljdkf",
+                  OverridedField = "sdfd",
+                  PropertyBecomesField = "sdfljdkf",
                   LimitedLengthString = "uuuuu"
                 }
               };
@@ -1305,8 +1305,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
                   IntValueInRange = 5,
                   PastDateTime = DateTime.Now,
                   StringForRegexValidation = "%%%%",
-                  overridedField = "sdfd",
-                  propertyBecomesField = "sdfljdkf",
+                  OverridedField = "sdfd",
+                  PropertyBecomesField = "sdfljdkf",
                   LimitedLengthString = "uuuuu"
                 }
               }; 
@@ -1326,8 +1326,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
                   IntValueInRange = 5,
                   PastDateTime = DateTime.Now,
                   StringForRegexValidation = "%%%%",
-                  overridedField = "sdfd",
-                  propertyBecomesField = "sdfljdkf",
+                  OverridedField = "sdfd",
+                  PropertyBecomesField = "sdfljdkf",
                   LimitedLengthString = "uuuuu"
                 }
               };
@@ -1347,8 +1347,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
                   IntValueInRange = 5,
                   PastDateTime = DateTime.Now,
                   StringForRegexValidation = "%%%%",
-                  overridedField = "sdfd",
-                  propertyBecomesField = "sdfljdkf",
+                  OverridedField = "sdfd",
+                  PropertyBecomesField = "sdfljdkf",
                   LimitedLengthString = "uuuuu"
                 }
               };
@@ -1368,8 +1368,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
                   IntValueInRange = 5,
                   PastDateTime = DateTime.Now,
                   StringForRegexValidation = "%%%%",
-                  overridedField = "sdfd",
-                  propertyBecomesField = "sdfljdkf",
+                  OverridedField = "sdfd",
+                  PropertyBecomesField = "sdfljdkf",
                   LimitedLengthString = "uuuuu"
                 }
               };
@@ -1389,8 +1389,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
                   IntValueInRange = 11,
                   PastDateTime = DateTime.Now,
                   StringForRegexValidation = "%%%%",
-                  overridedField = "sdfd",
-                  propertyBecomesField = "sdfljdkf",
+                  OverridedField = "sdfd",
+                  PropertyBecomesField = "sdfljdkf",
                   LimitedLengthString = "uuuuu"
                 }
               };
@@ -1410,8 +1410,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
                   IntValueInRange = 5,
                   PastDateTime = DateTime.Now.AddSeconds(2),
                   StringForRegexValidation = "%%%%",
-                  overridedField = "sdfd",
-                  propertyBecomesField = "sdfljdkf",
+                  OverridedField = "sdfd",
+                  PropertyBecomesField = "sdfljdkf",
                   LimitedLengthString = "uuuuu"
                 }
               };
@@ -1431,8 +1431,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
                   IntValueInRange = 5,
                   PastDateTime = DateTime.Now,
                   StringForRegexValidation = "%&%%",
-                  overridedField = "sdfd",
-                  propertyBecomesField = "sdfljdkf",
+                  OverridedField = "sdfd",
+                  PropertyBecomesField = "sdfljdkf",
                   LimitedLengthString = "uuuuu"
                 }
               };
@@ -1452,8 +1452,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
                   IntValueInRange = 5,
                   PastDateTime = DateTime.Now,
                   StringForRegexValidation = "%%%%",
-                  overridedField = "sdfd",
-                  propertyBecomesField = "sdfljdkf",
+                  OverridedField = "sdfd",
+                  PropertyBecomesField = "sdfljdkf",
                   LimitedLengthString = "uuuuujhgdfhjdfhgjfdhgfjdhghfg"
                 }
               };
@@ -1669,8 +1669,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
                   IntValueInRange = 5,
                   PastDateTime = DateTime.Now,
                   StringForRegexValidation = "%%%%",
-                  overridedField = "",
-                  propertyBecomesField = "sdfljdkf",
+                  OverridedField = "",
+                  PropertyBecomesField = "sdfljdkf",
                   LimitedLengthString = "uuuuu"
                 }
               };
@@ -1690,8 +1690,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
                   IntValueInRange = 5,
                   PastDateTime = DateTime.Now,
                   StringForRegexValidation = "%%%%",
-                  overridedField = "",
-                  propertyBecomesField = "sdfljdkf",
+                  OverridedField = "",
+                  PropertyBecomesField = "sdfljdkf",
                   LimitedLengthString = "uuuuu"
                 }
               };
@@ -1767,8 +1767,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
                   IntValueInRange = 5,
                   PastDateTime = DateTime.Now,
                   StringForRegexValidation = "%%%%",
-                  overridedField = "ddd",
-                  propertyBecomesField = null,
+                  OverridedField = "ddd",
+                  PropertyBecomesField = null,
                   LimitedLengthString = "uuuuu"
                 }
               };
@@ -1788,8 +1788,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
                   IntValueInRange = 5,
                   PastDateTime = DateTime.Now,
                   StringForRegexValidation = "%%%%",
-                  overridedField = "dfdf",
-                  propertyBecomesField = "",
+                  OverridedField = "dfdf",
+                  PropertyBecomesField = "",
                   LimitedLengthString = "uuuuu"
                 }
               };
@@ -2732,8 +2732,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
               childClass.IntValueInRange = 5;
               childClass.PastDateTime = DateTime.Now;
               childClass.StringForRegexValidation = "%%%%";
-              childClass.overridedField = "sdfd";
-              childClass.propertyBecomesField = "sdfljdkf";
+              childClass.OverridedField = "sdfd";
+              childClass.PropertyBecomesField = "sdfljdkf";
               childClass.LimitedLengthString = "uuuuu";
               session.Validate();
             });
@@ -2927,14 +2927,14 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
         using (var transaction = session.OpenTransaction()) {
           Assert.Throws<ValidationFailedException>(
             () => {
-              childClass.overridedField = "";
+              childClass.OverridedField = "";
               session.Validate();
             });
         }
         using (var transaction = session.OpenTransaction()) {
           Assert.DoesNotThrow(
             () => {
-              secondChildClass.overridedField = "";
+              secondChildClass.OverridedField = "";
               session.Validate();
             });
         }
@@ -2984,14 +2984,14 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
         using (var transaction = session.OpenTransaction()) {
           Assert.DoesNotThrow(
             () => {
-              childClass.propertyBecomesField = null;
+              childClass.PropertyBecomesField = null;
               session.Validate();
             });
         }
         using (var transaction = session.OpenTransaction()) {
           Assert.DoesNotThrow(
             () => {
-              secondChildClass.propertyBecomesField = null;
+              secondChildClass.PropertyBecomesField = null;
               session.Validate();
             });
         }
