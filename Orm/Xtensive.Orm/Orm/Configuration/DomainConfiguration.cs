@@ -7,6 +7,7 @@
 using System;
 using System.Configuration;
 using System.Linq;
+using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration.Elements;
 using ConfigurationSection=Xtensive.Orm.Configuration.Elements.ConfigurationSection;
@@ -25,7 +26,8 @@ namespace Xtensive.Orm.Configuration
     /// Default <see cref="SectionName"/> value:
     /// "<see langword="Xtensive.Orm" />".
     /// </summary>
-    public const string DefaultSectionName = "Xtensive.Orm";
+    [Obsolete("Use WellKnown.DefaultConfigurationSection instead."), UsedImplicitly]
+    public const string DefaultSectionName = WellKnown.DefaultConfigurationSection;
 
     /// <summary>
     /// Default <see cref="DomainConfiguration.KeyCacheSize"/> value: 
@@ -66,7 +68,7 @@ namespace Xtensive.Orm.Configuration
     #endregion
 
     private static bool sectionNameIsDefined;
-    private static string sectionName = DefaultSectionName;
+    private static string sectionName = WellKnown.DefaultConfigurationSection;
 
     private string name = string.Empty;
     private ConnectionInfo connectionInfo;

@@ -28,39 +28,35 @@ namespace Xtensive.Orm.Configuration
     public IList<LogConfiguration> Logs { get; set; }
 
     /// <summary>
+    /// Loads logging configuration from the default configuration section.
+    /// </summary>
+    /// <returns>Loaded configuration.</returns>
+    public static LoggingConfiguration Load()
+    {
+      return Load(WellKnown.DefaultConfigurationSection);
+    }
+
+    /// <summary>
+    /// Loads logging configuration from the specified configuration section.
+    /// </summary>
+    /// <param name="sectionName">Name of configuration section.</param>
+    /// <returns>Loaded configuration.</returns>
+    public static LoggingConfiguration Load(string sectionName)
+    {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, "sectionName");
+      var section = (ConfigurationSection) ConfigurationManager.GetSection(sectionName);
+      if (section==null)
+        throw new InvalidOperationException(string.Format(Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));
+      var configuration = section.Logging.ToNative();
+      return configuration;
+    }
+
+    /// <summary>
     /// Creates instance of this class.
     /// </summary>
     public LoggingConfiguration()
     {
       Logs = new List<LogConfiguration>();
-    }
-
-    /// <summary>
-    /// Loads logging configuration from standart configuration section.
-    /// </summary>
-    /// <returns>Loaded configuration</returns>
-    public static LoggingConfiguration Load()
-    {
-      var section = (ConfigurationSection)ConfigurationManager.GetSection("Xtensive.Orm");
-      if (section==null)
-        throw new InvalidOperationException(string.Format(Strings.ExSectionIsNotFoundInApplicationConfigurationFile, "Xtensive.Orm"));
-      var configuration = section.Logging.ToNative();
-      return configuration;
-    }
-
-    /// <summary>
-    /// Loads logging configuration from custom configuration section.
-    /// </summary>
-    /// <param name="sectionName">Name of custom section.</param>
-    /// <returns>Loaded configuration</returns>
-    public static LoggingConfiguration Load(string sectionName)
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, "sectionName");
-      var section = (ConfigurationSection)ConfigurationManager.GetSection(sectionName);
-      if (section==null)
-        throw new InvalidOperationException(string.Format(Strings.ExSectionIsNotFoundInApplicationConfigurationFile, "Xtensive.Orm"));
-      var configuration = section.Logging.ToNative();
-      return configuration;
     }
 
     /// <summary>

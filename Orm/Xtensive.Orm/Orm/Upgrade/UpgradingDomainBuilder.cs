@@ -53,6 +53,8 @@ namespace Xtensive.Orm.Upgrade
       if (!configuration.IsLocked)
         configuration.Lock();
 
+      LogManager.Default.AutoInitialize();
+
       var context = new UpgradeContext(configuration);
 
       using (context.Activate()) {
