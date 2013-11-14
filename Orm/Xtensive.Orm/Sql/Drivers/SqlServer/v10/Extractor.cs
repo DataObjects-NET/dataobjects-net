@@ -29,29 +29,34 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     ic.is_included_column,
     i.has_filter,
     i.filter_definition
-  FROM sys.indexes i 
+  FROM {CATALOG}.sys.indexes i 
   INNER JOIN (
     SELECT 
       schema_id,
       object_id,
       0 AS type
-    FROM sys.tables 
+    FROM {CATALOG}.sys.tables
+    WHERE {SYSTABLE_FILTER}
     UNION
     SELECT
       schema_id,
       object_id,
       1 AS type
-    FROM sys.views
+    FROM {CATALOG}.sys.views
     ) AS t 
       ON i.object_id = t.object_id 
-  INNER JOIN sys.index_columns ic
+  INNER JOIN {CATALOG}.sys.index_columns ic
     ON i.object_id = ic.object_id
       AND i.index_id = ic.index_id
-  WHERE i.type <> 3";
-      if (schema!=null)
-        query += " AND schema_id = " + schemaId;
-      query += " ORDER BY t.schema_id, t.object_id, i.index_id, ic.is_included_column, ic.key_ordinal";
-      query = AddCatalog(query);
+  WHERE i.type <> 3
+    AND schema_id{SCHEMA_FILTER}
+  ORDER BY
+    t.schema_id,
+    t.object_id,
+    i.index_id,
+    ic.is_included_column,
+    ic.key_ordinal";
+      query = PerformReplacements(query);
       return query;
     }
 

@@ -5,6 +5,7 @@
 // Created:    2012.04.05
 
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v11
@@ -29,12 +30,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
     maximum_value,
     is_cycling,
     current_value
-  FROM sys.sequences";
-
-      if (schema!=null)
-        query += " WHERE schema_id = " + schemaId;
-      query += " ORDER BY schema_id, object_id";
-      query = AddCatalog(query);
+  FROM {CATALOG}.sys.sequences
+  WHERE schema_id{SCHEMA_FILTER}
+  ORDER BY
+    schema_id,
+    object_id";
+      query = PerformReplacements(query);
 
       var currentSchemaId = schemaId;
       var currentSchema = schema;
@@ -52,6 +53,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
           descriptor.IsCyclic = reader.GetBoolean(6);
           descriptor.LastValue = reader.GetInt64(7);
         }
+    }
+
+    protected override void RegisterReplacements(Dictionary<string, string> replacements)
+    {
+      base.RegisterReplacements(replacements);
+      replacements[SysTablesFilterPlaceholder] = "is_filetable = 0";
     }
 
     public Extractor(SqlDriver driver)
