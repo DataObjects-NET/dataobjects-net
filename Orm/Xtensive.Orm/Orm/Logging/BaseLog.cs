@@ -90,7 +90,6 @@ namespace Xtensive.Orm.Logging
     /// <param name="exception">Exception, which must be written.</param>
     public abstract void Error(string message, object[] parameters = null, Exception exception = null);
 
-
     /// <summary>
     /// Writes fatal error message.
     /// </summary>
@@ -98,7 +97,6 @@ namespace Xtensive.Orm.Logging
     /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
     /// <param name="exception">Exception, which must be written.</param>
     public abstract void FatalError(string message, object[] parameters = null, Exception exception = null);
-    
 
     /// <summary>
     /// Creates instance of this class.
