@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Upgrade.Model
     /// <summary>
     /// Gets value columns.
     /// </summary>
-    [Property(Priority = -100, IgnoreInComparison = true)]
+    [Property(Priority = -100, IgnoreInComparison = false)]
     public ValueColumnRefCollection ValueColumns { get; private set; }
 
     /// <summary>
