@@ -530,6 +530,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
             index.UnderlyingUniqueIndex = reader.GetString(8);
           }
           var column = index.CreateIndexColumn(table.GetColumn(reader.GetInt32(5)));
+          column.TypeColumn = (reader.IsDBNull(6)) ? null : table.GetColumn(reader.GetInt32(6));
           column.Languages.Add(new Language(reader.GetString(7)));
         }
     }
