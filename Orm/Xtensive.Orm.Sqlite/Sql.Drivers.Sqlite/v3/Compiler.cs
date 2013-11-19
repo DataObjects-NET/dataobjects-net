@@ -262,9 +262,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     protected static SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
-      return CastToLong(DateDiffDay(date2, date1)) * NanosecondsPerDay
+      return CastToLong(DateDiffDay(date1, date2)) * NanosecondsPerDay
         +
-        CastToLong(DateDiffSeconds(DateAddDay(date1, DateDiffDay(date2, date1)), date2)) *
+        CastToLong(DateDiffSeconds(DateAddDay(date1, DateDiffDay(date1, date2)), date2)) *
           NanosecondsPerSecond;
     }
 

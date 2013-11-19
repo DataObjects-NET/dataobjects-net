@@ -93,16 +93,15 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     protected virtual SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
-      return CastToLong(DateDiffDay(date2, date1)) * NanosecondsPerDay
+      return CastToLong(DateDiffDay(date1, date2)) * NanosecondsPerDay
         +
-        CastToLong(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1)) *
-          NanosecondsPerMillisecond;
+        CastToLong(DateDiffMicrosecond(DateAddDay(date2, DateDiffDay(date1, date2)), date1)) * NanosecondsPerMicrosecond;
     }
 
     protected virtual SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
     {
       return DateAddMicrosecond(
-        DateAddDay(date, interval / NanosecondsPerDay),
+        DateAddDay(date, ((interval - (interval % NanosecondsPerDay)) + ((interval % NanosecondsPerDay) > (NanosecondsPerDay / 2) ? 0 : 1)) / NanosecondsPerDay),
         (interval / NanosecondsPerMillisecond * NanosecondsPerMicrosecond) % (MillisecondsPerDay * NanosecondsPerMicrosecond));
     }
 
@@ -218,9 +217,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       return SqlDml.FunctionCall("DATEDIFF", date1, date2);
     }
 
-    private static SqlUserFunctionCall DateDiffMillisecond(SqlExpression date1, SqlExpression date2)
+    private static SqlUserFunctionCall DateDiffMicrosecond(SqlExpression date1, SqlExpression date2)
     {
-      return SqlDml.FunctionCall("MICROSECOND", SqlDml.FunctionCall("DATEDIFF", date1, date2) * NanosecondsPerMillisecond);
+      return SqlDml.FunctionCall("TIMESTAMPDIFF", SqlDml.Native("MICROSECOND"), date1, date2);
     }
 
     private static SqlUserFunctionCall DateAddYear(SqlExpression date, SqlExpression years)
