@@ -7,6 +7,7 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using Xtensive.Orm.Providers;
 using noFTModel = Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel1;
 using simpleFTModel = Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel2;
 using complexFTModel = Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel3;
@@ -158,13 +159,6 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
   [TestFixture]
   class FullTextDataTypeColumnUpgradeTest : AutoBuildTest
   {
-    [TestFixtureSetUp]
-    public void SetUp()
-    {
-      Require.ProviderIs(StorageProvider.SqlServer);
-      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2005);
-    }
-
     [Test]
     public void BuildFullTextModelInRecreateModeTest()
     {
@@ -218,6 +212,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PrimaryIndexContainsTwoColumnsTest()
     {
+      CheckRequirements();
       Assert.Throws<StorageException>(
         () => BuildDomain(DomainUpgradeMode.Recreate, typeof (wrongModel1.Document).Assembly, typeof (wrongModel1.Document).Namespace));
     }
@@ -225,6 +220,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void WrongTypeOfFullTextColumnTest()
     {
+      CheckRequirements();
       Assert.Throws<StorageException>(
         () => BuildDomain(DomainUpgradeMode.Recreate, typeof (wrongModel2.Document).Assembly, typeof (wrongModel2.Document).Namespace));
     }
@@ -232,6 +228,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void WrongTypeOfTypeColumnTest()
     {
+      CheckRequirements();
       Assert.Throws<StorageException>(
         () => BuildDomain(DomainUpgradeMode.Recreate, typeof (wrongModel3.Document).Assembly, typeof (wrongModel3.Document).Namespace));
     }
@@ -239,6 +236,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void TypeColumnIsNotExistsInEntity()
     {
+      CheckRequirements();
       Assert.Throws<ArgumentException>(
         () => BuildDomain(DomainUpgradeMode.Recreate, typeof (wrongModel4.Document).Assembly, typeof (wrongModel4.Document).Namespace));
     }
@@ -249,6 +247,11 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
       configuration.UpgradeMode = mode;
       configuration.Types.Register(assembly, @namespace);
       return Domain.Build(configuration);
+    }
+
+    private new void CheckRequirements()
+    {
+      Require.AnyFeatureSupported(ProviderFeatures.FullTextColumnDataTypeSpecification);
     }
   }
 }
