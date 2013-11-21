@@ -262,8 +262,8 @@ namespace Xtensive.Orm.Upgrade
       var ftIndex = new StorageFullTextIndexInfo(table, fullTextIndex.Name);
       foreach (var fullTextColumn in fullTextIndex.Columns) {
         var column = table.Columns[fullTextColumn.Name];
-        ValueColumnRef typeColumn = null; 
-        if (fullTextColumn.TypeColumn!=null) {
+        ValueColumnRef typeColumn = null;
+        if (fullTextColumn.TypeColumn!=null && providerInfo.Supports(ProviderFeatures.FullTextColumnDataTypeSpecification)) {
           var typeColumnIndex = table.Columns[fullTextColumn.TypeColumn.Name].Index - primaryIndex.KeyColumns.Count;
           typeColumn = primaryIndex.ValueColumns[typeColumnIndex];
         }
