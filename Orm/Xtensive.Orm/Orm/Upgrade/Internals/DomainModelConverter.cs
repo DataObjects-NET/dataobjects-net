@@ -267,7 +267,10 @@ namespace Xtensive.Orm.Upgrade
           var typeColumnIndex = table.Columns[fullTextColumn.TypeColumn.Name].Index - primaryIndex.KeyColumns.Count;
           typeColumn = primaryIndex.ValueColumns[typeColumnIndex];
         }
-        var ftColumn = new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
+        if (typeColumn != null)
+          new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
+        else
+          new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration);
       }
       return ftIndex;
     }
