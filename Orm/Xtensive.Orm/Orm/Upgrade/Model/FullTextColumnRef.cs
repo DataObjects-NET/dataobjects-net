@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Upgrade.Model
     public string Configuration { get; set; }
 
     [Property(Priority = -1200)]
-    public ValueColumnRef TypeColumn { get; set; }
+    public  StorageColumnInfo TypeColumn { get; set; } 
 
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Upgrade.Model
       : base(parent, column)
     {
       Configuration = configuration;
-      TypeColumn = typeColumn;
+      TypeColumn = typeColumn.Value;
     }
   }
 }
