@@ -11,6 +11,8 @@ using Xtensive.Orm.Providers;
 using noFTModel = Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel1;
 using simpleFTModel = Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel2;
 using complexFTModel = Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel3;
+using newColumnModel = Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel8;
+using newTypeColumnModel = Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel9;
 using wrongModel1 = Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel4;
 using wrongModel2 = Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel5;
 using wrongModel3 = Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel6;
@@ -154,6 +156,52 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel7
   }
 }
 
+namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel8
+{
+  [HierarchyRoot]
+  public class Document : Entity
+  {
+    [Field, Key]
+    public int Id { get; set; }
+
+    [Field, FullText("English")]
+    public string Title { get; set; }
+
+    [Field]
+    public int CountOfPages { get; set; }
+
+    [Field(Length = 8001)]
+    [FullText("English", "Extension")]
+    public byte[] DocumentBody { get; set; }
+
+    [Field(Length = 50)]
+    public string Extension { get; set; }
+  }
+}
+
+namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel9
+{
+  [HierarchyRoot]
+  public class Document : Entity
+  {
+    [Field, Key]
+    public int Id { get; set; }
+
+    [Field, FullText("English")]
+    public string Title { get; set; }
+
+    [Field(Length = 8001)]
+    [FullText("English", "RealExtension")]
+    public byte[] DocumentBody { get; set; }
+
+    [Field(Length = 50)]
+    public string Extension { get; set; }
+
+    [Field(Length = 50)]
+    public string RealExtension { get; set; }
+  }
+}
+
 namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
 {
   [TestFixture]
@@ -239,6 +287,46 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
       CheckRequirements();
       Assert.Throws<ArgumentException>(
         () => BuildDomain(DomainUpgradeMode.Recreate, typeof (wrongModel4.Document).Assembly, typeof (wrongModel4.Document).Namespace));
+    }
+
+    [Test]
+    public void AddNewColumnPerformTest()
+    {
+      Assert.DoesNotThrow(
+        () => {
+          BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document).Assembly, typeof (complexFTModel.Document).Namespace);
+          BuildDomain(DomainUpgradeMode.Perform, typeof (newColumnModel.Document).Assembly, typeof (newColumnModel.Document).Namespace);
+        });
+    }
+
+    [Test]
+    public void AddNewColumnPerformSafelyTest()
+    {
+      Assert.DoesNotThrow(
+        () => {
+          BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document).Assembly, typeof (complexFTModel.Document).Namespace);
+          BuildDomain(DomainUpgradeMode.PerformSafely, typeof (newColumnModel.Document).Assembly, typeof (newColumnModel.Document).Namespace);
+        });
+    }
+
+    [Test]
+    public void ChangeTypeColumnPerformModeTest()
+    {
+      Assert.DoesNotThrow(
+        () => {
+        BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document).Assembly, typeof (complexFTModel.Document).Namespace);
+        BuildDomain(DomainUpgradeMode.Perform, typeof (newTypeColumnModel.Document).Assembly, typeof (newTypeColumnModel.Document).Namespace);
+      });
+    }
+
+    [Test]
+    public void ChangeTypeColumnPerformSafelyModeTest()
+    {
+      Assert.DoesNotThrow(
+        () => {
+          BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document).Assembly, typeof (complexFTModel.Document).Namespace);
+          BuildDomain(DomainUpgradeMode.PerformSafely, typeof (newTypeColumnModel.Document).Assembly, typeof (newTypeColumnModel.Document).Namespace);
+        });
     }
 
     private Domain BuildDomain(DomainUpgradeMode mode, Assembly assembly, string @namespace)
