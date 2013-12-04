@@ -222,8 +222,8 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     {
       Assert.DoesNotThrow(
         () => {
-          BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document).Assembly, typeof(noFTModel.Document).Namespace);
-          BuildDomain(DomainUpgradeMode.Perform, typeof(complexFTModel.Document).Assembly, typeof(complexFTModel.Document).Namespace);
+          BuildDomain(DomainUpgradeMode.Recreate, typeof (noFTModel.Document).Assembly, typeof (noFTModel.Document).Namespace);
+          BuildDomain(DomainUpgradeMode.Perform, typeof (complexFTModel.Document).Assembly, typeof (complexFTModel.Document).Namespace);
         });
     }
 
@@ -232,8 +232,8 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     {
       Assert.DoesNotThrow(
         () => {
-          BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document).Assembly, typeof(noFTModel.Document).Namespace);
-          BuildDomain(DomainUpgradeMode.PerformSafely, typeof(complexFTModel.Document).Assembly, typeof(complexFTModel.Document).Namespace);
+          BuildDomain(DomainUpgradeMode.Recreate, typeof (noFTModel.Document).Assembly, typeof (noFTModel.Document).Namespace);
+          BuildDomain(DomainUpgradeMode.PerformSafely, typeof (complexFTModel.Document).Assembly, typeof (complexFTModel.Document).Namespace);
         });
     }
 
@@ -242,8 +242,8 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     {
       Assert.DoesNotThrow(
         () => {
-          BuildDomain(DomainUpgradeMode.Recreate, typeof(simpleFTModel.Document).Assembly, typeof(simpleFTModel.Document).Namespace);
-          BuildDomain(DomainUpgradeMode.Perform, typeof(complexFTModel.Document).Assembly, typeof(complexFTModel.Document).Namespace);
+          BuildDomain(DomainUpgradeMode.Recreate, typeof (simpleFTModel.Document).Assembly, typeof (simpleFTModel.Document).Namespace);
+          BuildDomain(DomainUpgradeMode.Perform, typeof (complexFTModel.Document).Assembly, typeof (complexFTModel.Document).Namespace);
         });
     }
 
@@ -252,8 +252,8 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     {
       Assert.DoesNotThrow(
         () => {
-          BuildDomain(DomainUpgradeMode.Recreate, typeof(simpleFTModel.Document).Assembly, typeof(simpleFTModel.Document).Namespace);
-          BuildDomain(DomainUpgradeMode.PerformSafely, typeof(complexFTModel.Document).Assembly, typeof(complexFTModel.Document).Namespace);
+          BuildDomain(DomainUpgradeMode.Recreate, typeof (simpleFTModel.Document).Assembly, typeof (simpleFTModel.Document).Namespace);
+          BuildDomain(DomainUpgradeMode.PerformSafely, typeof (complexFTModel.Document).Assembly, typeof (complexFTModel.Document).Namespace);
         });
     }
 

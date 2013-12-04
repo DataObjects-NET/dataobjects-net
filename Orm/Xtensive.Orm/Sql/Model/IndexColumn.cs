@@ -55,7 +55,7 @@ namespace Xtensive.Sql.Model
     }
 
     /// <summary>
-    /// Gets or sets column that contains type of data for <see cref="IndexColumn.Column"/>
+    /// Gets or sets column that contains type of data for <see cref="IndexColumn.Column"/>.
     /// </summary>
     public DataTableColumn TypeColumn
     {
