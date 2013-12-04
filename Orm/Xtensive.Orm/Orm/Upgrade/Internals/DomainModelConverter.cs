@@ -263,9 +263,14 @@ namespace Xtensive.Orm.Upgrade
       foreach (var fullTextColumn in fullTextIndex.Columns) {
         var column = table.Columns[fullTextColumn.Name];
         ValueColumnRef typeColumn = null;
-        if (fullTextColumn.TypeColumn!=null && providerInfo.Supports(ProviderFeatures.FullTextColumnDataTypeSpecification)) {
-          var typeColumnIndex = table.Columns[fullTextColumn.TypeColumn.Name].Index - primaryIndex.KeyColumns.Count;
-          typeColumn = primaryIndex.ValueColumns[typeColumnIndex];
+        if(providerInfo.Supports(ProviderFeatures.FullTextColumnDataTypeSpecification)) {
+          if (fullTextColumn.TypeColumn!=null) {
+            var typeColumnIndex = table.Columns[fullTextColumn.TypeColumn.Name].Index - primaryIndex.KeyColumns.Count;
+            typeColumn = primaryIndex.ValueColumns[typeColumnIndex];
+          }
+        }
+        else {
+          UpgradeLog.Warning(Strings.LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX, fullTextColumn.Column.Name);
         }
         if (typeColumn != null)
           new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
