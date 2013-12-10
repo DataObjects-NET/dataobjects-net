@@ -649,8 +649,8 @@ namespace Xtensive.Orm.Upgrade
       foreach (var column in fullTextIndexInfo.Columns) {
         var tableColumn = FindColumn(table, column.Value.Name);
         var ftColumn = ftIndex.CreateIndexColumn(tableColumn);
-        ftColumn.TypeColumn = (column.TypeColumn!=null && providerInfo.Supports(ProviderFeatures.FullTextColumnDataTypeSpecification))
-          ? FindColumn(table, column.TypeColumn.Name)
+        ftColumn.TypeColumn = (!column.TypeColumnName.IsNullOrEmpty() && providerInfo.Supports(ProviderFeatures.FullTextColumnDataTypeSpecification))
+          ? FindColumn(table, column.TypeColumnName)
           : null;
         ftColumn.Languages.Add(new Language(column.Configuration));
       }
