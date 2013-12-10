@@ -224,6 +224,7 @@
     <Compile Include="Issues\IssueJira0195_DeleteAndCreateWithValidation.cs" />
     <Compile Include="Issues\IssueJira0196_GuidAsTypeDiscriminator.cs" />
     <Compile Include="Issues\IssueJira0197_ExtendedErrorInformation.cs" />
+    <Compile Include="Issues\IssueJira0500_OptimizeMultipleAggregatesWithProjections.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion3.cs" />
