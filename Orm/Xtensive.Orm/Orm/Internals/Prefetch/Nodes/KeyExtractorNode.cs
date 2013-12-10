@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     protected override string GetDescription()
     {
-      return string.Format(string.Format("KeyExtraction<{0}>", typeof (T).Name));
+      return string.Format("KeyExtraction<{0}>", typeof (T).Name);
     }
 
     public KeyExtractorNode(Func<T, IEnumerable<Key>> extractor, ReadOnlyCollection<BaseFieldNode> nestedNodes)
