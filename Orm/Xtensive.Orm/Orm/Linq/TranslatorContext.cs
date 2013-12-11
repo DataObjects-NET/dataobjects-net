@@ -134,6 +134,7 @@ namespace Xtensive.Orm.Linq
         .Aggregate(query, (current, preprocessor) => ApplyPreprocessor(preprocessor, session, current));
 
       // Built-in preprocessors
+      query = AggregateOptimizer.Rewrite(query);
       query = ClosureAccessRewriter.Rewrite(query);
       query = EqualityRewriter.Rewrite(query);
       query = EntitySetAccessRewriter.Rewrite(query);

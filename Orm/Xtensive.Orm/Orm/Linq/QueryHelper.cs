@@ -30,14 +30,6 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    public sealed class GroupByParameterSet
-    {
-      public Expression Source { get; set; }
-      public LambdaExpression KeySelector { get; set; }
-      public LambdaExpression ElementSelector { get; set; }
-      public LambdaExpression ResultSelector { get; set; }
-    }
-
     public static Expression<Func<Tuple, bool>> BuildFilterLambda(int startIndex, IList<Type> keyColumnTypes, Parameter<Tuple> keyParameter)
     {
       Expression filterExpression = null;
@@ -185,54 +177,6 @@ namespace Xtensive.Orm.Linq
       var sequenceType = type.GetGenericType(typeof (IEnumerable<>))
         ?? type.GetInterfaces().Select(i => i.GetGenericType(typeof (IEnumerable<>))).FirstOrDefault(i => i!=null);
       return sequenceType!=null ? sequenceType.GetGenericArguments()[0] : null;
-    }
-
-    public static GroupByParameterSet GetGroupByParameters(MethodCallExpression mc)
-    {
-      var lastArgumentType = mc.Arguments[mc.Arguments.Count - 1].Type;
-      if (lastArgumentType.IsOfGenericType(typeof (IEqualityComparer<>)))
-        throw new NotSupportedException(string.Format(
-          Strings.ExGroupByOverloadXIsNotSupported,
-          mc.ToString(true)));
-
-      if (mc.Arguments.Count==2)
-        return new GroupByParameterSet {
-          Source = mc.Arguments[0],
-          KeySelector = mc.Arguments[1].StripQuotes(),
-        };
-
-      if (mc.Arguments.Count==3) {
-        var lambda1 = mc.Arguments[1].StripQuotes();
-        var lambda2 = mc.Arguments[2].StripQuotes();
-        if (lambda2.Parameters.Count==1) {
-          // second lambda is element selector
-          return new GroupByParameterSet {
-            Source = mc.Arguments[0],
-            KeySelector = lambda1,
-            ElementSelector = lambda2,
-          };
-        }
-        if (lambda2.Parameters.Count==2) {
-          // second lambda is result selector
-          return new GroupByParameterSet {
-            Source = mc.Arguments[0],
-            KeySelector = lambda1,
-            ResultSelector = lambda2,
-          };
-        }
-      }
-
-      if (mc.Arguments.Count==4)
-        return new GroupByParameterSet {
-          Source = mc.Arguments[0],
-          KeySelector = mc.Arguments[1].StripQuotes(),
-          ElementSelector = mc.Arguments[2].StripQuotes(),
-          ResultSelector = mc.Arguments[3].StripQuotes()
-        };
-
-      throw new NotSupportedException(string.Format(
-        Strings.ExGroupByOverloadXIsNotSupported,
-        mc.ToString(true)));
     }
   }
 }

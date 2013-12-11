@@ -15,6 +15,7 @@ using Xtensive.Linq;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Expressions.Visitors;
+using Xtensive.Orm.Linq.Model;
 using Xtensive.Orm.Linq.Rewriters;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
@@ -111,12 +112,12 @@ namespace Xtensive.Orm.Linq
           break;
         case QueryableMethodKind.GroupBy:
           state.BuildingProjection = false;
-          var groupByParameters = QueryHelper.GetGroupByParameters(mc);
+          var groupBy = QueryParser.ParseGroupBy(mc);
           return VisitGroupBy(mc.Method.ReturnType,
-            groupByParameters.Source,
-            groupByParameters.KeySelector,
-            groupByParameters.ElementSelector,
-            groupByParameters.ResultSelector);
+            groupBy.Source,
+            groupBy.KeySelector,
+            groupBy.ElementSelector,
+            groupBy.ResultSelector);
           break;
         case QueryableMethodKind.GroupJoin:
           state.BuildingProjection = false;

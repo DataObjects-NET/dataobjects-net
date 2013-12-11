@@ -4,8 +4,12 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.12.10
 
+using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core;
+using Xtensive.Orm.Linq.Rewriters;
+using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.Issues.IssueJira0500_OptimizeMultipleAggregatesWithProjectionsModel;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -64,7 +68,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void MainTest()
+    public void GroupBySimpleTest()
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -74,9 +78,74 @@ namespace Xtensive.Orm.Tests.Issues
             SumValue = g.Sum(e => e.Value),
             SumRefValue = g.Sum(e => e.Ref.Value),
           });
-        query.ToList();
+        Test(session, query, e => e.SumValue, e => e.SumRefValue);
         tx.Complete();
       }
+    }
+
+    [Test]
+    public void GroupByWithElementSelectorTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var query = session.Query.All<AggregatedEntity>()
+          .GroupBy(e => e.Group, e => new {Element = e})
+          .Select(g => new {
+            SumValue = g.Sum(e => e.Element.Value),
+            SumRefValue = g.Sum(e => e.Element.Ref.Value),
+          });
+        Test(session, query, e => e.SumValue, e => e.SumRefValue);
+        tx.Complete();
+      }
+    }
+
+    [Test]
+    public void GroupByWithResultSelectorTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var query = session.Query.All<AggregatedEntity>()
+          .GroupBy(e => e.Group, (key, elements) => new {
+            SumValue = elements.Sum(e => e.Value),
+            SumRefValue = elements.Sum(e => e.Ref.Value),
+          });
+        Test(session, query, e => e.SumValue, e => e.SumRefValue);
+        tx.Complete();
+      }
+    }
+
+    [Test]
+    public void GroupByWithElementAndResultSelectorsTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var query = session.Query.All<AggregatedEntity>()
+          .GroupBy(e => e.Group, e => new {Element = e}, (key, elements) => new {
+            SumValue = elements.Sum(e => e.Element.Value),
+            SumRefValue = elements.Sum(e => e.Element.Ref.Value),
+          });
+        Test(session, query, e => e.SumValue, e => e.SumRefValue);
+        tx.Complete();
+      }
+    }
+
+    private void Test<T>(Session session, IQueryable<T> query,
+      Func<T, decimal> sumValueSelector, Func<T, decimal> sumRefValueSelector)
+    {
+      var queryFormatter = session.Services.Demand<QueryFormatter>();
+      var queryString = queryFormatter.ToSqlString(query);
+      var firstSelectPosition = queryString.IndexOf("select",
+        StringComparison.InvariantCultureIgnoreCase);
+      Assert.That(firstSelectPosition, Is.GreaterThanOrEqualTo(0));
+      var secondSelectPosition = queryString.IndexOf("select", firstSelectPosition + 1,
+        StringComparison.InvariantCultureIgnoreCase);
+      Assert.That(secondSelectPosition, Is.LessThan(0));
+      var result = query.ToList();
+      Assert.That(result.Count, Is.EqualTo(1));
+      var sumValue = sumValueSelector.Invoke(result[0]);
+      var sumRefValue = sumRefValueSelector.Invoke(result[0]);
+      Assert.That(sumValue, Is.EqualTo(6m));
+      Assert.That(sumRefValue, Is.EqualTo(6m));
     }
   }
 }
