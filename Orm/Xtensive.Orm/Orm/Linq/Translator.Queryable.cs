@@ -111,46 +111,12 @@ namespace Xtensive.Orm.Linq
           break;
         case QueryableMethodKind.GroupBy:
           state.BuildingProjection = false;
-          if (mc.Arguments.Count==2) {
-            return VisitGroupBy(
-              mc.Method.ReturnType,
-              mc.Arguments[0],
-              mc.Arguments[1].StripQuotes(),
-              null,
-              null
-              );
-          }
-          if (mc.Arguments.Count==3) {
-            LambdaExpression lambda1 = mc.Arguments[1].StripQuotes();
-            LambdaExpression lambda2 = mc.Arguments[2].StripQuotes();
-            if (lambda2.Parameters.Count==1) {
-              // second lambda is element selector
-              return VisitGroupBy(
-                mc.Method.ReturnType,
-                mc.Arguments[0],
-                lambda1,
-                lambda2,
-                null);
-            }
-            if (lambda2.Parameters.Count==2) {
-              // second lambda is result selector
-              return VisitGroupBy(
-                mc.Method.ReturnType,
-                mc.Arguments[0],
-                lambda1,
-                null,
-                lambda2);
-            }
-          }
-          else if (mc.Arguments.Count==4) {
-            return VisitGroupBy(
-              mc.Method.ReturnType,
-              mc.Arguments[0],
-              mc.Arguments[1].StripQuotes(),
-              mc.Arguments[2].StripQuotes(),
-              mc.Arguments[3].StripQuotes()
-              );
-          }
+          var groupByParameters = QueryHelper.GetGroupByParameters(mc);
+          return VisitGroupBy(mc.Method.ReturnType,
+            groupByParameters.Source,
+            groupByParameters.KeySelector,
+            groupByParameters.ElementSelector,
+            groupByParameters.ResultSelector);
           break;
         case QueryableMethodKind.GroupJoin:
           state.BuildingProjection = false;
