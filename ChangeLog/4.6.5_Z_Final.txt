@@ -1,2 +1,4 @@
 [main] Fixed version validation for entities without explicit version columns
 [main] Fixed version validation for decimal version fields
+[main] Optimized aggregate translation in complex scenarios
+[sqlserver] Optimized queries that are executed during initialization
