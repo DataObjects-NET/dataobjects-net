@@ -8,10 +8,10 @@ using System;
 
 namespace Xtensive.Orm.Logging
 {
-  internal sealed class ConsoleWriter : ILogWriter
+  internal sealed class ConsoleWriter : LogWriter
   {
     /// <inheritdoc/>
-    public void Write(LogEventInfo logEvent)
+    public override void Write(LogEventInfo logEvent)
     {
       Console.Out.WriteLine(logEvent);
     }

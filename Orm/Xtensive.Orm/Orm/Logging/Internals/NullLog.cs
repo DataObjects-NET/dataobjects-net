@@ -34,5 +34,9 @@ namespace Xtensive.Orm.Logging
     public override void FatalError(string message, object[] parameters = null, Exception exception = null)
     {
     }
+
+    public override void Write(LogEventInfo info)
+    {
+    }
   }
 }

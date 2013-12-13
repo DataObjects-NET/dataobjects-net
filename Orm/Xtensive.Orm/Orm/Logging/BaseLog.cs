@@ -64,7 +64,10 @@ namespace Xtensive.Orm.Logging
     /// <param name="message">Message to write to.</param>
     /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
     /// <param name="exception">Exception, which must be written.</param>
-    public abstract void Debug(string message, object[] parameters = null, Exception exception = null);
+    public virtual void Debug(string message, object[] parameters = null, Exception exception = null)
+    {
+      Write(new LogEventInfo(Name, LogLevel.Debug, message, parameters, exception));
+    }
 
     /// <summary>
     /// Writes information message.
@@ -72,7 +75,10 @@ namespace Xtensive.Orm.Logging
     /// <param name="message">Message to write to.</param>
     /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
     /// <param name="exception">Exception, which must be written.</param>
-    public abstract void Info(string message, object[] parameters = null, Exception exception = null);
+    public virtual void Info(string message, object[] parameters = null, Exception exception = null)
+    {
+      Write(new LogEventInfo(Name, LogLevel.Info, message, parameters, exception));
+    }
 
     /// <summary>
     /// Writes warning message.
@@ -80,7 +86,10 @@ namespace Xtensive.Orm.Logging
     /// <param name="message">Message to write to.</param>
     /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
     /// <param name="exception">Exception, which must be written.</param>
-    public abstract void Warning(string message, object[] parameters = null, Exception exception = null);
+    public virtual void Warning(string message, object[] parameters = null, Exception exception = null)
+    {
+      Write(new LogEventInfo(Name, LogLevel.Warning, message, parameters, exception));
+    }
 
     /// <summary>
     /// Writes error message.
@@ -88,7 +97,10 @@ namespace Xtensive.Orm.Logging
     /// <param name="message">Message to write to.</param>
     /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
     /// <param name="exception">Exception, which must be written.</param>
-    public abstract void Error(string message, object[] parameters = null, Exception exception = null);
+    public virtual void Error(string message, object[] parameters = null, Exception exception = null)
+    {
+      Write(new LogEventInfo(Name, LogLevel.Error, message, parameters, exception));
+    }
 
     /// <summary>
     /// Writes fatal error message.
@@ -96,7 +108,16 @@ namespace Xtensive.Orm.Logging
     /// <param name="message">Message to write to.</param>
     /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
     /// <param name="exception">Exception, which must be written.</param>
-    public abstract void FatalError(string message, object[] parameters = null, Exception exception = null);
+    public virtual void FatalError(string message, object[] parameters = null, Exception exception = null)
+    {
+      Write(new LogEventInfo(Name, LogLevel.FatalError, message, parameters, exception));
+    }
+
+    /// <summary>
+    /// Writes log message.
+    /// </summary>
+    /// <param name="info">Log event information.</param>
+    public abstract void Write(LogEventInfo info);
 
     /// <summary>
     /// Creates instance of this class.

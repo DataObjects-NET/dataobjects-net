@@ -10,13 +10,13 @@ using System.Threading;
 
 namespace Xtensive.Orm.Logging
 {
-  internal sealed class DebugOnlyConsoleWriter : ILogWriter
+  internal sealed class DebugOnlyConsoleWriter : LogWriter
   {
     private bool debuggerIsAttached;
     private Timer debuggerAttachedRenewTimer;
 
     /// <inheritdoc/>
-    public void Write(LogEventInfo logEvent)
+    public override void Write(LogEventInfo logEvent)
     {
       if (debuggerIsAttached)
         Console.Out.WriteLine(logEvent);

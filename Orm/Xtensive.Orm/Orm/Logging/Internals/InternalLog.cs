@@ -4,47 +4,25 @@
 // Created by: Alexey Kulakov
 // Created:    2013.09.27
 
-using System;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Logging
 {
-
   internal sealed class InternalLog : BaseLog
   {
-    private readonly ILogWriter writer;
+    private readonly LogWriter writer;
 
     public override bool IsLogged(LogLevel eventTypes)
     {
       return true;
     }
 
-    public override void Debug(string message, object[] parameters = null, Exception exception = null)
+    public override void Write(LogEventInfo info)
     {
-      writer.Write(new LogEventInfo(Name, LogLevel.Debug, message, parameters, exception));
+      writer.Write(info);
     }
 
-    public override void Info(string message, object[] parameters = null, Exception exception = null)
-    {
-      writer.Write(new LogEventInfo(Name, LogLevel.Info, message, parameters, exception));
-    }
-
-    public override void Warning(string message, object[] parameters = null, Exception exception = null)
-    {
-      writer.Write(new LogEventInfo(Name, LogLevel.Warning, message, parameters, exception));
-    }
-
-    public override void Error(string message, object[] parameters = null, Exception exception = null)
-    {
-      writer.Write(new LogEventInfo(Name, LogLevel.Error, message, parameters, exception));
-    }
-
-    public override void FatalError(string message, object[] parameters = null, Exception exception = null)
-    {
-      writer.Write(new LogEventInfo(Name, LogLevel.FatalError, message, parameters, exception));
-    }
-
-    public InternalLog(string name, ILogWriter writer)
+    public InternalLog(string name, LogWriter writer)
       : base(name)
     {
       ArgumentValidator.EnsureArgumentNotNull(writer, "writer");

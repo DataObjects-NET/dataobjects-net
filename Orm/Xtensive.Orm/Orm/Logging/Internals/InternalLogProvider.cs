@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Logging
       return source.Replace(" ", "").Split(',');
     }
 
-    private void CreateLogs(string source, ILogWriter writer)
+    private void CreateLogs(string source, LogWriter writer)
     {
       if (IsDefaultLog(source)) {
         defaultLog = new InternalLog("<default>", writer);
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Logging
         logs[s] = new InternalLog(s, writer);
     }
 
-    private ILogWriter GetLogWriter(string target)
+    private LogWriter GetLogWriter(string target)
     {
       if (comparer.Compare(target, "Console")==0)
         return new ConsoleWriter();

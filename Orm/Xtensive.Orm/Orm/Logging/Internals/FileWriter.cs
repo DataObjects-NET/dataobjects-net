@@ -8,12 +8,12 @@ using System.IO;
 
 namespace Xtensive.Orm.Logging
 {
-  internal sealed class FileWriter : ILogWriter
+  internal sealed class FileWriter : LogWriter
   {
     private readonly string fileName;
 
     /// <inheritdoc/>
-    public void Write(LogEventInfo logEvent)
+    public override void Write(LogEventInfo logEvent)
     {
       using (var streamWriter = new StreamWriter(fileName, true)) {
         streamWriter.WriteLine(logEvent);
