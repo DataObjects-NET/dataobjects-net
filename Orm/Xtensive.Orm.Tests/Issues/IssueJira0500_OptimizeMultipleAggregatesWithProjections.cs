@@ -41,6 +41,22 @@ namespace Xtensive.Orm.Tests.Issues
       [Field]
       public ReferencedEntity Ref { get; set; }
     }
+
+    [HierarchyRoot]
+    public class TwoSumEntity : Entity
+    {
+      [Key, Field]
+      public long Id { get; private set; }
+
+      [Field]
+      public int Group { get; set; }
+
+      [Field]
+      public bool Condition { get; set; }
+
+      [Field]
+      public decimal Value { get; set; }
+    }
   }
 
   [TestFixture]
@@ -57,12 +73,19 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var ref1 = new ReferencedEntity {Value = 1};
-        var ref2 = new ReferencedEntity {Value = 2};
-        var ref3 = new ReferencedEntity {Value = 3};
-        new AggregatedEntity {Value = 1, Ref = ref1};
-        new AggregatedEntity {Value = 2, Ref = ref2};
-        new AggregatedEntity {Value = 3, Ref = ref3};
+        var ref1 = new ReferencedEntity {Value = 2};
+        var ref2 = new ReferencedEntity {Value = 3};
+        var ref3 = new ReferencedEntity {Value = 4};
+        new AggregatedEntity {Value = 0, Ref = ref1};
+        new AggregatedEntity {Value = 1, Ref = ref2};
+        new AggregatedEntity {Value = 2, Ref = ref3};
+        new AggregatedEntity {Value = 3};
+        new TwoSumEntity {Condition = true, Value = 1};
+        new TwoSumEntity {Condition = true, Value = 2};
+        new TwoSumEntity {Condition = true, Value = 3};
+        new TwoSumEntity {Condition = false, Value = 2};
+        new TwoSumEntity {Condition = false, Value = 3};
+        new TwoSumEntity {Condition = false, Value = 4};
         tx.Complete();
       }
     }
@@ -129,8 +152,23 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+    [Test]
+    public void GroupByConditionalTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var query = session.Query.All<TwoSumEntity>()
+          .GroupBy(e => e.Group)
+          .Select(item => new {
+            Sum1 = item.Sum(e => e.Condition ? e.Value : 0),
+            Sum2 = item.Sum(e => !e.Condition ? e.Value : 0),
+          });
+        Test(session, query, e => e.Sum1, e => e.Sum2);
+      }
+    }
+
     private void Test<T>(Session session, IQueryable<T> query,
-      Func<T, decimal> sumValueSelector, Func<T, decimal> sumRefValueSelector)
+      Func<T, decimal> firstSumSelector, Func<T, decimal> secondSumSelector)
     {
       var queryFormatter = session.Services.Demand<QueryFormatter>();
       var queryString = queryFormatter.ToSqlString(query);
@@ -142,10 +180,10 @@ namespace Xtensive.Orm.Tests.Issues
       Assert.That(secondSelectPosition, Is.LessThan(0));
       var result = query.ToList();
       Assert.That(result.Count, Is.EqualTo(1));
-      var sumValue = sumValueSelector.Invoke(result[0]);
-      var sumRefValue = sumRefValueSelector.Invoke(result[0]);
+      var sumValue = firstSumSelector.Invoke(result[0]);
+      var sumRefValue = secondSumSelector.Invoke(result[0]);
       Assert.That(sumValue, Is.EqualTo(6m));
-      Assert.That(sumRefValue, Is.EqualTo(6m));
+      Assert.That(sumRefValue, Is.EqualTo(9m));
     }
   }
 }

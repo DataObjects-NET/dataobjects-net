@@ -598,7 +598,8 @@ namespace Xtensive.Orm.Linq
         if (groupingDataSource!=null && groupingProjection.ItemProjector.Item.IsGroupingExpression()) {
           var groupingFilterParameter = context.GetApplyParameter(groupingDataSource);
           var commonOriginDataSource = ChooseSourceForAggregate(groupingDataSource.Source,
-            SubqueryFilterRemover.Process(originDataSource, groupingFilterParameter));
+            SubqueryFilterRemover.Process(originDataSource, groupingFilterParameter),
+            ref aggregateDescriptor);
           if (commonOriginDataSource!=null) {
             resultDataSource = new AggregateProvider(
               commonOriginDataSource, groupingDataSource.GroupColumnIndexes,
@@ -637,12 +638,14 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    private CompilableProvider ChooseSourceForAggregate(CompilableProvider left, CompilableProvider right)
+    private CompilableProvider ChooseSourceForAggregate(CompilableProvider left, CompilableProvider right,
+      ref AggregateColumnDescriptor aggregateDescriptor)
     {
       // Choose best available RSE provider when folding aggregate subqueries.
-      // Currently we support 2 scenarios:
+      // Currently we support 3 scenarios:
       // 1) Both origins (for main part and for subquery) are the same provider -> that provider is used.
       // 2) One of the providers is Calculate upon other provider -> Calculate provider is used.
+      // 3) Both providers are Calculate and they share a common source -> New combining calculate provider is created
 
       if (left==right)
         return left;
@@ -652,6 +655,24 @@ namespace Xtensive.Orm.Linq
 
       if (right.Type==ProviderType.Calculate && right.Sources[0]==left)
         return right;
+
+      if (left.Type==ProviderType.Calculate && right.Type==ProviderType.Calculate
+        && left.Sources[0]==right.Sources[0]) {
+        var source = (CompilableProvider) left.Sources[0];
+        var leftCalculateProvider = (CalculateProvider) left;
+        var rightCalculateProvider = (CalculateProvider) right;
+        var calculatedColumns = leftCalculateProvider.CalculatedColumns
+          .Concat(rightCalculateProvider.CalculatedColumns)
+          .Select(c => new CalculatedColumnDescriptor(c.Name, c.Type, c.Expression))
+          .ToArray();
+        if (aggregateDescriptor.SourceIndex >= source.Header.Length) {
+          aggregateDescriptor = new AggregateColumnDescriptor(
+            aggregateDescriptor.Name,
+            aggregateDescriptor.SourceIndex + leftCalculateProvider.CalculatedColumns.Length,
+            aggregateDescriptor.AggregateType);
+        }
+        return source.Calculate(true, calculatedColumns);
+      }
 
       // No provider matches our criteria -> don't fold aggregate providers.
       return null;
