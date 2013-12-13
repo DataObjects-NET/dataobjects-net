@@ -15,6 +15,7 @@ using Xtensive.Linq;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Linq.Rewriters;
+using Xtensive.Orm.Rse;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -389,13 +390,23 @@ namespace Xtensive.Orm.Linq.Materialization
 
     protected override Expression VisitUnary(UnaryExpression u)
     {
-      if (u.NodeType==ExpressionType.Convert && u.Type.IsNullable()) {
-        var fieldExpression = u.Operand as FieldExpression;
-        if (fieldExpression!=null) {
-          var tupleExpression = GetTupleExpression(fieldExpression);
-          var tupleAccess = tupleExpression.MakeTupleAccess(u.Type, fieldExpression.Mapping.Offset);
-          return tupleAccess;
+      var isConvertToNullable = u.NodeType==ExpressionType.Convert
+        && !u.Operand.Type.IsNullable()
+        && u.Type.IsNullable();
+      // Optimize tuple access by replacing
+      //   (T?) tuple.GetValueOrDefault<T>(index)
+      // with
+      //   tuple.GetValueOrDefault<T?>(index)
+      if (isConvertToNullable) {
+        var operand = Visit(u.Operand);
+        var tupleAccess = operand.AsTupleAccess();
+        if (tupleAccess!=null) {
+          var index = tupleAccess.GetTupleAccessArgument();
+          return tupleAccess.Object.MakeTupleAccess(u.Type, index);
         }
+        if (operand!=u.Operand)
+          return Expression.Convert(operand, u.Type);
+        return u;
       }
       return base.VisitUnary(u);
     }
