@@ -337,7 +337,7 @@
     <Compile Include="Orm\Logging\Internals\ConsoleWriter.cs" />
     <Compile Include="Orm\Logging\Internals\DebugOnlyConsoleWriter.cs" />
     <Compile Include="Orm\Logging\Internals\FileWriter.cs" />
-    <Compile Include="Orm\Logging\Internals\ILogWriter.cs" />
+    <Compile Include="Orm\Logging\Internals\LogWriter.cs" />
     <Compile Include="Orm\Logging\Internals\SystemClock.cs" />
     <Compile Include="Orm\Logging\Internals\InternalLogProvider.cs" />
     <Compile Include="Orm\Logging\Internals\InternalLog.cs" />
