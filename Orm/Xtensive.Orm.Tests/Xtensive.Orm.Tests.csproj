@@ -269,6 +269,7 @@
     <Compile Include="Issues\NotEqualsForNullableColumnTest.cs" />
     <Compile Include="Linq\MemberCompilerProviderTest.Classes.cs" />
     <Compile Include="Linq\MemberCompilerProviderTest.cs" />
+    <Compile Include="Linq\NullableEnumMaterializationTest.cs" />
     <Compile Include="Linq\QueryPreprocessorSortingTest.cs" />
     <Compile Include="Storage\AbstractGenericsTest.cs" />
     <Compile Include="Storage\ByteFieldStorageTest.cs" />
