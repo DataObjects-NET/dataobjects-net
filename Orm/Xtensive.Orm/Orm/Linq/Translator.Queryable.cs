@@ -577,13 +577,13 @@ namespace Xtensive.Orm.Linq
 
       var resultType = method.ReturnType;
       var columnType = resultDataSource.Header.TupleDescriptor[0];
-      var correctResultType = resultType!=columnType && !resultType.IsNullable();
-      if (!correctResultType) // Adjust column type so we always use nullable of T instead of T
+      var convertResultColumn = resultType!=columnType && !resultType.IsNullable();
+      if (!convertResultColumn) // Adjust column type so we always use nullable of T instead of T
         columnType = resultType;
 
       if (isRoot) {
         var projectorBody = (Expression) ColumnExpression.Create(columnType, 0);
-        if (correctResultType)
+        if (convertResultColumn)
           projectorBody = Expression.Convert(projectorBody, resultType);
         var itemProjector = new ItemProjectorExpression(projectorBody, resultDataSource, context);
         return new ProjectionExpression(resultType, itemProjector, originProjection.TupleParameterBindings, ResultType.First);
@@ -624,7 +624,7 @@ namespace Xtensive.Orm.Linq
             var resultColumn = ColumnExpression.Create(columnType, resultDataSource.Header.Length - 1);
             if (isSubqueryParameter)
               resultColumn = (ColumnExpression) resultColumn.BindParameter(groupingParameter);
-            if (correctResultType)
+            if (convertResultColumn)
               return Expression.Convert(resultColumn, resultType);
             return resultColumn;
           }
@@ -632,7 +632,7 @@ namespace Xtensive.Orm.Linq
       }
 
       var result = AddSubqueryColumn(columnType, resultDataSource);
-      if (correctResultType)
+      if (convertResultColumn)
         return Expression.Convert(result, resultType);
       return result;
     }
