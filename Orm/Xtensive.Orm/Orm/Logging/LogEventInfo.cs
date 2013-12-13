@@ -15,23 +15,36 @@ namespace Xtensive.Orm.Logging
   /// </summary>
   public sealed class LogEventInfo
   {
-    private readonly string source;
-    private readonly string indent;
-    private readonly Exception exception;
-    private readonly LogLevel level;
-    private readonly string formattedMessage;
+    /// <summary>
+    /// Gets source of this event.
+    /// </summary>
+    public string Source { get; private set; }
+
+    /// <summary>
+    /// Gets log level for this event.
+    /// </summary>
+    public LogLevel Level { get; private set; }
+
+    /// <summary>
+    /// Gets log message for this event.
+    /// </summary>
+    public string FormattedMessage { get; private set; }
+
+    /// <summary>
+    /// Gets exception for this event.
+    /// </summary>
+    public Exception Exception { get; private set; }
 
     /// <inheritdoc/>
     public override string ToString()
     {
       var builder = new StringBuilder();
-      builder.Append(indent);
       builder.AppendFormat("{0} | {1} | {2} ",
-        SystemClock.Now.ToString("yyyy-MM-dd HH:mm:ss.ffff", CultureInfo.InvariantCulture), level, source);
-      if (formattedMessage!=null)
-        builder.AppendFormat("| {0} ", formattedMessage);
-      if (exception!=null)
-        builder.AppendFormat("| {0}", exception);
+        SystemClock.Now.ToString("yyyy-MM-dd HH:mm:ss.ffff", CultureInfo.InvariantCulture), Level, Source);
+      if (FormattedMessage!=null)
+        builder.AppendFormat("| {0} ", FormattedMessage);
+      if (Exception!=null)
+        builder.AppendFormat("| {0}", Exception);
       return builder.ToString();
     }
 
@@ -50,13 +63,28 @@ namespace Xtensive.Orm.Logging
       }
     }
 
-    internal LogEventInfo(string source, LogLevel level, string message = null, object[] parameters = null, Exception exception = null)
+    private static string AppendIndent(string message)
     {
-      this.source  = source;
-      this.level = level;
-      formattedMessage = FormatMessage(message, parameters);
-      this.exception = exception;
-      indent = IndentManager.CurrentIdent;
+      if (string.IsNullOrEmpty(message))
+        return message;
+      var indent = IndentManager.CurrentIdent;
+      return indent.Length > 0 ? indent + message : message;
+    }
+
+    /// <summary>
+    /// Initializes new instance of this type.
+    /// </summary>
+    /// <param name="source">Event source.</param>
+    /// <param name="level">Event level.</param>
+    /// <param name="message">Log message.</param>
+    /// <param name="parameters">Format parameters for log message.</param>
+    /// <param name="exception">Exception.</param>
+    public LogEventInfo(string source, LogLevel level, string message = null, object[] parameters = null, Exception exception = null)
+    {
+      Source = source;
+      Level = level;
+      FormattedMessage = AppendIndent(FormatMessage(message, parameters));
+      Exception = exception;
     }
   }
 }
