@@ -19,6 +19,7 @@ namespace Xtensive.Orm.Internals
   [Serializable]
   public abstract class DelayedQueryResult<TResult>
   {
+    private readonly ParameterContext parameterContext;
     private readonly Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer;
     private readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
 
@@ -41,7 +42,7 @@ namespace Xtensive.Orm.Internals
           Strings.ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance);
       if (Task.Result==null)
         session.ExecuteDelayedQueries(false);
-      return materializer.Invoke(Task.Result, session, tupleParameterBindings, new ParameterContext());
+      return materializer.Invoke(Task.Result, session, tupleParameterBindings, parameterContext);
     }
 
 
@@ -55,6 +56,10 @@ namespace Xtensive.Orm.Internals
     /// <param name="parameterContext">The parameter context.</param>
     internal DelayedQueryResult(Session session, TranslatedQuery<TResult> translatedQuery, ParameterContext parameterContext)
     {
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      ArgumentValidator.EnsureArgumentNotNull(translatedQuery, "translatedQuery");
+      ArgumentValidator.EnsureArgumentNotNull(parameterContext, "parameterContext");
+
       if (session.Transaction==null)
         throw new InvalidOperationException(Strings.ExTransactionRequired);
 
@@ -62,9 +67,8 @@ namespace Xtensive.Orm.Internals
 
       materializer = translatedQuery.Materializer;
       tupleParameterBindings = translatedQuery.TupleParameterBindings;
-
-      using (parameterContext.ActivateSafely())
-        Task = new QueryTask(translatedQuery.DataSource, parameterContext);
+      this.parameterContext = parameterContext;
+      Task = new QueryTask(translatedQuery.DataSource, parameterContext);
     }
   }
 }

@@ -267,6 +267,7 @@
     <Compile Include="Issues\KeyFormatBug.cs" />
     <Compile Include="Issues\LocalCollectionsTest.cs" />
     <Compile Include="Issues\NotEqualsForNullableColumnTest.cs" />
+    <Compile Include="Linq\CompiledQueriesWithClosureTest.cs" />
     <Compile Include="Linq\MemberCompilerProviderTest.Classes.cs" />
     <Compile Include="Linq\MemberCompilerProviderTest.cs" />
     <Compile Include="Linq\NullableEnumMaterializationTest.cs" />
