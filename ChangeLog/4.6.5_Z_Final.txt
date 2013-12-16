@@ -3,4 +3,5 @@
 [main] Optimized aggregate translation in complex scenarios
 [main] Fixed problem with access to nullable enum columns in final projection
 [main] Fixed problem with missing calculated columns in final projection
+[main] Fixed materialization of delayed queries with parameters in final projection
 [sqlserver] Optimized queries that are executed during initialization
