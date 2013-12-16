@@ -125,12 +125,12 @@ namespace Xtensive.Orm.Providers
       return expression;
     }
 
-    protected void AddInlinableColumn(IInlinableProvider provider,
-      SqlSelect resultQuery, string columnName, SqlExpression columnExpression)
+    protected void AddInlinableColumn(IInlinableProvider provider, Column column,
+      SqlSelect resultQuery, SqlExpression columnExpression)
     {
-      columnName = ProcessAliasedName(columnName);
+      var columnName = ProcessAliasedName(column.Name);
       var columnRef = SqlDml.ColumnRef(SqlDml.Column(columnExpression), columnName);
-      if (provider.IsInlined) {
+      if (provider.IsInlined && !rootColumns.Contains(column.Origin)) {
         var columnStub = SqlDml.ColumnStub(columnRef);
         stubColumnMap.Add(columnStub, columnExpression);
         resultQuery.Columns.Add(columnStub);

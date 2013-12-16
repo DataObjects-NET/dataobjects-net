@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="descriptor"><see cref="CalculatedColumnDescriptor"/> property value.</param>
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
     public CalculatedColumn(CalculatedColumnDescriptor descriptor, int index)
-      : base(descriptor.Name, index, descriptor.Type)
+      : base(descriptor.Name, index, descriptor.Type, null)
     {
       Expression = descriptor.Expression;
     }
@@ -63,13 +63,13 @@ namespace Xtensive.Orm.Rse
     #region Clone constructors
 
     private CalculatedColumn(CalculatedColumn column, string newName)
-      : base(newName, column.Index, column.Type)
+      : base(newName, column.Index, column.Type, column)
     {
       Expression = column.Expression;
     }
  
     private CalculatedColumn(CalculatedColumn column, int newIndex)
-      : base(column.Name, newIndex, column.Type)
+      : base(column.Name, newIndex, column.Type, column)
     {
       Expression = column.Expression;
     }

@@ -53,8 +53,10 @@ namespace Xtensive.Orm.Rse.Compilation
     {
       if (cp==null)
         return null;
-      if (rootProvider==null)
+      if (rootProvider==null) {
         rootProvider = cp;
+        Initialize();
+      }
       TResult result;
       traversalStack.Push(cp);
       switch (cp.Type) {
@@ -303,6 +305,12 @@ namespace Xtensive.Orm.Rse.Compilation
     /// <param name="provider">FreeText provider.</param>
     protected abstract TResult VisitFreeText(FreeTextProvider provider);
 
+    /// <summary>
+    /// Initializes this instance just before first VisitXxx() is called.
+    /// </summary>
+    protected virtual void Initialize()
+    {
+    }
 
     // Constructors
 
