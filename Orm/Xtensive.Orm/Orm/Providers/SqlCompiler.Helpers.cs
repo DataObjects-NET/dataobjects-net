@@ -63,11 +63,13 @@ namespace Xtensive.Orm.Providers
     {
       return name;
     }
-    
-    protected Pair<SqlExpression, HashSet<QueryParameterBinding>> ProcessExpression(LambdaExpression le, params List<SqlExpression>[] sourceColumns)
+
+    protected Pair<SqlExpression, IEnumerable<QueryParameterBinding>> ProcessExpression(LambdaExpression le,
+      params List<SqlExpression>[] sourceColumns)
     {
       var processor = new ExpressionProcessor(le, Handlers, this, sourceColumns);
-      var result = new Pair<SqlExpression, HashSet<QueryParameterBinding>>(processor.Translate(), processor.Bindings);
+      var result = new Pair<SqlExpression, IEnumerable<QueryParameterBinding>>(
+        processor.Translate(), processor.GetBindings());
       return result;
     }
 
