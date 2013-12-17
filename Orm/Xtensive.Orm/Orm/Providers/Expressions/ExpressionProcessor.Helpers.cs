@@ -7,6 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -231,6 +232,68 @@ namespace Xtensive.Orm.Providers
     private bool IsEnumUnderlyingType(Type enumType, Type numericType)
     {
       return enumType.IsEnum && Enum.GetUnderlyingType(enumType)==numericType;
+    }
+
+    private QueryParameterIdentity GetParameterIdentity(TypeMapping mapping,
+      Expression<Func<object>> accessor, QueryParameterBindingType bindingType)
+    {
+      var expression = accessor.Body;
+
+      // Strip cast to object
+      if (expression.NodeType==ExpressionType.Convert)
+        expression = ((UnaryExpression) expression).Operand;
+
+      // Check for closure member access
+      if (expression.NodeType!=ExpressionType.MemberAccess)
+        return null;
+
+      var memberAccess = (MemberExpression) expression;
+      var operand = memberAccess.Expression;
+      if (operand==null || !operand.Type.IsClosure())
+        return null;
+      var fieldName = memberAccess.Member.Name;
+
+      // Check for raw closure
+      if (operand.NodeType==ExpressionType.Constant) {
+        var closureObject = ((ConstantExpression) operand).Value;
+        return new QueryParameterIdentity(mapping, closureObject, fieldName, bindingType);
+      }
+
+      // Check for parameterized closure
+      if (operand.NodeType==ExpressionType.MemberAccess) {
+        memberAccess = (MemberExpression) operand;
+        operand = memberAccess.Expression;
+        var isParameter = operand!=null
+          && operand.NodeType==ExpressionType.Constant
+          && typeof (Parameter).IsAssignableFrom(operand.Type)
+          && memberAccess.Member.Name=="Value";
+        if (isParameter) {
+          var parameterObject = ((ConstantExpression) operand).Value;
+          return new QueryParameterIdentity(mapping, parameterObject, fieldName, bindingType);
+        }
+      }
+
+      return null;
+    }
+
+    private QueryParameterBinding RegisterParameterBinding(TypeMapping mapping,
+      Expression<Func<object>> accessor, QueryParameterBindingType bindingType)
+    {
+      QueryParameterBinding result;
+      var identity = GetParameterIdentity(mapping, accessor, bindingType);
+
+      if (identity==null) {
+        result = new QueryParameterBinding(mapping, accessor.CachingCompile(), bindingType);
+        otherBindings.Add(result);
+        return result;
+      }
+
+      if (bindingsWithIdentity.TryGetValue(identity, out result))
+        return result;
+
+      result = new QueryParameterBinding(mapping, accessor.CachingCompile(), bindingType);
+      bindingsWithIdentity.Add(identity, result);
+      return result;
     }
   }
 }

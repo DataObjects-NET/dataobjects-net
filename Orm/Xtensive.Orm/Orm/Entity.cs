@@ -438,7 +438,7 @@ namespace Xtensive.Orm
         Session.Events.NotifyEntityVersionInfoChanging(changedEntity, changedField, false);
       }
 
-      var changed = TypeInfo.HasVersionFields
+      var changed = TypeInfo.HasExplicitVersionFields
         ? UpdateVersion(changedEntity, changedField)
         : !changedField.IsEntitySet;
 
