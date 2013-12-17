@@ -30,6 +30,11 @@ namespace Xtensive.Orm
     /// </summary>
     public string Configuration { get; private set; }
 
+    /// <summary>
+    /// Gets the field name that contains type of full text field.
+    /// </summary>
+    public string DataTypeField { get; private set; }
+
   
     // Constructors
 
@@ -40,6 +45,18 @@ namespace Xtensive.Orm
     {
       Configuration = configuration;
       Analyzed = true;
+      DataTypeField = null;
+    }
+
+    /// <summary>
+    /// Initialized a new instance of this class.
+    /// </summary>
+    /// <param name="configuration">Configuration name for word-breaker and stemmer.</param>
+    /// <param name="dataTypeField">Name of field that contains type of the data in full text field.</param>
+    public FullTextAttribute(string configuration, string dataTypeField)
+      :this(configuration)
+    {
+      DataTypeField = dataTypeField;
     }
   }
 }

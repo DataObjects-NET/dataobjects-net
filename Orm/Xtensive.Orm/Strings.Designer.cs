@@ -6519,6 +6519,16 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Specification of type column for fulltext column is not supported by current storage. Ignoring type column specification for column &apos;{0}&apos;..
+        /// </summary>
+        internal static string LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX {
+            get {
+                return ResourceManager.GetString("LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnori" +
+                        "ngTypeColumnSpecificationForColumnX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Storage &apos;{0}&apos; does not support partial indexes, ignoring filter for partial index &apos;{0}&apos;..
         /// </summary>
         internal static string LogStorageXDoesNotSupportPartialIndexesIgnoringFilterForPartialIndexY {

@@ -262,10 +262,14 @@ namespace Xtensive.Orm.Upgrade
       var ftIndex = new StorageFullTextIndexInfo(table, fullTextIndex.Name);
       foreach (var fullTextColumn in fullTextIndex.Columns) {
         var column = table.Columns[fullTextColumn.Name];
-        var typeColumn = fullTextColumn.TypeColumn == null
-          ? null
-          : primaryIndex.ValueColumns[fullTextColumn.TypeColumn.Name];
-        var ftColumn = new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
+        string typeColumn = null;
+        if(providerInfo.Supports(ProviderFeatures.FullTextColumnDataTypeSpecification)) {
+          if (fullTextColumn.TypeColumn!=null)
+            typeColumn = table.Columns[fullTextColumn.TypeColumn.Name].Name;
+        }
+        else
+          UpgradeLog.Warning(Strings.LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX, fullTextColumn.Column.Name);
+        new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
       }
       return ftIndex;
     }

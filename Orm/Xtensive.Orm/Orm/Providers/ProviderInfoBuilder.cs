@@ -100,6 +100,8 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.SingleConnection;
       if (queryFeatures.Supports(QueryFeatures.SelfReferencingRowRemovalIsError))
         f |= ProviderFeatures.SelfReferencingRowRemovalIsError;
+      if(serverFeatures.Supports(ServerFeatures.FullTextColumnDataTypeSpecification))
+        f |= ProviderFeatures.FullTextColumnDataTypeSpecification;
 
       var temporaryTable = serverInfo.TemporaryTable;
       if (temporaryTable!=null && temporaryTable.Features.Supports(TemporaryTableFeatures.Local))

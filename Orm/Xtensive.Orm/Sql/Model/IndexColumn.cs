@@ -19,6 +19,7 @@ namespace Xtensive.Sql.Model
     private Index index;
     private SqlExpression expression;
     private readonly NodeCollection<Language> languages = new NodeCollection<Language>();
+    private DataTableColumn typeColumn;
 
     /// <summary>
     /// Gets or sets the index.
@@ -50,6 +51,19 @@ namespace Xtensive.Sql.Model
       {
         this.EnsureNotLocked();
         column = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets column that contains type of data for <see cref="IndexColumn.Column"/>.
+    /// </summary>
+    public DataTableColumn TypeColumn
+    {
+      get { return typeColumn; }
+      set
+      {
+        this.EnsureNotLocked();
+        typeColumn = value;
       }
     }
 

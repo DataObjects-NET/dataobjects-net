@@ -242,6 +242,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       base.Visit(node, item);
 
+      if (item.TypeColumn!=null)
+        context.Output.AppendText(string.Format("TYPE COLUMN {0} ", translator.QuoteIdentifier(item.TypeColumn.Name)));
       switch (item.Languages.Count) {
         case 0:
           break;
