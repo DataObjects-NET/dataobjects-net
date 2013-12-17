@@ -10,11 +10,53 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
   {
     protected override string GetIndexQuery()
     {
-      string query = "select t.schema_id, t.object_id, t.type, i.index_id, i.name, i.type, i.is_primary_key, i.is_unique, i.is_unique_constraint, i.fill_factor, ic.column_id, 0, ic.key_ordinal, ic.is_descending_key, ic.is_included_column, i.has_filter, i.filter_definition from sys.indexes i inner join (select schema_id, object_id, 0 as type from sys.tables union select schema_id, object_id, 1 as type from sys.views) as t on i.object_id = t.object_id inner join sys.index_columns ic on i.object_id = ic.object_id and i.index_id = ic.index_id where i.type <> 3";
-      if (schema!=null)
-        query += " and schema_id = " + schemaId;
-      query += " order by t.schema_id, t.object_id, i.index_id, ic.is_included_column, ic.key_ordinal";
-      query = AddCatalog(query);
+      string query = @"
+  SELECT
+    t.schema_id,
+    t.object_id,
+    t.type,
+    i.index_id,
+    i.name,
+    i.type,
+    i.is_primary_key,
+    i.is_unique,
+    i.is_unique_constraint,
+    i.fill_factor,
+    ic.column_id,
+    0,
+    ic.key_ordinal,
+    ic.is_descending_key,
+    ic.is_included_column,
+    i.has_filter,
+    i.filter_definition
+  FROM {CATALOG}.sys.indexes i 
+  INNER JOIN (
+    SELECT 
+      schema_id,
+      object_id,
+      0 AS type
+    FROM {CATALOG}.sys.tables
+    WHERE {SYSTABLE_FILTER}
+    UNION
+    SELECT
+      schema_id,
+      object_id,
+      1 AS type
+    FROM {CATALOG}.sys.views
+    ) AS t 
+      ON i.object_id = t.object_id 
+  INNER JOIN {CATALOG}.sys.index_columns ic
+    ON i.object_id = ic.object_id
+      AND i.index_id = ic.index_id
+  WHERE i.type <> 3
+    AND schema_id{SCHEMA_FILTER}
+  ORDER BY
+    t.schema_id,
+    t.object_id,
+    i.index_id,
+    ic.is_included_column,
+    ic.key_ordinal";
+      query = PerformReplacements(query);
       return query;
     }
 

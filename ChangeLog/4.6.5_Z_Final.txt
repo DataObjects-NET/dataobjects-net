@@ -1,0 +1,8 @@
+[main] Fixed version validation for entities without explicit version columns
+[main] Fixed version validation for decimal version fields
+[main] Optimized aggregate translation in complex scenarios
+[main] Fixed problem with access to nullable enum columns in final projection
+[main] Fixed problem with missing calculated columns in final projection
+[main] Fixed materialization of delayed queries with parameters in final projection
+[main] Implemented merging of duplicated query parameters
+[sqlserver] Optimized queries that are executed during initialization

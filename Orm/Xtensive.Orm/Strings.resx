@@ -3274,4 +3274,7 @@ Error: {1}</value>
   <data name="ExUnableToGetTypeOfProviderByNameX">
     <value xml:space="preserve">Unable to get type of provider by name '{0}'.</value>
   </data>
+  <data name="ExGroupByOverloadXIsNotSupported">
+    <value xml:space="preserve">GroupBy overload '{0}' is not supported.</value>
+  </data>
 </root>

@@ -541,6 +541,10 @@
     <Compile Include="Orm\ConflictHandlingMethod.cs" />
     <Compile Include="Orm\Interfaces\IModule2.cs" />
     <Compile Include="Orm\Interfaces\IQueryPreprocessor2.cs" />
+    <Compile Include="Orm\Linq\Model\GroupByQuery.cs" />
+    <Compile Include="Orm\Linq\Model\QueryFactory.cs" />
+    <Compile Include="Orm\Linq\Model\QueryableMethodInfo.cs" />
+    <Compile Include="Orm\Linq\Model\QueryParser.cs" />
     <Compile Include="Orm\Linq\QueryPreprocessor.cs" />
     <Compile Include="Orm\Internals\CompletableScope{T}.cs" />
     <Compile Include="Orm\Configuration\Interfaces\IDatabaseConfigurationFlow.cs" />
@@ -603,12 +607,14 @@
     <Compile Include="Orm\Internals\Prefetch\Nodes\SetNode.cs" />
     <Compile Include="Orm\Internals\SortingPersistActionGenerator.cs" />
     <Compile Include="Orm\Building\SystemModule.cs" />
+    <Compile Include="Orm\Linq\Rewriters\AggregateOptimizer.cs" />
     <Compile Include="Orm\Linq\Rewriters\SubqueryDefaultResultRewriter.cs" />
     <Compile Include="Orm\Linq\SortExpressionExtractor.cs" />
     <Compile Include="Orm\Model\DatabaseInfo.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Orm\Providers\Expressions\MemberCompilers\EnumCompilers.cs" />
+    <Compile Include="Orm\Providers\Expressions\QueryParameterIdentity.cs" />
     <Compile Include="Orm\Providers\Interfaces\IPersistDescriptor.cs" />
     <Compile Include="Orm\Providers\MappingResolveResult.cs" />
     <Compile Include="Orm\Providers\PartialIndexFilterCompiler.cs" />

@@ -30,23 +30,23 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    public static Expression<Func<Tuple,bool>> BuildFilterLambda(int startIndex, IList<Type> keyColumnTypes, Parameter<Tuple> keyParameter)
+    public static Expression<Func<Tuple, bool>> BuildFilterLambda(int startIndex, IList<Type> keyColumnTypes, Parameter<Tuple> keyParameter)
     {
       Expression filterExpression = null;
-      var tupleParameter = Expression.Parameter(typeof(Tuple), "tuple");
-      var valueProperty = typeof(Parameter<Tuple>).GetProperty("Value", typeof(Tuple));
+      var tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
+      var valueProperty = typeof (Parameter<Tuple>).GetProperty("Value", typeof (Tuple));
       var keyValue = Expression.Property(Expression.Constant(keyParameter), valueProperty);
       for (var i = 0; i < keyColumnTypes.Count; i++) {
         var getValueMethod = WellKnownMembers.Tuple.GenericAccessor.MakeGenericMethod(keyColumnTypes[i]);
         var tupleParameterFieldAccess = Expression.Call(
-          tupleParameter, 
+          tupleParameter,
           getValueMethod,
           Expression.Constant(startIndex + i));
         var keyParameterFieldAccess = Expression.Call(
-          keyValue, 
+          keyValue,
           getValueMethod,
           Expression.Constant(i));
-        if (filterExpression == null)
+        if (filterExpression==null)
           filterExpression = Expression.Equal(tupleParameterFieldAccess, keyParameterFieldAccess);
         else
           filterExpression = Expression.And(filterExpression,
@@ -87,12 +87,12 @@ namespace Xtensive.Orm.Linq
 
     public static Expression CreateEntitySetQuery(Expression ownerEntity, FieldInfo field)
     {
-      if (!field.UnderlyingProperty.PropertyType.IsOfGenericType(typeof(EntitySet<>)))
+      if (!field.UnderlyingProperty.PropertyType.IsOfGenericType(typeof (EntitySet<>)))
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, OrmLog.Instance);
 
       var elementType = field.ItemType;
       var association = field.Associations.Last();
-      if (association.Multiplicity == Multiplicity.OneToMany) {
+      if (association.Multiplicity==Multiplicity.OneToMany) {
         var whereParameter = Expression.Parameter(elementType, "p");
         var whereExpression = Expression.Equal(
           Expression.Property(
@@ -143,14 +143,14 @@ namespace Xtensive.Orm.Linq
 
       var innerQuery = CreateEntityQuery(elementType);
       var joinMethodInfo = typeof (Queryable).GetMethods()
-        .Single(mi => mi.Name == Xtensive.Reflection.WellKnown.Queryable.Join && mi.IsGenericMethod && mi.GetParameters().Length == 5)
+        .Single(mi => mi.Name==Xtensive.Reflection.WellKnown.Queryable.Join && mi.IsGenericMethod && mi.GetParameters().Length==5)
         .MakeGenericMethod(new[] {
           connectorType,
           elementType,
           outerSelector.Body.Type,
           resultSelector.Body.Type
         });
-      return Expression.Call(joinMethodInfo, 
+      return Expression.Call(joinMethodInfo,
         outerQuery,
         innerQuery,
         outerSelector,
@@ -161,7 +161,7 @@ namespace Xtensive.Orm.Linq
     public static void TryAddConvarianceCast(ref Expression source, Type baseType)
     {
       var elementType = GetSequenceElementType(source.Type);
-      if (elementType == null)
+      if (elementType==null)
         return;
       if (!baseType.IsAssignableFrom(elementType) || baseType==elementType)
         return;
@@ -173,9 +173,9 @@ namespace Xtensive.Orm.Linq
 
     public static Type GetSequenceElementType(Type type)
     {
-      var sequenceType =  type.GetGenericType(typeof (IEnumerable<>))
+      var sequenceType = type.GetGenericType(typeof (IEnumerable<>))
         ?? type.GetInterfaces().Select(i => i.GetGenericType(typeof (IEnumerable<>))).FirstOrDefault(i => i!=null);
-      return sequenceType != null ? sequenceType.GetGenericArguments()[0] : null;
+      return sequenceType!=null ? sequenceType.GetGenericArguments()[0] : null;
     }
   }
 }

@@ -186,6 +186,7 @@
     <Compile Include="Issues\IssueJira0195_DeleteAndCreateWithValidation.cs" />
     <Compile Include="Issues\IssueJira0196_GuidAsTypeDiscriminator.cs" />
     <Compile Include="Issues\IssueJira0197_ExtendedErrorInformation.cs" />
+    <Compile Include="Issues\IssueJira0500_OptimizeMultipleAggregatesWithProjections.cs" />
     <Compile Include="Issues\IssueJira0202_OnRemoveActionOverriding.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\ModelVersion1.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\ModelVersion2.cs" />
@@ -271,6 +272,7 @@
     <Compile Include="Issues\KeyFormatBug.cs" />
     <Compile Include="Issues\LocalCollectionsTest.cs" />
     <Compile Include="Issues\NotEqualsForNullableColumnTest.cs" />
+    <Compile Include="Linq\CompiledQueriesWithClosureTest.cs" />
     <Compile Include="Issues\StrangeLockingExceptionTest.cs" />
     <Compile Include="Issues\StructureFieldRemoveTest.cs" />
     <Compile Include="Linq\ConvariantQueriesTest.cs" />
@@ -281,9 +283,11 @@
     <Compile Include="Linq\KeysUnionTest.cs" />
     <Compile Include="Linq\MemberCompilerProviderTest.Classes.cs" />
     <Compile Include="Linq\MemberCompilerProviderTest.cs" />
+    <Compile Include="Linq\NullableEnumMaterializationTest.cs" />
     <Compile Include="Linq\PocoProjectionWithSubqueryTest.cs" />
     <Compile Include="Linq\ProjectToDtoWithInheritanceTest.cs" />
     <Compile Include="Linq\QueryPreprocessorSortingTest.cs" />
+    <Compile Include="Linq\SelectWithAccessToLocalCollectionTest.cs" />
     <Compile Include="Linq\QueryRootOverriding.cs" />
     <Compile Include="Linq\SortExpressionExtractorTest.cs" />
     <Compile Include="Linq\SubqueryAndComputedColumnOptimizationTest.cs" />

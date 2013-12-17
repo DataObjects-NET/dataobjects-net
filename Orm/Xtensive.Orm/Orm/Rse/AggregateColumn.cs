@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="index"><see cref="SourceIndex"/> property value.</param>
     /// <param name="type"><see cref="Column.Type"/> property value.</param>
     public AggregateColumn(AggregateColumnDescriptor descriptor, int index, Type type)
-      : base(descriptor.Name, index, type)
+      : base(descriptor.Name, index, type, null)
     {
       AggregateType = descriptor.AggregateType;
       SourceIndex = descriptor.SourceIndex;
@@ -70,14 +70,14 @@ namespace Xtensive.Orm.Rse
     #region Clone constructors
 
     private AggregateColumn(AggregateColumn column, string newName)
-      : base(newName, column.Index, column.Type)
+      : base(newName, column.Index, column.Type, column)
     {
       AggregateType = column.AggregateType;
       SourceIndex = column.SourceIndex;
     }
 
     private AggregateColumn(AggregateColumn column, int newIndex)
-      : base(column.Name, newIndex, column.Type)
+      : base(column.Name, newIndex, column.Type, column)
     {
       AggregateType = column.AggregateType;
       SourceIndex = column.SourceIndex;

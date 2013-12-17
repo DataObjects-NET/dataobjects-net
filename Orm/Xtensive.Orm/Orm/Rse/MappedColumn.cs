@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
     /// <param name="type"><see cref="Column.Type"/> property value.</param>
     public MappedColumn(ColumnInfoRef columnInfoRef, string name, int index, Type type)
-      : base(name, index, type)
+      : base(name, index, type, null)
     {
       ColumnInfoRef = columnInfoRef;
     }
@@ -84,13 +84,13 @@ namespace Xtensive.Orm.Rse
     #region Clone constructors
 
     private MappedColumn(MappedColumn column, string newName)
-      : base(newName, column.Index, column.Type)
+      : base(newName, column.Index, column.Type, column)
     {
       ColumnInfoRef = column.ColumnInfoRef;
     }
 
     private MappedColumn(MappedColumn column, int newIndex)
-      : base(column.Name, newIndex, column.Type)
+      : base(column.Name, newIndex, column.Type, column)
     {
       ColumnInfoRef = column.ColumnInfoRef;
     }

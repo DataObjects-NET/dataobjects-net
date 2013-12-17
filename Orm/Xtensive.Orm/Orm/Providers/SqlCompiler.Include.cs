@@ -58,7 +58,8 @@ namespace Xtensive.Orm.Providers
         throw new ArgumentOutOfRangeException("provider.Algorithm");
       }
       resultExpression = GetBooleanColumnExpression(resultExpression);
-      AddInlinableColumn(provider, resultQuery, provider.ResultColumnName, resultExpression);
+      var calculatedColumn = provider.Header.Columns[provider.Header.Length - 1];
+      AddInlinableColumn(provider, calculatedColumn, resultQuery, resultExpression);
       if (extraBinding!=null)
         bindings = bindings.Concat(EnumerableUtils.One(extraBinding));
       var request = new QueryRequest(Driver, resultQuery, bindings, provider.Header.TupleDescriptor, requestOptions);

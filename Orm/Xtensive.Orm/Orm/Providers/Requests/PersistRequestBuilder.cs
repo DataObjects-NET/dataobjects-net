@@ -181,7 +181,11 @@ namespace Xtensive.Orm.Providers
         var filteredColumn = filteredTable[column.Name];
         if (filteredColumn.IsNullReference())
           continue;
-        result &= SqlDml.Variant(binding, filteredColumn==binding.ParameterReference, SqlDml.IsNull(filteredColumn));
+        var filterValue = binding.ParameterReference;
+        // Handle decimal precision issue
+        if (Type.GetTypeCode(column.ValueType)==TypeCode.Decimal)
+          filterValue = SqlDml.Cast(filterValue, driver.MapValueType(column));
+        result &= SqlDml.Variant(binding, filteredColumn==filterValue, SqlDml.IsNull(filteredColumn));
         currentBindings.Add(binding);
       }
       return result;
