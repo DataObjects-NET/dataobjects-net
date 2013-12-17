@@ -37,14 +37,16 @@ namespace Xtensive.Orm.Providers
     private readonly Dictionary<ParameterExpression, List<SqlExpression>> sourceMapping;
     private readonly SqlCompiler compiler;
 
+    private readonly Dictionary<QueryParameterIdentity, QueryParameterBinding> bindingsWithIdentity
+      = new Dictionary<QueryParameterIdentity, QueryParameterBinding>();
+    private readonly List<QueryParameterBinding> otherBindings = new List<QueryParameterBinding>();
+
     private bool fixBooleanExpressions;
     private bool emptyStringIsNull;
     private ProviderInfo providerInfo;
 
     private bool executed;
 
-    public HashSet<QueryParameterBinding> Bindings { get { return bindings; } }
-    
     public SqlExpression Translate()
     {
       if (executed)
@@ -53,6 +55,11 @@ namespace Xtensive.Orm.Providers
       using (new ExpressionTranslationScope(providerInfo, driver, booleanExpressionConverter)) {
         return Visit(lambda);
       }
+    }
+
+    public IEnumerable<QueryParameterBinding> GetBindings()
+    {
+      return bindingsWithIdentity.Values.Concat(otherBindings);
     }
 
     protected override SqlExpression Visit(Expression e)
@@ -87,8 +94,7 @@ namespace Xtensive.Orm.Providers
         : (smartNull
             ? QueryParameterBindingType.SmartNull
             : QueryParameterBindingType.Regular);
-      var binding = new QueryParameterBinding(typeMapping, expression.CachingCompile(), bindingType);
-      bindings.Add(binding);
+      var binding = RegisterParameterBinding(typeMapping, expression, bindingType);
       SqlExpression result;
       if (optimizeBooleanParameter) {
         result = SqlDml.Variant(binding, SqlFalse, SqlTrue);

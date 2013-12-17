@@ -18,6 +18,11 @@ namespace Xtensive.Orm.Rse
     private const string ToStringFormat = "{0} {1} ({2})";
 
     /// <summary>
+    /// Gets origin <see cref="Column"/> for this instance.
+    /// </summary>
+    public Column Origin { get; private set; }
+
+    /// <summary>
     /// Gets the column name.
     /// </summary>
     public string Name { get; private set; }
@@ -113,11 +118,13 @@ namespace Xtensive.Orm.Rse
     /// <param name="name"><see cref="Name"/> property value.</param>
     /// <param name="index"><see cref="Index"/> property value.</param>
     /// <param name="type"><see cref="Type"/> property value.</param>
-    protected Column(string name, int index, Type type)
+    /// <param name="origin">Original column.</param>
+    protected Column(string name, int index, Type type, Column origin)
     {
       Name = name;
       Index = index;
       Type = type;
+      Origin = origin ?? this;
     }
   }
 }

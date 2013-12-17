@@ -26,6 +26,7 @@ namespace Xtensive.Orm.Providers
     private readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
     private readonly ProviderInfo providerInfo;
     private readonly bool temporaryTablesSupported;
+    private readonly HashSet<Column> rootColumns = new HashSet<Column>();
 
     /// <summary>
     /// Gets the SQL domain handler.
@@ -94,7 +95,7 @@ namespace Xtensive.Orm.Providers
         var bindings = result.Second;
         if (column.Type.StripNullable()==typeof (bool))
           predicate = GetBooleanColumnExpression(predicate);
-        AddInlinableColumn(provider, sqlSelect, column.Name, predicate);
+        AddInlinableColumn(provider, column, sqlSelect, predicate);
         allBindings = allBindings.Concat(bindings);
       }
       return CreateProvider(sqlSelect, allBindings, provider, source);
@@ -479,6 +480,12 @@ namespace Xtensive.Orm.Providers
         break;
       }
       return CreateProvider(query, provider, source);
+    }
+
+    protected override void Initialize()
+    {
+      foreach (var column in RootProvider.Header.Columns)
+        rootColumns.Add(column.Origin);
     }
 
 

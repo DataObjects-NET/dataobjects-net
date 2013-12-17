@@ -25,9 +25,12 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private const string DatabaseAndSchemaQuery =
       "select db_name(), coalesce(default_schema_name, 'dbo') from sys.database_principals where name=user";
 
-    private const string MessagesQuery = "select msg.error, msg.description " +
-      "from [master].[sys].[sysmessages] msg join [master].[sys].[syslanguages] lang on msg.msglangid = lang.msglangid " +
-      "where lang.langid = @@LANGID and msg.error in (2627, 2601, 515, 547)";
+    private const string MessagesQuery = @"Declare @MSGLANGID int; 
+      Select @MSGLANGID = msglangid FROM [master].[sys].[syslanguages] lang
+      WHERE lang.langid = @@LANGID;
+      SELECT msg.error , msg.description 
+      FROM [master].[sys].[sysmessages] msg
+      WHERE   msg.msglangid = @MSGLANGID AND msg.error IN ( 2627, 2601, 515, 547 )";
 
     private static ErrorMessageParser CreateMessageParser(SqlServerConnection connection)
     {
