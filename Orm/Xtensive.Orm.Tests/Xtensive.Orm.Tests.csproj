@@ -271,6 +271,7 @@
     <Compile Include="Linq\QueryPreprocessorSortingTest.cs" />
     <Compile Include="Storage\AbstractGenericsTest.cs" />
     <Compile Include="Storage\ByteFieldStorageTest.cs" />
+    <Compile Include="Storage\ChangedPersistOrderTest.cs" />
     <Compile Include="Storage\ClientProfileSessionTest.cs" />
     <Compile Include="Storage\DiartisBugsTest.cs" />
     <Compile Include="Storage\DisconnectedStateSideEffectsTest.cs" />
