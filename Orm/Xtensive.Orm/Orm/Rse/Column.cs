@@ -118,13 +118,13 @@ namespace Xtensive.Orm.Rse
     /// <param name="name"><see cref="Name"/> property value.</param>
     /// <param name="index"><see cref="Index"/> property value.</param>
     /// <param name="type"><see cref="Type"/> property value.</param>
-    /// <param name="origin">Original column.</param>
-    protected Column(string name, int index, Type type, Column origin)
+    /// <param name="originalColumn">Original column.</param>
+    protected Column(string name, int index, Type type, Column originalColumn)
     {
       Name = name;
       Index = index;
       Type = type;
-      Origin = origin ?? this;
+      Origin = originalColumn==null ? this : originalColumn.Origin;
     }
   }
 }
