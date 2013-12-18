@@ -28,6 +28,16 @@ namespace Xtensive.Orm.Tests.Linq
       [Field]
       public MyEnum? Value { get; set; }
     }
+
+    [HierarchyRoot]
+    public class RefEntity : Entity
+    {
+      [Key, Field]
+      public long Id { get; private set; }
+
+      [Field]
+      public EntityWithNullableEnum Ref { get; set; }
+    }
   }
 
   [TestFixture]
@@ -37,6 +47,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (EntityWithNullableEnum));
+      configuration.Types.Register(typeof (RefEntity));
       return configuration;
     }
 
@@ -44,9 +55,9 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new EntityWithNullableEnum {Value = MyEnum.Foo};
-        new EntityWithNullableEnum {Value = MyEnum.Bar};
-        new EntityWithNullableEnum {Value = null};
+        new RefEntity {Ref = new EntityWithNullableEnum {Value = MyEnum.Foo}};
+        new RefEntity {Ref = new EntityWithNullableEnum {Value = MyEnum.Bar}};
+        new RefEntity {Ref = new EntityWithNullableEnum {Value = null}};
         tx.Complete();
       }
     }
@@ -78,6 +89,40 @@ namespace Xtensive.Orm.Tests.Linq
           .Select(e => new {
             Id = e.Id,
             Match = e.Value.HasValue && (e.Value.Value==MyEnum.Foo || e.Value.Value==MyEnum.Bar)
+          });
+        var result = query.ToList();
+        Assert.That(result.Count(r => r.Match), Is.EqualTo(2));
+        tx.Complete();
+      }
+    }
+
+    [Test]
+    public void SelectContainsWithRefTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var values = new[] {MyEnum.Bar, MyEnum.Foo};
+        var query = session.Query.All<RefEntity>()
+          .Select(e => new {
+            Id = e.Id,
+            Match = e.Ref!=null && e.Ref.Value.HasValue && values.Contains(e.Ref.Value.Value)
+          });
+        var result = query.ToList();
+        Assert.That(result.Count(r => r.Match), Is.EqualTo(2));
+        tx.Complete();
+      }
+    }
+
+    [Test]
+    public void SelectConditionWithRefTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var values = new[] {MyEnum.Bar, MyEnum.Foo};
+        var query = session.Query.All<RefEntity>()
+          .Select(e => new {
+            Id = e.Id,
+            Match = e.Ref!=null && e.Ref.Value.HasValue && (e.Ref.Value.Value==MyEnum.Foo || e.Ref.Value.Value==MyEnum.Bar)
           });
         var result = query.ToList();
         Assert.That(result.Count(r => r.Match), Is.EqualTo(2));
