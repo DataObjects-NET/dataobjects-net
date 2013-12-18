@@ -13,14 +13,10 @@ namespace Xtensive.Orm.Internals
   {
     public virtual IEnumerable<PersistAction> GetPersistSequence(EntityChangeRegistry registry)
     {
-      // Insert
-      foreach (var action in GetInsertSequence(GetCreatedStates(registry)))
+      // Delete
+      foreach (var action in GetDeleteSequence(GetRemovedStates(registry)))
         yield return action;
-
-      // Commit state differences, if any
-      foreach (var state in GetCreatedStates(registry))
-        state.CommitDifference();
-
+      
       // Update
       foreach (var state in registry.GetItems(PersistenceState.Modified)) {
         if (state.IsNotAvailableOrMarkedAsRemoved)
@@ -29,19 +25,23 @@ namespace Xtensive.Orm.Internals
         state.DifferentialTuple.Merge();
       }
 
-      // Delete
-      foreach (var action in GetDeleteSequence(GetRemovedStates(registry)))
+      // Insert
+      foreach (var action in GetInsertSequence(GetCreatedStates(registry)))
         yield return action;
+
+      // Commit state differences, if any
+      foreach (var state in GetCreatedStates(registry))
+        state.CommitDifference();
     }
 
-    private static IEnumerable<EntityState> GetCreatedStates(EntityChangeRegistry registry)
+    protected static IEnumerable<EntityState> GetCreatedStates(EntityChangeRegistry registry)
     {
       return registry
         .GetItems(PersistenceState.New)
         .Where(state => !state.IsNotAvailableOrMarkedAsRemoved);
     }
 
-    private static IEnumerable<EntityState> GetRemovedStates(EntityChangeRegistry registry)
+    protected static IEnumerable<EntityState> GetRemovedStates(EntityChangeRegistry registry)
     {
       return registry
         .GetItems(PersistenceState.Removed)

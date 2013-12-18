@@ -52,6 +52,30 @@ namespace Xtensive.Orm.Internals
       }
     }
 
+    public override IEnumerable<PersistAction> GetPersistSequence(EntityChangeRegistry registry)
+    {
+      // Insert
+      foreach (var action in GetInsertSequence(GetCreatedStates(registry)))
+        yield return action;
+
+      // Commit state differences, if any
+      foreach (var state in GetCreatedStates(registry))
+        state.CommitDifference();
+
+      // Update
+      foreach (var state in registry.GetItems(PersistenceState.Modified))
+      {
+        if (state.IsNotAvailableOrMarkedAsRemoved)
+          continue;
+        yield return new PersistAction(state, PersistActionKind.Update);
+        state.DifferentialTuple.Merge();
+      }
+
+      // Delete
+      foreach (var action in GetDeleteSequence(GetRemovedStates(registry)))
+        yield return action;
+    }
+
     protected override IEnumerable<PersistAction> GetDeleteSequence(IEnumerable<EntityState> entityStates)
     {
       // Topological sorting
