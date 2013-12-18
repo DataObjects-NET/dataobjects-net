@@ -24,9 +24,9 @@ namespace Xtensive.Orm.Providers
 
     public void Persist(EntityChangeRegistry registry, CommandProcessor processor)
     {
-      var selfRefRowRemovalIsErr = requestBuilder.Handlers.ProviderInfo.Supports(ProviderFeatures.SelfReferencingRowRemovalIsError);
+      var selfReferencingRowIsRemovalWithError = requestBuilder.Handlers.ProviderInfo.Supports(ProviderFeatures.SelfReferencingRowRemovalIsError);
       var actionGenerator = sortingRequired
-        ? new SortingPersistActionGenerator(selfRefRowRemovalIsErr)
+        ? new SortingPersistActionGenerator(selfReferencingRowIsRemovalWithError)
         : new PersistActionGenerator();
 
       var validateVersion = registry.Session.Configuration.Supports(SessionOptions.ValidateEntityVersions);
