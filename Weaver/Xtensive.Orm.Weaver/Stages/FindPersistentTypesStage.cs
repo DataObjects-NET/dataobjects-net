@@ -24,7 +24,8 @@ namespace Xtensive.Orm.Weaver.Stages
       else
         autoPropertyChecker = IsCSharpAutoProperty;
 
-      var typesToInspect = context.TargetModule.GetTypes().Where(t => t.IsClass && t.BaseType!=null || t.IsInterface);
+      var typesToInspect = context.TargetModule.GetTypes()
+        .Where(t => t.IsClass && t.BaseType!=null || t.IsInterface);
       foreach (var type in typesToInspect) {
         var result = InspectType(context, type);
         if (result.Kind!=PersistentTypeKind.None) {
