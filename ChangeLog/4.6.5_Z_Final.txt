@@ -5,5 +5,6 @@
 [main] Fixed problem with missing calculated columns in final projection
 [main] Fixed materialization of delayed queries with parameters in final projection
 [main] Implemented merging of duplicated query parameters
+[main] Improved handling of unique index conflicts during persist
 [sqlserver] Optimized queries that are executed during initialization
-[sqlserver] Add support for full text data type columns
+[sqlserver] Added support for full text data type columns
