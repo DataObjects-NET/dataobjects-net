@@ -10,7 +10,7 @@ using Mono.Cecil.Cil;
 
 namespace Xtensive.Orm.Weaver.Tasks
 {
-  internal sealed class DisableKeySetterTask : WeavingTask
+  internal sealed class ImplementKeySetterTask : WeavingTask
   {
     private readonly TypeDefinition type;
     private readonly PropertyDefinition property;
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       return ActionResult.Success;
     }
 
-    public DisableKeySetterTask(TypeDefinition type, PropertyDefinition property)
+    public ImplementKeySetterTask(TypeDefinition type, PropertyDefinition property)
     {
       if (type==null)
         throw new ArgumentNullException("type");

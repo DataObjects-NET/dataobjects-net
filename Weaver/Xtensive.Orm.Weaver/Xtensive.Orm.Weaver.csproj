@@ -111,7 +111,7 @@
     <Compile Include="Tasks\ImplementInitializablePatternTask.cs" />
     <Compile Include="Tasks\ImplementFactoryTask.cs" />
     <Compile Include="Tasks\ImplementFieldAccessorTask.cs" />
-    <Compile Include="Tasks\DisableKeySetterTask.cs" />
+    <Compile Include="Tasks\ImplementKeySetterTask.cs" />
     <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
       <Link>Properties\ProductInfo.cs</Link>
     </Compile>

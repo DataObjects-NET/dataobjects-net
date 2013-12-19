@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Weaver.Stages
           typeDefinition, propertyDefinition, persistentName));
         // Setter
         if (property.IsKey)
-          context.WeavingTasks.Add(new DisableKeySetterTask(typeDefinition, propertyDefinition));
+          context.WeavingTasks.Add(new ImplementKeySetterTask(typeDefinition, propertyDefinition));
         else
           context.WeavingTasks.Add(new ImplementFieldAccessorTask(AccessorKind.Setter,
             typeDefinition, propertyDefinition, persistentName));
