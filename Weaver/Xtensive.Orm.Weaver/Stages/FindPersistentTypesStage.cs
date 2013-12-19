@@ -60,8 +60,7 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private TypeInfo InspectType(ProcessorContext context, TypeReference type)
     {
-      if (type.IsGenericInstance)
-        type = type.GetElementType();
+      type = type.StripGenericParameters();
 
       var identity = new TypeIdentity(type);
 
@@ -154,7 +153,7 @@ namespace Xtensive.Orm.Weaver.Stages
         var implementedAccessor = property.AnyAccessor.Overrides.FirstOrDefault();
         if (implementedAccessor==null)
           continue;
-        var interfaceType = GetType(new TypeIdentity(implementedAccessor.DeclaringType));
+        var interfaceType = GetType(new TypeIdentity(implementedAccessor.DeclaringType.StripGenericParameters()));
         var implementedPropertyName = WeavingHelper.GetPropertyName(implementedAccessor.Name);
         var implementedProperty = interfaceType.FindProperty(implementedPropertyName);
         if (implementedProperty==null)

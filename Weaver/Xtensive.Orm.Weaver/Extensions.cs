@@ -59,5 +59,12 @@ namespace Xtensive.Orm.Weaver
 
       return -1;
     }
+
+    public static TypeReference StripGenericParameters(this TypeReference type)
+    {
+      if (type.IsGenericInstance)
+        type = type.GetElementType();
+      return type;
+    }
   }
 }
