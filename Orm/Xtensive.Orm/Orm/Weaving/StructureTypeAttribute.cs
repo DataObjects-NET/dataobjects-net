@@ -5,6 +5,7 @@
 // Created:    2013.08.21
 
 using System;
+using JetBrains.Annotations;
 
 namespace Xtensive.Orm.Weaving
 {
@@ -14,6 +15,7 @@ namespace Xtensive.Orm.Weaving
   /// It is automatically applied to your types when needed.
   /// </summary>
   [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+  [UsedImplicitly]
   public sealed class StructureTypeAttribute : Attribute
   {
   }
