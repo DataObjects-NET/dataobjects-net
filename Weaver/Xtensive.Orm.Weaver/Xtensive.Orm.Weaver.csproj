@@ -75,6 +75,7 @@
     <Compile Include="Interfaces\IMessageWriter.cs" />
     <Compile Include="MessageLocation.cs" />
     <Compile Include="MessageType.cs" />
+    <Compile Include="SourceLanguage.cs" />
     <Compile Include="PropertyInfo.cs" />
     <Compile Include="TypeInfo.cs" />
     <Compile Include="ProcessorConfiguration.cs" />

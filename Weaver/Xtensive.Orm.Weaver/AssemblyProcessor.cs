@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Weaver
         Configuration = configuration,
         ApplicationDirectory = Path.GetDirectoryName(GetType().Assembly.Location),
         Logger = logger,
+        Language = WeavingHelper.ParseLanguage(configuration.ProjectType),
         AssemblyResolver = assemblyResolver,
         MetadataResolver = new MetadataResolver(assemblyResolver),
       };

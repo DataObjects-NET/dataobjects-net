@@ -14,9 +14,15 @@ namespace Xtensive.Orm.Weaver.Stages
   internal sealed class FindPersistentTypesStage : ProcessorStage
   {
     private readonly Dictionary<TypeIdentity, TypeInfo> processedTypes = new Dictionary<TypeIdentity, TypeInfo>();
+    private Func<TypeDefinition, PropertyDefinition, bool> autoPropertyChecker;
 
     public override ActionResult Execute(ProcessorContext context)
     {
+      if (context.Language==SourceLanguage.VbNet)
+        autoPropertyChecker = IsVbAutoProperty;
+      else
+        autoPropertyChecker = IsCSharpAutoProperty;
+
       var typesToInspect = context.TargetModule.GetTypes().Where(t => t.IsClass && t.BaseType!=null || t.IsInterface);
       foreach (var type in typesToInspect) {
         var result = InspectType(context, type);
@@ -119,7 +125,7 @@ namespace Xtensive.Orm.Weaver.Stages
         var propertyInfo = new PropertyInfo(type, property);
         if (propertyInfo.AnyAccessor==null)
           continue;
-        propertyInfo.IsAutomatic = property.IsAutoProperty();
+        propertyInfo.IsAutomatic = autoPropertyChecker.Invoke(type.Definition, property);
         propertyInfo.IsPersistent = propertyInfo.IsInstance && property.HasAttribute(WellKnown.FieldAttribute);
         propertyInfo.IsKey = propertyInfo.IsPersistent && property.HasAttribute(WellKnown.KeyAttribute);
         type.Properties.Add(property.Name, propertyInfo);
@@ -189,6 +195,24 @@ namespace Xtensive.Orm.Weaver.Stages
         property.IsPersistent = true;
       if (baseProperty.IsKey)
         property.IsKey = true;
+    }
+
+    private static bool IsCSharpAutoProperty(TypeDefinition type, PropertyDefinition property)
+    {
+      return property.GetMethod!=null && property.SetMethod!=null
+        && property.GetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute)
+        && property.SetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute);
+    }
+
+    private static bool IsVbAutoProperty(TypeDefinition type, PropertyDefinition property)
+    {
+      if (property.GetMethod==null || property.SetMethod==null)
+        return false;
+      var backingFieldIndex = type.Fields.IndexOf("_" + property.Name);
+      if (backingFieldIndex < 0)
+        return false;
+      var backingField = type.Fields[backingFieldIndex];
+      return backingField.IsPrivate;
     }
   }
 }

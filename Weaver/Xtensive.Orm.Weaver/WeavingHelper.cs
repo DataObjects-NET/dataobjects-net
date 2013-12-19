@@ -78,5 +78,21 @@ namespace Xtensive.Orm.Weaver
     {
       return String.Format("{0}.{1}", type.Name, property.Name);
     }
+
+    public static SourceLanguage ParseLanguage(string projectType)
+    {
+      if (string.IsNullOrEmpty(projectType))
+        return SourceLanguage.Unknown;
+      switch (projectType.ToLowerInvariant()) {
+      case ".csproj":
+        return SourceLanguage.CSharp;
+      case ".vbproj":
+        return SourceLanguage.VbNet;
+      case ".fsproj":
+        return SourceLanguage.FSharp;
+      default:
+        return SourceLanguage.Unknown;
+      }
+    }
   }
 }

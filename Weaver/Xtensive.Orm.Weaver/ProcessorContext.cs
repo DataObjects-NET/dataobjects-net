@@ -18,6 +18,8 @@ namespace Xtensive.Orm.Weaver
 
     public MessageLogger Logger { get; set; }
 
+    public SourceLanguage Language { get; set; }
+
     public bool SkipProcessing { get; set; }
 
     public IList<WeavingTask> WeavingTasks { get; set; }
