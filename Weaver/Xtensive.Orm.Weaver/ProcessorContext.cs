@@ -18,8 +18,6 @@ namespace Xtensive.Orm.Weaver
 
     public MessageLogger Logger { get; set; }
 
-    public bool HasTransformations { get { return WeavingTasks.Count > 0; } }
-
     public bool SkipProcessing { get; set; }
 
     public IList<WeavingTask> WeavingTasks { get; set; }
