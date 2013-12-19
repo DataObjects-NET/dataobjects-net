@@ -54,25 +54,7 @@ namespace Xtensive.Orm.Tests.Storage.ChangedPersistOrderTest
   public class ChangedPersistOrderTest : AutoBuildTest
   {
     [Test]
-    public void Test01()
-    {
-      FillData(ForeignKeyMode.Default);
-      var domain = BuildDomain(ForeignKeyMode.Default, DomainUpgradeMode.Perform);
-      Assert.Throws(Is.InstanceOf<StorageException>(), () =>
-        {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var contract = session.Query.All<model.EmploymentContract>().First(el => el.ContractNumber=="w123456");
-            var worker = contract.Worker;
-            contract.Remove();
-            var newContract = new model.EmploymentContract { ContractNumber = "w123456", CreationDate = DateTime.Now, TakesEffectFrom = DateTime.Now.Date, Worker = worker };
-            transaction.Complete();
-          }
-        });
-    }
-
-    [Test]
-    public void Test02()
+    public void MainTest()
     {
       FillData(ForeignKeyMode.None);
       var domain = BuildDomain(ForeignKeyMode.None, DomainUpgradeMode.Perform);
