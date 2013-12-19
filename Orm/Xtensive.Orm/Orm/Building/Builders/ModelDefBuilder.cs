@@ -13,6 +13,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
+using Xtensive.Orm.Weaving;
 using Xtensive.Reflection;
 using Xtensive.Sorting;
 
@@ -324,7 +325,8 @@ namespace Xtensive.Orm.Building.Builders
     private bool IsTypeAvailable(Type type)
     {
       return context.BuilderConfiguration.ModelFilter.IsTypeAvailable(type)
-        && type!=typeof (EntitySetItem<,>);
+        && type!=typeof (EntitySetItem<,>)
+        && !type.IsDefined(typeof (AuxiliaryTypeAttribute), false);
     }
 
     private bool IsFieldAvailable(PropertyInfo property)

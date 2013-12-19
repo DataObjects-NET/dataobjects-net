@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Weaver.Stages
         return PersistentTypeKind.Structure;
       if (comparer.Equals(name, WellKnown.EntitySetType))
         return PersistentTypeKind.EntitySet;
-      if (comparer.Equals(name, WellKnown.EntityInterface))
+      if (comparer.Equals(name, WellKnown.EntityInterfaceType))
         return PersistentTypeKind.EntityInterface;
       return PersistentTypeKind.None;
     }

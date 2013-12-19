@@ -30,7 +30,9 @@ namespace Xtensive.Orm.Weaver
     // Xtensive.Orm
     public TypeReference Session { get; set; }
     public TypeReference Entity { get; set; }
+    public TypeReference EntityInterface { get; set; }
     public TypeReference EntityState { get; set; }
+    public TypeReference EntitySetItem { get; set; }
     public TypeReference FieldInfo { get; set; }
     public TypeReference Persistent { get; set; }
     public TypeReference PersistenceImplementation { get; set; }
@@ -41,6 +43,7 @@ namespace Xtensive.Orm.Weaver
     public MethodReference EntityInterfaceAttributeConstructor { get; set; }
     public MethodReference StructureTypeAttributeConstructor { get; set; }
     public MethodReference OverrideFieldNameAttributeConstructor { get; set; }
+    public MethodReference AuxiliaryTypeAttributeConstructor { get; set; }
 
     public MethodReference PersistenceImplementationHandleKeySet { get; set; }
 

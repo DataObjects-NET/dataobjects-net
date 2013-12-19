@@ -346,6 +346,7 @@
     <Compile Include="Orm\Logging\LogManager.cs" />
     <Compile Include="Orm\Logging\LogProvider.cs" />
     <Compile Include="Orm\Logging\Internals\NullLog.cs" />
+    <Compile Include="Orm\Weaving\AuxiliaryTypeAttribute.cs" />
     <Compile Include="Properties\Visibility.cs" />
     <Compile Include="IoC\Attributes\ServiceAttribute.cs" />
     <Compile Include="IoC\Attributes\ServiceConstructorAttribute.cs" />

@@ -42,8 +42,10 @@ namespace Xtensive.Orm.Weaver.Stages
       // Xtensive.Orm
       registry.Session = ImportType(context, ormAssembly, "Xtensive.Orm.Session");
       registry.Entity = ImportType(context, ormAssembly, WellKnown.EntityType);
+      registry.EntityInterface = ImportType(context, ormAssembly, WellKnown.EntityInterfaceType);
       registry.EntityState = ImportType(context, ormAssembly, "Xtensive.Orm.EntityState");
       registry.FieldInfo = ImportType(context, ormAssembly, "Xtensive.Orm.Model.FieldInfo");
+      registry.EntitySetItem = ImportType(context, ormAssembly, WellKnown.EntitySetItemType);
       var persistentType = registry.Persistent = ImportType(context, ormAssembly, "Xtensive.Orm.Persistent");
 
       registry.PersistenceImplementation = ImportType(context, ormAssembly, "Xtensive.Orm.Weaving.PersistenceImplementation");
@@ -71,6 +73,7 @@ namespace Xtensive.Orm.Weaver.Stages
       registry.EntityInterfaceAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.EntityInterfaceAttribute);
       registry.StructureTypeAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.StructureTypeAttribute);
       registry.OverrideFieldNameAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.OverrideFieldNameAttribute, stringType);
+      registry.AuxiliaryTypeAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.AuxiliaryTypeAttribute);
 
       return ActionResult.Success;
     }
