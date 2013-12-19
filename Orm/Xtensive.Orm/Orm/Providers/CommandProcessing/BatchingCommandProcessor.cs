@@ -29,8 +29,12 @@ namespace Xtensive.Orm.Providers
 
     void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
     {
-      if (task.ValidateRowCount)
-        throw new NotSupportedException(Strings.ExBatchingCommandProcessorDoesNotSupportValidationOfNumberOfAffectedRows);
+      if (task.ValidateRowCount) {
+        ExecuteCurrentBatch();
+        ProcessUnbatchedTask(task);
+        ResetCommand();
+        return;
+      }
       var sequence = Factory.CreatePersistParts(task, GetParameterPrefix());
       foreach (var part in sequence)
         activeCommand.AddPart(part);
@@ -88,6 +92,12 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    private void ResetCommand()
+    {
+      ReleaseCommand();
+      AllocateCommand();
+    }
+
     private Command ExecuteBatch(int numberOfTasks, QueryRequest lastRequest)
     {
       var shouldReturnReader = lastRequest!=null;
@@ -108,11 +118,12 @@ namespace Xtensive.Orm.Providers
           activeCommand.AddPart(part);
         }
         var hasQueryTasks = activeTasks.Count > 0;
-        if (!hasQueryTasks && !shouldReturnReader) {
+        if (!hasQueryTasks && !shouldReturnReader && activeCommand.Count>0) {
           activeCommand.ExecuteNonQuery();
           return null;
         }
-        activeCommand.ExecuteReader();
+        if(activeCommand.Count>0)
+          activeCommand.ExecuteReader();
         if (hasQueryTasks) {
           int currentQueryTask = 0;
           while (currentQueryTask < activeTasks.Count) {
@@ -132,6 +143,26 @@ namespace Xtensive.Orm.Providers
           activeCommand.Dispose();
         ReleaseCommand();
       }
+    }
+
+    private void ProcessUnbatchedTask(SqlPersistTask task)
+    {
+      var sequence = Factory.CreatePersistParts(task);
+      foreach (var part in sequence) {
+        using (var command = Factory.CreateCommand()) {
+          command.AddPart(part);
+          var affectedRowsCount = command.ExecuteNonQuery();
+          if (affectedRowsCount==0)
+            throw new VersionConflictException(string.Format(
+              Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
+        }
+      }
+    }
+
+    private void ExecuteCurrentBatch()
+    {
+      if (activeCommand.Count>0)
+        activeCommand.ExecuteNonQuery();
     }
 
     private string GetParameterPrefix()

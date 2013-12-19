@@ -27,8 +27,7 @@ namespace Xtensive.Orm.Providers
     {
       var configuration = session.Configuration;
       bool useBatches = configuration.BatchSize > 1
-        && providerInfo.Supports(ProviderFeatures.DmlBatches)
-        && !configuration.Supports(SessionOptions.ValidateEntityVersions);
+        && providerInfo.Supports(ProviderFeatures.DmlBatches);
       bool useCursorParameters =
         providerInfo.Supports(ProviderFeatures.MultipleResultsViaCursorParameters);
 
