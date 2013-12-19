@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Mono.Cecil;
 
@@ -26,8 +27,11 @@ namespace Xtensive.Orm.Weaver.Stages
       var typesToInspect = context.TargetModule.GetTypes().Where(t => t.IsClass && t.BaseType!=null || t.IsInterface);
       foreach (var type in typesToInspect) {
         var result = InspectType(context, type);
-        if (result.Kind!=PersistentTypeKind.None)
+        if (result.Kind!=PersistentTypeKind.None) {
+          if (result.Kind!=PersistentTypeKind.EntitySet)
+            InspectProperties(context, result);
           context.PersistentTypes.Add(result);
+        }
       }
       context.SkipProcessing = context.PersistentTypes.Count==0;
       return ActionResult.Success;
@@ -39,11 +43,9 @@ namespace Xtensive.Orm.Weaver.Stages
         var baseType = InspectType(context, type.BaseType);
         var kind = baseType.Kind;
         var result = new TypeInfo(type, kind, baseType);
-        if (kind==PersistentTypeKind.Entity || kind==PersistentTypeKind.Structure) {
+        if (kind==PersistentTypeKind.Entity || kind==PersistentTypeKind.Structure)
           foreach (var @interface in type.Interfaces)
             result.Interfaces.Add(InspectType(context, @interface));
-          InspectProperties(result);
-        }
         processedTypes.Add(identity, result);
         return result;
       }
@@ -58,7 +60,6 @@ namespace Xtensive.Orm.Weaver.Stages
         }
         var kind = isPersistent ? PersistentTypeKind.EntityInterface : PersistentTypeKind.None;
         var result = new TypeInfo(type, kind) {Interfaces = interfaces};
-        InspectProperties(result);
         processedTypes.Add(identity, result);
         return result;
       }
@@ -119,7 +120,7 @@ namespace Xtensive.Orm.Weaver.Stages
       return PersistentTypeKind.None;
     }
 
-    private void InspectProperties(TypeInfo type)
+    private void InspectProperties(ProcessorContext context, TypeInfo type)
     {
       foreach (var property in type.Definition.Properties) {
         var propertyInfo = new PropertyInfo(type, property);
@@ -128,6 +129,8 @@ namespace Xtensive.Orm.Weaver.Stages
         propertyInfo.IsAutomatic = autoPropertyChecker.Invoke(type.Definition, property);
         propertyInfo.IsPersistent = propertyInfo.IsInstance && property.HasAttribute(WellKnown.FieldAttribute);
         propertyInfo.IsKey = propertyInfo.IsPersistent && property.HasAttribute(WellKnown.KeyAttribute);
+        if (propertyInfo.IsPersistent)
+          ClassifyPersistentProperty(context, propertyInfo);
         type.Properties.Add(property.Name, propertyInfo);
       }
 
@@ -179,6 +182,14 @@ namespace Xtensive.Orm.Weaver.Stages
           InheritPersistence(implementor, property);
         }
       }
+    }
+
+    private void ClassifyPersistentProperty(ProcessorContext context, PropertyInfo propertyInfo)
+    {
+      var propertyType = propertyInfo.Definition.PropertyType;
+      if (propertyType.IsGenericParameter)
+        return;
+      propertyInfo.Kind = InspectType(context, propertyType).Kind;
     }
 
     private TypeInfo GetType(TypeIdentity identity)

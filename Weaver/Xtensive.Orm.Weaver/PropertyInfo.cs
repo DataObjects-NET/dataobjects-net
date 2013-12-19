@@ -33,6 +33,8 @@ namespace Xtensive.Orm.Weaver
 
     public bool IsKey { get; set; }
 
+    public PersistentTypeKind Kind { get; set; }
+
     public string PersistentName { get; set; }
 
     public PropertyInfo BaseProperty { get; set; }
@@ -61,11 +63,13 @@ namespace Xtensive.Orm.Weaver
         resultBuilder.Append(" [explicit_implementation]");
       if (IsKey)
         resultBuilder.Append(" [key]");
-      if (IsPersistent)
+      if (IsPersistent) {
         if (PersistentName!=null)
           resultBuilder.AppendFormat(" [persistent({0})]", PersistentName);
         else
           resultBuilder.Append(" [persistent]");
+        resultBuilder.AppendFormat(" [kind({0})]", Kind);
+      }
       foreach (var implementedProperty in ImplementedProperties)
         resultBuilder.AppendFormat(" [implements({0}::{1})]", implementedProperty.DeclaringType.FullName, implementedProperty.Name);
       return resultBuilder.ToString();
