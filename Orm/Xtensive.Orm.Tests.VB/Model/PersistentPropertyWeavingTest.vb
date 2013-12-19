@@ -3,14 +3,13 @@
 ' For conditions of distribution and use, see license.
 ' Created by: Alena Mikshina
 ' Created:    2013.11.05
-
 Imports System
 Imports System.Linq
 Imports NUnit.Framework
 Imports Xtensive.Orm.Configuration
 Imports Xtensive.Orm.Tests.Model.PersistentPropertyWeavingTestModel
 
-Namespace Linq
+Namespace Model
   Namespace PersistentPropertyWeavingTestModel
     <HierarchyRoot()> _
     Public Class Base

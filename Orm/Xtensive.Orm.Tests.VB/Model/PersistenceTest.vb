@@ -1,9 +1,8 @@
-Imports Xtensive.Orm.Tests.VB.Model
-Imports Xtensive.Orm.Tests.ObjectModel
+
 Imports Xtensive.Orm.Configuration
 Imports NUnit.Framework
 
-Namespace Linq
+Namespace Model
   <TestFixture()>
   Public Class PersistenceTest
     Inherits AutoBuildTest
@@ -23,7 +22,7 @@ Namespace Linq
           Dim author = New Author With {.Name = "Vasya"}
           Dim book = New Book With {.Name = "The Book", .Author = author}
           Assert.AreEqual(1, author.Books.Count)
-          Dim result = From c In Query.All (Of Author)()
+          Dim result = From c In Query.All(Of Author)()
                 Select c
           Dim list = result.ToList()
           Dim loaded = result.Single()
