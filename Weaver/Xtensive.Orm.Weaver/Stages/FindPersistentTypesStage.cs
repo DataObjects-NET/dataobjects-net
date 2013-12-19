@@ -108,19 +108,6 @@ namespace Xtensive.Orm.Weaver.Stages
       return PersistentTypeKind.None;
     }
 
-    private PersistentTypeKind ClassifyExternalType(TypeDefinition type)
-    {
-      if (type.HasAttribute(WellKnown.EntityTypeAttribute))
-        return PersistentTypeKind.Entity;
-      if (type.HasAttribute(WellKnown.StructureTypeAttribute))
-        return PersistentTypeKind.Structure;
-      if (type.HasAttribute(WellKnown.EntitySetTypeAttribute))
-        return PersistentTypeKind.EntitySet;
-      if (type.HasAttribute(WellKnown.EntityInterfaceAttribute))
-        return PersistentTypeKind.EntityInterface;
-      return PersistentTypeKind.None;
-    }
-
     private void InspectProperties(ProcessorContext context, TypeInfo type)
     {
       foreach (var property in type.Definition.Properties) {
