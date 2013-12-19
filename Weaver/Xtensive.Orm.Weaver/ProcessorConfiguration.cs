@@ -23,6 +23,7 @@ namespace Xtensive.Orm.Weaver
       private const string MakeBackup = "makeBackup";
       private const string ProcessDebugSymbols = "processDebugSymbols";
       private const string StrongNameKey = "strongNameKey";
+      private const string ProjectType = "projectType";
       private const string ReferencedAssembly = "reference";
 
       private static readonly char[] KeyValueSeparators = new[] {':', '='};
@@ -61,7 +62,12 @@ namespace Xtensive.Orm.Weaver
           configuration.StrongNameKey = value;
           return true;
         }
-          
+
+        if (Comparer.Equals(key, ProjectType)) {
+          configuration.ProjectType = value;
+          return true;
+        }
+
         if (Comparer.Equals(key, WriteStatusFile)) {
           configuration.WriteStatusFile = ParseBool(value);
           return true;
@@ -113,6 +119,9 @@ namespace Xtensive.Orm.Weaver
         if (!string.IsNullOrEmpty(configuration.StrongNameKey))
           yield return FormatKeyValue(StrongNameKey, configuration.StrongNameKey);
 
+        if (!string.IsNullOrEmpty(configuration.ProjectType))
+          yield return FormatKeyValue(ProjectType, configuration.ProjectType);
+
         if (configuration.ReferencedAssemblies!=null)
           foreach (var assemblyFile in configuration.ReferencedAssemblies)
             yield return FormatKeyValue(ReferencedAssembly, assemblyFile);
@@ -153,6 +162,7 @@ namespace Xtensive.Orm.Weaver
     private string inputFile;
     private string outputFile;
     private string strongNameKey;
+    private string projectType;
     private bool makeBackup;
     private bool writeStatusFile;
     private bool writeStampFile;
@@ -181,6 +191,12 @@ namespace Xtensive.Orm.Weaver
     {
       get { return strongNameKey; }
       set { strongNameKey = value; }
+    }
+
+    public string ProjectType
+    {
+      get { return projectType; }
+      set { projectType = value; }
     }
 
     public bool MakeBackup

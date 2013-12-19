@@ -24,7 +24,8 @@
          Text="Weaver is not found at '$(XtensiveOrmWeaver)'" />
   <Message Importance="low" Text="Using weaver at '$(XtensiveOrmWeaver)'" />
   <PropertyGroup>
-    <XtensiveOrmWeaverCmd>"$(XtensiveOrmWeaver)" /input:"@(IntermediateAssembly -> '%(FullPath)')" /makeBackup:true /writeStampFile:true</XtensiveOrmWeaverCmd>
+    <XtensiveOrmWeaverCmd>"$(XtensiveOrmWeaver)" /input:"@(IntermediateAssembly -> '%(FullPath)')"</XtensiveOrmWeaverCmd>
+    <XtensiveOrmWeaverCmd>$(XtensiveOrmWeaverCmd) /projectType:"$(MSBuildProjectExtension)" /makeBackup:true /writeStampFile:true</XtensiveOrmWeaverCmd>
     <XtensiveOrmWeaverCmd Condition="'$(DebugSymbols)'=='true'">$(XtensiveOrmWeaverCmd) /processDebugSymbols:true</XtensiveOrmWeaverCmd>
     <XtensiveOrmWeaverCmd Condition="'$(SignAssembly)'=='true'">$(XtensiveOrmWeaverCmd) /strongNameKey:"$(AssemblyOriginatorKeyFile)"</XtensiveOrmWeaverCmd>
     <XtensiveOrmWeaverCmd>$(XtensiveOrmWeaverCmd) @(ReferencePath -> '/reference:"%(FullPath)"', ' ')</XtensiveOrmWeaverCmd>
