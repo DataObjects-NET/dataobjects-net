@@ -13,8 +13,8 @@ namespace Xtensive.Orm.Weaver
 {
   internal static class WeavingHelper
   {
-    public static readonly StringComparer AssemblyNameComparer = StringComparer.InvariantCultureIgnoreCase;
-    public static readonly StringComparer TypeNameComparer = StringComparer.InvariantCulture;
+    public static readonly StringComparer AssemblyNameComparer = StringComparer.OrdinalIgnoreCase;
+    public static readonly StringComparer TypeNameComparer = StringComparer.Ordinal;
 
     public static byte[] ParsePublicKeyToken(string value)
     {
