@@ -54,8 +54,9 @@ namespace Xtensive.Orm
     /// <param name="configuration">Configuration name for word-breaker and stemmer.</param>
     /// <param name="dataTypeField">Name of field that contains type of the data in full text field.</param>
     public FullTextAttribute(string configuration, string dataTypeField)
-      :this(configuration)
     {
+      Configuration = configuration;
+      Analyzed = true;
       DataTypeField = dataTypeField;
     }
   }
