@@ -103,6 +103,10 @@ namespace Xtensive.Orm.Building.Builders
       var typeColumn = fullTextFieldDef.TypeFieldName == null
         ? null
         : type.Fields[fullTextFieldDef.TypeFieldName].Column;
+      if(typeColumn==null)
+        throw new InvalidOperationException(string.Format(Strings.ExColumnXIsNotFound, fullTextFieldDef.TypeFieldName));
+      if (typeColumn.ValueType!=typeof(String))
+        throw new DomainBuilderException(string.Format(Strings.ExTypeColumnXForFulltextColumnYMustBeTypeOfString, typeColumn.Name, column.Name));
       return new FullTextColumnInfo(column) {
         IsAnalyzed = fullTextFieldDef.IsAnalyzed, 
         Configuration = fullTextFieldDef.Configuration, 

@@ -4494,6 +4494,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type column &apos;{0}&apos; for fulltext column&apos;{1}&apos; must be type of string..
+        /// </summary>
+        internal static string ExTypeColumnXForFulltextColumnYMustBeTypeOfString {
+            get {
+                return ResourceManager.GetString("ExTypeColumnXForFulltextColumnYMustBeTypeOfString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TypeDef &apos;{0}&apos; already belongs to hierarchy with &apos;{1}&apos; root..
         /// </summary>
         internal static string ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY {
