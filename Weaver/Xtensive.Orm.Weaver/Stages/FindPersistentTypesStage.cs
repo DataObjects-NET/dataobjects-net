@@ -157,7 +157,8 @@ namespace Xtensive.Orm.Weaver.Stages
           continue;
         property.ImplementedProperties.Add(implementedProperty);
         property.IsExplicitInterfaceImplementation = true;
-        property.PersistentName = WeavingHelper.BuildComplexPersistentName(interfaceType, implementedProperty);
+        if (context.Language!=SourceLanguage.VbNet)
+          property.PersistentName = WeavingHelper.BuildComplexPersistentName(interfaceType, implementedProperty);
         propertiesToImplement.Remove(implementedProperty);
         InheritPersistence(property, implementedProperty);
       }
