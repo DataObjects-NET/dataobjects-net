@@ -6,8 +6,8 @@
 Imports System
 Imports System.Linq
 Imports NUnit.Framework
+Imports Xtensive.Orm.Tests.VB.Model.PersistentPropertyWeavingTestModel
 Imports Xtensive.Orm.Configuration
-Imports Xtensive.Orm.Tests.Model.PersistentPropertyWeavingTestModel
 
 Namespace Model
   Namespace PersistentPropertyWeavingTestModel
