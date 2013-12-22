@@ -13,35 +13,50 @@ namespace Xtensive.Orm.Weaver
   [Serializable]
   public sealed class ProcessorConfiguration
   {
-    internal static class Formatter
+    private static class Formatter
     {
-      private const string ProjectId = "projectId";
+      private const string WriteStatus = "status";
+      private const string WriteStamp = "stamp";
+      private const string MakeBackup = "backup";
+      private const string ProcessDebugSymbols = "pdb";
+
       private const string InputFile = "input";
       private const string OutputFile = "output";
-      private const string WriteStatusFile = "writeStatusFile";
-      private const string WriteStampFile = "writeStampFile";
-      private const string MakeBackup = "makeBackup";
-      private const string ProcessDebugSymbols = "processDebugSymbols";
-      private const string StrongNameKey = "strongNameKey";
-      private const string ProjectType = "projectType";
-      private const string ReferencedAssembly = "reference";
+      private const string StrongNameKey = "snk";
+      private const string ProjectType = "type";
+      private const string ReferencedAssembly = "r";
 
       private static readonly char[] KeyValueSeparators = new[] {':', '='};
 
-      private static readonly StringComparer Comparer = StringComparer.InvariantCultureIgnoreCase;
+      private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
 
       public static bool Parse(ProcessorConfiguration configuration, string item)
       {
+        if (Comparer.Equals(item, MakeBackup)) {
+          configuration.MakeBackup = true;
+          return true;
+        }
+
+        if (Comparer.Equals(item, WriteStatus)) {
+          configuration.WriteStatusFile = true;
+          return true;
+        }
+
+        if (Comparer.Equals(item, WriteStamp)) {
+          configuration.WriteStampFile = true;
+          return true;
+        }
+
+        if (Comparer.Equals(item, ProcessDebugSymbols)) {
+          configuration.ProcessDebugSymbols = true;
+          return true;
+        }
+
         string key;
         string value;
 
         if (!ParseKeyValue(item, out key, out value))
           return false;
-
-        if (Comparer.Equals(key, ProjectId)) {
-          configuration.ProjectId = value;
-          return true;
-        }
 
         if (Comparer.Equals(key, InputFile)) {
           configuration.InputFile = value;
@@ -50,11 +65,6 @@ namespace Xtensive.Orm.Weaver
 
         if (Comparer.Equals(key, OutputFile)) {
           configuration.OutputFile = value;
-          return true;
-        }
-
-        if (Comparer.Equals(key, MakeBackup)) {
-          configuration.MakeBackup = ParseBool(value);
           return true;
         }
 
@@ -68,21 +78,6 @@ namespace Xtensive.Orm.Weaver
           return true;
         }
 
-        if (Comparer.Equals(key, WriteStatusFile)) {
-          configuration.WriteStatusFile = ParseBool(value);
-          return true;
-        }
-
-        if (Comparer.Equals(key, WriteStampFile)) {
-          configuration.WriteStampFile = ParseBool(value);
-          return true;
-        }
-
-        if (Comparer.Equals(key, ProcessDebugSymbols)) {
-          configuration.ProcessDebugSymbols = ParseBool(value);
-          return true;
-        }
-
         if (Comparer.Equals(key, ReferencedAssembly)) {
           configuration.ReferencedAssemblies.Add(value);
           return true;
@@ -93,28 +88,23 @@ namespace Xtensive.Orm.Weaver
 
       public static IEnumerable<string> Dump(ProcessorConfiguration configuration)
       {
-        const string trueString = "true";
+        if (configuration.MakeBackup)
+          yield return MakeBackup;
 
-        if (!string.IsNullOrEmpty(configuration.ProjectId))
-          yield return FormatKeyValue(ProjectId, configuration.ProjectId);
+        if (configuration.WriteStatusFile)
+          yield return WriteStatus;
+
+        if (configuration.WriteStampFile)
+          yield return WriteStamp;
+
+        if (configuration.ProcessDebugSymbols)
+          yield return ProcessDebugSymbols;
 
         if (!string.IsNullOrEmpty(configuration.InputFile))
           yield return FormatKeyValue(InputFile, configuration.InputFile);
 
         if (!string.IsNullOrEmpty(configuration.OutputFile))
           yield return FormatKeyValue(OutputFile, configuration.OutputFile);
-
-        if (configuration.WriteStatusFile)
-          yield return FormatKeyValue(WriteStatusFile, trueString);
-
-        if (configuration.WriteStampFile)
-          yield return FormatKeyValue(WriteStampFile, trueString);
-
-        if (configuration.ProcessDebugSymbols)
-          yield return FormatKeyValue(ProcessDebugSymbols, trueString);
-
-        if (configuration.MakeBackup)
-          yield return FormatKeyValue(MakeBackup, trueString);
 
         if (!string.IsNullOrEmpty(configuration.StrongNameKey))
           yield return FormatKeyValue(StrongNameKey, configuration.StrongNameKey);
@@ -149,12 +139,6 @@ namespace Xtensive.Orm.Weaver
         else
           value = rawValue;
         return true;
-      }
-
-      private static bool ParseBool(string value)
-      {
-        bool result;
-        return bool.TryParse(value, out result) && result;
       }
     }
 
