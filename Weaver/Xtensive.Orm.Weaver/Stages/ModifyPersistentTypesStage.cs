@@ -116,8 +116,6 @@ namespace Xtensive.Orm.Weaver.Stages
         if (property.PersistentName!=null)
           context.WeavingTasks.Add(new AddAttributeTask(propertyDefinition,
             context.References.OverrideFieldNameAttributeConstructor, property.PersistentName));
-        if (property.Kind==PersistentTypeKind.EntitySet)
-          context.WeavingTasks.Add(new ImplementAuxiliaryTypeTask(type, property));
       }
     }
 

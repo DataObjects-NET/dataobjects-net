@@ -77,7 +77,6 @@
     <Compile Include="MessageType.cs" />
     <Compile Include="SourceLanguage.cs" />
     <Compile Include="PropertyInfo.cs" />
-    <Compile Include="Tasks\ImplementAuxiliaryTypeTask.cs" />
     <Compile Include="TypeInfo.cs" />
     <Compile Include="ProcessorConfiguration.cs" />
     <Compile Include="ProcessorMessage.cs" />

@@ -24,7 +24,6 @@ namespace Xtensive.Orm.Building.Builders
   internal sealed class ModelBuilder
   {
     private const string GeneratedTypeNameFormat = "{0}.EntitySetItems.{1}";
-    private const string PregeneratedTypeNameFormat = "{0}-EntitySetItem`2";
 
     private static ThreadSafeDictionary<string, Type> GeneratedTypes = ThreadSafeDictionary<string, Type>.Create(new object());
 
@@ -403,16 +402,6 @@ namespace Xtensive.Orm.Building.Builders
     {
       var masterType = association.OwnerType.UnderlyingType;
       var slaveType = association.TargetType.UnderlyingType;
-
-      var masterProperty = association.OwnerField.UnderlyingProperty;
-      if (masterProperty!=null) {
-        var pregeneratedTypeName = string.Format(PregeneratedTypeNameFormat, masterProperty.Name);
-        var pregeneratedType = masterType.GetNestedType(pregeneratedTypeName, BindingFlags.NonPublic);
-        if (pregeneratedType!=null) {
-          return pregeneratedType.MakeGenericType(masterType, slaveType);
-        }
-      }
-
       var baseType = typeof (EntitySetItem<,>).MakeGenericType(masterType, slaveType);
 
       var typeName = string.Format(GeneratedTypeNameFormat,

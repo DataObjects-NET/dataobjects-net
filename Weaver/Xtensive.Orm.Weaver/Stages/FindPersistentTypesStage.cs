@@ -32,17 +32,6 @@ namespace Xtensive.Orm.Weaver.Stages
           context.PersistentTypes.Add(result);
       }
 
-      foreach (var type in context.PersistentTypes)
-        switch (type.Kind) {
-        case PersistentTypeKind.Entity:
-        case PersistentTypeKind.EntityInterface:
-        case PersistentTypeKind.Structure:
-          foreach (var property in type.Properties.Values)
-            if (property.IsPersistent)
-              ClassifyPersistentProperty(context, property);
-          break;
-        }
-
       context.SkipProcessing = context.PersistentTypes.Count==0;
       return ActionResult.Success;
     }
@@ -181,14 +170,6 @@ namespace Xtensive.Orm.Weaver.Stages
           InheritPersistence(implementor, property);
         }
       }
-    }
-
-    private void ClassifyPersistentProperty(ProcessorContext context, PropertyInfo propertyInfo)
-    {
-      var propertyType = propertyInfo.Definition.PropertyType;
-      if (propertyType.IsGenericParameter)
-        return;
-      propertyInfo.Kind = InspectType(context, propertyType).Kind;
     }
 
     private TypeInfo GetType(TypeIdentity identity)

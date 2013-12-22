@@ -21,7 +21,6 @@ namespace Xtensive.Orm.Weaver
     public TypeReference SerializationInfo { get; set; }
 
     public MethodReference TypeGetTypeFromHandle { get; set; }
-
     public MethodReference CompilerGeneratedAttributeConstructor { get; set; }
 
     // Xtensive.Core
@@ -43,7 +42,6 @@ namespace Xtensive.Orm.Weaver
     public MethodReference EntityInterfaceAttributeConstructor { get; set; }
     public MethodReference StructureTypeAttributeConstructor { get; set; }
     public MethodReference OverrideFieldNameAttributeConstructor { get; set; }
-    public MethodReference AuxiliaryTypeAttributeConstructor { get; set; }
 
     public MethodReference PersistenceImplementationHandleKeySet { get; set; }
 
