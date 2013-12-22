@@ -6,8 +6,8 @@
 
 namespace Xtensive.Orm.Weaver
 {
-  public interface IMessageWriter
+  public abstract class MessageWriter
   {
-    void Write(ProcessorMessage message);
+    public abstract void Write(ProcessorMessage message);
   }
 }

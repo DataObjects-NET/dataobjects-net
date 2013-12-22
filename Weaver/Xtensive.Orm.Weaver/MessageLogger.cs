@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Weaver
   {
     private static readonly Dictionary<MessageCode, string> Messages;
 
-    private readonly IMessageWriter writer;
+    private readonly MessageWriter writer;
     private readonly string projectId;
 
     public void Write(MessageCode code)
@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Weaver
       Messages.Add(code, description);
     }
 
-    public MessageLogger(string projectId, IMessageWriter writer)
+    public MessageLogger(string projectId, MessageWriter writer)
     {
       if (writer==null)
         throw new ArgumentNullException("writer");

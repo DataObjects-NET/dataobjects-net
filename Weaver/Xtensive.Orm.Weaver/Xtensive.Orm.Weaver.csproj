@@ -72,7 +72,7 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="AssemblyChecker.cs" />
     <Compile Include="FrameworkAssemblyList.cs" />
-    <Compile Include="Interfaces\IMessageWriter.cs" />
+    <Compile Include="MessageWriter.cs" />
     <Compile Include="MessageLocation.cs" />
     <Compile Include="MessageType.cs" />
     <Compile Include="SourceLanguage.cs" />

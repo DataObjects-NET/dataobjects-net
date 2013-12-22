@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Weaver
   public sealed class AssemblyProcessor
   {
     private readonly ProcessorConfiguration configuration;
-    private readonly IMessageWriter messageWriter;
+    private readonly MessageWriter messageWriter;
 
     public ActionResult Execute()
     {
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Weaver
       }
     }
 
-    public AssemblyProcessor(ProcessorConfiguration configuration, IMessageWriter messageWriter)
+    public AssemblyProcessor(ProcessorConfiguration configuration, MessageWriter messageWriter)
     {
       this.configuration = configuration;
       this.messageWriter = messageWriter;
