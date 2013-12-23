@@ -46,20 +46,6 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       }
     }
 
-    protected struct DbCommandExecutionResult
-    {
-      public int FieldCount;
-      public string[] FieldNames;
-      public int RowCount;
-
-      public override string ToString()
-      {
-        if (FieldNames==null)
-          FieldNames = new string[0];
-        return string.Format("Fields: '{0}'; Rows: {1}", string.Join("', '", FieldNames), RowCount);
-      }
-    }
-
     protected virtual void CheckRequirements()
     {
       Require.ProviderIs(StorageProvider.MySql);
