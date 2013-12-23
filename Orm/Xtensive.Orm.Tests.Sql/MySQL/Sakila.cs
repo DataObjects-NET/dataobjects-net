@@ -35,6 +35,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       SqlConnection.Open();
       CreateSchema();
       InsertTestData();
+      Catalog = SqlDriver.ExtractCatalog(SqlConnection);
     }
 
     [TestFixtureTearDown]
