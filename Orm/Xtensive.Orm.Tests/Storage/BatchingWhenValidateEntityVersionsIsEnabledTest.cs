@@ -71,22 +71,7 @@ namespace Xtensive.Orm.Tests.Storage.BatchingWhenValidateEntityVersionsIsEnabled
   {
     protected override void CheckRequirements()
     {
-      ProviderInfo.Supports(ProviderFeatures.Batches);
-    }
-
-    public override void TestFixtureSetUp()
-    {
-      try {
-        RebuildDomain();
-        CheckRequirements();
-      }
-      catch (IgnoreException) {
-        throw;
-      }
-      catch (Exception e) {
-        Debug.WriteLine("Error in TestFixtureSetUp:\r\n{0}".FormatWith(e));
-        throw;
-      }
+      Require.AllFeaturesSupported(ProviderFeatures.Batches);
     }
 
     protected override DomainConfiguration BuildConfiguration()
