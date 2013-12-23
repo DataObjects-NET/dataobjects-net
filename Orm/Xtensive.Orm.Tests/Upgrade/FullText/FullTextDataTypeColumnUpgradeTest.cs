@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel3
     public string Title { get; set; }
 
     [Field(Length = 8001)]
-    [FullText("English", "Extension")]
+    [FullText("English", DataTypeField = "Extension")]
     public byte[] DocumentBody { get; set; }
 
     [Field(Length = 50)]
@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel4
     public string Title { get; set; }
 
     [Field(Length = 8001)]
-    [FullText("English", "Extension")]
+    [FullText("English", DataTypeField = "Extension")]
     public byte[] DocumentBody { get; set; }
 
     [Field(Length = 50)]
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel5
     public string Title { get; set; }
 
     [Field(Length = 8001)]
-    [FullText("English", "Extension")]
+    [FullText("English",DataTypeField = "Extension")]
     public string DocumentBody { get; set; }
 
     [Field(Length = 50)]
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel6
     public string Title { get; set; }
 
     [Field(Length = 8001)]
-    [FullText("English", "Extension")]
+    [FullText("English", DataTypeField = "Extension")]
     public byte[] DocumentBody { get; set; }
 
     [Field]
@@ -151,7 +151,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel7
     public string Title { get; set; }
 
     [Field(Length = 8001)]
-    [FullText("English", "Extension")]
+    [FullText("English",DataTypeField = "Extension")]
     public byte[] DocumentBody { get; set; }
   }
 }
@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel8
     public int CountOfPages { get; set; }
 
     [Field(Length = 8001)]
-    [FullText("English", "Extension")]
+    [FullText("English",DataTypeField = "Extension")]
     public byte[] DocumentBody { get; set; }
 
     [Field(Length = 50)]
@@ -191,7 +191,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel9
     public string Title { get; set; }
 
     [Field(Length = 8001)]
-    [FullText("English", "RealExtension")]
+    [FullText("English", DataTypeField = "RealExtension")]
     public byte[] DocumentBody { get; set; }
 
     [Field(Length = 50)]
