@@ -4,18 +4,26 @@
 // Created by: Malisa Ncube
 // Created:    2011.03.17
 
+using System;
+using System.Collections.Generic;
 using System.Data;
+using System.IO;
+using System.Text;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Constraint = Xtensive.Sql.Model.Constraint;
 
 namespace Xtensive.Orm.Tests.Sql.MySQL
 {
   [TestFixture]
   public abstract class Sakila
   {
+    private const string SakilaDataBackupPath = @"\MySQL\SakilaDb\sakila-data.sql";
+    protected ConnectionInfo ConnectionInfo = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage);
+    protected SqlDriver SqlDriver;
+    protected SqlConnection SqlConnection;
+
     protected struct DbCommandExecutionResult
     {
       public int FieldCount;
@@ -66,8 +74,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     protected static DbCommandExecutionResult GetExecuteNonQueryResult(IDbCommand cmd)
     {
       DbCommandExecutionResult result = new DbCommandExecutionResult();
-      try
-      {
+      try {
         cmd.Transaction = cmd.Connection.BeginTransaction();
         result.RowCount = cmd.ExecuteNonQuery();
       }
@@ -86,341 +93,439 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       throw new IgnoreException(message);
     }
 
+    protected virtual void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.MySql);
+    }
+
     public Catalog Catalog { get; protected set; }
+
+    private void CreateSchema()
+    {
+      var resource = ConnectionInfo.ConnectionUrl.Resource;
+      DropAllTables(resource);
+      Catalog = SqlDriver.ExtractCatalog(SqlConnection);
+      var schema = Catalog.Schemas[resource];
+      if (schema==null)
+        Catalog.CreateSchema(resource);
+      Table table;
+      View view;
+      var batch = SqlDml.Batch();
+      table = schema.CreateTable("actor");
+      table.CreateColumn("actor_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("first_name", new SqlValueType(SqlType.VarChar, 45));
+      table.CreateColumn("last_name", new SqlValueType(SqlType.VarChar, 45));
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");// add default value and on update event
+      table.CreatePrimaryKey("pk_actor_actor_id", table.TableColumns["actor_id"]);
+      table.CreateIndex("inx_actor_last_name").CreateIndexColumn(table.TableColumns["last_name"]);
+      batch.Add(SqlDdl.Create(table));
+
+
+      table = schema.CreateTable("country");
+      table.CreateColumn("country_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("country", new SqlValueType(SqlType.VarChar, 50));
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"); ;
+      table.CreatePrimaryKey("pk_country_country_id", table.TableColumns["country_id"]);
+      batch.Add(SqlDdl.Create(table));
+
+      table = schema.CreateTable("city");
+      table.CreateColumn("city_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("city", new SqlValueType(SqlType.VarChar, 50));
+      table.CreateColumn("country_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"); ;
+      table.CreatePrimaryKey("pk_city_city_id", table.TableColumns["city_id"]);
+      var foreignKey = table.CreateForeignKey("fk_city_country");
+      foreignKey.ReferencedTable = schema.Tables["country"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["country_id"]);
+      foreignKey.Columns.Add(table.TableColumns["country_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      table.CreateIndex("inx_city_country_id").CreateIndexColumn(table.TableColumns["country_id"]);
+      batch.Add(SqlDdl.Create(table));
+
+      table = schema.CreateTable("address");
+      table.CreateColumn("address_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("address", new SqlValueType(SqlType.VarChar, 50));
+      var column = table.CreateColumn("address2", new SqlValueType(SqlType.VarChar, 50));
+      column.IsNullable = true;
+      column.DefaultValue = SqlDml.Native("NULL");
+      table.CreateColumn("district", new SqlValueType(SqlType.VarChar, 20));
+      table.CreateColumn("city_id", new SqlValueType("SMALLINT UNSIGNED"));
+      column = table.CreateColumn("postal_code", new SqlValueType(SqlType.VarChar, 20));
+      column.DefaultValue = SqlDml.Native("NULL");
+      column.IsNullable = true;
+      table.CreateColumn("phone", new SqlValueType(SqlType.VarChar, 20));
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");// add default value and on update event
+      table.CreatePrimaryKey("pk_address_address_id", table.TableColumns["address_id"]);
+      foreignKey = table.CreateForeignKey("fk_address_city");
+      foreignKey.ReferencedTable = schema.Tables["city"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["city_id"]);
+      foreignKey.Columns.Add(table.TableColumns["city_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      table.CreateIndex("inx_address_city_id").CreateIndexColumn(table.TableColumns["city_id"]);
+      batch.Add(SqlDdl.Create(table));
+      
+      table = schema.CreateTable("category");
+      table.CreateColumn("category_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("name", new SqlValueType(SqlType.VarChar, 25));
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"); ;
+      table.CreatePrimaryKey("pk_category_category_id", table.TableColumns["category_id"]);
+      batch.Add(SqlDdl.Create(table));
+
+      table = schema.CreateTable("film_text");
+      table.CreateColumn("film_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("title", new SqlValueType(SqlType.VarChar, 255));
+      table.CreateColumn("text", new SqlValueType(SqlType.VarCharMax));
+      table.CreatePrimaryKey("pk_film_text_film_id", table.TableColumns["film_id"]);
+      var fullTextIndex = table.CreateFullTextIndex("idx_film_text_title_text");
+      fullTextIndex.CreateIndexColumn(table.TableColumns["title"]);
+      fullTextIndex.CreateIndexColumn(table.TableColumns["text"]);
+      batch.Add(SqlDdl.Create(table));
+
+      table = schema.CreateTable("language");
+      table.CreateColumn("language_id", new SqlValueType("TINYINT UNSIGNED"));
+      table.CreateColumn("name", new SqlValueType(SqlType.Char, 20));
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+      table.CreatePrimaryKey("pk_language_language_id", table.TableColumns["language_id"]);
+      batch.Add(SqlDdl.Create(table));
+      
+      table = schema.CreateTable("film");
+      table.CreateColumn("film_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("title", new SqlValueType(SqlType.VarChar, 255));
+      column = table.CreateColumn("description", new SqlValueType(SqlType.VarCharMax));
+      column.DefaultValue = SqlDml.Native("NULL");
+      column.IsNullable = true;
+      column = table.CreateColumn("release_year", new SqlValueType("YEAR"));
+      column.DefaultValue = SqlDml.Native("NULL");
+      column.IsNullable = true;
+      table.CreateColumn("language_id", new SqlValueType("TINYINT UNSIGNED"));
+      column = table.CreateColumn("original_language_id", new SqlValueType("TINYINT UNSIGNED"));
+      column.IsNullable = true;
+      column.DefaultValue = SqlDml.Native("NULL");
+      column = table.CreateColumn("rental_duration", new SqlValueType("TINYINT UNSIGNED"));
+      column.DefaultValue = 3;
+      column = table.CreateColumn("rental_rate", new SqlValueType(SqlType.Decimal, 5, 2));
+      column.DefaultValue = 4.99;
+      column = table.CreateColumn("length", new SqlValueType("SMALLINT UNSIGNED"));
+      column.DefaultValue = SqlDml.Native("NULL");
+      column.IsNullable = true;
+      column = table.CreateColumn("replacement_cost", new SqlValueType(SqlType.Decimal, 5, 2));
+      column.DefaultValue = 19.99;
+      table.CreateColumn("rating", new SqlValueType("ENUM('G', 'PG', 'PG-13', 'R', 'NC-17')")).DefaultValue = 'G';
+      table.CreateColumn("special_features", new SqlValueType("SET('Trailers','Commentaries','Deleted Scenes','Behind the Scenes')")).DefaultValue = null;
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"); ;
+      table.CreatePrimaryKey("pk_film", table.TableColumns["film_id"]);
+      table.CreateIndex("inx_film_film_id").CreateIndexColumn(table.TableColumns["film_id"]);
+      foreignKey = table.CreateForeignKey("fk_film_language");
+      foreignKey.ReferencedTable = schema.Tables["language"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["language_id"]);
+      foreignKey.Columns.Add(table.TableColumns["language_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      foreignKey = table.CreateForeignKey("fk_film_language_1");
+      foreignKey.ReferencedTable = schema.Tables["language"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["language_id"]);
+      foreignKey.Columns.Add(table.TableColumns["original_language_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+
+      batch.Add(SqlDdl.Create(table));
+
+      table = schema.CreateTable("film_actor");
+      table.CreateColumn("actor_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("film_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+      table.CreatePrimaryKey("pk_film_actor", table.TableColumns["actor_id"], table.TableColumns["film_id"]);
+      foreignKey = table.CreateForeignKey("fk_film_actor_actor");
+      foreignKey.ReferencedTable = schema.Tables["actor"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["actor_id"]);
+      foreignKey.Columns.Add(table.TableColumns["actor_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      foreignKey = table.CreateForeignKey("fk_film_actor_film");
+      foreignKey.ReferencedTable = schema.Tables["film"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["film_id"]);
+      foreignKey.Columns.Add(table.TableColumns["film_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      batch.Add(SqlDdl.Create(table));
+
+      table = schema.CreateTable("film_category");
+      table.CreateColumn("film_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("category_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+      table.CreatePrimaryKey("pk_film_category", table.TableColumns["film_id"], table.TableColumns["category_id"]);
+      foreignKey = table.CreateForeignKey("fk_film_category_film");
+      foreignKey.ReferencedTable = schema.Tables["film"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["film_id"]);
+      foreignKey.Columns.Add(table.TableColumns["film_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      foreignKey = table.CreateForeignKey("fk_film_category_category");
+      foreignKey.ReferencedTable = schema.Tables["category"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["category_id"]);
+      foreignKey.Columns.Add(table.TableColumns["category_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      batch.Add(SqlDdl.Create(table));
+
+      table = schema.CreateTable("store");
+      table.CreateColumn("store_id", new SqlValueType("TINYINT UNSIGNED"));
+      table.CreateColumn("manager_staff_id", new SqlValueType("TINYINT UNSIGNED"));
+      table.CreateColumn("address_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+      table.CreatePrimaryKey("pk_store", table.TableColumns["store_id"]);
+      table.CreateUniqueConstraint("idx_unique_manager", table.TableColumns["manager_staff_id"]);
+      table.CreateIndex("idx_store_address_id").CreateIndexColumn(table.TableColumns["address_id"]);
+      foreignKey = table.CreateForeignKey("fk_store_address_id");
+      foreignKey.ReferencedTable = schema.Tables["address"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["address_id"]);
+      foreignKey.Columns.Add(table.TableColumns["address_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      batch.Add(SqlDdl.Create(table));
+
+      table = schema.CreateTable("staff");
+      table.CreateColumn("staff_id", new SqlValueType("TINYINT UNSIGNED"));
+      table.CreateColumn("first_name", new SqlValueType(SqlType.VarChar, 45));
+      table.CreateColumn("last_name", new SqlValueType(SqlType.VarChar, 45));
+      table.CreateColumn("address_id", new SqlValueType("SMALLINT UNSIGNED"));
+      column = table.CreateColumn("picture", new SqlValueType("BLOB"));
+      column.DefaultValue = SqlDml.Native("NULL");
+      column.IsNullable = true;
+      table.CreateColumn("email", new SqlValueType(SqlType.VarChar, 50));
+      table.CreateColumn("store_id", new SqlValueType("TINYINT UNSIGNED"));
+      column = table.CreateColumn("active", new SqlValueType(SqlType.Boolean));
+      column.DefaultValue = SqlDml.Native("TRUE");
+      table.CreateColumn("username", new SqlValueType(SqlType.VarChar, 16));
+      column = table.CreateColumn("password", new SqlValueType("VARCHAR(40) BINARY"));
+      column.DefaultValue = SqlDml.Native("NULL");
+      column.IsNullable = true;
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+      table.CreatePrimaryKey("pk_staff", table.TableColumns["staff_id"]);
+      table.CreateIndex("idx_staff_address_id").CreateIndexColumn(table.TableColumns["address_id"]);
+      table.CreateIndex("idx_staff_store_id").CreateIndexColumn(table.TableColumns["store_id"]);
+      foreignKey = table.CreateForeignKey("fk_staff_store");
+      foreignKey.ReferencedTable = schema.Tables["store"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["store_id"]);
+      foreignKey.Columns.Add(table.TableColumns["store_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      foreignKey = table.CreateForeignKey("fk_staff_address");
+      foreignKey.ReferencedTable = schema.Tables["address"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["address_id"]);
+      foreignKey.Columns.Add(table.TableColumns["address_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      batch.Add(SqlDdl.Create(table));
+
+      foreignKey = schema.Tables["store"].CreateForeignKey("fk_store_staff");
+      schema.Tables["store"].TableConstraints.Remove(foreignKey);
+      foreignKey.ReferencedTable = schema.Tables["staff"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["staff_id"]);
+      foreignKey.Columns.Add(schema.Tables["store"].TableColumns["manager_staff_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      batch.Add(SqlDdl.Alter(schema.Tables["store"], SqlDdl.AddConstraint(foreignKey)));
+      
+      table = schema.CreateTable("customer");
+      table.CreateColumn("customer_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("store_id", new SqlValueType("TINYINT UNSIGNED"));
+      table.CreateColumn("first_name", new SqlValueType(SqlType.VarChar, 45));
+      table.CreateColumn("last_name", new SqlValueType(SqlType.VarChar, 45));
+      column = table.CreateColumn("email", new SqlValueType(SqlType.VarChar, 50));
+      column.DefaultValue = SqlDml.Native("NULL");
+      column.IsNullable = true;
+      table.CreateColumn("address_id", new SqlValueType("SMALLINT UNSIGNED"));
+      column = table.CreateColumn("active", new SqlValueType(SqlType.Boolean));
+      column.DefaultValue = SqlDml.Native("TRUE");
+      table.CreateColumn("create_date", new SqlValueType(SqlType.DateTime));
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+      table.CreatePrimaryKey("pk_customer", table.TableColumns["customer_id"]);
+      table.CreateIndex("idx_store_id").CreateIndexColumn(table.TableColumns["store_id"]);
+      table.CreateIndex("idx_address_id").CreateIndexColumn(table.TableColumns["address_id"]);
+      table.CreateIndex("idx_last_name").CreateIndexColumn(table.TableColumns["last_name"]);
+      foreignKey = table.CreateForeignKey("fk_customer_address");
+      foreignKey.ReferencedTable = schema.Tables["address"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["address_id"]);
+      foreignKey.Columns.Add(table.TableColumns["address_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      batch.Add(SqlDdl.Create(table));
+
+      table = schema.CreateTable("inventory");
+      table.CreateColumn("inventory_id", new SqlValueType("MEDIUMINT UNSIGNED"));
+      table.CreateColumn("film_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("store_id", new SqlValueType("TINYINT UNSIGNED"));
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+      table.CreatePrimaryKey("pk_inventory", table.TableColumns["inventory_id"]);
+      table.CreateIndex("idx_inventory_film_id").CreateIndexColumn(table.TableColumns["film_id"]);
+      var index = table.CreateIndex("idx_inventory_store_id_film_id");
+      index.CreateIndexColumn(table.TableColumns["store_id"]);
+      index.CreateIndexColumn(table.TableColumns["film_id"]);
+      foreignKey = table.CreateForeignKey("fk_inventory_store");
+      foreignKey.ReferencedTable = schema.Tables["store"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["store_id"]);
+      foreignKey.Columns.Add(table.TableColumns["store_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      foreignKey = table.CreateForeignKey("fk_inventory_film");
+      foreignKey.ReferencedTable = schema.Tables["film"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["film_id"]);
+      foreignKey.Columns.Add(table.TableColumns["film_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      batch.Add(SqlDdl.Create(table));
+
+      table = schema.CreateTable("rental");
+      table.CreateColumn("rental_id", new SqlValueType(SqlType.Int32));
+      table.CreateColumn("rental_date", new SqlValueType(SqlType.DateTime));
+      table.CreateColumn("inventory_id", new SqlValueType("MEDIUMINT UNSIGNED"));
+      table.CreateColumn("customer_id", new SqlValueType("SMALLINT UNSIGNED"));
+      column = table.CreateColumn("return_date", new SqlValueType(SqlType.DateTime));
+      column.DefaultValue = SqlDml.Native("NULL");
+      column.IsNullable = true;
+      table.CreateColumn("staff_id", new SqlValueType("TINYINT UNSIGNED"));
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+      table.CreatePrimaryKey("pk_rental", table.TableColumns["rental_id"]);
+      table.CreateUniqueConstraint("unique_rental_date_inventory_id_customer_id", table.TableColumns["rental_date"], table.TableColumns["inventory_id"], table.TableColumns["customer_id"]);
+      table.CreateIndex("idx_rental_inventory_id").CreateIndexColumn(table.TableColumns["inventory_id"]);
+      table.CreateIndex("idx_rental_customer_id").CreateIndexColumn(table.TableColumns["customer_id"]);
+      table.CreateIndex("idx_rental_staff_id").CreateIndexColumn(table.TableColumns["staff_id"]);
+      foreignKey = table.CreateForeignKey("fk_rental_staff");
+      foreignKey.ReferencedTable = schema.Tables["staff"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["staff_id"]);
+      foreignKey.Columns.Add(table.TableColumns["staff_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      foreignKey = table.CreateForeignKey("fk_rental_inventory");
+      foreignKey.ReferencedTable = schema.Tables["inventory"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["inventory_id"]);
+      foreignKey.Columns.Add(table.TableColumns["inventory_id"]);
+      batch.Add(SqlDdl.Create(table));
+
+      table = schema.CreateTable("payment");
+      table.CreateColumn("payment_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("customer_id", new SqlValueType("SMALLINT UNSIGNED"));
+      table.CreateColumn("staff_id", new SqlValueType("TINYINT UNSIGNED"));
+      column = table.CreateColumn("rental_id", new SqlValueType(SqlType.Int32));
+      column.DefaultValue = SqlDml.Native("NULL");
+      column.IsNullable = true;
+      table.CreateColumn("amount", new SqlValueType(SqlType.Decimal, 5, 2));
+      table.CreateColumn("payment_date", new SqlValueType(SqlType.DateTime));
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+      table.CreatePrimaryKey("pk_payment", table.TableColumns["payment_id"]);
+      table.CreateIndex("idx_payment_staff_id").CreateIndexColumn(table.TableColumns["staff_id"]);
+      table.CreateIndex("idx_payment_customer_id").CreateIndexColumn(table.TableColumns["customer_id"]);
+      foreignKey = table.CreateForeignKey("fk_payment_staff");
+      foreignKey.ReferencedTable = schema.Tables["staff"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["staff_id"]);
+      foreignKey.Columns.Add(table.TableColumns["staff_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      foreignKey = table.CreateForeignKey("fk_payment_customer");
+      foreignKey.ReferencedTable = schema.Tables["customer"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["customer_id"]);
+      foreignKey.Columns.Add(table.TableColumns["customer_id"]);
+      foreignKey.OnUpdate = ReferentialAction.Cascade;
+      foreignKey.OnDelete = ReferentialAction.Restrict;
+      foreignKey = table.CreateForeignKey("fk_payment_rental");
+      foreignKey.ReferencedTable = schema.Tables["rental"];
+      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["rental_id"]);
+      foreignKey.Columns.Add(table.TableColumns["rental_id"]);
+      batch.Add(SqlDdl.Create(table));
+
+      view = schema.CreateView("customer_list", SqlDml.Native(@"SELECT cu.customer_id AS ID, CONCAT(cu.first_name, _utf8' ', cu.last_name) AS name, a.address AS address, a.postal_code AS `zip code`,
+        a.phone AS phone, city.city AS city, country.country AS country, IF(cu.active, _utf8'active',_utf8'') AS notes, cu.store_id AS SID
+        FROM customer AS cu JOIN address AS a ON cu.address_id = a.address_id JOIN city ON a.city_id = city.city_id
+	      JOIN country ON city.country_id = country.country_id"));
+
+      batch.Add(SqlDdl.Create(view));
+
+      using (var cmd = SqlConnection.CreateCommand()) {
+        cmd.CommandText = string.Format("USE {0};", resource) + SqlDriver.Compile(batch).GetCommandText();
+        cmd.ExecuteNonQuery();
+      }
+    }
+
+    private void InsertTestData()
+    {
+      var path = Environment.CurrentDirectory + SakilaDataBackupPath;
+      var queryBlocks = ParseDataDump(path);
+      string[] backupedParameters = BackupParameters();
+      using (var sqlCommand = SqlConnection.CreateCommand()) {
+        sqlCommand.CommandText = string.Format("SET UNIQUE_CHECKS=0;SET FOREIGN_KEY_CHECKS=0; USE {0};", ConnectionInfo.ConnectionUrl.Resource);
+        sqlCommand.ExecuteNonQuery();
+        foreach (var block in queryBlocks) {
+          sqlCommand.CommandText = block;
+          sqlCommand.ExecuteNonQuery();
+        } 
+        sqlCommand.CommandText = string.Format("SET FOREIGN_KEY_CHECKS={1}; SET UNIQUE_CHECKS={0}", backupedParameters[0], backupedParameters[1]);
+        sqlCommand.ExecuteNonQuery();
+      }
+    }
+
+    private string[] BackupParameters()
+    {
+      using (var sqlConnection = SqlDriver.CreateConnection())
+      using (var sqlCommand = sqlConnection.CreateCommand()) {
+        sqlConnection.Open();
+        sqlCommand.CommandText = "SELECT @@UNIQUE_CHECKS, @@FOREIGN_KEY_CHECKS, @@MAX_ALLOWED_PACKET";
+        var reader = sqlCommand.ExecuteReader();
+        if(reader.Read()) {
+          var param1 = reader.GetValue(0).ToString();
+          var param2 = reader.GetValue(1).ToString();
+          return new [] {param1, param2};
+        }
+        reader.Close();
+        reader.Dispose();
+        sqlConnection.Close();
+      }
+      return null;
+    }
+
+    private IList<string> ParseDataDump(string filePath)
+    {
+      var blocks = new List<string>();
+      var builder = new StringBuilder();
+      var reader = new StreamReader(filePath);
+      string line;
+      bool flag = false;
+      while((line = reader.ReadLine())!=null) {
+        if(line.StartsWith("--") || line.Length==0 || line.StartsWith("SET @") || line.StartsWith("SET SQL") || line.StartsWith("SET FOREIGN") || line.StartsWith("SET UNIQUE") || line.StartsWith("USE"))
+          continue;
+        blocks.Add(line);
+      }
+      return blocks;
+    }
+
+    private void DropAllTables(string databaseName)
+    {
+      if (SqlConnection!=null && SqlConnection.State==ConnectionState.Open) {
+        var sqlCommand = SqlConnection.CreateCommand(string.Format("DROP SCHEMA {0}; CREATE SCHEMA {0} COLLATE 'utf8_general_ci';", databaseName));
+        sqlCommand.ExecuteNonQuery();
+      }
+    }
 
     [TestFixtureSetUp]
     public virtual void SetUp()
     {
-      //      BinaryModelProvider bmp = new BinaryModelProvider(@"C:/Debug/AdventureWorks.bin");
-      //      model = Database.Model.Build(bmp);
-      //
-      //      if (model!=null)
-      //        return;
-      var connectionInfo = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage);
-      var sqlDriver = TestSqlDriver.Create(connectionInfo.ConnectionUrl.Url);
-      var sqlConnection = sqlDriver.CreateConnection();
-      sqlConnection.Open();
-      Catalog = sqlDriver.ExtractCatalog(sqlConnection);
-      var droppedSchema = Catalog.Schemas["dotest"];
-      Catalog.Schemas.Remove(droppedSchema);
+      CheckRequirements();
+      SqlDriver = TestSqlDriver.Create(ConnectionInfo.ConnectionUrl.Url);
+      SqlConnection = SqlDriver.CreateConnection();
+      SqlConnection.Open();
+      CreateSchema();
+      InsertTestData();
+    }
 
-      Catalog.CreateSchema("dotest");
-      Schema sch = Catalog.Schemas["dotest"];
-      Table t;
-      View v;
-      TableColumn c;
-      Constraint cs;
-      
-
-      t = sch.CreateTable("actor");
-      t.CreateColumn("actor_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("first_name", new SqlValueType(SqlType.VarChar, 45));
-      t.CreateColumn("last_name", new SqlValueType(SqlType.VarChar, 45));
-      t.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");// add default value and on update event
-      t.CreatePrimaryKey("pk_actor_actor_id", t.TableColumns["actor_id"]);
-      t.CreateIndex("inx_actor_last_name").CreateIndexColumn(t.TableColumns["last_name"]);
-      
-
-      t = sch.CreateTable("country");
-      t.CreateColumn("country_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("country", new SqlValueType(SqlType.VarChar, 50));
-      t.CreateColumn("last_update", new SqlValueType("TIMESTAMP"));
-      t.CreatePrimaryKey("pk_country_country_id", t.TableColumns["country_id"]);
-
-      t = sch.CreateTable("city");
-      t.CreateColumn("city_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("city", new SqlValueType(SqlType.VarChar, 50));
-      t.CreateColumn("country_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("last_update", new SqlValueType("TIMESTAMP"));
-      t.CreatePrimaryKey("pk_city_city_id", t.TableColumns["city_id"]);
-      var foreignKey = t.CreateForeignKey("fk_city_country");
-      foreignKey.ReferencedTable = sch.Tables["country"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["country_id"]);
-      foreignKey.Columns.Add(t.TableColumns["country_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-      t.CreateIndex("inx_city_country_id").CreateIndexColumn(t.TableColumns["country_id"]);
-
-      t = sch.CreateTable("address");
-      t.CreateColumn("address_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("address", new SqlValueType(SqlType.VarChar, 50));
-      var column = t.CreateColumn("address2", new SqlValueType(SqlType.VarChar, 50));
-      column.IsNullable = true;
-      column.DefaultValue = SqlDml.Native("NULL");
-      t.CreateColumn("district", new SqlValueType(SqlType.VarChar, 20));
-      t.CreateColumn("city_id", new SqlValueType("SMALLINT UNSIGNED"));
-      column = t.CreateColumn("postal_code", new SqlValueType(SqlType.VarChar, 20));
-      column.DefaultValue = SqlDml.Native("NULL");
-      column.IsNullable = true;
-      t.CreateColumn("phone", new SqlValueType(SqlType.VarChar, 20));
-      t.CreateColumn("last_update", new SqlValueType("TIMESTAMP"));// add default value and on update event
-      t.CreatePrimaryKey("pk_address_address_id", t.TableColumns["address_id"]);
-      foreignKey = t.CreateForeignKey("fk_address_city");
-      foreignKey.ReferencedTable = sch.Tables["city"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["city_id"]);
-      foreignKey.Columns.Add(t.TableColumns["city_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-      t.CreateIndex("inx_address_city_id").CreateIndexColumn(t.TableColumns["city_id"]);
-
-      t = sch.CreateTable("category");
-      t.CreateColumn("category_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("name", new SqlValueType(SqlType.VarChar, 25));
-      t.CreateColumn("last_update", new SqlValueType("TIMESTAMP"));
-      t.CreatePrimaryKey("pk_category_category_id", t.TableColumns["category_id"]);
-
-      t = sch.CreateTable("film");
-      t.CreateColumn("film_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("title", new SqlValueType(SqlType.VarChar, 255));
-      column = t.CreateColumn("description", new SqlValueType(SqlType.VarCharMax));
-      column.DefaultValue = SqlDml.Native("NULL");
-      column.IsNullable = true;
-      column = t.CreateColumn("release_year", new SqlValueType("YEAR"));
-      column.DefaultValue = SqlDml.Native("NULL");
-      column.IsNullable = true;
-      column = t.CreateColumn("rental_duration", new SqlValueType("TINYINT UNSIGNED"));
-      column.DefaultValue = 3;
-      column = t.CreateColumn("rental_rate", new SqlValueType(SqlType.Decimal, 5, 2));
-      column.DefaultValue = 4.99;
-      column = t.CreateColumn("length", new SqlValueType("SMALLINT UNSIGNED"));
-      column.DefaultValue = SqlDml.Native("NULL");
-      column.IsNullable = true;
-      column = t.CreateColumn("replacement_cost", new SqlValueType(SqlType.Decimal, 5, 2));
-      column.DefaultValue = 19.99;
-      t.CreateColumn("rating", new SqlValueType("ENUM('G', 'PG', 'PG-13', 'R', 'NC-17')")).DefaultValue = 'G';
-      t.CreateColumn("special_features", new SqlValueType("SET('Trailers','Commentaries','Deleted Scenes','Behind the Scenes')")).DefaultValue = null;
-      t.CreateColumn("last_update", new SqlValueType("TIMESTAMP"));
-      t.CreatePrimaryKey("pk_film", t.TableColumns["film_id"]);
-      t.CreateIndex("inx_film_film_id").CreateIndexColumn(t.TableColumns["film_id"]);
-      
-      t = sch.CreateTable("film_actor");
-      t.CreateColumn("actor_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("film_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("last_update", new SqlValueType("TIMESTAMP"));
-      t.CreatePrimaryKey("pk_film_actor", t.TableColumns["actor_id"], t.TableColumns["film_id"]);
-      foreignKey = t.CreateForeignKey("fk_film_actor_actor");
-      foreignKey.ReferencedTable = sch.Tables["actor"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["actor_id"]);
-      foreignKey.Columns.Add(t.TableColumns["actor_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-      foreignKey = t.CreateForeignKey("fk_film_actor_film");
-      foreignKey.ReferencedTable = sch.Tables["film"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["film_id"]);
-      foreignKey.Columns.Add(t.TableColumns["film_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-
-      t = sch.CreateTable("film_category");
-      t.CreateColumn("film_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("category_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("last_update", new SqlValueType("TIMESTAMP"));
-      t.CreatePrimaryKey("pk_film_category", t.TableColumns["film_id"], t.TableColumns["category_id"]);
-      foreignKey = t.CreateForeignKey("fk_film_category_film");
-      foreignKey.ReferencedTable = sch.Tables["film"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["film_id"]);
-      foreignKey.Columns.Add(t.TableColumns["film_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-      foreignKey = t.CreateForeignKey("fk_film_category_category");
-      foreignKey.ReferencedTable = sch.Tables["category"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["category_id"]);
-      foreignKey.Columns.Add(t.TableColumns["category_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-
-      t = sch.CreateTable("store");
-      t.CreateColumn("store_id", new SqlValueType("TINYINT UNSIGNED"));
-      t.CreateColumn("manager_staff_id", new SqlValueType("TINYINT UNSIGNED"));
-      t.CreateColumn("address_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("last_update", new SqlValueType("TIMESTAMP"));
-      t.CreatePrimaryKey("pk_store", t.TableColumns["store_id"]);
-      t.CreateUniqueConstraint("idx_unique_manager", t.TableColumns["manager_staff_id"]);
-      t.CreateIndex("idx_store_address_id").CreateIndexColumn(t.TableColumns["address_id"]);
-      foreignKey = t.CreateForeignKey("fk_store_address_id");
-      foreignKey.ReferencedTable = sch.Tables["address"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["address_id"]);
-      foreignKey.Columns.Add(t.TableColumns["address_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-
-      t = sch.CreateTable("staff");
-      t.CreateColumn("staff_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("first_name", new SqlValueType(SqlType.VarChar, 45));
-      t.CreateColumn("last_name", new SqlValueType(SqlType.VarChar, 45));
-      t.CreateColumn("address_id", new SqlValueType("SMALLINT UNSIGNED"));
-      column = t.CreateColumn("picture", new SqlValueType("BLOB"));
-      column.DefaultValue = SqlDml.Native("NULL");
-      column.IsNullable = true;
-      t.CreateColumn("email", new SqlValueType(SqlType.VarChar, 50));
-      t.CreateColumn("store_id", new SqlValueType("TINYINT UNSIGNED"));
-      column = t.CreateColumn("active", new SqlValueType(SqlType.Boolean));
-      column.DefaultValue = SqlDml.Native("TRUE");
-      t.CreateColumn("username", new SqlValueType(SqlType.VarChar, 16));
-      t.CreateColumn("password", new SqlValueType(SqlType.VarChar, 40));// column must be binary
-      t.CreateColumn("last_update", new SqlValueType("TIMESTAMP"));
-      t.CreatePrimaryKey("pk_staff", t.TableColumns["staff_id"]);
-      t.CreateIndex("idx_staff_address_id").CreateIndexColumn(t.TableColumns["address_id"]);
-      t.CreateIndex("idx_staff_stpre_id").CreateIndexColumn(t.TableColumns["store_id"]);
-      foreignKey = t.CreateForeignKey("fk_staff_store");
-      foreignKey.ReferencedTable = sch.Tables["store"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["store_id"]);
-      foreignKey.Columns.Add(t.TableColumns["store_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-      foreignKey = t.CreateForeignKey("fk_staff_address");
-      foreignKey.ReferencedTable = sch.Tables["address"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["address_id"]);
-      foreignKey.Columns.Add(t.TableColumns["address_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-
-      foreignKey = sch.Tables["store"].CreateForeignKey("fk_store_staff");
-      foreignKey.ReferencedTable = sch.Tables["staff"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["staff_id"]);
-      foreignKey.Columns.Add(sch.Tables["store"].TableColumns["manager_staff_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-
-      t = sch.CreateTable("customer");
-      t.CreateColumn("customer_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("store_id", new SqlValueType("TINYINT UNSIGNED"));
-      t.CreateColumn("first_name", new SqlValueType(SqlType.VarChar, 45));
-      t.CreateColumn("last_name", new SqlValueType(SqlType.VarChar, 45));
-      column = t.CreateColumn("email", new SqlValueType(SqlType.VarChar, 50));
-      column.DefaultValue = SqlDml.Native("NULL");
-      column.IsNullable = true;
-      t.CreateColumn("address_id", new SqlValueType("SMALLINT UNSIGNED"));
-      column = t.CreateColumn("active", new SqlValueType(SqlType.Boolean));
-      column.DefaultValue = SqlDml.Native("TRUE");
-      t.CreateColumn("create_date", new SqlValueType(SqlType.DateTime));
-      t.CreateColumn("last_update", new SqlValueType("TIMESTAMP"));
-      t.CreatePrimaryKey("pk_customer", t.TableColumns["customer_id"]);
-      t.CreateIndex("idx_customer_store_id").CreateIndexColumn(t.TableColumns["store_id"]);
-      t.CreateIndex("idx_customer_address_id").CreateIndexColumn(t.TableColumns["address_id"]);
-      t.CreateIndex("idx_customer_last_name").CreateIndexColumn(t.TableColumns["last_name"]);
-      foreignKey = t.CreateForeignKey("fk_customer_address");
-      foreignKey.ReferencedTable = sch.Tables["address"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["address_id"]);
-      foreignKey.Columns.Add(t.TableColumns["address_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-
-      t = sch.CreateTable("inventory");
-      t.CreateColumn("inventory_id", new SqlValueType("MEDIUMINT UNSIGNED"));
-      t.CreateColumn("film_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("store_id", new SqlValueType("TINYINT UNSIGNED"));
-      t.CreateColumn("last_update", new SqlValueType("TIMESTAMP"));
-      t.CreatePrimaryKey("pk_inventory", t.TableColumns["inventory_id"]);
-      t.CreateIndex("idx_inventory_film_id").CreateIndexColumn(t.TableColumns["film_id"]);
-      var index = t.CreateIndex("idx_inventory_store_id_film_id");
-      index.CreateIndexColumn(t.TableColumns["store_id"]);
-      index.CreateIndexColumn(t.TableColumns["film_id"]);
-      foreignKey = t.CreateForeignKey("fk_inventory_store");
-      foreignKey.ReferencedTable = sch.Tables["store"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["store_id"]);
-      foreignKey.Columns.Add(t.TableColumns["store_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-      foreignKey = t.CreateForeignKey("fk_inventory_film");
-      foreignKey.ReferencedTable = sch.Tables["film"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["film_id"]);
-      foreignKey.Columns.Add(t.TableColumns["film_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-
-      t = sch.CreateTable("rental");
-      t.CreateColumn("rental_id", new SqlValueType(SqlType.Int32));
-      t.CreateColumn("rental_date", new SqlValueType(SqlType.DateTime));
-      t.CreateColumn("inventory_id", new SqlValueType("MEDIUMINT UNSIGNED"));
-      t.CreateColumn("customer_id", new SqlValueType("SMALLINT UNSIGNED"));
-      column = t.CreateColumn("return_date", new SqlValueType(SqlType.DateTime));
-      column.DefaultValue = SqlDml.Native("NULL");
-      column.IsNullable = true;
-      t.CreateColumn("staff_id", new SqlValueType("TINYINT UNSIGNED"));
-      t.CreateColumn("last_update", new SqlValueType("TIMESTAMP"));
-      t.CreatePrimaryKey("pk_rental", t.TableColumns["rental_id"]);
-      t.CreateUniqueConstraint("unique_rental_date_inventory_id_customer_id", t.TableColumns["rental_date"], t.TableColumns["inventory_id"], t.TableColumns["customer_id"]);
-      t.CreateIndex("idx_rental_inventory_id").CreateIndexColumn(t.TableColumns["inventory_id"]);
-      t.CreateIndex("idx_rental_customer_id").CreateIndexColumn(t.TableColumns["customer_id"]);
-      t.CreateIndex("idx_rental_staff_id").CreateIndexColumn(t.TableColumns["staff_id"]);
-      foreignKey = t.CreateForeignKey("fk_rental_staff");
-      foreignKey.ReferencedTable = sch.Tables["staff"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["staff_id"]);
-      foreignKey.Columns.Add(t.TableColumns["staff_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-      foreignKey = t.CreateForeignKey("fk_rental_inventory");
-      foreignKey.ReferencedTable = sch.Tables["inventory"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["inventory_id"]);
-      foreignKey.Columns.Add(t.TableColumns["inventory_id"]);
-
-      t = sch.CreateTable("payment");
-      t.CreateColumn("payment_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("customer_id", new SqlValueType("SMALLINT UNSIGNED"));
-      t.CreateColumn("staff_id", new SqlValueType("TINYINT UNSIGNED"));
-      column = t.CreateColumn("rental_id", new SqlValueType(SqlType.Int32));
-      column.DefaultValue = SqlDml.Native("NULL");
-      column.IsNullable = true;
-      t.CreateColumn("amount", new SqlValueType(SqlType.Decimal, 5, 2));
-      t.CreateColumn("payment_date", new SqlValueType(SqlType.DateTime));
-      t.CreateColumn("last_update", new SqlValueType("TIMESTAMP"));
-      t.CreatePrimaryKey("pk_payment", t.TableColumns["payment_id"]);
-      t.CreateIndex("idx_payment_staff_id").CreateIndexColumn(t.TableColumns["staff_id"]);
-      t.CreateIndex("idx_payment_customer_id").CreateIndexColumn(t.TableColumns["customer_id"]);
-      foreignKey = t.CreateForeignKey("fk_payment_staff");
-      foreignKey.ReferencedTable = sch.Tables["staff"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["staff_id"]);
-      foreignKey.Columns.Add(t.TableColumns["staff_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-      foreignKey = t.CreateForeignKey("fk_payment_customer");
-      foreignKey.ReferencedTable = sch.Tables["customer"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["customer_id"]);
-      foreignKey.Columns.Add(t.TableColumns["customer_id"]);
-      foreignKey.OnUpdate = ReferentialAction.Cascade;
-      foreignKey.OnDelete = ReferentialAction.Restrict;
-      foreignKey = t.CreateForeignKey("fk_payment_rental");
-      foreignKey.ReferencedTable = sch.Tables["rental"];
-      foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["rental_id"]);
-      foreignKey.Columns.Add(t.TableColumns["rental_id"]);
-
-      v = sch.CreateView("customer_list", SqlDml.Native(@"SELECT cu.customer_id AS ID, CONCAT(cu.first_name, _utf8' ', cu.last_name) AS name, a.address AS address, a.postal_code AS `zip code`,
-a.phone AS phone, city.city AS city, country.country AS country, IF(cu.active, _utf8'active',_utf8'') AS notes, cu.store_id AS SID
-FROM customer AS cu JOIN address AS a ON cu.address_id = a.address_id JOIN city ON a.city_id = city.city_id
-	JOIN country ON city.country_id = country.country_id"));
-
-      using (var cmd = sqlConnection.CreateCommand())
-      {
-        SqlBatch batch = SqlDml.Batch();
-        batch.Add(SqlDdl.Drop(droppedSchema));
-        //batch.Add(SqlDdl.Create(sch));
-        cmd.CommandText = sqlDriver.Compile(SqlDdl.Drop(droppedSchema)).GetCommandText();
-        cmd.ExecuteNonQuery();
-        batch.Clear();
-        batch.Add(SqlDdl.Create(sch));
-        cmd.CommandText = sqlDriver.Compile(batch).GetCommandText();
-        cmd.ExecuteNonQuery();
+    [TestFixtureTearDown]
+    public virtual void TearDown()
+    {
+      DropAllTables(ConnectionInfo.ConnectionUrl.Resource);
+      if(SqlConnection!=null && SqlConnection.State!=ConnectionState.Closed) {
+        SqlConnection.Close();
       }
-      sqlConnection.Close();
-
-
-      t = Catalog.Schemas["Sakila"].CreateTable("Malisa");
-      t.CreateColumn("TransactionID", new SqlValueType(SqlType.Int32));
-      t.CreateColumn("ProductID", new SqlValueType(SqlType.Int32));
-      t.CreateColumn("ReferenceOrderID", new SqlValueType(SqlType.Int32));
-      t.CreateColumn("ReferenceOrderLineID", new SqlValueType(SqlType.Int32));
-      t.CreateColumn("TransactionDate", new SqlValueType(SqlType.DateTime));
-      t.CreateColumn("TransactionType", new SqlValueType(SqlType.VarChar));
-      t.CreateColumn("Quantity", new SqlValueType(SqlType.Int32));
-      t.CreateColumn("ActualCost", new SqlValueType(SqlType.Double));
-      t.CreateColumn("ModifiedDate", new SqlValueType(SqlType.DateTime));
-
-
-      //SqlDriver mssqlDriver = new MssqlDriver(new MssqlVersionInfo(new Version()));
-      //v = Catalog.Schemas["HumanResources"].CreateView("vEmployee",
-      //        Sql.Native(mssqlDriver.Compile(select).CommandText));
-      //      bmp.Save(model);
     }
   }
 }

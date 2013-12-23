@@ -148,7 +148,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="MySQL\SakilaDb\CreateTestUser.sql" />
-    <Content Include="MySQL\SakilaDb\sakila-data.sql" />
+    <Content Include="MySQL\SakilaDb\sakila-data.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="MySQL\SakilaDb\sakila-schema.sql" />
     <Content Include="Sqlite\history.sql" />
     <Content Include="Sqlite\Northwind.Sqlite3.sql" />
