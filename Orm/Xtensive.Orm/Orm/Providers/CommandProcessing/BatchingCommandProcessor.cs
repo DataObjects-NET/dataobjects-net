@@ -30,9 +30,7 @@ namespace Xtensive.Orm.Providers
     void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
     {
       if (task.ValidateRowCount) {
-        ExecuteCurrentBatch();
         ProcessUnbatchedTask(task);
-        ResetCommand();
         return;
       }
       var sequence = Factory.CreatePersistParts(task, GetParameterPrefix());
@@ -117,13 +115,14 @@ namespace Xtensive.Orm.Providers
           var part = Factory.CreateQueryPart(lastRequest);
           activeCommand.AddPart(part);
         }
+        if (activeCommand.Count==0)
+          return null;
         var hasQueryTasks = activeTasks.Count > 0;
-        if (!hasQueryTasks && !shouldReturnReader && activeCommand.Count>0) {
+        if (!hasQueryTasks && !shouldReturnReader) {
           activeCommand.ExecuteNonQuery();
           return null;
         }
-        if(activeCommand.Count>0)
-          activeCommand.ExecuteReader();
+        activeCommand.ExecuteReader();
         if (hasQueryTasks) {
           int currentQueryTask = 0;
           while (currentQueryTask < activeTasks.Count) {
@@ -147,6 +146,15 @@ namespace Xtensive.Orm.Providers
 
     private void ProcessUnbatchedTask(SqlPersistTask task)
     {
+      if (activeCommand.Count > 0) {
+        activeCommand.ExecuteNonQuery();
+        ResetCommand();
+      }
+      ExecuteUnbatchedTask(task);
+    }
+
+    private void ExecuteUnbatchedTask(SqlPersistTask task)
+    {
       var sequence = Factory.CreatePersistParts(task);
       foreach (var part in sequence) {
         using (var command = Factory.CreateCommand()) {
@@ -157,12 +165,6 @@ namespace Xtensive.Orm.Providers
               Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
         }
       }
-    }
-
-    private void ExecuteCurrentBatch()
-    {
-      if (activeCommand.Count>0)
-        activeCommand.ExecuteNonQuery();
     }
 
     private string GetParameterPrefix()
