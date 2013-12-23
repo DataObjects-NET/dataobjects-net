@@ -73,6 +73,11 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
 
         #endregion
 
+        protected override void CheckRequirements()
+        {
+            Require.ProviderIs(StorageProvider.MySql);
+        }
+        
         private void DropBadTables()
         {
             this.ExecuteNonQuery(DropBadSetTableQuery);
