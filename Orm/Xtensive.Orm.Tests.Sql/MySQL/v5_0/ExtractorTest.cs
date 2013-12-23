@@ -12,7 +12,7 @@ using Xtensive.Sql.Model;
     
 namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
 {
-    [TestFixture, Ignore("Ignored due to Sakila")]
+    [TestFixture]
     public class ExtractorTest : SqlTest
     {
         #region Test DDL
