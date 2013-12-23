@@ -15,8 +15,6 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     [TestFixture, Ignore("Ignored due to Sakila")]
     public class ExtractorTest : SqlTest
     {
-        protected override string Url { get { return TestUrl.MySql50; } }
-
         #region Test DDL
 
         const string DropBadSetTableQuery = @"drop table if exists dataTypesBadSetTable";
@@ -74,10 +72,6 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
                )";
 
         #endregion
-
-        protected override void TestFixtureSetUp()
-        {
-        }
 
         private void DropBadTables()
         {
