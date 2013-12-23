@@ -24,6 +24,28 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     protected SqlDriver SqlDriver;
     protected SqlConnection SqlConnection;
 
+    public Catalog Catalog { get; protected set; }
+
+    [TestFixtureSetUp]
+    public virtual void SetUp()
+    {
+      CheckRequirements();
+      SqlDriver = TestSqlDriver.Create(ConnectionInfo.ConnectionUrl.Url);
+      SqlConnection = SqlDriver.CreateConnection();
+      SqlConnection.Open();
+      CreateSchema();
+      InsertTestData();
+    }
+
+    [TestFixtureTearDown]
+    public virtual void TearDown()
+    {
+      DropAllTables(ConnectionInfo.ConnectionUrl.Resource);
+      if(SqlConnection!=null && SqlConnection.State!=ConnectionState.Closed) {
+        SqlConnection.Close();
+      }
+    }
+
     protected struct DbCommandExecutionResult
     {
       public int FieldCount;
@@ -38,67 +60,10 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       }
     }
 
-    protected static DbCommandExecutionResult GetExecuteDataReaderResult(IDbCommand cmd)
-    {
-      DbCommandExecutionResult result = new DbCommandExecutionResult();
-      try {
-        cmd.Transaction = cmd.Connection.BeginTransaction();
-        int rowCount = 0;
-        int fieldCount = 0;
-        string[] fieldNames = new string[0];
-        using (IDataReader reader = cmd.ExecuteReader()) {
-          while (reader.Read()) {
-            if (rowCount==0) {
-              fieldCount = reader.FieldCount;
-              fieldNames = new string[fieldCount];
-              for (int i = 0; i<fieldCount; i++) {
-                fieldNames[i] = reader.GetName(i);
-              }
-            }
-            rowCount++;
-          }
-        }
-        result.RowCount = rowCount;
-        result.FieldCount = fieldCount;
-        result.FieldNames = fieldNames;
-      }
-      //      catch (Exception e) {
-      //        Console.WriteLine(e);
-      //      }
-      finally {
-        cmd.Transaction.Rollback();
-      }
-      return result;
-    }
-
-    protected static DbCommandExecutionResult GetExecuteNonQueryResult(IDbCommand cmd)
-    {
-      DbCommandExecutionResult result = new DbCommandExecutionResult();
-      try {
-        cmd.Transaction = cmd.Connection.BeginTransaction();
-        result.RowCount = cmd.ExecuteNonQuery();
-      }
-      //      catch (Exception e) {
-      //        Console.WriteLine(e);
-      //      }
-      finally
-      {
-        cmd.Transaction.Rollback();
-      }
-      return result;
-    }
-
-    public void IgnoreMe(string message)
-    {
-      throw new IgnoreException(message);
-    }
-
     protected virtual void CheckRequirements()
     {
       Require.ProviderIs(StorageProvider.MySql);
     }
-
-    public Catalog Catalog { get; protected set; }
 
     private void CreateSchema()
     {
@@ -485,7 +450,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       return null;
     }
 
-    private IList<string> ParseDataDump(string filePath)
+    private IEnumerable<string> ParseDataDump(string filePath)
     {
       var blocks = new List<string>();
       var builder = new StringBuilder();
@@ -505,26 +470,6 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       if (SqlConnection!=null && SqlConnection.State==ConnectionState.Open) {
         var sqlCommand = SqlConnection.CreateCommand(string.Format("DROP SCHEMA {0}; CREATE SCHEMA {0} COLLATE 'utf8_general_ci';", databaseName));
         sqlCommand.ExecuteNonQuery();
-      }
-    }
-
-    [TestFixtureSetUp]
-    public virtual void SetUp()
-    {
-      CheckRequirements();
-      SqlDriver = TestSqlDriver.Create(ConnectionInfo.ConnectionUrl.Url);
-      SqlConnection = SqlDriver.CreateConnection();
-      SqlConnection.Open();
-      CreateSchema();
-      InsertTestData();
-    }
-
-    [TestFixtureTearDown]
-    public virtual void TearDown()
-    {
-      DropAllTables(ConnectionInfo.ConnectionUrl.Resource);
-      if(SqlConnection!=null && SqlConnection.State!=ConnectionState.Closed) {
-        SqlConnection.Close();
       }
     }
   }
