@@ -61,6 +61,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
         Catalog.CreateSchema(resource);
       Table table;
       View view;
+      Index index;
       var batch = SqlDml.Batch();
       table = schema.CreateTable("actor");
       table.CreateColumn("actor_id", new SqlValueType("SMALLINT UNSIGNED"));
@@ -68,8 +69,10 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       table.CreateColumn("last_name", new SqlValueType(SqlType.VarChar, 45));
       table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");// add default value and on update event
       table.CreatePrimaryKey("pk_actor_actor_id", table.TableColumns["actor_id"]);
-      table.CreateIndex("inx_actor_last_name").CreateIndexColumn(table.TableColumns["last_name"]);
+      index = table.CreateIndex("inx_actor_last_name");
+      index.CreateIndexColumn(table.TableColumns["last_name"]);
       batch.Add(SqlDdl.Create(table));
+      batch.Add(SqlDdl.Create(index));
 
 
       table = schema.CreateTable("country");
@@ -91,8 +94,10 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       foreignKey.Columns.Add(table.TableColumns["country_id"]);
       foreignKey.OnUpdate = ReferentialAction.Cascade;
       foreignKey.OnDelete = ReferentialAction.Restrict;
-      table.CreateIndex("inx_city_country_id").CreateIndexColumn(table.TableColumns["country_id"]);
+      index = table.CreateIndex("inx_city_country_id");
+      index.CreateIndexColumn(table.TableColumns["country_id"]);
       batch.Add(SqlDdl.Create(table));
+      batch.Add(SqlDdl.Create(index));
 
       table = schema.CreateTable("address");
       table.CreateColumn("address_id", new SqlValueType("SMALLINT UNSIGNED"));
@@ -106,7 +111,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       column.DefaultValue = SqlDml.Native("NULL");
       column.IsNullable = true;
       table.CreateColumn("phone", new SqlValueType(SqlType.VarChar, 20));
-      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");// add default value and on update event
+      table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
       table.CreatePrimaryKey("pk_address_address_id", table.TableColumns["address_id"]);
       foreignKey = table.CreateForeignKey("fk_address_city");
       foreignKey.ReferencedTable = schema.Tables["city"];
@@ -114,8 +119,10 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       foreignKey.Columns.Add(table.TableColumns["city_id"]);
       foreignKey.OnUpdate = ReferentialAction.Cascade;
       foreignKey.OnDelete = ReferentialAction.Restrict;
-      table.CreateIndex("inx_address_city_id").CreateIndexColumn(table.TableColumns["city_id"]);
+      index = table.CreateIndex("inx_address_city_id");
+      index.CreateIndexColumn(table.TableColumns["city_id"]);
       batch.Add(SqlDdl.Create(table));
+      batch.Add(SqlDdl.Create(index));
       
       table = schema.CreateTable("category");
       table.CreateColumn("category_id", new SqlValueType("SMALLINT UNSIGNED"));
@@ -167,7 +174,8 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       table.CreateColumn("special_features", new SqlValueType("SET('Trailers','Commentaries','Deleted Scenes','Behind the Scenes')")).DefaultValue = null;
       table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"); ;
       table.CreatePrimaryKey("pk_film", table.TableColumns["film_id"]);
-      table.CreateIndex("inx_film_film_id").CreateIndexColumn(table.TableColumns["film_id"]);
+      index = table.CreateIndex("idx_film_film_id");
+      index.CreateIndexColumn(table.TableColumns["film_id"]);
       foreignKey = table.CreateForeignKey("fk_film_language");
       foreignKey.ReferencedTable = schema.Tables["language"];
       foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["language_id"]);
@@ -182,6 +190,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       foreignKey.OnDelete = ReferentialAction.Restrict;
 
       batch.Add(SqlDdl.Create(table));
+      batch.Add(SqlDdl.Create(index));
 
       table = schema.CreateTable("film_actor");
       table.CreateColumn("actor_id", new SqlValueType("SMALLINT UNSIGNED"));
@@ -228,7 +237,8 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
       table.CreatePrimaryKey("pk_store", table.TableColumns["store_id"]);
       table.CreateUniqueConstraint("idx_unique_manager", table.TableColumns["manager_staff_id"]);
-      table.CreateIndex("idx_store_address_id").CreateIndexColumn(table.TableColumns["address_id"]);
+      index = table.CreateIndex("idx_store_address_id");
+      index.CreateIndexColumn(table.TableColumns["address_id"]);
       foreignKey = table.CreateForeignKey("fk_store_address_id");
       foreignKey.ReferencedTable = schema.Tables["address"];
       foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["address_id"]);
@@ -236,6 +246,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       foreignKey.OnUpdate = ReferentialAction.Cascade;
       foreignKey.OnDelete = ReferentialAction.Restrict;
       batch.Add(SqlDdl.Create(table));
+      batch.Add(SqlDdl.Create(index));
 
       table = schema.CreateTable("staff");
       table.CreateColumn("staff_id", new SqlValueType("TINYINT UNSIGNED"));
@@ -255,8 +266,10 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       column.IsNullable = true;
       table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
       table.CreatePrimaryKey("pk_staff", table.TableColumns["staff_id"]);
-      table.CreateIndex("idx_staff_address_id").CreateIndexColumn(table.TableColumns["address_id"]);
-      table.CreateIndex("idx_staff_store_id").CreateIndexColumn(table.TableColumns["store_id"]);
+      index = table.CreateIndex("idx_staff_address_id");
+      index.CreateIndexColumn(table.TableColumns["address_id"]);
+      var secondIndex = table.CreateIndex("idx_staff_store_id");
+      secondIndex.CreateIndexColumn(table.TableColumns["store_id"]);
       foreignKey = table.CreateForeignKey("fk_staff_store");
       foreignKey.ReferencedTable = schema.Tables["store"];
       foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["store_id"]);
@@ -270,6 +283,8 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       foreignKey.OnUpdate = ReferentialAction.Cascade;
       foreignKey.OnDelete = ReferentialAction.Restrict;
       batch.Add(SqlDdl.Create(table));
+      batch.Add(SqlDdl.Create(index));
+      batch.Add(SqlDdl.Create(secondIndex));
 
       foreignKey = schema.Tables["store"].CreateForeignKey("fk_store_staff");
       schema.Tables["store"].TableConstraints.Remove(foreignKey);
@@ -294,9 +309,12 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       table.CreateColumn("create_date", new SqlValueType(SqlType.DateTime));
       table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
       table.CreatePrimaryKey("pk_customer", table.TableColumns["customer_id"]);
-      table.CreateIndex("idx_store_id").CreateIndexColumn(table.TableColumns["store_id"]);
-      table.CreateIndex("idx_address_id").CreateIndexColumn(table.TableColumns["address_id"]);
-      table.CreateIndex("idx_last_name").CreateIndexColumn(table.TableColumns["last_name"]);
+      index = table.CreateIndex("idx_store_id");
+      index.CreateIndexColumn(table.TableColumns["store_id"]);
+      secondIndex = table.CreateIndex("idx_address_id");
+      secondIndex.CreateIndexColumn(table.TableColumns["address_id"]);
+      var thirdIndex = table.CreateIndex("idx_last_name");
+      thirdIndex.CreateIndexColumn(table.TableColumns["last_name"]);
       foreignKey = table.CreateForeignKey("fk_customer_address");
       foreignKey.ReferencedTable = schema.Tables["address"];
       foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["address_id"]);
@@ -304,6 +322,9 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       foreignKey.OnUpdate = ReferentialAction.Cascade;
       foreignKey.OnDelete = ReferentialAction.Restrict;
       batch.Add(SqlDdl.Create(table));
+      batch.Add(SqlDdl.Create(index));
+      batch.Add(SqlDdl.Create(secondIndex));
+      batch.Add(SqlDdl.Create(thirdIndex));
 
       table = schema.CreateTable("inventory");
       table.CreateColumn("inventory_id", new SqlValueType("MEDIUMINT UNSIGNED"));
@@ -312,7 +333,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
       table.CreatePrimaryKey("pk_inventory", table.TableColumns["inventory_id"]);
       table.CreateIndex("idx_inventory_film_id").CreateIndexColumn(table.TableColumns["film_id"]);
-      var index = table.CreateIndex("idx_inventory_store_id_film_id");
+      index = table.CreateIndex("idx_inventory_store_id_film_id");
       index.CreateIndexColumn(table.TableColumns["store_id"]);
       index.CreateIndexColumn(table.TableColumns["film_id"]);
       foreignKey = table.CreateForeignKey("fk_inventory_store");
@@ -328,6 +349,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       foreignKey.OnUpdate = ReferentialAction.Cascade;
       foreignKey.OnDelete = ReferentialAction.Restrict;
       batch.Add(SqlDdl.Create(table));
+      batch.Add(SqlDdl.Create(index));
 
       table = schema.CreateTable("rental");
       table.CreateColumn("rental_id", new SqlValueType(SqlType.Int32));
@@ -341,9 +363,12 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
       table.CreatePrimaryKey("pk_rental", table.TableColumns["rental_id"]);
       table.CreateUniqueConstraint("unique_rental_date_inventory_id_customer_id", table.TableColumns["rental_date"], table.TableColumns["inventory_id"], table.TableColumns["customer_id"]);
-      table.CreateIndex("idx_rental_inventory_id").CreateIndexColumn(table.TableColumns["inventory_id"]);
-      table.CreateIndex("idx_rental_customer_id").CreateIndexColumn(table.TableColumns["customer_id"]);
-      table.CreateIndex("idx_rental_staff_id").CreateIndexColumn(table.TableColumns["staff_id"]);
+      index = table.CreateIndex("idx_rental_inventory_id");
+      index.CreateIndexColumn(table.TableColumns["inventory_id"]);
+      secondIndex = table.CreateIndex("idx_rental_customer_id");
+      secondIndex.CreateIndexColumn(table.TableColumns["customer_id"]);
+      thirdIndex = table.CreateIndex("idx_rental_staff_id");
+      thirdIndex.CreateIndexColumn(table.TableColumns["staff_id"]);
       foreignKey = table.CreateForeignKey("fk_rental_staff");
       foreignKey.ReferencedTable = schema.Tables["staff"];
       foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["staff_id"]);
@@ -355,6 +380,9 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["inventory_id"]);
       foreignKey.Columns.Add(table.TableColumns["inventory_id"]);
       batch.Add(SqlDdl.Create(table));
+      batch.Add(SqlDdl.Create(index));
+      batch.Add(SqlDdl.Create(secondIndex));
+      batch.Add(SqlDdl.Create(thirdIndex));
 
       table = schema.CreateTable("payment");
       table.CreateColumn("payment_id", new SqlValueType("SMALLINT UNSIGNED"));
@@ -367,8 +395,10 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       table.CreateColumn("payment_date", new SqlValueType(SqlType.DateTime));
       table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
       table.CreatePrimaryKey("pk_payment", table.TableColumns["payment_id"]);
-      table.CreateIndex("idx_payment_staff_id").CreateIndexColumn(table.TableColumns["staff_id"]);
-      table.CreateIndex("idx_payment_customer_id").CreateIndexColumn(table.TableColumns["customer_id"]);
+      index = table.CreateIndex("idx_payment_staff_id");
+      index.CreateIndexColumn(table.TableColumns["staff_id"]);
+      secondIndex = table.CreateIndex("idx_payment_customer_id");
+      secondIndex.CreateIndexColumn(table.TableColumns["customer_id"]);
       foreignKey = table.CreateForeignKey("fk_payment_staff");
       foreignKey.ReferencedTable = schema.Tables["staff"];
       foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["staff_id"]);
@@ -385,6 +415,13 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       foreignKey.ReferencedTable = schema.Tables["rental"];
       foreignKey.ReferencedColumns.Add(foreignKey.ReferencedTable.TableColumns["rental_id"]);
       foreignKey.Columns.Add(table.TableColumns["rental_id"]);
+      batch.Add(SqlDdl.Create(table));
+      batch.Add(SqlDdl.Create(index));
+      batch.Add(SqlDdl.Create(secondIndex));
+
+      table = schema.CreateTable("table1");
+      table.CreateColumn("field1", new SqlValueType(SqlType.Int32));
+      table.CreateColumn("field2", new SqlValueType(SqlType.VarChar, 20)).IsNullable = true;
       batch.Add(SqlDdl.Create(table));
 
       view = schema.CreateView("customer_list", SqlDml.Native(@"SELECT cu.customer_id AS ID, CONCAT(cu.first_name, _utf8' ', cu.last_name) AS name, a.address AS address, a.postal_code AS `zip code`,
