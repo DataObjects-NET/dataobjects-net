@@ -24,125 +24,15 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
 {
   public class MiscTests : Sakila
   {
-    private SqlDriver sqlDriver;
-    private SqlConnection sqlConnection;
-    private DbCommand dbCommand;
     private DbCommand sqlCommand;
-
-    private Schema schema = null;
-
-    #region Internals
-
-    private bool CompareExecuteDataReader(string commandText, ISqlCompileUnit statement)
-    {
-      sqlCommand.CommandText = sqlDriver.Compile(statement).GetCommandText();
-      sqlCommand.Prepare();
-      Console.WriteLine(sqlCommand.CommandText);
-
-      Console.WriteLine(commandText);
-      dbCommand.CommandText = commandText;
-
-      DbCommandExecutionResult r1, r2;
-      r1 = GetExecuteDataReaderResult(dbCommand);
-      r2 = GetExecuteDataReaderResult(sqlCommand);
-
-      Console.WriteLine();
-      Console.WriteLine();
-      Console.WriteLine(r1);
-      Console.WriteLine(r2);
-
-      if (r1.RowCount!=r2.RowCount)
-        return false;
-      if (r1.FieldCount!=r2.FieldCount)
-        return false;
-      for (int i = 0; i<r1.FieldCount; i++) {
-        if (r1.FieldNames[i]!=r2.FieldNames[i]) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    private bool CompareExecuteNonQuery(string commandText, ISqlCompileUnit statement)
-    {
-      sqlCommand.CommandText = sqlDriver.Compile(statement).GetCommandText();
-      sqlCommand.Prepare();
-      Console.WriteLine(sqlCommand.CommandText);
-
-      Console.WriteLine(commandText);
-      dbCommand.CommandText = commandText;
-
-      DbCommandExecutionResult r1, r2;
-      r1 = GetExecuteNonQueryResult(dbCommand);
-      r2 = GetExecuteNonQueryResult(sqlCommand);
-
-      Console.WriteLine();
-      Console.WriteLine();
-      Console.WriteLine(r1);
-      Console.WriteLine(r2);
-
-      if (r1.RowCount!=r2.RowCount)
-        return false;
-      return true;
-    }
-
-    private SqlCompilationResult Compile(ISqlCompileUnit statement)
-    {
-      return sqlDriver.Compile(statement);
-    }
-
-    #endregion
 
     #region Setup and TearDown
 
     [TestFixtureSetUp]
     public override void SetUp()
     {
-      IgnoreMe("Ignored due to Sakila");
-      sqlDriver = TestSqlDriver.Create(TestUrl.MySql50);
-      sqlConnection = sqlDriver.CreateConnection();
-
-      dbCommand = sqlConnection.CreateCommand();
-      sqlCommand = sqlConnection.CreateCommand();
-      try
-      {
-        sqlConnection.Open();
-      }
-      catch (SystemException e)
-      {
-        Console.WriteLine(e);
-      }
-
-      var stopWatch = new Stopwatch();
-      stopWatch.Start();
-      try
-      {
-        sqlConnection.BeginTransaction();
-        Catalog = sqlDriver.ExtractCatalog(sqlConnection);
-        schema = sqlDriver.ExtractDefaultSchema(sqlConnection);
-        sqlConnection.Commit();
-      }
-      catch
-      {
-        sqlConnection.Rollback();
-        throw;
-      }
-      stopWatch.Stop();
-      Console.WriteLine(stopWatch.Elapsed);
-    }
-
-    [TestFixtureTearDown]
-    public void TearDown()
-    {
-      try
-      {
-        if (sqlConnection!=null && sqlConnection.State!=ConnectionState.Closed)
-          sqlConnection.Close();
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine(ex.Message);
-      }
+      base.SetUp();
+      sqlCommand = SqlConnection.CreateCommand();
     }
 
     #endregion
@@ -182,7 +72,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
       ms.Seek(0, SeekOrigin.Begin);
       select = (SqlSelect)bf.Deserialize(ms);
 
-      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
     }
 
     [Test]
@@ -243,7 +133,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
       SqlBinary rb = b + 3;
       rb.Left.ReplaceWith(rb);
       select.Where = rb>1;
-      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
     }
 
     [Test]
@@ -251,7 +141,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     {
       SqlSelect select = SqlDml.Select();
       select.Columns.Add(SqlDml.Multiply(SqlDml.Position("b", "abc"), 4));
-      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
     }
 
     [Test]
@@ -260,7 +150,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
       SqlSelect select = SqlDml.Select();
       select.Columns.Add(SqlDml.Substring("abc", 1, 1));
       select.Columns.Add(SqlDml.Substring("Xtensive", 2));
-      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
     }
 
     [Test]
@@ -272,7 +162,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
       select.Columns.Add(SqlDml.Trim(" abc ", SqlTrimType.Trailing));
       select.Columns.Add(SqlDml.Trim(" abc ", SqlTrimType.Both));
       select.Columns.Add(SqlDml.Trim(" abc ", SqlTrimType.Both, " "));
-      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
     }
 
     [Test]
@@ -280,7 +170,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     {
       SqlSelect select = SqlDml.Select();
       select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Day, "2006-01-23"));
-      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
     }
 
     [Test]
@@ -289,7 +179,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
       SqlSelect select = SqlDml.Select();
       select.Columns.Add(SqlDml.Concat("a", "b"));
       //select.Columns.Add("User: " + SqlDml.SessionUser()); //NOTE: Not supported by MySQL.
-      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
     }
 
     [Test]
@@ -301,14 +191,14 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     [Test]
     public void JoinTest()
     {
-      SqlTableRef tr1 = SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]);
-      SqlTableRef tr2 = SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]);
-      SqlTableRef tr3 = SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]);
+      SqlTableRef tr1 = SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]);
+      SqlTableRef tr2 = SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]);
+      SqlTableRef tr3 = SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]);
 
       SqlSelect select = SqlDml.Select(tr1.InnerJoin(tr2, tr1[0]==tr2[0]).InnerJoin(tr3, tr2[0]==tr3[0]));
       select.Columns.Add(SqlDml.Asterisk);
-      sqlCommand.CommandText = sqlDriver.Compile(select).GetCommandText();
-      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+      sqlCommand.CommandText = SqlDriver.Compile(select).GetCommandText();
+      Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
       sqlCommand.Prepare();
 
       //int i = 0;
@@ -318,14 +208,13 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     }
 
     [Test]
-    [Ignore]
     public void UniqueTest()
     {
       SqlSelect s1 = SqlDml.Select();
-      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["customer"]));
+      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["customer"]));
       s2.Columns.Add(SqlDml.Asterisk);
       s1.Columns.Add(SqlDml.Unique(s2)==true);
-      Console.WriteLine(sqlDriver.Compile(s1).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1).GetCommandText());
     }
 
     [Test]
@@ -333,28 +222,28 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     {
       SqlSelect s1 = SqlDml.Select();
       s1.Where = true;
-      Console.WriteLine(sqlDriver.Compile(s1).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1).GetCommandText());
     }
 
     [Test]
     public void UnionTest()
     {
-      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]));
+      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
       s1.Columns.Add(s1.From["address_id"]);
-      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]));
+      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
       s2.Columns.Add(s2.From["address_id"]);
-      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]));
+      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
       s3.Columns.Add(s3.From["address_id"]);
 
-      Console.WriteLine(sqlDriver.Compile(s1.Union(s2)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(s1.Union(s2).Union(s3)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(s1.Union(s2.Union(s3))).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.Union(s1, s2)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.Union(s1, s1.Union(s2))).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.Union(s1.Union(s2), s1)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.Union(s1.Union(s2), s1.Union(s2))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.Union(s2)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.Union(s2).Union(s3)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.Union(s2.Union(s3))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.Union(s1, s2)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.Union(s1, s1.Union(s2))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.Union(s1.Union(s2), s1)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.Union(s1.Union(s2), s1.Union(s2))).GetCommandText());
       s3.Where = SqlDml.In(50.00, s1.Union(s2));
-      Console.WriteLine(sqlDriver.Compile(s3).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s3).GetCommandText());
       SqlQueryRef qr = SqlDml.QueryRef(s1.Union(s2), "qr");
       Assert.Greater(qr.Columns.Count, 0);
     }
@@ -362,100 +251,100 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     [Test]
     public void UnionAllTest()
     {
-      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]));
+      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
       s1.Columns.Add(SqlDml.Asterisk);
-      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]));
+      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
       s2.Columns.Add(SqlDml.Asterisk);
-      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]));
+      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
       s3.Columns.Add(SqlDml.Asterisk);
 
-      Console.WriteLine(sqlDriver.Compile(s1.UnionAll(s2)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(s1.UnionAll(s2).UnionAll(s3)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(s1.UnionAll(s2.UnionAll(s3))).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.UnionAll(s1, s2)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.UnionAll(s1, s1.UnionAll(s2))).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.UnionAll(s1.UnionAll(s2), s1)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.UnionAll(s1.UnionAll(s2), s1.UnionAll(s2))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.UnionAll(s2)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.UnionAll(s2).UnionAll(s3)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.UnionAll(s2.UnionAll(s3))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.UnionAll(s1, s2)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.UnionAll(s1, s1.UnionAll(s2))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.UnionAll(s1.UnionAll(s2), s1)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.UnionAll(s1.UnionAll(s2), s1.UnionAll(s2))).GetCommandText());
     }
 
     [Test]
     [Ignore]
     public void IntersectTest() //TODO: Relook into the keyword for INTERSECT
     {
-      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]));
+      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
       s1.Columns.Add(SqlDml.Asterisk);
-      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]));
+      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
       s2.Columns.Add(SqlDml.Asterisk);
-      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]));
+      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
       s3.Columns.Add(SqlDml.Asterisk);
 
-      Console.WriteLine(sqlDriver.Compile(s1.Intersect(s2)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(s1.Intersect(s2).Intersect(s3)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(s1.Intersect(s2.Intersect(s3))).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.Intersect(s1, s2)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.Intersect(s1, s1.Intersect(s2))).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.Intersect(s1.Intersect(s2), s1)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.Intersect(s1.Intersect(s2), s1.Intersect(s2))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.Intersect(s2)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.Intersect(s2).Intersect(s3)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.Intersect(s2.Intersect(s3))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.Intersect(s1, s2)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.Intersect(s1, s1.Intersect(s2))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.Intersect(s1.Intersect(s2), s1)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.Intersect(s1.Intersect(s2), s1.Intersect(s2))).GetCommandText());
     }
 
     [Test]
     [Ignore]
     public void IntersectAllTest()//TODO: Relook into the keyword for INTERSECT ALL
     {
-      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]));
+      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
       s1.Columns.Add(SqlDml.Asterisk);
-      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]));
+      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
       s2.Columns.Add(SqlDml.Asterisk);
-      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["address"]));
+      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
       s3.Columns.Add(SqlDml.Asterisk);
 
-      Console.WriteLine(sqlDriver.Compile(s1.IntersectAll(s2)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(s1.IntersectAll(s2).IntersectAll(s3)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(s1.IntersectAll(s2.IntersectAll(s3))).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.IntersectAll(s1, s2)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.IntersectAll(s1, s1.IntersectAll(s2))).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.IntersectAll(s1.IntersectAll(s2), s1)).GetCommandText());
-      Console.WriteLine(sqlDriver.Compile(SqlDml.IntersectAll(s1.IntersectAll(s2), s1.IntersectAll(s2))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.IntersectAll(s2)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.IntersectAll(s2).IntersectAll(s3)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.IntersectAll(s2.IntersectAll(s3))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.IntersectAll(s1, s2)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.IntersectAll(s1, s1.IntersectAll(s2))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.IntersectAll(s1.IntersectAll(s2), s1)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.IntersectAll(s1.IntersectAll(s2), s1.IntersectAll(s2))).GetCommandText());
     }
 
     [Test]
     [Ignore]
     public void ExceptTest()
     {
-      //SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["Address"]));
-      //s1.Columns.Add(SqlDml.Asterisk);
-      //SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["Address"]));
-      //s2.Columns.Add(SqlDml.Asterisk);
-      //SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["Address"]));
-      //s3.Columns.Add(SqlDml.Asterisk);
+      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["Address"]));
+      s1.Columns.Add(SqlDml.Asterisk);
+      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["Address"]));
+      s2.Columns.Add(SqlDml.Asterisk);
+      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["Address"]));
+      s3.Columns.Add(SqlDml.Asterisk);
 
-      //Console.WriteLine(sqlDriver.Compile(s1.Except(s2)).GetCommandText());
-      //Console.WriteLine(sqlDriver.Compile(s1.Except(s2).Except(s3)).GetCommandText());
-      //Console.WriteLine(sqlDriver.Compile(s1.Except(s2.Except(s3))).GetCommandText());
-      //Console.WriteLine(sqlDriver.Compile(SqlDml.Except(s1, s2)).GetCommandText());
-      //Console.WriteLine(sqlDriver.Compile(SqlDml.Except(s1, s1.Except(s2))).GetCommandText());
-      //Console.WriteLine(sqlDriver.Compile(SqlDml.Except(s1.Except(s2), s1)).GetCommandText());
-      //Console.WriteLine(sqlDriver.Compile(SqlDml.Except(s1.Except(s2), s1.Except(s2))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.Except(s2)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.Except(s2).Except(s3)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.Except(s2.Except(s3))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.Except(s1, s2)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.Except(s1, s1.Except(s2))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.Except(s1.Except(s2), s1)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.Except(s1.Except(s2), s1.Except(s2))).GetCommandText());
     }
 
     [Test]
     [Ignore]
     public void ExceptAllTest()
     {
-      //SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["Address"]));
-      //s1.Columns.Add(SqlDml.Asterisk);
-      //SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["Address"]));
-      //s2.Columns.Add(SqlDml.Asterisk);
-      //SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["sakila"].Tables["Address"]));
-      //s3.Columns.Add(SqlDml.Asterisk);
+      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["Address"]));
+      s1.Columns.Add(SqlDml.Asterisk);
+      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["Address"]));
+      s2.Columns.Add(SqlDml.Asterisk);
+      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["Address"]));
+      s3.Columns.Add(SqlDml.Asterisk);
 
-      //Console.WriteLine(sqlDriver.Compile(s1.ExceptAll(s2)).GetCommandText());
-      //Console.WriteLine(sqlDriver.Compile(s1.ExceptAll(s2).ExceptAll(s3)).GetCommandText());
-      //Console.WriteLine(sqlDriver.Compile(s1.ExceptAll(s2.ExceptAll(s3))).GetCommandText());
-      //Console.WriteLine(sqlDriver.Compile(SqlDml.ExceptAll(s1, s2)).GetCommandText());
-      //Console.WriteLine(sqlDriver.Compile(SqlDml.ExceptAll(s1, s1.ExceptAll(s2))).GetCommandText());
-      //Console.WriteLine(sqlDriver.Compile(SqlDml.ExceptAll(s1.ExceptAll(s2), s1)).GetCommandText());
-      //Console.WriteLine(sqlDriver.Compile(SqlDml.ExceptAll(s1.ExceptAll(s2), s1.ExceptAll(s2))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.ExceptAll(s2)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.ExceptAll(s2).ExceptAll(s3)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(s1.ExceptAll(s2.ExceptAll(s3))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.ExceptAll(s1, s2)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.ExceptAll(s1, s1.ExceptAll(s2))).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.ExceptAll(s1.ExceptAll(s2), s1)).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(SqlDml.ExceptAll(s1.ExceptAll(s2), s1.ExceptAll(s2))).GetCommandText());
     }
 
     [Test]
@@ -463,10 +352,10 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     public void FreeTextTest()
     {
       SqlSelect select = SqlDml.Select();
-      var table = Catalog.Schemas["sakila"].Tables["Address"];
+      var table = Catalog.DefaultSchema.Tables["Address"];
       select.From = SqlDml.QueryRef(SqlDml.FreeTextTable(table, "How can I make my own beers and ales?", EnumerableUtils.One(table.Columns[0].Name).ToList(), EnumerableUtils.One(table.Columns[0].Name).ToList()));
       select.Columns.Add(select.From.Asterisk);
-      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+      Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
     }
 
     [Test]

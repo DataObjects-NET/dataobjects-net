@@ -20,71 +20,14 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
   [TestFixture, Explicit]
   public class DateTimeIntervalTests : Sakila
   {
-    private SqlDriver sqlDriver;
-    private SqlConnection sqlConnection;
-    private DbCommand dbCommand;
     private DbCommand sqlCommand;
 
-    private Schema schema = null;
 
     #region Internals
 
-    private bool CompareExecuteDataReader(string commandText, ISqlCompileUnit statement)
-    {
-      sqlCommand.CommandText = sqlDriver.Compile(statement).GetCommandText();
-      sqlCommand.Prepare();
-      Console.WriteLine(sqlCommand.CommandText);
-
-      Console.WriteLine(commandText);
-      dbCommand.CommandText = commandText;
-
-      DbCommandExecutionResult r1, r2;
-      r1 = GetExecuteDataReaderResult(dbCommand);
-      r2 = GetExecuteDataReaderResult(sqlCommand);
-
-      Console.WriteLine();
-      Console.WriteLine();
-      Console.WriteLine(r1);
-      Console.WriteLine(r2);
-
-      if (r1.RowCount!=r2.RowCount)
-        return false;
-      if (r1.FieldCount!=r2.FieldCount)
-        return false;
-      for (int i = 0; i < r1.FieldCount; i++) {
-        if (r1.FieldNames[i]!=r2.FieldNames[i]) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    private bool CompareExecuteNonQuery(string commandText, ISqlCompileUnit statement)
-    {
-      sqlCommand.CommandText = sqlDriver.Compile(statement).GetCommandText();
-      sqlCommand.Prepare();
-      Console.WriteLine(sqlCommand.CommandText);
-
-      Console.WriteLine(commandText);
-      dbCommand.CommandText = commandText;
-
-      DbCommandExecutionResult r1, r2;
-      r1 = GetExecuteNonQueryResult(dbCommand);
-      r2 = GetExecuteNonQueryResult(sqlCommand);
-
-      Console.WriteLine();
-      Console.WriteLine();
-      Console.WriteLine(r1);
-      Console.WriteLine(r2);
-
-      if (r1.RowCount != r2.RowCount)
-        return false;
-      return true;
-    }
-
     private void CompareColumnEquality(ISqlCompileUnit statement)
     {
-      sqlCommand.CommandText = sqlDriver.Compile(statement).GetCommandText();
+      sqlCommand.CommandText = SqlDriver.Compile(statement).GetCommandText();
       sqlCommand.Prepare();
 
       using (var command = sqlCommand.Connection.CreateCommand())
@@ -97,11 +40,6 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
       }
     }
 
-    private SqlCompilationResult Compile(ISqlCompileUnit statement)
-    {
-      return sqlDriver.Compile(statement);
-    }
-
     #endregion
 
     #region Setup and TearDown
@@ -109,45 +47,10 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     [TestFixtureSetUp]
     public override void SetUp()
     {
-      IgnoreMe("Ignored due to Sakila");
-      sqlDriver = TestSqlDriver.Create(TestUrl.MySql50);
-      sqlConnection = sqlDriver.CreateConnection();
-
-      dbCommand = sqlConnection.CreateCommand();
-      sqlCommand = sqlConnection.CreateCommand();
-      try {
-        sqlConnection.Open();
-      }
-      catch (SystemException e) {
-        Console.WriteLine(e);
-      }
-
-      var stopWatch = new Stopwatch();
-      stopWatch.Start();
-      try {
-        sqlConnection.BeginTransaction();
-        Catalog = sqlDriver.ExtractCatalog(sqlConnection);
-        schema = sqlDriver.ExtractDefaultSchema(sqlConnection);
-        sqlConnection.Commit();
-      }
-      catch {
-        sqlConnection.Rollback();
-        throw;
-      }
-      stopWatch.Stop();
-      Console.WriteLine(stopWatch.Elapsed);
-    }
-
-    [TestFixtureTearDown]
-    public void TearDown()
-    {
-      try {
-        if (sqlConnection!=null && sqlConnection.State!=ConnectionState.Closed)
-          sqlConnection.Close();
-      }
-      catch (Exception ex) {
-        Console.WriteLine(ex.Message);
-      }
+      SqlDriver = TestSqlDriver.Create(ConnectionInfo.ConnectionUrl.Url);
+      SqlConnection = SqlDriver.CreateConnection();
+      SqlConnection.Open();
+      sqlCommand = SqlConnection.CreateCommand();
     }
 
     #endregion

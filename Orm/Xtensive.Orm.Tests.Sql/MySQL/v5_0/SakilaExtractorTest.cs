@@ -20,18 +20,30 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
 {
   public class SakilaExtractorTest : Sakila
   {
-    private SqlDriver sqlDriver;
-    private SqlConnection sqlConnection;
     private DbCommand dbCommand;
     private DbCommand sqlCommand;
 
     private Schema schema = null;
 
+    protected struct DbCommandExecutionResult
+    {
+      public int FieldCount;
+      public string[] FieldNames;
+      public int RowCount;
+
+      public override string ToString()
+      {
+        if (FieldNames == null)
+          FieldNames = new string[0];
+        return string.Format("Fields: '{0}'; Rows: {1}", string.Join("', '", FieldNames), RowCount);
+      }
+    }
+
     #region Internals
 
     private bool CompareExecuteDataReader(string commandText, ISqlCompileUnit statement)
     {
-      sqlCommand.CommandText = sqlDriver.Compile(statement).GetCommandText();
+      sqlCommand.CommandText = SqlDriver.Compile(statement).GetCommandText();
       sqlCommand.Prepare();
       Console.WriteLine(sqlCommand.CommandText);
 
@@ -61,7 +73,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
 
     private bool CompareExecuteNonQuery(string commandText, ISqlCompileUnit statement)
     {
-      sqlCommand.CommandText = sqlDriver.Compile(statement).GetCommandText();
+      sqlCommand.CommandText = SqlDriver.Compile(statement).GetCommandText();
       sqlCommand.Prepare();
       Console.WriteLine(sqlCommand.CommandText);
 
@@ -84,7 +96,64 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
 
     private SqlCompilationResult Compile(ISqlCompileUnit statement)
     {
-      return sqlDriver.Compile(statement);
+      return SqlDriver.Compile(statement);
+    }
+
+    private static DbCommandExecutionResult GetExecuteDataReaderResult(IDbCommand cmd)
+    {
+      DbCommandExecutionResult result = new DbCommandExecutionResult();
+      try
+      {
+        cmd.Transaction = cmd.Connection.BeginTransaction();
+        int rowCount = 0;
+        int fieldCount = 0;
+        string[] fieldNames = new string[0];
+        using (IDataReader reader = cmd.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            if (rowCount == 0)
+            {
+              fieldCount = reader.FieldCount;
+              fieldNames = new string[fieldCount];
+              for (int i = 0; i < fieldCount; i++)
+              {
+                fieldNames[i] = reader.GetName(i);
+              }
+            }
+            rowCount++;
+          }
+        }
+        result.RowCount = rowCount;
+        result.FieldCount = fieldCount;
+        result.FieldNames = fieldNames;
+      }
+      //      catch (Exception e) {
+      //        Console.WriteLine(e);
+      //      }
+      finally
+      {
+        cmd.Transaction.Rollback();
+      }
+      return result;
+    }
+
+    private static DbCommandExecutionResult GetExecuteNonQueryResult(IDbCommand cmd)
+    {
+      DbCommandExecutionResult result = new DbCommandExecutionResult();
+      try
+      {
+        cmd.Transaction = cmd.Connection.BeginTransaction();
+        result.RowCount = cmd.ExecuteNonQuery();
+      }
+      //      catch (Exception e) {
+      //        Console.WriteLine(e);
+      //      }
+      finally
+      {
+        cmd.Transaction.Rollback();
+      }
+      return result;
     }
 
     #endregion
@@ -94,45 +163,10 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     [TestFixtureSetUp]
     public override void SetUp()
     {
-      IgnoreMe("Ignored due to Sakila");
-      sqlDriver = TestSqlDriver.Create(TestUrl.MySql50);
-      sqlConnection = sqlDriver.CreateConnection();
-
-      dbCommand = sqlConnection.CreateCommand();
-      sqlCommand = sqlConnection.CreateCommand();
-      try {
-        sqlConnection.Open();
-      }
-      catch (SystemException e) {
-        Console.WriteLine(e);
-      }
-
-      var stopWatch = new Stopwatch();
-      stopWatch.Start();
-      try {
-        sqlConnection.BeginTransaction();
-        Catalog = sqlDriver.ExtractCatalog(sqlConnection);
-        schema = sqlDriver.ExtractDefaultSchema(sqlConnection);
-        sqlConnection.Commit();
-      }
-      catch {
-        sqlConnection.Rollback();
-        throw;
-      }
-      stopWatch.Stop();
-      Console.WriteLine(stopWatch.Elapsed);
-    }
-
-    [TestFixtureTearDown]
-    public void TearDown()
-    {
-      try {
-        if (sqlConnection!=null && sqlConnection.State!=ConnectionState.Closed)
-          sqlConnection.Close();
-      }
-      catch (Exception ex) {
-        Console.WriteLine(ex.Message);
-      }
+      base.SetUp();
+      dbCommand = SqlConnection.CreateCommand();
+      sqlCommand = SqlConnection.CreateCommand();
+      schema = Catalog.DefaultSchema;
     }
 
     #endregion
@@ -207,7 +241,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     {
       string nativeSql = "SELECT * FROM `city` `a`";
 
-      SqlTableRef city = SqlDml.TableRef(Catalog.Schemas["SAKILA"].Tables["city"]);
+      SqlTableRef city = SqlDml.TableRef(schema.Tables["city"]);
       SqlSelect select = SqlDml.Select(city);
       select.Columns.Add(SqlDml.Asterisk);
 
@@ -219,7 +253,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     {
       string nativeSql = "SELECT `a`.`customer_id`, `a`.`first_name`, `a`.`last_name` FROM `customer` `a` WHERE (`a`.`store_id` < 2) ORDER BY `a`.`first_name` ASC, 3 DESC";
 
-      SqlTableRef customer = SqlDml.TableRef(Catalog.Schemas["SAKILA"].Tables["customer"]);
+      SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"]);
       SqlSelect select = SqlDml.Select(customer);
       select.Columns.AddRange(customer["customer_id"], customer["first_name"], customer["last_name"]);
       select.Where = customer["store_id"]<2;
@@ -711,7 +745,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
       SqlTableRef customer = SqlDml.TableRef(schema.Tables["customer"], "c");
       SqlSelect select = SqlDml.Select(customer);
       select.Columns.Add(customer["last_name"]);
-      select.OrderBy.Add(SqlDml.Collate(customer["last_name"], Catalog.Schemas["Sakila"].Collations["utf8_general_ci"]));
+      select.OrderBy.Add(SqlDml.Collate(customer["last_name"], schema.CreateCollation("utf8_general_ci")));
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
@@ -825,35 +859,35 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     [Test]
     public void Test150()
     {
-      SqlCreateTable create = SqlDdl.Create(Catalog.Schemas["Sakila"].Tables["customer"]);
+      SqlCreateTable create = SqlDdl.Create(schema.Tables["customer"]);
       Console.Write(Compile(create));
     }
 
     [Test]
     public void Test151()
     {
-      SqlDropTable drop = SqlDdl.Drop(Catalog.Schemas["Sakila"].Tables["customer"]);
+      SqlDropTable drop = SqlDdl.Drop(schema.Tables["customer"]);
       Console.Write(Compile(drop));
     }
 
     [Test]
     public void Test152()
     {
-      SqlDropSchema drop = SqlDdl.Drop(Catalog.Schemas["Sakila"]);
+      SqlDropSchema drop = SqlDdl.Drop(schema);
       Console.Write(Compile(drop));
     }
 
     [Test]
     public void Test153()
     {
-      SqlCreateView create = SqlDdl.Create(Catalog.Schemas["Sakila"].Views["customer_list"]);
+      SqlCreateView create = SqlDdl.Create(schema.Views["customer_list"]);
       Console.Write(Compile(create));
     }
 
     [Test]
     public void Test154()
     {
-      SqlCreateSchema create = SqlDdl.Create(Catalog.Schemas["Sakila"]);
+      SqlCreateSchema create = SqlDdl.Create(schema);
       Console.Write(Compile(create));
     }
 
@@ -862,8 +896,8 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     {
       SqlAlterTable alter =
         SqlDdl.Alter(
-          Catalog.Schemas["Sakila"].Tables["customer"],
-          SqlDdl.AddColumn(Catalog.Schemas["Sakila"].Tables["customer"].TableColumns["first_name"]));
+          schema.Tables["customer"],
+          SqlDdl.AddColumn(schema.Tables["customer"].TableColumns["first_name"]));
 
       Console.Write(Compile(alter));
     }
@@ -873,8 +907,8 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     {
       SqlAlterTable alter =
         SqlDdl.Alter(
-          Catalog.Schemas["Sakila"].Tables["customer"],
-          SqlDdl.DropColumn(Catalog.Schemas["Sakila"].Tables["customer"].TableColumns["first_name"]));
+          schema.Tables["customer"],
+          SqlDdl.DropColumn(schema.Tables["customer"].TableColumns["first_name"]));
 
       Console.Write(Compile(alter));
     }
@@ -882,7 +916,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     [Test]
     public void Test157()
     {
-      var renameColumn = SqlDdl.Rename(Catalog.Schemas["Sakila"].Tables["customer"].TableColumns["first_name"], "FirstName");
+      var renameColumn = SqlDdl.Rename(schema.Tables["customer"].TableColumns["first_name"], "FirstName");
 
       Console.Write(Compile(renameColumn));
     }
@@ -890,7 +924,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     [Test]
     public void Test158()
     {
-      var t = Catalog.Schemas["Sakila"].Tables["customer"];
+      var t = schema.Tables["customer"];
       Xtensive.Sql.Model.UniqueConstraint uc = t.CreateUniqueConstraint("newUniqueConstraint", t.TableColumns["email"]);
       SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(uc));
 
@@ -911,7 +945,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     [Test]
     public void Test160()
     {
-      var t = Catalog.Schemas["Sakila"].Tables["customer"];
+      var t = schema.Tables["customer"];
       Index index = t.CreateIndex("MegaIndex195");
       index.CreateIndexColumn(t.TableColumns[0]);
       SqlCreateIndex create = SqlDdl.Create(index);
@@ -922,7 +956,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     [Test]
     public void Test161()
     {
-      var t = Catalog.Schemas["Sakila"].Tables["customer"];
+      var t = schema.Tables["customer"];
       Index index = t.CreateIndex("MegaIndex196");
       index.CreateIndexColumn(t.TableColumns[0]);
       SqlDropIndex drop = SqlDdl.Drop(index);
@@ -946,7 +980,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
                 USE INDEX(idx_last_name)
                 WHERE c.last_name > 'JOHNSON'";
 
-      SqlTableRef c = SqlDml.TableRef(Catalog.Schemas["Sakila"].Tables["customer"]);
+      SqlTableRef c = SqlDml.TableRef(schema.Tables["customer"]);
       SqlSelect select = SqlDml.Select(c);
       select.Columns.AddRange(c["customer_id"], c["store_id"], c["first_name"], c["last_name"], c["email"]);
       select.Where = c["last_name"]>"JOHNSON";
@@ -982,7 +1016,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     [Ignore("ALTER Sequences are not supported")]
     public void Test177()
     {
-      Sequence s = Catalog.Schemas["Sakila"].CreateSequence("Generator177");
+      Sequence s = schema.CreateSequence("Generator177");
       SqlDropSequence drop = SqlDdl.Drop(s);
 
       Console.Write(Compile(drop));
@@ -991,7 +1025,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     [Test]
     public void Test165()
     {
-      var t = Catalog.Schemas["Sakila"].Tables["table1"];
+      var t = schema.Tables["table1"];
       var uc = t.CreatePrimaryKey(string.Empty, t.TableColumns["field1"]);
       SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(uc));
 
