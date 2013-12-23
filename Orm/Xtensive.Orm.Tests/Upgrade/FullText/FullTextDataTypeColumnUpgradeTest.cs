@@ -285,7 +285,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     public void TypeColumnIsNotExistsInEntity()
     {
       CheckRequirements();
-      Assert.Throws<ArgumentException>(
+      Assert.Throws<DomainBuilderException>(
         () => BuildDomain(DomainUpgradeMode.Recreate, typeof (wrongModel4.Document).Assembly, typeof (wrongModel4.Document).Namespace));
     }
 

@@ -101,13 +101,14 @@ namespace Xtensive.Orm.Building.Builders
     {
       var column = type.Fields[fullTextFieldDef.Name].Column;
       ColumnInfo typeColumn = null;
-      if(fullTextFieldDef.TypeFieldName!=null) {
-        typeColumn = type.Fields[fullTextFieldDef.TypeFieldName].Column;
-        if(typeColumn==null)
-          throw new InvalidOperationException(string.Format(Strings.ExColumnXIsNotFound, fullTextFieldDef.TypeFieldName));
+      if (fullTextFieldDef.TypeFieldName!=null) {
+        FieldInfo field;
+        if (!type.Fields.TryGetValue(fullTextFieldDef.TypeFieldName, out field))
+          throw new DomainBuilderException(string.Format(Strings.ExColumnXIsNotFound, fullTextFieldDef.TypeFieldName));
+        if (field.ValueType!=typeof (string))
+          throw new DomainBuilderException(string.Format(Strings.ExTypeColumnXForFulltextColumnYMustBeTypeOfString, field.Name, column.Name));
+        typeColumn = field.Column;
       }
-      if (typeColumn!=null && typeColumn.ValueType!=typeof (String))
-        throw new DomainBuilderException(string.Format(Strings.ExTypeColumnXForFulltextColumnYMustBeTypeOfString, typeColumn.Name, column.Name));
       return new FullTextColumnInfo(column) {
         IsAnalyzed = fullTextFieldDef.IsAnalyzed, 
         Configuration = fullTextFieldDef.Configuration, 
