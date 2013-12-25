@@ -10,7 +10,7 @@ using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver
 {
-  internal sealed class ProcessorContext : IDisposable
+  public sealed class ProcessorContext : IDisposable
   {
     public ProcessorConfiguration Configuration { get; set; }
 

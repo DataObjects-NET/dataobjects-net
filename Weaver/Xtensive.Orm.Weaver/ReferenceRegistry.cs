@@ -9,7 +9,7 @@ using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver
 {
-  internal sealed class ReferenceRegistry
+  public sealed class ReferenceRegistry
   {
     public AssemblyNameReference OrmAssembly { get; set; }
 

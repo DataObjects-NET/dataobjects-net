@@ -9,7 +9,7 @@ using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver
 {
-  internal struct TypeIdentity : IEquatable<TypeIdentity>
+  public struct TypeIdentity : IEquatable<TypeIdentity>
   {
     private readonly string assemblyName;
     private readonly string typeName;

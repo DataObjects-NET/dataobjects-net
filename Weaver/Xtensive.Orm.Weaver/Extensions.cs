@@ -11,7 +11,7 @@ using Mono.Collections.Generic;
 
 namespace Xtensive.Orm.Weaver
 {
-  internal static class Extensions
+  public static class Extensions
   {
     public static bool HasAttribute(this ICustomAttributeProvider target, string fullName)
     {

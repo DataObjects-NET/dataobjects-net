@@ -8,11 +8,12 @@ using System.Collections.ObjectModel;
 
 namespace Xtensive.Orm.Weaver
 {
-  internal static class WellKnown
+  public static class WellKnown
   {
     public static readonly ReadOnlyCollection<byte> XtensivePublicKeyToken;
 
     public static readonly string OrmAssemblyFullName;
+    public static readonly string TasksAssemblyFullName;
 
     public static readonly string EntityType = "Xtensive.Orm.Entity";
     public static readonly string EntityInterfaceType = "Xtensive.Orm.IEntity";
@@ -45,6 +46,7 @@ namespace Xtensive.Orm.Weaver
     static WellKnown()
     {
       OrmAssemblyFullName = GetFullAssemblyName("Xtensive.Orm");
+      TasksAssemblyFullName = GetFullAssemblyName("WeaverTasks");
       XtensivePublicKeyToken = new ReadOnlyCollection<byte>(WeavingHelper.ParsePublicKeyToken(ThisAssembly.PublicKeyToken));
     }
   }

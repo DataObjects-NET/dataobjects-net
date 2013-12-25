@@ -9,20 +9,12 @@ using System.Text;
 
 namespace Xtensive.Orm.Weaver
 {
-  [Serializable]
   public sealed class ProcessorMessage
   {
-    private string projectId;
     private MessageLocation location;
     private MessageType type;
     private string messageText;
     private string messageCode;
-
-    public string ProjectId
-    {
-      get { return projectId; }
-      set { projectId = value; }
-    }
 
     public MessageLocation Location
     {

@@ -6,7 +6,7 @@
 
 namespace Xtensive.Orm.Weaver
 {
-  internal abstract class ProcessorStage
+  public abstract class ProcessorStage
   {
     public virtual bool CanExecute(ProcessorContext context)
     {

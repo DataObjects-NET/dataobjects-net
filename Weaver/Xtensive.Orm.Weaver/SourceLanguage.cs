@@ -6,7 +6,7 @@
 
 namespace Xtensive.Orm.Weaver
 {
-  internal enum SourceLanguage
+  public enum SourceLanguage
   {
     Unknown,
     CSharp,

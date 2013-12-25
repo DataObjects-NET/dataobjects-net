@@ -11,7 +11,7 @@ using Mono.Cecil.Cil;
 
 namespace Xtensive.Orm.Weaver
 {
-  internal static class WeavingHelper
+  public static class WeavingHelper
   {
     public static readonly StringComparer AssemblyNameComparer = StringComparer.OrdinalIgnoreCase;
     public static readonly StringComparer TypeNameComparer = StringComparer.Ordinal;

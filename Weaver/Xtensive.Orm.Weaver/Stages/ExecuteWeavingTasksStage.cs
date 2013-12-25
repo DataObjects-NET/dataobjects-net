@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.19
 
-using System.Linq;
-
 namespace Xtensive.Orm.Weaver.Stages
 {
   internal sealed class ExecuteWeavingTasksStage : ProcessorStage
@@ -14,13 +12,7 @@ namespace Xtensive.Orm.Weaver.Stages
     {
       var failure = false;
 
-      var sortedTasks = context.WeavingTasks
-        .Select((t, i) => new {Task = t, Index = i})
-        .OrderBy(item => item.Task.Priority)
-        .ThenBy(item => item.Index)
-        .Select(item => item.Task);
-
-      foreach (var task in sortedTasks) {
+      foreach (var task in context.WeavingTasks) {
         if (task.Execute(context)==ActionResult.Failure)
           failure = true;
       }

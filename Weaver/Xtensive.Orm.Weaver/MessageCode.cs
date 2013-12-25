@@ -6,7 +6,7 @@
 
 namespace Xtensive.Orm.Weaver
 {
-  internal enum MessageCode
+  public enum MessageCode
   {
     Unknown = 0,
 

@@ -6,7 +6,7 @@
 
 namespace Xtensive.Orm.Weaver
 {
-  internal enum PersistentTypeKind
+  public enum PersistentTypeKind
   {
     None,
     Entity,

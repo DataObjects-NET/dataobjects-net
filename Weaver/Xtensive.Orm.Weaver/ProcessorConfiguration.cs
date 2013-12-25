@@ -10,7 +10,6 @@ using System.Linq;
 
 namespace Xtensive.Orm.Weaver
 {
-  [Serializable]
   public sealed class ProcessorConfiguration
   {
     private static class Formatter
@@ -142,7 +141,6 @@ namespace Xtensive.Orm.Weaver
       }
     }
 
-    private string projectId;
     private string inputFile;
     private string outputFile;
     private string strongNameKey;
@@ -152,12 +150,6 @@ namespace Xtensive.Orm.Weaver
     private bool writeStampFile;
     private bool processDebugSymbols;
     private IList<string> referencedAssemblies;
-
-    public string ProjectId
-    {
-      get { return projectId; }
-      set { projectId = value; }
-    }
 
     public string InputFile
     {
