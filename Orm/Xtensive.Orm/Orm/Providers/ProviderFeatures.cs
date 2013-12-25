@@ -64,6 +64,7 @@ namespace Xtensive.Orm.Providers
     StrictJoinSyntax = 1L << 46,
     SingleConnection = 1L << 47,
     SelfReferencingRowRemovalIsError = 1L << 48,
+    FullTextColumnDataTypeSpecification = 1L << 49,
 
     // Feature groups
     Paging = Take | Skip,

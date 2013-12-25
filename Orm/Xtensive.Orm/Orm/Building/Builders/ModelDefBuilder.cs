@@ -114,7 +114,8 @@ namespace Xtensive.Orm.Building.Builders
           continue;
 
         var fullTextField = new FullTextFieldDef(fieldDef.Name, fullTextAttribute.Analyzed) {
-          Configuration = fullTextAttribute.Configuration, 
+          Configuration = fullTextAttribute.Configuration,
+          TypeFieldName = fullTextAttribute.DataTypeField
         };
         fullTextIndexDef.Fields.Add(fullTextField);
       }

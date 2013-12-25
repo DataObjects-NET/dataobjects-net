@@ -162,7 +162,10 @@ namespace Xtensive.Orm.Upgrade
       };
       foreach (var column in index.Columns) {
         var columnInfo = tableInfo.Columns[column.Column.Name];
-        new FullTextColumnRef(ftIndex, columnInfo, column.Languages.Single().Name);
+        string typeColumn = null;
+        if (column.TypeColumn!=null)
+          typeColumn = tableInfo.Columns[column.TypeColumn.Name].Name;
+        new FullTextColumnRef(ftIndex, columnInfo, column.Languages.Single().Name, typeColumn);
       }
       return ftIndex;
     }

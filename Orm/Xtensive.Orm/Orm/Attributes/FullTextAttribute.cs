@@ -30,6 +30,11 @@ namespace Xtensive.Orm
     /// </summary>
     public string Configuration { get; private set; }
 
+    /// <summary>
+    /// Gets or sets the field name that contains type of full text field.
+    /// </summary>
+    public string DataTypeField { get; set; }
+
   
     // Constructors
 
@@ -40,6 +45,7 @@ namespace Xtensive.Orm
     {
       Configuration = configuration;
       Analyzed = true;
+      DataTypeField = null;
     }
   }
 }

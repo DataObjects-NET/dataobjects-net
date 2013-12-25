@@ -118,7 +118,6 @@ namespace Xtensive.Orm.Linq
             groupBy.KeySelector,
             groupBy.ElementSelector,
             groupBy.ResultSelector);
-          break;
         case QueryableMethodKind.GroupJoin:
           state.BuildingProjection = false;
           return VisitGroupJoin(mc.Arguments[0],

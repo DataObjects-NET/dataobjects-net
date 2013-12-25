@@ -3277,4 +3277,10 @@ Error: {1}</value>
   <data name="ExGroupByOverloadXIsNotSupported">
     <value xml:space="preserve">GroupBy overload '{0}' is not supported.</value>
   </data>
+  <data name="LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX">
+    <value xml:space="preserve">Specification of type column for fulltext column is not supported by current storage. Ignoring type column specification for column '{0}'.</value>
+  </data>
+  <data name="ExTypeColumnXForFulltextColumnYMustBeTypeOfString">
+    <value xml:space="preserve">Type column '{0}' for fulltext column'{1}' must be type of string.</value>
+  </data>
 </root>

@@ -6097,6 +6097,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type column &apos;{0}&apos; for fulltext column&apos;{1}&apos; must be type of string..
+        /// </summary>
+        internal static string ExTypeColumnXForFulltextColumnYMustBeTypeOfString {
+            get {
+                return ResourceManager.GetString("ExTypeColumnXForFulltextColumnYMustBeTypeOfString", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TypeDef &apos;{0}&apos; already belongs to hierarchy with &apos;{1}&apos; root..
         /// </summary>
         internal static string ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY {
@@ -8550,6 +8559,16 @@ namespace Xtensive {
         internal static string LogSkippingSchemaSynchronization {
             get {
                 return ResourceManager.GetString("LogSkippingSchemaSynchronization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Specification of type column for fulltext column is not supported by current storage. Ignoring type column specification for column &apos;{0}&apos;..
+        /// </summary>
+        internal static string LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX {
+            get {
+                return ResourceManager.GetString("LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnori" +
+                        "ngTypeColumnSpecificationForColumnX", resourceCulture);
             }
         }
         

@@ -100,9 +100,15 @@ namespace Xtensive.Orm.Building.Builders
     private static FullTextColumnInfo GetFullTextColumn(TypeInfo type, FullTextFieldDef fullTextFieldDef)
     {
       var column = type.Fields[fullTextFieldDef.Name].Column;
-      var typeColumn = fullTextFieldDef.TypeFieldName == null
-        ? null
-        : type.Fields[fullTextFieldDef.TypeFieldName].Column;
+      ColumnInfo typeColumn = null;
+      if (fullTextFieldDef.TypeFieldName!=null) {
+        FieldInfo field;
+        if (!type.Fields.TryGetValue(fullTextFieldDef.TypeFieldName, out field))
+          throw new DomainBuilderException(string.Format(Strings.ExColumnXIsNotFound, fullTextFieldDef.TypeFieldName));
+        if (field.ValueType!=typeof (string))
+          throw new DomainBuilderException(string.Format(Strings.ExTypeColumnXForFulltextColumnYMustBeTypeOfString, field.Name, column.Name));
+        typeColumn = field.Column;
+      }
       return new FullTextColumnInfo(column) {
         IsAnalyzed = fullTextFieldDef.IsAnalyzed, 
         Configuration = fullTextFieldDef.Configuration, 
