@@ -90,12 +90,6 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private void ResetCommand()
-    {
-      ReleaseCommand();
-      AllocateCommand();
-    }
-
     private Command ExecuteBatch(int numberOfTasks, QueryRequest lastRequest)
     {
       var shouldReturnReader = lastRequest!=null;
@@ -148,7 +142,8 @@ namespace Xtensive.Orm.Providers
     {
       if (activeCommand.Count > 0) {
         activeCommand.ExecuteNonQuery();
-        ResetCommand();
+        ReleaseCommand();
+        AllocateCommand();
       }
       ExecuteUnbatchedTask(task);
     }
