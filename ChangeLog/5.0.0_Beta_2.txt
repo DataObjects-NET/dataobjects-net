@@ -1,1 +1,2 @@
 [main] Added support for VB.NET model assemblies
+[main] Optimized compilation performance
