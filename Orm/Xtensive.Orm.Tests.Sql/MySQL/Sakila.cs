@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
+using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Sql;
@@ -19,7 +20,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
   [TestFixture]
   public abstract class Sakila
   {
-    private const string SakilaDataBackupPath = @"\MySQL\SakilaDb\sakila-data.sql";
+    private readonly string sakilaDataBackupPath = Environment.CurrentDirectory + @"\MySQL\SakilaDb\sakila-data.sql";
     protected ConnectionInfo ConnectionInfo = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage);
     protected SqlDriver SqlDriver;
     protected SqlConnection SqlConnection;
@@ -33,15 +34,16 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       SqlDriver = TestSqlDriver.Create(ConnectionInfo.ConnectionUrl.Url);
       SqlConnection = SqlDriver.CreateConnection();
       SqlConnection.Open();
+      Catalog = SqlDriver.ExtractCatalog(SqlConnection);
+      DropAllTables(Catalog.DefaultSchema, true);
       CreateSchema();
       InsertTestData();
-      Catalog = SqlDriver.ExtractCatalog(SqlConnection);
     }
 
     [TestFixtureTearDown]
     public virtual void TearDown()
     {
-      DropAllTables(ConnectionInfo.ConnectionUrl.Resource);
+      DropAllTables(Catalog.DefaultSchema, false);
       if(SqlConnection!=null && SqlConnection.State!=ConnectionState.Closed) {
         SqlConnection.Close();
       }
@@ -54,12 +56,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
     private void CreateSchema()
     {
-      var resource = ConnectionInfo.ConnectionUrl.Resource;
-      DropAllTables(resource);
-      Catalog = SqlDriver.ExtractCatalog(SqlConnection);
-      var schema = Catalog.Schemas[resource];
-      if (schema==null)
-        Catalog.CreateSchema(resource);
+      var schema = Catalog.DefaultSchema;
       Table table;
       View view;
       Index index;
@@ -433,26 +430,17 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       batch.Add(SqlDdl.Create(view));
 
       using (var cmd = SqlConnection.CreateCommand()) {
-        cmd.CommandText = string.Format("USE {0};", resource) + SqlDriver.Compile(batch).GetCommandText();
+        cmd.CommandText = SqlDriver.Compile(batch).GetCommandText();
         cmd.ExecuteNonQuery();
       }
+      Catalog = SqlDriver.ExtractCatalog(SqlConnection);
     }
 
     private void InsertTestData()
     {
-      var path = Environment.CurrentDirectory + SakilaDataBackupPath;
-      var queryBlocks = ParseDataDump(path);
-      string[] backupedParameters = BackupParameters();
-      using (var sqlCommand = SqlConnection.CreateCommand()) {
-        sqlCommand.CommandText = string.Format("SET UNIQUE_CHECKS=0;SET FOREIGN_KEY_CHECKS=0; USE {0};", ConnectionInfo.ConnectionUrl.Resource);
-        sqlCommand.ExecuteNonQuery();
-        foreach (var block in queryBlocks) {
-          sqlCommand.CommandText = block;
-          sqlCommand.ExecuteNonQuery();
-        } 
-        sqlCommand.CommandText = string.Format("SET FOREIGN_KEY_CHECKS={1}; SET UNIQUE_CHECKS={0}", backupedParameters[0], backupedParameters[1]);
-        sqlCommand.ExecuteNonQuery();
-      }
+      DisableConstraintChecks();
+      ParseDataDump();
+      EnableConstraintChecks();
     }
 
     private string[] BackupParameters()
@@ -474,25 +462,63 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       return null;
     }
 
-    private IEnumerable<string> ParseDataDump(string filePath)
+    private void ParseDataDump()
     {
-      var blocks = new List<string>();
-      var builder = new StringBuilder();
-      var reader = new StreamReader(filePath);
-      string line;
-      bool flag = false;
-      while((line = reader.ReadLine())!=null) {
-        if(line.StartsWith("--") || line.Length==0 || line.StartsWith("SET @") || line.StartsWith("SET SQL") || line.StartsWith("SET FOREIGN") || line.StartsWith("SET UNIQUE") || line.StartsWith("USE"))
-          continue;
-        blocks.Add(line);
+      using (var reader = new StreamReader(sakilaDataBackupPath)) {
+        string line;
+        while ((line = reader.ReadLine())!=null) {
+          if (line.StartsWith("--") || string.IsNullOrWhiteSpace(line) || line.StartsWith("SET @") || line.StartsWith("SET SQL") || line.StartsWith("SET FOREIGN") || line.StartsWith("SET UNIQUE") || line.StartsWith("USE"))
+            continue;
+          ExecuteCommand(line);
+        }
       }
-      return blocks;
     }
 
-    private void DropAllTables(string databaseName)
+    private void DropAllTables(Schema schema, bool extractCatalogAfterDropping)
     {
-      if (SqlConnection!=null && SqlConnection.State==ConnectionState.Open) {
-        var sqlCommand = SqlConnection.CreateCommand(string.Format("DROP SCHEMA {0}; CREATE SCHEMA {0} COLLATE 'utf8_general_ci';", databaseName));
+      var batch = SqlDml.Batch();
+      var foreignKeys = schema.Tables.SelectMany(el => el.TableConstraints.OfType<ForeignKey>());
+      foreach (var foreignKey in foreignKeys)
+        batch.Add(SqlDdl.Alter(foreignKey.Table, SqlDdl.DropConstraint(foreignKey)));
+      foreach (var view in schema.Views) {
+        batch.Add(SqlDdl.Drop(view));
+        schema.Tables.Remove(schema.Tables[view.Name]);
+      }
+      foreach (var table in schema.Tables)
+        batch.Add(SqlDdl.Drop(table));
+      if (batch.Count<=0)
+        return;
+      var sqlCommand = SqlConnection.CreateCommand();
+      sqlCommand.CommandText = SqlDriver.Compile(batch).GetCommandText();
+      sqlCommand.ExecuteNonQuery();
+      if (extractCatalogAfterDropping)
+        Catalog = SqlDriver.ExtractCatalog(SqlConnection);
+    }
+    
+    private void DisableConstraintChecks()
+    {
+      using (var sqlCommand = SqlConnection.CreateCommand()) {
+        sqlCommand.CommandText = @"SET @'OLD_UNIQUE_CHECKS'=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+          SET @'OLD_FOREIGN_KEY_CHECKS'=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+          SET @'OLD_SQL_MODE'=@@SQL_MODE, SQL_MODE='TRADITIONAL';";
+        sqlCommand.ExecuteNonQuery();
+      }
+    }
+
+    private void EnableConstraintChecks()
+    {
+      using (var sqlCommand = SqlConnection.CreateCommand()) {
+        sqlCommand.CommandText = @"SET SQL_MODE=@'OLD_SQL_MODE';
+          SET FOREIGN_KEY_CHECKS=@'OLD_FOREIGN_KEY_CHECKS';
+          SET UNIQUE_CHECKS=@'OLD_UNIQUE_CHECKS';";
+        sqlCommand.ExecuteNonQuery();
+      }
+    }
+    
+    private void ExecuteCommand(string commandText)
+    {
+      using (var sqlCommand = SqlConnection.CreateCommand()) {
+        sqlCommand.CommandText = commandText;
         sqlCommand.ExecuteNonQuery();
       }
     }
