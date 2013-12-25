@@ -274,6 +274,7 @@
     <Compile Include="Linq\QueryPreprocessorSortingTest.cs" />
     <Compile Include="Linq\SelectWithAccessToLocalCollectionTest.cs" />
     <Compile Include="Storage\AbstractGenericsTest.cs" />
+    <Compile Include="Storage\BatchingWhenValidateEntityVersionsIsEnabledTest.cs" />
     <Compile Include="Storage\ByteFieldStorageTest.cs" />
     <Compile Include="Storage\ChangedPersistOrderTest.cs" />
     <Compile Include="Storage\ClientProfileSessionTest.cs" />
