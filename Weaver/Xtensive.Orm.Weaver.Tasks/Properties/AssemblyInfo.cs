@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using Xtensive.Orm.Weaver;
 using Xtensive.Orm.Weaver.Stages;
 
-[assembly: AssemblyTitle("Xtensive.Orm.Weaver.Tasks")]
+[assembly: AssemblyTitle(ThisAssembly.ProductName + " - assembly transformation tasks")]
 
 [assembly: ProcessorStage(typeof (ValidateLicenseStage), 0)]
 [assembly: ProcessorStage(typeof (ModifyPersistentTypesStage), 1)]
