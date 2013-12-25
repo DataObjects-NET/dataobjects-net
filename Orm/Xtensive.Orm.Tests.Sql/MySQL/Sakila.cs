@@ -443,25 +443,6 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       EnableConstraintChecks();
     }
 
-    private string[] BackupParameters()
-    {
-      using (var sqlConnection = SqlDriver.CreateConnection())
-      using (var sqlCommand = sqlConnection.CreateCommand()) {
-        sqlConnection.Open();
-        sqlCommand.CommandText = "SELECT @@UNIQUE_CHECKS, @@FOREIGN_KEY_CHECKS, @@MAX_ALLOWED_PACKET";
-        var reader = sqlCommand.ExecuteReader();
-        if(reader.Read()) {
-          var param1 = reader.GetValue(0).ToString();
-          var param2 = reader.GetValue(1).ToString();
-          return new [] {param1, param2};
-        }
-        reader.Close();
-        reader.Dispose();
-        sqlConnection.Close();
-      }
-      return null;
-    }
-
     private void ParseDataDump()
     {
       using (var reader = new StreamReader(sakilaDataBackupPath)) {
