@@ -43,7 +43,8 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     [TestFixtureTearDown]
     public virtual void TearDown()
     {
-      DropAllTables(Catalog.DefaultSchema, false);
+      if (Catalog!=null)
+        DropAllTables(Catalog.DefaultSchema, false);
       if(SqlConnection!=null && SqlConnection.State!=ConnectionState.Closed) {
         SqlConnection.Close();
       }
