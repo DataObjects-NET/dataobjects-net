@@ -47,6 +47,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL.v5_0
     [TestFixtureSetUp]
     public override void SetUp()
     {
+      CheckRequirements();
       SqlDriver = TestSqlDriver.Create(ConnectionInfo.ConnectionUrl.Url);
       SqlConnection = SqlDriver.CreateConnection();
       SqlConnection.Open();
