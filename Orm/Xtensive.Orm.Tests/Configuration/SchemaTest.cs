@@ -19,6 +19,7 @@ namespace Xtensive.Orm.Tests.Configuration
   {
     private const string originalConfigFileName = "Xtensive.Orm.Tests.dll.config";
     private const string xsdFileName = "Xtensive.Orm.xsd";
+    private const string xsdInLowerCaseFileName = "Test.xsd";
     private const string configFileName = "Test.config";
     private const string originalRootElementName = "AppConfigTest";
     private const string rootElementName = "Xtensive.Orm";
@@ -34,17 +35,17 @@ namespace Xtensive.Orm.Tests.Configuration
       Debug.Assert(segmentConfig != null, "segmentConfig != null");
       segmentConfig.Name = rootElementName;
 
-      foreach (XElement element in segmentConfig.DescendantsAndSelf()) {
+      foreach (XElement element in segmentConfig.DescendantsAndSelf()) 
         element.Name = (XNamespace)configXmlNamespace + element.Name.LocalName;
-      }
 
-      using (StreamWriter segmentConfigWriter = File.CreateText(configFileName)) {
-        segmentConfigWriter.Write(segmentConfig);
-      }
+      using (StreamWriter segmentConfigWriter = File.CreateText(configFileName)) 
+        segmentConfigWriter.Write(segmentConfig.ToString().ToLower());
+
+      changeXsdElementsToLowerCase();
 
       try {
         XmlReaderSettings schemaSettings = new XmlReaderSettings();
-        schemaSettings.Schemas.Add(configXmlNamespace, xsdFileName);
+        schemaSettings.Schemas.Add(configXmlNamespace, xsdInLowerCaseFileName);
         schemaSettings.ValidationType = ValidationType.Schema;
         schemaSettings.ValidationEventHandler += new ValidationEventHandler(ValidationHandler);
 
@@ -85,6 +86,7 @@ namespace Xtensive.Orm.Tests.Configuration
       }
       finally {
         File.Delete(configFileName);
+        File.Delete(xsdInLowerCaseFileName);
       }
 
       Assert.IsFalse(hasErrors);
@@ -94,6 +96,22 @@ namespace Xtensive.Orm.Tests.Configuration
     {
       hasErrors = true;
       Console.WriteLine("({0}) {1}: {2}",exception.Severity, exception.GetType(), exception.Message);
+    }
+
+    private enum elementsUsedInXsd { element, complexType, attribute, simpleType, restriction, enumeration, pattern};
+
+    private static void changeXsdElementsToLowerCase()
+    {
+      XNamespace xNamespaceXsd = XNamespace.Get("http://www.w3.org/2001/XMLSchema");
+      XElement xElementXsd = XElement.Load(xsdFileName);
+
+      foreach (var element in (elementsUsedInXsd[]) Enum.GetValues(typeof (elementsUsedInXsd)))
+        foreach (var attributes in xElementXsd.Descendants(xNamespaceXsd + element.ToString()))
+          foreach (var attribute in attributes.Attributes())
+            attribute.Value = attribute.Value.ToLower();
+
+      using (StreamWriter xElementXsdWriter = File.CreateText(xsdInLowerCaseFileName))
+        xElementXsdWriter.Write(xElementXsd);
     }
   }
 }
