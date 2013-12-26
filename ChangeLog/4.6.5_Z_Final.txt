@@ -6,5 +6,7 @@
 [main] Fixed materialization of delayed queries with parameters in final projection
 [main] Implemented merging of duplicated query parameters
 [main] Improved handling of unique index conflicts during persist
+[main] Implemented query batching when ValidateEntityVersions option is enabled
 [sqlserver] Optimized queries that are executed during initialization
 [sqlserver] Added support for full text data type columns
+[sqlserver] Added ignoring of filetable objects during upgrade and schema validation
