@@ -10,3 +10,6 @@
 [sqlserver] Optimized queries that are executed during initialization
 [sqlserver] Added support for full text data type columns
 [sqlserver] Added ignoring of filetable objects during upgrade and schema validation
+[sqlserverce] Fixed translation of DateTime operations in LINQ
+[sqlite] Fixed translation of DateTime operations in LINQ
+[mysql] Fixed translation of DateTime operations in LINQ
