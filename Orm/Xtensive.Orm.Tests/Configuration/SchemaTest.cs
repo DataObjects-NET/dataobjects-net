@@ -5,6 +5,7 @@
 // Created:    2013.10.04
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Xml;
@@ -32,13 +33,13 @@ namespace Xtensive.Orm.Tests.Configuration
       hasErrors = false;
 
       XElement segmentConfig = XElement.Load(originalConfigFileName).Element(originalRootElementName);
-      Debug.Assert(segmentConfig != null, "segmentConfig != null");
+      Debug.Assert(segmentConfig!=null, "segmentConfig != null");
       segmentConfig.Name = rootElementName;
 
-      foreach (XElement element in segmentConfig.DescendantsAndSelf()) 
-        element.Name = (XNamespace)configXmlNamespace + element.Name.LocalName;
+      foreach (XElement element in segmentConfig.DescendantsAndSelf())
+        element.Name = (XNamespace) configXmlNamespace + element.Name.LocalName;
 
-      using (StreamWriter segmentConfigWriter = File.CreateText(configFileName)) 
+      using (StreamWriter segmentConfigWriter = File.CreateText(configFileName))
         segmentConfigWriter.Write(segmentConfig.ToString().ToLower());
 
       changeXsdElementsToLowerCase();
@@ -95,23 +96,23 @@ namespace Xtensive.Orm.Tests.Configuration
     public void ValidationHandler(object sender, ValidationEventArgs exception)
     {
       hasErrors = true;
-      Console.WriteLine("({0}) {1}: {2}",exception.Severity, exception.GetType(), exception.Message);
+      Console.WriteLine("({0}) {1}: {2}", exception.Severity, exception.GetType(), exception.Message);
     }
-
-    private enum elementsUsedInXsd { element, complexType, attribute, simpleType, restriction, enumeration, pattern};
 
     private static void changeXsdElementsToLowerCase()
     {
-      XNamespace xNamespaceXsd = XNamespace.Get("http://www.w3.org/2001/XMLSchema");
-      XElement xElementXsd = XElement.Load(xsdFileName);
+      var elementsUsedInXsd = new List<string> {"element", "complexType", "attribute", "simpleType", "restriction", "enumeration", "pattern"};
 
-      foreach (var element in (elementsUsedInXsd[]) Enum.GetValues(typeof (elementsUsedInXsd)))
-        foreach (var attributes in xElementXsd.Descendants(xNamespaceXsd + element.ToString()))
+      XNamespace namespaceXsd = XNamespace.Get("http://www.w3.org/2001/XMLSchema");
+      XElement xsdWithElementsToLowerCase = XElement.Load(xsdFileName);
+
+      foreach (var element in elementsUsedInXsd)
+        foreach (var attributes in xsdWithElementsToLowerCase.Descendants(namespaceXsd + element))
           foreach (var attribute in attributes.Attributes())
             attribute.Value = attribute.Value.ToLower();
 
       using (StreamWriter xElementXsdWriter = File.CreateText(xsdInLowerCaseFileName))
-        xElementXsdWriter.Write(xElementXsd);
+        xElementXsdWriter.Write(xsdWithElementsToLowerCase);
     }
   }
 }
