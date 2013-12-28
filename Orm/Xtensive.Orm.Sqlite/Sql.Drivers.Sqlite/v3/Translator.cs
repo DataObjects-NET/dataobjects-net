@@ -97,16 +97,16 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override string Translate(SqlCompilerContext context, object literalValue)
     {
       var literalType = literalValue.GetType();
-      switch (Type.GetTypeCode(literalType)) {
-        case TypeCode.Byte:
-          return ByteArrayToString((byte[])literalValue);
-        case TypeCode.Boolean:
-          return ((Boolean)literalValue) ? "1" : "0";
-      }
+
+      if (literalType==typeof (byte[]))
+        return ByteArrayToString((byte[]) literalValue);
       if (literalType==typeof (TimeSpan))
-        return Convert.ToString((long)((TimeSpan)literalValue).TotalMilliseconds);
+        return Convert.ToString((long) ((TimeSpan) literalValue).TotalMilliseconds);
+      if (literalType==typeof (Boolean))
+        return ((Boolean) literalValue) ? "1" : "0";
       if (literalType==typeof (Guid))
         return ByteArrayToString(((Guid) literalValue).ToByteArray());
+
       return base.Translate(context, literalValue);
     }
 
