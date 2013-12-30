@@ -45,9 +45,8 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     {
       if (Catalog!=null)
         DropAllTables(Catalog.DefaultSchema, false);
-      if(SqlConnection!=null && SqlConnection.State!=ConnectionState.Closed) {
+      if (SqlConnection!=null && SqlConnection.State!=ConnectionState.Closed)
         SqlConnection.Close();
-      }
     }
 
     protected virtual void CheckRequirements()
@@ -447,7 +446,10 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       using (var reader = new StreamReader(sakilaDataBackupPath)) {
         string line;
         while ((line = reader.ReadLine())!=null) {
-          if (line.StartsWith("--") || string.IsNullOrWhiteSpace(line) || line.StartsWith("SET @") || line.StartsWith("SET SQL") || line.StartsWith("SET FOREIGN") || line.StartsWith("SET UNIQUE") || line.StartsWith("USE"))
+          if (line.StartsWith("--") || string.IsNullOrWhiteSpace(line) || 
+              line.StartsWith("SET @") || line.StartsWith("SET SQL") || 
+              line.StartsWith("SET FOREIGN") || line.StartsWith("SET UNIQUE") || 
+              line.StartsWith("USE"))
             continue;
           ExecuteCommand(line);
         }
