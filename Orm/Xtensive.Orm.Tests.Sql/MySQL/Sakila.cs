@@ -58,17 +58,15 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     private void CreateSchema()
     {
       var schema = Catalog.DefaultSchema;
-      Table table;
-      View view;
-      Index index;
+      
       var batch = SqlDml.Batch();
-      table = schema.CreateTable("actor");
+      var table = schema.CreateTable("actor");
       table.CreateColumn("actor_id", new SqlValueType("SMALLINT UNSIGNED"));
       table.CreateColumn("first_name", new SqlValueType(SqlType.VarChar, 45));
       table.CreateColumn("last_name", new SqlValueType(SqlType.VarChar, 45));
       table.CreateColumn("last_update", new SqlValueType("TIMESTAMP")).DefaultValue = SqlDml.Native("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");// add default value and on update event
       table.CreatePrimaryKey("pk_actor_actor_id", table.TableColumns["actor_id"]);
-      index = table.CreateIndex("inx_actor_last_name");
+      var index = table.CreateIndex("inx_actor_last_name");
       index.CreateIndexColumn(table.TableColumns["last_name"]);
       batch.Add(SqlDdl.Create(table));
       batch.Add(SqlDdl.Create(index));
@@ -423,7 +421,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       table.CreateColumn("field2", new SqlValueType(SqlType.VarChar, 20)).IsNullable = true;
       batch.Add(SqlDdl.Create(table));
 
-      view = schema.CreateView("customer_list", SqlDml.Native(@"SELECT cu.customer_id AS ID, CONCAT(cu.first_name, _utf8' ', cu.last_name) AS name, a.address AS address, a.postal_code AS `zip code`,
+      var view = schema.CreateView("customer_list", SqlDml.Native(@"SELECT cu.customer_id AS ID, CONCAT(cu.first_name, _utf8' ', cu.last_name) AS name, a.address AS address, a.postal_code AS `zip code`,
         a.phone AS phone, city.city AS city, country.country AS country, IF(cu.active, _utf8'active',_utf8'') AS notes, cu.store_id AS SID
         FROM customer AS cu JOIN address AS a ON cu.address_id = a.address_id JOIN city ON a.city_id = city.city_id
 	      JOIN country ON city.country_id = country.country_id"));
