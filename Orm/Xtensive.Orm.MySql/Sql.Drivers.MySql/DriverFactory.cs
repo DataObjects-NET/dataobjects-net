@@ -95,7 +95,7 @@ namespace Xtensive.Sql.Drivers.MySql
           return new v5_5.Driver(coreServerInfo);
         if (version.Major==5 && version.Minor==6)
           return new v5_6.Driver(coreServerInfo);
-        return new v5_0.Driver(coreServerInfo);
+        return new v5_6.Driver(coreServerInfo);
       }
     }
   }
