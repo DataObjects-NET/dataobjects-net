@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
+         DefaultTargets="Verify">
+
+<PropertyGroup>
+  <Framework Condition="'$(Framework)'==''">Net40</Framework>
+  <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
+  <LibPath>_Build\Binaries\$(Configuration)\Lib\$(Framework)\</LibPath>
+  <ToolsPath>$(registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.0A\WinSDK-NetFx40Tools@InstallationFolder)</ToolsPath>
+</PropertyGroup>
+
+<ItemGroup>
+  <Assemblies Include="$(LibPath)Xtensive.Orm.Tests.dll" />
+  <Assemblies Include="$(LibPath)Xtensive.Orm.Tests.VB.dll" />
+  <Assemblies Include="$(LibPath)Xtensive.Orm.Tests.FSharp.dll" />
+</ItemGroup>
+
+<Target Name="Verify" Inputs="@(Assemblies)" Outputs="%(Identity).Fake">
+  <PropertyGroup>
+    <VerifyCommand>"$(ToolsPath)peverify.exe" /nologo "%(Assemblies.Identity)"</VerifyCommand>
+  </PropertyGroup>
+  <Exec Command="$(VerifyCommand)" />
+</Target>
+
+</Project>
