@@ -32,6 +32,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
         new ValueRange<DateTime>(new DateTime(1, 1, 1), new DateTime(9999, 12,31)),
         "datetime2", "datetime", "date", "time", "smalldatetime");
+
+      types.DateTimeOffset = DataTypeInfo.Range(SqlType.DateTimeOffset, common | index,
+        new ValueRange<DateTimeOffset>(new DateTimeOffset(1, 1, 1, 0, 0, 0, 0, new TimeSpan(0)),
+          new DateTimeOffset(9999, 12, 31, 0, 0, 0, 0, new TimeSpan(0))),
+          "datetimeoffset");
+
       types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarBinaryMax, common, "varbinary(max)", "image");
 
       var geo = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.Multiple;

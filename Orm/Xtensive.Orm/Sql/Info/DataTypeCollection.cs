@@ -121,6 +121,13 @@ namespace Xtensive.Sql.Info
     public DataTypeInfo DateTime { get; set; }
 
     /// <summary>
+    /// Date and time data from January 1,1 A.D. through December 31, 9999 A.D., 
+    /// to an accuracy of 100 nanoseconds.
+    /// Storage size is 8 to 10 bytes. 
+    /// </summary>
+    public DataTypeInfo DateTimeOffset { get; set; }
+
+    /// <summary>
     /// A representation of the interval data type.
     /// </summary>
     public DataTypeInfo Interval { get; set; }
@@ -218,6 +225,7 @@ namespace Xtensive.Sql.Info
       yield return Float;
       yield return Double;
       yield return DateTime;
+      yield return DateTimeOffset;
       yield return Char;
       yield return VarChar;
       yield return VarCharMax;

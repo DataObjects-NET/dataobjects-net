@@ -134,6 +134,7 @@ namespace Xtensive.Orm
           typeof(string),
           typeof(Guid),
           typeof(DateTime),
+          typeof(DateTimeOffset),
           typeof(TimeSpan),
           typeof(byte[]),
           }.Concat(SupportedNumericTypes).ToHashSet()

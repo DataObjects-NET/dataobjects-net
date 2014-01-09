@@ -214,6 +214,7 @@
     <Compile Include="Issues\IssueJira0149_LinqTranslationError.cs" />
     <Compile Include="Issues\IssueJira0165_CaseSensitiveFieldNames.cs" />
     <Compile Include="Issues\IssueJira0168_RemoveQueryableExtensionFails.cs" />
+    <Compile Include="Issues\IssueJira0171_DateTimeOffset.cs" />
     <Compile Include="Issues\IssueJira0179_NullableBooleanFieldsQuery.cs" />
     <Compile Include="Issues\IssueJira0180_ChangeNullabilityViaUpgradeHints\ModelVersion1.cs" />
     <Compile Include="Issues\IssueJira0180_ChangeNullabilityViaUpgradeHints\ModelVersion2.cs" />

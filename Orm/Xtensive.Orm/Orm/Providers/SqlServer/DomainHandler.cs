@@ -4,6 +4,9 @@
 // Created by: Alexey Gamzov
 // Created:    2008.07.04
 
+using System;
+using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Providers.SqlServer
@@ -17,6 +20,12 @@ namespace Xtensive.Orm.Providers.SqlServer
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
       return new SqlCompiler(Handlers);
+    }
+
+    /// <inheritdoc/>
+    protected override IEnumerable<Type> GetProviderCompilerContainers()
+    {
+      return base.GetProviderCompilerContainers().AddOne(typeof (DateTimeOffsetCompilers));
     }
   }
 }

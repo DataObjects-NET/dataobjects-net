@@ -242,6 +242,7 @@ namespace Xtensive.Orm.Building
       ValidFieldTypes.Add(typeof (byte[]));
       ValidFieldTypes.Add(typeof (Guid));
       ValidFieldTypes.Add(typeof (DateTime));
+      ValidFieldTypes.Add(typeof (DateTimeOffset));
       ValidFieldTypes.Add(typeof (TimeSpan));
       ValidFieldTypes.Add(typeof (decimal));
       ValidFieldTypes.Add(typeof (Key));

@@ -205,6 +205,11 @@ namespace Xtensive.Sql.Dml
       return new SqlLiteral<DateTime>(value);
     }
 
+    public static implicit operator SqlExpression(DateTimeOffset value)
+    {
+      return new SqlLiteral<DateTimeOffset>(value);
+    }
+
     public static implicit operator SqlExpression(TimeSpan value)
     {
       return new SqlLiteral<TimeSpan>(value);
