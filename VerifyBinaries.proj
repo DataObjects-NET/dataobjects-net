@@ -6,7 +6,8 @@
   <Framework Condition="'$(Framework)'==''">Net40</Framework>
   <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
   <LibPath>_Build\Binaries\$(Configuration)\Lib\$(Framework)\</LibPath>
-  <ToolsPath>$(registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.0A\WinSDK-NetFx40Tools@InstallationFolder)</ToolsPath>
+  <ToolsPath>$(registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.1A\WinSDK-NetFx40Tools@InstallationFolder)</ToolsPath>
+  <ToolsPath Condition="'$(ToolsPath)'=''">$(registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.0A\WinSDK-NetFx40Tools@InstallationFolder)</ToolsPath>
 </PropertyGroup>
 
 <ItemGroup>
