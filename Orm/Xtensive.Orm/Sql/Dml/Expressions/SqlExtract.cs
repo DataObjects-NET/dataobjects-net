@@ -13,7 +13,7 @@ namespace Xtensive.Sql.Dml
   public class SqlExtract : SqlExpression
   {
     public SqlDateTimePart DateTimePart { get; private set; }
-
+    public SqlDateTimeOffsetPart DateTimeOffsetPart { get; private set; }
     public SqlIntervalPart IntervalPart { get; private set; }
 
     public SqlExpression Operand { get; private set; }
@@ -24,6 +24,7 @@ namespace Xtensive.Sql.Dml
       ArgumentValidator.EnsureArgumentIs<SqlExtract>(expression, "expression");
       var replacingExpression = (SqlExtract) expression;
       DateTimePart = replacingExpression.DateTimePart;
+      DateTimeOffsetPart = replacingExpression.DateTimeOffsetPart;
       IntervalPart = replacingExpression.IntervalPart;
       Operand = replacingExpression.Operand;
     }
@@ -34,7 +35,9 @@ namespace Xtensive.Sql.Dml
         return context.NodeMapping[this];
       var clone = DateTimePart!=SqlDateTimePart.Nothing
         ? new SqlExtract(DateTimePart, (SqlExpression) Operand.Clone(context))
-        : new SqlExtract(IntervalPart, (SqlExpression) Operand.Clone(context));
+        : IntervalPart!=SqlIntervalPart.Nothing
+          ? new SqlExtract(IntervalPart, (SqlExpression) Operand.Clone(context))
+          : new SqlExtract(DateTimeOffsetPart, (SqlExpression) Operand.Clone(context));
       context.NodeMapping[this] = clone;
       return clone;
     }
@@ -50,6 +53,7 @@ namespace Xtensive.Sql.Dml
       : base(SqlNodeType.Extract)
     {
       DateTimePart = dateTimePart;
+      DateTimeOffsetPart = SqlDateTimeOffsetPart.Nothing;
       IntervalPart = SqlIntervalPart.Nothing;
       Operand = operand;
     }
@@ -58,7 +62,17 @@ namespace Xtensive.Sql.Dml
       : base(SqlNodeType.Extract)
     {
       DateTimePart = SqlDateTimePart.Nothing;
+      DateTimeOffsetPart = SqlDateTimeOffsetPart.Nothing;
       IntervalPart = intervalPart;
+      Operand = operand;
+    }
+
+    public SqlExtract(SqlDateTimeOffsetPart dateTimeOffsetPart, SqlExpression operand)
+      : base(SqlNodeType.Extract)
+    {
+      DateTimePart = SqlDateTimePart.Nothing;
+      IntervalPart = SqlIntervalPart.Nothing;
+      DateTimeOffsetPart = dateTimeOffsetPart;
       Operand = operand;
     }
   }

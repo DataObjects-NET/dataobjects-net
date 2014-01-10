@@ -11,6 +11,7 @@ namespace Xtensive.Sql.Dml
   {
     Concat,
     CurrentDate,
+    CurrentDateTimeOffset,
     CurrentTime,
     CurrentTimeStamp,
     Lower,
@@ -70,6 +71,17 @@ namespace Xtensive.Sql.Dml
     IntervalToNanoseconds,
     IntervalAbs,
     IntervalNegate,
+
+    // DateTimeOffset / interval functions
+    DateTimeOffsetConstruct,
+    DateTimeOffsetAddYears,
+    DateTimeOffsetAddMonths,
+    DateTimeOffsetTruncate,
+    DateTimeOffsetToDateTime,
+    DateTimeOffsetPartOffset,
+    DateTimeOffsetToUtcDateTime,
+    DateTimeOffsetToLocalDateTime,
+    DateTimeOffsetTimeOfDay,
 
     // .NET like rounding functions
 

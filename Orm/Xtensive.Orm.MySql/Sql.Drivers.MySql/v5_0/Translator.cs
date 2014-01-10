@@ -492,7 +492,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
             case NodeSection.Entry:
               return string.Empty;
             case NodeSection.Exit:
-              return "+ 0.0";
+              return string.Empty;
             default:
               throw new ArgumentOutOfRangeException("section");
           }

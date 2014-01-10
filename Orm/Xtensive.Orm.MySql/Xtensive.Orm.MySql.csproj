@@ -75,6 +75,12 @@
     <Compile Include="Sql.Drivers.MySql\v5_5\ServerInfoProvider.cs" />
     <Compile Include="Sql.Drivers.MySql\v5_5\Translator.cs" />
     <Compile Include="Sql.Drivers.MySql\v5_5\TypeMapper.cs" />
+    <Compile Include="Sql.Drivers.MySql\v5_6\Compiler.cs" />
+    <Compile Include="Sql.Drivers.MySql\v5_6\Driver.cs" />
+    <Compile Include="Sql.Drivers.MySql\v5_6\Extractor.cs" />
+    <Compile Include="Sql.Drivers.MySql\v5_6\ServerInfoProvider.cs" />
+    <Compile Include="Sql.Drivers.MySql\v5_6\Translator.cs" />
+    <Compile Include="Sql.Drivers.MySql\v5_6\TypeMapper.cs" />
     <EmbeddedResource Include="Sql.Drivers.MySql\Resources\Strings.resx">
       <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
@@ -107,5 +113,6 @@
     <Content Include="Sql.Drivers.MySql\progression.txt" />
     <Content Include="Sql.Drivers.MySql\Readme.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

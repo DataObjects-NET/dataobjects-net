@@ -112,6 +112,7 @@
     <Compile Include="SqlServer\v09\TypeMappingTest.cs" />
     <Compile Include="PostgreSql\v8_3\TypeMappingTest.cs" />
     <Compile Include="PostgreSql\v8_4\TypeMappingTest.cs" />
+    <Compile Include="SqlServer\v10\DateTimeOffsetTest.cs" />
     <Compile Include="SqlServer\v10\ExtractorTest.cs" />
     <Compile Include="SqlTest.cs" />
     <Compile Include="TestConnectionString.cs" />

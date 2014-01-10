@@ -97,14 +97,16 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override string Translate(SqlCompilerContext context, object literalValue)
     {
       var literalType = literalValue.GetType();
-      if (literalType==typeof(byte[]))
+
+      if (literalType==typeof (byte[]))
         return ByteArrayToString((byte[]) literalValue);
       if (literalType==typeof (TimeSpan))
-        return TimeSpanToString(((TimeSpan) literalValue), TimeSpanFormatString);
+        return Convert.ToString((long) ((TimeSpan) literalValue).TotalMilliseconds);
       if (literalType==typeof (Boolean))
         return ((Boolean) literalValue) ? "1" : "0";
       if (literalType==typeof (Guid))
         return ByteArrayToString(((Guid) literalValue).ToByteArray());
+
       return base.Translate(context, literalValue);
     }
 
@@ -115,44 +117,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       result.AppendHexArray(literalValue);
       result.Append("'");
       return result.ToString();
-    }
-
-    public static string TimeSpanToString(TimeSpan value, string format)
-    {
-      int days = value.Days;
-      int hours = value.Hours;
-      int minutes = value.Minutes;
-      int seconds = value.Seconds;
-      int milliseconds = value.Milliseconds;
-
-      bool negative = false;
-
-      if (days < 0) {
-        days = -days;
-        negative = true;
-      }
-
-      if (hours < 0) {
-        hours = -hours;
-        negative = true;
-      }
-
-      if (minutes < 0) {
-        minutes = -minutes;
-        negative = true;
-      }
-
-      if (seconds < 0) {
-        seconds = -seconds;
-        negative = true;
-      }
-
-      if (milliseconds < 0) {
-        milliseconds = -milliseconds;
-        negative = true;
-      }
-
-      return String.Format(format, negative ? "-" : string.Empty, value.Ticks);
     }
 
     /// <inheritdoc/>
@@ -348,6 +312,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           return "'%d'";
         if (extract.DateTimePart==SqlDateTimePart.DayOfWeek)
           return "'%w'";
+        if (extract.DateTimePart == SqlDateTimePart.DayOfYear)
+          return "'%j'";
         if (extract.DateTimePart==SqlDateTimePart.Hour)
           return "'%H'";
         if (extract.DateTimePart==SqlDateTimePart.Minute)

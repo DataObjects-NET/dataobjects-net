@@ -639,6 +639,108 @@ namespace Xtensive.Sql
 
     #endregion
     
+    # region DateTimeOffset functions
+
+    public static SqlFunctionCall CurrentDateTimeOffset()
+    {
+      return new SqlFunctionCall(SqlFunctionType.CurrentDateTimeOffset);
+    }
+
+    public static SqlExtract Extract(SqlDateTimeOffsetPart part, SqlExpression operand)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      SqlValidator.EnsureIsArithmeticExpression(operand);
+      if (part==SqlDateTimeOffsetPart.Nothing)
+        throw new ArgumentException();
+      return new SqlExtract(part, operand);
+    }
+
+    public static SqlFunctionCall DateTimeOffsetConstruct(SqlExpression year, SqlExpression month, SqlExpression day, SqlExpression offset)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(year, "year");
+      ArgumentValidator.EnsureArgumentNotNull(month, "month");
+      ArgumentValidator.EnsureArgumentNotNull(day, "day");
+      ArgumentValidator.EnsureArgumentNotNull(offset, "offset");
+      SqlValidator.EnsureIsArithmeticExpression(year);
+      SqlValidator.EnsureIsArithmeticExpression(month);
+      SqlValidator.EnsureIsArithmeticExpression(day);
+      SqlValidator.EnsureIsArithmeticExpression(offset);
+      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetConstruct, year, month, day, offset);
+    }
+
+    public static SqlBinary DateTimeOffsetPlusInterval(SqlExpression left, SqlExpression right)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(left, "left");
+      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      return new SqlBinary(SqlNodeType.DateTimeOffsetPlusInterval, left, right);
+    }
+
+    public static SqlBinary DateTimeOffsetMinusInterval(SqlExpression left, SqlExpression right)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(left, "left");
+      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      return new SqlBinary(SqlNodeType.DateTimeOffsetMinusInterval, left, right);
+    }
+
+    public static SqlBinary DateTimeOffsetMinusDateTimeOffset(SqlExpression left, SqlExpression right)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(left, "left");
+      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      return new SqlBinary(SqlNodeType.DateTimeOffsetMinusDateTimeOffset, left, right);
+    }
+
+    public static SqlFunctionCall DateTimeOffsetAddYears(SqlExpression source, SqlExpression years)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(years, "years");
+      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetAddYears, source, years);
+    }
+
+    public static SqlFunctionCall DateTimeOffsetAddMonths(SqlExpression source, SqlExpression months)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(months, "months");
+      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetAddMonths, source, months);
+    }
+
+    public static SqlFunctionCall DateTimeOffsetTruncate(SqlExpression source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetTruncate, source);
+    }
+
+    public static SqlFunctionCall DateTimeOffsetToDateTime(SqlExpression source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToDateTime, source);
+    }
+
+    public static SqlFunctionCall DateTimeOffsetTimeOfDay(SqlExpression dateTimeOffset)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, "dateTimeOffset");
+      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetTimeOfDay, dateTimeOffset);
+    }
+
+    public static SqlFunctionCall DateTimeOffsetPartOffset(SqlExpression dateTimeOffset)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, "dateTimeOffset");
+      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetPartOffset, dateTimeOffset);
+    }
+
+    public static SqlFunctionCall DateTimeOffsetToUtcDateTime(SqlExpression dateTimeOffset)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, "dateTimeOffset");
+      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToUtcDateTime, dateTimeOffset);
+    }
+
+    public static SqlFunctionCall DateTimeOffsetLocalDateTime(SqlExpression dateTimeOffset)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, "dateTimeOffset");
+      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToLocalDateTime, dateTimeOffset);
+    }
+
+    #endregion
+
     #region FunctionCall
 
     public static SqlUserFunctionCall FunctionCall(string name, IEnumerable<SqlExpression> expressions)

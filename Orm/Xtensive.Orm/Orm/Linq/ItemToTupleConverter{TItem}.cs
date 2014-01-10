@@ -69,6 +69,7 @@ namespace Xtensive.Orm.Linq
         type==typeof (decimal) || 
         type==typeof (string) || 
         type==typeof (DateTime) ||
+        type==typeof (DateTimeOffset) ||
         type==typeof(Guid) || 
         type==typeof (TimeSpan) || 
         (type.IsNullable() && TypeIsStorageMappable(type.GetGenericArguments()[0]));
