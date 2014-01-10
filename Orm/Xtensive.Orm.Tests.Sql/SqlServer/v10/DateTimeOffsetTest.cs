@@ -6,9 +6,10 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
-namespace Xtensive.Sql.Tests.SqlServer.v10
+namespace Xtensive.Orm.Tests.Sql.SqlServer.v10
 {
   [TestFixture]
   public class DateTimeOffsetTest : SqlTest
