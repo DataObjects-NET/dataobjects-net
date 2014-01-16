@@ -78,12 +78,11 @@ namespace Xtensive.Orm.Tests.Issues
       Assert.That(count, Is.EqualTo(1));
     }
 
-    private void RunAllTests(Func<EntityWithDateTimeOffset, bool> filterProvider)
+    private void RunAllTests(Expression<Func<EntityWithDateTimeOffset, bool>> filterProvider)
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var count = session.Query.All<EntityWithDateTimeOffset>().Count(filterProvider);
-        Assert.That(count, Is.EqualTo(1));
+        RunTest(session, filterProvider);
       }
     }
 

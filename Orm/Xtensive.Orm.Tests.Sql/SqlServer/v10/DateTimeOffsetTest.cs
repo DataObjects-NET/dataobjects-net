@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v10
         1);
       CheckEquality(
         SqlDml.Extract(SqlDateTimeOffsetPart.DayOfWeek, new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        2);
+        1);
       CheckEquality(
         SqlDml.Extract(SqlDateTimeOffsetPart.DayOfYear, new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
         1);
@@ -114,7 +114,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v10
     {
       CheckEquality(
         SqlDml.DateTimeOffsetTimeOfDay(new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        new TimeSpan(1, 1, 1));
+        new TimeSpan(0, 1, 1, 1, 1));
     }
 
     [Test]
@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v10
     {
       CheckEquality(
         SqlDml.DateTimeOffsetTruncate(new DateTimeOffset(2005, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        new DateTimeOffset(2005, 1, 1, 0, 0, 0, 0, new TimeSpan(4, 10, 0)));
+        new DateTime(2005, 1, 1, 0, 0, 0, 0));
     }
 
     [Test]

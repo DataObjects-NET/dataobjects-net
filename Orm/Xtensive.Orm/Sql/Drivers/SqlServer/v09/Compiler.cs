@@ -267,7 +267,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return SqlDml.Cast(arg, SqlType.Int64);
     }
 
-    private static SqlUserFunctionCall DatePartWeekDay(SqlExpression date)
+    protected static SqlUserFunctionCall DatePartWeekDay(SqlExpression date)
     {
       return SqlDml.FunctionCall("DATEPART", SqlDml.Native("WEEKDAY"), date);
     }
