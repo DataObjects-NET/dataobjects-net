@@ -50,6 +50,7 @@
   <ItemGroup>
     <Compile Include="CloneTests.cs" />
     <Compile Include="CollectionTest.cs" />
+    <Compile Include="DateTimeOffsetTest.cs" />
     <Compile Include="ExceptionTypesTest.cs" />
     <Compile Include="Firebird\DateTimeIntervalTest.cs" />
     <Compile Include="Firebird\ExceptionTypesTest.cs" />

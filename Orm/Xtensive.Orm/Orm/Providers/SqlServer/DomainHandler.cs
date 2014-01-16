@@ -21,11 +21,5 @@ namespace Xtensive.Orm.Providers.SqlServer
     {
       return new SqlCompiler(Handlers);
     }
-
-    /// <inheritdoc/>
-    protected override IEnumerable<Type> GetProviderCompilerContainers()
-    {
-      return base.GetProviderCompilerContainers().AddOne(typeof (DateTimeOffsetCompilers));
-    }
   }
 }
