@@ -27,9 +27,11 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       case SqlFunctionType.PadRight:
         SqlHelper.GenericPad(node).AcceptVisitor(this);
         return;
+      case SqlFunctionType.DateTimeOffsetAddYears:
       case SqlFunctionType.DateTimeAddYears:
         DateTimeAddComponent(node.Arguments[0], node.Arguments[1], true).AcceptVisitor(this);
         return;
+      case SqlFunctionType.DateTimeOffsetAddMonths:
       case SqlFunctionType.DateTimeAddMonths:
         DateTimeAddComponent(node.Arguments[0], node.Arguments[1], false).AcceptVisitor(this);
         return;
@@ -57,6 +59,27 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       case SqlFunctionType.DateTimeToStringIso:
         DateTimeToStringIso(node.Arguments[0]).AcceptVisitor(this);
         return;
+      case SqlFunctionType.DateTimeOffsetConstruct:
+        DateTimeOffsetConstruct(DateTimeConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2]), node.Arguments[3]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetPartOffset:
+        DateTimeOffsetPartOffset(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetTimeOfDay:
+        DateTimeOffsetTimeOfDay(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetToDateTime:
+        DateTimeOffsetTruncateOffset(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetTruncate:
+        DateTimeOffsetTruncate(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetToUtcDateTime:
+        DateTimeOffsetToUtcDateTime(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetToLocalDateTime:
+        DateTimeOffsetToLocalDateTime(node.Arguments[0]).AcceptVisitor(this);
+        return;
       default:
         base.Visit(node);
         return;
@@ -80,6 +103,44 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override void Visit(SqlExtract node)
     {
+      switch (node.DateTimeOffsetPart) {
+      case SqlDateTimeOffsetPart.Day:
+        DateTimeOffsetExtractPart(node.Operand, "DD").AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.Hour:
+        DateTimeOffsetExtractPart(node.Operand, "HH24").AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.Millisecond:
+        DateTimeOffsetExtractPart(node.Operand, "FF3").AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.Nanosecond:
+        DateTimeOffsetExtractPart(node.Operand, "FF9").AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.Minute:
+        DateTimeOffsetExtractPart(node.Operand, "MI").AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.Month:
+        DateTimeOffsetExtractPart(node.Operand, "MM").AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.Second:
+        DateTimeOffsetExtractPart(node.Operand, "SS").AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.Year:
+        DateTimeOffsetExtractPart(node.Operand, "YYYY").AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.TimeZoneHour:
+        DateTimeOffsetExtractPart(node.Operand, "TZH").AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.TimeZoneMinute:
+        DateTimeOffsetExtractPart(node.Operand, "TZM").AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.DayOfWeek:
+        DateTimeExtractDayOfWeek(node.Operand).AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.DayOfYear:
+        DateTimeOffsetExtractPart(node.Operand, "DDD").AcceptVisitor(this);
+        return;
+      }
       switch (node.DateTimePart) {
       case SqlDateTimePart.DayOfYear:
         DateTimeExtractDayOfYear(node.Operand).AcceptVisitor(this);
@@ -237,6 +298,63 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     private static SqlExpression DateTimeToStringIso(SqlExpression dateTime)
     {
       return SqlDml.FunctionCall("To_Char", dateTime, "YYYY-MM-DD\"T\"HH24:MI:SS");
+    }
+
+    private static SqlExpression DateTimeOffsetConstruct(SqlExpression dateTime, SqlExpression offset)
+    {
+      var offsetToInt = offset as SqlLiteral<int>;
+
+      return SqlDml.FunctionCall("FROM_TZ",
+        dateTime,
+        AnsiString(string.Format("{0}{1}:{2}",
+          (offsetToInt.Value < 0) ? "-" : "+",
+          offsetToInt.Value / 60,
+          offsetToInt.Value % 60))
+        );
+    }
+
+    private static SqlExpression DateTimeOffsetPartOffset(SqlExpression dateTimeOffset)
+    {
+      return SqlDml.Cast(dateTimeOffset, SqlType.DateTime)
+        - SqlDml.Cast(DateTimeOffsetToUtcDateTime(dateTimeOffset), SqlType.DateTime);
+    }
+
+    private static SqlExpression DateTimeOffsetTimeOfDay(SqlExpression dateTimeOffset)
+    {
+      return SqlDml.Cast(dateTimeOffset, SqlType.DateTime)
+        - SqlDml.Truncate(SqlDml.Cast(dateTimeOffset, SqlType.DateTime));
+    }
+
+    private static SqlExpression DateTimeOffsetTruncateOffset(SqlExpression dateTimeOffset)
+    {
+      return SqlDml.Cast(dateTimeOffset, SqlType.DateTime);
+    }
+
+    private static SqlExpression DateTimeOffsetTruncate(SqlExpression dateTimeOffset)
+    {
+      return SqlDml.Truncate(dateTimeOffset);
+    }
+
+    private static SqlExpression DateTimeOffsetToUtcDateTime(SqlExpression dateTimeOffset)
+    {
+      return SqlDml.FunctionCall("SYS_EXTRACT_UTC", dateTimeOffset);
+    }
+
+    private static SqlExpression DateTimeOffsetExtractPart(SqlExpression dateTimeOffset, string dateTimeOffsetPart)
+    {
+      return SqlDml.FunctionCall("TO_CHAR", dateTimeOffset, AnsiString(dateTimeOffsetPart));
+    }
+
+    private static SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression dateTimeOffset)
+    {
+      return SqlDml.Cast(
+        SqlDml.DateTimePlusInterval(
+          DateTimeOffsetToUtcDateTime(dateTimeOffset),
+          SqlDml.DateTimeMinusDateTime(
+            DateTimeOffsetToUtcDateTime(
+              SqlDml.Native("SYSTIMESTAMP")),
+            SqlDml.Native("SYSTIMESTAMP"))),
+        SqlType.DateTime);
     }
 
     private static SqlExpression AnsiString(string value)

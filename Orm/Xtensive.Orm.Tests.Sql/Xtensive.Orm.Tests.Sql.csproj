@@ -73,8 +73,10 @@
     <Compile Include="MySQL\v5_0\SakilaExtractorTest.cs" />
     <Compile Include="MySQL\v5_0\TypeMappingTests.cs" />
     <Compile Include="Oracle\ExtractorTest.cs" />
+    <Compile Include="Oracle\v10\DateTimeOffsetTest.cs" />
     <Compile Include="Oracle\v10\ExceptionTypesTest.cs" />
     <Compile Include="Oracle\v10\SavepointsTest.cs" />
+    <Compile Include="Oracle\v11\DateTimeOffsetTest.cs" />
     <Compile Include="Oracle\v11\ExceptionTypesTest.cs" />
     <Compile Include="Oracle\v11\SavepointsTest.cs" />
     <Compile Include="Oracle\TypeMappingTest.cs" />
