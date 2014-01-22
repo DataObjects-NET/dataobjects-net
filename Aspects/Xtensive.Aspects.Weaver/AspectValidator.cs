@@ -158,6 +158,8 @@ namespace Xtensive.Aspects.Weaver
         validator.InvalidateHardwareLicense();
         licenseInfo.HardwareKeyIsValid = false;
       }
+      else
+        validator.NotifyLicenseCheck();
     }
 
     private void FatalLicenseError(string format, params object[] args)
