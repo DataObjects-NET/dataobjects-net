@@ -154,7 +154,7 @@ namespace Xtensive.Aspects.Weaver
       var request = new InternetCheckRequest(
         companyLicenseData, licenseInfo.ExpireOn, validator.ProductVersion, validator.HardwareId);
       var result = InternetActivator.Check(request);
-      if (result.IsValid==false && licenseInfo.RequiresHardwareLicense) {
+      if (result.IsValid==false) {
         validator.InvalidateHardwareLicense();
         licenseInfo.HardwareKeyIsValid = false;
       }
