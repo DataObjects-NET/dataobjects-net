@@ -38,5 +38,10 @@ namespace Xtensive.Orm.Logging
     public override void Write(LogEventInfo info)
     {
     }
+
+    public NullLog(string name)
+      : base(name)
+    {
+    }
   }
 }

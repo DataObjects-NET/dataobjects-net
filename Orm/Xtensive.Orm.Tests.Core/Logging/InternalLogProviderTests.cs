@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Tests.Core.Logging
       Assert.That(logger, Is.InstanceOf<InternalLog>());
 
       logger = logProvider.GetLog("NullLog");
-      Assert.That(logger.Name, Is.EqualTo(string.Empty));
+      Assert.That(logger.Name, Is.EqualTo("NullLog"));
       Assert.That(logger, Is.InstanceOf<NullLog>());
 
       logger = logProvider.GetLog("FileLog");
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Core.Logging
       Assert.That(logger, Is.InstanceOf<InternalLog>());
 
       logger = logProvider.GetLog("LogNameNot in list");
-      Assert.That(logger.Name, Is.EqualTo("<default>"));
+      Assert.That(logger.Name, Is.EqualTo("LogNameNot in list"));
       Assert.That(logger, Is.InstanceOf<InternalLog>());
     }
   }
