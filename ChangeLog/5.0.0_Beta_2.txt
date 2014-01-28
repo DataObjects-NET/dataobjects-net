@@ -1,3 +1,4 @@
 [main] Added support for VB.NET model assemblies
 [main] Optimized compilation performance
 [main] Fixed problem with automatic license activation
+[main] Improved logging provider API
