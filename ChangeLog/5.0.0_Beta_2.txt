@@ -2,3 +2,4 @@
 [main] Optimized compilation performance
 [main] Fixed problem with automatic license activation
 [main] Improved logging provider API
+[main] Removed obsolete Transaction.OpenAuto() methods
