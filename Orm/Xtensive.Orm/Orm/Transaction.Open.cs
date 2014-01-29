@@ -6,7 +6,6 @@
 
 using System;
 using System.Transactions;
-using JetBrains.Annotations;
 using Xtensive.Core;
 
 using Xtensive.Orm.Configuration;
@@ -25,7 +24,7 @@ namespace Xtensive.Orm
     /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    [Obsolete("Use Session.OpenTransaction() method instead"), PublicAPI]
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open()
     {
       var session = Session.Demand();
@@ -41,7 +40,7 @@ namespace Xtensive.Orm
     /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    [Obsolete("Use Session.OpenTransaction() method instead"), PublicAPI]
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(IsolationLevel isolationLevel)
     {
       var session = Session.Demand();
@@ -57,7 +56,7 @@ namespace Xtensive.Orm
     /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    [Obsolete("Use Session.OpenTransaction() method instead"), PublicAPI]
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(TransactionOpenMode mode)
     {
       var session = Session.Demand();
@@ -74,7 +73,7 @@ namespace Xtensive.Orm
     /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    [Obsolete("Use Session.OpenTransaction() method instead"), PublicAPI]
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(TransactionOpenMode mode, IsolationLevel isolationLevel)
     {
       var session = Session.Demand();
@@ -89,7 +88,7 @@ namespace Xtensive.Orm
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
     /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
-    [Obsolete("Use Session.OpenTransaction() method instead"), PublicAPI]
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
@@ -105,7 +104,7 @@ namespace Xtensive.Orm
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
     /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
-    [Obsolete("Use Session.OpenTransaction() method instead"), PublicAPI]
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(Session session, IsolationLevel isolationLevel)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
@@ -121,7 +120,7 @@ namespace Xtensive.Orm
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
     /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
-    [Obsolete("Use Session.OpenTransaction() method instead"), PublicAPI]
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(Session session, TransactionOpenMode mode)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
@@ -138,7 +137,7 @@ namespace Xtensive.Orm
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
     /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
-    [Obsolete("Use Session.OpenTransaction() method instead"), PublicAPI]
+    [Obsolete("Use Session.OpenTransaction() method instead")]
     public static TransactionScope Open(Session session, TransactionOpenMode mode, IsolationLevel isolationLevel)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
