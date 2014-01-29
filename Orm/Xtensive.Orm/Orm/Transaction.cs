@@ -6,6 +6,7 @@
 
 using System;
 using System.Transactions;
+using JetBrains.Annotations;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -17,6 +18,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// An implementation of transaction suitable for storage.
   /// </summary>
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   public sealed partial class Transaction : IHasExtensions
   {
     #region Current, Demand() members (static)
