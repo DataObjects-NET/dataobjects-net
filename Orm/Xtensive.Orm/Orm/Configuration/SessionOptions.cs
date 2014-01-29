@@ -5,13 +5,14 @@
 // Created:    2008.10.06
 
 using System;
+using JetBrains.Annotations;
 
 namespace Xtensive.Orm.Configuration
 {
   /// <summary>
   /// Enumerates possible options of the <see cref="Session"/>.
   /// </summary>
-  [Flags]
+  [Flags, UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   public enum SessionOptions
   {
     /// <summary>
