@@ -11,7 +11,7 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Providers;
-
+using Xtensive.Orm.Validation;
 using SD=System.Data;
 
 namespace Xtensive.Orm
@@ -222,10 +222,11 @@ namespace Xtensive.Orm
       SystemEvents.NotifyTransactionPrecommitting(transaction);
       Events.NotifyTransactionPrecommitting(transaction);
 
+      Persist(PersistReason.Commit);
+      ValidationContext.Validate(ValidationReason.Commit);
+
       SystemEvents.NotifyTransactionCommitting(transaction);
       Events.NotifyTransactionCommitting(transaction);
-
-      Persist(PersistReason.Commit);
 
       Handler.CompletingTransaction(transaction);
       if (transaction.IsNested)
@@ -281,6 +282,7 @@ namespace Xtensive.Orm
     {
       queryTasks.Clear();
       pinner.ClearRoots();
+      ValidationContext.Reset();
 
       Transaction = transaction.Outer;
 

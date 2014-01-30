@@ -131,8 +131,6 @@ namespace Xtensive.Orm
 
     #endregion
 
-    internal ValidationContext ValidationContext { get; private set; }
-
     internal string SavepointName { get; private set; }
 
     /// <summary>
@@ -163,7 +161,6 @@ namespace Xtensive.Orm
     
     internal void Begin()
     {
-      ValidationContext.Reset();
       Session.BeginTransaction(this);
       if (Outer!=null)
         Outer.inner = this;
@@ -177,7 +174,6 @@ namespace Xtensive.Orm
       try {
         if (inner!=null)
           throw new InvalidOperationException(Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
-        ValidationContext.Validate(ValidationReason.Commit);
         Session.CommitTransaction(this);
       }
       catch {
@@ -239,10 +235,7 @@ namespace Xtensive.Orm
       IsAutomatic = isAutomatic;
       IsDisconnected = session.IsDisconnected;
       TimeStamp = DateTime.UtcNow;
-      ValidationContext = session.Configuration.Supports(SessionOptions.ValidateEntities)
-        ? (ValidationContext) new RealValidationContext()
-        : new VoidValidationContext();
-      
+
       if (outer!=null) {
         Outer = outer;
         Guid = outer.Guid;

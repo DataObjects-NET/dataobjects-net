@@ -25,6 +25,7 @@ using Xtensive.Orm.ReferentialIntegrity;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
+using Xtensive.Orm.Validation;
 using Xtensive.Sql;
 using EnumerationContext = Xtensive.Orm.Rse.Providers.EnumerationContext;
 
@@ -442,6 +443,11 @@ namespace Xtensive.Orm
       RemovalProcessor = new RemovalProcessor(this);
       pinner = new Pinner(this);
       Operations = new OperationRegistry(this);
+
+      // Validation context
+      ValidationContext = Configuration.Supports(SessionOptions.ValidateEntities)
+        ? (ValidationContext) new RealValidationContext()
+        : new VoidValidationContext();
 
       // Creating Services
       Services = CreateServices();
