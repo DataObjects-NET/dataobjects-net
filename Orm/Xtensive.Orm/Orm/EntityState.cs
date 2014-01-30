@@ -126,7 +126,7 @@ namespace Xtensive.Orm
           break;
         }
         Session.EntityChangeRegistry.Register(this);
-        BindToCurrentTransaction();
+        Rebind();
       }
     }
 

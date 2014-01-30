@@ -5,6 +5,7 @@
 // Created:    2008.08.20
 
 using System;
+using System.Collections.Generic;
 using System.Transactions;
 using JetBrains.Annotations;
 using Xtensive.Collections;
@@ -62,6 +63,8 @@ namespace Xtensive.Orm
 
     #endregion
 
+    private readonly List<StateLifetimeToken> lifetimeTokens;
+
     private ExtensionCollection extensions;
     private Transaction inner;
 
@@ -117,6 +120,11 @@ namespace Xtensive.Orm
     /// Gets a value indicating whether this transaction is a nested transaction.
     /// </summary>
     public bool IsNested { get { return Outer!=null; } }
+
+    /// <summary>
+    /// Gets <see cref="StateLifetimeToken"/> associated with this transaction.
+    /// </summary>
+    public StateLifetimeToken LifetimeToken { get; private set; }
 
     #region IHasExtensions Members
 
@@ -180,6 +188,10 @@ namespace Xtensive.Orm
         Rollback();
         throw;
       }
+      if (Outer!=null)
+        PromoteLifetimeTokens();
+      else
+        ExpireLifetimeTokens();
       State = TransactionState.Committed;
       EndTransaction();
     }
@@ -198,6 +210,7 @@ namespace Xtensive.Orm
         }
       }
       finally {
+        ExpireLifetimeTokens();
         State = TransactionState.RolledBack;
         EndTransaction();
       }
@@ -216,6 +229,21 @@ namespace Xtensive.Orm
         throw new InvalidOperationException(Strings.ExTransactionIsNotActive);
     }
 
+    private void ExpireLifetimeTokens()
+    {
+      foreach (var token in lifetimeTokens)
+        token.Expire();
+      lifetimeTokens.Clear();
+      LifetimeToken = null;
+    }
+
+    private void PromoteLifetimeTokens()
+    {
+      Outer.lifetimeTokens.AddRange(lifetimeTokens);
+      lifetimeTokens.Clear();
+      LifetimeToken = null;
+    }
+
     #endregion
 
     
@@ -228,6 +256,8 @@ namespace Xtensive.Orm
 
     internal Transaction(Session session, IsolationLevel isolationLevel, bool isAutomatic, Transaction outer, string savepointName)
     {
+      lifetimeTokens = new List<StateLifetimeToken>();
+
       Guid = Guid.NewGuid();
       State = TransactionState.NotActivated;
       Session = session;
@@ -235,6 +265,8 @@ namespace Xtensive.Orm
       IsAutomatic = isAutomatic;
       IsDisconnected = session.IsDisconnected;
       TimeStamp = DateTime.UtcNow;
+      LifetimeToken = new StateLifetimeToken();
+      lifetimeTokens.Add(LifetimeToken);
 
       if (outer!=null) {
         Outer = outer;

@@ -376,5 +376,10 @@ namespace Xtensive.Orm
     {
       Transaction = transaction;
     }
+
+    internal StateLifetimeToken GetLifetimeToken()
+    {
+      return DemandTransaction().LifetimeToken;
+    }
   }
 }
