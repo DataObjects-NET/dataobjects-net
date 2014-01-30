@@ -175,7 +175,7 @@ namespace Xtensive.Orm
 
     internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
 
-    private void EnsureNotDisposed()
+    internal void EnsureNotDisposed()
     {
       if (isDisposed)
         throw new ObjectDisposedException(Strings.ExSessionIsAlreadyDisposed);

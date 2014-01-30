@@ -132,6 +132,7 @@ namespace Xtensive.Orm.Providers
 
     private void Prepare()
     {
+      Session.EnsureNotDisposed();
       driver.EnsureConnectionIsOpen(Session, connection);
       if (pendingTransaction==null)
         return;
