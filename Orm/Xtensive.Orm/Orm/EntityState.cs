@@ -119,6 +119,7 @@ namespace Xtensive.Orm
         persistenceState = value;
         if (value==PersistenceState.Synchronized)
           return;
+        Session.DemandTransaction();
         Session.EntityChangeRegistry.Register(this);
         Rebind();
       }

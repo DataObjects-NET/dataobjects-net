@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Providers
         parameter.Value = target.Key.Value;
         executableProvider = Session.CompilationService.Compile(recordSet);
       }
-      var queryTask = new QueryTask(executableProvider, parameterContext);
+      var queryTask = new QueryTask(executableProvider, Session.GetLifetimeToken(), parameterContext);
       Session.RegisterDelayedQuery(queryTask);
 
       return GetReferencesToInternal(association, target, recordSet.Header, queryTask);

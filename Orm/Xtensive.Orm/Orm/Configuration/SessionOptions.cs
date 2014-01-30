@@ -28,6 +28,11 @@ namespace Xtensive.Orm.Configuration
     InvalidateStateOnCommit = 1 << 0,
 
     /// <summary>
+    /// Enables read-only operation with entities without active transaction.
+    /// </summary>
+    AllowNonTransactionalState = 1 << 1,
+
+    /// <summary>
     /// Enables activation of this <see cref="Session"/> from another session having this option.
     /// </summary>
     /// <remarks>

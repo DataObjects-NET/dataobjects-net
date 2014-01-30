@@ -6,10 +6,8 @@
 
 using System;
 using System.Transactions;
-using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
-using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Validation;
 using SD=System.Data;
@@ -20,6 +18,7 @@ namespace Xtensive.Orm
   {
     private const string SavepointNameFormat = "s{0}";
 
+    private readonly StateLifetimeToken sessionLifetimeToken = new StateLifetimeToken();
     private int nextSavepoint;
 
     /// <summary>
@@ -379,7 +378,12 @@ namespace Xtensive.Orm
 
     internal StateLifetimeToken GetLifetimeToken()
     {
-      return DemandTransaction().LifetimeToken;
+      var transaction = Transaction;
+      if (transaction!=null)
+        return transaction.LifetimeToken;
+      if (Configuration.Supports(SessionOptions.AllowNonTransactionalState))
+        return sessionLifetimeToken;
+      throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt);
     }
   }
 }

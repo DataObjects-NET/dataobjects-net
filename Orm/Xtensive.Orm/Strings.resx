@@ -1753,8 +1753,8 @@ Referenced Entity Key: {4}</value>
   <data name="ExLockDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>Lock does not support query provider of type '{0}'.</value>
   </data>
-  <data name="ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance" xml:space="preserve">
-    <value>The current transaction is different from the transaction bound to this instance.</value>
+  <data name="ExThisInstanceIsExpiredDueToTransactionBoundaries" xml:space="preserve">
+    <value>This instance is expired due to transaction boundaries.</value>
   </data>
   <data name="ExOnOwnerRemoveActionIsNotEqualToOnTargetRemoveAction" xml:space="preserve">
     <value>'{0}.{1}' OnOwnerRemove action is not equal to '{2}.{3}' OnTargetRemove action.</value>

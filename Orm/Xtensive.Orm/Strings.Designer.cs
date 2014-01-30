@@ -1743,15 +1743,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The current transaction is different from the transaction bound to this instance..
-        /// </summary>
-        internal static string ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance {
-            get {
-                return ResourceManager.GetString("ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Cyclic dependency between databases found: {0}.
         /// </summary>
         internal static string ExCyclicDependencyBetweenDatabasesFoundX {
@@ -5939,6 +5930,15 @@ namespace Xtensive {
         internal static string ExTheStartValueShouldBeBetweenTheMinimumAndMaximumValue {
             get {
                 return ResourceManager.GetString("ExTheStartValueShouldBeBetweenTheMinimumAndMaximumValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This instance is expired due to transaction boundaries..
+        /// </summary>
+        internal static string ExThisInstanceIsExpiredDueToTransactionBoundaries {
+            get {
+                return ResourceManager.GetString("ExThisInstanceIsExpiredDueToTransactionBoundaries", resourceCulture);
             }
         }
         
