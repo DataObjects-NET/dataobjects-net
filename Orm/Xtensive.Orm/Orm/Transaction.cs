@@ -190,10 +190,10 @@ namespace Xtensive.Orm
       }
       if (Outer!=null)
         PromoteLifetimeTokens();
-      else if (Session.Configuration.Supports(SessionOptions.InvalidateStateOnCommit))
-        ExpireLifetimeTokens();
-      else
+      else if (Session.Configuration.Supports(SessionOptions.PreserveStateOnCommit))
         ClearLifetimeTokens();
+      else
+        ExpireLifetimeTokens();
       State = TransactionState.Committed;
       EndTransaction();
     }

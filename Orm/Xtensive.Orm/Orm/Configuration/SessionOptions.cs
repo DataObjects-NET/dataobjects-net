@@ -22,10 +22,10 @@ namespace Xtensive.Orm.Configuration
     None = 0,
 
     /// <summary>
-    /// Enables <see cref="Entity"/> state invalidation when corresponding transaction is committed.
+    /// Enables <see cref="Entity"/> state preservation when corresponding transaction is committed.
     /// This affects only non-nested transactions.
     /// </summary>
-    InvalidateStateOnCommit = 1 << 0,
+    PreserveStateOnCommit = 1 << 0,
 
     /// <summary>
     /// Enables read-only operation with entities without active transaction.
@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Configuration
     /// Predefined option set for server-side sessions (ASP.NET, ASP.NET MVC, services, etc.).
     /// Includes only <see cref="ValidateEntities"/> flag.
     /// </summary>
-    ServerProfile = ValidateEntities | InvalidateStateOnCommit | (1 << 10),
+    ServerProfile = ValidateEntities | (1 << 10),
 
     /// <summary>
     /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Configuration
     /// <see cref="Disconnected"/> |
     /// <see cref="ValidateEntities"/> flags.
     /// </summary>
-    ClientProfile = AutoTransactionOpenMode | ValidateEntities | InvalidateStateOnCommit | Disconnected,
+    ClientProfile = AutoTransactionOpenMode | ValidateEntities | Disconnected,
 
     /// <summary>
     /// Predefined option set for compatibility with previous versions of DataObjects.Net (4.3.* and earlier).
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Configuration
     /// <see cref="AutoActivation"/> |
     /// <see cref="ValidateEntities"/> flags.
     /// </summary>
-    LegacyProfile = AutoTransactionOpenMode | ValidateEntities | InvalidateStateOnCommit | AutoActivation,
+    LegacyProfile = AutoTransactionOpenMode | ValidateEntities | AutoActivation,
 
     /// <summary>
     /// Default option set.

@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var configuration =  base.BuildConfiguration();
       var defaultSession = configuration.Sessions.Default;
-      defaultSession.Options = defaultSession.Options & ~SessionOptions.InvalidateStateOnCommit;
+      defaultSession.Options = defaultSession.Options | SessionOptions.PreserveStateOnCommit;
       return configuration;
     }
 
