@@ -6,21 +6,13 @@
 
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.TransactionsTestModel;
 
 namespace Xtensive.Orm.Tests.Storage
 {
-  public class NestedTransactionsTest : AutoBuildTest
+  public class NestedTransactionsTest : TransactionsTestBase
   {
-    protected override DomainConfiguration BuildConfiguration()
-    {
-      var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Hexagon).Assembly, typeof (Hexagon).Namespace);
-      return configuration;
-    }
-
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
@@ -137,22 +129,6 @@ namespace Xtensive.Orm.Tests.Storage
       }
       Assert.IsNull(Session.Current.Transaction);
       Assert.IsNull(StorageTestHelper.GetNativeTransaction());
-    }
-
-    private static void AssertStateIsValid(Entity entity)
-    {
-      Assert.IsTrue(CheckLifetime(entity));
-    }
-
-    private static void AssertStateIsInvalid(Entity entity)
-    {
-      Assert.IsFalse(CheckLifetime(entity));
-    }
-    
-    private static bool CheckLifetime(Entity entity)
-    {
-      var token = entity.State.LifetimeToken;
-      return token!=null && token.IsActive;
     }
   }
 }

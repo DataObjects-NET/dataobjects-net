@@ -308,6 +308,7 @@
     <Compile Include="Storage\ChangedPersistOrderTest.cs" />
     <Compile Include="Storage\ClientProfileSessionTest.cs" />
     <Compile Include="Storage\ClusteredIndexesTest.cs" />
+    <Compile Include="Storage\CrossTransactionEntityAccessTest.cs" />
     <Compile Include="Storage\CustomCollationTest.cs" />
     <Compile Include="Storage\CustomMetadataUpgrade.cs" />
     <Compile Include="Storage\DiartisBugsTest.cs" />
@@ -355,6 +356,7 @@
     <Compile Include="Storage\SingleTableTest.cs" />
     <Compile Include="Storage\SqlGeometryAndGeographyTest.cs" />
     <Compile Include="Storage\StructureReferencesAnEntityTest.cs" />
+    <Compile Include="Storage\TransactionsTestBase.cs" />
     <Compile Include="Storage\TypeDiscriminatorFromInterfaceTest.cs" />
     <Compile Include="Storage\UpgradeModesTest.cs" />
     <Compile Include="Storage\ValidateEntityVersionsOnPersistTest.cs" />

@@ -190,8 +190,10 @@ namespace Xtensive.Orm
       }
       if (Outer!=null)
         PromoteLifetimeTokens();
-      else
+      else if (Session.Configuration.Supports(SessionOptions.InvalidateStateOnCommit))
         ExpireLifetimeTokens();
+      else
+        ClearLifetimeTokens();
       State = TransactionState.Committed;
       EndTransaction();
     }
@@ -233,13 +235,17 @@ namespace Xtensive.Orm
     {
       foreach (var token in lifetimeTokens)
         token.Expire();
-      lifetimeTokens.Clear();
-      LifetimeToken = null;
+      ClearLifetimeTokens();
     }
 
     private void PromoteLifetimeTokens()
     {
       Outer.lifetimeTokens.AddRange(lifetimeTokens);
+      ClearLifetimeTokens();
+    }
+
+    private void ClearLifetimeTokens()
+    {
       lifetimeTokens.Clear();
       LifetimeToken = null;
     }
