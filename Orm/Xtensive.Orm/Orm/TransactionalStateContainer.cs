@@ -12,7 +12,6 @@ namespace Xtensive.Orm
   public abstract class TransactionalStateContainer<TState> : SessionBound
   {
     private TState state;
-    private bool isActual;
 
     /// <summary>
     /// Gets lifetime token for this state.
@@ -20,12 +19,11 @@ namespace Xtensive.Orm
     public StateLifetimeToken LifetimeToken { get; private set; }
 
     /// <summary>
-    /// Gets a value indicating whether base state is loaded or not.
+    /// Gets a value indicating whether state is loaded and actual.
     /// </summary>
     public bool IsActual {
       get {
-        EnsureIsActual();
-        return isActual;
+        return LifetimeToken!=null && LifetimeToken.IsActive;
       }
     }
 
@@ -34,14 +32,14 @@ namespace Xtensive.Orm
     /// </summary>
     protected TState State {
       get {
-        EnsureIsActual();
-        if (!isActual)
+        if (!IsActual) {
+          Invalidate();
           Refresh();
+        }
         return state;
       }
       set {
         Rebind();
-        isActual = true;
         state = value;
       }
     }
@@ -53,7 +51,7 @@ namespace Xtensive.Orm
     /// </summary>
     protected void EnsureIsActual()
     {
-      if (LifetimeToken==null || !LifetimeToken.IsActive)
+      if (!IsActual)
         Invalidate();
     }
 
@@ -63,12 +61,11 @@ namespace Xtensive.Orm
     protected virtual void Invalidate()
     {
       state = default(TState);
-      isActual = false;
       LifetimeToken = null;
     }
 
     /// <summary>
-    /// Loads\refreshes the state.
+    /// Loads/refreshes the state.
     /// </summary>
     protected abstract void Refresh();
     
