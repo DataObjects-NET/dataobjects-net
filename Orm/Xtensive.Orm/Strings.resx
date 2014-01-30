@@ -1020,6 +1020,9 @@
   <data name="LogSessionXClosingConnectionY" xml:space="preserve">
     <value>Session '{0}'. Closing connection '{1}'.</value>
   </data>
+  <data name="LogSessionXDisposingConnectionY" xml:space="preserve">
+    <value>Session '{0}'. Disposing connection '{1}'.</value>
+  </data>
   <data name="LogSessionXBeginningTransactionWithYIsolationLevel" xml:space="preserve">
     <value>Session '{0}'. Beginning transaction @ {1}.</value>
   </data>

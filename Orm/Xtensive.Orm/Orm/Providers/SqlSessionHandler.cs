@@ -83,6 +83,8 @@ namespace Xtensive.Orm.Providers
       pendingTransaction = null;
       if (connection.ActiveTransaction!=null && !transactionIsExternal)
         driver.CommitTransaction(Session, connection);
+      if (!connectionIsExternal)
+        driver.CloseConnection(Session, connection);
     }
 
     /// <inheritdoc/>
@@ -91,6 +93,8 @@ namespace Xtensive.Orm.Providers
       pendingTransaction = null;
       if (connection.ActiveTransaction!=null && !transactionIsExternal)
         driver.RollbackTransaction(Session, connection);
+      if (!connectionIsExternal)
+        driver.CloseConnection(Session, connection);
     }
 
     /// <inheritdoc/>
@@ -194,7 +198,7 @@ namespace Xtensive.Orm.Providers
         return;
       isDisposed = true;
       if (!connectionIsExternal)
-        driver.CloseConnection(Session, connection);
+        driver.DisposeConnection(Session, connection);
     }
 
     internal SqlSessionHandler(Session session, SqlConnection connection, bool connectionIsExternal, bool transactionIsExternal)

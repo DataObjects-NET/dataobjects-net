@@ -55,8 +55,24 @@ namespace Xtensive.Orm.Providers
 
     public void CloseConnection(Session session, SqlConnection connection)
     {
+      if (connection.State!=ConnectionState.Open)
+        return;
+
       if (isLoggingEnabled)
         SqlLog.Info(Strings.LogSessionXClosingConnectionY, session.ToStringSafely(), GetConnectionInfo(session));
+
+      try {
+        connection.Close();
+      }
+      catch (Exception exception) {
+        throw ExceptionBuilder.BuildException(exception);
+      }
+    }
+
+    public void DisposeConnection(Session session, SqlConnection connection)
+    {
+      if (isLoggingEnabled)
+        SqlLog.Info(Strings.LogSessionXDisposingConnectionY, session.ToStringSafely(), GetConnectionInfo(session));
 
       try {
         if (connection.State==ConnectionState.Open)
