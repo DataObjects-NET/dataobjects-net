@@ -52,6 +52,7 @@ namespace Xtensive.Orm.Tests.Linq.ContainsOverKeysCollectionTest
   public class ContainsOverKeysCollectionTest : AutoBuildTest
   {
     private IEnumerable<Key> keysList;
+    private IEnumerable<Key> keysArray; 
     private IEnumerable<int> idsList;
     private IEnumerable<MyEntity> myEntities; 
     protected override DomainConfiguration BuildConfiguration()
@@ -85,6 +86,7 @@ namespace Xtensive.Orm.Tests.Linq.ContainsOverKeysCollectionTest
         };
         
         keysList = session.Query.All<MyEntity>().Select(e => e.Key).ToList();
+        keysArray = session.Query.All<MyEntity>().Select(e => e.Key).ToArray();
         transaction.Complete();
       }
     }
@@ -99,6 +101,13 @@ namespace Xtensive.Orm.Tests.Linq.ContainsOverKeysCollectionTest
             var query = session.Query.All<MyEntity>().Where(e => keysList.Contains(e.Key)).ToList();
           }
         });
+      Assert.DoesNotThrow(
+        ()=> {
+          using (var session = Domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var query = session.Query.All<MyEntity>().Where(e => keysArray.Contains(e.Key)).ToList();
+          }
+        });
     }
 
     [Test]
@@ -111,7 +120,13 @@ namespace Xtensive.Orm.Tests.Linq.ContainsOverKeysCollectionTest
             var query = session.Query.All<MyEntity2>().Where(e => keysList.Contains(e.Entity.Key)).ToList();
           }
         });
-
+      Assert.DoesNotThrow(
+        ()=> {
+          using (var session = Domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var query = session.Query.All<MyEntity2>().Where(e => keysArray.Contains(e.Entity.Key)).ToList();
+          }
+        });
     }
 
     [Test]
@@ -122,6 +137,13 @@ namespace Xtensive.Orm.Tests.Linq.ContainsOverKeysCollectionTest
           using (var session = Domain.OpenSession())
           using (var transaction = session.OpenTransaction()) {
             var query = session.Query.All<MyEntity3>().Where(e => keysList.Contains(e.Entity.Entity.Key)).ToList();
+          }
+        });
+      Assert.DoesNotThrow(
+        ()=> {
+          using (var session = Domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var query = session.Query.All<MyEntity3>().Where(e => keysArray.Contains(e.Entity.Entity.Key)).ToList();
           }
         });
     }
@@ -138,7 +160,15 @@ namespace Xtensive.Orm.Tests.Linq.ContainsOverKeysCollectionTest
               .ToList();
           }
         });
-
+      Assert.Throws<QueryTranslationException>(
+        () => {
+          using (var session = Domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var query = session.Query.All<MyEntity3>()
+              .Where(e => keysArray.Contains(session.Query.All<MyEntity>().First(el => el.Key == e.Entity.Entity.Key).Key))
+              .ToList();
+          }
+        });
     }
 
     [Test]
@@ -152,6 +182,19 @@ namespace Xtensive.Orm.Tests.Linq.ContainsOverKeysCollectionTest
               new {
                 Key = e.Key, 
                 EntityKey = e.Entity.Key, 
+                DoubleEntityKey = e.Entity.Entity.Key
+              }
+              .DoubleEntityKey)).ToList();
+          }
+        });
+      Assert.Throws<QueryTranslationException>(
+        () => {
+          using (var session = Domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var query = session.Query.All<MyEntity3>().Where(e => keysArray.Contains(
+              new {
+                Key = e.Key,
+                EntityKey = e.Entity.Key,
                 DoubleEntityKey = e.Entity.Entity.Key
               }
               .DoubleEntityKey)).ToList();
