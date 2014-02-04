@@ -1752,6 +1752,24 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Current type of expression &apos;{0}&apos; is not supported..
+        /// </summary>
+        internal static string ExCurrentTypeOfExpressionXIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExCurrentTypeOfExpressionXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Current type &apos;{0}&apos; is not supported..
+        /// </summary>
+        internal static string ExCurrentTypeXIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExCurrentTypeXIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cyclic dependency between databases found: {0}.
         /// </summary>
         internal static string ExCyclicDependencyBetweenDatabasesFoundX {
