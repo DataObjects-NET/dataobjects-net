@@ -6232,6 +6232,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type of entity stored in Key is undefined..
+        /// </summary>
+        internal static string ExTypeOfEntityStoredInKeyIsUndefined {
+            get {
+                return ResourceManager.GetString("ExTypeOfEntityStoredInKeyIsUndefined", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The type of the expression&apos;s return value is not &apos;{0}&apos;..
         /// </summary>
         internal static string ExTypeOfExpressionReturnValueIsNotX {

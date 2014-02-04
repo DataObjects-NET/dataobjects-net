@@ -3289,4 +3289,7 @@ Error: {1}</value>
   <data name="ExCurrentTypeOfExpressionXIsNotSupported">
     <value xml:space="preserve">Current type of expression '{0}' is not supported.</value>
   </data>
+  <data name="ExTypeOfEntityStoredInKeyIsUndefined">
+    <value xml:space="preserve">Type of entity stored in Key is undefined.</value>
+  </data>
 </root>
