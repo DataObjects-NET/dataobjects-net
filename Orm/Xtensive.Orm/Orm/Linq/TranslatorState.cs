@@ -24,6 +24,8 @@ namespace Xtensive.Orm.Linq
 
     public IncludeAlgorithm IncludeAlgorithm { get; set; }
 
+    public Type TypeOfEntityStoredInKey { get; set; }
+
     public bool JoinLocalCollectionEntity { get; set; }
 
     public bool AllowCalculableColumnCombine { get; set; }
@@ -70,6 +72,7 @@ namespace Xtensive.Orm.Linq
       IncludeAlgorithm = IncludeAlgorithm.Auto;
       BuildingProjection = true;
       IsTailMethod = true;
+      TypeOfEntityStoredInKey = null;
       OuterParameters = Parameters = ArrayUtils<ParameterExpression>.EmptyArray;
     }
 
@@ -88,6 +91,7 @@ namespace Xtensive.Orm.Linq
       GroupingKey = currentState.GroupingKey;
       RequestCalculateExpressionsOnce = currentState.RequestCalculateExpressionsOnce;
       RequestCalculateExpressions = currentState.RequestCalculateExpressions;
+      TypeOfEntityStoredInKey = currentState.TypeOfEntityStoredInKey;
     }
   }
 }
