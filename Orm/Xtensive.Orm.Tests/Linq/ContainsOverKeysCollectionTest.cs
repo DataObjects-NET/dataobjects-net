@@ -53,8 +53,6 @@ namespace Xtensive.Orm.Tests.Linq.ContainsOverKeysCollectionTest
   {
     private IEnumerable<Key> keysList;
     private IEnumerable<Key> keysArray; 
-    private IEnumerable<int> idsList;
-    private IEnumerable<MyEntity> myEntities; 
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = DomainConfigurationFactory.Create();
