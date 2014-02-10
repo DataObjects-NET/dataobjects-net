@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Tests.Model
 
     protected override void CheckRequirements()
     {
-      Require.AllFeaturesNotSupported(ProviderFeatures.Multidatabase);
+      Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
     }
 
     [Test]
