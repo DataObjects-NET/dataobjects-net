@@ -46,6 +46,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string SchemaSyncExceptionFormatElementName = "schemaSyncExceptionFormat";
     private const string NativeLibraryCacheFolderElementName = "nativeLibraryCacheFolder";
     private const string ConnectionInitializationSqlElementName = "connectionInitializationSql";
+    private const string UseSingleEqualityIdentifierElementName = "useSingleEqualityIdentifier";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -347,6 +348,17 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.UseSingleEqualityIdentifier" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(UseSingleEqualityIdentifierElementName,
+      DefaultValue = DomainConfiguration.DefaultUseSingleEqualityIdentifier)]
+    public bool UseSingleEqualityIdentifier
+    {
+      get { return (bool) this[UseSingleEqualityIdentifierElementName]; }
+      set { this[UseSingleEqualityIdentifierElementName] = value; }
+    }
+
+    /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="DomainConfiguration"/> object.
     /// </summary>
@@ -376,6 +388,7 @@ namespace Xtensive.Orm.Configuration.Elements
         Collation = Collation,
         NativeLibraryCacheFolder = NativeLibraryCacheFolder,
         ConnectionInitializationSql = ConnectionInitializationSql,
+        UseSingleEqualityIdentifier = UseSingleEqualityIdentifier
       };
 
       foreach (var element in Types)

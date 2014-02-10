@@ -72,6 +72,12 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public const bool DefaultBuildInParallel = true;
 
+    /// <summary>
+    /// Default <see cref="DomainConfiguration.UseSingleEqualityIdentifier"/> value:
+    /// <see langword="true" />.
+    /// </summary>
+    public const bool DefaultUseSingleEqualityIdentifier = false;
+
     #endregion
 
     private static bool sectionNameIsDefined;
@@ -98,6 +104,7 @@ namespace Xtensive.Orm.Configuration
     private string forcedServerVersion = string.Empty;
     private bool buildInParallel = DefaultBuildInParallel;
     private bool allowCyclicDatabaseDependencies;
+    private bool useSingleEqualityIdentifier = DefaultUseSingleEqualityIdentifier;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseConfigurationCollection databases = new DatabaseConfigurationCollection();
@@ -528,6 +535,20 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets value indicates whether equality identifier
+    /// should be the same for all <see cref="KeyGenerator"/>s.
+    /// </summary>
+    public bool UseSingleEqualityIdentifier
+    {
+      get { return useSingleEqualityIdentifier; }
+      set
+      {
+        this.EnsureNotLocked();
+        useSingleEqualityIdentifier = value;
+      }
+    }
+
+    /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
     /// </summary>
     public bool IsMultidatabase { get { return isMultidatabase ?? GetIsMultidatabase(); } }
@@ -632,6 +653,7 @@ namespace Xtensive.Orm.Configuration
       nativeLibraryCacheFolder = configuration.nativeLibraryCacheFolder;
       connectionInitializationSql = configuration.connectionInitializationSql;
       schemaSyncExceptionFormat = configuration.schemaSyncExceptionFormat;
+      useSingleEqualityIdentifier = configuration.useSingleEqualityIdentifier;
       databases = (DatabaseConfigurationCollection) configuration.Databases.Clone();
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
       keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();
