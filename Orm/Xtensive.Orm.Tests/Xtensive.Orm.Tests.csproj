@@ -273,6 +273,7 @@
     <Compile Include="Linq\NullableEnumMaterializationTest.cs" />
     <Compile Include="Linq\QueryPreprocessorSortingTest.cs" />
     <Compile Include="Linq\SelectWithAccessToLocalCollectionTest.cs" />
+    <Compile Include="Model\VariousKeyGeneratorsByOneKeyEqualityIdentifierTest.cs" />
     <Compile Include="Storage\AbstractGenericsTest.cs" />
     <Compile Include="Storage\BatchingWhenValidateEntityVersionsIsEnabledTest.cs" />
     <Compile Include="Storage\ByteFieldStorageTest.cs" />
