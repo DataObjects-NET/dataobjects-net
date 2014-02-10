@@ -26,6 +26,7 @@ namespace Xtensive.Orm.Building.Builders
     private readonly Dictionary<string, object> keyEqualityIdentifiers = new Dictionary<string, object>();
     private readonly Dictionary<string, SequenceInfo> sequences = new Dictionary<string, SequenceInfo>();
     private readonly Dictionary<string, KeyGeneratorConfiguration> keyGeneratorConfigurations;
+    private readonly object singleEqualityIdentifier = new object();
 
     /// <summary>
     /// Builds the <see cref="TypeInfo"/> instance, its key fields and <see cref="HierarchyInfo"/> for hierarchy root.
@@ -420,7 +421,7 @@ namespace Xtensive.Orm.Building.Builders
         // No key generator is attached.
         // Each hierarchy has it's own equality identifier.
         key.IsFirstAmongSimilarKeys = true;
-        key.EqualityIdentifier = new object();
+        key.EqualityIdentifier = GetEqualityIdentifier(generatorKind);
         return key;
       }
 
@@ -433,12 +434,14 @@ namespace Xtensive.Orm.Building.Builders
       var generatorName = key.GeneratorName;
 
       // Equality indentifier is the same if and only if key generator names match.
+      // But if option 'UseSingleEqualityIdentifier' in DomainConfiguration is turned on,
+      // all generators will have the same equality identifier
       object equalityIdentifier;
       if (keyEqualityIdentifiers.TryGetValue(generatorName, out equalityIdentifier))
         key.EqualityIdentifier = equalityIdentifier;
       else {
         key.IsFirstAmongSimilarKeys = true;
-        key.EqualityIdentifier = new object();
+        key.EqualityIdentifier = GetEqualityIdentifier(key.GeneratorKind);
         keyEqualityIdentifiers.Add(generatorName, key.EqualityIdentifier);
       }
 
@@ -486,6 +489,13 @@ namespace Xtensive.Orm.Building.Builders
     {
       var valueType = key.SingleColumnType;
       return valueType!=null && KeyGeneratorFactory.IsSequenceBacked(valueType);
+    }
+
+    private object GetEqualityIdentifier(KeyGeneratorKind keyGeneratorKind)
+    {
+      if (context.Configuration.UseSingleEqualityIdentifier && keyGeneratorKind==KeyGeneratorKind.Default)
+        return singleEqualityIdentifier;
+      return new object();
     }
 
     #endregion
