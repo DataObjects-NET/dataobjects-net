@@ -90,6 +90,12 @@ namespace Xtensive.Orm.Providers
       return SqlDml.DateTimeOffsetToDateTime(_this);
     }
 
+    [Compiler(typeof(DateTimeOffset), "ToLocalTime")]
+    public static SqlExpression DateTimeOffsetToLocalTime(SqlExpression _this)
+    {
+      return SqlDml.DateTimeOffsetToLocalTime(_this);
+    }
+
     [Compiler(typeof (DateTimeOffset), "Offset", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeOffsetOffset(SqlExpression _this)
     {

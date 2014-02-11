@@ -298,6 +298,14 @@ namespace Xtensive.Orm.Tests.Issues
 
     #endregion
 
+
+    [Test]
+    public void ToLocalTimeTest()
+    {
+      RunAllTests(e => e.Today.ToLocalTime() == today.ToLocalTime());
+    }
+
+
     [Test]
     public void OutputDateTimeOffsetTest()
     {

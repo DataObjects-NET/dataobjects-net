@@ -102,6 +102,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
           node.Arguments[2] - 1),
           node.Arguments[3]));
         return;
+      case SqlFunctionType.DateTimeOffsetToLocalTime:
+        DateTimeOffsetToLocalTime(node.Arguments[0]).AcceptVisitor(this);
+        return;
       }
 
       base.Visit(node);
@@ -175,6 +178,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     private static SqlUserFunctionCall DateTimeOffsetTimeZoneInMinutes(SqlExpression date)
     {
       return SqlDml.FunctionCall("DATEPART", SqlDml.Native("TZoffset"), date);
+    }
+
+    private static SqlExpression DateTimeOffsetToLocalTime(SqlExpression dateTimeOffset)
+    {
+      return Switchoffset(dateTimeOffset, DateTimeOffsetTimeZoneInMinutes(SqlDml.Native("SYSDATETIMEOFFSET()")));
     }
 
     #endregion

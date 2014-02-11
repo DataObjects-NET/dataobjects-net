@@ -80,6 +80,9 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       case SqlFunctionType.DateTimeOffsetToLocalDateTime:
         DateTimeOffsetToLocalDateTime(node.Arguments[0]).AcceptVisitor(this);
         return;
+      case SqlFunctionType.DateTimeOffsetToLocalTime:
+        DateTimeOffsetToLocalTime(node.Arguments[0]).AcceptVisitor(this);
+        return;
       default:
         base.Visit(node);
         return;
@@ -355,6 +358,12 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
               SqlDml.Native("SYSTIMESTAMP")),
             SqlDml.Native("SYSTIMESTAMP"))),
         SqlType.DateTime);
+    }
+
+
+    private static SqlExpression DateTimeOffsetToLocalTime(SqlExpression dateTimeOffset)
+    {
+      return SqlDml.Concat(dateTimeOffset, SqlDml.Native("sessiontimezone"));
     }
 
     private static SqlExpression AnsiString(string value)
