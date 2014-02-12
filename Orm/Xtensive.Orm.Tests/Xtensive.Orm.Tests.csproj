@@ -381,6 +381,7 @@
     <Compile Include="Upgrade\UpgradeAndNamingRules\ModelVersion2.cs" />
     <Compile Include="Upgrade\UpgradeAndNamingRules\Upgrader.cs" />
     <Compile Include="Upgrade\UpgradeAndNamingRules\UpgradeTest.cs" />
+    <Compile Include="Upgrade\UpgradeDateTimeOffsetTest.cs" />
     <Compile Include="Upgrade\UpgradeTestTemplate.cs" />
     <Compile Include="Upgrade\UpgradeToStructure\ModelVersion1.cs" />
     <Compile Include="Upgrade\UpgradeToStructure\ModelVersion2.cs" />

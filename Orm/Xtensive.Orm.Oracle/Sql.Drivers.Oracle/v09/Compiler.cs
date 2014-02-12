@@ -83,6 +83,9 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       case SqlFunctionType.DateTimeOffsetToLocalTime:
         DateTimeOffsetToLocalTime(node.Arguments[0]).AcceptVisitor(this);
         return;
+      case SqlFunctionType.UpgradeDateTimeToDateTimeOffset:
+        UpgradeDateTimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
+        return;
       default:
         base.Visit(node);
         return;
@@ -379,6 +382,11 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     private static SqlExpression SysExtractUtc(SqlExpression dateTimeOffset)
     {
       return SqlDml.FunctionCall("SYS_EXTRACT_UTC", dateTimeOffset);
+    }
+
+    private static SqlExpression UpgradeDateTimeToDateTimeOffset(SqlExpression dateTime)
+    {
+      return SqlDml.Cast(dateTime, SqlType.DateTimeOffset);
     }
 
     private static SqlExpression AnsiString(string value)

@@ -83,6 +83,7 @@ namespace Xtensive.Sql.Dml
     DateTimeOffsetToLocalDateTime,
     DateTimeOffsetTimeOfDay,
     DateTimeOffsetToLocalTime, 
+    UpgradeDateTimeToDateTimeOffset,
 
     // .NET like rounding functions
 

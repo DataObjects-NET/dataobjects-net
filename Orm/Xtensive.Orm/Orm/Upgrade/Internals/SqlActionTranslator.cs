@@ -866,7 +866,12 @@ namespace Xtensive.Orm.Upgrade
         else {
           var getValue = SqlDml.Case();
           getValue.Add(SqlDml.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));
-          getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(tableRef[tempName], newSqlType));
+
+          if (newSqlType.Type==SqlType.DateTimeOffset)
+            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.UpgradeDateTimeToDateTimeOffset(tableRef[tempName]));
+          else
+            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(tableRef[tempName], newSqlType));
+
           copyValues.Values[tableRef[originalName]] = getValue;
         }
         upgradeOutput.BreakBatch();
