@@ -33,7 +33,8 @@ namespace Xtensive.Orm.Building.Builders
       if (configuration.IsMultidatabase) {
         EnsureMappingDatabaseIsValid();
         EnsureHierarchiesMapToSingleDatabase();
-        EnsureIntefacesAreImplementedWithinSingleDatabase();
+        if (!configuration.UseSingleEqualityIdentifier)
+          EnsureIntefacesAreImplementedWithinSingleDatabase();
       }
 
       if (configuration.IsMultischema)
