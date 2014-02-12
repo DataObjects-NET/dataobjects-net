@@ -298,13 +298,23 @@ namespace Xtensive.Orm.Tests.Issues
 
     #endregion
 
-
     [Test]
     public void ToLocalTimeTest()
     {
-      RunAllTests(e => e.Today.ToLocalTime() == today.ToLocalTime());
-    }
+      DateTimeOffset todayAssert = new DateTimeOffset(2013, 11, 28, 16, 43, 0, 0, new TimeSpan(4, 0, 0));
 
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var q =
+          from t in session.Query.All<EntityWithDateTimeOffset>()
+          group t by new
+                     {
+                       Date = t.Today.ToLocalTime()
+                     };
+        Assert.That(q.ToList()[0].Key.Date, Is.EqualTo(todayAssert));
+        tx.Complete();
+      }
+    }
 
     [Test]
     public void OutputDateTimeOffsetTest()

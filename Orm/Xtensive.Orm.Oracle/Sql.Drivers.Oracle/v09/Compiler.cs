@@ -363,7 +363,22 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private static SqlExpression DateTimeOffsetToLocalTime(SqlExpression dateTimeOffset)
     {
-      return SqlDml.Concat(dateTimeOffset, SqlDml.Native("sessiontimezone"));
+      return SqlDml.FunctionCall("FROM_TZ",
+        SqlDml.Cast(
+          dateTimeOffset
+            -
+            (SysExtractUtc(SqlDml.Native("CURRENT_TIMESTAMP"))
+              - SysExtractUtc(
+                SqlDml.FunctionCall("FROM_TZ",
+                  SqlDml.Cast(SqlDml.Native("CURRENT_TIMESTAMP"), SqlType.DateTime),
+                  DateTimeOffsetExtractPart(dateTimeOffset, "TZR")))),
+          SqlType.DateTime)
+        , SqlDml.Native("sessiontimezone"));
+    }
+
+    private static SqlExpression SysExtractUtc(SqlExpression dateTimeOffset)
+    {
+      return SqlDml.FunctionCall("SYS_EXTRACT_UTC", dateTimeOffset);
     }
 
     private static SqlExpression AnsiString(string value)
