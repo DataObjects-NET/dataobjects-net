@@ -2482,4 +2482,7 @@ Error: {1}</value>
   <data name="ExTypeColumnXForFulltextColumnYMustBeTypeOfString">
     <value xml:space="preserve">Type column '{0}' for fulltext column'{1}' must be type of string.</value>
   </data>
+  <data name="ExSeedMustHaveUniqueValueForDifferentKeyGeneratorsWhenSingleEqualityIdentifierIsUsed">
+    <value xml:space="preserve">Seed must have unique value for different key generators when single equality identifier is used.</value>
+  </data>
 </root>

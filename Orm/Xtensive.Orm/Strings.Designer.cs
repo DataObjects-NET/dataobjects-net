@@ -3864,6 +3864,16 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Seed must have unique value for different key generators when single equality identifier is used..
+        /// </summary>
+        internal static string ExSeedMustHaveUniqueValueForDifferentKeyGeneratorsWhenSingleEqualityIdentifierIsUsed {
+            get {
+                return ResourceManager.GetString("ExSeedMustHaveUniqueValueForDifferentKeyGeneratorsWhenSingleEqualityIdentifierIsU" +
+                        "sed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SelectMany collection selector &apos;{0}&apos; must have only one lambda parameter..
         /// </summary>
         internal static string ExSelectManyCollectionSelector0MustHaveOnlyOneLambdaParameter {

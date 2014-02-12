@@ -455,7 +455,11 @@ namespace Xtensive.Orm.Building.Builders
       if (sequences.TryGetValue(generatorName, out sequence))
         key.Sequence = sequence;
       else {
-        key.Sequence = BuildSequence(hierarchyDef, key);
+        var newSequence = BuildSequence(hierarchyDef, key);
+        if (context.Configuration.UseSingleEqualityIdentifier) {
+          EnsureSequenceSeedIsUnique(newSequence);
+        }
+        key.Sequence = newSequence;
         sequences.Add(generatorName, key.Sequence);
       }
 
@@ -496,6 +500,12 @@ namespace Xtensive.Orm.Building.Builders
       if (context.Configuration.UseSingleEqualityIdentifier && keyGeneratorKind==KeyGeneratorKind.Default)
         return singleEqualityIdentifier;
       return new object();
+    }
+
+    private void EnsureSequenceSeedIsUnique(SequenceInfo sequenceToCheck)
+    {
+      if(sequences.Values.FirstOrDefault(el=>el.Seed==sequenceToCheck.Seed)!=null)
+        throw new DomainBuilderException(Strings.ExSeedMustHaveUniqueValueForDifferentKeyGeneratorsWhenSingleEqualityIdentifierIsUsed);
     }
 
     #endregion
