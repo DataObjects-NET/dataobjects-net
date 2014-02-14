@@ -73,10 +73,10 @@ namespace Xtensive.Orm.Configuration
     public const bool DefaultBuildInParallel = true;
 
     /// <summary>
-    /// Default <see cref="DomainConfiguration.UseSingleEqualityIdentifier"/> value:
+    /// Default <see cref="MultidatabaseKeys"/> value:
     /// <see langword="true" />.
     /// </summary>
-    public const bool DefaultUseSingleEqualityIdentifier = false;
+    public const bool DefaultMultidatabaseKeys = false;
 
     #endregion
 
@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Configuration
     private string forcedServerVersion = string.Empty;
     private bool buildInParallel = DefaultBuildInParallel;
     private bool allowCyclicDatabaseDependencies;
-    private bool useSingleEqualityIdentifier = DefaultUseSingleEqualityIdentifier;
+    private bool multidatabaseKeys = DefaultMultidatabaseKeys;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseConfigurationCollection databases = new DatabaseConfigurationCollection();
@@ -535,16 +535,18 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets or sets value indicates whether equality identifier
-    /// should be the same for all <see cref="KeyGenerator"/>s.
+    /// Gets or sets multidatabase key mode.
+    /// In this mode keys generated for entities in different databases
+    /// are treated as compatible. Enable this option if you want to
+    /// implement persistent interfaces by entities mapped to different databases.
     /// </summary>
-    public bool UseSingleEqualityIdentifier
+    public bool MultidatabaseKeys
     {
-      get { return useSingleEqualityIdentifier; }
+      get { return multidatabaseKeys; }
       set
       {
         this.EnsureNotLocked();
-        useSingleEqualityIdentifier = value;
+        multidatabaseKeys = value;
       }
     }
 
@@ -596,6 +598,7 @@ namespace Xtensive.Orm.Configuration
       // Everything locked fine, commit the flags
       isMultischema = multischema;
       isMultidatabase = multidatabase;
+      multidatabaseKeys = multidatabaseKeys && multidatabase;
     }
 
     private void ValidateMappingConfiguration(bool multischema, bool multidatabase)
@@ -653,7 +656,7 @@ namespace Xtensive.Orm.Configuration
       nativeLibraryCacheFolder = configuration.nativeLibraryCacheFolder;
       connectionInitializationSql = configuration.connectionInitializationSql;
       schemaSyncExceptionFormat = configuration.schemaSyncExceptionFormat;
-      useSingleEqualityIdentifier = configuration.useSingleEqualityIdentifier;
+      multidatabaseKeys = configuration.multidatabaseKeys;
       databases = (DatabaseConfigurationCollection) configuration.Databases.Clone();
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
       keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();

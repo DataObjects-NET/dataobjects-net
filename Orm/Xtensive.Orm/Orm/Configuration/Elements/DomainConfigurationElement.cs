@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string SchemaSyncExceptionFormatElementName = "schemaSyncExceptionFormat";
     private const string NativeLibraryCacheFolderElementName = "nativeLibraryCacheFolder";
     private const string ConnectionInitializationSqlElementName = "connectionInitializationSql";
-    private const string UseSingleEqualityIdentifierElementName = "useSingleEqualityIdentifier";
+    private const string MultidatabaseKeysElementName = "multidatabaseKeys";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -348,14 +348,14 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.UseSingleEqualityIdentifier" copy="true"/>
+    /// <see cref="DomainConfiguration.MultidatabaseKeys" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(UseSingleEqualityIdentifierElementName,
-      DefaultValue = DomainConfiguration.DefaultUseSingleEqualityIdentifier)]
-    public bool UseSingleEqualityIdentifier
+    [ConfigurationProperty(MultidatabaseKeysElementName,
+      DefaultValue = DomainConfiguration.DefaultMultidatabaseKeys)]
+    public bool MultidatabaseKeys
     {
-      get { return (bool) this[UseSingleEqualityIdentifierElementName]; }
-      set { this[UseSingleEqualityIdentifierElementName] = value; }
+      get { return (bool) this[MultidatabaseKeysElementName]; }
+      set { this[MultidatabaseKeysElementName] = value; }
     }
 
     /// <summary>
@@ -388,7 +388,7 @@ namespace Xtensive.Orm.Configuration.Elements
         Collation = Collation,
         NativeLibraryCacheFolder = NativeLibraryCacheFolder,
         ConnectionInitializationSql = ConnectionInitializationSql,
-        UseSingleEqualityIdentifier = UseSingleEqualityIdentifier
+        MultidatabaseKeys = MultidatabaseKeys
       };
 
       foreach (var element in Types)
