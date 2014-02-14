@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <summary>
     /// <see cref="KeyGeneratorConfiguration.Seed" copy="true"/>
     /// </summary>
-    [ConfigurationProperty(SeedElementName, DefaultValue = 0)]
+    [ConfigurationProperty(SeedElementName, DefaultValue = 0L)]
     public long Seed
     {
       get { return (long) this[SeedElementName]; }
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <summary>
     /// <see cref="KeyGeneratorConfiguration.CacheSize" copy="true" />
     /// </summary>
-    [ConfigurationProperty(CacheSizeElementName, DefaultValue = DomainConfiguration.DefaultKeyGeneratorCacheSize)]
+    [ConfigurationProperty(CacheSizeElementName, DefaultValue = (long) DomainConfiguration.DefaultKeyGeneratorCacheSize)]
     public long CacheSize
     {
       get { return (long) this[CacheSizeElementName]; }

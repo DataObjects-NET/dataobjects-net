@@ -23,6 +23,7 @@ namespace Xtensive.Orm.Building.Builders
   internal sealed class TypeBuilder
   {
     private readonly BuildingContext context;
+    private readonly HashSet<string> processedKeyGenerators = new HashSet<string>();
     private readonly Dictionary<string, object> keyEqualityIdentifiers = new Dictionary<string, object>();
     private readonly Dictionary<string, SequenceInfo> sequences = new Dictionary<string, SequenceInfo>();
     private readonly Dictionary<string, KeyGeneratorConfiguration> keyGeneratorConfigurations;
@@ -430,16 +431,20 @@ namespace Xtensive.Orm.Building.Builders
       key.GeneratorKind = generatorKind;
       key.GeneratorBaseName = context.NameBuilder.BuildKeyGeneratorBaseName(key, hierarchyDef);
       key.GeneratorName = context.NameBuilder.BuildKeyGeneratorName(key, hierarchyDef);
-      var generatorName = key.GeneratorName;
+      var generatorIdentity = context.Configuration.MultidatabaseKeys
+        ? key.GeneratorBaseName
+        : key.GeneratorName;
 
       // Equality indentifier is the same if and only if key generator names match.
+      key.IsFirstAmongSimilarKeys = !processedKeyGenerators.Contains(key.GeneratorName);
+      if (key.IsFirstAmongSimilarKeys)
+        processedKeyGenerators.Add(key.GeneratorName);
       object equalityIdentifier;
-      if (keyEqualityIdentifiers.TryGetValue(generatorName, out equalityIdentifier))
+      if (keyEqualityIdentifiers.TryGetValue(generatorIdentity, out equalityIdentifier))
         key.EqualityIdentifier = equalityIdentifier;
       else {
-        key.IsFirstAmongSimilarKeys = true;
         key.EqualityIdentifier = new object();
-        keyEqualityIdentifiers.Add(generatorName, key.EqualityIdentifier);
+        keyEqualityIdentifiers.Add(generatorIdentity, key.EqualityIdentifier);
       }
 
       // Don't create sequences for user key generators
@@ -449,11 +454,14 @@ namespace Xtensive.Orm.Building.Builders
 
       // Generate backing sequence.
       SequenceInfo sequence;
-      if (sequences.TryGetValue(generatorName, out sequence))
+      if (sequences.TryGetValue(key.GeneratorName, out sequence))
         key.Sequence = sequence;
       else {
-        key.Sequence = BuildSequence(hierarchyDef, key);
-        sequences.Add(generatorName, key.Sequence);
+        var newSequence = BuildSequence(hierarchyDef, key);
+        if (context.Configuration.MultidatabaseKeys)
+          EnsureSequenceSeedIsUnique(newSequence);
+        key.Sequence = newSequence;
+        sequences.Add(key.GeneratorName, key.Sequence);
       }
 
       return key;
@@ -486,6 +494,19 @@ namespace Xtensive.Orm.Building.Builders
     {
       var valueType = key.SingleColumnType;
       return valueType!=null && KeyGeneratorFactory.IsSequenceBacked(valueType);
+    }
+
+    private void EnsureSequenceSeedIsUnique(SequenceInfo sequenceToCheck)
+    {
+      var conflictingSequence = sequences.Values
+        .FirstOrDefault(sequence =>
+          sequence.Seed==sequenceToCheck.Seed
+            && sequence.MappingName==sequenceToCheck.MappingName
+            && sequence.MappingSchema==sequenceToCheck.MappingSchema);
+
+      if (conflictingSequence!=null)
+        throw new DomainBuilderException(string.Format(Strings.ExKeyGeneratorsXAndYHaveTheSameSeedValue,
+          conflictingSequence.Name, sequenceToCheck.Name));
     }
 
     #endregion
