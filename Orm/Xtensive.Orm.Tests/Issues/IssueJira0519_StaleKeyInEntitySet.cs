@@ -70,6 +70,143 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
     
+    [Test]
+    public void ChangesInDifferentSessionsTest()
+    {
+      int id;
+      using (var session = Domain.OpenSession()) {
+        var item1 = new OrderItem();
+        var item2 = new OrderItem();
+        var item3 = new OrderItem();
+        var order = new Order();
+        order.Items.Add(item1);
+        order.Items.Add(item2);
+        order.Items.Add(item3);
+        session.SaveChanges();
+        id = item1.Id;
+        VerifyOrder(order, 3);
+      }
+      using (var session = Domain.OpenSession()) {
+        var item1 = session.Query.All<OrderItem>().First(el => el.Id==id);
+        var order = item1.Order;
+        item1.Remove();
+        session.SaveChanges();
+        VerifyOrder(order, 2);
+      }
+    }
+
+    [Test]
+    public void AddDoubleRemoveAndAddNewItemsInDifferentSavesTest()
+    {
+      using (var session = Domain.OpenSession()) {
+        var item1 = new OrderItem();
+        var item2 = new OrderItem();
+        var item3 = new OrderItem();
+        var order = new Order();
+        order.Items.Add(item1);
+        order.Items.Add(item2);
+        order.Items.Add(item3);
+        session.SaveChanges();
+        VerifyOrder(order, 3);
+
+        var items = order.Items.ToList();
+        item1.Remove();
+        item2.Remove();
+        session.SaveChanges();
+        VerifyOrder(order, 1);
+        items = order.Items.ToList();
+
+        var item4 = new OrderItem();
+        var item5 = new OrderItem();
+        order.Items.Add(item4);
+        order.Items.Add(item5);
+        session.SaveChanges();
+        VerifyOrder(order, 3);
+      }
+    }
+
+    [Test]
+    public void AddDoubleRemoveAndAddNewItemsInSingleSaveTest()
+    {
+      using (var session = Domain.OpenSession()) {
+        var item1 = new OrderItem();
+        var item2 = new OrderItem();
+        var item3 = new OrderItem();
+        var order = new Order();
+        order.Items.Add(item1);
+        order.Items.Add(item2);
+        order.Items.Add(item3);
+        session.SaveChanges();
+        VerifyOrder(order, 3);
+
+        var items = order.Items.ToList();
+        item1.Remove();
+        item2.Remove();
+        var item4 = new OrderItem();
+        var item5 = new OrderItem();
+        order.Items.Add(item4);
+        order.Items.Add(item5);
+        session.SaveChanges();
+        VerifyOrder(order, 3);
+      }
+    }
+
+    [Test]
+    public void AddRemoveAndAddNewItemsTest()
+    {
+      using (var session = Domain.OpenSession()) {
+        var item1 = new OrderItem();
+        var item2 = new OrderItem();
+        var item3 = new OrderItem();
+        var order = new Order();
+        order.Items.Add(item1);
+        order.Items.Add(item2);
+        order.Items.Add(item3);
+        session.SaveChanges();
+        VerifyOrder(order, 3);
+
+        var items = order.Items.ToList();
+        item1.Remove();
+        session.SaveChanges();
+        VerifyOrder(order, 2);
+        items = order.Items.ToList();
+
+        var item4 = new OrderItem();
+        var item5 = new OrderItem();
+        order.Items.Add(item4);
+        order.Items.Add(item5);
+        session.SaveChanges();
+        VerifyOrder(order, 4);
+      }
+    }
+
+    [Test]
+    public void AddMoveToAnotherOrderAndAddNewItems()
+    {
+      using (var session = Domain.OpenSession()) {
+        var item1 = new OrderItem();
+        var item2 = new OrderItem();
+        var item3 = new OrderItem();
+        var order = new Order();
+        order.Items.Add(item1);
+        order.Items.Add(item2);
+        order.Items.Add(item3);
+        session.SaveChanges();
+        VerifyOrder(order, 3);
+
+        var items = order.Items.ToList();
+        var order1 = new Order();
+        order1.Items.Add(item1);
+        var item4 = new OrderItem();
+        var item5 = new OrderItem();
+        order.Items.Add(item4);
+        order.Items.Add(item5);
+        session.SaveChanges();
+        VerifyOrder(order, 4);
+        VerifyOrder(order1, 1);
+      }
+    }
+
     private void VerifyOrder(Order order, long expectedCount)
     {
       Assert.That(order.Items.Count, Is.EqualTo(expectedCount));
