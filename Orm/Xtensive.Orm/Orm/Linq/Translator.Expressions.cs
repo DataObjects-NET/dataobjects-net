@@ -1286,9 +1286,6 @@ namespace Xtensive.Orm.Linq
 
     private static ProjectionExpression CreateLocalCollectionProjectionExpression(Type itemType, object value, Translator translator, Expression sourceExpression)
     {
-      if (itemType.IsAssignableFrom(typeof (Key)) && translator.state.TypeOfEntityStoredInKey==null)
-        throw new InvalidOperationException(string.Format(Strings.ExTypeOfEntityStoredInKeyIsUndefined));
-      
       var storedEntityType = translator.state.TypeOfEntityStoredInKey;
       var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, storedEntityType, value, translator.context.Model, sourceExpression);
       var rsHeader = new RecordSetHeader(itemToTupleConverter.TupleDescriptor, itemToTupleConverter.TupleDescriptor.Select(x => new SystemColumn(translator.context.GetNextColumnAlias(), 0, x)).Cast<Column>());
