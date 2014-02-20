@@ -1177,6 +1177,12 @@ namespace Xtensive.Orm.Linq
       var parameter = predicate.Parameters[0];
       ProjectionExpression visitedSource;
       using (state.CreateScope()) {
+        if (source.IsLocalCollection(context) &&
+            (source.Type.IsGenericType && source.Type.GetGenericArguments()[0].IsAssignableFrom(typeof (Key))) ||
+            (source.Type.IsAssignableFrom(typeof (Key)))) {
+          var localCollecctionKeyType = LocalCollectionKeyTypeExtractor.Extract((BinaryExpression)predicate.Body);
+          state.TypeOfEntityStoredInKey = localCollecctionKeyType;
+        }
         state.IncludeAlgorithm = IncludeAlgorithm.Auto;
         visitedSource = VisitSequence(source);
       }
