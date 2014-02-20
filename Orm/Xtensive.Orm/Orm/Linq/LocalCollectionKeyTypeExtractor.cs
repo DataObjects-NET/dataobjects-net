@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Linq
     {
       var memberExpression = binaryExpression.Right as MemberExpression;
       if (memberExpression==null)
-        throw new Exception(string.Format(Strings.ExCantConvertXToY, binaryExpression.Type, typeof (MemberExpression)));
+        throw new InvalidOperationException(string.Format(Strings.ExCantConvertXToY, binaryExpression.Type, typeof (MemberExpression)));
       return VisitMemberExpression(memberExpression);
     }
 
