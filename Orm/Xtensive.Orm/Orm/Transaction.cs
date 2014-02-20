@@ -190,7 +190,7 @@ namespace Xtensive.Orm
       }
       if (Outer!=null)
         PromoteLifetimeTokens();
-      else if (Session.Configuration.Supports(SessionOptions.PreserveStateOnCommit))
+      else if (Session.Configuration.Supports(SessionOptions.NonTransactionalReads))
         ClearLifetimeTokens();
       else
         ExpireLifetimeTokens();

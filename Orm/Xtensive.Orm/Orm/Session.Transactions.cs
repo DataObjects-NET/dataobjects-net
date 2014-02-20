@@ -381,7 +381,7 @@ namespace Xtensive.Orm
       var transaction = Transaction;
       if (transaction!=null)
         return transaction.LifetimeToken;
-      if (Configuration.Supports(SessionOptions.AllowNonTransactionalState))
+      if (Configuration.Supports(SessionOptions.NonTransactionalReads))
         return sessionLifetimeToken;
       throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt);
     }

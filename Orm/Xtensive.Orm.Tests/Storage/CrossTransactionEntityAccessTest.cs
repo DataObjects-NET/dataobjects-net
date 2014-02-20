@@ -14,9 +14,9 @@ namespace Xtensive.Orm.Tests.Storage
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      var configuration =  base.BuildConfiguration();
+      var configuration = base.BuildConfiguration();
       var defaultSession = configuration.Sessions.Default;
-      defaultSession.Options = defaultSession.Options | SessionOptions.PreserveStateOnCommit;
+      defaultSession.Options = defaultSession.Options | SessionOptions.NonTransactionalReads;
       return configuration;
     }
 

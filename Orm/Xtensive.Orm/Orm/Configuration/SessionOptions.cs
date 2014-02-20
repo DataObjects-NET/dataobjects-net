@@ -22,15 +22,17 @@ namespace Xtensive.Orm.Configuration
     None = 0,
 
     /// <summary>
-    /// Enables <see cref="Entity"/> state preservation when corresponding transaction is committed.
-    /// This affects only non-nested transactions.
+    /// Enables reading of <see cref="Entity"/> objects without active transaction.
+    /// This option changes <see cref="Session"/> behavior in two ways.
+    /// It becames possible to execute queries without any active transaction.
+    /// Entities loaded or modified in a transaction that is already committed don't refetch their data.
     /// </summary>
-    PreserveStateOnCommit = 1 << 0,
+    NonTransactionalReads = 1 << 0,
 
-    /// <summary>
-    /// Enables read-only operation with entities without active transaction.
-    /// </summary>
-    AllowNonTransactionalState = 1 << 1,
+    // Not used:
+    // 1 << 1
+    // 1 << 2
+    // 1 << 3
 
     /// <summary>
     /// Enables activation of this <see cref="Session"/> from another session having this option.
@@ -86,6 +88,9 @@ namespace Xtensive.Orm.Configuration
     /// This option allows to read all the properties of removed objects, which values are available.
     /// </summary>
     ReadRemovedObjects = 1 << 9,
+
+    // Not used:
+    // 1 << 10
 
     /// <summary>
     /// Enables suppression of any exception occurred during transaction rollback.

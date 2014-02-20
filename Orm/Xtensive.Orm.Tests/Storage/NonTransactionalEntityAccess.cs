@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var configuration = base.BuildConfiguration();
       var defaultSession = configuration.Sessions.Default;
-      defaultSession.Options = defaultSession.Options | SessionOptions.AllowNonTransactionalState;
+      defaultSession.Options = defaultSession.Options | SessionOptions.NonTransactionalReads;
       return configuration;
     }
 
