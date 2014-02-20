@@ -1,1 +1,2 @@
 [main] Added DomainConfiguration.MultidatabaseKeys setting
+[main] Fixed incorrect EntitySet caching in ClientProfile
