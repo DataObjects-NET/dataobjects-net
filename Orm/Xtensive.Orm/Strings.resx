@@ -3286,4 +3286,7 @@ Error: {1}</value>
   <data name="ExTypeColumnXForFulltextColumnYMustBeTypeOfString">
     <value xml:space="preserve">Type column '{0}' for fulltext column'{1}' must be type of string.</value>
   </data>
+  <data name="ExKeyGeneratorsXAndYHaveTheSameSeedValue">
+    <value xml:space="preserve">Key generators '{0}' and '{1}' have the same seed value.</value>
+  </data>
 </root>

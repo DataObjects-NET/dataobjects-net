@@ -305,7 +305,6 @@ namespace Xtensive.Orm
             // Note that if commit will fail, the state will be inconsistent with DB.
             state.Commit(true);
             originalState.Remap(keyMapping);
-            state = new StateRegistry(originalState);
             if (operationsToApply.Count != operations.Count) // Not everything is applied
               state.Operations = new OperationLog(operationLogType, operations.Except(operationsToApply));
 

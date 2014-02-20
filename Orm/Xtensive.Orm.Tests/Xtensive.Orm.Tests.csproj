@@ -188,6 +188,7 @@
     <Compile Include="Issues\IssueJira0197_ExtendedErrorInformation.cs" />
     <Compile Include="Issues\IssueJira0500_OptimizeMultipleAggregatesWithProjections.cs" />
     <Compile Include="Issues\IssueJira0202_OnRemoveActionOverriding.cs" />
+    <Compile Include="Issues\IssueJira0516_PartialIndexConstruction.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\ModelVersion1.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\ModelVersion2.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\Upgrader.cs" />
@@ -269,6 +270,7 @@
     <Compile Include="Issues\Issue_0841_HintGeneratorBug\UpgradeTest.cs" />
     <Compile Include="Issues\Issue_OfTypeMissesImplementors.cs" />
     <Compile Include="Issues\IssueJira0187_TypeCastInContain.cs" />
+    <Compile Include="Issues\IssueJira0519_StaleKeyInEntitySet.cs" />
     <Compile Include="Issues\KeyFormatBug.cs" />
     <Compile Include="Issues\LocalCollectionsTest.cs" />
     <Compile Include="Issues\NotEqualsForNullableColumnTest.cs" />
@@ -289,6 +291,7 @@
     <Compile Include="Linq\QueryPreprocessorSortingTest.cs" />
     <Compile Include="Linq\SelectWithAccessToLocalCollectionTest.cs" />
     <Compile Include="Linq\QueryRootOverriding.cs" />
+    <Compile Include="Model\MultidatabaseKeysTest.cs" />
     <Compile Include="Linq\SortExpressionExtractorTest.cs" />
     <Compile Include="Linq\SubqueryAndComputedColumnOptimizationTest.cs" />
     <Compile Include="Linq\SubqueryWithCalculatedFieldTest.cs" />

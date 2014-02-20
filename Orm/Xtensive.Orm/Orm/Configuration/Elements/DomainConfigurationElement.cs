@@ -45,6 +45,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string NativeLibraryCacheFolderElementName = "nativeLibraryCacheFolder";
     private const string ConnectionInitializationSqlElementName = "connectionInitializationSql";
     private const string IgnoreRulesElementName = "ignoreRules";
+    private const string MultidatabaseKeysElementName = "multidatabaseKeys";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -333,6 +334,17 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.MultidatabaseKeys" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(MultidatabaseKeysElementName,
+      DefaultValue = DomainConfiguration.DefaultMultidatabaseKeys)]
+    public bool MultidatabaseKeys
+    {
+      get { return (bool) this[MultidatabaseKeysElementName]; }
+      set { this[MultidatabaseKeysElementName] = value; }
+    }
+
+    /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="DomainConfiguration"/> object.
     /// </summary>
@@ -360,6 +372,7 @@ namespace Xtensive.Orm.Configuration.Elements
         Collation = Collation,
         NativeLibraryCacheFolder = NativeLibraryCacheFolder,
         ConnectionInitializationSql = ConnectionInitializationSql,
+        MultidatabaseKeys = MultidatabaseKeys
       };
 
       foreach (var element in Types)

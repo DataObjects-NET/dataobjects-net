@@ -191,7 +191,7 @@ namespace Xtensive.Orm.Upgrade
       var handlers = domain.Handlers;
       var indexes = types
         .SelectMany(type => type.Indexes
-          .Where(i => i.IsPartial && !i.IsVirtual)
+          .Where(i => i.IsPartial && !i.IsVirtual && !i.IsAbstract)
           .Select(i => new {Type = type, Index = i}))
         .Select(item => new StoredPartialIndexFilterInfo {
           Database = item.Type.MappingDatabase,
