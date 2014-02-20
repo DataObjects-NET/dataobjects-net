@@ -5,6 +5,7 @@
 // Created:    2008.08.20
 
 using System;
+using System.Collections.Generic;
 using System.Transactions;
 using JetBrains.Annotations;
 using Xtensive.Collections;
@@ -62,6 +63,8 @@ namespace Xtensive.Orm
 
     #endregion
 
+    private readonly List<StateLifetimeToken> lifetimeTokens;
+
     private ExtensionCollection extensions;
     private Transaction inner;
 
@@ -118,6 +121,11 @@ namespace Xtensive.Orm
     /// </summary>
     public bool IsNested { get { return Outer!=null; } }
 
+    /// <summary>
+    /// Gets <see cref="StateLifetimeToken"/> associated with this transaction.
+    /// </summary>
+    public StateLifetimeToken LifetimeToken { get; private set; }
+
     #region IHasExtensions Members
 
     /// <inheritdoc/>
@@ -130,8 +138,6 @@ namespace Xtensive.Orm
     }
 
     #endregion
-
-    internal ValidationContext ValidationContext { get; private set; }
 
     internal string SavepointName { get; private set; }
 
@@ -163,7 +169,6 @@ namespace Xtensive.Orm
     
     internal void Begin()
     {
-      ValidationContext.Reset();
       Session.BeginTransaction(this);
       if (Outer!=null)
         Outer.inner = this;
@@ -177,13 +182,18 @@ namespace Xtensive.Orm
       try {
         if (inner!=null)
           throw new InvalidOperationException(Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
-        ValidationContext.Validate(ValidationReason.Commit);
         Session.CommitTransaction(this);
       }
       catch {
         Rollback();
         throw;
       }
+      if (Outer!=null)
+        PromoteLifetimeTokens();
+      else if (Session.Configuration.Supports(SessionOptions.NonTransactionalReads))
+        ClearLifetimeTokens();
+      else
+        ExpireLifetimeTokens();
       State = TransactionState.Committed;
       EndTransaction();
     }
@@ -202,6 +212,7 @@ namespace Xtensive.Orm
         }
       }
       finally {
+        ExpireLifetimeTokens();
         State = TransactionState.RolledBack;
         EndTransaction();
       }
@@ -220,6 +231,25 @@ namespace Xtensive.Orm
         throw new InvalidOperationException(Strings.ExTransactionIsNotActive);
     }
 
+    private void ExpireLifetimeTokens()
+    {
+      foreach (var token in lifetimeTokens)
+        token.Expire();
+      ClearLifetimeTokens();
+    }
+
+    private void PromoteLifetimeTokens()
+    {
+      Outer.lifetimeTokens.AddRange(lifetimeTokens);
+      ClearLifetimeTokens();
+    }
+
+    private void ClearLifetimeTokens()
+    {
+      lifetimeTokens.Clear();
+      LifetimeToken = null;
+    }
+
     #endregion
 
     
@@ -232,6 +262,8 @@ namespace Xtensive.Orm
 
     internal Transaction(Session session, IsolationLevel isolationLevel, bool isAutomatic, Transaction outer, string savepointName)
     {
+      lifetimeTokens = new List<StateLifetimeToken>();
+
       Guid = Guid.NewGuid();
       State = TransactionState.NotActivated;
       Session = session;
@@ -239,10 +271,9 @@ namespace Xtensive.Orm
       IsAutomatic = isAutomatic;
       IsDisconnected = session.IsDisconnected;
       TimeStamp = DateTime.UtcNow;
-      ValidationContext = session.Configuration.Supports(SessionOptions.ValidateEntities)
-        ? (ValidationContext) new RealValidationContext()
-        : new VoidValidationContext();
-      
+      LifetimeToken = new StateLifetimeToken();
+      lifetimeTokens.Add(LifetimeToken);
+
       if (outer!=null) {
         Outer = outer;
         Guid = outer.Guid;

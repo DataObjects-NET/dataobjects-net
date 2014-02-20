@@ -158,7 +158,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         Func<object, object> generator = CreateRecordSet;
         Provider = (CompilableProvider) manager.Owner.Session.Domain.Cache.GetValue(key, generator);
         var executableProvider = manager.Owner.Session.CompilationService.Compile(Provider);
-        return new QueryTask(executableProvider, parameterContext);
+        return new QueryTask(executableProvider, manager.Owner.Session.GetLifetimeToken(), parameterContext);
       }
     }
 

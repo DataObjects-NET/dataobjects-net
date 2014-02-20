@@ -3,3 +3,5 @@
 [main] Fixed problem with automatic license activation
 [main] Improved logging provider API
 [main] Removed obsolete Transaction.OpenAuto() methods
+[main] Session closes connection when last transaction completes
+[main] Added session options AllowNonTransactionalState and PreserveStateOnCommit

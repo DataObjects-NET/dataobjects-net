@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Internals
   {
     public IEnumerator<T> GetEnumerator()
     {
-      return Materialize(Transaction.Session).GetEnumerator();
+      return Materialize(Session).GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

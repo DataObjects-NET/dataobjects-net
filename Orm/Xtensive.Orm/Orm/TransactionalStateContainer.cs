@@ -4,8 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2008.11.05
 
-using System;
-
 namespace Xtensive.Orm
 {
   /// <summary>
@@ -14,20 +12,18 @@ namespace Xtensive.Orm
   public abstract class TransactionalStateContainer<TState> : SessionBound
   {
     private TState state;
-    private bool isActual;
 
     /// <summary>
-    /// Gets the transaction where container's state was acquired.
+    /// Gets lifetime token for this state.
     /// </summary>
-    public Transaction Transaction { get; private set; }
+    public StateLifetimeToken LifetimeToken { get; private set; }
 
     /// <summary>
-    /// Gets a value indicating whether base state is loaded or not.
+    /// Gets a value indicating whether state is loaded and actual.
     /// </summary>
     public bool IsActual {
       get {
-        EnsureIsActual();
-        return isActual;
+        return LifetimeToken!=null && LifetimeToken.IsActive;
       }
     }
 
@@ -36,27 +32,26 @@ namespace Xtensive.Orm
     /// </summary>
     protected TState State {
       get {
-        EnsureIsActual();
-        if (!isActual)
+        if (!IsActual) {
+          Invalidate();
           Refresh();
+        }
         return state;
       }
       set {
-        // EnsureIsActual(); - absolutely unnecessary; commented to increase performance
-        BindToCurrentTransaction(true);
-        isActual = true;
+        Rebind();
         state = value;
       }
     }
 
     /// <summary>
-    /// Ensures the state is actual. 
+    /// Ensures the state is actual.
     /// If it really is now, this method does nothing.
     /// Otherwise it calls <see cref="Invalidate"/> method.
     /// </summary>
     protected void EnsureIsActual()
     {
-      if (!CheckIsActual())
+      if (!IsActual)
         Invalidate();
     }
 
@@ -66,48 +61,22 @@ namespace Xtensive.Orm
     protected virtual void Invalidate()
     {
       state = default(TState);
-      isActual = false;
-      Transaction = null;
+      LifetimeToken = null;
     }
 
     /// <summary>
-    /// Loads\refreshes the state.
+    /// Loads/refreshes the state.
     /// </summary>
     protected abstract void Refresh();
     
     /// <summary>
-    /// Binds the the state to the current transaction.
+    /// Binds the the state to the current lifetime token.
     /// This method must be invoked on state update.
     /// </summary>
-    /// <exception cref="InvalidOperationException">
-    /// State is not loaded yet or it is not valid in current transaction.</exception>
-    protected void BindToCurrentTransaction()
+    protected void Rebind()
     {
-      BindToCurrentTransaction(false);
+      LifetimeToken = Session.GetLifetimeToken();
     }
-
-    #region Private / internal methods
-
-    private bool CheckIsActual()
-    {
-      if (Transaction==null)
-        return false;
-      var currentTransaction = Session.Transaction;
-      if (currentTransaction==null)
-        return false;
-      return Transaction.AreChangesVisibleTo(currentTransaction);
-    }
-
-    private void BindToCurrentTransaction(bool skipValidation)
-    {
-      var currentTransaction = Session.DemandTransaction();
-      if (!skipValidation)
-        if (Transaction==null || !Transaction.AreChangesVisibleTo(currentTransaction))
-          throw new InvalidOperationException(Strings.ExCanNotMarkStateAsModifiedItIsNotValidInCurrentTransaction);
-      Transaction = currentTransaction;
-    }
-
-    #endregion
 
 
     // Constructors

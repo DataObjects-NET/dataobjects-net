@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Internals
       TotalItemCount = count;
       foreach (var key in keys)
         FetchedKeys.Add(key);
-      BindToCurrentTransaction();
+      Rebind();
     }
 
     /// <summary>
@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Internals
       FetchedKeys.Add(key);
       if (TotalItemCount!=null)
         TotalItemCount++;
-      BindToCurrentTransaction();
+      Rebind();
     }
 
     /// <summary>
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Internals
       FetchedKeys.RemoveKey(key);
       if (TotalItemCount!=null)
         TotalItemCount--;
-      BindToCurrentTransaction();
+      Rebind();
     }
 
     /// <inheritdoc/>
