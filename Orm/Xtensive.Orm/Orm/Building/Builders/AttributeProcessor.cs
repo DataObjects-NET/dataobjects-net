@@ -389,6 +389,12 @@ namespace Xtensive.Orm.Building.Builders
       if (method==null)
         method = providerType.GetMethod(providerMember, bindingFlags, null, Type.EmptyTypes, null);
 
+      // Check for method in the BaseType
+      while (method==null && providerType.BaseType!=null) {
+        providerType = providerType.BaseType;
+        method = providerType.GetMethod(providerMember, bindingFlags, null, Type.EmptyTypes, null);
+      }
+
       if (method==null)
         throw new DomainBuilderException(string.Format(Strings.ExMemberXIsNotFoundCheckThatSuchMemberExists, memberName));
       if (!typeof (LambdaExpression).IsAssignableFrom(method.ReturnType))
