@@ -6,10 +6,8 @@
 
 using System;
 using System.Configuration;
-using System.Runtime.CompilerServices;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using ConfigurationSection = Xtensive.Orm.Configuration.Elements.ConfigurationSection;
 
 namespace Xtensive.Orm.Logging
 {
@@ -18,8 +16,9 @@ namespace Xtensive.Orm.Logging
   /// </summary>
   public sealed class LogManager
   {
-    private readonly object syncObj = new object();
     private static readonly LogManager defaultInstance = new LogManager();
+
+    private readonly object syncObj = new object();
     private LogProvider provider;
 
     /// <summary>
@@ -97,6 +96,8 @@ namespace Xtensive.Orm.Logging
     /// <returns>Founded log or default.</returns>
     public BaseLog GetLog(string logName)
     {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(logName, "logName");
+
       lock (syncObj) {
         if (provider==null)
           throw new InvalidOperationException(Strings.ExLogManagerMustBeInitializedBeforeUsing);

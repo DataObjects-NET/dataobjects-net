@@ -134,8 +134,8 @@ namespace Xtensive.Orm.Tests.Storage
       Assert.IsNotNull(transactionRollbackingArgs);
       Assert.IsNotNull(transactionRollbackedArgs);
       Assert.IsNotNull(transactionCommitingArgs);
-      Assert.IsNull(persistingArgs);
-      Assert.IsNull(persistedArgs);
+      Assert.IsNotNull(persistingArgs);
+      Assert.IsNotNull(persistedArgs);
       Assert.IsNull(transactionCommitedArgs);
     }
 

@@ -6,12 +6,10 @@
 
 using System;
 using System.Transactions;
-using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
-using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Providers;
-
+using Xtensive.Orm.Validation;
 using SD=System.Data;
 
 namespace Xtensive.Orm
@@ -20,6 +18,7 @@ namespace Xtensive.Orm
   {
     private const string SavepointNameFormat = "s{0}";
 
+    private readonly StateLifetimeToken sessionLifetimeToken = new StateLifetimeToken();
     private int nextSavepoint;
 
     /// <summary>
@@ -222,10 +221,11 @@ namespace Xtensive.Orm
       SystemEvents.NotifyTransactionPrecommitting(transaction);
       Events.NotifyTransactionPrecommitting(transaction);
 
+      Persist(PersistReason.Commit);
+      ValidationContext.Validate(ValidationReason.Commit);
+
       SystemEvents.NotifyTransactionCommitting(transaction);
       Events.NotifyTransactionCommitting(transaction);
-
-      Persist(PersistReason.Commit);
 
       Handler.CompletingTransaction(transaction);
       if (transaction.IsNested)
@@ -281,6 +281,7 @@ namespace Xtensive.Orm
     {
       queryTasks.Clear();
       pinner.ClearRoots();
+      ValidationContext.Reset();
 
       Transaction = transaction.Outer;
 
@@ -373,6 +374,16 @@ namespace Xtensive.Orm
     internal void SetTransaction(Transaction transaction)
     {
       Transaction = transaction;
+    }
+
+    internal StateLifetimeToken GetLifetimeToken()
+    {
+      var transaction = Transaction;
+      if (transaction!=null)
+        return transaction.LifetimeToken;
+      if (Configuration.Supports(SessionOptions.NonTransactionalReads))
+        return sessionLifetimeToken;
+      throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt);
     }
   }
 }

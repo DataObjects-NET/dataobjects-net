@@ -31,6 +31,11 @@ namespace Xtensive.Orm.Internals
     public readonly ParameterContext ParameterContext;
 
     /// <summary>
+    /// Gets <see cref="StateLifetimeToken"/> this instance is bound to.
+    /// </summary>
+    public readonly StateLifetimeToken LifetimeToken;
+
+    /// <summary>
     /// Gets or sets the result of execution of this query task.
     /// </summary>
     public List<Tuple> Result { get; set; }
@@ -58,10 +63,11 @@ namespace Xtensive.Orm.Internals
     /// </summary>
     /// <param name="dataSource">The data source.</param>
     /// <param name="parameterContext">The parameter value context.</param>
-    public QueryTask(ExecutableProvider dataSource, ParameterContext parameterContext)
+    public QueryTask(ExecutableProvider dataSource, StateLifetimeToken lifetimeToken, ParameterContext parameterContext)
     {
       ArgumentValidator.EnsureArgumentNotNull(dataSource, "dataSource");
       DataSource = dataSource;
+      LifetimeToken = lifetimeToken;
       ParameterContext = parameterContext;
     }
   }

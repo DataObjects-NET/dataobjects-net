@@ -14,92 +14,84 @@ namespace Xtensive.Orm.Logging
 {
   internal sealed class InternalLogProvider : LogProvider
   {
-    private readonly StringComparer comparer;
-    private readonly Dictionary<string, BaseLog> logs;
-    private BaseLog defaultLog;
+    private static readonly StringComparer Comparer = StringComparer.InvariantCultureIgnoreCase;
+
+    private LogWriter defaultWriter;
+    private readonly Dictionary<string, BaseLog> configuredLogs;
 
     public override BaseLog GetLog(string logName)
     {
+      logName = logName.Trim();
       BaseLog log;
-      if (logs.TryGetValue(logName, out log))
+      if (configuredLogs.TryGetValue(logName, out log))
         return log;
-      return defaultLog;
+      return CreateLog(logName, defaultWriter);
     }
 
-    private bool IsDefaultLog(string logName)
+    private bool IsDefault(string logName)
     {
-      return comparer.Compare(logName, "*")==0;
+      return Comparer.Compare(logName, "*")==0;
     }
 
-    private void ProcessLogGroup(KeyValuePair<string, List<LogConfiguration>> targetGroup)
+    private static IEnumerable<string> ParseSources(string sources)
     {
-      var writer = GetLogWriter(targetGroup.Key);
-      if (writer==null) {
-        CreateNullLogs(targetGroup.Value);
-        return;
-      }
-      foreach (var log in targetGroup.Value) {
-        CreateLogs(log.Source, writer);
-      }
+      if (sources==null)
+        return Enumerable.Empty<string>();
+
+      return sources.Split(',')
+        .Select(item => item.Trim())
+        .Where(item => item!=string.Empty);
     }
 
-    private void CreateNullLogs(IEnumerable<LogConfiguration> configurations)
+    private void RegisterLogs(string sources, LogWriter writer)
     {
-      var nullLog = (defaultLog is NullLog) ? defaultLog : new NullLog();
-      foreach (var logConfiguration in configurations) {
-        if (IsDefaultLog(logConfiguration.Source)) {
-          defaultLog = nullLog;
-          continue;
-        }
-        foreach (var source in GetLogSources(logConfiguration.Source))
-          logs[source] = nullLog;
-      }
+      foreach (var source in ParseSources(sources))
+        configuredLogs[source] = CreateLog(source, writer);
     }
 
-    private static IEnumerable<string> GetLogSources(string source)
+    private BaseLog CreateLog(string name, LogWriter writer)
     {
-      return source.Replace(" ", "").Split(',');
+      return writer==null
+        ? (BaseLog) new NullLog(name)
+        : new InternalLog(name, writer);
     }
 
-    private void CreateLogs(string source, LogWriter writer)
+    private LogWriter CreateWriter(string target)
     {
-      if (IsDefaultLog(source)) {
-        defaultLog = new InternalLog("<default>", writer);
-        return;
-      }
-      foreach (var s in GetLogSources(source))
-        logs[s] = new InternalLog(s, writer);
-    }
-
-    private LogWriter GetLogWriter(string target)
-    {
-      if (comparer.Compare(target, "Console")==0)
+      if (Comparer.Compare(target, "Console")==0)
         return new ConsoleWriter();
-      if (comparer.Compare(target, "DebugOnlyConsole")==0)
+      if (Comparer.Compare(target, "DebugOnlyConsole")==0)
         return new DebugOnlyConsoleWriter();
-      if (comparer.Compare(target, "None")==0)
+      if (Comparer.Compare(target, "None")==0)
         return null;
       if (Path.IsPathRooted(target))
         return new FileWriter(target);
       return new FileWriter(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, target));
     }
 
+    private void ProcessLogGroup(string target, IEnumerable<LogConfiguration> configurations)
+    {
+      if (target==string.Empty)
+        return;
+      var writer = CreateWriter(target);
+      foreach (var log in configurations)
+        if (IsDefault(log.Source))
+          defaultWriter = writer;
+        else
+          RegisterLogs(log.Source, writer);
+    }
+
     public InternalLogProvider()
     {
-      logs = new Dictionary<string, BaseLog>();
-      defaultLog = new NullLog();
-      comparer = StringComparer.InvariantCultureIgnoreCase;
+      configuredLogs = new Dictionary<string, BaseLog>();
     }
 
     public InternalLogProvider(IEnumerable<LogConfiguration> logConfigurations)
     {
-      logs = new Dictionary<string, BaseLog>();
-      defaultLog = new NullLog();
-      comparer = StringComparer.InvariantCultureIgnoreCase;
-      var targetGroups = logConfigurations.GroupBy(e => e.Target).ToDictionary(e => e.Key, e => e.ToList());
-      foreach (var targetGroup in targetGroups) {
-        ProcessLogGroup(targetGroup);
-      }
+      configuredLogs = new Dictionary<string, BaseLog>();
+      var logGroups = logConfigurations.GroupBy(e => (e.Target ?? string.Empty).Trim());
+      foreach (var item in logGroups)
+        ProcessLogGroup(item.Key, item);
     }
   }
 }

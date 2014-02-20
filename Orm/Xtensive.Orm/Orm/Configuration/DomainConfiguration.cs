@@ -65,6 +65,12 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public const bool DefaultBuildInParallel = true;
 
+    /// <summary>
+    /// Default <see cref="MultidatabaseKeys"/> value:
+    /// <see langword="true" />.
+    /// </summary>
+    public const bool DefaultMultidatabaseKeys = false;
+
     #endregion
 
     private static bool sectionNameIsDefined;
@@ -89,6 +95,7 @@ namespace Xtensive.Orm.Configuration
     private string forcedServerVersion = string.Empty;
     private bool buildInParallel = DefaultBuildInParallel;
     private bool allowCyclicDatabaseDependencies;
+    private bool multidatabaseKeys = DefaultMultidatabaseKeys;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseConfigurationCollection databases = new DatabaseConfigurationCollection();
@@ -506,6 +513,22 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets multidatabase key mode.
+    /// In this mode keys generated for entities in different databases
+    /// are treated as compatible. Enable this option if you want to
+    /// implement persistent interfaces by entities mapped to different databases.
+    /// </summary>
+    public bool MultidatabaseKeys
+    {
+      get { return multidatabaseKeys; }
+      set
+      {
+        this.EnsureNotLocked();
+        multidatabaseKeys = value;
+      }
+    }
+
+    /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
     /// </summary>
     public bool IsMultidatabase { get { return isMultidatabase ?? GetIsMultidatabase(); } }
@@ -555,6 +578,7 @@ namespace Xtensive.Orm.Configuration
       // Everything locked fine, commit the flags
       isMultischema = multischema;
       isMultidatabase = multidatabase;
+      multidatabaseKeys = multidatabaseKeys && multidatabase;
     }
 
     private void ValidateMappingConfiguration(bool multischema, bool multidatabase)
@@ -618,6 +642,7 @@ namespace Xtensive.Orm.Configuration
       nativeLibraryCacheFolder = configuration.nativeLibraryCacheFolder;
       connectionInitializationSql = configuration.connectionInitializationSql;
       schemaSyncExceptionFormat = configuration.schemaSyncExceptionFormat;
+      multidatabaseKeys = configuration.multidatabaseKeys;
       databases = (DatabaseConfigurationCollection) configuration.Databases.Clone();
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
       keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();

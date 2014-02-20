@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
           .Aggregate(ArrayUtils<int>.EmptyArray,
             new AggregateColumnDescriptor("_count_", 0, AggregateType.Count));
         var compiledProvider = session.CompilationService.Compile(rs);
-        var task = new QueryTask(compiledProvider, null);
+        var task = new QueryTask(compiledProvider, session.GetLifetimeToken(), null);
         tasks.Add(task);
         Session.Current.RegisterDelayedQuery(task);
       }

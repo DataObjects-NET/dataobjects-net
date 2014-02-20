@@ -23,7 +23,7 @@ namespace Xtensive.Orm
     /// </summary>
     public T Value {
       get {
-        return Materialize(Transaction.Session);
+        return Materialize(Session);
       }
     }
 

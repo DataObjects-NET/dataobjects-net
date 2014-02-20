@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Orm.Internals;
 
 
@@ -33,10 +34,9 @@ namespace Xtensive.Orm
     {
       if (isDelayedQueryRunning || queryTasks.Count==0)
         return false;
-      DemandTransaction();
       try {
         isDelayedQueryRunning = true;
-        Handler.ExecuteQueryTasks(queryTasks, allowPartialExecution);
+        Handler.ExecuteQueryTasks(queryTasks.Where(t => t.LifetimeToken.IsActive), allowPartialExecution);
         return true;
       }
       finally {

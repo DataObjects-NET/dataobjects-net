@@ -106,9 +106,6 @@ namespace Xtensive.Orm.Disconnected
     /// <inheritdoc/>
     public override void CommitTransaction(Transaction transaction)
     {
-//      if (ChainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
-//        ChainedHandler.CommitTransaction(transaction);
-//      disconnectedState.OnTransactionCommited();
       if (!transaction.IsAutomatic) {
         if (disconnectedState.IsConnected)
           base.CommitTransaction(transaction);
@@ -121,9 +118,6 @@ namespace Xtensive.Orm.Disconnected
     /// <inheritdoc/>
     public override void RollbackTransaction(Transaction transaction)
     {
-//      if (ChainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
-//        ChainedHandler.RollbackTransaction(transaction);
-//      disconnectedState.OnTransactionRollbacked();
       if (!transaction.IsAutomatic) {
         if (disconnectedState.IsConnected)
           base.RollbackTransaction(transaction);
@@ -132,23 +126,6 @@ namespace Xtensive.Orm.Disconnected
       }
       disconnectedState.OnTransactionRollbacked();
     }
-
-   /* public void BeginChainedTransaction()
-    {
-      if (ChainedHandler.TransactionIsStarted)
-        return;
-      if (!disconnectedState.IsConnected)
-        throw new ConnectionRequiredException();
-      ChainedHandler.BeginTransaction(Session.Configuration.DefaultIsolationLevel);
-    }
-
-    public void CommitChainedTransaction()
-    {
-      // We assume that chained transactions are always readonly, so there is no rollback.
-      if (ChainedHandler.TransactionIsStarted && !disconnectedState.IsAttachedWhenTransactionWasOpen)
-        ChainedHandler.CommitTransaction();
-    }*/
-
 
     #endregion
 

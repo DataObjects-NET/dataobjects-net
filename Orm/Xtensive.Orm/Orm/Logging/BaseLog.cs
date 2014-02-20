@@ -22,9 +22,9 @@ namespace Xtensive.Orm.Logging
     /// <summary>
     /// Checks if specified <see cref="LogLevel"/> is processed by current instance.
     /// </summary>
-    /// <param name="eventTypes"><see cref="System.LogLevel"/> to check.</param>
+    /// <param name="level"><see cref="System.LogLevel"/> to check.</param>
     /// <returns>true if current instance supports specified <see cref="LogLevel"/>, otherwise false.</returns>
-    public abstract bool IsLogged(LogLevel eventTypes);
+    public abstract bool IsLogged(LogLevel level);
 
     /// <summary>
     /// Creates region. Within the region, all messages are indented.
