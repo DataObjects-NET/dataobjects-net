@@ -300,16 +300,21 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ToLocalTimeTest()
     {
-      DateTimeOffset todayAssert = new DateTimeOffset(2013, 11, 28, 16, 43, 0, 0, new TimeSpan(4, 0, 0));
-
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var q =
           from t in session.Query.All<EntityWithDateTimeOffset>()
           group t by new {
-            Date = t.Today.ToLocalTime()
+            Date = t.Today.ToLocalTime(),
+            ServerOffset = t.Today.ToLocalTime().Offset
           };
-        Assert.That(q.ToList()[0].Key.Date, Is.EqualTo(todayAssert));
+        
+        var resultQueryServerOffset = q.ToList().FirstOrDefault();
+
+        if (resultQueryServerOffset!=null) {
+          var serverOffset = new TimeSpan(resultQueryServerOffset.Key.ServerOffset.Hours, resultQueryServerOffset.Key.ServerOffset.Minutes, 0);
+          Assert.That(q.ToList()[0].Key.Date, Is.EqualTo(today.ToOffset(serverOffset)));
+        }
         tx.Complete();
       }
     }
