@@ -104,8 +104,8 @@ namespace Xtensive.Orm.Tests.Upgrade
         var queryServerOffset =
           from t in session.Query.All<V2.EntityWithDateTimeOffsetUpgrade>()
           group t by new {
-                       ServerOffset = t.DateTime.ToLocalTime().Offset
-                     };
+            ServerOffset = t.DateTime.ToLocalTime().Offset
+          };
         var resultQueryServerOffset = queryServerOffset.ToList().FirstOrDefault();
 
         if (resultQueryServerOffset!=null)
