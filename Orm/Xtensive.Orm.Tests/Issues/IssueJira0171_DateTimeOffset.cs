@@ -302,18 +302,18 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var q =
+        var query =
           from t in session.Query.All<EntityWithDateTimeOffset>()
           group t by new {
             Date = t.Today.ToLocalTime(),
             ServerOffset = t.Today.ToLocalTime().Offset
           };
-        
-        var resultQueryServerOffset = q.ToList().FirstOrDefault();
 
-        if (resultQueryServerOffset!=null) {
-          var serverOffset = new TimeSpan(resultQueryServerOffset.Key.ServerOffset.Hours, resultQueryServerOffset.Key.ServerOffset.Minutes, 0);
-          Assert.That(q.ToList()[0].Key.Date, Is.EqualTo(today.ToOffset(serverOffset)));
+        var resultQuery = query.ToList().FirstOrDefault();
+
+        if (resultQuery!=null) {
+          var serverOffset = new TimeSpan(resultQuery.Key.ServerOffset.Hours, resultQuery.Key.ServerOffset.Minutes, 0);
+          Assert.That(resultQuery.Key.Date, Is.EqualTo(today.ToOffset(serverOffset)));
         }
         tx.Complete();
       }
