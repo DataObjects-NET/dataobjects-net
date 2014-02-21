@@ -278,6 +278,7 @@
     <Compile Include="Linq\CompiledQueriesWithClosureTest.cs" />
     <Compile Include="Issues\StrangeLockingExceptionTest.cs" />
     <Compile Include="Issues\StructureFieldRemoveTest.cs" />
+    <Compile Include="Linq\ContainsOverKeysCollectionTest.cs" />
     <Compile Include="Linq\ConvariantQueriesTest.cs" />
     <Compile Include="Linq\DateTimeToStringTest.cs" />
     <Compile Include="Linq\DoubleAggregateToStructTest.cs" />

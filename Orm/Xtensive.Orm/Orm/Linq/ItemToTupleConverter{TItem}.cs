@@ -29,6 +29,8 @@ namespace Xtensive.Orm.Linq
     private readonly DomainModel model;
     private Func<TItem, Tuple> converter;
     private readonly Expression sourceExpression;
+    private readonly Type entityTypestoredInKey;
+    private readonly bool isKeyConverter;
 
     public override Expression<Func<IEnumerable<Tuple>>> GetEnumerable()
     {
@@ -111,6 +113,12 @@ namespace Xtensive.Orm.Linq
         var keyTuple = entity.Key.Value;
         keyTuple.CopyTo(tuple, 0, entityExpression.Key.Mapping.Offset, keyTuple.Count);
       }
+      else if (expression is KeyExpression) {
+        var keyExpression = (KeyExpression) expression;
+        var key = (Key) item;
+        var keyTuple = key.Value;
+        keyTuple.CopyTo(tuple, 0, keyExpression.Mapping.Offset, keyTuple.Count);
+      }
       else
         throw new NotSupportedException();
     }
@@ -168,11 +176,17 @@ namespace Xtensive.Orm.Linq
         TypeInfo typeInfo = model.Types[type];
         KeyInfo keyInfo = typeInfo.Key;
         TupleDescriptor keyTupleDescriptor = keyInfo.TupleDescriptor;
-        EntityExpression entityExpression = EntityExpression.Create(typeInfo, index, true);
-        entityExpression.IsNullable = true;
+        IMappedExpression expression;
+        if (isKeyConverter)
+          expression = KeyExpression.Create(typeInfo, index);
+        else {
+          var entityExpression = EntityExpression.Create(typeInfo, index, true);
+          entityExpression.IsNullable = true;
+          expression = entityExpression;
+        }
         index += keyTupleDescriptor.Count;
         types = types.Concat(keyTupleDescriptor);
-        return entityExpression;
+        return expression;
       }
 
       if (type.IsSubclassOf(typeof (Structure))) {
@@ -197,7 +211,7 @@ namespace Xtensive.Orm.Linq
 
     private void BuildConverter()
     {
-      Type itemType = typeof (TItem);
+      Type itemType = isKeyConverter ? entityTypestoredInKey : typeof (TItem);
       int index = 0;
       ParameterExpression parameterExpression = Expression.Parameter(itemType, "item");
       IEnumerable<Type> types = EnumerableUtils<Type>.Empty;
@@ -222,11 +236,13 @@ namespace Xtensive.Orm.Linq
       this.converter = converter;
     }
 
-    public ItemToTupleConverter(Func<IEnumerable<TItem>> enumerableFunc, DomainModel model, Expression sourceExpression)
+    public ItemToTupleConverter(Func<IEnumerable<TItem>> enumerableFunc, DomainModel model, Expression sourceExpression, Type storedEntityType)
     {
       this.model = model;
       this.enumerableFunc = enumerableFunc;
       this.sourceExpression = sourceExpression;
+      this.entityTypestoredInKey = storedEntityType;
+      isKeyConverter = typeof (TItem).IsAssignableFrom(typeof (Key));
       BuildConverter();
     }
   }

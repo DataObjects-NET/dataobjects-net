@@ -181,6 +181,7 @@ namespace Xtensive.Orm.Tests.Model
     public void SameSeedValueInDifferentKeyGeneratorsTest()
     {
       var configuration = DomainConfiguration.Load("AppConfigTest", "MultidatabaseKeysTestDomain1");
+      configuration.ConnectionInfo = DomainConfigurationFactory.Create().ConnectionInfo;
       configuration.Types.Register(typeof (Database1.Base1MyEntity).Assembly, typeof (Database1.Base1MyEntity).Namespace);
       configuration.Types.Register(typeof (Database2.Base2MyEntity).Assembly, typeof (Database2.Base2MyEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;

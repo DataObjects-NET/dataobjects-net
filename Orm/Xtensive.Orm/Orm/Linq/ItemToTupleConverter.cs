@@ -25,12 +25,12 @@ namespace Xtensive.Orm.Linq
 
     public Expression Expression { get; protected set; }
 
-    public static ItemToTupleConverter BuildConverter(Type type, object enumerable, DomainModel model, Expression sourceExpression)
+    public static ItemToTupleConverter BuildConverter(Type type, Type storedEntityType, object enumerable, DomainModel model, Expression sourceExpression)
     {
       return (ItemToTupleConverter) typeof (ItemToTupleConverter<>)
         .MakeGenericType(type)
         .GetConstructors()[0]
-        .Invoke(new[]{enumerable, model, sourceExpression});
+        .Invoke(new[] { enumerable, model, sourceExpression, storedEntityType });
     }
   }
 }
