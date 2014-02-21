@@ -13,7 +13,7 @@ using System.Threading;
 using JetBrains.Annotations;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
+using Xtensive.Orm.Logging;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
@@ -25,6 +25,7 @@ using Xtensive.Orm.ReferentialIntegrity;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
+using Xtensive.Orm.Validation;
 using Xtensive.Sql;
 using EnumerationContext = Xtensive.Orm.Rse.Providers.EnumerationContext;
 
@@ -97,7 +98,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Indicates whether debug event logging is enabled.
-    /// Caches <see cref="ILogBase.IsLogged"/> method result for <see cref="LogEventTypes.Debug"/> event.
+    /// Caches <see cref="BaseLog.IsLogged"/> method result for <see cref="LogLevel.Debug"/> event.
     /// </summary>
     internal bool IsDebugEventLoggingEnabled { get; private set; }
 
@@ -174,7 +175,7 @@ namespace Xtensive.Orm
 
     internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
 
-    private void EnsureNotDisposed()
+    internal void EnsureNotDisposed()
     {
       if (isDisposed)
         throw new ObjectDisposedException(Strings.ExSessionIsAlreadyDisposed);
@@ -413,7 +414,7 @@ namespace Xtensive.Orm
     internal Session(Domain domain, SessionConfiguration configuration, bool activate)
       : base(domain)
     {
-      IsDebugEventLoggingEnabled = OrmLog.IsLogged(LogEventTypes.Debug); // Just to cache this value
+      IsDebugEventLoggingEnabled = OrmLog.IsLogged(LogLevel.Debug); // Just to cache this value
 
       // Both Domain and Configuration are valid references here;
       // Configuration is already locked
@@ -442,6 +443,11 @@ namespace Xtensive.Orm
       RemovalProcessor = new RemovalProcessor(this);
       pinner = new Pinner(this);
       Operations = new OperationRegistry(this);
+
+      // Validation context
+      ValidationContext = Configuration.Supports(SessionOptions.ValidateEntities)
+        ? (ValidationContext) new RealValidationContext()
+        : new VoidValidationContext();
 
       // Creating Services
       Services = CreateServices();

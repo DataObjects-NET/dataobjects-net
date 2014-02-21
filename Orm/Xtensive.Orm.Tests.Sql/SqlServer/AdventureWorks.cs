@@ -85,6 +85,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       throw new IgnoreException("temporary ignored due to AdventureWorks");
     }
 
+    protected virtual void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+    }
+
     [TestFixtureSetUp]
     public virtual void SetUp()
     {

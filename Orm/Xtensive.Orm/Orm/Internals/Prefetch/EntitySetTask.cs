@@ -165,7 +165,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return cacheKey.GetHashCode();
     }
 
-    #region Private \ internal methods
+    #region Private / internal methods
 
     private QueryTask CreateQueryTask()
     {
@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         Func<object, object> generator = CreateRecordSetLoadingItems;
         QueryProvider = (CompilableProvider)manager.Owner.Session.Domain.Cache.GetValue(key, generator);
         var executableProvider = manager.Owner.Session.CompilationService.Compile(QueryProvider);
-        return new QueryTask(executableProvider, parameterContext);
+        return new QueryTask(executableProvider, manager.Owner.Session.GetLifetimeToken(), parameterContext);
       }
     }
 

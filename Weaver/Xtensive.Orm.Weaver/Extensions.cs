@@ -11,18 +11,12 @@ using Mono.Collections.Generic;
 
 namespace Xtensive.Orm.Weaver
 {
-  internal static class Extensions
+  public static class Extensions
   {
     public static bool HasAttribute(this ICustomAttributeProvider target, string fullName)
     {
       var comparer = WeavingHelper.TypeNameComparer;
       return target.CustomAttributes.Any(a => comparer.Equals(a.AttributeType.FullName, fullName));
-    }
-
-    public static bool IsAutoProperty(this PropertyDefinition property)
-    {
-      return property.GetMethod!=null && property.GetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute)
-        && property.SetMethod!=null && property.SetMethod.HasAttribute(WellKnown.CompilerGeneratedAttribute);
     }
 
     public static bool HasPublicKeyToken(this AssemblyNameReference reference, IList<byte> expectedToken)
@@ -58,6 +52,13 @@ namespace Xtensive.Orm.Weaver
           return i;
 
       return -1;
+    }
+
+    public static TypeReference StripGenericParameters(this TypeReference type)
+    {
+      if (type.IsGenericInstance)
+        type = type.GetElementType();
+      return type;
     }
   }
 }

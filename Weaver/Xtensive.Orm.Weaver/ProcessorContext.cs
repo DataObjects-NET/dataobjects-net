@@ -10,7 +10,7 @@ using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver
 {
-  internal sealed class ProcessorContext : IDisposable
+  public sealed class ProcessorContext : IDisposable
   {
     public ProcessorConfiguration Configuration { get; set; }
 
@@ -18,7 +18,9 @@ namespace Xtensive.Orm.Weaver
 
     public MessageLogger Logger { get; set; }
 
-    public bool HasTransformations { get { return WeavingTasks.Count > 0; } }
+    public SourceLanguage Language { get; set; }
+
+    public bool SkipProcessing { get; set; }
 
     public IList<WeavingTask> WeavingTasks { get; set; }
 

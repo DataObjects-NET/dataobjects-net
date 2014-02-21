@@ -1,0 +1,9 @@
+[main] Added support for VB.NET model assemblies
+[main] Optimized compilation performance
+[main] Fixed problem with automatic license activation
+[main] Improved logging provider API
+[main] Removed obsolete Transaction.OpenAuto() methods
+[main] Session closes connection when last transaction completes
+[main] Added session option NonTransactionalReads
+[main] Added support for Contains operation over keys collection
+[main] Added support for DateTimeOffset fields

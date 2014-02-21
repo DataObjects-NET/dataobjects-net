@@ -6,7 +6,7 @@
 
 namespace Xtensive.Orm.Weaver
 {
-  internal enum AccessorKind
+  public enum AccessorKind
   {
     Getter,
     Setter,

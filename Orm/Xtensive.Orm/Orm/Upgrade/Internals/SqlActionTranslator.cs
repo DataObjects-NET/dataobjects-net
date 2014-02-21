@@ -656,6 +656,9 @@ namespace Xtensive.Orm.Upgrade
       foreach (var column in fullTextIndexInfo.Columns) {
         var tableColumn = FindColumn(table, column.Value.Name);
         var ftColumn = ftIndex.CreateIndexColumn(tableColumn);
+        ftColumn.TypeColumn = (!column.TypeColumnName.IsNullOrEmpty() && providerInfo.Supports(ProviderFeatures.FullTextColumnDataTypeSpecification))
+          ? FindColumn(table, column.TypeColumnName)
+          : null;
         ftColumn.Languages.Add(new Language(column.Configuration));
       }
 
@@ -863,7 +866,12 @@ namespace Xtensive.Orm.Upgrade
         else {
           var getValue = SqlDml.Case();
           getValue.Add(SqlDml.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));
-          getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(tableRef[tempName], newSqlType));
+
+          if (newSqlType.Type==SqlType.DateTimeOffset)
+            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.DateTimeToDateTimeOffset(tableRef[tempName]));
+          else
+            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(tableRef[tempName], newSqlType));
+
           copyValues.Values[tableRef[originalName]] = getValue;
         }
         upgradeOutput.BreakBatch();

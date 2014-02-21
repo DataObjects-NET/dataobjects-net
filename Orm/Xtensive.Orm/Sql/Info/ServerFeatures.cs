@@ -78,6 +78,11 @@ namespace Xtensive.Sql.Info
     SingleConnection = 1 << 9,
 
     /// <summary>
+    /// Indicates whether RDBMS supports type of data specification for columns in full text index.
+    /// </summary>
+    FullTextColumnDataTypeSpecification = 1 << 10,
+
+    /// <summary>
     /// Obsolete name for <see cref="ExclusiveWriterConnection"/>.
     /// </summary>
     [Obsolete("Use ServerFeatures.ExclusiveWriterSession instead.")]

@@ -1722,6 +1722,38 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    public virtual string Translate(SqlDateTimeOffsetPart dateTimeOffsetPart)
+    {
+      switch (dateTimeOffsetPart) {
+      case SqlDateTimeOffsetPart.Year:
+        return "YEAR";
+      case SqlDateTimeOffsetPart.Month:
+        return "MONTH";
+      case SqlDateTimeOffsetPart.Day:
+        return "DAY";
+      case SqlDateTimeOffsetPart.Hour:
+        return "HOUR";
+      case SqlDateTimeOffsetPart.Minute:
+        return "MINUTE";
+      case SqlDateTimeOffsetPart.Second:
+        return "SECOND";
+      case SqlDateTimeOffsetPart.Millisecond:
+        return "MILLISECOND";
+      case SqlDateTimeOffsetPart.Nanosecond:
+        return "NANOSECOND";
+      case SqlDateTimeOffsetPart.TimeZoneHour:
+        return "TZoffset";
+      case SqlDateTimeOffsetPart.TimeZoneMinute:
+        return "TZoffset";
+      case SqlDateTimeOffsetPart.DayOfYear:
+        return "DAYOFYEAR";
+      case SqlDateTimeOffsetPart.DayOfWeek:
+        return "WEEKDAY";
+      default:
+        throw new ArgumentOutOfRangeException("dateTimeOffsetPart");
+      }
+    }
+
     public virtual string Translate(SqlIntervalPart intervalPart)
     {
       switch (intervalPart) {

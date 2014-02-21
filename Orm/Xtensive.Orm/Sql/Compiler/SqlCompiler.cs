@@ -1535,7 +1535,9 @@ namespace Xtensive.Sql.Compiler
         context.Output.AppendText(translator.Translate(context, node, ExtractSection.Entry));
         var part = node.DateTimePart!=SqlDateTimePart.Nothing
           ? translator.Translate(node.DateTimePart)
-          : translator.Translate(node.IntervalPart);
+          : node.IntervalPart!=SqlIntervalPart.Nothing
+            ? translator.Translate(node.IntervalPart)
+            : translator.Translate(node.DateTimeOffsetPart);
         context.Output.AppendText(part);
         context.Output.AppendText(translator.Translate(context, node, ExtractSection.From));
         node.Operand.AcceptVisitor(this);
@@ -1634,7 +1636,6 @@ namespace Xtensive.Sql.Compiler
     {
       return Driver.ServerInfo.Query.Features.Supports(features);
     }
-
 
     // Constructors
 

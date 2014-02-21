@@ -10,7 +10,6 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
 using Xtensive.Collections.Graphs;
 using Xtensive.Orm.Tests;
 

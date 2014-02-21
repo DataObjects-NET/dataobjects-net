@@ -13,6 +13,11 @@ namespace Xtensive.Orm.Weaver.Stages
 {
   internal sealed class SaveAssemblyStage : ProcessorStage
   {
+    public override bool CanExecute(ProcessorContext context)
+    {
+      return true;
+    }
+
     public override ActionResult Execute(ProcessorContext context)
     {
       var configuration = context.Configuration;
@@ -21,7 +26,7 @@ namespace Xtensive.Orm.Weaver.Stages
       var outputFile = context.OutputFile;
       var outputIsInput = inputFile==outputFile;
 
-      if (!context.HasTransformations) {
+      if (context.SkipProcessing) {
         if (!outputIsInput)
           FileHelper.CopyWithPdb(context, inputFile, outputFile);
         return ActionResult.Success;

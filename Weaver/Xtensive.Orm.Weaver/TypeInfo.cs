@@ -11,7 +11,7 @@ using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver
 {
-  internal sealed class TypeInfo
+  public sealed class TypeInfo
   {
     public string Name { get; private set; }
 

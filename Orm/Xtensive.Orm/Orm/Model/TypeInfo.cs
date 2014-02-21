@@ -363,6 +363,11 @@ namespace Xtensive.Orm.Model
     public bool HasVersionFields { get; private set; }
 
     /// <summary>
+    /// Gets a value indicating whether this instance has explicit version fields.
+    /// </summary>
+    public bool HasExplicitVersionFields { get; private set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether this instance has version roots.
     /// </summary>
     public bool HasVersionRoots {
@@ -629,7 +634,8 @@ namespace Xtensive.Orm.Model
           versionFields = new ReadOnlyList<FieldInfo>(new List<FieldInfo>());
           versionColumns = new ReadOnlyList<ColumnInfo>(new List<ColumnInfo>());
         }
-        HasVersionFields = versionFields.Any(f => f.ManualVersion || f.AutoVersion);
+        HasVersionFields = versionFields.Any();
+        HasExplicitVersionFields = versionFields.Any(f => f.ManualVersion || f.AutoVersion);
       }
       
       if (IsInterface) {

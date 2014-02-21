@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Collections;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;

@@ -10,12 +10,11 @@ using System.Globalization;
 
 namespace Xtensive.Orm.Weaver
 {
-  internal sealed class MessageLogger
+  public sealed class MessageLogger
   {
     private static readonly Dictionary<MessageCode, string> Messages;
 
-    private readonly IMessageWriter writer;
-    private readonly string projectId;
+    private readonly MessageWriter writer;
 
     public void Write(MessageCode code)
     {
@@ -44,7 +43,6 @@ namespace Xtensive.Orm.Weaver
         : string.Format("{0}: {1}", description, extraInformation);
 
       var message = new ProcessorMessage {
-        ProjectId = projectId,
         MessageCode = messageCode,
         MessageText = messageText,
         Location = location,
@@ -65,12 +63,11 @@ namespace Xtensive.Orm.Weaver
       Messages.Add(code, description);
     }
 
-    public MessageLogger(string projectId, IMessageWriter writer)
+    public MessageLogger(MessageWriter writer)
     {
       if (writer==null)
         throw new ArgumentNullException("writer");
       this.writer = writer;
-      this.projectId = projectId;
     }
 
     static MessageLogger()
@@ -80,7 +77,6 @@ namespace Xtensive.Orm.Weaver
       RegisterMessage(MessageCode.ErrorInternal, "Internal error");
       RegisterMessage(MessageCode.ErrorInputFileIsNotFound, "Input file is not found");
       RegisterMessage(MessageCode.ErrorStrongNameKeyIsNotFound, "Strong name key file is not found");
-      RegisterMessage(MessageCode.ErrorTargetAssemblyHasNoExpectedReference, "Target assembly does not have expected reference");
       RegisterMessage(MessageCode.ErrorUnableToLocateOrmAssembly, "Unable to locate Xtensive.Orm assembly");
       RegisterMessage(MessageCode.ErrorUnableToFindReferencedAssembly, "Unable to find referenced assembly");
       RegisterMessage(MessageCode.ErrorUnableToRemoveBackingField, "Unable to remove backing field");

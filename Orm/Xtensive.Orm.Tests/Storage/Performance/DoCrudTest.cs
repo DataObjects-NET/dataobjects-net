@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.Storage.Performance.CrudModel;

@@ -10,10 +10,8 @@ using System.Linq;
 using System.Text;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
-
 using Xtensive.Reflection;
 
 namespace Xtensive.Modelling.Comparison

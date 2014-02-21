@@ -1020,6 +1020,9 @@
   <data name="LogSessionXClosingConnectionY" xml:space="preserve">
     <value>Session '{0}'. Closing connection '{1}'.</value>
   </data>
+  <data name="LogSessionXDisposingConnectionY" xml:space="preserve">
+    <value>Session '{0}'. Disposing connection '{1}'.</value>
+  </data>
   <data name="LogSessionXBeginningTransactionWithYIsolationLevel" xml:space="preserve">
     <value>Session '{0}'. Beginning transaction @ {1}.</value>
   </data>
@@ -1750,8 +1753,8 @@ Referenced Entity Key: {4}</value>
   <data name="ExLockDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>Lock does not support query provider of type '{0}'.</value>
   </data>
-  <data name="ExCurrentTransactionIsDifferentFromTransactionBoundToThisInstance" xml:space="preserve">
-    <value>The current transaction is different from the transaction bound to this instance.</value>
+  <data name="ExThisInstanceIsExpiredDueToTransactionBoundaries" xml:space="preserve">
+    <value>This instance is expired due to transaction boundaries.</value>
   </data>
   <data name="ExOnOwnerRemoveActionIsNotEqualToOnTargetRemoveAction" xml:space="preserve">
     <value>'{0}.{1}' OnOwnerRemove action is not equal to '{2}.{3}' OnTargetRemove action.</value>
@@ -3261,5 +3264,38 @@ Error: {1}</value>
   </data>
   <data name="ExInstanceIsEmpty">
     <value xml:space="preserve">Instance is empty.</value>
+  </data>
+  <data name="ExLogManagerAlreadyInitialized">
+    <value xml:space="preserve">LogManager already initialized.</value>
+  </data>
+  <data name="ExLogManagerMustBeInitializedBeforeUsing">
+    <value xml:space="preserve">LogManager must be initialized before using.</value>
+  </data>
+  <data name="ExProviderXDoesNotImplementLogProviderClass">
+    <value xml:space="preserve">Provider '{0}' does not implement LogProvider class.</value>
+  </data>
+  <data name="ExUnableToGetTypeOfProviderByNameX">
+    <value xml:space="preserve">Unable to get type of provider by name '{0}'.</value>
+  </data>
+  <data name="ExGroupByOverloadXIsNotSupported">
+    <value xml:space="preserve">GroupBy overload '{0}' is not supported.</value>
+  </data>
+  <data name="LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX">
+    <value xml:space="preserve">Specification of type column for fulltext column is not supported by current storage. Ignoring type column specification for column '{0}'.</value>
+  </data>
+  <data name="ExTypeColumnXForFulltextColumnYMustBeTypeOfString">
+    <value xml:space="preserve">Type column '{0}' for fulltext column'{1}' must be type of string.</value>
+  </data>
+  <data name="ExKeyGeneratorsXAndYHaveTheSameSeedValue">
+    <value xml:space="preserve">Key generators '{0}' and '{1}' have the same seed value.</value>
+  </data>
+  <data name="ExCurrentTypeXIsNotSupported">
+    <value xml:space="preserve">Current type '{0}' is not supported.</value>
+  </data>
+  <data name="ExCurrentTypeOfExpressionXIsNotSupported">
+    <value xml:space="preserve">Current type of expression '{0}' is not supported.</value>
+  </data>
+  <data name="ExTypeOfEntityStoredInKeyIsUndefined">
+    <value xml:space="preserve">Type of entity stored in Key is undefined.</value>
   </data>
 </root>

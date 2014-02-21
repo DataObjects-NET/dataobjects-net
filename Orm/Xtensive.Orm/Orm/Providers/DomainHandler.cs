@@ -136,6 +136,7 @@ namespace Xtensive.Orm.Providers
         typeof (NullableCompilers),
         typeof (StringCompilers),
         typeof (DateTimeCompilers),
+        typeof (DateTimeOffsetCompilers),
         typeof (TimeSpanCompilers),
         typeof (MathCompilers),
         typeof (NumericCompilers),

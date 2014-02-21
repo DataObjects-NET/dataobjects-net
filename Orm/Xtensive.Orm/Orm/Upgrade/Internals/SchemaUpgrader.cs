@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
+using Xtensive.Orm.Logging;
 using Xtensive.Modelling.Actions;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Upgrade
 
       var result = translator.Translate();
 
-      if (SqlLog.IsLogged(LogEventTypes.Info))
+      if (SqlLog.IsLogged(LogLevel.Info))
         LogStatements(result);
 
       foreach (var handler in context.OrderedUpgradeHandlers)

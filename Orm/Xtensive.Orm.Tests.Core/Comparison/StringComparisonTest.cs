@@ -7,7 +7,6 @@
 using System;
 using System.Globalization;
 using NUnit.Framework;
-using Xtensive.Diagnostics;
 
 namespace Xtensive.Orm.Tests.Core.Comparison
 {

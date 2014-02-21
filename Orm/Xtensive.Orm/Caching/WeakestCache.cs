@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Security;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
+using Xtensive.Orm.Logging;
 
 namespace Xtensive.Caching
 {
@@ -354,7 +354,7 @@ namespace Xtensive.Caching
       }
       finally {
         // Logging
-        if (CoreLog.IsLogged(LogEventTypes.Debug)) {
+        if (CoreLog.IsLogged(LogLevel.Debug)) {
           CoreLog.Debug("WeakestCache.CollectGarbage: removed: {0} from {1}", removedCount, count);
           if (error!=null)
             CoreLog.Debug(error, "Caught at WeakestCache.CollectGarbage");

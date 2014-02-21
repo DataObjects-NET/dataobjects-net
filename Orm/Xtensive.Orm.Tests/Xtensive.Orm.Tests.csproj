@@ -74,6 +74,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Configuration\SchemaTest.cs" />
     <Compile Include="DomainConfigurationFactoryTest.cs" />
     <Compile Include="Interfaces\DoubleIndexedInterfaceTest.cs" />
     <Compile Include="Interfaces\InterfaceImplementationTest.cs" />
@@ -175,6 +176,7 @@
     <Compile Include="Issues\IssueJira0149_LinqTranslationError.cs" />
     <Compile Include="Issues\IssueJira0165_CaseSensitiveFieldNames.cs" />
     <Compile Include="Issues\IssueJira0168_RemoveQueryableExtensionFails.cs" />
+    <Compile Include="Issues\IssueJira0171_DateTimeOffset.cs" />
     <Compile Include="Issues\IssueJira0179_NullableBooleanFieldsQuery.cs" />
     <Compile Include="Issues\IssueJira0180_ChangeNullabilityViaUpgradeHints\ModelVersion1.cs" />
     <Compile Include="Issues\IssueJira0180_ChangeNullabilityViaUpgradeHints\ModelVersion2.cs" />
@@ -185,7 +187,9 @@
     <Compile Include="Issues\IssueJira0195_DeleteAndCreateWithValidation.cs" />
     <Compile Include="Issues\IssueJira0196_GuidAsTypeDiscriminator.cs" />
     <Compile Include="Issues\IssueJira0197_ExtendedErrorInformation.cs" />
+    <Compile Include="Issues\IssueJira0500_OptimizeMultipleAggregatesWithProjections.cs" />
     <Compile Include="Issues\IssueJira0202_OnRemoveActionOverriding.cs" />
+    <Compile Include="Issues\IssueJira0516_PartialIndexConstruction.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\ModelVersion1.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\ModelVersion2.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\Upgrader.cs" />
@@ -267,11 +271,14 @@
     <Compile Include="Issues\Issue_0841_HintGeneratorBug\UpgradeTest.cs" />
     <Compile Include="Issues\Issue_OfTypeMissesImplementors.cs" />
     <Compile Include="Issues\IssueJira0187_TypeCastInContain.cs" />
+    <Compile Include="Issues\IssueJira0519_StaleKeyInEntitySet.cs" />
     <Compile Include="Issues\KeyFormatBug.cs" />
     <Compile Include="Issues\LocalCollectionsTest.cs" />
     <Compile Include="Issues\NotEqualsForNullableColumnTest.cs" />
+    <Compile Include="Linq\CompiledQueriesWithClosureTest.cs" />
     <Compile Include="Issues\StrangeLockingExceptionTest.cs" />
     <Compile Include="Issues\StructureFieldRemoveTest.cs" />
+    <Compile Include="Linq\ContainsOverKeysCollectionTest.cs" />
     <Compile Include="Linq\ConvariantQueriesTest.cs" />
     <Compile Include="Linq\DateTimeToStringTest.cs" />
     <Compile Include="Linq\DoubleAggregateToStructTest.cs" />
@@ -280,10 +287,13 @@
     <Compile Include="Linq\KeysUnionTest.cs" />
     <Compile Include="Linq\MemberCompilerProviderTest.Classes.cs" />
     <Compile Include="Linq\MemberCompilerProviderTest.cs" />
+    <Compile Include="Linq\NullableEnumMaterializationTest.cs" />
     <Compile Include="Linq\PocoProjectionWithSubqueryTest.cs" />
     <Compile Include="Linq\ProjectToDtoWithInheritanceTest.cs" />
     <Compile Include="Linq\QueryPreprocessorSortingTest.cs" />
+    <Compile Include="Linq\SelectWithAccessToLocalCollectionTest.cs" />
     <Compile Include="Linq\QueryRootOverriding.cs" />
+    <Compile Include="Model\MultidatabaseKeysTest.cs" />
     <Compile Include="Linq\SortExpressionExtractorTest.cs" />
     <Compile Include="Linq\SubqueryAndComputedColumnOptimizationTest.cs" />
     <Compile Include="Linq\SubqueryWithCalculatedFieldTest.cs" />
@@ -297,9 +307,13 @@
     <Compile Include="Model\RemoveDotsAndHypensTest.cs" />
     <Compile Include="Model\StructureWithCustomConstructorTest.cs" />
     <Compile Include="Storage\AbstractGenericsTest.cs" />
+    <Compile Include="Storage\BatchingWhenValidateEntityVersionsIsEnabledTest.cs" />
+    <Compile Include="Storage\AnotherValidationTest.cs" />
     <Compile Include="Storage\ByteFieldStorageTest.cs" />
+    <Compile Include="Storage\ChangedPersistOrderTest.cs" />
     <Compile Include="Storage\ClientProfileSessionTest.cs" />
     <Compile Include="Storage\ClusteredIndexesTest.cs" />
+    <Compile Include="Storage\CrossTransactionEntityAccessTest.cs" />
     <Compile Include="Storage\CustomCollationTest.cs" />
     <Compile Include="Storage\CustomMetadataUpgrade.cs" />
     <Compile Include="Storage\DiartisBugsTest.cs" />
@@ -332,6 +346,7 @@
     <Compile Include="Storage\Multimapping\MultimappingTest.cs" />
     <Compile Include="Storage\Multimapping\MultischemaTest.cs" />
     <Compile Include="Storage\NonPersistentCompositeObjectTest.cs" />
+    <Compile Include="Storage\NonTransactionalEntityAccess.cs" />
     <Compile Include="Storage\NorthwindValidateTest.cs" />
     <Compile Include="Storage\NotifyXxxTest.cs" />
     <Compile Include="Storage\OnRemovingTest.cs" />
@@ -347,6 +362,7 @@
     <Compile Include="Storage\SingleTableTest.cs" />
     <Compile Include="Storage\SqlGeometryAndGeographyTest.cs" />
     <Compile Include="Storage\StructureReferencesAnEntityTest.cs" />
+    <Compile Include="Storage\TransactionsTestBase.cs" />
     <Compile Include="Storage\TypeDiscriminatorFromInterfaceTest.cs" />
     <Compile Include="Storage\UpgradeModesTest.cs" />
     <Compile Include="Storage\ValidateEntityVersionsOnPersistTest.cs" />
@@ -358,6 +374,7 @@
     <Compile Include="Upgrade\EntitySetUpgrade\ModelVersion2.cs" />
     <Compile Include="Upgrade\EntitySetUpgrade\Upgrader.cs" />
     <Compile Include="Upgrade\EntitySetUpgrade\UpgradeTest.cs" />
+    <Compile Include="Upgrade\FullText\FullTextDataTypeColumnUpgradeTest.cs" />
     <Compile Include="Upgrade\ExtractSuperClassTest.cs" />
     <Compile Include="Upgrade\KeyGeneratorTableCleanUpTest.cs" />
     <Compile Include="Upgrade\NewUpgradeEventsAndPropertiesTest.cs" />
@@ -371,6 +388,7 @@
     <Compile Include="Upgrade\UpgradeAndNamingRules\ModelVersion2.cs" />
     <Compile Include="Upgrade\UpgradeAndNamingRules\Upgrader.cs" />
     <Compile Include="Upgrade\UpgradeAndNamingRules\UpgradeTest.cs" />
+    <Compile Include="Upgrade\UpgradeDateTimeOffsetTest.cs" />
     <Compile Include="Upgrade\UpgradeTestTemplate.cs" />
     <Compile Include="Upgrade\UpgradeToStructure\ModelVersion1.cs" />
     <Compile Include="Upgrade\UpgradeToStructure\ModelVersion2.cs" />
@@ -689,11 +707,12 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config">
+    <None Include="..\..\Static\Content\Xtensive.Orm.xsd">
+      <Link>Xtensive.Orm.xsd</Link>
       <SubType>Designer</SubType>
-    </None>
-    <None Include="..\Xtensive.Orm.Tests.Framework\Connections.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="App.config">
       <SubType>Designer</SubType>
     </None>
     <None Include="Model\InterfaceAssociationsModelGenerator.tt">

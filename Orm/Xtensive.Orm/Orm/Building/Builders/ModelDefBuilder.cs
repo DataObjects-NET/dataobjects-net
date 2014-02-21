@@ -13,6 +13,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
+using Xtensive.Orm.Weaving;
 using Xtensive.Reflection;
 using Xtensive.Sorting;
 
@@ -113,7 +114,8 @@ namespace Xtensive.Orm.Building.Builders
           continue;
 
         var fullTextField = new FullTextFieldDef(fieldDef.Name, fullTextAttribute.Analyzed) {
-          Configuration = fullTextAttribute.Configuration, 
+          Configuration = fullTextAttribute.Configuration,
+          TypeFieldName = fullTextAttribute.DataTypeField
         };
         fullTextIndexDef.Fields.Add(fullTextField);
       }

@@ -4,18 +4,19 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.27
 
-using System.IO;
-
 namespace Xtensive.Orm.Weaver.Stages
 {
   internal sealed class WriteStampStage : ProcessorStage
   {
+    public override bool CanExecute(ProcessorContext context)
+    {
+      return context.Configuration.WriteStampFile;
+    }
+
     public override ActionResult Execute(ProcessorContext context)
     {
-      if (context.Configuration.WriteStampFile) {
-        var stampFile = FileHelper.GetStampFile(context.OutputFile);
-        FileHelper.Touch(stampFile);
-      }
+      var stampFile = FileHelper.GetStampFile(context.OutputFile);
+      FileHelper.Touch(stampFile);
       return ActionResult.Success;
     }
   }

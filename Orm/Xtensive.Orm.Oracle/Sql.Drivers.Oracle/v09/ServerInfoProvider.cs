@@ -228,6 +228,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         ValueRange.Double, "double precision", "float");
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
         ValueRange.DateTime, "timestamp");
+      types.DateTimeOffset = DataTypeInfo.Range(SqlType.DateTimeOffset, common | index,
+        ValueRange.DateTimeOffset, "TIMESTAMP WITH TIME ZONE");
       types.Interval = DataTypeInfo.Range(SqlType.Interval, common | index,
         ValueRange.TimeSpan, "interval day to second");
 

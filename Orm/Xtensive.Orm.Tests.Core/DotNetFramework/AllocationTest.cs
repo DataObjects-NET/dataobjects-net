@@ -8,7 +8,6 @@ using System;
 using System.Runtime.Serialization;
 using NUnit.Framework;
 using Xtensive.Reflection;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Core.DotNetFramework

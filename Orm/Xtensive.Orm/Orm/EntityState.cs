@@ -117,16 +117,11 @@ namespace Xtensive.Orm
         if (value==persistenceState)
           return;
         persistenceState = value;
-        switch (persistenceState) {
-        case PersistenceState.Synchronized:
+        if (value==PersistenceState.Synchronized)
           return;
-        case PersistenceState.Removed:
-          break;
-        default:
-          break;
-        }
+        Session.DemandTransaction();
         Session.EntityChangeRegistry.Register(this);
-        BindToCurrentTransaction();
+        Rebind();
       }
     }
 

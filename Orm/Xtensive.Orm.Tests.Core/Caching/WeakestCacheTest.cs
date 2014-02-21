@@ -10,7 +10,6 @@ using System.Diagnostics;
 using NUnit.Framework;
 using Xtensive.Caching;
 using System.Linq;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Core.Caching

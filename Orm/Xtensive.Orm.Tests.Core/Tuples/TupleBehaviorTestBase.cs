@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Collections;
-using Xtensive.Diagnostics;
 using Xtensive.Reflection;
 using Xtensive.Orm.Tests;
 using Xtensive.Tuples;

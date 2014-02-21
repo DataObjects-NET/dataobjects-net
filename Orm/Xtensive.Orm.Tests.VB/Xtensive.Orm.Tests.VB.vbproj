@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="Linq\DateTimeTest.vb" />
     <Compile Include="Linq\OperatorsTest.vb" />
+    <Compile Include="Model\PersistentPropertyWeavingTest.vb" />
     <Compile Include="Linq\StringTest.vb" />
     <Compile Include="Model\Model.vb" />
     <Compile Include="Model\PersistenceTest.vb" />
@@ -100,11 +101,8 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config">
+    <None Include="App.config">
       <SubType>Designer</SubType>
-    </None>
-    <None Include="..\Xtensive.Orm.Tests.Framework\Connections.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>

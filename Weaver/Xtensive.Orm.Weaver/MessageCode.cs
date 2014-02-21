@@ -6,14 +6,13 @@
 
 namespace Xtensive.Orm.Weaver
 {
-  internal enum MessageCode
+  public enum MessageCode
   {
     Unknown = 0,
 
     ErrorInternal = 1,
     ErrorInputFileIsNotFound,
     ErrorStrongNameKeyIsNotFound,
-    ErrorTargetAssemblyHasNoExpectedReference,
     ErrorUnableToLocateOrmAssembly,
     ErrorUnableToFindReferencedAssembly,
     ErrorUnableToRemoveBackingField,

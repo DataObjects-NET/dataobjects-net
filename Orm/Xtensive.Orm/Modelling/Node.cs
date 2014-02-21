@@ -12,7 +12,6 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
 
@@ -834,7 +833,7 @@ namespace Xtensive.Modelling
       if (Nesting.IsNestedToCollection && !(Nesting.PropertyValue is IUnorderedNodeCollection))
         prefix = string.Format("{0}: ", Index);
       CoreLog.Info("{0}{1} \"{2}\"", prefix, GetType().GetShortName(), this);
-      using (new LogIndentScope()) {
+      using (Orm.Logging.IndentManager.IncreaseIndent()) {
         // Validation errors
         Exception error = null;
         try { 
@@ -868,7 +867,7 @@ namespace Xtensive.Modelling
               CoreLog.Info("+{0} ({1}):", propertyName, collection.Count);
             else
               CoreLog.Info("+{0}:", propertyName);
-            using (new LogIndentScope())
+            using (Orm.Logging.IndentManager.IncreaseIndent())
               nested.Dump();
           }
           else

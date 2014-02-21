@@ -6,7 +6,6 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Diagnostics;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Reflection;

@@ -6,8 +6,8 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Orm.Logging;
 using Xtensive.Reflection;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Core.DotNetFramework
@@ -59,11 +59,11 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       Container<T> c = new Container<T>(o);
       if (!warmup)
         TestLog.Info("Type: {0}, length: {1}", o.GetType().GetShortName(), count);
-      using (new LogIndentScope()) {
+      using (IndentManager.IncreaseIndent()) {
 
         if (!warmup)
           TestLog.Info("Direct field access test:");
-        using (new LogIndentScope()) {
+        using (IndentManager.IncreaseIndent()) {
           TestHelper.CollectGarbage();
           using (new Measurement("Read  ", warmup ? 0 : MeasurementOptions.Log, count))
             for (int i = 0; i<count; i++)
@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
 
         if (!warmup)
           TestLog.Info("TypedReference field access test:");
-        using (new LogIndentScope()) {
+        using (IndentManager.IncreaseIndent()) {
           var fi = c.GetType().GetField("Value");
           TypedReference tr = __makeref(c);
           TestHelper.CollectGarbage();

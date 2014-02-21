@@ -7,7 +7,6 @@
 using System;
 using NUnit.Framework;
 using Xtensive.Reflection;
-using Xtensive.Diagnostics;
 
 namespace Xtensive.Orm.Tests.Core.DotNetFramework
 {

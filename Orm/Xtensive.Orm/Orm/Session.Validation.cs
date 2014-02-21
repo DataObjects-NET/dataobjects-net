@@ -6,13 +6,18 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
 
 namespace Xtensive.Orm
 {
   public partial class Session 
   {
+    /// <summary>
+    /// Gets the current validation context.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Can not get validation context: There is no active transaction.</exception>
+    internal ValidationContext ValidationContext { get; private set; }
+
     /// <summary>
     /// Validates all instances registered in <see cref="ValidationContext"/>
     /// of current <see cref="Session"/>.
@@ -30,19 +35,6 @@ namespace Xtensive.Orm
     public IList<EntityErrorInfo> ValidateAndGetErrors()
     {
       return ValidationContext.ValidateAndGetErrors();
-    }
-
-    /// <summary>
-    /// Gets the current validation context.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Can not get validation context: There is no active transaction.</exception>
-    internal ValidationContext ValidationContext {
-      get {
-        var transaction = Transaction;
-        if (transaction==null)
-          throw new InvalidOperationException(Strings.ExCanNotGetValidationContextThereIsNoActiveTransaction);
-        return transaction.ValidationContext;
-      }
     }
   }
 }

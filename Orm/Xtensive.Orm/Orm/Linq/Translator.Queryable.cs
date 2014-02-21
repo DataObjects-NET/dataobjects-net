@@ -15,6 +15,7 @@ using Xtensive.Linq;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Expressions.Visitors;
+using Xtensive.Orm.Linq.Model;
 using Xtensive.Orm.Linq.Rewriters;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
@@ -111,47 +112,12 @@ namespace Xtensive.Orm.Linq
           break;
         case QueryableMethodKind.GroupBy:
           state.BuildingProjection = false;
-          if (mc.Arguments.Count==2) {
-            return VisitGroupBy(
-              mc.Method.ReturnType,
-              mc.Arguments[0],
-              mc.Arguments[1].StripQuotes(),
-              null,
-              null
-              );
-          }
-          if (mc.Arguments.Count==3) {
-            LambdaExpression lambda1 = mc.Arguments[1].StripQuotes();
-            LambdaExpression lambda2 = mc.Arguments[2].StripQuotes();
-            if (lambda2.Parameters.Count==1) {
-              // second lambda is element selector
-              return VisitGroupBy(
-                mc.Method.ReturnType,
-                mc.Arguments[0],
-                lambda1,
-                lambda2,
-                null);
-            }
-            if (lambda2.Parameters.Count==2) {
-              // second lambda is result selector
-              return VisitGroupBy(
-                mc.Method.ReturnType,
-                mc.Arguments[0],
-                lambda1,
-                null,
-                lambda2);
-            }
-          }
-          else if (mc.Arguments.Count==4) {
-            return VisitGroupBy(
-              mc.Method.ReturnType,
-              mc.Arguments[0],
-              mc.Arguments[1].StripQuotes(),
-              mc.Arguments[2].StripQuotes(),
-              mc.Arguments[3].StripQuotes()
-              );
-          }
-          break;
+          var groupBy = QueryParser.ParseGroupBy(mc);
+          return VisitGroupBy(mc.Method.ReturnType,
+            groupBy.Source,
+            groupBy.KeySelector,
+            groupBy.ElementSelector,
+            groupBy.ResultSelector);
         case QueryableMethodKind.GroupJoin:
           state.BuildingProjection = false;
           return VisitGroupJoin(mc.Arguments[0],
@@ -610,13 +576,13 @@ namespace Xtensive.Orm.Linq
 
       var resultType = method.ReturnType;
       var columnType = resultDataSource.Header.TupleDescriptor[0];
-      var correctResultType = resultType!=columnType && !resultType.IsNullable();
-      if (!correctResultType) // Adjust column type so we always use nullable of T instead of T
+      var convertResultColumn = resultType!=columnType && !resultType.IsNullable();
+      if (!convertResultColumn) // Adjust column type so we always use nullable of T instead of T
         columnType = resultType;
 
       if (isRoot) {
         var projectorBody = (Expression) ColumnExpression.Create(columnType, 0);
-        if (correctResultType)
+        if (convertResultColumn)
           projectorBody = Expression.Convert(projectorBody, resultType);
         var itemProjector = new ItemProjectorExpression(projectorBody, resultDataSource, context);
         return new ProjectionExpression(resultType, itemProjector, originProjection.TupleParameterBindings, ResultType.First);
@@ -631,7 +597,8 @@ namespace Xtensive.Orm.Linq
         if (groupingDataSource!=null && groupingProjection.ItemProjector.Item.IsGroupingExpression()) {
           var groupingFilterParameter = context.GetApplyParameter(groupingDataSource);
           var commonOriginDataSource = ChooseSourceForAggregate(groupingDataSource.Source,
-            SubqueryFilterRemover.Process(originDataSource, groupingFilterParameter));
+            SubqueryFilterRemover.Process(originDataSource, groupingFilterParameter),
+            ref aggregateDescriptor);
           if (commonOriginDataSource!=null) {
             resultDataSource = new AggregateProvider(
               commonOriginDataSource, groupingDataSource.GroupColumnIndexes,
@@ -657,7 +624,7 @@ namespace Xtensive.Orm.Linq
             var resultColumn = ColumnExpression.Create(columnType, resultDataSource.Header.Length - 1);
             if (isSubqueryParameter)
               resultColumn = (ColumnExpression) resultColumn.BindParameter(groupingParameter);
-            if (correctResultType)
+            if (convertResultColumn)
               return Expression.Convert(resultColumn, resultType);
             return resultColumn;
           }
@@ -665,17 +632,19 @@ namespace Xtensive.Orm.Linq
       }
 
       var result = AddSubqueryColumn(columnType, resultDataSource);
-      if (correctResultType)
+      if (convertResultColumn)
         return Expression.Convert(result, resultType);
       return result;
     }
 
-    private CompilableProvider ChooseSourceForAggregate(CompilableProvider left, CompilableProvider right)
+    private CompilableProvider ChooseSourceForAggregate(CompilableProvider left, CompilableProvider right,
+      ref AggregateColumnDescriptor aggregateDescriptor)
     {
       // Choose best available RSE provider when folding aggregate subqueries.
-      // Currently we support 2 scenarios:
+      // Currently we support 3 scenarios:
       // 1) Both origins (for main part and for subquery) are the same provider -> that provider is used.
       // 2) One of the providers is Calculate upon other provider -> Calculate provider is used.
+      // 3) Both providers are Calculate and they share a common source -> New combining calculate provider is created
 
       if (left==right)
         return left;
@@ -685,6 +654,24 @@ namespace Xtensive.Orm.Linq
 
       if (right.Type==ProviderType.Calculate && right.Sources[0]==left)
         return right;
+
+      if (left.Type==ProviderType.Calculate && right.Type==ProviderType.Calculate
+        && left.Sources[0]==right.Sources[0]) {
+        var source = (CompilableProvider) left.Sources[0];
+        var leftCalculateProvider = (CalculateProvider) left;
+        var rightCalculateProvider = (CalculateProvider) right;
+        var calculatedColumns = leftCalculateProvider.CalculatedColumns
+          .Concat(rightCalculateProvider.CalculatedColumns)
+          .Select(c => new CalculatedColumnDescriptor(c.Name, c.Type, c.Expression))
+          .ToArray();
+        if (aggregateDescriptor.SourceIndex >= source.Header.Length) {
+          aggregateDescriptor = new AggregateColumnDescriptor(
+            aggregateDescriptor.Name,
+            aggregateDescriptor.SourceIndex + leftCalculateProvider.CalculatedColumns.Length,
+            aggregateDescriptor.AggregateType);
+        }
+        return source.Calculate(true, calculatedColumns);
+      }
 
       // No provider matches our criteria -> don't fold aggregate providers.
       return null;
@@ -1190,6 +1177,12 @@ namespace Xtensive.Orm.Linq
       var parameter = predicate.Parameters[0];
       ProjectionExpression visitedSource;
       using (state.CreateScope()) {
+        if (source.IsLocalCollection(context) &&
+            (source.Type.IsGenericType && source.Type.GetGenericArguments()[0].IsAssignableFrom(typeof (Key))) ||
+            (source.Type.IsAssignableFrom(typeof (Key)))) {
+          var localCollecctionKeyType = LocalCollectionKeyTypeExtractor.Extract((BinaryExpression)predicate.Body);
+          state.TypeOfEntityStoredInKey = localCollecctionKeyType;
+        }
         state.IncludeAlgorithm = IncludeAlgorithm.Auto;
         visitedSource = VisitSequence(source);
       }
@@ -1295,10 +1288,10 @@ namespace Xtensive.Orm.Linq
       var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Default).ToList();
       var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Default).ToList();
       var outerColumns = outerColumnList.ToArray();
-      var outerRecordSet = outerItemProjector.DataSource.Header.Length!=outerColumnList.Count || outerColumnList.Select((c,i) => new {c,i}).Any(x => x.c != x.i)
+      var outerRecordSet = outerItemProjector.DataSource.Header.Length!=outerColumnList.Count || outerColumnList.Select((c, i) => new {c, i}).Any(x => x.c!=x.i)
         ? outerItemProjector.DataSource.Select(outerColumns)
         : outerItemProjector.DataSource;
-      var innerRecordSet = innerItemProjector.DataSource.Header.Length != innerColumnList.Count || innerColumnList.Select((c, i) => new { c, i }).Any(x => x.c != x.i)
+      var innerRecordSet = innerItemProjector.DataSource.Header.Length!=innerColumnList.Count || innerColumnList.Select((c, i) => new {c, i}).Any(x => x.c!=x.i)
         ? innerItemProjector.DataSource.Select(innerColumnList.ToArray())
         : innerItemProjector.DataSource;
 

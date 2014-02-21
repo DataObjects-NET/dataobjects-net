@@ -69,6 +69,10 @@
     <Compile Include="Caching\WeakestCacheTest.cs" />
     <Compile Include="Collections\FlagCollectionTest.cs" />
     <Compile Include="Collections\SetTestA.cs" />
+    <Compile Include="Logging\InternalLogProviderTests.cs" />
+    <Compile Include="Logging\LogManagerTests.cs" />
+    <Compile Include="Logging\WriteToLogInstanceTests.cs" />
+    <Compile Include="Logging\WriteToLogTests.cs" />
     <Compile Include="UrlInfoTest.cs" />
     <None Include="App.config">
       <SubType>Designer</SubType>
@@ -101,10 +105,8 @@
     <Compile Include="Conversion\Internals\UInt16ConverterTest.cs" />
     <Compile Include="Conversion\Internals\UInt32converterTest.cs" />
     <Compile Include="Conversion\Internals\UInt64ConverterTest.cs" />
-    <Compile Include="Diagnostics\TypeLevelLogTest.cs" />
     <Compile Include="Diagnostics\LogMessageTest.cs" />
     <Compile Include="Diagnostics\RuntimeInfoTest.cs" />
-    <Compile Include="Diagnostics\StringLogTest.cs" />
     <Compile Include="Collections\PriorityQueueTest.cs" />
     <Compile Include="Collections\ReadOnlyCollectionTest.cs" />
     <Compile Include="Collections\ReadOnlyDictionaryTest.cs" />
@@ -138,9 +140,6 @@
     <Compile Include="Linq\ExpressionTreeTest.cs" />
     <Compile Include="Linq\ExpressionWriterTest.cs" />
     <Compile Include="Linq\SerializableExpressionsTest.cs" />
-    <Compile Include="Diagnostics\LogCaptureScopeAndLogTest.cs" />
-    <Compile Include="Diagnostics\LogIndentTest.cs" />
-    <Compile Include="Diagnostics\LogPerformanceTest.cs" />
     <Compile Include="Diagnostics\MeasurementTest.cs" />
     <Compile Include="Modelling\DatabaseModelTest.cs" />
     <Compile Include="Modelling\DatabaseModel\Database.cs" />

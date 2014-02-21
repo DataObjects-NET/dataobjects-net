@@ -5,6 +5,7 @@
 // Created:    2008.08.11
 
 using System.Configuration;
+using JetBrains.Annotations;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Configuration.Elements
@@ -15,16 +16,37 @@ namespace Xtensive.Orm.Configuration.Elements
   public class ConfigurationSection : System.Configuration.ConfigurationSection
   {
     private const string DomainCollectionElementName = "domains";
+    private const string LoggingElementName = "logging";
+    private const string XmlNamespaceElementName = "xmlns";
+
+    /// <summary>
+    /// Gets or sets XML namespace.
+    /// </summary>
+    [ConfigurationProperty(XmlNamespaceElementName)]
+    [UsedImplicitly]
+    public string XmlNamespace
+    {
+      get { return (string) this[XmlNamespaceElementName]; }
+      set { this[XmlNamespaceElementName] = value; }
+    }
 
     /// <summary>
     /// Gets the collection of domain configurations.
     /// </summary>
     [ConfigurationProperty(DomainCollectionElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof(ConfigurationCollection<DomainConfigurationElement>), AddItemName = "domain")]
-    public ConfigurationCollection<DomainConfigurationElement> Domains {
-      get {
-        return (ConfigurationCollection<DomainConfigurationElement>)base[DomainCollectionElementName];
-      }
+    [ConfigurationCollection(typeof (ConfigurationCollection<DomainConfigurationElement>), AddItemName = "domain")]
+    public ConfigurationCollection<DomainConfigurationElement> Domains
+    {
+      get { return (ConfigurationCollection<DomainConfigurationElement>) base[DomainCollectionElementName]; }
+    }
+
+    /// <summary>
+    /// Gets configuration of logging.
+    /// </summary>
+    [ConfigurationProperty(LoggingElementName, IsRequired = false)]
+    public LoggingElement Logging
+    {
+      get { return (LoggingElement) this[LoggingElementName]; }
     }
   }
 }

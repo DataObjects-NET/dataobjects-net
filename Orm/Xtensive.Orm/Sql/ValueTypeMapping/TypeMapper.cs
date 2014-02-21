@@ -7,6 +7,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -133,6 +134,12 @@ namespace Xtensive.Sql
       parameter.Value = value ?? DBNull.Value;
     }
 
+    public virtual void BindDateTimeOffset(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.DateTimeOffset;
+      parameter.Value = value ?? DBNull.Value;
+    }
+
     public virtual void BindTimeSpan(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
@@ -233,6 +240,11 @@ namespace Xtensive.Sql
     public virtual object ReadDateTime(DbDataReader reader, int index)
     {
       return reader.GetDateTime(index);
+    }
+
+    public virtual object ReadDateTimeOffset(DbDataReader reader, int index)
+    {
+      return ((SqlDataReader) reader).GetDateTimeOffset(index);
     }
 
     public virtual object ReadTimeSpan(DbDataReader reader, int index)
@@ -352,6 +364,11 @@ namespace Xtensive.Sql
     public virtual SqlValueType MapDateTime(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.DateTime);
+    }
+
+    public virtual SqlValueType MapDateTimeOffset(int? length, int? precision, int? scale)
+    {
+      return new SqlValueType(SqlType.DateTimeOffset);
     }
 
     public virtual SqlValueType MapTimeSpan(int? length, int? precision, int? scale)

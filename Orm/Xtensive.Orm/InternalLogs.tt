@@ -1,0 +1,71 @@
+<#@ template language="C#" debug="True" #>
+<#@ output extension="cs" #>
+using System;
+using Xtensive.Orm.Logging;
+using JetBrains.Annotations;
+
+namespace Xtensive
+{
+<# foreach (var item in logs) { #>
+  [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+  internal static class <#= item.Item1 #>
+  {
+    private static readonly string Name = "<#= item.Item2 #>";
+    private static readonly BaseLog instance;
+
+    public static BaseLog Instance { get { return instance; } }
+
+    public static bool IsLogged(LogLevel type)
+    {
+      return instance.IsLogged(type);
+    }
+
+    public static IDisposable DebugRegion(string format, params object[] args)
+    {
+      return instance.DebugRegion(format, args);
+    }
+
+    public static IDisposable InfoRegion(string format, params object[] args)
+    {
+      return instance.InfoRegion(format, args);
+    }
+
+<# foreach (var level in logLevels) { #>
+    public static void <#= level #>(string format, params object[] args)
+    {
+      instance.<#= level #>(format, args);
+    }
+
+    public static Exception <#= level #>(Exception exception, string format, params object[] args)
+    {
+      instance.<#= level #>(format, args, exception);
+      return exception;
+    }
+
+    public static Exception <#= level #>(Exception exception)
+    {
+      instance.<#= level #>(null, null, exception);
+      return exception;
+    }
+
+<# } #>
+    static <#= item.Item1 #>()
+    {
+      var manager = LogManager.Default;
+      manager.AutoInitialize();
+      instance = manager.GetLog(Name);
+    }
+  }
+
+<# } #>
+}
+ <#+
+ string[] logLevels = new[] {"Debug", "Info", "Warning", "Error", "FatalError"};
+ Tuple<string, string>[] logs = new Tuple<string, string>[] {
+   new Tuple<string, string>("OrmLog", "Xtensive.Orm"),
+   new Tuple<string, string>("UpgradeLog", "Xtensive.Orm.Upgrade"),
+   new Tuple<string, string>("BuildLog", "Xtensive.Orm.Building"),
+   new Tuple<string, string>("SqlLog", "Xtensive.Orm.Sql"),
+   new Tuple<string, string>("CoreLog", "Xtensive.Orm.Core"),
+   new Tuple<string, string>("TestLog", "Xtensive.Orm.Tests")};
+ #>

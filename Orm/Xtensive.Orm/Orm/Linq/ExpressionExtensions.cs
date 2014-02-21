@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Linq
 
     public static bool IsNewExpressionSupportedByStorage(this Expression expression)
     {
-      return expression.NodeType==ExpressionType.New && (expression.Type==typeof (TimeSpan) || expression.Type==typeof (DateTime));
+      return expression.NodeType==ExpressionType.New && (expression.Type==typeof (TimeSpan) || expression.Type==typeof (DateTime) || expression.Type==typeof (DateTimeOffset));
     }
 
     public static bool IsConversionOperation(this Expression expression)

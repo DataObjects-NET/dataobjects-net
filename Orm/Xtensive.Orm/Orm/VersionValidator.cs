@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
+using Xtensive.Orm.Logging;
 
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -66,7 +66,7 @@ namespace Xtensive.Orm
     {
       var result = ValidateVersion(key, version);
       if (throwOnFailure && !result) {
-        if (OrmLog.IsLogged(LogEventTypes.Info))
+        if (OrmLog.IsLogged(LogLevel.Info))
           OrmLog.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
             Session, key, version, expectedVersionProvider.Invoke(key));
         throw new VersionConflictException(string.Format(
@@ -146,7 +146,7 @@ namespace Xtensive.Orm
       var type = key.TypeInfo;
       var provider = type.Indexes.PrimaryIndex.GetQuery().Seek(key.Value);
       var execProvider = Session.CompilationService.Compile(provider);
-      return new QueryTask(execProvider, null);
+      return new QueryTask(execProvider, Session.GetLifetimeToken(), null);
     }
 
     private void ValidateFetchedVersions()

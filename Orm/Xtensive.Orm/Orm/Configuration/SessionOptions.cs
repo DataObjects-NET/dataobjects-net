@@ -5,20 +5,34 @@
 // Created:    2008.10.06
 
 using System;
+using JetBrains.Annotations;
 
 namespace Xtensive.Orm.Configuration
 {
   /// <summary>
   /// Enumerates possible options of the <see cref="Session"/>.
   /// </summary>
-  [Flags]
+  [Flags, UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
   public enum SessionOptions
   {
     /// <summary>
     /// None of <see cref="SessionOptions"/> is on.
     /// Value is <see langword="0x0"/>.
     /// </summary>
-    None = 0x0,
+    None = 0,
+
+    /// <summary>
+    /// Enables reading of <see cref="Entity"/> objects without active transaction.
+    /// This option changes <see cref="Session"/> behavior in two ways.
+    /// It becames possible to execute queries without any active transaction.
+    /// Entities loaded or modified in a transaction that is already committed don't refetch their data.
+    /// </summary>
+    NonTransactionalReads = 1 << 0,
+
+    // Not used:
+    // 1 << 1
+    // 1 << 2
+    // 1 << 3
 
     /// <summary>
     /// Enables activation of this <see cref="Session"/> from another session having this option.
@@ -75,6 +89,9 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     ReadRemovedObjects = 1 << 9,
 
+    // Not used:
+    // 1 << 10
+
     /// <summary>
     /// Enables suppression of any exception occurred during transaction rollback.
     /// This option is useful if exception hiding occurs due to exceptions in <see cref="TransactionScope.Dispose"/>.
@@ -100,7 +117,7 @@ namespace Xtensive.Orm.Configuration
     /// Predefined option set for server-side sessions (ASP.NET, ASP.NET MVC, services, etc.).
     /// Includes only <see cref="ValidateEntities"/> flag.
     /// </summary>
-    ServerProfile = None | ValidateEntities | (1 << 10),
+    ServerProfile = ValidateEntities | (1 << 10),
 
     /// <summary>
     /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).

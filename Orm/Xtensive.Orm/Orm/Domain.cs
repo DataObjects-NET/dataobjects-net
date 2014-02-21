@@ -306,7 +306,7 @@ namespace Xtensive.Orm
 
         lock (singleConnectionGuard) {
           if (singleConnectionOwner==null)
-            Handlers.StorageDriver.CloseConnection(null, SingleConnection);
+            Handlers.StorageDriver.DisposeConnection(null, SingleConnection);
           else
             OrmLog.Warning(
               Strings.LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX,

@@ -11,10 +11,10 @@ using Mono.Cecil.Cil;
 
 namespace Xtensive.Orm.Weaver
 {
-  internal static class WeavingHelper
+  public static class WeavingHelper
   {
-    public static readonly StringComparer AssemblyNameComparer = StringComparer.InvariantCultureIgnoreCase;
-    public static readonly StringComparer TypeNameComparer = StringComparer.InvariantCulture;
+    public static readonly StringComparer AssemblyNameComparer = StringComparer.OrdinalIgnoreCase;
+    public static readonly StringComparer TypeNameComparer = StringComparer.Ordinal;
 
     public static byte[] ParsePublicKeyToken(string value)
     {
@@ -77,6 +77,22 @@ namespace Xtensive.Orm.Weaver
     public static string BuildComplexPersistentName(TypeInfo type, PropertyInfo property)
     {
       return String.Format("{0}.{1}", type.Name, property.Name);
+    }
+
+    public static SourceLanguage ParseLanguage(string projectType)
+    {
+      if (string.IsNullOrEmpty(projectType))
+        return SourceLanguage.Unknown;
+      switch (projectType.ToLowerInvariant()) {
+      case ".csproj":
+        return SourceLanguage.CSharp;
+      case ".vbproj":
+        return SourceLanguage.VbNet;
+      case ".fsproj":
+        return SourceLanguage.FSharp;
+      default:
+        return SourceLanguage.Unknown;
+      }
     }
   }
 }

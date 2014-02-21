@@ -29,8 +29,10 @@ namespace Xtensive.Orm.Providers
 
     void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
     {
-      if (task.ValidateRowCount)
-        throw new NotSupportedException(Strings.ExBatchingCommandProcessorDoesNotSupportValidationOfNumberOfAffectedRows);
+      if (task.ValidateRowCount) {
+        ProcessUnbatchedTask(task);
+        return;
+      }
       var sequence = Factory.CreatePersistParts(task, GetParameterPrefix());
       foreach (var part in sequence)
         activeCommand.AddPart(part);
@@ -107,6 +109,8 @@ namespace Xtensive.Orm.Providers
           var part = Factory.CreateQueryPart(lastRequest);
           activeCommand.AddPart(part);
         }
+        if (activeCommand.Count==0)
+          return null;
         var hasQueryTasks = activeTasks.Count > 0;
         if (!hasQueryTasks && !shouldReturnReader) {
           activeCommand.ExecuteNonQuery();
@@ -131,6 +135,30 @@ namespace Xtensive.Orm.Providers
         if (!shouldReturnReader)
           activeCommand.Dispose();
         ReleaseCommand();
+      }
+    }
+
+    private void ProcessUnbatchedTask(SqlPersistTask task)
+    {
+      if (activeCommand.Count > 0) {
+        activeCommand.ExecuteNonQuery();
+        ReleaseCommand();
+        AllocateCommand();
+      }
+      ExecuteUnbatchedTask(task);
+    }
+
+    private void ExecuteUnbatchedTask(SqlPersistTask task)
+    {
+      var sequence = Factory.CreatePersistParts(task);
+      foreach (var part in sequence) {
+        using (var command = Factory.CreateCommand()) {
+          command.AddPart(part);
+          var affectedRowsCount = command.ExecuteNonQuery();
+          if (affectedRowsCount==0)
+            throw new VersionConflictException(string.Format(
+              Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
+        }
       }
     }
 

@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
+using Xtensive.Orm.Logging;
 
 
 
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Operations
       var session = context.Session;
       var entity = session.Query.Single(Key);
       if (entity.VersionInfo != Version) {
-        if (OrmLog.IsLogged(LogEventTypes.Info))
+        if (OrmLog.IsLogged(LogLevel.Info))
           OrmLog.Info(Strings.LogSessionXVersionValidationFailedKeyYVersionZExpected3,
             session, Key, entity.VersionInfo, Version);
         throw new VersionConflictException(

@@ -9,7 +9,7 @@ using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver
 {
-  internal sealed class ReferenceRegistry
+  public sealed class ReferenceRegistry
   {
     public AssemblyNameReference OrmAssembly { get; set; }
 
@@ -21,7 +21,6 @@ namespace Xtensive.Orm.Weaver
     public TypeReference SerializationInfo { get; set; }
 
     public MethodReference TypeGetTypeFromHandle { get; set; }
-
     public MethodReference CompilerGeneratedAttributeConstructor { get; set; }
 
     // Xtensive.Core
@@ -30,7 +29,9 @@ namespace Xtensive.Orm.Weaver
     // Xtensive.Orm
     public TypeReference Session { get; set; }
     public TypeReference Entity { get; set; }
+    public TypeReference EntityInterface { get; set; }
     public TypeReference EntityState { get; set; }
+    public TypeReference EntitySetItem { get; set; }
     public TypeReference FieldInfo { get; set; }
     public TypeReference Persistent { get; set; }
     public TypeReference PersistenceImplementation { get; set; }

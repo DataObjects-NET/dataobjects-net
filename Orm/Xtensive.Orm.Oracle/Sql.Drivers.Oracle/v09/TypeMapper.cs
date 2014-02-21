@@ -88,6 +88,13 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       nativeParameter.Value = value ?? DBNull.Value;
     }
 
+    public override void BindDateTimeOffset(DbParameter parameter, object value)
+    {
+      var nativeParameter = (OracleParameter) parameter;
+      nativeParameter.OracleDbType = OracleDbType.TimeStampTZ;
+      nativeParameter.Value = value==null ? (object) DBNull.Value : new OracleTimeStampTZ(((DateTimeOffset) value).DateTime, ((DateTimeOffset) value).Offset.ToString());
+    }
+
     public override void BindTimeSpan(DbParameter parameter, object value)
     {
       var nativeParameter = (OracleParameter) parameter;
@@ -182,6 +189,12 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     public override object ReadDouble(DbDataReader reader, int index)
     {
       return Convert.ToDouble(reader[index]);
+    }
+
+    public override object ReadDateTimeOffset(DbDataReader reader, int index)
+    {
+      var nativeReader = (OracleDataReader) reader;
+      return new DateTimeOffset(nativeReader.GetOracleTimeStampTZ(index).Value, nativeReader.GetOracleTimeStampTZ(index).GetTimeZoneOffset());
     }
 
     public override object ReadTimeSpan(DbDataReader reader, int index)

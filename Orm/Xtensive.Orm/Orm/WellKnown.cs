@@ -24,6 +24,11 @@ namespace Xtensive.Orm
   public static class WellKnown
   {
     /// <summary>
+    /// Name of the default configuration section (Xtensive.Orm).
+    /// </summary>
+    public const string DefaultConfigurationSection = "Xtensive.Orm";
+
+    /// <summary>
     /// Name of the <see cref="Entity.Key"/> field.
     /// </summary>
     public const string KeyFieldName = "Key";
@@ -134,6 +139,7 @@ namespace Xtensive.Orm
           typeof(string),
           typeof(Guid),
           typeof(DateTime),
+          typeof(DateTimeOffset),
           typeof(TimeSpan),
           typeof(byte[]),
           }.Concat(SupportedNumericTypes).ToHashSet()

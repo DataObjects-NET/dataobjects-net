@@ -19,8 +19,8 @@ namespace Xtensive.Orm.Upgrade.Model
     [Property(Priority = -1100, CaseInsensitiveComparison = true)]
     public string Configuration { get; set; }
 
-    [Property(Priority = -1200)]
-    public ValueColumnRef TypeColumn { get; set; }
+    [Property(Priority = -1200, CaseInsensitiveComparison = true)]
+    public string TypeColumnName { get; set; } 
 
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
@@ -49,11 +49,11 @@ namespace Xtensive.Orm.Upgrade.Model
     }
 
     /// <inheritdoc/>
-    public FullTextColumnRef(StorageFullTextIndexInfo parent, StorageColumnInfo column, string configuration, ValueColumnRef typeColumn)
+    public FullTextColumnRef(StorageFullTextIndexInfo parent, StorageColumnInfo column, string configuration, string typeColumn)
       : base(parent, column)
     {
       Configuration = configuration;
-      TypeColumn = typeColumn;
+      TypeColumnName = typeColumn;
     }
   }
 }

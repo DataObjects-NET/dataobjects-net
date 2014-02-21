@@ -18,8 +18,10 @@ namespace Xtensive.Orm.Weaver.Stages
       var mscorlibAssembly = context.TargetModule.TypeSystem.Corlib;
 
       var ormAssembly = FindReference(context, WellKnown.OrmAssemblyFullName);
-      if (ormAssembly==null)
-        return ActionResult.Failure;
+      if (ormAssembly==null) {
+        context.SkipProcessing = true;
+        return ActionResult.Success;
+      }
       registry.OrmAssembly = ormAssembly;
 
       var stringType = context.TargetModule.TypeSystem.String;
@@ -40,8 +42,10 @@ namespace Xtensive.Orm.Weaver.Stages
       // Xtensive.Orm
       registry.Session = ImportType(context, ormAssembly, "Xtensive.Orm.Session");
       registry.Entity = ImportType(context, ormAssembly, WellKnown.EntityType);
+      registry.EntityInterface = ImportType(context, ormAssembly, WellKnown.EntityInterfaceType);
       registry.EntityState = ImportType(context, ormAssembly, "Xtensive.Orm.EntityState");
       registry.FieldInfo = ImportType(context, ormAssembly, "Xtensive.Orm.Model.FieldInfo");
+      registry.EntitySetItem = ImportType(context, ormAssembly, WellKnown.EntitySetItemType);
       var persistentType = registry.Persistent = ImportType(context, ormAssembly, "Xtensive.Orm.Persistent");
 
       registry.PersistenceImplementation = ImportType(context, ormAssembly, "Xtensive.Orm.Weaving.PersistenceImplementation");
@@ -107,12 +111,6 @@ namespace Xtensive.Orm.Weaver.Stages
       var comparer = WeavingHelper.AssemblyNameComparer;
       var reference = context.TargetModule.AssemblyReferences
         .FirstOrDefault(r => comparer.Equals(r.FullName, assemblyName));
-
-      if (reference==null) {
-        context.Logger.Write(MessageCode.ErrorTargetAssemblyHasNoExpectedReference, assemblyName);
-        return null;
-      }
-
       return reference;
     }
 

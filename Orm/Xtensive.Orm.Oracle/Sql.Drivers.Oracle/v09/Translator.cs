@@ -24,7 +24,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     
     public override string DateTimeFormatString { get { return @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'\)"; } }
     public override string TimeSpanFormatString { get { return "(INTERVAL '{0}{1} {2}:{3}:{4}.{5:000}' DAY(6) TO SECOND(3))"; } }
-    
+    public string DateTimeOffsetFormatString { get { return @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\ zzz\'\)"; } }
+
     public override void Initialize()
     {
       base.Initialize();
@@ -162,6 +163,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
       if (literalType==typeof(Guid))
         return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
+      if (literalType==typeof (DateTimeOffset)) 
+        return ((DateTimeOffset) literalValue).ToString(DateTimeOffsetFormatString);
       return base.Translate(context, literalValue);
     }
 
@@ -313,6 +316,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         return "LOG";
       case SqlFunctionType.Ceiling:
         return "CEIL";
+      case SqlFunctionType.CurrentDateTimeOffset:
+        return "CURRENT_TIMESTAMP";
       default:
         return base.Translate(type);
       }
@@ -321,8 +326,11 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     public override string Translate(SqlNodeType type)
     {
       switch (type) {
+      case SqlNodeType.DateTimeOffsetPlusInterval:
       case SqlNodeType.DateTimePlusInterval:
         return "+";
+      case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
+      case SqlNodeType.DateTimeOffsetMinusInterval:
       case SqlNodeType.DateTimeMinusInterval:
       case SqlNodeType.DateTimeMinusDateTime:
         return "-";

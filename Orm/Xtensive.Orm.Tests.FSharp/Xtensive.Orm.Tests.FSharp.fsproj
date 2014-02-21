@@ -34,11 +34,7 @@
     <Compile Include="FsUnit.fs" />
     <Compile Include="Model.fs" />
     <Compile Include="Test.fs" />
-    <None Include="app.config" />
-    <None Include="..\Xtensive.Orm.Tests.Framework\Connections.config">
-      <Link>Connections.config</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.PowerPack.Linq">

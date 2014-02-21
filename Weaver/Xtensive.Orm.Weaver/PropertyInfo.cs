@@ -11,7 +11,7 @@ using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver
 {
-  internal sealed class PropertyInfo
+  public sealed class PropertyInfo
   {
     public TypeInfo DeclaringType { get; private set; }
 
@@ -61,11 +61,12 @@ namespace Xtensive.Orm.Weaver
         resultBuilder.Append(" [explicit_implementation]");
       if (IsKey)
         resultBuilder.Append(" [key]");
-      if (IsPersistent)
+      if (IsPersistent) {
         if (PersistentName!=null)
           resultBuilder.AppendFormat(" [persistent({0})]", PersistentName);
         else
           resultBuilder.Append(" [persistent]");
+      }
       foreach (var implementedProperty in ImplementedProperties)
         resultBuilder.AppendFormat(" [implements({0}::{1})]", implementedProperty.DeclaringType.FullName, implementedProperty.Name);
       return resultBuilder.ToString();

@@ -9,7 +9,7 @@ using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver
 {
-  internal sealed class AssemblyChecker
+  public sealed class AssemblyChecker
   {
     private readonly Dictionary<string, byte[]> frameworkAssemblies = new Dictionary<string, byte[]>(WeavingHelper.AssemblyNameComparer);
 

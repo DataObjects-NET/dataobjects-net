@@ -286,5 +286,38 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(databases[1].RealName, Is.EqualTo("Other-DO40-Tests"));
       configuration.Lock();
     }
+
+    [Test]
+    public void LoggingConfigurationTest()
+    {
+      var configuration = LoggingConfiguration.Load("AppConfigTest");
+      ValidateLoggingConfiguration(configuration);
+    }
+    
+    private void ValidateLoggingConfiguration(LoggingConfiguration configuration)
+    {
+      Assert.AreEqual(string.IsNullOrEmpty(configuration.Provider), true);
+
+      Assert.That(configuration.Logs[0].Source, Is.EqualTo("*"));
+      Assert.That(configuration.Logs[0].Target, Is.EqualTo("Console"));
+
+      Assert.That(configuration.Logs[1].Source, Is.EqualTo("SomeLogName"));
+      Assert.That(configuration.Logs[1].Target, Is.EqualTo("DebugOnlyConsole"));
+
+      Assert.That(configuration.Logs[2].Source, Is.EqualTo("FirstLogName,SecondLogName"));
+      Assert.That(configuration.Logs[2].Target, Is.EqualTo(@"d:\log.txt"));
+
+      Assert.That(configuration.Logs[3].Source, Is.EqualTo("LogName, AnotherLogName"));
+      Assert.That(configuration.Logs[3].Target, Is.EqualTo("Console"));
+
+      Assert.That(configuration.Logs[4].Source, Is.EqualTo("FileLog"));
+      Assert.That(configuration.Logs[4].Target, Is.EqualTo("log.txt"));
+
+      Assert.That(configuration.Logs[5].Source, Is.EqualTo("NullLog"));
+      Assert.That(configuration.Logs[5].Target, Is.EqualTo("None"));
+
+      Assert.That(configuration.Logs[6].Source, Is.EqualTo("Trash"));
+      Assert.That(configuration.Logs[6].Target, Is.EqualTo("skjdhfjsdf sdfsdfksjdghj fgdfg"));
+    }
   }
 }

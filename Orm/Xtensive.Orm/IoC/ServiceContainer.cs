@@ -11,14 +11,10 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
 using Xtensive.Reflection;
-
 using Xtensive.IoC.Configuration;
-
 using AttributeSearchOptions = Xtensive.Reflection.AttributeSearchOptions;
 using ConfigurationSection=Xtensive.IoC.Configuration.ConfigurationSection;
-using DelegateHelper = Xtensive.Reflection.DelegateHelper;
 
 namespace Xtensive.IoC
 {

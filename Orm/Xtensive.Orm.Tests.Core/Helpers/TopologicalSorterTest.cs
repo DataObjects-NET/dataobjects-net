@@ -11,7 +11,6 @@ using System.Text;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
 using Xtensive.Sorting;
 using Xtensive.Orm.Tests;
 

@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Diagnostics;
 using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Core.DotNetFramework

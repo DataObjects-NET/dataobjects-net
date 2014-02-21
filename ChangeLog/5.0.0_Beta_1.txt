@@ -9,5 +9,6 @@
 [main] Added support for defining recycled fields via external definitions
 [main] Object-to-object mapper is removed
 [main] Xtensive.Core and Xtensive.Aspects assemblies are removed
-[main] Added ReSharper annotations in public API
+[main] Added ReSharper annotations for public API
 [main] IEnumerable<IEntity>.Remove() extension method is marked as obsolete
+[main] Installer is no longer provided (use NuGet or binaries package instead)

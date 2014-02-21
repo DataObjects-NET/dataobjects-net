@@ -13,14 +13,14 @@ using Xtensive.Orm.Weaver.Stages;
 
 namespace Xtensive.Orm.Weaver
 {
-  public sealed class AssemblyProcessor
+  internal sealed class AssemblyProcessor
   {
     private readonly ProcessorConfiguration configuration;
-    private readonly IMessageWriter messageWriter;
+    private readonly MessageWriter messageWriter;
 
     public ActionResult Execute()
     {
-      var logger = new MessageLogger(configuration.ProjectId, messageWriter);
+      var logger = new MessageLogger(messageWriter);
       var referencedAssemblies = configuration.ReferencedAssemblies ?? Enumerable.Empty<string>();
       var assemblyResolver = new AssemblyResolver(referencedAssemblies, logger);
 
@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Weaver
         Configuration = configuration,
         ApplicationDirectory = Path.GetDirectoryName(GetType().Assembly.Location),
         Logger = logger,
+        Language = WeavingHelper.ParseLanguage(configuration.ProjectType),
         AssemblyResolver = assemblyResolver,
         MetadataResolver = new MetadataResolver(assemblyResolver),
       };
@@ -55,9 +56,7 @@ namespace Xtensive.Orm.Weaver
         new ImportReferencesStage(),
         new RegisterFrameworkAssembliesStage(),
         new FindPersistentTypesStage(),
-        new ValidateLicenseStage(),
-        new ModifyPersistentTypesStage(),
-        new MarkAssemblyStage(),
+        new ExternalAssemblyStage(WellKnown.TasksAssemblyFullName),
         new WriteStatusStage(),
         new ExecuteWeavingTasksStage(),
         new SaveAssemblyStage(),
@@ -68,7 +67,7 @@ namespace Xtensive.Orm.Weaver
     private static ActionResult ExecuteStage(ProcessorContext context, ProcessorStage stage)
     {
       try {
-        return stage.Execute(context);
+        return stage.CanExecute(context) ? stage.Execute(context) : ActionResult.Success;
       }
       catch (StageFailedException) {
         return ActionResult.Failure;
@@ -79,7 +78,7 @@ namespace Xtensive.Orm.Weaver
       }
     }
 
-    public AssemblyProcessor(ProcessorConfiguration configuration, IMessageWriter messageWriter)
+    public AssemblyProcessor(ProcessorConfiguration configuration, MessageWriter messageWriter)
     {
       this.configuration = configuration;
       this.messageWriter = messageWriter;

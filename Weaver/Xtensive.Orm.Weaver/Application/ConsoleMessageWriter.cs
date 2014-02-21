@@ -8,9 +8,9 @@ using System;
 
 namespace Xtensive.Orm.Weaver.Application
 {
-  internal sealed class ConsoleMessageWriter : IMessageWriter
+  internal sealed class ConsoleMessageWriter : MessageWriter
   {
-    public void Write(ProcessorMessage message)
+    public override void Write(ProcessorMessage message)
     {
       Console.WriteLine(message);
     }

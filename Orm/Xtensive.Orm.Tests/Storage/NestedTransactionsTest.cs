@@ -4,26 +4,15 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.26
 
-using System;
 using NUnit.Framework;
-
 using Xtensive.Core;
-using Xtensive.Orm.Tests;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.TransactionsTestModel;
 
 namespace Xtensive.Orm.Tests.Storage
 {
-  public class NestedTransactionsTest : AutoBuildTest
+  public class NestedTransactionsTest : TransactionsTestBase
   {
-    protected override DomainConfiguration BuildConfiguration()
-    {
-      var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Hexagon).Assembly, typeof (Hexagon).Namespace);
-      return configuration;
-    }
-
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
@@ -43,10 +32,9 @@ namespace Xtensive.Orm.Tests.Storage
         var outerTransaction = Transaction.Current;
         var theHexagon = new Hexagon();
         using (var innerScope = Session.Demand().OpenTransaction(TransactionOpenMode.New)) {
-          var innerTransaction = Transaction.Current;
-          AssertStateIsValid(theHexagon, outerTransaction);
+          AssertStateIsValid(theHexagon);
           Assert.AreEqual(theHexagon.Kwanza, 0);
-          AssertStateIsValid(theHexagon, outerTransaction);
+          AssertStateIsValid(theHexagon);
           // rollback
         }
       }
@@ -60,9 +48,8 @@ namespace Xtensive.Orm.Tests.Storage
         var outerTransaction = Transaction.Current;
         var theHexagon = new Hexagon();
         using (var innerScope = Session.Demand().OpenTransaction(TransactionOpenMode.New)) {
-          var innerTransaction = Transaction.Current;
           theHexagon.IncreaseKwanza();
-          AssertStateIsValid(theHexagon, innerTransaction);
+          AssertStateIsValid(theHexagon);
           Assert.AreEqual(theHexagon.Kwanza, 1);
           // rollback
         }
@@ -79,7 +66,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (var innerScope = Session.Demand().OpenTransaction(TransactionOpenMode.New)) {
           // rollback
         }
-        AssertStateIsValid(theHexagon, outerTransaction);
+        AssertStateIsValid(theHexagon);
         Assert.AreEqual(theHexagon.Kwanza, 0);
       }
     }
@@ -110,7 +97,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (var innerScope = Session.Demand().OpenTransaction(TransactionOpenMode.New)) {
           innerScope.Complete();
         }
-        AssertStateIsValid(theHexagon, outerTransaction);
+        AssertStateIsValid(theHexagon);
         Assert.AreEqual(theHexagon.Kwanza, 0);
       }
     }
@@ -121,14 +108,12 @@ namespace Xtensive.Orm.Tests.Storage
       Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       using (var outerScope = Session.Demand().OpenTransaction()) {
         var outerTransaction = Transaction.Current;
-        Transaction innerTransaction;
         var theHexagon = new Hexagon();
         using (var innerScope = Session.Demand().OpenTransaction(TransactionOpenMode.New)) {
-          innerTransaction = Transaction.Current;
           theHexagon.IncreaseKwanza();
           innerScope.Complete();
         }
-        AssertStateIsValid(theHexagon, innerTransaction);
+        AssertStateIsValid(theHexagon);
         Assert.AreEqual(theHexagon.Kwanza, 1);
       }
     }
@@ -144,23 +129,6 @@ namespace Xtensive.Orm.Tests.Storage
       }
       Assert.IsNull(Session.Current.Transaction);
       Assert.IsNull(StorageTestHelper.GetNativeTransaction());
-    }
-
-    private static void AssertStateIsValid(Entity entity, Transaction expectedStateTransaction)
-    {
-      Assert.IsTrue(CheckStateIsActual(entity));
-      Assert.AreSame(expectedStateTransaction, entity.State.Transaction);
-    }
-
-    private static void AssertStateIsInvalid(Entity entity)
-    {
-      Assert.IsFalse(CheckStateIsActual(entity));
-    }
-    
-    private static bool CheckStateIsActual(Entity entity)
-    {
-      var stateTransaction = entity.State.Transaction;
-      return stateTransaction!=null && stateTransaction.AreChangesVisibleTo(Transaction.Current);
     }
   }
 }

@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
@@ -15,6 +16,7 @@ using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 using Xtensive.Sorting;
+using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
 using TypeHelper = Xtensive.Reflection.TypeHelper;
 
 namespace Xtensive.Orm.Building.Builders
@@ -22,6 +24,7 @@ namespace Xtensive.Orm.Building.Builders
   internal sealed class ModelBuilder
   {
     private const string GeneratedTypeNameFormat = "{0}.EntitySetItems.{1}";
+
     private static ThreadSafeDictionary<string, Type> GeneratedTypes = ThreadSafeDictionary<string, Type>.Create(new object());
 
     private readonly BuildingContext context;
@@ -338,16 +341,7 @@ namespace Xtensive.Orm.Building.Builders
         var masterType = association.OwnerType;
         var slaveType = association.TargetType;
 
-        var genericDefinitionType = typeof (EntitySetItem<,>);
-        var genericInstanceType = genericDefinitionType.MakeGenericType(masterType.UnderlyingType, slaveType.UnderlyingType);
-
-        var underlyingTypeName = String.Format(GeneratedTypeNameFormat,
-          masterType.UnderlyingType.Namespace,
-          context.NameBuilder.BuildAssociationName(association));
-        var underlyingType = GeneratedTypes.GetValue(underlyingTypeName,
-          (_underlyingTypeName, _genericInstanceType) =>
-            TypeHelper.CreateInheritedDummyType(_underlyingTypeName, _genericInstanceType, true),
-          genericInstanceType);
+        var underlyingType = GenerateAuxiliaryType(association);
 
         // Defining auxiliary type
         var underlyingTypeDef = modelDefBuilder.DefineType(underlyingType);
@@ -358,7 +352,7 @@ namespace Xtensive.Orm.Building.Builders
         underlyingTypeDef.MappingDatabase = association.OwnerType.MappingDatabase;
 
         // HierarchyRootAttribute is not inherited so we must take it from the generic type definition or generic instance type
-        var hra = genericInstanceType.GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.Default);
+        var hra = typeof (EntitySetItem<,>).GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.Default);
         // Defining the hierarchy
         var hierarchy = modelDefBuilder.DefineHierarchy(underlyingTypeDef, hra);
 
@@ -403,6 +397,25 @@ namespace Xtensive.Orm.Building.Builders
           association.Reversed.AuxiliaryType = auxiliaryType;
       }
     }
+
+    private Type GenerateAuxiliaryType(AssociationInfo association)
+    {
+      var masterType = association.OwnerType.UnderlyingType;
+      var slaveType = association.TargetType.UnderlyingType;
+      var baseType = typeof (EntitySetItem<,>).MakeGenericType(masterType, slaveType);
+
+      var typeName = string.Format(GeneratedTypeNameFormat,
+        masterType.Namespace,
+        context.NameBuilder.BuildAssociationName(association));
+
+      var result = GeneratedTypes.GetValue(typeName,
+        (_typeName, _baseType) =>
+          TypeHelper.CreateInheritedDummyType(_typeName, _baseType, true),
+        baseType);
+
+      return result;
+    }
+
     private void FindAndMarkInboundAndOutboundTypes(BuildingContext context)
     {
       var inputRefCountDictionary = InitReferencesOfTypesDictionary(context.Model.Types);
