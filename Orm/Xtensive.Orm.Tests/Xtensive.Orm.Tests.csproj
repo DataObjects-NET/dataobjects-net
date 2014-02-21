@@ -176,6 +176,7 @@
     <Compile Include="Issues\IssueJira0149_LinqTranslationError.cs" />
     <Compile Include="Issues\IssueJira0165_CaseSensitiveFieldNames.cs" />
     <Compile Include="Issues\IssueJira0168_RemoveQueryableExtensionFails.cs" />
+    <Compile Include="Issues\IssueJira0171_DateTimeOffset.cs" />
     <Compile Include="Issues\IssueJira0179_NullableBooleanFieldsQuery.cs" />
     <Compile Include="Issues\IssueJira0180_ChangeNullabilityViaUpgradeHints\ModelVersion1.cs" />
     <Compile Include="Issues\IssueJira0180_ChangeNullabilityViaUpgradeHints\ModelVersion2.cs" />
@@ -387,6 +388,7 @@
     <Compile Include="Upgrade\UpgradeAndNamingRules\ModelVersion2.cs" />
     <Compile Include="Upgrade\UpgradeAndNamingRules\Upgrader.cs" />
     <Compile Include="Upgrade\UpgradeAndNamingRules\UpgradeTest.cs" />
+    <Compile Include="Upgrade\UpgradeDateTimeOffsetTest.cs" />
     <Compile Include="Upgrade\UpgradeTestTemplate.cs" />
     <Compile Include="Upgrade\UpgradeToStructure\ModelVersion1.cs" />
     <Compile Include="Upgrade\UpgradeToStructure\ModelVersion2.cs" />

@@ -84,6 +84,8 @@ namespace Xtensive.Sql
         return typeof (double);
       case SqlType.DateTime:
         return typeof (DateTime);
+      case SqlType.DateTimeOffset:
+        return typeof (DateTimeOffset);
       case SqlType.Interval:
         return typeof (TimeSpan);
       case SqlType.Char:

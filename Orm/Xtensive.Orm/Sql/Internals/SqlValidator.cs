@@ -232,6 +232,7 @@ namespace Xtensive.Sql
           typeof (double),
           typeof (decimal),
           typeof (DateTime),
+          typeof (DateTimeOffset),
           typeof (TimeSpan),
           typeof (byte[]),
           typeof (Guid)

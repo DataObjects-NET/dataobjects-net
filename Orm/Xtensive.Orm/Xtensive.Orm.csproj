@@ -615,6 +615,7 @@
     <Compile Include="Orm\Model\DatabaseInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Orm\Providers\Expressions\MemberCompilers\DateTimeOffsetCompilers.cs" />
     <Compile Include="Orm\Providers\Expressions\MemberCompilers\EnumCompilers.cs" />
     <Compile Include="Orm\Providers\Expressions\QueryParameterIdentity.cs" />
     <Compile Include="Orm\Providers\Interfaces\IPersistDescriptor.cs" />
@@ -1391,6 +1392,7 @@
     <Compile Include="Sql\Dml\Hints\SqlJoinHint.cs" />
     <Compile Include="Sql\Dml\Hints\SqlJoinMethod.cs" />
     <Compile Include="Sql\Dml\Hints\SqlNativeHint.cs" />
+    <Compile Include="Sql\Dml\SqlDateTimeOffsetPart.cs" />
     <Compile Include="Sql\Dml\SqlDateTimePart.cs" />
     <Compile Include="Sql\Dml\SqlFetchOption.cs" />
     <Compile Include="Sql\Dml\SqlFragment.cs" />

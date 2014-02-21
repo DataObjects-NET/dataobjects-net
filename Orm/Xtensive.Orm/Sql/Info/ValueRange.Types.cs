@@ -69,6 +69,11 @@ namespace Xtensive.Sql.Info
     public static readonly ValueRange<System.DateTime> DateTime =
       new ValueRange<System.DateTime>(System.DateTime.MinValue, System.DateTime.MaxValue);
     /// <summary>
+    /// Standard value range for <see cref="System.DateTimeOffset"/>
+    /// </summary>
+    public static readonly ValueRange<System.DateTimeOffset> DateTimeOffset =
+      new ValueRange<System.DateTimeOffset>(System.DateTimeOffset.MinValue, System.DateTimeOffset.MaxValue);
+    /// <summary>
     /// Standard value range for <see cref="System.TimeSpan"/>
     /// </summary>
     public static readonly ValueRange<System.TimeSpan> TimeSpan =

@@ -86,6 +86,13 @@ namespace Xtensive.Sql
     DateTime,
 
     /// <summary>
+    /// Date and time data from January 1,1 A.D. through December 31, 9999 A.D., 
+    /// to an accuracy of 100 nanoseconds.
+    /// Storage size is 8 to 10 bytes. 
+    /// </summary>
+    DateTimeOffset,
+
+    /// <summary>
     /// Datetime interval.
     /// </summary>
     Interval,
