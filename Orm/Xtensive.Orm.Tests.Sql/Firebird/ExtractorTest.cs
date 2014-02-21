@@ -30,5 +30,10 @@ namespace Xtensive.Orm.Tests.Sql.Firebird
       // hack because Visual Nunit doesn't use TestFixtureTearDown attribute, just TearDown attribute
       RealTestFixtureTearDown();
     }
+
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Firebird);
+    }
   }
 }

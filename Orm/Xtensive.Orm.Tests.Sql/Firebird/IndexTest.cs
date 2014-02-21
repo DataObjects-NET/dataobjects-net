@@ -38,6 +38,11 @@ namespace Xtensive.Orm.Tests.Sql.Firebird
       ExecuteNonQuery(SqlDdl.Create(t));
     }
 
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Firebird);
+    }
+
     [Test]
     public override void CreateExpressionIndexTest()
     {

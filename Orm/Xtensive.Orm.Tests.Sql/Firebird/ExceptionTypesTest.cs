@@ -25,5 +25,10 @@ namespace Xtensive.Orm.Tests.Sql.Firebird
       RealTestFixtureTearDown();
       TestHelpers.StopTraceToLogFile(this);
     }
+
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Firebird);
+    }
   }
 }

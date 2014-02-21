@@ -4,6 +4,7 @@
 // Created by: Csaba Beer
 // Created:    2011.01.19
 
+using System;
 using NUnit.Framework;
 using System.Diagnostics;
 
@@ -22,6 +23,12 @@ namespace Xtensive.Orm.Tests.Sql.Firebird.v2_5
     {
       base.TearDown();
       TestHelpers.StopTraceToLogFile(this);
+    }
+
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.ProviderVersionAtLeast(new Version(2, 5));
     }
 
     public TypeMappingTest()

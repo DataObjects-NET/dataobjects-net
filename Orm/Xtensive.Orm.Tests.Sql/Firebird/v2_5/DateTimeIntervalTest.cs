@@ -4,6 +4,7 @@
 // Created by: Csaba Beer
 // Created:    2011.01.22
 
+using System;
 using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Sql.Firebird.v2_5
@@ -13,7 +14,8 @@ namespace Xtensive.Orm.Tests.Sql.Firebird.v2_5
   {
     protected override void CheckRequirements()
     {
-      Require.ProviderIs(StorageProvider.Firebird);
+      base.CheckRequirements();
+      Require.ProviderVersionAtLeast(new Version(2, 5));
     }
   }
 }
