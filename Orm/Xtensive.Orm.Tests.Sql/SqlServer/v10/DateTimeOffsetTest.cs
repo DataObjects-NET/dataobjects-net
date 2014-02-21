@@ -11,7 +11,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v10
   [TestFixture, Explicit]
   public class DateTimeOffsetTest : Sql.DateTimeOffsetTest
   {
-    protected override string Url { get { return TestUrl.SqlServer2008; } }
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2008);
+    }
   }
 }
                                                                                                                                                                                                                                                                
