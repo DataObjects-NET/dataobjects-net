@@ -30,6 +30,11 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       EnsureTableNotExists(testSchema, LobTestTable);
     }
 
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Oracle);
+    }
+
     [Test]
     public void MultipleResultsTest()
     {

@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Tests.Sql.Oracle.v10
   {
     protected override void CheckRequirements()
     {
-      Require.ProviderIs(StorageProvider.Oracle);
+      base.CheckRequirements();
       Require.ProviderVersionAtLeast(StorageProviderVersion.Oracle10);
     }
   }

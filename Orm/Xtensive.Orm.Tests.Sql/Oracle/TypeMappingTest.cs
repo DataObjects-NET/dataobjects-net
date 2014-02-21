@@ -27,5 +27,9 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
         base.CheckEquality(expected, actual);
     }
 
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Oracle);
+    }
   }
 }
