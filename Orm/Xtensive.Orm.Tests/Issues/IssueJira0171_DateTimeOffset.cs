@@ -42,8 +42,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var e = new EntityWithDateTimeOffset
-                {
+        var e = new EntityWithDateTimeOffset {
                   Today = today
                 };
         tx.Complete();
@@ -307,8 +306,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var tx = session.OpenTransaction()) {
         var q =
           from t in session.Query.All<EntityWithDateTimeOffset>()
-          group t by new
-                     {
+          group t by new {
                        Date = t.Today.ToLocalTime()
                      };
         Assert.That(q.ToList()[0].Key.Date, Is.EqualTo(todayAssert));

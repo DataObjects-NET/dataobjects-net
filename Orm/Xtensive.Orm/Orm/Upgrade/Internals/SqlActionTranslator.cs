@@ -868,7 +868,7 @@ namespace Xtensive.Orm.Upgrade
           getValue.Add(SqlDml.IsNull(tableRef[tempName]), GetDefaultValueExpression(targetColumn));
 
           if (newSqlType.Type==SqlType.DateTimeOffset)
-            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.UpgradeDateTimeToDateTimeOffset(tableRef[tempName]));
+            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.DateTimeToDateTimeOffset(tableRef[tempName]));
           else
             getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(tableRef[tempName], newSqlType));
 

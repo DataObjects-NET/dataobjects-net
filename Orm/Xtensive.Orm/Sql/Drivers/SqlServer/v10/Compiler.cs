@@ -105,8 +105,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       case SqlFunctionType.DateTimeOffsetToLocalTime:
         DateTimeOffsetToLocalTime(node.Arguments[0]).AcceptVisitor(this);
         return;
-      case SqlFunctionType.UpgradeDateTimeToDateTimeOffset:
-        UpgradeDateTimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
+      case SqlFunctionType.DateTimeToDateTimeOffset:
+        DateTimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
         return;
       }
 
@@ -133,11 +133,15 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
     private static SqlExpression DateTimeOffsetTruncate(SqlExpression dateTimeOffset)
     {
-      return SqlDml.Cast(DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(dateTimeOffset,
-        -SqlDml.Extract(SqlDateTimeOffsetPart.Hour, dateTimeOffset)),
-        -SqlDml.Extract(SqlDateTimeOffsetPart.Minute, dateTimeOffset)),
-        -SqlDml.Extract(SqlDateTimeOffsetPart.Second, dateTimeOffset)),
-        -SqlDml.Extract(SqlDateTimeOffsetPart.Millisecond, dateTimeOffset)),
+      return SqlDml.Cast(
+        DateAddMillisecond(
+          DateAddSecond(
+            DateAddMinute(
+              DateAddHour(dateTimeOffset,
+                -SqlDml.Extract(SqlDateTimeOffsetPart.Hour, dateTimeOffset)),
+              -SqlDml.Extract(SqlDateTimeOffsetPart.Minute, dateTimeOffset)),
+            -SqlDml.Extract(SqlDateTimeOffsetPart.Second, dateTimeOffset)),
+          -SqlDml.Extract(SqlDateTimeOffsetPart.Millisecond, dateTimeOffset)),
         SqlType.DateTime);
     }
 
@@ -148,7 +152,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
     private static SqlExpression DateTimeOffsetPartOffset(SqlExpression dateTimeOffset)
     {
-      return SqlDml.DateTimeOffsetMinusDateTimeOffset(DateTimeOffsetTruncateOffset(dateTimeOffset), Switchoffset(dateTimeOffset, "+00:00"));
+      return SqlDml.DateTimeOffsetMinusDateTimeOffset(
+        DateTimeOffsetTruncateOffset(dateTimeOffset),
+        Switchoffset(dateTimeOffset, "+00:00"));
     }
 
     private static SqlExpression DateTimeOffsetTimeOfDay(SqlExpression dateTimeOffset)
@@ -156,7 +162,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       return SqlDml.Extract(SqlDateTimeOffsetPart.Hour, dateTimeOffset) * (60 * 60 * NanosecondsPerSecond)
         + SqlDml.Extract(SqlDateTimeOffsetPart.Minute, dateTimeOffset) * (60 * NanosecondsPerSecond)
         + SqlDml.Extract(SqlDateTimeOffsetPart.Second, dateTimeOffset) * NanosecondsPerSecond
-        +SqlDml.Extract(SqlDateTimeOffsetPart.Millisecond, dateTimeOffset) * NanosecondsPerMillisecond;
+        + SqlDml.Extract(SqlDateTimeOffsetPart.Millisecond, dateTimeOffset) * NanosecondsPerMillisecond;
     }
 
     private static SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression dateTimeOffset)
@@ -188,7 +194,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       return Switchoffset(dateTimeOffset, DateTimeOffsetTimeZoneInMinutes(SqlDml.Native("SYSDATETIMEOFFSET()")));
     }
 
-    private static SqlExpression UpgradeDateTimeToDateTimeOffset(SqlExpression dateTime)
+    private static SqlExpression DateTimeToDateTimeOffset(SqlExpression dateTime)
     {
       return SqlDml.FunctionCall("TODATETIMEOFFSET", dateTime, SqlDml.FunctionCall("DATEPART", SqlDml.Native("TZoffset"), SqlDml.Native("SYSDATETIMEOFFSET()")));
     }

@@ -745,10 +745,10 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToLocalTime, dateTimeOffset);
     }
 
-    public static SqlFunctionCall UpgradeDateTimeToDateTimeOffset(SqlExpression dateTime)
+    public static SqlFunctionCall DateTimeToDateTimeOffset(SqlExpression dateTime)
     {
       ArgumentValidator.EnsureArgumentNotNull(dateTime, "dateTime");
-      return new SqlFunctionCall(SqlFunctionType.UpgradeDateTimeToDateTimeOffset, dateTime);
+      return new SqlFunctionCall(SqlFunctionType.DateTimeToDateTimeOffset, dateTime);
     }
 
     #endregion

@@ -88,8 +88,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var domain = BuildInitialDomain())
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new V1.EntityWithDateTimeOffset
-        {
+        new V1.EntityWithDateTimeOffset {
           DateTimeOffset = dateTimeOffset,
           DateTime = dateTime
         };
@@ -104,8 +103,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
         var queryServerOffset =
           from t in session.Query.All<V2.EntityWithDateTimeOffsetUpgrade>()
-          group t by new
-                     {
+          group t by new {
                        ServerOffset = t.DateTime.ToLocalTime().Offset
                      };
         var resultQueryServerOffset = queryServerOffset.ToList().FirstOrDefault();
