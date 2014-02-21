@@ -77,7 +77,6 @@
     <Compile Include="Oracle\v10\ExceptionTypesTest.cs" />
     <Compile Include="Oracle\v10\ExtractorTest.cs" />
     <Compile Include="Oracle\v10\SavepointsTest.cs" />
-    <Compile Include="Oracle\v11\DateTimeOffsetTest.cs" />
     <Compile Include="Oracle\TypeMappingTest.cs" />
     <Compile Include="Oracle\v10\DateTimeIntervalTest.cs" />
     <Compile Include="Oracle\v10\TypeMappingTest.cs" />
