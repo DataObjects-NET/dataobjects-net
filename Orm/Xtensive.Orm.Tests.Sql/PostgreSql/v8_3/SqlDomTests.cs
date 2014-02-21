@@ -11,7 +11,8 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql.v8_3
   {
     protected override void CheckRequirements()
     {
-      Require.ProviderIs(StorageProvider.PostgreSql);
+      base.CheckRequirements();
+      Require.ProviderVersionAtLeast(StorageProviderVersion.PostgreSql83);
     }
   }
 }

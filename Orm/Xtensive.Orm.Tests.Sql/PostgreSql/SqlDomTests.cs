@@ -40,6 +40,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
     protected virtual void CheckRequirements()
     {
+      Require.ProviderIs(StorageProvider.PostgreSql);
     }
 
     [TestFixtureSetUp]

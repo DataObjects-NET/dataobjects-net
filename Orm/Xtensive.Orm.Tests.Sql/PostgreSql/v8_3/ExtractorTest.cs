@@ -13,6 +13,12 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql.v8_3
   [TestFixture]
   public class ExtractorTest : PostgreSql.ExtractorTest
   {
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.ProviderVersionAtLeast(StorageProviderVersion.PostgreSql83);
+    }
+
     [Test]
     public void FullTextIndexExtractorTest()
     {
