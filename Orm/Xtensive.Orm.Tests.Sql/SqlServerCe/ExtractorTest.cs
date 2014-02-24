@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServerCe
   [TestFixture, Explicit]
   public class ExtractorTest : SqlTest
   {
-    [Test, Ignore("Ignored due to Northwind")]
+    [Test]
     public void BaseTest()
     {
       var schema = ExtractDefaultSchema();
@@ -52,6 +52,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServerCe
       }
     }
 
-    protected override string Url { get { return TestUrl.SqlServerCe35Northwind; } }
+    protected override string Url { get { return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl.Url; } }
   }
 }
