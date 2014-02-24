@@ -49,6 +49,8 @@ namespace Xtensive.Orm.Upgrade
 
     private IEnumerable<StoredPartialIndexFilterInfo> GetPartialIndexes()
     {
+      if (!services.ProviderInfo.Supports(ProviderFeatures.PartialIndexes))
+        return Enumerable.Empty<StoredPartialIndexFilterInfo>();
       var metadata = context.Metadata;
       if (metadata==null)
         return Enumerable.Empty<StoredPartialIndexFilterInfo>();
@@ -67,6 +69,7 @@ namespace Xtensive.Orm.Upgrade
     public SchemaExtractor(UpgradeContext context, Session session)
     {
       this.context = context;
+
       services = context.Services;
       executor = session.Services.Demand<ISqlExecutor>();
     }

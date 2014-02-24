@@ -187,6 +187,8 @@ namespace Xtensive.Orm.Upgrade
 
     private ExtensionMetadata GetPartialIndexes(Domain domain, IEnumerable<TypeInfo> types)
     {
+      if (!domain.StorageProviderInfo.Supports(ProviderFeatures.PartialIndexes))
+        return null;
       var compiler = UpgradeContext.Services.IndexFilterCompiler;
       var handlers = domain.Handlers;
       var indexes = types
