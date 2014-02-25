@@ -130,8 +130,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\Xtensive.Orm.Tests.Framework\Connections.config">
-      <Link>Connections.config</Link>
+    <None Include="..\Xtensive.Orm.Tests.Framework\Orm.config">
+      <Link>Orm.config</Link>
     </None>
     <None Include="App.config" />
     <None Include="Sqlite\Northwind.sl3">
