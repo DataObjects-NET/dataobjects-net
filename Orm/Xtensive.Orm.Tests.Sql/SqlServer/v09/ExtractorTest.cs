@@ -16,22 +16,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
   [TestFixture]
   public class ExtractorTest : SqlTest
   {
-    protected override string Url { get { return TestUrl.SqlServer2005Aw; } }
+    protected override string Url { get { return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl.Url; } }
 
-    protected override void TestFixtureSetUp()
+    protected override void CheckRequirements()
     {
-      Ignore();
-      base.TestFixtureSetUp();
-    }
-
-    protected virtual void Ignore()
-    {
-      IgnoreMe();
-    }
-
-     void IgnoreMe()
-    {
-      throw new IgnoreException("temporary ignored due to AdventureWorks");
+      Require.ProviderIs(StorageProvider.SqlServer);
+      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2005);
     }
 
     [Test]

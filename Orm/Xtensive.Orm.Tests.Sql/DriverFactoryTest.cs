@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Sql
     [Test]
     public void ConnectionUrlTest()
     {
-      var url = UrlInfo.Parse(TestUrl.SqlServer2005Aw);
+      var url = UrlInfo.Parse("sqlserver://appserver/AdventureWorks?Connection Timeout=5");
       Assert.AreEqual(url.Protocol, "sqlserver");
       Assert.AreEqual(url.Host, "appserver");
       Assert.AreEqual(url.Resource, "AdventureWorks");

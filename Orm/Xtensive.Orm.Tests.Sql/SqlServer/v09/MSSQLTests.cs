@@ -88,8 +88,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
     [TestFixtureSetUp]
     public override void SetUp()
     {
-      IgnoreMe();
-      sqlDriver = TestSqlDriver.Create(TestUrl.SqlServer2005Aw);
+      base.SetUp();
+      sqlDriver = TestSqlDriver.Create(Url);
       sqlConnection = sqlDriver.CreateConnection();
 
       dbCommand = sqlConnection.CreateCommand();
@@ -794,7 +794,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
       string nativeSql = "SELECT s.Name "
         +"FROM AdventureWorks.Sales.Customer c "
           +"JOIN AdventureWorks.Sales.Store s "
-            +"ON c.CustomerID = S.CustomerID "
+            +"ON c.CustomerID = s.CustomerID "
               +"WHERE s.SalesPersonID IS NOT NULL "
                 +"ORDER BY s.Name";
 
@@ -947,7 +947,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
     {
       string nativeSql = "SELECT ProductID, Name "
         +"FROM AdventureWorks.Production.Product "
-          +"WHERE ProductSubCategoryID IN (12, 14, 16)";
+          +"WHERE ProductSubcategoryID IN (12, 14, 16)";
 
       SqlTableRef product = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
       SqlSelect select = SqlDml.Select(product);

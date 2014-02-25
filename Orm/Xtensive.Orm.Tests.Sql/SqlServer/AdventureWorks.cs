@@ -78,12 +78,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       return result;
     }
 
+    protected string Url { get { return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl.Url; } }
     public Catalog Catalog { get; protected set; }
-
-    protected void IgnoreMe()
-    {
-      throw new IgnoreException("temporary ignored due to AdventureWorks");
-    }
 
     protected virtual void CheckRequirements()
     {
@@ -93,7 +89,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [TestFixtureSetUp]
     public virtual void SetUp()
     {
-      IgnoreMe();
+      CheckRequirements();
+      var driver = TestSqlDriver.Create(Url);
+      using (var connection = driver.CreateConnection())
+      {
+        connection.Open();
+        Catalog = driver.ExtractCatalog(connection);
+        connection.Close();
+      }
 //      BinaryModelProvider bmp = new BinaryModelProvider(@"C:/Debug/AdventureWorks.bin");
 //      model = Database.Model.Build(bmp);
 //

@@ -9,10 +9,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v10
       get { return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl.Url; }
     }
 
-    protected override void Ignore()
-    {
-    }
-
     protected override void CheckRequirements()
     {
       Require.ProviderIs(StorageProvider.SqlServer);

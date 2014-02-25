@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer.v09
     {
       base.SetUp();
 
-      sqlDriver = TestSqlDriver.Create(TestUrl.SqlServer2005Aw);
+      sqlDriver = TestSqlDriver.Create(Url);
       sqlConnection = sqlDriver.CreateConnection();
       sqlCommand = sqlConnection.CreateCommand();
       try {
