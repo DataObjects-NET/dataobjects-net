@@ -19,7 +19,12 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite.v3
   {
     protected override string Url
     {
-      get { return TestUrl.Sqlite3; }
+      get { return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl.Url; }
+    }
+
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Sqlite);
     }
   }
 }
