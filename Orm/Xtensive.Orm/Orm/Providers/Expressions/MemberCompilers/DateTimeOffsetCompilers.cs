@@ -14,8 +14,6 @@ namespace Xtensive.Orm.Providers
   [CompilerContainer(typeof (SqlExpression))]
   internal static class DateTimeOffsetCompilers
   {
-    private static int maxValueTimeZoneOffsetInMinutes = 840; //14*60 
-
     #region Extractors
 
     [Compiler(typeof (DateTimeOffset), "Year", TargetKind.PropertyGet)]
@@ -137,16 +135,7 @@ namespace Xtensive.Orm.Providers
     public static SqlExpression DateTimeOffsetCtor(
       [Type(typeof (DateTime))] SqlExpression dateTime)
     {
-      var dateTimeValue = dateTime as SqlLiteral<DateTime>;
-
-      TimeSpan offset = dateTimeValue.Value.Kind==DateTimeKind.Utc ? new TimeSpan(0L) : (dateTimeValue.Value - dateTimeValue.Value.ToUniversalTime());
-      SqlExpression offsetInMinutes = OffsetInMinutes(offset);
-
-      return SqlDml.DateTimeOffsetConstruct(
-        DateTimeOffsetYear(dateTime),
-        DateTimeOffsetMonth(dateTime),
-        DateTimeOffsetDay(dateTime),
-        offsetInMinutes);
+      return SqlDml.DateTimeToDateTimeOffset(dateTime);
     }
 
     [Compiler(typeof (DateTimeOffset), null, TargetKind.Constructor)]
@@ -157,13 +146,13 @@ namespace Xtensive.Orm.Providers
       SqlExpression offsetInMinutes = OffsetInMinutes(offset);
 
       return DateTimeOffsetConstruct(
-        DateTimeOffsetYear(dateTime),
-        DateTimeOffsetMonth(dateTime),
-        DateTimeOffsetDay(dateTime),
-        DateTimeOffsetHour(dateTime),
-        DateTimeOffsetMinute(dateTime),
-        DateTimeOffsetSecond(dateTime),
-        DateTimeOffsetMillisecond(dateTime),
+        DateTimeCompilers.DateTimeYear(dateTime),
+        DateTimeCompilers.DateTimeMonth(dateTime),
+        DateTimeCompilers.DateTimeDay(dateTime),
+        DateTimeCompilers.DateTimeHour(dateTime),
+        DateTimeCompilers.DateTimeMinute(dateTime),
+        DateTimeCompilers.DateTimeSecond(dateTime),
+        DateTimeCompilers.DateTimeMillisecond(dateTime),
         offsetInMinutes);
     }
 
@@ -218,12 +207,7 @@ namespace Xtensive.Orm.Providers
 
     private static SqlExpression OffsetInMinutes(SqlExpression offset)
     {
-      SqlExpression offsetInMinutes = TimeSpanCompilers.TimeSpanTotalMinutes(offset);
-
-      if ((offsetInMinutes < -maxValueTimeZoneOffsetInMinutes) || (offsetInMinutes > maxValueTimeZoneOffsetInMinutes))
-        throw new ArgumentException("Input value time zone offset is invalid. Time zone offset range should be in the range of -14:00 to +14:00.");
-
-      return offsetInMinutes;
+      return TimeSpanCompilers.TimeSpanTotalMinutes(offset);
     }
 
     #region Operators
