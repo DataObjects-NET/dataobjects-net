@@ -73,9 +73,26 @@ namespace Xtensive.Orm.Building.Builders
 
     private static Assembly LoadExtensionAssembly(string extensionAssemblyName)
     {
-      var mainAssemblyRef = typeof (ProviderDescriptor).Assembly.GetName();
+      var mainAssembly = typeof (ProviderDescriptor).Assembly;
+      var mainAssemblyRef = mainAssembly.GetName();
       var extensionAssemblyFullName = mainAssemblyRef.FullName.Replace(mainAssemblyRef.Name, extensionAssemblyName);
-      return Assembly.Load(extensionAssemblyFullName);
+      var extensionAssembly = Assembly.Load(extensionAssemblyFullName);
+      var mainAssemblyVersion = GetInformationalVersion(mainAssembly);
+      var extensionAssemblyVersion = GetInformationalVersion(extensionAssembly);
+      if (mainAssemblyVersion!=extensionAssemblyVersion)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExAssemblyVersionMismatchMainAssemblyXYExtensionsAssemblyAB,
+          mainAssemblyRef.Name, mainAssemblyVersion,
+          extensionAssemblyName, extensionAssemblyVersion));
+      return extensionAssembly;
+    }
+
+    private static string GetInformationalVersion(Assembly assembly)
+    {
+      var attributes = assembly.GetCustomAttributes(typeof (AssemblyInformationalVersionAttribute), false);
+      if (attributes.Length < 1)
+        return null;
+      return ((AssemblyInformationalVersionAttribute) attributes[0]).InformationalVersion;
     }
 
     // Constructors
