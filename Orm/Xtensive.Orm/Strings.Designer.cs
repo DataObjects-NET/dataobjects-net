@@ -660,7 +660,7 @@ namespace Xtensive {
         /// </summary>
         internal static string ExAssemblyVersionMismatchMainAssemblyXYExtensionsAssemblyAB {
             get {
-                return ResourceManager.GetString("ExAssemblyVersionMispatchMainAssemblyXYExtensionsAssemblyAB", resourceCulture);
+                return ResourceManager.GetString("ExAssemblyVersionMismatchMainAssemblyXYExtensionsAssemblyAB", resourceCulture);
             }
         }
         
