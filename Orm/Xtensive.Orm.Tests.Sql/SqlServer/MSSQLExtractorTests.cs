@@ -45,9 +45,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
   }
 
-  public abstract class MSSQLExtractorTestBase
+  public abstract class MSSQLExtractorTestBase : SqlTest
   {
-    private readonly string connectionUrl = TestConnectionInfoProvider.GetCurrentConnectionUrl();
     private bool isTestsIgnored = true;
 
     public virtual string CleanUpScript
@@ -55,65 +54,29 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       get { return null; }
     }
 
-    protected SqlConnection CreateConnection()
-    {
-      var driver = TestSqlDriver.Create(connectionUrl);
-      var connection = driver.CreateConnection();
-      connection.Open();
-      return connection;
-    }
-
-    protected void ExecuteQuery(string sqlQuery, SqlConnection connection)
-    {
-      DbCommand command = connection.CreateCommand();
-      command.CommandText = sqlQuery;
-      command.ExecuteNonQuery();
-    }
-
     protected void ExecuteQuery(string sqlQuery)
     {
       if (string.IsNullOrEmpty(sqlQuery))
         return;
-      using (SqlConnection connection = CreateConnection()) {
-        ExecuteQuery(sqlQuery, connection);
-      }
+      ExecuteNonQuery(sqlQuery);
     }
-
-    protected virtual Catalog ExtractModel()
+    
+    protected override void TestFixtureSetUp()
     {
-      var driver = TestSqlDriver.Create(connectionUrl);
-      using (var connection = driver.CreateConnection()) {
-        connection.Open();
-        try {
-          connection.BeginTransaction();
-          var result = driver.ExtractCatalog(connection);
-          connection.Commit();
-          return result;
-        }
-        catch {
-          connection.Rollback();
-          throw;
-        }
-      }
-    }
-
-    [TestFixtureSetUp]
-    protected virtual void SetUp()
-    {
-      CheckRequirements();
+      base.TestFixtureSetUp();
       isTestsIgnored = false;
     }
 
-    protected virtual void CheckRequirements()
+    protected override void TestFixtureTearDown()
     {
-      Require.ProviderIs(StorageProvider.SqlServer);
+      if (!isTestsIgnored)
+        ExecuteQuery(CleanUpScript);
+      base.TestFixtureTearDown();
     }
 
-    [TestFixtureTearDown]
-    public virtual void TearDown()
+    protected override void CheckRequirements()
     {
-      if(!isTestsIgnored)
-        ExecuteQuery(CleanUpScript);
+      Require.ProviderIs(StorageProvider.SqlServer);
     }
   }
 
@@ -147,7 +110,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         "\n create table role3.table3(test int, test2 int, test3 int)" +
         "\n create table role3.table31(test int, test2 int, test3 int)");
 
-      var model = ExtractModel();
+      var model = ExtractCatalog();
 
       // Validating.
       Assert.IsNotNull(model.Schemas["role1"]);
@@ -213,7 +176,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         "[varbinary_l150] [varbinary] (150) NULL ," +
         "[varchar_l50] [varchar] (50) COLLATE Cyrillic_General_CI_AS NULL)";
       ExecuteQuery(createTableQuery);
-      var model = ExtractModel();
+      var model = ExtractCatalog();
 
       Table table = model.DefaultSchema.Tables["dataTypesTestTable"];
       Assert.IsTrue(table.TableColumns["int_l4"].DataType.Type==SqlType.Int32);
@@ -289,7 +252,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         "CREATE VIEW role1.view2 " +
         "\n as Select column1, column2 From role1.table1");
 
-      var model = ExtractModel();
+      var model = ExtractCatalog();
       Schema schema = model.Schemas["role1"];
 
       Assert.IsNotNull(schema);
@@ -346,7 +309,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       ExecuteQuery(query);
 
 
-      var model = ExtractModel();
+      var model = ExtractCatalog();
       Schema schema = model.DefaultSchema;
 
       // Validating.
@@ -402,7 +365,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         "\n CONSTRAINT A_UNIQUE_1 UNIQUE(col_11,col_12,col_13)," +
         "\n CONSTRAINT A_UNIQUE_2 UNIQUE(col_21,col_22,col_23))");
 
-      var model = ExtractModel();
+      var model = ExtractCatalog();
       Schema schema = model.DefaultSchema;
 
       // Validating.
@@ -441,7 +404,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         "\n create unique index table1_index_with_included_columns on table1 (column1 asc)" +
         "\n include (column2)");
 
-      var model = ExtractModel();
+      var model = ExtractCatalog();
       Schema schema = model.DefaultSchema;
 
       Assert.IsTrue(schema.Tables["table1"]!=null);
@@ -495,7 +458,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         "\n create table schema3.table31(test int, test2 int, test3 int)";
       ExecuteQuery(createTablesSql);
 
-      var model = ExtractModel();
+      var model = ExtractCatalog();
 
       // Validating.
       Assert.IsNotNull(model.Schemas["schema1"]);
@@ -582,7 +545,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         "\n Constraint [A_FK_1] Foreign key(b_id) references B(b_id) ON DELETE SET NULL ," +
         "\n Constraint [A_FK_2] Foreign key(b_id_1) references B2(b_id_1) ON DELETE SET DEFAULT" +
         "\n )");
-      var model = ExtractModel();
+      var model = ExtractCatalog();
       Schema schema = model.DefaultSchema;
       Assert.IsTrue(((ForeignKey) schema.Tables["A"].TableConstraints["A_FK_1"]).OnDelete==ReferentialAction.SetNull);
       Assert.IsTrue(((ForeignKey) schema.Tables["A"].TableConstraints["A_FK_2"]).OnDelete==ReferentialAction.SetDefault);
@@ -610,8 +573,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
     public void Main()
     {
-      SqlConnection connection = CreateConnection();
-      ExecuteQuery("USE master;", connection);
+      ExecuteQuery("USE master;");
       string createTestDatabaseSql = @"-- Get the SQL Server data path
       DECLARE @data_path nvarchar(256);
       SET @data_path = (SELECT SUBSTRING(physical_name, 1, CHARINDEX(N'master.mdf', LOWER(physical_name)) - 1)
@@ -671,13 +633,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
           MAXSIZE = 25MB,
           FILEGROWTH = 5MB )'
       );";
-      ExecuteQuery(createTestDatabaseSql, connection);
+      ExecuteQuery(createTestDatabaseSql);
       ExecuteQuery("use MSSQL2005Extr_PartitionsTest");
 
       // Create partition function.
       ExecuteQuery(
         "CREATE PARTITION FUNCTION MSSQL2005Extr_PartitionsTest_PFA_LEFT_1_20_30_40 (int)" +
-        "\n AS RANGE LEFT FOR VALUES (500);", connection);
+        "\n AS RANGE LEFT FOR VALUES (500);");
 
       // Create partition scheme.
       ExecuteQuery(
@@ -685,19 +647,18 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         "\n AS PARTITION MSSQL2005Extr_PartitionsTest_PFA_LEFT_1_20_30_40" +
         "\n TO ( " +
         "\n MSSQL2005Extr_PartitionsTest_FG1, " +
-        "\n MSSQL2005Extr_PartitionsTest_FG2);"
-        , connection);
+        "\n MSSQL2005Extr_PartitionsTest_FG2);");
 
       // Create partitioned tables
       ExecuteQuery(
         "CREATE TABLE MSSQL2005Extr_PartitionsTest_Table (col1 int, col2 char(10))" +
-        "\n ON MSSQL2005Extr_PartitionsTest_PFA_Schema (col1)", connection);
+        "\n ON MSSQL2005Extr_PartitionsTest_PFA_Schema (col1)");
 
       ExecuteQuery(
         "CREATE TABLE MSSQL2005Extr_PartitionsTest_Table2 (col1 int, col2 int)" +
         "ON MSSQL2005Extr_PartitionsTest_PFA_Schema (col2) ;");
 
-      var model = ExtractModel();
+      var model = ExtractCatalog();
       Schema schema = model.DefaultSchema;
 
       Assert.IsNotNull(schema.Tables["MSSQL2005Extr_PartitionsTest_Table"].PartitionDescriptor);
