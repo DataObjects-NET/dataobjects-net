@@ -48,6 +48,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SqlServer\DateTimeOffsetTest.cs" />
     <Compile Include="TestConnectionInfoProvider.cs" />
     <Compile Include="CloneTests.cs" />
     <Compile Include="CollectionTest.cs" />
@@ -60,68 +61,55 @@
     <Compile Include="Firebird\SavepointTest.cs" />
     <Compile Include="Firebird\TestHelpers.cs" />
     <Compile Include="Firebird\TypeMappingTest.cs" />
-    <Compile Include="Firebird\v2_5\DateTimeIntervalTest.cs" />
-    <Compile Include="Firebird\v2_5\ExceptionTypesTest.cs" />
-    <Compile Include="Firebird\v2_5\ExtractorTest.cs" />
-    <Compile Include="Firebird\v2_5\IndexTest.cs" />
-    <Compile Include="Firebird\v2_5\SavepointsTest.cs" />
-    <Compile Include="Firebird\v2_5\TypeMappingTest.cs" />
     <Compile Include="IndexTest.cs" />
     <Compile Include="MySQL\Sakila.cs" />
-    <Compile Include="MySQL\v5_0\DateTimeIntervalTests.cs" />
-    <Compile Include="MySQL\v5_0\ExtractorTest.cs" />
-    <Compile Include="MySQL\v5_0\MiscTests.cs" />
-    <Compile Include="MySQL\v5_0\SakilaExtractorTest.cs" />
-    <Compile Include="MySQL\v5_0\TypeMappingTests.cs" />
+    <Compile Include="MySQL\DateTimeIntervalTests.cs" />
+    <Compile Include="MySQL\ExtractorTest.cs" />
+    <Compile Include="MySQL\MiscTests.cs" />
+    <Compile Include="MySQL\SakilaExtractorTest.cs" />
+    <Compile Include="MySQL\TypeMappingTests.cs" />
     <Compile Include="Oracle\ExtractorTest.cs" />
-    <Compile Include="Oracle\v10\DateTimeOffsetTest.cs" />
-    <Compile Include="Oracle\v10\ExceptionTypesTest.cs" />
-    <Compile Include="Oracle\v10\ExtractorTest.cs" />
-    <Compile Include="Oracle\v10\SavepointsTest.cs" />
+    <Compile Include="Oracle\DateTimeOffsetTest.cs" />
+    <Compile Include="Oracle\ExceptionTypesTest.cs" />
+    <Compile Include="Oracle\SavepointsTest.cs" />
     <Compile Include="Oracle\TypeMappingTest.cs" />
-    <Compile Include="Oracle\v10\DateTimeIntervalTest.cs" />
-    <Compile Include="Oracle\v10\TypeMappingTest.cs" />
-    <Compile Include="Oracle\v10\UberTest.cs" />
+    <Compile Include="Oracle\DateTimeIntervalTest.cs" />
     <Compile Include="PostgreSql\ExtractorTest.cs" />
-    <Compile Include="PostgreSql\v8_3\ExceptionTypesTest.cs" />
-    <Compile Include="PostgreSql\v8_3\ExtractorTest.cs" />
-    <Compile Include="PostgreSql\v8_3\IndexTest.cs" />
-    <Compile Include="PostgreSql\v8_3\SavepointsTest.cs" />
+    <Compile Include="PostgreSql\ExceptionTypesTest.cs" />
+    <Compile Include="PostgreSql\IndexTest.cs" />
+    <Compile Include="PostgreSql\SavepointsTest.cs" />
     <Compile Include="SavepointsTest.cs" />
     <Compile Include="Sqlite\ExtractorTest.cs" />
     <Compile Include="Sqlite\Northwind.cs" />
-    <Compile Include="Sqlite\v3\DateTimeIntervalTests.cs" />
-    <Compile Include="Sqlite\v3\MiscTests.cs" />
-    <Compile Include="Sqlite\v3\NorthwindTest.cs" />
-    <Compile Include="Sqlite\v3\TypeMappingTests.cs" />
+    <Compile Include="Sqlite\DateTimeIntervalTests.cs" />
+    <Compile Include="Sqlite\MiscTests.cs" />
+    <Compile Include="Sqlite\NorthwindTest.cs" />
+    <Compile Include="Sqlite\TypeMappingTests.cs" />
     <Compile Include="SqlServerCe\DateTimeIntervalTest.cs" />
     <Compile Include="SqlServerCe\ExceptionTypesTest.cs" />
     <Compile Include="SqlServerCe\ExtractorTest.cs" />
     <Compile Include="SqlServerCe\TypeMappingTest.cs" />
     <Compile Include="SqlServer\ErrorMessageParserTest.cs" />
-    <Compile Include="SqlServer\v09\ExceptionTypesTest.cs" />
-    <Compile Include="SqlServer\v09\IndexTest.cs" />
-    <Compile Include="SqlServer\v09\SavepointsTest.cs" />
-    <Compile Include="SqlServer\v09\TypeMappingTest.cs" />
-    <Compile Include="PostgreSql\v8_3\TypeMappingTest.cs" />
-    <Compile Include="SqlServer\v10\DateTimeOffsetTest.cs" />
-    <Compile Include="SqlServer\v10\ExtractorTest.cs" />
+    <Compile Include="SqlServer\ExceptionTypesTest.cs" />
+    <Compile Include="SqlServer\IndexTest.cs" />
+    <Compile Include="SqlServer\SavepointsTest.cs" />
+    <Compile Include="SqlServer\TypeMappingTest.cs" />
+    <Compile Include="PostgreSql\TypeMappingTest.cs" />
     <Compile Include="SqlTest.cs" />
     <Compile Include="TestConnectionString.cs" />
     <Compile Include="TypeMappingTest.cs" />
     <Compile Include="DriverFactoryTest.cs" />
     <Compile Include="DateTimeIntervalTest.cs" />
     <Compile Include="SqlServer\AdventureWorks.cs" />
-    <Compile Include="SqlServer\v09\CompilerTests.cs" />
-    <Compile Include="SqlServer\v09\DateTimeIntervalTest.cs" />
-    <Compile Include="SqlServer\v09\ExtractorTest.cs" />
-    <Compile Include="SqlServer\v09\MiscTests.cs" />
-    <Compile Include="SqlServer\v09\MSSQLExtractorTests.cs" />
-    <Compile Include="SqlServer\v09\MSSQLTests.cs" />
+    <Compile Include="SqlServer\CompilerTests.cs" />
+    <Compile Include="SqlServer\DateTimeIntervalTest.cs" />
+    <Compile Include="SqlServer\ExtractorTest.cs" />
+    <Compile Include="SqlServer\MiscTests.cs" />
+    <Compile Include="SqlServer\MSSQLExtractorTests.cs" />
+    <Compile Include="SqlServer\MSSQLTests.cs" />
     <Compile Include="PostgreSql\CatalogComparer.cs" />
     <Compile Include="PostgreSql\SqlDomTests.cs" />
-    <Compile Include="PostgreSql\v8_3\DateTimeIntervalTest.cs" />
-    <Compile Include="PostgreSql\v8_3\SqlDomTests.cs" />
+    <Compile Include="PostgreSql\DateTimeIntervalTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReplaceTests.cs" />
     <Compile Include="Oracle\UberTest.cs" />
@@ -158,9 +146,7 @@
     <Content Include="Sqlite\history.sql" />
     <Content Include="Sqlite\Northwind.Sqlite3.sql" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Oracle\v11\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj">
       <Project>{F2CE47F7-8170-4FC4-B619-D32E6398D4F9}</Project>

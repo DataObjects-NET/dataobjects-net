@@ -9,7 +9,7 @@ using System;
 
 namespace Xtensive.Orm.Tests.Sql.Firebird
 {
-  public abstract class ExtractorTest : SqlTest
+  public class ExtractorTest : SqlTest
   {
     [Test]
     public void BaseTest()

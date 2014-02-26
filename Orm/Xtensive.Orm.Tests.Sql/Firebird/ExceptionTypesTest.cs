@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Sql.Firebird
 {
-  public abstract class ExceptionTypesTest : Sql.ExceptionTypesTest
+  public class ExceptionTypesTest : Sql.ExceptionTypesTest
   {
     public override void SetUp()
     {

@@ -13,7 +13,8 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql.Oracle
 {
-  public abstract class UberTest : SqlTest
+  [TestFixture, Explicit]
+  public class UberTest : SqlTest
   {
     private const string BatchTestTable = "batch_test";
     private const string LobTestTable = "lob_test";

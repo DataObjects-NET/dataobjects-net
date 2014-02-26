@@ -9,7 +9,7 @@ using System;
 
 namespace Xtensive.Orm.Tests.Sql.Firebird
 {
-  public abstract class SavepointTest : SavepointsTest
+  public class SavepointTest : SavepointsTest
   {
     public override void SetUp()
     {

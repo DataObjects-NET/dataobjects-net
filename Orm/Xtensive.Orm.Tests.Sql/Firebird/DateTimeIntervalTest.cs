@@ -6,7 +6,7 @@
 
 namespace Xtensive.Orm.Tests.Sql.Firebird
 {
-  public abstract class DateTimeIntervalTest : Sql.DateTimeIntervalTest
+  public class DateTimeIntervalTest : Sql.DateTimeIntervalTest
   {
     public override void SetUp()
     {

@@ -18,7 +18,7 @@ using UniqueConstraint=Xtensive.Sql.Model.UniqueConstraint;
 namespace Xtensive.Orm.Tests.Sql.PostgreSql
 {
   [TestFixture, Explicit]
-  public abstract class SqlDomTests
+  public class SqlDomTests
   {
     private UrlInfo connectionUrl = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl;
 

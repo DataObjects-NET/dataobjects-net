@@ -1,32 +1,22 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Csaba Beer
-// Created:    2011.01.24
+// Created by: Dmitri Maximov
+// Created:    2009.08.31
 
+using System;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Orm.Tests.Sql.Firebird
+namespace Xtensive.Orm.Tests.Sql.PostgreSql
 {
   public class IndexTest : Sql.IndexTest
   {
-    public override void SetUp()
+    protected override void CheckRequirements()
     {
-      TestHelpers.StartTraceToLogFile(this);
-      base.SetUp();
-      // hack because Visual Nunit doesn't use TestFixtureSetUp attribute, just SetUp attribute
-      RealTestFixtureSetUp();
-    }
-
-    public override void TearDown()
-    {
-      base.TearDown();
-      // hack because Visual Nunit doesn't use TestFixtureTearDown attribute, just TearDown attribute
-      RealTestFixtureTearDown();
-      TestHelpers.StopTraceToLogFile(this);
+      Require.ProviderIs(StorageProvider.PostgreSql);
     }
 
     protected override void CreateTable()
@@ -38,11 +28,6 @@ namespace Xtensive.Orm.Tests.Sql.Firebird
       ExecuteNonQuery(SqlDdl.Create(t));
     }
 
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.Firebird);
-    }
-
     [Test]
     public override void CreateExpressionIndexTest()
     {
@@ -50,7 +35,10 @@ namespace Xtensive.Orm.Tests.Sql.Firebird
       var t = schema.Tables[TableName];
       var i = t.CreateIndex(ExpressionIndexName);
       var tr = SqlDml.TableRef(t);
+      i.CreateIndexColumn(tr["first"]);
+      i.CreateIndexColumn(tr["second"]);
       i.CreateIndexColumn(SqlDml.Concat(tr["first"], " ", tr["second"]));
+      i.CreateIndexColumn(SqlDml.Concat(tr["second"], " ", tr["first"]));
       ExecuteNonQuery(SqlDdl.Create(i));
 
       // Extracting index and checking its properties
@@ -59,15 +47,11 @@ namespace Xtensive.Orm.Tests.Sql.Firebird
       var t2 = s2.Tables[TableName];
       var i2 = t2.Indexes[ExpressionIndexName];
       Assert.IsNotNull(i2);
-      Assert.AreEqual(1, i2.Columns.Count);
+      Assert.AreEqual(4, i2.Columns.Count);
 
-      Assert.IsTrue(!i2.Columns[0].Expression.IsNullReference());
+      Assert.IsTrue(!i2.Columns[2].Expression.IsNullReference());
+      Assert.IsTrue(!i2.Columns[3].Expression.IsNullReference());
     }
 
-    [Test, Ignore("Test is not implemented")]
-    public override void CreateFilteredIndexTest()
-    {
-    }
   }
 }
-

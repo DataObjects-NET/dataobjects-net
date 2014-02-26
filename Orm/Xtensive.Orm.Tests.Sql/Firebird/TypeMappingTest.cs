@@ -8,13 +8,14 @@ using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Sql.Firebird
 {
-  public abstract class TypeMappingTest : Sql.TypeMappingTest
+  public class TypeMappingTest : Sql.TypeMappingTest
   {
     public override void SetUp()
     {
       base.SetUp();
       // hack because Visual Nunit doesn't use TestFixtureSetUp attribute, just SetUp attribute
       RealTestFixtureSetUp();
+      TestHelpers.StartTraceToLogFile(this);
     }
 
     public override void TearDown()
@@ -22,6 +23,7 @@ namespace Xtensive.Orm.Tests.Sql.Firebird
       base.TearDown();
       // hack because Visual Nunit doesn't use TestFixtureTearDown attribute, just TearDown attribute
       RealTestFixtureTearDown();
+      TestHelpers.StopTraceToLogFile(this);
     }
 
     protected override void CheckEquality(object expected, object actual)
