@@ -96,7 +96,6 @@
     <Compile Include="SqlServer\TypeMappingTest.cs" />
     <Compile Include="PostgreSql\TypeMappingTest.cs" />
     <Compile Include="SqlTest.cs" />
-    <Compile Include="TestConnectionString.cs" />
     <Compile Include="TypeMappingTest.cs" />
     <Compile Include="DriverFactoryTest.cs" />
     <Compile Include="DateTimeIntervalTest.cs" />
