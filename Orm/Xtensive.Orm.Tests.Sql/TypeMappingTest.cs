@@ -244,6 +244,13 @@ namespace Xtensive.Orm.Tests.Sql
             new [] {byte.MinValue, byte.MaxValue},
             null,
           };
+      if (type==typeof(DateTimeOffset))
+        return new object[] {
+                              new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0)),
+                              new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 11, 0)),
+                              new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(3, 10, 0)),
+                              null
+                            };
       throw new ArgumentOutOfRangeException();
     }
 
