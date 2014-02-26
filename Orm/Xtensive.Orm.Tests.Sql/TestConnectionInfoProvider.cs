@@ -8,22 +8,22 @@ namespace Xtensive.Orm.Tests.Sql
 {
   public sealed class TestConnectionInfoProvider
   {
-    public static string GetCurrentConnectionUrl()
+    public static string GetConnectionUrl()
     {
-      return GetCurrentConnectionInfo().ConnectionUrl.Url;
+      return GetConnectionInfo().ConnectionUrl.Url;
     }
 
-    public static string GetCurrentConnectionProvider()
+    public static string GetProvider()
     {
-      return GetCurrentConnectionInfo().Provider;
+      return GetConnectionInfo().Provider;
     }
 
-    public static string GetCurrentConnectionString()
+    public static string GetConnectionString()
     {
       return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage+"cs").ConnectionString; 
     }
 
-    public static ConnectionInfo GetCurrentConnectionInfo()
+    public static ConnectionInfo GetConnectionInfo()
     {
       return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage);
     }

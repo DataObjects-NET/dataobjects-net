@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
   public abstract class Sakila
   {
     private readonly string sakilaDataBackupPath = Environment.CurrentDirectory + @"\MySQL\SakilaDb\sakila-data.sql";
-    protected ConnectionInfo ConnectionInfo = TestConnectionInfoProvider.GetCurrentConnectionInfo();
+    protected ConnectionInfo ConnectionInfo = TestConnectionInfoProvider.GetConnectionInfo();
     protected SqlDriver SqlDriver;
     protected SqlConnection SqlConnection;
 

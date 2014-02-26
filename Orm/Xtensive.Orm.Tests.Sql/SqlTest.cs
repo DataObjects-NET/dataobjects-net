@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Tests.Sql
   {
     protected string Url
     {
-      get { return TestConnectionInfoProvider.GetCurrentConnectionUrl(); }
+      get { return TestConnectionInfoProvider.GetConnectionUrl(); }
     }
 
     protected SqlConnection Connection { get; private set; }

@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       return result;
     }
 
-    protected string Url { get { return TestConnectionInfoProvider.GetCurrentConnectionUrl(); } }
+    protected string Url { get { return TestConnectionInfoProvider.GetConnectionUrl(); } }
     public Catalog Catalog { get; protected set; }
 
     protected virtual void CheckRequirements()

@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
   {
     protected UrlInfo ConnectionUrlInfo
     {
-      get { return TestConnectionInfoProvider.GetCurrentConnectionInfo().ConnectionUrl; }
+      get { return TestConnectionInfoProvider.GetConnectionInfo().ConnectionUrl; }
     }
 
     protected string Url
