@@ -14,6 +14,7 @@
     <SkipPostSharp>true</SkipPostSharp>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net35-Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
