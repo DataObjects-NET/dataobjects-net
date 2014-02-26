@@ -92,6 +92,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void ExtractUDTTest()
     {
+      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2008);
       string create = "CREATE TYPE GuidList AS TABLE ( Id UNIQUEIDENTIFIER NULL )";
       string drop = "if type_id('GuidList') is not null drop type GuidList";
 
