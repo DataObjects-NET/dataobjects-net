@@ -304,6 +304,12 @@ namespace Xtensive.Orm.Tests.Issues
     #endregion
 
     [Test]
+    public void ToUniversalTimeTest()
+    {
+      RunAllTests(e => e.Today.ToUniversalTime()==today.ToUniversalTime());
+    }
+
+    [Test]
     public void ToLocalTimeTest()
     {
       using (var session = Domain.OpenSession())

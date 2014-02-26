@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateTimeOffsetTruncateTest()
     {
       CheckEquality(
-        SqlDml.DateTimeOffsetTruncate(new DateTimeOffset(2005, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
+        SqlDml.Extract(SqlDateTimeOffsetPart.Date, new DateTimeOffset(2005, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
         new DateTime(2005, 1, 1, 0, 0, 0, 0));
     }
 
@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateTimeOffsetToDateTimeTest()
     {
       CheckEquality(
-        SqlDml.DateTimeOffsetToDateTime(new DateTimeOffset(2005, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
+        SqlDml.Extract(SqlDateTimeOffsetPart.DateTime, new DateTimeOffset(2005, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
         new DateTime(2005, 1, 1, 1, 1, 1, 1));
     }
 
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateTimeOffsetPartOffsetTest()
     {
       CheckEquality(
-        SqlDml.DateTimeOffsetPartOffset(new DateTimeOffset(2005, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
+        SqlDml.Extract(SqlDateTimeOffsetPart.Offset, new DateTimeOffset(2005, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
         new TimeSpan(4, 10, 0));
     }
 
@@ -139,8 +139,16 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateTimeOffsetToUtcDateTimeTest()
     {
       CheckEquality(
-        SqlDml.DateTimeOffsetToUtcDateTime(new DateTimeOffset(2005, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
+        SqlDml.Extract(SqlDateTimeOffsetPart.UtcDateTime, new DateTimeOffset(2005, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
         new DateTime(2004, 12, 31, 20, 51, 1, 1));
+    }
+
+    [Test]
+    public virtual void DateTimeOffsetToUtcTimeTest()
+    {
+      CheckEquality(
+        SqlDml.DateTimeOffsetToUtcTime(new DateTimeOffset(2005, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
+        new DateTimeOffset(2004, 12, 31, 20, 51, 1, 1, new TimeSpan(0, 0, 0)));
     }
 
     private void CheckEquality(SqlExpression left, SqlExpression right)

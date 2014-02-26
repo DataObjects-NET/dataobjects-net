@@ -703,46 +703,22 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetAddMonths, source, months);
     }
 
-    public static SqlFunctionCall DateTimeOffsetTruncate(SqlExpression source)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetTruncate, source);
-    }
-
-    public static SqlFunctionCall DateTimeOffsetToDateTime(SqlExpression source)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToDateTime, source);
-    }
-
     public static SqlFunctionCall DateTimeOffsetTimeOfDay(SqlExpression dateTimeOffset)
     {
       ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, "dateTimeOffset");
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetTimeOfDay, dateTimeOffset);
     }
 
-    public static SqlFunctionCall DateTimeOffsetPartOffset(SqlExpression dateTimeOffset)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, "dateTimeOffset");
-      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetPartOffset, dateTimeOffset);
-    }
-
-    public static SqlFunctionCall DateTimeOffsetToUtcDateTime(SqlExpression dateTimeOffset)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, "dateTimeOffset");
-      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToUtcDateTime, dateTimeOffset);
-    }
-
-    public static SqlFunctionCall DateTimeOffsetLocalDateTime(SqlExpression dateTimeOffset)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, "dateTimeOffset");
-      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToLocalDateTime, dateTimeOffset);
-    }
-
     public static SqlFunctionCall DateTimeOffsetToLocalTime(SqlExpression dateTimeOffset)
     {
       ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, "dateTimeOffset");
       return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToLocalTime, dateTimeOffset);
+    }
+
+    public static SqlFunctionCall DateTimeOffsetToUtcTime(SqlExpression dateTimeOffset)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dateTimeOffset, "dateTimeOffset");
+      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetToUtcTime, dateTimeOffset);
     }
 
     public static SqlFunctionCall DateTimeToDateTimeOffset(SqlExpression dateTime)

@@ -76,13 +76,9 @@ namespace Xtensive.Sql.Dml
     DateTimeOffsetConstruct,
     DateTimeOffsetAddYears,
     DateTimeOffsetAddMonths,
-    DateTimeOffsetTruncate,
-    DateTimeOffsetToDateTime,
-    DateTimeOffsetPartOffset,
-    DateTimeOffsetToUtcDateTime,
-    DateTimeOffsetToLocalDateTime,
     DateTimeOffsetTimeOfDay,
     DateTimeOffsetToLocalTime, 
+    DateTimeOffsetToUtcTime,
     DateTimeToDateTimeOffset,
 
     // .NET like rounding functions

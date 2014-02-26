@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Providers
     [Compiler(typeof (DateTimeOffset), "Date", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeOffsetDate(SqlExpression _this)
     {
-      return SqlDml.DateTimeOffsetTruncate(_this);
+      return SqlDml.Extract(SqlDateTimeOffsetPart.Date, _this);
     }
 
     [Compiler(typeof (DateTimeOffset), "DayOfWeek", TargetKind.PropertyGet)]
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Providers
     [Compiler(typeof (DateTimeOffset), "DateTime", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeOffsetDateTime(SqlExpression _this)
     {
-      return SqlDml.DateTimeOffsetToDateTime(_this);
+      return SqlDml.Extract(SqlDateTimeOffsetPart.DateTime, _this);
     }
 
     [Compiler(typeof(DateTimeOffset), "ToLocalTime")]
@@ -97,19 +97,25 @@ namespace Xtensive.Orm.Providers
     [Compiler(typeof (DateTimeOffset), "Offset", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeOffsetOffset(SqlExpression _this)
     {
-      return SqlDml.DateTimeOffsetPartOffset(_this);
+      return SqlDml.Extract(SqlDateTimeOffsetPart.Offset, _this);
     }
 
     [Compiler(typeof (DateTimeOffset), "UtcDateTime", TargetKind.PropertyGet)]
     public static SqlExpression DateTimeOffsetUtcDateTime(SqlExpression _this)
     {
-      return SqlDml.DateTimeOffsetToUtcDateTime(_this);
+      return SqlDml.Extract(SqlDateTimeOffsetPart.UtcDateTime, _this);
     }
 
     [Compiler(typeof (DateTimeOffset), "LocalDateTime", TargetKind.PropertyGet)]
-    public static SqlExpression DateTimeOffsetLocalDateTime(SqlExpression _this)
+    public static SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression _this)
     {
-      return SqlDml.DateTimeOffsetLocalDateTime(_this);
+      return SqlDml.Extract(SqlDateTimeOffsetPart.LocalDateTime, _this);
+    }
+
+    [Compiler(typeof(DateTimeOffset), "ToUniversalTime")]
+    public static SqlExpression DateTimeOffsetToUtcTime(SqlExpression _this)
+    {
+      return SqlDml.DateTimeOffsetToUtcTime(_this);
     }
 
     #endregion
