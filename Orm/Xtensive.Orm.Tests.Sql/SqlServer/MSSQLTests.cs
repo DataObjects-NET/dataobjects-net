@@ -15,7 +15,7 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql.SqlServer
 {
-  [TestFixture]
+  [TestFixture, Explicit]
   public class MSSQLTests : AdventureWorks
   {
     private SqlDriver sqlDriver;

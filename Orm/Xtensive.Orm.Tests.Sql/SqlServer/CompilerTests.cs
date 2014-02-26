@@ -13,6 +13,7 @@ using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Tests.Sql.SqlServer
 {
+  [TestFixture, Explicit]
   public class CompilerTests: AdventureWorks
   {
     private SqlConnection sqlConnection;
