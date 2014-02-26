@@ -21,18 +21,21 @@ namespace Xtensive.Orm.Tests
     [Test]
     public void MainTest()
     {
+      Console.WriteLine("Is64BitProcess: {0}", Environment.Is64BitProcess);
+      Console.WriteLine();
+
       var urlConnectionInfo = DomainConfigurationFactory.Create().ConnectionInfo;
-      Console.WriteLine("ConnectionURL: " + urlConnectionInfo);
+      Console.WriteLine("ConnectionURL: {0}", urlConnectionInfo);
       Console.WriteLine();
 
       var stringConnectionInfo = DomainConfigurationFactory.CreateForConnectionStringTest().ConnectionInfo;
-      Console.WriteLine("ConnectionString: " + stringConnectionInfo);
+      Console.WriteLine("ConnectionString: {0}", stringConnectionInfo);
       Console.WriteLine();
 
       var driver = TestSqlDriver.Create(urlConnectionInfo);
       var providerInfo = ProviderInfoBuilder.Build(urlConnectionInfo.Provider, driver);
 
-      Console.WriteLine("Features: " + providerInfo.ProviderFeatures);
+      Console.WriteLine("Features: {0}", providerInfo.ProviderFeatures);
     }
 
     // ReSharper restore LocalizableElement
