@@ -48,6 +48,7 @@
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestConnectionInfoProvider.cs" />
     <Compile Include="CloneTests.cs" />
     <Compile Include="CollectionTest.cs" />
     <Compile Include="DateTimeOffsetTest.cs" />
