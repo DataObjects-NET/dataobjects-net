@@ -16,12 +16,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
   [TestFixture]
   public class ExtractorTest : SqlTest
   {
-    protected override string Url { get { return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl.Url; } }
-
+    
     protected override void CheckRequirements()
     {
       Require.ProviderIs(StorageProvider.SqlServer);
-      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2005);
     }
 
     [Test]

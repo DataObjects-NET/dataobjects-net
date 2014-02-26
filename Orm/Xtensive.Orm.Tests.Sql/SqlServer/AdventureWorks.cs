@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       return result;
     }
 
-    protected string Url { get { return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl.Url; } }
+    protected string Url { get { return TestConnectionInfoProvider.GetCurrentConnectionUrl(); } }
     public Catalog Catalog { get; protected set; }
 
     protected virtual void CheckRequirements()

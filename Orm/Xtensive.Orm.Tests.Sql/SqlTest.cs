@@ -16,9 +16,9 @@ namespace Xtensive.Orm.Tests.Sql
 {
   public abstract class SqlTest
   {
-    protected virtual string Url
+    protected string Url
     {
-      get { return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl.Url; }
+      get { return TestConnectionInfoProvider.GetCurrentConnectionUrl(); }
     }
 
     protected SqlConnection Connection { get; private set; }

@@ -39,7 +39,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     protected override void CheckRequirements()
     {
       Require.ProviderIs(StorageProvider.SqlServer);
-      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2005);
     }
 
     [Test]

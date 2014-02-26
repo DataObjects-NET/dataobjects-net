@@ -20,11 +20,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
   [TestFixture, Explicit]
   public class SqlDomTests
   {
-    private UrlInfo connectionUrl = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl;
-
     protected UrlInfo ConnectionUrlInfo
     {
-      get { return connectionUrl; }
+      get { return TestConnectionInfoProvider.GetCurrentConnectionInfo().ConnectionUrl; }
     }
 
     protected string Url

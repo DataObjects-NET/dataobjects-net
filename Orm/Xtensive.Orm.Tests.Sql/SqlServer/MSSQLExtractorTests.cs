@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
   public abstract class MSSQLExtractorTestBase
   {
-    private readonly string connectionUrl = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl.Url;
+    private readonly string connectionUrl = TestConnectionInfoProvider.GetCurrentConnectionUrl();
     private bool isTestsIgnored = true;
 
     public virtual string CleanUpScript
@@ -107,7 +107,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     protected virtual void CheckRequirements()
     {
       Require.ProviderIs(StorageProvider.SqlServer);
-      Require.ProviderVersionAtMost(new Version(9, 0, 5000));
     }
 
     [TestFixtureTearDown]

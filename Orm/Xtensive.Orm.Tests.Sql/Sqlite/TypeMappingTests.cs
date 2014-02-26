@@ -17,11 +17,6 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
   [Explicit]
   public class TypeMappingTest : Sql.TypeMappingTest
   {
-    protected override string Url
-    {
-      get { return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage).ConnectionUrl.Url; }
-    }
-
     protected override void CheckRequirements()
     {
       Require.ProviderIs(StorageProvider.Sqlite);
