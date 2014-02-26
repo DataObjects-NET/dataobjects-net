@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
@@ -27,7 +28,7 @@ namespace Xtensive.Orm
   /// <seealso cref="Entity.Key"/>
   public abstract class Key : IEquatable<Key>
   {
-    private const char KeyFormatEscape    = '\\';
+    private const char KeyFormatEscape = '\\';
     private const char KeyFormatDelimiter = ':';
     private int? hashCode;
     private string cachedFormatResult;
@@ -41,9 +42,11 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the key value.
     /// </summary>
-    public Tuple Value {
-      get {
-        if (value == null)
+    public Tuple Value
+    {
+      get
+      {
+        if (value==null)
           value = GetValue();
         return value;
       }
@@ -58,43 +61,12 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the type of <see cref="Entity"/> this instance identifies.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Unable to resolve type for Key.</exception>
-    public TypeInfo TypeInfo {
-      get {
-        if (TypeReference.Accuracy == TypeReferenceAccuracy.ExactType)
-          return TypeReference.Type;
-
-        var session = Session.Current;
-        if (session==null)
-          return null;
-
-        var domain = session.Domain;
-        var keyCache = domain.KeyCache;
-        Key cachedKey;
-
-        lock (keyCache)
-          keyCache.TryGetItem(this, true, out cachedKey);
-        if (cachedKey!=null) {
-          TypeReference = cachedKey.TypeReference;
-          return TypeReference.Type;
-        }
-
-        var hierarchy = TypeReference.Type.Hierarchy;
-        if (hierarchy != null && hierarchy.Types.Count==1) {
-          TypeReference = new TypeReference(hierarchy.Types[0], TypeReferenceAccuracy.ExactType);
-          return TypeReference.Type;
-        }
-
-        if (IsTemporary(domain))
-          return TypeReference.Type;
-
-        OrmLog.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsUnknownFetchIsRequired, session, this);
-
-        var entityState = session.Handler.FetchEntityState(this);
-        if (entityState==null || entityState.IsNotAvailableOrMarkedAsRemoved)
-          throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveTypeForKeyX, this));
-        TypeReference = new TypeReference(entityState.Type, TypeReferenceAccuracy.ExactType);
-        return TypeReference.Type;
+    [CanBeNull]
+    public TypeInfo TypeInfo
+    {
+      get
+      {
+        return TypeReference.Accuracy==TypeReferenceAccuracy.ExactType ? TypeReference.Type : null;
       }
     }
 
@@ -118,6 +90,49 @@ namespace Xtensive.Orm
       var keyInfo = TypeReference.Type.Key;
       var keyGenerator = domain.KeyGenerators.GetTemporary(keyInfo);
       return keyGenerator!=null && keyGenerator.IsTemporaryKey(Value);
+    }
+
+    /// <summary>
+    /// Resolves the type of <see cref="Entity"/> this instance identifies.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Unable to resolve type for Key.</exception>
+    /// <param name="session">Session to use for resolving</param>
+    /// <returns><see cref="TypeInfo"/> for this instance.</returns>
+    [NotNull]
+    public TypeInfo ResolveTypeInfo([NotNull, InstantHandle] Session session)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+
+      if (TypeReference.Accuracy==TypeReferenceAccuracy.ExactType)
+        return TypeReference.Type;
+
+      var domain = session.Domain;
+      var keyCache = domain.KeyCache;
+      Key cachedKey;
+
+      lock (keyCache)
+        keyCache.TryGetItem(this, true, out cachedKey);
+      if (cachedKey!=null) {
+        TypeReference = cachedKey.TypeReference;
+        return TypeReference.Type;
+      }
+
+      var hierarchy = TypeReference.Type.Hierarchy;
+      if (hierarchy!=null && hierarchy.Types.Count==1) {
+        TypeReference = new TypeReference(hierarchy.Types[0], TypeReferenceAccuracy.ExactType);
+        return TypeReference.Type;
+      }
+
+      if (IsTemporary(domain))
+        return TypeReference.Type;
+
+      OrmLog.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsUnknownFetchIsRequired, session, this);
+
+      var entityState = session.Handler.FetchEntityState(this);
+      if (entityState==null || entityState.IsNotAvailableOrMarkedAsRemoved)
+        throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveTypeForKeyX, this));
+      TypeReference = new TypeReference(entityState.Type, TypeReferenceAccuracy.ExactType);
+      return TypeReference.Type;
     }
 
     /// <summary>

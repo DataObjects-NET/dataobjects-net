@@ -7,3 +7,4 @@
 [main] Added session option NonTransactionalReads
 [main] Added support for Contains operation over keys collection
 [main] Added support for DateTimeOffset fields
+[main] Key.TypeInfo no longer relies on implicit session

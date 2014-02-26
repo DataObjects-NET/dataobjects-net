@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Issues
         
         Assert.IsNull(session.Query.SingleOrDefault(key));
         AssertEx.ThrowsInvalidOperationException(() => {
-          var type = key.TypeInfo;
+          var type = key.ResolveTypeInfo(session);
         });
 
         tx.Complete();
