@@ -4,6 +4,8 @@
 // Created by: Alexey Kulakov
 // Created:    2014.02.25
 
+using Xtensive.Orm.Configuration;
+
 namespace Xtensive.Orm.Tests.Sql
 {
   public sealed class TestConnectionInfoProvider
@@ -20,12 +22,21 @@ namespace Xtensive.Orm.Tests.Sql
 
     public static string GetConnectionString()
     {
-      return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage+"cs").ConnectionString; 
+      return GetConnectionInfo(TestConfiguration.Instance.Storage, true).ConnectionString;
     }
 
     public static ConnectionInfo GetConnectionInfo()
     {
-      return TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage);
+      return GetConnectionInfo(TestConfiguration.Instance.Storage, false);
+    }
+
+    private static ConnectionInfo GetConnectionInfo(string storage, bool useConnectionInfo)
+    {
+      if (useConnectionInfo)
+        storage += "cs";
+      var domainConnectionInfo = DomainConfiguration.Load(storage).ConnectionInfo;
+      var customConnectionInfo = TestConfiguration.Instance.GetConnectionInfo(storage);
+      return customConnectionInfo ?? domainConnectionInfo;
     }
   }
 }
