@@ -126,6 +126,8 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.TableRename;
 
       var dataTypes = serverInfo.DataTypes;
+      if (dataTypes.DateTimeOffset!=null)
+        f |= ProviderFeatures.DateTimeOffset;
       var binaryTypeInfo = dataTypes.VarBinary ?? dataTypes.VarBinaryMax;
       if (binaryTypeInfo!=null && binaryTypeInfo.Features.Supports(DataTypeFeatures.ZeroLengthValueIsNull))
         f |= ProviderFeatures.TreatEmptyBlobAsNull;

@@ -656,6 +656,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Assembly version mismatch: main assembly &apos;{0} {1}&apos;, extension assembly &apos;{2} {3}&apos;..
+        /// </summary>
+        internal static string ExAssemblyVersionMismatchMainAssemblyXYExtensionsAssemblyAB {
+            get {
+                return ResourceManager.GetString("ExAssemblyVersionMismatchMainAssemblyXYExtensionsAssemblyAB", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;AssociationAttribute&apos; can&apos;t be applied to &apos;{0}&apos; field..
         /// </summary>
         internal static string ExAssociationAttributeCanNotBeAppliedToXField {

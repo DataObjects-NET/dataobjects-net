@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using V1 = Xtensive.Orm.Tests.Upgrade.UpgradeDateTimeOffsetTestModel.Version1;
 using V2 = Xtensive.Orm.Tests.Upgrade.UpgradeDateTimeOffsetTestModel.Version2;
@@ -85,6 +86,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void UpgradeDateTimeOffsetAndDateTimeTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.DateTimeOffset);
       using (var domain = BuildInitialDomain())
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {

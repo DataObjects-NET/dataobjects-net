@@ -3298,4 +3298,7 @@ Error: {1}</value>
   <data name="ExTypeOfEntityStoredInKeyIsUndefined">
     <value xml:space="preserve">Type of entity stored in Key is undefined.</value>
   </data>
+  <data name="ExAssemblyVersionMismatchMainAssemblyXYExtensionsAssemblyAB" xml:space="preserve">
+    <value>Assembly version mismatch: main assembly '{0} {1}', extension assembly '{2} {3}'.</value>
+  </data>
 </root>

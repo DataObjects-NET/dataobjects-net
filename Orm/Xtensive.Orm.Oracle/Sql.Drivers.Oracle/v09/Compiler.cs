@@ -62,29 +62,17 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       case SqlFunctionType.DateTimeOffsetConstruct:
         DateTimeOffsetConstruct(DateTimeConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2]), node.Arguments[3]).AcceptVisitor(this);
         return;
-      case SqlFunctionType.DateTimeOffsetPartOffset:
-        DateTimeOffsetPartOffset(node.Arguments[0]).AcceptVisitor(this);
-        return;
       case SqlFunctionType.DateTimeOffsetTimeOfDay:
         DateTimeOffsetTimeOfDay(node.Arguments[0]).AcceptVisitor(this);
-        return;
-      case SqlFunctionType.DateTimeOffsetToDateTime:
-        DateTimeOffsetTruncateOffset(node.Arguments[0]).AcceptVisitor(this);
-        return;
-      case SqlFunctionType.DateTimeOffsetTruncate:
-        DateTimeOffsetTruncate(node.Arguments[0]).AcceptVisitor(this);
-        return;
-      case SqlFunctionType.DateTimeOffsetToUtcDateTime:
-        DateTimeOffsetToUtcDateTime(node.Arguments[0]).AcceptVisitor(this);
-        return;
-      case SqlFunctionType.DateTimeOffsetToLocalDateTime:
-        DateTimeOffsetToLocalDateTime(node.Arguments[0]).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeOffsetToLocalTime:
         DateTimeOffsetToLocalTime(node.Arguments[0]).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeToDateTimeOffset:
         DateTimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetToUtcTime:
+        DateTimeOffsetToUtcTime(node.Arguments[0]).AcceptVisitor(this);
         return;
       default:
         base.Visit(node);
@@ -145,6 +133,21 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         return;
       case SqlDateTimeOffsetPart.DayOfYear:
         DateTimeOffsetExtractPart(node.Operand, "DDD").AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.Date:
+        DateTimeOffsetTruncate(node.Operand).AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.DateTime:
+        DateTimeOffsetTruncateOffset(node.Operand).AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.LocalDateTime:
+        DateTimeOffsetToLocalDateTime(node.Operand).AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.UtcDateTime:
+        DateTimeOffsetToUtcDateTime(node.Operand).AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.Offset:
+        DateTimeOffsetPartOffset(node.Operand).AcceptVisitor(this);
         return;
       }
       switch (node.DateTimePart) {
@@ -387,6 +390,13 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     private static SqlExpression DateTimeToDateTimeOffset(SqlExpression dateTime)
     {
       return SqlDml.Cast(dateTime, SqlType.DateTimeOffset);
+    }
+
+    private static SqlExpression DateTimeOffsetToUtcTime(SqlExpression dateTimeOffset)
+    {
+      return SqlDml.FunctionCall("FROM_TZ",
+        DateTimeOffsetToUtcDateTime(dateTimeOffset),
+        AnsiString("+00:00"));
     }
 
     private static SqlExpression AnsiString(string value)

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.IssueJira0171_DateTimeOffsetModel;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -36,6 +37,11 @@ namespace Xtensive.Orm.Tests.Issues
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (EntityWithDateTimeOffset));
       return configuration;
+    }
+
+    protected override void CheckRequirements()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.DateTimeOffset);
     }
 
     protected override void PopulateData()
@@ -296,6 +302,12 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     #endregion
+
+    [Test]
+    public void ToUniversalTimeTest()
+    {
+      RunAllTests(e => e.Today.ToUniversalTime()==today.ToUniversalTime());
+    }
 
     [Test]
     public void ToLocalTimeTest()

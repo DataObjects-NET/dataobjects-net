@@ -63,6 +63,21 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       case SqlDateTimeOffsetPart.TimeZoneMinute:
         Visit(DateTimeOffsetTimeZoneInMinutes(node.Operand) % 60);
         return;
+      case SqlDateTimeOffsetPart.Date:
+        DateTimeOffsetTruncate(node.Operand).AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.DateTime:
+        DateTimeOffsetTruncateOffset(node.Operand).AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.LocalDateTime:
+        DateTimeOffsetToLocalDateTime(node.Operand).AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.UtcDateTime:
+        SqlDml.Cast(Switchoffset(node.Operand, "+00:00"), SqlType.DateTime).AcceptVisitor(this);
+        return;
+      case SqlDateTimeOffsetPart.Offset:
+        DateTimeOffsetPartOffset(node.Operand).AcceptVisitor(this);
+        return;
       }
       base.Visit(node);
     }
@@ -77,21 +92,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       case SqlFunctionType.DateTimeOffsetAddYears:
         Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
         return;
-      case SqlFunctionType.DateTimeOffsetTruncate:
-        DateTimeOffsetTruncate(node.Arguments[0]).AcceptVisitor(this);
-        return;
-      case SqlFunctionType.DateTimeOffsetToDateTime:
-        DateTimeOffsetTruncateOffset(node.Arguments[0]).AcceptVisitor(this);
-        return;
-      case SqlFunctionType.DateTimeOffsetPartOffset:
-        DateTimeOffsetPartOffset(node.Arguments[0]).AcceptVisitor(this);
-        return;
-      case SqlFunctionType.DateTimeOffsetToUtcDateTime:
-        Switchoffset(node.Arguments[0], "+00:00").AcceptVisitor(this);
-        return;
-      case SqlFunctionType.DateTimeOffsetToLocalDateTime:
-        DateTimeOffsetToLocalDateTime(node.Arguments[0]).AcceptVisitor(this);
-        return;
       case SqlFunctionType.DateTimeOffsetTimeOfDay:
         DateTimeOffsetTimeOfDay(node.Arguments[0]).AcceptVisitor(this);
         return;
@@ -104,6 +104,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         return;
       case SqlFunctionType.DateTimeOffsetToLocalTime:
         DateTimeOffsetToLocalTime(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetToUtcTime:
+        DateTimeOffsetToUtcTime(node.Arguments[0]).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeToDateTimeOffset:
         DateTimeToDateTimeOffset(node.Arguments[0]).AcceptVisitor(this);
@@ -192,6 +195,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     private static SqlExpression DateTimeOffsetToLocalTime(SqlExpression dateTimeOffset)
     {
       return Switchoffset(dateTimeOffset, DateTimeOffsetTimeZoneInMinutes(SqlDml.Native("SYSDATETIMEOFFSET()")));
+    }
+
+    private static SqlExpression DateTimeOffsetToUtcTime(SqlExpression dateTimeOffset)
+    {
+      return Switchoffset(dateTimeOffset, "+00:00");
     }
 
     private static SqlExpression DateTimeToDateTimeOffset(SqlExpression dateTime)

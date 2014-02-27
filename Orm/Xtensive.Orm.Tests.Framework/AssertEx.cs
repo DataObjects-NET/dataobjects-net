@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -83,7 +84,7 @@ namespace Xtensive.Orm.Tests
       Assert.AreEqual(r1, r2);
     }
 
-    public static void Throws<TException>(Action action) 
+    public static void Throws<TException>([InstantHandle] Action action) 
       where TException: Exception
     {
       bool thrown = false;
@@ -97,27 +98,27 @@ namespace Xtensive.Orm.Tests
         Assert.Fail(string.Format("Expected '{0}' was not thrown.", typeof(TException).GetShortName()));
     }
 
-    public static void ThrowsNotSupportedException(Action action)
+    public static void ThrowsNotSupportedException([InstantHandle] Action action)
     {
       Throws<NotSupportedException>(action);
     }
 
-    public static void ThrowsInvalidOperationException(Action action)
+    public static void ThrowsInvalidOperationException([InstantHandle] Action action)
     {
       Throws<InvalidOperationException>(action);
     }
 
-    public static void ThrowsArgumentException(Action action)
+    public static void ThrowsArgumentException([InstantHandle] Action action)
     {
       Throws<ArgumentException>(action);
     }
 
-    public static void ThrowsArgumentOutOfRangeException(Action action)
+    public static void ThrowsArgumentOutOfRangeException([InstantHandle] Action action)
     {
       Throws<ArgumentOutOfRangeException>(action);
     }
 
-    public static void ThrowsArgumentNullException(Action action)
+    public static void ThrowsArgumentNullException([InstantHandle] Action action)
     {
       Throws<ArgumentNullException>(action);
     }

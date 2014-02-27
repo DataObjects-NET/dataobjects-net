@@ -21,6 +21,11 @@ namespace Xtensive.Sql.Dml
     TimeZoneMinute,
     DayOfYear,
     DayOfWeek,
+    Date,
+    DateTime,
+    LocalDateTime, 
+    UtcDateTime, 
+    Offset,
     Nothing,
   }
 }
