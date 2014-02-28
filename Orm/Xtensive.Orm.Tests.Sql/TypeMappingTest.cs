@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Tests.Sql
         .ToArray();
     }
     
-    [Test, Ignore("SQLFIXME")]
+    [Test]
     public void InsertAndSelectTest()
     {
       var schema = ExtractDefaultSchema();
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Tests.Sql
       VerifyResults(Connection.CreateCommand(resultQuery));
     }
 
-    [Test, Ignore("SQLFIXME")]
+    [Test]
     public void SelectParametersTest()
     {
       int parameterIndex = 0;
@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Tests.Sql
       VerifyResults(command);
     }
 
-    [Test, Ignore("SQLFIXME")]
+    [Test]
     public void SelectConstantsTest()
     {
       var queries = new List<SqlSelect>();
