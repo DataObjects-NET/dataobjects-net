@@ -323,6 +323,7 @@
     <Compile Include="Storage\DisconnectedStateTest2.cs" />
     <Compile Include="Storage\EncryptedConnectionStringTest.cs" />
     <Compile Include="Storage\ExcludeFromAutoVersionTest.cs" />
+    <Compile Include="Storage\FieldSqlDefaultTest.cs" />
     <Compile Include="Storage\ForceServerVersion.cs" />
     <Compile Include="Storage\IgnoreRulesValidateTest.cs" />
     <Compile Include="Storage\IndexesAndInheritanceSchemaTest.cs" />
