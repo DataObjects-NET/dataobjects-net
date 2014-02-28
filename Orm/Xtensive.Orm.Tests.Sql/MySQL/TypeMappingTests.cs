@@ -16,11 +16,6 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     [TestFixture, Explicit]
     public class TypeMappingTest : Sql.TypeMappingTest
     {
-        protected override void TestFixtureSetUp()
-        {
-          
-        }
-
         protected override void CheckRequirements()
         {
             Require.ProviderIs(StorageProvider.MySql);
