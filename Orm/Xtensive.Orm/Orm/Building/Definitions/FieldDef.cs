@@ -32,6 +32,7 @@ namespace Xtensive.Orm.Building.Definitions
     private int?                            scale;
     private int?                            precision;
     private object                          defaultValue;
+    private string                          defaultSqlExpression;
 
     /// <summary>
     /// Gets or sets the maximal length of the field.
@@ -83,6 +84,17 @@ namespace Xtensive.Orm.Building.Definitions
     {
       get { return defaultValue; }
       set { defaultValue = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets arbitrary SQL expression as default value for this field.
+    /// This default value has higher priority than <see cref="FieldDef.DefaultValue"/>.
+    /// <see langword="null" /> indicates default value is provided automatically.
+    /// </summary>
+    public string DefaultSqlExpression
+    {
+      get { return defaultSqlExpression; }
+      set { defaultSqlExpression = value; }
     }
 
     /// <summary>

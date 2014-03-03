@@ -25,6 +25,7 @@ namespace Xtensive.Orm.Model
     private int?   scale;
     private int?   precision;
     private object defaultValue;
+    private string defaultSqlExpression;
     private FieldInfo field;
     private NodeCollection<IndexInfo> indexes;
     private CultureInfo cultureInfo = CultureInfo.InvariantCulture;
@@ -174,6 +175,14 @@ namespace Xtensive.Orm.Model
       set { defaultValue = value; }
     }
 
+    public string DefaultSqlExpression
+    {
+      [DebuggerStepThrough]
+      get { return defaultSqlExpression; }
+      [DebuggerStepThrough]
+      set { defaultSqlExpression = value; }
+    }
+
     /// <summary>
     /// Gets the attributes.
     /// </summary>
@@ -259,6 +268,7 @@ namespace Xtensive.Orm.Model
       clone.scale = scale;
       clone.precision = precision;
       clone.defaultValue = defaultValue;
+      clone.defaultSqlExpression = defaultSqlExpression;
       clone.indexes = indexes;
       clone.cultureInfo = cultureInfo;
 
@@ -297,6 +307,7 @@ namespace Xtensive.Orm.Model
         valueType = valueType;
         defaultValue = field.DefaultValue;
       }
+      defaultSqlExpression = field.DefaultSqlExpression;
       length = field.Length;
       scale = field.Scale;
       precision = field.Precision;
@@ -320,6 +331,7 @@ namespace Xtensive.Orm.Model
       scale = field.Scale;
       precision = field.Precision;
       defaultValue = field.DefaultValue;
+      defaultSqlExpression = field.DefaultSqlExpression;
     }
   }
 }

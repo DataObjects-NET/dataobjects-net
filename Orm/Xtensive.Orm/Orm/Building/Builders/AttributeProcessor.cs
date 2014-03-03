@@ -85,6 +85,7 @@ namespace Xtensive.Orm.Building.Builders
     public void Process(FieldDef fieldDef, FieldAttribute attribute)
     {
       ProcessDefault(fieldDef, attribute);
+      ProcessSqlDefault(fieldDef, attribute);
       ProcessNullable(fieldDef, attribute);
       ProcessLength(fieldDef, attribute);
       ProcessScale(fieldDef, attribute);
@@ -300,6 +301,12 @@ namespace Xtensive.Orm.Building.Builders
         fieldDef.IsIndexed = true;
       else
         fieldDef.IsNotIndexed = true;
+    }
+
+    private void ProcessSqlDefault(FieldDef fieldDef, FieldAttribute attribute)
+    {
+      if (!string.IsNullOrEmpty(attribute.DefaultSqlExpression))
+        fieldDef.DefaultSqlExpression = attribute.DefaultSqlExpression;
     }
 
     private void ProcessMappingName(MappedNode node, string mappingName, ValidationRule rule)

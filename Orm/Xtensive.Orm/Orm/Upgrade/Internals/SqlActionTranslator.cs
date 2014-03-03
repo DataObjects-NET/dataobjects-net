@@ -364,6 +364,8 @@ namespace Xtensive.Orm.Upgrade
       var column = CreateColumn(columnInfo, table);
       if (columnInfo.DefaultValue != null)
         column.DefaultValue = SqlDml.Literal(columnInfo.DefaultValue);
+      if (!string.IsNullOrEmpty(columnInfo.DefaultSqlExpression))
+        column.DefaultValue = SqlDml.Native(columnInfo.DefaultSqlExpression);
       currentOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.AddColumn(column)));
     }
 
@@ -902,8 +904,11 @@ namespace Xtensive.Orm.Upgrade
         columnInfo.Parent.PrimaryIndex!=null
         && columnInfo.Parent.PrimaryIndex.KeyColumns.Any(keyColumn => keyColumn.Value==columnInfo);
 
-      if (!column.IsNullable && column.Name!=typeIdColumnName && !isPrimaryKeyColumn)
-        column.DefaultValue = GetDefaultValueExpression(columnInfo);
+      if (!column.IsNullable && column.Name != typeIdColumnName)
+        if (!isPrimaryKeyColumn)
+          column.DefaultValue = GetDefaultValueExpression(columnInfo);
+        else if (!string.IsNullOrEmpty(columnInfo.DefaultSqlExpression))
+          column.DefaultValue = SqlDml.Native(columnInfo.DefaultSqlExpression);
 
       column.IsNullable = columnInfo.Type.IsNullable;
 
@@ -1119,6 +1124,8 @@ namespace Xtensive.Orm.Upgrade
 
     private SqlExpression GetDefaultValueExpression(StorageColumnInfo columnInfo)
     {
+      if (!string.IsNullOrEmpty(columnInfo.DefaultSqlExpression))
+        return SqlDml.Native(columnInfo.DefaultSqlExpression);
       if (columnInfo.DefaultValue!=null)
         return SqlDml.Literal(columnInfo.DefaultValue);
       var type = columnInfo.Type.Type;

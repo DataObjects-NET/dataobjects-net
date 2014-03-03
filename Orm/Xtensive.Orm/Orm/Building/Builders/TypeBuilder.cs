@@ -255,6 +255,7 @@ namespace Xtensive.Orm.Building.Builders
 
       if (fieldInfo.IsPrimitive) {
         fieldInfo.DefaultValue = fieldDef.DefaultValue;
+        fieldInfo.DefaultSqlExpression = fieldDef.DefaultSqlExpression;
         fieldInfo.Column = BuildDeclaredColumn(fieldInfo);
         if (fieldDef.IsTypeDiscriminator)
           type.Hierarchy.TypeDiscriminatorMap.Field = fieldInfo;
@@ -369,6 +370,7 @@ namespace Xtensive.Orm.Building.Builders
       column.IsNullable = field.IsNullable;
       column.IsSystem = field.IsSystem;
       column.DefaultValue = field.DefaultValue;
+      column.DefaultSqlExpression = field.DefaultSqlExpression;
 
       return column;
     }
