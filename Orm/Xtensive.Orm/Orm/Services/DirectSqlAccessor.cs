@@ -37,6 +37,12 @@ namespace Xtensive.Orm.Services
       }
     }
 
+    /// <see cref="IDirectSqlService.RegisterInitializationSql" copy="true" />
+    public void RegisterInitializationSql(string sql)
+    {
+      service.RegisterInitializationSql(sql);
+    }
+
     /// <see cref="IDirectSqlService.CreateCommand" copy="true" />
     public DbCommand CreateCommand()
     {

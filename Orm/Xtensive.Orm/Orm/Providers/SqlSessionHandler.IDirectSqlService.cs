@@ -6,6 +6,7 @@
 
 using System;
 using System.Data.Common;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers
 {
@@ -32,6 +33,12 @@ namespace Xtensive.Orm.Providers
         Prepare();
         return connection.ActiveTransaction;
       }
+    }
+
+    void IDirectSqlService.RegisterInitializationSql(string sql)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(sql, "sql");
+      initializationSqlScripts.Add(sql);
     }
 
     /// <inheritdoc/>

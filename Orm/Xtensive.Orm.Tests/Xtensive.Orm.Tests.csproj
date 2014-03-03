@@ -358,6 +358,7 @@
     <Compile Include="Storage\ReadRemovedObjectTest.cs" />
     <Compile Include="Storage\RefTest.cs" />
     <Compile Include="Storage\SessionDeactivationTest.cs" />
+    <Compile Include="Storage\SessionInitializationSqlTest.cs" />
     <Compile Include="Storage\SessionSaveChangesPerformanceTest.cs" />
     <Compile Include="Storage\SetFieldTest.cs" />
     <Compile Include="Storage\SingleTableTest.cs" />

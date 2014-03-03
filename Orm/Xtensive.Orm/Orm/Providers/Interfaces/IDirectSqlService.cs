@@ -33,6 +33,13 @@ namespace Xtensive.Orm.Providers
     DbTransaction Transaction { get; }
 
     /// <summary>
+    /// Registers SQL script to be executed just before <see cref="DbConnection"/>
+    /// is used by <see cref="Session"/>.
+    /// </summary>
+    /// <param name="sql"></param>
+    void RegisterInitializationSql(string sql);
+
+    /// <summary>
     /// Creates the <see cref="DbCommand"/> object associated with the
     /// current <see cref="Connection"/> and <see cref="Transaction"/>.
     /// </summary>
