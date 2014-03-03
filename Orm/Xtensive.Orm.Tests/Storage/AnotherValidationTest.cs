@@ -71,19 +71,19 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ValidationModel
     [Field, Key]
     public int Id { get; set; }
 
-    [Field, NotEmptyConstraint]
+    [Field(Length = 50), NotEmptyConstraint]
     public string FirstName { get; set; }
 
-    [Field, NotEmptyConstraint]
+    [Field(Length = 50), NotEmptyConstraint]
     public string LastName { get; set; }
 
     [Field, PastConstraint]
     public DateTime Birthday { get; set; }
 
-    [Field, EmailConstraint]
+    [Field(Length = 128), EmailConstraint]
     public string Email { get; set; }
 
-    [Field, RegexConstraint(@"^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$")]
+    [Field(Length = 50), RegexConstraint(@"^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$")]
     public string Phone { get; set; }
 
     [Field]
@@ -158,16 +158,16 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ValidationModel
     [Field, Key]
     public int Id { get; set; }
 
-    [Field, NotEmptyConstraint]
+    [Field(Length = 50), NotEmptyConstraint]
     public string NotEmptyString { get; set; }
 
-    [Field, NotNullOrEmptyConstraint]
+    [Field(Length = 50), NotNullOrEmptyConstraint]
     public string NotNullOrEmptyString { get; set; }
 
-    [Field, NotNullConstraint]
+    [Field(Length = 50), NotNullConstraint]
     public string NotNullString { get; set; }
 
-    [Field, LengthConstraint(Min = 2, Max = 10)]
+    [Field(Length = 50), LengthConstraint(Min = 2, Max = 10)]
     public string LimitedLengthString { get; set; }
 
     [Field, PastConstraint]
@@ -179,7 +179,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ValidationModel
     [Field, RangeConstraint(Min = 3, Max = 10)]
     public int IntValueInRange { get; set; }
 
-    [Field, RegexConstraint(@"^(\%){3,10}$")]
+    [Field(Length = 50), RegexConstraint(@"^(\%){3,10}$")]
     public string StringForRegexValidation { get; set; }
 
     [Field]
@@ -262,19 +262,19 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ImmediateValidationModel
     [Field, Key]
     public int Id { get; set; }
 
-    [Field, NotEmptyConstraint(IsImmediate = true)]
+    [Field(Length = 50), NotEmptyConstraint(IsImmediate = true)]
     public string FirstName { get; set; }
 
-    [Field, NotEmptyConstraint(IsImmediate = true)]
+    [Field(Length = 50), NotEmptyConstraint(IsImmediate = true)]
     public string LastName { get; set; }
 
     [Field, PastConstraint(IsImmediate = true)]
     public DateTime Birthday { get; set; }
 
-    [Field, EmailConstraint(IsImmediate = true)]
+    [Field(Length = 128), EmailConstraint(IsImmediate = true)]
     public string Email { get; set; }
 
-    [Field, RegexConstraint(@"^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$", IsImmediate = true)]
+    [Field(Length = 50), RegexConstraint(@"^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$", IsImmediate = true)]
     public string Phone { get; set; }
 
     [Field]
@@ -349,16 +349,16 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ImmediateValidationModel
     [Field ,Key]
     public int Id { get; set; }
 
-    [Field, NotEmptyConstraint(IsImmediate = true)]
+    [Field(Length = 50), NotEmptyConstraint(IsImmediate = true)]
     public string NotEmptyString { get; set; }
 
-    [Field, NotNullOrEmptyConstraint(IsImmediate = true)]
+    [Field(Length = 50), NotNullOrEmptyConstraint(IsImmediate = true)]
     public string NotNullOrEmptyString { get; set; }
 
-    [Field, NotNullConstraint(IsImmediate = true)]
+    [Field(Length = 50), NotNullConstraint(IsImmediate = true)]
     public string NotNullString { get; set; }
 
-    [Field, LengthConstraint(Min = 2, Max = 10, IsImmediate = true)]
+    [Field(Length = 50), LengthConstraint(Min = 2, Max = 10, IsImmediate = true)]
     public string LimitedLengthString { get; set; }
 
     [Field, PastConstraint(IsImmediate = true)]
@@ -370,7 +370,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation.ImmediateValidationModel
     [Field, RangeConstraint(Min = 3, Max = 10, IsImmediate = true)]
     public int IntValueInRange { get; set; }
 
-    [Field, RegexConstraint(@"^(\%){3,10}$", IsImmediate = true)]
+    [Field(Length = 50), RegexConstraint(@"^(\%){3,10}$", IsImmediate = true)]
     public string StringForRegexValidation { get; set; }
 
     [Field]
