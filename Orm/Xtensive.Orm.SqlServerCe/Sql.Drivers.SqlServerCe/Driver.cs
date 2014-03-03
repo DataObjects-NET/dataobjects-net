@@ -15,9 +15,9 @@ namespace Xtensive.Sql.Drivers.SqlServerCe
   {
     /// <inheritdoc/>
     [SecuritySafeCritical]
-    protected override SqlConnection CreateConnection(string connectionString)
+    protected override SqlConnection DoCreateConnection()
     {
-      return new Connection(this, connectionString);
+      return new Connection(this);
     }
 
     /// <inheritdoc/>

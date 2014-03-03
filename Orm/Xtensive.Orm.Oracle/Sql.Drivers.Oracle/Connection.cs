@@ -7,6 +7,7 @@
 using Oracle.DataAccess.Client;
 using System.Data;
 using System.Data.Common;
+using Xtensive.Orm;
 
 namespace Xtensive.Sql.Drivers.Oracle
 {
@@ -99,10 +100,10 @@ namespace Xtensive.Sql.Drivers.Oracle
 
     // Constructors
 
-    public Connection(SqlDriver driver, string connectionString)
-      : base(driver, connectionString)
+    public Connection(SqlDriver driver)
+      : base(driver)
     {
-      underlyingConnection = new OracleConnection(connectionString);
+      underlyingConnection = new OracleConnection();
     }
   }
 }

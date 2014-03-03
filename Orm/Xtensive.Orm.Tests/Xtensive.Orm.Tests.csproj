@@ -351,6 +351,7 @@
     <Compile Include="Storage\NotifyXxxTest.cs" />
     <Compile Include="Storage\OnRemovingTest.cs" />
     <Compile Include="Storage\OperationOrderTest.cs" />
+    <Compile Include="Storage\OverrideConnectionInfoTest.cs" />
     <Compile Include="Storage\OverrideMetadata.cs" />
     <Compile Include="Storage\PartialIndexTest.cs" />
     <Compile Include="Storage\QueryBuilderTest.cs" />

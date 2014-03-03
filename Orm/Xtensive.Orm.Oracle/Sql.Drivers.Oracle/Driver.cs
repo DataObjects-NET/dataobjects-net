@@ -12,9 +12,9 @@ namespace Xtensive.Sql.Drivers.Oracle
 {
   internal abstract class Driver : SqlDriver
   {
-    protected override SqlConnection CreateConnection(string connectionString)
+    protected override SqlConnection DoCreateConnection()
     {
-      return new Connection(this, connectionString);
+      return new Connection(this);
     }
 
     public override SqlExceptionType GetExceptionType(System.Exception exception)

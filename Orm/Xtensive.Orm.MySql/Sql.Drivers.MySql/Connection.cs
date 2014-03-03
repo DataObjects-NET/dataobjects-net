@@ -8,6 +8,7 @@ using System.Data;
 using System.Data.Common;
 using System.Security;
 using MySql.Data.MySqlClient;
+using Xtensive.Orm;
 
 namespace Xtensive.Sql.Drivers.MySql
 {
@@ -87,10 +88,10 @@ namespace Xtensive.Sql.Drivers.MySql
     // Constructors
 
     [SecuritySafeCritical]
-    public Connection(SqlDriver driver, string connectionString)
-      : base(driver, connectionString)
+    public Connection(SqlDriver driver)
+      : base(driver)
     {
-      underlyingConnection = new MySqlConnection(connectionString);
+      underlyingConnection = new MySqlConnection();
     }
   }
 }

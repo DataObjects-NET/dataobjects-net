@@ -13,6 +13,11 @@ namespace Xtensive.Orm.Providers
   {
     // Implementation of IDirectSqlService
 
+    ConnectionInfo IDirectSqlService.ConnectionInfo {
+      get { return connection.ConnectionInfo; }
+      set { connection.ConnectionInfo = value; }
+    }
+
     /// <inheritdoc/>
     DbConnection IDirectSqlService.Connection {
       get {

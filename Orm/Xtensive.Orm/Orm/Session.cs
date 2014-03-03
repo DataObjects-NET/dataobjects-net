@@ -140,6 +140,23 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
+    /// Gets or sets <see cref="ConnectionInfo"/>
+    /// for this <see cref="Session"/>.
+    /// </summary>
+    public ConnectionInfo ConnectionInfo
+    {
+      get
+      {
+        var directSqlService = Services.Demand<IDirectSqlService>();
+        return directSqlService.ConnectionInfo;
+      }
+      set {
+        var directSqlService = Services.Demand<IDirectSqlService>();
+        directSqlService.ConnectionInfo = value;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets the <see cref="Current"/> session resolver to use
     /// when there is no active <see cref="Session"/>.
     /// </summary>

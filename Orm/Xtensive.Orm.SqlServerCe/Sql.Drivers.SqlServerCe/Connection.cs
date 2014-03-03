@@ -9,6 +9,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlServerCe;
 using System.Security;
+using Xtensive.Orm;
 
 namespace Xtensive.Sql.Drivers.SqlServerCe
 {
@@ -57,10 +58,10 @@ namespace Xtensive.Sql.Drivers.SqlServerCe
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
-    public Connection(SqlDriver driver, string connectionString)
-      : base(driver, connectionString)
+    public Connection(SqlDriver driver)
+      : base(driver)
     {
-      underlyingConnection = new SqlCeConnection(connectionString);
+      underlyingConnection = new SqlCeConnection();
     }
   }
 }

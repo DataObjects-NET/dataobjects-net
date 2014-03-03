@@ -7,7 +7,6 @@
 using System;
 using System.Data.Common;
 using Xtensive.Orm.Services;
-using Xtensive.Orm.Services;
 
 namespace Xtensive.Orm.Providers
 {
@@ -17,6 +16,11 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public interface IDirectSqlService
   {
+    /// <summary>
+    /// Gets or sets <see cref="ConnectionInfo"/> to use.
+    /// </summary>
+    ConnectionInfo ConnectionInfo { get; set; }
+
     /// <summary>
     /// Gets the underlying connection that is currently in use.
     /// </summary>

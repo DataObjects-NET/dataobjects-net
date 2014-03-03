@@ -5,8 +5,8 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
 using Xtensive.Core;
+using Xtensive.Orm;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql
@@ -18,6 +18,7 @@ namespace Xtensive.Sql
     IDisposable
   {
     private int? commandTimeout;
+    private ConnectionInfo connectionInfo;
 
     /// <summary>
     /// Gets the underlying connection.
@@ -30,6 +31,20 @@ namespace Xtensive.Sql
     public abstract DbTransaction ActiveTransaction { get; }
 
     /// <summary>
+    /// Gets or sets <see cref="ConnectionInfo"/> to use.
+    /// </summary>
+    public ConnectionInfo ConnectionInfo
+    {
+      get { return connectionInfo; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        UnderlyingConnection.ConnectionString = Driver.GetConnectionString(value);
+        connectionInfo = value;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets the command timeout.
     /// </summary>
     public int? CommandTimeout
@@ -37,7 +52,7 @@ namespace Xtensive.Sql
       get { return commandTimeout; }
       set {
         if (value!=null)
-          ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, 65535, "CommandTimeout");
+          ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, 65535, "value");
         commandTimeout = value;
       }
     }
@@ -254,7 +269,7 @@ namespace Xtensive.Sql
 
     // Constructors
 
-    protected SqlConnection(SqlDriver driver, string connectionString)
+    protected SqlConnection(SqlDriver driver)
       : base(driver)
     {
     }
