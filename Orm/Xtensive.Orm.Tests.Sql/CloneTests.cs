@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.AreNotEqual(a, aClone);
       Assert.IsTrue(a.Values!=aClone.Values);
       Assert.AreEqual(a.Values.Length, aClone.Values.Length);
-      for (int i = 0, l = a.Values.Length; i<l; i++)
+      for (int i = 0, l = a.Values.Length; i < l; i++)
         Assert.AreEqual(a.Values[i], aClone.Values[i]);
       Assert.AreEqual(a.NodeType, aClone.NodeType);
     }
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Tests.Sql
     [Test]
     public void SqlBinaryCloneTest()
     {
-      SqlBinary b = SqlDml.Literal(2)>1;
+      SqlBinary b = SqlDml.Literal(2) > 1;
       SqlBinary bClone = (SqlBinary)b.Clone();
       
       Assert.AreNotEqual(b, bClone);
@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Tests.Sql
         Assert.AreNotEqual(fc.Arguments, fcClone.Arguments);
         Assert.AreEqual(fc.NodeType, fcClone.NodeType);
         Assert.AreEqual(fc.Arguments.Count, fcClone.Arguments.Count);
-        for (int i = 0, l = fc.Arguments.Count; i<l; i++) {
+        for (int i = 0, l = fc.Arguments.Count; i < l; i++) {
           Assert.AreNotEqual(fc.Arguments[i], fcClone.Arguments[i]);
           Assert.AreEqual(fc.Arguments[i].NodeType, fcClone.Arguments[i].NodeType);
         }
@@ -161,7 +161,7 @@ namespace Xtensive.Orm.Tests.Sql
 
         Assert.AreNotEqual(fc, fcClone);
         Assert.AreNotEqual(fc.Arguments, fcClone.Arguments);
-        for (int i = 0, l = fc.Arguments.Count; i<l; i++) {
+        for (int i = 0, l = fc.Arguments.Count; i < l; i++) {
           Assert.AreNotEqual(fc.Arguments[i], fcClone.Arguments[i]);
           Assert.AreEqual(fc.Arguments[i].NodeType, fcClone.Arguments[i].NodeType);
         }
@@ -212,7 +212,7 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.AreEqual(r.NodeType, rClone.NodeType);
       Assert.AreEqual(r.Count, rClone.Count);
 
-      for (int i = 0, l = r.Count; i<l; i++) {
+      for (int i = 0, l = r.Count; i < l; i++) {
         Assert.AreNotEqual(r[i], rClone[i]);
         Assert.AreEqual(r[i].NodeType, rClone[i].NodeType);
       }
@@ -277,7 +277,7 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.AreEqual(t.DataTable, tClone.DataTable);
       Assert.AreEqual(t.Columns.Count, tClone.Columns.Count);
 
-      for (int i = 0, l = t.Columns.Count; i<l; i++) {
+      for (int i = 0, l = t.Columns.Count; i < l; i++) {
         Assert.AreNotEqual(t.Columns[i], tClone.Columns[i]);
         Assert.AreEqual(t.Columns[i].NodeType, tClone.Columns[i].NodeType);
         Assert.AreEqual(t.Columns[i].GetType(), tClone.Columns[i].GetType());
@@ -301,7 +301,7 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.AreNotEqual(qr.Query, qrClone.Query);
       Assert.AreEqual(qr.Columns.Count, qrClone.Columns.Count);
 
-      for (int i = 0, l = qr.Columns.Count; i<l; i++) {
+      for (int i = 0, l = qr.Columns.Count; i < l; i++) {
         Assert.AreNotEqual(qr.Columns[i], qrClone.Columns[i]);
         Assert.AreEqual(qr.Columns[i].NodeType, qrClone.Columns[i].NodeType);
         Assert.AreEqual(qr.Columns[i].GetType(), qrClone.Columns[i].GetType());
@@ -365,10 +365,10 @@ namespace Xtensive.Orm.Tests.Sql
       
       Assert.AreNotEqual(s, sClone);
       Assert.AreNotEqual(s.Columns, sClone.Columns);
-      for (int i = 0, l = s.Columns.Count; i<l; i++) {
+      for (int i = 0, l = s.Columns.Count; i < l; i++) {
         Assert.AreNotEqual(s.Columns[i], sClone.Columns[i]);
       }
-      for (int i = 0, l = s.GroupBy.Count; i<l; i++) {
+      for (int i = 0, l = s.GroupBy.Count; i < l; i++) {
         Assert.AreNotEqual(s.Columns[i], sClone.Columns[i]);
       }
       Assert.AreEqual(s.Distinct, sClone.Distinct);
@@ -386,7 +386,7 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.AreEqual(s.NodeType, sClone.NodeType);
       Assert.IsFalse(s.OrderBy==sClone.OrderBy);
       Assert.AreEqual(s.OrderBy.Count, sClone.OrderBy.Count);
-      for (int i = 0, l = s.OrderBy.Count; i<l; i++) {
+      for (int i = 0, l = s.OrderBy.Count; i < l; i++) {
         Assert.AreNotEqual(s.OrderBy[i], sClone.OrderBy[i]);
         Assert.AreEqual(s.OrderBy[i].Ascending, sClone.OrderBy[i].Ascending);
         Assert.AreNotEqual(s.OrderBy[i].Expression, sClone.OrderBy[i].Expression);
@@ -399,7 +399,7 @@ namespace Xtensive.Orm.Tests.Sql
         Assert.AreEqual(s.Where.NodeType, sClone.Where.NodeType);
       }
 
-      s.Where &= tr1[0]>1200 || tr2[1]!="Marat";
+      s.Where &= tr1[0] > 1200 || tr2[1]!="Marat";
       s.OrderBy.Add(tr1["ID"], false);
       s.OrderBy.Add(2);
 
@@ -407,10 +407,10 @@ namespace Xtensive.Orm.Tests.Sql
 
       Assert.AreNotEqual(s, sClone);
       Assert.AreNotEqual(s.Columns, sClone.Columns);
-      for (int i = 0, l = s.Columns.Count; i<l; i++) {
+      for (int i = 0, l = s.Columns.Count; i < l; i++) {
         Assert.AreNotEqual(s.Columns[i], sClone.Columns[i]);
       }
-      for (int i = 0, l = s.GroupBy.Count; i<l; i++) {
+      for (int i = 0, l = s.GroupBy.Count; i < l; i++) {
         Assert.AreNotEqual(s.Columns[i], sClone.Columns[i]);
       }
       Assert.AreEqual(s.Distinct, sClone.Distinct);
@@ -428,7 +428,7 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.AreEqual(s.NodeType, sClone.NodeType);
       Assert.AreNotEqual(s.OrderBy, sClone.OrderBy);
       Assert.AreEqual(s.OrderBy.Count, sClone.OrderBy.Count);
-      for (int i = 0, l = s.OrderBy.Count; i<l; i++) {
+      for (int i = 0, l = s.OrderBy.Count; i < l; i++) {
         Assert.AreNotEqual(s.OrderBy[i], sClone.OrderBy[i]);
         Assert.AreEqual(s.OrderBy[i].Ascending, sClone.OrderBy[i].Ascending);
         if (s.OrderBy[i].Expression.IsNullReference())
@@ -542,7 +542,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       SqlTableRef t = SqlDml.TableRef(table1);
       SqlDelete d = SqlDml.Delete(t);
-      d.Where = t[0]<6;
+      d.Where = t[0] < 6;
       d.Hints.Add(SqlDml.FastFirstRowsHint(10));
       SqlDelete dClone = (SqlDelete) d.Clone();
 
@@ -566,7 +566,7 @@ namespace Xtensive.Orm.Tests.Sql
       SqlSelect ifFalse = SqlDml.Select();
       ifFalse.Columns.Add(2, "id");
       
-      SqlIf i = SqlDml.If(SqlDml.SubQuery(ifTrue)>0, ifTrue);
+      SqlIf i = SqlDml.If(SqlDml.SubQuery(ifTrue) > 0, ifTrue);
       SqlIf iClone = (SqlIf) i.Clone();
       
       Assert.AreNotEqual(i, iClone);
