@@ -81,14 +81,11 @@ namespace Xtensive.Orm.Tests.Storage
       Domain = Domain.Build(configuration);
 
       var driver = TestSqlDriver.Create(Domain.Configuration.ConnectionInfo);
-      var isPostgreSql = StringComparer.InvariantCultureIgnoreCase.Compare(Domain.Configuration.ConnectionInfo.Provider, "postgresql")==0;
       using (var connection = driver.CreateConnection()) {
         connection.Open();
         var command = connection.CreateCommand();
-        if (isPostgreSql)
-          command.CommandText = "INSERT INTO \"TestEntity\" Default values;";
-        else
-          command.CommandText = "INSERT INTO TestEntity(Id) values(1);";
+        var translator = driver.Translator;
+        command.CommandText = string.Format("INSERT INTO {0}({1}) values(1);", translator.QuoteIdentifier("TestEntity"), translator.QuoteIdentifier("Id"));
         command.ExecuteNonQuery(); 
         connection.Close();
       }
@@ -129,7 +126,8 @@ namespace Xtensive.Orm.Tests.Storage
       using (var connection = driver.CreateConnection()) {
         connection.Open();
         var command = connection.CreateCommand();
-        command.CommandText = "INSERT INTO TestEntity1 DEFAULT VALUES;";
+        var translator = driver.Translator;
+        command.CommandText = string.Format("INSERT INTO {0} DEFAULT VALUES;", translator.QuoteIdentifier("TestEntity1"));
         command.ExecuteNonQuery(); 
         connection.Close();
       }
