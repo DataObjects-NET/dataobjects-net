@@ -138,7 +138,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
   public class MSSQLExtractor_TestColumnTypeExtraction : MSSQLExtractorTestBase
   {
-    private StringComparer comparer = StringComparer.CurrentCultureIgnoreCase;
+    private StringComparer comparer = StringComparer.InvariantCultureIgnoreCase;
 
     public override string CleanUpScript
     {
