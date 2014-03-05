@@ -11,13 +11,16 @@ namespace Xtensive.Orm.Logging
   internal sealed class FileWriter : LogWriter
   {
     private readonly string fileName;
+    private readonly object syncRoot = new object();
 
     /// <inheritdoc/>
     public override void Write(LogEventInfo logEvent)
     {
-      using (var streamWriter = new StreamWriter(fileName, true)) {
-        streamWriter.WriteLine(logEvent);
-        streamWriter.Close();
+      lock (syncRoot) {
+        using (var streamWriter = new StreamWriter(fileName, true)) {
+          streamWriter.WriteLine(logEvent);
+          streamWriter.Close();
+        }
       }
     }
 
