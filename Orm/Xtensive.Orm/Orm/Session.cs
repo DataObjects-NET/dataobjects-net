@@ -79,6 +79,7 @@ namespace Xtensive.Orm
     private readonly long identifier;
     private readonly Pinner pinner;
 
+    private string nodeId = WellKnown.DefaultNodeId;
     private int? commandTimeout;
     private bool isDelayedQueryRunning;
     private volatile bool isDisposed;
@@ -150,9 +151,25 @@ namespace Xtensive.Orm
         var directSqlService = Services.Demand<IDirectSqlService>();
         return directSqlService.ConnectionInfo;
       }
-      set {
+      set
+      {
         var directSqlService = Services.Demand<IDirectSqlService>();
         directSqlService.ConnectionInfo = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets node identifier for this instance.
+    /// </summary>
+    public string NodeId
+    {
+      get { return nodeId; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        if (nodeId!=WellKnown.DefaultNodeId)
+          throw Exceptions.AlreadyInitialized("NodeId");
+        nodeId = value;
       }
     }
 

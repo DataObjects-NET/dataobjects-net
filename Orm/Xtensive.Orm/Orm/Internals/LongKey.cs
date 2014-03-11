@@ -39,8 +39,8 @@ namespace Xtensive.Orm.Internals
 
     // Constructors
 
-    internal LongKey(TypeInfo type, TypeReferenceAccuracy accuracy, Tuple value)
-      : base(type, accuracy, value)
+    internal LongKey(string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, Tuple value)
+      : base(nodeId, type, accuracy, value)
     {
     }
   }

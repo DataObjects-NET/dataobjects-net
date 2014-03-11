@@ -24,6 +24,11 @@ namespace Xtensive.Orm
   public static class WellKnown
   {
     /// <summary>
+    /// Default node identifier (empty string).
+    /// </summary>
+    public const string DefaultNodeId = "";
+
+    /// <summary>
     /// Name of the default configuration section (Xtensive.Orm).
     /// </summary>
     public const string DefaultConfigurationSection = "Xtensive.Orm";

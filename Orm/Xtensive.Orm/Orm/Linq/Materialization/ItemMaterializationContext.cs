@@ -50,10 +50,10 @@ namespace Xtensive.Orm.Linq.Materialization
       if (!KeyFactory.IsValidKeyTuple(tuple, keyIndexes))
         return null;
       if (keyIndexes.Length <= WellKnown.MaxGenericKeyLength)
-        key = KeyFactory.Materialize(Session.Domain, materializationInfo.Type, tuple, accuracy, canCache, keyIndexes);
+        key = KeyFactory.Materialize(Session.Domain, Session.NodeId, materializationInfo.Type, tuple, accuracy, canCache, keyIndexes);
       else {
         var keyTuple = materializationInfo.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-        key = KeyFactory.Materialize(Session.Domain, materializationInfo.Type, keyTuple, accuracy, canCache, null);
+        key = KeyFactory.Materialize(Session.Domain, Session.NodeId, materializationInfo.Type, keyTuple, accuracy, canCache, null);
       }
       if (accuracy==TypeReferenceAccuracy.ExactType) {
         var entityTuple = materializationInfo.Transform.Apply(TupleTransformType.Tuple, tuple);

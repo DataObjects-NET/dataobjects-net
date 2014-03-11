@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         foreach (var order in orders) {
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(order.Key, order.Key.TypeInfo, session, fieldSelector);
           var orderState = session.EntityStateCache[order.Key, true];
-          var employeeKey = Key.Create(Domain, Domain.Model.Types[typeof(Employee)],
+          var employeeKey = Key.Create(Domain, WellKnown.DefaultNodeId, Domain.Model.Types[typeof(Employee)],
             TypeReferenceAccuracy.ExactType, employeeField.Associations.Last()
               .ExtractForeignKey(orderState.Type, orderState.Tuple));
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(employeeKey, employeeType, session, fieldSelector);

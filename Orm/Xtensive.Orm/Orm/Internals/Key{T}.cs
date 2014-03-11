@@ -42,21 +42,21 @@ namespace Xtensive.Orm.Internals
       return Tuple.HashCodeMultiplier ^ value1.GetHashCode() ^ TypeReference.Type.Key.EqualityIdentifier.GetHashCode();
     }
 
-    public static Key Create(TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)
+    public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)
     {
-      return new Key<T>(type, accuracy, tuple.GetValueOrDefault<T>(keyIndexes[0]));
+      return new Key<T>(nodeId, type, accuracy, tuple.GetValueOrDefault<T>(keyIndexes[0]));
     }
 
-    public static Key Create(TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy)
+    public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy)
     {
-      return new Key<T>(type, accuracy, tuple.GetValueOrDefault<T>(0));
+      return new Key<T>(nodeId, type, accuracy, tuple.GetValueOrDefault<T>(0));
     }
 
     
     // Constructors
 
-    internal Key(TypeInfo type, TypeReferenceAccuracy accuracy, T value)
-      : base(type, accuracy, null)
+    internal Key(string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, T value)
+      : base(nodeId, type, accuracy, null)
     {
       value1 = value;
     }

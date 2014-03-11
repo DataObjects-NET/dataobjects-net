@@ -15,14 +15,15 @@ namespace Xtensive.Orm.Internals
   internal sealed class GenericKeyTypeInfo
   {
     public readonly Type Type;
-    public readonly Func<TypeInfo, Tuple, TypeReferenceAccuracy, Key> DefaultConstructor;
-    public readonly Func<TypeInfo, Tuple, TypeReferenceAccuracy, int[], Key> KeyIndexBasedConstructor;
+    public readonly Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, Key> DefaultConstructor;
+    public readonly Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, int[], Key> KeyIndexBasedConstructor;
 
 
     // Constructors
 
-    public GenericKeyTypeInfo(Type type, Func<TypeInfo, Tuple, TypeReferenceAccuracy, Key> defaultConstructor,
-      Func<TypeInfo, Tuple, TypeReferenceAccuracy, int[], Key> keyIndexBasedConstructor)
+    public GenericKeyTypeInfo(Type type,
+      Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, Key> defaultConstructor,
+      Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, int[], Key> keyIndexBasedConstructor)
     {
       Type = type;
       DefaultConstructor = defaultConstructor;

@@ -112,10 +112,10 @@ namespace Xtensive.Orm.Internals
       bool canCache = accuracy==TypeReferenceAccuracy.ExactType;
       Key key;
       if (typeMapping.KeyTransform.Descriptor.Count <= WellKnown.MaxGenericKeyLength)
-        key = KeyFactory.Materialize(Domain, typeMapping.Type, tuple, accuracy, canCache, typeMapping.KeyIndexes);
+        key = KeyFactory.Materialize(Domain, context.Session.NodeId, typeMapping.Type, tuple, accuracy, canCache, typeMapping.KeyIndexes);
       else {
         var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-        key = KeyFactory.Materialize(Domain, typeMapping.Type, keyTuple, accuracy, canCache, null);
+        key = KeyFactory.Materialize(Domain, context.Session.NodeId, typeMapping.Type, keyTuple, accuracy, canCache, null);
       }
       if (accuracy == TypeReferenceAccuracy.ExactType) {
         var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, tuple);

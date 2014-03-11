@@ -55,7 +55,8 @@ namespace Xtensive.Orm.Internals.Prefetch
       var foreignKeyTuple = ExtractForeignKeyTuple(ownerState);
       if (foreignKeyTuple == null)
         return null;
-      Key = Key.Create(Manager.Owner.Session.Domain, Type, TypeReferenceAccuracy.BaseType, foreignKeyTuple);
+      var session = Manager.Owner.Session;
+      Key = Key.Create(session.Domain, session.NodeId, Type, TypeReferenceAccuracy.BaseType, foreignKeyTuple);
       return CreateTask();
     }
 

@@ -61,18 +61,18 @@ namespace Xtensive.Orm.Internals
       return result ^ TypeReference.Type.Key.EqualityIdentifier.GetHashCode();
     }
 
-    public static Key Create(TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)
+    public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)
     {
-      return new Key<T1, T2, T3, T4>(type, accuracy,
+      return new Key<T1, T2, T3, T4>(nodeId, type, accuracy,
         tuple.GetValueOrDefault<T1>(keyIndexes[0]),
         tuple.GetValueOrDefault<T2>(keyIndexes[1]),
         tuple.GetValueOrDefault<T3>(keyIndexes[2]),
         tuple.GetValueOrDefault<T4>(keyIndexes[3]));
     }
 
-    public static Key Create(TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy)
+    public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy)
     {
-      return new Key<T1, T2, T3, T4>(type, accuracy,
+      return new Key<T1, T2, T3, T4>(nodeId, type, accuracy,
         tuple.GetValueOrDefault<T1>(0),
         tuple.GetValueOrDefault<T2>(1),
         tuple.GetValueOrDefault<T3>(2),
@@ -82,8 +82,8 @@ namespace Xtensive.Orm.Internals
     
     // Constructors
 
-    internal Key(TypeInfo type, TypeReferenceAccuracy accuracy, T1 value1, T2 value2, T3 value3, T4 value4)
-      : base(type, accuracy, null)
+    internal Key(string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, T1 value1, T2 value2, T3 value3, T4 value4)
+      : base(nodeId, type, accuracy, null)
     {
       this.value1 = value1;
       this.value2 = value2;

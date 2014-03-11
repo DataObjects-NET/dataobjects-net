@@ -519,6 +519,7 @@ namespace Xtensive.Orm
 
               var combinedKey = Key.Create(
                 Session.Domain,
+                Session.NodeId,
                 auxiliaryType,
                 TypeReferenceAccuracy.ExactType,
                 combinedTuple);
@@ -586,6 +587,7 @@ namespace Xtensive.Orm
 
               var combinedKey = Key.Create(
                 Session.Domain,
+                Session.NodeId,
                 auxiliaryType,
                 TypeReferenceAccuracy.ExactType,
                 combinedTuple);

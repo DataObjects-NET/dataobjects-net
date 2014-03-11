@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Services
             string.Format(Strings.TypeXIsNotAnYDescendant, entityType, typeof (Entity)));
 
         var domain = Session.Domain;
-        var key = Key.Create(domain, domain.Model.Types[entityType], TypeReferenceAccuracy.ExactType, tuple);
+        var key = Key.Create(domain, Session.NodeId, domain.Model.Types[entityType], TypeReferenceAccuracy.ExactType, tuple);
         return Session.CreateOrInitializeExistingEntity(entityType, key);
       }
     }

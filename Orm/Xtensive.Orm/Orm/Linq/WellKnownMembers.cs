@@ -126,8 +126,7 @@ namespace Xtensive.Orm.Linq
           "Create",
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
           null,
-           new[] {typeof(Domain), typeof (TypeInfo), typeof(TypeReferenceAccuracy), typeof (Xtensive.Tuples.Tuple)}, null);
-
+          new[] {typeof (Domain), typeof (string), typeof (TypeInfo), typeof (TypeReferenceAccuracy), typeof (Tuples.Tuple)}, null);
       }
     }
 
