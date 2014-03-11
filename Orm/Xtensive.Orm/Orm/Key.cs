@@ -335,67 +335,6 @@ namespace Xtensive.Orm
     #region Generate key methods
 
     /// <summary>
-    /// Creates <see cref="Key"/> instance 
-    /// for the specified <see cref="Entity"/> type <typeparamref name="T"/>
-    /// with newly generated value.
-    /// </summary>
-    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
-    /// <returns>A newly created <see cref="Key"/> instance .</returns>
-    /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
-    [Obsolete("Use Generate<T>(Session) method instead.")]
-    public static Key Create<T>()
-      where T : Entity
-    {
-      return Generate(Session.Demand(), typeof (T));
-    }
-
-    /// <summary>
-    /// Creates <see cref="Key"/> instance 
-    /// for the specified <see cref="Entity"/> <paramref name="type"/>
-    /// with newly generated value.
-    /// </summary>
-    /// <returns>A newly created <see cref="Key"/> instance .</returns>
-    /// <remarks>This method requires open <see cref="Session"/> instance.</remarks>
-    [Obsolete("Use Generate(Session, Type) method instead.")]
-    public static Key Create(Type type)
-    {
-      return Generate(Session.Demand(), type);
-    }
-
-    /// <summary>
-    /// Creates <see cref="Key"/> instance
-    /// for the specified <see cref="Entity"/> type <typeparamref name="T"/>
-    /// with newly generated value.
-    /// </summary>
-    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
-    /// <param name="session">The session.</param>
-    /// <returns>
-    /// A newly created <see cref="Key"/> instance .
-    /// </returns>
-    [Obsolete("Use Generate<T>(Session) method instead.")]
-    public static Key Create<T>(Session session)
-      where T : Entity
-    {
-      return Generate(session, typeof (T));
-    }
-
-    /// <summary>
-    /// Creates <see cref="Key"/> instance
-    /// for the specified <see cref="Entity"/> <paramref name="type"/>
-    /// with newly generated value.
-    /// </summary>
-    /// <param name="session">The session.</param>
-    /// <param name="type">The type.</param>
-    /// <returns>
-    /// A newly created <see cref="Key"/> instance .
-    /// </returns>
-    [Obsolete("Use Generate(Session, Type) method instead.")]
-    public static Key Create(Session session, Type type)
-    {
-      return Generate(session, type);
-    }
-
-    /// <summary>
     /// Creates <see cref="Key"/> instance
     /// for the specified <see cref="Entity"/> type <typeparamref name="T"/>
     /// with newly generated value.
@@ -437,37 +376,6 @@ namespace Xtensive.Orm
     #endregion
 
     #region Create key by tuple methods
-
-    /// <summary>
-    /// Creates <see cref="Key"/> instance
-    /// for the specified <see cref="Entity"/> type <typeparamref name="T"/>
-    /// and with specified <paramref name="value"/>.
-    /// </summary>
-    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
-    /// <param name="value">Key value.</param>
-    /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
-    /// <remarks>This method requires activated <see cref="Session"/> instance.</remarks>
-    [Obsolete("Use Create<T>(Domain, Tuple) method instead.")]
-    public static Key Create<T>(Tuple value)
-      where T : IEntity
-    {
-      return Create(typeof (T), value);
-    }
-
-    /// <summary>
-    /// Creates <see cref="Key"/> instance 
-    /// for the specified <see cref="Entity"/> <paramref name="type"/>
-    /// and with specified <paramref name="value"/>.
-    /// </summary>
-    /// <param name="type">Entity type.</param>
-    /// <param name="value">Key value.</param>
-    /// <returns>A newly created or existing <see cref="Key"/> instance .</returns>
-    /// <remarks>This method requires active <see cref="Session"/> instance.</remarks>
-    [Obsolete("Use Create(Domain, Type, Tuple) method instead.")]
-    public static Key Create(Type type, Tuple value)
-    {
-      return Create(Domain.Demand(), type, value);
-    }
 
     /// <summary>
     /// Creates <see cref="Key"/> instance
@@ -527,37 +435,6 @@ namespace Xtensive.Orm
     #endregion
 
     #region Create key by params object[] methods
-
-    /// <summary>
-    /// Creates <see cref="Key"/> instance
-    /// for the specified <see cref="Entity"/> type <typeparamref name="T"/>
-    /// and with specified <paramref name="values"/>.
-    /// </summary>
-    /// <typeparam name="T">Type of <see cref="Entity"/> descendant to get <see cref="Key"/> for.</typeparam>
-    /// <param name="values">Key values.</param>
-    /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
-    /// <remarks>This method requires active <see cref="Session"/> instance.</remarks>
-    [Obsolete("Use Create<T>(Domain, params object[]) method instead.")]
-    public static Key Create<T>(params object[] values)
-      where T : IEntity
-    {
-      return Create(typeof(T), values);
-    }
-
-    /// <summary>
-    /// Creates <see cref="Key"/> instance 
-    /// for the specified <see cref="Entity"/> <paramref name="type"/>
-    /// and with specified <paramref name="values"/>.
-    /// </summary>
-    /// <param name="type">Entity type.</param>
-    /// <param name="values">Key values.</param>
-    /// <returns>A newly created or existing <see cref="Key"/> instance.</returns>
-    /// <remarks>This method requires active <see cref="Session"/> instance.</remarks>
-    [Obsolete("Use Create(Domain, Type, params object[]) method instead.")]
-    public static Key Create(Type type, params object[] values)
-    {
-      return Create(Domain.Demand(), type, values);
-    }
 
     /// <summary>
     /// Creates <see cref="Key"/> instance
