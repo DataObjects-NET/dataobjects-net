@@ -185,6 +185,7 @@ namespace Xtensive.Orm.Upgrade
       var typeInfo = new StorageTypeInfo(ToNullable(nativeTypeInfo.Type, column.IsNullable), nativeTypeInfo.NativeType, column.IsNullable, nativeTypeInfo.Length, nativeTypeInfo.Precision, nativeTypeInfo.Scale);
 
       var defaultValue = GetColumnDefaultValue(column, typeInfo);
+      var defaultSqlExpression = GetColumnDefaultSqlExpression(column);
       if (column.IsSystem && column.Field.IsTypeId) {
         var type = column.Field.ReflectedType;
         if (type.IsEntity && type==type.Hierarchy.Root) {
@@ -193,7 +194,8 @@ namespace Xtensive.Orm.Upgrade
       }
 
       return new StorageColumnInfo(currentTable, column.Name, typeInfo) {
-        DefaultValue = defaultValue
+        DefaultValue = defaultValue,
+        DefaultSqlExpression = defaultSqlExpression
       };
     }
 
@@ -376,6 +378,13 @@ namespace Xtensive.Orm.Upgrade
       if (type==typeof(byte[]))
         return ArrayUtils<byte>.EmptyArray;
       return Activator.CreateInstance(column.ValueType);
+    }
+
+    private string GetColumnDefaultSqlExpression(ColumnInfo column)
+    {
+      if (!string.IsNullOrEmpty(column.DefaultSqlExpression))
+        return column.DefaultSqlExpression;
+      return null;
     }
 
     private static StorageIndexInfo FindIndex(TableInfo table, ICollection<string> keyColumns)
