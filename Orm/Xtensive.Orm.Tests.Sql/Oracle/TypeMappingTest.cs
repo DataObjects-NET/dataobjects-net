@@ -8,7 +8,8 @@ using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Sql.Oracle
 {
-  public abstract class TypeMappingTest : Sql.TypeMappingTest
+  [TestFixture, Explicit]
+  public class TypeMappingTest : Sql.TypeMappingTest
   {
     protected override void CheckEquality(object expected, object actual)
     {
@@ -27,5 +28,9 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
         base.CheckEquality(expected, actual);
     }
 
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Oracle);
+    }
   }
 }

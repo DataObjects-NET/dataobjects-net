@@ -13,7 +13,8 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql.Oracle
 {
-  public abstract class UberTest : SqlTest
+  [TestFixture, Explicit]
+  public class UberTest : SqlTest
   {
     private const string BatchTestTable = "batch_test";
     private const string LobTestTable = "lob_test";
@@ -28,6 +29,11 @@ namespace Xtensive.Orm.Tests.Sql.Oracle
       testSchema = ExtractDefaultSchema();
       EnsureTableNotExists(testSchema, BatchTestTable);
       EnsureTableNotExists(testSchema, LobTestTable);
+    }
+
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Oracle);
     }
 
     [Test]

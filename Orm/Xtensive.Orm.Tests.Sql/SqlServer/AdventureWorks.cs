@@ -78,11 +78,25 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       return result;
     }
 
+    protected string Url { get { return TestConnectionInfoProvider.GetConnectionUrl(); } }
     public Catalog Catalog { get; protected set; }
+
+    protected virtual void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+    }
 
     [TestFixtureSetUp]
     public virtual void SetUp()
     {
+      CheckRequirements();
+      var driver = TestSqlDriver.Create(Url);
+      using (var connection = driver.CreateConnection())
+      {
+        connection.Open();
+        Catalog = driver.ExtractCatalog(connection);
+        connection.Close();
+      }
 //      BinaryModelProvider bmp = new BinaryModelProvider(@"C:/Debug/AdventureWorks.bin");
 //      model = Database.Model.Build(bmp);
 //

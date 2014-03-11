@@ -51,7 +51,5 @@ namespace Xtensive.Orm.Tests.Sql.SqlServerCe
         Console.WriteLine();
       }
     }
-
-    protected override string Url { get { return TestUrl.SqlServerCe35Northwind; } }
   }
 }

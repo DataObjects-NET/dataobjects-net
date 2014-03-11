@@ -2,18 +2,18 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
-// Created:    2009.07.08
+// Created:    2009.03.02
 
 using NUnit.Framework;
 
-namespace Xtensive.Orm.Tests.Sql.SqlServerCe
+namespace Xtensive.Orm.Tests.Sql.PostgreSql
 {
   [TestFixture]
-  public class TypeMappingTest : Sql.TypeMappingTest
+  public class DateTimeIntervalTest : Sql.DateTimeIntervalTest
   {
     protected override void CheckRequirements()
     {
-      Require.ProviderIs(StorageProvider.SqlServerCe);
+      Require.ProviderIs(StorageProvider.PostgreSql);
     }
   }
 }

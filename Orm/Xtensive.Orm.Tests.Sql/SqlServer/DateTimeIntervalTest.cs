@@ -6,14 +6,14 @@
 
 using NUnit.Framework;
 
-namespace Xtensive.Orm.Tests.Sql.SqlServerCe
+namespace Xtensive.Orm.Tests.Sql.SqlServer
 {
   [TestFixture]
   public class DateTimeIntervalTest : Sql.DateTimeIntervalTest
   {
     protected override void CheckRequirements()
     {
-      Require.ProviderIs(StorageProvider.SqlServerCe);
+      Require.ProviderIs(StorageProvider.SqlServer);
     }
 
     public override void DateTimeSubtractIntervalTest()

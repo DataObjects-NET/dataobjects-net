@@ -8,41 +8,48 @@ using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Sql.Firebird
 {
-    public abstract class TypeMappingTest : Sql.TypeMappingTest
+  public class TypeMappingTest : Sql.TypeMappingTest
+  {
+    public override void SetUp()
     {
-        public override void SetUp()
-        {
-            base.SetUp();
-            // hack because Visual Nunit doesn't use TestFixtureSetUp attribute, just SetUp attribute
-            RealTestFixtureSetUp();
-        }
-
-        public override void TearDown()
-        {
-            base.TearDown();
-            // hack because Visual Nunit doesn't use TestFixtureTearDown attribute, just TearDown attribute
-            RealTestFixtureTearDown();
-        }
-
-        protected override void CheckEquality(object expected, object actual)
-        {
-            if (expected is char || actual is char)
-                base.CheckEquality(expected ?? default(char), actual ?? default(char));
-            else
-                base.CheckEquality(expected, actual);
-            //var arrayValue = expected as byte[];
-            //var stringValue = expected as string;
-            //var charValue = expected as char?;
-
-            //bool nullExpected =
-            //  arrayValue != null && arrayValue.Length == 0 ||
-            //  stringValue != null && stringValue.Length == 0 ||
-            //  charValue != null && charValue == default(char);
-
-            //if (nullExpected)
-            //    Assert.IsNull(actual);
-            //else
-            //    base.CheckEquality(expected, actual);
-        }
+      base.SetUp();
+      // hack because Visual Nunit doesn't use TestFixtureSetUp attribute, just SetUp attribute
+      RealTestFixtureSetUp();
+      TestHelpers.StartTraceToLogFile(this);
     }
+
+    public override void TearDown()
+    {
+      base.TearDown();
+      // hack because Visual Nunit doesn't use TestFixtureTearDown attribute, just TearDown attribute
+      RealTestFixtureTearDown();
+      TestHelpers.StopTraceToLogFile(this);
+    }
+
+    protected override void CheckEquality(object expected, object actual)
+    {
+      if (expected is char || actual is char)
+        base.CheckEquality(expected ?? default(char), actual ?? default(char));
+      else
+        base.CheckEquality(expected, actual);
+      //var arrayValue = expected as byte[];
+      //var stringValue = expected as string;
+      //var charValue = expected as char?;
+
+      //bool nullExpected =
+      //  arrayValue != null && arrayValue.Length == 0 ||
+      //  stringValue != null && stringValue.Length == 0 ||
+      //  charValue != null && charValue == default(char);
+
+      //if (nullExpected)
+      //    Assert.IsNull(actual);
+      //else
+      //    base.CheckEquality(expected, actual);
+    }
+
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Firebird);
+    }
+  }
 }

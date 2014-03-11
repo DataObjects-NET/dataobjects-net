@@ -11,7 +11,7 @@ using Constraint = Xtensive.Sql.Model.Constraint;
 
 namespace Xtensive.Orm.Tests.Sql.Sqlite
 {
-  [TestFixture]
+  [TestFixture, Explicit]
   public abstract class Northwind
   {
     protected struct DbCommandExecutionResult
@@ -76,11 +76,18 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       return result;
     }
 
+    protected string Url { get { return TestConnectionInfoProvider.GetConnectionUrl(); } }
     public Catalog Catalog { get; protected set; }
+
+    protected virtual void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Sqlite);
+    }
 
     [TestFixtureSetUp]
     public virtual void SetUp()
     {
+      CheckRequirements();
     }
   }
 }

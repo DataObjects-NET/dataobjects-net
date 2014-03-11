@@ -38,9 +38,11 @@ namespace Xtensive.Orm.Tests.Sql
 
     protected override void TestFixtureTearDown()
     {
-      Table t = schema.Tables[TableName];
-      if (t!=null)
-        ExecuteNonQuery(SqlDdl.Drop(t));
+      if (schema!=null) {
+        Table t = schema.Tables[TableName];
+        if (t!=null)
+          ExecuteNonQuery(SqlDdl.Drop(t));
+      }
       base.TestFixtureTearDown();
     }
 

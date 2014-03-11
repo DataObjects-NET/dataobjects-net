@@ -6,14 +6,14 @@
 
 using NUnit.Framework;
 
-namespace Xtensive.Orm.Tests.Sql.SqlServerCe
+namespace Xtensive.Orm.Tests.Sql.PostgreSql
 {
   [TestFixture]
   public class TypeMappingTest : Sql.TypeMappingTest
   {
     protected override void CheckRequirements()
     {
-      Require.ProviderIs(StorageProvider.SqlServerCe);
+      Require.ProviderIs(StorageProvider.PostgreSql);
     }
   }
 }

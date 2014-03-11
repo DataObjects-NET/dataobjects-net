@@ -22,8 +22,6 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     public void CompareCatalogs(Catalog created, Catalog extracted)
     {
       Assert.AreEqual(created.Name, extracted.Name);
-      // Extracted schema count is greater, because it includes the "public" schema
-      Assert.AreEqual(created.Schemas.Count, extracted.Schemas.Count - 1);
 
       foreach (Schema s1 in created.Schemas) {
         Schema s2 = extracted.Schemas[s1.Name];

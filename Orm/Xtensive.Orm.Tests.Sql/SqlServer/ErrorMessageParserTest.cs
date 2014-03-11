@@ -16,6 +16,17 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
   [TestFixture]
   public class ErrorMessageParserTest
   {
+    [TestFixtureSetUp]
+    protected virtual void SetUp()
+    {
+      CheckRequirements();
+    }
+
+    protected virtual void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+    }
+
     [Test]
     public void ExtractQuotedTest()
     {

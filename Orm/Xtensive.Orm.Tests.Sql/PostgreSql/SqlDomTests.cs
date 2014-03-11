@@ -18,9 +18,17 @@ using UniqueConstraint=Xtensive.Sql.Model.UniqueConstraint;
 namespace Xtensive.Orm.Tests.Sql.PostgreSql
 {
   [TestFixture, Explicit]
-  public abstract class SqlDomTests
+  public class SqlDomTests
   {
-    protected abstract string Url { get; }
+    protected UrlInfo ConnectionUrlInfo
+    {
+      get { return TestConnectionInfoProvider.GetConnectionInfo().ConnectionUrl; }
+    }
+
+    protected string Url
+    {
+      get { return ConnectionUrlInfo.Url; }
+    }
 
     protected SqlDriver Driver { get; private set; }
 
@@ -28,9 +36,15 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
     protected Catalog MyCatalog { get; private set; }
 
+    protected virtual void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+    }
+
     [TestFixtureSetUp]
     public virtual void FixtureSetup()
     {
+      CheckRequirements();
       Driver = TestSqlDriver.Create(Url);
       CreateModel();
       Connection = Driver.CreateConnection();
@@ -46,7 +60,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     protected void CreateModel()
     {
       {
-        MyCatalog = new Catalog("do40test");
+        MyCatalog = new Catalog(ConnectionUrlInfo.GetDatabase());
 
         ForeignKey fk;
         Index idx;
@@ -1485,6 +1499,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       }
       finally {
         Connection.Rollback();
+        var t = MyCatalog.DefaultSchema.Tables["unique_perd_test"];
+        if (t != null)
+          MyCatalog.DefaultSchema.Tables.Remove(t);
       }
     }
 
@@ -1677,6 +1694,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       }
       finally {
         Connection.Rollback();
+        var t = MyCatalog.DefaultSchema.Tables["match_pred_test"];
+        if (t!=null)
+          MyCatalog.DefaultSchema.Tables.Remove(t);
       }
     }
 
@@ -1763,6 +1783,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       }
       finally {
         Connection.Rollback();
+        var t = MyCatalog.DefaultSchema.Tables["agg_test"];
+        if (t != null)
+          MyCatalog.DefaultSchema.Tables.Remove(t);
       }
     }
 
@@ -1821,7 +1844,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       }
     }
 
-    [Test]
+    [Test, Ignore("SQLFIXME")]
     public void UnionAndIntersectTest()
     {
       SqlSelect q = SqlDml.Select(SqlDml.QueryRef(
@@ -2040,6 +2063,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       }
       finally {
         Connection.Rollback();
+        var t = MyCatalog.DefaultSchema.Tables["cursor_test"];
+        if (t != null)
+          MyCatalog.DefaultSchema.Tables.Remove(t);
       }
     }
 
