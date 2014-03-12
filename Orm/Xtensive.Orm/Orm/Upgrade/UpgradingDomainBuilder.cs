@@ -112,7 +112,9 @@ namespace Xtensive.Orm.Upgrade
 
     private FutureResult<T> CreateResult<T>(Func<T> action)
     {
-      return new FutureResult<T>(action, context.Configuration.BuildInParallel);
+      if (context.Configuration.BuildInParallel)
+        return new AsyncFutureResult<T>(action, UpgradeLog.Instance);
+      return new SynchronousFutureResult<T>(action);
     }
 
     private Domain BuildMultistageDomain()

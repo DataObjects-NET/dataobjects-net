@@ -5250,6 +5250,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Result is not available..
+        /// </summary>
+        internal static string ExResultIsNotAvailable {
+            get {
+                return ResourceManager.GetString("ExResultIsNotAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value of &apos;{0}&apos; type cannot be assigned to property of &apos;{1}&apos; type..
         /// </summary>
         internal static string ExResultTypeIncorrect {
@@ -7770,6 +7779,15 @@ namespace Xtensive {
         internal static string Length {
             get {
                 return ResourceManager.GetString("Length", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Async operation error..
+        /// </summary>
+        internal static string LogAsyncOperationError {
+            get {
+                return ResourceManager.GetString("LogAsyncOperationError", resourceCulture);
             }
         }
         

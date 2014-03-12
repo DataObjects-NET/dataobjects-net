@@ -255,6 +255,7 @@
     <Compile Include="Core\AliasGenerator.cs" />
     <Compile Include="Core\ArgumentValidator.cs" />
     <Compile Include="Core\AssociateProvider.cs" />
+    <Compile Include="Core\AsyncFutureResult.cs" />
     <Compile Include="Core\Cloner.cs" />
     <Compile Include="Core\ConfigurationCollection.cs" />
     <Compile Include="Core\ConfigurationCollectionElementBase.cs" />
@@ -320,9 +321,11 @@
     <Compile Include="Core\Segment.cs" />
     <Compile Include="Core\SimpleScope.cs" />
     <Compile Include="Core\SimpleXmlSerializer.cs" />
+    <Compile Include="Core\SynchronousFutureResult.cs" />
     <Compile Include="Core\ThreadSafeCached.cs" />
     <Compile Include="Core\Triplet{TFirst,TSecond,TThird}.cs" />
     <Compile Include="Core\Triplet{T}.cs" />
+    <Compile Include="Core\ValueFutureResult.cs" />
     <Compile Include="InternalLogs.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -632,7 +635,7 @@
     <Compile Include="Orm\TargetKind.cs" />
     <Compile Include="Orm\Upgrade\Internals\MatchingHelper.cs" />
     <Compile Include="Orm\Upgrade\Internals\PartialIndexInfoMap.cs" />
-    <Compile Include="Orm\Upgrade\Internals\FutureResult.cs" />
+    <Compile Include="Core\FutureResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\AssemblyMetadata.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\ExtensionMetadata.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\MetadataMapping.cs" />

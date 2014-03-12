@@ -3301,4 +3301,10 @@ Error: {1}</value>
   <data name="ExAssemblyVersionMismatchMainAssemblyXYExtensionsAssemblyAB" xml:space="preserve">
     <value>Assembly version mismatch: main assembly '{0} {1}', extension assembly '{2} {3}'.</value>
   </data>
+  <data name="ExResultIsNotAvailable" xml:space="preserve">
+    <value>Result is not available.</value>
+  </data>
+  <data name="LogAsyncOperationError" xml:space="preserve">
+    <value>Async operation error.</value>
+  </data>
 </root>
