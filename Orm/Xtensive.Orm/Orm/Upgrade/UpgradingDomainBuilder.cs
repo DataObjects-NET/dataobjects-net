@@ -329,7 +329,9 @@ namespace Xtensive.Orm.Upgrade
     {
       using (UpgradeLog.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
         var extractedSchema = extractor.GetSchema();
-        var targetSchema = domain.StorageModel = GetTargetModel(domain);
+        var targetSchema = GetTargetModel(domain);
+
+        context.TargetStorageModel = targetSchema;
 
         if (UpgradeLog.IsLogged(LogLevel.Info)) {
           UpgradeLog.Info(Strings.LogExtractedSchema);

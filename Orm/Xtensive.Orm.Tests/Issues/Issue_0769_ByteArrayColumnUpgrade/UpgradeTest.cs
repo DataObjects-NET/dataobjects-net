@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
             Bytes = new byte[] {1, 2, 3}
           };
 
-          var bytesColumn = GetColumnInfo(domain.StorageModel, person.TypeInfo, "Bytes");
+          var bytesColumn = GetColumnInfo(Upgrader.TargetStorageModel, person.TypeInfo, "Bytes");
           var driver = TestSqlDriver.Create(domain.Configuration.ConnectionInfo);
           var expected = driver.TypeMappings[typeof (byte[])].MapType().Length;
           Assert.AreEqual(expected, bytesColumn.Type.Length);
@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
           AssertEx.HasSameElements("Person", person.Name);
           AssertEx.HasSameElements(new byte[] {1, 2, 3}, person.Bytes);
 
-          var bytesColumn = GetColumnInfo(domain.StorageModel, person.TypeInfo, "Bytes");
+          var bytesColumn = GetColumnInfo(Upgrader.TargetStorageModel, person.TypeInfo, "Bytes");
           Assert.AreEqual(null, bytesColumn.Type.Length);
         }
       }
@@ -80,20 +80,19 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
 
     private void BuildDomain(string version, DomainUpgradeMode upgradeMode)
     {
-      if (domain != null)
+      if (domain!=null)
         domain.DisposeSafely();
 
-      string ns = typeof(Person).Namespace;
+      string ns = typeof (Person).Namespace;
       string nsPrefix = ns.Substring(0, ns.Length - 1);
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(), nsPrefix + version);
-      configuration.Types.Register(typeof(Upgrader));
+      configuration.Types.Register(typeof (Upgrader));
 
-      using (Upgrader.Enable(version)) {
+      using (Upgrader.Enable(version))
         domain = Domain.Build(configuration);
-      }
     }
   }
 }

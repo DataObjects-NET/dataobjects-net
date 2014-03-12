@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Upgrade;
+using Xtensive.Orm.Upgrade.Model;
 using M1 = Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version1;
 using M2 = Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version2;
 
@@ -19,6 +20,14 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
   {
     private static bool isEnabled = false;
     private static string runningVersion;
+
+    public static StorageModel TargetStorageModel;
+
+    public override void OnComplete(Domain domain)
+    {
+      base.OnComplete(domain);
+      TargetStorageModel = UpgradeContext.TargetStorageModel;
+    }
 
     /// <exception cref="InvalidOperationException">Handler is already enabled.</exception>
     public static IDisposable Enable(string version)

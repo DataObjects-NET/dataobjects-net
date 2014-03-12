@@ -99,8 +99,6 @@ namespace Xtensive.Orm
     internal RecordSetReader RecordSetReader { get; private set; }
 
     internal Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>> PrefetchActionMap { get; private set; }
-    
-    internal StorageModel StorageModel { get; set; }
 
     internal DomainHandler Handler { get { return Handlers.DomainHandler; } }
 
