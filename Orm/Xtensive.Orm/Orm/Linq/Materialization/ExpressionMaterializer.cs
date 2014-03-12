@@ -299,7 +299,9 @@ namespace Xtensive.Orm.Linq.Materialization
       return Expression.Call(
         WellKnownMembers.Key.Create,
         Expression.Constant(context.Domain),
-        Expression.Constant(WellKnown.DefaultNodeId), // TODO: Use node id from current session
+        Expression.Property(
+          Expression.Field(itemMaterializationContextParameter, ItemMaterializationContext.SessionFieldInfo),
+          WellKnownMembers.SessionNodeId),
         Expression.Constant(expression.EntityType),
         Expression.Constant(TypeReferenceAccuracy.BaseType),
         tupleExpression);

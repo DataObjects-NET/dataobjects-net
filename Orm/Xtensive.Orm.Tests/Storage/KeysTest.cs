@@ -15,9 +15,18 @@ namespace Xtensive.Orm.Tests.Storage
 {
   namespace Keys
   {
-    [Serializable]
-    [KeyGenerator(KeyGeneratorKind.None)]
     [HierarchyRoot]
+    public class FruitRef : Entity
+    {
+      [Key, Field]
+      public long Id { get; private set; }
+
+      [Field]
+      public Fruit Ref { get; set; }
+    }
+
+    [HierarchyRoot]
+    [KeyGenerator(KeyGeneratorKind.None)]
     public abstract class Fruit : Entity
     {
       [Field(Length = 50), Key]
@@ -29,7 +38,6 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    [Serializable]
     public class Banana : Fruit
     {
       public Banana(string tag)
@@ -38,7 +46,6 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    [Serializable]
     public class Apple : Fruit
     {
       public Apple(string tag)
@@ -47,9 +54,8 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    [Serializable]
-    [KeyGenerator(KeyGeneratorKind.None)]
     [HierarchyRoot]
+    [KeyGenerator(KeyGeneratorKind.None)]
     public class Test : Entity
     {
       [Field(Length = 50), Key(0)]
@@ -103,7 +109,7 @@ namespace Xtensive.Orm.Tests.Storage
     public class Container : Entity
     {
       [Field, Key]
-      public Guid ID { get; private set; }
+      public Guid Id { get; private set; }
 
       [Field(Length = 128)]
       public Key StringKey { get; set; }
@@ -112,6 +118,25 @@ namespace Xtensive.Orm.Tests.Storage
 
   public class KeysTest : AutoBuildTest
   {
+    private const string TestNodeId = "{4657EED5-AD12-4E3A-9324-BE570C897452}";
+    private const string TestAppleTag = "{0AD2D57A-D2C0-4C42-B13D-6B3A114E0258}";
+
+    private Key testAppleKey;
+    private Key testFruitRefKey;
+
+    protected override void PopulateData()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        session.NodeId = TestNodeId;
+        var apple = new Apple(TestAppleTag);
+        var refObject = new FruitRef {Ref = apple};
+        testAppleKey = apple.Key;
+        testFruitRefKey = refObject.Key;
+        tx.Complete();
+      }
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
@@ -120,7 +145,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public void MainTest()
+    public void CreateFormatParseTest()
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
@@ -206,7 +231,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public void DoubleSetNodeIdTest()
+    public void NodeIdDoubleSetTest()
     {
       var node1 = "{1211AD76-E594-4A33-959E-BD53A70DD956}";
       var node2 = "{5854CFC3-B153-411C-8090-E0369034BDEF}";
@@ -220,55 +245,124 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NodeIdAssignTest()
     {
-      var nodeId = "{4657EED5-AD12-4E3A-9324-BE570C897452}";
-      var tag = "123";
+      Assert.That(testAppleKey.NodeId, Is.EqualTo(TestNodeId));
+      Assert.That(testFruitRefKey.NodeId, Is.EqualTo(TestNodeId));
+    }
 
-      Key key;
-
-      // Newly created entity
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        session.NodeId = nodeId;
-        key = new Apple(tag).Key;
-        Assert.That(key.NodeId, Is.EqualTo(nodeId));
-        tx.Complete();
-      }
-
+    [Test]
+    public void NodeIdLinqTest()
+    {
       // Entity fetched via LINQ
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        session.NodeId = nodeId;
-        var result = session.Query.All<Apple>().Single(a => a.Tag==tag);
-        Assert.That(result.Key.NodeId, Is.EqualTo(nodeId));
-      }
-
-      // Entity fetched via fetch API (key object)
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        session.NodeId = nodeId;
-        var result = session.Query.Single<Apple>(key);
-        Assert.That(result.Key.NodeId, Is.EqualTo(nodeId));
-      }
-
-      // Entity fetched via fetch API (key values)
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        session.NodeId = nodeId;
-        var result = session.Query.Single<Apple>(tag);
-        Assert.That(result.Key.NodeId, Is.EqualTo(nodeId));
-      }
-
-      // Custom generated key
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        session.NodeId = nodeId;
-        var generatedKey = Key.Generate<Container>(session);
-        Assert.That(generatedKey.NodeId, Is.EqualTo(nodeId));
+        session.NodeId = TestNodeId;
+        var result = session.Query.All<Apple>().Single(a => a.Tag==TestAppleTag);
+        Assert.That(result.Key.NodeId, Is.EqualTo(TestNodeId));
       }
     }
 
     [Test]
-    public void NodeIdFormatTest()
+    public void NodeIdLinq2Test()
+    {
+      // Key fetched via LINQ
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        session.NodeId = TestNodeId;
+        var result = session.Query.All<Apple>().GroupBy(a => a.Key).Select(a => a.Key).Single();
+        Assert.That(result.NodeId, Is.EqualTo(TestNodeId));
+      }
+    }
+
+    [Test]
+    public void NodeIdLinq3Test()
+    {
+      // Key fetched via LINQ
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        session.NodeId = TestNodeId;
+        var result = session.Query.All<FruitRef>().Select(r => r.Ref.Key).Single();
+        Assert.That(result.NodeId, Is.EqualTo(TestNodeId));
+      }
+    }
+
+    [Test]
+    public void NodeIdLinq4Test()
+    {
+      // Key fetched via LINQ
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        session.NodeId = TestNodeId;
+        var result = session.Query.All<FruitRef>().GroupBy(a => a.Ref.Key).Select(a => a.Key).Single();
+        Assert.That(result.NodeId, Is.EqualTo(TestNodeId));
+      }
+    }
+
+    [Test]
+    public void NodeIdPrefetch1Test()
+    {
+      // Entity fetched via fetch API (key object)
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        session.NodeId = TestNodeId;
+        var result = session.Query.Single<Apple>(testAppleKey);
+        Assert.That(result.Key.NodeId, Is.EqualTo(TestNodeId));
+      }
+    }
+
+    [Test]
+    public void NodeIdPrefetch2Test()
+    {
+      // Entity fetched via fetch API (key values)
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        session.NodeId = TestNodeId;
+        var result = session.Query.Single<Apple>(TestAppleTag);
+        Assert.That(result.Key.NodeId, Is.EqualTo(TestNodeId));
+      }
+    }
+
+    [Test]
+    public void NodeIdPrefetch3Test()
+    {
+      // Entity fetched via fetch API (multiple key values)
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        session.NodeId = TestNodeId;
+        var result = session.Query.Many<Apple, string>(new[] {TestAppleTag}).ToList();
+        Assert.That(result.Count, Is.EqualTo(1));
+        var item = result[0];
+        Assert.That(item.Key.NodeId, Is.EqualTo(TestNodeId));
+      }
+
+    }
+
+    [Test]
+    public void NodeIdReferenceFetchTest()
+    {
+      // Entity fetched via reference traversal
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        session.NodeId = TestNodeId;
+        var refObject = session.Query.Single<FruitRef>(testFruitRefKey);
+        var result = refObject.Ref.Key;
+        Assert.That(result.NodeId, Is.EqualTo(TestNodeId));
+      }
+    }
+
+    [Test]
+    public void NodeIdGenerateKeyTest()
+    {
+      // Custom generated key
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        session.NodeId = TestNodeId;
+        var generatedKey = Key.Generate<Container>(session);
+        Assert.That(generatedKey.NodeId, Is.EqualTo(TestNodeId));
+      }
+    }
+
+    [Test]
+    public void NodeIdCreateFormatParseTest()
     {
       var nodeId = "{59EE3D42-C207-4E65-8EC0-220058B4F8F2}";
       var key = Key.Create(Domain, nodeId, typeof (Apple), TypeReferenceAccuracy.ExactType, "1");
@@ -280,7 +374,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public void DefaultNodeIdFormatTest()
+    public void NodeIdCreateFormatParseDefaultTest()
     {
       var key = Key.Create(Domain, typeof (Apple), TypeReferenceAccuracy.ExactType, "1");
       Assert.That(key.NodeId, Is.EqualTo(WellKnown.DefaultNodeId));
