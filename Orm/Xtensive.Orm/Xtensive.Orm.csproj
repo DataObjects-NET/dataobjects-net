@@ -328,6 +328,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>InternalLogs.tt</DependentUpon>
     </Compile>
+    <Compile Include="Orm\Configuration\DomainOptions.cs" />
     <Compile Include="Orm\Configuration\Elements\LogElement.cs" />
     <Compile Include="Orm\Configuration\Elements\LoggingElement.cs" />
     <Compile Include="Orm\Configuration\LogConfiguration.cs" />
