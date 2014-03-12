@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Tests.Configuration
       using (StreamWriter segmentConfigWriter = File.CreateText(configFileName))
         segmentConfigWriter.Write(segmentConfig.ToString().ToLower());
 
-      changeXsdElementsToLowerCase();
+      ChangeXsdElementsToLowerCase();
 
       try {
         XmlReaderSettings schemaSettings = new XmlReaderSettings();
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Configuration
       Console.WriteLine("({0}) {1}: {2}", exception.Severity, exception.GetType(), exception.Message);
     }
 
-    private static void changeXsdElementsToLowerCase()
+    private static void ChangeXsdElementsToLowerCase()
     {
       var elementsUsedInXsd = new List<string> {"element", "complexType", "attribute", "simpleType", "restriction", "enumeration", "pattern"};
 
