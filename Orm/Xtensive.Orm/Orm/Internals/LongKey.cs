@@ -5,9 +5,8 @@
 // Created:    2009.10.20
 
 using System;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {
@@ -23,14 +22,14 @@ namespace Xtensive.Orm.Internals
     /// <inheritdoc/>
     protected override int CalculateHashCode()
     {
-      return Tuple.HashCodeMultiplier ^ value.GetHashCode() ^ TypeReference.Type.Key.EqualityIdentifier.GetHashCode();
+      return value.GetHashCode();
     }
 
     /// <inheritdoc/>
     protected override bool ValueEquals(Key other)
     {
       var otherKey = other as LongKey;
-      if (otherKey == null)
+      if (otherKey==null)
         return false;
 
       return value.Equals(otherKey.value);

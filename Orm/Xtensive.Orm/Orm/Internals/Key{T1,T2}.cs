@@ -7,10 +7,9 @@
 using System;
 using JetBrains.Annotations;
 using Xtensive.Core;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
-using ComparerProvider=Xtensive.Comparison.ComparerProvider;
+using ComparerProvider = Xtensive.Comparison.ComparerProvider;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {
@@ -45,9 +44,7 @@ namespace Xtensive.Orm.Internals
 
     protected override int CalculateHashCode()
     {
-      var result = Tuple.HashCodeMultiplier * 0 ^ value1.GetHashCode();
-      result = (Tuple.HashCodeMultiplier * result ^ value2.GetHashCode());
-      return result ^ TypeReference.Type.Key.EqualityIdentifier.GetHashCode();
+      return Tuple.HashCodeMultiplier * value1.GetHashCode() ^ value2.GetHashCode();
     }
 
     [UsedImplicitly]
@@ -69,7 +66,7 @@ namespace Xtensive.Orm.Internals
     
     // Constructors
 
-    internal Key(string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, T1 value1, T2 value2)
+    private Key(string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, T1 value1, T2 value2)
       : base(nodeId, type, accuracy, null)
     {
       this.value1 = value1;

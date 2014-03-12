@@ -31,8 +31,6 @@ namespace Xtensive.Orm
     private const char KeyFormatEscape = '\\';
     private const char KeyFormatDelimiter = ':';
 
-    private int? hashCode;
-
     /// <summary>
     /// Protected member caching the tuple with key values.
     /// Can be <see langword="null" />, if the value isn't materialized yet.
@@ -61,7 +59,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets node identifier for this instance.
     /// </summary>
-    public string NodeId { get; internal set; }
+    public string NodeId { get; private set; }
 
     /// <summary>
     /// Gets the type of <see cref="Entity"/> this instance identifies.
@@ -136,12 +134,6 @@ namespace Xtensive.Orm
     protected abstract Tuple GetValue();
 
     /// <summary>
-    /// Calculates hash code.
-    /// </summary>
-    /// <returns>Calculated hash code.</returns>
-    protected abstract int CalculateHashCode();
-
-    /// <summary>
     /// Determines whether <see cref="TypeInfo"/> property has exact type value or not.
     /// </summary>
     internal bool HasExactType
@@ -164,8 +156,6 @@ namespace Xtensive.Orm
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      if (GetHashCode()!=other.GetHashCode())
-        return false;
       var thisType = TypeReference.Type;
       var otherType = other.TypeReference.Type;
       if (HasExactType && other.HasExactType && thisType!=otherType)
@@ -184,12 +174,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      if (obj==null)
-        return false;
-      var other = obj as Key;
-      if (other==null)
-        return false;
-      return Equals(other);
+      return Equals(obj as Key);
     }
 
     /// <summary>
@@ -223,12 +208,10 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      // ReSharper disable NonReadonlyFieldInGetHashCode
-      if (hashCode.HasValue)
-        return hashCode.Value;
-      hashCode = CalculateHashCode();
-      return hashCode.Value;
-      // ReSharper restore NonReadonlyFieldInGetHashCode
+      var result = CalculateHashCode();
+      result = result * Tuple.HashCodeMultiplier ^ NodeId.GetHashCode();
+      result = result * Tuple.HashCodeMultiplier ^ TypeReference.Type.Key.EqualityIdentifier.GetHashCode();
+      return result;
     }
 
     /// <summary>
@@ -237,6 +220,12 @@ namespace Xtensive.Orm
     /// <param name="other">The other key to compare.</param>
     /// <returns>Equality comparison result.</returns>
     protected abstract bool ValueEquals(Key other);
+
+    /// <summary>
+    /// Calculates hash code.
+    /// </summary>
+    /// <returns>Calculated hash code.</returns>
+    protected abstract int CalculateHashCode();
 
     #endregion
 
