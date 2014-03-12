@@ -5,6 +5,7 @@
 // Created:    2009.07.13
 
 using System;
+using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -42,11 +43,13 @@ namespace Xtensive.Orm.Internals
       return Tuple.HashCodeMultiplier ^ value1.GetHashCode() ^ TypeReference.Type.Key.EqualityIdentifier.GetHashCode();
     }
 
+    [UsedImplicitly]
     public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)
     {
       return new Key<T>(nodeId, type, accuracy, tuple.GetValueOrDefault<T>(keyIndexes[0]));
     }
 
+    [UsedImplicitly]
     public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy)
     {
       return new Key<T>(nodeId, type, accuracy, tuple.GetValueOrDefault<T>(0));

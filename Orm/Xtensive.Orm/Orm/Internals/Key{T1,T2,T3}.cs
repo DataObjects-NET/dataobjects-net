@@ -5,6 +5,7 @@
 // Created:    2009.07.13
 
 using System;
+using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -55,6 +56,7 @@ namespace Xtensive.Orm.Internals
       return result ^ TypeReference.Type.Key.EqualityIdentifier.GetHashCode();
     }
 
+    [UsedImplicitly]
     public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)
     {
       return new Key<T1, T2, T3>(nodeId, type, accuracy,
@@ -63,6 +65,7 @@ namespace Xtensive.Orm.Internals
         tuple.GetValueOrDefault<T3>(keyIndexes[2]));
     }
 
+    [UsedImplicitly]
     public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy)
     {
       return new Key<T1, T2, T3>(nodeId, type, accuracy,
