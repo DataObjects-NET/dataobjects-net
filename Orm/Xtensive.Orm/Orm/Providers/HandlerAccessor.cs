@@ -50,6 +50,11 @@ namespace Xtensive.Orm.Providers
     public DomainHandler DomainHandler { get; internal set; }
 
     /// <summary>
+    /// Gets <see cref="NodeManager"/>.
+    /// </summary>
+    public NodeManager NodeManager { get; internal set; }
+
+    /// <summary>
     /// Gets the <see cref="MappingResolver"/> instance.
     /// </summary>
     internal MappingResolver MappingResolver { get; set; }

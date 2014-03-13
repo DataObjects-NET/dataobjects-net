@@ -352,6 +352,7 @@
     <Compile Include="Orm\Logging\LogManager.cs" />
     <Compile Include="Orm\Logging\LogProvider.cs" />
     <Compile Include="Orm\Logging\Internals\NullLog.cs" />
+    <Compile Include="Orm\NodeManager.cs" />
     <Compile Include="Orm\StateLifetimeToken.cs" />
     <Compile Include="Properties\Visibility.cs" />
     <Compile Include="IoC\Attributes\ServiceAttribute.cs" />

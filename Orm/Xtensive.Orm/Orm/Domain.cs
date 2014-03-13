@@ -94,6 +94,8 @@ namespace Xtensive.Orm
     /// </summary>
     public IServiceContainer Services { get; internal set; }
 
+    public NodeManager NodeManager { get { return Handlers.NodeManager; } }
+
     #region Private / internal members
 
     internal RecordSetReader RecordSetReader { get; private set; }
