@@ -36,6 +36,7 @@ namespace Xtensive.Orm
     public bool RemoveNode([NotNull] string nodeId)
     {
       ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
+      return false;
     }
 
     /// <summary>
