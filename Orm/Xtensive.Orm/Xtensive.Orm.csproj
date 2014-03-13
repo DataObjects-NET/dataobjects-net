@@ -336,6 +336,7 @@
     <Compile Include="Orm\Configuration\Elements\LoggingElement.cs" />
     <Compile Include="Orm\Configuration\LogConfiguration.cs" />
     <Compile Include="Orm\Configuration\LoggingConfiguration.cs" />
+    <Compile Include="Orm\Configuration\NodeConfiguration.cs" />
     <Compile Include="Orm\Linq\LocalCollectionKeyTypeExtractor.cs" />
     <Compile Include="Orm\Logging\BaseLog.cs" />
     <Compile Include="Orm\Logging\IndentManager.cs" />
