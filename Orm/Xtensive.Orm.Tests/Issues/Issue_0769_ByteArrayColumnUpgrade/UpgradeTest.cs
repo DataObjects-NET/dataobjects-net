@@ -4,19 +4,11 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
-using System;
 using System.Linq;
 using System.Reflection;
-using Xtensive.Core;
-using Xtensive.Orm.Model;
-using Xtensive.Orm.Providers;
-using Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version1;
-using Xtensive.Orm.Upgrade.Model;
-using Xtensive.Orm.Tests;
-using Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version2;
-using M1 = Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version1;
-using M2 = Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version2;
 using NUnit.Framework;
+using Xtensive.Core;
+using Xtensive.Orm.Upgrade.Model;
 using Person = Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version1.Person;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
@@ -39,7 +31,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
       BuildDomain("1", DomainUpgradeMode.Recreate);
       using (var session = domain.OpenSession()) {
         using (var tx = session.OpenTransaction()) {
-          var person = new Person() {
+          var person = new Person {
             Name = "Person",
             Bytes = new byte[] {1, 2, 3}
           };
@@ -72,7 +64,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
 
     private StorageColumnInfo GetColumnInfo(StorageModel model, TypeInfo type, string fieldName)
     {
-      var resolver = domain.Handlers.MappingResolver;
+      var resolver = Upgrader.MappingResolver;
       var table = model.Tables[resolver.GetNodeName(type)];
       var field = type.Fields[fieldName];
       return table.Columns[field.MappingName];

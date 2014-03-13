@@ -716,9 +716,14 @@ namespace Xtensive.Orm.Configuration
       return domainElement.ToNative();
     }
 
-    internal bool Supports(ForeignKeyMode fkMode)
+    internal bool Supports(DomainOptions optionsToCheck)
     {
-      return (foreignKeyMode & fkMode)==fkMode;
+      return (options & optionsToCheck)==optionsToCheck;
+    }
+
+    internal bool Supports(ForeignKeyMode modeToCheck)
+    {
+      return (foreignKeyMode & modeToCheck)==modeToCheck;
     }
 
     // Constructors

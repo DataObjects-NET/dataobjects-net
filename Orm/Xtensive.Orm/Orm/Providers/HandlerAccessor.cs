@@ -49,19 +49,8 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     public DomainHandler DomainHandler { get; internal set; }
 
-    /// <summary>
-    /// Gets <see cref="NodeManager"/>.
-    /// </summary>
-    public NodeManager NodeManager { get; internal set; }
+    internal StorageNodeRegistry StorageNodeRegistry { get; set; }
 
-    /// <summary>
-    /// Gets the <see cref="MappingResolver"/> instance.
-    /// </summary>
-    internal MappingResolver MappingResolver { get; set; }
-
-    /// <summary>
-    /// Gets the <see cref="SequenceQueryBuilder"/> instance.
-    /// </summary>
     internal SequenceQueryBuilder SequenceQueryBuilder { get; set; }
 
     internal THandler Create<THandler>()

@@ -94,7 +94,10 @@ namespace Xtensive.Orm
     /// </summary>
     public IServiceContainer Services { get; internal set; }
 
-    public NodeManager NodeManager { get { return Handlers.NodeManager; } }
+    /// <summary>
+    /// Gets <see cref="NodeManager"/>.
+    /// </summary>
+    public NodeManager NodeManager { get; private set; }
 
     #region Private / internal members
 
@@ -286,6 +289,7 @@ namespace Xtensive.Orm
       Extensions = new ExtensionCollection();
       UpgradeContextCookie = upgradeContextCookie;
       SingleConnection = singleConnection;
+      NodeManager = new NodeManager(Handlers);
     }
 
     /// <inheritdoc/>

@@ -1241,10 +1241,12 @@ namespace Xtensive.Orm.Upgrade
 
     public HintGenerator(
       HandlerAccessor handlers,
+      MappingResolver resolver,
       StoredDomainModel extractedDomainModel, StorageModel extractedStorageModel,
       IEnumerable<UpgradeHint> inputHints)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
+      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
       ArgumentValidator.EnsureArgumentNotNull(extractedDomainModel, "extractedDomainModel");
       ArgumentValidator.EnsureArgumentNotNull(extractedStorageModel, "extractedStorageModel");
       ArgumentValidator.EnsureArgumentNotNull(inputHints, "inputHints");
@@ -1257,9 +1259,9 @@ namespace Xtensive.Orm.Upgrade
 
       this.extractedStorageModel = extractedStorageModel;
       this.inputHints = inputHints;
+      this.resolver = resolver;
 
       nameBuilder = handlers.NameBuilder;
-      resolver = handlers.MappingResolver;
       domainModel = handlers.Domain.Model;
 
       currentModel = domainModel.ToStoredModel();

@@ -74,6 +74,7 @@ namespace Xtensive.Orm
 
     private DisposableSet disposableSet;
     private ExtensionCollection extensions;
+    private StorageNode storageNode;
 
     private readonly bool allowSwitching;
     private readonly long identifier;
@@ -208,6 +209,20 @@ namespace Xtensive.Orm
     internal RemovalProcessor RemovalProcessor { get; private set; }
 
     internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
+
+    internal StorageNode StorageNode
+    {
+      get { return storageNode; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        var connectionInfo = value.Configuration.ConnectionInfo;
+        if (connectionInfo!=null)
+          ConnectionInfo = connectionInfo;
+        nodeId = value.Id;
+        storageNode = value;
+      }
+    }
 
     internal void EnsureNotDisposed()
     {

@@ -75,14 +75,14 @@ namespace Xtensive.Orm.Building.Builders
         // NameBuilder
         handlers.NameBuilder = services.NameBuilder;
 
-        // SchemaResolver
-        handlers.MappingResolver = services.Resolver;
-
         // StorageDriver
-        handlers.StorageDriver = services.Driver.CreateNew(context.Domain);
+        handlers.StorageDriver = services.StorageDriver.CreateNew(context.Domain);
 
-        // GeneratorQueryBuilder
+        // SequenceQueryBuilder
         handlers.SequenceQueryBuilder = new SequenceQueryBuilder(handlers.StorageDriver);
+
+        // StorageNodeRegistry
+        handlers.StorageNodeRegistry = new StorageNodeRegistry();
 
         // DomainHandler
         handlers.DomainHandler = handlers.Create<DomainHandler>();

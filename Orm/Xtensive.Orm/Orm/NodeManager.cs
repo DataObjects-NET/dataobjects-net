@@ -4,10 +4,10 @@
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
-using System.Collections.Concurrent;
 using JetBrains.Annotations;
-using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
+using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm
 {
@@ -16,16 +16,19 @@ namespace Xtensive.Orm
   /// </summary>
   public sealed class NodeManager
   {
-    private readonly ConcurrentDictionary<string, NodeConfiguration> configurations
-      = new ConcurrentDictionary<string, NodeConfiguration>();
+    private readonly Domain domain;
+    private readonly StorageNodeRegistry registry;
 
     /// <summary>
     /// Adds node with the specified <paramref name="configuration"/>
     /// and performs required upgrade actions.
     /// </summary>
     /// <param name="configuration">Node configuration.</param>
-    public void AddNode([NotNull] NodeConfiguration configuration)
+    public bool AddNode([NotNull] NodeConfiguration configuration)
     {
+      var mapping = UpgradingDomainBuilder.BuildNode(domain, configuration);
+      var node = new StorageNode(configuration, mapping);
+      return registry.Add(node);
     }
 
     /// <summary>
@@ -35,8 +38,7 @@ namespace Xtensive.Orm
     /// <returns>True if node was removed, otherwise false.</returns>
     public bool RemoveNode([NotNull] string nodeId)
     {
-      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
-      return false;
+      return registry.Remove(nodeId);
     }
 
     /// <summary>
@@ -49,15 +51,17 @@ namespace Xtensive.Orm
     [CanBeNull]
     public NodeConfiguration GetConfiguration([NotNull] string nodeId)
     {
-      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
-      NodeConfiguration result;
-      if (configurations.TryGetValue(nodeId, out result))
-        return result;
-      return null;
+      var node = registry.Find(nodeId);
+      return node!=null ? node.Configuration : null;
     }
 
-    internal NodeManager()
+
+    // Constructors
+
+    internal NodeManager(HandlerAccessor handlers)
     {
+      domain = handlers.Domain;
+      registry = handlers.StorageNodeRegistry;
     }
   }
 }

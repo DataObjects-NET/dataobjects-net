@@ -1833,6 +1833,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Default storage node can not be removed..
+        /// </summary>
+        internal static string ExDefaultStorageNodeCanNotBeRemoved {
+            get {
+                return ResourceManager.GetString("ExDefaultStorageNodeCanNotBeRemoved", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Default type is already registered..
         /// </summary>
         internal static string ExDefaultTypeIsAlreadyRegistered {
@@ -3201,6 +3210,15 @@ namespace Xtensive {
         internal static string ExInvalidNestingOfNodeX {
             get {
                 return ResourceManager.GetString("ExInvalidNestingOfNodeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid node identifier..
+        /// </summary>
+        internal static string ExInvalidNodeIdentifier {
+            get {
+                return ResourceManager.GetString("ExInvalidNodeIdentifier", resourceCulture);
             }
         }
         

@@ -10,10 +10,8 @@ using Xtensive.Core;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Linq.MemberCompilation;
 using Xtensive.Orm.Rse.Compilation;
-using Xtensive.Orm.Rse.Transformation;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Upgrade;
-using Xtensive.Sql;
+using Xtensive.Orm.Rse.Transformation;
 
 namespace Xtensive.Orm.Providers
 {
@@ -43,7 +41,10 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the model mapping.
     /// </summary>
-    public ModelMapping Mapping { get; private set; }
+    public ModelMapping Mapping
+    {
+      get { return Handlers.StorageNodeRegistry.Find(WellKnown.DefaultNodeId).Mapping; }
+    }
 
     /// <summary>
     /// Gets the temporary table manager.
@@ -56,15 +57,6 @@ namespace Xtensive.Orm.Providers
     public CommandProcessorFactory CommandProcessorFactory { get; private set; }
 
     internal Persister Persister { get; private set; }
-
-    /// <summary>
-    /// Builds the mapping schema.
-    /// </summary>
-    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    internal void BuildMapping(SchemaExtractionResult model)
-    {
-      Mapping = ModelMappingBuilder.Build(Handlers, model);
-    }
 
     /// <summary>
     /// Gets the member compiler provider by its type parameter.

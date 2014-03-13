@@ -3307,4 +3307,10 @@ Error: {1}</value>
   <data name="LogAsyncOperationError" xml:space="preserve">
     <value>Async operation error.</value>
   </data>
+  <data name="ExDefaultStorageNodeCanNotBeRemoved" xml:space="preserve">
+    <value>Default storage node can not be removed.</value>
+  </data>
+  <data name="ExInvalidNodeIdentifier" xml:space="preserve">
+    <value>Invalid node identifier.</value>
+  </data>
 </root>

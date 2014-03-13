@@ -4,11 +4,14 @@
 // Created by: Denis Krjuchkov
 // Created:    2014.03.12
 
+using System;
+
 namespace Xtensive.Orm.Configuration
 {
   /// <summary>
   /// Possible options for <see cref="Domain"/>.
   /// </summary>
+  [Flags]
   public enum DomainOptions
   {
     /// <summary>

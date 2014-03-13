@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Upgrade.Model;
 using M1 = Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade.Model.Version1;
@@ -21,12 +22,15 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
     private static bool isEnabled = false;
     private static string runningVersion;
 
-    public static StorageModel TargetStorageModel;
+    internal static StorageModel TargetStorageModel;
+    internal static MappingResolver MappingResolver;
 
     public override void OnComplete(Domain domain)
     {
       base.OnComplete(domain);
+
       TargetStorageModel = UpgradeContext.TargetStorageModel;
+      MappingResolver = UpgradeContext.Services.MappingResolver;
     }
 
     /// <exception cref="InvalidOperationException">Handler is already enabled.</exception>
@@ -58,7 +62,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
       return true;
     }
 
-    protected override void AddUpgradeHints(global::Xtensive.Collections.ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
     {
       if (runningVersion=="2")
         Version1To2Hints.ForEach(hint => hints.Add(hint));

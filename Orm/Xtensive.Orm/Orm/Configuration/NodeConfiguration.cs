@@ -5,8 +5,6 @@
 // Created:    2014.03.13
 
 using System;
-using System.Collections.Generic;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Configuration
@@ -20,8 +18,8 @@ namespace Xtensive.Orm.Configuration
     private string nodeId;
     private string connectionInitializationSql;
     private ConnectionInfo connectionInfo;
-    private IDictionary<string, string> schemaMapping;
-    private IDictionary<string, string> databaseMapping;
+    private NameMappingCollection schemaMapping = new NameMappingCollection();
+    private NameMappingCollection databaseMapping = new NameMappingCollection();
 
     /// <summary>
     /// Gets or sets node identifier.
@@ -65,7 +63,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets schema mapping.
     /// </summary>
-    public IDictionary<string, string> SchemaMapping
+    public NameMappingCollection SchemaMapping
     {
       get { return schemaMapping; }
     }
@@ -73,7 +71,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets database mapping.
     /// </summary>
-    public IDictionary<string, string> DatabaseMapping
+    public NameMappingCollection DatabaseMapping
     {
       get { return databaseMapping; }
     }
@@ -82,8 +80,8 @@ namespace Xtensive.Orm.Configuration
     {
       base.Lock(recursive);
 
-      schemaMapping = new ReadOnlyDictionary<string, string>(schemaMapping);
-      databaseMapping = new ReadOnlyDictionary<string, string>(databaseMapping);
+      schemaMapping.Lock();
+      databaseMapping.Lock();
     }
 
     /// <summary>
@@ -96,8 +94,8 @@ namespace Xtensive.Orm.Configuration
         nodeId = nodeId,
         connectionInfo = connectionInfo,
         connectionInitializationSql = connectionInitializationSql,
-        databaseMapping = new Dictionary<string, string>(databaseMapping),
-        schemaMapping = new Dictionary<string, string>(schemaMapping),
+        databaseMapping = (NameMappingCollection) databaseMapping.Clone(),
+        schemaMapping = (NameMappingCollection) schemaMapping.Clone(),
       };
       return clone;
     }
@@ -115,7 +113,7 @@ namespace Xtensive.Orm.Configuration
     /// <param name="nodeId">Node identifier.</param>
     public NodeConfiguration(string nodeId)
     {
-      this.nodeId = nodeId;
+      NodeId = nodeId;
     }
   }
 }

@@ -21,7 +21,7 @@ namespace Xtensive.Core
   /// <see cref="IDisposable.Dispose"/> methods are invoked in backward order.
   /// </note>
   /// </remarks>
-  public sealed class DisposableSet: IDisposable
+  public sealed class DisposableSet : IDisposable
   {
     private HashSet<IDisposable> set;
     private List<IDisposable> list;
@@ -41,8 +41,17 @@ namespace Xtensive.Core
         list.Add(disposable);
         return true;
       }
-      else
-        return false;
+      return false;
+    }
+
+    /// <summary>
+    /// Clears this instance by discarding all registered objects.
+    /// <see cref="IDisposable.Dispose"/> methods are not called.
+    /// </summary>
+    public void Clear()
+    {
+      set = null;
+      list = null;
     }
 
     /// <summary>
@@ -90,15 +99,15 @@ namespace Xtensive.Core
     /// <summary>
     /// Releases resources associated with this instance.
     /// </summary>
-    void IDisposable.Dispose() 
+    void IDisposable.Dispose()
     {
       try {
         if (list==null)
           return;
-        using (var ea = new ExceptionAggregator()) {
-          for (int i = list.Count-1; i>=0; i--)
-            ea.Execute(d => d.Dispose(), list[i]);
-          ea.Complete();
+        using (var aggregator = new ExceptionAggregator()) {
+          for (int i = list.Count - 1; i >= 0; i--)
+            aggregator.Execute(d => d.Dispose(), list[i]);
+          aggregator.Complete();
         }
       }
       finally {

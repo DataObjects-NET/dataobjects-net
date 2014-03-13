@@ -92,14 +92,14 @@ namespace Xtensive.Orm.Upgrade
       var driver = session.Handlers.StorageDriver;
       var mapping = new MetadataMapping(driver, session.Handlers.NameBuilder);
       var executor = session.Services.Demand<IProviderExecutor>();
-      var resolver = UpgradeContext.Services.Resolver;
+      var resolver = UpgradeContext.Services.MappingResolver;
       var metadataSchema = UpgradeContext.Configuration.DefaultSchema;
       var sqlModel = UpgradeContext.ExtractedSqlModelCache;
 
       foreach (var group in groups) {
         var metadataDatabase = group.Key;
         var metadata = group.Value;
-        var schema = resolver.GetSchema(sqlModel, metadataDatabase, metadataSchema);
+        var schema = resolver.ResolveSchema(sqlModel, metadataDatabase, metadataSchema);
         var task = new SqlExtractionTask(schema.Catalog.Name, schema.Name);
         var writer = new MetadataWriter(driver, mapping, task, executor);
         writer.Write(metadata);

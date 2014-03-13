@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Upgrade
       var skipConstraints = context.Stage==UpgradeStage.Upgrading;
 
       var translator = new SqlActionTranslator(
-        session.Handlers, executor,
+        session.Handlers, executor, context.Services.MappingResolver,
         upgradeActions, extractedSchema, sourceModel, targetModel,
         enforceChangedColumns, !skipConstraints);
 
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Upgrade
       connection = context.Services.Connection;
       executor = session.Services.Demand<ISqlExecutor>();
 
-      driver = services.Driver;
+      driver = services.StorageDriver;
       if (driver.ProviderInfo.Supports(ProviderFeatures.TransactionalDdl))
         statementProcessor = ExecuteTransactionally;
       else

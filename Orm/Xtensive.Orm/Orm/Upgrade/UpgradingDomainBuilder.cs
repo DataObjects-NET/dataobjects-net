@@ -10,45 +10,33 @@ using System.Linq;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Orm.Logging;
 using Xtensive.IoC;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Logging;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
 using Xtensive.Sql;
-using ModelTypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Upgrade
 {
-  /// <summary>
-  /// Builds domain in extended modes.
-  /// </summary>
-  public sealed class UpgradingDomainBuilder
+
+  internal sealed class UpgradingDomainBuilder
   {
     private readonly UpgradeContext context;
     private readonly DomainUpgradeMode upgradeMode;
 
     private FutureResult<SqlWorkerResult> workerResult;
 
-    /// <summary>
-    /// Builds the new <see cref="Domain"/> by the specified configuration.
-    /// </summary>
-    /// <param name="configuration">The domain configuration.</param>
-    /// <returns>Newly created <see cref="Domain"/>.</returns>
-    /// <exception cref="ArgumentNullException">Parameter <paramref name="configuration"/> is null.</exception>
-    /// <exception cref="DomainBuilderException">At least one error have been occurred 
-    /// during storage building process.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><c>configuration.UpgradeMode</c> is out of range.</exception>
     public static Domain Build(DomainConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
       if (configuration.ConnectionInfo==null)
-        throw new ArgumentNullException("configuration.ConnectionInfo", Strings.ExConnectionInfoIsMissing);
+        throw new ArgumentException(Strings.ExConnectionInfoIsMissing, "configuration");
 
       if (!configuration.IsLocked)
         configuration.Lock();
@@ -57,38 +45,41 @@ namespace Xtensive.Orm.Upgrade
 
       var context = new UpgradeContext(configuration);
 
-      using (context.Activate()) {
-        try {
-          return new UpgradingDomainBuilder(context).Run();
-        }
-        catch {
-          // If we running in shared connection mode
-          // connection would not be registered as an upgrade session.
-          // This means if error happens connection will leak.
-          // To avoid that we dispose it here manually.
-          if (context.Services!=null) {
-            var connection = context.Services.Connection;
-            var driver = context.Services.Driver;
-            if (driver!=null && connection!=null && driver.ProviderInfo.Supports(ProviderFeatures.SingleConnection))
-              connection.Dispose();
-          }
-          throw;
-        }
-        finally {
-          context.Services.DisposeSafely();
-        }
+      using (context.Activate())
+      using (context.Services) {
+        return new UpgradingDomainBuilder(context).Run();
+      }
+    }
+
+    public static ModelMapping BuildNode(Domain parentDomain, NodeConfiguration nodeConfiguration)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(parentDomain, "parentDomain");
+      ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, "nodeConfiguration");
+
+      if (string.IsNullOrEmpty(nodeConfiguration.NodeId))
+        throw new ArgumentException(Strings.ExInvalidNodeIdentifier, "nodeConfiguration");
+
+      nodeConfiguration.Lock();
+
+      var context = new UpgradeContext(parentDomain, nodeConfiguration);
+
+      using (context.Activate())
+      using (context.Services) {
+        new UpgradingDomainBuilder(context).Run();
+        return context.ModelMapping;
       }
     }
 
     private Domain Run()
     {
-      Domain domain;
+      BuildServices();
+      OnPrepare();
 
-      using (workerResult = OnPrepare()) {
-        domain = upgradeMode.IsMultistage() ? BuildMultistageDomain() : BuildSingleStageDomain();
-      }
+      var domain = upgradeMode.IsMultistage() ? BuildMultistageDomain() : BuildSingleStageDomain();
 
       OnComplete(domain);
+      CompleteUpgradeTransaction();
+      context.Services.ClearTemporaryResources();
 
       return domain;
     }
@@ -96,7 +87,7 @@ namespace Xtensive.Orm.Upgrade
     private void CompleteUpgradeTransaction()
     {
       var connection = context.Services.Connection;
-      var driver = context.Services.Driver;
+      var driver = context.Services.StorageDriver;
 
       if (connection.ActiveTransaction==null)
         return;
@@ -110,6 +101,11 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
+    private FutureResult<T> CreateResult<T>(T value)
+    {
+      return new ValueFutureResult<T>(value);
+    }
+
     private FutureResult<T> CreateResult<T>(Func<T> action)
     {
       if (context.Configuration.BuildInParallel)
@@ -120,11 +116,18 @@ namespace Xtensive.Orm.Upgrade
     private Domain BuildMultistageDomain()
     {
       Domain finalDomain;
-      using (var finalDomainResult = CreateResult(CreateBuilder(UpgradeStage.Final))) {
-        using (var upgradeDomain = CreateBuilder(UpgradeStage.Upgrading).Invoke()) {
-          PerformUpgrade(upgradeDomain, UpgradeStage.Upgrading);
+      using (StartSqlWorker()) {
+        var finalDomainResult = context.ParentDomain!=null
+          ? CreateResult(context.ParentDomain)
+          : CreateResult(CreateBuilder(UpgradeStage.Final));
+        using (finalDomainResult) {
+          OnConfigureUpgradeDomain();
+          using (var upgradeDomain = CreateBuilder(UpgradeStage.Upgrading).Invoke()) {
+            CompleteSqlWorker();
+            PerformUpgrade(upgradeDomain, UpgradeStage.Upgrading);
+          }
+          finalDomain = finalDomainResult.Get();
         }
-        finalDomain = finalDomainResult.Get();
       }
       PerformUpgrade(finalDomain, UpgradeStage.Final);
       return finalDomain;
@@ -132,39 +135,53 @@ namespace Xtensive.Orm.Upgrade
 
     private Domain BuildSingleStageDomain()
     {
-      var domain = CreateBuilder(UpgradeStage.Final).Invoke();
-      PerformUpgrade(domain, UpgradeStage.Final);
-      return domain;
+      using (StartSqlWorker()) {
+        var domain = context.ParentDomain ?? CreateBuilder(UpgradeStage.Final).Invoke();
+        CompleteSqlWorker();
+        PerformUpgrade(domain, UpgradeStage.Final);
+        return domain;
+      }
     }
 
     private void BuildServices()
     {
+      var services = context.Services;
       var configuration = context.Configuration;
-      var descriptor = ProviderDescriptor.Get(configuration.ConnectionInfo.Provider);
-      var driverFactory = (SqlDriverFactory) Activator.CreateInstance(descriptor.DriverFactory);
-      var handlerFactory = (HandlerFactory) Activator.CreateInstance(descriptor.HandlerFactory);
-      var driver = StorageDriver.Create(driverFactory, configuration);
 
-      var serviceAccessor = context.Services = new UpgradeServiceAccessor {
-        Configuration = configuration,
-        HandlerFactory = handlerFactory,
-        Driver = driver,
-        NameBuilder = new NameBuilder(configuration, driver.ProviderInfo),
-        IndexFilterCompiler = new PartialIndexFilterCompiler(),
-        Resolver = MappingResolver.Get(configuration, driver.ProviderInfo),
-      };
+      services.Configuration = configuration;
+      services.IndexFilterCompiler = new PartialIndexFilterCompiler();
 
-      BuildExternalServices(serviceAccessor, configuration);
-      CreateConnection(serviceAccessor);
+      if (context.ParentDomain==null) {
+        var descriptor = ProviderDescriptor.Get(configuration.ConnectionInfo.Provider);
+        var driverFactory = (SqlDriverFactory) Activator.CreateInstance(descriptor.DriverFactory);
+        var handlerFactory = (HandlerFactory) Activator.CreateInstance(descriptor.HandlerFactory);
+        var driver = StorageDriver.Create(driverFactory, configuration);
 
-      serviceAccessor.Lock();
+        services.HandlerFactory = handlerFactory;
+        services.StorageDriver = driver;
+        services.NameBuilder = new NameBuilder(configuration, driver.ProviderInfo);
+      }
+      else {
+        var handlers = context.ParentDomain.Handlers;
+
+        services.HandlerFactory = handlers.Factory;
+        services.StorageDriver = handlers.StorageDriver;
+        services.NameBuilder = handlers.NameBuilder;
+      }
+
+      services.MappingResolver = MappingResolver.Create(configuration, context.NodeConfiguration, services.ProviderInfo);
+
+      BuildExternalServices(services, configuration);
+      CreateConnection(services);
+
+      services.Lock();
 
       context.TypeIdProvider = new TypeIdProvider(context);
     }
 
     private void CreateConnection(UpgradeServiceAccessor serviceAccessor)
     {
-      var driver = serviceAccessor.Driver;
+      var driver = serviceAccessor.StorageDriver;
       var connection = driver.CreateConnection(null);
 
       try {
@@ -176,7 +193,9 @@ namespace Xtensive.Orm.Upgrade
         throw;
       }
 
-      if (!driver.ProviderInfo.Supports(ProviderFeatures.SingleConnection))
+      if (driver.ProviderInfo.Supports(ProviderFeatures.SingleConnection))
+        serviceAccessor.RegisterTemporaryResource(connection);
+      else
         serviceAccessor.RegisterResource(connection);
 
       serviceAccessor.Connection = connection;
@@ -268,19 +287,30 @@ namespace Xtensive.Orm.Upgrade
         var upgrader = new SchemaUpgrader(context, session);
         var extractor = new SchemaExtractor(context, session);
         SynchronizeSchema(domain, upgrader, extractor, GetUpgradeMode(stage));
-        domain.Handler.BuildMapping(extractor.GetSqlSchema());
+        session.StorageNode = BuildStorageNode(domain, extractor);
         OnStage(session);
+        if (stage==UpgradeStage.Final)
+          CleanUpKeyGenerators(session);
         transaction.Complete();
       }
     }
 
+    private StorageNode BuildStorageNode(Domain domain, SchemaExtractor extractor)
+    {
+      var modelMapping = ModelMappingBuilder.Build(domain.Handlers, extractor.GetSqlSchema(), context.Services.MappingResolver);
+      var result = new StorageNode(context.NodeConfiguration, modelMapping);
+
+      // Register default storage node immediately,
+      // non-default are registered in NodeManager after everything completes successfully.
+      if (result.Id==WellKnown.DefaultNodeId)
+        domain.Handlers.StorageNodeRegistry.Add(result);
+
+      context.ModelMapping = modelMapping;
+      return result;
+    }
 
     private Func<Domain> CreateBuilder(UpgradeStage stage)
     {
-      if (stage==UpgradeStage.Upgrading)
-        foreach (var handler in context.OrderedUpgradeHandlers)
-          handler.OnConfigureUpgradeDomain();
-
       var configuration = new DomainBuilderConfiguration {
         DomainConfiguration = context.Configuration,
         Stage = stage,
@@ -309,7 +339,7 @@ namespace Xtensive.Orm.Upgrade
       if (oldModel==null)
         return;
       var handlers = Domain.Demand().Handlers;
-      var hintGenerator = new HintGenerator(handlers, oldModel, extractedSchema, context.Hints);
+      var hintGenerator = new HintGenerator(handlers, context.Services.MappingResolver, oldModel, extractedSchema, context.Hints);
       var hints = hintGenerator.Run();
       context.Hints.Clear();
       foreach (var modelHint in hints.ModelHints)
@@ -391,30 +421,42 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
+    private void OnConfigureUpgradeDomain()
+    {
+      foreach (var handler in context.OrderedUpgradeHandlers)
+        handler.OnConfigureUpgradeDomain();
+    }
+
     private void OnSchemaReady()
     {
       foreach (var handler in context.OrderedUpgradeHandlers)
         handler.OnSchemaReady();
     }
 
-    private FutureResult<SqlWorkerResult> OnPrepare()
+    private void OnPrepare()
     {
-      BuildServices();
-
       foreach (var handler in context.OrderedUpgradeHandlers)
         handler.OnPrepare();
+    }
 
-      return CreateResult(SqlWorker.Create(context.Services, upgradeMode.GetSqlWorkerTask()));
+    private IDisposable StartSqlWorker()
+    {
+      var result = CreateResult(SqlWorker.Create(context.Services, upgradeMode.GetSqlWorkerTask()));
+      workerResult = result;
+      return result;
+    }
+
+    private void CompleteSqlWorker()
+    {
+      if (!workerResult.IsAvailable)
+        return;
+      var result = workerResult.Get();
+      context.Metadata = result.Metadata;
+      context.ExtractedSqlModelCache = result.Schema;
     }
 
     private void OnBeforeStage()
     {
-      if (workerResult.IsAvailable) {
-        var result = workerResult.Get();
-        context.Metadata = result.Metadata;
-        context.ExtractedSqlModelCache = result.Schema;
-      }
-
       foreach (var handler in context.OrderedUpgradeHandlers)
         handler.OnBeforeStage();
     }
@@ -425,8 +467,6 @@ namespace Xtensive.Orm.Upgrade
       try {
         foreach (var handler in context.OrderedUpgradeHandlers)
           handler.OnStage();
-        if (context.Stage==UpgradeStage.Final)
-          CleanUpKeyGenerators(session);
       }
       finally {
         context.Session = null;
@@ -455,14 +495,12 @@ namespace Xtensive.Orm.Upgrade
 
       foreach (var module in context.Modules)
         module.OnBuilt(domain);
-
-      CompleteUpgradeTransaction();
     }
 
     private StorageModel GetTargetModel(Domain domain)
     {
       var indexFilterCompiler = context.Services.IndexFilterCompiler;
-      var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, indexFilterCompiler) {
+      var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, indexFilterCompiler, context.Services.MappingResolver) {
         BuildForeignKeys = context.Configuration.Supports(ForeignKeyMode.Reference),
         BuildHierarchyForeignKeys = context.Configuration.Supports(ForeignKeyMode.Hierarchy)
       };

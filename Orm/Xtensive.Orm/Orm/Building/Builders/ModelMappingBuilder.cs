@@ -16,12 +16,11 @@ namespace Xtensive.Orm.Building.Builders
 {
   internal static class ModelMappingBuilder
   {
-    public static ModelMapping Build(HandlerAccessor handlers, SchemaExtractionResult sqlModel)
+    public static ModelMapping Build(HandlerAccessor handlers, SchemaExtractionResult sqlModel, MappingResolver resolver)
     {
       var domainModel = handlers.Domain.Model;
       var configuration = handlers.Domain.Configuration;
       var providerInfo = handlers.ProviderInfo;
-      var resolver = handlers.MappingResolver;
 
       var mapping = new ModelMapping();
 
@@ -66,7 +65,7 @@ namespace Xtensive.Orm.Building.Builders
 
       // Fill information for TemporaryTableManager
 
-      var defaultSchema = resolver.GetSchema(sqlModel, configuration.DefaultDatabase, configuration.DefaultSchema);
+      var defaultSchema = resolver.ResolveSchema(sqlModel, configuration.DefaultDatabase, configuration.DefaultSchema);
 
       mapping.TemporaryTableDatabase = defaultSchema.Catalog.Name;
       mapping.TemporaryTableSchema = defaultSchema.Name;
