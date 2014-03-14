@@ -5,17 +5,25 @@
 // Created:    2012.05.17
 
 using Xtensive.Core;
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Internals.KeyGenerators
 {
   internal sealed class DomainCachingSequenceProvider<TValue> : ICachingSequenceProvider<TValue>
   {
-    private readonly CachingSequence<TValue> sequence;
+    private readonly IStorageSequenceAccessor accessor;
 
-    public CachingSequence<TValue> GetSequence(Session session)
+    public CachingSequence<TValue> GetSequence(SequenceInfo sequenceInfo, Session session)
     {
-      return sequence;
+      var node = session.StorageNode;
+      var result = node.KeySequencesCache.GetOrAdd(sequenceInfo, CreateSequence);
+      return (CachingSequence<TValue>) result;
+    }
+
+    private object CreateSequence(SequenceInfo sequenceInfo)
+    {
+      return new CachingSequence<TValue>(accessor, true);
     }
 
     // Constructor
@@ -24,7 +32,7 @@ namespace Xtensive.Orm.Internals.KeyGenerators
     {
       ArgumentValidator.EnsureArgumentNotNull(accessor, "accessor");
 
-      sequence = new CachingSequence<TValue>(accessor, true);
+      this.accessor = accessor;
     }
   }
 }

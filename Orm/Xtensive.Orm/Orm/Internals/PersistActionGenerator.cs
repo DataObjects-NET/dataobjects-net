@@ -6,11 +6,14 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Internals
 {
   internal class PersistActionGenerator
   {
+    public readonly StorageNode Node;
+
     public virtual IEnumerable<PersistAction> GetPersistSequence(EntityChangeRegistry registry)
     {
       // Delete
@@ -21,7 +24,7 @@ namespace Xtensive.Orm.Internals
       foreach (var state in registry.GetItems(PersistenceState.Modified)) {
         if (state.IsNotAvailableOrMarkedAsRemoved)
           continue;
-        yield return new PersistAction(state, PersistActionKind.Update);
+        yield return new PersistAction(Node, state, PersistActionKind.Update);
         state.DifferentialTuple.Merge();
       }
 
@@ -51,13 +54,18 @@ namespace Xtensive.Orm.Internals
     protected virtual IEnumerable<PersistAction> GetInsertSequence(IEnumerable<EntityState> entityStates)
     {
       return entityStates
-        .Select(state => new PersistAction(state, PersistActionKind.Insert));
+        .Select(state => new PersistAction(Node, state, PersistActionKind.Insert));
     }
 
     protected virtual IEnumerable<PersistAction> GetDeleteSequence(IEnumerable<EntityState> entityStates)
     {
       return entityStates
-        .Select(state => new PersistAction(state, PersistActionKind.Remove));
+        .Select(state => new PersistAction(Node, state, PersistActionKind.Remove));
+    }
+
+    public PersistActionGenerator(StorageNode node)
+    {
+      Node = node;
     }
   }
 }

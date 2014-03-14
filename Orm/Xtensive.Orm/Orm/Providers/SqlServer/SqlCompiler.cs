@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -24,7 +25,7 @@ namespace Xtensive.Orm.Providers.SqlServer
 
       SqlSelect select = SqlDml.Select();
       var index = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);
-      var table = domainHandler.Mapping[index.ReflectedType];
+      var table = Mapping[index.ReflectedType];
       var fromTable = SqlDml.FreeTextTable(table, binding.ParameterReference,
         provider.Header.Columns.Select(column=>column.Name).ToList());
       var fromTableRef = SqlDml.QueryRef(fromTable);
@@ -56,8 +57,8 @@ namespace Xtensive.Orm.Providers.SqlServer
 
     // Constructors
 
-    public SqlCompiler(HandlerAccessor handlers)
-      : base(handlers)
+    public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
+      : base(handlers, configuration)
     {
     }
   }

@@ -29,6 +29,11 @@ namespace Xtensive.Orm.Providers
     private readonly HashSet<Column> rootColumns = new HashSet<Column>();
 
     /// <summary>
+    /// Gets model mapping.
+    /// </summary>
+    protected ModelMapping Mapping { get; private set; }
+
+    /// <summary>
     /// Gets the SQL domain handler.
     /// </summary>
     protected DomainHandler DomainHandler { get { return Handlers.DomainHandler; } }
@@ -340,7 +345,7 @@ namespace Xtensive.Orm.Providers
             : Compile((CompilableProvider) provider.Source));
       var columnNames = provider.Header.Columns.Select(column => column.Name).ToArray();
       var descriptor = DomainHandler.TemporaryTableManager
-        .BuildDescriptor(provider.Name, provider.Header.TupleDescriptor, columnNames);
+        .BuildDescriptor(Mapping, provider.Name, provider.Header.TupleDescriptor, columnNames);
       var request = new QueryRequest(Driver, descriptor.QueryStatement, null, descriptor.TupleDescriptor, QueryRequestOptions.Empty);
       return new SqlStoreProvider(Handlers, request, descriptor, provider, source);
     }
@@ -494,16 +499,18 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    public SqlCompiler(HandlerAccessor handlers)
+    public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
     {
       Handlers = handlers;
+      OuterReferences = new BindingCollection<ApplyParameter, Pair<SqlProvider, bool>>();
+      Mapping = handlers.StorageNodeRegistry.Get(configuration.StorageNodeId).Mapping;
+
       providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;
 
       if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
 
-      OuterReferences = new BindingCollection<ApplyParameter, Pair<SqlProvider, bool>>();
       stubColumnMap = new Dictionary<SqlColumnStub, SqlExpression>();
     }
   }

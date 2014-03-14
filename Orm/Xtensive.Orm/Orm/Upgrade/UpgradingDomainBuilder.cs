@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    public static ModelMapping BuildNode(Domain parentDomain, NodeConfiguration nodeConfiguration)
+    public static StorageNode BuildNode(Domain parentDomain, NodeConfiguration nodeConfiguration)
     {
       ArgumentValidator.EnsureArgumentNotNull(parentDomain, "parentDomain");
       ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, "nodeConfiguration");
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Upgrade
       using (context.Activate())
       using (context.Services) {
         new UpgradingDomainBuilder(context).Run();
-        return context.ModelMapping;
+        return context.StorageNode;
       }
     }
 
@@ -287,7 +287,8 @@ namespace Xtensive.Orm.Upgrade
         var upgrader = new SchemaUpgrader(context, session);
         var extractor = new SchemaExtractor(context, session);
         SynchronizeSchema(domain, upgrader, extractor, GetUpgradeMode(stage));
-        session.StorageNode = BuildStorageNode(domain, extractor);
+        var storageNode = BuildStorageNode(domain, extractor);
+        session.SetStorageNode(storageNode);
         OnStage(session);
         if (stage==UpgradeStage.Final)
           CleanUpKeyGenerators(session);
@@ -301,11 +302,11 @@ namespace Xtensive.Orm.Upgrade
       var result = new StorageNode(context.NodeConfiguration, modelMapping);
 
       // Register default storage node immediately,
-      // non-default are registered in NodeManager after everything completes successfully.
+      // non-default nodes are registered in NodeManager after everything completes successfully.
       if (result.Id==WellKnown.DefaultNodeId)
         domain.Handlers.StorageNodeRegistry.Add(result);
 
-      context.ModelMapping = modelMapping;
+      context.StorageNode = result;
       return result;
     }
 

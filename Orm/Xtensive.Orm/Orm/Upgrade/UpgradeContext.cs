@@ -172,7 +172,7 @@ namespace Xtensive.Orm.Upgrade
 
     internal StorageModel TargetStorageModel { get; set; }
 
-    internal ModelMapping ModelMapping { get; set; }
+    internal StorageNode StorageNode { get; set; }
 
     internal MetadataSet Metadata { get; set; }
 

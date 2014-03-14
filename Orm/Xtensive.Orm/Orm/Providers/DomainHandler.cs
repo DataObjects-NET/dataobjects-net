@@ -39,14 +39,6 @@ namespace Xtensive.Orm.Providers
     public IEnumerable<IQueryPreprocessor> QueryPreprocessors { get; private set; }
 
     /// <summary>
-    /// Gets the model mapping.
-    /// </summary>
-    public ModelMapping Mapping
-    {
-      get { return Handlers.StorageNodeRegistry.Find(WellKnown.DefaultNodeId).Mapping; }
-    }
-
-    /// <summary>
     /// Gets the temporary table manager.
     /// </summary>
     public TemporaryTableManager TemporaryTableManager { get; private set; }
@@ -80,7 +72,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>A new compiler.</returns>
     protected virtual ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
-      return new SqlCompiler(Handlers);
+      return new SqlCompiler(Handlers, configuration);
     }
 
     /// <summary>

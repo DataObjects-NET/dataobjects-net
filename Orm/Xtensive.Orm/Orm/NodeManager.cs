@@ -26,8 +26,7 @@ namespace Xtensive.Orm
     /// <param name="configuration">Node configuration.</param>
     public bool AddNode([NotNull] NodeConfiguration configuration)
     {
-      var mapping = UpgradingDomainBuilder.BuildNode(domain, configuration);
-      var node = new StorageNode(configuration, mapping);
+      var node = UpgradingDomainBuilder.BuildNode(domain, configuration);
       return registry.Add(node);
     }
 
@@ -51,7 +50,7 @@ namespace Xtensive.Orm
     [CanBeNull]
     public NodeConfiguration GetConfiguration([NotNull] string nodeId)
     {
-      var node = registry.Find(nodeId);
+      var node = registry.TryGet(nodeId);
       return node!=null ? node.Configuration : null;
     }
 

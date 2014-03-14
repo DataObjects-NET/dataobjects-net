@@ -10,9 +10,12 @@ namespace Xtensive.Orm.Rse.Compilation
   {
     public bool PrepareRequest { get; set; }
 
+    public string StorageNodeId { get; set; }
+
     public CompilerConfiguration()
     {
       PrepareRequest = true;
+      StorageNodeId = WellKnown.DefaultNodeId;
     }
   }
 }

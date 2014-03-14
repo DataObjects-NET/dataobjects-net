@@ -80,7 +80,6 @@ namespace Xtensive.Orm
     private readonly long identifier;
     private readonly Pinner pinner;
 
-    private string nodeId = WellKnown.DefaultNodeId;
     private int? commandTimeout;
     private bool isDelayedQueryRunning;
     private volatile bool isDisposed;
@@ -160,18 +159,11 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Gets or sets node identifier for this instance.
+    /// Gets current storage node identifier.
     /// </summary>
     public string NodeId
     {
-      get { return nodeId; }
-      set
-      {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        if (nodeId!=WellKnown.DefaultNodeId)
-          throw Exceptions.AlreadyInitialized("NodeId");
-        nodeId = value;
-      }
+      get { return StorageNode.Id; }
     }
 
     /// <summary>
@@ -212,15 +204,11 @@ namespace Xtensive.Orm
 
     internal StorageNode StorageNode
     {
-      get { return storageNode; }
-      set
+      get
       {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        var connectionInfo = value.Configuration.ConnectionInfo;
-        if (connectionInfo!=null)
-          ConnectionInfo = connectionInfo;
-        nodeId = value.Id;
-        storageNode = value;
+        if (storageNode==null)
+          SetStorageNode(Handlers.StorageNodeRegistry.Get(WellKnown.DefaultNodeId));
+        return storageNode;
       }
     }
 
@@ -275,6 +263,16 @@ namespace Xtensive.Orm
       var systemContainer = CreateSystemServices();
       var userContainer = ServiceContainer.Create(userContainerType, systemContainer);
       return new ServiceContainer(registrations, userContainer);
+    }
+
+    internal void SetStorageNode(StorageNode node)
+    {
+      if (storageNode!=null)
+        throw new InvalidOperationException(Strings.ExStorageNodeIsAlreadySelected);
+      var connectionInfo = node.Configuration.ConnectionInfo;
+      if (connectionInfo!=null)
+        ConnectionInfo = connectionInfo;
+      storageNode = node;
     }
 
     #endregion
@@ -397,6 +395,17 @@ namespace Xtensive.Orm
     }
 
     #endregion
+
+    /// <summary>
+    /// Selects storage node identifier by <paramref name="nodeId"/>.
+    /// </summary>
+    /// <param name="nodeId">Node identifier.</param>
+    public void SelectStorageNode([NotNull] string nodeId)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
+      var node = Handlers.StorageNodeRegistry.Get(nodeId);
+      SetStorageNode(node);
+    }
 
     /// <summary>
     /// Temporary overrides <see cref="CommandTimeout"/>.

@@ -4,14 +4,16 @@
 // Created by: Dmitri Maximov
 // Created:    2011.01.27
 
+using Xtensive.Orm.Rse.Compilation;
+
 namespace Xtensive.Orm.Providers.Firebird
 {
   internal class SqlCompiler : Providers.SqlCompiler
   {
     // Constructors
 
-    public SqlCompiler(HandlerAccessor handlers)
-      : base(handlers)
+    public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
+      : base(handlers, configuration)
     {
     }
   }

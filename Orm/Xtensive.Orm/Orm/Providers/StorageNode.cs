@@ -4,8 +4,11 @@
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Providers
 {
@@ -17,6 +20,10 @@ namespace Xtensive.Orm.Providers
 
     public ModelMapping Mapping { get; private set; }
 
+    public ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; private set; }
+
+    public ConcurrentDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>> PersistRequestCache { get; private set; }
+
 
     // Constructors
 
@@ -27,6 +34,8 @@ namespace Xtensive.Orm.Providers
 
       Configuration = configuration;
       Mapping = mapping;
+      KeySequencesCache = new ConcurrentDictionary<SequenceInfo, object>();
+      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>>();
     }
   }
 }

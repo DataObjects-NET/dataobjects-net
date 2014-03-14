@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers
@@ -29,11 +30,20 @@ namespace Xtensive.Orm.Providers
       return nodes.TryRemove(nodeId, out dummy);
     }
 
-    public StorageNode Find(string nodeId)
+    public StorageNode TryGet(string nodeId)
     {
       ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
       StorageNode result;
       nodes.TryGetValue(nodeId, out result);
+      return result;
+    }
+
+    public StorageNode Get(string nodeId)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
+      StorageNode result;
+      if (!nodes.TryGetValue(nodeId, out result))
+        throw new KeyNotFoundException(string.Format(Strings.ExStorageNodeWithIdXIsNotFound, nodeId));
       return result;
     }
   }

@@ -5754,6 +5754,24 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Storage node is already selected..
+        /// </summary>
+        internal static string ExStorageNodeIsAlreadySelected {
+            get {
+                return ResourceManager.GetString("ExStorageNodeIsAlreadySelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Storage node with id &apos;{0}&apos; is not found..
+        /// </summary>
+        internal static string ExStorageNodeWithIdXIsNotFound {
+            get {
+                return ResourceManager.GetString("ExStorageNodeWithIdXIsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Storage provider &apos;{0}&apos; is not found..
         /// </summary>
         internal static string ExStorageProviderXIsNotFound {

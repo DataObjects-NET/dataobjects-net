@@ -22,16 +22,15 @@ namespace Xtensive.Orm.Providers
   [Service(typeof (IStorageSequenceAccessor))]
   public class StorageSequenceAccessor : IStorageSequenceAccessor
   {
-    private readonly DomainHandler domainHandler;
+    private readonly Domain domain;
     private readonly SequenceQueryBuilder queryBuilder;
     private readonly bool hasArbitaryIncrement;
     private readonly bool hasSequences;
-    private readonly Domain domain;
 
     /// <inheritdoc/>
     public Segment<long> NextBulk(SequenceInfo sequenceInfo, Session session)
     {
-      var generatorNode = GetGeneratorNode(sequenceInfo);
+      var generatorNode = GetGeneratorNode(sequenceInfo, session.StorageNode);
       var query = queryBuilder.BuildNextValueQuery(generatorNode, sequenceInfo.Increment);
 
       long hiValue = Execute(query, session);
@@ -49,7 +48,7 @@ namespace Xtensive.Orm.Providers
       if (hasSequences)
         return;
 
-      var statements = sequences.Select(s => queryBuilder.BuildCleanUpQuery(GetGeneratorNode(s)));
+      var statements = sequences.Select(s => queryBuilder.BuildCleanUpQuery(GetGeneratorNode(s, session.StorageNode)));
       session.Services.Demand<ISqlExecutor>().ExecuteMany(statements);
     }
 
@@ -80,9 +79,9 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    private SchemaNode GetGeneratorNode(SequenceInfo sequenceInfo)
+    private SchemaNode GetGeneratorNode(SequenceInfo sequenceInfo, StorageNode storageNode)
     {
-      var result = domainHandler.Mapping[sequenceInfo];
+      var result = storageNode.Mapping[sequenceInfo];
       if (result!=null)
         return result;
 
@@ -99,7 +98,6 @@ namespace Xtensive.Orm.Providers
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
 
-      domainHandler = handlers.DomainHandler;
       queryBuilder = handlers.SequenceQueryBuilder;
       domain = handlers.Domain;
 

@@ -24,29 +24,30 @@ namespace Xtensive.Orm.Providers
     private const string ColumnNamePattern = "C{0}";
 
     private TemporaryTableBackEnd backEnd;
-    private DomainHandler domainHandler;
 
     public bool Supported { get { return backEnd!=null; } }
 
     /// <summary>
     /// Builds the descriptor of a temporary table.
     /// </summary>
+    /// <param name="modelMapping">Model mapping.</param>
     /// <param name="name">The name of the temporary table.</param>
     /// <param name="source">The source.</param>
     /// <returns>Built descriptor.</returns>
-    public TemporaryTableDescriptor BuildDescriptor(string name, TupleDescriptor source)
+    public TemporaryTableDescriptor BuildDescriptor(ModelMapping modelMapping, string name, TupleDescriptor source)
     {
-      return BuildDescriptor(name, source, null);
+      return BuildDescriptor(modelMapping, name, source, null);
     }
 
     /// <summary>
     /// Builds the descriptor of a temporary table.
     /// </summary>
+    /// <param name="modelMapping">Model mapping.</param>
     /// <param name="name">The name of the temporary table.</param>
     /// <param name="source">The source.</param>
     /// <param name="fieldNames">The names of field in temporary table.</param>
     /// <returns>Built descriptor.</returns>
-    public TemporaryTableDescriptor BuildDescriptor(string name, TupleDescriptor source, string[] fieldNames)
+    public TemporaryTableDescriptor BuildDescriptor(ModelMapping modelMapping, string name, TupleDescriptor source, string[] fieldNames)
     {
       if (!Supported)
         throw new NotSupportedException(Strings.ExTemporaryTablesAreNotSupportedByCurrentStorage);
@@ -55,7 +56,6 @@ namespace Xtensive.Orm.Providers
 
       // TODO: split this method to a set of various simple virtual methods
       var driver = Handlers.StorageDriver;
-      var modelMapping = domainHandler.Mapping;
 
       var catalog = new Catalog(modelMapping.TemporaryTableDatabase);
       var schema = catalog.CreateSchema(modelMapping.TemporaryTableSchema);
@@ -177,8 +177,6 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     protected override void Initialize()
     {
-      domainHandler = Handlers.DomainHandler;
-
       var providerInfo = Handlers.ProviderInfo;
 
       if (providerInfo.Supports(ProviderFeatures.TemporaryTables))

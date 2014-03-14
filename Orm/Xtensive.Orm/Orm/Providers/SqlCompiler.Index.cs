@@ -51,12 +51,12 @@ namespace Xtensive.Orm.Providers
     private SqlSelect BuildTableQuery(IndexInfo index)
     {
       var domainHandler = Handlers.DomainHandler;
-      var table = domainHandler.Mapping[index.ReflectedType];
+      var table = Mapping[index.ReflectedType];
 
       var atRootPolicy = false;
 
       if (table==null) {
-        table = domainHandler.Mapping[index.ReflectedType.GetRoot()];
+        table = Mapping[index.ReflectedType.GetRoot()];
         atRootPolicy = true;
       }
 

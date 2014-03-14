@@ -3313,4 +3313,10 @@ Error: {1}</value>
   <data name="ExInvalidNodeIdentifier" xml:space="preserve">
     <value>Invalid node identifier.</value>
   </data>
+  <data name="ExStorageNodeWithIdXIsNotFound" xml:space="preserve">
+    <value>Storage node with id '{0}' is not found.</value>
+  </data>
+  <data name="ExStorageNodeIsAlreadySelected" xml:space="preserve">
+    <value>Storage node is already selected.</value>
+  </data>
 </root>

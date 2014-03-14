@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Providers.SqlServer
     /// <inheritdoc/>
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
-      return new SqlCompiler(Handlers);
+      return new SqlCompiler(Handlers, configuration);
     }
   }
 }
