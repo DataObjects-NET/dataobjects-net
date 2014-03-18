@@ -93,10 +93,10 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private IEnumerable<PersistRequest> GetOrBuildRequest(StorageNode node, PersistRequestBuilderTask task)
+    private ICollection<PersistRequest> GetOrBuildRequest(StorageNode node, PersistRequestBuilderTask task)
     {
       var cache = node.PersistRequestCache;
-      IEnumerable<PersistRequest> result;
+      ICollection<PersistRequest> result;
       if (cache.TryGetValue(task, out result))
         return result;
       result = requestBuilder.Build(node, task);

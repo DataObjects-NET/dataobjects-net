@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Providers
 
     public ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; private set; }
 
-    public ConcurrentDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>> PersistRequestCache { get; private set; }
+    public ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; private set; }
 
 
     // Constructors
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Providers
       Configuration = configuration;
       Mapping = mapping;
       KeySequencesCache = new ConcurrentDictionary<SequenceInfo, object>();
-      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>>();
+      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>>();
     }
   }
 }
