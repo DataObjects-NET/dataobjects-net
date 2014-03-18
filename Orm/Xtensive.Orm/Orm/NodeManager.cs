@@ -46,12 +46,26 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="nodeId">Node identifier.</param>
     /// <returns><see cref="NodeConfiguration"/> for the specified <paramref name="nodeId"/>,
-    /// or null if not found.</returns>
+    /// or null if node is unknown.</returns>
     [CanBeNull]
     public NodeConfiguration GetConfiguration([NotNull] string nodeId)
     {
       var node = registry.TryGet(nodeId);
       return node!=null ? node.Configuration : null;
+    }
+
+    /// <summary>
+    /// Gets <see cref="ModelMapping"/> for the node
+    /// with the specified <paramref name="nodeId"/>.
+    /// </summary>
+    /// <param name="nodeId">Node identifier.</param>
+    /// <returns><see cref="ModelMapping"/> for the specified <paramref name="nodeId"/>,
+    /// or null if node is unknown.</returns>
+    [CanBeNull]
+    public ModelMapping GetMapping([NotNull] string nodeId)
+    {
+      var node = registry.TryGet(nodeId);
+      return node!=null ? node.Mapping : null;
     }
 
 
