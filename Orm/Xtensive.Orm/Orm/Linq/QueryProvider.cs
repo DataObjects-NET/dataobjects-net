@@ -11,7 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
-using Xtensive.Orm.Rse.Compilation;
+using Xtensive.Orm.Providers;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Linq
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Linq
 
     internal TranslatedQuery<TResult> Translate<TResult>(Expression expression)
     {
-      return Translate<TResult>(expression, new CompilerConfiguration());
+      return Translate<TResult>(expression, session.CompilationService.CreateConfiguration(session));
     }
 
     internal TranslatedQuery<TResult> Translate<TResult>(Expression expression, CompilerConfiguration compilerConfiguration)

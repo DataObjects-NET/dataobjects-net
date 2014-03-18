@@ -20,6 +20,8 @@ namespace Xtensive.Orm.Providers
 
     public ModelMapping Mapping { get; private set; }
 
+    public ConcurrentDictionary<object, object> InternalQueryCache { get; private set; }
+
     public ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; private set; }
 
     public ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; private set; }
@@ -36,6 +38,7 @@ namespace Xtensive.Orm.Providers
       Mapping = mapping;
       KeySequencesCache = new ConcurrentDictionary<SequenceInfo, object>();
       PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>>();
+      InternalQueryCache = new ConcurrentDictionary<object, object>();
     }
   }
 }

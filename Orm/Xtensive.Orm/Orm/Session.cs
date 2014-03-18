@@ -275,6 +275,16 @@ namespace Xtensive.Orm
       storageNode = node;
     }
 
+    public ExecutableProvider Compile(CompilableProvider provider)
+    {
+      return CompilationService.Compile(provider, CompilationService.CreateConfiguration(this));
+    }
+
+    public ExecutableProvider Compile(CompilableProvider provider, CompilerConfiguration configuration)
+    {
+      return CompilationService.Compile(provider, configuration);
+    }
+
     #endregion
 
     #region IContext<...> methods

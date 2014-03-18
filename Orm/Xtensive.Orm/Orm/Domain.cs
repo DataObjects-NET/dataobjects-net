@@ -5,6 +5,7 @@
 // Created:    2007.08.03
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
@@ -14,6 +15,7 @@ using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
+using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
@@ -113,7 +115,7 @@ namespace Xtensive.Orm
 
     internal KeyGeneratorRegistry KeyGenerators { get; private set; }
 
-    internal ThreadSafeDictionary<object, object> Cache { get; private set; }
+    internal ConcurrentDictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>> PrefetchFieldDescriptorCache { get; private set; }
     
     internal ICache<object, Pair<object, TranslatedQuery>> QueryCache { get; private set; }
 
@@ -282,7 +284,7 @@ namespace Xtensive.Orm
       GenericKeyTypes = ThreadSafeDictionary<int, GenericKeyTypeInfo>.Create(new object());
       RecordSetReader = new RecordSetReader(this);
       KeyGenerators = new KeyGeneratorRegistry();
-      Cache = ThreadSafeDictionary<object, object>.Create(new object());
+      PrefetchFieldDescriptorCache = new ConcurrentDictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(Configuration.QueryCacheSize, k => k.First);
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();

@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Providers
     public Domain Domain { get { return Handlers.Domain; } }
 
     /// <summary>
-    /// Gets the <see cref="Xtensive.Orm.Rse.Compilation.CompilationService"/>
+    /// Gets the <see cref="Providers.CompilationService"/>
     /// associated with the domain.
     /// </summary>
     public CompilationService CompilationService { get; private set; }

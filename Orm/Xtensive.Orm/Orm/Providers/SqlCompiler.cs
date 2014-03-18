@@ -503,7 +503,7 @@ namespace Xtensive.Orm.Providers
     {
       Handlers = handlers;
       OuterReferences = new BindingCollection<ApplyParameter, Pair<SqlProvider, bool>>();
-      Mapping = handlers.StorageNodeRegistry.Get(configuration.StorageNodeId).Mapping;
+      Mapping = configuration.StorageNode.Mapping;
 
       providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;

@@ -354,6 +354,8 @@
     <Compile Include="Orm\Logging\LogProvider.cs" />
     <Compile Include="Orm\Logging\Internals\NullLog.cs" />
     <Compile Include="Orm\NodeManager.cs" />
+    <Compile Include="Orm\Providers\CompilationService.cs" />
+    <Compile Include="Orm\Providers\CompilerConfiguration.cs" />
     <Compile Include="Orm\Providers\MultidatabaseMappingResolver.cs" />
     <Compile Include="Orm\Providers\MultischemaMappingResolver.cs" />
     <Compile Include="Orm\Providers\StorageNode.cs" />
@@ -827,7 +829,6 @@
     <Compile Include="Orm\EntitySetActionCompletedEventArgs.cs" />
     <Compile Include="Orm\QueryEndpoint.cs" />
     <Compile Include="Orm\QueryRootBuilder.cs" />
-    <Compile Include="Orm\Rse\Compilation\CompilerConfiguration.cs" />
     <Compile Include="Orm\Rse\Compilation\CompositePostCompiler.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\VoidProvider.cs" />
     <Compile Include="Orm\Services\QueryBuilding\QueryBuilder.cs" />
@@ -1645,7 +1646,6 @@
     <Compile Include="Orm\Rse\Column.cs" />
     <Compile Include="Orm\Rse\ColumnCollection.cs" />
     <Compile Include="Orm\Rse\ColumnGroupCollection.cs" />
-    <Compile Include="Orm\Rse\Compilation\CompilationService.cs" />
     <Compile Include="Orm\Rse\Compilation\Compiler.cs" />
     <Compile Include="Orm\Rse\Compilation\EmptyPostCompiler.cs" />
     <Compile Include="Orm\Rse\Compilation\EmptyPreCompiler.cs" />
