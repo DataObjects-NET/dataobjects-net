@@ -5,6 +5,7 @@
 // Created:    2014.03.13
 
 using JetBrains.Annotations;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
@@ -12,7 +13,7 @@ using Xtensive.Orm.Upgrade;
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// Manager of storage nodes.
+  /// Storage node manager.
   /// </summary>
   public sealed class NodeManager
   {
@@ -41,8 +42,8 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Gets <see cref="NodeConfiguration"/> for the node
-    /// with the specified <paramref name="nodeId"/>.
+    /// Gets <see cref="NodeConfiguration"/>
+    /// for the node with the specified <paramref name="nodeId"/>.
     /// </summary>
     /// <param name="nodeId">Node identifier.</param>
     /// <returns><see cref="NodeConfiguration"/> for the specified <paramref name="nodeId"/>,
@@ -55,8 +56,21 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Gets <see cref="ModelMapping"/> for the node
-    /// with the specified <paramref name="nodeId"/>.
+    /// Gets <see cref="NodeConfiguration"/>
+    /// for the specified <paramref name="session"/>.
+    /// </summary>
+    /// <param name="session">Session to use.</param>
+    /// <returns><see cref="NodeConfiguration"/> for the specified <paramref name="session"/>.</returns>
+    [NotNull]
+    public NodeConfiguration GetConfiguration([NotNull] Session session)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      return session.StorageNode.Configuration;
+    }
+
+    /// <summary>
+    /// Gets <see cref="ModelMapping"/>
+    /// for the node with the specified <paramref name="nodeId"/>.
     /// </summary>
     /// <param name="nodeId">Node identifier.</param>
     /// <returns><see cref="ModelMapping"/> for the specified <paramref name="nodeId"/>,
@@ -66,6 +80,19 @@ namespace Xtensive.Orm
     {
       var node = registry.TryGet(nodeId);
       return node!=null ? node.Mapping : null;
+    }
+
+    /// <summary>
+    /// Gets <see cref="ModelMapping"/>
+    /// for the specified <paramref name="session"/>.
+    /// </summary>
+    /// <param name="session">Session to use.</param>
+    /// <returns><see cref="ModelMapping"/> for the specified <paramref name="session"/>.</returns>
+    [NotNull]
+    public ModelMapping GetMapping([NotNull] Session session)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      return session.StorageNode.Mapping;
     }
 
 
