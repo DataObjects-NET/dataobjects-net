@@ -322,6 +322,7 @@
     <Compile Include="Storage\DisconnectedStateSideEffectsTest.cs" />
     <Compile Include="Storage\DisconnectedStateTest2.cs" />
     <Compile Include="Storage\EncryptedConnectionStringTest.cs" />
+    <Compile Include="Storage\EntitySetRollbackTest.cs" />
     <Compile Include="Storage\ExcludeFromAutoVersionTest.cs" />
     <Compile Include="Storage\ForceServerVersion.cs" />
     <Compile Include="Storage\IgnoreRulesValidateTest.cs" />
