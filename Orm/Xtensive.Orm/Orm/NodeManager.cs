@@ -17,8 +17,7 @@ namespace Xtensive.Orm
   /// </summary>
   public sealed class NodeManager
   {
-    private readonly Domain domain;
-    private readonly StorageNodeRegistry registry;
+    private readonly HandlerAccessor handlers;
 
     /// <summary>
     /// Adds node with the specified <paramref name="configuration"/>
@@ -27,8 +26,8 @@ namespace Xtensive.Orm
     /// <param name="configuration">Node configuration.</param>
     public bool AddNode([NotNull] NodeConfiguration configuration)
     {
-      var node = UpgradingDomainBuilder.BuildNode(domain, configuration);
-      return registry.Add(node);
+      var node = UpgradingDomainBuilder.BuildNode(handlers.Domain, configuration);
+      return handlers.StorageNodeRegistry.Add(node);
     }
 
     /// <summary>
@@ -38,7 +37,7 @@ namespace Xtensive.Orm
     /// <returns>True if node was removed, otherwise false.</returns>
     public bool RemoveNode([NotNull] string nodeId)
     {
-      return registry.Remove(nodeId);
+      return handlers.StorageNodeRegistry.Remove(nodeId);
     }
 
     /// <summary>
@@ -51,7 +50,7 @@ namespace Xtensive.Orm
     [CanBeNull]
     public NodeConfiguration GetConfiguration([NotNull] string nodeId)
     {
-      var node = registry.TryGet(nodeId);
+      var node = handlers.StorageNodeRegistry.TryGet(nodeId);
       return node!=null ? node.Configuration : null;
     }
 
@@ -78,7 +77,7 @@ namespace Xtensive.Orm
     [CanBeNull]
     public ModelMapping GetMapping([NotNull] string nodeId)
     {
-      var node = registry.TryGet(nodeId);
+      var node = handlers.StorageNodeRegistry.TryGet(nodeId);
       return node!=null ? node.Mapping : null;
     }
 
@@ -100,8 +99,7 @@ namespace Xtensive.Orm
 
     internal NodeManager(HandlerAccessor handlers)
     {
-      domain = handlers.Domain;
-      registry = handlers.StorageNodeRegistry;
+      this.handlers = handlers;
     }
   }
 }

@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Providers
     {
       if (string.IsNullOrEmpty(mappingSchema))
         mappingSchema = defaultSchema;
-      return FormatNodeName(schemaMapping.Apply(mappingSchema), schemaMapping.Apply(mappingName));
+      return FormatNodeName(schemaMapping.Apply(mappingSchema), mappingName);
     }
 
     public override string GetNodeName(SchemaNode node)
@@ -64,7 +64,6 @@ namespace Xtensive.Orm.Providers
     public MultischemaMappingResolver(DomainConfiguration configuration, NodeConfiguration nodeConfiguration, ProviderInfo providerInfo)
     {
       schemaMapping = nodeConfiguration.SchemaMapping;
-
       defaultSchema = configuration.DefaultSchema;
 
       extractionTasks = configuration.MappingRules
@@ -72,10 +71,10 @@ namespace Xtensive.Orm.Providers
         .Where(s => !string.IsNullOrEmpty(s))
         .Concat(Enumerable.Repeat(configuration.DefaultSchema, 1))
         .Distinct()
-        .Select(s => new SqlExtractionTask(providerInfo.DefaultDatabase, s))
+        .Select(s => new SqlExtractionTask(providerInfo.DefaultDatabase, schemaMapping.Apply(s)))
         .ToList();
 
-      metadataTask = new SqlExtractionTask(providerInfo.DefaultDatabase, defaultSchema);
+      metadataTask = new SqlExtractionTask(providerInfo.DefaultDatabase, schemaMapping.Apply(defaultSchema));
     }
   }
 }
