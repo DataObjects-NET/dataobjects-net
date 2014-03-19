@@ -52,33 +52,45 @@ namespace Xtensive.Orm.Upgrade
       var context = UpgradeContext;
       var upgradeMode = context.Configuration.UpgradeMode;
       var session = Session.Demand();
-      var builder = new TypeIdBuilder(session.Domain, context.TypeIdProvider);
 
       switch (context.Stage) {
       case UpgradeStage.Upgrading:
         // Perform or PerformSafely
-        builder.BuildTypeIds();
+        BuildTypeIds(session.Domain);
         UpdateMetadata(session);
         break;
       case UpgradeStage.Final:
         if (upgradeMode.IsUpgrading()) {
           // Recreate, Perform or PerformSafely
-          builder.BuildTypeIds();
+          BuildTypeIds(session.Domain);
           UpdateMetadata(session);
         }
         else if (upgradeMode.IsLegacy()) {
           // LegacySkip and LegacyValidate
-          builder.BuildTypeIds();
+          BuildTypeIds(session.Domain);
         }
         else {
           // Skip and Validate
           BuildTypeIdMap();
-          builder.BuildTypeIds();
+          BuildTypeIds(session.Domain);
         }
         break;
       default:
         throw new ArgumentOutOfRangeException("context.Stage");
       }
+    }
+
+    private void BuildTypeIds(Domain domain)
+    {
+      var builder = new TypeIdBuilder(domain, UpgradeContext.TypeIdProvider);
+      var storageNode = UpgradeContext.StorageNode;
+      var registry = storageNode.TypeIdRegistry;
+
+      builder.BuildTypeIds(registry);
+      registry.Lock();
+
+      if (storageNode.Id==WellKnown.DefaultNodeId)
+        builder.SetDefaultTypeIds(registry);
     }
 
     public override bool CanUpgradeFrom(string oldVersion)

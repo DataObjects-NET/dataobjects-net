@@ -310,7 +310,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var b = session.Query.All<Territory>()
           .Prefetch(t => t.Region.RegionDescription)
           .ToList();
-        AssertEx.Throws<ArgumentException>(() => session.Query.All<Territory>()
+        AssertEx.Throws<KeyNotFoundException>(() => session.Query.All<Territory>()
           .Prefetch(t => t.PersistenceState)
           .ToList());
         var d = session.Query.Many<Model.OfferContainer>(EnumerableUtils.One(Key.Create<Model.OfferContainer>(Domain, 1)))

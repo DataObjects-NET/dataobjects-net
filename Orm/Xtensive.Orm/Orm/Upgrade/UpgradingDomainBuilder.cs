@@ -16,6 +16,7 @@ using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Logging;
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
@@ -23,7 +24,6 @@ using Xtensive.Sql;
 
 namespace Xtensive.Orm.Upgrade
 {
-
   internal sealed class UpgradingDomainBuilder
   {
     private readonly UpgradeContext context;
@@ -299,7 +299,7 @@ namespace Xtensive.Orm.Upgrade
     private StorageNode BuildStorageNode(Domain domain, SchemaExtractor extractor)
     {
       var modelMapping = ModelMappingBuilder.Build(domain.Handlers, extractor.GetSqlSchema(), context.Services.MappingResolver);
-      var result = new StorageNode(context.NodeConfiguration, modelMapping);
+      var result = new StorageNode(context.NodeConfiguration, modelMapping, new TypeIdRegistry());
 
       // Register default storage node immediately,
       // non-default nodes are registered in NodeManager after everything completes successfully.

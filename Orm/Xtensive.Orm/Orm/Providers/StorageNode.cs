@@ -20,6 +20,8 @@ namespace Xtensive.Orm.Providers
 
     public ModelMapping Mapping { get; private set; }
 
+    public TypeIdRegistry TypeIdRegistry { get; private set; }
+
     public ConcurrentDictionary<object, object> InternalQueryCache { get; private set; }
 
     public ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; private set; }
@@ -29,13 +31,16 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    public StorageNode(NodeConfiguration configuration, ModelMapping mapping)
+    public StorageNode(NodeConfiguration configuration, ModelMapping mapping, TypeIdRegistry typeIdRegistry)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       ArgumentValidator.EnsureArgumentNotNull(mapping, "mapping");
+      ArgumentValidator.EnsureArgumentNotNull(typeIdRegistry, "typeIdRegistry");
 
       Configuration = configuration;
       Mapping = mapping;
+      TypeIdRegistry = typeIdRegistry;
+
       KeySequencesCache = new ConcurrentDictionary<SequenceInfo, object>();
       PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>>();
       InternalQueryCache = new ConcurrentDictionary<object, object>();

@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Model
       {
         TNode result;
         if (!TryGetValue(key, out result))
-          throw new ArgumentException(GetExceptionMessage(key));
+          throw new KeyNotFoundException(GetExceptionMessage(key));
         return result;
       }
     }

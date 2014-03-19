@@ -20,6 +20,16 @@ namespace Xtensive.Orm.Model
     private readonly Dictionary<int, TypeInfo> reverseMapping;
 
     /// <summary>
+    /// Gets collection of registered types.
+    /// </summary>
+    public IEnumerable<TypeInfo> Types { get { return mapping.Keys; } }
+
+    /// <summary>
+    /// Gets collection of registered type identifiers.
+    /// </summary>
+    public IEnumerable<int> TypeIdentifiers { get { return reverseMapping.Keys; } }
+
+    /// <summary>
     /// Gets type identifier for the specified <paramref name="type"/>.
     /// </summary>
     /// <param name="type">Type to get type identifier for.</param>
@@ -30,7 +40,9 @@ namespace Xtensive.Orm.Model
       {
         ArgumentValidator.EnsureArgumentNotNull(type, "type");
         int result;
-        return mapping.TryGetValue(type, out result) ? result : TypeInfo.NoTypeId;
+        if (!mapping.TryGetValue(type, out result))
+          throw new KeyNotFoundException(string.Format(Strings.ExTypeXIsNotRegisteredInTheModel, type.Name));
+        return result;
       }
     }
 
@@ -44,9 +56,22 @@ namespace Xtensive.Orm.Model
       get
       {
         TypeInfo result;
-        reverseMapping.TryGetValue(typeId, out result);
+        if (!reverseMapping.TryGetValue(typeId, out result))
+          throw new KeyNotFoundException(string.Format(Strings.TypeIdXIsNotRegistered, typeId));
         return result;
       }
+    }
+
+    /// <summary>
+    /// Checks if specified <paramref name="type"/> is registered.
+    /// </summary>
+    /// <param name="type">Type to check.</param>
+    /// <returns>True if <paramref name="type"/> is registered,
+    /// otherwise false.</returns>
+    public bool Contains(TypeInfo type)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      return mapping.ContainsKey(type);
     }
 
     /// <summary>
