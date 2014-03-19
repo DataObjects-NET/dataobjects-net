@@ -143,13 +143,13 @@ namespace Xtensive.Orm.Internals
 
     private static Key CreateGenericKey(Domain domain, string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, Tuple tuple, int[] keyIndexes)
     {
-      var keyTypeInfo = domain.GenericKeyTypes.GetValue(type.TypeId, BuildGenericKeyTypeInfo, type);
+      var keyTypeInfo = domain.GenericKeyFactories.GetOrAdd(type, BuildGenericKeyFactory);
       if (keyIndexes==null)
         return keyTypeInfo.DefaultConstructor(nodeId, type, tuple, accuracy);
       return keyTypeInfo.KeyIndexBasedConstructor(nodeId, type, tuple, accuracy, keyIndexes);
     }
 
-    private static GenericKeyTypeInfo BuildGenericKeyTypeInfo(int typeId, TypeInfo typeInfo)
+    private static GenericKeyFactory BuildGenericKeyFactory(TypeInfo typeInfo)
     {
       var descriptor = typeInfo.Key.TupleDescriptor;
       var keyTypeName = string.Format(GenericKeyNameFormat, typeof (Key<>).Namespace, typeof (Key).Name, descriptor.Count);
@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Internals
         null, keyType, "Create", ArrayUtils<Type>.EmptyArray);
       var keyIndexBasedConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, int[], Key>>(
         null, keyType, "Create", ArrayUtils<Type>.EmptyArray);
-      return new GenericKeyTypeInfo(keyType, defaultConstructor, keyIndexBasedConstructor);
+      return new GenericKeyFactory(keyType, defaultConstructor, keyIndexBasedConstructor);
     }
   }
 }

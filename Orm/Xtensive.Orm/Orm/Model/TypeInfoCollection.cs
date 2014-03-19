@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Model
         foreach (var type in this)
           if (type.TypeId==typeId)
             return type;
-        throw new KeyNotFoundException(string.Format(Strings.TypeIdXIsNotRegistered, typeId));
+        throw new KeyNotFoundException(string.Format(Strings.ExTypeIdXIsNotRegistered, typeId));
       }
     }
 

@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Model
         ArgumentValidator.EnsureArgumentNotNull(type, "type");
         int result;
         if (!mapping.TryGetValue(type, out result))
-          throw new KeyNotFoundException(string.Format(Strings.ExTypeXIsNotRegisteredInTheModel, type.Name));
+          throw new KeyNotFoundException(string.Format(Strings.ExTypeXIsNotRegistered, type.Name));
         return result;
       }
     }
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Model
       {
         TypeInfo result;
         if (!reverseMapping.TryGetValue(typeId, out result))
-          throw new KeyNotFoundException(string.Format(Strings.TypeIdXIsNotRegistered, typeId));
+          throw new KeyNotFoundException(string.Format(Strings.ExTypeIdXIsNotRegistered, typeId));
         return result;
       }
     }
@@ -72,6 +72,24 @@ namespace Xtensive.Orm.Model
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       return mapping.ContainsKey(type);
+    }
+
+    /// <summary>
+    /// Gets type identifier for the specified <paramref name="type"/>.
+    /// Unlike <see cref="this[Xtensive.Orm.Model.TypeInfo]"/>
+    /// this method does not throw <see cref="KeyNotFoundException"/>
+    /// if <paramref name="type"/> is not registered.
+    /// </summary>
+    /// <param name="type">Type to get type identifier for.</param>
+    /// <returns>Type identifier for <paramref name="type"/> if it is registered,
+    /// otherwise <see cref="TypeInfo.NoTypeId"/>.</returns>
+    public int GetTypeId(TypeInfo type)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      int result;
+      if (!mapping.TryGetValue(type, out result))
+        return TypeInfo.NoTypeId;
+      return result;
     }
 
     /// <summary>

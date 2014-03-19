@@ -6250,6 +6250,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type with TypeId={0} is not registered..
+        /// </summary>
+        internal static string ExTypeIdXIsNotRegistered {
+            get {
+                return ResourceManager.GetString("ExTypeIdXIsNotRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TypeInfo hierarchy does not correspond to provided hierarchy..
         /// </summary>
         internal static string ExTypeInfoHierarchyMistmatch {
@@ -6499,6 +6508,15 @@ namespace Xtensive {
         internal static string ExTypeXIsNotFound {
             get {
                 return ResourceManager.GetString("ExTypeXIsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; is not registered..
+        /// </summary>
+        internal static string ExTypeXIsNotRegistered {
+            get {
+                return ResourceManager.GetString("ExTypeXIsNotRegistered", resourceCulture);
             }
         }
         
@@ -9329,15 +9347,6 @@ namespace Xtensive {
         internal static string TypeIdRangeForDatabaseXYZIsExhausted {
             get {
                 return ResourceManager.GetString("TypeIdRangeForDatabaseXYZIsExhausted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type with TypeId={0} is not registered..
-        /// </summary>
-        internal static string TypeIdXIsNotRegistered {
-            get {
-                return ResourceManager.GetString("TypeIdXIsNotRegistered", resourceCulture);
             }
         }
         

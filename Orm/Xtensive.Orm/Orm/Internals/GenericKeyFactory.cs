@@ -5,14 +5,13 @@
 // Created:    2009.07.27
 
 using System;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {
   [Serializable]
-  internal sealed class GenericKeyTypeInfo
+  internal sealed class GenericKeyFactory
   {
     public readonly Type Type;
     public readonly Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, Key> DefaultConstructor;
@@ -21,7 +20,7 @@ namespace Xtensive.Orm.Internals
 
     // Constructors
 
-    public GenericKeyTypeInfo(Type type,
+    public GenericKeyFactory(Type type,
       Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, Key> defaultConstructor,
       Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, int[], Key> keyIndexBasedConstructor)
     {

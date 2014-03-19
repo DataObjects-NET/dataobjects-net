@@ -884,7 +884,7 @@
   <data name="ExCouldNotResolveXYWithinDomain" xml:space="preserve">
     <value>Could not resolve {0} '{1}' within the domain.</value>
   </data>
-  <data name="TypeIdXIsNotRegistered" xml:space="preserve">
+  <data name="ExTypeIdXIsNotRegistered" xml:space="preserve">
     <value>Type with TypeId={0} is not registered.</value>
   </data>
   <data name="TypeIdForTypeXIsAlreadyAssigned" xml:space="preserve">
@@ -3318,5 +3318,8 @@ Error: {1}</value>
   </data>
   <data name="ExStorageNodeIsAlreadySelected" xml:space="preserve">
     <value>Storage node is already selected.</value>
+  </data>
+  <data name="ExTypeXIsNotRegistered">
+    <value xml:space="preserve">Type '{0}' is not registered.</value>
   </data>
 </root>

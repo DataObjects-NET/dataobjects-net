@@ -181,9 +181,9 @@ namespace Xtensive.Orm.Providers
       }
       else {
         var typeIdColumn = baseQuery.Columns[Handlers.Domain.Handlers.NameBuilder.TypeIdColumnName];
-        var typeIds = filterByTypes.Select(t => t.TypeId).ToArray();
+        var typeIds = filterByTypes.Select(t => TypeIdRegistry[t]).ToArray();
         filter = filterByTypes.Count == 1
-          ? typeIdColumn == filterByTypes.First().TypeId
+          ? typeIdColumn == TypeIdRegistry[filterByTypes.First()]
           : SqlDml.In(typeIdColumn, SqlDml.Array(typeIds));
       }
       var query = SqlDml.Select(baseQuery.From);
@@ -215,7 +215,7 @@ namespace Xtensive.Orm.Providers
         .Single(p => p.c.Field.IsTypeId).i;
       var type = index.ReflectedType;
       var typeIdColumn = SqlDml.ColumnRef(
-        SqlDml.Column(SqlDml.Literal(type.TypeId)), 
+        SqlDml.Column(SqlDml.Literal(TypeIdRegistry[type])),
         WellKnown.TypeIdFieldName);
       var discriminatorMap = type.Hierarchy.TypeDiscriminatorMap;
       if (discriminatorMap != null) {
@@ -224,11 +224,11 @@ namespace Xtensive.Orm.Providers
         var sqlCase = SqlDml.Case(discriminatorColumn);
         foreach (var pair in discriminatorMap) {
           var discriminatorValue = GetDiscriminatorValue(discriminatorMap, pair.First);
-          var typeId = pair.Second.TypeId;
+          var typeId = TypeIdRegistry[pair.Second];
           sqlCase.Add(SqlDml.Literal(discriminatorValue), SqlDml.Literal(typeId));
         }
         if (discriminatorMap.Default != null)
-          sqlCase.Else = SqlDml.Literal(discriminatorMap.Default.TypeId);
+          sqlCase.Else = SqlDml.Literal(TypeIdRegistry[discriminatorMap.Default]);
         typeIdColumn = SqlDml.ColumnRef(
           SqlDml.Column(sqlCase),
           WellKnown.TypeIdFieldName);

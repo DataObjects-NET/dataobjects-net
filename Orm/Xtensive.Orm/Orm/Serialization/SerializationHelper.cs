@@ -45,12 +45,13 @@ namespace Xtensive.Orm.Serialization
 
       var session = Session.Demand();
       var domain = session.Domain;
+      var registry = session.StorageNode.TypeIdRegistry;
       var typeInfo = domain.Model.Types[entity.GetType()];
 
       var keyGenerator = domain.KeyGenerators.Get(typeInfo.Key, session.IsDisconnected);
       var keyValue = keyGenerator!=null 
         ? keyGenerator.GenerateKey(typeInfo.Key, session) 
-        : DeserializeKeyFields(typeInfo, info, context);
+        : DeserializeKeyFields(typeInfo, registry, info, context);
       var key = Key.Create(domain, session.NodeId, typeInfo, TypeReferenceAccuracy.ExactType, keyValue);
 
       var entityState = session.CreateEntityState(key, false);
@@ -58,12 +59,12 @@ namespace Xtensive.Orm.Serialization
       session.InitializeEntity(entity, false);
     }
 
-    public static Tuple DeserializeKeyFields(TypeInfo entityType, SerializationInfo info, StreamingContext context)
+    public static Tuple DeserializeKeyFields(TypeInfo entityType, TypeIdRegistry registry, SerializationInfo info, StreamingContext context)
     {
       var keyTuple = Tuple.Create(entityType.Hierarchy.Key.TupleDescriptor);
       foreach (FieldInfo keyField in entityType.Fields.Where(f => f.IsPrimaryKey && f.Parent == null)) {
         if (keyField.IsTypeId)
-          keyTuple.SetValue(keyField.MappingInfo.Offset, entityType.TypeId);
+          keyTuple.SetValue(keyField.MappingInfo.Offset, registry[entityType]);
         else {
           var value = info.GetValue(keyField.Name, keyField.ValueType);
           if (keyField.IsEntity) {

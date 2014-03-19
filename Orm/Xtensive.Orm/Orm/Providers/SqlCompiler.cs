@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
@@ -32,6 +32,11 @@ namespace Xtensive.Orm.Providers
     /// Gets model mapping.
     /// </summary>
     protected ModelMapping Mapping { get; private set; }
+
+    /// <summary>
+    /// Gets type identifier registry.
+    /// </summary>
+    protected TypeIdRegistry TypeIdRegistry { get; private set; }
 
     /// <summary>
     /// Gets the SQL domain handler.
@@ -504,6 +509,7 @@ namespace Xtensive.Orm.Providers
       Handlers = handlers;
       OuterReferences = new BindingCollection<ApplyParameter, Pair<SqlProvider, bool>>();
       Mapping = configuration.StorageNode.Mapping;
+      TypeIdRegistry = configuration.StorageNode.TypeIdRegistry;
 
       providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;

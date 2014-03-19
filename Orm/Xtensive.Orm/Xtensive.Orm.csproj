@@ -1157,7 +1157,7 @@
     <Compile Include="Orm\Building\DependencyGraph\EdgeWeight.cs" />
     <Compile Include="Orm\Internals\EntitySetTypeState.cs" />
     <Compile Include="Orm\Session.Persist.cs" />
-    <Compile Include="Orm\Internals\GenericKeyTypeInfo.cs" />
+    <Compile Include="Orm\Internals\GenericKeyFactory.cs" />
     <Compile Include="Orm\Internals\Key{T1,T2,T3,T4}.cs" />
     <Compile Include="Orm\Internals\Key{T1,T2,T3}.cs" />
     <Compile Include="Orm\EntityEventArgs.cs" />

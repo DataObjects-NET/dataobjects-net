@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void UpdateMetadata(Session session)
     {
-      var groups = BuildMetadata(session.Domain);
+      var groups = BuildMetadata(session.Domain, session.StorageNode.TypeIdRegistry);
       var driver = session.Handlers.StorageDriver;
       var mapping = new MetadataMapping(driver, session.Handlers.NameBuilder);
       var executor = session.Services.Demand<IProviderExecutor>();
@@ -154,7 +154,7 @@ namespace Xtensive.Orm.Upgrade
         handler.AssemblyName, sourceVersion, handler.AssemblyVersion));
     }
 
-    private Dictionary<string, MetadataSet> BuildMetadata(Domain domain)
+    private Dictionary<string, MetadataSet> BuildMetadata(Domain domain, TypeIdRegistry registry)
     {
       var model = domain.Model;
       var metadataGroups = model.Databases.ToDictionary(db => db.Name, db => new MetadataSet());
@@ -166,10 +166,10 @@ namespace Xtensive.Orm.Upgrade
         var metadata = group.Value;
         Func<TypeInfo, bool> filter = t => t.MappingDatabase==database;
         var types = model.Types.Where(filter).ToList();
-        var typeMetadata = GetTypeMetadata(types);
+        var typeMetadata = GetTypeMetadata(types, registry);
         var assemblies = types.Select(t => t.UnderlyingType.Assembly).ToHashSet();
         var assemblyMetadata = GetAssemblyMetadata(assemblies);
-        var serializedModel = model.ToStoredModel(filter).Serialize();
+        var serializedModel = model.ToStoredModel(registry, filter).Serialize();
         var modelExtension = new ExtensionMetadata(WellKnown.DomainModelExtensionName, serializedModel);
         var indexesExtension = GetPartialIndexes(domain, types);
         metadata.Assemblies.AddRange(assemblyMetadata);
@@ -190,11 +190,11 @@ namespace Xtensive.Orm.Upgrade
       return assemblyMetadata;
     }
 
-    private static IEnumerable<TypeMetadata> GetTypeMetadata(IEnumerable<TypeInfo> types)
+    private static IEnumerable<TypeMetadata> GetTypeMetadata(IEnumerable<TypeInfo> types, TypeIdRegistry registry)
     {
       return types
-        .Where(t => t.IsEntity && t.TypeId!=TypeInfo.NoTypeId)
-        .Select(type => new TypeMetadata(type.TypeId, type.UnderlyingType.GetFullName()));
+        .Where(t => t.IsEntity && registry.Contains(t))
+        .Select(type => new TypeMetadata(registry[type], type.UnderlyingType.GetFullName()));
     }
 
     private ExtensionMetadata GetPartialIndexes(Domain domain, IEnumerable<TypeInfo> types)

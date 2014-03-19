@@ -4,20 +4,16 @@
 // Created by: Dmitri Maximov
 // Created:    2008.11.02
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Caching;
 using Xtensive.Core;
-using Xtensive.Orm;
-using Xtensive.Orm.Providers;
-using Xtensive.Tuples;
 using Xtensive.Orm.Linq.Materialization;
-using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Tuples.Transform;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
-using Xtensive.Collections;
+using Xtensive.Tuples;
+using Xtensive.Tuples.Transform;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {
@@ -42,7 +38,6 @@ namespace Xtensive.Orm.Internals
       public RecordSetHeader Header { get; private set; }
       public RecordPartMapping[] Mappings { get; private set; }
 
-
       public CacheItem(RecordSetHeader header, RecordPartMapping[] mappings)
       {
         Header = header;
@@ -60,7 +55,7 @@ namespace Xtensive.Orm.Internals
       var context = new MaterializationContext(session, recordPartCount);
       lock (_lock) {
         if (!cache.TryGetItem(header, false, out cacheItem)) {
-        var typeIdColumnName = Domain.Handlers.NameBuilder.TypeIdColumnName;
+          var typeIdColumnName = Domain.Handlers.NameBuilder.TypeIdColumnName;
           var model = context.Model;
           var mappings = new RecordPartMapping[recordPartCount];
           for (int i = 0; i < recordPartCount; i++) {
@@ -92,7 +87,7 @@ namespace Xtensive.Orm.Internals
     {
       var count = recordPartMappings.Length;
 
-      if (count == 1)
+      if (count==1)
         return new Record(tuple, ParseColumnGroup(tuple, context, 0, recordPartMappings[0]));
 
       var pairs = new List<Pair<Key, Tuple>>(
@@ -104,7 +99,7 @@ namespace Xtensive.Orm.Internals
     private Pair<Key, Tuple> ParseColumnGroup(Tuple tuple, MaterializationContext context, int groupIndex, RecordPartMapping mapping)
     {
       TypeReferenceAccuracy accuracy;
-      int typeId = ExtractTypeId(mapping.ApproximateType, tuple, mapping.TypeIdColumnIndex, out accuracy);
+      int typeId = ExtractTypeId(mapping.ApproximateType, context.TypeIdRegistry, tuple, mapping.TypeIdColumnIndex, out accuracy);
       var typeMapping = typeId==TypeInfo.NoTypeId ? null : context.GetTypeMapping(groupIndex, mapping.ApproximateType, typeId, mapping.Columns);
       if (typeMapping==null)
         return new Pair<Key, Tuple>(null, null);
@@ -124,7 +119,7 @@ namespace Xtensive.Orm.Internals
       return new Pair<Key, Tuple>(key, null);
     }
 
-    internal static int ExtractTypeId(TypeInfo type, Tuple tuple, int typeIdIndex, out TypeReferenceAccuracy accuracy)
+    public static int ExtractTypeId(TypeInfo type, TypeIdRegistry typeIdRegistry, Tuple tuple, int typeIdIndex, out TypeReferenceAccuracy accuracy)
     {
       accuracy = TypeReferenceAccuracy.Hierarchy;
       if (type.IsInterface)
@@ -133,29 +128,26 @@ namespace Xtensive.Orm.Internals
       if (typeIdIndex < 0) {
         if (type.IsLeaf)
           accuracy = TypeReferenceAccuracy.ExactType;
-        return type.TypeId;
+        return typeIdRegistry.GetTypeId(type);
       }
 
       accuracy = TypeReferenceAccuracy.ExactType;
       TupleFieldState state;
       var value = tuple.GetValue<int>(typeIdIndex, out state);
       if (type.IsLeaf)
-        return state.HasValue() ? type.TypeId : TypeInfo.NoTypeId;
+        return state.HasValue() ? typeIdRegistry.GetTypeId(type) : TypeInfo.NoTypeId;
       // Hack here: 0 (default) = TypeInfo.NoTypeId
       return value;
     }
+
 
     // Constructors
 
     internal RecordSetReader(Domain domain)
       : base(domain)
     {
-      cache = 
-        new LruCache<RecordSetHeader, CacheItem>(
-          domain.Configuration.RecordSetMappingCacheSize, 
-          m => m.Header,
-          new WeakestCache<RecordSetHeader, CacheItem>(false, false, 
-            m => m.Header));
+      cache = new LruCache<RecordSetHeader, CacheItem>(domain.Configuration.RecordSetMappingCacheSize,
+          m => m.Header, new WeakestCache<RecordSetHeader, CacheItem>(false, false, m => m.Header));
     }
   }
 }

@@ -27,9 +27,12 @@ namespace Xtensive.Orm.Linq.Materialization
     #endregion
     
     private readonly EntityMappingCache[] entityMappings;
+
     public readonly DomainModel Model;
     public readonly Session Session;
-    public int EntitiesInRow;
+    public readonly int EntitiesInRow;
+    public readonly TypeIdRegistry TypeIdRegistry;
+
     public Queue<Action> MaterializationQueue;
 
     public TypeMapping GetTypeMapping(int entityIndex, TypeInfo approximateType, int typeId, Pair<int>[] columns)
@@ -85,7 +88,10 @@ namespace Xtensive.Orm.Linq.Materialization
       Session = session;
       Model = session.Domain.Model;
       EntitiesInRow = entityCount;
+      TypeIdRegistry = session.StorageNode.TypeIdRegistry;
+
       entityMappings = new EntityMappingCache[entityCount];
+
       for (int i = 0; i < entityMappings.Length; i++)
         entityMappings[i] = new EntityMappingCache {
           Items = new Dictionary<int, TypeMapping>()
