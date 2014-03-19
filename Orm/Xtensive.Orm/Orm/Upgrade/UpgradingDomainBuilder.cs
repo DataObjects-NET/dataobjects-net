@@ -298,7 +298,9 @@ namespace Xtensive.Orm.Upgrade
 
     private StorageNode BuildStorageNode(Domain domain, SchemaExtractor extractor)
     {
-      var modelMapping = ModelMappingBuilder.Build(domain.Handlers, extractor.GetSqlSchema(), context.Services.MappingResolver);
+      var modelMapping = ModelMappingBuilder.Build(
+        domain.Handlers, extractor.GetSqlSchema(),
+        context.Services.MappingResolver, context.UpgradeMode.IsLegacy());
       var result = new StorageNode(context.NodeConfiguration, modelMapping, new TypeIdRegistry());
 
       // Register default storage node immediately,
@@ -526,7 +528,7 @@ namespace Xtensive.Orm.Upgrade
     {
       this.context = context;
 
-      upgradeMode = context.Configuration.UpgradeMode;
+      upgradeMode = context.UpgradeMode;
     }
   }
 }

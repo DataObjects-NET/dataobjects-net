@@ -9,14 +9,13 @@ using System.Linq;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
-using Xtensive.Sql;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Building.Builders
 {
   internal static class ModelMappingBuilder
   {
-    public static ModelMapping Build(HandlerAccessor handlers, SchemaExtractionResult sqlModel, MappingResolver resolver)
+    public static ModelMapping Build(HandlerAccessor handlers, SchemaExtractionResult sqlModel, MappingResolver resolver, bool isLegacy)
     {
       var domainModel = handlers.Domain.Model;
       var configuration = handlers.Domain.Configuration;
@@ -28,7 +27,7 @@ namespace Xtensive.Orm.Building.Builders
 
       var typesToProcess = domainModel.Types.AsEnumerable();
 
-      if (configuration.UpgradeMode.IsLegacy() || configuration.IsMultidatabase)
+      if (isLegacy || configuration.IsMultidatabase)
         typesToProcess = typesToProcess.Where(t => !t.IsSystem);
 
       foreach (var type in typesToProcess) {

@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Upgrade
     public override void OnStage()
     {
       var context = UpgradeContext;
-      var upgradeMode = context.Configuration.UpgradeMode;
+      var upgradeMode = context.UpgradeMode;
       var session = Session.Demand();
 
       switch (context.Stage) {

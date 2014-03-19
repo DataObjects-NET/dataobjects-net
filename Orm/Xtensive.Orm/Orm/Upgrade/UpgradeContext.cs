@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data.Common;
 using System.Reflection;
 using Xtensive.Collections;
@@ -19,7 +18,6 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
-using Xtensive.Sql;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -58,6 +56,11 @@ namespace Xtensive.Orm.Upgrade
     }
 
     #endregion
+
+    /// <summary>
+    /// Gets current <see cref="DomainUpgradeMode"/>.
+    /// </summary>
+    public DomainUpgradeMode UpgradeMode { get; private set; }
 
     /// <summary>
     /// Gets the current upgrade stage.
@@ -186,7 +189,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void Initialize()
     {
-      Stage = Configuration.UpgradeMode.IsMultistage() ? UpgradeStage.Upgrading : UpgradeStage.Final;
+      Stage = UpgradeMode.IsMultistage() ? UpgradeStage.Upgrading : UpgradeStage.Final;
       Hints = new SetSlim<UpgradeHint>();
       RecycledDefinitions = new List<RecycledDefinition>();
       Services = new UpgradeServiceAccessor();
@@ -201,6 +204,7 @@ namespace Xtensive.Orm.Upgrade
       ArgumentValidator.EnsureArgumentNotNull(parentDomain, "parentDomain");
       ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, "nodeConfiguration");
 
+      UpgradeMode = nodeConfiguration.UpgradeMode;
       Configuration = parentDomain.Configuration;
       NodeConfiguration = nodeConfiguration;
       Cookie = parentDomain.UpgradeContextCookie;
@@ -213,14 +217,13 @@ namespace Xtensive.Orm.Upgrade
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
+      UpgradeMode = configuration.UpgradeMode;
       Configuration = configuration;
-      Cookie = new object();
       NodeConfiguration = new NodeConfiguration(WellKnown.DefaultNodeId);
       NodeConfiguration.Lock();
+      Cookie = new object();
 
       Initialize();
     }
-
-
   }
 }

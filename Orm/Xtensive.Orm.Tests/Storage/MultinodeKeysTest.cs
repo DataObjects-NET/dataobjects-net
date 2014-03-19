@@ -53,11 +53,11 @@ namespace Xtensive.Orm.Tests.Storage
 
     private void PopulateNodes()
     {
-      var configuration = new NodeConfiguration(TestNodeId2);
+      var configuration = new NodeConfiguration(TestNodeId2) {UpgradeMode = DomainUpgradeMode.Recreate};
       configuration.SchemaMapping.Add(DefaultSchema, SecondSchema);
       domain.NodeManager.AddNode(configuration);
 
-      configuration = new NodeConfiguration(TestNodeId3);
+      configuration = new NodeConfiguration(TestNodeId3) {UpgradeMode = DomainUpgradeMode.Recreate};
       configuration.SchemaMapping.Add(DefaultSchema, ThirdSchema);
       domain.NodeManager.AddNode(configuration);
     }

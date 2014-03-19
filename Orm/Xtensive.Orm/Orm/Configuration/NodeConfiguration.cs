@@ -20,6 +20,7 @@ namespace Xtensive.Orm.Configuration
     private ConnectionInfo connectionInfo;
     private NameMappingCollection schemaMapping = new NameMappingCollection();
     private NameMappingCollection databaseMapping = new NameMappingCollection();
+    private DomainUpgradeMode upgradeMode = DomainUpgradeMode.Default;
 
     /// <summary>
     /// Gets or sets node identifier.
@@ -31,6 +32,19 @@ namespace Xtensive.Orm.Configuration
       {
         this.EnsureNotLocked();
         nodeId = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets <see cref="DomainUpgradeMode"/>.
+    /// </summary>
+    public DomainUpgradeMode UpgradeMode
+    {
+      get { return upgradeMode; }
+      set
+      {
+        this.EnsureNotLocked();
+        upgradeMode = value;
       }
     }
 
