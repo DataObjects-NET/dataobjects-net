@@ -202,16 +202,13 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
       }
 
       int? size = ReadNullableInt(reader, "CHARACTER_MAXIMUM_LENGTH");
-      if (size<=0) {
+      if (size <= 0) {
         size = null;
-        switch (type) {
-        case SqlType.VarChar:
+        if (type==SqlType.VarChar)
           type = SqlType.VarCharMax;
-          break;
-        case SqlType.VarBinary:
+
+        if (type==SqlType.VarBinary)
           type = SqlType.VarBinaryMax;
-          break;
-        }
       }
       if (typeInfo!=null && typeInfo.MaxLength==null) {
         // resetting length for types that do not require specifying it

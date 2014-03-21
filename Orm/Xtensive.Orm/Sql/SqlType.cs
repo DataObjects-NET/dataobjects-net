@@ -2,60 +2,65 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
+using System;
+
 namespace Xtensive.Sql
 {
   /// <summary>
   /// Enumerates supported SQL column types.
   /// </summary>
-  public enum SqlType
+  [Serializable]
+  public struct SqlType
   {
+    public readonly string Name;
+
     /// <summary>
     /// An unknown type.
     /// </summary>
-    Unknown = 0,
+    public static readonly SqlType Unknown = new SqlType("Unknown");
 
     #region Numeric
 
     /// <summary>
     /// Boolean.
     /// </summary>
-    Boolean,
+    public static readonly SqlType Boolean = new SqlType("Boolean");
     /// <summary>
     /// Signed byte (8 bit).
     /// </summary>
-    Int8,
+    public static readonly SqlType Int8 = new SqlType("Int8");
     /// <summary>
     /// Unsigned byte (8 bit).
     /// </summary>
-    UInt8,
+    public static readonly SqlType UInt8 = new SqlType("UInt8");
     /// <summary>
     /// Small integer (16 bit).
     /// </summary>
-    Int16 ,
+    public static readonly SqlType Int16 = new SqlType("Int16");
     /// <summary>
     /// Unsigned small integer (16 bit).
     /// </summary>
-    UInt16,
+    public static readonly SqlType UInt16 = new SqlType("UInt16");
     /// <summary>
     /// Integer (32 bit).
     /// </summary>
-    Int32,
+    public static readonly SqlType Int32 = new SqlType("Int32");
     /// <summary>
     /// Unsigned integer (32 bit).
     /// </summary>
-    UInt32,
+    public static readonly SqlType UInt32 = new SqlType("UInt32");
     /// <summary>
     /// Long integer (64 bit).
     /// </summary>
-    Int64,
+    public static readonly SqlType Int64 = new SqlType("Int64");
     /// <summary>
     /// Unsigned long (64 bit).
     /// </summary>
-    UInt64,
+    public static readonly SqlType UInt64 = new SqlType("UInt64");
     /// <summary>
     /// Numeric data type with fixed precision and scale.
     /// </summary>
-    Decimal,
+    public static readonly SqlType Decimal = new SqlType("Decimal");
 
     #endregion
 
@@ -65,12 +70,12 @@ namespace Xtensive.Sql
     /// Floating point number data from –3.40E + 38 through 3.40E + 38. 
     /// Storage size is 4 bytes.
     /// </summary>
-    Float,
+    public static readonly SqlType Float = new SqlType("Float");
     /// <summary>
     /// Floating point number data from - 1.79E + 308 through 1.79E + 308.
     /// Storage size is 8 bytes.
     /// </summary>
-    Double,
+    public static readonly SqlType Double = new SqlType("Double");
 
     #endregion
 
@@ -83,19 +88,19 @@ namespace Xtensive.Sql
     /// of .000, .003, or .007 seconds.
     /// Storage size is 8 bytes. 
     /// </summary>
-    DateTime,
+    public static readonly SqlType DateTime = new SqlType("DateTime");
 
     /// <summary>
     /// Date and time data from January 1,1 A.D. through December 31, 9999 A.D., 
     /// to an accuracy of 100 nanoseconds.
     /// Storage size is 8 to 10 bytes. 
     /// </summary>
-    DateTimeOffset,
+    public static readonly SqlType DateTimeOffset = new SqlType("DateTimeOffset");
 
     /// <summary>
     /// Datetime interval.
     /// </summary>
-    Interval,
+    public static readonly SqlType Interval = new SqlType("Interval");
 
     #endregion
 
@@ -106,20 +111,20 @@ namespace Xtensive.Sql
     /// n must be a value from 1 through 4,000. Storage size is two times n bytes. 
     /// The SQL-92 synonyms for nchar are national char and national character.
     /// </summary>
-    Char,
+    public static readonly SqlType Char = new SqlType("Char");
     /// <summary>
     /// Variable-length Unicode character data of n characters. 
     /// n must be a value from 1 through 4,000. Storage size, in bytes, is two times 
     /// the number of characters entered. The data entered can be 0 characters in length. 
     /// The SQL-92 synonyms for nvarchar are national char varying and national character varying.
     /// </summary>
-    VarChar,
+    public static readonly SqlType VarChar = new SqlType("VarChar");
    
     /// <summary>
     /// Variable-length Unicode data with a maximum length of 2^30 - 1 (1,073,741,823) 
     /// characters. Storage size, in bytes, is two times the number of characters entered. 
     /// </summary>
-    VarCharMax,
+    public static readonly SqlType VarCharMax = new SqlType("VarCharMax");
 
     #endregion
 
@@ -129,7 +134,7 @@ namespace Xtensive.Sql
     /// Fixed-length binary data of n bytes. n must be a value from 1 through 8,000. 
     /// Storage size is n+4 bytes. 
     /// </summary>
-    Binary,
+    public static readonly SqlType Binary = new SqlType("Binary");
 
     /// <summary>
     /// Variable-length binary data of n bytes. n must be a value from 1 through 8,000. 
@@ -137,12 +142,12 @@ namespace Xtensive.Sql
     /// The data entered can be 0 bytes in length. 
     /// The SQL-92 synonym for varbinary is binary varying.
     /// </summary>
-    VarBinary,
+    public static readonly SqlType VarBinary = new SqlType("VarBinary");
     
     /// <summary>
     /// <para>Variable-length binary data from 0 through 2^31-1 (2,147,483,647) bytes.</para>
     /// </summary>
-    VarBinaryMax,
+    public static readonly SqlType VarBinaryMax = new SqlType("VarBinaryMax");
 
     #endregion
 
@@ -151,18 +156,39 @@ namespace Xtensive.Sql
     /// <summary>
     /// A globally unique identifier (GUID). 
     /// </summary>
-    Guid,
+    public static readonly SqlType Guid = new SqlType("Guid");
 
     /// <summary>
     /// Geometry, like in Microsoft.SqlServer.Types
     /// </summary>
-    Geometry,
+    public static readonly SqlType Geometry = new SqlType("Geometry");
 
     /// <summary>
     /// Geography, like in Microsoft.SqlServer.Types
     /// </summary>
-    Geography
+    public static readonly SqlType Geography = new SqlType("Geography");
 
     #endregion
+
+    #region Override the comparison operator
+
+    public static bool operator ==(SqlType left, SqlType right)
+    {
+      return left.Equals(right);
+    }
+
+    public static bool operator !=(SqlType left, SqlType right)
+    {
+      return !(left==right);
+    }
+
+    #endregion
+
+    // Constructors
+
+    public SqlType(string name)
+    {
+      Name = name;
+    }
   }
 }

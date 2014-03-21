@@ -252,10 +252,11 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
     {
-      switch (node.Type.Type) {
-      case SqlType.Char:
-      case SqlType.VarChar:
-      case SqlType.VarCharMax:
+      var sqlType = node.Type.Type;
+
+      if (sqlType==SqlType.Char ||
+        sqlType==SqlType.VarChar ||
+        sqlType==SqlType.VarCharMax)
         switch (section) {
         case NodeSection.Entry:
           return "TO_CHAR(";
@@ -264,9 +265,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         default:
           throw new ArgumentOutOfRangeException("section");
         }
-      default:
-        return base.Translate(context, node, section);
-      }
+      return base.Translate(context, node, section);
     }
 
     public override string Translate(SqlValueType type)

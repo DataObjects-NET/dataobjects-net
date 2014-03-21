@@ -222,14 +222,13 @@ namespace Xtensive.Orm.Providers
     {
       if (!useLargeObjects)
         return ParameterTransmissionType.Regular;
-      switch (column.DataType.Type) {
-      case SqlType.VarCharMax:
+
+      if (column.DataType.Type==SqlType.VarCharMax)
         return ParameterTransmissionType.CharacterLob;
-      case SqlType.VarBinaryMax:
+
+      if (column.DataType.Type==SqlType.VarBinaryMax)
         return ParameterTransmissionType.BinaryLob;
-      default:
-        return ParameterTransmissionType.Regular;
-      }
+      return ParameterTransmissionType.Regular;
     }
 
     private static int GetFieldIndex(TypeInfo type, ColumnInfo column)

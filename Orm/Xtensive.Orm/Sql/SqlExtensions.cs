@@ -57,54 +57,52 @@ namespace Xtensive.Sql
     /// <returns>Converter type.</returns>
     public static Type ToClrType(this SqlType type)
     {
-      switch (type) {
-      case SqlType.Boolean:
+      if (type==SqlType.Boolean)
         return typeof (bool);
-      case SqlType.Int8:
+      if (type==SqlType.Int8)
         return typeof (sbyte);
-      case SqlType.UInt8:
+      if (type==SqlType.UInt8)
         return typeof (byte);
-      case SqlType.Int16:
+      if (type==SqlType.Int16)
         return typeof (short);
-      case SqlType.UInt16:
+      if (type==SqlType.UInt16)
         return typeof (ushort);
-      case SqlType.Int32:
+      if (type==SqlType.Int32)
         return typeof (int);
-      case SqlType.UInt32:
+      if (type==SqlType.UInt32)
         return typeof (uint);
-      case SqlType.Int64:
+      if (type==SqlType.Int64)
         return typeof (long);
-      case SqlType.UInt64:
+      if (type==SqlType.UInt64)
         return typeof (ulong);
-      case SqlType.Decimal:
+      if (type==SqlType.Decimal)
         return typeof (decimal);
-      case SqlType.Float:
+      if (type==SqlType.Float)
         return typeof (float);
-      case SqlType.Double:
+      if (type==SqlType.Double)
         return typeof (double);
-      case SqlType.DateTime:
+      if (type==SqlType.DateTime)
         return typeof (DateTime);
-      case SqlType.DateTimeOffset:
+      if (type==SqlType.DateTimeOffset)
         return typeof (DateTimeOffset);
-      case SqlType.Interval:
+      if (type==SqlType.Interval)
         return typeof (TimeSpan);
-      case SqlType.Char:
-      case SqlType.VarChar:
-      case SqlType.VarCharMax:
+      if (type==SqlType.Char ||
+        type==SqlType.VarChar ||
+        type==SqlType.VarCharMax)
         return typeof (string);
-      case SqlType.Binary:
-      case SqlType.VarBinary:
-      case SqlType.VarBinaryMax:
+      if (type==SqlType.Binary ||
+        type==SqlType.VarBinary ||
+        type==SqlType.VarBinaryMax)
         return typeof (byte[]);
-      case SqlType.Guid:
+      if (type==SqlType.Guid)
         return typeof (Guid);
-      case SqlType.Geometry:
+      if (type==SqlType.Geometry)
         return Type.GetType("Microsoft.SqlServer.Types.SqlGeometry, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91");
-      case SqlType.Geography:
+      if (type==SqlType.Geography)
         return Type.GetType("Microsoft.SqlServer.Types.SqlGeography, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91");
-      default:
-        throw new ArgumentOutOfRangeException("type");
-      }
+
+      throw new ArgumentOutOfRangeException("type");
     }
   }
 }

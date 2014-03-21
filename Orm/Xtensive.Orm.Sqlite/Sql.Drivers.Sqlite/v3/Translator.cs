@@ -336,11 +336,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
     {
       //http://www.sqlite.org/lang_expr.html
-      switch (node.Type.Type) {
-      case SqlType.Binary:
-      case SqlType.Char:
-      case SqlType.Interval:
-      case SqlType.DateTime:
+      var sqlType = node.Type.Type;
+
+      if (sqlType==SqlType.Binary ||
+        sqlType==SqlType.Char ||
+        sqlType==SqlType.Interval ||
+        sqlType==SqlType.DateTime)
         switch (section) {
         case NodeSection.Entry:
           return "CAST(";
@@ -349,8 +350,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         default:
           throw new ArgumentOutOfRangeException("section");
         }
-      case SqlType.Int16:
-      case SqlType.Int32:
+      if (sqlType==SqlType.Int16 ||
+        sqlType==SqlType.Int32)
         switch (section) {
         case NodeSection.Entry:
           return "CAST(";
@@ -359,9 +360,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         default:
           throw new ArgumentOutOfRangeException("section");
         }
-      case SqlType.Decimal:
-      case SqlType.Double:
-      case SqlType.Float:
+      if (sqlType==SqlType.Decimal ||
+        sqlType==SqlType.Double ||
+        sqlType==SqlType.Float)
         switch (section) {
         case NodeSection.Entry:
           return string.Empty;
@@ -370,7 +371,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         default:
           throw new ArgumentOutOfRangeException("section");
         }
-      }
       return string.Empty;
     }
 
