@@ -49,6 +49,13 @@ namespace Xtensive.Sql.Info
       }
     }
 
+    public void Add(SqlType sqlType, DataTypeInfo dataTypeInfo)
+    {
+      this.EnsureNotLocked();
+      if (!IsLocked)
+        sqlTypes.Add(sqlType, dataTypeInfo);
+    }
+
     /// <summary>
     /// Boolean (bit).
     /// </summary>
@@ -177,16 +184,6 @@ namespace Xtensive.Sql.Info
     /// </summary>
     public DataTypeInfo Guid { get; set; }
 
-    /// <summary>
-    /// Geometry type. 
-    /// </summary>
-    public DataTypeInfo Geometry { get; set; }
-
-    /// <summary>
-    /// Geography type. 
-    /// </summary>
-    public DataTypeInfo Geography { get; set; }
-
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
@@ -234,8 +231,6 @@ namespace Xtensive.Sql.Info
       yield return VarBinaryMax;
       yield return Guid;
       yield return Interval;
-      yield return Geometry;
-      yield return Geography;
       yield break;
     }
 
