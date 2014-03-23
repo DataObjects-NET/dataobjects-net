@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using System.Collections.Generic;
+using Microsoft.SqlServer.Types;
 
 namespace Xtensive.Sql
 {
@@ -183,6 +185,38 @@ namespace Xtensive.Sql
     }
 
     #endregion
+
+    public static readonly Dictionary<SqlType, Type> RegisteredTypes = new Dictionary<SqlType, Type>()
+    {
+      {Boolean, typeof (bool)},
+      {Int8, typeof (sbyte)},
+      {UInt8, typeof (byte)},
+      {Int16, typeof (short)},
+      {UInt16, typeof (ushort)},
+      {Int32, typeof (int)},
+      {UInt32, typeof (uint)},
+      {Int64, typeof (long)},
+      {UInt64, typeof (ulong)},
+      {Decimal, typeof (decimal)},
+      {Float, typeof (float)},
+      {Double, typeof (double)},
+      {DateTime, typeof (DateTime)},
+      {DateTimeOffset, typeof (DateTimeOffset)},
+      {Interval, typeof (TimeSpan)},
+      {Char, typeof (string)},
+      {VarChar, typeof (string)},
+      {VarCharMax, typeof (string)},
+      {Binary, typeof (byte[])},
+      {VarBinary, typeof (byte[])},
+      {VarBinaryMax, typeof (byte[])},
+      {Guid, typeof (Guid)}
+    };
+
+    public static void RegisterType(SqlType sqlType, Type type)
+    {
+      if (!RegisteredTypes.ContainsKey(sqlType))
+        RegisteredTypes.Add(sqlType, type);
+    }
 
     // Constructors
 

@@ -5,6 +5,7 @@
 // Created:    2009.07.07
 
 using System;
+using Microsoft.SqlServer.Types;
 using Xtensive.Sql.Info;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
@@ -43,6 +44,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       var geo = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.Multiple | DataTypeFeatures.Spatial;
       types.Add(SqlType.Geometry, DataTypeInfo.Regular(SqlType.Geometry, geo, "geometry"));
       types.Add(SqlType.Geography, DataTypeInfo.Regular(SqlType.Geography, geo, "geography"));
+
+      SqlType.RegisterType(SqlType.Geometry, typeof(SqlGeometry));
+      SqlType.RegisterType(SqlType.Geography, typeof(SqlGeography));
+
       return types;
     }
 

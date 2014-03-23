@@ -40,6 +40,15 @@ namespace Xtensive.Sql
       return result;
     }
 
+    public Type GetMapping(SqlType sqlType)
+    {
+      Type result;
+      SqlType.RegisteredTypes.TryGetValue(sqlType, out result);
+      if (result==null)
+        throw new ArgumentOutOfRangeException("sqlType");
+      return result;
+    }
+
     public IEnumerator<TypeMapping> GetEnumerator()
     {
       return mappings.Values.GetEnumerator();
