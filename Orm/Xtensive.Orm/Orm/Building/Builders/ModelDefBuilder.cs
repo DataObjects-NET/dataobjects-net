@@ -193,7 +193,7 @@ namespace Xtensive.Orm.Building.Builders
 
     public TypeDef DefineType(Type type)
     {
-      var typeDef = new TypeDef(this, type);
+      var typeDef = new TypeDef(this, type, context.Validator);
       typeDef.Name = context.NameBuilder.BuildTypeName(context, typeDef);
 
       if (!(type.UnderlyingSystemType.IsInterface || type.IsAbstract)) {
@@ -224,14 +224,14 @@ namespace Xtensive.Orm.Building.Builders
       if (hra!=null)
         return DefineHierarchy(typeDef, hra);
 
-      Validator.ValidateHierarchyRoot(context.ModelDef, typeDef);
+      context.Validator.ValidateHierarchyRoot(context.ModelDef, typeDef);
       var result = new HierarchyDef(typeDef);
       return result;
     }
 
     public HierarchyDef DefineHierarchy(TypeDef typeDef, HierarchyRootAttribute attribute)
     {
-      Validator.ValidateHierarchyRoot(context.ModelDef, typeDef);
+      context.Validator.ValidateHierarchyRoot(context.ModelDef, typeDef);
 
       var hierarchyDef = new HierarchyDef(typeDef);
       attributeProcessor.Process(hierarchyDef, attribute);
@@ -256,7 +256,7 @@ namespace Xtensive.Orm.Building.Builders
       if (indexParameters.Length > 0)
         throw new DomainBuilderException(Strings.ExIndexedPropertiesAreNotSupported);
 
-      var fieldDef = new FieldDef(propertyInfo);
+      var fieldDef = new FieldDef(propertyInfo, context.Validator);
       fieldDef.Name = context.NameBuilder.BuildFieldName(fieldDef);
 
       if (fieldAttributes.Length > 0) {
@@ -294,12 +294,12 @@ namespace Xtensive.Orm.Building.Builders
       if (propertyInfo!=null)
         return DefineField(propertyInfo);
 
-      return new FieldDef(valueType) {Name = name};
+      return new FieldDef(valueType, context.Validator) {Name = name};
     }
 
     public IndexDef DefineIndex(TypeDef typeDef, IndexAttribute attribute)
     {
-      var index = new IndexDef(typeDef) {IsSecondary = true};
+      var index = new IndexDef(typeDef, context.Validator) {IsSecondary = true};
       attributeProcessor.Process(index, attribute);
 
       if (string.IsNullOrEmpty(index.Name) && index.KeyFields.Count > 0)

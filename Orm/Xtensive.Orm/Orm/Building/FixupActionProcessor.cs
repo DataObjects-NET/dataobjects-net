@@ -169,7 +169,7 @@ namespace Xtensive.Orm.Building
         foreach (var primaryIndex in primaryIndexes)
           type.Indexes.Remove(primaryIndex);
 
-      var generatedIndex = new IndexDef(action.Type) {IsPrimary = true};
+      var generatedIndex = new IndexDef(action.Type, context.Validator) {IsPrimary = true};
       generatedIndex.Name = context.NameBuilder.BuildIndexName(type, generatedIndex);
 
       TypeDef hierarchyRoot;

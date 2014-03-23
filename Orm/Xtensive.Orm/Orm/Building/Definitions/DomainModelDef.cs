@@ -27,6 +27,7 @@ namespace Xtensive.Orm.Building.Definitions
     private readonly HierarchyDefCollection hierarchies;
     private readonly TypeDefCollection types;
     private readonly FullTextIndexDefCollection fullTextIndexes;
+    private readonly Validator validator;
 
     /// <summary>
     /// Gets the <see cref="TypeDef"/> instances contained in this instance.
@@ -50,7 +51,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <returns>Newly created <see cref="TypeDef"/> instance.</returns>
     public TypeDef DefineType(Type type)
     {
-      Validator.EnsureTypeIsPersistent(type);
+      validator.EnsureTypeIsPersistent(type);
 
       if (types.Contains(type))
         throw new DomainBuilderException(string.Format(Strings.ExTypeXIsAlreadyDefined, type.GetFullName()));
@@ -97,9 +98,10 @@ namespace Xtensive.Orm.Building.Definitions
 
     // Constructors
 
-    internal DomainModelDef(ModelDefBuilder builder)
+    internal DomainModelDef(ModelDefBuilder builder, Validator validator)
     {
       this.builder = builder;
+      this.validator = validator;
 
       types = new TypeDefCollection(this, "Types");
       hierarchies = new HierarchyDefCollection();

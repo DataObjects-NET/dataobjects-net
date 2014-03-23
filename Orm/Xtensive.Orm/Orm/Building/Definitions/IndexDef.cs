@@ -32,6 +32,7 @@ namespace Xtensive.Orm.Building.Definitions
     private double fillFactor = DefaultFillFactor;
     private readonly DirectionCollection<string> keyFields = new DirectionCollection<string>();
     private Collection<string> includedFields = new Collection<string>();
+    private readonly Validator validator;
 
     /// <summary>
     /// Gets <see cref="Definitions.TypeDef"/> that this index is bound to.
@@ -158,16 +159,17 @@ namespace Xtensive.Orm.Building.Definitions
     protected override void ValidateName(string newName)
     {
       base.ValidateName(newName);
-      Validator.ValidateName(newName, ValidationRule.Index);
+      validator.ValidateName(newName, ValidationRule.Index);
     }
 
 
     // Constructors
 
-    internal IndexDef(TypeDef type)
+    internal IndexDef(TypeDef type, Validator validator)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       Type = type;
+      this.validator = validator;
     }
   }
 }

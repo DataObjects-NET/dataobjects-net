@@ -33,6 +33,7 @@ namespace Xtensive.Orm.Building.Definitions
     private int?                            precision;
     private object                          defaultValue;
     private string                          defaultSqlExpression;
+    private Validator                       validator;
 
     /// <summary>
     /// Gets or sets the maximal length of the field.
@@ -114,7 +115,7 @@ namespace Xtensive.Orm.Building.Definitions
       get { return (attributes & FieldAttributes.Nullable) != 0; }
       internal set
       {
-        Validator.EnsureIsNullable(ValueType);
+        validator.EnsureIsNullable(ValueType);
         attributes = value ? attributes | FieldAttributes.Nullable : attributes & ~FieldAttributes.Nullable;
       }
     }
@@ -294,20 +295,21 @@ namespace Xtensive.Orm.Building.Definitions
     protected override void ValidateName(string newName)
     {
       base.ValidateName(newName);
-      Validator.ValidateName(newName, ValidationRule.Field);
+      validator.ValidateName(newName, ValidationRule.Field);
     }
 
 
     // Constructors
 
-    internal FieldDef(PropertyInfo property)
-      : this(property.PropertyType)
+    internal FieldDef(PropertyInfo property, Validator validator)
+      : this(property.PropertyType, validator)
     {
       underlyingProperty = property;
     }
 
-    internal FieldDef(Type valueType)
+    internal FieldDef(Type valueType, Validator validator)
     {
+      this.validator = validator;
       IsStructure = valueType.IsSubclassOf(typeof(Structure)) || valueType == typeof(Structure);
       IsEntity = typeof(IEntity).IsAssignableFrom(valueType);
       if ((valueType.IsClass || valueType.IsInterface) && !IsStructure)

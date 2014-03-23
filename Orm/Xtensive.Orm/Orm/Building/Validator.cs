@@ -14,12 +14,12 @@ using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
 
 namespace Xtensive.Orm.Building
 {
-  internal static class Validator
+  internal class Validator
   {
-    private static readonly HashSet<Type> ValidFieldTypes = new HashSet<Type>();
-    private static readonly Regex ColumnNamingRule;
-    private static readonly Regex TypeNamingRule;
-    private static readonly Regex FieldNamingRule;
+    private readonly HashSet<Type> ValidFieldTypes = new HashSet<Type>();
+    private readonly Regex ColumnNamingRule;
+    private readonly Regex TypeNamingRule;
+    private readonly Regex FieldNamingRule;
 
     /// <summary>
     /// Determines whether the specified name is valid.
@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Building
     /// <returns>
     /// <see langword="true"/> if the specified name is valid; otherwise, <see langword="false"/>.
     /// </returns>
-    public static void ValidateName(string name, ValidationRule rule)
+    public void ValidateName(string name, ValidationRule rule)
     {
       if (String.IsNullOrEmpty(name))
         throw new DomainBuilderException(String.Format(Strings.ExXNameCantBeEmpty, rule));
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Building
         throw new DomainBuilderException(string.Format(Strings.ExXIsNotValidNameForX, name, rule));
     }
 
-    public static void ValidateHierarchyRoot(DomainModelDef modelDef, TypeDef typeDef)
+    public void ValidateHierarchyRoot(DomainModelDef modelDef, TypeDef typeDef)
     {
       // Ensures that typeDef doesn't belong to another hierarchy
       TypeDef root = modelDef.FindRoot(typeDef);
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Building
             Strings.ExXDescendantIsAlreadyARootOfAnotherHierarchy, hierarchy.Root.UnderlyingType));
     }
 
-    public static void ValidateHierarchy(HierarchyDef hierarchyDef)
+    public void ValidateHierarchy(HierarchyDef hierarchyDef)
     {
       var keyFields = hierarchyDef.KeyFields;
 
@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Building
       }
     }
 
-    internal static void ValidateFieldType(TypeDef declaringType, Type fieldType, bool isKeyField)
+    internal void ValidateFieldType(TypeDef declaringType, Type fieldType, bool isKeyField)
     {
       if (fieldType.IsGenericType) {
         Type genericType = fieldType.GetGenericTypeDefinition();
@@ -151,7 +151,7 @@ namespace Xtensive.Orm.Building
       throw new DomainBuilderException(String.Format(Strings.ExUnsupportedType, fieldType.GetShortName()));
     }
 
-    internal static void ValidateVersionField(FieldDef field, bool isKeyField)
+    internal void ValidateVersionField(FieldDef field, bool isKeyField)
     {
       if (isKeyField)
         throw new DomainBuilderException(string.Format(
@@ -179,11 +179,11 @@ namespace Xtensive.Orm.Building
           Strings.ExUnableToApplyVersionOnFieldXOfTypeY, field.Name, field.ValueType.GetShortName()));
     }
 
-    internal static void ValidateType(TypeDef typeDef, HierarchyDef hierarchyDef)
+    internal void ValidateType(TypeDef typeDef, HierarchyDef hierarchyDef)
     {
     }
 
-    public static void EnsureTypeIsPersistent(Type type)
+    public void EnsureTypeIsPersistent(Type type)
     {
       if (type.IsClass && type.IsSubclassOf(typeof (Persistent)))
         return;
@@ -194,13 +194,13 @@ namespace Xtensive.Orm.Building
       throw new DomainBuilderException(String.Format(Strings.ExUnsupportedType, type));
     }
 
-    public static void ValidateStructureField(TypeDef typeDef, FieldDef fieldDef)
+    public void ValidateStructureField(TypeDef typeDef, FieldDef fieldDef)
     {
       if (fieldDef.ValueType==typeDef.UnderlyingType)
         throw new DomainBuilderException(String.Format(Strings.ExStructureXCantContainFieldOfTheSameType, typeDef.Name));
     }
 
-    public static void ValidateEntitySetField(TypeDef typeDef, FieldDef fieldDef)
+    public void ValidateEntitySetField(TypeDef typeDef, FieldDef fieldDef)
     {
       // Restriction for EntitySet properties only
       if (fieldDef.OnTargetRemove == OnRemoveAction.Cascade || fieldDef.OnTargetRemove == OnRemoveAction.None)
@@ -209,7 +209,7 @@ namespace Xtensive.Orm.Building
     }
 
     /// <exception cref="DomainBuilderException">Field cannot be nullable.</exception>
-    internal static void EnsureIsNullable(Type valueType)
+    internal void EnsureIsNullable(Type valueType)
     {
       if (!(typeof(IEntity).IsAssignableFrom(valueType) || valueType==typeof (string) || valueType==typeof (byte[])))
         throw new DomainBuilderException(string.Format(
@@ -218,7 +218,7 @@ namespace Xtensive.Orm.Building
 
     // Type initializer
 
-    static Validator()
+    public Validator()
     {
       ColumnNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
       TypeNamingRule = new Regex(@"^[\w][\w\-\.\(\),]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
@@ -234,7 +234,7 @@ namespace Xtensive.Orm.Building
       ValidFieldTypes.Add(typeof (Key));
     }
 
-    public static void ValidateHierarchyEquality(TypeDef @interface, HierarchyDef first, HierarchyDef second)
+    public void ValidateHierarchyEquality(TypeDef @interface, HierarchyDef first, HierarchyDef second)
     {
       // TypeId mode must match
       if (first.IncludeTypeId != second.IncludeTypeId)

@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Building.Builders
     private void BuildModelDefinition()
     {
       using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.ModelDefinition)) {
-        context.ModelDef = new DomainModelDef(modelDefBuilder);
+        context.ModelDef = new DomainModelDef(modelDefBuilder, context.Validator);
         using (BuildLog.InfoRegion(Strings.LogDefiningX, Strings.Types))
           modelDefBuilder.ProcessTypes();
       }

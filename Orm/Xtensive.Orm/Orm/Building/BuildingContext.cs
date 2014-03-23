@@ -26,6 +26,7 @@ namespace Xtensive.Orm.Building
     internal HashSet<AssociationInfo> DiscardedAssociations { get; private set; }
     internal ModelInspectionResult ModelInspectionResult { get; private set; }
     internal Graph<TypeDef> DependencyGraph { get; private set; }
+    internal Validator Validator { get; private set; }
 
     #region Current property & Demand() method
 
@@ -106,6 +107,7 @@ namespace Xtensive.Orm.Building
 
       Modules = BuilderConfiguration.Services.Modules.ToList().AsReadOnly();
       Modules2 = Modules.OfType<IModule2>().ToList().AsReadOnly();
+      Validator = new Validator();
     }
   }
 }
