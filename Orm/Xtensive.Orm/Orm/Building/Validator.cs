@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Reflection;
+using Xtensive.Sql;
 using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
 
 namespace Xtensive.Orm.Building
@@ -145,9 +146,6 @@ namespace Xtensive.Orm.Building
         return;
       }
 
-      if (fieldType.Name == "SqlGeometry" || fieldType.Name == "SqlGeography")
-        return;
-
       throw new DomainBuilderException(String.Format(Strings.ExUnsupportedType, fieldType.GetShortName()));
     }
 
@@ -224,13 +222,8 @@ namespace Xtensive.Orm.Building
       TypeNamingRule = new Regex(@"^[\w][\w\-\.\(\),]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
       FieldNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-      ValidFieldTypes.Add(typeof (string));
-      ValidFieldTypes.Add(typeof (byte[]));
-      ValidFieldTypes.Add(typeof (Guid));
-      ValidFieldTypes.Add(typeof (DateTime));
-      ValidFieldTypes.Add(typeof (DateTimeOffset));
-      ValidFieldTypes.Add(typeof (TimeSpan));
-      ValidFieldTypes.Add(typeof (decimal));
+      foreach (var type in SqlType.RegisteredTypes)
+        ValidFieldTypes.Add(type.Value);
       ValidFieldTypes.Add(typeof (Key));
     }
 
