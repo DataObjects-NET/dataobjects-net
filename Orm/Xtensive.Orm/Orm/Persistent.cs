@@ -281,7 +281,7 @@ namespace Xtensive.Orm
             // This may happen if reference is null
             accuracy = TypeReferenceAccuracy.BaseType;
         }
-        key = Key.Create(Session.Domain, Session.NodeId, type, accuracy, keyValue);
+        key = Key.Create(Session.Domain, Session.StorageNodeId, type, accuracy, keyValue);
         SystemGetValue(field, key);
         SystemGetValueCompleted(field, key, null);
         return key;

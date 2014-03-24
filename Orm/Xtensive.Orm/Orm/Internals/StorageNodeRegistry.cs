@@ -9,7 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Xtensive.Core;
 
-namespace Xtensive.Orm.Providers
+namespace Xtensive.Orm.Internals
 {
   internal sealed class StorageNodeRegistry
   {

@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Operations
     {
       // TODO: AY: Review this later
       var domain = context.Session.Domain;
-      var nodeId = context.Session.NodeId;
+      var nodeId = context.Session.StorageNodeId;
       var keyInfo = Key.TypeReference.Type.Key;
       var hierarchy = keyInfo.Hierarchy;
       if (hierarchy.Key.Fields.Count==1 && !hierarchy.Key.Fields[0].IsEntity)

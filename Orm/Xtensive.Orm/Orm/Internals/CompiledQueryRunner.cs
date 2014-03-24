@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Internals
       domain = session.Domain;
 
       this.endpoint = endpoint;
-      this.queryKey = new Pair<object, string>(queryKey, session.NodeId);
+      this.queryKey = new Pair<object, string>(queryKey, session.StorageNodeId);
       this.queryTarget = queryTarget;
     }
   }

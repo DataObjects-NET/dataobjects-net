@@ -820,7 +820,7 @@ namespace Xtensive.Orm
     {
       try {
         ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
-        var key = Key.Create(Session.Domain, Session.NodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
+        var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
         State = Session.CreateEntityState(key, true);
         SystemBeforeInitialize(false);
         Initialize(GetType());
@@ -852,7 +852,7 @@ namespace Xtensive.Orm
     {
       try {
         ArgumentValidator.EnsureArgumentNotNull(values, "values");
-        var key = Key.Create(Session.Domain, Session.NodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
+        var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
         var operations = Session.Operations;
         using (operations.BeginRegistration(OperationType.System)) {
@@ -902,7 +902,7 @@ namespace Xtensive.Orm
     {
       try {
         ArgumentValidator.EnsureArgumentNotNull(values, "values");
-        var key = Key.Create(Session.Domain, Session.NodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
+        var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
         var operations = Session.Operations;
         using (operations.BeginRegistration(OperationType.System)) {

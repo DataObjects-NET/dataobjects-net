@@ -246,11 +246,11 @@ namespace Xtensive.Orm
       var elementType = typeof (TElement);
       Func<TElement, Key> selector;
       if (elementType==typeof (object[]))
-        selector = e => Key.Create(session.Domain, session.NodeId, typeof (T), TypeReferenceAccuracy.BaseType, (object[]) (object) e);
+        selector = e => Key.Create(session.Domain, session.StorageNodeId, typeof (T), TypeReferenceAccuracy.BaseType, (object[]) (object) e);
       else if (typeof (Tuple).IsAssignableFrom(elementType))
-        selector = e => Key.Create(session.Domain, session.NodeId, typeof (T), TypeReferenceAccuracy.BaseType, (Tuple) (object) e);
+        selector = e => Key.Create(session.Domain, session.StorageNodeId, typeof (T), TypeReferenceAccuracy.BaseType, (Tuple) (object) e);
       else
-        selector = e => Key.Create(session.Domain, session.NodeId, typeof (T), TypeReferenceAccuracy.BaseType, new object[] {e});
+        selector = e => Key.Create(session.Domain, session.StorageNodeId, typeof (T), TypeReferenceAccuracy.BaseType, new object[] {e});
 
       return new PrefetchFacade<T>(session, keys.Select(selector));
     }
@@ -418,7 +418,7 @@ namespace Xtensive.Orm
         if (keyValue is Entity)
           return (keyValue as Entity).Key;
       }
-      return Key.Create(session.Domain, session.NodeId, typeof(T), TypeReferenceAccuracy.BaseType, keyValues);
+      return Key.Create(session.Domain, session.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, keyValues);
     }
 
     private Expression BuildRootExpression(Type elementType)

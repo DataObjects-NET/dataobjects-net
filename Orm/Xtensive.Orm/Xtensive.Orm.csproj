@@ -359,8 +359,8 @@
     <Compile Include="Orm\Providers\CompilerConfiguration.cs" />
     <Compile Include="Orm\Providers\MultidatabaseMappingResolver.cs" />
     <Compile Include="Orm\Providers\MultischemaMappingResolver.cs" />
-    <Compile Include="Orm\Providers\StorageNode.cs" />
-    <Compile Include="Orm\Providers\StorageNodeRegistry.cs" />
+    <Compile Include="Orm\StorageNode.cs" />
+    <Compile Include="Orm\Internals\StorageNodeRegistry.cs" />
     <Compile Include="Orm\Providers\SimpleMappingResolver.cs" />
     <Compile Include="Orm\StateLifetimeToken.cs" />
     <Compile Include="Properties\Visibility.cs" />

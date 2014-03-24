@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Operations
       var domain = session.Domain;
       var key = context.TryRemapKey(Key);
       var type = domain.Model.Types[TypeName];
-      key = Key.Create(domain, session.NodeId, type, TypeReferenceAccuracy.ExactType, key.Value);
+      key = Key.Create(domain, session.StorageNodeId, type, TypeReferenceAccuracy.ExactType, key.Value);
       session.CreateOrInitializeExistingEntity(type.UnderlyingType, key);
     }
 

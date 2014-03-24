@@ -156,7 +156,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         if (referencedKeyTupleState[i])
           return;
       var session = Manager.Owner.Session;
-      var referencedKey = Key.Create(session.Domain, session.NodeId,
+      var referencedKey = Key.Create(session.Domain, session.StorageNodeId,
         association.TargetType, TypeReferenceAccuracy.BaseType,
         referencedKeyTuple);
       var targetType = association.TargetType;

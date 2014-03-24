@@ -161,9 +161,22 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets current storage node identifier.
     /// </summary>
-    public string NodeId
+    public string StorageNodeId
     {
       get { return StorageNode.Id; }
+    }
+
+    /// <summary>
+    /// Gets current storage node.
+    /// </summary>
+    public StorageNode StorageNode
+    {
+      get
+      {
+        if (storageNode==null)
+          SetStorageNode(Handlers.StorageNodeRegistry.Get(WellKnown.DefaultNodeId));
+        return storageNode;
+      }
     }
 
     /// <summary>
@@ -201,16 +214,6 @@ namespace Xtensive.Orm
     internal RemovalProcessor RemovalProcessor { get; private set; }
 
     internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
-
-    internal StorageNode StorageNode
-    {
-      get
-      {
-        if (storageNode==null)
-          SetStorageNode(Handlers.StorageNodeRegistry.Get(WellKnown.DefaultNodeId));
-        return storageNode;
-      }
-    }
 
     internal void EnsureNotDisposed()
     {

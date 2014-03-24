@@ -9,29 +9,45 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers;
 
-namespace Xtensive.Orm.Providers
+namespace Xtensive.Orm
 {
-  internal sealed class StorageNode
+  /// <summary>
+  /// Storage node.
+  /// </summary>
+  public sealed class StorageNode
   {
+    /// <summary>
+    /// Gets node identifier.
+    /// </summary>
     public string Id { get { return Configuration.NodeId; } }
 
+    /// <summary>
+    /// Gets node configuration.
+    /// </summary>
     public NodeConfiguration Configuration { get; private set; }
 
+    /// <summary>
+    /// Gets model mapping.
+    /// </summary>
     public ModelMapping Mapping { get; private set; }
 
+    /// <summary>
+    /// Gets type identifier registry.
+    /// </summary>
     public TypeIdRegistry TypeIdRegistry { get; private set; }
 
-    public ConcurrentDictionary<object, object> InternalQueryCache { get; private set; }
+    internal ConcurrentDictionary<object, object> InternalQueryCache { get; private set; }
 
-    public ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; private set; }
+    internal ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; private set; }
 
-    public ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; private set; }
+    internal ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; private set; }
 
 
     // Constructors
 
-    public StorageNode(NodeConfiguration configuration, ModelMapping mapping, TypeIdRegistry typeIdRegistry)
+    internal StorageNode(NodeConfiguration configuration, ModelMapping mapping, TypeIdRegistry typeIdRegistry)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       ArgumentValidator.EnsureArgumentNotNull(mapping, "mapping");

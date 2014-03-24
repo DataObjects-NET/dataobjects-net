@@ -9,6 +9,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;

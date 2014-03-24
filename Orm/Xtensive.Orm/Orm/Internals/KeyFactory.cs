@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Internals
       if (keyGenerator==null)
         throw new InvalidOperationException(String.Format(Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
       var keyValue = keyGenerator.GenerateKey(typeInfo.Key, session);
-      var key = Materialize(domain, session.NodeId, typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
+      var key = Materialize(domain, session.StorageNodeId, typeInfo, keyValue, TypeReferenceAccuracy.ExactType, false, null);
 
       return key;
     }
