@@ -63,8 +63,6 @@ namespace Xtensive.Orm.Model
     private KeyInfo                            key;
     private bool                               hasVersionRoots;
     private IDictionary<Pair<FieldInfo>, FieldInfo> structureFieldMapping;
-    private Tuple                              tuplePrototype;
-    private MapTransform                       versionExtractor;
     private List<AssociationInfo>              overridenAssociations;
     private FieldInfo typeIdField;
 
@@ -339,20 +337,12 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the persistent type prototype.
     /// </summary>
-    public Tuple TuplePrototype {
-      get {
-        return tuplePrototype;
-      }
-    }
+    public Tuple TuplePrototype { get; private set; }
 
     /// <summary>
     /// Gets the version tuple extractor.
     /// </summary>
-    public MapTransform VersionExtractor {
-      get {
-        return versionExtractor;
-      }
-    }
+    public MapTransform VersionExtractor { get; private set; }
 
     /// <summary>
     /// Gets a value indicating whether this instance has version fields.
@@ -793,7 +783,7 @@ namespace Xtensive.Orm.Model
           keyFieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);
         primaryKeyInjector = new MapTransform(false, TupleDescriptor, keyFieldMap);
       }
-      tuplePrototype = IsEntity ? tuple.ToFastReadOnly() : tuple;
+      TuplePrototype = IsEntity ? tuple.ToFastReadOnly() : tuple;
     }
 
     private void BuildVersionExtractor()
@@ -801,13 +791,13 @@ namespace Xtensive.Orm.Model
       // Building version tuple extractor
       var versionColumns = GetVersionColumns();
       if (versionColumns==null || versionColumns.Count==0) {
-        versionExtractor = null;
+        VersionExtractor = null;
         return;
       }
       var types = versionColumns.Select(c => c.ValueType).ToArray();
       var map = versionColumns.Select(c => c.Field.MappingInfo.Offset).ToArray();
       var versionTupleDescriptor = TupleDescriptor.Create(types);
-      versionExtractor = new MapTransform(true, versionTupleDescriptor, map);
+      VersionExtractor = new MapTransform(true, versionTupleDescriptor, map);
     }
 
     private IDictionary<Pair<FieldInfo>, FieldInfo> BuildStructureFieldMapping()
