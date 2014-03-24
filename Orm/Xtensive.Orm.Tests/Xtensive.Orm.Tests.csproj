@@ -310,6 +310,7 @@
     <Compile Include="Storage\BatchingWhenValidateEntityVersionsIsEnabledTest.cs" />
     <Compile Include="Storage\AnotherValidationTest.cs" />
     <Compile Include="Storage\ByteFieldStorageTest.cs" />
+    <Compile Include="Storage\CascadeRemoveTest.cs" />
     <Compile Include="Storage\ChangedPersistOrderTest.cs" />
     <Compile Include="Storage\ClientProfileSessionTest.cs" />
     <Compile Include="Storage\ClusteredIndexesTest.cs" />
