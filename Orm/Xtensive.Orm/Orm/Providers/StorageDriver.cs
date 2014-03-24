@@ -33,8 +33,6 @@ namespace Xtensive.Orm.Providers
     private readonly bool isLoggingEnabled;
     private readonly bool hasSavepoints;
 
-    private ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor> accessorCache;
-
     public ProviderInfo ProviderInfo { get; private set; }
 
     public StorageExceptionBuilder ExceptionBuilder { get; private set; }
@@ -66,18 +64,13 @@ namespace Xtensive.Orm.Providers
 
     public DbDataReaderAccessor GetDataReaderAccessor(TupleDescriptor descriptor)
     {
-      return accessorCache.GetValue(descriptor, CreateDataReaderAccessor);
+      return new DbDataReaderAccessor(descriptor, descriptor.Select(GetTypeMapping));
     }
 
     public StorageDriver CreateNew(Domain domain)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
       return new StorageDriver(underlyingDriver, ProviderInfo, domain.Configuration, GetModelProvider(domain));
-    }
-
-    private DbDataReaderAccessor CreateDataReaderAccessor(TupleDescriptor descriptor)
-    {
-      return new DbDataReaderAccessor(descriptor, descriptor.Select(GetTypeMapping));
     }
 
     private static DomainModel GetNullModel()
@@ -157,7 +150,6 @@ namespace Xtensive.Orm.Providers
       ProviderInfo = providerInfo;
       this.configuration = configuration;
       ExceptionBuilder = new StorageExceptionBuilder(driver, configuration, modelProvider);
-      accessorCache = ThreadSafeDictionary<TupleDescriptor, DbDataReaderAccessor>.Create(new object());
       allMappings = underlyingDriver.TypeMappings;
       translator = underlyingDriver.Translator;
       hasSavepoints = underlyingDriver.ServerInfo.ServerFeatures.Supports(ServerFeatures.Savepoints);
