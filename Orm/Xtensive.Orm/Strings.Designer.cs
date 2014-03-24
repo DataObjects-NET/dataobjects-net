@@ -8381,11 +8381,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Creating connection &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Creating connection..
         /// </summary>
-        internal static string LogSessionXCreatingConnectionY {
+        internal static string LogSessionXCreatingConnection {
             get {
-                return ResourceManager.GetString("LogSessionXCreatingConnectionY", resourceCulture);
+                return ResourceManager.GetString("LogSessionXCreatingConnection", resourceCulture);
             }
         }
         
@@ -8435,11 +8435,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Disposing connection &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Disposing connection..
         /// </summary>
-        internal static string LogSessionXDisposingConnectionY {
+        internal static string LogSessionXDisposingConnection {
             get {
-                return ResourceManager.GetString("LogSessionXDisposingConnectionY", resourceCulture);
+                return ResourceManager.GetString("LogSessionXDisposingConnection", resourceCulture);
             }
         }
         

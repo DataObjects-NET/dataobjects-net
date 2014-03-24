@@ -184,6 +184,8 @@ namespace Xtensive.Orm.Upgrade
       var driver = serviceAccessor.StorageDriver;
       var connection = driver.CreateConnection(null);
 
+      driver.ApplyNodeConfiguration(connection, context.NodeConfiguration);
+
       try {
         driver.OpenConnection(null, connection);
         driver.BeginTransaction(null, connection, null);

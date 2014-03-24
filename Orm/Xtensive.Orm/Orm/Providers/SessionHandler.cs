@@ -76,6 +76,8 @@ namespace Xtensive.Orm.Providers
     {
     }
 
+    internal abstract void SetStorageNode(StorageNode node);
+
     protected SessionHandler(Session session)
     {
       Session = session;

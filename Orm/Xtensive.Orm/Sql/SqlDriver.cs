@@ -162,7 +162,7 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Creates the connection using default connection information
+    /// Creates the connection using default connection information.
     /// </summary>
     public SqlConnection CreateConnection()
     {

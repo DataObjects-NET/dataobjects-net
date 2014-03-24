@@ -269,9 +269,7 @@ namespace Xtensive.Orm
     {
       if (storageNode!=null)
         throw new InvalidOperationException(Strings.ExStorageNodeIsAlreadySelected);
-      var connectionInfo = node.Configuration.ConnectionInfo;
-      if (connectionInfo!=null)
-        ConnectionInfo = connectionInfo;
+      Handler.SetStorageNode(node);
       storageNode = node;
     }
 

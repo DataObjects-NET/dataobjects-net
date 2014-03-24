@@ -5,6 +5,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Sql.Info;
@@ -19,6 +20,7 @@ namespace Xtensive.Sql
   {
     private int? commandTimeout;
     private ConnectionInfo connectionInfo;
+    private IExtensionCollection extensions;
 
     /// <summary>
     /// Gets the underlying connection.
@@ -29,6 +31,19 @@ namespace Xtensive.Sql
     /// Gets the active transaction.
     /// </summary>
     public abstract DbTransaction ActiveTransaction { get; }
+
+    /// <summary>
+    /// Gets <see cref="IExtensionCollection"/> associated with this instance.
+    /// </summary>
+    public IExtensionCollection Extensions
+    {
+      get
+      {
+        if (extensions==null)
+          extensions = new ExtensionCollection();
+        return extensions;
+      }
+    }
 
     /// <summary>
     /// Gets or sets <see cref="ConnectionInfo"/> to use.

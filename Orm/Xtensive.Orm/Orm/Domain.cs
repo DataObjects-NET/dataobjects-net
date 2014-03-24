@@ -311,8 +311,11 @@ namespace Xtensive.Orm
           return;
 
         lock (singleConnectionGuard) {
-          if (singleConnectionOwner==null)
-            Handlers.StorageDriver.DisposeConnection(null, SingleConnection);
+          if (singleConnectionOwner==null) {
+            var driver = Handlers.StorageDriver;
+            driver.CloseConnection(null, SingleConnection);
+            driver.DisposeConnection(null, SingleConnection);
+          }
           else
             OrmLog.Warning(
               Strings.LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX,
