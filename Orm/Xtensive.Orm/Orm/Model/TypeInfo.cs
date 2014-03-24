@@ -62,10 +62,11 @@ namespace Xtensive.Orm.Model
     private bool                               isInboundOnly;
     private KeyInfo                            key;
     private bool                               hasVersionRoots;
-    private Dictionary<Pair<FieldInfo>, FieldInfo> structureFieldMapping;
+    private IDictionary<Pair<FieldInfo>, FieldInfo> structureFieldMapping;
     private Tuple                              tuplePrototype;
     private MapTransform                       versionExtractor;
     private List<AssociationInfo>              overridenAssociations;
+    private FieldInfo typeIdField;
 
     #region IsXxx properties
 
@@ -198,15 +199,15 @@ namespace Xtensive.Orm.Model
     /// Gets or sets the type identifier uniquely identifying the type in the domain model.
     /// </summary>
     /// <exception cref="NotSupportedException">Property is already initialized.</exception>
-    public int TypeId {
+    public int TypeId
+    {
       [DebuggerStepThrough]
       get { return typeId; }
-      set {
-        if (typeId != NoTypeId)
+      set
+      {
+        if (typeId!=NoTypeId)
           throw Exceptions.AlreadyInitialized("TypeId");
         typeId = value;
-        lock (this)
-          tuplePrototype = null;
       }
     }
 
@@ -340,8 +341,6 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public Tuple TuplePrototype {
       get {
-        if (tuplePrototype==null)
-          BuildTuplePrototypeAndVersionExtractor();
         return tuplePrototype;
       }
     }
@@ -351,8 +350,6 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public MapTransform VersionExtractor {
       get {
-        if (tuplePrototype==null)
-          BuildTuplePrototypeAndVersionExtractor();
         return versionExtractor;
       }
     }
@@ -384,7 +381,7 @@ namespace Xtensive.Orm.Model
     /// Gets the structure field mapping.
     /// </summary>
     /// <value>The structure field mapping.</value>
-    public Dictionary<Pair<FieldInfo>, FieldInfo> StructureFieldMapping
+    public IDictionary<Pair<FieldInfo>, FieldInfo> StructureFieldMapping
     {
       get {
         return structureFieldMapping ?? BuildStructureFieldMapping();
@@ -419,10 +416,12 @@ namespace Xtensive.Orm.Model
     /// <returns>
     /// The <see cref="TuplePrototype"/> with "injected" <paramref name="primaryKey"/>.
     /// </returns>
-    public Tuple CreateEntityTuple(Tuple primaryKey)
+    public Tuple CreateEntityTuple(Tuple primaryKey, int typeIdValue)
     {
-      var prototype = TuplePrototype; // Ensures primaryKeyInjector is built as well
-      return primaryKeyInjector.Apply(TupleTransformType.Tuple, primaryKey, prototype);
+      var result = primaryKeyInjector.Apply(TupleTransformType.Tuple, primaryKey, TuplePrototype);
+      if (typeIdField!=null)
+        result.SetValue(typeIdField.MappingInfo.Offset, typeIdValue);
+      return result;
     }
 
     /// <summary>
@@ -608,7 +607,7 @@ namespace Xtensive.Orm.Model
       ancestors = new ReadOnlyList<TypeInfo>(GetAncestors());
       targetAssociations = new ReadOnlyList<AssociationInfo>(GetTargetAssociations());
       ownerAssociations = new ReadOnlyList<AssociationInfo>(GetOwnerAssociations());
-      
+
       int adapterIndex = 0;
       foreach (FieldInfo field in Fields)
         if (field.IsStructure || field.IsEntitySet)
@@ -626,18 +625,18 @@ namespace Xtensive.Orm.Model
       structureFieldMapping = BuildStructureFieldMapping();
 
       if (IsEntity) {
-        if (!HasVersionRoots) {
-          versionFields = new ReadOnlyList<FieldInfo>(GetVersionFields());
-          versionColumns = new ReadOnlyList<ColumnInfo>(GetVersionColumns());
-        }
-        else {
+        if (HasVersionRoots) {
           versionFields = new ReadOnlyList<FieldInfo>(new List<FieldInfo>());
           versionColumns = new ReadOnlyList<ColumnInfo>(new List<ColumnInfo>());
+        }
+        else {
+          versionFields = new ReadOnlyList<FieldInfo>(GetVersionFields());
+          versionColumns = new ReadOnlyList<ColumnInfo>(GetVersionColumns());
         }
         HasVersionFields = versionFields.Any();
         HasExplicitVersionFields = versionFields.Any(f => f.ManualVersion || f.AutoVersion);
       }
-      
+
       if (IsInterface) {
         // Collect mapping information from the first implementor (if any)
         // We'll check that all implementors are mapped to the same database later.
@@ -656,36 +655,41 @@ namespace Xtensive.Orm.Model
         .Where(a => a.IsMaster)
         .ToList();
 
-      if (associations.Count == 0) {
+      typeIdField = Fields.FirstOrDefault(f => f.IsTypeId);
+
+      BuildTuplePrototype();
+      BuildVersionExtractor();
+
+      if (associations.Count==0) {
         removalSequence = ReadOnlyList<AssociationInfo>.Empty;
         return;
       }
 
       overridenAssociations = associations
-        .Where(a => 
-          (a.Ancestors.Count > 0 && ((a.OwnerType == this && a.Ancestors.All(an => an.OwnerType != this) || (a.TargetType == this && a.Ancestors.All(an => an.TargetType != this))))) ||
-          (a.Reversed != null && (a.Reversed.Ancestors.Count > 0 && ((a.Reversed.OwnerType == this && a.Reversed.Ancestors.All(an => an.OwnerType != this) || (a.Reversed.TargetType == this && a.Reversed.Ancestors.All(an => an.TargetType != this)))))))
-        .SelectMany(a => a.Ancestors.Concat(a.Reversed == null ? Enumerable.Empty<AssociationInfo>(): a.Reversed.Ancestors))
+        .Where(a =>
+          (a.Ancestors.Count > 0 && ((a.OwnerType==this && a.Ancestors.All(an => an.OwnerType!=this) || (a.TargetType==this && a.Ancestors.All(an => an.TargetType!=this))))) ||
+          (a.Reversed!=null && (a.Reversed.Ancestors.Count > 0 && ((a.Reversed.OwnerType==this && a.Reversed.Ancestors.All(an => an.OwnerType!=this) || (a.Reversed.TargetType==this && a.Reversed.Ancestors.All(an => an.TargetType!=this)))))))
+        .SelectMany(a => a.Ancestors.Concat(a.Reversed==null ? Enumerable.Empty<AssociationInfo>() : a.Reversed.Ancestors))
         .ToList();
       var ancestor = GetAncestor();
-      if (ancestor != null && ancestor.overridenAssociations != null)
+      if (ancestor!=null && ancestor.overridenAssociations!=null)
         overridenAssociations.AddRange(ancestor.overridenAssociations);
 
       foreach (var ancestorAssociation in overridenAssociations)
         associations.Remove(ancestorAssociation);
 
       var sequence = new List<AssociationInfo>(associations.Count);
-      sequence.AddRange(associations.Where(a => a.OnOwnerRemove  == OnRemoveAction.Deny    && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
-      sequence.AddRange(associations.Where(a => a.OnTargetRemove == OnRemoveAction.Deny    && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
-      sequence.AddRange(associations.Where(a => a.OnOwnerRemove  == OnRemoveAction.Clear   && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
-      sequence.AddRange(associations.Where(a => a.OnTargetRemove == OnRemoveAction.Clear   && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
-      sequence.AddRange(associations.Where(a => a.OnOwnerRemove  == OnRemoveAction.Cascade && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
-      sequence.AddRange(associations.Where(a => a.OnTargetRemove == OnRemoveAction.Cascade && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      sequence.AddRange(associations.Where(a => a.OnOwnerRemove==OnRemoveAction.Deny && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      sequence.AddRange(associations.Where(a => a.OnTargetRemove==OnRemoveAction.Deny && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      sequence.AddRange(associations.Where(a => a.OnOwnerRemove==OnRemoveAction.Clear && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      sequence.AddRange(associations.Where(a => a.OnTargetRemove==OnRemoveAction.Clear && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      sequence.AddRange(associations.Where(a => a.OnOwnerRemove==OnRemoveAction.Cascade && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      sequence.AddRange(associations.Where(a => a.OnTargetRemove==OnRemoveAction.Cascade && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
       var first = sequence.Where(a => a.Ancestors.Count > 0).ToList();
-      if (first.Count == 0)
+      if (first.Count==0)
         removalSequence = new ReadOnlyList<AssociationInfo>(sequence);
       else {
-        var second = sequence.Where(a => a.Ancestors.Count == 0).ToList();
+        var second = sequence.Where(a => a.Ancestors.Count==0).ToList();
         removalSequence = new ReadOnlyList<AssociationInfo>(first.Concat(second).ToList());
       }
     }
@@ -720,9 +724,9 @@ namespace Xtensive.Orm.Model
 
     private KeyInfo GetKey()
     {
-      if (Hierarchy == null)
-        return IsInterface 
-          ? GetImplementors().First().Hierarchy.Key 
+      if (Hierarchy==null)
+        return IsInterface
+          ? GetImplementors().First().Hierarchy.Key
           : null;
       return Hierarchy.Key;
     }
@@ -737,19 +741,7 @@ namespace Xtensive.Orm.Model
       var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset).ToList();
       columns = new ColumnInfoCollection(this, "Columns");
       columns.AddRange(orderedColumns);
-      TupleDescriptor = TupleDescriptor.Create(
-        from c in Columns select c.ValueType);
-    }
-
-    private void BuildTuplePrototypeAndVersionExtractor()
-    {
-      if (!IsLocked)
-        throw Exceptions.InternalError(
-          Strings.ExInstanceMustBeLockedBeforeThisOperation, OrmLog.Instance);
-      lock (this) {
-        BuildTuplePrototype();
-        BuildVersionExtractor();
-      }
+      TupleDescriptor = TupleDescriptor.Create(Columns.Select(c => c.ValueType));
     }
 
     private void BuildTuplePrototype()
@@ -761,7 +753,7 @@ namespace Xtensive.Orm.Model
         nullabilityMap[i++] = column.IsNullable;
 
       // fixing reference fields that are marked as not nullable
-      foreach (var field in Fields.Where(f => f.IsEntity && !f.IsPrimaryKey && f.IsNullable == false)) {
+      foreach (var field in Fields.Where(f => f.IsEntity && !f.IsPrimaryKey && f.IsNullable==false)) {
         var segment = field.MappingInfo;
         for (int j = segment.Offset; j < segment.EndOffset; j++) {
           nullabilityMap[j] = true;
@@ -780,24 +772,18 @@ namespace Xtensive.Orm.Model
             tuple.SetValue(i, column.DefaultValue);
           }
           catch (Exception e) {
-            OrmLog.Error(e, Strings.LogExErrorSettingDefaultValueXForColumnYInTypeZ, 
+            OrmLog.Error(e, Strings.LogExErrorSettingDefaultValueXForColumnYInTypeZ,
               column.DefaultValue, column.Name, Name);
           }
         }
         i++;
       }
-      
+
       // Aditional initialization for entities
       if (IsEntity) {
-        // Setting TypeId column
-        var typeIdField = Fields.Where(f => f.IsTypeId).FirstOrDefault();
-        if (typeIdField != null)
-          tuple.SetValue(typeIdField.MappingInfo.Offset, TypeId);
-
         // Setting type discriminator column
-        if (Hierarchy.TypeDiscriminatorMap != null) {
+        if (Hierarchy.TypeDiscriminatorMap!=null)
           tuple.SetValue(Hierarchy.TypeDiscriminatorMap.Field.MappingInfo.Offset, typeDiscriminatorValue);
-        }
 
         // Building primary key injector
         var fieldCount = TupleDescriptor.Count;
@@ -824,7 +810,7 @@ namespace Xtensive.Orm.Model
       versionExtractor = new MapTransform(true, versionTupleDescriptor, map);
     }
 
-    private Dictionary<Pair<FieldInfo>, FieldInfo> BuildStructureFieldMapping()
+    private IDictionary<Pair<FieldInfo>, FieldInfo> BuildStructureFieldMapping()
     {
       var result = new Dictionary<Pair<FieldInfo>, FieldInfo>();
       var structureFields = Fields.Where(f => f.IsStructure && f.Parent == null);
@@ -833,7 +819,7 @@ namespace Xtensive.Orm.Model
         foreach (var pair in structureTypeInfo.Fields.Zip(structureField.Fields))
           result.Add(new Pair<FieldInfo>(structureField, pair.First), pair.Second);
       }
-      return result;
+      return new ReadOnlyDictionary<Pair<FieldInfo>, FieldInfo>(result);
     }
 
     #endregion
