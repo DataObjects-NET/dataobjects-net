@@ -326,7 +326,7 @@ namespace Xtensive.Orm.Linq
           && methodInfo.GetParameters().Length==2);
 
       // Session
-      SessionNodeId = typeof (Session).GetProperty("NodeId");
+      SessionNodeId = typeof (Session).GetProperty("StorageNodeId");
     }
   }
 }
