@@ -126,8 +126,7 @@ namespace Xtensive.Orm.Linq
           "Create",
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
           null,
-           new[] {typeof(Domain), typeof (TypeInfo), typeof(TypeReferenceAccuracy), typeof (Xtensive.Tuples.Tuple)}, null);
-
+          new[] {typeof (Domain), typeof (string), typeof (TypeInfo), typeof (TypeReferenceAccuracy), typeof (Tuples.Tuple)}, null);
       }
     }
 
@@ -265,6 +264,9 @@ namespace Xtensive.Orm.Linq
     // EntitySet
     public static readonly MethodInfo CreateEntitySet;
 
+    // Session
+    public static readonly PropertyInfo SessionNodeId;
+
     private static MethodInfo GetMethod(Type type, string name, int numberOfGenericArgument, int numberOfArguments)
     {
       var method = type.GetMethod(name,
@@ -322,6 +324,9 @@ namespace Xtensive.Orm.Linq
         .Single(methodInfo =>
           methodInfo.Name=="CreateEntitySet"
           && methodInfo.GetParameters().Length==2);
+
+      // Session
+      SessionNodeId = typeof (Session).GetProperty("NodeId");
     }
   }
 }

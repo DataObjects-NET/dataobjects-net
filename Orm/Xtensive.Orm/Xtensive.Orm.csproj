@@ -255,6 +255,7 @@
     <Compile Include="Core\AliasGenerator.cs" />
     <Compile Include="Core\ArgumentValidator.cs" />
     <Compile Include="Core\AssociateProvider.cs" />
+    <Compile Include="Core\AsyncFutureResult.cs" />
     <Compile Include="Core\Cloner.cs" />
     <Compile Include="Core\ConfigurationCollection.cs" />
     <Compile Include="Core\ConfigurationCollectionElementBase.cs" />
@@ -320,18 +321,23 @@
     <Compile Include="Core\Segment.cs" />
     <Compile Include="Core\SimpleScope.cs" />
     <Compile Include="Core\SimpleXmlSerializer.cs" />
+    <Compile Include="Core\SynchronousFutureResult.cs" />
     <Compile Include="Core\ThreadSafeCached.cs" />
     <Compile Include="Core\Triplet{TFirst,TSecond,TThird}.cs" />
     <Compile Include="Core\Triplet{T}.cs" />
+    <Compile Include="Core\ValueFutureResult.cs" />
     <Compile Include="InternalLogs.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>InternalLogs.tt</DependentUpon>
     </Compile>
+    <Compile Include="Orm\Configuration\DomainOptions.cs" />
     <Compile Include="Orm\Configuration\Elements\LogElement.cs" />
     <Compile Include="Orm\Configuration\Elements\LoggingElement.cs" />
     <Compile Include="Orm\Configuration\LogConfiguration.cs" />
     <Compile Include="Orm\Configuration\LoggingConfiguration.cs" />
+    <Compile Include="Orm\Configuration\NameMappingCollection.cs" />
+    <Compile Include="Orm\Configuration\NodeConfiguration.cs" />
     <Compile Include="Orm\Linq\LocalCollectionKeyTypeExtractor.cs" />
     <Compile Include="Orm\Logging\BaseLog.cs" />
     <Compile Include="Orm\Logging\IndentManager.cs" />
@@ -347,6 +353,15 @@
     <Compile Include="Orm\Logging\LogManager.cs" />
     <Compile Include="Orm\Logging\LogProvider.cs" />
     <Compile Include="Orm\Logging\Internals\NullLog.cs" />
+    <Compile Include="Orm\Model\TypeIdRegistry.cs" />
+    <Compile Include="Orm\NodeManager.cs" />
+    <Compile Include="Orm\Providers\CompilationService.cs" />
+    <Compile Include="Orm\Providers\CompilerConfiguration.cs" />
+    <Compile Include="Orm\Providers\MultidatabaseMappingResolver.cs" />
+    <Compile Include="Orm\Providers\MultischemaMappingResolver.cs" />
+    <Compile Include="Orm\Providers\StorageNode.cs" />
+    <Compile Include="Orm\Providers\StorageNodeRegistry.cs" />
+    <Compile Include="Orm\Providers\SimpleMappingResolver.cs" />
     <Compile Include="Orm\StateLifetimeToken.cs" />
     <Compile Include="Properties\Visibility.cs" />
     <Compile Include="IoC\Attributes\ServiceAttribute.cs" />
@@ -631,7 +646,7 @@
     <Compile Include="Orm\TargetKind.cs" />
     <Compile Include="Orm\Upgrade\Internals\MatchingHelper.cs" />
     <Compile Include="Orm\Upgrade\Internals\PartialIndexInfoMap.cs" />
-    <Compile Include="Orm\Upgrade\Internals\FutureResult.cs" />
+    <Compile Include="Core\FutureResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\AssemblyMetadata.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\ExtensionMetadata.cs" />
     <Compile Include="Orm\Upgrade\Internals\Metadata\MetadataMapping.cs" />
@@ -815,7 +830,6 @@
     <Compile Include="Orm\EntitySetActionCompletedEventArgs.cs" />
     <Compile Include="Orm\QueryEndpoint.cs" />
     <Compile Include="Orm\QueryRootBuilder.cs" />
-    <Compile Include="Orm\Rse\Compilation\CompilerConfiguration.cs" />
     <Compile Include="Orm\Rse\Compilation\CompositePostCompiler.cs" />
     <Compile Include="Orm\Rse\Providers\Compilable\VoidProvider.cs" />
     <Compile Include="Orm\Services\QueryBuilding\QueryBuilder.cs" />
@@ -1143,7 +1157,7 @@
     <Compile Include="Orm\Building\DependencyGraph\EdgeWeight.cs" />
     <Compile Include="Orm\Internals\EntitySetTypeState.cs" />
     <Compile Include="Orm\Session.Persist.cs" />
-    <Compile Include="Orm\Internals\GenericKeyTypeInfo.cs" />
+    <Compile Include="Orm\Internals\GenericKeyFactory.cs" />
     <Compile Include="Orm\Internals\Key{T1,T2,T3,T4}.cs" />
     <Compile Include="Orm\Internals\Key{T1,T2,T3}.cs" />
     <Compile Include="Orm\EntityEventArgs.cs" />
@@ -1633,7 +1647,6 @@
     <Compile Include="Orm\Rse\Column.cs" />
     <Compile Include="Orm\Rse\ColumnCollection.cs" />
     <Compile Include="Orm\Rse\ColumnGroupCollection.cs" />
-    <Compile Include="Orm\Rse\Compilation\CompilationService.cs" />
     <Compile Include="Orm\Rse\Compilation\Compiler.cs" />
     <Compile Include="Orm\Rse\Compilation\EmptyPostCompiler.cs" />
     <Compile Include="Orm\Rse\Compilation\EmptyPreCompiler.cs" />

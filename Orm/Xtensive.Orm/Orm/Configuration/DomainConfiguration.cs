@@ -96,6 +96,7 @@ namespace Xtensive.Orm.Configuration
     private bool buildInParallel = DefaultBuildInParallel;
     private bool allowCyclicDatabaseDependencies;
     private bool multidatabaseKeys = DefaultMultidatabaseKeys;
+    private DomainOptions options = DomainOptions.Default;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseConfigurationCollection databases = new DatabaseConfigurationCollection();
@@ -135,7 +136,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         this.EnsureNotLocked();
-        ArgumentValidator.EnsureArgumentNotNull(value, "Name");
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
         name = value;
       }
     }
@@ -529,6 +530,19 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets domain options.
+    /// </summary>
+    public DomainOptions Options
+    {
+      get { return options; }
+      set
+      {
+        this.EnsureNotLocked();
+        options = value;
+      }
+    }
+
+    /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
     /// </summary>
     public bool IsMultidatabase { get { return isMultidatabase ?? GetIsMultidatabase(); } }
@@ -635,14 +649,15 @@ namespace Xtensive.Orm.Configuration
       foreignKeyMode = configuration.ForeignKeyMode;
       serviceContainerType = configuration.ServiceContainerType;
       includeSqlInExceptions = configuration.IncludeSqlInExceptions;
-      forcedServerVersion = configuration.forcedServerVersion;
-      buildInParallel = configuration.buildInParallel;
-      allowCyclicDatabaseDependencies = configuration.allowCyclicDatabaseDependencies;
-      collation = configuration.collation;
-      nativeLibraryCacheFolder = configuration.nativeLibraryCacheFolder;
-      connectionInitializationSql = configuration.connectionInitializationSql;
-      schemaSyncExceptionFormat = configuration.schemaSyncExceptionFormat;
-      multidatabaseKeys = configuration.multidatabaseKeys;
+      forcedServerVersion = configuration.ForcedServerVersion;
+      buildInParallel = configuration.BuildInParallel;
+      allowCyclicDatabaseDependencies = configuration.AllowCyclicDatabaseDependencies;
+      collation = configuration.Collation;
+      nativeLibraryCacheFolder = configuration.NativeLibraryCacheFolder;
+      connectionInitializationSql = configuration.ConnectionInitializationSql;
+      schemaSyncExceptionFormat = configuration.SchemaSyncExceptionFormat;
+      multidatabaseKeys = configuration.MultidatabaseKeys;
+      options = configuration.Options;
       databases = (DatabaseConfigurationCollection) configuration.Databases.Clone();
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
       keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();
@@ -701,9 +716,14 @@ namespace Xtensive.Orm.Configuration
       return domainElement.ToNative();
     }
 
-    internal bool Supports(ForeignKeyMode fkMode)
+    internal bool Supports(DomainOptions optionsToCheck)
     {
-      return (foreignKeyMode & fkMode)==fkMode;
+      return (options & optionsToCheck)==optionsToCheck;
+    }
+
+    internal bool Supports(ForeignKeyMode modeToCheck)
+    {
+      return (foreignKeyMode & modeToCheck)==modeToCheck;
     }
 
     // Constructors

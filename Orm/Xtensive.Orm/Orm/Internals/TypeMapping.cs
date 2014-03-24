@@ -4,7 +4,6 @@
 // Created by: Dmitri Maximov
 // Created:    2008.08.08
 
-using System.Linq;
 using Xtensive.Tuples.Transform;
 using Xtensive.Orm.Model;
 
@@ -20,12 +19,6 @@ namespace Xtensive.Orm.Internals
 
 
     // Constructors
-
-    public TypeMapping(TypeInfo type, MapTransform keyTransform, MapTransform transform)
-      : this(type, keyTransform, transform, 
-        keyTransform.SingleSourceMap.Where(item => item!=MapTransform.NoMapping).ToArray())
-    {
-    }
 
     public TypeMapping(TypeInfo type, MapTransform keyTransform, MapTransform transform, int[] keyIndexes)
     {

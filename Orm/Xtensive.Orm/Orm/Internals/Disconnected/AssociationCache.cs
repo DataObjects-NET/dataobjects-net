@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Disconnected
           // This may happen if referense is null
           exactType = false;
       }
-      var key = Key.Create(session.Domain, type, exactType ? TypeReferenceAccuracy.ExactType : TypeReferenceAccuracy.BaseType, keyValue);
+      var key = Key.Create(session.Domain, session.NodeId, type, exactType ? TypeReferenceAccuracy.ExactType : TypeReferenceAccuracy.BaseType, keyValue);
       return key;
     }
 

@@ -155,7 +155,8 @@ namespace Xtensive.Orm.Internals.Prefetch
       for (var i = 0; i < referencedKeyTupleState.Length; i++)
         if (referencedKeyTupleState[i])
           return;
-      var referencedKey = Key.Create(Manager.Owner.Session.Domain,
+      var session = Manager.Owner.Session;
+      var referencedKey = Key.Create(session.Domain, session.NodeId,
         association.TargetType, TypeReferenceAccuracy.BaseType,
         referencedKeyTuple);
       var targetType = association.TargetType;
@@ -172,7 +173,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       else
         return;
       var fieldsToBeLoaded = PrefetchHelper
-        .GetCachedDescriptorsForFieldsLoadedByDefault(Manager.Owner.Session.Domain, targetType);
+        .GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, targetType);
       var graphContainer = Manager.SetUpContainers(referencedKey, targetType,
         fieldsToBeLoaded, true, null, true);
       if (areToNotifyOwner)

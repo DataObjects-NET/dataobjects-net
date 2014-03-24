@@ -30,15 +30,15 @@ namespace Xtensive.Orm.Providers
       if (association.IsPaired)
         return FindReferences(target, association, true);
       object key = new Pair<object, AssociationInfo>(CachingRegion, association);
-      Func<object, object> generator = p => BuildReferencingQuery(((Pair<object, AssociationInfo>)p).Second);
-      var pair = (Pair<CompilableProvider, Parameter<Tuple>>)Session.Domain.Cache.GetValue(key, generator);
+      Func<object, object> generator = p => BuildReferencingQuery(((Pair<object, AssociationInfo>) p).Second);
+      var pair = (Pair<CompilableProvider, Parameter<Tuple>>) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
       var recordSet = pair.First;
       var parameter = pair.Second;
       var parameterContext = new ParameterContext();
       ExecutableProvider executableProvider;
       using (parameterContext.Activate()) {
         parameter.Value = target.Key.Value;
-        executableProvider = Session.CompilationService.Compile(recordSet);
+        executableProvider = Session.Compile(recordSet);
       }
       var queryTask = new QueryTask(executableProvider, Session.GetLifetimeToken(), parameterContext);
       Session.RegisterDelayedQuery(queryTask);

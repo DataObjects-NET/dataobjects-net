@@ -270,13 +270,13 @@ namespace Xtensive.Orm
         Func<object, object> generator = tripletObj => {
           var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
           IndexInfo index = triplet.First.Indexes.PrimaryIndex;
-          return domain.Handler.CompilationService.Compile(
-            index.GetQuery()
-              .Seek(keyParameter.Value)
-              .Lock(() => triplet.Second, () => triplet.Third)
-              .Select());
+          var query = index.GetQuery()
+            .Seek(keyParameter.Value)
+            .Lock(() => triplet.Second, () => triplet.Third)
+            .Select();
+          return Session.Compile(query);
         };
-        var source = (ExecutableProvider) domain.Cache.GetValue(key, generator);
+        var source = (ExecutableProvider) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
         var recordSet = source.GetRecordSet(Session);
         recordSet.FirstOrDefault();
       }
@@ -820,7 +820,7 @@ namespace Xtensive.Orm
     {
       try {
         ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
-        var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
+        var key = Key.Create(Session.Domain, Session.NodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
         State = Session.CreateEntityState(key, true);
         SystemBeforeInitialize(false);
         Initialize(GetType());
@@ -852,7 +852,7 @@ namespace Xtensive.Orm
     {
       try {
         ArgumentValidator.EnsureArgumentNotNull(values, "values");
-        var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
+        var key = Key.Create(Session.Domain, Session.NodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
         var operations = Session.Operations;
         using (operations.BeginRegistration(OperationType.System)) {
@@ -902,7 +902,7 @@ namespace Xtensive.Orm
     {
       try {
         ArgumentValidator.EnsureArgumentNotNull(values, "values");
-        var key = Key.Create(Session.Domain, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
+        var key = Key.Create(Session.Domain, Session.NodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
         var operations = Session.Operations;
         using (operations.BeginRegistration(OperationType.System)) {

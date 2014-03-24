@@ -156,9 +156,10 @@ namespace Xtensive.Orm.Internals.Prefetch
         includeParameter.Value = currentKeySet;
         object key = new Pair<object, CacheKey>(recordSetCachingRegion, cacheKey);
         Func<object, object> generator = CreateRecordSet;
-        Provider = (CompilableProvider) manager.Owner.Session.Domain.Cache.GetValue(key, generator);
-        var executableProvider = manager.Owner.Session.CompilationService.Compile(Provider);
-        return new QueryTask(executableProvider, manager.Owner.Session.GetLifetimeToken(), parameterContext);
+        var session = manager.Owner.Session;
+        Provider = (CompilableProvider) session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
+        var executableProvider = session.Compile(Provider);
+        return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
       }
     }
 

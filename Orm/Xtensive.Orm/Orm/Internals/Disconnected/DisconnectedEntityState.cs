@@ -270,7 +270,7 @@ namespace Xtensive.Orm.Disconnected
       var key = Key.Parse(domain, serialized.Key);
       var type = domain.Model.Types.Find(serialized.Type);
       // Getting key with exact type
-      key = Key.Create(domain, type, TypeReferenceAccuracy.ExactType, key.Value);
+      key = Key.Create(domain, key.NodeId, type, TypeReferenceAccuracy.ExactType, key.Value);
 
       var origin = registry.Origin!=null ? registry.Origin.Get(key) : null;
       var state = origin!=null

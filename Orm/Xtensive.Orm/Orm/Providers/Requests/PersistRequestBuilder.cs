@@ -6,12 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Collections;
+using Xtensive.Orm.Model;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Providers
 {
@@ -21,19 +19,12 @@ namespace Xtensive.Orm.Providers
   public class PersistRequestBuilder : DomainBoundHandler
   {
     private bool useLargeObjects;
-
-    private DomainHandler domainHandler;
     private ProviderInfo providerInfo;
     private StorageDriver driver;
 
-    /// <summary>
-    /// Builds the request.
-    /// </summary>
-    /// <param name="task">The request builder task.</param>
-    /// <returns><see cref="PersistRequest"/> instance for the specified <paramref name="task"/>.</returns>
-    public IEnumerable<PersistRequest> Build(PersistRequestBuilderTask task)
+    internal ICollection<PersistRequest> Build(StorageNode node, PersistRequestBuilderTask task)
     {
-      var context = new PersistRequestBuilderContext(task);
+      var context = new PersistRequestBuilderContext(task, node.Mapping);
       List<PersistRequest> result;
       switch (task.Kind) {
         case PersistRequestKind.Insert:
@@ -60,20 +51,20 @@ namespace Xtensive.Orm.Providers
         }
         var batchRequest = new PersistRequest(driver, batch, bindings);
         batchRequest.Prepare();
-        return EnumerableUtils.One(batchRequest);
+        return new List<PersistRequest> {batchRequest}.AsReadOnly();
       }
 
       foreach (var item in result)
         item.Prepare();
 
-      return result;
+      return result.AsReadOnly();
     }
     
     protected virtual List<PersistRequest> BuildInsertRequest(PersistRequestBuilderContext context)
     {
       var result = new List<PersistRequest>();
       foreach (var index in context.AffectedIndexes) {
-        var table = domainHandler.Mapping[index.ReflectedType];
+        var table = context.Mapping[index.ReflectedType];
         var tableRef = SqlDml.TableRef(table);
         var query = SqlDml.Insert(tableRef);
         var bindings = new List<PersistParameterBinding>();
@@ -96,7 +87,7 @@ namespace Xtensive.Orm.Providers
     {
       var result = new List<PersistRequest>();
       foreach (var index in context.AffectedIndexes) {
-        var table = domainHandler.Mapping[index.ReflectedType];
+        var table = context.Mapping[index.ReflectedType];
         var tableRef = SqlDml.TableRef(table);
         var query = SqlDml.Update(tableRef);
         var bindings = new List<PersistParameterBinding>();
@@ -137,7 +128,7 @@ namespace Xtensive.Orm.Providers
       var result = new List<PersistRequest>();
       for (int i = context.AffectedIndexes.Count - 1; i >= 0; i--) {
         var index = context.AffectedIndexes[i];
-        var tableRef = SqlDml.TableRef(domainHandler.Mapping[index.ReflectedType]);
+        var tableRef = SqlDml.TableRef(context.Mapping[index.ReflectedType]);
         var query = SqlDml.Delete(tableRef);
         var bindings = new List<PersistParameterBinding>();
         query.Where = BuildKeyFilter(context, tableRef, bindings);
@@ -243,7 +234,6 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     protected override void Initialize()
     {
-      domainHandler = Handlers.DomainHandler;
       driver = Handlers.StorageDriver;
       providerInfo = Handlers.ProviderInfo;
       useLargeObjects = Handlers.ProviderInfo.Supports(ProviderFeatures.LargeObjects);

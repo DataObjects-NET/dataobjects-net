@@ -9,6 +9,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
 using System.Security;
+using Xtensive.Orm;
 
 namespace Xtensive.Sql.Drivers.Sqlite
 {
@@ -84,10 +85,10 @@ namespace Xtensive.Sql.Drivers.Sqlite
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
-    public Connection(SqlDriver driver, string connectionString)
-      : base(driver, connectionString)
+    public Connection(SqlDriver driver)
+      : base(driver)
     {
-      underlyingConnection = new SQLiteConnection(connectionString);
+      underlyingConnection = new SQLiteConnection();
     }
   }
 }

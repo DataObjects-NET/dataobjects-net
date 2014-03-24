@@ -8,6 +8,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using FirebirdSql.Data.FirebirdClient;
+using Xtensive.Orm;
 
 namespace Xtensive.Sql.Drivers.Firebird
 {
@@ -82,10 +83,10 @@ namespace Xtensive.Sql.Drivers.Firebird
     }
 
     // Constructors
-    public Connection(SqlDriver driver, string connectionString)
-      : base(driver, connectionString)
+    public Connection(SqlDriver driver)
+      : base(driver)
     {
-      underlyingConnection = new FbConnection(connectionString);
+      underlyingConnection = new FbConnection();
     }
   }
 } ;

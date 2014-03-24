@@ -21,7 +21,6 @@ namespace Xtensive.Sql.Drivers.SqlServer
   /// </summary>
   public class DriverFactory : SqlDriverFactory
   {
-    private const string DataSourceFormat = "{0}/{1}";
     private const string DatabaseAndSchemaQuery =
       "select db_name(), coalesce(default_schema_name, 'dbo') from sys.database_principals where name=user";
 
@@ -94,24 +93,37 @@ namespace Xtensive.Sql.Drivers.SqlServer
       using (var connection = new SqlServerConnection(connectionString)) {
         connection.Open();
         SqlHelper.ExecuteInitializationSql(connection, configuration);
-        var versionString = string.IsNullOrEmpty(configuration.ForcedServerVersion)
-          ? connection.ServerVersion
-          : configuration.ForcedServerVersion;
-        var version = new Version(versionString);
+
+        string versionString;
+        bool isAzure;
+
+        var forcedServerVersion = configuration.ForcedServerVersion;
+        if (string.IsNullOrEmpty(forcedServerVersion)) {
+          versionString = connection.ServerVersion;
+          isAzure = IsAzure(connection);
+        }
+        else if (forcedServerVersion.Equals("azure", StringComparison.OrdinalIgnoreCase)) {
+          versionString = "10.0.0.0";
+          isAzure = true;
+        }
+        else {
+          versionString = forcedServerVersion;
+          isAzure = false;
+        }
+
         var builder = new SqlConnectionStringBuilder(connectionString);
-        var dataSource = string.Format(DataSourceFormat, builder.DataSource, builder.InitialCatalog);
+        var version = new Version(versionString);
         var coreServerInfo = new CoreServerInfo {
           ServerVersion = version,
           ConnectionString = connectionString,
+          MultipleActiveResultSets = builder.MultipleActiveResultSets,
         };
         SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
-        coreServerInfo.MultipleActiveResultSets = builder.MultipleActiveResultSets;
-        if (IsAzure(connection))
-          return new Azure.Driver(coreServerInfo, new ErrorMessageParser());
 
+        if (isAzure)
+          return new Azure.Driver(coreServerInfo, new ErrorMessageParser());
         if (version.Major < 9)
           throw new NotSupportedException(Strings.ExSqlServerBelow2005IsNotSupported);
-
         var parser = CreateMessageParser(connection);
         if (version.Major==9)
           return new v09.Driver(coreServerInfo, parser);

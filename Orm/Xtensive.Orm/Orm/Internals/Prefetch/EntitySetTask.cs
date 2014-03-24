@@ -176,9 +176,10 @@ namespace Xtensive.Orm.Internals.Prefetch
           itemCountLimitParameter.Value = ItemCountLimit.Value;
         object key = new Pair<object, CacheKey>(itemsQueryCachingRegion, cacheKey);
         Func<object, object> generator = CreateRecordSetLoadingItems;
-        QueryProvider = (CompilableProvider)manager.Owner.Session.Domain.Cache.GetValue(key, generator);
-        var executableProvider = manager.Owner.Session.CompilationService.Compile(QueryProvider);
-        return new QueryTask(executableProvider, manager.Owner.Session.GetLifetimeToken(), parameterContext);
+        var session = manager.Owner.Session;
+        QueryProvider = (CompilableProvider) session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
+        var executableProvider = session.Compile(QueryProvider);
+        return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
       }
     }
 

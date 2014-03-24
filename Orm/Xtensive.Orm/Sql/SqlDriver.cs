@@ -18,7 +18,8 @@ namespace Xtensive.Sql
   /// </summary>
   public abstract class SqlDriver
   {
-    private SqlDriverFactory factory;
+    private SqlDriverFactory origin;
+    private ConnectionInfo originConnectionInfo;
 
     /// <summary>
     /// Gets an instance that provides the most essential information about underlying RDBMS.
@@ -40,6 +41,16 @@ namespace Xtensive.Sql
     /// Gets the <see cref="SqlTranslator"/>.
     /// </summary>
     public SqlTranslator Translator { get; private set; }
+
+    /// <summary>
+    /// Gets connection string for the specified <see cref="ConnectionInfo"/>.
+    /// </summary>
+    /// <param name="connectionInfo"><see cref="ConnectionInfo"/> to convert.</param>
+    /// <returns>Connection string.</returns>
+    public string GetConnectionString(ConnectionInfo connectionInfo)
+    {
+      return origin.GetConnectionString(connectionInfo);
+    }
 
     /// <summary>
     /// Compiles the specified statement into SQL command representation.
@@ -151,11 +162,13 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Creates the connection using default connection information
+    /// Creates the connection using default connection information.
     /// </summary>
     public SqlConnection CreateConnection()
     {
-      return CreateConnection(CoreServerInfo.ConnectionString);
+      var result = DoCreateConnection();
+      result.ConnectionInfo = originConnectionInfo;
+      return result;
     }
 
     /// <summary>
@@ -165,7 +178,9 @@ namespace Xtensive.Sql
     /// <returns></returns>
     public SqlConnection CreateConnection(ConnectionInfo connectionInfo)
     {
-      return CreateConnection(factory.GetConnectionString(connectionInfo));
+      var result = DoCreateConnection();
+      result.ConnectionInfo = connectionInfo;
+      return result;
     }
 
     /// <summary>
@@ -219,11 +234,10 @@ namespace Xtensive.Sql
     protected abstract ServerInfoProvider CreateServerInfoProvider();
 
     /// <summary>
-    /// Creates connection from the specified <paramref name="connectionString"/>.
+    /// Creates connection.
     /// </summary>
-    /// <param name="connectionString">Connection string</param>
     /// <returns>Created connection.</returns>
-    protected abstract SqlConnection CreateConnection(string connectionString);
+    protected abstract SqlConnection DoCreateConnection();
 
     protected virtual void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
     {
@@ -231,9 +245,10 @@ namespace Xtensive.Sql
 
     #region Private / internal methods
 
-    internal void Initialize(SqlDriverFactory creator)
+    internal void Initialize(SqlDriverFactory creator, ConnectionInfo creatorConnectionInfo)
     {
-      factory = creator;
+      origin = creator;
+      originConnectionInfo = creatorConnectionInfo;
 
       var serverInfoProvider = CreateServerInfoProvider();
       ServerInfo = ServerInfo.Build(serverInfoProvider);

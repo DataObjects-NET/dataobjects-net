@@ -299,6 +299,9 @@ namespace Xtensive.Orm.Linq.Materialization
       return Expression.Call(
         WellKnownMembers.Key.Create,
         Expression.Constant(context.Domain),
+        Expression.Property(
+          Expression.Field(itemMaterializationContextParameter, ItemMaterializationContext.SessionFieldInfo),
+          WellKnownMembers.SessionNodeId),
         Expression.Constant(expression.EntityType),
         Expression.Constant(TypeReferenceAccuracy.BaseType),
         tupleExpression);

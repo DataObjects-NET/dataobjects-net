@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Upgrade
     public SchemaExtractionResult Handle()
     {
       foreach (var ignoreRule in ignoreRules) {
-        var schema = mappingResolver.GetSchema(targetModel, ignoreRule.Database, ignoreRule.Schema);
+        var schema = mappingResolver.ResolveSchema(targetModel, ignoreRule.Database, ignoreRule.Schema);
         if (schema!=null)
           VisitSchema(schema, ignoreRule);
       }

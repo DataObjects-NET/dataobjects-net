@@ -7,6 +7,7 @@
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using Xtensive.Orm;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer
@@ -72,10 +73,10 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
     // Constructors
 
-    public Connection(SqlDriver driver, string connectionString)
-      : base(driver, connectionString)
+    public Connection(SqlDriver driver)
+      : base(driver)
     {
-      underlyingConnection = new SqlServerConnection(connectionString);
+      underlyingConnection = new SqlServerConnection();
     }
   }
 }

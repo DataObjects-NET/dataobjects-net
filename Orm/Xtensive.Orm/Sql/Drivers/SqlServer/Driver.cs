@@ -15,9 +15,9 @@ namespace Xtensive.Sql.Drivers.SqlServer
   {
     private readonly ErrorMessageParser errorMessageParser;
 
-    protected override SqlConnection CreateConnection(string connectionString)
+    protected override SqlConnection DoCreateConnection()
     {
-      return new Connection(this, connectionString);
+      return new Connection(this);
     }
 
     public override SqlExceptionType GetExceptionType(Exception exception)

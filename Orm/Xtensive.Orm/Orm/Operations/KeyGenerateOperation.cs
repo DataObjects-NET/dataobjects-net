@@ -49,6 +49,7 @@ namespace Xtensive.Orm.Operations
     {
       // TODO: AY: Review this later
       var domain = context.Session.Domain;
+      var nodeId = context.Session.NodeId;
       var keyInfo = Key.TypeReference.Type.Key;
       var hierarchy = keyInfo.Hierarchy;
       if (hierarchy.Key.Fields.Count==1 && !hierarchy.Key.Fields[0].IsEntity)
@@ -68,8 +69,8 @@ namespace Xtensive.Orm.Operations
           var association = keyField.Associations.Last();
           var componentKeyValue = Tuple.Create(association.TargetType.Key.TupleDescriptor);
           sourceTuple.CopyTo(componentKeyValue, columnIndex, keyField.MappingInfo.Length);
-          var componentKey = Key.Create(domain, association.TargetType.UnderlyingType,
-            componentKeyValue);
+          var componentKey = Key.Create(domain, nodeId, association.TargetType.UnderlyingType,
+            TypeReferenceAccuracy.BaseType, componentKeyValue);
           var componentKeyLength = componentKey.Value.Count;
           Key mappedKey;
           if (context.KeyMapping.TryGetValue(componentKey, out mappedKey)) {
@@ -82,7 +83,8 @@ namespace Xtensive.Orm.Operations
         }
       }
       if (hasTemporaryComponentBeenFound) {
-        var result = Key.Create(domain, Key.TypeReference.Type.UnderlyingType, resultTuple);
+        var result = Key.Create(domain, nodeId, Key.TypeReference.Type.UnderlyingType,
+          TypeReferenceAccuracy.BaseType, resultTuple);
         context.AddKeyMapping(Key, result);
       }
     }

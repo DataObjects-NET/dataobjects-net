@@ -5,6 +5,7 @@
 // Created:    2008.09.10
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -519,6 +520,7 @@ namespace Xtensive.Orm
 
               var combinedKey = Key.Create(
                 Session.Domain,
+                Session.NodeId,
                 auxiliaryType,
                 TypeReferenceAccuracy.ExactType,
                 combinedTuple);
@@ -586,6 +588,7 @@ namespace Xtensive.Orm
 
               var combinedKey = Key.Create(
                 Session.Domain,
+                Session.NodeId,
                 auxiliaryType,
                 TypeReferenceAccuracy.ExactType,
                 combinedTuple);
@@ -845,17 +848,16 @@ namespace Xtensive.Orm
     {
       EnsureOwnerIsNotRemoved();
       object key = new Pair<object, FieldInfo>(entitySetCachingRegion, Field);
-      Func<object, EntitySetBase, object> generator = BuildEntitySetTypeState;
-      return (EntitySetTypeState) Session.Domain.Cache.GetValue(key, generator, this);
+      Func<object, object> generator = k => BuildEntitySetTypeState(k, this);
+      return (EntitySetTypeState) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
     }
 
-    private static EntitySetTypeState BuildEntitySetTypeState(object pair, object entitySetObj)
+    private static EntitySetTypeState BuildEntitySetTypeState(object key, EntitySetBase entitySet)
     {
-      var field = ((Pair<object, FieldInfo>) pair).Second;
-      var entitySet = (EntitySetBase) entitySetObj;
+      var field = ((Pair<object, FieldInfo>) key).Second;
       var association = field.Associations.Last();
-      var seek = entitySet.Session.CompilationService.Compile(
-        association.UnderlyingIndex.GetQuery().Seek(() => keyParameter.Value));
+      var query = association.UnderlyingIndex.GetQuery().Seek(() => keyParameter.Value);
+      var seek = entitySet.Session.Compile(query);
       var ownerDescriptor = association.OwnerType.Key.TupleDescriptor;
       var targetDescriptor = association.TargetType.Key.TupleDescriptor;
 

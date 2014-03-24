@@ -9,6 +9,7 @@ using System.Linq;
 using Xtensive.Collections.Graphs;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Internals
 {
@@ -18,7 +19,7 @@ namespace Xtensive.Orm.Internals
     private List<EntityState> inboundOnlyStates;
     private List<EntityState> outboundOnlyStates;
     private List<Triplet<EntityState, FieldInfo, Entity>> referencesToRestore;
-    private bool selfReferencingRowRemovalIsError;
+    private readonly bool selfReferencingRowRemovalIsError;
 
     protected override IEnumerable<PersistAction> GetInsertSequence(IEnumerable<EntityState> entityStates)
     {
@@ -27,15 +28,15 @@ namespace Xtensive.Orm.Internals
 
       // Insert entities that do not reference anything
       foreach (var state in inboundOnlyStates)
-        yield return new PersistAction(state, PersistActionKind.Insert);
+        yield return new PersistAction(Node, state, PersistActionKind.Insert);
 
       // Insert sorted states in reverse order
       for (int i = sortedNodes.Count - 1; i >= 0; i--)
-        yield return new PersistAction(sortedNodes[i].Value, PersistActionKind.Insert);
+        yield return new PersistAction(Node, sortedNodes[i].Value, PersistActionKind.Insert);
 
       // Insert entities that are not referenced by anything
       foreach (var state in outboundOnlyStates)
-        yield return new PersistAction(state, PersistActionKind.Insert);
+        yield return new PersistAction(Node, state, PersistActionKind.Insert);
 
       // Restore loop links
       foreach (var tripletGroup in referencesToRestore.GroupBy(restoreData => restoreData.First)) {
@@ -48,7 +49,7 @@ namespace Xtensive.Orm.Internals
             .GetFieldAccessor(triplet.Second)
             .SetUntypedValue(entity, triplet.Third);
         }
-        yield return new PersistAction(state, PersistActionKind.Update);
+        yield return new PersistAction(Node, state, PersistActionKind.Update);
       }
     }
 
@@ -67,7 +68,7 @@ namespace Xtensive.Orm.Internals
       {
         if (state.IsNotAvailableOrMarkedAsRemoved)
           continue;
-        yield return new PersistAction(state, PersistActionKind.Update);
+        yield return new PersistAction(Node, state, PersistActionKind.Update);
         state.DifferentialTuple.Merge();
       }
 
@@ -88,20 +89,20 @@ namespace Xtensive.Orm.Internals
         entity
           .GetFieldAccessor(triplet.Second)
           .SetUntypedValue(entity, null);
-        yield return new PersistAction(triplet.First, PersistActionKind.Update);
+        yield return new PersistAction(Node, triplet.First, PersistActionKind.Update);
       }
 
       // Remove entities that are not referenced by anything
       foreach (var state in outboundOnlyStates)
-        yield return new PersistAction(state, PersistActionKind.Remove);
+        yield return new PersistAction(Node, state, PersistActionKind.Remove);
 
       // Remove sorted states in direct order
       foreach (var node in sortedNodes)
-        yield return new PersistAction(node.Value, PersistActionKind.Remove);
+        yield return new PersistAction(Node, node.Value, PersistActionKind.Remove);
 
       // Remove entities that do not reference anything
       foreach (var state in inboundOnlyStates)
-        yield return new PersistAction(state, PersistActionKind.Remove);
+        yield return new PersistAction(Node, state, PersistActionKind.Remove);
     }
 
     private void SortAndRemoveLoopEdges(IEnumerable<EntityState> entityStates, bool rollbackDifferenceBeforeSort)
@@ -184,7 +185,8 @@ namespace Xtensive.Orm.Internals
 
     // Constructors
 
-    public SortingPersistActionGenerator(bool selfReferencingRowRemovalIsError)
+    public SortingPersistActionGenerator(StorageNode node, bool selfReferencingRowRemovalIsError)
+      : base(node)
     {
       this.selfReferencingRowRemovalIsError = selfReferencingRowRemovalIsError;
     }

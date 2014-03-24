@@ -16,12 +16,14 @@ namespace Xtensive.Orm.Upgrade
 {
   internal sealed class UpgradeServiceAccessor : LockableBase, IDisposable
   {
+    private readonly object resourcesSyncRoot = new object();
     private readonly DisposableSet resources = new DisposableSet();
+    private readonly DisposableSet temporaryResources = new DisposableSet();
 
     private DomainConfiguration configuration;
-    private StorageDriver driver;
+    private StorageDriver storageDriver;
     private NameBuilder nameBuilder;
-    private MappingResolver resolver;
+    private MappingResolver mappingResolver;
     private HandlerFactory handlerFactory;
     private SqlConnection connection;
     private PartialIndexFilterCompiler indexFilterCompiler;
@@ -50,17 +52,17 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    public StorageDriver Driver
+    public StorageDriver StorageDriver
     {
-      get { return driver; }
+      get { return storageDriver; }
       set
       {
         this.EnsureNotLocked();
-        driver = value;
+        storageDriver = value;
       }
     }
 
-    public ProviderInfo ProviderInfo { get { return driver.ProviderInfo; } }
+    public ProviderInfo ProviderInfo { get { return storageDriver.ProviderInfo; } }
 
     public NameBuilder NameBuilder
     {
@@ -72,13 +74,13 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    public MappingResolver Resolver
+    public MappingResolver MappingResolver
     {
-      get { return resolver; }
+      get { return mappingResolver; }
       set
       {
         this.EnsureNotLocked();
-        resolver = value;
+        mappingResolver = value;
       }
     }
 
@@ -132,16 +134,35 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
+    public void ClearTemporaryResources()
+    {
+      lock (resourcesSyncRoot) {
+        temporaryResources.Clear();
+      }
+    }
+
+    public void RegisterTemporaryResource(IDisposable resource)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(resource, "resource");
+      lock (resourcesSyncRoot) {
+        temporaryResources.Add(resource);
+      }
+    }
+
     public void RegisterResource(IDisposable resource)
     {
       ArgumentValidator.EnsureArgumentNotNull(resource, "resource");
-      this.EnsureNotLocked();
-      resources.Add(resource);
+      lock (resourcesSyncRoot) {
+        resources.Add(resource);
+      }
     }
 
     public void Dispose()
     {
-      resources.DisposeSafely();
+      lock (resourcesSyncRoot) {
+        resources.DisposeSafely();
+        temporaryResources.DisposeSafely();
+      }
     }
   }
 }

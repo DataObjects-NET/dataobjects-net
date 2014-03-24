@@ -13,14 +13,16 @@ namespace Xtensive.Orm.Model.Stored
 {
   internal sealed class ConverterToStoredModel
   {
+    private TypeIdRegistry registry;
     private HashSet<string> processedAssociations;
 
-    public StoredDomainModel Convert(DomainModel model, Func<TypeInfo, bool> filter)
+    public StoredDomainModel Convert(DomainModel model, TypeIdRegistry typeIdRegistry, Func<TypeInfo, bool> filter)
     {
       processedAssociations = new HashSet<string>();
       var typesToProcess = model.Types.AsEnumerable();
       if (filter!=null)
         typesToProcess = typesToProcess.Where(filter);
+      registry = typeIdRegistry;
       var processedTypes = typesToProcess.Select(ConvertType).ToArray();
       return new StoredDomainModel {Types = processedTypes};
     }
@@ -65,7 +67,7 @@ namespace Xtensive.Orm.Model.Stored
       var result = new StoredTypeInfo {
         Name = source.Name,
         UnderlyingType = GetTypeFullName(source.UnderlyingType),
-        TypeId = source.TypeId,
+        TypeId = registry!=null ? registry.GetTypeId(source) : TypeInfo.NoTypeId,
         MappingName = mappingNameSource.MappingName,
         MappingSchema = source.MappingSchema ?? string.Empty,
         MappingDatabase = source.MappingDatabase ?? string.Empty,

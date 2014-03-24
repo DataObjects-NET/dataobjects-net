@@ -8,15 +8,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
-using Xtensive.Core;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
   internal static class PrefetchHelper
   {
-    private static readonly object descriptorArraysCachingRegion = new object();
-
     public static bool IsFieldToBeLoadedByDefault(FieldInfo field)
     {
       return field.IsPrimaryKey || field.IsSystem || (!field.IsLazyLoad && !field.IsEntitySet);
@@ -31,9 +28,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public static ReadOnlyList<PrefetchFieldDescriptor> GetCachedDescriptorsForFieldsLoadedByDefault(Domain domain, TypeInfo type)
     {
-      object key = new Pair<object, TypeInfo>(descriptorArraysCachingRegion, type);
-      Func<object, object> generator = pair => CreateDescriptorsForFieldsLoadedByDefault(((Pair<object, TypeInfo>) pair).Second);
-      return (ReadOnlyList<PrefetchFieldDescriptor>)domain.Cache.GetValue(key, generator);
+      return domain.PrefetchFieldDescriptorCache.GetOrAdd(type, CreateDescriptorsForFieldsLoadedByDefault);
     }
 
     public static bool? TryGetExactKeyType(Key key, PrefetchManager manager, out TypeInfo type)

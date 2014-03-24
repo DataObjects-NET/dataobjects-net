@@ -5,11 +5,11 @@
 // Created:    2009.07.13
 
 using System;
+using JetBrains.Annotations;
 using Xtensive.Core;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
-using ComparerProvider=Xtensive.Comparison.ComparerProvider;
+using ComparerProvider = Xtensive.Comparison.ComparerProvider;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {
@@ -39,24 +39,26 @@ namespace Xtensive.Orm.Internals
 
     protected override int CalculateHashCode()
     {
-      return Tuple.HashCodeMultiplier ^ value1.GetHashCode() ^ TypeReference.Type.Key.EqualityIdentifier.GetHashCode();
+      return value1.GetHashCode();
     }
 
-    public static Key Create(TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)
+    [UsedImplicitly]
+    public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)
     {
-      return new Key<T>(type, accuracy, tuple.GetValueOrDefault<T>(keyIndexes[0]));
+      return new Key<T>(nodeId, type, accuracy, tuple.GetValueOrDefault<T>(keyIndexes[0]));
     }
 
-    public static Key Create(TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy)
+    [UsedImplicitly]
+    public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy)
     {
-      return new Key<T>(type, accuracy, tuple.GetValueOrDefault<T>(0));
+      return new Key<T>(nodeId, type, accuracy, tuple.GetValueOrDefault<T>(0));
     }
 
     
     // Constructors
 
-    internal Key(TypeInfo type, TypeReferenceAccuracy accuracy, T value)
-      : base(type, accuracy, null)
+    private Key(string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, T value)
+      : base(nodeId, type, accuracy, null)
     {
       value1 = value;
     }

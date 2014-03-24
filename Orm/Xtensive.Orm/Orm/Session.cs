@@ -74,6 +74,7 @@ namespace Xtensive.Orm
 
     private DisposableSet disposableSet;
     private ExtensionCollection extensions;
+    private StorageNode storageNode;
 
     private readonly bool allowSwitching;
     private readonly long identifier;
@@ -140,6 +141,32 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
+    /// Gets or sets <see cref="ConnectionInfo"/>
+    /// for this <see cref="Session"/>.
+    /// </summary>
+    public ConnectionInfo ConnectionInfo
+    {
+      get
+      {
+        var directSqlService = Services.Demand<IDirectSqlService>();
+        return directSqlService.ConnectionInfo;
+      }
+      set
+      {
+        var directSqlService = Services.Demand<IDirectSqlService>();
+        directSqlService.ConnectionInfo = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets current storage node identifier.
+    /// </summary>
+    public string NodeId
+    {
+      get { return StorageNode.Id; }
+    }
+
+    /// <summary>
     /// Gets or sets the <see cref="Current"/> session resolver to use
     /// when there is no active <see cref="Session"/>.
     /// </summary>
@@ -174,6 +201,16 @@ namespace Xtensive.Orm
     internal RemovalProcessor RemovalProcessor { get; private set; }
 
     internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
+
+    internal StorageNode StorageNode
+    {
+      get
+      {
+        if (storageNode==null)
+          SetStorageNode(Handlers.StorageNodeRegistry.Get(WellKnown.DefaultNodeId));
+        return storageNode;
+      }
+    }
 
     internal void EnsureNotDisposed()
     {
@@ -226,6 +263,24 @@ namespace Xtensive.Orm
       var systemContainer = CreateSystemServices();
       var userContainer = ServiceContainer.Create(userContainerType, systemContainer);
       return new ServiceContainer(registrations, userContainer);
+    }
+
+    internal void SetStorageNode(StorageNode node)
+    {
+      if (storageNode!=null)
+        throw new InvalidOperationException(Strings.ExStorageNodeIsAlreadySelected);
+      Handler.SetStorageNode(node);
+      storageNode = node;
+    }
+
+    public ExecutableProvider Compile(CompilableProvider provider)
+    {
+      return CompilationService.Compile(provider, CompilationService.CreateConfiguration(this));
+    }
+
+    public ExecutableProvider Compile(CompilableProvider provider, CompilerConfiguration configuration)
+    {
+      return CompilationService.Compile(provider, configuration);
     }
 
     #endregion
@@ -348,6 +403,17 @@ namespace Xtensive.Orm
     }
 
     #endregion
+
+    /// <summary>
+    /// Selects storage node identifier by <paramref name="nodeId"/>.
+    /// </summary>
+    /// <param name="nodeId">Node identifier.</param>
+    public void SelectStorageNode([NotNull] string nodeId)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
+      var node = Handlers.StorageNodeRegistry.Get(nodeId);
+      SetStorageNode(node);
+    }
 
     /// <summary>
     /// Temporary overrides <see cref="CommandTimeout"/>.
