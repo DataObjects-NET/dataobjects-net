@@ -354,7 +354,7 @@
     <Compile Include="Orm\Logging\LogProvider.cs" />
     <Compile Include="Orm\Logging\Internals\NullLog.cs" />
     <Compile Include="Orm\Model\TypeIdRegistry.cs" />
-    <Compile Include="Orm\NodeManager.cs" />
+    <Compile Include="Orm\StorageNodeManager.cs" />
     <Compile Include="Orm\Providers\CompilationService.cs" />
     <Compile Include="Orm\Providers\CompilerConfiguration.cs" />
     <Compile Include="Orm\Providers\MultidatabaseMappingResolver.cs" />
