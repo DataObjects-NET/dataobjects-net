@@ -8,7 +8,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Model
@@ -19,9 +18,10 @@ namespace Xtensive.Orm.Model
   [Serializable]
   public sealed class FieldMap: LockableBase, IEnumerable<KeyValuePair<FieldInfo, FieldInfo>>
   {
+    internal static FieldMap Empty;
+
     private readonly Dictionary<FieldInfo, FieldInfo> map = new Dictionary<FieldInfo, FieldInfo>();
     private readonly Dictionary<FieldInfo, HashSet<FieldInfo>> reversedMap = new Dictionary<FieldInfo, HashSet<FieldInfo>>();
-    internal static FieldMap Empty;
 
     public FieldInfo this[FieldInfo interfaceField]
     {
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Model
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-      return ((IEnumerable<KeyValuePair<FieldInfo, FieldInfo>>)this).GetEnumerator();
+      return ((IEnumerable<KeyValuePair<FieldInfo, FieldInfo>>) this).GetEnumerator();
     }
 
 
@@ -93,6 +93,7 @@ namespace Xtensive.Orm.Model
     static FieldMap()
     {
       Empty = new FieldMap();
+      Empty.Lock();
     }
   }
 }
