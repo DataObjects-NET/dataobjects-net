@@ -131,16 +131,6 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    /// <summary>
-    /// Converts the specified <see cref="SqlType"/> to corresponding .NET type.
-    /// </summary>
-    /// <param name="sqlType">The type to convert.</param>
-    /// <returns>Converter type.</returns>
-    public Type GetNetType(SqlType sqlType)
-    {
-      return allMappings.GetMapping(sqlType);
-    }
-    
     // Constructors
 
     public static StorageDriver Create(SqlDriverFactory driverFactory, DomainConfiguration configuration)

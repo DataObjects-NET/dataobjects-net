@@ -29,7 +29,6 @@ namespace Xtensive.Orm.Upgrade
     private readonly MappingResolver resolver;
     private readonly ProviderInfo providerInfo;
     private readonly PartialIndexInfoMap partialIndexMap;
-    private readonly StorageDriver driver;
 
     private StorageModel targetModel;
     private TableInfo currentTable;
@@ -256,7 +255,7 @@ namespace Xtensive.Orm.Upgrade
       var sqlValueType = column.DataType;
       Type type;
       try {
-        type = driver.GetNetType(sqlValueType.Type);
+        type = sqlValueType.Type.ToClrType();
       }
       catch(ArgumentException) {
         return StorageTypeInfo.Undefined;
@@ -323,7 +322,6 @@ namespace Xtensive.Orm.Upgrade
 
       resolver = services.Resolver;
       providerInfo = services.ProviderInfo;
-      driver = services.Driver;
 
       partialIndexMap = new PartialIndexInfoMap(resolver, partialIndexes);
     }
