@@ -1788,6 +1788,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Database mapping requires multidatabase domain configuration. Please provide at least DefaultDatabase and DefaultSchema settings..
+        /// </summary>
+        internal static string ExDatabaseMappingRequiresMultidatabaseDomainConfiguration {
+            get {
+                return ResourceManager.GetString("ExDatabaseMappingRequiresMultidatabaseDomainConfiguration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DateTime.ToString() method is not supported, use the DateTime.ToString(&quot;s&quot;)..
         /// </summary>
         internal static string ExDateTimeToStringMethodIsNotSupported {
@@ -5318,6 +5327,15 @@ namespace Xtensive {
         internal static string ExScaleShouldBeNonNegativeValue {
             get {
                 return ResourceManager.GetString("ExScaleShouldBeNonNegativeValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Schema mapping requires multischema domain configuration. Please provide at least DefaultSchema setting..
+        /// </summary>
+        internal static string ExSchemaMappingRequiresMultischemaDomainConfiguration {
+            get {
+                return ResourceManager.GetString("ExSchemaMappingRequiresMultischemaDomainConfiguration", resourceCulture);
             }
         }
         

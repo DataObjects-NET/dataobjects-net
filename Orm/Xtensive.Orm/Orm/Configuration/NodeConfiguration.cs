@@ -114,6 +114,18 @@ namespace Xtensive.Orm.Configuration
       return clone;
     }
 
+    internal void Validate(DomainConfiguration configuration)
+    {
+      if (string.IsNullOrEmpty(nodeId))
+        throw new InvalidOperationException(Strings.ExInvalidNodeIdentifier);
+
+      if (schemaMapping.Count > 0 && !configuration.IsMultischema)
+        throw new InvalidOperationException(Strings.ExSchemaMappingRequiresMultischemaDomainConfiguration);
+
+      if (databaseMapping.Count > 0 && !configuration.IsMultidatabase)
+        throw new InvalidOperationException(Strings.ExDatabaseMappingRequiresMultidatabaseDomainConfiguration);
+    }
+
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>

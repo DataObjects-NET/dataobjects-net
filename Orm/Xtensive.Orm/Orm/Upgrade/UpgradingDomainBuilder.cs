@@ -56,10 +56,9 @@ namespace Xtensive.Orm.Upgrade
       ArgumentValidator.EnsureArgumentNotNull(parentDomain, "parentDomain");
       ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, "nodeConfiguration");
 
-      if (string.IsNullOrEmpty(nodeConfiguration.NodeId))
-        throw new ArgumentException(Strings.ExInvalidNodeIdentifier, "nodeConfiguration");
-
-      nodeConfiguration.Lock();
+      nodeConfiguration.Validate(parentDomain.Configuration);
+      if (!nodeConfiguration.IsLocked)
+        nodeConfiguration.Lock();
 
       var context = new UpgradeContext(parentDomain, nodeConfiguration);
 

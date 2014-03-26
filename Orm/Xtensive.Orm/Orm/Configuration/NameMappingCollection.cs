@@ -26,6 +26,11 @@ namespace Xtensive.Orm.Configuration
     private readonly Dictionary<string, string> items = new Dictionary<string, string>();
 
     /// <summary>
+    /// Gets number of elements in this collection.
+    /// </summary>
+    public int Count { get { return items.Count; } }
+
+    /// <summary>
     /// Adds mapping between <paramref name="originalName"/>
     /// and <paramref name="mappedName"/>.
     /// </summary>
@@ -61,16 +66,6 @@ namespace Xtensive.Orm.Configuration
       if (items.TryGetValue(name, out result))
         return result;
       return name;
-    }
-
-    public string Apply([NotNull] string name, [NotNull] string fallback)
-    {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(fallback, "fallback");
-      string result;
-      if (items.TryGetValue(name, out result))
-        return result;
-      return fallback;
     }
 
     /// <summary>
