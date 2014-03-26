@@ -218,7 +218,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         DataTypeFeatures.Multiple;
       const DataTypeFeatures index = DataTypeFeatures.Indexing | DataTypeFeatures.Clustering |
         DataTypeFeatures.FillFactor | DataTypeFeatures.KeyConstraint;
-      var types = new DataTypeCollection();
+      var types = base.GetDataTypesInfo();
 
       types.Decimal = DataTypeInfo.Fractional(SqlType.Decimal, common | index,
         ValueRange.Decimal, 38, "number");

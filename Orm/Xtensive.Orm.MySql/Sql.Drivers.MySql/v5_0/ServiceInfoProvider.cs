@@ -225,7 +225,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     /// <inheritdoc/>
     public override DataTypeCollection GetDataTypesInfo()
     {
-      var types = new DataTypeCollection();
+      var types = base.GetDataTypesInfo();
 
       DataTypeFeatures common = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.NonKeyIndexing |
         DataTypeFeatures.Grouping | DataTypeFeatures.Ordering | DataTypeFeatures.Multiple;

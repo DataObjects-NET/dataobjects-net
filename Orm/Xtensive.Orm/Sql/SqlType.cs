@@ -172,11 +172,23 @@ namespace Xtensive.Sql
 
     #region Override the comparison operator
 
+    /// <summary>
+    /// Implements the equality operator.
+    /// </summary>
+    /// <param name="left">The first argument.</param>
+    /// <param name="right">The second argument.</param>
+    /// <returns>The result of the operator.</returns>
     public static bool operator ==(SqlType left, SqlType right)
     {
       return left.Equals(right);
     }
 
+    /// <summary>
+    /// Implements the inequality operator.
+    /// </summary>
+    /// <param name="left">The first argument.</param>
+    /// <param name="right">The second argument.</param>
+    /// <returns>The result of the operator.</returns>
     public static bool operator !=(SqlType left, SqlType right)
     {
       return !(left==right);

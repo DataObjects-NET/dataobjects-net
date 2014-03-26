@@ -20,6 +20,33 @@ namespace Xtensive.Sql.Info
     private readonly Dictionary<SqlType, DataTypeInfo> sqlTypes =
       new Dictionary<SqlType, DataTypeInfo>(32);
 
+    private readonly Dictionary<SqlType, Type> registeredSqlTypes =
+      new Dictionary<SqlType, Type>();
+
+    /// <summary>
+    /// Registers the specified type SqlType and the corresponding him to .Net type.
+    /// </summary>
+    /// <param name="sqlType">The sqlType to register.</param>
+    /// <param name="type">The type to register.</param>
+    public void RegisterType(SqlType sqlType, Type type)
+    {
+      if (!registeredSqlTypes.ContainsKey(sqlType))
+        registeredSqlTypes.Add(sqlType, type);
+    }
+
+    /// <summary>
+    /// Converts the specified <see cref="SqlType"/> to corresponding .NET type.
+    /// </summary>
+    /// <param name="sqlType">The type to convert.</param>
+    /// <returns>Converter type.</returns>
+    public Type MapSqlType(SqlType sqlType)
+    {
+      Type result;
+      registeredSqlTypes.TryGetValue(sqlType, out result);
+      if (result==null)
+        throw new ArgumentOutOfRangeException("sqlType");
+      return result;
+    }
 
     /// <summary>
     /// Gets the <see cref="Xtensive.Sql.Info.DataTypeInfo"/> by the specified native type name.
@@ -49,6 +76,11 @@ namespace Xtensive.Sql.Info
       }
     }
 
+    /// <summary>
+    /// Adds the specified type SqlType and the corresponding him to dataTypeInfo to the list of supported types in a specific version of the DBMS.
+    /// </summary>
+    /// <param name="sqlType">The sqlType to add.</param>
+    /// <param name="dataTypeInfo">The dataTypeInfo to add.</param>
     public void Add(SqlType sqlType, DataTypeInfo dataTypeInfo)
     {
       this.EnsureNotLocked();

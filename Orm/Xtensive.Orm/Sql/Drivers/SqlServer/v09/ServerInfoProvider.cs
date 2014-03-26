@@ -216,7 +216,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     public override DataTypeCollection GetDataTypesInfo()
     {
-      var types = new DataTypeCollection();
+      var types = base.GetDataTypesInfo();
 
       var common = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.NonKeyIndexing |
         DataTypeFeatures.Grouping | DataTypeFeatures.Ordering | DataTypeFeatures.Multiple;

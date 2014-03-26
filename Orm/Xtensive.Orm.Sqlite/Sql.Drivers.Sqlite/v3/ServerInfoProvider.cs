@@ -197,7 +197,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     public override DataTypeCollection GetDataTypesInfo()
     {
-      var types = new DataTypeCollection();
+      var types = base.GetDataTypesInfo();
 
       var common = DataTypeFeatures.Default | DataTypeFeatures.Nullable
         | DataTypeFeatures.NonKeyIndexing | DataTypeFeatures.Grouping
