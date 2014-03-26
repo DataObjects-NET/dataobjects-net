@@ -347,7 +347,10 @@
     <Compile Include="Storage\Multimapping\MultidatabaseTest.cs" />
     <Compile Include="Storage\Multimapping\MultimappingTest.cs" />
     <Compile Include="Storage\Multimapping\MultischemaTest.cs" />
-    <Compile Include="Storage\MultinodeKeysTest.cs" />
+    <Compile Include="Storage\Multinode\DatabaseMultinodeTest.cs" />
+    <Compile Include="Storage\Multinode\SchemaMultinodeTest.cs" />
+    <Compile Include="Storage\Multinode\StandardMultinodeTest.cs" />
+    <Compile Include="Storage\Multinode\MultinodeTest.cs" />
     <Compile Include="Storage\NonPersistentCompositeObjectTest.cs" />
     <Compile Include="Storage\NonTransactionalEntityAccess.cs" />
     <Compile Include="Storage\NorthwindValidateTest.cs" />
