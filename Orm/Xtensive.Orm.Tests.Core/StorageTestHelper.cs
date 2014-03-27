@@ -48,8 +48,7 @@ namespace Xtensive.Orm.Tests
         var existingSchemas = catalog.Schemas.Select(s => s.Name);
         var schemasToCreate = schemas.Except(existingSchemas, StringComparer.OrdinalIgnoreCase);
 
-        // Oracle does not support creating schemas
-        // Instead user should be create, corresponding schema is added automatically.
+        // Oracle does not support creating schemas, user should be created instead.
         if (connectionInfo.Provider==WellKnown.Provider.Oracle)
           CreateUsers(connection, schemasToCreate);
         else
@@ -61,9 +60,12 @@ namespace Xtensive.Orm.Tests
 
     private static void CreateUsers(SqlConnection connection, IEnumerable<string> schemasToCreate)
     {
+      var translator = connection.Driver.Translator;
       foreach (var schema in schemasToCreate) {
-        ExecuteQuery(connection, string.Format("create user {0} identified by {0}", schema));
-        ExecuteQuery(connection, string.Format("alter user {0} quota unlimited on system", schema));
+        var userName = translator.QuoteIdentifier(schema);
+        var password = schema;
+        ExecuteQuery(connection, string.Format("create user {0} identified by {1}", userName, password));
+        ExecuteQuery(connection, string.Format("alter user {0} quota unlimited on system", userName));
       }
     }
 
