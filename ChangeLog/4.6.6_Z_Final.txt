@@ -2,3 +2,4 @@
 [main] Fixed incorrect EntitySet caching in ClientProfile
 [main] Fixed construction of inherited partial indexes
 [main] Fixed NRE when using partial indexes over abstract types
+[oracle] Exclude many standard schemes during extraction

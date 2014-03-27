@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using Oracle.DataAccess.Client;
 using Xtensive.Core;
 using Xtensive.Sql.Model;
@@ -23,6 +24,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private Catalog theCatalog;
     private string targetSchema;
+
+    private string nonSystemSchemasFilter;
 
     private readonly Dictionary<string, string> replacementsRegistry = new Dictionary<string, string>();
 
@@ -391,7 +394,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     {
       var schemaFilter = targetSchema!=null
         ? "= " + SqlHelper.QuoteString(targetSchema)
-        : "NOT IN ('SYS', 'SYSTEM')";
+        : GetNonSystemSchemasFilter();
 
       replacements[SchemaFilterPlaceholder] = schemaFilter;
       replacements[IndexesFilterPlaceholder] = "1 > 0";
@@ -421,7 +424,56 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return base.ExecuteReader(PerformReplacements(commandText));
     }
 
-    
+    protected virtual IEnumerable<string> GetSystemSchemas()
+    {
+      return new[] {
+        "ANONYMOUS",
+        "APEX_PUBLIC_USER",
+        "APEX_040000",
+        "CTXSYS",
+        "DBSNMP",
+        "DIP",
+        "EXFSYS",
+        "FLOWS_%",
+        "FLOWS_FILES",
+        "LBACSYS",
+        "MDDATA",
+        "MDSYS",
+        "MGMT_VIEW",
+        "OLAPSYS",
+        "ORACLE_OCM",
+        "ORDDATA",
+        "ORDPLUGINS",
+        "ORDSYS",
+        "OUTLN",
+        "OWBSYS",
+        "SI_INFORMTN_SCHEMA",
+        "SPATIAL_CSW_ADMIN_USR",
+        "SPATIAL_WFS_ADMIN_USR",
+        "SYS",
+        "SYSMAN",
+        "SYSTEM",
+        "WKPROXY",
+        "WKSYS",
+        "WK_TEST",
+        "WMSYS",
+        "XDB",
+        "XS$NULL",
+      };
+    }
+
+    private string GetNonSystemSchemasFilter()
+    {
+      if (nonSystemSchemasFilter==null) {
+        var schemaStrings = GetSystemSchemas().Select(SqlHelper.QuoteString).ToArray();
+        var schemaList = string.Join(",", schemaStrings);
+        nonSystemSchemasFilter = string.Format("NOT IN ({0})", schemaList);
+      }
+
+      return nonSystemSchemasFilter;
+    }
+
+
     // Constructors
 
     public Extractor(SqlDriver driver)
