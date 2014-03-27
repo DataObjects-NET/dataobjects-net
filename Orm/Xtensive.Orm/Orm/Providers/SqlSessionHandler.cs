@@ -202,8 +202,10 @@ namespace Xtensive.Orm.Providers
       if (isDisposed)
         return;
       isDisposed = true;
-      if (!connectionIsExternal)
+      if (!connectionIsExternal) {
+        driver.CloseConnection(Session, connection);
         driver.DisposeConnection(Session, connection);
+      }
     }
 
     internal override void SetStorageNode(StorageNode node)
