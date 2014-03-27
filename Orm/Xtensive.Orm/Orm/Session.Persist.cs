@@ -6,6 +6,7 @@
 
 using System;
 using System.Transactions;
+using System.Linq;
 using Xtensive.Core;
 
 using Xtensive.Orm.Configuration;
@@ -141,6 +142,7 @@ namespace Xtensive.Orm
             else
               itemsToPersist = EntityChangeRegistry;
 
+            ApplyEntitySetsChanges();
             try {
               Handler.Persist(itemsToPersist, reason == PersistReason.Query);
             }
@@ -215,6 +217,33 @@ namespace Xtensive.Orm
         disableAutoSaveChanges = false;
         InvalidateEntitySetsWithInvalidState();
       });
+    }
+
+    private void ApplyEntitySetsChanges()
+    {
+      ProcessChangesOfEntitySets(entitySetState => entitySetState.ApplyChanges());
+    }
+
+    private void CancelEntitySetsChanges()
+    {
+      ProcessChangesOfEntitySets(entitySetState => entitySetState.CancelChanges());
+    }
+
+    private void ProcessChangesOfEntitySets(Action<EntitySetState> action)
+    {
+      for (var index = EntityStateCache.Count - 1; index > -1; index--) {
+        var cachedEntity = EntityStateCache.ElementAt(index).Entity;
+        if (cachedEntity!=null && cachedEntity.PersistenceState!=PersistenceState.Removed)
+          ProcessEntitySetsOfEntity(cachedEntity, action);
+      }
+    }
+
+    private void ProcessEntitySetsOfEntity(Entity entityToProcess, Action<EntitySetState> action)
+    {
+      foreach (var field in entityToProcess.TypeInfo.Fields.Where(el=>el.IsEntitySet)) {
+        var entitySet = (EntitySetBase) entityToProcess.GetFieldValue(field);
+        action.Invoke(entitySet.State);
+      }
     }
   }
 }

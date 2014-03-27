@@ -247,6 +247,7 @@ namespace Xtensive.Orm
         }
         finally {
           try {
+            CancelEntitySetsChanges();
             if (Configuration.Supports(SessionOptions.SuppressRollbackExceptions))
               RollbackWithSuppression(transaction);
             else

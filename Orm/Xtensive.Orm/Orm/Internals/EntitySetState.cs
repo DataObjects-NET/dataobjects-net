@@ -6,6 +6,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Caching;
 using KeyCache = Xtensive.Caching.ICache<Xtensive.Orm.Key, Xtensive.Orm.Key>;
 
@@ -18,6 +19,8 @@ namespace Xtensive.Orm.Internals
     IEnumerable<Key>,
     IInvalidatable
   {
+    private readonly IDictionary<Key, Key> addedKeys;
+    private readonly IDictionary<Key, Key> removedKeys;
     private bool isLoaded;
     private long? totalItemCount;
 
@@ -42,7 +45,7 @@ namespace Xtensive.Orm.Internals
     /// <summary>
     /// Gets the number of cached items.
     /// </summary>
-    public long CachedItemCount { get { return FetchedKeys.Count; } }
+    public long CachedItemCount { get { return FetchedKeys.Except(removedKeys.Values).Concat(addedKeys.Values).Count(); } }
 
     /// <summary>
     /// Gets a value indicating whether state is fully loaded.
@@ -66,6 +69,17 @@ namespace Xtensive.Orm.Internals
     }
 
     /// <summary>
+    /// Get value indicating whether state has changes.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> if this state has changes; otherwise, <see langword="false"/>.
+    /// </value>
+    public bool HasChanges
+    {
+      get { return addedKeys.Count!=0 || removedKeys.Count!=0; }
+    }
+
+    /// <summary>
     /// Sets cached keys to <paramref name="keys"/>.
     /// </summary>
     /// <param name="keys">The keys.</param>
@@ -85,7 +99,13 @@ namespace Xtensive.Orm.Internals
     /// <returns>Check result.</returns>
     public bool Contains(Key key)
     {
-      return FetchedKeys.ContainsKey(key);
+      if (removedKeys.ContainsKey(key))
+        return false;
+      if (addedKeys.ContainsKey(key))
+        return true;
+      if (FetchedKeys.ContainsKey(key))
+        return true;
+      return false;
     }
 
     /// <summary>
@@ -103,9 +123,12 @@ namespace Xtensive.Orm.Internals
     /// <param name="key">The key to add.</param>
     public void Add(Key key)
     {
-      FetchedKeys.Add(key);
-      if (TotalItemCount!=null)
-        TotalItemCount++;
+      if (!addedKeys.ContainsKey(key)) {
+        addedKeys.Add(key, key);
+        removedKeys.Remove(key);
+        if (TotalItemCount != null)
+          TotalItemCount++;
+      }
       Rebind();
     }
 
@@ -115,10 +138,42 @@ namespace Xtensive.Orm.Internals
     /// <param name="key">The key to remove.</param>
     public void Remove(Key key)
     {
-      FetchedKeys.RemoveKey(key);
-      if (TotalItemCount!=null)
-        TotalItemCount--;
+      if (!removedKeys.ContainsKey(key)) {
+        removedKeys.Add(key, key);
+        addedKeys.Remove(key);
+        if (TotalItemCount!=null)
+          TotalItemCount--;
+      }
       Rebind();
+    }
+
+    /// <summary>
+    /// Applies all changes to state.
+    /// </summary>
+    public bool ApplyChanges()
+    {
+      if (HasChanges) {
+        for (var index = removedKeys.Count - 1; index > -1; index--) {
+          var removedKey = removedKeys.ElementAt(index).Key;
+          FetchedKeys.Remove(removedKey);
+        }
+        for (var index = addedKeys.Count - 1; index > -1; index--) {
+          var addedKey = addedKeys.ElementAt(index).Key;
+          FetchedKeys.Add(addedKey);
+        }
+        CancelChanges();
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Clear all changes.
+    /// </summary>
+    public void CancelChanges()
+    {
+      addedKeys.Clear();
+      removedKeys.Clear();
     }
 
     /// <inheritdoc/>
@@ -138,6 +193,7 @@ namespace Xtensive.Orm.Internals
     protected override void Refresh()
     {
       FetchedKeys = new LruCache<Key, Key>(WellKnown.EntitySetCacheSize, cachedKey => cachedKey);
+      CancelChanges();
     }
 
     #region GetEnumerator<...> methods
@@ -145,7 +201,7 @@ namespace Xtensive.Orm.Internals
     /// <inheritdoc/>
     public IEnumerator<Key> GetEnumerator()
     {
-      return FetchedKeys.GetEnumerator();
+      return FetchedKeys.Except(removedKeys.Values).Concat(addedKeys.Values).GetEnumerator();
     }
 
     /// <inheritdoc/>
@@ -162,6 +218,8 @@ namespace Xtensive.Orm.Internals
     internal EntitySetState(EntitySetBase entitySet)
       : base(entitySet.Session)
     {
+      addedKeys = new Dictionary<Key, Key>();
+      removedKeys = new Dictionary<Key, Key>();
     }
   }
 }
