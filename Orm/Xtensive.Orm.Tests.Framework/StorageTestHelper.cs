@@ -30,9 +30,15 @@ namespace Xtensive.Orm.Tests
       throw new NotSupportedException();
     }
 
+    public static ModelMapping GetDefaultModelMapping(Domain domain)
+    {
+      return domain.Handlers.StorageNodeRegistry.Get(WellKnown.DefaultNodeId).Mapping;
+    }
+
     public static Schema GetDefaultSchema(Domain domain)
     {
-      return domain.Handler.Mapping[domain.Model.Types[typeof (Metadata.Assembly)]].Schema;
+      var mapping = GetDefaultModelMapping(domain);
+      return mapping[domain.Model.Types[typeof (Metadata.Assembly)]].Schema;
     }
 
     public static void DemandSchemas(ConnectionInfo connectionInfo, params string[] schemas)

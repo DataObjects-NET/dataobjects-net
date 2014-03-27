@@ -4,6 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2011.03.25
 
+using Xtensive.Orm.Rse.Compilation;
+
 namespace Xtensive.Orm.Providers.Sqlite
 {
   internal class SqlCompiler : Providers.SqlCompiler
@@ -11,8 +13,8 @@ namespace Xtensive.Orm.Providers.Sqlite
 
     // Constructors
     
-    public SqlCompiler(HandlerAccessor handlers)
-      : base(handlers)
+    public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
+      : base(handlers, configuration)
     {
     }
   }

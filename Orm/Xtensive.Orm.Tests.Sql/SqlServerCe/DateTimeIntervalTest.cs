@@ -11,7 +11,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServerCe
   [TestFixture]
   public class DateTimeIntervalTest : Sql.DateTimeIntervalTest
   {
-    protected override string Url { get { return TestUrl.SqlServerCe35; } }
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServerCe);
+    }
 
     public override void DateTimeSubtractIntervalTest()
     {

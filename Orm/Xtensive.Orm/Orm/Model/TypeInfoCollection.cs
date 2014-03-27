@@ -29,30 +29,7 @@ namespace Xtensive.Orm.Model
     private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> interfaceTable = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
     private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> implementorTable = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
 
-    private Dictionary<int, TypeInfo> typeIdIndex;
-    
-    /// <summary>
-    /// Determines whether this instance contains an item with the specified key.
-    /// </summary>
-    /// <param name="key">The key.</param>
-    /// <returns>
-    /// <see langword="true"/> if this instance contains the specified key; otherwise, <see langword="false"/>.
-    /// </returns>
-    public bool Contains(Type key)
-    {
-      return typeTable.ContainsKey(key);
-    }
-
-    /// <summary>
-    /// Gets the value associated with the specified key.
-    /// </summary>
-    /// <param name="key">The key of the value to get.</param>
-    /// <param name="value"><see cref="TypeInfo"/> if it was found; otherwise <see langword="null"/>.</param>
-    /// <returns><see langword="true"/> if value is found by specified <paramref name="key"/>; otherwise <see langword="false"/>.</returns>
-    public bool TryGetValue(Type key, out TypeInfo value)
-    {
-      return typeTable.TryGetValue(key, out value);
-    }
+    private TypeIdRegistry typeIdRegistry;
 
     /// <summary>
     /// An indexer that provides access to collection items.
@@ -62,8 +39,7 @@ namespace Xtensive.Orm.Model
       get {
         TypeInfo result;
         if (!TryGetValue(key, out result))
-          throw new ArgumentException(  
-            String.Format(Strings.TypeXIsNotRegistered, key.GetShortName()));
+          throw new KeyNotFoundException(string.Format(Strings.TypeXIsNotRegistered, key.GetShortName()));
         return result;
       }
     }
@@ -74,19 +50,12 @@ namespace Xtensive.Orm.Model
     /// <exception cref="ArgumentException">Item was not found.</exception>
     public new TypeInfo this[int typeId] {
       get {
-        TypeInfo result = null;
-        if (typeIdIndex!=null)
-          typeIdIndex.TryGetValue(typeId, out result);
-        else {
-          foreach (var type in this) {
-            if (type.TypeId==typeId)
-              result = type;
-          }
-        }
-        if (result==null)
-          throw new ArgumentException(  
-            String.Format(Strings.TypeIdXIsNotRegistered, typeId));
-        return result;
+        if (TypeIdRegistry!=null)
+          return TypeIdRegistry[typeId];
+        foreach (var type in this)
+          if (type.TypeId==typeId)
+            return type;
+        throw new KeyNotFoundException(string.Format(Strings.ExTypeIdXIsNotRegistered, typeId));
       }
     }
 
@@ -112,6 +81,40 @@ namespace Xtensive.Orm.Model
     public ICollection<TypeInfo> Interfaces
     {
       get { return Find(TypeAttributes.Interface); }
+    }
+
+    internal TypeIdRegistry TypeIdRegistry
+    {
+      get { return typeIdRegistry; }
+      set
+      {
+        if (typeIdRegistry!=null)
+          throw Exceptions.AlreadyInitialized("TypeIdRegistry");
+        typeIdRegistry = value;
+      }
+    }
+
+    /// <summary>
+    /// Determines whether this instance contains an item with the specified key.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <returns>
+    /// <see langword="true"/> if this instance contains the specified key; otherwise, <see langword="false"/>.
+    /// </returns>
+    public bool Contains(Type key)
+    {
+      return typeTable.ContainsKey(key);
+    }
+
+    /// <summary>
+    /// Gets the value associated with the specified key.
+    /// </summary>
+    /// <param name="key">The key of the value to get.</param>
+    /// <param name="value"><see cref="TypeInfo"/> if it was found; otherwise <see langword="null"/>.</param>
+    /// <returns><see langword="true"/> if value is found by specified <paramref name="key"/>; otherwise <see langword="false"/>.</returns>
+    public bool TryGetValue(Type key, out TypeInfo value)
+    {
+      return typeTable.TryGetValue(key, out value);
     }
 
     /// <summary>
@@ -359,18 +362,16 @@ namespace Xtensive.Orm.Model
 
     public ICollection<TypeInfo> Find(TypeAttributes criteria, MatchType matchType)
     {
-      if (criteria == TypeAttributes.None)
+      if (criteria==TypeAttributes.None)
         return ArrayUtils<TypeInfo>.EmptyArray;
-
       switch (matchType) {
       case MatchType.Partial:
         return this.Where(f => (f.Attributes & criteria) > 0).ToList();
       case MatchType.Full:
-        return this.Where(f => (f.Attributes & criteria) == criteria).ToList();
+        return this.Where(f => (f.Attributes & criteria)==criteria).ToList();
       default:
-        return this.Where(f => (f.Attributes & criteria) == 0).ToList();
+        return this.Where(f => (f.Attributes & criteria)==0).ToList();
       }
-
     }
 
     #endregion
@@ -381,19 +382,6 @@ namespace Xtensive.Orm.Model
       base.OnInserted(value, index);
       typeTable.Add(value.UnderlyingType, value);
       fullNameTable.Add(value.UnderlyingType.FullName, value);
-    }
-
-    /// <summary>
-    /// Generates index allowing to quickly find 
-    /// the type by its <see cref="TypeInfo.TypeId"/>.
-    /// </summary>
-    public void RebuildTypeIdIndex()
-    {
-      var index = new Dictionary<int, TypeInfo>();
-      foreach (var type in this)
-        if (type.TypeId!=TypeInfo.NoTypeId)
-          index[type.TypeId] = type;
-      typeIdIndex = index;
     }
 
     /// <summary>

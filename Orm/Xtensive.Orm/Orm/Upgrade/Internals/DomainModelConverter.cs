@@ -185,6 +185,7 @@ namespace Xtensive.Orm.Upgrade
       var typeInfo = new StorageTypeInfo(ToNullable(nativeTypeInfo.Type, column.IsNullable), nativeTypeInfo.NativeType, column.IsNullable, nativeTypeInfo.Length, nativeTypeInfo.Precision, nativeTypeInfo.Scale);
 
       var defaultValue = GetColumnDefaultValue(column, typeInfo);
+      var defaultSqlExpression = GetColumnDefaultSqlExpression(column);
       if (column.IsSystem && column.Field.IsTypeId) {
         var type = column.Field.ReflectedType;
         if (type.IsEntity && type==type.Hierarchy.Root) {
@@ -193,7 +194,8 @@ namespace Xtensive.Orm.Upgrade
       }
 
       return new StorageColumnInfo(currentTable, column.Name, typeInfo) {
-        DefaultValue = defaultValue
+        DefaultValue = defaultValue,
+        DefaultSqlExpression = defaultSqlExpression
       };
     }
 
@@ -378,6 +380,13 @@ namespace Xtensive.Orm.Upgrade
       return Activator.CreateInstance(column.ValueType);
     }
 
+    private string GetColumnDefaultSqlExpression(ColumnInfo column)
+    {
+      if (!string.IsNullOrEmpty(column.DefaultSqlExpression))
+        return column.DefaultSqlExpression;
+      return null;
+    }
+
     private static StorageIndexInfo FindIndex(TableInfo table, ICollection<string> keyColumns)
     {
       var primaryKeyColumns = table.PrimaryIndex.KeyColumns.Select(cr => cr.Value.Name).ToList();
@@ -524,22 +533,24 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public DomainModelConverter(HandlerAccessor handlers, ITypeIdProvider typeIdProvider, PartialIndexFilterCompiler compiler)
+    public DomainModelConverter(
+      HandlerAccessor handlers, ITypeIdProvider typeIdProvider, PartialIndexFilterCompiler compiler, MappingResolver resolver)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       ArgumentValidator.EnsureArgumentNotNull(typeIdProvider, "typeIdProvider");
       ArgumentValidator.EnsureArgumentNotNull(compiler, "compiler");
+      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
 
       this.handlers = handlers;
       this.compiler = compiler;
       this.typeIdProvider = typeIdProvider;
+      this.resolver = resolver;
 
       sourceModel = handlers.Domain.Model;
       configuration = handlers.Domain.Configuration;
       providerInfo = handlers.ProviderInfo;
       driver = handlers.StorageDriver;
       nameBuilder = handlers.NameBuilder;
-      resolver = handlers.MappingResolver;
     }
   }
 }

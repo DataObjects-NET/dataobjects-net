@@ -5,37 +5,23 @@
 // Created:    2009.07.09
 
 using System;
-
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Internals
 {
-  /// <summary>
-  /// Information about an action to be executed during the persisting 
-  /// of an <see cref="EntityState"/>.
-  /// </summary>
   [Serializable]
-  public struct PersistAction
+  internal struct PersistAction
   {
-    /// <summary>
-    /// The state to persist.
-    /// </summary>
+    public readonly StorageNode Node;
     public readonly EntityState EntityState;
-
-    /// <summary>
-    /// The action to be executed.
-    /// </summary>
     public readonly PersistActionKind ActionKind;
 
 
     // Constructors
 
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="entityState">The value of the <see cref="EntityState"/> field.</param>
-    /// <param name="persistActionKind">The value of the <see cref="ActionKind"/> field.</param>
-    public PersistAction(EntityState entityState, PersistActionKind persistActionKind)
+    public PersistAction(StorageNode node, EntityState entityState, PersistActionKind persistActionKind)
     {
+      Node = node;
       EntityState = entityState;
       ActionKind = persistActionKind;
     }

@@ -27,7 +27,10 @@ namespace Xtensive.Orm.Tests.Sql
     protected override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      typeMappings = Driver.TypeMappings.ToArray();
+      var mappings = Driver.TypeMappings.Where(mapping => StringComparer.InvariantCultureIgnoreCase.Compare(mapping.Type.Namespace, "System")==0);
+      if (Driver.ServerInfo.DataTypes.DateTimeOffset==null)
+        mappings = mappings.Where(mapping => mapping.Type!=typeof (DateTimeOffset));
+      typeMappings = mappings.ToArray();
       testValues = typeMappings
         .Select(mapping => GetTestValues(mapping.Type))
         .ToArray();
@@ -244,6 +247,13 @@ namespace Xtensive.Orm.Tests.Sql
             new [] {byte.MinValue, byte.MaxValue},
             null,
           };
+      if (type==typeof (DateTimeOffset))
+        return new object[] {
+          new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0)),
+          new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 11, 0)),
+          new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(3, 10, 0)),
+          null
+        };
       throw new ArgumentOutOfRangeException();
     }
 

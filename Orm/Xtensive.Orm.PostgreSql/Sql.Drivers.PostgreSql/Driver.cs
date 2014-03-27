@@ -12,9 +12,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql
   internal abstract class Driver : SqlDriver
   {
     [SecuritySafeCritical]
-    protected override SqlConnection CreateConnection(string connectionString)
+    protected override SqlConnection DoCreateConnection()
     {
-      return new Connection(this, connectionString);
+      return new Connection(this);
     }
 
     [SecuritySafeCritical]

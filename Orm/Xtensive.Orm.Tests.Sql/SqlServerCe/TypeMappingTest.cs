@@ -11,6 +11,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServerCe
   [TestFixture]
   public class TypeMappingTest : Sql.TypeMappingTest
   {
-    protected override string Url { get { return TestUrl.SqlServerCe35; } }
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServerCe);
+    }
   }
 }

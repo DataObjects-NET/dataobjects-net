@@ -5,6 +5,7 @@
 // Created:    2007.08.03
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
@@ -14,6 +15,7 @@ using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
+using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
@@ -94,23 +96,26 @@ namespace Xtensive.Orm
     /// </summary>
     public IServiceContainer Services { get; internal set; }
 
+    /// <summary>
+    /// Gets storage node manager.
+    /// </summary>
+    public StorageNodeManager StorageNodeManager { get; private set; }
+
     #region Private / internal members
 
     internal RecordSetReader RecordSetReader { get; private set; }
 
     internal Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>> PrefetchActionMap { get; private set; }
-    
-    internal StorageModel StorageModel { get; set; }
 
     internal DomainHandler Handler { get { return Handlers.DomainHandler; } }
 
     internal HandlerAccessor Handlers { get; private set; }
 
-    internal ThreadSafeDictionary<int, GenericKeyTypeInfo> GenericKeyTypes { get; private set; }
+    internal ConcurrentDictionary<TypeInfo, GenericKeyFactory> GenericKeyFactories { get; private set; }
 
     internal KeyGeneratorRegistry KeyGenerators { get; private set; }
 
-    internal ThreadSafeDictionary<object, object> Cache { get; private set; }
+    internal ConcurrentDictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>> PrefetchFieldDescriptorCache { get; private set; }
     
     internal ICache<object, Pair<object, TranslatedQuery>> QueryCache { get; private set; }
 
@@ -276,16 +281,17 @@ namespace Xtensive.Orm
     {
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
-      GenericKeyTypes = ThreadSafeDictionary<int, GenericKeyTypeInfo>.Create(new object());
+      GenericKeyFactories = new ConcurrentDictionary<TypeInfo, GenericKeyFactory>();
       RecordSetReader = new RecordSetReader(this);
       KeyGenerators = new KeyGeneratorRegistry();
-      Cache = ThreadSafeDictionary<object, object>.Create(new object());
+      PrefetchFieldDescriptorCache = new ConcurrentDictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(Configuration.QueryCacheSize, k => k.First);
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
       Extensions = new ExtensionCollection();
       UpgradeContextCookie = upgradeContextCookie;
       SingleConnection = singleConnection;
+      StorageNodeManager = new StorageNodeManager(Handlers);
     }
 
     /// <inheritdoc/>
@@ -305,8 +311,11 @@ namespace Xtensive.Orm
           return;
 
         lock (singleConnectionGuard) {
-          if (singleConnectionOwner==null)
-            Handlers.StorageDriver.DisposeConnection(null, SingleConnection);
+          if (singleConnectionOwner==null) {
+            var driver = Handlers.StorageDriver;
+            driver.CloseConnection(null, SingleConnection);
+            driver.DisposeConnection(null, SingleConnection);
+          }
           else
             OrmLog.Warning(
               Strings.LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX,

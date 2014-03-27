@@ -50,35 +50,47 @@ namespace Xtensive.Orm.Upgrade
     public override void OnStage()
     {
       var context = UpgradeContext;
-      var upgradeMode = context.Configuration.UpgradeMode;
+      var upgradeMode = context.UpgradeMode;
       var session = Session.Demand();
-      var builder = new TypeIdBuilder(session.Domain, context.TypeIdProvider);
 
       switch (context.Stage) {
       case UpgradeStage.Upgrading:
         // Perform or PerformSafely
-        builder.BuildTypeIds();
+        BuildTypeIds(session.Domain);
         UpdateMetadata(session);
         break;
       case UpgradeStage.Final:
         if (upgradeMode.IsUpgrading()) {
           // Recreate, Perform or PerformSafely
-          builder.BuildTypeIds();
+          BuildTypeIds(session.Domain);
           UpdateMetadata(session);
         }
         else if (upgradeMode.IsLegacy()) {
           // LegacySkip and LegacyValidate
-          builder.BuildTypeIds();
+          BuildTypeIds(session.Domain);
         }
         else {
           // Skip and Validate
           BuildTypeIdMap();
-          builder.BuildTypeIds();
+          BuildTypeIds(session.Domain);
         }
         break;
       default:
         throw new ArgumentOutOfRangeException("context.Stage");
       }
+    }
+
+    private void BuildTypeIds(Domain domain)
+    {
+      var builder = new TypeIdBuilder(domain, UpgradeContext.TypeIdProvider);
+      var storageNode = UpgradeContext.StorageNode;
+      var registry = storageNode.TypeIdRegistry;
+
+      builder.BuildTypeIds(registry);
+      registry.Lock();
+
+      if (storageNode.Id==WellKnown.DefaultNodeId)
+        builder.SetDefaultTypeIds(registry);
     }
 
     public override bool CanUpgradeFrom(string oldVersion)
@@ -88,18 +100,18 @@ namespace Xtensive.Orm.Upgrade
 
     private void UpdateMetadata(Session session)
     {
-      var groups = BuildMetadata(session.Domain);
+      var groups = BuildMetadata(session.Domain, session.StorageNode.TypeIdRegistry);
       var driver = session.Handlers.StorageDriver;
       var mapping = new MetadataMapping(driver, session.Handlers.NameBuilder);
       var executor = session.Services.Demand<IProviderExecutor>();
-      var resolver = UpgradeContext.Services.Resolver;
+      var resolver = UpgradeContext.Services.MappingResolver;
       var metadataSchema = UpgradeContext.Configuration.DefaultSchema;
       var sqlModel = UpgradeContext.ExtractedSqlModelCache;
 
       foreach (var group in groups) {
         var metadataDatabase = group.Key;
         var metadata = group.Value;
-        var schema = resolver.GetSchema(sqlModel, metadataDatabase, metadataSchema);
+        var schema = resolver.ResolveSchema(sqlModel, metadataDatabase, metadataSchema);
         var task = new SqlExtractionTask(schema.Catalog.Name, schema.Name);
         var writer = new MetadataWriter(driver, mapping, task, executor);
         writer.Write(metadata);
@@ -142,7 +154,7 @@ namespace Xtensive.Orm.Upgrade
         handler.AssemblyName, sourceVersion, handler.AssemblyVersion));
     }
 
-    private Dictionary<string, MetadataSet> BuildMetadata(Domain domain)
+    private Dictionary<string, MetadataSet> BuildMetadata(Domain domain, TypeIdRegistry registry)
     {
       var model = domain.Model;
       var metadataGroups = model.Databases.ToDictionary(db => db.Name, db => new MetadataSet());
@@ -154,10 +166,10 @@ namespace Xtensive.Orm.Upgrade
         var metadata = group.Value;
         Func<TypeInfo, bool> filter = t => t.MappingDatabase==database;
         var types = model.Types.Where(filter).ToList();
-        var typeMetadata = GetTypeMetadata(types);
+        var typeMetadata = GetTypeMetadata(types, registry);
         var assemblies = types.Select(t => t.UnderlyingType.Assembly).ToHashSet();
         var assemblyMetadata = GetAssemblyMetadata(assemblies);
-        var serializedModel = model.ToStoredModel(filter).Serialize();
+        var serializedModel = model.ToStoredModel(registry, filter).Serialize();
         var modelExtension = new ExtensionMetadata(WellKnown.DomainModelExtensionName, serializedModel);
         var indexesExtension = GetPartialIndexes(domain, types);
         metadata.Assemblies.AddRange(assemblyMetadata);
@@ -178,11 +190,11 @@ namespace Xtensive.Orm.Upgrade
       return assemblyMetadata;
     }
 
-    private static IEnumerable<TypeMetadata> GetTypeMetadata(IEnumerable<TypeInfo> types)
+    private static IEnumerable<TypeMetadata> GetTypeMetadata(IEnumerable<TypeInfo> types, TypeIdRegistry registry)
     {
       return types
-        .Where(t => t.IsEntity && t.TypeId!=TypeInfo.NoTypeId)
-        .Select(type => new TypeMetadata(type.TypeId, type.UnderlyingType.GetFullName()));
+        .Where(t => t.IsEntity && registry.Contains(t))
+        .Select(type => new TypeMetadata(registry[type], type.UnderlyingType.GetFullName()));
     }
 
     private ExtensionMetadata GetPartialIndexes(Domain domain, IEnumerable<TypeInfo> types)

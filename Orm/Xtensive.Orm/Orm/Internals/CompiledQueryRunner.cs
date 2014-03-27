@@ -151,12 +151,12 @@ namespace Xtensive.Orm.Internals
 
     public CompiledQueryRunner(QueryEndpoint endpoint, object queryKey, object queryTarget)
     {
-      this.endpoint = endpoint;
-      this.queryKey = queryKey;
-      this.queryTarget = queryTarget;
-
       session = endpoint.Provider.Session;
       domain = session.Domain;
+
+      this.endpoint = endpoint;
+      this.queryKey = new Pair<object, string>(queryKey, session.StorageNodeId);
+      this.queryTarget = queryTarget;
     }
   }
 }

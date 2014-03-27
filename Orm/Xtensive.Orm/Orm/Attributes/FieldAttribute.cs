@@ -101,6 +101,13 @@ namespace Xtensive.Orm
     public object DefaultValue { get; set; }
 
     /// <summary>
+    /// Gets or sets arbitrary SQL expression as default value for this property.
+    /// This default value has higher priority than <see cref="FieldAttribute.DefaultValue"/>.
+    /// <see langword="null" /> indicates default value is provided automatically.
+    /// </summary>
+    public string DefaultSqlExpression { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether value of this field should be loaded on demand.
     /// </summary>
     /// <remarks>

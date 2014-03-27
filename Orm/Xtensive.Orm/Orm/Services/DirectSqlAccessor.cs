@@ -4,7 +4,6 @@
 // Created by: Alex Yakunin
 // Created:    2010.02.08
 
-using System;
 using System.Data.Common;
 using Xtensive.Core;
 
@@ -24,18 +23,6 @@ namespace Xtensive.Orm.Services
   {
     private readonly IDirectSqlService service;
 
-    /// <summary>
-    /// Gets a value indicating whether direct SQL capabilities are available.
-    /// Returns <see langword="true" />, if underlying storage provider 
-    /// supports SQL.
-    /// </summary>
-    [Obsolete("This property always has \"true\" value")]
-    public bool IsAvailable {
-      get {
-        return true;
-      }
-    }
-
     /// <see cref="IDirectSqlService.Connection" copy="true" />
     public DbConnection Connection {
       get {
@@ -48,6 +35,12 @@ namespace Xtensive.Orm.Services
       get {
         return service.Transaction;
       }
+    }
+
+    /// <see cref="IDirectSqlService.RegisterInitializationSql" copy="true" />
+    public void RegisterInitializationSql(string sql)
+    {
+      service.RegisterInitializationSql(sql);
     }
 
     /// <see cref="IDirectSqlService.CreateCommand" copy="true" />

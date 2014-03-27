@@ -138,6 +138,11 @@ namespace Xtensive.Orm.Providers
       return ChainedHandler.LookupState(key, out entityState);
     }
 
+    internal override void SetStorageNode(StorageNode node)
+    {
+      ChainedHandler.SetStorageNode(node);
+    }
+
     /// <inheritdoc/>
     public override void Dispose()
     {

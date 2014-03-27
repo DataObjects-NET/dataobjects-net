@@ -19,6 +19,7 @@ namespace Xtensive.Orm.Upgrade.Model
   {
     private StorageTypeInfo type;
     private object defaultValue;
+    private string defaultSqlExpression;
 
     /// <summary>
     /// Gets or sets the type of the column.
@@ -46,6 +47,24 @@ namespace Xtensive.Orm.Upgrade.Model
         EnsureIsEditable();
         using (var scope = LogPropertyChange("DefaultValue", value)) {
           defaultValue = value;
+          scope.Commit();
+        }
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets arbitrary SQL expression as default value for this column.
+    /// This default value has higher priority than <see cref="StorageColumnInfo.DefaultValue"/>.
+    /// </summary>
+    [Property(IgnoreInComparison = true)]
+    public string DefaultSqlExpression
+    {
+      get { return defaultSqlExpression; }
+      set
+      {
+        EnsureIsEditable();
+        using (var scope = LogPropertyChange("DefaultSqlExpression", value)) {
+          defaultSqlExpression = value;
           scope.Commit();
         }
       }

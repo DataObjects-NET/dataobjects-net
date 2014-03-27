@@ -29,6 +29,7 @@ namespace Xtensive.Orm.Providers
     private readonly bool transactionIsExternal;
     private readonly bool connectionIsExternal;
     private readonly CommandProcessor commandProcessor;
+    private readonly List<string> initializationSqlScripts = new List<string>();
 
     private Transaction pendingTransaction;
     private bool isDisposed;
@@ -138,6 +139,10 @@ namespace Xtensive.Orm.Providers
     {
       Session.EnsureNotDisposed();
       driver.EnsureConnectionIsOpen(Session, connection);
+      foreach (var script in initializationSqlScripts)
+        using (var command = connection.CreateCommand(script))
+          driver.ExecuteNonQuery(Session, command);
+      initializationSqlScripts.Clear();
       if (pendingTransaction==null)
         return;
       var transaction = pendingTransaction;
@@ -199,6 +204,12 @@ namespace Xtensive.Orm.Providers
       isDisposed = true;
       if (!connectionIsExternal)
         driver.DisposeConnection(Session, connection);
+    }
+
+    internal override void SetStorageNode(StorageNode node)
+    {
+      if (!connectionIsExternal)
+        driver.ApplyNodeConfiguration(connection, node.Configuration);
     }
 
     internal SqlSessionHandler(Session session, SqlConnection connection, bool connectionIsExternal, bool transactionIsExternal)

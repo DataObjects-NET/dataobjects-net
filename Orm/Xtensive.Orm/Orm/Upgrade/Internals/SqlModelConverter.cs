@@ -320,7 +320,7 @@ namespace Xtensive.Orm.Upgrade
 
       this.sourceModel = sourceModel;
 
-      resolver = services.Resolver;
+      resolver = services.MappingResolver;
       providerInfo = services.ProviderInfo;
 
       partialIndexMap = new PartialIndexInfoMap(resolver, partialIndexes);

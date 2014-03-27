@@ -16,7 +16,10 @@ namespace Xtensive.Orm.Tests.Sql
 {
   public abstract class SqlTest
   {
-    protected abstract string Url { get; }
+    protected string Url
+    {
+      get { return TestConnectionInfoProvider.GetConnectionUrl(); }
+    }
 
     protected SqlConnection Connection { get; private set; }
     protected SqlDriver Driver { get; private set; }
@@ -24,6 +27,7 @@ namespace Xtensive.Orm.Tests.Sql
     [TestFixtureSetUp]
     public void RealTestFixtureSetUp()
     {
+      CheckRequirements();
       try {
         TestFixtureSetUp();
       }
@@ -62,6 +66,10 @@ namespace Xtensive.Orm.Tests.Sql
     {
       if (Connection!=null && Connection.State==ConnectionState.Open)
         Connection.Close();
+    }
+
+    protected virtual void CheckRequirements()
+    {
     }
 
     protected Catalog ExtractCatalog()

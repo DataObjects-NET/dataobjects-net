@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -29,7 +30,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       var realPrimaryIndex = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);
       var index = realPrimaryIndex.ReflectedType.Indexes.PrimaryIndex;
       var query = BuildProviderQuery(index);
-      var table = domainHandler.Mapping[realPrimaryIndex.ReflectedType];
+      var table = Mapping[realPrimaryIndex.ReflectedType];
       var fromTable = SqlDml.FreeTextTable(table, binding.ParameterReference, table.Columns.Select(column => column.Name).AddOne(rankColumnName).ToList());
       var fromTableRef = SqlDml.QueryRef(fromTable);
       foreach (var column in query.Columns)
@@ -47,8 +48,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
       return result;
     }
 
-    public SqlCompiler(HandlerAccessor handlers)
-      : base(handlers)
+    public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
+      : base(handlers, configuration)
     {
     }
   }

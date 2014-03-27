@@ -13,9 +13,9 @@ namespace Xtensive.Sql.Drivers.MySql
   internal abstract class Driver : SqlDriver
   {
     /// <inheritdoc/>
-    protected override SqlConnection CreateConnection(string connectionString)
+    protected override SqlConnection DoCreateConnection()
     {
-      return new Connection(this, connectionString);
+      return new Connection(this);
     }
 
     /// <inheritdoc/>

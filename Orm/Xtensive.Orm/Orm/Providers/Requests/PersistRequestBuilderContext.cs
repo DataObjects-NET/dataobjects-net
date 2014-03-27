@@ -18,6 +18,8 @@ namespace Xtensive.Orm.Providers
   {
     public PersistRequestBuilderTask Task { get; private set; }
 
+    public ModelMapping Mapping { get; private set; }
+
     public TypeInfo Type { get; private set; }
 
     public ReadOnlyList<IndexInfo> AffectedIndexes { get; private set;}
@@ -30,20 +32,25 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    public PersistRequestBuilderContext(PersistRequestBuilderTask task)
+    public PersistRequestBuilderContext(PersistRequestBuilderTask task, ModelMapping mapping)
     {
       Task = task;
       Type = task.Type;
+      Mapping = mapping;
+
       var affectedIndexes = Type.AffectedIndexes.Where(index => index.IsPrimary).ToList();
-      affectedIndexes.Sort((left, right)=>{
-          if (left.ReflectedType.GetAncestors().Contains(right.ReflectedType))
-            return 1;
-          if (right.ReflectedType.GetAncestors().Contains(left.ReflectedType))
-            return -1;
-          return 0;});
+      affectedIndexes.Sort((left, right) => {
+        if (left.ReflectedType.GetAncestors().Contains(right.ReflectedType))
+          return 1;
+        if (right.ReflectedType.GetAncestors().Contains(left.ReflectedType))
+          return -1;
+        return 0;
+      });
       AffectedIndexes = new ReadOnlyList<IndexInfo>(affectedIndexes);
+
       PrimaryIndex = Task.Type.Indexes.PrimaryIndex;
       ParameterBindings = new Dictionary<ColumnInfo, PersistParameterBinding>();
+
       if (task.ValidateVersion)
         VersionParameterBindings = new Dictionary<ColumnInfo, PersistParameterBinding>();
     }

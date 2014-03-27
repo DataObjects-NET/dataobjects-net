@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Providers.Sqlite
   {
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
-      return new SqlCompiler(Handlers);
+      return new SqlCompiler(Handlers, configuration);
     }
   }
 }

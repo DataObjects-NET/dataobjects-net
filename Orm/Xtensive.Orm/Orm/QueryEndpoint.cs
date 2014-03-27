@@ -240,17 +240,17 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="keys">The source sequence.</param>
     /// <returns>The sequence of entities of type <typeparam name="T"/> matching provided <paramref name="keys"/>.</returns>
-    public IEnumerable<T> Many<T,TElement>(IEnumerable<TElement> keys)
+    public IEnumerable<T> Many<T, TElement>(IEnumerable<TElement> keys)
       where T : class, IEntity
     {
       var elementType = typeof (TElement);
       Func<TElement, Key> selector;
-      if (elementType == typeof(object[]))
-        selector = e => Key.Create<T>(session.Domain, (object[]) (object) e);
+      if (elementType==typeof (object[]))
+        selector = e => Key.Create(session.Domain, session.StorageNodeId, typeof (T), TypeReferenceAccuracy.BaseType, (object[]) (object) e);
       else if (typeof (Tuple).IsAssignableFrom(elementType))
-        selector = e => Key.Create<T>(session.Domain, (Tuple) (object) e);
+        selector = e => Key.Create(session.Domain, session.StorageNodeId, typeof (T), TypeReferenceAccuracy.BaseType, (Tuple) (object) e);
       else
-        selector = e => Key.Create<T>(session.Domain, new object[] {e} );
+        selector = e => Key.Create(session.Domain, session.StorageNodeId, typeof (T), TypeReferenceAccuracy.BaseType, new object[] {e});
 
       return new PrefetchFacade<T>(session, keys.Select(selector));
     }
@@ -418,7 +418,7 @@ namespace Xtensive.Orm
         if (keyValue is Entity)
           return (keyValue as Entity).Key;
       }
-      return Key.Create(session.Domain, typeof(T), keyValues);
+      return Key.Create(session.Domain, session.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, keyValues);
     }
 
     private Expression BuildRootExpression(Type elementType)

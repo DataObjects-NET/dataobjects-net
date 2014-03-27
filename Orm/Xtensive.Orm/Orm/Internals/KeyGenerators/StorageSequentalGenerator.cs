@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Internals.KeyGenerators
 
     public override Tuple GenerateKey(KeyInfo keyInfo, Session session)
     {
-      var sequence = sequenceProvider.GetSequence(session);
+      var sequence = sequenceProvider.GetSequence(keyInfo.Sequence, session);
       var keyValue = sequence.GetNextValue(keyInfo.Sequence, session);
       var keyTuple = prototype.CreateNew();
       keyTuple.SetValue(0, keyValue);

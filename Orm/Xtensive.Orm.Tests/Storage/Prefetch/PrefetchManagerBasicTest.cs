@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       using (session.OpenTransaction()) {
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         var supplierType = Domain.Model.Types[typeof (Supplier)];
-        var keyWithoutType = Key.Create(Domain, CustomerType.Hierarchy.Root,
+        var keyWithoutType = Key.Create(Domain, WellKnown.DefaultNodeId, CustomerType.Hierarchy.Root,
           TypeReferenceAccuracy.BaseType, customerKey.Value);
         AssertEx.Throws<ArgumentNullException>(() =>
           prefetchManager.InvokePrefetch(keyWithoutType, null, new PrefetchFieldDescriptor(AgeField)));
@@ -475,7 +475,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var categoryField = iHasCategoryType.Fields["Category"];
         var bookCategoryField = BookType.FieldMap[categoryField];
         prefetchManager.InvokePrefetch(bookKey0, null, new PrefetchFieldDescriptor(categoryField, false, false));
-        var interfaceKey = Key.Create(Domain, iHasCategoryType, TypeReferenceAccuracy.BaseType, bookKey1.Value);
+        var interfaceKey = Key.Create(Domain, WellKnown.DefaultNodeId, iHasCategoryType, TypeReferenceAccuracy.BaseType, bookKey1.Value);
         prefetchManager.InvokePrefetch(interfaceKey, iHasCategoryType,
           new PrefetchFieldDescriptor(categoryField, false, false));
         prefetchManager.ExecuteTasks();
@@ -487,7 +487,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
         AssertEx.Throws<InvalidOperationException>(
           () => prefetchManager.InvokePrefetch(Key
-            .Create(Domain, iHasCategoryType, TypeReferenceAccuracy.BaseType, bookKey2.Value),
+            .Create(Domain, WellKnown.DefaultNodeId, iHasCategoryType, TypeReferenceAccuracy.BaseType, bookKey2.Value),
           iHasCategoryType, new PrefetchFieldDescriptor(bookCategoryField, false, false)));
       }
     }

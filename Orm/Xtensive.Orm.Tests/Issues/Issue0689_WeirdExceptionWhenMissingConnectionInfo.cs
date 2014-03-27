@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.ConnectionInfo = null;
-      AssertEx.Throws<ArgumentNullException>(
+      AssertEx.Throws<ArgumentException>(
         () => Domain.Build(configuration));
     }
 

@@ -21,20 +21,13 @@ namespace Xtensive.Orm.Model
     /// Converts speicified <see cref="DomainModel"/> to corresponding <see cref="StoredDomainModel"/>.
     /// </summary>
     /// <param name="model">The model to convert.</param>
+    /// <param name="typeIdRegistry">Type identifier registry.</param>
+    /// <param name="filter">Model filter.</param>
     /// <returns>A result of conversion.</returns>
-    public static StoredDomainModel ToStoredModel(this DomainModel model)
+    public static StoredDomainModel ToStoredModel(this DomainModel model,
+      TypeIdRegistry typeIdRegistry = null, Func<TypeInfo, bool> filter = null)
     {
-      return new ConverterToStoredModel().Convert(model, null);
-    }
-
-    /// <summary>
-    /// Converts speicified <see cref="DomainModel"/> to corresponding <see cref="StoredDomainModel"/>.
-    /// </summary>
-    /// <param name="model">The model to convert.</param>
-    /// <returns>A result of conversion.</returns>
-    public static StoredDomainModel ToStoredModel(this DomainModel model, Func<TypeInfo, bool> filter)
-    {
-      return new ConverterToStoredModel().Convert(model, filter);
+      return new ConverterToStoredModel().Convert(model, typeIdRegistry, filter);
     }
 
     /// <summary>

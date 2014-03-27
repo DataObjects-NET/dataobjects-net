@@ -5,11 +5,11 @@
 // Created:    2009.07.13
 
 using System;
+using JetBrains.Annotations;
 using Xtensive.Core;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
-using ComparerProvider=Xtensive.Comparison.ComparerProvider;
+using ComparerProvider = Xtensive.Comparison.ComparerProvider;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {
@@ -49,23 +49,25 @@ namespace Xtensive.Orm.Internals
 
     protected override int CalculateHashCode()
     {
-      var result = Tuple.HashCodeMultiplier * 0 ^ value1.GetHashCode();
-      result = (Tuple.HashCodeMultiplier * result ^ value2.GetHashCode());
-      result = (Tuple.HashCodeMultiplier * result ^ value3.GetHashCode());
-      return result ^ TypeReference.Type.Key.EqualityIdentifier.GetHashCode();
+      var result = value1.GetHashCode();
+      result = Tuple.HashCodeMultiplier * result ^ value2.GetHashCode();
+      result = Tuple.HashCodeMultiplier * result ^ value3.GetHashCode();
+      return result;
     }
 
-    public static Key Create(TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)
+    [UsedImplicitly]
+    public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)
     {
-      return new Key<T1, T2, T3>(type, accuracy,
+      return new Key<T1, T2, T3>(nodeId, type, accuracy,
         tuple.GetValueOrDefault<T1>(keyIndexes[0]),
         tuple.GetValueOrDefault<T2>(keyIndexes[1]),
         tuple.GetValueOrDefault<T3>(keyIndexes[2]));
     }
 
-    public static Key Create(TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy)
+    [UsedImplicitly]
+    public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy)
     {
-      return new Key<T1, T2, T3>(type, accuracy,
+      return new Key<T1, T2, T3>(nodeId, type, accuracy,
         tuple.GetValueOrDefault<T1>(0),
         tuple.GetValueOrDefault<T2>(1),
         tuple.GetValueOrDefault<T3>(2));
@@ -74,8 +76,8 @@ namespace Xtensive.Orm.Internals
     
     // Constructors
 
-    internal Key(TypeInfo type, TypeReferenceAccuracy accuracy, T1 value1, T2 value2, T3 value3)
-      : base(type, accuracy, null)
+    private Key(string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, T1 value1, T2 value2, T3 value3)
+      : base(nodeId, type, accuracy, null)
     {
       this.value1 = value1;
       this.value2 = value2;

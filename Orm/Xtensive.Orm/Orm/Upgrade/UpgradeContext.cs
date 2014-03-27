@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data.Common;
 using System.Reflection;
 using Xtensive.Collections;
@@ -17,8 +16,8 @@ using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model.Stored;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
-using Xtensive.Sql;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -59,6 +58,11 @@ namespace Xtensive.Orm.Upgrade
     #endregion
 
     /// <summary>
+    /// Gets current <see cref="DomainUpgradeMode"/>.
+    /// </summary>
+    public DomainUpgradeMode UpgradeMode { get; private set; }
+
+    /// <summary>
     /// Gets the current upgrade stage.
     /// </summary>
     public UpgradeStage Stage { get; internal set; }
@@ -74,6 +78,16 @@ namespace Xtensive.Orm.Upgrade
     /// at the current upgrade stage.
     /// </summary>
     public DomainConfiguration Configuration { get; private set; }
+
+    /// <summary>
+    /// Gets <see cref="NodeConfiguration"/> (if available).
+    /// </summary>
+    public NodeConfiguration NodeConfiguration { get; private set; }
+
+    /// <summary>
+    /// Gets parent domain.
+    /// </summary>
+    public Domain ParentDomain { get; private set; }
 
     /// <summary>
     /// Gets the upgrade hints.
@@ -153,11 +167,15 @@ namespace Xtensive.Orm.Upgrade
 
     internal object Cookie { get; private set; }
 
-    internal UpgradeServiceAccessor Services { get; set; }
+    internal UpgradeServiceAccessor Services { get; private set; }
 
     internal StorageModel ExtractedModelCache { get; set; }
 
     internal SchemaExtractionResult ExtractedSqlModelCache { get; set; }
+
+    internal StorageModel TargetStorageModel { get; set; }
+
+    internal StorageNode StorageNode { get; set; }
 
     internal MetadataSet Metadata { get; set; }
 
@@ -169,19 +187,43 @@ namespace Xtensive.Orm.Upgrade
       return current!=null && current.Cookie==cookie ? current : null;
     }
 
+    private void Initialize()
+    {
+      Stage = UpgradeMode.IsMultistage() ? UpgradeStage.Upgrading : UpgradeStage.Final;
+      Hints = new SetSlim<UpgradeHint>();
+      RecycledDefinitions = new List<RecycledDefinition>();
+      Services = new UpgradeServiceAccessor();
+    }
+
     #endregion
 
     // Constructors.
+
+    internal UpgradeContext(Domain parentDomain, NodeConfiguration nodeConfiguration)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(parentDomain, "parentDomain");
+      ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, "nodeConfiguration");
+
+      UpgradeMode = nodeConfiguration.UpgradeMode;
+      Configuration = parentDomain.Configuration;
+      NodeConfiguration = nodeConfiguration;
+      Cookie = parentDomain.UpgradeContextCookie;
+      ParentDomain = parentDomain;
+
+      Initialize();
+    }
 
     internal UpgradeContext(DomainConfiguration configuration)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
+      UpgradeMode = configuration.UpgradeMode;
       Configuration = configuration;
-      Stage = configuration.UpgradeMode.IsMultistage() ? UpgradeStage.Upgrading : UpgradeStage.Final;
-      Hints = new SetSlim<UpgradeHint>();
-      RecycledDefinitions = new List<RecycledDefinition>();
+      NodeConfiguration = new NodeConfiguration(WellKnown.DefaultNodeId);
+      NodeConfiguration.Lock();
       Cookie = new object();
+
+      Initialize();
     }
   }
 }

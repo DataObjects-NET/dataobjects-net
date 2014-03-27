@@ -1,0 +1,2 @@
+[main] Fixed issue with concurrent writing to file log
+[main] Added FieldAttribute.DefaultSqlExpression property

@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Model
     : NodeCollection<FieldInfo>,
       IFilterable<FieldAttributes, FieldInfo>
   {
-    internal new static FieldInfoCollection Empty;
+    internal new static readonly FieldInfoCollection Empty;
 
     /// <inheritdoc/>
     public ICollection<FieldInfo> Find(FieldAttributes criteria)
@@ -74,6 +74,7 @@ namespace Xtensive.Orm.Model
     static FieldInfoCollection()
     {
       Empty = new FieldInfoCollection(null, "Empty");
+      Empty.Lock();
     }
   }
 }

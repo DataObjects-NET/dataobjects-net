@@ -12,8 +12,19 @@ using Xtensive.Sql.Model;
 namespace Xtensive.Orm.Tests.Sql.PostgreSql
 {
   [TestFixture, Explicit]
-  public abstract class ExtractorTest : SqlTest
+  public class ExtractorTest : SqlTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+    }
+
+    [Test]
+    public void FullTextIndexExtractorTest()
+    {
+      var schema = Driver.ExtractDefaultSchema(Connection);
+    }
+
     [Test]
     public void ExpressionIndexExtractorTest()
     {

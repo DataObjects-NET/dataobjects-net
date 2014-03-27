@@ -45,6 +45,7 @@ namespace Xtensive.Orm.Model
     private int? scale;
     private int? precision;
     private object defaultValue;
+    private string defaultSqlExpression;
     private TypeInfo reflectedType;
     private TypeInfo declaringType;
     private FieldInfo parent;
@@ -439,6 +440,23 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
+    /// Gets or sets arbitrary SQL expression as default value for this field.
+    /// This default value has higher priority than <see cref="FieldInfo.DefaultValue"/>.
+    /// <see langword="null" /> indicates default value is provided automatically.
+    /// </summary>
+    public string DefaultSqlExpression
+    {
+      [DebuggerStepThrough]
+      get { return defaultSqlExpression; }
+      [DebuggerStepThrough]
+      set
+      {
+        this.EnsureNotLocked();
+        defaultSqlExpression = value;
+      }
+    }
+
+    /// <summary>
     /// Gets the attributes.
     /// </summary>
     public FieldAttributes Attributes { get; private set; }
@@ -785,6 +803,7 @@ namespace Xtensive.Orm.Model
           scale = scale,
           precision = precision,
           defaultValue = defaultValue,
+          defaultSqlExpression = defaultSqlExpression,
           DeclaringField = DeclaringField,
           Validators = Validators.Select(v => v.CreateNew()).ToList(),
         };

@@ -9,26 +9,31 @@ using System;
 
 namespace Xtensive.Orm.Tests.Sql.Firebird
 {
-    public abstract class ExtractorTest : SqlTest
+  public class ExtractorTest : SqlTest
+  {
+    [Test]
+    public void BaseTest()
     {
-        [Test]
-        public void BaseTest()
-        {
-            var schema = ExtractDefaultSchema();
-        }
-
-        public override void SetUp()
-        {
-            base.SetUp();
-            // hack because Visual Nunit doesn't use TestFixtureSetUp attribute, just SetUp attribute
-            RealTestFixtureSetUp();
-        }
-
-        public override void TearDown()
-        {
-            base.TearDown();
-            // hack because Visual Nunit doesn't use TestFixtureTearDown attribute, just TearDown attribute
-            RealTestFixtureTearDown();
-        }
+      var schema = ExtractDefaultSchema();
     }
+
+    public override void SetUp()
+    {
+      base.SetUp();
+      // hack because Visual Nunit doesn't use TestFixtureSetUp attribute, just SetUp attribute
+      RealTestFixtureSetUp();
+    }
+
+    public override void TearDown()
+    {
+      base.TearDown();
+      // hack because Visual Nunit doesn't use TestFixtureTearDown attribute, just TearDown attribute
+      RealTestFixtureTearDown();
+    }
+
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Firebird);
+    }
+  }
 }

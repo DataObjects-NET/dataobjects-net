@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the field map that describes available (fetched) fields.
     /// </summary>
-    public BitArray AvailableFields { get; set; }
+    public BitArray AvailableFields { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="PersistRequestKind"/>.

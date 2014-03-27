@@ -8,8 +8,14 @@ using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Sql.Oracle
 {
-  public abstract class ExtractorTest : SqlTest
+  [TestFixture, Explicit]
+  public class ExtractorTest : SqlTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Oracle);
+    }
+
     [Test]
     public void BaseTest()
     {
