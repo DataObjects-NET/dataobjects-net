@@ -530,6 +530,7 @@ namespace Xtensive.Orm
 
             var state = State;
             state.Add(itemKey);
+            Session.EntitySetChangeRegistry.Register(state);
             index = GetItemIndex(state, itemKey);
           };
           
@@ -599,6 +600,7 @@ namespace Xtensive.Orm
             var state = State;
             index = GetItemIndex(state, itemKey);
             state.Remove(itemKey);
+            Session.EntitySetChangeRegistry.Register(state);
           };
 
           operations.NotifyOperationStarting();
