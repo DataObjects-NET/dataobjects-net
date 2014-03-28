@@ -231,19 +231,10 @@ namespace Xtensive.Orm
 
     private void ProcessChangesOfEntitySets(Action<EntitySetState> action)
     {
-      for (var index = EntityStateCache.Count - 1; index > -1; index--) {
-        var cachedEntity = EntityStateCache.ElementAt(index).Entity;
-        if (cachedEntity!=null && cachedEntity.PersistenceState!=PersistenceState.Removed)
-          ProcessEntitySetsOfEntity(cachedEntity, action);
-      }
-    }
-
-    private void ProcessEntitySetsOfEntity(Entity entityToProcess, Action<EntitySetState> action)
-    {
-      foreach (var field in entityToProcess.TypeInfo.Fields.Where(el=>el.IsEntitySet)) {
-        var entitySet = (EntitySetBase) entityToProcess.GetFieldValue(field);
-        action.Invoke(entitySet.State);
-      }
+      var itemsToProcess = EntitySetChangeRegistry.GetItems();
+      foreach (var entitySet in itemsToProcess)
+        action.Invoke(entitySet);
+      EntitySetChangeRegistry.Clear();
     }
   }
 }
