@@ -15,6 +15,8 @@ namespace Xtensive.Sql
   {
     public TypeMapper Mapper { get; private set; }
 
+    private readonly Dictionary<SqlType, Type> registeredSqlTypes = new Dictionary<SqlType, Type>(); 
+
     public void Add(Type type, Func<DbDataReader, int, object> valueReader,
       Action<DbParameter, object> valueBinder, Func<int?, int?, int?, SqlValueType> mapper)
     {
@@ -38,9 +40,14 @@ namespace Xtensive.Sql
       Add(mapping);
     }
 
+    public void RegisterType(SqlType sqlType, Type type)
+    {
+      registeredSqlTypes.Add(sqlType, type);
+    }
+
     public TypeMappingRegistry Build()
     {
-      return new TypeMappingRegistry(this);
+      return new TypeMappingRegistry(this, registeredSqlTypes);
     }
 
     // Constructors

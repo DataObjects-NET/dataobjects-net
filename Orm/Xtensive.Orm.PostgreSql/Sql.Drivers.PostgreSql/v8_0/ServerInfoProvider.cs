@@ -166,7 +166,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         DataTypeFeatures.Multiple |
         DataTypeFeatures.Default;
 
-      var dtc = base.GetDataTypesInfo();
+      var dtc = new DataTypeCollection();
 
       dtc.Boolean = DataTypeInfo.Range(SqlType.Boolean, commonFeatures,
         ValueRange.Bool, "boolean", "bool");

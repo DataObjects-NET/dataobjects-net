@@ -138,7 +138,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>Converter type.</returns>
     public Type MapSqlType(SqlType sqlType)
     {
-      return underlyingDriver.ServerInfo.DataTypes.MapSqlType(sqlType);
+      return allMappings.MapSqlType(sqlType);
     }
 
     // Constructors

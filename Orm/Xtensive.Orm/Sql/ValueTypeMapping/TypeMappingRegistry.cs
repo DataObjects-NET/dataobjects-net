@@ -19,6 +19,8 @@ namespace Xtensive.Sql
   {
     private readonly Dictionary<Type, TypeMapping> mappings;
 
+    private readonly Dictionary<SqlType, Type> registeredSqlTypes; 
+
     public TypeMapping this[Type type] { get { return GetMapping(type); } }
     
     public TypeMapping TryGetMapping(Type type)
@@ -40,6 +42,20 @@ namespace Xtensive.Sql
       return result;
     }
 
+    /// <summary>
+    /// Converts the specified <see cref="SqlType"/> to corresponding .NET type.
+    /// </summary>
+    /// <param name="sqlType">The type to convert.</param>
+    /// <returns>Converter type.</returns>
+    public Type MapSqlType(SqlType sqlType)
+    {
+      Type result;
+      registeredSqlTypes.TryGetValue(sqlType, out result);
+      if (result==null)
+        throw new ArgumentOutOfRangeException("sqlType");
+      return result;
+    }
+
     public IEnumerator<TypeMapping> GetEnumerator()
     {
       return mappings.Values.GetEnumerator();
@@ -52,9 +68,10 @@ namespace Xtensive.Sql
 
     // Constructors
 
-    public TypeMappingRegistry(IEnumerable<TypeMapping> mappings)
+    public TypeMappingRegistry(IEnumerable<TypeMapping> mappings, Dictionary<SqlType, Type> registeredSqlTypes)
     {
       this.mappings = mappings.ToDictionary(m => m.Type);
+      this.registeredSqlTypes = registeredSqlTypes;
     }
   }
 }

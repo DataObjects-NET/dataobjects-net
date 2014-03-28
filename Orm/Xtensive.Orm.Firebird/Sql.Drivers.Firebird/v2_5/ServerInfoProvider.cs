@@ -214,7 +214,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           DataTypeFeatures.Multiple |
             DataTypeFeatures.Default;
 
-      var dtc = base.GetDataTypesInfo();
+      var dtc = new DataTypeCollection();
 
       dtc.Int16 = DataTypeInfo.Range(SqlType.Int16, commonFeatures,
         ValueRange.Int16,

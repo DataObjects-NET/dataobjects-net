@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see license.
 
 
-using System;
 
 namespace Xtensive.Sql.Info
 {
@@ -120,35 +119,7 @@ namespace Xtensive.Sql.Info
     /// <summary>
     /// Gets the collection of supported data types.
     /// </summary>
-    public virtual DataTypeCollection GetDataTypesInfo()
-    {
-      var types = new DataTypeCollection();
-
-      types.RegisterType(SqlType.Boolean, typeof (bool));
-      types.RegisterType(SqlType.Int8, typeof (sbyte));
-      types.RegisterType(SqlType.UInt8, typeof (byte));
-      types.RegisterType(SqlType.Int16, typeof (short));
-      types.RegisterType(SqlType.UInt16, typeof (ushort));
-      types.RegisterType(SqlType.Int32, typeof (int));
-      types.RegisterType(SqlType.UInt32, typeof (uint));
-      types.RegisterType(SqlType.Int64, typeof (long));
-      types.RegisterType(SqlType.UInt64, typeof (ulong));
-      types.RegisterType(SqlType.Decimal, typeof (decimal));
-      types.RegisterType(SqlType.Float, typeof (float));
-      types.RegisterType(SqlType.Double, typeof (double));
-      types.RegisterType(SqlType.DateTime, typeof (DateTime));
-      types.RegisterType(SqlType.DateTimeOffset, typeof (DateTimeOffset));
-      types.RegisterType(SqlType.Interval, typeof (TimeSpan));
-      types.RegisterType(SqlType.Char, typeof (string));
-      types.RegisterType(SqlType.VarChar, typeof (string));
-      types.RegisterType(SqlType.VarCharMax, typeof (string));
-      types.RegisterType(SqlType.Binary, typeof (byte[]));
-      types.RegisterType(SqlType.VarBinary, typeof (byte[]));
-      types.RegisterType(SqlType.VarBinaryMax, typeof (byte[]));
-      types.RegisterType(SqlType.Guid, typeof (Guid));
-
-      return types;
-    }
+    public abstract DataTypeCollection GetDataTypesInfo();
 
     /// <summary>
     /// Gets the supported isolation levels.

@@ -43,10 +43,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       var geo = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.Multiple | DataTypeFeatures.Spatial;
       types.Add(SqlType.Geometry, DataTypeInfo.Regular(SqlType.Geometry, geo, "geometry"));
       types.Add(SqlType.Geography, DataTypeInfo.Regular(SqlType.Geography, geo, "geography"));
-
-      types.RegisterType(SqlType.Geometry, Type.GetType("Microsoft.SqlServer.Types.SqlGeometry, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"));
-      types.RegisterType(SqlType.Geography, Type.GetType("Microsoft.SqlServer.Types.SqlGeography, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"));
-
       return types;
     }
 

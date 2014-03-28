@@ -229,6 +229,10 @@ namespace Xtensive.Sql
     {
     }
 
+    protected virtual void RegisterCustomSqlTypes(TypeMappingRegistryBuilder builder)
+    {
+    }
+
     #region Private / internal methods
 
     internal void Initialize(SqlDriverFactory creator)
@@ -250,7 +254,9 @@ namespace Xtensive.Sql
     {
       var builder = new TypeMappingRegistryBuilder(mapper);
       RegisterStandardMappings(builder);
+      RegisterStandardSqlTypes(builder);
       RegisterCustomMappings(builder);
+      RegisterCustomSqlTypes(builder);
       return builder.Build();
     }
 
@@ -277,6 +283,32 @@ namespace Xtensive.Sql
       builder.Add(typeof (TimeSpan), mapper.ReadTimeSpan, mapper.BindTimeSpan, mapper.MapTimeSpan);
       builder.Add(typeof (Guid), mapper.ReadGuid, mapper.BindGuid, mapper.MapGuid);
       builder.Add(typeof (byte[]), mapper.ReadByteArray, mapper.BindByteArray, mapper.MapByteArray);
+    }
+
+    private static void RegisterStandardSqlTypes(TypeMappingRegistryBuilder builder)
+    {
+      builder.RegisterType(SqlType.Boolean, typeof (bool));
+      builder.RegisterType(SqlType.Int8, typeof (sbyte));
+      builder.RegisterType(SqlType.UInt8, typeof (byte));
+      builder.RegisterType(SqlType.Int16, typeof (short));
+      builder.RegisterType(SqlType.UInt16, typeof (ushort));
+      builder.RegisterType(SqlType.Int32, typeof (int));
+      builder.RegisterType(SqlType.UInt32, typeof (uint));
+      builder.RegisterType(SqlType.Int64, typeof (long));
+      builder.RegisterType(SqlType.UInt64, typeof (ulong));
+      builder.RegisterType(SqlType.Decimal, typeof (decimal));
+      builder.RegisterType(SqlType.Float, typeof (float));
+      builder.RegisterType(SqlType.Double, typeof (double));
+      builder.RegisterType(SqlType.DateTime, typeof (DateTime));
+      builder.RegisterType(SqlType.DateTimeOffset, typeof (DateTimeOffset));
+      builder.RegisterType(SqlType.Interval, typeof (TimeSpan));
+      builder.RegisterType(SqlType.Char, typeof (string));
+      builder.RegisterType(SqlType.VarChar, typeof (string));
+      builder.RegisterType(SqlType.VarCharMax, typeof (string));
+      builder.RegisterType(SqlType.Binary, typeof (byte[]));
+      builder.RegisterType(SqlType.VarBinary, typeof (byte[]));
+      builder.RegisterType(SqlType.VarBinaryMax, typeof (byte[]));
+      builder.RegisterType(SqlType.Guid, typeof (Guid));
     }
 
     private Extractor BuildExtractor(SqlConnection connection)
