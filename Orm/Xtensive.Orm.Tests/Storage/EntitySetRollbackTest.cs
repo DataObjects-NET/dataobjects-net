@@ -52,8 +52,6 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public class EntitySetRollbackTest : AutoBuildTest
   {
-    private StringComparer comparer = StringComparer.InvariantCultureIgnoreCase;
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration =  base.BuildConfiguration();
