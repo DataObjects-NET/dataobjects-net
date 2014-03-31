@@ -13,12 +13,12 @@ namespace Xtensive.Orm.Internals
   /// </summary>
   public sealed class EntitySetChangeRegistry : SessionBound
   {
-    private HashSet<EntitySetState> modifiedEntitySets = new HashSet<EntitySetState>();
+    private readonly HashSet<EntitySetState> modifiedEntitySets = new HashSet<EntitySetState>();
 
     /// <summary>
     /// Count of registered <see cref="EntitySetState"/>.
     /// </summary>
-    public int Count { get; private set; }
+    public int Count { get { return modifiedEntitySets.Count; } }
 
     /// <summary>
     /// Register the specified <see cref="EntitySetState"/>.
@@ -26,10 +26,7 @@ namespace Xtensive.Orm.Internals
     /// <param name="entitySetState"><see cref="EntitySetState"/> to bound.</param>
     public void Register(EntitySetState entitySetState)
     {
-      if (!modifiedEntitySets.Contains(entitySetState)) {
-        modifiedEntitySets.Add(entitySetState);
-        Count++;
-      }
+      modifiedEntitySets.Add(entitySetState);
     }
 
     /// <summary>
@@ -44,7 +41,6 @@ namespace Xtensive.Orm.Internals
     public void Clear()
     {
       modifiedEntitySets.Clear();
-      Count = 0;
     }
 
     /// <summary>
@@ -55,7 +51,6 @@ namespace Xtensive.Orm.Internals
     public EntitySetChangeRegistry(Session session)
       : base(session)
     {
-      Count = 0;
     }
   }
 }
