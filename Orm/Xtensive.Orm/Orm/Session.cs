@@ -500,6 +500,7 @@ namespace Xtensive.Orm
       // Caches, registry
       EntityStateCache = CreateSessionCache(configuration);
       EntityChangeRegistry = new EntityChangeRegistry(this);
+      EntitySetChangeRegistry = new EntitySetChangeRegistry(this);
       entitySetsWithInvalidState = new HashSet<EntitySetBase>();
 
       // Events
@@ -562,6 +563,7 @@ namespace Xtensive.Orm
         disposableSet = null;
 
         EntityChangeRegistry.Clear();
+        EntitySetChangeRegistry.Clear();
         EntityStateCache.Clear();
       }
       finally {

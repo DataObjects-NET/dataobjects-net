@@ -25,6 +25,7 @@ namespace Xtensive.Orm
 
     internal ICache<Key, EntityState> EntityStateCache { get; private set; }
     internal EntityChangeRegistry EntityChangeRegistry { get; private set; }
+    internal EntitySetChangeRegistry EntitySetChangeRegistry { get; private set; }
 
     internal void Invalidate()
     {
