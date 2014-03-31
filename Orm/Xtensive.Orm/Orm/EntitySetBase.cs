@@ -761,7 +761,7 @@ namespace Xtensive.Orm
       if (State.IsLoaded)
         return true;
       if (Owner.State.PersistenceState == PersistenceState.New) {
-        State.TotalItemCount = State.CachedItemCount;
+        State.TotalItemCount = State.AddedItemsCount;
         State.IsLoaded = true;
         Session.NotifyEntitySetCached(this);
         return true;
