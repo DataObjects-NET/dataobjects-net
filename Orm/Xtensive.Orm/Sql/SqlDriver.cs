@@ -287,28 +287,28 @@ namespace Xtensive.Sql
 
     private static void RegisterStandardSqlTypes(TypeMappingRegistryBuilder builder)
     {
-      builder.RegisterType(SqlType.Boolean, typeof (bool));
-      builder.RegisterType(SqlType.Int8, typeof (sbyte));
-      builder.RegisterType(SqlType.UInt8, typeof (byte));
-      builder.RegisterType(SqlType.Int16, typeof (short));
-      builder.RegisterType(SqlType.UInt16, typeof (ushort));
-      builder.RegisterType(SqlType.Int32, typeof (int));
-      builder.RegisterType(SqlType.UInt32, typeof (uint));
-      builder.RegisterType(SqlType.Int64, typeof (long));
-      builder.RegisterType(SqlType.UInt64, typeof (ulong));
-      builder.RegisterType(SqlType.Decimal, typeof (decimal));
-      builder.RegisterType(SqlType.Float, typeof (float));
-      builder.RegisterType(SqlType.Double, typeof (double));
-      builder.RegisterType(SqlType.DateTime, typeof (DateTime));
-      builder.RegisterType(SqlType.DateTimeOffset, typeof (DateTimeOffset));
-      builder.RegisterType(SqlType.Interval, typeof (TimeSpan));
-      builder.RegisterType(SqlType.Char, typeof (string));
-      builder.RegisterType(SqlType.VarChar, typeof (string));
-      builder.RegisterType(SqlType.VarCharMax, typeof (string));
-      builder.RegisterType(SqlType.Binary, typeof (byte[]));
-      builder.RegisterType(SqlType.VarBinary, typeof (byte[]));
-      builder.RegisterType(SqlType.VarBinaryMax, typeof (byte[]));
-      builder.RegisterType(SqlType.Guid, typeof (Guid));
+      builder.AddReverseMapping(SqlType.Boolean, typeof(bool));
+      builder.AddReverseMapping(SqlType.Int8, typeof(sbyte));
+      builder.AddReverseMapping(SqlType.UInt8, typeof(byte));
+      builder.AddReverseMapping(SqlType.Int16, typeof(short));
+      builder.AddReverseMapping(SqlType.UInt16, typeof(ushort));
+      builder.AddReverseMapping(SqlType.Int32, typeof(int));
+      builder.AddReverseMapping(SqlType.UInt32, typeof(uint));
+      builder.AddReverseMapping(SqlType.Int64, typeof(long));
+      builder.AddReverseMapping(SqlType.UInt64, typeof(ulong));
+      builder.AddReverseMapping(SqlType.Decimal, typeof(decimal));
+      builder.AddReverseMapping(SqlType.Float, typeof(float));
+      builder.AddReverseMapping(SqlType.Double, typeof(double));
+      builder.AddReverseMapping(SqlType.DateTime, typeof(DateTime));
+      builder.AddReverseMapping(SqlType.DateTimeOffset, typeof(DateTimeOffset));
+      builder.AddReverseMapping(SqlType.Interval, typeof(TimeSpan));
+      builder.AddReverseMapping(SqlType.Char, typeof(string));
+      builder.AddReverseMapping(SqlType.VarChar, typeof(string));
+      builder.AddReverseMapping(SqlType.VarCharMax, typeof(string));
+      builder.AddReverseMapping(SqlType.Binary, typeof(byte[]));
+      builder.AddReverseMapping(SqlType.VarBinary, typeof(byte[]));
+      builder.AddReverseMapping(SqlType.VarBinaryMax, typeof(byte[]));
+      builder.AddReverseMapping(SqlType.Guid, typeof(Guid));
     }
 
     private Extractor BuildExtractor(SqlConnection connection)

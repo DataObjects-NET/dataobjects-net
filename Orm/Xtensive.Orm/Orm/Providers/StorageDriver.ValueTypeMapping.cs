@@ -36,5 +36,15 @@ namespace Xtensive.Orm.Providers
     {
       return allMappings.GetMapping(type).MapType(length, precision, scale);
     }
+
+    /// <summary>
+    /// Converts the specified <see cref="SqlType"/> to corresponding .NET type.
+    /// </summary>
+    /// <param name="sqlType">The type to convert.</param>
+    /// <returns>Converter type.</returns>
+    public Type MapSqlType(SqlType sqlType)
+    {
+      return allMappings.MapSqlType(sqlType);
+    }
   }
 }
