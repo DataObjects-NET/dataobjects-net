@@ -198,6 +198,60 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
+    public void EntitySetStateCountsTest()
+    {
+      int addedItemsCount = 0;
+      int removedItemsCount = 0;
+      using (var session = Domain.OpenSession()) {
+        Key documentKey;
+        Key employeeToRemoveKey;
+        using (var transaction = session.OpenTransaction()) {
+          var document = new AccountingDocument();
+          documentKey = document.Key;
+          for (var i = 0; i < 40; i++) {
+            document.Employees.Add(new Employee());
+            addedItemsCount++;
+          }
+          var employee = new Employee();
+          employeeToRemoveKey = employee.Key;
+          document.Employees.Add(employee);
+          addedItemsCount++;
+          var entitySetState = session.EntitySetChangeRegistry.GetItems().First();
+          Assert.AreEqual(addedItemsCount, entitySetState.CachedItemCount);
+          Assert.AreEqual(0, entitySetState.FetchedItemsCount);
+          Assert.AreEqual(addedItemsCount, entitySetState.AddedItemsCount);
+          Assert.AreEqual(removedItemsCount, entitySetState.RemovedItemsCount);
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction()) {
+          var document = session.Query.Single<AccountingDocument>(documentKey);
+          var employee = session.Query.Single<Employee>(employeeToRemoveKey);
+          document.Employees.Remove(employee);
+          removedItemsCount++;
+          var entitySetState = session.EntitySetChangeRegistry.GetItems().First();
+          Assert.AreEqual(WellKnown.EntitySetPreloadCount + 1 - removedItemsCount, entitySetState.CachedItemCount);
+          Assert.AreEqual(WellKnown.EntitySetPreloadCount + 1, entitySetState.FetchedItemsCount);
+          Assert.AreEqual(0, entitySetState.AddedItemsCount);
+          Assert.AreEqual(removedItemsCount, entitySetState.RemovedItemsCount);
+
+          document.Employees.Prefetch(35);
+          Assert.AreEqual(35, entitySetState.CachedItemCount);
+          Assert.AreEqual(35, entitySetState.FetchedItemsCount);
+          Assert.AreEqual(0, entitySetState.AddedItemsCount);
+          Assert.AreEqual(0, entitySetState.RemovedItemsCount);
+          transaction.Complete();
+        }
+        
+        using (var transaction = session.OpenTransaction()) {
+          var document = session.Query.Single<AccountingDocument>(documentKey);
+          var employees = document.Employees.ToList();
+          Assert.AreEqual(addedItemsCount - removedItemsCount, employees.Count);
+        }
+      }
+    }
+
+    [Test]
     public void NonPairedEntitySetInDisconnectedSessionTest()
     {
       var configuration = base.BuildConfiguration();
