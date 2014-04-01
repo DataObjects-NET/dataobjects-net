@@ -46,6 +46,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string ConnectionInitializationSqlElementName = "connectionInitializationSql";
     private const string IgnoreRulesElementName = "ignoreRules";
     private const string MultidatabaseKeysElementName = "multidatabaseKeys";
+    private const string OptionsElementName = "options";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -345,6 +346,16 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.Options" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(OptionsElementName, DefaultValue = "Default")]
+    public string Options
+    {
+      get { return (string) this[OptionsElementName]; }
+      set { this[OptionsElementName] = value; }
+    }
+
+    /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="DomainConfiguration"/> object.
     /// </summary>
@@ -361,9 +372,10 @@ namespace Xtensive.Orm.Configuration.Elements
         RecordSetMappingCacheSize = RecordSetMappingCacheSize,
         DefaultSchema = DefaultSchema,
         DefaultDatabase = DefaultDatabase,
-        UpgradeMode = (DomainUpgradeMode) Enum.Parse(typeof (DomainUpgradeMode), UpgradeMode, true),
-        ForeignKeyMode = (ForeignKeyMode) Enum.Parse(typeof (ForeignKeyMode), ForeignKeyMode, true),
-        SchemaSyncExceptionFormat = (SchemaSyncExceptionFormat) Enum.Parse(typeof (SchemaSyncExceptionFormat), SchemaSyncExceptionFormat, true),
+        UpgradeMode = ParseEnum<DomainUpgradeMode>(UpgradeMode),
+        ForeignKeyMode = ParseEnum<ForeignKeyMode>(ForeignKeyMode),
+        SchemaSyncExceptionFormat = ParseEnum<SchemaSyncExceptionFormat>(SchemaSyncExceptionFormat),
+        Options = ParseEnum<DomainOptions>(Options),
         ServiceContainerType = ServiceContainerType.IsNullOrEmpty() ? null : Type.GetType(ServiceContainerType),
         IncludeSqlInExceptions = IncludeSqlInExceptions,
         BuildInParallel = BuildInParallel,
@@ -389,6 +401,11 @@ namespace Xtensive.Orm.Configuration.Elements
         config.IgnoreRules.Add(element.ToNative());
 
       return config;
+    }
+
+    private static T ParseEnum<T>(string value)
+    {
+      return (T) Enum.Parse(typeof (T), value, true);
     }
   }
 }

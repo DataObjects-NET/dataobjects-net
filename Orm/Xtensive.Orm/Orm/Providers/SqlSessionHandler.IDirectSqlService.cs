@@ -6,12 +6,18 @@
 
 using System;
 using System.Data.Common;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers
 {
   public partial class SqlSessionHandler
   {
     // Implementation of IDirectSqlService
+
+    ConnectionInfo IDirectSqlService.ConnectionInfo {
+      get { return connection.ConnectionInfo; }
+      set { connection.ConnectionInfo = value; }
+    }
 
     /// <inheritdoc/>
     DbConnection IDirectSqlService.Connection {
@@ -27,6 +33,12 @@ namespace Xtensive.Orm.Providers
         Prepare();
         return connection.ActiveTransaction;
       }
+    }
+
+    void IDirectSqlService.RegisterInitializationSql(string sql)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(sql, "sql");
+      initializationSqlScripts.Add(sql);
     }
 
     /// <inheritdoc/>

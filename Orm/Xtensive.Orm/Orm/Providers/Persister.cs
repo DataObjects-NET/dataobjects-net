@@ -5,9 +5,7 @@
 // Created:    2012.04.02
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Collections;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Tuples;
@@ -19,15 +17,13 @@ namespace Xtensive.Orm.Providers
     private readonly PersistRequestBuilder requestBuilder;
     private readonly bool sortingRequired;
 
-    private ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>> requestCache
-      = ThreadSafeDictionary<PersistRequestBuilderTask, IEnumerable<PersistRequest>>.Create(new object());
-
     public void Persist(EntityChangeRegistry registry, CommandProcessor processor)
     {
-      var selfReferencingRowIsRemovalWithError = requestBuilder.Handlers.ProviderInfo.Supports(ProviderFeatures.SelfReferencingRowRemovalIsError);
+      var selfReferencingRowRemovalIsError = requestBuilder.Handlers.ProviderInfo.Supports(ProviderFeatures.SelfReferencingRowRemovalIsError);
+      var node = registry.Session.StorageNode;
       var actionGenerator = sortingRequired
-        ? new SortingPersistActionGenerator(selfReferencingRowIsRemovalWithError)
-        : new PersistActionGenerator();
+        ? new SortingPersistActionGenerator(node, selfReferencingRowRemovalIsError)
+        : new PersistActionGenerator(node);
 
       var validateVersion = registry.Session.Configuration.Supports(SessionOptions.ValidateEntityVersions);
 
@@ -56,7 +52,7 @@ namespace Xtensive.Orm.Providers
     {
       var entityState = action.EntityState;
       var tuple = entityState.Tuple.ToRegular();
-      var request = GetOrBuildRequest(PersistRequestBuilderTask.Insert(entityState.Type));
+      var request = GetOrBuildRequest(action.Node, PersistRequestBuilderTask.Insert(entityState.Type));
       return new SqlPersistTask(entityState.Key, request, tuple);
     }
 
@@ -68,12 +64,13 @@ namespace Xtensive.Orm.Providers
       var changedFields = dTuple.Difference.GetFieldStateMap(TupleFieldState.Available);
       if (validateVersion) {
         var availableFields = dTuple.Origin.GetFieldStateMap(TupleFieldState.Available);
-        var request = GetOrBuildRequest(PersistRequestBuilderTask.UpdateWithVersionCheck(entityState.Type, availableFields, changedFields));
+        var request = GetOrBuildRequest(action.Node,
+          PersistRequestBuilderTask.UpdateWithVersionCheck(entityState.Type, availableFields, changedFields));
         var versionTuple = dTuple.Origin.ToRegular();
         return new SqlPersistTask(entityState.Key, request, tuple, versionTuple, true);
       }
       else {
-        var request = GetOrBuildRequest(PersistRequestBuilderTask.Update(entityState.Type, changedFields));
+        var request = GetOrBuildRequest(action.Node, PersistRequestBuilderTask.Update(entityState.Type, changedFields));
         return new SqlPersistTask(entityState.Key, request, tuple);
       }
     }
@@ -86,18 +83,24 @@ namespace Xtensive.Orm.Providers
       if (validateVersion) {
         var versionTuple = entityState.DifferentialTuple.Origin.ToRegular();
         var availableFields = versionTuple.GetFieldStateMap(TupleFieldState.Available);
-        var request = GetOrBuildRequest(PersistRequestBuilderTask.RemoveWithVersionCheck(entityState.Type, availableFields));
+        var request = GetOrBuildRequest(action.Node,
+          PersistRequestBuilderTask.RemoveWithVersionCheck(entityState.Type, availableFields));
         return new SqlPersistTask(entityState.Key, request, tuple, versionTuple, true);
       }
       else {
-        var request = GetOrBuildRequest(PersistRequestBuilderTask.Remove(entityState.Type));
+        var request = GetOrBuildRequest(action.Node, PersistRequestBuilderTask.Remove(entityState.Type));
         return new SqlPersistTask(entityState.Key, request, tuple);
       }
     }
 
-    private IEnumerable<PersistRequest> GetOrBuildRequest(PersistRequestBuilderTask task)
+    private ICollection<PersistRequest> GetOrBuildRequest(StorageNode node, PersistRequestBuilderTask task)
     {
-      return requestCache.GetValue(task, requestBuilder.Build);
+      var cache = node.PersistRequestCache;
+      ICollection<PersistRequest> result;
+      if (cache.TryGetValue(task, out result))
+        return result;
+      result = requestBuilder.Build(node, task);
+      return cache.TryAdd(task, result) ? result : cache[task];
     }
 
     #endregion

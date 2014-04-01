@@ -1157,12 +1157,13 @@ namespace Xtensive.Orm.Upgrade
     // Constructors
 
     public SqlActionTranslator(
-      HandlerAccessor handlers, ISqlExecutor sqlExecutor,
+      HandlerAccessor handlers, ISqlExecutor sqlExecutor, MappingResolver resolver,
       ActionSequence actions, SchemaExtractionResult sqlModel, StorageModel sourceModel, StorageModel targetModel,
       List<string> enforceChangedColumns, bool allowCreateConstraints)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       ArgumentValidator.EnsureArgumentNotNull(sqlExecutor, "sqlExecutor");
+      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
       ArgumentValidator.EnsureArgumentNotNull(actions, "actions");
       ArgumentValidator.EnsureArgumentNotNull(sqlModel, "sqlModel");
       ArgumentValidator.EnsureArgumentNotNull(sourceModel, "sourceModel");
@@ -1170,12 +1171,12 @@ namespace Xtensive.Orm.Upgrade
       ArgumentValidator.EnsureArgumentNotNull(enforceChangedColumns, "enforceChangedColumns");
 
       driver = handlers.StorageDriver;
-      resolver = handlers.MappingResolver;
       providerInfo = handlers.ProviderInfo;
       sequenceQueryBuilder = handlers.SequenceQueryBuilder;
       providerInfo = handlers.ProviderInfo;
       typeIdColumnName = handlers.NameBuilder.TypeIdColumnName;
 
+      this.resolver = resolver;
       this.sqlModel = sqlModel;
       this.actions = actions;
       this.sourceModel = sourceModel;

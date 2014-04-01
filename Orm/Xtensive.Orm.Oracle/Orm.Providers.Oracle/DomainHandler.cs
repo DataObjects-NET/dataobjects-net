@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Providers.Oracle
   {
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
-      return new SqlCompiler(Handlers);
+      return new SqlCompiler(Handlers, configuration);
     }
   }
 }

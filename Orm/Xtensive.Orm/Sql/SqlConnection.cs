@@ -5,8 +5,9 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
+using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql
@@ -18,6 +19,9 @@ namespace Xtensive.Sql
     IDisposable
   {
     private int? commandTimeout;
+    private ConnectionInfo connectionInfo;
+    private IExtensionCollection extensions;
+    private bool isDisposed;
 
     /// <summary>
     /// Gets the underlying connection.
@@ -30,6 +34,33 @@ namespace Xtensive.Sql
     public abstract DbTransaction ActiveTransaction { get; }
 
     /// <summary>
+    /// Gets <see cref="IExtensionCollection"/> associated with this instance.
+    /// </summary>
+    public IExtensionCollection Extensions
+    {
+      get
+      {
+        if (extensions==null)
+          extensions = new ExtensionCollection();
+        return extensions;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets <see cref="ConnectionInfo"/> to use.
+    /// </summary>
+    public ConnectionInfo ConnectionInfo
+    {
+      get { return connectionInfo; }
+      set
+      {
+        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+        UnderlyingConnection.ConnectionString = Driver.GetConnectionString(value);
+        connectionInfo = value;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets the command timeout.
     /// </summary>
     public int? CommandTimeout
@@ -37,7 +68,7 @@ namespace Xtensive.Sql
       get { return commandTimeout; }
       set {
         if (value!=null)
-          ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, 65535, "CommandTimeout");
+          ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, 65535, "value");
         commandTimeout = value;
       }
     }
@@ -45,7 +76,7 @@ namespace Xtensive.Sql
     /// <summary>
     /// Gets the state of the connection.
     /// </summary>
-    public ConnectionState State { get { return UnderlyingConnection.State; } }
+    public ConnectionState State { get { return isDisposed ? ConnectionState.Closed : UnderlyingConnection.State; } }
     
     /// <summary>
     /// Creates and returns a <see cref="DbCommand"/> object associated with the current connection.
@@ -212,6 +243,9 @@ namespace Xtensive.Sql
     /// <inheritdoc/>
     public void Dispose()
     {
+      if (isDisposed)
+        return;
+      isDisposed = true;
       if (ActiveTransaction!=null) {
         ActiveTransaction.Dispose();
         ClearActiveTransaction();
@@ -254,7 +288,7 @@ namespace Xtensive.Sql
 
     // Constructors
 
-    protected SqlConnection(SqlDriver driver, string connectionString)
+    protected SqlConnection(SqlDriver driver)
       : base(driver)
     {
     }

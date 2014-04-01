@@ -4,6 +4,7 @@
 // Created by: Dmitri Maximov
 // Created:    2008.07.11
 
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
@@ -49,14 +50,8 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     public DomainHandler DomainHandler { get; internal set; }
 
-    /// <summary>
-    /// Gets the <see cref="MappingResolver"/> instance.
-    /// </summary>
-    internal MappingResolver MappingResolver { get; set; }
+    internal StorageNodeRegistry StorageNodeRegistry { get; set; }
 
-    /// <summary>
-    /// Gets the <see cref="SequenceQueryBuilder"/> instance.
-    /// </summary>
     internal SequenceQueryBuilder SequenceQueryBuilder { get; set; }
 
     internal THandler Create<THandler>()

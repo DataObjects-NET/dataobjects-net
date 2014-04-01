@@ -14,37 +14,60 @@ namespace Xtensive.Orm.Providers
 {
   partial class StorageDriver
   {
+    private sealed class InitializationSqlExtension
+    {
+      public string Script;
+    }
+
+    public void ApplyNodeConfiguration(SqlConnection connection, NodeConfiguration nodeConfiguration)
+    {
+      if (nodeConfiguration.ConnectionInfo!=null)
+        connection.ConnectionInfo = nodeConfiguration.ConnectionInfo;
+
+      if (!string.IsNullOrEmpty(nodeConfiguration.ConnectionInitializationSql))
+        SetInitializationSql(connection, nodeConfiguration.ConnectionInitializationSql);
+    }
+
     public SqlConnection CreateConnection(Session session)
     {
-      var connectionInfo = GetConnectionInfo(session);
-
       if (isLoggingEnabled)
-        SqlLog.Info(Strings.LogSessionXCreatingConnectionY, session.ToStringSafely(), connectionInfo);
+        SqlLog.Info(Strings.LogSessionXCreatingConnection, session.ToStringSafely());
 
+      SqlConnection connection;
       try {
-        var connection = underlyingDriver.CreateConnection(connectionInfo);
-        connection.CommandTimeout = GetConfiguration(session).DefaultCommandTimeout;
-        return connection;
+        connection = underlyingDriver.CreateConnection();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
       }
+
+      var sessionConfiguration = GetConfiguration(session);
+      if (sessionConfiguration.ConnectionInfo!=null)
+        connection.ConnectionInfo = sessionConfiguration.ConnectionInfo;
+      connection.CommandTimeout = sessionConfiguration.DefaultCommandTimeout;
+
+      if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+        SetInitializationSql(connection, configuration.ConnectionInitializationSql);
+
+      return connection;
     }
 
     public void OpenConnection(Session session, SqlConnection connection)
     {
       if (isLoggingEnabled)
-        SqlLog.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), GetConnectionInfo(session));
+        SqlLog.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
 
       try {
         connection.Open();
-        if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
-          using (var command = connection.CreateCommand(configuration.ConnectionInitializationSql))
-            command.ExecuteNonQuery();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
       }
+
+      var extension = connection.Extensions.Get<InitializationSqlExtension>();
+      if (extension!=null && !string.IsNullOrEmpty(extension.Script))
+        using (var command = connection.CreateCommand(extension.Script))
+          ExecuteNonQuery(session, command);
     }
 
     public void EnsureConnectionIsOpen(Session session, SqlConnection connection)
@@ -59,7 +82,7 @@ namespace Xtensive.Orm.Providers
         return;
 
       if (isLoggingEnabled)
-        SqlLog.Info(Strings.LogSessionXClosingConnectionY, session.ToStringSafely(), GetConnectionInfo(session));
+        SqlLog.Info(Strings.LogSessionXClosingConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
 
       try {
         connection.Close();
@@ -72,11 +95,9 @@ namespace Xtensive.Orm.Providers
     public void DisposeConnection(Session session, SqlConnection connection)
     {
       if (isLoggingEnabled)
-        SqlLog.Info(Strings.LogSessionXDisposingConnectionY, session.ToStringSafely(), GetConnectionInfo(session));
+        SqlLog.Info(Strings.LogSessionXDisposingConnection, session.ToStringSafely());
 
       try {
-        if (connection.State==ConnectionState.Open)
-          connection.Close();
         connection.Dispose();
       }
       catch (Exception exception) {
@@ -123,7 +144,7 @@ namespace Xtensive.Orm.Providers
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
-      }      
+      }
     }
 
     public void MakeSavepoint(Session session, SqlConnection connection, string name)
@@ -208,14 +229,19 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
+    private void SetInitializationSql(SqlConnection connection, string script)
+    {
+      var extension = connection.Extensions.Get<InitializationSqlExtension>();
+      if (extension==null) {
+        extension = new InitializationSqlExtension();
+        connection.Extensions.Set(extension);
+      }
+      extension.Script = script;
+    }
+
     private SessionConfiguration GetConfiguration(Session session)
     {
       return session!=null ? session.Configuration : configuration.Sessions.System;
-    }
-
-    private ConnectionInfo GetConnectionInfo(Session session)
-    {
-      return GetConfiguration(session).ConnectionInfo ?? configuration.ConnectionInfo;
     }
   }
 }

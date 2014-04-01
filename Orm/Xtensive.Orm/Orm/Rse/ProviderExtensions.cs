@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Rse
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      var compiled = session.CompilationService.Compile(provider);
+      var compiled = session.Compile(provider);
       return new RecordSet(session.CreateEnumerationContext(), compiled);
     }
 

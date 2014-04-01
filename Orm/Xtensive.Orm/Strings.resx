@@ -884,7 +884,7 @@
   <data name="ExCouldNotResolveXYWithinDomain" xml:space="preserve">
     <value>Could not resolve {0} '{1}' within the domain.</value>
   </data>
-  <data name="TypeIdXIsNotRegistered" xml:space="preserve">
+  <data name="ExTypeIdXIsNotRegistered" xml:space="preserve">
     <value>Type with TypeId={0} is not registered.</value>
   </data>
   <data name="TypeIdForTypeXIsAlreadyAssigned" xml:space="preserve">
@@ -1011,8 +1011,8 @@
   <data name="ExSourceColumnListContainsNullValues" xml:space="preserve">
     <value>Source column list contains null values.</value>
   </data>
-  <data name="LogSessionXCreatingConnectionY" xml:space="preserve">
-    <value>Session '{0}'. Creating connection '{1}'.</value>
+  <data name="LogSessionXCreatingConnection" xml:space="preserve">
+    <value>Session '{0}'. Creating connection.</value>
   </data>
   <data name="LogSessionXOpeningConnectionY" xml:space="preserve">
     <value>Session '{0}'. Opening connection '{1}'.</value>
@@ -1020,8 +1020,8 @@
   <data name="LogSessionXClosingConnectionY" xml:space="preserve">
     <value>Session '{0}'. Closing connection '{1}'.</value>
   </data>
-  <data name="LogSessionXDisposingConnectionY" xml:space="preserve">
-    <value>Session '{0}'. Disposing connection '{1}'.</value>
+  <data name="LogSessionXDisposingConnection" xml:space="preserve">
+    <value>Session '{0}'. Disposing connection.</value>
   </data>
   <data name="LogSessionXBeginningTransactionWithYIsolationLevel" xml:space="preserve">
     <value>Session '{0}'. Beginning transaction @ {1}.</value>
@@ -3300,5 +3300,32 @@ Error: {1}</value>
   </data>
   <data name="ExAssemblyVersionMismatchMainAssemblyXYExtensionsAssemblyAB" xml:space="preserve">
     <value>Assembly version mismatch: main assembly '{0} {1}', extension assembly '{2} {3}'.</value>
+  </data>
+  <data name="ExResultIsNotAvailable" xml:space="preserve">
+    <value>Result is not available.</value>
+  </data>
+  <data name="LogAsyncOperationError" xml:space="preserve">
+    <value>Async operation error.</value>
+  </data>
+  <data name="ExDefaultStorageNodeCanNotBeRemoved" xml:space="preserve">
+    <value>Default storage node can not be removed.</value>
+  </data>
+  <data name="ExInvalidNodeIdentifier" xml:space="preserve">
+    <value>Invalid node identifier.</value>
+  </data>
+  <data name="ExStorageNodeWithIdXIsNotFound" xml:space="preserve">
+    <value>Storage node with id '{0}' is not found.</value>
+  </data>
+  <data name="ExStorageNodeIsAlreadySelected" xml:space="preserve">
+    <value>Storage node is already selected.</value>
+  </data>
+  <data name="ExTypeXIsNotRegistered">
+    <value xml:space="preserve">Type '{0}' is not registered.</value>
+  </data>
+  <data name="ExSchemaMappingRequiresMultischemaDomainConfiguration" xml:space="preserve">
+    <value>Schema mapping requires multischema domain configuration. Please provide at least DefaultSchema setting.</value>
+  </data>
+  <data name="ExDatabaseMappingRequiresMultidatabaseDomainConfiguration" xml:space="preserve">
+    <value>Database mapping requires multidatabase domain configuration. Please provide at least DefaultDatabase and DefaultSchema settings.</value>
   </data>
 </root>

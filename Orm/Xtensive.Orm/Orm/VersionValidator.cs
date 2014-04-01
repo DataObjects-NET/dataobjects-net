@@ -145,7 +145,7 @@ namespace Xtensive.Orm
     {
       var type = key.TypeInfo;
       var provider = type.Indexes.PrimaryIndex.GetQuery().Seek(key.Value);
-      var execProvider = Session.CompilationService.Compile(provider);
+      var execProvider = Session.Compile(provider);
       return new QueryTask(execProvider, Session.GetLifetimeToken(), null);
     }
 

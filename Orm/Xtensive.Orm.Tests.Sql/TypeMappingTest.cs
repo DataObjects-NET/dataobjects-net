@@ -27,7 +27,9 @@ namespace Xtensive.Orm.Tests.Sql
     protected override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      var mappings = Driver.TypeMappings.Where(mapping => StringComparer.InvariantCultureIgnoreCase.Compare(mapping.Type.Namespace, "System")==0);
+      var mappings = Driver.TypeMappings.Mappings
+        .Select(mapping => mapping.Value)
+        .Where(mapping => StringComparer.InvariantCultureIgnoreCase.Compare(mapping.Type.Namespace, "System")==0);
       if (Driver.ServerInfo.DataTypes.DateTimeOffset==null)
         mappings = mappings.Where(mapping => mapping.Type!=typeof (DateTimeOffset));
       typeMappings = mappings.ToArray();

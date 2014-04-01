@@ -6,9 +6,10 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 
-namespace Xtensive.Orm.Rse.Compilation
+namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// <see cref="CompilableProvider"/> compilation service.
@@ -19,15 +20,15 @@ namespace Xtensive.Orm.Rse.Compilation
     private readonly Func<CompilerConfiguration, IPreCompiler> preCompilerProvider;
     private readonly Func<CompilerConfiguration, ICompiler, IPostCompiler> postCompilerProvider;
 
-    public ExecutableProvider Compile(CompilableProvider provider)
+    public CompilerConfiguration CreateConfiguration(Session session)
     {
-      return Compile(provider, new CompilerConfiguration());
+      return new CompilerConfiguration {StorageNode = session.StorageNode};
     }
 
     public ExecutableProvider Compile(CompilableProvider provider, CompilerConfiguration configuration)
     {
-      if (provider==null)
-        return null;
+      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
+      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
       var preCompiler = preCompilerProvider.Invoke(configuration);
       var compiler = compilerProvider.Invoke(configuration);

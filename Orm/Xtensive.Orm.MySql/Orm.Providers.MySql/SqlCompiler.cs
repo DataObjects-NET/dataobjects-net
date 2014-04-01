@@ -5,14 +5,16 @@
 // Created:    2011.03.25
 
 
+using Xtensive.Orm.Rse.Compilation;
+
 namespace Xtensive.Orm.Providers.MySql
 {
   internal class SqlCompiler : Providers.SqlCompiler
   {
     // Constructors
     
-    public SqlCompiler(HandlerAccessor handlers)
-      : base(handlers)
+    public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
+      : base(handlers, configuration)
     {
     }
   }

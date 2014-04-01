@@ -7,7 +7,6 @@
 using System;
 using System.Data.Common;
 using Xtensive.Orm.Services;
-using Xtensive.Orm.Services;
 
 namespace Xtensive.Orm.Providers
 {
@@ -18,6 +17,11 @@ namespace Xtensive.Orm.Providers
   public interface IDirectSqlService
   {
     /// <summary>
+    /// Gets or sets <see cref="ConnectionInfo"/> to use.
+    /// </summary>
+    ConnectionInfo ConnectionInfo { get; set; }
+
+    /// <summary>
     /// Gets the underlying connection that is currently in use.
     /// </summary>
     DbConnection Connection { get; }
@@ -27,6 +31,13 @@ namespace Xtensive.Orm.Providers
     /// <see langword="null" />, if transaction isn't running now.
     /// </summary>
     DbTransaction Transaction { get; }
+
+    /// <summary>
+    /// Registers SQL script to be executed just before <see cref="DbConnection"/>
+    /// is used by <see cref="Session"/>.
+    /// </summary>
+    /// <param name="sql"></param>
+    void RegisterInitializationSql(string sql);
 
     /// <summary>
     /// Creates the <see cref="DbCommand"/> object associated with the

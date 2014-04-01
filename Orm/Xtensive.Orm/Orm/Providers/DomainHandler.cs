@@ -10,10 +10,8 @@ using Xtensive.Core;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Linq.MemberCompilation;
 using Xtensive.Orm.Rse.Compilation;
-using Xtensive.Orm.Rse.Transformation;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Upgrade;
-using Xtensive.Sql;
+using Xtensive.Orm.Rse.Transformation;
 
 namespace Xtensive.Orm.Providers
 {
@@ -30,7 +28,7 @@ namespace Xtensive.Orm.Providers
     public Domain Domain { get { return Handlers.Domain; } }
 
     /// <summary>
-    /// Gets the <see cref="Xtensive.Orm.Rse.Compilation.CompilationService"/>
+    /// Gets the <see cref="Providers.CompilationService"/>
     /// associated with the domain.
     /// </summary>
     public CompilationService CompilationService { get; private set; }
@@ -39,11 +37,6 @@ namespace Xtensive.Orm.Providers
     /// Gets the ordered sequence of query preprocessors to apply to any LINQ query.
     /// </summary>
     public IEnumerable<IQueryPreprocessor> QueryPreprocessors { get; private set; }
-
-    /// <summary>
-    /// Gets the model mapping.
-    /// </summary>
-    public ModelMapping Mapping { get; private set; }
 
     /// <summary>
     /// Gets the temporary table manager.
@@ -56,15 +49,6 @@ namespace Xtensive.Orm.Providers
     public CommandProcessorFactory CommandProcessorFactory { get; private set; }
 
     internal Persister Persister { get; private set; }
-
-    /// <summary>
-    /// Builds the mapping schema.
-    /// </summary>
-    /// <exception cref="DomainBuilderException">Something went wrong.</exception>
-    internal void BuildMapping(SchemaExtractionResult model)
-    {
-      Mapping = ModelMappingBuilder.Build(Handlers, model);
-    }
 
     /// <summary>
     /// Gets the member compiler provider by its type parameter.
@@ -88,7 +72,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>A new compiler.</returns>
     protected virtual ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
-      return new SqlCompiler(Handlers);
+      return new SqlCompiler(Handlers, configuration);
     }
 
     /// <summary>

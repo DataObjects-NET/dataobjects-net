@@ -50,7 +50,7 @@ namespace Xtensive.Sql
       var connectionString = GetConnectionString(connectionInfo);
       configuration = configuration.Clone();
       var driver = CreateDriver(connectionString, configuration);
-      driver.Initialize(this);
+      driver.Initialize(this, connectionInfo);
       return driver;
     }
 

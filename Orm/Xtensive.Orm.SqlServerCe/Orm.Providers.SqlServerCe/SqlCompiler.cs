@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
@@ -39,8 +40,8 @@ namespace Xtensive.Orm.Providers.SqlServerCe
 
     // Constructors
 
-    public SqlCompiler(HandlerAccessor handlers)
-      : base(handlers)
+    public SqlCompiler(HandlerAccessor handlers, CompilerConfiguration configuration)
+      : base(handlers, configuration)
     {
     }
   }

@@ -104,10 +104,10 @@ namespace Xtensive.Orm.Linq
     private Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> BuildMaterializer<TResult>(
       ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
-      var rs = Expression.Parameter(typeof(IEnumerable<Tuple>), "rs");
-      var session = Expression.Parameter(typeof(Session), "session");
-      var tupleParameterBindings = Expression.Parameter(typeof(Dictionary<Parameter<Tuple>, Tuple>), "tupleParameterBindings");
-      var parameterContext = Expression.Parameter(typeof(ParameterContext), "parameterContext");
+      var rs = Expression.Parameter(typeof (IEnumerable<Tuple>), "rs");
+      var session = Expression.Parameter(typeof (Session), "session");
+      var tupleParameterBindings = Expression.Parameter(typeof (Dictionary<Parameter<Tuple>, Tuple>), "tupleParameterBindings");
+      var parameterContext = Expression.Parameter(typeof (ParameterContext), "parameterContext");
       
       var itemProjector = projection.ItemProjector;
       var materializationInfo = itemProjector.Materialize(context, tupleParameters);

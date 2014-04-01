@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Internals.KeyGenerators
@@ -14,15 +15,15 @@ namespace Xtensive.Orm.Internals.KeyGenerators
   {
     private sealed class CachingSequenceCollection
     {
-      private readonly Dictionary<SessionCachingSequenceProvider<TValue>, CachingSequence<TValue>> sequences
-        = new Dictionary<SessionCachingSequenceProvider<TValue>, CachingSequence<TValue>>();
+      private readonly Dictionary<SequenceInfo, CachingSequence<TValue>> sequences
+        = new Dictionary<SequenceInfo, CachingSequence<TValue>>();
 
-      public CachingSequence<TValue> GetSequence(SessionCachingSequenceProvider<TValue> provider)
+      public CachingSequence<TValue> GetSequence(SequenceInfo sequenceInfo, IStorageSequenceAccessor accessor)
       {
         CachingSequence<TValue> result;
-        if (!sequences.TryGetValue(provider, out result)) {
-          result = new CachingSequence<TValue>(provider.accessor, false);
-          sequences.Add(provider, result);
+        if (!sequences.TryGetValue(sequenceInfo, out result)) {
+          result = new CachingSequence<TValue>(accessor, false);
+          sequences.Add(sequenceInfo, result);
         }
         return result;
       }
@@ -43,14 +44,14 @@ namespace Xtensive.Orm.Internals.KeyGenerators
 
     private readonly IStorageSequenceAccessor accessor;
 
-    public CachingSequence<TValue> GetSequence(Session session)
+    public CachingSequence<TValue> GetSequence(SequenceInfo sequenceInfo, Session session)
     {
       var items = session.Extensions.Get<CachingSequenceCollection>();
       if (items==null) {
         items = new CachingSequenceCollection(session);
         session.Extensions.Set(items);
       }
-      return items.GetSequence(this);
+      return items.GetSequence(sequenceInfo, accessor);
     }
 
     // Constructors

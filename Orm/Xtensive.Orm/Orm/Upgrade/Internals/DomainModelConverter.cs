@@ -533,22 +533,24 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public DomainModelConverter(HandlerAccessor handlers, ITypeIdProvider typeIdProvider, PartialIndexFilterCompiler compiler)
+    public DomainModelConverter(
+      HandlerAccessor handlers, ITypeIdProvider typeIdProvider, PartialIndexFilterCompiler compiler, MappingResolver resolver)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       ArgumentValidator.EnsureArgumentNotNull(typeIdProvider, "typeIdProvider");
       ArgumentValidator.EnsureArgumentNotNull(compiler, "compiler");
+      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
 
       this.handlers = handlers;
       this.compiler = compiler;
       this.typeIdProvider = typeIdProvider;
+      this.resolver = resolver;
 
       sourceModel = handlers.Domain.Model;
       configuration = handlers.Domain.Configuration;
       providerInfo = handlers.ProviderInfo;
       driver = handlers.StorageDriver;
       nameBuilder = handlers.NameBuilder;
-      resolver = handlers.MappingResolver;
     }
   }
 }

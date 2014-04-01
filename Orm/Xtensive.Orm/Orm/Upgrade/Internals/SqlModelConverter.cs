@@ -321,9 +321,9 @@ namespace Xtensive.Orm.Upgrade
 
       this.sourceModel = sourceModel;
 
-      resolver = services.Resolver;
+      resolver = services.MappingResolver;
       providerInfo = services.ProviderInfo;
-      driver = services.Driver;
+      driver = services.StorageDriver;
 
       partialIndexMap = new PartialIndexInfoMap(resolver, partialIndexes);
     }

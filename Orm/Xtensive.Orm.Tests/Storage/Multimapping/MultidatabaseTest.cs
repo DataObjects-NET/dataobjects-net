@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
 {
   public abstract class MultidatabaseTest : MultimappingTest
   {
-    private const string DefaultSchemaName = "dbo";
+    public const string DefaultSchemaName = "dbo";
 
     public const string Database1Name = "DO-Tests-1";
     public const string Database2Name = "DO-Tests-2";

@@ -8,6 +8,7 @@ using System.Security;
 using Npgsql;
 using System.Data;
 using System.Data.Common;
+using Xtensive.Orm;
 
 namespace Xtensive.Sql.Drivers.PostgreSql
 {
@@ -82,10 +83,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     // Constructors
 
    [SecuritySafeCritical]
-   public Connection(SqlDriver driver, string connectionString)
-      : base(driver, connectionString)
+   public Connection(SqlDriver driver)
+      : base(driver)
     {
-      underlyingConnection = new NpgsqlConnection(connectionString);
+      underlyingConnection = new NpgsqlConnection();
     }
   }
 }

@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Upgrade
     private static SqlWorkerResult Run(UpgradeServiceAccessor services, SqlWorkerTask task)
     {
       var result = new SqlWorkerResult();
-      var executor = new SqlExecutor(services.Driver, services.Connection);
+      var executor = new SqlExecutor(services.StorageDriver, services.Connection);
       if ((task & SqlWorkerTask.DropSchema) > 0)
         DropSchema(services, executor);
       if ((task & SqlWorkerTask.ExtractSchema) > 0)
@@ -35,9 +35,9 @@ namespace Xtensive.Orm.Upgrade
 
     private static void ExtractMetadata(UpgradeServiceAccessor services, ISqlExecutor executor, SqlWorkerResult result)
     {
-      var mapping = new MetadataMapping(services.Driver, services.NameBuilder);
+      var mapping = new MetadataMapping(services.StorageDriver, services.NameBuilder);
       var set = new MetadataSet();
-      foreach (var task in services.Resolver.GetMetadataTasks())
+      foreach (var task in services.MappingResolver.GetMetadataTasks())
         try {
           new MetadataExtractor(mapping, task, executor).Extract(set);
         }
@@ -49,13 +49,13 @@ namespace Xtensive.Orm.Upgrade
 
     private static SchemaExtractionResult ExtractSchema(UpgradeServiceAccessor services, ISqlExecutor executor)
     {
-      var schema = new SchemaExtractionResult(executor.Extract(services.Resolver.GetSchemaTasks()));
-      return new IgnoreRulesHandler(schema, services.Configuration, services.Resolver).Handle();
+      var schema = new SchemaExtractionResult(executor.Extract(services.MappingResolver.GetSchemaTasks()));
+      return new IgnoreRulesHandler(schema, services.Configuration, services.MappingResolver).Handle();
     }
 
     private static void DropSchema(UpgradeServiceAccessor services, ISqlExecutor executor)
     {
-      var driver = services.Driver;
+      var driver = services.StorageDriver;
       var extractionResult = ExtractSchema(services, executor);
       var schemas = extractionResult.Catalogs.SelectMany(c => c.Schemas).ToList();
       var tables = schemas.SelectMany(s => s.Tables).ToList();

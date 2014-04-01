@@ -9,6 +9,7 @@ using NUnit.Framework;
 using System;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
@@ -19,19 +20,30 @@ namespace Xtensive.Orm.Tests.Upgrade
   [TestFixture, Category("Upgrade")]
   public class ConvertDomainModelTest
   {
-    protected StorageModel Schema { get; set; }
+    public class Handler : UpgradeHandler
+    {
+      public static StorageModel TargetStorageModel;
 
-    protected Domain Domain { get; set; }
-    
-    protected Domain BuildDomain()
+      public override void OnComplete(Domain domain)
+      {
+        base.OnComplete(domain);
+        TargetStorageModel = UpgradeContext.TargetStorageModel;
+      }
+    }
+
+    private StorageModel Schema { get; set; }
+
+    private Domain Domain { get; set; }
+
+    private Domain BuildDomain()
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.ForeignKeyMode = ForeignKeyMode.Reference;
       configuration.Types.Register(Assembly.GetExecutingAssembly(), typeof (A).Namespace);
+      configuration.Types.Register(typeof (Handler));
 
       Domain.DisposeSafely();
-      Domain.Build(configuration);
       Domain = Domain.Build(configuration);
       return Domain;
     }
@@ -39,7 +51,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     [SetUp]
     public virtual void SetUp()
     {
-      Schema = BuildDomain().StorageModel;
+      BuildDomain();
+      Schema = Handler.TargetStorageModel;
     }
 
     [Test]

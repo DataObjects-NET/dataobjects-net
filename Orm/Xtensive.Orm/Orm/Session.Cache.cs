@@ -143,9 +143,11 @@ namespace Xtensive.Orm
       // If type is unknown, we consider tuple is null, 
       // so its Entity is considered as non-existing
       Tuple tuple = null;
-      if (key.HasExactType)
+      if (key.HasExactType) {
         // A tuple with all the fields set to default values rather then N/A
-        tuple = key.TypeInfo.CreateEntityTuple(key.Value);
+        var typeInfo = key.TypeInfo;
+        tuple = typeInfo.CreateEntityTuple(key.Value, StorageNode.TypeIdRegistry[typeInfo]);
+      }
 
       if (result==null) {
         result = new EntityState(this, key, tuple) {

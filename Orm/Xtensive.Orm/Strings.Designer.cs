@@ -1788,6 +1788,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Database mapping requires multidatabase domain configuration. Please provide at least DefaultDatabase and DefaultSchema settings..
+        /// </summary>
+        internal static string ExDatabaseMappingRequiresMultidatabaseDomainConfiguration {
+            get {
+                return ResourceManager.GetString("ExDatabaseMappingRequiresMultidatabaseDomainConfiguration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DateTime.ToString() method is not supported, use the DateTime.ToString(&quot;s&quot;)..
         /// </summary>
         internal static string ExDateTimeToStringMethodIsNotSupported {
@@ -1829,6 +1838,15 @@ namespace Xtensive {
         internal static string ExDefaultSchemaShouldBeSpecifiedWhenMultischemaOrMultidatabaseModeIsActive {
             get {
                 return ResourceManager.GetString("ExDefaultSchemaShouldBeSpecifiedWhenMultischemaOrMultidatabaseModeIsActive", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Default storage node can not be removed..
+        /// </summary>
+        internal static string ExDefaultStorageNodeCanNotBeRemoved {
+            get {
+                return ResourceManager.GetString("ExDefaultStorageNodeCanNotBeRemoved", resourceCulture);
             }
         }
         
@@ -3201,6 +3219,15 @@ namespace Xtensive {
         internal static string ExInvalidNestingOfNodeX {
             get {
                 return ResourceManager.GetString("ExInvalidNestingOfNodeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid node identifier..
+        /// </summary>
+        internal static string ExInvalidNodeIdentifier {
+            get {
+                return ResourceManager.GetString("ExInvalidNodeIdentifier", resourceCulture);
             }
         }
         
@@ -5250,6 +5277,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Result is not available..
+        /// </summary>
+        internal static string ExResultIsNotAvailable {
+            get {
+                return ResourceManager.GetString("ExResultIsNotAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Value of &apos;{0}&apos; type cannot be assigned to property of &apos;{1}&apos; type..
         /// </summary>
         internal static string ExResultTypeIncorrect {
@@ -5291,6 +5327,15 @@ namespace Xtensive {
         internal static string ExScaleShouldBeNonNegativeValue {
             get {
                 return ResourceManager.GetString("ExScaleShouldBeNonNegativeValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Schema mapping requires multischema domain configuration. Please provide at least DefaultSchema setting..
+        /// </summary>
+        internal static string ExSchemaMappingRequiresMultischemaDomainConfiguration {
+            get {
+                return ResourceManager.GetString("ExSchemaMappingRequiresMultischemaDomainConfiguration", resourceCulture);
             }
         }
         
@@ -5723,6 +5768,24 @@ namespace Xtensive {
         internal static string ExStateWithKeyXIsAlreadyExists {
             get {
                 return ResourceManager.GetString("ExStateWithKeyXIsAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Storage node is already selected..
+        /// </summary>
+        internal static string ExStorageNodeIsAlreadySelected {
+            get {
+                return ResourceManager.GetString("ExStorageNodeIsAlreadySelected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Storage node with id &apos;{0}&apos; is not found..
+        /// </summary>
+        internal static string ExStorageNodeWithIdXIsNotFound {
+            get {
+                return ResourceManager.GetString("ExStorageNodeWithIdXIsNotFound", resourceCulture);
             }
         }
         
@@ -6205,6 +6268,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type with TypeId={0} is not registered..
+        /// </summary>
+        internal static string ExTypeIdXIsNotRegistered {
+            get {
+                return ResourceManager.GetString("ExTypeIdXIsNotRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TypeInfo hierarchy does not correspond to provided hierarchy..
         /// </summary>
         internal static string ExTypeInfoHierarchyMistmatch {
@@ -6454,6 +6526,15 @@ namespace Xtensive {
         internal static string ExTypeXIsNotFound {
             get {
                 return ResourceManager.GetString("ExTypeXIsNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type &apos;{0}&apos; is not registered..
+        /// </summary>
+        internal static string ExTypeXIsNotRegistered {
+            get {
+                return ResourceManager.GetString("ExTypeXIsNotRegistered", resourceCulture);
             }
         }
         
@@ -7774,6 +7855,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Async operation error..
+        /// </summary>
+        internal static string LogAsyncOperationError {
+            get {
+                return ResourceManager.GetString("LogAsyncOperationError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Attempt to use disposed instance of type &apos;{0}&apos;..
         /// </summary>
         internal static string LogAttemptToUseDisposedInstance {
@@ -8309,11 +8399,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Creating connection &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Creating connection..
         /// </summary>
-        internal static string LogSessionXCreatingConnectionY {
+        internal static string LogSessionXCreatingConnection {
             get {
-                return ResourceManager.GetString("LogSessionXCreatingConnectionY", resourceCulture);
+                return ResourceManager.GetString("LogSessionXCreatingConnection", resourceCulture);
             }
         }
         
@@ -8363,11 +8453,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Disposing connection &apos;{1}&apos;..
+        ///   Looks up a localized string similar to Session &apos;{0}&apos;. Disposing connection..
         /// </summary>
-        internal static string LogSessionXDisposingConnectionY {
+        internal static string LogSessionXDisposingConnection {
             get {
-                return ResourceManager.GetString("LogSessionXDisposingConnectionY", resourceCulture);
+                return ResourceManager.GetString("LogSessionXDisposingConnection", resourceCulture);
             }
         }
         
@@ -9275,15 +9365,6 @@ namespace Xtensive {
         internal static string TypeIdRangeForDatabaseXYZIsExhausted {
             get {
                 return ResourceManager.GetString("TypeIdRangeForDatabaseXYZIsExhausted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type with TypeId={0} is not registered..
-        /// </summary>
-        internal static string TypeIdXIsNotRegistered {
-            get {
-                return ResourceManager.GetString("TypeIdXIsNotRegistered", resourceCulture);
             }
         }
         

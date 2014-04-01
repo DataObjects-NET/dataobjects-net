@@ -277,7 +277,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
           prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(CustomerField, true, true));
           prefetchManager.ExecuteTasks(true);
           var orderState = session.EntityStateCache[orderKey, true];
-          var customerKey = Key.Create(Domain, Domain.Model.Types[typeof(Customer)],
+          var customerKey = Key.Create(Domain, WellKnown.DefaultNodeId, Domain.Model.Types[typeof(Customer)],
             TypeReferenceAccuracy.ExactType, CustomerField.Associations.Last()
               .ExtractForeignKey(orderState.Type, orderState.Tuple));
           PrefetchTestHelper.AssertOnlySpecifiedColumnsAreLoaded(customerKey, CustomerType, session,
@@ -620,8 +620,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       if (IncludeTypeIdModifier.IsEnabled)
         Assert.Ignore("This test is meaningless when TypeIds of entities are being included in the corresponding key values.");
       const int idValue = int.MaxValue - 1;
-      var key = Key.Create(Domain, Domain.Model.Types[typeof (Person)], TypeReferenceAccuracy.BaseType,
-        idValue);
+      var key = Key.Create(Domain, WellKnown.DefaultNodeId, typeof (Person), TypeReferenceAccuracy.BaseType, idValue);
       Domain domain1 = Domain;
       var personType = domain1.Model.Types[typeof (Person)];
       using (var session = Domain.OpenSession()) {

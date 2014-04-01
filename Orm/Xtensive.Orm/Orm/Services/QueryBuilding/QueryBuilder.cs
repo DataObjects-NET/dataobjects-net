@@ -11,7 +11,6 @@ using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 
@@ -37,7 +36,8 @@ namespace Xtensive.Orm.Services
     {
       ArgumentValidator.EnsureArgumentNotNull(query, "query");
 
-      var configuration = new CompilerConfiguration {PrepareRequest = false};
+      var configuration = Session.CompilationService.CreateConfiguration(Session);
+      configuration.PrepareRequest = false;
       var translated = queryProvider.Translate<TResult>(query.Expression, configuration);
 
       var sqlProvider = translated.DataSource as SqlProvider;

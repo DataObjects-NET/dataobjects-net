@@ -41,56 +41,72 @@ namespace Xtensive.Orm.Building.Builders
     private readonly Domain domain;
     private readonly ITypeIdProvider typeIdProvider;
 
-    public void BuildTypeIds()
+    public void BuildTypeIds(TypeIdRegistry registry)
     {
-      AssignTypeIds();
+      // Import static type identifiers
+      foreach (var type in GetTypesWithTypeId())
+        registry.Register(type.TypeId, type);
 
-      // Updating TypeId index
-      domain.Model.Types.RebuildTypeIdIndex();
-    }
+      // Load old type identifiers from database
+      foreach (var type in GetTypesWithoutTypeId(registry)) {
+        var typeId = typeIdProvider.GetTypeId(type.UnderlyingType);
+        if (typeId!=TypeInfo.NoTypeId)
+          registry.Register(typeId, type);
+      }
 
-    private void AssignTypeIds()
-    {
-      // Load existing type ids
-      foreach (var type in GetTypesWithoutTypeId())
-        type.TypeId = typeIdProvider.GetTypeId(type.UnderlyingType);
-
-      // Provide type ids for remaining types
-      var typeGroups = GetTypesWithoutTypeId()
+      // Generate type identifiers for remaining types
+      var typeGroups = GetTypesWithoutTypeId(registry)
         .GroupBy(t => t.MappingDatabase ?? string.Empty)
         .OrderBy(g => g.Key);
+
       foreach (var group in typeGroups) {
-        var sequence = GetTypeIdSequence(group.Key);
+        var sequence = GetTypeIdSequence(registry, group.Key);
         foreach (var type in group.OrderBy(i => i.Name))
-          type.TypeId = sequence.GetNextValue();
+          registry.Register(sequence.GetNextValue(), type);
       }
     }
 
-    private TypeIdSequence GetTypeIdSequence(string mappingDatabase)
+    public void SetDefaultTypeIds(TypeIdRegistry registry)
+    {
+      foreach (var type in GetTypesWithoutTypeId())
+        type.TypeId = registry[type];
+      domain.Model.Types.TypeIdRegistry = registry;
+    }
+
+    private TypeIdSequence GetTypeIdSequence(TypeIdRegistry registry, string mappingDatabase)
     {
       if (domain.Model.Databases.Count==0)
         // Multidatabase mode is not enabled, use default range
-        return GetTypeIdSequence(TypeInfo.MinTypeId, int.MaxValue, Strings.NA);
+        return GetTypeIdSequence(registry, TypeInfo.MinTypeId, int.MaxValue, Strings.NA);
 
       // Query configuration for a particular database
       var configurationEntry = domain.Model.Databases[mappingDatabase].Configuration;
-      return GetTypeIdSequence(
+      return GetTypeIdSequence(registry,
         configurationEntry.MinTypeId, configurationEntry.MaxTypeId, configurationEntry.Name);
     }
 
-    private TypeIdSequence GetTypeIdSequence(int minTypeId, int maxTypeId, string mappingDatabase)
+    private TypeIdSequence GetTypeIdSequence(TypeIdRegistry registry, int minTypeId, int maxTypeId, string mappingDatabase)
     {
-      var current = domain.Model.Types
-        .Where(t => t.TypeId >= minTypeId && t.TypeId <= maxTypeId)
-        .Select(t => t.TypeId)
+      var current = registry.TypeIdentifiers
+        .Where(id => id >= minTypeId && id <= maxTypeId)
         .DefaultIfEmpty(minTypeId - 1)
         .Max();
       return new TypeIdSequence(current, minTypeId, maxTypeId, mappingDatabase);
     }
 
+    private IEnumerable<TypeInfo> GetTypesWithTypeId()
+    {
+      return domain.Model.Types.Where(t => t.IsEntity && t.TypeId!=TypeInfo.NoTypeId);
+    }
+
     private IEnumerable<TypeInfo> GetTypesWithoutTypeId()
     {
-      return domain.Model.Types.Where(type => type.IsEntity && type.TypeId==TypeInfo.NoTypeId);
+      return domain.Model.Types.Where(t => t.IsEntity && t.TypeId==TypeInfo.NoTypeId);
+    }
+
+    private IEnumerable<TypeInfo> GetTypesWithoutTypeId(TypeIdRegistry registry)
+    {
+      return domain.Model.Types.Where(t => t.IsEntity && !registry.Contains(t));
     }
 
     // Constructors
