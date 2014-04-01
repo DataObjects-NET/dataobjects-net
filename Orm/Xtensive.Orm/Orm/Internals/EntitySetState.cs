@@ -162,7 +162,6 @@ namespace Xtensive.Orm.Internals
     /// <param name="key">The key to remove.</param>
     public void Remove(Key key)
     {
-      EnsureFetchedKeysIsNotNull();
       if (addedKeys.ContainsKey(key))
         addedKeys.Remove(key);
       else
