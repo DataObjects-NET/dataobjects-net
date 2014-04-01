@@ -1444,6 +1444,7 @@
     <Compile Include="Sql\Drivers\SqlServer\v09\Translator.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v09\TypeMapper.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v10\Compiler.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v10\CustomSqlType.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v10\Driver.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v10\Extractor.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v10\GeographyMapper.cs" />

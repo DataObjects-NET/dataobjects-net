@@ -158,16 +158,6 @@ namespace Xtensive.Sql
     /// </summary>
     public static readonly SqlType Guid = new SqlType("Guid");
 
-    /// <summary>
-    /// Geometry, like in Microsoft.SqlServer.Types
-    /// </summary>
-    public static readonly SqlType Geometry = new SqlType("Geometry");
-
-    /// <summary>
-    /// Geography, like in Microsoft.SqlServer.Types
-    /// </summary>
-    public static readonly SqlType Geography = new SqlType("Geography");
-
     #endregion
 
     #region Override the comparison operator

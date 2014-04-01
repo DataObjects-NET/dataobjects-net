@@ -15,7 +15,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     // Constructors
 
     public GeographyMapper()
-      : base(GeographyTypeName, "geography", SqlType.Geography)
+      : base(GeographyTypeName, "geography", CustomSqlType.Geography)
     {
     }
   }

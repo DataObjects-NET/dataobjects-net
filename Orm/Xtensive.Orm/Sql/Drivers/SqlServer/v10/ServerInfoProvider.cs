@@ -41,8 +41,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarBinaryMax, common, "varbinary(max)", "image");
 
       var geo = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.Multiple | DataTypeFeatures.Spatial;
-      types.Add(SqlType.Geometry, DataTypeInfo.Regular(SqlType.Geometry, geo, "geometry"));
-      types.Add(SqlType.Geography, DataTypeInfo.Regular(SqlType.Geography, geo, "geography"));
+      types.Add(CustomSqlType.Geometry, DataTypeInfo.Regular(CustomSqlType.Geometry, geo, "geometry"));
+      types.Add(CustomSqlType.Geography, DataTypeInfo.Regular(CustomSqlType.Geography, geo, "geography"));
       return types;
     }
 
