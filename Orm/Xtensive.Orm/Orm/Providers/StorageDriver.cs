@@ -39,6 +39,8 @@ namespace Xtensive.Orm.Providers
 
     public StorageExceptionBuilder ExceptionBuilder { get; private set; }
 
+    public ServerInfo ServerInfo { get; private set; }
+
     public string BuildBatch(string[] statements)
     {
       return translator.BuildBatch(statements);
@@ -162,6 +164,7 @@ namespace Xtensive.Orm.Providers
       translator = underlyingDriver.Translator;
       hasSavepoints = underlyingDriver.ServerInfo.ServerFeatures.Supports(ServerFeatures.Savepoints);
       isLoggingEnabled = SqlLog.IsLogged(LogLevel.Info); // Just to cache this value
+      ServerInfo = underlyingDriver.ServerInfo;
     }
   }
 }
