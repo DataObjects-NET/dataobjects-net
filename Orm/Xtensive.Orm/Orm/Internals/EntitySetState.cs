@@ -256,6 +256,7 @@ namespace Xtensive.Orm.Internals
     internal EntitySetState(EntitySetBase entitySet)
       : base(entitySet.Session)
     {
+      InitializeFetchedKeys();
       addedKeys = new Dictionary<Key, Key>();
       removedKeys = new Dictionary<Key, Key>();
     }
