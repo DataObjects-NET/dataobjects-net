@@ -426,7 +426,8 @@ namespace Xtensive.Orm.Building.Builders
         generatorKind = KeyGeneratorKind.None;
 
       if (generatorKind==KeyGeneratorKind.Default) {
-        var canBeHandled = key.SingleColumnType!=null && KeyGeneratorFactory.IsSupported(key.SingleColumnType);
+        var canBeHandled = key.SingleColumnType!=null && KeyGeneratorFactory.IsSupported(key.SingleColumnType,
+          context.Domain.StorageProviderInfo.CollectionsSupportedTypes.SupportedNumericTypes);
         // Force absence of key generator if key can not be handled by standard keygen.
         if (!canBeHandled)
           generatorKind = KeyGeneratorKind.None;
@@ -508,7 +509,7 @@ namespace Xtensive.Orm.Building.Builders
     private bool IsSequenceBacked(KeyInfo key)
     {
       var valueType = key.SingleColumnType;
-      return valueType!=null && KeyGeneratorFactory.IsSequenceBacked(valueType);
+      return valueType!=null && KeyGeneratorFactory.IsSequenceBacked(valueType, context.Domain.StorageProviderInfo.CollectionsSupportedTypes.SupportedNumericTypes);
     }
 
     private bool DeclaresOnValidate(Type type)

@@ -360,7 +360,7 @@ namespace Xtensive.Orm.Linq
 
       ProjectionExpression projection;
       using (state.CreateScope()) {
-        var isPrimitiveType = WellKnown.SupportedPrimitiveAndNullableTypes.Contains(method.ReturnType);
+        var isPrimitiveType = context.ProviderInfo.CollectionsSupportedTypes.SupportedPrimitiveAndNullableTypes.Contains(method.ReturnType);
         state.RequestCalculateExpressions = state.RequestCalculateExpressions
           || !isRoot && isPrimitiveType;
         projection = predicate!=null ? VisitWhere(source, predicate) : VisitSequence(source);

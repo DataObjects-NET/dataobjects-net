@@ -153,7 +153,9 @@ namespace Xtensive.Orm.Providers
         providerName, storageVersion, f,
         maxIdentifierLength,
         serverInfo.PrimaryKey.ConstantName,
-        coreServerInfo.DatabaseName, coreServerInfo.DefaultSchemaName);
+        coreServerInfo.DatabaseName, 
+        coreServerInfo.DefaultSchemaName,
+        driver.CollectionsSupportedTypes);
     }
   }
 }

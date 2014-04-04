@@ -5,6 +5,7 @@
 // Created:    2009.06.01
 
 using System;
+using Xtensive.Sql.Info;
 
 namespace Xtensive.Orm.Providers
 {
@@ -60,6 +61,8 @@ namespace Xtensive.Orm.Providers
       return (ProviderFeatures & required)==required;
     }
 
+    public CollectionsSupportedTypes CollectionsSupportedTypes { get; private set; }
+
     // Constructors
 
     internal ProviderInfo(
@@ -69,7 +72,8 @@ namespace Xtensive.Orm.Providers
       int maxIdentifierLength,
       string constantPrimaryIndexName,
       string defaultDatabase,
-      string defaultSchema)
+      string defaultSchema, 
+      CollectionsSupportedTypes collectionsSupportedTypes)
     {
       ProviderName = providerName;
 
@@ -81,6 +85,8 @@ namespace Xtensive.Orm.Providers
 
       DefaultDatabase = defaultDatabase;
       DefaultSchema = defaultSchema;
+
+      CollectionsSupportedTypes = collectionsSupportedTypes;
     }
   }
 }

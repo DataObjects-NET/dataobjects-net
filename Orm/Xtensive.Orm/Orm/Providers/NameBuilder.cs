@@ -41,6 +41,7 @@ namespace Xtensive.Orm.Providers
     private readonly NamingConvention namingConvention;
     private readonly bool isMultidatabase;
     private readonly string defaultDatabase;
+    private readonly ProviderInfo providerInfo;
 
     /// <summary>
     /// Gets the <see cref="Entity.TypeId"/> column name.
@@ -498,7 +499,7 @@ namespace Xtensive.Orm.Providers
       var mappingDatabase = hierarchyDef.Root.MappingDatabase;
       var databaseSuffixRequired =
         key.GeneratorKind==KeyGeneratorKind.Default
-        && KeyGeneratorFactory.IsSequenceBacked(key.SingleColumnType)
+        && KeyGeneratorFactory.IsSequenceBacked(key.SingleColumnType, providerInfo.CollectionsSupportedTypes.SupportedNumericTypes)
         && !string.IsNullOrEmpty(mappingDatabase);
       var baseName = key.GeneratorBaseName;
       return databaseSuffixRequired
@@ -612,6 +613,8 @@ namespace Xtensive.Orm.Providers
       maxIdentifierLength = providerInfo.MaxIdentifierLength;
 
       TypeIdColumnName = ApplyNamingRules(WellKnown.TypeIdFieldName);
+
+      this.providerInfo = providerInfo;
     }
   }
 }

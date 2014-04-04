@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
 using Xtensive.IoC;
 using Xtensive.Orm.Internals.KeyGenerators;
 
@@ -14,23 +15,22 @@ namespace Xtensive.Orm.Building.Builders
 {
   internal static class KeyGeneratorFactory
   {
-    private static readonly Type[] SupportedTypes = WellKnown.SupportedNumericTypes
-      .Concat(new[] {typeof (Guid), typeof (string)})
-      .ToArray();
-
-    public static bool IsSupported(Type valueType)
+    public static bool IsSupported(Type valueType, ReadOnlyHashSet<Type> supportedNumericTypes)
     {
-      return SupportedTypes.Contains(valueType);
+      Type[] supportedTypes = supportedNumericTypes
+        .Concat(new[] {typeof (Guid), typeof (string)})
+        .ToArray();
+      return supportedTypes.Contains(valueType);
     }
 
-    public static bool IsSequenceBacked(Type valueType)
+    public static bool IsSequenceBacked(Type valueType, ReadOnlyHashSet<Type> supportedNumericTypes)
     {
-      return WellKnown.SupportedNumericTypes.Contains(valueType);
+      return supportedNumericTypes.Contains(valueType);
     }
 
-    private static Type GetGeneratorType(Type valueType)
+    private static Type GetGeneratorType(Type valueType, ReadOnlyHashSet<Type> supportedNumericTypes)
     {
-      if (IsSequenceBacked(valueType))
+      if (IsSequenceBacked(valueType, supportedNumericTypes))
         return typeof (StorageSequentalGenerator<>).MakeGenericType(valueType);
 
       if (valueType==typeof (Guid))
@@ -42,9 +42,9 @@ namespace Xtensive.Orm.Building.Builders
       throw TypeNotSupported(valueType);
     }
 
-    private static Type GetTemporaryGeneratorType(Type valueType)
+    private static Type GetTemporaryGeneratorType(Type valueType, ReadOnlyHashSet<Type> supportedNumericTypes)
     {
-      if (IsSequenceBacked(valueType))
+      if (IsSequenceBacked(valueType, supportedNumericTypes))
         return typeof (TemporarySequentalGenerator<>).MakeGenericType(valueType);
 
       if (valueType==typeof (Guid))
@@ -56,19 +56,21 @@ namespace Xtensive.Orm.Building.Builders
       throw TypeNotSupported(valueType);
     }
 
-    private static IEnumerable<ServiceRegistration> GetStandardRegistrations(string name, Type valueType)
+    private static IEnumerable<ServiceRegistration> GetStandardRegistrations(string name, Type valueType, ReadOnlyHashSet<Type> supportedNumericTypes)
     {
       yield return new ServiceRegistration(
-        typeof (KeyGenerator), name, GetGeneratorType(valueType), true);
+        typeof (KeyGenerator), name, GetGeneratorType(valueType, supportedNumericTypes), true);
       yield return new ServiceRegistration(
-        typeof (TemporaryKeyGenerator), name, GetTemporaryGeneratorType(valueType), true);
+        typeof (TemporaryKeyGenerator), name, GetTemporaryGeneratorType(valueType, supportedNumericTypes), true);
     }
 
     public static IEnumerable<ServiceRegistration> GetRegistrations(BuildingContext context)
     {
       var standardRegistrations = context.Model.Hierarchies.Select(h => h.Key)
         .Where(key => key.GeneratorKind==KeyGeneratorKind.Default && key.IsFirstAmongSimilarKeys)
-        .SelectMany(key => GetStandardRegistrations(key.GeneratorName, key.SingleColumnType));
+        .SelectMany(key => GetStandardRegistrations(key.GeneratorName,
+          key.SingleColumnType,
+          context.Domain.StorageProviderInfo.CollectionsSupportedTypes.SupportedNumericTypes));
 
       var userRegistrations = context.Configuration.Types.KeyGenerators
         .SelectMany(ServiceRegistration.CreateAll)

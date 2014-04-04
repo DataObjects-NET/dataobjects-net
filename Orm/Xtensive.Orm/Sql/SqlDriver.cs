@@ -43,6 +43,11 @@ namespace Xtensive.Sql
     public SqlTranslator Translator { get; private set; }
 
     /// <summary>
+    /// Gets the collections supported types to particular provider.
+    /// </summary>
+    public CollectionsSupportedTypes CollectionsSupportedTypes { get; private set; }
+
+    /// <summary>
     /// Gets connection string for the specified <see cref="ConnectionInfo"/>.
     /// </summary>
     /// <param name="connectionInfo"><see cref="ConnectionInfo"/> to convert.</param>
@@ -247,6 +252,10 @@ namespace Xtensive.Sql
     {
     }
 
+    protected virtual void RegistredCustomCollectionsSupportedTypes(CollectionsSupportedTypesBuilder builder)
+    {
+    }
+
     #region Private / internal methods
 
     internal void Initialize(SqlDriverFactory creator, ConnectionInfo creatorConnectionInfo)
@@ -263,6 +272,8 @@ namespace Xtensive.Sql
 
       Translator = CreateTranslator();
       Translator.Initialize();
+
+      CollectionsSupportedTypes = CreateCollectionsSupportesTypes();
     }
 
     private TypeMappingRegistry CreateTypeMappingCollection(TypeMapper mapper)
@@ -324,6 +335,37 @@ namespace Xtensive.Sql
       builder.AddReverseMapping(SqlType.VarBinary, typeof(byte[]));
       builder.AddReverseMapping(SqlType.VarBinaryMax, typeof(byte[]));
       builder.AddReverseMapping(SqlType.Guid, typeof(Guid));
+    }
+
+    private CollectionsSupportedTypes CreateCollectionsSupportesTypes()
+    {
+      var builder = new CollectionsSupportedTypesBuilder();
+      RegistredStandartCollectionsSupportedTypes(builder);
+      RegistredCustomCollectionsSupportedTypes(builder);
+      return builder.Build();
+    }
+
+    public static void RegistredStandartCollectionsSupportedTypes(CollectionsSupportedTypesBuilder builder)
+    {
+      builder.AddIntegerType(typeof (sbyte));
+      builder.AddIntegerType(typeof (byte));
+      builder.AddIntegerType(typeof (short));
+      builder.AddIntegerType(typeof (ushort));
+      builder.AddIntegerType(typeof (int));
+      builder.AddIntegerType(typeof (uint));
+      builder.AddIntegerType(typeof (long));
+      builder.AddIntegerType(typeof (ulong));
+
+      builder.AddNumericTypes(typeof (decimal));
+      builder.AddNumericTypes(typeof (double));
+      builder.AddNumericTypes(typeof (float));
+
+      builder.AddPrimitiveTypes(typeof (string));
+      builder.AddPrimitiveTypes(typeof (Guid));
+      builder.AddPrimitiveTypes(typeof (DateTime));
+      builder.AddPrimitiveTypes(typeof (DateTimeOffset));
+      builder.AddPrimitiveTypes(typeof (TimeSpan));
+      builder.AddPrimitiveTypes(typeof (byte[]));
     }
 
     private Extractor BuildExtractor(SqlConnection connection)
