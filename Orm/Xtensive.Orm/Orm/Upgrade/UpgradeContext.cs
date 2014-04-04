@@ -143,6 +143,11 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     public DbTransaction Transaction { get { return Services.Connection.ActiveTransaction; } }
 
+    /// <summary>
+    /// Gets ids of types which defined in <see cref="UpgradeStage.Upgrading"/> stage.
+    /// </summary>
+    public Dictionary<string, int> UpgradingStageTypeMap { get; internal set; }
+
     #region Private / internal members
 
     internal object Cookie { get; private set; }

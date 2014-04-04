@@ -56,13 +56,24 @@ namespace Xtensive.Orm.Upgrade
         if (oldType!=null)
           return oldType.TypeId;
       }
+
+      if (TryGetTypeIdFromUpgrageStageTypes(fullName, out typeId))
+        return typeId;
       
       if (TryGetTypeIdFromMovedToAnotherNamespaceTypes(fullName, out typeId))
         return typeId;
   
       return TypeInfo.NoTypeId;
     }
-    
+
+    private bool TryGetTypeIdFromUpgrageStageTypes(string typeName, out int typeId)
+    {
+      typeId = TypeInfo.NoTypeId;
+      if (context.Stage==UpgradeStage.Final && context.UpgradingStageTypeMap!=null)
+        return context.UpgradingStageTypeMap.TryGetValue(typeName, out typeId);
+      return false;
+    }
+
     private bool TryGetTypeIdFromMovedToAnotherNamespaceTypes(string typeName, out int typeId)
     {
       typeId = TypeInfo.NoTypeId;

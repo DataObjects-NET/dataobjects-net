@@ -59,6 +59,7 @@ namespace Xtensive.Orm.Upgrade
         // Perform or PerformSafely
         builder.BuildTypeIds();
         UpdateMetadata(session);
+        SaveUpgradingStageTypeMapToContext(context, session.Domain.Model.Types);
         break;
       case UpgradeStage.Final:
         if (upgradeMode.IsUpgrading()) {
@@ -244,6 +245,11 @@ namespace Xtensive.Orm.Upgrade
     {
       var context = UpgradeContext;
       context.ExtractedTypeMap = context.Metadata.Types.ToDictionary(t => t.Name, t => t.Id);
+    }
+
+    private void SaveUpgradingStageTypeMapToContext(UpgradeContext context, TypeInfoCollection types)
+    {
+      context.UpgradingStageTypeMap = types.ToDictionary(type => type.UnderlyingType.FullName, type => type.TypeId);
     }
   }
 }
