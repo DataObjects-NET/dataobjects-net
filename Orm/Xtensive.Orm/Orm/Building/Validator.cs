@@ -16,10 +16,10 @@ namespace Xtensive.Orm.Building
 {
   internal class Validator
   {
-    private readonly HashSet<Type> ValidFieldTypes = new HashSet<Type>();
     private readonly Regex ColumnNamingRule;
     private readonly Regex TypeNamingRule;
     private readonly Regex FieldNamingRule;
+    private readonly BuildingContext context;
 
     /// <summary>
     /// Determines whether the specified name is valid.
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Building
       if (fieldType.IsArray && isKeyField)
         throw new DomainBuilderException(String.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
 
-      if (fieldType.IsPrimitive || fieldType.IsEnum || ValidFieldTypes.Contains(fieldType))
+      if (fieldType.IsPrimitive || fieldType.IsEnum || fieldType==typeof (Key))
         return;
 
       if (fieldType.IsSubclassOf(typeof (Entity)))
@@ -145,7 +145,9 @@ namespace Xtensive.Orm.Building
         return;
       }
 
-      if (fieldType.Name == "SqlGeometry" || fieldType.Name == "SqlGeography")
+      var collectionsSupportedTypes = context.Domain.StorageProviderInfo.CollectionsSupportedTypes;
+
+      if (collectionsSupportedTypes.SupportedPrimitiveTypes.Contains(fieldType) || collectionsSupportedTypes.SupportedSpecializedTypes.Contains(fieldType))
         return;
 
       throw new DomainBuilderException(String.Format(Strings.ExUnsupportedType, fieldType.GetShortName()));
@@ -218,20 +220,12 @@ namespace Xtensive.Orm.Building
 
     // Type initializer
 
-    public Validator()
+    public Validator(BuildingContext context)
     {
+      this.context = context;
       ColumnNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
       TypeNamingRule = new Regex(@"^[\w][\w\-\.\(\),]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
       FieldNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-
-      ValidFieldTypes.Add(typeof (string));
-      ValidFieldTypes.Add(typeof (byte[]));
-      ValidFieldTypes.Add(typeof (Guid));
-      ValidFieldTypes.Add(typeof (DateTime));
-      ValidFieldTypes.Add(typeof (DateTimeOffset));
-      ValidFieldTypes.Add(typeof (TimeSpan));
-      ValidFieldTypes.Add(typeof (decimal));
-      ValidFieldTypes.Add(typeof (Key));
     }
 
     public void ValidateHierarchyEquality(TypeDef @interface, HierarchyDef first, HierarchyDef second)
