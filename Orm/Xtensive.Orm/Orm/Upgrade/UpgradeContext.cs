@@ -148,6 +148,11 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     public Dictionary<string, int> UpgradingStageTypeMap { get; internal set; }
 
+    /// <summary>
+    /// Gets type map when all hints generated.
+    /// </summary>
+    public Dictionary<string, string> TypeMapAfterHintGeneration { get; internal set; } 
+
     #region Private / internal members
 
     internal object Cookie { get; private set; }
