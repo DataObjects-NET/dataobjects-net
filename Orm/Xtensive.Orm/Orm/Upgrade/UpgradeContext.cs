@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Upgrade
     public DbTransaction Transaction { get { return Services.Connection.ActiveTransaction; } }
 
     /// <summary>
-    /// Gets ids of types which defined in <see cref="UpgradeStage.Upgrading"/> stage.
+    /// Gets identifiers of types which were defined in <see cref="UpgradeStage.Upgrading"/> stage.
     /// </summary>
     public Dictionary<string, int> UpgradingStageTypeMap { get; internal set; }
 
