@@ -42,8 +42,8 @@ namespace Xtensive.Orm.Upgrade
         return;
 
       CheckAssemblies();
-      BuildTypeIdMap();
-      LoadStoredDomainModel();
+      SaveExtractedTypeMap();
+      ParseStoredDomainModel();
     }
 
     /// <inheritdoc/>
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Upgrade
         // Perform or PerformSafely
         builder.BuildTypeIds();
         UpdateMetadata(session);
-        SaveUpgradingStageTypeMapToContext(context, session.Domain.Model.Types);
+        SaveFullTypeMap(session.Domain);
         break;
       case UpgradeStage.Final:
         if (upgradeMode.IsUpgrading()) {
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Upgrade
         }
         else {
           // Skip and Validate
-          BuildTypeIdMap();
+          SaveExtractedTypeMap();
           builder.BuildTypeIds();
         }
         break;
@@ -212,7 +212,7 @@ namespace Xtensive.Orm.Upgrade
       return new ExtensionMetadata(WellKnown.PartialIndexDefinitionsExtensionName, items.Serialize());
     }
 
-    private void LoadStoredDomainModel()
+    private void ParseStoredDomainModel()
     {
       var context = UpgradeContext;
       var extensions = context.Metadata.Extensions.Where(e => e.Name==WellKnown.DomainModelExtensionName);
@@ -241,15 +241,16 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private void BuildTypeIdMap()
+    private void SaveExtractedTypeMap()
     {
-      var context = UpgradeContext;
-      context.ExtractedTypeMap = context.Metadata.Types.ToDictionary(t => t.Name, t => t.Id);
+      var map = UpgradeContext.Metadata.Types.ToDictionary(t => t.Name, t => t.Id);
+      UpgradeContext.FullTypeMap = UpgradeContext.ExtractedTypeMap = map;
     }
 
-    private void SaveUpgradingStageTypeMapToContext(UpgradeContext context, TypeInfoCollection types)
+    private void SaveFullTypeMap(Domain domain)
     {
-      context.UpgradingStageTypeMap = types.ToDictionary(type => type.UnderlyingType.FullName, type => type.TypeId);
+      var types = domain.Model.Types.Where(t => t.IsEntity);
+      UpgradeContext.FullTypeMap = types.ToDictionary(type => type.UnderlyingType.FullName, type => type.TypeId);
     }
   }
 }

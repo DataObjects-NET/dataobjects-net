@@ -102,9 +102,16 @@ namespace Xtensive.Orm.Upgrade
     public StoredDomainModel ExtractedDomainModel { get; internal set; }
 
     /// <summary>
-    /// Gets the extracted type map (Full name of the type and TypeId).
+    /// Gets the extracted type map (full name of the type and type identifier).
     /// </summary>
     public Dictionary<string, int> ExtractedTypeMap { get; internal set; }
+
+    /// <summary>
+    /// Gets type identifier map for all known identifiers.
+    /// This collection includes all items from <see cref="ExtractedTypeMap"/>,
+    /// but it might include additional items if new types were added.
+    /// </summary>
+    public Dictionary<string, int> FullTypeMap { get; internal set; }
 
     /// <summary>
     /// Gets the map of upgrade handlers.
@@ -144,14 +151,9 @@ namespace Xtensive.Orm.Upgrade
     public DbTransaction Transaction { get { return Services.Connection.ActiveTransaction; } }
 
     /// <summary>
-    /// Gets identifiers of types which were defined in <see cref="UpgradeStage.Upgrading"/> stage.
+    /// Gets mapping between new and old persistent types.
     /// </summary>
-    public Dictionary<string, int> UpgradingStageTypeMap { get; internal set; }
-
-    /// <summary>
-    /// Gets type map when all hints generated.
-    /// </summary>
-    public Dictionary<string, string> TypeMapAfterHintGeneration { get; internal set; } 
+    public Dictionary<string, string> UpgradedTypesMapping { get; internal set; } 
 
     #region Private / internal members
 
