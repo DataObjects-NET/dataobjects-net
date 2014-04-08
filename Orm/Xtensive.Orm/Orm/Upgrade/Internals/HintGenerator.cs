@@ -89,7 +89,10 @@ namespace Xtensive.Orm.Upgrade
       // Hints validation
       ValidateHints(hints);
 
-      return new HintGenerationResult(hints.ToList(), schemaHints);
+      var upgradedTypesMapping = reverseTypeMapping
+        .ToDictionary(item => item.Key.UnderlyingType, item => item.Value.UnderlyingType);
+
+      return new HintGenerationResult(hints.ToList(), schemaHints, upgradedTypesMapping);
     }
 
     #region Validation
