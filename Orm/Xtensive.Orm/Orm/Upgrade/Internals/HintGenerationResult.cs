@@ -15,10 +15,13 @@ namespace Xtensive.Orm.Upgrade
 
     public List<Hint> SchemaHints { get; private set; }
 
-    public HintGenerationResult(List<UpgradeHint> modelHints, List<Hint> schemaHints)
+    public Dictionary<string, string> UpgradedTypesMapping { get; private set; }
+
+    public HintGenerationResult(List<UpgradeHint> modelHints, List<Hint> schemaHints, Dictionary<string, string> upgradedTypesMapping)
     {
       ModelHints = modelHints;
       SchemaHints = schemaHints;
+      UpgradedTypesMapping = upgradedTypesMapping ?? new Dictionary<string, string>();
     }
   }
 }

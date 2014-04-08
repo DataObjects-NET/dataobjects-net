@@ -345,6 +345,7 @@ namespace Xtensive.Orm.Upgrade
       var handlers = Domain.Demand().Handlers;
       var hintGenerator = new HintGenerator(handlers, context.Services.MappingResolver, oldModel, extractedSchema, context.Hints);
       var hints = hintGenerator.Run();
+      context.UpgradedTypesMapping = hints.UpgradedTypesMapping;
       context.Hints.Clear();
       foreach (var modelHint in hints.ModelHints)
         context.Hints.Add(modelHint);
