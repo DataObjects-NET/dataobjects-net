@@ -6,6 +6,8 @@
 
 using System;
 using Xtensive.Sql.Info;
+using System.Collections.Generic;
+using Xtensive.Collections;
 
 namespace Xtensive.Orm.Providers
 {
@@ -53,6 +55,11 @@ namespace Xtensive.Orm.Providers
     public string DefaultSchema { get; private set; }
 
     /// <summary>
+    /// Gets the supported types.
+    /// </summary>
+    public ReadOnlyHashSet<Type> SupportedTypes { get; private set; }
+
+    /// <summary>
     /// Determines whether the specified features are supported.
     /// </summary>
     /// <param name="required">The required feature set.</param>
@@ -60,8 +67,6 @@ namespace Xtensive.Orm.Providers
     {
       return (ProviderFeatures & required)==required;
     }
-
-    public CollectionsSupportedTypes CollectionsSupportedTypes { get; private set; }
 
     // Constructors
 
@@ -73,7 +78,7 @@ namespace Xtensive.Orm.Providers
       string constantPrimaryIndexName,
       string defaultDatabase,
       string defaultSchema, 
-      CollectionsSupportedTypes collectionsSupportedTypes)
+      HashSet<Type> supportedTypes)
     {
       ProviderName = providerName;
 
@@ -86,7 +91,7 @@ namespace Xtensive.Orm.Providers
       DefaultDatabase = defaultDatabase;
       DefaultSchema = defaultSchema;
 
-      CollectionsSupportedTypes = collectionsSupportedTypes;
+      SupportedTypes = new ReadOnlyHashSet<Type>(supportedTypes, true);
     }
   }
 }

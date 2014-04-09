@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Building
 
       Modules = BuilderConfiguration.Services.Modules.ToList().AsReadOnly();
       Modules2 = Modules.OfType<IModule2>().ToList().AsReadOnly();
-      Validator = new Validator(this);
+      Validator = new Validator(builderConfiguration.Services.ProviderInfo.SupportedTypes.ToHashSet());
     }
   }
 }

@@ -49,12 +49,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       builder.AddReverseMapping(CustomSqlType.Geography, Type.GetType("Microsoft.SqlServer.Types.SqlGeography, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"));
     }
 
-    protected override void RegistredCustomCollectionsSupportedTypes(CollectionsSupportedTypesBuilder builder)
-    {
-      builder.AddSpecializedTypes(Type.GetType("Microsoft.SqlServer.Types.SqlGeometry, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"));
-      builder.AddSpecializedTypes(Type.GetType("Microsoft.SqlServer.Types.SqlGeography, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"));
-    }
-
     // Constructors
 
     public Driver(CoreServerInfo coreServerInfo, ErrorMessageParser errorMessageParser)

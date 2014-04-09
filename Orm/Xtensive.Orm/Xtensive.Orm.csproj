@@ -1471,8 +1471,6 @@
     <Compile Include="Sql\Drivers\SqlServer\v11\Extractor.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v11\ServerInfoProvider.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v11\Translator.cs" />
-    <Compile Include="Sql\Info\CollectionsSupportedTypes.cs" />
-    <Compile Include="Sql\Info\CollectionsSupportedTypesBuilder.cs" />
     <Compile Include="Sql\Info\ColumnFeatures.cs" />
     <Compile Include="Sql\Info\ColumnInfo.cs" />
     <Compile Include="Sql\Info\Constaints\AssertConstraintInfo.cs" />
