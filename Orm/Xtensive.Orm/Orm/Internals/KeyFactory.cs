@@ -24,7 +24,8 @@ namespace Xtensive.Orm.Internals
       if (!typeInfo.IsEntity)
         throw new InvalidOperationException(String.Format(Strings.ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity, typeInfo));
       var domain = session.Domain;
-      var keyGenerator = domain.KeyGenerators.Get(typeInfo.Key, session.IsDisconnected);
+      var isTemporary = session.IsDisconnected || (session.LazyKeyGenerationIsEnabled && !session.IsPersisting);
+      var keyGenerator = domain.KeyGenerators.Get(typeInfo.Key, isTemporary);
       if (keyGenerator==null)
         throw new InvalidOperationException(String.Format(Strings.ExUnableToCreateKeyForXHierarchy, typeInfo.Hierarchy));
       var keyValue = keyGenerator.GenerateKey(typeInfo.Key, session);

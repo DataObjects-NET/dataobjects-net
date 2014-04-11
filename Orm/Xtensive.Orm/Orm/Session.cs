@@ -114,6 +114,8 @@ namespace Xtensive.Orm
     /// </summary>
     public bool IsDisconnected { get { return DisconnectedState!=null; } }
 
+    public bool LazyKeyGenerationIsEnabled { get { return Configuration.Supports(SessionOptions.LazyKeyGeneration); } }
+
     /// <summary>
     /// Gets the attached <see cref="Orm.DisconnectedState"/> object, if any.
     /// </summary>
@@ -501,6 +503,7 @@ namespace Xtensive.Orm
       EntityStateCache = CreateSessionCache(configuration);
       EntityChangeRegistry = new EntityChangeRegistry(this);
       EntitySetChangeRegistry = new EntitySetChangeRegistry(this);
+      EntityReferenceFieldSetsRegistry = new EntityReferenceFieldSetsRegistry(this);
       entitySetsWithInvalidState = new HashSet<EntitySetBase>();
 
       // Events
@@ -565,6 +568,7 @@ namespace Xtensive.Orm
         EntityChangeRegistry.Clear();
         EntitySetChangeRegistry.Clear();
         EntityStateCache.Clear();
+        EntityReferenceFieldSetsRegistry.Clear();
       }
       finally {
         isDisposed = true;
