@@ -111,6 +111,12 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     ValidateEntities = 1 << 13,
 
+    /// <summary>
+    /// Enables generation of <see cref="Key"/>s for <see cref="Entity">Entities</see>
+    /// just before saving to storage.
+    /// </summary>
+    LazyKeyGeneration = 1 << 14,
+
     // Profiles
 
     /// <summary>
