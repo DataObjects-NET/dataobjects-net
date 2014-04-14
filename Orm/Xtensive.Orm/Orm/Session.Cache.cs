@@ -61,8 +61,10 @@ namespace Xtensive.Orm
       if (keyMapping.Map.Count==0)
         return;
       using (Activate()) {
-        Persist(PersistReason.RemapEntityKeys);
-        Invalidate();
+        if (!LazyKeyGenerationIsEnabled) {
+          Persist(PersistReason.RemapEntityKeys);
+          Invalidate();
+        }
         OrmLog.Debug(Strings.LogSessionXRemappingEntityKeys, this);
         var oldCacheContent = EntityStateCache.ToDictionary(entityState => entityState.Key);
         EntityStateCache.Clear();

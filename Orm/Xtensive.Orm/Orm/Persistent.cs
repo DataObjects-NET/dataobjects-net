@@ -392,25 +392,38 @@ namespace Xtensive.Orm
         var operations = Session.Operations;
         var scope = operations.BeginRegistration(Operations.OperationType.System);
         try {
-          if (operations.CanRegisterOperation) {
-            var entity = this as Entity;
-            if (entity != null)
+          var entity = this as Entity;
+          if (entity!=null) {
+            if (operations.CanRegisterOperation)
               operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, field, value));
-            else {
-              var persistent = this;
-              var currentField = field;
-              var structure = persistent as Structure;
-              while (structure != null && structure.Owner != null) {
-                var pair = new Pair<FieldInfo>(structure.Field, currentField);
-                currentField = structure.Owner.TypeInfo.StructureFieldMapping[pair];
-                persistent = structure.Owner;
-                structure = persistent as Structure;
-              }
-              entity = persistent as Entity;
-              if (entity != null)
-                operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, currentField, value));
+            var entityValue = value as IEntity;
+            if (entityValue!=null) {
+              var valueKey = entityValue.Key;
+              Session.ReferenceFieldsChangesRegistry.Register(entity.Key, valueKey, field);
             }
           }
+          else {
+            var persistent = this;
+            var currentField = field;
+            var structure = persistent as Structure;
+            while (structure!=null && structure.Owner!=null) {
+              var pair = new Pair<FieldInfo>(structure.Field, currentField);
+              currentField = structure.Owner.TypeInfo.StructureFieldMapping[pair];
+              persistent = structure.Owner;
+              structure = persistent as Structure;
+            }
+            entity = persistent as Entity;
+            if (entity!=null) {
+              if (operations.CanRegisterOperation)
+                operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, currentField, value));
+              var entityValue = value as IEntity;
+              if (entityValue!=null) {
+                var valueKey = entityValue.Key;
+                Session.ReferenceFieldsChangesRegistry.Register(entity.Key, valueKey, field);
+              }
+            }
+          }
+          
           if (fieldAccessor.AreSameValues(oldValue, value)) {
             operations.NotifyOperationStarting(false);
             scope.Complete();
@@ -420,7 +433,7 @@ namespace Xtensive.Orm
             SystemBeforeSetValue(field, value);
             operations.NotifyOperationStarting(false);
             AssociationInfo association = null;
-            var entity = value as Entity ?? oldValue as Entity;
+            entity = value as Entity ?? oldValue as Entity;
             if (entity != null)
               association = field.GetAssociation(entity.TypeInfo);
             if (association!=null && association.IsPaired) {

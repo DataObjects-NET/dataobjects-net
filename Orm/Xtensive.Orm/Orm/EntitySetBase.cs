@@ -526,6 +526,7 @@ namespace Xtensive.Orm
                 combinedTuple);
 
               Session.CreateOrInitializeExistingEntity(auxiliaryType.UnderlyingType, combinedKey);
+              Session.ReferenceFieldsChangesRegistry.Register(Owner.Key, itemKey, combinedKey, Field);
             }
 
             var state = State;

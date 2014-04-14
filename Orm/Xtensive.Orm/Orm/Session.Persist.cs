@@ -5,12 +5,13 @@
 // Created:    2007.08.10
 
 using System;
+using System.Collections.Generic;
 using System.Transactions;
 using System.Linq;
 using Xtensive.Core;
-
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
+using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Orm
 {
@@ -18,6 +19,7 @@ namespace Xtensive.Orm
   {
     private bool disableAutoSaveChanges;
     
+    internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry { get; private set; }
     /// <summary>
     /// Saves all modified instances immediately to the database.
     /// Obsolete, use <see cref="SaveChanges"/> method instead.
@@ -142,6 +144,10 @@ namespace Xtensive.Orm
             else
               itemsToPersist = EntityChangeRegistry;
 
+            if (LazyKeyGenerationIsEnabled) {
+              RemapEntityKeys(RemapTemporaryKeys(itemsToPersist));
+            }
+
             ApplyEntitySetsChanges();
             try {
               Handler.Persist(itemsToPersist, reason == PersistReason.Query);
@@ -235,6 +241,57 @@ namespace Xtensive.Orm
       foreach (var entitySet in itemsToProcess)
         action.Invoke(entitySet);
       EntitySetChangeRegistry.Clear();
+    }
+
+    private KeyMapping RemapTemporaryKeys(EntityChangeRegistry registry)
+    {
+      var context = new RemapContext(registry);
+      RemapEntityKeys(context);
+      RemapReferencesToEntities(context);
+      ReferenceFieldsChangesRegistry.Clear();
+      return context.KeyMapping;
+    }
+
+    private void RemapEntityKeys(RemapContext context)
+    {
+      foreach (var entityState in context.EntitiesToRemap.Where(el => el.Key.IsTemporary(Domain))) {
+        var newKey = Key.Generate(this, entityState.Entity.TypeInfo);
+        context.RegisterKeyMap(entityState.Key, newKey);
+      }
+    }
+
+    private void RemapReferencesToEntities(RemapContext context)
+    {
+      foreach (var setInfo in ReferenceFieldsChangesRegistry.GetItems())
+        if (setInfo.Field.IsEntitySet)
+          RemapEntitySetReference(context, setInfo);
+        else
+          RemapEntityReference(context, setInfo);
+    }
+
+    private void RemapEntitySetReference(RemapContext context, ReferenceFieldChangeInfo info)
+    {
+      var fieldAssociation = info.Field.GetAssociation(info.FieldValue.TypeInfo);
+      if (!fieldAssociation.IsMaster && fieldAssociation.IsPaired)
+        return;
+
+      var oldCombinedKey = info.AuxiliaryEntity;
+
+      var fieldOwnerKey = context.TryRemapKey(info.FieldOwner);
+      var fieldValueKey = context.TryRemapKey(info.FieldValue);
+
+      var transformer = new CombineTransform(false, fieldOwnerKey.Value.Descriptor, fieldValueKey.Value.Descriptor);
+      var combinedTuple = transformer.Apply(TupleTransformType.Tuple, fieldOwnerKey.Value, fieldValueKey.Value);
+
+      var newCombinedKey = Key.Create(Domain, StorageNodeId, fieldAssociation.AuxiliaryType, TypeReferenceAccuracy.ExactType, combinedTuple);
+      context.RegisterKeyMap(oldCombinedKey, newCombinedKey);
+    }
+    
+    private void RemapEntityReference(RemapContext context, ReferenceFieldChangeInfo info)
+    {
+      var entity = Query.Single(info.FieldOwner);
+      var value = context.TryRemapKey(info.FieldValue);
+      entity.SetReferenceKey(info.Field, value);
     }
   }
 }
