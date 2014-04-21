@@ -62,7 +62,9 @@ namespace Xtensive.Orm
     /// about calling this method.
     /// </para>
     /// <para>
-    /// For disconnected session (with <see cref="SessionOptions.Disconnected"/> option) you should call this method manually.
+    /// For disconnected session (with <see cref="SessionOptions.Disconnected"/> option) 
+    /// or non-transactional session (with <see cref="SessionOptions.NonTransactionalEntityStates"/> option) 
+    /// you should call this method manually.
     /// </para>
     /// </remarks>
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
@@ -83,6 +85,10 @@ namespace Xtensive.Orm
     {
       if (Configuration.Supports(SessionOptions.Disconnected))
         CancelLocalChanges();
+      else if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
+        CancelEntitySetsChanges();
+        CancelEntitiesChanges();
+      }
       else
         throw new NotSupportedException("Unable to cancel pending changes when session is not disconnected.");
     }
@@ -236,6 +242,24 @@ namespace Xtensive.Orm
     private void CancelEntitySetsChanges()
     {
       ProcessChangesOfEntitySets(entitySetState => entitySetState.CancelChanges());
+    }
+
+    private void CancelEntitiesChanges()
+    {
+      foreach (var newEntity in EntityChangeRegistry.GetItems(PersistenceState.New)) {
+        newEntity.RollbackDifference();
+        newEntity.PersistenceState = PersistenceState.Synchronized;
+      }
+      
+      foreach (var modifiedEntity in EntityChangeRegistry.GetItems(PersistenceState.Modified)) {
+        modifiedEntity.RollbackDifference();
+        modifiedEntity.PersistenceState = PersistenceState.Synchronized;
+      }
+
+      foreach (var removedEntity in EntityChangeRegistry.GetItems(PersistenceState.Removed)) {
+        removedEntity.RollbackDifference();
+        removedEntity.PersistenceState = PersistenceState.Synchronized;
+      }
     }
 
     private void ProcessChangesOfEntitySets(Action<EntitySetState> action)
