@@ -53,12 +53,6 @@ namespace Xtensive.Sql
         throw new ArgumentException(Strings.ExInvalidExpressionType);
     }
 
-    public static void EnsureLiteralTypeIsSupported(Type type)
-    {
-      if (!supportedTypes.Contains(type))
-        throw new InvalidOperationException(string.Format(Strings.ExLiteralTypeXIsNotSupported, type));
-    }
-
     public static void EnsureIsLimitOffsetArgument(SqlExpression node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");

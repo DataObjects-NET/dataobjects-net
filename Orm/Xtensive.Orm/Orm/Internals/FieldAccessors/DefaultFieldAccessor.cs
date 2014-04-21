@@ -19,7 +19,12 @@ namespace Xtensive.Orm.Internals.FieldAccessors
     public override bool AreSameValues(object oldValue, object newValue)
     {
       if (isValueType || isString)
-        return Equals(oldValue, newValue);
+        try {
+          return Equals(oldValue, newValue);
+        }
+        catch (Exception) {
+          return false;
+        }
       return false;
     }
 

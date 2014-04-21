@@ -439,7 +439,14 @@ namespace Xtensive.Orm
               }
             }
             else {
-              if (!Equals(value, oldValue) || field.IsStructure) {
+              bool canBeEqual;
+              try {
+                canBeEqual = Equals(value, oldValue);
+              }
+              catch (Exception) {
+                canBeEqual = false;
+              }
+              if (!canBeEqual || field.IsStructure) {
                 SystemBeforeTupleChange();
                 value = AdjustFieldValue(field, oldValue, value);
                 fieldAccessor.SetUntypedValue(this, value);

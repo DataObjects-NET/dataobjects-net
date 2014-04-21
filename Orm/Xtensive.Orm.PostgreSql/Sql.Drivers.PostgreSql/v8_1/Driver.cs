@@ -12,7 +12,7 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_1
 {
-  internal class Driver : PostgreSql.Driver
+  internal class Driver : v8_0.Driver
   {
     protected override Sql.TypeMapper CreateTypeMapper()
     {

@@ -9,7 +9,7 @@ using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
 {
-  internal class Driver : PostgreSql.Driver
+  internal class Driver : v8_4.Driver
   {
     protected override Sql.TypeMapper CreateTypeMapper()
     {

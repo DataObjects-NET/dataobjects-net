@@ -201,6 +201,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       dtc.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, commonFeatures, "text");
       dtc.VarBinaryMax = DataTypeInfo.Stream(SqlType.VarBinaryMax, commonFeatures, MaxTextLength, "bytea");
       
+      var geo = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.Multiple | DataTypeFeatures.Spatial;
+
+      dtc.Add(CustomSqlType.Point, DataTypeInfo.Regular(CustomSqlType.Point, geo, "point"));
+      dtc.Add(CustomSqlType.LSeg, DataTypeInfo.Regular(CustomSqlType.LSeg, geo, "lseg"));
+      dtc.Add(CustomSqlType.Box, DataTypeInfo.Regular(CustomSqlType.Box, geo, "box"));
+      dtc.Add(CustomSqlType.Path, DataTypeInfo.Regular(CustomSqlType.Path, geo, "path"));
+      dtc.Add(CustomSqlType.Polygon, DataTypeInfo.Regular(CustomSqlType.Polygon, geo, "polygon"));
+      dtc.Add(CustomSqlType.Circle, DataTypeInfo.Regular(CustomSqlType.Circle, geo, "circle"));
+
       return dtc;
     }
 
