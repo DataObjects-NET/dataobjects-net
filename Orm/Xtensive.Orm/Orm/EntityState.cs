@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using Xtensive.Caching;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
@@ -119,7 +120,8 @@ namespace Xtensive.Orm
         persistenceState = value;
         if (value==PersistenceState.Synchronized)
           return;
-        Session.DemandTransaction();
+        if (!Session.Configuration.Supports(SessionOptions.NonTransactionalEntityStates))
+          Session.DemandTransaction();
         Session.EntityChangeRegistry.Register(this);
         Rebind();
       }
