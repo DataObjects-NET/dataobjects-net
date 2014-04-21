@@ -173,6 +173,8 @@ namespace Xtensive.Orm
           }
           SystemEvents.NotifyPersisted();
           Events.NotifyPersisted();
+          if(Configuration.Supports(SessionOptions.NonTransactionalEntityStates))
+            ts.Complete();
         }
         finally {
           IsPersisting = false;
