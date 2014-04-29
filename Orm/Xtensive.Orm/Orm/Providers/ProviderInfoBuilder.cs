@@ -150,7 +150,7 @@ namespace Xtensive.Orm.Providers
         .Select(e => e==null ? int.MaxValue : e.MaxIdentifierLength)
         .Min();
 
-      var supportedTypes = driver.TypeMappings.ReverseMappings.Values.ToHashSet();
+      var supportedTypes = driver.TypeMappings.ReverseMappings.Values;
 
       return new ProviderInfo(
         providerName, storageVersion, f,

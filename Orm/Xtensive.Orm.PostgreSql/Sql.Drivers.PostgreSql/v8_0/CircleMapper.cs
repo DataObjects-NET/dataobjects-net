@@ -8,8 +8,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal sealed class CircleMapper : PostgreSqlTypeMapper
   {
-    private const string CircleTypeName = "NpgsqlTypes.NpgsqlCircle, " +
-      "Npgsql, Version=2.0.12.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7";
+    private static readonly string CircleTypeName = typeof (NpgsqlTypes.NpgsqlCircle).AssemblyQualifiedName;
 
     // Constructors
 

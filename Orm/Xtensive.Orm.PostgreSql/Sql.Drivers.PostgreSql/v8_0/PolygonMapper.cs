@@ -8,8 +8,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal sealed class PolygonMapper : PostgreSqlTypeMapper
   {
-    private const string PolygonTypeName = "NpgsqlTypes.NpgsqlPolygon, " +
-      "Npgsql, Version=2.0.12.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7";
+    private static readonly string PolygonTypeName = typeof (NpgsqlTypes.NpgsqlPolygon).AssemblyQualifiedName;
 
     // Constructors
 

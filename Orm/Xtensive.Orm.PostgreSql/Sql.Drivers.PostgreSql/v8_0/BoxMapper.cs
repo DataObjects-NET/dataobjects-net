@@ -8,8 +8,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal sealed class BoxMapper : PostgreSqlTypeMapper
   {
-    private const string BoxTypeName = "NpgsqlTypes.NpgsqlBox, " +
-      "Npgsql, Version=2.0.12.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7";
+    private static readonly string BoxTypeName = typeof (NpgsqlTypes.NpgsqlBox).AssemblyQualifiedName;
 
     // Constructors
 

@@ -5,6 +5,7 @@
 // Created:    2009.06.23
 
 using System;
+using NpgsqlTypes;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
@@ -49,12 +50,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     protected override void RegisterCustomSqlTypes(TypeMappingRegistryBuilder builder)
     {
-      builder.AddReverseMapping(CustomSqlType.Point, Type.GetType("NpgsqlTypes.NpgsqlPoint, Npgsql, Version=2.0.12.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7"));
-      builder.AddReverseMapping(CustomSqlType.LSeg, Type.GetType("NpgsqlTypes.NpgsqlLSeg, Npgsql, Version=2.0.12.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7"));
-      builder.AddReverseMapping(CustomSqlType.Box, Type.GetType("NpgsqlTypes.NpgsqlBox, Npgsql, Version=2.0.12.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7"));
-      builder.AddReverseMapping(CustomSqlType.Path, Type.GetType("NpgsqlTypes.NpgsqlPath, Npgsql, Version=2.0.12.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7"));
-      builder.AddReverseMapping(CustomSqlType.Polygon, Type.GetType("NpgsqlTypes.NpgsqlPolygon, Npgsql, Version=2.0.12.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7"));
-      builder.AddReverseMapping(CustomSqlType.Circle, Type.GetType("NpgsqlTypes.NpgsqlCircle, Npgsql, Version=2.0.12.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7"));
+      builder.AddReverseMapping(CustomSqlType.Point, typeof (NpgsqlPoint));
+      builder.AddReverseMapping(CustomSqlType.LSeg, typeof (NpgsqlLSeg));
+      builder.AddReverseMapping(CustomSqlType.Box, typeof (NpgsqlBox));
+      builder.AddReverseMapping(CustomSqlType.Path, typeof (NpgsqlPath));
+      builder.AddReverseMapping(CustomSqlType.Polygon, typeof (NpgsqlPolygon));
+      builder.AddReverseMapping(CustomSqlType.Circle, typeof (NpgsqlCircle));
     }
 
     // Constructors

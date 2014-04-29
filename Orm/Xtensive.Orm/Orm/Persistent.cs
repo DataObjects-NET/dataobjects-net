@@ -439,6 +439,8 @@ namespace Xtensive.Orm
               }
             }
             else {
+              // The method of Equals(object, object) wrapped with in a block 'try catch', 
+              // because that for data types NpgsqlPath and NpgsqlPolygon which are defined without an initial value it works incorrectly.
               bool canBeEqual;
               try {
                 canBeEqual = Equals(value, oldValue);

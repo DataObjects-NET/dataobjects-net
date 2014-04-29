@@ -8,8 +8,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal sealed class PointMapper : PostgreSqlTypeMapper
   {
-    private const string PointTypeName = "NpgsqlTypes.NpgsqlPoint, " +
-      "Npgsql, Version=2.0.12.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7";
+    private static readonly string PointTypeName = typeof (NpgsqlTypes.NpgsqlPoint).AssemblyQualifiedName;
 
     // Constructors
 

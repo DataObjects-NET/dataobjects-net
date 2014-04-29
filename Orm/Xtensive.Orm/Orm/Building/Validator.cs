@@ -215,14 +215,13 @@ namespace Xtensive.Orm.Building
 
     // Type initializer
 
-    public Validator(HashSet<Type> validFieldTypes)
+    public Validator(IEnumerable<Type> validFieldTypes)
     {
       ColumnNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
       TypeNamingRule = new Regex(@"^[\w][\w\-\.\(\),]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
       FieldNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-      ValidFieldTypes = validFieldTypes;
-      ValidFieldTypes.Add(typeof(Key));
+      ValidFieldTypes = new HashSet<Type>(validFieldTypes) {typeof (Key)};
     }
 
     public void ValidateHierarchyEquality(TypeDef @interface, HierarchyDef first, HierarchyDef second)

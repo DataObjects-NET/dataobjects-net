@@ -5,6 +5,7 @@
 // Created:    2009.06.01
 
 using System;
+using Xtensive.Core;
 using Xtensive.Sql.Info;
 using System.Collections.Generic;
 using Xtensive.Collections;
@@ -78,7 +79,7 @@ namespace Xtensive.Orm.Providers
       string constantPrimaryIndexName,
       string defaultDatabase,
       string defaultSchema, 
-      HashSet<Type> supportedTypes)
+      IEnumerable<Type> supportedTypes)
     {
       ProviderName = providerName;
 
@@ -91,7 +92,7 @@ namespace Xtensive.Orm.Providers
       DefaultDatabase = defaultDatabase;
       DefaultSchema = defaultSchema;
 
-      SupportedTypes = new ReadOnlyHashSet<Type>(supportedTypes, true);
+      SupportedTypes = new ReadOnlyHashSet<Type>(supportedTypes.ToHashSet());
     }
   }
 }

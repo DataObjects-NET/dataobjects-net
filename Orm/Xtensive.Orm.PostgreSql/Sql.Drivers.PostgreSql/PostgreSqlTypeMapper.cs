@@ -42,13 +42,16 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       npgsqlParameter.Value = value;
       npgsqlParameter.NpgsqlDbType = npgsqlDbType;
 
+      // The method Equals(Object, Object) was added in order to keep track of data types NpgsqlPath and  NpgsqlPolygon, 
+      // which are defined without an initial value.
       try {
         value.Equals(value);
       }
       catch (Exception) {
-        if (value.GetType()==Type.GetType("NpgsqlTypes.NpgsqlPath, Npgsql, Version=2.0.12.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7"))
+        // For data types NpgsqlPath and NpgsqlPolygon, which defined without an initial values must specify to default values. 
+        if (value is NpgsqlPath)
           npgsqlParameter.Value = new NpgsqlPath(new[] {new NpgsqlPoint()});
-        if (value.GetType()==Type.GetType("NpgsqlTypes.NpgsqlPolygon, Npgsql, Version=2.0.12.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7"))
+        if (value is NpgsqlPolygon)
           npgsqlParameter.Value = new NpgsqlPolygon(new[] {new NpgsqlPoint()});
       }
     }
