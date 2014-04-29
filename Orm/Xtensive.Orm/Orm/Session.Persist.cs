@@ -72,6 +72,8 @@ namespace Xtensive.Orm
     {
       if (Configuration.Supports(SessionOptions.Disconnected))
         SaveLocalChanges();
+      else if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates))
+        SaveNonTransactionalChanges();
       else
         Persist(PersistReason.Manual);
     }
@@ -85,10 +87,8 @@ namespace Xtensive.Orm
     {
       if (Configuration.Supports(SessionOptions.Disconnected))
         CancelLocalChanges();
-      else if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
-        CancelEntitySetsChanges();
-        CancelEntitiesChanges();
-      }
+      else if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates))
+        CancelNonTransactionalChanges();
       else
         throw new NotSupportedException("Unable to cancel pending changes when session is not disconnected.");
     }
@@ -179,8 +179,6 @@ namespace Xtensive.Orm
           }
           SystemEvents.NotifyPersisted();
           Events.NotifyPersisted();
-          if(Configuration.Supports(SessionOptions.NonTransactionalEntityStates))
-            ts.Complete();
         }
         finally {
           IsPersisting = false;
@@ -242,6 +240,20 @@ namespace Xtensive.Orm
     private void CancelEntitySetsChanges()
     {
       ProcessChangesOfEntitySets(entitySetState => entitySetState.CancelChanges());
+    }
+
+    private void SaveNonTransactionalChanges()
+    {
+      using (var transaction = OpenTransaction(TransactionOpenMode.New)) {
+        Persist(PersistReason.Manual);
+        transaction.Complete();
+      }
+    }
+
+    private void CancelNonTransactionalChanges()
+    {
+      CancelEntitySetsChanges();
+      CancelEntitiesChanges();
     }
 
     private void CancelEntitiesChanges()
