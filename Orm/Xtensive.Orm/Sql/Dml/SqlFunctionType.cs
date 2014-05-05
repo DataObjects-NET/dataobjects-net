@@ -87,5 +87,11 @@ namespace Xtensive.Sql.Dml
     RoundDecimalToZero,
     RoundDoubleToEven,
     RoundDoubleToZero,
+
+    // Functions of the spatial types
+
+    // NpgsqlPoint
+    NpgsqlPointExtractX,
+    NpgsqlPointExtractY,
   }
 }

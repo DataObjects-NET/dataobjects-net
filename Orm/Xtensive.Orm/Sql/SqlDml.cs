@@ -2026,5 +2026,29 @@ namespace Xtensive.Sql
     }
 
     #endregion
+
+    #region Spatial types
+
+    #region PostgreSql
+
+    #region NpgsqlPoint
+
+    public static SqlExpression NpgsqlPointExtractX(SqlExpression operand)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      return new SqlFunctionCall(SqlFunctionType.NpgsqlPointExtractX, operand);
+    }
+
+    public static SqlExpression NpgsqlPointExtractY(SqlExpression operand)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      return new SqlFunctionCall(SqlFunctionType.NpgsqlPointExtractY, operand);
+    }
+
+    #endregion
+    
+    #endregion
+    
+    #endregion
   }
 }

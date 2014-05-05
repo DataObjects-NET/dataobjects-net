@@ -233,6 +233,7 @@
     <Compile Include="Issues\IssueJira0459_SelfReferencingEntitiesRemove.cs" />
     <Compile Include="Issues\IssueJira0471_LikeOperatorSupport.cs" />
     <Compile Include="Issues\IssueJira0481_EntitySetCachesInvalidState.cs" />
+    <Compile Include="Issues\IssueJira_0416_NpgsqlPoint.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion3.cs" />

@@ -82,6 +82,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       case SqlFunctionType.DateTimeToStringIso:
         DateTimeToStringIso(node.Arguments[0]).AcceptVisitor(this);
         return;
+      case SqlFunctionType.NpgsqlPointExtractX:
+        NpgsqlPointExtractPart(node.Arguments[0], 0).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.NpgsqlPointExtractY:
+        NpgsqlPointExtractPart(node.Arguments[0], 1).AcceptVisitor(this);
+        return;
       }
       base.Visit(node);
     }
@@ -90,6 +96,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private static SqlExpression DateTimeToStringIso(SqlExpression dateTime)
     {
       return SqlDml.FunctionCall("To_Char", dateTime, "YYYY-MM-DD\"T\"HH24:MI:SS");
+    }
+
+    protected static SqlExpression NpgsqlPointExtractPart(SqlExpression expression, int part)
+    {
+      return SqlDml.RawConcat(expression, SqlDml.Native(String.Format("[{0}]", part)));
     }
 
     // Constructors
