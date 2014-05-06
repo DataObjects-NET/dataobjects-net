@@ -96,5 +96,9 @@ namespace Xtensive.Sql.Dml
     // NpgsqlPoint
     NpgsqlPointExtractX,
     NpgsqlPointExtractY,
+
+    // NpgsqlBox
+    NpgsqlBoxExtractHeight,
+    NpgsqlBoxExtractWidth,
   }
 }

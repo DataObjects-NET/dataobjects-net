@@ -2054,8 +2054,24 @@ namespace Xtensive.Sql
 
     #endregion
     
+    #region NpgsqlBox
+
+    public static SqlExpression NpgsqlBoxExtractHeight(SqlExpression operand)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      return new SqlFunctionCall(SqlFunctionType.NpgsqlBoxExtractHeight, operand);
+    }
+
+    public static SqlExpression NpgsqlBoxExtractWidth(SqlExpression operand)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      return new SqlFunctionCall(SqlFunctionType.NpgsqlBoxExtractWidth, operand);
+    }
+
     #endregion
     
+    #endregion
+
     #endregion
   }
 }

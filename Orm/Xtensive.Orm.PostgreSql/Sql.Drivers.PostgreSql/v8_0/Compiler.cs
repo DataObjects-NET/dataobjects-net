@@ -91,6 +91,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       case SqlFunctionType.NpgsqlTypeExtractPoint:
         NpgsqlTypeExtractPoint(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
         return;
+      case SqlFunctionType.NpgsqlBoxExtractHeight:
+        NpgsqlBoxExtractHeight(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.NpgsqlBoxExtractWidth:
+        NpgsqlBoxExtractWidth(node.Arguments[0]).AcceptVisitor(this);
+        return;
       }
       base.Visit(node);
     }
@@ -116,6 +122,16 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         SqlDml.RawConcat(
           expression,
           SqlDml.Native(String.Format("[{0}])", valueNumberPoint))));
+    }
+
+    protected static SqlExpression NpgsqlBoxExtractHeight(SqlExpression expression)
+    {
+      return SqlDml.FunctionCall("HEIGHT", expression);
+    }
+
+    protected static SqlExpression NpgsqlBoxExtractWidth(SqlExpression expression)
+    {
+      return SqlDml.FunctionCall("WIDTH", expression);
     }
 
     // Constructors
