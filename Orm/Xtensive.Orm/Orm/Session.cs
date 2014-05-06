@@ -534,6 +534,8 @@ namespace Xtensive.Orm
         disposableSet.Add(DisconnectedState.Connect());
         BeginDisconnectedTransaction();
       }
+      else 
+        disableAutoSaveChanges = !configuration.Supports(SessionOptions.AutoSaveChanges);
 
       // Perform activation
       if (activate)
