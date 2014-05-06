@@ -97,6 +97,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       case SqlFunctionType.NpgsqlBoxExtractWidth:
         NpgsqlBoxExtractWidth(node.Arguments[0]).AcceptVisitor(this);
         return;
+      case SqlFunctionType.NpgsqlCircleExtractCenter:
+        NpgsqlCircleExtractCenter(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.NpgsqlCircleExtractRadius:
+        NpgsqlCircleExtractRadius(node.Arguments[0]).AcceptVisitor(this);
+        return;
       }
       base.Visit(node);
     }
@@ -132,6 +138,16 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     protected static SqlExpression NpgsqlBoxExtractWidth(SqlExpression expression)
     {
       return SqlDml.FunctionCall("WIDTH", expression);
+    }
+
+    protected static SqlExpression NpgsqlCircleExtractCenter(SqlExpression expression)
+    {
+      return SqlDml.RawConcat(SqlDml.Native("@@"), expression);
+    }
+
+    protected static SqlExpression NpgsqlCircleExtractRadius(SqlExpression expression)
+    {
+      return SqlDml.FunctionCall("RADIUS", expression);
     }
 
     // Constructors

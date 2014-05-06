@@ -2070,6 +2070,22 @@ namespace Xtensive.Sql
 
     #endregion
     
+    #region NpgsqlCircle
+
+    public static SqlExpression NpgsqlCircleExtractCenter(SqlExpression operand)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      return new SqlFunctionCall(SqlFunctionType.NpgsqlCircleExtractCenter, operand);
+    }
+
+    public static SqlExpression NpgsqlCircleExtractRadius(SqlExpression operand)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      return new SqlFunctionCall(SqlFunctionType.NpgsqlCircleExtractRadius, operand);
+    }
+
+    #endregion
+
     #endregion
 
     #endregion

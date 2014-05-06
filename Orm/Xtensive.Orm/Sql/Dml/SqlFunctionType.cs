@@ -100,5 +100,9 @@ namespace Xtensive.Sql.Dml
     // NpgsqlBox
     NpgsqlBoxExtractHeight,
     NpgsqlBoxExtractWidth,
+
+    // NpgsqlCircle
+    NpgsqlCircleExtractCenter,
+    NpgsqlCircleExtractRadius,
   }
 }
