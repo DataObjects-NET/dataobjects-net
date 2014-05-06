@@ -60,6 +60,7 @@
     <Compile Include="Orm.Providers.PostgreSql\NpgsqlLSegCompilers.cs" />
     <Compile Include="Orm.Providers.PostgreSql\NpgsqlPathCompilers.cs" />
     <Compile Include="Orm.Providers.PostgreSql\NpgsqlPointCompilers.cs" />
+    <Compile Include="Orm.Providers.PostgreSql\NpgsqlPolygonCompilers.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\Connection.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\Driver.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\DriverFactory.cs" />

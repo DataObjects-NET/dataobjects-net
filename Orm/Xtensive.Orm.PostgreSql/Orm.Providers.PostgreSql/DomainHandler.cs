@@ -28,7 +28,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
         .AddOne(typeof (NpgsqlLSegCompilers))
         .AddOne(typeof (NpgsqlBoxCompilers))
         .AddOne(typeof (NpgsqlCircleCompilers))
-        .AddOne(typeof (NpgsqlPathCompilers));
+        .AddOne(typeof (NpgsqlPathCompilers))
+        .AddOne(typeof (NpgsqlPolygonCompilers));
     }
   }
 }

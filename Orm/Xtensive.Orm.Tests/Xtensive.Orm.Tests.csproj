@@ -192,6 +192,7 @@
     <Compile Include="Issues\IssueJira0416_NpgsqlCircle.cs" />
     <Compile Include="Issues\IssueJira0416_NpgsqlLSeg.cs" />
     <Compile Include="Issues\IssueJira0416_NpgsqlPath.cs" />
+    <Compile Include="Issues\IssueJira0416_NpgsqlPolygon.cs" />
     <Compile Include="Issues\IssueJira0500_OptimizeMultipleAggregatesWithProjections.cs" />
     <Compile Include="Issues\IssueJira0202_OnRemoveActionOverriding.cs" />
     <Compile Include="Issues\IssueJira0516_PartialIndexConstruction.cs" />
