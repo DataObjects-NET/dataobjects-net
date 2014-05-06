@@ -526,6 +526,7 @@ namespace Xtensive.Orm
       Services = CreateServices();
 
       disposableSet = new DisposableSet();
+      remapper = new KeyRemapper(this);
 
       // Handling Disconnected option
       if (Configuration.Supports(SessionOptions.Disconnected)) {

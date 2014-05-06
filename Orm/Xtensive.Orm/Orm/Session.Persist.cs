@@ -18,6 +18,7 @@ namespace Xtensive.Orm
   public partial class Session
   {
     private bool disableAutoSaveChanges;
+    private KeyRemapper remapper;
     
     internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry { get; private set; }
     /// <summary>
@@ -145,7 +146,7 @@ namespace Xtensive.Orm
               itemsToPersist = EntityChangeRegistry;
 
             if (LazyKeyGenerationIsEnabled) {
-              RemapEntityKeys(RemapTemporaryKeys(itemsToPersist));
+              RemapEntityKeys(remapper.Remap(itemsToPersist));
             }
 
             ApplyEntitySetsChanges();
@@ -241,57 +242,6 @@ namespace Xtensive.Orm
       foreach (var entitySet in itemsToProcess)
         action.Invoke(entitySet);
       EntitySetChangeRegistry.Clear();
-    }
-
-    private KeyMapping RemapTemporaryKeys(EntityChangeRegistry registry)
-    {
-      var context = new RemapContext(registry);
-      RemapEntityKeys(context);
-      RemapReferencesToEntities(context);
-      ReferenceFieldsChangesRegistry.Clear();
-      return context.KeyMapping;
-    }
-
-    private void RemapEntityKeys(RemapContext context)
-    {
-      foreach (var entityState in context.EntitiesToRemap.Where(el => el.Key.IsTemporary(Domain))) {
-        var newKey = Key.Generate(this, entityState.Entity.TypeInfo);
-        context.RegisterKeyMap(entityState.Key, newKey);
-      }
-    }
-
-    private void RemapReferencesToEntities(RemapContext context)
-    {
-      foreach (var setInfo in ReferenceFieldsChangesRegistry.GetItems())
-        if (setInfo.Field.IsEntitySet)
-          RemapEntitySetReference(context, setInfo);
-        else
-          RemapEntityReference(context, setInfo);
-    }
-
-    private void RemapEntitySetReference(RemapContext context, ReferenceFieldChangeInfo info)
-    {
-      var fieldAssociation = info.Field.GetAssociation(info.FieldValue.TypeInfo);
-      if (!fieldAssociation.IsMaster && fieldAssociation.IsPaired)
-        return;
-
-      var oldCombinedKey = info.AuxiliaryEntity;
-
-      var fieldOwnerKey = context.TryRemapKey(info.FieldOwner);
-      var fieldValueKey = context.TryRemapKey(info.FieldValue);
-
-      var transformer = new CombineTransform(false, fieldOwnerKey.Value.Descriptor, fieldValueKey.Value.Descriptor);
-      var combinedTuple = transformer.Apply(TupleTransformType.Tuple, fieldOwnerKey.Value, fieldValueKey.Value);
-
-      var newCombinedKey = Key.Create(Domain, StorageNodeId, fieldAssociation.AuxiliaryType, TypeReferenceAccuracy.ExactType, combinedTuple);
-      context.RegisterKeyMap(oldCombinedKey, newCombinedKey);
-    }
-    
-    private void RemapEntityReference(RemapContext context, ReferenceFieldChangeInfo info)
-    {
-      var entity = Query.Single(info.FieldOwner);
-      var value = context.TryRemapKey(info.FieldValue);
-      entity.SetReferenceKey(info.Field, value);
     }
   }
 }
