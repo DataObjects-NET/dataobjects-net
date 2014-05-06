@@ -103,6 +103,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       case SqlFunctionType.NpgsqlCircleExtractRadius:
         NpgsqlCircleExtractRadius(node.Arguments[0]).AcceptVisitor(this);
         return;
+      case SqlFunctionType.NpgsqlPathAndPolygonCount:
+        NpgsqlPathAndPolygonCount(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.NpgsqlPathAndPolygonOpen:
+        NpgsqlPathAndPolygonOpen(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.NpgsqlPathAndPolygonContains:
+        NpgsqlPathAndPolygonContains(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
+        return;
       }
       base.Visit(node);
     }
@@ -148,6 +157,25 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     protected static SqlExpression NpgsqlCircleExtractRadius(SqlExpression expression)
     {
       return SqlDml.FunctionCall("RADIUS", expression);
+    }
+
+    protected static SqlExpression NpgsqlPathAndPolygonCount(SqlExpression expression)
+    {
+      return SqlDml.FunctionCall("NPOINTS", expression);
+    }
+
+    protected static SqlExpression NpgsqlPathAndPolygonOpen(SqlExpression expression)
+    {
+      return SqlDml.FunctionCall("ISOPEN", expression);
+    }
+
+    protected static SqlExpression NpgsqlPathAndPolygonContains(SqlExpression expression, SqlExpression point)
+    {
+      return SqlDml.RawConcat(
+        expression,
+        SqlDml.RawConcat(
+          SqlDml.Native("@>"),
+          point));
     }
 
     // Constructors

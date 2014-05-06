@@ -104,5 +104,10 @@ namespace Xtensive.Sql.Dml
     // NpgsqlCircle
     NpgsqlCircleExtractCenter,
     NpgsqlCircleExtractRadius,
+
+    // NpgsqlPath and NpgsqlPolygon
+    NpgsqlPathAndPolygonCount,
+    NpgsqlPathAndPolygonOpen,
+    NpgsqlPathAndPolygonContains,
   }
 }

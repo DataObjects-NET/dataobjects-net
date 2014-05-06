@@ -2086,6 +2086,29 @@ namespace Xtensive.Sql
 
     #endregion
 
+    #region NpgsqlPath and NpgsqlPolygon
+
+    public static SqlExpression NpgsqlPathAndPolygonCount(SqlExpression operand)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      return new SqlFunctionCall(SqlFunctionType.NpgsqlPathAndPolygonCount, operand);
+    }
+
+    public static SqlExpression NpgsqlPathAndPolygonOpen(SqlExpression operand)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      return new SqlFunctionCall(SqlFunctionType.NpgsqlPathAndPolygonOpen, operand);
+    }
+
+    public static SqlExpression NpgsqlPathAndPolygonContains(SqlExpression operand, SqlExpression point)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      ArgumentValidator.EnsureArgumentNotNull(point, "point");
+      return new SqlFunctionCall(SqlFunctionType.NpgsqlPathAndPolygonContains, operand, point);
+    }
+
+    #endregion
+
     #endregion
 
     #endregion
