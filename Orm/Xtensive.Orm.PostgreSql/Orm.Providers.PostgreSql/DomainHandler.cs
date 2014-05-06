@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Compilation;
 
@@ -24,12 +25,14 @@ namespace Xtensive.Orm.Providers.PostgreSql
     protected override IEnumerable<Type> GetProviderCompilerContainers()
     {
       return base.GetProviderCompilerContainers()
-        .AddOne(typeof (NpgsqlPointCompilers))
-        .AddOne(typeof (NpgsqlLSegCompilers))
-        .AddOne(typeof (NpgsqlBoxCompilers))
-        .AddOne(typeof (NpgsqlCircleCompilers))
-        .AddOne(typeof (NpgsqlPathCompilers))
-        .AddOne(typeof (NpgsqlPolygonCompilers));
+        .Concat(new[] {
+          typeof (NpgsqlPointCompilers),
+          typeof (NpgsqlLSegCompilers),
+          typeof (NpgsqlBoxCompilers),
+          typeof (NpgsqlCircleCompilers),
+          typeof (NpgsqlPathCompilers),
+          typeof (NpgsqlPolygonCompilers)
+        });
     }
   }
 }
