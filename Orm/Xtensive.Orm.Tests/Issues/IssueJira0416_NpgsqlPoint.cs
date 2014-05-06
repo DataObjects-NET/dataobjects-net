@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Issues
   }
 
   [TestFixture]
-  internal class IssueJira_0416_NpgsqlPoint : AutoBuildTest
+  internal class IssueJira0416_NpgsqlPoint : AutoBuildTest
   {
     private NpgsqlPoint point = new NpgsqlPoint(0, 1);
 

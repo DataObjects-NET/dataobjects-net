@@ -24,7 +24,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
     protected override IEnumerable<Type> GetProviderCompilerContainers()
     {
       return base.GetProviderCompilerContainers()
-        .AddOne(typeof (NpgsqlPointCompilers));
+        .AddOne(typeof (NpgsqlPointCompilers))
+        .AddOne(typeof (NpgsqlLSegCompilers));
     }
   }
 }

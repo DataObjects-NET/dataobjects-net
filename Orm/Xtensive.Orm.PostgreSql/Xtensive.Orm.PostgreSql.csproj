@@ -55,6 +55,7 @@
     <Compile Include="..\Xtensive.Orm\Properties\Visibility.cs">
       <Link>Properties\Visibility.cs</Link>
     </Compile>
+    <Compile Include="Orm.Providers.PostgreSql\NpgsqlLSegCompilers.cs" />
     <Compile Include="Orm.Providers.PostgreSql\NpgsqlPointCompilers.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\Connection.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\Driver.cs" />

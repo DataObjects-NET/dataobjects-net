@@ -2031,6 +2031,13 @@ namespace Xtensive.Sql
 
     #region PostgreSql
 
+    public static SqlExpression NpgsqlTypeExtractPoint(SqlExpression operand, SqlExpression numberPoint)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
+      ArgumentValidator.EnsureArgumentNotNull(numberPoint, "numberPoint");
+      return new SqlFunctionCall(SqlFunctionType.NpgsqlTypeExtractPoint, operand, numberPoint);
+    }
+
     #region NpgsqlPoint
 
     public static SqlExpression NpgsqlPointExtractX(SqlExpression operand)

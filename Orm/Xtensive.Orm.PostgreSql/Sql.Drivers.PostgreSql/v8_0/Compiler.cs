@@ -88,6 +88,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       case SqlFunctionType.NpgsqlPointExtractY:
         NpgsqlPointExtractPart(node.Arguments[0], 1).AcceptVisitor(this);
         return;
+      case SqlFunctionType.NpgsqlTypeExtractPoint:
+        NpgsqlTypeExtractPoint(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
+        return;
       }
       base.Visit(node);
     }
@@ -101,6 +104,18 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     protected static SqlExpression NpgsqlPointExtractPart(SqlExpression expression, int part)
     {
       return SqlDml.RawConcat(expression, SqlDml.Native(String.Format("[{0}]", part)));
+    }
+
+    protected static SqlExpression NpgsqlTypeExtractPoint(SqlExpression expression, SqlExpression numberPoint)
+    {
+      var numberPointAsInt = numberPoint as SqlLiteral<int>;
+      int valueNumberPoint = numberPointAsInt!=null ? numberPointAsInt.Value : 0;
+
+      return SqlDml.RawConcat(
+        SqlDml.Native("("),
+        SqlDml.RawConcat(
+          expression,
+          SqlDml.Native(String.Format("[{0}])", valueNumberPoint))));
     }
 
     // Constructors

@@ -90,6 +90,9 @@ namespace Xtensive.Sql.Dml
 
     // Functions of the spatial types
 
+    // Npgsql
+    NpgsqlTypeExtractPoint,
+
     // NpgsqlPoint
     NpgsqlPointExtractX,
     NpgsqlPointExtractY,
