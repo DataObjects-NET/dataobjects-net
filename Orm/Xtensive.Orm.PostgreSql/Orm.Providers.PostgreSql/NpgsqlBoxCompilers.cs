@@ -5,7 +5,6 @@
 // Created:    2014.05.06
 
 using NpgsqlTypes;
-using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Providers.PostgreSql
@@ -18,49 +17,49 @@ namespace Xtensive.Orm.Providers.PostgreSql
     [Compiler(typeof (NpgsqlBox), "UpperRight", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlBoxExtractUpperRightPoint(SqlExpression _this)
     {
-      return SqlDml.NpgsqlTypeExtractPoint(_this, 0);
+      return PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 0);
     }
 
     [Compiler(typeof (NpgsqlBox), "LowerLeft", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlBoxExtractLowerLeftPoint(SqlExpression _this)
     {
-      return SqlDml.NpgsqlTypeExtractPoint(_this, 1);
+      return PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 1);
     }
 
     [Compiler(typeof (NpgsqlBox), "Right", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractRight(SqlExpression _this)
     {
-      return SqlDml.NpgsqlPointExtractX(SqlDml.NpgsqlTypeExtractPoint(_this, 0));
+      return PostgresqlSqlDml.NpgsqlPointExtractX(PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 0));
     }
 
     [Compiler(typeof (NpgsqlBox), "Top", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractTop(SqlExpression _this)
     {
-      return SqlDml.NpgsqlPointExtractY(SqlDml.NpgsqlTypeExtractPoint(_this, 0));
+      return PostgresqlSqlDml.NpgsqlPointExtractY(PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 0));
     }
 
     [Compiler(typeof (NpgsqlBox), "Left", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractLeft(SqlExpression _this)
     {
-      return SqlDml.NpgsqlPointExtractX(SqlDml.NpgsqlTypeExtractPoint(_this, 1));
+      return PostgresqlSqlDml.NpgsqlPointExtractX(PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 1));
     }
 
     [Compiler(typeof (NpgsqlBox), "Bottom", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractBottom(SqlExpression _this)
     {
-      return SqlDml.NpgsqlPointExtractY(SqlDml.NpgsqlTypeExtractPoint(_this, 1));
+      return PostgresqlSqlDml.NpgsqlPointExtractY(PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 1));
     }
 
-    [Compiler(typeof(NpgsqlBox), "Height", TargetKind.PropertyGet)]
+    [Compiler(typeof (NpgsqlBox), "Height", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractHeight(SqlExpression _this)
     {
-      return SqlDml.NpgsqlBoxExtractHeight(_this);
+      return PostgresqlSqlDml.NpgsqlBoxExtractHeight(_this);
     }
 
-    [Compiler(typeof(NpgsqlBox), "Width", TargetKind.PropertyGet)]
+    [Compiler(typeof (NpgsqlBox), "Width", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractWidth(SqlExpression _this)
     {
-      return SqlDml.NpgsqlBoxExtractWidth(_this);
+      return PostgresqlSqlDml.NpgsqlBoxExtractWidth(_this);
     }
 
     #endregion

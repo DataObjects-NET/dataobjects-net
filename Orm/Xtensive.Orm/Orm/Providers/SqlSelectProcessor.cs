@@ -281,6 +281,12 @@ namespace Xtensive.Orm.Providers
         Visit(argument);
     }
 
+    public void Visit(CustomSqlFunctionCall node)
+    {
+      foreach (var argument in node.Arguments)
+        Visit(argument);
+    }
+
     public void Visit(SqlIf node)
     {
       if (node.True!=null)

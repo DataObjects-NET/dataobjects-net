@@ -864,6 +864,11 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    public virtual void Visit(CustomSqlFunctionCall node)
+    {
+      // nothing
+    }
+
     public virtual void Visit(SqlIf node)
     {
       using (context.EnterScope(node)) {

@@ -87,27 +87,5 @@ namespace Xtensive.Sql.Dml
     RoundDecimalToZero,
     RoundDoubleToEven,
     RoundDoubleToZero,
-
-    // Functions of the spatial types
-
-    // Npgsql
-    NpgsqlTypeExtractPoint,
-
-    // NpgsqlPoint
-    NpgsqlPointExtractX,
-    NpgsqlPointExtractY,
-
-    // NpgsqlBox
-    NpgsqlBoxExtractHeight,
-    NpgsqlBoxExtractWidth,
-
-    // NpgsqlCircle
-    NpgsqlCircleExtractCenter,
-    NpgsqlCircleExtractRadius,
-
-    // NpgsqlPath and NpgsqlPolygon
-    NpgsqlPathAndPolygonCount,
-    NpgsqlPathAndPolygonOpen,
-    NpgsqlPathAndPolygonContains,
   }
 }

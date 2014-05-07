@@ -5,7 +5,6 @@
 // Created:    2014.05.06
 
 using NpgsqlTypes;
-using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Providers.PostgreSql
@@ -18,13 +17,13 @@ namespace Xtensive.Orm.Providers.PostgreSql
     [Compiler(typeof (NpgsqlCircle), "Center", TargetKind.Field)]
     public static SqlExpression NpgsqlCircleExtractCenterPoint(SqlExpression _this)
     {
-      return SqlDml.NpgsqlCircleExtractCenter(_this);
+      return PostgresqlSqlDml.NpgsqlCircleExtractCenter(_this);
     }
 
     [Compiler(typeof (NpgsqlCircle), "Radius", TargetKind.Field)]
     public static SqlExpression NpgsqlCircleExtractRadius(SqlExpression _this)
     {
-      return SqlDml.NpgsqlCircleExtractRadius(_this);
+      return PostgresqlSqlDml.NpgsqlCircleExtractRadius(_this);
     }
 
     #endregion

@@ -5,7 +5,6 @@
 // Created:    2014.05.06
 
 using NpgsqlTypes;
-using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Providers.PostgreSql
@@ -18,13 +17,13 @@ namespace Xtensive.Orm.Providers.PostgreSql
     [Compiler(typeof (NpgsqlLSeg), "Start", TargetKind.Field)]
     public static SqlExpression NpgsqlLSegExtractStartPoint(SqlExpression _this)
     {
-      return SqlDml.NpgsqlTypeExtractPoint(_this, 0);
+      return PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 0);
     }
 
     [Compiler(typeof (NpgsqlLSeg), "End", TargetKind.Field)]
     public static SqlExpression NpgsqlLSegExtractEndPoint(SqlExpression _this)
     {
-      return SqlDml.NpgsqlTypeExtractPoint(_this, 1);
+      return PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 1);
     }
 
     #endregion

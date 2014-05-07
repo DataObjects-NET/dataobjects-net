@@ -4,8 +4,9 @@
 
 using System;
 using System.Linq;
-using Xtensive.Sql.Compiler;
+using Xtensive.Orm.Providers.PostgreSql;
 using Xtensive.Sql.Dml;
+using SqlCompiler = Xtensive.Sql.Compiler.SqlCompiler;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
@@ -82,34 +83,49 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       case SqlFunctionType.DateTimeToStringIso:
         DateTimeToStringIso(node.Arguments[0]).AcceptVisitor(this);
         return;
-      case SqlFunctionType.NpgsqlPointExtractX:
+      }
+      base.Visit(node);
+    }
+
+    public override void Visit(CustomSqlFunctionCall node)
+    {
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlPointExtractX) {
         NpgsqlPointExtractPart(node.Arguments[0], 0).AcceptVisitor(this);
         return;
-      case SqlFunctionType.NpgsqlPointExtractY:
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlPointExtractY) {
         NpgsqlPointExtractPart(node.Arguments[0], 1).AcceptVisitor(this);
         return;
-      case SqlFunctionType.NpgsqlTypeExtractPoint:
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlTypeExtractPoint) {
         NpgsqlTypeExtractPoint(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
         return;
-      case SqlFunctionType.NpgsqlBoxExtractHeight:
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlBoxExtractHeight) {
         NpgsqlBoxExtractHeight(node.Arguments[0]).AcceptVisitor(this);
         return;
-      case SqlFunctionType.NpgsqlBoxExtractWidth:
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlBoxExtractWidth) {
         NpgsqlBoxExtractWidth(node.Arguments[0]).AcceptVisitor(this);
         return;
-      case SqlFunctionType.NpgsqlCircleExtractCenter:
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlCircleExtractCenter) {
         NpgsqlCircleExtractCenter(node.Arguments[0]).AcceptVisitor(this);
         return;
-      case SqlFunctionType.NpgsqlCircleExtractRadius:
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlCircleExtractRadius) {
         NpgsqlCircleExtractRadius(node.Arguments[0]).AcceptVisitor(this);
         return;
-      case SqlFunctionType.NpgsqlPathAndPolygonCount:
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlPathAndPolygonCount) {
         NpgsqlPathAndPolygonCount(node.Arguments[0]).AcceptVisitor(this);
         return;
-      case SqlFunctionType.NpgsqlPathAndPolygonOpen:
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlPathAndPolygonOpen) {
         NpgsqlPathAndPolygonOpen(node.Arguments[0]).AcceptVisitor(this);
         return;
-      case SqlFunctionType.NpgsqlPathAndPolygonContains:
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlPathAndPolygonContains) {
         NpgsqlPathAndPolygonContains(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
         return;
       }

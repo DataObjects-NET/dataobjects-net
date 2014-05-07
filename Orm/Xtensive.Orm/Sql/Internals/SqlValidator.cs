@@ -74,6 +74,7 @@ namespace Xtensive.Sql
         case SqlNodeType.Equals:
         case SqlNodeType.Exists:
         case SqlNodeType.FunctionCall:
+        case SqlNodeType.CustomFunctionCall:
         case SqlNodeType.GreaterThan:
         case SqlNodeType.GreaterThanOrEquals:
         case SqlNodeType.In:
@@ -128,6 +129,7 @@ namespace Xtensive.Sql
         case SqlNodeType.Count:
         case SqlNodeType.Divide:
         case SqlNodeType.FunctionCall:
+        case SqlNodeType.CustomFunctionCall:
         case SqlNodeType.Literal:
         case SqlNodeType.Max:
         case SqlNodeType.Min:
@@ -170,6 +172,7 @@ namespace Xtensive.Sql
         case SqlNodeType.Native:
         case SqlNodeType.RawConcat:
         case SqlNodeType.FunctionCall:
+        case SqlNodeType.CustomFunctionCall:
         case SqlNodeType.Literal:
         case SqlNodeType.Null:
         case SqlNodeType.Parameter:

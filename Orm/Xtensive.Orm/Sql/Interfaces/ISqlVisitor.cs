@@ -69,6 +69,7 @@ namespace Xtensive.Sql
     void Visit(SqlForceJoinOrderHint node);
     void Visit(SqlFreeTextTable node);
     void Visit(SqlFunctionCall node);
+    void Visit(CustomSqlFunctionCall node);
     void Visit(SqlIf node);
     void Visit(SqlInsert node);
     void Visit(SqlJoinExpression node);

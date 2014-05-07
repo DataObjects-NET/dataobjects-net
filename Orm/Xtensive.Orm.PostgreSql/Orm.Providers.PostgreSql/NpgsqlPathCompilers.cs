@@ -5,7 +5,6 @@
 // Created:    2014.05.06
 
 using NpgsqlTypes;
-using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Providers.PostgreSql
@@ -16,20 +15,20 @@ namespace Xtensive.Orm.Providers.PostgreSql
     [Compiler(typeof (NpgsqlPath), "Count", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPathCount(SqlExpression _this)
     {
-      return SqlDml.NpgsqlPathAndPolygonCount(_this);
+      return PostgresqlSqlDml.NpgsqlPathAndPolygonCount(_this);
     }
 
     [Compiler(typeof (NpgsqlPath), "Open", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPathOpen(SqlExpression _this)
     {
-      return SqlDml.NpgsqlPathAndPolygonOpen(_this);
+      return PostgresqlSqlDml.NpgsqlPathAndPolygonOpen(_this);
     }
 
     [Compiler(typeof (NpgsqlPath), "Contains", TargetKind.Method)]
     public static SqlExpression NpgsqlPathContains(SqlExpression _this,
       [Type(typeof (NpgsqlPoint))] SqlExpression point)
     {
-      return SqlDml.NpgsqlPathAndPolygonContains(_this, point);
+      return PostgresqlSqlDml.NpgsqlPathAndPolygonContains(_this, point);
     }
   }
 }
