@@ -58,22 +58,32 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ExtractCenterPointTest()
     {
-      RunTests(e => e.Circle.Center!=circleOther.Center);
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlCircle>()
+            .Where(e => e.Circle.Center!=circleOther.Center);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
     }
 
     [Test]
     public void ExtractRadiusTest()
     {
-      RunTests(e => e.Circle.Radius==circle.Radius);
-    }
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
 
-    private void RunTests(Expression<Func<EntityWithNpgsqlCircle, bool>> filter)
-    {
-      using (var session = Domain.OpenSession())
-      using (var t = session.OpenTransaction()) {
-        var count = session.Query.All<EntityWithNpgsqlCircle>().Count(filter);
-        Assert.IsNotNull(count);
-        t.Complete();
+          var query = session.Query.All<EntityWithNpgsqlCircle>()
+            .Where(e => e.Circle.Radius==circle.Radius);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
       }
     }
   }

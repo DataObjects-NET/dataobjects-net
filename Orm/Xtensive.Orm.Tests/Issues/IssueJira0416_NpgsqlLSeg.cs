@@ -58,36 +58,74 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ExtractStartPointTest()
     {
-      RunTests(e => e.LSeg.Start!=lSegOther.Start);
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlLSeg>()
+            .Where(e => e.LSeg.Start!=lSegOther.Start);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
     }
 
     [Test]
     public void ExtractEndPointTest()
     {
-      RunTests(e => e.LSeg.End!=lSegOther.End);
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlLSeg>()
+            .Where(e => e.LSeg.End!=lSegOther.End);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
     }
 
     [Test]
     public void ExtractPartOfStartPointTest()
     {
-      RunTests(e => e.LSeg.Start.X==lSeg.Start.X);
-      RunTests(e => e.LSeg.Start.Y!=lSeg.Start.Y);
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlLSeg>()
+            .Where(e => e.LSeg.Start.X==lSeg.Start.X);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          query = session.Query.All<EntityWithNpgsqlLSeg>()
+            .Where(e => e.LSeg.Start.Y==lSeg.Start.Y);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
     }
 
     [Test]
     public void ExtractPartOfEndPointTest()
     {
-      RunTests(e => e.LSeg.End.X==lSeg.End.X);
-      RunTests(e => e.LSeg.End.Y==lSeg.End.Y);
-    }
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
 
-    private void RunTests(Expression<Func<EntityWithNpgsqlLSeg, bool>> filter)
-    {
-      using (var session = Domain.OpenSession())
-      using (var t = session.OpenTransaction()) {
-        var count = session.Query.All<EntityWithNpgsqlLSeg>().Count(filter);
-        Assert.IsNotNull(count);
-        t.Complete();
+          var query = session.Query.All<EntityWithNpgsqlLSeg>()
+            .Where(e => e.LSeg.End.X==lSeg.End.X);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          query = session.Query.All<EntityWithNpgsqlLSeg>()
+            .Where(e => e.LSeg.End.Y==lSeg.End.Y);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
       }
     }
   }

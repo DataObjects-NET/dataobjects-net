@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   internal class IssueJira0416_NpgsqlBox : AutoBuildTest
   {
-    private NpgsqlBox box = new NpgsqlBox(new NpgsqlPoint(0, 1), new NpgsqlPoint(2, 3));
+    private NpgsqlBox box = new NpgsqlBox(new NpgsqlPoint(2, 3), new NpgsqlPoint(0, 1));
     private NpgsqlBox boxOther = new NpgsqlBox(new NpgsqlPoint(1, 2), new NpgsqlPoint(3, 4));
 
     protected override DomainConfiguration BuildConfiguration()
@@ -58,59 +58,128 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ExtractUpperRightPointTest()
     {
-      RunTests(e => e.Box.UpperRight!=boxOther.UpperRight);
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlBox>()
+            .Where(e => e.Box.UpperRight!=boxOther.UpperRight);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
     }
 
     [Test]
     public void ExtractLowerLeftPointTest()
     {
-      RunTests(e => e.Box.LowerLeft!=boxOther.LowerLeft);
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlBox>()
+            .Where(e => e.Box.LowerLeft!=boxOther.LowerLeft);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
     }
 
     [Test]
     public void ExtractRightTest()
     {
-      RunTests(p => p.Box.Right==box.Right);
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlBox>()
+            .Where(e => e.Box.Right==box.Right);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
     }
 
     [Test]
     public void ExtractTopTest()
     {
-      RunTests(p => p.Box.Top==box.Top);
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlBox>()
+            .Where(e => e.Box.Top==box.Top);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
     }
 
     [Test]
     public void ExtractLeftTest()
     {
-      RunTests(p => p.Box.Left==box.Left);
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlBox>()
+            .Where(e => e.Box.Left==box.Left);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
     }
 
     [Test]
     public void ExtractBottomTest()
     {
-      RunTests(p => p.Box.Bottom==box.Bottom);
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlBox>()
+            .Where(e => e.Box.Bottom==box.Bottom);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
     }
 
     [Test]
     public void ExtractHeightTest()
     {
-      RunTests(p => p.Box.Height==box.Height);
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlBox>()
+            .Where(e => e.Box.Height==box.Height);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
     }
 
     [Test]
     public void ExtractWidthTest()
     {
-      RunTests(p => p.Box.Width==box.Width);
-    }
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
 
-    private void RunTests(Expression<Func<EntityWithNpgsqlBox, bool>> filter)
-    {
-      using (var session = Domain.OpenSession())
-      using (var t = session.OpenTransaction())
-      {
-        var count = session.Query.All<EntityWithNpgsqlBox>().Count(filter);
-        Assert.IsNotNull(count);
-        t.Complete();
+          var query = session.Query.All<EntityWithNpgsqlBox>()
+            .Where(e => e.Box.Width==box.Width);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
       }
     }
   }

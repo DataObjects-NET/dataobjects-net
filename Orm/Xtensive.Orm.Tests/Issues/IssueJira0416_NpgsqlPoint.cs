@@ -57,22 +57,32 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ExtractXPartTest()
     {
-      RunTests(p => p.Point.X==point.X);
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlPoint>()
+            .Where(e => e.Point.X==point.X);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
     }
 
     [Test]
     public void ExtractYPartTest()
     {
-      RunTests(p => p.Point.Y==point.Y);
-    }
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
 
-    private void RunTests(Expression<Func<EntityWithNpgsqlPoint, bool>> filter)
-    {
-      using (var session = Domain.OpenSession())
-      using (var t = session.OpenTransaction()) {
-        var count = session.Query.All<EntityWithNpgsqlPoint>().Count(filter);
-        Assert.IsNotNull(count);
-        t.Complete();
+          var query = session.Query.All<EntityWithNpgsqlPoint>()
+            .Where(e => e.Point.Y==point.Y);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
       }
     }
   }
