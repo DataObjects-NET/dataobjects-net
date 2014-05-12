@@ -22,13 +22,17 @@ namespace Xtensive.Orm.Tests.Issues
 
       [Field]
       public NpgsqlPolygon Polygon { get; set; }
+
+      [Field]
+      public NpgsqlPolygon OtherPolygon { get; set; }
     }
   }
 
   [TestFixture]
   internal class IssueJira0416_NpgsqlPolygon : AutoBuildTest
   {
-    private NpgsqlPolygon polygon = new NpgsqlPolygon(new[] {new NpgsqlPoint(0, 1), new NpgsqlPoint(2, 3), new NpgsqlPoint(4, 5), new NpgsqlPoint(6, 7)});
+    private NpgsqlPolygon polygon = new NpgsqlPolygon(new[] { new NpgsqlPoint(0, 1), new NpgsqlPoint(2, 3), new NpgsqlPoint(4, 5), new NpgsqlPoint(6, 7) });
+    private NpgsqlPolygon otherPolygon = new NpgsqlPolygon(new[] {new NpgsqlPoint(0, 1), new NpgsqlPoint(2, 3), new NpgsqlPoint(4, 5), new NpgsqlPoint(6, 8)});
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -41,7 +45,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          new EntityWithNpgsqlPolygon {Polygon = polygon};
+          new EntityWithNpgsqlPolygon {Polygon = polygon, OtherPolygon = otherPolygon};
           t.Complete();
         }
       }
@@ -90,5 +94,41 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
     }
+
+    #region Operators
+
+    [Test]
+    public void EqualityTest()
+    {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlPolygon>()
+            .Where(e => e.Polygon==e.Polygon);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void InequalityTest()
+    {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlPolygon>()
+            .Where(e => e.Polygon!=e.OtherPolygon);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
+    }
+
+    #endregion
   }
 }

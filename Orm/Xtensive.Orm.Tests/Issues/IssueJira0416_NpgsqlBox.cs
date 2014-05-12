@@ -4,9 +4,7 @@
 // Created by: Alena Mikshina
 // Created:    2014.05.05
 
-using System;
 using System.Linq;
-using System.Linq.Expressions;
 using NpgsqlTypes;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
@@ -24,6 +22,9 @@ namespace Xtensive.Orm.Tests.Issues
 
       [Field]
       public NpgsqlBox Box { get; set; }
+
+      [Field]
+      public NpgsqlBox OtherBox { get; set; }
     }
   }
 
@@ -31,7 +32,7 @@ namespace Xtensive.Orm.Tests.Issues
   internal class IssueJira0416_NpgsqlBox : AutoBuildTest
   {
     private NpgsqlBox box = new NpgsqlBox(new NpgsqlPoint(2, 3), new NpgsqlPoint(0, 1));
-    private NpgsqlBox boxOther = new NpgsqlBox(new NpgsqlPoint(1, 2), new NpgsqlPoint(3, 4));
+    private NpgsqlBox otherBox = new NpgsqlBox(new NpgsqlPoint(11, 22), new NpgsqlPoint(33, 44));
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -44,7 +45,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          new EntityWithNpgsqlBox {Box = box};
+          new EntityWithNpgsqlBox {Box = box, OtherBox = otherBox};
           t.Complete();
         }
       }
@@ -55,6 +56,8 @@ namespace Xtensive.Orm.Tests.Issues
       Require.ProviderIs(StorageProvider.PostgreSql);
     }
 
+    #region Extractors
+
     [Test]
     public void ExtractUpperRightPointTest()
     {
@@ -62,7 +65,7 @@ namespace Xtensive.Orm.Tests.Issues
         using (var t = session.OpenTransaction()) {
 
           var query = session.Query.All<EntityWithNpgsqlBox>()
-            .Where(e => e.Box.UpperRight!=boxOther.UpperRight);
+            .Where(e => e.Box.UpperRight!=otherBox.UpperRight);
 
           Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
 
@@ -78,7 +81,7 @@ namespace Xtensive.Orm.Tests.Issues
         using (var t = session.OpenTransaction()) {
 
           var query = session.Query.All<EntityWithNpgsqlBox>()
-            .Where(e => e.Box.LowerLeft!=boxOther.LowerLeft);
+            .Where(e => e.Box.LowerLeft!=otherBox.LowerLeft);
 
           Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
 
@@ -182,5 +185,43 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
     }
+    
+    #endregion
+
+    #region Operators
+
+    [Test]
+    public void EqualityTest()
+    {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlBox>()
+            .Where(e => e.Box==e.Box);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void InequalityTest()
+    {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlBox>()
+            .Where(e => e.Box!=e.OtherBox);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
+    }
+
+    #endregion
   }
 }

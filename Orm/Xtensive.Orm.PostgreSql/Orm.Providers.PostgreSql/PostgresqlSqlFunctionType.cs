@@ -12,6 +12,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
   {
     // Npgsql
     public static readonly CustomSqlFunctionType NpgsqlTypeExtractPoint = new CustomSqlFunctionType("NpgsqlTypeExtractPoint");
+    public static readonly CustomSqlFunctionType NpgsqlTypeOperatorEquality = new CustomSqlFunctionType("NpgsqlTypeOperatorEquality");
 
     // NpgsqlPoint
     public static readonly CustomSqlFunctionType NpgsqlPointExtractX = new CustomSqlFunctionType("NpgsqlPointExtractX");

@@ -6,6 +6,7 @@
 
 using NpgsqlTypes;
 using Xtensive.Sql.Dml;
+using Operator = Xtensive.Reflection.WellKnown.Operator;
 
 namespace Xtensive.Orm.Providers.PostgreSql
 {
@@ -24,6 +25,26 @@ namespace Xtensive.Orm.Providers.PostgreSql
     public static SqlExpression NpgsqlPointExtractY(SqlExpression _this)
     {
       return PostgresqlSqlDml.NpgsqlPointExtractY(_this);
+    }
+
+    #endregion
+
+    #region Operators
+
+    [Compiler(typeof (NpgsqlPoint), Operator.Equality, TargetKind.Operator)]
+    public static SqlExpression NpgsqlPointOperatorEquality(
+      [Type(typeof (NpgsqlPoint))] SqlExpression left,
+      [Type(typeof (NpgsqlPoint))] SqlExpression right)
+    {
+      return PostgresqlSqlDml.NpgsqlTypeOperatorEquality(left, right);
+    }
+
+    [Compiler(typeof (NpgsqlPoint), Operator.Inequality, TargetKind.Operator)]
+    public static SqlExpression NpgsqlPointOperatorInequality(
+      [Type(typeof (NpgsqlPoint))] SqlExpression left,
+      [Type(typeof (NpgsqlPoint))] SqlExpression right)
+    {
+      return left!=right;
     }
 
     #endregion

@@ -4,9 +4,7 @@
 // Created by: Alena Mikshina
 // Created:    2014.05.06
 
-using System;
 using System.Linq;
-using System.Linq.Expressions;
 using NpgsqlTypes;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
@@ -24,6 +22,9 @@ namespace Xtensive.Orm.Tests.Issues
 
       [Field]
       public NpgsqlLSeg LSeg { get; set; }
+
+      [Field]
+      public NpgsqlLSeg OtherLSeg { get; set; }
     }
   }
 
@@ -31,7 +32,7 @@ namespace Xtensive.Orm.Tests.Issues
   internal class IssueJira0416_NpgsqlLSeg : AutoBuildTest
   {
     private NpgsqlLSeg lSeg = new NpgsqlLSeg(new NpgsqlPoint(1, 1), new NpgsqlPoint(2, 2));
-    private NpgsqlLSeg lSegOther = new NpgsqlLSeg(new NpgsqlPoint(0, 0), new NpgsqlPoint(1, 1));
+    private NpgsqlLSeg otherLSeg = new NpgsqlLSeg(new NpgsqlPoint(0, 0), new NpgsqlPoint(1, 1));
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -44,7 +45,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          new EntityWithNpgsqlLSeg {LSeg = lSeg};
+          new EntityWithNpgsqlLSeg {LSeg = lSeg, OtherLSeg = otherLSeg};
           t.Complete();
         }
       }
@@ -55,6 +56,8 @@ namespace Xtensive.Orm.Tests.Issues
       Require.ProviderIs(StorageProvider.PostgreSql);
     }
 
+    #region Extractors
+
     [Test]
     public void ExtractStartPointTest()
     {
@@ -62,7 +65,7 @@ namespace Xtensive.Orm.Tests.Issues
         using (var t = session.OpenTransaction()) {
 
           var query = session.Query.All<EntityWithNpgsqlLSeg>()
-            .Where(e => e.LSeg.Start!=lSegOther.Start);
+            .Where(e => e.LSeg.Start!=otherLSeg.Start);
 
           Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
 
@@ -78,7 +81,7 @@ namespace Xtensive.Orm.Tests.Issues
         using (var t = session.OpenTransaction()) {
 
           var query = session.Query.All<EntityWithNpgsqlLSeg>()
-            .Where(e => e.LSeg.End!=lSegOther.End);
+            .Where(e => e.LSeg.End!=otherLSeg.End);
 
           Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
 
@@ -128,5 +131,43 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
     }
+
+    #endregion
+
+    #region Operators
+
+    [Test]
+    public void EqualityTest()
+    {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlLSeg>()
+            .Where(e => e.LSeg==e.LSeg);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public void InequalityTest()
+    {
+      using (var session = Domain.OpenSession()) {
+        using (var t = session.OpenTransaction()) {
+
+          var query = session.Query.All<EntityWithNpgsqlLSeg>()
+            .Where(e => e.LSeg!=e.OtherLSeg);
+
+          Assert.IsTrue(query.ToList().FirstOrDefault()!=null);
+
+          t.Complete();
+        }
+      }
+    }
+
+    #endregion
   }
 }

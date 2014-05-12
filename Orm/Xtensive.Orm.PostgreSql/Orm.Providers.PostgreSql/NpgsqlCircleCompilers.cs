@@ -6,6 +6,7 @@
 
 using NpgsqlTypes;
 using Xtensive.Sql.Dml;
+using Operator = Xtensive.Reflection.WellKnown.Operator;
 
 namespace Xtensive.Orm.Providers.PostgreSql
 {
@@ -24,6 +25,26 @@ namespace Xtensive.Orm.Providers.PostgreSql
     public static SqlExpression NpgsqlCircleExtractRadius(SqlExpression _this)
     {
       return PostgresqlSqlDml.NpgsqlCircleExtractRadius(_this);
+    }
+
+    #endregion
+
+    #region Operators
+
+    [Compiler(typeof (NpgsqlCircle), Operator.Equality, TargetKind.Operator)]
+    public static SqlExpression NpgsqlCircleOperatorEquality(
+      [Type(typeof (NpgsqlCircle))] SqlExpression left,
+      [Type(typeof (NpgsqlCircle))] SqlExpression right)
+    {
+      return PostgresqlSqlDml.NpgsqlTypeOperatorEquality(left, right);
+    }
+
+    [Compiler(typeof (NpgsqlCircle), Operator.Inequality, TargetKind.Operator)]
+    public static SqlExpression NpgsqlCircleOperatorInequality(
+      [Type(typeof (NpgsqlCircle))] SqlExpression left,
+      [Type(typeof (NpgsqlCircle))] SqlExpression right)
+    {
+      return left!=right;
     }
 
     #endregion

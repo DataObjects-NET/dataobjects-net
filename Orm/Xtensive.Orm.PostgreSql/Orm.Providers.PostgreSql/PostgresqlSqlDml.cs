@@ -26,6 +26,13 @@ namespace Xtensive.Orm.Providers.PostgreSql
       return new CustomSqlFunctionCall(PostgresqlSqlFunctionType.NpgsqlTypeExtractPoint, operand, numberPoint);
     }
 
+    public static SqlExpression NpgsqlTypeOperatorEquality(SqlExpression left, SqlExpression right)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(left, "left");
+      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+      return new CustomSqlFunctionCall(PostgresqlSqlFunctionType.NpgsqlTypeOperatorEquality, left, right);
+    }
+
     #region NpgsqlPoint
 
     public static SqlExpression NpgsqlPointExtractX(SqlExpression operand)

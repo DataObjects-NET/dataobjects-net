@@ -129,6 +129,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         NpgsqlPathAndPolygonContains(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
         return;
       }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlTypeOperatorEquality) {
+        NpgsqlTypeOperatorEquality(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
+        return;
+      }
       base.Visit(node);
     }
 
@@ -192,6 +196,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         SqlDml.RawConcat(
           SqlDml.Native("@>"),
           point));
+    }
+
+    protected static SqlExpression NpgsqlTypeOperatorEquality(SqlExpression left, SqlExpression right)
+    {
+      return SqlDml.RawConcat(left,
+        SqlDml.RawConcat(
+          SqlDml.Native("~="),
+          right));
     }
 
     // Constructors

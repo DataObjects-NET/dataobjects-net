@@ -6,6 +6,7 @@
 
 using NpgsqlTypes;
 using Xtensive.Sql.Dml;
+using Operator = Xtensive.Reflection.WellKnown.Operator;
 
 namespace Xtensive.Orm.Providers.PostgreSql
 {
@@ -24,5 +25,25 @@ namespace Xtensive.Orm.Providers.PostgreSql
     {
       return PostgresqlSqlDml.NpgsqlPathAndPolygonContains(_this, point);
     }
+
+    #region Operators
+
+    [Compiler(typeof (NpgsqlPolygon), Operator.Equality, TargetKind.Operator)]
+    public static SqlExpression NpgsqlPolygonOperatorEquality(
+      [Type(typeof (NpgsqlPolygon))] SqlExpression left,
+      [Type(typeof (NpgsqlPolygon))] SqlExpression right)
+    {
+      return PostgresqlSqlDml.NpgsqlTypeOperatorEquality(left, right);
+    }
+
+    [Compiler(typeof(NpgsqlPolygon), Operator.Inequality, TargetKind.Operator)]
+    public static SqlExpression NpgsqlPolygonOperatorInequality(
+      [Type(typeof(NpgsqlPolygon))] SqlExpression left,
+      [Type(typeof(NpgsqlPolygon))] SqlExpression right)
+    {
+      return !NpgsqlPolygonOperatorEquality(left, right);
+    }
+
+    #endregion
   }
 }
