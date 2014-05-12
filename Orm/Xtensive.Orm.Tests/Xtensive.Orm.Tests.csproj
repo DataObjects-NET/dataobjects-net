@@ -190,6 +190,7 @@
     <Compile Include="Issues\IssueJira0500_OptimizeMultipleAggregatesWithProjections.cs" />
     <Compile Include="Issues\IssueJira0202_OnRemoveActionOverriding.cs" />
     <Compile Include="Issues\IssueJira0516_PartialIndexConstruction.cs" />
+    <Compile Include="Issues\IssueJira0528_LongEnumBitOperations.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\ModelVersion1.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\ModelVersion2.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\Upgrader.cs" />
@@ -371,6 +372,7 @@
     <Compile Include="Storage\SingleTableTest.cs" />
     <Compile Include="Storage\SqlGeometryAndGeographyTest.cs" />
     <Compile Include="Storage\StructureReferencesAnEntityTest.cs" />
+    <Compile Include="Storage\TransactionScopeIntegration.cs" />
     <Compile Include="Storage\TransactionsTestBase.cs" />
     <Compile Include="Storage\TypeDiscriminatorFromInterfaceTest.cs" />
     <Compile Include="Storage\UpgradeModesTest.cs" />
