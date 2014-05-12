@@ -303,6 +303,7 @@
     <Compile Include="Storage\SetFieldTest.cs" />
     <Compile Include="Storage\SingleTableTest.cs" />
     <Compile Include="Storage\StructureReferencesAnEntityTest.cs" />
+    <Compile Include="Storage\TransactionScopeIntegration.cs" />
     <Compile Include="Storage\UpgradeModesTest.cs" />
     <Compile Include="Upgrade\EntitySetUpgrade\ModelVersion1.cs" />
     <Compile Include="Upgrade\EntitySetUpgrade\ModelVersion2.cs" />
