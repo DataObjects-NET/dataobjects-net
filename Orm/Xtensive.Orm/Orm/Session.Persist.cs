@@ -154,25 +154,33 @@ namespace Xtensive.Orm
             if (LazyKeyGenerationIsEnabled) {
               RemapEntityKeys(remapper.Remap(itemsToPersist));
             }
-
+            bool isPersistFall = false;
             ApplyEntitySetsChanges();
             try {
               Handler.Persist(itemsToPersist, reason == PersistReason.Query);
             }
+            catch(Exception) {
+              isPersistFall = true;
+              RollbackChangesOfEntitySets();
+              throw;
+            }
             finally {
-              foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
-                item.PersistenceState = PersistenceState.Synchronized;
-              foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified))
-                item.PersistenceState = PersistenceState.Synchronized;
-              foreach (var item in itemsToPersist.GetItems(PersistenceState.Removed))
-                item.Update(null);
+              if (!isPersistFall) {
+                foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
+                  item.PersistenceState = PersistenceState.Synchronized;
+                foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified))
+                  item.PersistenceState = PersistenceState.Synchronized;
+                foreach (var item in itemsToPersist.GetItems(PersistenceState.Removed))
+                  item.Update(null);
 
-              if (performPinning) {
-                EntityChangeRegistry = pinner.PinnedItems;
-                pinner.Reset();
+                if (performPinning) {
+                  EntityChangeRegistry = pinner.PinnedItems;
+                  pinner.Reset();
+                }
+                else
+                  EntityChangeRegistry.Clear();
               }
-              else
-                EntityChangeRegistry.Clear();
+              
 
               OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
             }
@@ -242,12 +250,21 @@ namespace Xtensive.Orm
       ProcessChangesOfEntitySets(entitySetState => entitySetState.CancelChanges());
     }
 
+    private void RollbackChangesOfEntitySets()
+    {
+      ProcessChangesOfEntitySets(entitySetState => entitySetState.RollbackState());
+    }
+
     private void SaveNonTransactionalChanges()
     {
-      using (var transaction = OpenTransaction(TransactionOpenMode.New)) {
-        Persist(PersistReason.Manual);
-        transaction.Complete();
+      if (Transaction!=null) {
+        using (var transaction = OpenTransaction()) {
+          Persist(PersistReason.Manual);
+          transaction.Complete();
+        }
       }
+      else
+        Persist(PersistReason.Manual);
     }
 
     private void CancelNonTransactionalChanges()
@@ -279,7 +296,6 @@ namespace Xtensive.Orm
       var itemsToProcess = EntitySetChangeRegistry.GetItems();
       foreach (var entitySet in itemsToProcess)
         action.Invoke(entitySet);
-      EntitySetChangeRegistry.Clear();
     }
   }
 }
