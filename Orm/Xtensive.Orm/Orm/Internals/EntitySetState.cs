@@ -19,10 +19,28 @@ namespace Xtensive.Orm.Internals
     IEnumerable<Key>,
     IInvalidatable
   {
+    private class BackupedState
+    {
+      public bool IsLoaded { get; private set; }
+      public long? TotalItemCount { get; private set; }
+      public IEnumerable<Key> AddedKeys { get; private set; }
+      public IEnumerable<Key> RemovedKeys { get; private set; }
+
+      public BackupedState(EntitySetState state)
+      {
+        IsLoaded = state.IsLoaded;
+        TotalItemCount = state.TotalItemCount;
+        AddedKeys = state.addedKeys.Values.ToList();
+        RemovedKeys = state.removedKeys.Values.ToList();
+      }
+    }
+
     private readonly IDictionary<Key, Key> addedKeys;
     private readonly IDictionary<Key, Key> removedKeys;
     private bool isLoaded;
     private long? totalItemCount;
+
+    private BackupedState previousState;
 
     public KeyCache FetchedKeys {
       get { return State; }
@@ -178,6 +196,7 @@ namespace Xtensive.Orm.Internals
     {
       if (HasChanges) {
         EnsureFetchedKeysIsNotNull();
+        BackupState();
         foreach (var removedKey in removedKeys)
           FetchedKeys.RemoveKey(removedKey.Value);
         foreach (var addedKey in addedKeys)
@@ -196,6 +215,25 @@ namespace Xtensive.Orm.Internals
       addedKeys.Clear();
       removedKeys.Clear();
       Rebind();
+    }
+
+    internal void RollbackState()
+    {
+      if (previousState!=null) {
+        TotalItemCount = previousState.TotalItemCount;
+        IsLoaded = previousState.IsLoaded;
+        foreach (var addedKey in previousState.AddedKeys) {
+          if (FetchedKeys.ContainsKey(addedKey))
+            FetchedKeys.RemoveKey(addedKey);
+          addedKeys.Add(addedKey, addedKey);
+        }
+        foreach (var removedKey in previousState.RemovedKeys) {
+          if (!FetchedKeys.ContainsKey(removedKey))
+            Register(removedKey);
+          removedKeys.Add(removedKey, removedKey);
+        }
+        
+      }
     }
 
     /// <inheritdoc/>
@@ -237,6 +275,11 @@ namespace Xtensive.Orm.Internals
     {
       if (FetchedKeys==null)
         InitializeFetchedKeys();
+    }
+
+    private void BackupState()
+    {
+      previousState = new BackupedState(this);
     }
 
     private void InitializeFetchedKeysAndClearChanges()
