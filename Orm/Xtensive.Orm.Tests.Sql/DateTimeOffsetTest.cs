@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateTimeOffsetConstructTest()
     {
       CheckEquality(
-        SqlDml.DateTimeOffsetConstruct(2001, 1, 1, 250),
+        SqlDml.DateTimeOffsetConstruct(new DateTime(2001, 1, 1, 1,1, 1,  1), 250),
         new DateTimeOffset(2001, 1, 1, 0, 0, 0, 0, new TimeSpan(4, 10, 0)));
     }
 

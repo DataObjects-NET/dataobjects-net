@@ -655,17 +655,12 @@ namespace Xtensive.Sql
       return new SqlExtract(part, operand);
     }
 
-    public static SqlFunctionCall DateTimeOffsetConstruct(SqlExpression year, SqlExpression month, SqlExpression day, SqlExpression offset)
+    public static SqlFunctionCall DateTimeOffsetConstruct(SqlExpression dateTime, SqlExpression offset)
     {
-      ArgumentValidator.EnsureArgumentNotNull(year, "year");
-      ArgumentValidator.EnsureArgumentNotNull(month, "month");
-      ArgumentValidator.EnsureArgumentNotNull(day, "day");
+      ArgumentValidator.EnsureArgumentNotNull(dateTime, "dateTime");
       ArgumentValidator.EnsureArgumentNotNull(offset, "offset");
-      SqlValidator.EnsureIsArithmeticExpression(year);
-      SqlValidator.EnsureIsArithmeticExpression(month);
-      SqlValidator.EnsureIsArithmeticExpression(day);
       SqlValidator.EnsureIsArithmeticExpression(offset);
-      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetConstruct, year, month, day, offset);
+      return new SqlFunctionCall(SqlFunctionType.DateTimeOffsetConstruct, dateTime, offset);
     }
 
     public static SqlBinary DateTimeOffsetPlusInterval(SqlExpression left, SqlExpression right)

@@ -96,11 +96,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         DateTimeOffsetTimeOfDay(node.Arguments[0]).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeOffsetConstruct:
-        Visit(ToDateTimeOffset(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
-          node.Arguments[0] - 2001),
-          node.Arguments[1] - 1),
-          node.Arguments[2] - 1),
-          node.Arguments[3]));
+        Visit(ToDateTimeOffset(node.Arguments[0], node.Arguments[1]));
         return;
       case SqlFunctionType.DateTimeOffsetToLocalTime:
         DateTimeOffsetToLocalTime(node.Arguments[0]).AcceptVisitor(this);
