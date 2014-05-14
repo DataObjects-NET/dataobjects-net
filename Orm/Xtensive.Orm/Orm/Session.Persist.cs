@@ -179,6 +179,7 @@ namespace Xtensive.Orm
                 }
                 else
                   EntityChangeRegistry.Clear();
+                EntitySetChangeRegistry.Clear();
               }
               
 
