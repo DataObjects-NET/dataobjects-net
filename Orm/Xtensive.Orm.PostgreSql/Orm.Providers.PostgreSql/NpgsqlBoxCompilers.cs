@@ -84,5 +84,29 @@ namespace Xtensive.Orm.Providers.PostgreSql
     }
 
     #endregion
+
+    #region Constructors
+
+    [Compiler(typeof (NpgsqlBox), null, TargetKind.Constructor)]
+    public static SqlExpression NpgsqlBoxConstructor(
+      [Type(typeof (float))] SqlExpression top,
+      [Type(typeof (float))] SqlExpression right,
+      [Type(typeof (float))] SqlExpression bottom,
+      [Type(typeof (float))] SqlExpression left)
+    {
+      return PostgresqlSqlDml.NpgsqlBoxConstructor(
+        PostgresqlSqlDml.NpgsqlPointConstructor(right, top),
+        PostgresqlSqlDml.NpgsqlPointConstructor(left, bottom));
+    }
+
+    [Compiler(typeof (NpgsqlBox), null, TargetKind.Constructor)]
+    public static SqlExpression NpgsqlBoxConstructor(
+      [Type(typeof (NpgsqlPoint))] SqlExpression upperRight,
+      [Type(typeof (NpgsqlPoint))] SqlExpression lowerLeft)
+    {
+      return PostgresqlSqlDml.NpgsqlBoxConstructor(upperRight, lowerLeft);
+    }
+
+    #endregion
   }
 }

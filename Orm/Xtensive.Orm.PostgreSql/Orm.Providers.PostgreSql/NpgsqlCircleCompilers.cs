@@ -48,5 +48,17 @@ namespace Xtensive.Orm.Providers.PostgreSql
     }
 
     #endregion
+
+    #region Constructors
+
+    [Compiler(typeof (NpgsqlCircle), null, TargetKind.Constructor)]
+    public static SqlExpression NpgsqlCircleConstructor(
+      [Type(typeof (NpgsqlPoint))] SqlExpression center,
+      [Type(typeof (double))] SqlExpression radius)
+    {
+      return PostgresqlSqlDml.NpgsqlCircleConstructor(center, radius);
+    }
+
+    #endregion
   }
 }

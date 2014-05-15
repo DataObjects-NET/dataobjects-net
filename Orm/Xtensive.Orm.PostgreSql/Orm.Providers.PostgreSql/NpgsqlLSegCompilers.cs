@@ -48,5 +48,17 @@ namespace Xtensive.Orm.Providers.PostgreSql
     }
 
     #endregion
+
+    #region Constructors
+
+    [Compiler(typeof (NpgsqlLSeg), null, TargetKind.Constructor)]
+    public static SqlExpression NpgsqlLSegConstructor(
+      [Type(typeof (NpgsqlPoint))] SqlExpression start,
+      [Type(typeof (NpgsqlPoint))] SqlExpression end)
+    {
+      return PostgresqlSqlDml.NpgsqlLSegConstructor(start, end);
+    }
+
+    #endregion
   }
 }

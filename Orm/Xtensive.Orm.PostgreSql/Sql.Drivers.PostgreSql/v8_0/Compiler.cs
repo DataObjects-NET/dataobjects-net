@@ -133,6 +133,25 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         NpgsqlTypeOperatorEquality(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
         return;
       }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlPointConstructor) {
+        var newNode = SqlDml.RawConcat(
+          NpgsqlTypeConstructor(node.Arguments[0], node.Arguments[1], "point'"),
+          SqlDml.Native("'"));
+        newNode.AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlBoxConstructor) {
+        NpgsqlTypeConstructor(node.Arguments[0], node.Arguments[1], "box").AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlCircleConstructor) {
+        NpgsqlTypeConstructor(node.Arguments[0], node.Arguments[1], "circle").AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlLSegConstructor) {
+        NpgsqlTypeConstructor(node.Arguments[0], node.Arguments[1], "lseg").AcceptVisitor(this);
+        return;
+      }
       base.Visit(node);
     }
 
@@ -204,6 +223,18 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         SqlDml.RawConcat(
           SqlDml.Native("~="),
           right));
+    }
+
+    private static SqlExpression NpgsqlTypeConstructor(SqlExpression left, SqlExpression right, string type)
+    {
+      return SqlDml.RawConcat(
+        SqlDml.Native(String.Format("{0}(", type)),
+        SqlDml.RawConcat(left,
+          SqlDml.RawConcat(
+            SqlDml.Native(","),
+            SqlDml.RawConcat(
+              right,
+              SqlDml.Native(")")))));
     }
 
     // Constructors
