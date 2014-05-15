@@ -19,6 +19,7 @@ namespace Xtensive.Orm
   {
     private bool disableAutoSaveChanges;
     private KeyRemapper remapper;
+    private bool persistingIsFailed;
     
     internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry { get; private set; }
     /// <summary>
@@ -123,7 +124,7 @@ namespace Xtensive.Orm
         return;
 
       var performPinning = pinner.RootCount > 0;
-      if (performPinning || disableAutoSaveChanges) 
+      if (performPinning || (disableAutoSaveChanges && !Configuration.Supports(SessionOptions.NonTransactionalEntityStates))) 
         switch (reason) {
           case PersistReason.NestedTransaction:
           case PersistReason.Commit:
@@ -135,6 +136,7 @@ namespace Xtensive.Orm
 
       using (var ts = OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified, false)) {
         IsPersisting = true;
+        persistingIsFailed = false;
         SystemEvents.NotifyPersisting();
         Events.NotifyPersisting();
 
@@ -154,18 +156,17 @@ namespace Xtensive.Orm
             if (LazyKeyGenerationIsEnabled) {
               RemapEntityKeys(remapper.Remap(itemsToPersist));
             }
-            bool isPersistFall = false;
             ApplyEntitySetsChanges();
             try {
               Handler.Persist(itemsToPersist, reason == PersistReason.Query);
             }
             catch(Exception) {
-              isPersistFall = true;
+              persistingIsFailed = true;
               RollbackChangesOfEntitySets();
               throw;
             }
             finally {
-              if (!isPersistFall) {
+              if (!persistingIsFailed) {
                 foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
                   item.PersistenceState = PersistenceState.Synchronized;
                 foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified))
@@ -180,9 +181,10 @@ namespace Xtensive.Orm
                 else
                   EntityChangeRegistry.Clear();
                 EntitySetChangeRegistry.Clear();
+                if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates) && reason==PersistReason.Manual)
+                  ts.Complete();
               }
               
-
               OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
             }
           }
@@ -258,14 +260,15 @@ namespace Xtensive.Orm
 
     private void SaveNonTransactionalChanges()
     {
-      if (Transaction!=null) {
-        using (var transaction = OpenTransaction()) {
+      Exception persistingException = null;
+      using (var transaction = OpenTransaction(TransactionOpenMode.New)) {
+        try {
           Persist(PersistReason.Manual);
+        }
+        finally {
           transaction.Complete();
         }
       }
-      else
-        Persist(PersistReason.Manual);
     }
 
     private void CancelNonTransactionalChanges()
@@ -276,9 +279,8 @@ namespace Xtensive.Orm
 
     private void CancelEntitiesChanges()
     {
-      foreach (var newEntity in EntityChangeRegistry.GetItems(PersistenceState.New)) {
-        newEntity.RollbackDifference();
-        newEntity.PersistenceState = PersistenceState.Synchronized;
+      foreach (var newEntity in EntityChangeRegistry.GetItems(PersistenceState.New).ToList()) {
+        newEntity.PersistenceState = PersistenceState.Removed;
       }
       
       foreach (var modifiedEntity in EntityChangeRegistry.GetItems(PersistenceState.Modified)) {
