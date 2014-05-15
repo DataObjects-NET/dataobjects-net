@@ -76,6 +76,7 @@ namespace Xtensive.Orm
             entityState.RemapKey(remappedKey);
           EntityStateCache.Add(entityState);
         }
+        ProcessChangesOfEntitySets(entitySetState => entitySetState.RemapKeys(keyMapping));
         EntityEvents.RemapKeys(keyMapping);
       }
     }

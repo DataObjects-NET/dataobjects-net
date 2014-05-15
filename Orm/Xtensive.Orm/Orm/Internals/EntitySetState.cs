@@ -236,6 +236,16 @@ namespace Xtensive.Orm.Internals
       }
     }
 
+    internal void RemapKeys(KeyMapping mapping)
+    {
+      var oldAddedKeys = addedKeys.ToList();
+      foreach (var addedKey in oldAddedKeys) {
+        var newKey = mapping.TryRemapKey(addedKey.Key);
+        addedKeys.Remove(addedKey);
+        addedKeys.Add(newKey, newKey);
+      }
+    }
+
     /// <inheritdoc/>
     protected override void Invalidate()
     {
