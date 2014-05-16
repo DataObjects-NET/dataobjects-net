@@ -117,13 +117,25 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     LazyKeyGeneration = 1 << 14,
 
+    /// <summary>
+    /// Enables automatic persist of changes in case of committing of transaction, query and some others.
+    /// </summary>
+    AutoSaveChanges = 1 << 15,
+
+    /// <summary>
+    /// Enables reading and saving of <see cref="Entity"/> objects without active transaction.
+    /// Contains
+    /// <see cref="NonTransactionalReads"/>
+    /// </summary>
+    NonTransactionalEntityStates = (1 << 16) | NonTransactionalReads,
+
     // Profiles
 
     /// <summary>
     /// Predefined option set for server-side sessions (ASP.NET, ASP.NET MVC, services, etc.).
     /// Includes only <see cref="ValidateEntities"/> flag.
     /// </summary>
-    ServerProfile = ValidateEntities | (1 << 10),
+    ServerProfile = ValidateEntities | AutoSaveChanges |(1 << 10),
 
     /// <summary>
     /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).
@@ -133,6 +145,15 @@ namespace Xtensive.Orm.Configuration
     /// <see cref="ValidateEntities"/> flags.
     /// </summary>
     ClientProfile = AutoTransactionOpenMode | ValidateEntities | Disconnected,
+
+    /// <summary>
+    /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).
+    /// Combines 
+    /// <see cref="NonTransactionalEntityStates"/> | 
+    /// <see cref="LazyKeyGeneration"/> |
+    /// <see cref="ValidateEntities"/> flags.
+    /// </summary>
+    ClientProfile1 = NonTransactionalEntityStates | LazyKeyGeneration | ValidateEntities,
 
     /// <summary>
     /// Predefined option set for compatibility with previous versions of DataObjects.Net (4.3.* and earlier).
