@@ -71,11 +71,12 @@ namespace Xtensive.Orm.Providers
     private long ExecuteInKeyGeneratorSession(SequenceQuery query, StorageNode node)
     {
       long result;
-      using (var session = domain.OpenSession(SessionType.KeyGenerator))
-      using (session.OpenTransaction()) {
+      using (var session = domain.OpenSession(SessionType.KeyGenerator)) {
         session.SetStorageNode(node);
-        result = query.ExecuteWith(session.Services.Demand<ISqlExecutor>());
-        // Rollback
+        using (session.OpenTransaction()) {
+          result = query.ExecuteWith(session.Services.Demand<ISqlExecutor>());
+          // Rollback
+        }
       }
       return result;
     }
