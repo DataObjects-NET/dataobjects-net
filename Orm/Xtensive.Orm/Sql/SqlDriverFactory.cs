@@ -4,8 +4,10 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.06.23
 
+using System.Data.Common;
 using Xtensive.Core;
 using Xtensive.Orm;
+using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql
 {
@@ -65,6 +67,13 @@ namespace Xtensive.Sql
       return connectionInfo.ConnectionString
         ?? BuildConnectionString(connectionInfo.ConnectionUrl);
     }
+
+    /// <summary>
+    /// Gets <see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.
+    /// </summary>
+    /// <param name="connection"><see cref="SqlConnection"/> to use.</param>
+    /// <returns><see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.</returns>
+    public abstract DefaultSchemaInfo GetDefaultSchema(DbConnection connection);
 
     /// <summary>
     /// Creates the driver from the specified <paramref name="connectionString"/>.

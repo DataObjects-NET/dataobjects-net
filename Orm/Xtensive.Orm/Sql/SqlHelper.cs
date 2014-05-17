@@ -280,17 +280,15 @@ namespace Xtensive.Sql
     /// </summary>
     /// <param name="connection">The connection.</param>
     /// <param name="queryText">The query text.</param>
-    /// <param name="coreServerInfo">The core server info.</param>
-    public static void ReadDatabaseAndSchema(DbConnection connection, string queryText,
-      CoreServerInfo coreServerInfo)
+    /// <returns><see cref="DefaultSchemaInfo"/> instance.</returns>
+    public static DefaultSchemaInfo ReadDatabaseAndSchema(DbConnection connection, string queryText)
     {
       using (var command = connection.CreateCommand()) {
         command.CommandText = queryText;
         using (var reader = command.ExecuteReader()) {
           if (!reader.Read())
             throw new InvalidOperationException(Strings.ExCanNotReadDatabaseAndSchemaNames);
-          coreServerInfo.DatabaseName = reader.GetString(0);
-          coreServerInfo.DefaultSchemaName = reader.GetString(1);
+          return new DefaultSchemaInfo(reader.GetString(0), reader.GetString(1));
         }
       }
     }

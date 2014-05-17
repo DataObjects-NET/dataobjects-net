@@ -5,6 +5,7 @@
 // Created:    2011.01.08
 
 using System;
+using System.Data.Common;
 using FirebirdSql.Data.FirebirdClient;
 using Xtensive.Core;
 using Xtensive.Orm;
@@ -33,12 +34,15 @@ namespace Xtensive.Sql.Drivers.Firebird
         connection.Open();
         SqlHelper.ExecuteInitializationSql(connection, configuration);
         var dataSource = new FbConnectionStringBuilder(connectionString).DataSource;
+        var defaultSchema = GetDefaultSchema(connection);
         var coreServerInfo = new CoreServerInfo {
           ServerVersion = connection.ServerVersionNumber,
           ConnectionString = connectionString,
           MultipleActiveResultSets = true,
+          DatabaseName = defaultSchema.Database,
+          DefaultSchemaName = defaultSchema.Schema,
         };
-        SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
+        
         if (Int32.Parse(coreServerInfo.ServerVersion.Major.ToString() + coreServerInfo.ServerVersion.Minor.ToString()) < 25)
           throw new NotSupportedException(Strings.ExFirebirdBelow25IsNotSupported);
         //if (coreServerInfo.ServerVersion.Major == 2 && coreServerInfo.ServerVersion.Minor == 1)
@@ -81,6 +85,12 @@ namespace Xtensive.Sql.Drivers.Firebird
         builder.Add(parameter.Key, parameter.Value);
 
       return builder.ToString();
+    }
+
+    /// <inheritdoc/>
+    public override DefaultSchemaInfo GetDefaultSchema(DbConnection connection)
+    {
+      return SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery);
     }
   }
 }

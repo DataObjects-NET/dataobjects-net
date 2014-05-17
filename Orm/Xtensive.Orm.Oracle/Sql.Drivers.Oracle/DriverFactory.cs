@@ -5,6 +5,7 @@
 // Created:    2009.07.16
 
 using System;
+using System.Data.Common;
 using System.Linq;
 using Oracle.DataAccess.Client;
 using Xtensive.Core;
@@ -71,12 +72,14 @@ namespace Xtensive.Sql.Drivers.Oracle
           ? ParseVersion(connection.ServerVersion)
           : new Version(configuration.ForcedServerVersion);
         var dataSource = new OracleConnectionStringBuilder(connectionString).DataSource;
+        var defaultSchema = GetDefaultSchema(connection);
         var coreServerInfo = new CoreServerInfo {
           ServerVersion = version,
           ConnectionString = connectionString,
           MultipleActiveResultSets = true,
+          DatabaseName = defaultSchema.Database,
+          DefaultSchemaName = defaultSchema.Schema,
         };
-        SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
         if (version.Major < 9 || version.Major==9 && version.Minor < 2)
           throw new NotSupportedException(Strings.ExOracleBelow9i2IsNotSupported);
         if (version.Major==9)
@@ -85,6 +88,12 @@ namespace Xtensive.Sql.Drivers.Oracle
           return new v10.Driver(coreServerInfo);
         return new v11.Driver(coreServerInfo);
       }
+    }
+
+    /// <inheritdoc/>
+    public override DefaultSchemaInfo GetDefaultSchema(DbConnection connection)
+    {
+      return SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery);
     }
   }
 }

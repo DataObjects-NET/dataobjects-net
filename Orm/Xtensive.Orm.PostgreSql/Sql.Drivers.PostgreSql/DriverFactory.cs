@@ -5,6 +5,7 @@
 // Created:    2009.06.23
 
 using System;
+using System.Data.Common;
 using System.Security;
 using Npgsql;
 using Xtensive.Core;
@@ -63,12 +64,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql
           : new Version(configuration.ForcedServerVersion);
         var builder = new NpgsqlConnectionStringBuilder(connectionString);
         var dataSource = string.Format(DataSourceFormat, builder.Host, builder.Port, builder.Database);
+        var defaultSchema = GetDefaultSchema(connection);
         var coreServerInfo = new CoreServerInfo {
           ServerVersion = version,
           ConnectionString = connectionString,
           MultipleActiveResultSets = false,
+          DatabaseName = defaultSchema.Database,
+          DefaultSchemaName = defaultSchema.Schema,
         };
-        SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
 
         if (version.Major < 8 || version.Major==8 && version.Minor < 3)
           throw new NotSupportedException(Strings.ExPostgreSqlBelow83IsNotSupported);
@@ -83,6 +86,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
         return new v9_0.Driver(coreServerInfo);
       }
+    }
+
+    /// <inheritdoc/>
+    public override DefaultSchemaInfo GetDefaultSchema(DbConnection connection)
+    {
+      return SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery);
     }
   }
 }

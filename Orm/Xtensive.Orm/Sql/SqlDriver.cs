@@ -78,6 +78,20 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Gets <see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.
+    /// </summary>
+    /// <param name="connection"><see cref="SqlConnection"/> to use.</param>
+    /// <returns><see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.</returns>
+    public DefaultSchemaInfo GetDefaultSchema(SqlConnection connection)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
+      if (connection.Driver!=this)
+        throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
+
+      return origin.GetDefaultSchema(connection.UnderlyingConnection);
+    }
+
+    /// <summary>
     /// Extracts catalogs/schemas according to the specified <paramref name="tasks"/>.
     /// </summary>
     /// <param name="connection">Extraction tasks.</param>

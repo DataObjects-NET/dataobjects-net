@@ -5,6 +5,7 @@
 // Created:    2011.02.25
 
 using System;
+using System.Data.Common;
 using System.Linq;
 using System.Security;
 using MySql.Data.MySqlClient;
@@ -73,14 +74,16 @@ namespace Xtensive.Sql.Drivers.MySql
         var version = ParseVersion(versionString);
 
         var builder = new MySqlConnectionStringBuilder(connectionString);
-        string dataSource = string.Format(DataSourceFormat, builder.Server, builder.Port, builder.Database);
+        var dataSource = string.Format(DataSourceFormat, builder.Server, builder.Port, builder.Database);
+        var defaultSchema = GetDefaultSchema(connection);
         var coreServerInfo = new CoreServerInfo {
           ServerVersion = version,
           ConnectionString = connectionString,
           MultipleActiveResultSets = false,
+          DatabaseName = defaultSchema.Database,
+          DefaultSchemaName = defaultSchema.Schema,
         };
 
-        SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
         if (version.Major < 5)
           throw new NotSupportedException(Strings.ExMySqlBelow50IsNotSupported);
         if (version.Major==5 && version.Minor==0)
@@ -93,6 +96,12 @@ namespace Xtensive.Sql.Drivers.MySql
           return new v5_6.Driver(coreServerInfo);
         return new v5_6.Driver(coreServerInfo);
       }
+    }
+
+    /// <inheritdoc/>
+    public override DefaultSchemaInfo GetDefaultSchema(DbConnection connection)
+    {
+      return SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery);
     }
   }
 }
