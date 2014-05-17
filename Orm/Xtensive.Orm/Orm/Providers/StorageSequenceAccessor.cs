@@ -62,17 +62,18 @@ namespace Xtensive.Orm.Providers
         case SequenceQueryCompartment.SameSession:
           return query.ExecuteWith(session.Services.Demand<ISqlExecutor>());
         case SequenceQueryCompartment.SeparateSession:
-          return ExecuteInKeyGeneratorSession(query);
+          return ExecuteInKeyGeneratorSession(query, session.StorageNode);
         default:
           throw new ArgumentOutOfRangeException("query.Compartment");
       }
     }
 
-    private long ExecuteInKeyGeneratorSession(SequenceQuery query)
+    private long ExecuteInKeyGeneratorSession(SequenceQuery query, StorageNode node)
     {
       long result;
       using (var session = domain.OpenSession(SessionType.KeyGenerator))
       using (session.OpenTransaction()) {
+        session.SetStorageNode(node);
         result = query.ExecuteWith(session.Services.Demand<ISqlExecutor>());
         // Rollback
       }
