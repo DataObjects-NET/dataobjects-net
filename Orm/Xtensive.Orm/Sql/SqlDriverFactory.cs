@@ -71,9 +71,10 @@ namespace Xtensive.Sql
     /// <summary>
     /// Gets <see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.
     /// </summary>
-    /// <param name="connection"><see cref="SqlConnection"/> to use.</param>
+    /// <param name="connection"><see cref="DbConnection"/> to use.</param>
+    /// <param name="transaction"><see cref="DbTransaction"/> to use.</param>
     /// <returns><see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.</returns>
-    public abstract DefaultSchemaInfo GetDefaultSchema(DbConnection connection);
+    public abstract DefaultSchemaInfo GetDefaultSchema(DbConnection connection, DbTransaction transaction = null);
 
     /// <summary>
     /// Creates the driver from the specified <paramref name="connectionString"/>.

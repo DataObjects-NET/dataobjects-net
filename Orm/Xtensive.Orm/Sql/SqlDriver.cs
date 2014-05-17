@@ -88,7 +88,7 @@ namespace Xtensive.Sql
       if (connection.Driver!=this)
         throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
 
-      return origin.GetDefaultSchema(connection.UnderlyingConnection);
+      return origin.GetDefaultSchema(connection.UnderlyingConnection, connection.ActiveTransaction);
     }
 
     /// <summary>

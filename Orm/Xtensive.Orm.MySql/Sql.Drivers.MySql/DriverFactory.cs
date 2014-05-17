@@ -99,9 +99,9 @@ namespace Xtensive.Sql.Drivers.MySql
     }
 
     /// <inheritdoc/>
-    public override DefaultSchemaInfo GetDefaultSchema(DbConnection connection)
+    public override DefaultSchemaInfo GetDefaultSchema(DbConnection connection, DbTransaction transaction = null)
     {
-      return SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery);
+      return SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
     }
   }
 }

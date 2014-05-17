@@ -73,7 +73,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
     }
 
     /// <inheritdoc/>
-    public override DefaultSchemaInfo GetDefaultSchema(DbConnection connection)
+    public override DefaultSchemaInfo GetDefaultSchema(DbConnection connection, DbTransaction transaction = null)
     {
       return new DefaultSchemaInfo(GetDataSource(connection.ConnectionString), "Main");
     }
