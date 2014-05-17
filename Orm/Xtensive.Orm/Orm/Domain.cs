@@ -141,14 +141,16 @@ namespace Xtensive.Orm
 
     private void NotifySessionOpen(Session session)
     {
-      if (SessionOpen!=null)
-        SessionOpen(this, new SessionEventArgs(session));
+      var handler = SessionOpen;
+      if (handler!=null)
+        handler(this, new SessionEventArgs(session));
     }
 
     private void NotifyDisposing()
     {
-      if (Disposing!=null)
-        Disposing(this, EventArgs.Empty);
+      var handler = Disposing;
+      if (handler!=null)
+        handler(this, EventArgs.Empty);
     }
 
     #endregion
