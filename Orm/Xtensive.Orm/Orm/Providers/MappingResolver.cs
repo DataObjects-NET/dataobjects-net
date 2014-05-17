@@ -10,6 +10,7 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Sql;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Providers
@@ -39,17 +40,18 @@ namespace Xtensive.Orm.Providers
 
     public abstract IEnumerable<SqlExtractionTask> GetMetadataTasks();
 
-    public static MappingResolver Create(DomainConfiguration configuration, NodeConfiguration nodeConfiguration, ProviderInfo providerInfo)
+    public static MappingResolver Create(DomainConfiguration configuration, NodeConfiguration nodeConfiguration,
+      DefaultSchemaInfo defaultSchemaInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, "nodeConfiguration");
-      ArgumentValidator.EnsureArgumentNotNull(providerInfo, "providerInfo");
+      ArgumentValidator.EnsureArgumentNotNull(defaultSchemaInfo, "defaultSchemaInfo");
 
       if (configuration.IsMultidatabase)
         return new MultidatabaseMappingResolver(configuration, nodeConfiguration);
       if (configuration.IsMultischema)
-        return new MultischemaMappingResolver(configuration, nodeConfiguration, providerInfo);
-      return new SimpleMappingResolver(providerInfo);
+        return new MultischemaMappingResolver(configuration, nodeConfiguration, defaultSchemaInfo);
+      return new SimpleMappingResolver(defaultSchemaInfo);
     }
   }
 }

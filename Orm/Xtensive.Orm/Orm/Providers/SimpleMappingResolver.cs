@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Sql;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Providers
@@ -44,9 +45,9 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    public SimpleMappingResolver(ProviderInfo providerInfo)
+    public SimpleMappingResolver(DefaultSchemaInfo defaultSchemaInfo)
     {
-      extractionTask = new SqlExtractionTask(providerInfo.DefaultDatabase, providerInfo.DefaultSchema);
+      extractionTask = new SqlExtractionTask(defaultSchemaInfo.Database, defaultSchemaInfo.Schema);
     }
   }
 }
