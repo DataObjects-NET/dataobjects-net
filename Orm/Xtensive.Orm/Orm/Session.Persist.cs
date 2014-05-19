@@ -260,6 +260,7 @@ namespace Xtensive.Orm
 
     private void SaveNonTransactionalChanges()
     {
+      Validate();
       using (var transaction = OpenTransaction(TransactionOpenMode.New)) {
         try {
           Persist(PersistReason.Manual);
