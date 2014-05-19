@@ -420,6 +420,8 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
       }
       if (literalType==typeof(Guid))
         return QuoteString(literalValue.ToString());
+      if (literalType==typeof (Int64))
+        return String.Format("CAST({0} as BIGINT)", literalValue);
       return base.Translate(context, literalValue);
     }
     
