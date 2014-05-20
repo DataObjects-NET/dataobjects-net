@@ -7,7 +7,6 @@
 using System;
 using System.Runtime.Serialization;
 
-using Xtensive.Orm.Disconnected;
 
 
 namespace Xtensive.Orm

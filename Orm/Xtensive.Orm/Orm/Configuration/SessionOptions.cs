@@ -67,11 +67,6 @@ namespace Xtensive.Orm.Configuration
     AutoActivation = 1 << 5,
 
     /// <summary>
-    /// <see cref="DisconnectedState"/> will be created and attached in the session constructor.
-    /// </summary>
-    Disconnected = 1 << 6,
-
-    /// <summary>
     /// Enables <see cref="TransactionalBehavior.Suppress"/> for automatic transactions.
     /// </summary>
     AutoTransactionSuppressMode = 1 << 7,
@@ -144,7 +139,7 @@ namespace Xtensive.Orm.Configuration
     /// <see cref="Disconnected"/> |
     /// <see cref="ValidateEntities"/> flags.
     /// </summary>
-    ClientProfile = AutoTransactionOpenMode | ValidateEntities | Disconnected,
+    ClientProfile = AutoTransactionOpenMode | ValidateEntities,
 
     /// <summary>
     /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).

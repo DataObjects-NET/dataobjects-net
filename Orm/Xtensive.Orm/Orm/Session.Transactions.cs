@@ -186,24 +186,7 @@ namespace Xtensive.Orm
         throw new ArgumentOutOfRangeException();
       }
     }
-
-    internal void BeginDisconnectedTransaction()
-    {
-      disconnectedTransaction = OpenAutoTransaction(TransactionalBehavior.Open);
-    }
-
-    internal void EndDisconnectedTransaction(bool commit)
-    {
-      if (commit)
-        disconnectedTransaction.Complete();
-      try {
-        disconnectedTransaction.Dispose();
-      }
-      finally {
-        disconnectedTransaction = null;
-      }
-    }
-
+    
     internal void BeginTransaction(Transaction transaction)
     {
       if (transaction.IsNested) {

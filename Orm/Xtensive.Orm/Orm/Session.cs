@@ -84,8 +84,6 @@ namespace Xtensive.Orm
     private bool isDelayedQueryRunning;
     private volatile bool isDisposed;
 
-    private TransactionScope disconnectedTransaction;
-
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
     /// </summary>
@@ -109,18 +107,22 @@ namespace Xtensive.Orm
     internal bool IsPersisting { get; private set; }
 
     /// <summary>
-    /// Gets or sets a value indicating whether session is disconnected:
-    /// a <see cref="DisconnectedState"/> is attached to it (not <see langword="null" />).
+    /// Gets a value indicating whether session is disconnected:
+    /// session supports non-transactional entity states and does not support autosaving of changes.
     /// </summary>
-    public bool IsDisconnected { get { return DisconnectedState!=null; } }
-
-    public bool LazyKeyGenerationIsEnabled { get { return Configuration.Supports(SessionOptions.LazyKeyGeneration); } }
+    public bool IsDisconnected { 
+      get
+      {
+        return Configuration.Supports(SessionOptions.NonTransactionalEntityStates) &&
+          !Configuration.Supports(SessionOptions.AutoSaveChanges);
+      }
+    }
 
     /// <summary>
-    /// Gets the attached <see cref="Orm.DisconnectedState"/> object, if any.
+    /// Indicates whether lazy generation of keys is enabled.
     /// </summary>
-    public DisconnectedState DisconnectedState { get; internal set; }
-
+    public bool LazyKeyGenerationIsEnabled { get { return Configuration.Supports(SessionOptions.LazyKeyGeneration); } }
+    
     /// <summary>
     /// Gets the operations registry of this <see cref="Session"/>.
     /// </summary>
@@ -528,14 +530,7 @@ namespace Xtensive.Orm
       disposableSet = new DisposableSet();
       remapper = new KeyRemapper(this);
 
-      // Handling Disconnected option
-      if (Configuration.Supports(SessionOptions.Disconnected)) {
-        disposableSet.Add(new DisconnectedState().Attach(this));
-        disposableSet.Add(DisconnectedState.Connect());
-        BeginDisconnectedTransaction();
-      }
-      else 
-        disableAutoSaveChanges = !configuration.Supports(SessionOptions.AutoSaveChanges);
+      disableAutoSaveChanges = !configuration.Supports(SessionOptions.AutoSaveChanges);
 
       // Perform activation
       if (activate)

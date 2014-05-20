@@ -71,9 +71,7 @@ namespace Xtensive.Orm
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
     public void SaveChanges()
     {
-      if (Configuration.Supports(SessionOptions.Disconnected))
-        SaveLocalChanges();
-      else if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates))
+      if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates))
         SaveNonTransactionalChanges();
       else
         Persist(PersistReason.Manual);
@@ -86,35 +84,10 @@ namespace Xtensive.Orm
     /// <exception cref="NotSupportedException">Unable to cancel changes for non-disconnected session. Use transaction boundaries to control the state.</exception>
     public void CancelChanges()
     {
-      if (Configuration.Supports(SessionOptions.Disconnected))
-        CancelLocalChanges();
-      else if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates))
+      if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates))
         CancelNonTransactionalChanges();
       else
         throw new NotSupportedException("Unable to cancel pending changes when session is not disconnected.");
-    }
-
-    private void SaveLocalChanges()
-    {
-      Validate();
-      EndDisconnectedTransaction(true);
-      try {
-        DisconnectedState.ApplyChanges();
-      }
-      finally {
-        BeginDisconnectedTransaction();
-      }
-    }
-
-    private void CancelLocalChanges()
-    {
-      EndDisconnectedTransaction(false);
-      try {
-        DisconnectedState.CancelChanges();
-      }
-      finally {
-        BeginDisconnectedTransaction();
-      }
     }
 
     internal void Persist(PersistReason reason)

@@ -52,12 +52,10 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void MainTest()
     {
-      var clientProfile = new SessionConfiguration(SessionOptions.ClientProfile);
+      var clientProfile = new SessionConfiguration(SessionOptions.ClientProfile1);
       using (var session = Domain.OpenSession(clientProfile)) {
         var items = session.Query.All<MyEntity>().ToList();
         items[0].Title = "Some text";
-        var options = session.DisconnectedState.VersionsUsageOptions;
-        session.DisconnectedState.VersionsUsageOptions = options & ~VersionsUsageOptions.Update;
         session.SaveChanges();
       }
     }
@@ -65,19 +63,14 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void ConcurrentUpdateTest()
     {
-      var clientProfile = new SessionConfiguration(SessionOptions.ClientProfile);
+      var clientProfile = new SessionConfiguration(SessionOptions.ClientProfile1);
       
       using (var session1 = Domain.OpenSession(clientProfile)) {
-        session1.DisconnectedState.MergeMode = MergeMode.PreferNew;
-        var options = session1.DisconnectedState.VersionsUsageOptions;
-        session1.DisconnectedState.VersionsUsageOptions = options & ~VersionsUsageOptions.Update;
         var item1 = session1.Query.All<MyEntity>().OrderBy(e => e.Id).Take(1).First();
         item1.Title = "Hello from session 1";
         session1.SaveChanges();
 
         using (var session2 = Domain.OpenSession(clientProfile)) {
-          session2.DisconnectedState.MergeMode = MergeMode.PreferNew;
-          session2.DisconnectedState.VersionsUsageOptions = options & ~VersionsUsageOptions.Update;
           var item2 = session2.Query.All<MyEntity>().OrderBy(e => e.Id).Take(1).First();
           Assert.AreEqual("Hello from session 1", item2.Title);
           item2.Title = "Hello from session 2";

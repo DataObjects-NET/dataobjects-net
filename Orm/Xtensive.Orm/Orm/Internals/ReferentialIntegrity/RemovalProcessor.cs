@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Orm.Disconnected;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
@@ -177,8 +176,6 @@ namespace Xtensive.Orm.ReferentialIntegrity
 
     private void ExecutePrefetchAction(IList<Entity> itemList)
     {
-      if ((Session.Handler is DisconnectedSessionHandler))
-        return;
       var item = itemList[0];
       Action<SessionHandler, IEnumerable<Key>> action;
       if (Session.Domain.PrefetchActionMap.TryGetValue(item.TypeInfo, out action))

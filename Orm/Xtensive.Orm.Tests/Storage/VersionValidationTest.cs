@@ -10,7 +10,7 @@ using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
 using System.Linq;
-using Xtensive.Orm.Disconnected;
+//using Xtensive.Orm.Disconnected;
 
 #region Model
 
