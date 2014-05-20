@@ -146,7 +146,8 @@ namespace Xtensive.Sql
     /// </returns>
     public Catalog ExtractCatalog(SqlConnection connection)
     {
-      var task = new SqlExtractionTask(CoreServerInfo.DatabaseName);
+      var defaultSchema = GetDefaultSchema(connection);
+      var task = new SqlExtractionTask(defaultSchema.Database);
       return Extract(connection, new[] {task}).Catalogs.Single();
     }
 
@@ -159,7 +160,8 @@ namespace Xtensive.Sql
     /// </returns>
     public Schema ExtractDefaultSchema(SqlConnection connection)
     {
-      return ExtractSchema(connection, CoreServerInfo.DefaultSchemaName);
+      var defaultSchema = GetDefaultSchema(connection);
+      return ExtractSchema(connection, defaultSchema.Schema);
     }
 
     /// <summary>
@@ -171,7 +173,8 @@ namespace Xtensive.Sql
     /// </returns>
     public Schema ExtractSchema(SqlConnection connection, string schemaName)
     {
-      var task = new SqlExtractionTask(CoreServerInfo.DatabaseName, schemaName);
+      var defaultSchema = GetDefaultSchema(connection);
+      var task = new SqlExtractionTask(defaultSchema.Database, schemaName);
       return Extract(connection, new[] {task}).Catalogs.SelectMany(catalog => catalog.Schemas).Single();
     }
 
