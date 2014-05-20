@@ -92,7 +92,6 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    [Ignore("Because old disconnected state is not removed")]
     public void SessionAndTransactionIsDisconnected()
     {
       RebuildDomain();
