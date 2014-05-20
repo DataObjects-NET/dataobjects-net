@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (Owner).Assembly, typeof (Owner).Namespace);
-      configuration.Sessions.Default.Options = SessionOptions.ClientProfile1;
+      configuration.Sessions.Default.Options = SessionOptions.ClientProfile;
       return configuration;
     }
 

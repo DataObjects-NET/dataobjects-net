@@ -257,7 +257,7 @@ namespace Xtensive.Orm.Tests.Storage
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(AccountingDocument).Assembly, typeof(AccountingDocument).Namespace);
       var defaultConfiguration = configuration.Sessions.Default;
-      defaultConfiguration.Options = SessionOptions.ClientProfile1 | SessionOptions.AutoActivation;
+      defaultConfiguration.Options = SessionOptions.ClientProfile | SessionOptions.AutoActivation;
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
 
       var domain = BuildDomain(configuration);
@@ -293,7 +293,7 @@ namespace Xtensive.Orm.Tests.Storage
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(AccountingDocument).Assembly, typeof(AccountingDocument).Namespace);
       var defaultConfiguration = configuration.Sessions.Default;
-      defaultConfiguration.Options = SessionOptions.ClientProfile1 | SessionOptions.AutoActivation;
+      defaultConfiguration.Options = SessionOptions.ClientProfile | SessionOptions.AutoActivation;
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
 
       var domain = BuildDomain(configuration);
@@ -330,7 +330,7 @@ namespace Xtensive.Orm.Tests.Storage
       configuration.Types.Register(typeof (AccountingDocument).Assembly, typeof (AccountingDocument).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
       var defaultConfiguration = configuration.Sessions.Default;
-      defaultConfiguration.Options = SessionOptions.ClientProfile1 | SessionOptions.AutoActivation;
+      defaultConfiguration.Options = SessionOptions.ClientProfile | SessionOptions.AutoActivation;
 
       var domain = BuildDomain(configuration);
       
@@ -354,7 +354,7 @@ namespace Xtensive.Orm.Tests.Storage
       configuration.Types.Register(typeof(AccountingDocument).Assembly, typeof(AccountingDocument).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
       var defaultConfiguration = configuration.Sessions.Default;
-      defaultConfiguration.Options = SessionOptions.ClientProfile1 | SessionOptions.AutoActivation;
+      defaultConfiguration.Options = SessionOptions.ClientProfile | SessionOptions.AutoActivation;
 
       var domain = BuildDomain(configuration);
 

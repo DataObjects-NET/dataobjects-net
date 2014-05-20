@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void MainTest()
     {
-      var clientProfile = new SessionConfiguration(SessionOptions.ClientProfile1);
+      var clientProfile = new SessionConfiguration(SessionOptions.ClientProfile);
       using (var session = Domain.OpenSession(clientProfile)) {
         var items = session.Query.All<MyEntity>().ToList();
         items[0].Title = "Some text";
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void ConcurrentUpdateTest()
     {
-      var clientProfile = new SessionConfiguration(SessionOptions.ClientProfile1);
+      var clientProfile = new SessionConfiguration(SessionOptions.ClientProfile);
       
       using (var session1 = Domain.OpenSession(clientProfile)) {
         var item1 = session1.Query.All<MyEntity>().OrderBy(e => e.Id).Take(1).First();

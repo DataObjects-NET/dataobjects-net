@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Tests.Storage
 {
   public class NewProfilesTest : AutoBuildTest
   {
-    private readonly SessionConfiguration clientProfile = new SessionConfiguration(SessionOptions.ClientProfile1 | SessionOptions.AutoActivation);
+    private readonly SessionConfiguration clientProfile = new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation);
     private readonly SessionConfiguration serverProfile = new SessionConfiguration(SessionOptions.ServerProfile | SessionOptions.AutoActivation);
 
     protected override DomainConfiguration BuildConfiguration()
@@ -451,7 +451,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void ClientProfileVersionsTest()
     {
       RebuildDomain();
-      var sessionConfiguration = new SessionConfiguration(SessionOptions.ClientProfile1 | SessionOptions.AutoActivation | SessionOptions.ValidateEntityVersions);
+      var sessionConfiguration = new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation | SessionOptions.ValidateEntityVersions);
 
       int thread1Version;
       int thread2Version;

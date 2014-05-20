@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Tests.UI
     public void CreateTest()
     {
       var config = Domain.Configuration.Sessions.Default.Clone();
-      config.Options = SessionOptions.ClientProfile1;
+      config.Options = SessionOptions.ClientProfile;
       using (var session = Domain.OpenSession(config)) {
         new Author(session) {Name = "Alex"};
         AssertNoTransaction(session);
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Tests.UI
     public void QueryTest()
     {
       var config = Domain.Configuration.Sessions.Default.Clone();
-      config.Options = SessionOptions.ClientProfile1;
+      config.Options = SessionOptions.ClientProfile;
       using (var session = Domain.OpenSession(config)) {
         session.Query.All<Author>().ToList();
       }

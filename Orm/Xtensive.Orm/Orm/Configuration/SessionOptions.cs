@@ -135,20 +135,11 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).
     /// Combines 
-    /// <see cref="AutoTransactionOpenMode"/> | 
-    /// <see cref="Disconnected"/> |
-    /// <see cref="ValidateEntities"/> flags.
-    /// </summary>
-    ClientProfile = AutoTransactionOpenMode | ValidateEntities,
-
-    /// <summary>
-    /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).
-    /// Combines 
     /// <see cref="NonTransactionalEntityStates"/> | 
     /// <see cref="LazyKeyGeneration"/> |
     /// <see cref="ValidateEntities"/> flags.
     /// </summary>
-    ClientProfile1 = NonTransactionalEntityStates | LazyKeyGeneration | ValidateEntities,
+    ClientProfile = NonTransactionalEntityStates | LazyKeyGeneration | ValidateEntities,
 
     /// <summary>
     /// Predefined option set for compatibility with previous versions of DataObjects.Net (4.3.* and earlier).
