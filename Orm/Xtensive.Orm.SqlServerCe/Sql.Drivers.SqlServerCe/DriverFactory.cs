@@ -47,7 +47,7 @@ namespace Xtensive.Sql.Drivers.SqlServerCe
     }
 
     /// <inheritdoc/>
-    public override DefaultSchemaInfo GetDefaultSchema(DbConnection connection, DbTransaction transaction)
+    protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction)
     {
       return DefaultSchemaInfo;
     }

@@ -91,7 +91,7 @@ namespace Xtensive.Sql.Drivers.Oracle
     }
 
     /// <inheritdoc/>
-    public override DefaultSchemaInfo GetDefaultSchema(DbConnection connection, DbTransaction transaction = null)
+    protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction)
     {
       return SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
     }
