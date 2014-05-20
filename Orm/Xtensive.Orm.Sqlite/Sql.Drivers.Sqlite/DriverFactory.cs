@@ -10,6 +10,7 @@ using System.Data.SQLite;
 using System.Text.RegularExpressions;
 using Xtensive.Orm;
 using Xtensive.Sql.Drivers.Sqlite.Resources;
+using Xtensive.Sql.Drivers.Sqlite.v3;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Drivers.Sqlite
@@ -75,7 +76,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
     /// <inheritdoc/>
     public override DefaultSchemaInfo GetDefaultSchema(DbConnection connection, DbTransaction transaction = null)
     {
-      return new DefaultSchemaInfo(GetDataSource(connection.ConnectionString), "Main");
+      return new DefaultSchemaInfo(GetDataSource(connection.ConnectionString), Extractor.DefaultSchemaName);
     }
   }
 }

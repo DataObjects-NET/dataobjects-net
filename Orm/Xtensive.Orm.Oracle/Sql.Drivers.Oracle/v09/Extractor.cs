@@ -29,13 +29,10 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private readonly Dictionary<string, string> replacementsRegistry = new Dictionary<string, string>();
 
-    protected override void Initialize()
-    {
-      theCatalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
-    }
-
     public override Catalog ExtractCatalog(string catalogName)
     {
+      theCatalog = new Catalog(catalogName);
+
       targetSchema = null;
 
       RegisterReplacements(replacementsRegistry);
@@ -46,6 +43,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
+      theCatalog = new Catalog(catalogName);
+
       targetSchema = schemaName.ToUpperInvariant();
       theCatalog.CreateSchema(targetSchema);
 
