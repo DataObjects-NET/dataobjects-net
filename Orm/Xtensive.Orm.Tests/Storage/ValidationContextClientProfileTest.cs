@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Sessions.Default.Options = SessionOptions.ClientProfile;
+      configuration.Sessions.Default.Options = SessionOptions.ClientProfile1;
       configuration.Types.Register(typeof (Validatable));
       return configuration;
     }

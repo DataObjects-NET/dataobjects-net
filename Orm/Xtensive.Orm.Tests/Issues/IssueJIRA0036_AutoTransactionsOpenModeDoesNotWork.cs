@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var config = base.BuildConfiguration();
       config.Types.Register(typeof (Firm).Assembly, typeof (Firm).Namespace);
-      config.Sessions.Default.Options = SessionOptions.ClientProfile | SessionOptions.ReadRemovedObjects;
+      config.Sessions.Default.Options = SessionOptions.ClientProfile1 | SessionOptions.ReadRemovedObjects;
       return config;
     }
 

@@ -93,11 +93,11 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test2()
     {
-      using (var sessionA = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile))) {
+      using (var sessionA = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile1))) {
         sessionA.Query.All<TestA>().Count();
         sessionA.Query.All<TestB>().Count();
 
-        using (var sessionB = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile))) {
+        using (var sessionB = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile1))) {
           sessionB.Query.All<TestA>().Count();
           // Exception
           sessionB.Query.All<TestB>().Count();
@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test5()
     {
-      Execute(SessionOptions.ClientProfile);
+      Execute(SessionOptions.ClientProfile1);
     }
 
     [Test]

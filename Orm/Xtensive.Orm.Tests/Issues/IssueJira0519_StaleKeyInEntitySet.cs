@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Issues
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (Order).Assembly, typeof (Order).Namespace);
       var defaultConfiguration = configuration.Sessions.Default;
-      defaultConfiguration.Options = SessionOptions.ClientProfile | SessionOptions.AutoActivation;
+      defaultConfiguration.Options = SessionOptions.ClientProfile1 | SessionOptions.AutoActivation;
       return configuration;
     }
 
