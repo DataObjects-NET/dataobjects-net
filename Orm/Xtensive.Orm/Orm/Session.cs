@@ -121,7 +121,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Indicates whether lazy generation of keys is enabled.
     /// </summary>
-    public bool LazyKeyGenerationIsEnabled { get { return Configuration.Supports(SessionOptions.LazyKeyGeneration); } }
+    internal bool LazyKeyGenerationIsEnabled { get { return Configuration.Supports(SessionOptions.LazyKeyGeneration); } }
     
     /// <summary>
     /// Gets the operations registry of this <see cref="Session"/>.
