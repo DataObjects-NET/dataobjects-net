@@ -46,8 +46,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     protected override void Initialize()
     {
-      catalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
-
       PgCatalogSchema = pgCatalogs.GetValue(GetType(), CreatePgCatalogSchema);
 
       // Query OID of some system catalog tables for using them in pg_depend lookups
@@ -70,6 +68,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override Catalog ExtractCatalog(string catalogName)
     {
+      catalog = new Catalog(catalogName);
       ExtractUsers();
       ExtractSchemas(catalog);
       return catalog;
@@ -77,6 +76,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
+      catalog = new Catalog(catalogName);
       schema = catalog.CreateSchema(schemaName);
       ExtractUsers();
       ExtractSchemas(catalog);

@@ -49,6 +49,11 @@ namespace Xtensive.Orm.Providers
       return translator.ParameterPrefix + parameterName;
     }
 
+    public DefaultSchemaInfo GetDefaultSchema(SqlConnection connection)
+    {
+      return underlyingDriver.GetDefaultSchema(connection);
+    }
+
     public SqlExtractionResult Extract(SqlConnection connection, IEnumerable<SqlExtractionTask> tasks)
     {
       var result = underlyingDriver.Extract(connection, tasks);

@@ -4,8 +4,10 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.06.23
 
+using System.Data.Common;
 using Xtensive.Core;
 using Xtensive.Orm;
+using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql
 {
@@ -65,6 +67,26 @@ namespace Xtensive.Sql
       return connectionInfo.ConnectionString
         ?? BuildConnectionString(connectionInfo.ConnectionUrl);
     }
+
+    /// <summary>
+    /// Gets <see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.
+    /// </summary>
+    /// <param name="connection"><see cref="DbConnection"/> to use.</param>
+    /// <param name="transaction"><see cref="DbTransaction"/> to use.</param>
+    /// <returns><see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.</returns>
+    public DefaultSchemaInfo GetDefaultSchema(DbConnection connection, DbTransaction transaction = null)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
+      return ReadDefaultSchema(connection, transaction);
+    }
+
+    /// <summary>
+    /// Reads <see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.
+    /// </summary>
+    /// <param name="connection"><see cref="DbConnection"/> to use.</param>
+    /// <param name="transaction"><see cref="DbTransaction"/> to use.</param>
+    /// <returns><see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.</returns>
+    protected abstract DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction);
 
     /// <summary>
     /// Creates the driver from the specified <paramref name="connectionString"/>.

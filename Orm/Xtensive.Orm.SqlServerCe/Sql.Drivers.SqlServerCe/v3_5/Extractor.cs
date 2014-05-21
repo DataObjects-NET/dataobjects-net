@@ -19,19 +19,16 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
     protected Catalog catalog;
     protected Schema schema;
 
-    protected override void Initialize()
-    {
-      catalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
-    }
-
     public override Catalog ExtractCatalog(string catalogName)
     {
+      catalog = new Catalog(catalogName);
       ExtractCatalogContents();
       return catalog;
     }
 
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
+      catalog = new Catalog(catalogName);
       schema = catalog.CreateSchema(schemaName);
       ExtractCatalogContents();
       return schema;

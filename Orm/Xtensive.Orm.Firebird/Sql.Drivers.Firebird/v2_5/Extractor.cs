@@ -24,18 +24,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     private Catalog theCatalog;
     private string targetSchema;
 
-    private string GetSchema(IDataRecord p_row)
-    {
-      return p_row.GetString(1) ?? theCatalog.DefaultSchema.Name;
-    }
-
-    protected override void Initialize()
-    {
-      theCatalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
-    }
-
     public override Catalog ExtractCatalog(string catalogName)
     {
+      theCatalog = new Catalog(catalogName);
       targetSchema = null;
       ExtractSchemas();
       ExtractCatalogContents();
@@ -44,6 +35,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
+      theCatalog = new Catalog(catalogName);
       targetSchema = schemaName.ToUpperInvariant();
       theCatalog.CreateSchema(targetSchema);
       ExtractCatalogContents();

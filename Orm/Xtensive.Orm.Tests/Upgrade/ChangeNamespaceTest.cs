@@ -7,6 +7,8 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Upgrade.ChangeNamespaceTestModel;
 using Xtensive.Orm.Upgrade;
 using V1 = Xtensive.Orm.Tests.Upgrade.ChangeNamespaceTestModel.Version1;
 using V2 = Xtensive.Orm.Tests.Upgrade.ChangeNamespaceTestModel.Version2;
@@ -15,13 +17,29 @@ namespace Xtensive.Orm.Tests.Upgrade
 {
   namespace ChangeNamespaceTestModel
   {
+    [HierarchyRoot]
+    public class MyEntity : Entity
+    {
+      [Key, Field]
+      public long Id { get; private set; }
+
+      [Field]
+      public string Name { get; set; }
+
+      public MyEntity()
+      {
+        Name = "MyEntity";
+      }
+    }
+
     namespace Version1
     {
-      [HierarchyRoot]
-      public class MyEntity : Entity
+      public class MyChildEntity : MyEntity
       {
-        [Key, Field]
-        public long Id { get; private set; }
+        public MyChildEntity()
+        {
+          Name = "MyChildEntity";
+        }
       }
 
       public class Upgrader : UpgradeHandler
@@ -35,11 +53,12 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     namespace Version2
     {
-      [HierarchyRoot]
-      public class MyEntity : Entity
+      public class MyChildEntity : MyEntity
       {
-        [Key, Field]
-        public long Id { get; private set; }
+        public MyChildEntity()
+        {
+          Name = "MyChildEntity";
+        }
       }
 
       public class Upgrader : UpgradeHandler
@@ -61,37 +80,72 @@ namespace Xtensive.Orm.Tests.Upgrade
   public class ChangeNamespaceTest
   {
     [Test]
-    public void MainTest()
+    public void DefaultTest()
     {
-      using (var domain = BuildInitialDomain())
+      RunTest(NamingRules.Default);
+    }
+
+    [Test]
+    public void UnderscoreDotsTest()
+    {
+      RunTest(NamingRules.UnderscoreDots);
+    }
+
+    private void RunTest(NamingRules namingRules)
+    {
+      int myEntityTypeId;
+      int myChildEntityTypeId;
+
+      using (var domain = BuildInitialDomain(namingRules))
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new V1.MyEntity();
+        var types = domain.Model.Types;
+        myEntityTypeId = types[typeof (MyEntity)].TypeId;
+        myChildEntityTypeId = types[typeof (V1.MyChildEntity)].TypeId;
+
+        new MyEntity();
+        new V1.MyChildEntity();
+
         tx.Complete();
       }
 
-      using (var domain = BuildUpgradedDomain())
+      using (var domain = BuildUpgradedDomain(namingRules))
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        Assert.That(session.Query.All<V2.MyEntity>().Count(), Is.EqualTo(1));
+        var types = domain.Model.Types;
+        Assert.That(types[typeof (MyEntity)].TypeId, Is.EqualTo(myEntityTypeId));
+        Assert.That(types[typeof (V2.MyChildEntity)].TypeId, Is.EqualTo(myChildEntityTypeId));
+
+        var allItems = session.Query.All<MyEntity>().ToList();
+        Assert.That(allItems.Count, Is.EqualTo(2));
+        Assert.That(allItems.Count(item => item is V2.MyChildEntity), Is.EqualTo(1));
+        Assert.That(allItems.Count(item => !(item is V2.MyChildEntity)), Is.EqualTo(1));
+
+        var myChildEntity = session.Query.All<V2.MyChildEntity>().Single();
+        Assert.That(myChildEntity.Name, Is.EqualTo("MyChildEntity"));
+
+        var myEntity = session.Query.All<MyEntity>().Single(e => e!=myChildEntity);
+        Assert.That(myEntity.Name, Is.EqualTo("MyEntity"));
+
         tx.Complete();
       }
     }
 
-    private Domain BuildInitialDomain()
+    private Domain BuildInitialDomain(NamingRules namingRules)
     {
-      return BuildDomain(DomainUpgradeMode.Recreate, typeof (V1.MyEntity));
+      return BuildDomain(DomainUpgradeMode.Recreate, namingRules, typeof (V1.MyChildEntity));
     }
 
-    private Domain BuildUpgradedDomain()
+    private Domain BuildUpgradedDomain(NamingRules namingRules)
     {
-      return BuildDomain(DomainUpgradeMode.PerformSafely, typeof (V2.MyEntity));
+      return BuildDomain(DomainUpgradeMode.PerformSafely, namingRules, typeof (V2.MyChildEntity));
     }
 
-    private Domain BuildDomain(DomainUpgradeMode upgradeMode, Type sampleType)
+    private Domain BuildDomain(DomainUpgradeMode upgradeMode, NamingRules namingRules, Type sampleType)
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
+      configuration.NamingConvention.NamingRules = namingRules;
       configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
       return Domain.Build(configuration);
     }

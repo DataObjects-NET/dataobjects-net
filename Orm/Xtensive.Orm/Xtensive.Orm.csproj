@@ -1490,6 +1490,7 @@
     <Compile Include="Sql\Info\DataTypeFeatures.cs" />
     <Compile Include="Sql\Info\DataTypeInfo.cs" />
     <Compile Include="Sql\Info\DdlStatements.cs" />
+    <Compile Include="Sql\Info\DefaultSchemaInfo.cs" />
     <Compile Include="Sql\Info\EntityInfo.cs" />
     <Compile Include="Sql\Info\FeaturesExtensions.cs" />
     <Compile Include="Sql\Info\FullTextSearchFeatures.cs" />

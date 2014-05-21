@@ -29,10 +29,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     protected Schema schema;
     private const bool flag = true;
 
-    protected override void Initialize()
-    {
-    }
-
     public override Catalog ExtractCatalog(string catalogName)
     {
       catalog = new Catalog(catalogName);

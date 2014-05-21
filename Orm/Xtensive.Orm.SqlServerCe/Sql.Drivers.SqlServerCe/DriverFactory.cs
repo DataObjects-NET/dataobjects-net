@@ -5,6 +5,7 @@
 // Created:    2009.06.23
 
 using System;
+using System.Data.Common;
 using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Sql.Info;
@@ -16,6 +17,8 @@ namespace Xtensive.Sql.Drivers.SqlServerCe
   /// </summary>
   public class DriverFactory : SqlDriverFactory
   {
+    private static readonly DefaultSchemaInfo DefaultSchemaInfo = new DefaultSchemaInfo(string.Empty, "default");
+
     /// <inheritdoc/>
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
@@ -23,8 +26,8 @@ namespace Xtensive.Sql.Drivers.SqlServerCe
       var coreServerInfo = new CoreServerInfo {
         ServerVersion = version,
         ConnectionString = connectionString,
-        DatabaseName = string.Empty,
-        DefaultSchemaName = "default",
+        DatabaseName = DefaultSchemaInfo.Database,
+        DefaultSchemaName = DefaultSchemaInfo.Schema,
         MultipleActiveResultSets = true
       };
       return new v3_5.Driver(coreServerInfo);
@@ -41,6 +44,12 @@ namespace Xtensive.Sql.Drivers.SqlServerCe
         result += string.Format("; Password = '{0}'", url.Password);
       
       return result;
+    }
+
+    /// <inheritdoc/>
+    protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction)
+    {
+      return DefaultSchemaInfo;
     }
   }
 }

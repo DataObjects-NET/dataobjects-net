@@ -132,9 +132,9 @@ namespace Xtensive.Orm.Providers
       SqlExpression millisecond,
       SqlExpression offsetInMinutes)
     {
-      return SqlDml.DateTimeOffsetPlusInterval(
-        SqlDml.DateTimeOffsetConstruct(year, month, day, offsetInMinutes),
-        TimeSpanCompilers.GenericIntervalConstruct(0, hour, minute, second, millisecond));
+      return SqlDml.DateTimeOffsetConstruct(
+        DateTimeCompilers.DateTimeCtor(year, month, day, hour, minute, second, millisecond),
+        offsetInMinutes);
     }
 
     [Compiler(typeof (DateTimeOffset), null, TargetKind.Constructor)]
@@ -151,15 +151,7 @@ namespace Xtensive.Orm.Providers
     {
       SqlExpression offsetInMinutes = OffsetInMinutes(offset);
 
-      return DateTimeOffsetConstruct(
-        DateTimeCompilers.DateTimeYear(dateTime),
-        DateTimeCompilers.DateTimeMonth(dateTime),
-        DateTimeCompilers.DateTimeDay(dateTime),
-        DateTimeCompilers.DateTimeHour(dateTime),
-        DateTimeCompilers.DateTimeMinute(dateTime),
-        DateTimeCompilers.DateTimeSecond(dateTime),
-        DateTimeCompilers.DateTimeMillisecond(dateTime),
-        offsetInMinutes);
+      return SqlDml.DateTimeOffsetConstruct(dateTime, offsetInMinutes);
     }
 
     [Compiler(typeof (DateTimeOffset), null, TargetKind.Constructor)]

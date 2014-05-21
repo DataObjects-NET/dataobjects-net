@@ -17,21 +17,19 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
   {
     public const string PrimaryKeyName = "PrimaryKey";
 
+    internal const string DefaultSchemaName = "Main";
+
     private const string SqliteSequence = "sqlite_sequence";
     private const string SqliteMaster = "sqlite_master";
 
     private Schema schema;
     private Catalog catalog;
 
-    protected override void Initialize()
-    {
-      catalog = new Catalog(string.Empty);
-      schema = catalog.CreateSchema(Driver.CoreServerInfo.DefaultSchemaName);
-    }
-
     /// <inheritdoc/>
     public override Catalog ExtractCatalog(string catalogName)
     {
+      catalog = new Catalog(catalogName);
+      schema = catalog.CreateSchema(DefaultSchemaName);
       ExtractCatalogContents();
       return catalog;
     }
@@ -39,6 +37,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
+      catalog = new Catalog(catalogName);
+      schema = catalog.CreateSchema(schemaName);
       ExtractCatalogContents();
       return catalog.Schemas.Single();
     }

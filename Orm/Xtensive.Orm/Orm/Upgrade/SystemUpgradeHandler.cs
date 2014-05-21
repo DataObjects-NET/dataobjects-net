@@ -42,8 +42,8 @@ namespace Xtensive.Orm.Upgrade
         return;
 
       CheckAssemblies();
-      BuildTypeIdMap();
-      LoadStoredDomainModel();
+      SaveExtractedTypeMap();
+      ParseStoredDomainModel();
     }
 
     /// <inheritdoc/>
@@ -58,6 +58,7 @@ namespace Xtensive.Orm.Upgrade
         // Perform or PerformSafely
         BuildTypeIds(session.Domain);
         UpdateMetadata(session);
+        SaveFullTypeMap(context.StorageNode.TypeIdRegistry);
         break;
       case UpgradeStage.Final:
         if (upgradeMode.IsUpgrading()) {
@@ -71,7 +72,7 @@ namespace Xtensive.Orm.Upgrade
         }
         else {
           // Skip and Validate
-          BuildTypeIdMap();
+          SaveExtractedTypeMap();
           BuildTypeIds(session.Domain);
         }
         break;
@@ -223,7 +224,7 @@ namespace Xtensive.Orm.Upgrade
       return new ExtensionMetadata(WellKnown.PartialIndexDefinitionsExtensionName, items.Serialize());
     }
 
-    private void LoadStoredDomainModel()
+    private void ParseStoredDomainModel()
     {
       var context = UpgradeContext;
       var extensions = context.Metadata.Extensions.Where(e => e.Name==WellKnown.DomainModelExtensionName);
@@ -252,10 +253,15 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private void BuildTypeIdMap()
+    private void SaveExtractedTypeMap()
     {
-      var context = UpgradeContext;
-      context.ExtractedTypeMap = context.Metadata.Types.ToDictionary(t => t.Name, t => t.Id);
+      var map = UpgradeContext.Metadata.Types.ToDictionary(t => t.Name, t => t.Id);
+      UpgradeContext.FullTypeMap = UpgradeContext.ExtractedTypeMap = map;
+    }
+
+    private void SaveFullTypeMap(TypeIdRegistry registry)
+    {
+      UpgradeContext.FullTypeMap = registry.Types.ToDictionary(t => t.UnderlyingType.GetFullName(), t => registry[t]);
     }
   }
 }

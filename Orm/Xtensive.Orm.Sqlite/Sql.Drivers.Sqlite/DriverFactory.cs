@@ -5,10 +5,12 @@
 // Created:    2011.04.29
 
 using System;
+using System.Data.Common;
 using System.Data.SQLite;
 using System.Text.RegularExpressions;
 using Xtensive.Orm;
 using Xtensive.Sql.Drivers.Sqlite.Resources;
+using Xtensive.Sql.Drivers.Sqlite.v3;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Drivers.Sqlite
@@ -44,13 +46,13 @@ namespace Xtensive.Sql.Drivers.Sqlite
         connection.Open();
         SqlHelper.ExecuteInitializationSql(connection, configuration);
         var version = new Version(connection.ServerVersion);
-        var dataSource = GetDataSource(connectionString);
+        var defaultSchema = GetDefaultSchema(connection);
         var coreServerInfo = new CoreServerInfo {
           ServerVersion = version,
           ConnectionString = connectionString,
-          DefaultSchemaName = "Main",
-          DatabaseName = dataSource,
           MultipleActiveResultSets = false,
+          DatabaseName = defaultSchema.Database,
+          DefaultSchemaName = defaultSchema.Schema,
         };
 
         if (version.Major < 3)
@@ -69,6 +71,12 @@ namespace Xtensive.Sql.Drivers.Sqlite
         result += String.Format("; Password = '{0}'", url.Password);
 
       return result;
+    }
+
+    /// <inheritdoc/>
+    protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction)
+    {
+      return new DefaultSchemaInfo(GetDataSource(connection.ConnectionString), Extractor.DefaultSchemaName);
     }
   }
 }

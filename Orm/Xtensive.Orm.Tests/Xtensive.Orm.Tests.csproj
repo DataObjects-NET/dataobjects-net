@@ -196,6 +196,7 @@
     <Compile Include="Issues\IssueJira0500_OptimizeMultipleAggregatesWithProjections.cs" />
     <Compile Include="Issues\IssueJira0202_OnRemoveActionOverriding.cs" />
     <Compile Include="Issues\IssueJira0516_PartialIndexConstruction.cs" />
+    <Compile Include="Issues\IssueJira0528_LongEnumBitOperations.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\ModelVersion1.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\ModelVersion2.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\Upgrader.cs" />
@@ -379,6 +380,7 @@
     <Compile Include="Storage\SingleTableTest.cs" />
     <Compile Include="Storage\SqlGeometryAndGeographyTest.cs" />
     <Compile Include="Storage\StructureReferencesAnEntityTest.cs" />
+    <Compile Include="Storage\TransactionScopeIntegration.cs" />
     <Compile Include="Storage\TransactionsTestBase.cs" />
     <Compile Include="Storage\TypeDiscriminatorFromInterfaceTest.cs" />
     <Compile Include="Storage\UpgradeModesTest.cs" />
@@ -392,6 +394,7 @@
     <Compile Include="Upgrade\EntitySetUpgrade\Upgrader.cs" />
     <Compile Include="Upgrade\EntitySetUpgrade\UpgradeTest.cs" />
     <Compile Include="Upgrade\FullText\FullTextDataTypeColumnUpgradeTest.cs" />
+    <Compile Include="Upgrade\TypeIdPreserveTest.cs" />
     <Compile Include="Upgrade\ExtractSuperClassTest.cs" />
     <Compile Include="Upgrade\KeyGeneratorTableCleanUpTest.cs" />
     <Compile Include="Upgrade\NewUpgradeEventsAndPropertiesTest.cs" />

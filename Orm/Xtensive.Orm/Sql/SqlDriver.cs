@@ -78,6 +78,20 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Gets <see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.
+    /// </summary>
+    /// <param name="connection"><see cref="SqlConnection"/> to use.</param>
+    /// <returns><see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.</returns>
+    public DefaultSchemaInfo GetDefaultSchema(SqlConnection connection)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
+      if (connection.Driver!=this)
+        throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
+
+      return origin.GetDefaultSchema(connection.UnderlyingConnection, connection.ActiveTransaction);
+    }
+
+    /// <summary>
     /// Extracts catalogs/schemas according to the specified <paramref name="tasks"/>.
     /// </summary>
     /// <param name="connection">Extraction tasks.</param>
@@ -132,7 +146,8 @@ namespace Xtensive.Sql
     /// </returns>
     public Catalog ExtractCatalog(SqlConnection connection)
     {
-      var task = new SqlExtractionTask(CoreServerInfo.DatabaseName);
+      var defaultSchema = GetDefaultSchema(connection);
+      var task = new SqlExtractionTask(defaultSchema.Database);
       return Extract(connection, new[] {task}).Catalogs.Single();
     }
 
@@ -145,7 +160,8 @@ namespace Xtensive.Sql
     /// </returns>
     public Schema ExtractDefaultSchema(SqlConnection connection)
     {
-      return ExtractSchema(connection, CoreServerInfo.DefaultSchemaName);
+      var defaultSchema = GetDefaultSchema(connection);
+      return ExtractSchema(connection, defaultSchema.Schema);
     }
 
     /// <summary>
@@ -157,7 +173,8 @@ namespace Xtensive.Sql
     /// </returns>
     public Schema ExtractSchema(SqlConnection connection, string schemaName)
     {
-      var task = new SqlExtractionTask(CoreServerInfo.DatabaseName, schemaName);
+      var defaultSchema = GetDefaultSchema(connection);
+      var task = new SqlExtractionTask(defaultSchema.Database, schemaName);
       return Extract(connection, new[] {task}).Catalogs.SelectMany(catalog => catalog.Schemas).Single();
     }
 
