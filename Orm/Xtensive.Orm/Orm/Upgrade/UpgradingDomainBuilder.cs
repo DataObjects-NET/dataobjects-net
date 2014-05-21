@@ -56,10 +56,9 @@ namespace Xtensive.Orm.Upgrade
       ArgumentValidator.EnsureArgumentNotNull(parentDomain, "parentDomain");
       ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, "nodeConfiguration");
 
-      if (string.IsNullOrEmpty(nodeConfiguration.NodeId))
-        throw new ArgumentException(Strings.ExInvalidNodeIdentifier, "nodeConfiguration");
-
-      nodeConfiguration.Lock();
+      nodeConfiguration.Validate(parentDomain.Configuration);
+      if (!nodeConfiguration.IsLocked)
+        nodeConfiguration.Lock();
 
       var context = new UpgradeContext(parentDomain, nodeConfiguration);
 
@@ -156,24 +155,21 @@ namespace Xtensive.Orm.Upgrade
         var driverFactory = (SqlDriverFactory) Activator.CreateInstance(descriptor.DriverFactory);
         var handlerFactory = (HandlerFactory) Activator.CreateInstance(descriptor.HandlerFactory);
         var driver = StorageDriver.Create(driverFactory, configuration);
-
         services.HandlerFactory = handlerFactory;
         services.StorageDriver = driver;
         services.NameBuilder = new NameBuilder(configuration, driver.ProviderInfo);
       }
       else {
         var handlers = context.ParentDomain.Handlers;
-
         services.HandlerFactory = handlers.Factory;
         services.StorageDriver = handlers.StorageDriver;
         services.NameBuilder = handlers.NameBuilder;
       }
 
-      services.MappingResolver = MappingResolver.Create(configuration, context.NodeConfiguration, services.ProviderInfo);
-
-      BuildExternalServices(services, configuration);
       CreateConnection(services);
-
+      var defaultSchemaInfo = services.StorageDriver.GetDefaultSchema(services.Connection);
+      services.MappingResolver = MappingResolver.Create(configuration, context.NodeConfiguration, defaultSchemaInfo);
+      BuildExternalServices(services, configuration);
       services.Lock();
 
       context.TypeIdProvider = new TypeIdProvider(context);
@@ -346,6 +342,7 @@ namespace Xtensive.Orm.Upgrade
       var handlers = Domain.Demand().Handlers;
       var hintGenerator = new HintGenerator(handlers, context.Services.MappingResolver, oldModel, extractedSchema, context.Hints);
       var hints = hintGenerator.Run();
+      context.UpgradedTypesMapping = hints.UpgradedTypesMapping;
       context.Hints.Clear();
       foreach (var modelHint in hints.ModelHints)
         context.Hints.Add(modelHint);

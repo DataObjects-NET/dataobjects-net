@@ -60,7 +60,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         DateTimeToStringIso(node.Arguments[0]).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeOffsetConstruct:
-        DateTimeOffsetConstruct(DateTimeConstruct(node.Arguments[0], node.Arguments[1], node.Arguments[2]), node.Arguments[3]).AcceptVisitor(this);
+        DateTimeOffsetConstruct(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeOffsetTimeOfDay:
         DateTimeOffsetTimeOfDay(node.Arguments[0]).AcceptVisitor(this);

@@ -278,19 +278,23 @@ namespace Xtensive.Sql
     /// Reads the database and schema using the specified query.
     /// By contract query should return database in first column and schema in second.
     /// </summary>
-    /// <param name="connection">The connection.</param>
     /// <param name="queryText">The query text.</param>
-    /// <param name="coreServerInfo">The core server info.</param>
-    public static void ReadDatabaseAndSchema(DbConnection connection, string queryText,
-      CoreServerInfo coreServerInfo)
+    /// <param name="connection">The connection to use.</param>
+    /// <param name="transaction">The transaction to use.</param>
+    /// <returns><see cref="DefaultSchemaInfo"/> instance.</returns>
+    public static DefaultSchemaInfo ReadDatabaseAndSchema(string queryText,
+      DbConnection connection, DbTransaction transaction)
     {
+      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(queryText, "queryText");
+
       using (var command = connection.CreateCommand()) {
         command.CommandText = queryText;
+        command.Transaction = transaction;
         using (var reader = command.ExecuteReader()) {
           if (!reader.Read())
             throw new InvalidOperationException(Strings.ExCanNotReadDatabaseAndSchemaNames);
-          coreServerInfo.DatabaseName = reader.GetString(0);
-          coreServerInfo.DefaultSchemaName = reader.GetString(1);
+          return new DefaultSchemaInfo(reader.GetString(0), reader.GetString(1));
         }
       }
     }

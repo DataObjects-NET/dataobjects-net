@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  Copyright (C) 2011-2013 Xtensive LLC.
+  Copyright (C) 2011-2014 Xtensive LLC.
   All rights reserved.
   For conditions of distribution and use, see license.
 -->
@@ -25,15 +25,26 @@
          Text="Weaver is not found at '$(XtensiveOrmWeaver)'" />
   <Message Importance="low" Text="Using weaver at '$(XtensiveOrmWeaver)'" />
   <PropertyGroup>
-    <XtensiveOrmWeaverCmd>"$(XtensiveOrmWeaver)" /type:"$(MSBuildProjectExtension)" /backup /stamp</XtensiveOrmWeaverCmd>
-    <XtensiveOrmWeaverCmd Condition="'$(DebugSymbols)'=='true'">$(XtensiveOrmWeaverCmd) /pdb</XtensiveOrmWeaverCmd>
-    <XtensiveOrmWeaverCmd Condition="'$(SignAssembly)'=='true'">$(XtensiveOrmWeaverCmd) /snk:"$(AssemblyOriginatorKeyFile)"</XtensiveOrmWeaverCmd>
-    <XtensiveOrmWeaverCmd>$(XtensiveOrmWeaverCmd) @(IntermediateAssembly -> '/input:"%(FullPath)"', ' ')</XtensiveOrmWeaverCmd>
-    <XtensiveOrmWeaverCmd>$(XtensiveOrmWeaverCmd) @(ReferencePath -> '/r:"%(FullPath)"', ' ')</XtensiveOrmWeaverCmd>
+    <XtensiveOrmWeaverResponseFile>@(IntermediateAssembly -> '%(FullPath).weaver-cmd')</XtensiveOrmWeaverResponseFile>
+    <XtensiveOrmWeaverCommandLine>"$(XtensiveOrmWeaver)" @"$(XtensiveOrmWeaverResponseFile)"</XtensiveOrmWeaverCommandLine>
   </PropertyGroup>
-  <Exec Command="$(XtensiveOrmWeaverCmd)"
-        WorkingDirectory="$(MSBuildProjectDirectory)"
-        IgnoreExitCode="true" />
+  <ItemGroup>
+    <XtensiveOrmWeaverParameters Include="/type:$(MSBuildProjectExtension)" />
+    <XtensiveOrmWeaverParameters Include="/backup" />
+    <XtensiveOrmWeaverParameters Include="/stamp" />
+    <XtensiveOrmWeaverParameters Condition="'$(DebugSymbols)'=='true'" Include="/pdb" />
+    <XtensiveOrmWeaverParameters Condition="'$(SignAssembly)'=='true'" Include="/snk:$(AssemblyOriginatorKeyFile)" />
+    <XtensiveOrmWeaverParameters Include="@(IntermediateAssembly -> '/input:%(FullPath)')" />
+    <XtensiveOrmWeaverParameters Include="@(ReferencePath -> '/r:%(FullPath)')" />
+  </ItemGroup>
+  <WriteLinesToFile
+    Overwrite="true"
+    File="$(XtensiveOrmWeaverResponseFile)"
+    Lines="@(XtensiveOrmWeaverParameters)" />
+  <Exec
+    Command="$(XtensiveOrmWeaverCommandLine)"
+    WorkingDirectory="$(MSBuildProjectDirectory)"
+    IgnoreExitCode="true" />
 </Target>
 
 </Project>

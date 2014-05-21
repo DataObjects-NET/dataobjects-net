@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Sql;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Providers
@@ -61,7 +62,8 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    public MultischemaMappingResolver(DomainConfiguration configuration, NodeConfiguration nodeConfiguration, ProviderInfo providerInfo)
+    public MultischemaMappingResolver(DomainConfiguration configuration, NodeConfiguration nodeConfiguration,
+      DefaultSchemaInfo defaultSchemaInfo)
     {
       schemaMapping = nodeConfiguration.SchemaMapping;
       defaultSchema = configuration.DefaultSchema;
@@ -71,10 +73,10 @@ namespace Xtensive.Orm.Providers
         .Where(s => !string.IsNullOrEmpty(s))
         .Concat(Enumerable.Repeat(configuration.DefaultSchema, 1))
         .Distinct()
-        .Select(s => new SqlExtractionTask(providerInfo.DefaultDatabase, schemaMapping.Apply(s)))
+        .Select(s => new SqlExtractionTask(defaultSchemaInfo.Database, schemaMapping.Apply(s)))
         .ToList();
 
-      metadataTask = new SqlExtractionTask(providerInfo.DefaultDatabase, schemaMapping.Apply(defaultSchema));
+      metadataTask = new SqlExtractionTask(defaultSchemaInfo.Database, schemaMapping.Apply(defaultSchema));
     }
   }
 }

@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Storage
       [Key, Field]
       public long Id { get; private set; }
 
-      [Field]
+      [Field, Association(PairTo = "Bank", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear)]
       public EntitySet<BankBranch> Branches { get; private set; }
     }
 
@@ -30,6 +30,9 @@ namespace Xtensive.Orm.Tests.Storage
       public long Id { get; private set; }
 
       [Field]
+      public Bank Bank { get; set; }
+
+      [Field, Association(PairTo = "Branch", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear)]
       public EntitySet<BankAccount> Accounts { get; private set; }
     }
 
@@ -38,6 +41,9 @@ namespace Xtensive.Orm.Tests.Storage
     {
       [Key, Field]
       public long Id { get; private set; }
+
+      [Field]
+      public BankBranch Branch { get; set; }
     }
   }
 

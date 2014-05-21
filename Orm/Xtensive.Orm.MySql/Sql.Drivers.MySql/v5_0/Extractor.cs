@@ -23,16 +23,11 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     private string targetSchema;
     private Catalog theCatalog;
 
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      theCatalog = new Catalog(Driver.CoreServerInfo.DatabaseName);
-    }
-
     /// <param name="catalogName"> </param>
     /// <inheritdoc/>
     public override Catalog ExtractCatalog(string catalogName)
     {
+      theCatalog = new Catalog(catalogName);
       targetSchema = null;
       RegisterReplacements(replacementsRegistry);
       var schema = ExtractSchema(string.Empty, Driver.CoreServerInfo.DefaultSchemaName);
@@ -42,6 +37,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     /// <inheritdoc/>
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
+      theCatalog = new Catalog(catalogName);
       targetSchema = schemaName;
       var result = theCatalog.CreateSchema(targetSchema);
       RegisterReplacements(replacementsRegistry);

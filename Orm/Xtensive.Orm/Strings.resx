@@ -3322,4 +3322,10 @@ Error: {1}</value>
   <data name="ExTypeXIsNotRegistered">
     <value xml:space="preserve">Type '{0}' is not registered.</value>
   </data>
+  <data name="ExSchemaMappingRequiresMultischemaDomainConfiguration" xml:space="preserve">
+    <value>Schema mapping requires multischema domain configuration. Please provide at least DefaultSchema setting.</value>
+  </data>
+  <data name="ExDatabaseMappingRequiresMultidatabaseDomainConfiguration" xml:space="preserve">
+    <value>Database mapping requires multidatabase domain configuration. Please provide at least DefaultDatabase and DefaultSchema settings.</value>
+  </data>
 </root>

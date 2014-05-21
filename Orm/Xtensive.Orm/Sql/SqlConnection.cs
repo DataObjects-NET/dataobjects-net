@@ -21,6 +21,7 @@ namespace Xtensive.Sql
     private int? commandTimeout;
     private ConnectionInfo connectionInfo;
     private IExtensionCollection extensions;
+    private bool isDisposed;
 
     /// <summary>
     /// Gets the underlying connection.
@@ -75,7 +76,7 @@ namespace Xtensive.Sql
     /// <summary>
     /// Gets the state of the connection.
     /// </summary>
-    public ConnectionState State { get { return UnderlyingConnection.State; } }
+    public ConnectionState State { get { return isDisposed ? ConnectionState.Closed : UnderlyingConnection.State; } }
     
     /// <summary>
     /// Creates and returns a <see cref="DbCommand"/> object associated with the current connection.
@@ -242,6 +243,9 @@ namespace Xtensive.Sql
     /// <inheritdoc/>
     public void Dispose()
     {
+      if (isDisposed)
+        return;
+      isDisposed = true;
       if (ActiveTransaction!=null) {
         ActiveTransaction.Dispose();
         ClearActiveTransaction();

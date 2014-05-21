@@ -210,5 +210,27 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
+    [Test]
+    public void NodeIdCreateFormatParseTest()
+    {
+      var nodeId = "{59EE3D42-C207-4E65-8EC0-220058B4F8F2}";
+      var key = Key.Create(Domain, nodeId, typeof (Apple), TypeReferenceAccuracy.ExactType, "1");
+      Assert.That(key.NodeId, Is.EqualTo(nodeId));
+
+      var keyString = key.Format();
+      var key2 = Key.Parse(Domain, keyString);
+      Assert.That(key2.NodeId, Is.EqualTo(nodeId));
+    }
+
+    [Test]
+    public void NodeIdCreateFormatParseDefaultTest()
+    {
+      var key = Key.Create(Domain, typeof (Apple), TypeReferenceAccuracy.ExactType, "1");
+      Assert.That(key.NodeId, Is.EqualTo(WellKnown.DefaultNodeId));
+
+      var keyString = key.Format();
+      var key2 = Key.Parse(Domain, keyString);
+      Assert.That(key2.NodeId, Is.EqualTo(WellKnown.DefaultNodeId));
+    }
   }
 }

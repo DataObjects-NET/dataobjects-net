@@ -5,7 +5,7 @@
 // Created:    2012.03.19
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Model;
@@ -19,40 +19,28 @@ namespace Xtensive.Orm.Upgrade
 
     public int GetTypeId(Type type)
     {
-      var typeId = TypeInfo.NoTypeId;
-      var oldModel = context.ExtractedDomainModel;
-      if (oldModel==null && context.ExtractedTypeMap==null)
-        return typeId;
-
-      // type has been renamed?
-      var fullName = type.GetFullName();
-      var renamer = context.Hints
-        .OfType<RenameTypeHint>()
-        .SingleOrDefault(hint => hint.NewType.GetFullName()==fullName);
-      if (renamer!=null) {
-        if (context.ExtractedTypeMap.TryGetValue(renamer.OldType, out typeId))
-          return typeId;
-        if (oldModel!=null) {
-          var oldType = oldModel.Types.SingleOrDefault(t => t.UnderlyingType==renamer.OldType);
-          if (oldType!=null)
-            return oldType.TypeId;
+      var typeIdMap = context.FullTypeMap;
+      if (typeIdMap==null)
+        return TypeInfo.NoTypeId;
+      var typeName = type.GetFullName();
+      if (context.Stage==UpgradeStage.Upgrading) {
+        var mapping = context.UpgradedTypesMapping;
+        if (mapping!=null) {
+          string oldTypeName;
+          return mapping.TryGetValue(typeName, out oldTypeName)
+            ? FindTypeId(typeIdMap, oldTypeName)
+            : TypeInfo.NoTypeId;
         }
-        // If RenameTypeHint is specified
-        // but we can't find old type in any available source fail immediately
-        throw new InvalidOperationException(string.Format(Strings.ExTypeXIsNotFound, renamer.OldType));
       }
-
-      // type has been preserved
-      if (context.ExtractedTypeMap.TryGetValue(fullName, out typeId))
-        return typeId;
-      if (oldModel!=null) {
-        var oldType = oldModel.Types.SingleOrDefault(t => t.UnderlyingType==fullName);
-        if (oldType!=null)
-          return oldType.TypeId;
-      }
-
-      return TypeInfo.NoTypeId;
+      return FindTypeId(typeIdMap, typeName);
     }
+
+    private int FindTypeId(IDictionary<string, int> typeIdMap, string typeName)
+    {
+      int typeId;
+      return typeIdMap.TryGetValue(typeName, out typeId) ? typeId : TypeInfo.NoTypeId;
+    }
+
 
     // Constructors
 

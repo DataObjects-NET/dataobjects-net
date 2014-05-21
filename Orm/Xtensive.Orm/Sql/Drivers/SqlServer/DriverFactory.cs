@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -113,13 +114,14 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
         var builder = new SqlConnectionStringBuilder(connectionString);
         var version = new Version(versionString);
+        var defaultSchema = GetDefaultSchema(connection);
         var coreServerInfo = new CoreServerInfo {
           ServerVersion = version,
           ConnectionString = connectionString,
           MultipleActiveResultSets = builder.MultipleActiveResultSets,
+          DatabaseName = defaultSchema.Database,
+          DefaultSchemaName = defaultSchema.Schema,
         };
-        SqlHelper.ReadDatabaseAndSchema(connection, DatabaseAndSchemaQuery, coreServerInfo);
-
         if (isAzure)
           return new Azure.Driver(coreServerInfo, new ErrorMessageParser());
         if (version.Major < 9)
@@ -131,6 +133,12 @@ namespace Xtensive.Sql.Drivers.SqlServer
           return new v10.Driver(coreServerInfo, parser);
         return new v11.Driver(coreServerInfo, parser);
       }
+    }
+
+    /// <inheritdoc/>
+    protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction)
+    {
+      return SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
     }
   }
 }
