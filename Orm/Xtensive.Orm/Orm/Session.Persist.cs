@@ -154,8 +154,6 @@ namespace Xtensive.Orm
                 else
                   EntityChangeRegistry.Clear();
                 EntitySetChangeRegistry.Clear();
-                if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates) && reason==PersistReason.Manual)
-                  ts.Complete();
               }
               
               OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
