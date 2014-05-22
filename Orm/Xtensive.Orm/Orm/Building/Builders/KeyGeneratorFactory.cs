@@ -23,10 +23,7 @@ namespace Xtensive.Orm.Building.Builders
       typeof (int),
       typeof (uint),
       typeof (long),
-      typeof (ulong),
-      typeof (decimal),
-      typeof (double),
-      typeof (float)
+      typeof (ulong)
     };
 
     private static readonly Type[] SupportedTypes = SupportedNumericTypes

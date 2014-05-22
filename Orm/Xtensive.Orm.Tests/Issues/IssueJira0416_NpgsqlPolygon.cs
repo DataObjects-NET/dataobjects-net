@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     protected override void CheckRequirements()
     {
-      Require.ProviderIs(StorageProvider.PostgreSql);
+      Require.ProviderIs(StorageProvider.PostgreSql, "Only PostgreSql supports the data type of NpgsqlPolygon");
     }
 
     [Test]
