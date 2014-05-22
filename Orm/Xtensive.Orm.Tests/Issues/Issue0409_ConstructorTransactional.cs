@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void DocumentCreatedInAutoTransactionTest()
     {
       using (var s = Domain.OpenSession()) {
-        var document = new Document();
+        Assert.Throws<InvalidOperationException>(() => { var document = new Document(); });
       }
     }
   }

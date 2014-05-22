@@ -987,15 +987,8 @@ namespace Xtensive.Orm
     /// <param name="context">The <see cref="StreamingContext"/>.</param>
     protected Entity(SerializationInfo info, StreamingContext context)
     {
-      bool successfully = false;
-      try {
-        using (Session.OpenSystemLogicOnlyRegion()) {
-          DeserializationContext.Demand().SetObjectData(this, info, context);
-        }
-        successfully = true;
-      }
-      finally {
-        LeaveCtorTransactionScope(successfully);
+      using (Session.OpenSystemLogicOnlyRegion()) {
+        DeserializationContext.Demand().SetObjectData(this, info, context);
       }
     }
   }

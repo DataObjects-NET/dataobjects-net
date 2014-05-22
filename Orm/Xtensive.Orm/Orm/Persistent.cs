@@ -34,28 +34,6 @@ namespace Xtensive.Orm
     INotifyPropertyChanged,
     IDataErrorInfo
   {
-    #region Nested type: CtorTransactionInfo
-
-    // [DebuggerDisplay("Id = {Id}")]
-    private sealed class CtorTransactionInfo
-    {
-      [ThreadStatic]
-      public static CtorTransactionInfo Current;
-      // public static int CurrentId;
-
-      // public int Id;
-      public TransactionScope TransactionScope;
-      public ICompletableScope OperationScope;
-      public CtorTransactionInfo Previous;
-
-      public CtorTransactionInfo()
-      {
-        // Id = Interlocked.Increment(ref CurrentId);
-      }
-    }
-
-    #endregion
-
     private IFieldValueAdapter[] fieldAdapters;
 
     /// <summary>
@@ -815,14 +793,7 @@ namespace Xtensive.Orm
       var type = GetType();
       if (ctorType != type)
         return;
-      var successfully = false;
-      try {
-        SystemInitialize(false);
-        successfully = true;
-      }
-      finally {
-        LeaveCtorTransactionScope(successfully);
-      }
+      SystemInitialize(false);
     }
 
     /// <summary>
@@ -838,12 +809,7 @@ namespace Xtensive.Orm
       var type = GetType();
       if (ctorType != type)
         return;
-      try {
-        SystemInitializationError(error);
-      }
-      finally {
-        LeaveCtorTransactionScope(false);
-      }
+      SystemInitializationError(error);
     }
 
     #endregion
@@ -855,14 +821,7 @@ namespace Xtensive.Orm
     /// </summary>
     protected void InitializeOnMaterialize()
     {
-      var successfully = false;
-      try {
-        SystemInitialize(true);
-        successfully = true;
-      }
-      finally {
-        LeaveCtorTransactionScope(successfully);
-      }
+      SystemInitialize(true);
     }
 
     /// <summary>
@@ -874,63 +833,11 @@ namespace Xtensive.Orm
     /// </remarks>
     protected void InitializationErrorOnMaterialize(Exception error)
     {
-      try {
-        SystemInitializationError(error);
-      }
-      finally {
-        LeaveCtorTransactionScope(false);
-      }
+      SystemInitializationError(error);
     }
 
     #endregion
 
-    #region Enter/LeaveCtorTransactionScope methods
-
-    internal void EnterCtorTransactionScope()
-    {
-      CtorTransactionInfo.Current = new CtorTransactionInfo() {
-        TransactionScope = Session.OpenAutoTransaction(),
-        Previous = CtorTransactionInfo.Current,
-      };
-    }
-
-    internal void BindCtorTransactionScopeToOperationScope(ICompletableScope scope)
-    {
-      var ctorTransactionInfo = CtorTransactionInfo.Current;
-      ctorTransactionInfo.OperationScope = scope;
-    }
-
-    internal void LeaveCtorTransactionScope(bool successfully)
-    {
-      var cti = CtorTransactionInfo.Current;
-      if (cti==null)
-        return;
-      CtorTransactionInfo.Current = cti.Previous;
-      try {
-        if (cti.OperationScope!=null)
-          cti.OperationScope.Complete();
-      }
-      finally {
-        try {
-          if (cti.OperationScope!=null)
-            cti.OperationScope.Dispose();
-        }
-        catch {
-          successfully = false;
-          throw;
-        }
-        finally {
-          var transactionScope = cti.TransactionScope;
-          if (transactionScope!=null) {
-            if (successfully)
-              transactionScope.Complete();
-            transactionScope.Dispose();
-          }
-        }
-      }
-    }
-
-    #endregion
 
     internal static void ExecuteOnValidate(Persistent target)
     {
@@ -941,13 +848,11 @@ namespace Xtensive.Orm
 
     internal Persistent()
     {
-      EnterCtorTransactionScope();
     }
 
     internal Persistent(Session session)
       : base(session)
     {
-      EnterCtorTransactionScope();
     }
   }
 }
