@@ -70,7 +70,7 @@ namespace Xtensive.Orm
     public void SaveChanges()
     {
       if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates))
-        SaveNonTransactionalChanges();
+        SaveLocalChanges();
       else
         Persist(PersistReason.Manual);
     }
@@ -225,7 +225,7 @@ namespace Xtensive.Orm
       ProcessChangesOfEntitySets(entitySetState => entitySetState.RollbackState());
     }
 
-    private void SaveNonTransactionalChanges()
+    private void SaveLocalChanges()
     {
       Validate();
       using (var transaction = OpenTransaction(TransactionOpenMode.New)) {
