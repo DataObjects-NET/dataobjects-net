@@ -183,7 +183,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var targetEntity = (Entity) target;
       targetEntity.EnsureNotRemoved();
-      if (IsDisconnected)
+      if (!Configuration.Supports(SessionOptions.AutoSaveChanges))
         return new Disposable(b => {return;}); // No need to pin in this case
       return pinner.RegisterRoot(targetEntity.State);
     }
@@ -198,7 +198,7 @@ namespace Xtensive.Orm
     /// </summary>
     public IDisposable DisableSaveChanges()
     {
-      if (IsDisconnected)
+      if (!Configuration.Supports(SessionOptions.AutoSaveChanges))
         return new Disposable(b => { return; }); // No need to pin in this case
       if (disableAutoSaveChanges)
         return null;
