@@ -14,7 +14,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
   internal abstract class PostgreSqlTypeMapper : CustomTypeMapper
   {
     private readonly Type type;
-    private readonly string udtType;
+    private readonly NpgsqlDbType npgsqlDbType;
     private readonly SqlType sqlType;
 
     public override bool Enabled
@@ -35,25 +35,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       }
 
       var npgsqlParameter = (NpgsqlParameter) parameter;
-
-      NpgsqlDbType npgsqlDbType;
-      Enum.TryParse(udtType, true, out npgsqlDbType);
-
       npgsqlParameter.Value = value;
       npgsqlParameter.NpgsqlDbType = npgsqlDbType;
-
-      // The method Equals(Object, Object) was added in order to keep track of data types NpgsqlPath and  NpgsqlPolygon, 
-      // which are defined without an initial value.
-      try {
-        value.Equals(value);
-      }
-      catch (Exception) {
-        // For data types NpgsqlPath and NpgsqlPolygon, which defined without an initial values must specify to default values. 
-        if (value is NpgsqlPath)
-          npgsqlParameter.Value = new NpgsqlPath(new[] {new NpgsqlPoint()});
-        if (value is NpgsqlPolygon)
-          npgsqlParameter.Value = new NpgsqlPolygon(new[] {new NpgsqlPoint()});
-      }
     }
 
     public override object ReadValue(DbDataReader reader, int index)
@@ -68,11 +51,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
     // Constructors
 
-    protected PostgreSqlTypeMapper(string frameworkType, string udtType, SqlType sqlType)
+    protected PostgreSqlTypeMapper(string frameworkType, NpgsqlDbType npgsqlDbType, SqlType sqlType)
     {
       type = Type.GetType(frameworkType);
 
-      this.udtType = udtType;
+      this.npgsqlDbType = npgsqlDbType;
       this.sqlType = sqlType;
     }
   }

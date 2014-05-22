@@ -4,16 +4,18 @@
 // Created by: Alena Mikshina
 // Created:    2014.04.10
 
+using NpgsqlTypes;
+
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal sealed class BoxMapper : PostgreSqlTypeMapper
   {
-    private static readonly string BoxTypeName = typeof (NpgsqlTypes.NpgsqlBox).AssemblyQualifiedName;
+    private static readonly string BoxTypeName = typeof (NpgsqlBox).AssemblyQualifiedName;
 
     // Constructors
 
     public BoxMapper()
-      : base(BoxTypeName, "Box", CustomSqlType.Box)
+      : base(BoxTypeName, NpgsqlDbType.Box, CustomSqlType.Box)
     {
     }
   }
