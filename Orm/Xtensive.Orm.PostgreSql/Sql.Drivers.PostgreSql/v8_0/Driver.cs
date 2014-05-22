@@ -48,14 +48,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       builder.Add(new CircleMapper());
     }
 
-    protected override void RegisterCustomSqlTypes(TypeMappingRegistryBuilder builder)
+    protected override void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
     {
-      builder.AddReverseMapping(CustomSqlType.Point, typeof (NpgsqlPoint));
-      builder.AddReverseMapping(CustomSqlType.LSeg, typeof (NpgsqlLSeg));
-      builder.AddReverseMapping(CustomSqlType.Box, typeof (NpgsqlBox));
-      builder.AddReverseMapping(CustomSqlType.Path, typeof (NpgsqlPath));
-      builder.AddReverseMapping(CustomSqlType.Polygon, typeof (NpgsqlPolygon));
-      builder.AddReverseMapping(CustomSqlType.Circle, typeof (NpgsqlCircle));
+      builder.AddReverse(CustomSqlType.Point, typeof (NpgsqlPoint));
+      builder.AddReverse(CustomSqlType.LSeg, typeof (NpgsqlLSeg));
+      builder.AddReverse(CustomSqlType.Box, typeof (NpgsqlBox));
+      builder.AddReverse(CustomSqlType.Path, typeof (NpgsqlPath));
+      builder.AddReverse(CustomSqlType.Polygon, typeof (NpgsqlPolygon));
+      builder.AddReverse(CustomSqlType.Circle, typeof (NpgsqlCircle));
     }
 
     // Constructors

@@ -28,7 +28,11 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   internal class IssueJira0416_NpgsqlPath : AutoBuildTest
   {
-    private NpgsqlPath path = new NpgsqlPath(new[] {new NpgsqlPoint(0, 1), new NpgsqlPoint(2, 3), new NpgsqlPoint(4, 5), new NpgsqlPoint(6, 7)}) {Open = true};
+    private NpgsqlPath path = new NpgsqlPath(new[] {
+      new NpgsqlPoint(0, 1), 
+      new NpgsqlPoint(2, 3), 
+      new NpgsqlPoint(4, 5), 
+      new NpgsqlPoint(6, 7)}) {Open = true};
 
     protected override DomainConfiguration BuildConfiguration()
     {

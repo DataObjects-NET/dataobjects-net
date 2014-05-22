@@ -109,7 +109,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets a read-only hash set containing all supported integer types.
     /// </summary>
-    [Obsolete("This field is obsolete. Another a implementation of this field does not yet exist.")]
+    [Obsolete("This field is obsolete. Another implementation does not exist.")]
     public static readonly ReadOnlyHashSet<Type> SupportedIntegerTypes = 
       new ReadOnlyHashSet<Type>(
         new HashSet<Type>{
@@ -127,7 +127,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets a read-only hash set containing all supported numeric types.
     /// </summary>
-    [Obsolete("This field is obsolete. Another a implementation of this field does not yet exist.")]    
+    [Obsolete("This field is obsolete. Another implementation does not exist.")]    
     public static readonly ReadOnlyHashSet<Type> SupportedNumericTypes = 
       new ReadOnlyHashSet<Type>(
         new [] {
@@ -140,7 +140,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets a read-only hash set containing all supported primitive types.
     /// </summary>
-    [Obsolete("This field is obsolete. Another a implementation of this field does not yet exist.")]        
+    [Obsolete("This field is obsolete. Another implementation does not exist.")]        
     public static readonly ReadOnlyHashSet<Type> SupportedPrimitiveTypes = 
       new ReadOnlyHashSet<Type>(
         new [] {
@@ -156,7 +156,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets a read-only hash set containing all supported nullable types.
     /// </summary>
-    [Obsolete("This field is obsolete. Another a implementation of this field does not yet exist.")]            
+    [Obsolete("This field is obsolete. Another implementation does not exist.")]            
     public static readonly ReadOnlyHashSet<Type> SupportedNullableTypes = 
       new ReadOnlyHashSet<Type>(
         SupportedPrimitiveTypes.Select(type => type.ToNullable())
@@ -166,7 +166,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets a read-only hash set containing all supported primitive and nullable types.
     /// </summary>
-    [Obsolete("This field is obsolete. Another a implementation of this field does not yet exist.")]                
+    [Obsolete("This field is obsolete. Another implementation does not exist.")]                
     public static readonly ReadOnlyHashSet<Type> SupportedPrimitiveAndNullableTypes = 
       new ReadOnlyHashSet<Type>(
         SupportedPrimitiveTypes.Union(SupportedNullableTypes)

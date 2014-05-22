@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using Xtensive.Core;
 
 namespace Xtensive.Sql
@@ -41,14 +42,14 @@ namespace Xtensive.Sql
       mappings.Add(mapping);
     }
     
-    public void AddReverseMapping(SqlType sqlType, Type type)
+    public void AddReverse(SqlType sqlType, Type type)
     {
       reverseMappings.Add(sqlType, type);
     }
 
     public TypeMappingRegistry Build()
     {
-      return new TypeMappingRegistry(mappings, reverseMappings);
+      return new TypeMappingRegistry(mappings.ToDictionary(m => m.Type), reverseMappings);
     }
 
     // Constructors

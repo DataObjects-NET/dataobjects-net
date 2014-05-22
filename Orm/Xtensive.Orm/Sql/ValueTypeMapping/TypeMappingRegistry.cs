@@ -57,9 +57,9 @@ namespace Xtensive.Sql
 
     // Constructors
 
-    public TypeMappingRegistry(IEnumerable<TypeMapping> mappings, Dictionary<SqlType, Type> reverseMappings)
+    public TypeMappingRegistry(Dictionary<Type, TypeMapping> mappings, Dictionary<SqlType, Type> reverseMappings)
     {
-      Mappings = new ReadOnlyDictionary<Type, TypeMapping>(mappings.ToDictionary(m => m.Type));
+      Mappings = new ReadOnlyDictionary<Type, TypeMapping>(mappings, false);
       ReverseMappings = new ReadOnlyDictionary<SqlType, Type>(reverseMappings, true);
     }
   }

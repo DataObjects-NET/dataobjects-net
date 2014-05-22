@@ -260,7 +260,7 @@ namespace Xtensive.Sql
     {
     }
 
-    protected virtual void RegisterCustomSqlTypes(TypeMappingRegistryBuilder builder)
+    protected virtual void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
     {
     }
 
@@ -286,9 +286,9 @@ namespace Xtensive.Sql
     {
       var builder = new TypeMappingRegistryBuilder(mapper);
       RegisterStandardMappings(builder);
-      RegisterStandardSqlTypes(builder);
+      RegisterStandardReverseMappings(builder);
       RegisterCustomMappings(builder);
-      RegisterCustomSqlTypes(builder);
+      RegisterCustomReverseMappings(builder);
       return builder.Build();
     }
 
@@ -317,30 +317,30 @@ namespace Xtensive.Sql
       builder.Add(typeof (byte[]), mapper.ReadByteArray, mapper.BindByteArray, mapper.MapByteArray);
     }
 
-    private static void RegisterStandardSqlTypes(TypeMappingRegistryBuilder builder)
+    private static void RegisterStandardReverseMappings(TypeMappingRegistryBuilder builder)
     {
-      builder.AddReverseMapping(SqlType.Boolean, typeof(bool));
-      builder.AddReverseMapping(SqlType.Int8, typeof(sbyte));
-      builder.AddReverseMapping(SqlType.UInt8, typeof(byte));
-      builder.AddReverseMapping(SqlType.Int16, typeof(short));
-      builder.AddReverseMapping(SqlType.UInt16, typeof(ushort));
-      builder.AddReverseMapping(SqlType.Int32, typeof(int));
-      builder.AddReverseMapping(SqlType.UInt32, typeof(uint));
-      builder.AddReverseMapping(SqlType.Int64, typeof(long));
-      builder.AddReverseMapping(SqlType.UInt64, typeof(ulong));
-      builder.AddReverseMapping(SqlType.Decimal, typeof(decimal));
-      builder.AddReverseMapping(SqlType.Float, typeof(float));
-      builder.AddReverseMapping(SqlType.Double, typeof(double));
-      builder.AddReverseMapping(SqlType.DateTime, typeof(DateTime));
-      builder.AddReverseMapping(SqlType.DateTimeOffset, typeof(DateTimeOffset));
-      builder.AddReverseMapping(SqlType.Interval, typeof(TimeSpan));
-      builder.AddReverseMapping(SqlType.Char, typeof(string));
-      builder.AddReverseMapping(SqlType.VarChar, typeof(string));
-      builder.AddReverseMapping(SqlType.VarCharMax, typeof(string));
-      builder.AddReverseMapping(SqlType.Binary, typeof(byte[]));
-      builder.AddReverseMapping(SqlType.VarBinary, typeof(byte[]));
-      builder.AddReverseMapping(SqlType.VarBinaryMax, typeof(byte[]));
-      builder.AddReverseMapping(SqlType.Guid, typeof(Guid));
+      builder.AddReverse(SqlType.Boolean, typeof(bool));
+      builder.AddReverse(SqlType.Int8, typeof(sbyte));
+      builder.AddReverse(SqlType.UInt8, typeof(byte));
+      builder.AddReverse(SqlType.Int16, typeof(short));
+      builder.AddReverse(SqlType.UInt16, typeof(ushort));
+      builder.AddReverse(SqlType.Int32, typeof(int));
+      builder.AddReverse(SqlType.UInt32, typeof(uint));
+      builder.AddReverse(SqlType.Int64, typeof(long));
+      builder.AddReverse(SqlType.UInt64, typeof(ulong));
+      builder.AddReverse(SqlType.Decimal, typeof(decimal));
+      builder.AddReverse(SqlType.Float, typeof(float));
+      builder.AddReverse(SqlType.Double, typeof(double));
+      builder.AddReverse(SqlType.DateTime, typeof(DateTime));
+      builder.AddReverse(SqlType.DateTimeOffset, typeof(DateTimeOffset));
+      builder.AddReverse(SqlType.Interval, typeof(TimeSpan));
+      builder.AddReverse(SqlType.Char, typeof(string));
+      builder.AddReverse(SqlType.VarChar, typeof(string));
+      builder.AddReverse(SqlType.VarCharMax, typeof(string));
+      builder.AddReverse(SqlType.Binary, typeof(byte[]));
+      builder.AddReverse(SqlType.VarBinary, typeof(byte[]));
+      builder.AddReverse(SqlType.VarBinaryMax, typeof(byte[]));
+      builder.AddReverse(SqlType.Guid, typeof(Guid));
     }
 
     private Extractor BuildExtractor(SqlConnection connection)

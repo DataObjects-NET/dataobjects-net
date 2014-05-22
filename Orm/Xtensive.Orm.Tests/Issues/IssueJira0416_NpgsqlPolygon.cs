@@ -31,8 +31,17 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   internal class IssueJira0416_NpgsqlPolygon : AutoBuildTest
   {
-    private NpgsqlPolygon polygon = new NpgsqlPolygon(new[] { new NpgsqlPoint(0, 1), new NpgsqlPoint(2, 3), new NpgsqlPoint(4, 5), new NpgsqlPoint(6, 7) });
-    private NpgsqlPolygon otherPolygon = new NpgsqlPolygon(new[] {new NpgsqlPoint(0, 1), new NpgsqlPoint(2, 3), new NpgsqlPoint(4, 5), new NpgsqlPoint(6, 8)});
+    private NpgsqlPolygon polygon = new NpgsqlPolygon(new[] {
+      new NpgsqlPoint(0, 1), 
+      new NpgsqlPoint(2, 3), 
+      new NpgsqlPoint(4, 5), 
+      new NpgsqlPoint(6, 7)});
+
+    private NpgsqlPolygon otherPolygon = new NpgsqlPolygon(new[] {
+      new NpgsqlPoint(0, 1), 
+      new NpgsqlPoint(2, 3), 
+      new NpgsqlPoint(4, 5), 
+      new NpgsqlPoint(6, 8)});
 
     protected override DomainConfiguration BuildConfiguration()
     {
