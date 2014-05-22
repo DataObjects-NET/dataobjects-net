@@ -4,12 +4,13 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.08
 
+using Xtensive.Orm.Configuration;
 using Xtensive.Tuples;
 
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// Temporary key generator contract for use with <see cref="DisconnectedState"/>.
+  /// Temporary key generator generates local keys when <see cref="SessionOptions.LazyKeyGeneration"/> is enabled.
   /// </summary>
   public abstract class TemporaryKeyGenerator : KeyGenerator
   {

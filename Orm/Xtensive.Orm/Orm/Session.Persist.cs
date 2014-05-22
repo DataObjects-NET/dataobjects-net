@@ -32,13 +32,13 @@ namespace Xtensive.Orm
     /// updates are flushed to the storage.
     /// </para>
     /// <para>
-    /// For non-disconnected (without <see cref="SessionOptions.Disconnected"/> option) session this method is called automatically when it's necessary,
+    /// For session with auto saving (with <see cref="SessionOptions.AutoSaveChanges"/> this method is called automatically when it's necessary,
     /// e.g. before beginning, committing and rolling back a transaction, performing a
     /// query and so further. So generally you should not worry
     /// about calling this method.
     /// </para>
     /// <para>
-    /// For disconnected session (with <see cref="SessionOptions.Disconnected"/> option) you should call this method manually.
+    /// For session without auto saving (without <see cref="SessionOptions.AutoSaveChanges"/> option) you should call this method manually.
     /// </para>
     /// </remarks>
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
@@ -57,15 +57,13 @@ namespace Xtensive.Orm
     /// updates are flushed to the storage.
     /// </para>
     /// <para>
-    /// For non-disconnected (without <see cref="SessionOptions.Disconnected"/> option) session this method is called automatically when it's necessary,
+    /// For session with auto saving (with <see cref="SessionOptions.AutoSaveChanges"/> this method is called automatically when it's necessary,
     /// e.g. before beginning, committing and rolling back a transaction, performing a
     /// query and so further. So generally you should not worry
     /// about calling this method.
     /// </para>
     /// <para>
-    /// For disconnected session (with <see cref="SessionOptions.Disconnected"/> option) 
-    /// or non-transactional session (with <see cref="SessionOptions.NonTransactionalEntityStates"/> option) 
-    /// you should call this method manually.
+    /// For session without auto saving (without <see cref="SessionOptions.AutoSaveChanges"/> option) you should call this method manually.
     /// </para>
     /// </remarks>
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
