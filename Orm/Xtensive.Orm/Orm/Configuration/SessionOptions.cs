@@ -67,16 +67,6 @@ namespace Xtensive.Orm.Configuration
     AutoActivation = 1 << 5,
 
     /// <summary>
-    /// Enables <see cref="TransactionalBehavior.Suppress"/> for automatic transactions.
-    /// </summary>
-    AutoTransactionSuppressMode = 1 << 7,
-
-    /// <summary>
-    /// Enables <see cref="TransactionalBehavior.Auto"/> for automatic transactions.
-    /// </summary>
-    AutoTransactionOpenMode = 1 << 8,
-
-    /// <summary>
     /// Enables reading of fields of removed objects.
     /// By default this leads no an exception - only <see cref="Entity.Key"/>, <see cref="Entity.TypeId"/> and
     /// few other system properties of removed objects can be accessed.
@@ -143,12 +133,11 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Predefined option set for compatibility with previous versions of DataObjects.Net (4.3.* and earlier).
-    /// Combines 
-    /// <see cref="AutoTransactionOpenMode"/> | 
+    /// Combines  
     /// <see cref="AutoActivation"/> |
     /// <see cref="ValidateEntities"/> flags.
     /// </summary>
-    LegacyProfile = AutoTransactionOpenMode | ValidateEntities | AutoActivation,
+    LegacyProfile =  ValidateEntities | AutoActivation,
 
     /// <summary>
     /// Default option set.

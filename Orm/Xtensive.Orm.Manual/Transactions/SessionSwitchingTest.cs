@@ -39,7 +39,6 @@ namespace Xtensive.Orm.Manual.Transactions.SessionSwitching
 
       var sessionCfg = new SessionConfiguration();
       sessionCfg.Options |= SessionOptions.AutoActivation;
-      sessionCfg.Options |= SessionOptions.AutoTransactionOpenMode;
       using (var sessionA = domain.OpenSession(sessionCfg)) { // Open & activate
         var personA = sessionA.Query.All<Person>().First();
         using (var sessionB = domain.OpenSession(sessionCfg)) { // Open & activate
@@ -69,7 +68,6 @@ namespace Xtensive.Orm.Manual.Transactions.SessionSwitching
       var sessionCfg = new SessionConfiguration();
       sessionCfg.Options |= SessionOptions.AllowSwitching;
       sessionCfg.Options |= SessionOptions.AutoActivation;
-      sessionCfg.Options |= SessionOptions.AutoTransactionOpenMode;
       using (var sessionA = domain.OpenSession(sessionCfg)) { // Open & activate
         var personA = sessionA.Query.All<Person>().First();
         using (var sessionB = domain.OpenSession(sessionCfg)) { // Open & activate

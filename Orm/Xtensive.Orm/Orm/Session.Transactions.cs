@@ -110,8 +110,7 @@ namespace Xtensive.Orm
     // OpenAuto method group
 
     /// <summary>
-    /// Opens the automatic transaction, or does nothing - dependently on specified
-    /// behavior and <see cref="SessionOptions"/>.
+    /// Opens the automatic transaction, or does nothing.
     /// </summary>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
@@ -120,27 +119,11 @@ namespace Xtensive.Orm
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     internal TransactionScope OpenAutoTransaction()
     {
-      return OpenAutoTransaction(TransactionalBehavior.Auto, IsolationLevel.Unspecified);
+      return TransactionScope.VoidScopeInstance;
     }
 
     /// <summary>
-    /// Opens the automatic transaction, or does nothing - dependently on specified
-    /// behavior and <see cref="SessionOptions"/>.
-    /// </summary>
-    /// <param name="behavior">The automatic transaction behavior.</param>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    internal TransactionScope OpenAutoTransaction(TransactionalBehavior behavior)
-    {
-      return OpenAutoTransaction(behavior, IsolationLevel.Unspecified);
-    }
-
-    /// <summary>
-    /// Opens the automatic transaction, or does nothing - dependently on specified
-    /// behavior and <see cref="SessionOptions"/>.
+    /// Opens the automatic transaction, or does nothing.
     /// </summary>
     /// <param name="isolationLevel">The isolation level.</param>
     /// <returns>
@@ -150,41 +133,7 @@ namespace Xtensive.Orm
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
     internal TransactionScope OpenAutoTransaction(IsolationLevel isolationLevel)
     {
-      return OpenAutoTransaction(TransactionalBehavior.Auto, isolationLevel);
-    }
-
-    /// <summary>
-    /// Opens the automatic transaction, or does nothing - dependently on specified
-    /// behavior and <see cref="SessionOptions"/>.
-    /// </summary>
-    /// <param name="behavior">The automatic transaction behavior.</param>
-    /// <param name="isolationLevel">The isolation level.</param>
-    /// <returns>
-    /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
-    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
-    /// </returns>
-    internal TransactionScope OpenAutoTransaction(TransactionalBehavior behavior, IsolationLevel isolationLevel)
-    {
-      switch (behavior) {
-      case TransactionalBehavior.Auto:
-       if (Configuration.Supports(SessionOptions.AutoTransactionOpenMode))
-         goto case TransactionalBehavior.Open;
-       if (Configuration.Supports(SessionOptions.AutoTransactionSuppressMode))
-         goto case TransactionalBehavior.Suppress;
-       goto case TransactionalBehavior.Require;
-      case TransactionalBehavior.Require:
-        return TransactionScope.VoidScopeInstance;
-      case TransactionalBehavior.Open:
-        if (IsDisconnected && Transaction!=null && !Transaction.IsDisconnected)
-          goto case TransactionalBehavior.New;
-        return OpenTransaction(TransactionOpenMode.Auto, isolationLevel, true);
-      case TransactionalBehavior.New:
-        return OpenTransaction(TransactionOpenMode.New, isolationLevel, true);
-      case TransactionalBehavior.Suppress:
-        return TransactionScope.VoidScopeInstance;
-      default:
-        throw new ArgumentOutOfRangeException();
-      }
+      return TransactionScope.VoidScopeInstance;
     }
     
     internal void BeginTransaction(Transaction transaction)
