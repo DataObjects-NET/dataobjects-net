@@ -49,7 +49,7 @@ namespace Xtensive.Sql
 
     public TypeMappingRegistry Build()
     {
-      return new TypeMappingRegistry(mappings.ToDictionary(m => m.Type), reverseMappings);
+      return new TypeMappingRegistry(mappings, reverseMappings);
     }
 
     // Constructors
