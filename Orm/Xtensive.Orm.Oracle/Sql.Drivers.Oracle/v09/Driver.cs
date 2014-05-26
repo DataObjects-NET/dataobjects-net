@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
+using System;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
@@ -36,6 +37,18 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return new ServerInfoProvider(this);
     }
 
+    protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
+    {
+      builder.Add(typeof (DateTimeOffset),
+        builder.Mapper.ReadDateTimeOffset,
+        builder.Mapper.BindDateTimeOffset,
+        builder.Mapper.MapDateTimeOffset);
+    }
+
+    protected override void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
+    {
+      builder.AddReverse(SqlType.DateTimeOffset, typeof (DateTimeOffset));
+    }
 
     // Constructors
 

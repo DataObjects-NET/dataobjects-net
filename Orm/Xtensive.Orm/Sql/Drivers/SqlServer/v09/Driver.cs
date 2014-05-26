@@ -36,6 +36,19 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return new ServerInfoProvider(this);
     }
 
+    protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
+    {
+      builder.Add(typeof (DateTimeOffset),
+        builder.Mapper.ReadDateTimeOffset,
+        builder.Mapper.BindDateTimeOffset,
+        builder.Mapper.MapDateTimeOffset);
+    }
+
+    protected override void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
+    {
+      builder.AddReverse(SqlType.DateTimeOffset, typeof (DateTimeOffset));
+    }
+
 
     // Constructors
 

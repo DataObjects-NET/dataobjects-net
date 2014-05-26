@@ -9,7 +9,7 @@ using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Drivers.Oracle.v10
 {
-  internal class Driver : Oracle.Driver
+  internal class Driver : v09.Driver
   {
     protected override Sql.TypeMapper CreateTypeMapper()
     {

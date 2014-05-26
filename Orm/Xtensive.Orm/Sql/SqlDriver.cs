@@ -311,7 +311,6 @@ namespace Xtensive.Sql
       builder.Add(typeof (double), mapper.ReadDouble, mapper.BindDouble, mapper.MapDouble);
       builder.Add(typeof (decimal), mapper.ReadDecimal, mapper.BindDecimal, mapper.MapDecimal);
       builder.Add(typeof (DateTime), mapper.ReadDateTime, mapper.BindDateTime, mapper.MapDateTime);
-      builder.Add(typeof (DateTimeOffset), mapper.ReadDateTimeOffset, mapper.BindDateTimeOffset, mapper.MapDateTimeOffset);
       builder.Add(typeof (TimeSpan), mapper.ReadTimeSpan, mapper.BindTimeSpan, mapper.MapTimeSpan);
       builder.Add(typeof (Guid), mapper.ReadGuid, mapper.BindGuid, mapper.MapGuid);
       builder.Add(typeof (byte[]), mapper.ReadByteArray, mapper.BindByteArray, mapper.MapByteArray);
@@ -332,7 +331,6 @@ namespace Xtensive.Sql
       builder.AddReverse(SqlType.Float, typeof(float));
       builder.AddReverse(SqlType.Double, typeof(double));
       builder.AddReverse(SqlType.DateTime, typeof(DateTime));
-      builder.AddReverse(SqlType.DateTimeOffset, typeof(DateTimeOffset));
       builder.AddReverse(SqlType.Interval, typeof(TimeSpan));
       builder.AddReverse(SqlType.Char, typeof(string));
       builder.AddReverse(SqlType.VarChar, typeof(string));
