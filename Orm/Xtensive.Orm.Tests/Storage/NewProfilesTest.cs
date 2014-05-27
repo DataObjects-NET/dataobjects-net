@@ -390,6 +390,179 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
+    public void ServerProfileCancelingOfEntityChanges()
+    {
+      RebuildDomain();
+
+      Key bookForEditLaterKey;
+      Key bookForRemoveLaterKey;
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (var transaction = session.OpenTransaction()) {
+          var bookForEditLater = new Book();
+          var bookForRemoveLater = new Book();
+          bookForEditLaterKey = bookForEditLater.Key;
+          bookForRemoveLaterKey = bookForRemoveLater.Key;
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction()) {
+          var bookForEditLater = session.Query.Single<Book>(bookForEditLaterKey);
+          var bookForRemoveLater = session.Query.Single<Book>(bookForRemoveLaterKey);
+          var countOfBooks = session.Query.All<Book>().Count();
+          Assert.AreEqual(2, countOfBooks);
+          Assert.IsTrue(string.IsNullOrEmpty(bookForEditLater.Title));
+          Assert.IsTrue(string.IsNullOrEmpty(bookForRemoveLater.Title));
+          transaction.Complete();
+        }
+      }
+
+      using (var session = Domain.OpenSession(serverProfile))
+      using (var transaction = session.OpenTransaction()) {
+        var bookForEditLater = session.Query.Single<Book>(bookForEditLaterKey);
+        var bookForRemoveLater = session.Query.Single<Book>(bookForRemoveLaterKey);
+        var countOfBooks = session.Query.All<Book>().Count();
+        Assert.AreEqual(2, countOfBooks);
+        Assert.IsTrue(string.IsNullOrEmpty(bookForEditLater.Title));
+        Assert.IsTrue(string.IsNullOrEmpty(bookForRemoveLater.Title));
+        transaction.Complete();
+      }
+
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (var transaction = session.OpenTransaction()) {
+          var newBook = new Book();
+        }
+
+        using (var transaction = session.OpenTransaction()) {
+          var countOfBooks = session.Query.All<Book>().Count();
+          Assert.AreEqual(2, countOfBooks);
+          transaction.Complete();
+        }
+      }
+
+      using (var session = Domain.OpenSession(serverProfile))
+      using (var transaction = session.OpenTransaction()) {
+        var countOfBooks = session.Query.All<Book>().Count();
+        Assert.AreEqual(2, countOfBooks);
+        transaction.Complete();
+      }
+
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (var transaction = session.OpenTransaction()) {
+          var newBook = new Book();
+          session.CancelChanges();
+          Assert.AreEqual(null, newBook.Tuple);
+          Assert.AreEqual(PersistenceState.Removed, newBook.PersistenceState);
+          Assert.Throws<InvalidOperationException>(() => { newBook.Title = "not null title"; });
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction()) {
+          var countOfBooks = session.Query.All<Book>().Count();
+          Assert.AreEqual(2, countOfBooks);
+          transaction.Complete();
+        }
+      }
+
+      using (var session = Domain.OpenSession(serverProfile))
+      using (var transaction = session.OpenTransaction()) {
+        var countOfBooks = session.Query.All<Book>().Count();
+        Assert.AreEqual(2, countOfBooks);
+        transaction.Complete();
+      }
+
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (var transaction = session.OpenTransaction()) {
+          var bookForEditLater = session.Query.Single<Book>(bookForEditLaterKey);
+          bookForEditLater.Title = "not null title";
+        }
+        using (var transaction = session.OpenTransaction()) {
+          var countOfBooks = session.Query.All<Book>().Count();
+          Assert.AreEqual(2, countOfBooks);
+          var bookForEditLater = session.Query.Single<Book>(bookForEditLaterKey);
+          Assert.IsTrue(string.IsNullOrEmpty(bookForEditLater.Title));
+          transaction.Complete();
+        }
+      }
+
+      using (var session = Domain.OpenSession(serverProfile))
+      using (var transaction = session.OpenTransaction()) {
+        var countOfBooks = session.Query.All<Book>().Count();
+        Assert.AreEqual(2, countOfBooks);
+        var bookForEditLater = session.Query.Single<Book>(bookForEditLaterKey);
+        Assert.IsTrue(string.IsNullOrEmpty(bookForEditLater.Title));
+        transaction.Complete();
+      }
+
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (var transaction = session.OpenTransaction()) {
+          var bookForEditLater = session.Query.Single<Book>(bookForEditLaterKey);
+          bookForEditLater.Title = "not null title";
+          session.CancelChanges();
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction()) {
+          var countOfBooks = session.Query.All<Book>().Count();
+          Assert.AreEqual(2, countOfBooks);
+          var bookForEditLater = session.Query.Single<Book>(bookForEditLaterKey);
+          Assert.IsTrue(string.IsNullOrEmpty(bookForEditLater.Title));
+          transaction.Complete();
+        }
+      }
+
+      using (var session = Domain.OpenSession(serverProfile))
+      using (var transaction = session.OpenTransaction()) {
+        var countOfBooks = session.Query.All<Book>().Count();
+        Assert.AreEqual(2, countOfBooks);
+        var bookForEditLater = session.Query.Single<Book>(bookForEditLaterKey);
+        Assert.IsTrue(string.IsNullOrEmpty(bookForEditLater.Title));
+        transaction.Complete();
+      }
+      
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (var transaction = session.OpenTransaction()) {
+          var bookForRemoveLater = session.Query.Single<Book>(bookForRemoveLaterKey);
+          bookForRemoveLater.Remove();
+        }
+
+        using (var transaction = session.OpenTransaction()) {
+          var bookForRemoveLater = session.Query.Single<Book>(bookForRemoveLaterKey);
+          Assert.IsNotNull(bookForRemoveLater);
+          transaction.Complete();
+        }
+      }
+
+      using (var session = Domain.OpenSession(serverProfile))
+      using (var transaction = session.OpenTransaction()) {
+        var bookForRemoveLater = session.Query.Single<Book>(bookForRemoveLaterKey);
+        Assert.IsNotNull(bookForRemoveLater);
+        transaction.Complete();
+      }
+
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (var transaction = session.OpenTransaction()) {
+          var bookForRemoveLater = session.Query.Single<Book>(bookForRemoveLaterKey);
+          bookForRemoveLater.Remove();
+          session.CancelChanges();
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction()) {
+          var bookForRemoveLater = session.Query.Single<Book>(bookForRemoveLaterKey);
+          Assert.IsNotNull(bookForRemoveLater);
+          transaction.Complete();
+        }
+      }
+
+      using (var session = Domain.OpenSession(serverProfile))
+      using (var transaction = session.OpenTransaction()) {
+        var bookForRemoveLater = session.Query.Single<Book>(bookForRemoveLaterKey);
+        Assert.IsNotNull(bookForRemoveLater);
+        transaction.Complete();
+      }
+    }
+
+    [Test]
     public void ServerProfileCancelingChanges()
     {
       RebuildDomain();
@@ -443,6 +616,163 @@ namespace Xtensive.Orm.Tests.Storage
         var countOfBooks = session.Query.All<Book>().Count();
         var author = session.Query.All<Author>().First();
         Assert.AreEqual(2, countOfBooks);
+      }
+    }
+
+    [Test]
+    public void ServerProfileCancelingOfEntitySetChanges()
+    {
+      RebuildDomain();
+
+      Key firstBookKey;
+      Key secondBookKey;
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (var transaction = session.OpenTransaction()) {
+          var firstBook = new Book();
+          var secondBook = new Book();
+          var author = new Author();
+          firstBookKey = firstBook.Key;
+          secondBookKey = secondBook.Key;
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction()) {
+          var firstBook = session.Query.Single<Book>(firstBookKey);
+          var secondBook = session.Query.Single<Book>(secondBookKey);
+          var author = session.Query.All<Author>().FirstOrDefault();
+          var countOfAuthors = session.Query.All<Author>().Count();
+          var countOfBooks = session.Query.All<Book>().Count();
+          Assert.AreEqual(2, countOfBooks);
+          Assert.AreEqual(1, countOfAuthors);
+          Assert.IsNotNull(author);
+          Assert.AreEqual(0, author.Books.Count);
+          transaction.Complete();
+        }
+      }
+
+      using (var session = Domain.OpenSession(serverProfile))
+      using (var transaction = session.OpenTransaction()) {
+        var firstBook = session.Query.Single<Book>(firstBookKey);
+        var secondBook = session.Query.Single<Book>(secondBookKey);
+        var author = session.Query.All<Author>().FirstOrDefault();
+        var countOfAuthors = session.Query.All<Author>().Count();
+        var countOfBooks = session.Query.All<Book>().Count();
+        Assert.AreEqual(2, countOfBooks);
+        Assert.AreEqual(1, countOfAuthors);
+        Assert.IsNotNull(author);
+        Assert.AreEqual(0, author.Books.Count);
+        transaction.Complete();
+      }
+
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (var transaction = session.OpenTransaction()) {
+          var firstBook = session.Query.Single<Book>(firstBookKey);
+          var secondBook = session.Query.Single<Book>(secondBookKey);
+          var author = session.Query.All<Author>().FirstOrDefault();
+          author.Books.Add(firstBook);
+          session.CancelChanges();
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction()) {
+          var autor = session.Query.All<Author>().FirstOrDefault();
+          Assert.AreEqual(0, autor.Books.Count);
+          transaction.Complete();
+        }
+      }
+
+      using (var session = Domain.OpenSession(serverProfile))
+      using (var transaction = session.OpenTransaction()) {
+        var author = session.Query.All<Author>().FirstOrDefault();
+        Assert.AreEqual(0, author.Books.Count);
+        transaction.Complete();
+      }
+
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (var transaction = session.OpenTransaction()) {
+          var firstBook = session.Query.Single<Book>(firstBookKey);
+          var secondBook = session.Query.Single<Book>(secondBookKey);
+          var author = session.Query.All<Author>().FirstOrDefault();
+          author.Books.AddRange(new[] { firstBook, secondBook });
+          session.CancelChanges();
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction()) {
+          var autor = session.Query.All<Author>().FirstOrDefault();
+          Assert.AreEqual(1, autor.Books.Count);
+          transaction.Complete();
+        }
+      }
+
+      using (var session = Domain.OpenSession(serverProfile))
+      using (var transaction = session.OpenTransaction()) {
+        var author = session.Query.All<Author>().FirstOrDefault();
+        Assert.AreEqual(1, author.Books.Count);
+        transaction.Complete();
+      }
+
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (var transaction = session.OpenTransaction()) {
+          var firstBook = session.Query.Single<Book>(firstBookKey);
+          var secondBook = session.Query.Single<Book>(secondBookKey);
+          var author = session.Query.All<Author>().FirstOrDefault();
+          author.Books.AddRange(new[] { firstBook, secondBook });
+          transaction.Complete();
+        }
+        using (var transaction = session.OpenTransaction()) {
+          var author = session.Query.All<Author>().FirstOrDefault();
+          Assert.AreEqual(2, author.Books.Count);
+        }
+      }
+
+      using (var session = Domain.OpenSession(serverProfile))
+      using (var transaction = session.OpenTransaction()) {
+        var author = session.Query.All<Author>().FirstOrDefault();
+        Assert.AreEqual(2, author.Books.Count);
+      }
+
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (var transaction = session.OpenTransaction()) {
+          var firstBook = session.Query.Single<Book>(firstBookKey);
+          var secondBook = session.Query.Single<Book>(secondBookKey);
+          var author = session.Query.All<Author>().FirstOrDefault();
+          author.Books.Remove(firstBook);
+          session.CancelChanges();
+          transaction.Complete();
+        }
+        using (var transaction = session.OpenTransaction()) {
+          var author = session.Query.All<Author>().FirstOrDefault();
+          Assert.AreEqual(2, author.Books.Count);
+        }
+      }
+
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var author = session.Query.All<Author>().FirstOrDefault();
+        Assert.AreEqual(2, author.Books.Count);
+      }
+
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (var transaction = session.OpenTransaction()) {
+          var firstBook = session.Query.Single<Book>(firstBookKey);
+          var secondBook = session.Query.Single<Book>(secondBookKey);
+          var author = session.Query.All<Author>().FirstOrDefault();
+          author.Books.Remove(firstBook);
+          author.Books.Remove(secondBook);
+          session.CancelChanges();
+          transaction.Complete();
+        }
+        using (var transaction = session.OpenTransaction()) {
+          var author = session.Query.All<Author>().FirstOrDefault();
+          Assert.AreEqual(1, author.Books.Count);
+        }
+      }
+
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var author = session.Query.All<Author>().FirstOrDefault();
+        Assert.AreEqual(1, author.Books.Count);
       }
     }
 
