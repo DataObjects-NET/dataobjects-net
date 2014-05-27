@@ -241,6 +241,7 @@ namespace Xtensive.Orm
     private void CancelEntitiesChanges()
     {
       foreach (var newEntity in EntityChangeRegistry.GetItems(PersistenceState.New).ToList()) {
+        newEntity.Update(null);
         newEntity.PersistenceState = PersistenceState.Removed;
       }
       
@@ -253,6 +254,7 @@ namespace Xtensive.Orm
         removedEntity.RollbackDifference();
         removedEntity.PersistenceState = PersistenceState.Synchronized;
       }
+      EntityChangeRegistry.Clear();
     }
 
     private void ProcessChangesOfEntitySets(Action<EntitySetState> action)
