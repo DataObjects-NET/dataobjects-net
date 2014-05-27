@@ -936,7 +936,6 @@
     <Compile Include="Orm\Interfaces\ISessionBound.cs" />
     <Compile Include="Orm\Internals\Pinner.cs" />
     <Compile Include="Orm\Exceptions\QueryTranslationException.cs" />
-    <Compile Include="Orm\Exceptions\ConnectionRequiredException.cs" />
     <Compile Include="Orm\Internals\Prefetch\PrefetchManager.cs" />
     <Compile Include="Orm\KeyMapping.cs" />
     <Compile Include="Orm\Operations\EntityFieldOperation.cs" />
