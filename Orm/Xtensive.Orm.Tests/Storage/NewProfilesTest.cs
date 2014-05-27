@@ -566,10 +566,9 @@ namespace Xtensive.Orm.Tests.Storage
     public void ServerProfileCancelingChanges()
     {
       RebuildDomain();
-
+      Key bookForEditLaterKey;
+      Key bookForRemoveLaterKey;
       using (var session = Domain.OpenSession(serverProfile)) {
-        Key bookForEditLaterKey;
-        Key bookForRemoveLaterKey;
         using (var transaction = session.OpenTransaction()) {
           var bookForEditLater = new Book();
           var bookForRemoveLater = new Book();
@@ -616,6 +615,11 @@ namespace Xtensive.Orm.Tests.Storage
         var countOfBooks = session.Query.All<Book>().Count();
         var author = session.Query.All<Author>().First();
         Assert.AreEqual(2, countOfBooks);
+        Assert.AreEqual(2, author.Books.Count);
+        var bookForEditLater = session.Query.Single<Book>(bookForEditLaterKey);
+        var bookForRemoveLater = session.Query.Single<Book>(bookForRemoveLaterKey);
+        Assert.NotNull(bookForRemoveLater);
+        Assert.IsTrue(string.IsNullOrEmpty(bookForEditLater.Title));
       }
     }
 
