@@ -10,7 +10,7 @@ namespace Xtensive.Sql
   /// Enumerates supported SQL column types.
   /// </summary>
   [Serializable]
-  public struct SqlType
+  public struct SqlType : IEquatable<SqlType>
   {
     public readonly string Name;
 
@@ -160,7 +160,7 @@ namespace Xtensive.Sql
 
     #endregion
 
-    #region Override the comparison operator
+    #region Equality members
 
     /// <summary>
     /// Implements the equality operator.
@@ -182,6 +182,23 @@ namespace Xtensive.Sql
     public static bool operator !=(SqlType left, SqlType right)
     {
       return !(left==right);
+    }
+
+    public bool Equals(SqlType other)
+    {
+      return string.Equals(Name, other.Name);
+    }
+
+    public override bool Equals(object obj)
+    {
+      if (ReferenceEquals(null, obj))
+        return false;
+      return obj is SqlType && Equals((SqlType) obj);
+    }
+
+    public override int GetHashCode()
+    {
+      return (Name!=null ? Name.GetHashCode() : 0);
     }
 
     #endregion
