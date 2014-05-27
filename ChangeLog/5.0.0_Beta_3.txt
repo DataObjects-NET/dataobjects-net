@@ -2,3 +2,4 @@
 [main] Added FieldAttribute.DefaultSqlExpression property
 [main] Fixed issue with weaver command line length truncation
 [main] Added support for multi-node domains
+[postgresql] Added support for geospatial types
