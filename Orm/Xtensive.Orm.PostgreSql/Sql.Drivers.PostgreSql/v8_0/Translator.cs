@@ -5,6 +5,7 @@
 using System;
 using System.Diagnostics;
 using System.Text;
+using NpgsqlTypes;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
@@ -230,10 +231,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       Index index = node.Index;
       switch (section) {
         case CreateIndexSection.Entry:
-          return string.Format("CREATE {0}INDEX {1} ON {2} ("
+          return string.Format("CREATE {0}INDEX {1} ON {2} {3}("
             , index.IsUnique ? "UNIQUE " : String.Empty
             , QuoteIdentifier(index.Name)
-            , Translate(context, index.DataTable));
+            , Translate(context, index.DataTable)
+            , index.IsSpatial ? "USING GIST" : String.Empty);
         case CreateIndexSection.StorageOptions:
           var builder = new StringBuilder();
           builder.Append(")");
@@ -286,6 +288,26 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         return TranslateByteArrayLiteral((byte[]) literalValue);
       if (literalType==typeof(Guid))
         return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
+      if (literalType==typeof (NpgsqlPoint)) {
+        var point = (NpgsqlPoint) literalValue;
+        return String.Format("point'({0},{1})'", point.X, point.Y);
+      }
+      if (literalType==typeof (NpgsqlLSeg)) {
+        var lSeg = (NpgsqlLSeg) literalValue;
+        return String.Format("lseg'[({0},{1}),({2},{3})]'", lSeg.Start.X, lSeg.Start.Y, lSeg.End.X, lSeg.End.Y);
+      }
+      if (literalType==typeof (NpgsqlBox)) {
+        var box = (NpgsqlBox) literalValue;
+        return String.Format("box'({0},{1}),({2},{3})'", box.LowerLeft.X, box.LowerLeft.Y, box.UpperRight.X, box.UpperRight.Y);
+      }
+      if (literalType==typeof (NpgsqlPath))
+        return String.Format("path'(({0},{1}))'", 0, 0);
+      if (literalType==typeof (NpgsqlPolygon))
+        return String.Format("polygon'((0,0))'");
+      if (literalType==typeof (NpgsqlCircle)) {
+        var circle = (NpgsqlCircle) literalValue;
+        return String.Format("circle'<({0},{1}),{2}>'", circle.Center.X, circle.Center.Y, circle.Radius);
+      }
       return base.Translate(context, literalValue);
     }
 

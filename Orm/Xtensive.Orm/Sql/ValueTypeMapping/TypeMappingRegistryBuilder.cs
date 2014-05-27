@@ -7,13 +7,17 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using Xtensive.Core;
 
 namespace Xtensive.Sql
 {
-  public sealed class TypeMappingRegistryBuilder : List<TypeMapping>
+  public sealed class TypeMappingRegistryBuilder
   {
     public TypeMapper Mapper { get; private set; }
+
+    private readonly List<TypeMapping> mappings = new List<TypeMapping>();
+    private readonly Dictionary<SqlType, Type> reverseMappings = new Dictionary<SqlType, Type>(); 
 
     public void Add(Type type, Func<DbDataReader, int, object> valueReader,
       Action<DbParameter, object> valueBinder, Func<int?, int?, int?, SqlValueType> mapper)
@@ -22,7 +26,7 @@ namespace Xtensive.Sql
         type, valueReader, valueBinder,
         mapper, Mapper.IsParameterCastRequired(type));
 
-      Add(mapping);
+      mappings.Add(mapping);
     }
 
     public void Add(CustomTypeMapper customMapper)
@@ -35,12 +39,17 @@ namespace Xtensive.Sql
         customMapper.Type, customMapper.ReadValue, customMapper.BindValue,
         customMapper.MapType, customMapper.ParameterCastRequired);
 
-      Add(mapping);
+      mappings.Add(mapping);
+    }
+    
+    public void AddReverse(SqlType sqlType, Type type)
+    {
+      reverseMappings.Add(sqlType, type);
     }
 
     public TypeMappingRegistry Build()
     {
-      return new TypeMappingRegistry(this);
+      return new TypeMappingRegistry(mappings, reverseMappings);
     }
 
     // Constructors

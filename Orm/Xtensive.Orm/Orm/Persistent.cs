@@ -439,7 +439,16 @@ namespace Xtensive.Orm
               }
             }
             else {
-              if (!Equals(value, oldValue) || field.IsStructure) {
+              // The method of Equals(object, object) wrapped with in a block 'try catch', 
+              // because that for data types NpgsqlPath and NpgsqlPolygon which are defined without an initial value it works incorrectly.
+              bool canBeEqual;
+              try {
+                canBeEqual = Equals(value, oldValue);
+              }
+              catch (Exception) {
+                canBeEqual = false;
+              }
+              if (!canBeEqual || field.IsStructure) {
                 SystemBeforeTupleChange();
                 value = AdjustFieldValue(field, oldValue, value);
                 fieldAccessor.SetUntypedValue(this, value);

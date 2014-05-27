@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Issues
           return;
 
         var type = model.Types["Ancestor"];
-        var newField = new FieldDef(typeof (int));
+        var newField = new FieldDef(typeof (int), context.Validator);
         newField.Name = "NewField";
         type.Fields.Add(newField);
       }

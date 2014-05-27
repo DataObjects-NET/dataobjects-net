@@ -4,12 +4,13 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.07
 
+using System;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
-  internal class Driver : SqlServer.Driver
+  internal class Driver : v09.Driver
   {
     protected override SqlCompiler CreateCompiler()
     {
@@ -38,10 +39,17 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
     protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
     {
+      base.RegisterCustomMappings(builder);
       builder.Add(new GeometryMapper());
       builder.Add(new GeographyMapper());
     }
 
+    protected override void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
+    {
+      base.RegisterCustomReverseMappings(builder);
+      builder.AddReverse(CustomSqlType.Geometry, Type.GetType("Microsoft.SqlServer.Types.SqlGeometry, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"));
+      builder.AddReverse(CustomSqlType.Geography, Type.GetType("Microsoft.SqlServer.Types.SqlGeography, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"));
+    }
 
     // Constructors
 

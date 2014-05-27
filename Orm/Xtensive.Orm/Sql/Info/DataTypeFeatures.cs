@@ -89,5 +89,10 @@ namespace Xtensive.Sql.Info
     /// Indicates that RDBMS treats zero length value as NULL.
     /// </summary>
     ZeroLengthValueIsNull = 0x800,
+
+    /// <summary>
+    /// Indicates that RDBMS allows to build spatial index.
+    /// </summary>
+    Spatial = 0x1000,
   }
 }

@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Building.Definitions
     private readonly Type underlyingType;
     private readonly NodeCollection<FieldDef> fields;
     private readonly NodeCollection<IndexDef> indexes;
+    private readonly Validator validator;
 
     private TypeAttributes attributes;
     private NodeCollection<TypeDef> implementors;
@@ -168,9 +169,9 @@ namespace Xtensive.Orm.Building.Definitions
     /// <exception cref="ArgumentOutOfRangeException">Argument "name" is invalid.</exception>
     public IndexDef DefineIndex(string name)
     {
-      Validator.ValidateName(name, ValidationRule.Index);
+      validator.ValidateName(name, ValidationRule.Index);
 
-      var indexDef = new IndexDef(this) {Name = name, IsSecondary = true};
+      var indexDef = new IndexDef(this, validator) {Name = name, IsSecondary = true};
       indexes.Add(indexDef);
       return indexDef;
     }
@@ -216,16 +217,17 @@ namespace Xtensive.Orm.Building.Definitions
     protected override void ValidateName(string newName)
     {
       base.ValidateName(newName);
-      Validator.ValidateName(newName, ValidationRule.Type);
+      validator.ValidateName(newName, ValidationRule.Type);
     }
 
 
     // Constructors
 
-    internal TypeDef(ModelDefBuilder builder, Type type)
+    internal TypeDef(ModelDefBuilder builder, Type type, Validator validator)
     {
       this.builder = builder;
       underlyingType = type;
+      this.validator = validator;
 
       if (type.IsInterface)
         Attributes = TypeAttributes.Interface;

@@ -146,7 +146,6 @@ namespace Xtensive.Sql
         return Array(ArrayUtils<int>.EmptyArray);
       var itemType = valueList[0].GetType();
       foreach (var t in values.Select(value => value.GetType())) {
-        SqlValidator.EnsureLiteralTypeIsSupported(t);
         if (!itemType.IsAssignableFrom(t))
           throw new ArgumentException(Strings.ExTypesOfValuesAreDifferent);
       }
@@ -968,7 +967,6 @@ namespace Xtensive.Sql
     public static SqlLiteral Literal(object value)
     {
       var valueType = value.GetType();
-      SqlValidator.EnsureLiteralTypeIsSupported(valueType);
       var resultType = typeof (SqlLiteral<>).MakeGenericType(valueType);
       var result = Activator.CreateInstance(
         resultType,

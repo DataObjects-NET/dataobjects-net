@@ -5,6 +5,7 @@
 // Created:    2010.02.11
 
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;
 
@@ -149,12 +150,15 @@ namespace Xtensive.Orm.Providers
         .Select(e => e==null ? int.MaxValue : e.MaxIdentifierLength)
         .Min();
 
+      var supportedTypes = driver.TypeMappings.ReverseMappings.Values;
+
       return new ProviderInfo(
         providerName, storageVersion, f,
         maxIdentifierLength,
         serverInfo.PrimaryKey.ConstantName,
-        coreServerInfo.DatabaseName,
-        coreServerInfo.DefaultSchemaName);
+        coreServerInfo.DatabaseName, 
+        coreServerInfo.DefaultSchemaName,
+        supportedTypes);
     }
   }
 }

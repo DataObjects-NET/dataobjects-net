@@ -316,7 +316,7 @@ namespace Xtensive.Orm.Building.Builders
 
       mappingName = context.NameBuilder.ApplyNamingRules(mappingName);
 
-      Validator.ValidateName(mappingName, rule);
+      context.Validator.ValidateName(mappingName, rule);
 
       if (Comparer.Equals(node.MappingName, mappingName))
         BuildLog.Warning(Strings.ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically, node.MappingName);
@@ -333,7 +333,7 @@ namespace Xtensive.Orm.Building.Builders
       for (int index = 0; index < source.Length; index++) {
         Pair<string, Direction> result = ParseFieldName(source[index]);
 
-        Validator.ValidateName(result.First, ValidationRule.Column);
+        context.Validator.ValidateName(result.First, ValidationRule.Column);
 
         if (target.ContainsKey(result.First))
           throw new DomainBuilderException(
@@ -351,7 +351,7 @@ namespace Xtensive.Orm.Building.Builders
       for (int index = 0; index < source.Length; index++) {
         string fieldName = source[index];
 
-        Validator.ValidateName(fieldName, ValidationRule.Column);
+        context.Validator.ValidateName(fieldName, ValidationRule.Column);
 
         if (target.Contains(fieldName))
           throw new DomainBuilderException(

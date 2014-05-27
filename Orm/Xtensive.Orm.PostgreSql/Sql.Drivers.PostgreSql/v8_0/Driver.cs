@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.06.23
 
+using System;
+using NpgsqlTypes;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
@@ -34,6 +36,26 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     protected override Info.ServerInfoProvider CreateServerInfoProvider()
     {
       return new ServerInfoProvider(this);
+    }
+
+    protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
+    {
+      builder.Add(new PointMapper());
+      builder.Add(new LSegMapper());
+      builder.Add(new BoxMapper());
+      builder.Add(new PathMapper());
+      builder.Add(new PolygonMapper());
+      builder.Add(new CircleMapper());
+    }
+
+    protected override void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
+    {
+      builder.AddReverse(CustomSqlType.Point, typeof (NpgsqlPoint));
+      builder.AddReverse(CustomSqlType.LSeg, typeof (NpgsqlLSeg));
+      builder.AddReverse(CustomSqlType.Box, typeof (NpgsqlBox));
+      builder.AddReverse(CustomSqlType.Path, typeof (NpgsqlPath));
+      builder.AddReverse(CustomSqlType.Polygon, typeof (NpgsqlPolygon));
+      builder.AddReverse(CustomSqlType.Circle, typeof (NpgsqlCircle));
     }
 
     // Constructors

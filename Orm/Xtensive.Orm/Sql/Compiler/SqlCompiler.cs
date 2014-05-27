@@ -864,6 +864,11 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    public virtual void Visit(CustomSqlFunctionCall node)
+    {
+      throw new NotSupportedException(string.Format(Strings.ExFunctionXIsNotSupported, node.CustomFunctionType));
+    }
+
     public virtual void Visit(SqlIf node)
     {
       using (context.EnterScope(node)) {

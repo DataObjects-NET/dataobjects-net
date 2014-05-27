@@ -26,7 +26,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
           var table = node.Index.DataTable as Table;
           var column = table.TableColumns[node.Index.Columns[0].Name];
-          return column.DataType.Type == SqlType.Geometry ? ") USING GEOMETRY_GRID WITH ( BOUNDING_BOX = ( 0, 0, 500, 200))" : ") USING GEOGRAPHY_GRID";
+        return column.DataType.Type==CustomSqlType.Geometry ? ") USING GEOMETRY_GRID WITH ( BOUNDING_BOX = ( 0, 0, 500, 200))" : ") USING GEOGRAPHY_GRID";
       }
       return base.Translate(context, node, section);
     }

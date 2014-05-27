@@ -98,43 +98,41 @@ namespace Xtensive.Sql
     {
       return !(left==right);
     }
-    
+
     public static bool IsNumeric(SqlValueType valueType)
     {
-      switch (valueType.Type) {
-        case SqlType.UInt8:
-        case SqlType.Decimal:
-        case SqlType.Double:
-        case SqlType.Float:
-        case SqlType.Int16:
-        case SqlType.Int32:
-        case SqlType.Int64:
-        case SqlType.Int8:
-        case SqlType.UInt16:
-        case SqlType.UInt32:
-        case SqlType.UInt64:
-          return true;
-        default:
-          return false;
-      }
+      var sqlType = valueType.Type;
+
+      if (sqlType==SqlType.UInt8 ||
+        sqlType==SqlType.Decimal ||
+        sqlType==SqlType.Double ||
+        sqlType==SqlType.Float ||
+        sqlType==SqlType.Int16 ||
+        sqlType==SqlType.Int32 ||
+        sqlType==SqlType.Int64 ||
+        sqlType==SqlType.Int8 ||
+        sqlType==SqlType.UInt16 ||
+        sqlType==SqlType.UInt32 ||
+        sqlType==SqlType.UInt64)
+        return true;
+      return false;
     }
 
     public static bool IsExactNumeric(SqlValueType valueType)
     {
-      switch (valueType.Type) {
-        case SqlType.UInt8:
-        case SqlType.Decimal:
-        case SqlType.Int16:
-        case SqlType.Int32:
-        case SqlType.Int64:
-        case SqlType.Int8:
-        case SqlType.UInt16:
-        case SqlType.UInt32:
-        case SqlType.UInt64:
-          return true;
-        default:
-          return false;
-      }
+      var sqlType = valueType.Type;
+
+      if (sqlType==SqlType.UInt8 ||
+        sqlType==SqlType.Decimal ||
+        sqlType==SqlType.Int16 ||
+        sqlType==SqlType.Int32 ||
+        sqlType==SqlType.Int64 ||
+        sqlType==SqlType.Int8 ||
+        sqlType==SqlType.UInt16 ||
+        sqlType==SqlType.UInt32 ||
+        sqlType==SqlType.UInt64)
+        return true;
+      return false;
     }
 
     public override string ToString()

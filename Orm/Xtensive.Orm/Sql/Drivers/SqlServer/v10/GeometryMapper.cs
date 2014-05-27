@@ -15,7 +15,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     // Constructors
 
     public GeometryMapper()
-      : base(GeometryTypeName, "geometry", SqlType.Geometry)
+      : base(GeometryTypeName, "geometry", CustomSqlType.Geometry)
     {
     }
   }

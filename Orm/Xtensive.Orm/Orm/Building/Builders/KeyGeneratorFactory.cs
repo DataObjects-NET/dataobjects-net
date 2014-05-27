@@ -14,8 +14,20 @@ namespace Xtensive.Orm.Building.Builders
 {
   internal static class KeyGeneratorFactory
   {
-    private static readonly Type[] SupportedTypes = WellKnown.SupportedNumericTypes
-      .Concat(new[] {typeof (Guid), typeof (string)})
+    private static readonly Type[] SupportedNumericTypes =
+    {
+      typeof (sbyte),
+      typeof (byte),
+      typeof (short),
+      typeof (ushort),
+      typeof (int),
+      typeof (uint),
+      typeof (long),
+      typeof (ulong)
+    };
+
+    private static readonly Type[] SupportedTypes = SupportedNumericTypes
+      .Concat(new[] { typeof(Guid), typeof(string) })
       .ToArray();
 
     public static bool IsSupported(Type valueType)
@@ -25,7 +37,7 @@ namespace Xtensive.Orm.Building.Builders
 
     public static bool IsSequenceBacked(Type valueType)
     {
-      return WellKnown.SupportedNumericTypes.Contains(valueType);
+      return SupportedNumericTypes.Contains(valueType);
     }
 
     private static Type GetGeneratorType(Type valueType)

@@ -50,6 +50,18 @@ namespace Xtensive.Sql.Info
     }
 
     /// <summary>
+    /// Adds the specified type SqlType and the corresponding him to dataTypeInfo to the list of supported types in a specific version of the DBMS.
+    /// </summary>
+    /// <param name="sqlType">The sqlType to add.</param>
+    /// <param name="dataTypeInfo">The dataTypeInfo to add.</param>
+    public void Add(SqlType sqlType, DataTypeInfo dataTypeInfo)
+    {
+      this.EnsureNotLocked();
+      if (!IsLocked)
+        sqlTypes.Add(sqlType, dataTypeInfo);
+    }
+
+    /// <summary>
     /// Boolean (bit).
     /// </summary>
     public DataTypeInfo Boolean { get; set; }
@@ -177,16 +189,6 @@ namespace Xtensive.Sql.Info
     /// </summary>
     public DataTypeInfo Guid { get; set; }
 
-    /// <summary>
-    /// Geometry type. 
-    /// </summary>
-    public DataTypeInfo Geometry { get; set; }
-
-    /// <summary>
-    /// Geography type. 
-    /// </summary>
-    public DataTypeInfo Geography { get; set; }
-
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
@@ -234,8 +236,6 @@ namespace Xtensive.Sql.Info
       yield return VarBinaryMax;
       yield return Guid;
       yield return Interval;
-      yield return Geometry;
-      yield return Geography;
       yield break;
     }
 

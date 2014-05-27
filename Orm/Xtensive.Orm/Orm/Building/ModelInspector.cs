@@ -154,7 +154,7 @@ namespace Xtensive.Orm.Building
                 master = candidate;
                 continue;
               }
-              Validator.ValidateHierarchyEquality(interfaceDef, master, candidate);
+              context.Validator.ValidateHierarchyEquality(interfaceDef, master, candidate);
             }
           }
 
@@ -172,7 +172,7 @@ namespace Xtensive.Orm.Building
     {
       var root = hierarchyDef.Root;
       BuildLog.Info(Strings.LogInspectingHierarchyX, root.Name);
-      Validator.ValidateHierarchy(hierarchyDef);
+      context.Validator.ValidateHierarchy(hierarchyDef);
       // Skip open generic hierarchies
       if (root.IsGenericTypeDefinition)
         return;
@@ -269,7 +269,7 @@ namespace Xtensive.Orm.Building
         foreach (var @interface in context.ModelDef.Types.FindInterfaces(typeDef.UnderlyingType))
           context.DependencyGraph.AddEdge(typeDef, @interface, EdgeKind.Implementation, EdgeWeight.High);
 
-        Validator.ValidateType(typeDef, hierarchyDef);
+        context.Validator.ValidateType(typeDef, hierarchyDef);
         // We should skip key fields inspection as they have been already inspected
         foreach (var field in typeDef.Fields.Where(f => !hierarchyDef.KeyFields.Any(kf => kf.Name == f.Name)))
           InspectField(context, typeDef, field, false);
@@ -281,9 +281,9 @@ namespace Xtensive.Orm.Building
     private static void InspectField(BuildingContext context, TypeDef typeDef, FieldDef fieldDef, bool isKeyField)
     {
       if ((fieldDef.Attributes & (FieldAttributes.ManualVersion | FieldAttributes.AutoVersion)) > 0)
-        Validator.ValidateVersionField(fieldDef, isKeyField);
+        context.Validator.ValidateVersionField(fieldDef, isKeyField);
 
-      Validator.ValidateFieldType(typeDef, fieldDef.ValueType, isKeyField);
+      context.Validator.ValidateFieldType(typeDef, fieldDef.ValueType, isKeyField);
 
       if (isKeyField && fieldDef.IsNullable)
         context.ModelInspectionResult.Register(new MarkFieldAsNotNullableAction(typeDef, fieldDef));
@@ -295,7 +295,7 @@ namespace Xtensive.Orm.Building
       }
 
       if (fieldDef.IsStructure) {
-        Validator.ValidateStructureField(typeDef, fieldDef);
+        context.Validator.ValidateStructureField(typeDef, fieldDef);
         context.DependencyGraph.AddEdge(
           typeDef, GetTypeDef(context, fieldDef.ValueType), EdgeKind.Aggregation, EdgeWeight.High);
         return;
@@ -306,7 +306,7 @@ namespace Xtensive.Orm.Building
           context.ModelInspectionResult.Register(new AddForeignKeyIndexAction(typeDef, fieldDef));
       }
       else
-        Validator.ValidateEntitySetField(typeDef, fieldDef);
+        context.Validator.ValidateEntitySetField(typeDef, fieldDef);
 
       var referencedType = fieldDef.IsEntitySet ? fieldDef.ItemType : fieldDef.ValueType;
       var referencedTypeDef = GetTypeDef(context, referencedType);

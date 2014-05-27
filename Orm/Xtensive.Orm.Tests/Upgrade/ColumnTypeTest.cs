@@ -418,7 +418,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var xType = model.Types["X"];
       var oldFieled = xType.Fields[ColumnName];
-      var newField = new FieldDef(ColumnType);
+      var newField = new FieldDef(ColumnType, context.Validator);
       newField.Length = ColumnLength;
       newField.Scale = ColumnScale;
       newField.Precision = ColumnPrecision;
@@ -449,7 +449,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         return;
       
       var xType = model.Types["X"];
-      var newField = new FieldDef(NewColumnType);
+      var newField = new FieldDef(NewColumnType, context.Validator);
       newField.Name = "NewColumn";
       xType.Fields.Add(newField);
     }

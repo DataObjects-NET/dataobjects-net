@@ -59,6 +59,7 @@ namespace Xtensive.Sql
     Extract,
     Fetch,
     FunctionCall,
+    CustomFunctionCall,
     GreaterThan,
     GreaterThanOrEquals,
     In,

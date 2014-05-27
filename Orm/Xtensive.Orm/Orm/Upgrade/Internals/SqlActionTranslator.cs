@@ -18,9 +18,11 @@ using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Upgrade.Model;
 using ReferentialAction = Xtensive.Sql.ReferentialAction;
+using TableInfo = Xtensive.Orm.Upgrade.Model.TableInfo;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -951,8 +953,8 @@ namespace Xtensive.Orm.Upgrade
     {
       if (indexInfo.KeyColumns.Count == 1) {
         var column = FindColumn(table, indexInfo.KeyColumns[0].Value.Name);
-        if (column.DataType.Type == SqlType.Geometry ||
-          column.DataType.Type == SqlType.Geography) {
+        if (driver.ServerInfo.DataTypes[column.DataType.Type].Features.Supports(DataTypeFeatures.Spatial)) {
+
           var spatialIndex = table.CreateSpatialIndex(indexInfo.Name);
           spatialIndex.CreateIndexColumn(column);
           return spatialIndex;

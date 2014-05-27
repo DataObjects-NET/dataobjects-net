@@ -19,7 +19,14 @@ namespace Xtensive.Orm.Internals.FieldAccessors
     public override bool AreSameValues(object oldValue, object newValue)
     {
       if (isValueType || isString)
-        return Equals(oldValue, newValue);
+        // The method of Equals(object, object) wrapped with in a block 'try catch', 
+        // because that for data types NpgsqlPath and NpgsqlPolygon which are defined without an initial value it works incorrectly.
+        try {
+          return Equals(oldValue, newValue);
+        }
+        catch (Exception) {
+          return false;
+        }
       return false;
     }
 

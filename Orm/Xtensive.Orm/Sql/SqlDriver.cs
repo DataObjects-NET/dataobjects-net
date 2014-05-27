@@ -260,6 +260,10 @@ namespace Xtensive.Sql
     {
     }
 
+    protected virtual void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
+    {
+    }
+
     #region Private / internal methods
 
     internal void Initialize(SqlDriverFactory creator, ConnectionInfo creatorConnectionInfo)
@@ -282,7 +286,9 @@ namespace Xtensive.Sql
     {
       var builder = new TypeMappingRegistryBuilder(mapper);
       RegisterStandardMappings(builder);
+      RegisterStandardReverseMappings(builder);
       RegisterCustomMappings(builder);
+      RegisterCustomReverseMappings(builder);
       return builder.Build();
     }
 
@@ -305,10 +311,34 @@ namespace Xtensive.Sql
       builder.Add(typeof (double), mapper.ReadDouble, mapper.BindDouble, mapper.MapDouble);
       builder.Add(typeof (decimal), mapper.ReadDecimal, mapper.BindDecimal, mapper.MapDecimal);
       builder.Add(typeof (DateTime), mapper.ReadDateTime, mapper.BindDateTime, mapper.MapDateTime);
-      builder.Add(typeof (DateTimeOffset), mapper.ReadDateTimeOffset, mapper.BindDateTimeOffset, mapper.MapDateTimeOffset);
       builder.Add(typeof (TimeSpan), mapper.ReadTimeSpan, mapper.BindTimeSpan, mapper.MapTimeSpan);
       builder.Add(typeof (Guid), mapper.ReadGuid, mapper.BindGuid, mapper.MapGuid);
       builder.Add(typeof (byte[]), mapper.ReadByteArray, mapper.BindByteArray, mapper.MapByteArray);
+    }
+
+    private static void RegisterStandardReverseMappings(TypeMappingRegistryBuilder builder)
+    {
+      builder.AddReverse(SqlType.Boolean, typeof(bool));
+      builder.AddReverse(SqlType.Int8, typeof(sbyte));
+      builder.AddReverse(SqlType.UInt8, typeof(byte));
+      builder.AddReverse(SqlType.Int16, typeof(short));
+      builder.AddReverse(SqlType.UInt16, typeof(ushort));
+      builder.AddReverse(SqlType.Int32, typeof(int));
+      builder.AddReverse(SqlType.UInt32, typeof(uint));
+      builder.AddReverse(SqlType.Int64, typeof(long));
+      builder.AddReverse(SqlType.UInt64, typeof(ulong));
+      builder.AddReverse(SqlType.Decimal, typeof(decimal));
+      builder.AddReverse(SqlType.Float, typeof(float));
+      builder.AddReverse(SqlType.Double, typeof(double));
+      builder.AddReverse(SqlType.DateTime, typeof(DateTime));
+      builder.AddReverse(SqlType.Interval, typeof(TimeSpan));
+      builder.AddReverse(SqlType.Char, typeof(string));
+      builder.AddReverse(SqlType.VarChar, typeof(string));
+      builder.AddReverse(SqlType.VarCharMax, typeof(string));
+      builder.AddReverse(SqlType.Binary, typeof(byte[]));
+      builder.AddReverse(SqlType.VarBinary, typeof(byte[]));
+      builder.AddReverse(SqlType.VarBinaryMax, typeof(byte[]));
+      builder.AddReverse(SqlType.Guid, typeof(Guid));
     }
 
     private Extractor BuildExtractor(SqlConnection connection)

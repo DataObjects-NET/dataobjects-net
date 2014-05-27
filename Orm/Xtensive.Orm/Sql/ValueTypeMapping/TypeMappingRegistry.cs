@@ -5,9 +5,9 @@
 // Created:    2009.07.03
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
 using Xtensive.Reflection;
 
 namespace Xtensive.Sql
@@ -15,9 +15,10 @@ namespace Xtensive.Sql
   /// <summary>
   /// A collection of <see cref="TypeMapping"/> objects.
   /// </summary>
-  public sealed class TypeMappingRegistry : IEnumerable<TypeMapping>
+  public sealed class TypeMappingRegistry
   {
-    private readonly Dictionary<Type, TypeMapping> mappings;
+    public ReadOnlyDictionary<Type, TypeMapping> Mappings { get; private set; }
+    public ReadOnlyDictionary<SqlType, Type> ReverseMappings { get; private set; }
 
     public TypeMapping this[Type type] { get { return GetMapping(type); } }
     
@@ -27,7 +28,7 @@ namespace Xtensive.Sql
         type = Enum.GetUnderlyingType(type);
 
       TypeMapping result;
-      mappings.TryGetValue(type, out result);
+      Mappings.TryGetValue(type, out result);
       return result;
     }
 
@@ -40,21 +41,26 @@ namespace Xtensive.Sql
       return result;
     }
 
-    public IEnumerator<TypeMapping> GetEnumerator()
+    /// <summary>
+    /// Converts the specified <see cref="SqlType"/> to corresponding .NET type.
+    /// </summary>
+    /// <param name="sqlType">The type to convert.</param>
+    /// <returns>Converter type.</returns>
+    public Type MapSqlType(SqlType sqlType)
     {
-      return mappings.Values.GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
+      Type type;
+      if (!ReverseMappings.TryGetValue(sqlType, out type))
+        throw new NotSupportedException(string.Format(
+          Strings.ExTypeXIsNotSupported, sqlType.Name));
+      return type;
     }
 
     // Constructors
 
-    public TypeMappingRegistry(IEnumerable<TypeMapping> mappings)
+    public TypeMappingRegistry(IEnumerable<TypeMapping> mappings, IEnumerable<KeyValuePair<SqlType, Type>> reverseMappings)
     {
-      this.mappings = mappings.ToDictionary(m => m.Type);
+      Mappings = new ReadOnlyDictionary<Type, TypeMapping>(mappings.ToDictionary(m => m.Type));
+      ReverseMappings = new ReadOnlyDictionary<SqlType, Type>(reverseMappings.ToDictionary(r => r.Key, r => r.Value), true);
     }
   }
 }

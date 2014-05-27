@@ -4,6 +4,10 @@
 // Created by: Alexey Gamzov
 // Created:    2008.07.04
 
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Xtensive.Core;
 using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Providers.PostgreSql
@@ -16,6 +20,19 @@ namespace Xtensive.Orm.Providers.PostgreSql
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
       return new SqlCompiler(Handlers, configuration);
+    }
+
+    protected override IEnumerable<Type> GetProviderCompilerContainers()
+    {
+      return base.GetProviderCompilerContainers()
+        .Concat(new[] {
+          typeof (NpgsqlPointCompilers),
+          typeof (NpgsqlLSegCompilers),
+          typeof (NpgsqlBoxCompilers),
+          typeof (NpgsqlCircleCompilers),
+          typeof (NpgsqlPathCompilers),
+          typeof (NpgsqlPolygonCompilers)
+        });
     }
   }
 }

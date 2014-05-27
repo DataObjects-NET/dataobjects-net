@@ -512,7 +512,7 @@ namespace Xtensive.Orm.Upgrade
       var sqlValueType = driver.MapValueType(type, length, precision, scale);
 
       return new StorageTypeInfo(
-        sqlValueType.Type.ToClrType(), sqlValueType, sqlValueType.Length, sqlValueType.Precision, sqlValueType.Scale);
+        driver.MapSqlType(sqlValueType.Type), sqlValueType, sqlValueType.Length, sqlValueType.Precision, sqlValueType.Scale);
     }
 
     private SecondaryIndexInfo CreateSecondaryIndex(TableInfo owningTable, string indexName, IndexInfo originalModelIndex)

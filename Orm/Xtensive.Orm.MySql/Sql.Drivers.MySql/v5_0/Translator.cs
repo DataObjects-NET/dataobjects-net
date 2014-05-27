@@ -462,41 +462,41 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
     {
-      switch (node.Type.Type) {
-        case SqlType.Binary:
-        case SqlType.Char:
-        case SqlType.Interval:
-        case SqlType.DateTime:
-          switch (section) {
-            case NodeSection.Entry:
-              return "CAST(";
-            case NodeSection.Exit:
-              return "AS " + Translate(node.Type) + ")";
-            default:
-              throw new ArgumentOutOfRangeException("section");
-          }
-        case SqlType.Int16:
-        case SqlType.Int32:
-          switch (section) {
-            case NodeSection.Entry:
-              return "CAST(";
-            case NodeSection.Exit:
-              return "AS SIGNED " + Translate(node.Type) + ")";
-            default:
-              throw new ArgumentOutOfRangeException("section");
-          }
-        case SqlType.Decimal:
-        case SqlType.Double:
-        case SqlType.Float:
-          switch (section) {
-            case NodeSection.Entry:
-              return string.Empty;
-            case NodeSection.Exit:
-              return string.Empty;
-            default:
-              throw new ArgumentOutOfRangeException("section");
-          }
-      }
+      var sqlType = node.Type.Type;
+
+      if (sqlType==SqlType.Binary ||
+        sqlType==SqlType.Char ||
+        sqlType==SqlType.Interval ||
+        sqlType==SqlType.DateTime)
+        switch (section) {
+        case NodeSection.Entry:
+          return "CAST(";
+        case NodeSection.Exit:
+          return "AS " + Translate(node.Type) + ")";
+        default:
+          throw new ArgumentOutOfRangeException("section");
+        }
+      if (sqlType==SqlType.Int16 ||
+        sqlType==SqlType.Int32)
+        switch (section) {
+        case NodeSection.Entry:
+          return "CAST(";
+        case NodeSection.Exit:
+          return "AS SIGNED " + Translate(node.Type) + ")";
+        default:
+          throw new ArgumentOutOfRangeException("section");
+        }
+      if (sqlType==SqlType.Decimal ||
+        sqlType==SqlType.Double ||
+        sqlType==SqlType.Float)
+        switch (section) {
+        case NodeSection.Entry:
+          return string.Empty;
+        case NodeSection.Exit:
+          return string.Empty;
+        default:
+          throw new ArgumentOutOfRangeException("section");
+        }
       return string.Empty;
     }
 

@@ -15,8 +15,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
     {
-      switch (node.Type.Type) {
-      case SqlType.DateTime:
+      if (node.Type.Type==SqlType.DateTime)
         switch (section) {
         case NodeSection.Entry:
           return "CAST(";
@@ -25,7 +24,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
         default:
           throw new ArgumentOutOfRangeException("section");
         }
-      }
       return base.Translate(context, node, section);
     }
 

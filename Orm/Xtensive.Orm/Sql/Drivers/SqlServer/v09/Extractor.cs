@@ -603,28 +603,21 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       int? size = maxLength;
       if (size <= 0) {
         size = null;
-        switch (type) {
-        case SqlType.VarChar:
+        if (type==SqlType.VarChar)
           type = SqlType.VarCharMax;
-          break;
-        case SqlType.VarBinary:
+        if (type==SqlType.VarBinary)
           type = SqlType.VarBinaryMax;
-          break;
-        }
       }
       if (typeInfo!=null) {
         if (typeInfo.MaxLength==null) {
           // resetting length for types that do not require specifying it
           size = null;
         }
-        else if (size != null && size > 1)
-          switch (type) {
-            case SqlType.Char:
-            case SqlType.VarChar:
-            case SqlType.VarCharMax:
-              size /= 2;
-            break;
-          }
+        else if (size!=null && size > 1)
+          if (type==SqlType.Char ||
+            type==SqlType.VarChar ||
+            type==SqlType.VarCharMax)
+            size /= 2;
       }
 
       return new SqlValueType(type, typeName, size, precision, scale);

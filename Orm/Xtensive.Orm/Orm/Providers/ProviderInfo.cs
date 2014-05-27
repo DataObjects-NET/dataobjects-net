@@ -5,6 +5,10 @@
 // Created:    2009.06.01
 
 using System;
+using Xtensive.Core;
+using Xtensive.Sql.Info;
+using System.Collections.Generic;
+using Xtensive.Collections;
 
 namespace Xtensive.Orm.Providers
 {
@@ -52,6 +56,11 @@ namespace Xtensive.Orm.Providers
     public string DefaultSchema { get; private set; }
 
     /// <summary>
+    /// Gets the supported types.
+    /// </summary>
+    public ReadOnlyHashSet<Type> SupportedTypes { get; private set; }
+
+    /// <summary>
     /// Determines whether the specified features are supported.
     /// </summary>
     /// <param name="required">The required feature set.</param>
@@ -69,7 +78,8 @@ namespace Xtensive.Orm.Providers
       int maxIdentifierLength,
       string constantPrimaryIndexName,
       string defaultDatabase,
-      string defaultSchema)
+      string defaultSchema, 
+      IEnumerable<Type> supportedTypes)
     {
       ProviderName = providerName;
 
@@ -81,6 +91,8 @@ namespace Xtensive.Orm.Providers
 
       DefaultDatabase = defaultDatabase;
       DefaultSchema = defaultSchema;
+
+      SupportedTypes = new ReadOnlyHashSet<Type>(supportedTypes.ToHashSet());
     }
   }
 }

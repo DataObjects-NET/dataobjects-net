@@ -18,6 +18,7 @@ namespace Xtensive.Orm.Building.Builders
   {
     private readonly DomainModel model;
     private readonly DomainConfiguration configuration;
+    private readonly Validator validator;
 
     public static void Run(BuildingContext context)
     {
@@ -49,7 +50,7 @@ namespace Xtensive.Orm.Building.Builders
           throw new DomainBuilderException(string.Format(
             Strings.ExMultischemaModeIsActiveButNoSchemaSpecifiedForX,
             type.UnderlyingType.GetShortName()));
-        Validator.ValidateName(mappingSchema, ValidationRule.Schema);
+        validator.ValidateName(mappingSchema, ValidationRule.Schema);
       }
     }
 
@@ -61,7 +62,7 @@ namespace Xtensive.Orm.Building.Builders
           throw new DomainBuilderException(string.Format(
             Strings.ExMultidatabaseModeIsActiveButNoDatabaseSpecifiedForX,
             type.UnderlyingType.GetShortName()));
-        Validator.ValidateName(mappingDatabase, ValidationRule.Database);
+        validator.ValidateName(mappingDatabase, ValidationRule.Database);
       }
     }
 
@@ -104,14 +105,14 @@ namespace Xtensive.Orm.Building.Builders
         if (!hasDefaultDatabase || !hasDefaultSchema)
           throw new InvalidOperationException(
             Strings.ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive);
-        Validator.ValidateName(configuration.DefaultDatabase, ValidationRule.Database);
+        validator.ValidateName(configuration.DefaultDatabase, ValidationRule.Database);
       }
 
       if (configuration.IsMultischema) {
         if (!hasDefaultSchema)
           throw new InvalidOperationException(
             Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaOrMultidatabaseModeIsActive);
-        Validator.ValidateName(configuration.DefaultSchema, ValidationRule.Schema);
+        validator.ValidateName(configuration.DefaultSchema, ValidationRule.Schema);
       }
     }
 
@@ -131,6 +132,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       model = context.Model;
       configuration = context.Domain.Configuration;
+      validator = context.Validator;
     }
   }
 }

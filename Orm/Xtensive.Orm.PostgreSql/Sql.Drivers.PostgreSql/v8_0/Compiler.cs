@@ -4,8 +4,9 @@
 
 using System;
 using System.Linq;
-using Xtensive.Sql.Compiler;
+using Xtensive.Orm.Providers.PostgreSql;
 using Xtensive.Sql.Dml;
+using SqlCompiler = Xtensive.Sql.Compiler.SqlCompiler;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
@@ -86,10 +87,154 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       base.Visit(node);
     }
 
+    public override void Visit(CustomSqlFunctionCall node)
+    {
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlPointExtractX) {
+        NpgsqlPointExtractPart(node.Arguments[0], 0).AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlPointExtractY) {
+        NpgsqlPointExtractPart(node.Arguments[0], 1).AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlTypeExtractPoint) {
+        NpgsqlTypeExtractPoint(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlBoxExtractHeight) {
+        NpgsqlBoxExtractHeight(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlBoxExtractWidth) {
+        NpgsqlBoxExtractWidth(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlCircleExtractCenter) {
+        NpgsqlCircleExtractCenter(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlCircleExtractRadius) {
+        NpgsqlCircleExtractRadius(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlPathAndPolygonCount) {
+        NpgsqlPathAndPolygonCount(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlPathAndPolygonOpen) {
+        NpgsqlPathAndPolygonOpen(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlPathAndPolygonContains) {
+        NpgsqlPathAndPolygonContains(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlTypeOperatorEquality) {
+        NpgsqlTypeOperatorEquality(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlPointConstructor) {
+        var newNode = SqlDml.RawConcat(
+          NpgsqlTypeConstructor(node.Arguments[0], node.Arguments[1], "point'"),
+          SqlDml.Native("'"));
+        newNode.AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlBoxConstructor) {
+        NpgsqlTypeConstructor(node.Arguments[0], node.Arguments[1], "box").AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlCircleConstructor) {
+        NpgsqlTypeConstructor(node.Arguments[0], node.Arguments[1], "circle").AcceptVisitor(this);
+        return;
+      }
+      if (node.CustomFunctionType==PostgresqlSqlFunctionType.NpgsqlLSegConstructor) {
+        NpgsqlTypeConstructor(node.Arguments[0], node.Arguments[1], "lseg").AcceptVisitor(this);
+        return;
+      }
+      base.Visit(node);
+    }
+
 
     private static SqlExpression DateTimeToStringIso(SqlExpression dateTime)
     {
       return SqlDml.FunctionCall("To_Char", dateTime, "YYYY-MM-DD\"T\"HH24:MI:SS");
+    }
+
+    protected static SqlExpression NpgsqlPointExtractPart(SqlExpression expression, int part)
+    {
+      return SqlDml.RawConcat(expression, SqlDml.Native(String.Format("[{0}]", part)));
+    }
+
+    protected static SqlExpression NpgsqlTypeExtractPoint(SqlExpression expression, SqlExpression numberPoint)
+    {
+      var numberPointAsInt = numberPoint as SqlLiteral<int>;
+      int valueNumberPoint = numberPointAsInt!=null ? numberPointAsInt.Value : 0;
+
+      return SqlDml.RawConcat(
+        SqlDml.Native("("),
+        SqlDml.RawConcat(
+          expression,
+          SqlDml.Native(String.Format("[{0}])", valueNumberPoint))));
+    }
+
+    protected static SqlExpression NpgsqlBoxExtractHeight(SqlExpression expression)
+    {
+      return SqlDml.FunctionCall("HEIGHT", expression);
+    }
+
+    protected static SqlExpression NpgsqlBoxExtractWidth(SqlExpression expression)
+    {
+      return SqlDml.FunctionCall("WIDTH", expression);
+    }
+
+    protected static SqlExpression NpgsqlCircleExtractCenter(SqlExpression expression)
+    {
+      return SqlDml.RawConcat(SqlDml.Native("@@"), expression);
+    }
+
+    protected static SqlExpression NpgsqlCircleExtractRadius(SqlExpression expression)
+    {
+      return SqlDml.FunctionCall("RADIUS", expression);
+    }
+
+    protected static SqlExpression NpgsqlPathAndPolygonCount(SqlExpression expression)
+    {
+      return SqlDml.FunctionCall("NPOINTS", expression);
+    }
+
+    protected static SqlExpression NpgsqlPathAndPolygonOpen(SqlExpression expression)
+    {
+      return SqlDml.FunctionCall("ISOPEN", expression);
+    }
+
+    protected static SqlExpression NpgsqlPathAndPolygonContains(SqlExpression expression, SqlExpression point)
+    {
+      return SqlDml.RawConcat(
+        expression,
+        SqlDml.RawConcat(
+          SqlDml.Native("@>"),
+          point));
+    }
+
+    protected static SqlExpression NpgsqlTypeOperatorEquality(SqlExpression left, SqlExpression right)
+    {
+      return SqlDml.RawConcat(left,
+        SqlDml.RawConcat(
+          SqlDml.Native("~="),
+          right));
+    }
+
+    private static SqlExpression NpgsqlTypeConstructor(SqlExpression left, SqlExpression right, string type)
+    {
+      return SqlDml.RawConcat(
+        SqlDml.Native(String.Format("{0}(", type)),
+        SqlDml.RawConcat(left,
+          SqlDml.RawConcat(
+            SqlDml.Native(","),
+            SqlDml.RawConcat(
+              right,
+              SqlDml.Native(")")))));
     }
 
     // Constructors
