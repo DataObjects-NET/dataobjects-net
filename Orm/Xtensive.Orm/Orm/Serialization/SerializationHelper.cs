@@ -47,8 +47,8 @@ namespace Xtensive.Orm.Serialization
       var domain = session.Domain;
       var registry = session.StorageNode.TypeIdRegistry;
       var typeInfo = domain.Model.Types[entity.GetType()];
-
-      var keyGenerator = domain.KeyGenerators.Get(typeInfo.Key, session.IsDisconnected);
+      var isTemporary = session.LazyKeyGenerationIsEnabled && !session.IsPersisting;
+      var keyGenerator = domain.KeyGenerators.Get(typeInfo.Key, isTemporary);
       var keyValue = keyGenerator!=null 
         ? keyGenerator.GenerateKey(typeInfo.Key, session) 
         : DeserializeKeyFields(typeInfo, registry, info, context);

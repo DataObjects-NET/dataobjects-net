@@ -6,6 +6,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Caching;
 using KeyCache = Xtensive.Caching.ICache<Xtensive.Orm.Key, Xtensive.Orm.Key>;
 
@@ -18,8 +19,28 @@ namespace Xtensive.Orm.Internals
     IEnumerable<Key>,
     IInvalidatable
   {
+    private class BackupedState
+    {
+      public bool IsLoaded { get; private set; }
+      public long? TotalItemCount { get; private set; }
+      public IEnumerable<Key> AddedKeys { get; private set; }
+      public IEnumerable<Key> RemovedKeys { get; private set; }
+
+      public BackupedState(EntitySetState state)
+      {
+        IsLoaded = state.IsLoaded;
+        TotalItemCount = state.TotalItemCount;
+        AddedKeys = state.addedKeys.Values.ToList();
+        RemovedKeys = state.removedKeys.Values.ToList();
+      }
+    }
+
+    private readonly IDictionary<Key, Key> addedKeys;
+    private readonly IDictionary<Key, Key> removedKeys;
     private bool isLoaded;
     private long? totalItemCount;
+
+    private BackupedState previousState;
 
     public KeyCache FetchedKeys {
       get { return State; }
@@ -27,7 +48,7 @@ namespace Xtensive.Orm.Internals
     }
 
     /// <summary>
-    /// Gets the total number of items.
+    /// Gets total count of elements which entity set contains.
     /// </summary>
     public long? TotalItemCount {
       get {
@@ -42,10 +63,34 @@ namespace Xtensive.Orm.Internals
     /// <summary>
     /// Gets the number of cached items.
     /// </summary>
-    public long CachedItemCount { get { return FetchedKeys.Count; } }
+    public long CachedItemCount { get { return FetchedItemsCount - RemovedItemsCount + AddedItemsCount; } }
 
     /// <summary>
-    /// Gets a value indicating whether state is fully loaded.
+    /// Gets the number of fetched keys.
+    /// </summary>
+    public long FetchedItemsCount
+    {
+      get { return FetchedKeys.Count; }
+    }
+
+    /// <summary>
+    /// Gets count of keys which was added but changes are not applyed.
+    /// </summary>
+    public int AddedItemsCount
+    {
+      get { return addedKeys.Count; }
+    }
+
+    /// <summary>
+    /// Gets count of keys which was removed but changes are not applied.
+    /// </summary>
+    public int RemovedItemsCount
+    {
+      get { return removedKeys.Count; }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether state contains all keys which stored in database.
     /// </summary>
     public bool IsFullyLoaded { get { return TotalItemCount==CachedItemCount; } }
     
@@ -63,6 +108,17 @@ namespace Xtensive.Orm.Internals
       internal set {
         isLoaded = value;
       }
+    }
+
+    /// <summary>
+    /// Get value indicating whether state has changes.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> if this state has changes; otherwise, <see langword="false"/>.
+    /// </value>
+    public bool HasChanges
+    {
+      get { return AddedItemsCount!=0 || RemovedItemsCount!=0; }
     }
 
     /// <summary>
@@ -85,7 +141,13 @@ namespace Xtensive.Orm.Internals
     /// <returns>Check result.</returns>
     public bool Contains(Key key)
     {
-      return FetchedKeys.ContainsKey(key);
+      if (removedKeys.ContainsKey(key))
+        return false;
+      if (addedKeys.ContainsKey(key))
+        return true;
+      if (FetchedKeys.ContainsKey(key))
+        return true;
+      return false;
     }
 
     /// <summary>
@@ -103,7 +165,10 @@ namespace Xtensive.Orm.Internals
     /// <param name="key">The key to add.</param>
     public void Add(Key key)
     {
-      FetchedKeys.Add(key);
+      if (removedKeys.ContainsKey(key))
+        removedKeys.Remove(key);
+      else
+        addedKeys[key] = key;
       if (TotalItemCount!=null)
         TotalItemCount++;
       Rebind();
@@ -115,10 +180,70 @@ namespace Xtensive.Orm.Internals
     /// <param name="key">The key to remove.</param>
     public void Remove(Key key)
     {
-      FetchedKeys.RemoveKey(key);
+      if (addedKeys.ContainsKey(key))
+        addedKeys.Remove(key);
+      else
+        removedKeys[key] = key;
       if (TotalItemCount!=null)
         TotalItemCount--;
       Rebind();
+    }
+
+    /// <summary>
+    /// Applies all changes to state.
+    /// </summary>
+    public bool ApplyChanges()
+    {
+      if (HasChanges) {
+        EnsureFetchedKeysIsNotNull();
+        BackupState();
+        foreach (var removedKey in removedKeys)
+          FetchedKeys.RemoveKey(removedKey.Value);
+        foreach (var addedKey in addedKeys)
+          FetchedKeys.Add(addedKey.Value);
+        CancelChanges();
+        return true;
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Clear all changes.
+    /// </summary>
+    public void CancelChanges()
+    {
+      addedKeys.Clear();
+      removedKeys.Clear();
+      Rebind();
+    }
+
+    internal void RollbackState()
+    {
+      if (previousState!=null) {
+        TotalItemCount = previousState.TotalItemCount;
+        IsLoaded = previousState.IsLoaded;
+        foreach (var addedKey in previousState.AddedKeys) {
+          if (FetchedKeys.ContainsKey(addedKey))
+            FetchedKeys.RemoveKey(addedKey);
+          addedKeys.Add(addedKey, addedKey);
+        }
+        foreach (var removedKey in previousState.RemovedKeys) {
+          if (!FetchedKeys.ContainsKey(removedKey))
+            Register(removedKey);
+          removedKeys.Add(removedKey, removedKey);
+        }
+        
+      }
+    }
+
+    internal void RemapKeys(KeyMapping mapping)
+    {
+      var oldAddedKeys = addedKeys.ToList();
+      foreach (var addedKey in oldAddedKeys) {
+        var newKey = mapping.TryRemapKey(addedKey.Key);
+        addedKeys.Remove(addedKey);
+        addedKeys.Add(newKey, newKey);
+      }
     }
 
     /// <inheritdoc/>
@@ -137,7 +262,7 @@ namespace Xtensive.Orm.Internals
     /// <inheritdoc/>
     protected override void Refresh()
     {
-      FetchedKeys = new LruCache<Key, Key>(WellKnown.EntitySetCacheSize, cachedKey => cachedKey);
+      InitializeFetchedKeysAndClearChanges();
     }
 
     #region GetEnumerator<...> methods
@@ -145,7 +270,7 @@ namespace Xtensive.Orm.Internals
     /// <inheritdoc/>
     public IEnumerator<Key> GetEnumerator()
     {
-      return FetchedKeys.GetEnumerator();
+      return FetchedKeys.Where(el => !removedKeys.ContainsKey(el)).Concat(addedKeys.Values).GetEnumerator();
     }
 
     /// <inheritdoc/>
@@ -156,12 +281,36 @@ namespace Xtensive.Orm.Internals
 
     #endregion
 
+    private void EnsureFetchedKeysIsNotNull()
+    {
+      if (FetchedKeys==null)
+        InitializeFetchedKeys();
+    }
+
+    private void BackupState()
+    {
+      previousState = new BackupedState(this);
+    }
+
+    private void InitializeFetchedKeysAndClearChanges()
+    {
+      InitializeFetchedKeys();
+      CancelChanges();
+    }
+
+    private void InitializeFetchedKeys()
+    {
+      FetchedKeys = new LruCache<Key, Key>(WellKnown.EntitySetCacheSize, cachedKey => cachedKey);
+    }
 
     // Constructors
 
     internal EntitySetState(EntitySetBase entitySet)
       : base(entitySet.Session)
     {
+      InitializeFetchedKeys();
+      addedKeys = new Dictionary<Key, Key>();
+      removedKeys = new Dictionary<Key, Key>();
     }
   }
 }

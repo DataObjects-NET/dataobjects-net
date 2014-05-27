@@ -489,14 +489,7 @@ namespace Xtensive.Orm
     /// <param name="context">The context.</param>
     protected Structure(SerializationInfo info, StreamingContext context)
     {
-      bool successfully = false;
-      try {
-        DeserializationContext.Demand().SetObjectData(this, info, context);
-        successfully = true;
-      }
-      finally {
-        LeaveCtorTransactionScope(successfully);
-      }
+      DeserializationContext.Demand().SetObjectData(this, info, context);
     }
   }
 }

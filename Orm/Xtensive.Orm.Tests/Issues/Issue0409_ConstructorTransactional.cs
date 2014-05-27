@@ -31,7 +31,6 @@ namespace Xtensive.Orm.Tests.Issues
     {
       DomainConfiguration config = base.BuildConfiguration();
       config.Types.Register(typeof (Document).Assembly, typeof (Document).Namespace);
-      config.Sessions.Default.Options |= SessionOptions.AutoTransactionOpenMode;
       return config;
     }
 
@@ -47,7 +46,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
       using (var s = Domain.OpenSession()) {
-        var document = s.Query.Single<Document>(key);
+        Assert.Throws<InvalidOperationException>(() => { var document = s.Query.Single<Document>(key); });
       }
     }
 
@@ -55,7 +54,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void DocumentCreatedInAutoTransactionTest()
     {
       using (var s = Domain.OpenSession()) {
-        var document = new Document();
+        Assert.Throws<InvalidOperationException>(() => { var document = new Document(); });
       }
     }
   }

@@ -44,22 +44,6 @@ namespace Xtensive.Orm.Internals
     /// </summary>
     PersistEntityRemoval,
     /// <summary>
-    /// <see cref="DisconnectedState"/> is about to be attached to <see cref="Session"/>.
-    /// </summary>
-    DisconnectedStateAttach,
-    /// <summary>
-    /// <see cref="DisconnectedState"/> is about to be merged with another one.
-    /// </summary>
-    DisconnectedStateMerge,
-    /// <summary>
-    /// <see cref="DisconnectedState"/> is about to run local refeernce-related query.
-    /// </summary>
-    DisconnectedStateReferenceCacheLookup,
-    /// <summary>
-    /// <see cref="DisconnectedState"/> is about to be enumerated.
-    /// </summary>
-    DisconnectedStateEnumeration,
-    /// <summary>
     /// Another persist reason.
     /// </summary>
     Other,

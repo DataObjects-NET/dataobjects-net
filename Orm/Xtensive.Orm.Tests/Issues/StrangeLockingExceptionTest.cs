@@ -108,10 +108,10 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test3()
     {
-      using (var sessionA = Domain.OpenSession(new SessionConfiguration(SessionOptions.ServerProfile | SessionOptions.AutoTransactionOpenMode))) {
+      using (var sessionA = Domain.OpenSession(new SessionConfiguration(SessionOptions.ServerProfile))) {
         sessionA.Query.All<TestA>().Count();
         sessionA.Query.All<TestB>().Count();
-        using (var sessionB = Domain.OpenSession(new SessionConfiguration(SessionOptions.ServerProfile | SessionOptions.AutoTransactionOpenMode))) {
+        using (var sessionB = Domain.OpenSession(new SessionConfiguration(SessionOptions.ServerProfile))) {
           sessionB.Query.All<TestA>().Count();
           sessionB.Query.All<TestB>().Count();
         }
@@ -128,12 +128,6 @@ namespace Xtensive.Orm.Tests.Issues
     public void Test5()
     {
       Execute(SessionOptions.ClientProfile);
-    }
-
-    [Test]
-    public void Test6()
-    {
-      Execute(SessionOptions.ServerProfile | SessionOptions.AutoTransactionOpenMode);
     }
 
     private void Execute(SessionOptions options)

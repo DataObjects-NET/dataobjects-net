@@ -5,18 +5,23 @@
 // Created:    2007.08.10
 
 using System;
+using System.Collections.Generic;
 using System.Transactions;
+using System.Linq;
 using Xtensive.Core;
-
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
+using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Orm
 {
   public partial class Session
   {
     private bool disableAutoSaveChanges;
+    private KeyRemapper remapper;
+    private bool persistingIsFailed;
     
+    internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry { get; private set; }
     /// <summary>
     /// Saves all modified instances immediately to the database.
     /// Obsolete, use <see cref="SaveChanges"/> method instead.
@@ -27,13 +32,13 @@ namespace Xtensive.Orm
     /// updates are flushed to the storage.
     /// </para>
     /// <para>
-    /// For non-disconnected (without <see cref="SessionOptions.Disconnected"/> option) session this method is called automatically when it's necessary,
+    /// For session with auto saving (with <see cref="SessionOptions.AutoSaveChanges"/> this method is called automatically when it's necessary,
     /// e.g. before beginning, committing and rolling back a transaction, performing a
     /// query and so further. So generally you should not worry
     /// about calling this method.
     /// </para>
     /// <para>
-    /// For disconnected session (with <see cref="SessionOptions.Disconnected"/> option) you should call this method manually.
+    /// For session without auto saving (without <see cref="SessionOptions.AutoSaveChanges"/> option) you should call this method manually.
     /// </para>
     /// </remarks>
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
@@ -52,19 +57,19 @@ namespace Xtensive.Orm
     /// updates are flushed to the storage.
     /// </para>
     /// <para>
-    /// For non-disconnected (without <see cref="SessionOptions.Disconnected"/> option) session this method is called automatically when it's necessary,
+    /// For session with auto saving (with <see cref="SessionOptions.AutoSaveChanges"/> this method is called automatically when it's necessary,
     /// e.g. before beginning, committing and rolling back a transaction, performing a
     /// query and so further. So generally you should not worry
     /// about calling this method.
     /// </para>
     /// <para>
-    /// For disconnected session (with <see cref="SessionOptions.Disconnected"/> option) you should call this method manually.
+    /// For session without auto saving (without <see cref="SessionOptions.AutoSaveChanges"/> option) you should call this method manually.
     /// </para>
     /// </remarks>
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
     public void SaveChanges()
     {
-      if (Configuration.Supports(SessionOptions.Disconnected))
+      if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates))
         SaveLocalChanges();
       else
         Persist(PersistReason.Manual);
@@ -77,33 +82,8 @@ namespace Xtensive.Orm
     /// <exception cref="NotSupportedException">Unable to cancel changes for non-disconnected session. Use transaction boundaries to control the state.</exception>
     public void CancelChanges()
     {
-      if (Configuration.Supports(SessionOptions.Disconnected))
-        CancelLocalChanges();
-      else
-        throw new NotSupportedException("Unable to cancel pending changes when session is not disconnected.");
-    }
-
-    private void SaveLocalChanges()
-    {
-      Validate();
-      EndDisconnectedTransaction(true);
-      try {
-        DisconnectedState.ApplyChanges();
-      }
-      finally {
-        BeginDisconnectedTransaction();
-      }
-    }
-
-    private void CancelLocalChanges()
-    {
-      EndDisconnectedTransaction(false);
-      try {
-        DisconnectedState.CancelChanges();
-      }
-      finally {
-        BeginDisconnectedTransaction();
-      }
+      CancelEntitySetsChanges();
+      CancelEntitiesChanges();
     }
 
     internal void Persist(PersistReason reason)
@@ -113,7 +93,7 @@ namespace Xtensive.Orm
         return;
 
       var performPinning = pinner.RootCount > 0;
-      if (performPinning || disableAutoSaveChanges) 
+      if (performPinning || (disableAutoSaveChanges && !Configuration.Supports(SessionOptions.NonTransactionalEntityStates))) 
         switch (reason) {
           case PersistReason.NestedTransaction:
           case PersistReason.Commit:
@@ -125,6 +105,7 @@ namespace Xtensive.Orm
 
       using (var ts = OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified, false)) {
         IsPersisting = true;
+        persistingIsFailed = false;
         SystemEvents.NotifyPersisting();
         Events.NotifyPersisting();
 
@@ -141,24 +122,36 @@ namespace Xtensive.Orm
             else
               itemsToPersist = EntityChangeRegistry;
 
+            if (LazyKeyGenerationIsEnabled) {
+              RemapEntityKeys(remapper.Remap(itemsToPersist));
+            }
+            ApplyEntitySetsChanges();
             try {
               Handler.Persist(itemsToPersist, reason == PersistReason.Query);
             }
+            catch(Exception) {
+              persistingIsFailed = true;
+              RollbackChangesOfEntitySets();
+              throw;
+            }
             finally {
-              foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
-                item.PersistenceState = PersistenceState.Synchronized;
-              foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified))
-                item.PersistenceState = PersistenceState.Synchronized;
-              foreach (var item in itemsToPersist.GetItems(PersistenceState.Removed))
-                item.Update(null);
+              if (!persistingIsFailed) {
+                foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
+                  item.PersistenceState = PersistenceState.Synchronized;
+                foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified))
+                  item.PersistenceState = PersistenceState.Synchronized;
+                foreach (var item in itemsToPersist.GetItems(PersistenceState.Removed))
+                  item.Update(null);
 
-              if (performPinning) {
-                EntityChangeRegistry = pinner.PinnedItems;
-                pinner.Reset();
+                if (performPinning) {
+                  EntityChangeRegistry = pinner.PinnedItems;
+                  pinner.Reset();
+                }
+                else
+                  EntityChangeRegistry.Clear();
+                EntitySetChangeRegistry.Clear();
               }
-              else
-                EntityChangeRegistry.Clear();
-
+              
               OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
             }
           }
@@ -190,7 +183,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       var targetEntity = (Entity) target;
       targetEntity.EnsureNotRemoved();
-      if (IsDisconnected)
+      if (!Configuration.Supports(SessionOptions.AutoSaveChanges))
         return new Disposable(b => {return;}); // No need to pin in this case
       return pinner.RegisterRoot(targetEntity.State);
     }
@@ -205,7 +198,7 @@ namespace Xtensive.Orm
     /// </summary>
     public IDisposable DisableSaveChanges()
     {
-      if (IsDisconnected)
+      if (!Configuration.Supports(SessionOptions.AutoSaveChanges))
         return new Disposable(b => { return; }); // No need to pin in this case
       if (disableAutoSaveChanges)
         return null;
@@ -215,6 +208,60 @@ namespace Xtensive.Orm
         disableAutoSaveChanges = false;
         InvalidateEntitySetsWithInvalidState();
       });
+    }
+
+    private void ApplyEntitySetsChanges()
+    {
+      ProcessChangesOfEntitySets(entitySetState => entitySetState.ApplyChanges());
+    }
+
+    private void CancelEntitySetsChanges()
+    {
+      ProcessChangesOfEntitySets(entitySetState => entitySetState.CancelChanges());
+    }
+
+    private void RollbackChangesOfEntitySets()
+    {
+      ProcessChangesOfEntitySets(entitySetState => entitySetState.RollbackState());
+    }
+
+    private void SaveLocalChanges()
+    {
+      Validate();
+      using (var transaction = OpenTransaction(TransactionOpenMode.New)) {
+        try {
+          Persist(PersistReason.Manual);
+        }
+        finally {
+          transaction.Complete();
+        }
+      }
+    }
+
+    private void CancelEntitiesChanges()
+    {
+      foreach (var newEntity in EntityChangeRegistry.GetItems(PersistenceState.New).ToList()) {
+        newEntity.Update(null);
+        newEntity.PersistenceState = PersistenceState.Removed;
+      }
+      
+      foreach (var modifiedEntity in EntityChangeRegistry.GetItems(PersistenceState.Modified)) {
+        modifiedEntity.RollbackDifference();
+        modifiedEntity.PersistenceState = PersistenceState.Synchronized;
+      }
+
+      foreach (var removedEntity in EntityChangeRegistry.GetItems(PersistenceState.Removed)) {
+        removedEntity.RollbackDifference();
+        removedEntity.PersistenceState = PersistenceState.Synchronized;
+      }
+      EntityChangeRegistry.Clear();
+    }
+
+    private void ProcessChangesOfEntitySets(Action<EntitySetState> action)
+    {
+      var itemsToProcess = EntitySetChangeRegistry.GetItems();
+      foreach (var entitySet in itemsToProcess)
+        action.Invoke(entitySet);
     }
   }
 }

@@ -67,21 +67,6 @@ namespace Xtensive.Orm.Configuration
     AutoActivation = 1 << 5,
 
     /// <summary>
-    /// <see cref="DisconnectedState"/> will be created and attached in the session constructor.
-    /// </summary>
-    Disconnected = 1 << 6,
-
-    /// <summary>
-    /// Enables <see cref="TransactionalBehavior.Suppress"/> for automatic transactions.
-    /// </summary>
-    AutoTransactionSuppressMode = 1 << 7,
-
-    /// <summary>
-    /// Enables <see cref="TransactionalBehavior.Auto"/> for automatic transactions.
-    /// </summary>
-    AutoTransactionOpenMode = 1 << 8,
-
-    /// <summary>
     /// Enables reading of fields of removed objects.
     /// By default this leads no an exception - only <see cref="Entity.Key"/>, <see cref="Entity.TypeId"/> and
     /// few other system properties of removed objects can be accessed.
@@ -111,31 +96,48 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     ValidateEntities = 1 << 13,
 
+    /// <summary>
+    /// Enables generation of <see cref="Key"/>s for <see cref="Entity">Entities</see>
+    /// just before saving to storage.
+    /// </summary>
+    LazyKeyGeneration = 1 << 14,
+
+    /// <summary>
+    /// Enables automatic persist of changes in case of committing of transaction, query and some others.
+    /// </summary>
+    AutoSaveChanges = 1 << 15,
+
+    /// <summary>
+    /// Enables reading and saving of <see cref="Entity"/> objects without active transaction.
+    /// Contains
+    /// <see cref="NonTransactionalReads"/>
+    /// </summary>
+    NonTransactionalEntityStates = (1 << 16) | NonTransactionalReads,
+
     // Profiles
 
     /// <summary>
     /// Predefined option set for server-side sessions (ASP.NET, ASP.NET MVC, services, etc.).
     /// Includes only <see cref="ValidateEntities"/> flag.
     /// </summary>
-    ServerProfile = ValidateEntities | (1 << 10),
+    ServerProfile = ValidateEntities | AutoSaveChanges |(1 << 10),
 
     /// <summary>
     /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).
     /// Combines 
-    /// <see cref="AutoTransactionOpenMode"/> | 
-    /// <see cref="Disconnected"/> |
+    /// <see cref="NonTransactionalEntityStates"/> | 
+    /// <see cref="LazyKeyGeneration"/> |
     /// <see cref="ValidateEntities"/> flags.
     /// </summary>
-    ClientProfile = AutoTransactionOpenMode | ValidateEntities | Disconnected,
+    ClientProfile = NonTransactionalEntityStates | LazyKeyGeneration | ValidateEntities,
 
     /// <summary>
     /// Predefined option set for compatibility with previous versions of DataObjects.Net (4.3.* and earlier).
-    /// Combines 
-    /// <see cref="AutoTransactionOpenMode"/> | 
+    /// Combines  
     /// <see cref="AutoActivation"/> |
     /// <see cref="ValidateEntities"/> flags.
     /// </summary>
-    LegacyProfile = AutoTransactionOpenMode | ValidateEntities | AutoActivation,
+    LegacyProfile =  ValidateEntities | AutoActivation,
 
     /// <summary>
     /// Default option set.

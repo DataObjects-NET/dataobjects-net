@@ -118,54 +118,6 @@ namespace Xtensive.Orm.Tests.Storage.NotifyXxxTests
       }
     }
 
-    [Test]
-    public void EventKeyRemappingTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var sessionStateAccessor = DirectStateAccessor.Get(session);
-        Book book1;
-        Book book2;
-
-        var ds = new DisconnectedState();
-        using (ds.Attach(session)) {
-          book1 = new Book() {Title = "Book 1"};
-          book2 = new Book() {Title = "Book"};
-          book1.RelatedBooks.CollectionChanged += RelatedBooks_CollectionChanged;
-          book2.PropertyChanged += Book_PropertyChanged;
-          ds.ApplyChanges();
-        }
-
-        ResetLastXxx();
-        book2.Title = "Book 2";
-        Assert.AreEqual("Title", lastChangedProperty);
-        Assert.AreSame(book2, lastSenderObject);
-
-        ResetLastXxx();
-        book1.RelatedBooks.Add(book2);
-        Assert.AreEqual(NotifyCollectionChangedAction.Add, lastChangeAction);
-        Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
-
-        ResetLastXxx();
-        book1.RelatedBooks.Remove(book2);
-        Assert.AreEqual(NotifyCollectionChangedAction.Remove, lastChangeAction);
-        Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
-
-        ResetLastXxx();
-        book1.RelatedBooks.Clear();
-        Assert.AreEqual(NotifyCollectionChangedAction.Reset, lastChangeAction);
-        Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
-
-        ResetLastXxx();
-        session.NotifyChanged();
-        Assert.AreEqual(null, lastChangedProperty);
-        Assert.AreSame(book2, lastSenderObject);
-        Assert.AreEqual(NotifyCollectionChangedAction.Reset, lastChangeAction);
-        Assert.AreSame(book1.RelatedBooks, lastSenderCollection);
-        // tx.Complete();
-      }
-    }
-
     private void ResetLastXxx()
     {
       lastChangeAction = NotifyCollectionChangedAction.Move; // Since it is never used by DO4

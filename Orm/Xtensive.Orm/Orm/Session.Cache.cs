@@ -25,6 +25,7 @@ namespace Xtensive.Orm
 
     internal ICache<Key, EntityState> EntityStateCache { get; private set; }
     internal EntityChangeRegistry EntityChangeRegistry { get; private set; }
+    internal EntitySetChangeRegistry EntitySetChangeRegistry { get; private set; }
 
     internal void Invalidate()
     {
@@ -60,8 +61,10 @@ namespace Xtensive.Orm
       if (keyMapping.Map.Count==0)
         return;
       using (Activate()) {
-        Persist(PersistReason.RemapEntityKeys);
-        Invalidate();
+        if (!LazyKeyGenerationIsEnabled) {
+          Persist(PersistReason.RemapEntityKeys);
+          Invalidate();
+        }
         OrmLog.Debug(Strings.LogSessionXRemappingEntityKeys, this);
         var oldCacheContent = EntityStateCache.ToDictionary(entityState => entityState.Key);
         EntityStateCache.Clear();
@@ -73,6 +76,7 @@ namespace Xtensive.Orm
             entityState.RemapKey(remappedKey);
           EntityStateCache.Add(entityState);
         }
+        ProcessChangesOfEntitySets(entitySetState => entitySetState.RemapKeys(keyMapping));
         EntityEvents.RemapKeys(keyMapping);
       }
     }

@@ -34,28 +34,6 @@ namespace Xtensive.Orm
     INotifyPropertyChanged,
     IDataErrorInfo
   {
-    #region Nested type: CtorTransactionInfo
-
-    // [DebuggerDisplay("Id = {Id}")]
-    private sealed class CtorTransactionInfo
-    {
-      [ThreadStatic]
-      public static CtorTransactionInfo Current;
-      // public static int CurrentId;
-
-      // public int Id;
-      public TransactionScope TransactionScope;
-      public ICompletableScope OperationScope;
-      public CtorTransactionInfo Previous;
-
-      public CtorTransactionInfo()
-      {
-        // Id = Interlocked.Increment(ref CurrentId);
-      }
-    }
-
-    #endregion
-
     private IFieldValueAdapter[] fieldAdapters;
 
     /// <summary>
@@ -392,25 +370,38 @@ namespace Xtensive.Orm
         var operations = Session.Operations;
         var scope = operations.BeginRegistration(Operations.OperationType.System);
         try {
-          if (operations.CanRegisterOperation) {
-            var entity = this as Entity;
-            if (entity != null)
+          var entity = this as Entity;
+          if (entity!=null) {
+            if (operations.CanRegisterOperation)
               operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, field, value));
-            else {
-              var persistent = this;
-              var currentField = field;
-              var structure = persistent as Structure;
-              while (structure != null && structure.Owner != null) {
-                var pair = new Pair<FieldInfo>(structure.Field, currentField);
-                currentField = structure.Owner.TypeInfo.StructureFieldMapping[pair];
-                persistent = structure.Owner;
-                structure = persistent as Structure;
-              }
-              entity = persistent as Entity;
-              if (entity != null)
-                operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, currentField, value));
+            var entityValue = value as IEntity;
+            if (entityValue!=null) {
+              var valueKey = entityValue.Key;
+              Session.ReferenceFieldsChangesRegistry.Register(entity.Key, valueKey, field);
             }
           }
+          else {
+            var persistent = this;
+            var currentField = field;
+            var structure = persistent as Structure;
+            while (structure!=null && structure.Owner!=null) {
+              var pair = new Pair<FieldInfo>(structure.Field, currentField);
+              currentField = structure.Owner.TypeInfo.StructureFieldMapping[pair];
+              persistent = structure.Owner;
+              structure = persistent as Structure;
+            }
+            entity = persistent as Entity;
+            if (entity!=null) {
+              if (operations.CanRegisterOperation)
+                operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, currentField, value));
+              var entityValue = value as IEntity;
+              if (entityValue!=null) {
+                var valueKey = entityValue.Key;
+                Session.ReferenceFieldsChangesRegistry.Register(entity.Key, valueKey, field);
+              }
+            }
+          }
+          
           if (fieldAccessor.AreSameValues(oldValue, value)) {
             operations.NotifyOperationStarting(false);
             scope.Complete();
@@ -420,7 +411,7 @@ namespace Xtensive.Orm
             SystemBeforeSetValue(field, value);
             operations.NotifyOperationStarting(false);
             AssociationInfo association = null;
-            var entity = value as Entity ?? oldValue as Entity;
+            entity = value as Entity ?? oldValue as Entity;
             if (entity != null)
               association = field.GetAssociation(entity.TypeInfo);
             if (association!=null && association.IsPaired) {
@@ -811,14 +802,7 @@ namespace Xtensive.Orm
       var type = GetType();
       if (ctorType != type)
         return;
-      var successfully = false;
-      try {
-        SystemInitialize(false);
-        successfully = true;
-      }
-      finally {
-        LeaveCtorTransactionScope(successfully);
-      }
+      SystemInitialize(false);
     }
 
     /// <summary>
@@ -834,12 +818,7 @@ namespace Xtensive.Orm
       var type = GetType();
       if (ctorType != type)
         return;
-      try {
-        SystemInitializationError(error);
-      }
-      finally {
-        LeaveCtorTransactionScope(false);
-      }
+      SystemInitializationError(error);
     }
 
     #endregion
@@ -851,14 +830,7 @@ namespace Xtensive.Orm
     /// </summary>
     protected void InitializeOnMaterialize()
     {
-      var successfully = false;
-      try {
-        SystemInitialize(true);
-        successfully = true;
-      }
-      finally {
-        LeaveCtorTransactionScope(successfully);
-      }
+      SystemInitialize(true);
     }
 
     /// <summary>
@@ -870,63 +842,11 @@ namespace Xtensive.Orm
     /// </remarks>
     protected void InitializationErrorOnMaterialize(Exception error)
     {
-      try {
-        SystemInitializationError(error);
-      }
-      finally {
-        LeaveCtorTransactionScope(false);
-      }
+      SystemInitializationError(error);
     }
 
     #endregion
 
-    #region Enter/LeaveCtorTransactionScope methods
-
-    internal void EnterCtorTransactionScope()
-    {
-      CtorTransactionInfo.Current = new CtorTransactionInfo() {
-        TransactionScope = Session.OpenAutoTransaction(),
-        Previous = CtorTransactionInfo.Current,
-      };
-    }
-
-    internal void BindCtorTransactionScopeToOperationScope(ICompletableScope scope)
-    {
-      var ctorTransactionInfo = CtorTransactionInfo.Current;
-      ctorTransactionInfo.OperationScope = scope;
-    }
-
-    internal void LeaveCtorTransactionScope(bool successfully)
-    {
-      var cti = CtorTransactionInfo.Current;
-      if (cti==null)
-        return;
-      CtorTransactionInfo.Current = cti.Previous;
-      try {
-        if (cti.OperationScope!=null)
-          cti.OperationScope.Complete();
-      }
-      finally {
-        try {
-          if (cti.OperationScope!=null)
-            cti.OperationScope.Dispose();
-        }
-        catch {
-          successfully = false;
-          throw;
-        }
-        finally {
-          var transactionScope = cti.TransactionScope;
-          if (transactionScope!=null) {
-            if (successfully)
-              transactionScope.Complete();
-            transactionScope.Dispose();
-          }
-        }
-      }
-    }
-
-    #endregion
 
     internal static void ExecuteOnValidate(Persistent target)
     {
@@ -937,13 +857,11 @@ namespace Xtensive.Orm
 
     internal Persistent()
     {
-      EnterCtorTransactionScope();
     }
 
     internal Persistent(Session session)
       : base(session)
     {
-      EnterCtorTransactionScope();
     }
   }
 }

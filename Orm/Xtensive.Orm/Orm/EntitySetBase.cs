@@ -526,10 +526,12 @@ namespace Xtensive.Orm
                 combinedTuple);
 
               Session.CreateOrInitializeExistingEntity(auxiliaryType.UnderlyingType, combinedKey);
+              Session.ReferenceFieldsChangesRegistry.Register(Owner.Key, itemKey, combinedKey, Field);
             }
 
             var state = State;
             state.Add(itemKey);
+            Session.EntitySetChangeRegistry.Register(state);
             index = GetItemIndex(state, itemKey);
           };
           
@@ -599,6 +601,7 @@ namespace Xtensive.Orm
             var state = State;
             index = GetItemIndex(state, itemKey);
             state.Remove(itemKey);
+            Session.EntitySetChangeRegistry.Register(state);
           };
 
           operations.NotifyOperationStarting();
@@ -759,7 +762,7 @@ namespace Xtensive.Orm
       if (State.IsLoaded)
         return true;
       if (Owner.State.PersistenceState == PersistenceState.New) {
-        State.TotalItemCount = State.CachedItemCount;
+        State.TotalItemCount = State.AddedItemsCount;
         State.IsLoaded = true;
         Session.NotifyEntitySetCached(this);
         return true;

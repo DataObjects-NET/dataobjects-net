@@ -11,7 +11,6 @@ using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Tests.Issues.IssueJira0083_Model;
-using Xtensive.Storage;
 
 namespace Xtensive.Orm.Tests.Issues
 {

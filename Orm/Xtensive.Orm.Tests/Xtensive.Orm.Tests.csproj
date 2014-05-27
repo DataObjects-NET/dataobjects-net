@@ -85,13 +85,6 @@
     <Compile Include="Issues\CustomCompilerFeatureTest.cs" />
     <Compile Include="Issues\InterfaceEntitySetTest.cs" />
     <Compile Include="Issues\Issue0630_NullReferenceOnSelect.cs" />
-    <Compile Include="Issues\Issue0631_DisconnectedStateBugs.cs" />
-    <Compile Include="Issues\Issue0631_DisconnectedStateBugs\EntityBase.cs" />
-    <Compile Include="Issues\Issue0631_DisconnectedStateBugs\Issue0631_DisconnectedStateBugs.cs" />
-    <Compile Include="Issues\Issue0631_DisconnectedStateBugs\LinqExtensions.cs" />
-    <Compile Include="Issues\Issue0631_DisconnectedStateBugs\OwnedEntity.cs" />
-    <Compile Include="Issues\Issue0631_DisconnectedStateBugs\OwnerEntity.cs" />
-    <Compile Include="Issues\Issue0631_DisconnectedStateBugs\TestEntity.cs" />
     <Compile Include="Issues\Issue0634_PairToMisuse.cs" />
     <Compile Include="Issues\Issue0648_MultiThreadNullReference.cs" />
     <Compile Include="Issues\Issue0647_WrongLinqQuery.cs" />
@@ -107,7 +100,6 @@
     <Compile Include="Issues\Issue0713_InconsistentDefaultDateTimeValues.cs" />
     <Compile Include="Issues\Issue0715_NestedTypeBug.cs" />
     <Compile Include="Issues\Issue0717_VersionCheckBug.cs" />
-    <Compile Include="Issues\Issue0725_DisconnectedStateDisconnectBug.cs" />
     <Compile Include="Issues\Issue0733_UseINNER_JOIN.cs" />
     <Compile Include="Issues\Issue0737_PersistentFieldState.cs" />
     <Compile Include="Issues\Issue0751_EntitySetEquals.cs" />
@@ -325,12 +317,10 @@
     <Compile Include="Storage\CrossTransactionEntityAccessTest.cs" />
     <Compile Include="Storage\CustomCollationTest.cs" />
     <Compile Include="Storage\CustomMetadataUpgrade.cs" />
-    <Compile Include="Storage\DiartisBugsTest.cs" />
     <Compile Include="Storage\DisableIndexOnReferenceFieldTest.cs" />
     <Compile Include="Storage\DisableValidationAndImplicitConstraintsTest.cs" />
-    <Compile Include="Storage\DisconnectedStateSideEffectsTest.cs" />
-    <Compile Include="Storage\DisconnectedStateTest2.cs" />
     <Compile Include="Storage\EncryptedConnectionStringTest.cs" />
+    <Compile Include="Storage\EntitySetRollbackTest.cs" />
     <Compile Include="Storage\ExcludeFromAutoVersionTest.cs" />
     <Compile Include="Storage\FieldSqlDefaultTest.cs" />
     <Compile Include="Storage\ForceServerVersion.cs" />
@@ -356,6 +346,7 @@
     <Compile Include="Storage\Multimapping\MultimappingTest.cs" />
     <Compile Include="Storage\Multimapping\MultischemaTest.cs" />
     <Compile Include="Storage\Multinode\DatabaseMultinodeTest.cs" />
+    <Compile Include="Storage\NewProfilesTest.cs" />
     <Compile Include="Storage\Multinode\DynamicTypeIdTest.cs" />
     <Compile Include="Storage\Multinode\SchemaMultinodeTest.cs" />
     <Compile Include="Storage\Multinode\StandardMultinodeTest.cs" />
@@ -373,6 +364,7 @@
     <Compile Include="Storage\QueryBuilderTest.cs" />
     <Compile Include="Storage\ReadRemovedObjectTest.cs" />
     <Compile Include="Storage\RefTest.cs" />
+    <Compile Include="Storage\RemapKeysWhenLazyKeyGenerationEnabledTest.cs" />
     <Compile Include="Storage\SessionDeactivationTest.cs" />
     <Compile Include="Storage\SessionInitializationSqlTest.cs" />
     <Compile Include="Storage\SessionSaveChangesPerformanceTest.cs" />
@@ -552,7 +544,6 @@
     <Compile Include="Storage\DisableSaveChangesTest.cs" />
     <Compile Include="Storage\SerializedQueryTest.cs" />
     <Compile Include="Storage\TransactionModesTest.cs" />
-    <Compile Include="Storage\DisconnectedStateTest.cs" />
     <Compile Include="Storage\LegacyDb\AnimalDbBaseTest.cs" />
     <Compile Include="Storage\Performance\DoOracleCrudTest.cs" />
     <Compile Include="Storage\Prefetch\Model.cs" />

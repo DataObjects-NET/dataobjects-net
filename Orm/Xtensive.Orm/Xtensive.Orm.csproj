@@ -338,6 +338,11 @@
     <Compile Include="Orm\Configuration\LoggingConfiguration.cs" />
     <Compile Include="Orm\Configuration\NameMappingCollection.cs" />
     <Compile Include="Orm\Configuration\NodeConfiguration.cs" />
+    <Compile Include="Orm\Internals\KeyRemapper.cs" />
+    <Compile Include="Orm\Internals\ReferenceFieldChangeInfo.cs" />
+    <Compile Include="Orm\Internals\ReferenceFieldsChangesRegistry.cs" />
+    <Compile Include="Orm\Internals\EntitySetChangeRegistry.cs" />
+    <Compile Include="Orm\Internals\RemapContext.cs" />
     <Compile Include="Orm\Linq\LocalCollectionKeyTypeExtractor.cs" />
     <Compile Include="Orm\Logging\BaseLog.cs" />
     <Compile Include="Orm\Logging\IndentManager.cs" />
@@ -931,11 +936,6 @@
     <Compile Include="Orm\Interfaces\ISessionBound.cs" />
     <Compile Include="Orm\Internals\Pinner.cs" />
     <Compile Include="Orm\Exceptions\QueryTranslationException.cs" />
-    <Compile Include="Orm\Exceptions\ConnectionRequiredException.cs" />
-    <Compile Include="Orm\Internals\Disconnected\SerializableEntityState.cs" />
-    <Compile Include="Orm\Internals\Disconnected\SerializableReference.cs" />
-    <Compile Include="Orm\Internals\Disconnected\SerializableEntitySet.cs" />
-    <Compile Include="Orm\MergeMode.cs" />
     <Compile Include="Orm\Internals\Prefetch\PrefetchManager.cs" />
     <Compile Include="Orm\KeyMapping.cs" />
     <Compile Include="Orm\Operations\EntityFieldOperation.cs" />
@@ -947,8 +947,6 @@
     <Compile Include="Orm\Upgrade\Hints\RecycledTypeHint.cs" />
     <Compile Include="Orm\VersionCapturer.cs" />
     <Compile Include="Orm\VersionSet.cs" />
-    <Compile Include="Orm\VersionsProviderType.cs" />
-    <Compile Include="Orm\VersionsUsageOptions.cs" />
     <Compile Include="Orm\VersionValidator.cs" />
     <Compile Include="Orm\EntityRemoveCompletedEventArgs.cs" />
     <Compile Include="Orm\EntitySetItemActionCompletedEventArgs.cs" />
@@ -962,7 +960,6 @@
     <Compile Include="Orm\Configuration\Elements\SessionConfigurationElement.cs" />
     <Compile Include="Orm\Configuration\SessionOptions.cs" />
     <Compile Include="Orm\Configuration\SessionType.cs" />
-    <Compile Include="Orm\DisconnectedState.cs" />
     <Compile Include="Orm\Interfaces\IOperation.cs" />
     <Compile Include="Orm\Interfaces\IOperationLogger.cs" />
     <Compile Include="Orm\Operations\OperationEventArgs.cs" />
@@ -970,14 +967,7 @@
     <Compile Include="Orm\Operations\EntityOperation.cs" />
     <Compile Include="Orm\Operations\EntitySetItemOperation.cs" />
     <Compile Include="Orm\Operations\EntityFieldSetOperation.cs" />
-    <Compile Include="Orm\Internals\Disconnected\DisconnectedSessionHandler.cs" />
-    <Compile Include="Orm\Internals\Disconnected\EntitySetItemDesc.cs" />
-    <Compile Include="Orm\Internals\Disconnected\ReferenceDescriptor.cs" />
-    <Compile Include="Orm\Internals\Disconnected\DisconnectedEntityState.cs" />
-    <Compile Include="Orm\Internals\Disconnected\DisconnectedEntitySetState.cs" />
-    <Compile Include="Orm\Internals\Disconnected\StateRegistry.cs" />
     <Compile Include="Orm\Operations\OperationExecutionContext.cs" />
-    <Compile Include="Orm\Internals\Disconnected\AssociationCache.cs" />
     <Compile Include="Orm\EntitySetBase.cs" />
     <Compile Include="Orm\Services\DirectEntitySetAccessor.cs" />
     <Compile Include="Orm\Exceptions\ReprocessableException.cs" />

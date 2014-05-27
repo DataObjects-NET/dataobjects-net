@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (ITest).Assembly, typeof (ITest).Namespace);
-      configuration.Sessions.Default.Options = SessionOptions.AutoActivation;
+      configuration.Sessions.Default.Options = SessionOptions.AutoActivation | SessionOptions.AutoSaveChanges;
       return configuration;
     }
 
