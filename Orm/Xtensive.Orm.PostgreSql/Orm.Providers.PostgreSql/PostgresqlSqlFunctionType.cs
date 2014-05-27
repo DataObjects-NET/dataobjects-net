@@ -11,30 +11,30 @@ namespace Xtensive.Orm.Providers.PostgreSql
   public static class PostgresqlSqlFunctionType
   {
     // Npgsql
-    public static readonly CustomSqlFunctionType NpgsqlTypeExtractPoint = new CustomSqlFunctionType("NpgsqlTypeExtractPoint");
-    public static readonly CustomSqlFunctionType NpgsqlTypeOperatorEquality = new CustomSqlFunctionType("NpgsqlTypeOperatorEquality");
+    public static readonly SqlCustomFunctionType NpgsqlTypeExtractPoint = new SqlCustomFunctionType("NpgsqlTypeExtractPoint");
+    public static readonly SqlCustomFunctionType NpgsqlTypeOperatorEquality = new SqlCustomFunctionType("NpgsqlTypeOperatorEquality");
 
     // NpgsqlPoint
-    public static readonly CustomSqlFunctionType NpgsqlPointConstructor = new CustomSqlFunctionType("NpgsqlPointConstructor");
-    public static readonly CustomSqlFunctionType NpgsqlPointExtractX = new CustomSqlFunctionType("NpgsqlPointExtractX");
-    public static readonly CustomSqlFunctionType NpgsqlPointExtractY = new CustomSqlFunctionType("NpgsqlPointExtractY");
+    public static readonly SqlCustomFunctionType NpgsqlPointConstructor = new SqlCustomFunctionType("NpgsqlPointConstructor");
+    public static readonly SqlCustomFunctionType NpgsqlPointExtractX = new SqlCustomFunctionType("NpgsqlPointExtractX");
+    public static readonly SqlCustomFunctionType NpgsqlPointExtractY = new SqlCustomFunctionType("NpgsqlPointExtractY");
 
     // NpgsqlBox
-    public static readonly CustomSqlFunctionType NpgsqlBoxConstructor = new CustomSqlFunctionType("NpgsqlBoxConstructor");
-    public static readonly CustomSqlFunctionType NpgsqlBoxExtractHeight = new CustomSqlFunctionType("NpgsqlBoxExtractHeight");
-    public static readonly CustomSqlFunctionType NpgsqlBoxExtractWidth = new CustomSqlFunctionType("NpgsqlBoxExtractWidth");
+    public static readonly SqlCustomFunctionType NpgsqlBoxConstructor = new SqlCustomFunctionType("NpgsqlBoxConstructor");
+    public static readonly SqlCustomFunctionType NpgsqlBoxExtractHeight = new SqlCustomFunctionType("NpgsqlBoxExtractHeight");
+    public static readonly SqlCustomFunctionType NpgsqlBoxExtractWidth = new SqlCustomFunctionType("NpgsqlBoxExtractWidth");
 
     // NpgsqlCircle
-    public static readonly CustomSqlFunctionType NpgsqlCircleConstructor = new CustomSqlFunctionType("NpgsqlCircleConstructor");
-    public static readonly CustomSqlFunctionType NpgsqlCircleExtractCenter = new CustomSqlFunctionType("NpgsqlCircleExtractCenter");
-    public static readonly CustomSqlFunctionType NpgsqlCircleExtractRadius = new CustomSqlFunctionType("NpgsqlCircleExtractRadius");
+    public static readonly SqlCustomFunctionType NpgsqlCircleConstructor = new SqlCustomFunctionType("NpgsqlCircleConstructor");
+    public static readonly SqlCustomFunctionType NpgsqlCircleExtractCenter = new SqlCustomFunctionType("NpgsqlCircleExtractCenter");
+    public static readonly SqlCustomFunctionType NpgsqlCircleExtractRadius = new SqlCustomFunctionType("NpgsqlCircleExtractRadius");
 
     // NpgsqlLSeg
-    public static readonly CustomSqlFunctionType NpgsqlLSegConstructor = new CustomSqlFunctionType("NpgsqlLSegConstructor");
+    public static readonly SqlCustomFunctionType NpgsqlLSegConstructor = new SqlCustomFunctionType("NpgsqlLSegConstructor");
 
     // NpgsqlPath and NpgsqlPolygon
-    public static readonly CustomSqlFunctionType NpgsqlPathAndPolygonCount = new CustomSqlFunctionType("NpgsqlPathAndPolygonCount");
-    public static readonly CustomSqlFunctionType NpgsqlPathAndPolygonOpen = new CustomSqlFunctionType("NpgsqlPathAndPolygonOpen");
-    public static readonly CustomSqlFunctionType NpgsqlPathAndPolygonContains = new CustomSqlFunctionType("NpgsqlPathAndPolygonContains");
+    public static readonly SqlCustomFunctionType NpgsqlPathAndPolygonCount = new SqlCustomFunctionType("NpgsqlPathAndPolygonCount");
+    public static readonly SqlCustomFunctionType NpgsqlPathAndPolygonOpen = new SqlCustomFunctionType("NpgsqlPathAndPolygonOpen");
+    public static readonly SqlCustomFunctionType NpgsqlPathAndPolygonContains = new SqlCustomFunctionType("NpgsqlPathAndPolygonContains");
   }
 }

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+﻿// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alena Mikshina
@@ -12,24 +12,24 @@ using Xtensive.Core;
 namespace Xtensive.Sql.Dml
 {
   [Serializable]
-  public class CustomSqlFunctionCall : SqlExpression
+  public class SqlCustomFunctionCall : SqlExpression
   {
+    /// <summary>
+    /// Gets the custom function type.
+    /// </summary>
+    public SqlCustomFunctionType FunctionType { get; private set; }
+
     /// <summary>
     /// Gets the expressions.
     /// </summary>
     public IList<SqlExpression> Arguments { get; private set; }
 
-    /// <summary>
-    /// Gets the custom function type.
-    /// </summary>
-    public CustomSqlFunctionType CustomFunctionType { get; private set; }
-
     public override void ReplaceWith(SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<CustomSqlFunctionCall>(expression, "expression");
-      var replacingExpression = (CustomSqlFunctionCall) expression;
-      CustomFunctionType = replacingExpression.CustomFunctionType;
+      ArgumentValidator.EnsureArgumentIs<SqlCustomFunctionCall>(expression, "expression");
+      var replacingExpression = (SqlCustomFunctionCall) expression;
+      FunctionType = replacingExpression.FunctionType;
       Arguments.Clear();
       foreach (SqlExpression argument in replacingExpression.Arguments)
         Arguments.Add(argument);
@@ -40,7 +40,7 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.ContainsKey(this))
         return context.NodeMapping[this];
 
-      var clone = new CustomSqlFunctionCall(CustomFunctionType);
+      var clone = new SqlCustomFunctionCall(FunctionType);
       for (int i = 0, l = Arguments.Count; i < l; i++)
         clone.Arguments.Add((SqlExpression) Arguments[i].Clone(context));
       context.NodeMapping[this] = clone;
@@ -52,19 +52,19 @@ namespace Xtensive.Sql.Dml
       visitor.Visit(this);
     }
 
-    public CustomSqlFunctionCall(CustomSqlFunctionType customFunctionType, IEnumerable<SqlExpression> arguments)
+    public SqlCustomFunctionCall(SqlCustomFunctionType sqlCustomFunctionType, IEnumerable<SqlExpression> arguments)
       : base(SqlNodeType.CustomFunctionCall)
     {
-      CustomFunctionType = customFunctionType;
+      FunctionType = sqlCustomFunctionType;
       Arguments = new Collection<SqlExpression>();
       foreach (SqlExpression argument in arguments)
         Arguments.Add(argument);
     }
 
-    public CustomSqlFunctionCall(CustomSqlFunctionType customFunctionType, params SqlExpression[] arguments)
+    public SqlCustomFunctionCall(SqlCustomFunctionType sqlCustomFunctionType, params SqlExpression[] arguments)
       : base(SqlNodeType.CustomFunctionCall)
     {
-      CustomFunctionType = customFunctionType;
+      FunctionType = sqlCustomFunctionType;
       Arguments = new Collection<SqlExpression>();
       if (arguments!=null)
         foreach (SqlExpression argument in arguments)
