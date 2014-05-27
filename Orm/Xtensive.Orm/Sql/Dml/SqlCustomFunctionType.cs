@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public sealed class SqlCustomFunctionType : IEquatable<SqlCustomFunctionType>
   {
-    public string Name { get; set; }
+    public string Name { get; private set; }
 
     #region Equality members
 
