@@ -190,6 +190,7 @@
     <Compile Include="Issues\IssueJira0516_PartialIndexConstruction.cs" />
     <Compile Include="Issues\IssueJira0528_LongEnumBitOperations.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\ModelVersion1.cs" />
+    <Compile Include="Issues\IssueJira0529_MultipleInOperations.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\ModelVersion2.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\Upgrader.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\UpgradeTest.cs" />

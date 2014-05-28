@@ -91,6 +91,16 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
+    /// <inheritdoc/>
+    public override void Visit(SqlUnary node)
+    {
+      if (node.NodeType==SqlNodeType.BitNot) {
+        Visit(BitNot(node.Operand));
+        return;
+      }
+      base.Visit(node);
+    }
+
     protected virtual SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
       return CastToLong(DateDiffDay(date1, date2)) * NanosecondsPerDay
@@ -249,6 +259,17 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     protected static SqlUserFunctionCall DateTimeToStringIso(SqlExpression dateTime)
     {
       return SqlDml.FunctionCall("DATE_FORMAT", dateTime, "%Y-%m-%dT%T");
+    }
+    
+    protected static SqlUserFunctionCall BitNot(SqlExpression operand)
+    {
+      return SqlDml.FunctionCall(
+        "CAST",
+        SqlDml.RawConcat(
+          SqlDml.Native("~"),
+          SqlDml.RawConcat(
+            operand,
+            SqlDml.Native("AS SIGNED"))));
     }
 
     #endregion

@@ -121,7 +121,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     public override void Visit(SqlUnary node)
     {
       if (node.NodeType==SqlNodeType.BitNot) {
-        Visit(SqlDml.BitXor(node.Operand, SqlDml.Literal(Int64.MaxValue)));
+        Visit(BitNot(node.Operand));
         return;
       }
       base.Visit(node);
@@ -288,6 +288,11 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     protected static SqlUserFunctionCall BitXor(SqlExpression left, SqlExpression right)
     {
       return SqlDml.FunctionCall("BIN_XOR", left, right);
+    }
+
+    protected static SqlUserFunctionCall BitNot(SqlExpression operand)
+    {
+      return SqlDml.FunctionCall("BIN_NOT", operand);
     }
 
     protected static SqlConcat DateTimeToStringIso(SqlExpression dateTime)
