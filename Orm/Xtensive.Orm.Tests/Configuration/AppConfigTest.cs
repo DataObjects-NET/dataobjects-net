@@ -116,16 +116,6 @@ namespace Xtensive.Orm.Tests.Configuration
     }
 
     [Test]
-    public void DynamicMappingTest()
-    {
-      const DomainOptions expected = DomainOptions.DynamicMapping;
-      var configuration = DomainConfiguration.Load("AppConfigTest", "DomainWithDynamicMapping");
-      Assert.That(configuration.Options, Is.EqualTo(expected));
-      var clone = configuration.Clone();
-      Assert.That(clone.Options, Is.EqualTo(expected));
-    }
-
-    [Test]
     public void AdvancedMappingTest()
     {
       var configuration = DomainConfiguration.Load("AppConfigTest", "AdvancedMappingTest");

@@ -20,11 +20,6 @@ namespace Xtensive.Orm.Configuration
     None = 0,
 
     /// <summary>
-    /// Enables dynamic mapping in <see cref="Domain"/>.
-    /// </summary>
-    DynamicMapping = 1 << 0,
-
-    /// <summary>
     /// Default option set (<see cref="None"/>).
     /// </summary>
     Default = None,
