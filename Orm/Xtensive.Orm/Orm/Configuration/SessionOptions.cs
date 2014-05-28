@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     ReadRemovedObjects = 1 << 9,
 
-    // Not used:
+    // Server profile:
     // 1 << 10
 
     /// <summary>
@@ -120,7 +120,7 @@ namespace Xtensive.Orm.Configuration
     /// Predefined option set for server-side sessions (ASP.NET, ASP.NET MVC, services, etc.).
     /// Includes only <see cref="ValidateEntities"/> flag.
     /// </summary>
-    ServerProfile = ValidateEntities | AutoSaveChanges |(1 << 10),
+    ServerProfile = ValidateEntities | AutoSaveChanges | (1 << 10),
 
     /// <summary>
     /// Predefined option set for client-side sessions (WPF, Windows Forms, console applications, etc.).
