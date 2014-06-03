@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Providers;
@@ -311,6 +312,20 @@ namespace Xtensive.Orm.Upgrade
         var newColumn = newTable.CreateColumn(oldColumn.Name, oldColumn.DataType);
         newColumn.DbName = oldColumn.DbName;
         newColumn.IsNullable = oldColumn.IsNullable;
+        if (oldColumn.DefaultValue!=null && (oldColumn.DefaultValue is SqlLiteral<string> || oldColumn.DefaultValue is SqlLiteral<char>)) {
+          var stringLiteral = oldColumn.DefaultValue as SqlLiteral<string>;
+          if (stringLiteral!=null)
+            newColumn.DefaultValue = SqlDml.Literal(TryUnquoteLiteral(stringLiteral.GetValue().ToString()));
+
+          var charLiteral = oldColumn.DefaultValue as SqlLiteral<char>;
+          if (charLiteral!=null) {
+            var unquotedLiteral = TryUnquoteLiteral(charLiteral.GetValue().ToString());
+            newColumn.DefaultValue = SqlDml.Literal(string.IsNullOrEmpty(unquotedLiteral) ? '\0' : Convert.ToChar(unquotedLiteral, CultureInfo.InvariantCulture));
+          }
+        }
+        else {
+          newColumn.DefaultValue = oldColumn.DefaultValue;
+        }
       }
 
       // Clone primary key
@@ -1107,6 +1122,15 @@ namespace Xtensive.Orm.Upgrade
         return SqlDml.Literal(columnInfo.DefaultValue);
       var type = columnInfo.Type.Type;
       return type.IsValueType && !type.IsNullable() ? SqlDml.Literal(Activator.CreateInstance(type)) : null;
+    }
+
+    private string TryUnquoteLiteral(string stringToUnquote)
+    {
+      if (stringToUnquote.StartsWith("N")) {
+        var unquotedSting = stringToUnquote.Remove(0, 1).Trim(new[] {'\''}).Replace("''", "'");
+        return unquotedSting;
+      }
+      return stringToUnquote;
     }
 
     private long? GetCurrentSequenceValue(StorageSequenceInfo sequenceInfo)
