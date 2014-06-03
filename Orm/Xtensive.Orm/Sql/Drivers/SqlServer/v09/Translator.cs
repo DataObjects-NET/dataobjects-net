@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using Xtensive.Core;
@@ -318,7 +319,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var schema = table.Schema;
       var columnName = QuoteIdentifier(schema.Catalog.DbName, schema.DbName, table.DbName, action.Column.DbName);
       return TranslateExecSpRename(context, table, columnName, action.NewName, "COLUMN");
-     }
+    }
+
+    public virtual string Translate(SqlCompilerContext context, SqlAlterTable node, DefaultConstraint constraint)
+    {
+      return TranslateExecDropDefaultConstraint(context, node, constraint);
+    }
 
     protected string TranslateExecSpRename(SqlCompilerContext context, SchemaNode affectedNode, string objectName, string newName, string type)
     {
@@ -330,6 +336,67 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       if (type!=null)
         result.AppendFormat(", '{0}'", type);
       return result.ToString();
+    }
+
+    protected string TranslateExecDropDefaultConstraint(SqlCompilerContext context, SqlAlterTable node,  DefaultConstraint defaultConstraint)
+    {
+      var resultBuilder = new StringBuilder();
+      var column = defaultConstraint.Column;
+      var table = defaultConstraint.Table;
+      var schema = defaultConstraint.Column.DataTable.Schema;
+      var gettingNameOfDefaultConstraintScript = GetCurentNameOfDefaultConstraintScript();
+
+      var sqlVariableName = RemoveFromStringInvalidCharacters(string.Format("var_{0}_{1}_{2}", schema.DbName,
+        table.DbName,
+        column.DbName));
+
+      resultBuilder.Append(string.Format(gettingNameOfDefaultConstraintScript, 
+        sqlVariableName,
+        QuoteIdentifier(schema.Catalog.DbName),
+        schema.DbName,
+        table.DbName,
+        column.DbName));
+      resultBuilder.Append(" ");
+      resultBuilder.Append("Exec(N'");
+      resultBuilder.Append(Translate(context, node, AlterTableSection.Entry));
+      resultBuilder.Append(Translate(context, node, AlterTableSection.DropConstraint));
+      resultBuilder.AppendFormat(" CONSTRAINT [' + @{0} + N']')", sqlVariableName);
+      return resultBuilder.ToString();
+    }
+
+    protected virtual string GetCurentNameOfDefaultConstraintScript()
+    {
+      var resultBuilder = new StringBuilder();
+      resultBuilder.Append("DECLARE @{0} VARCHAR(256) ");
+      resultBuilder.Append(
+      @"SELECT
+        @{0} = {1}.sys.default_constraints.name
+      FROM 
+        {1}.sys.all_columns
+      INNER JOIN
+        {1}.sys.tables
+      ON all_columns.object_id = tables.object_id
+      INNER JOIN 
+        {1}.sys.schemas
+      ON tables.schema_id = schemas.schema_id  
+      INNER JOIN
+        {1}.sys.default_constraints
+      ON all_columns.default_object_id = default_constraints.object_id
+
+      WHERE 
+        schemas.name = '{2}'
+        AND tables.name = '{3}'
+        AND all_columns.name = '{4}'");
+      return resultBuilder.ToString();
+    }
+
+    protected string RemoveFromStringInvalidCharacters(string name)
+    {
+      var normalizedName = name.Aggregate(string.Empty, 
+        (current, character) => current.Insert(current.Length, !Char.IsLetterOrDigit(character) 
+          ? Convert.ToString('_', CultureInfo.InvariantCulture) 
+          : Convert.ToString(character, CultureInfo.InvariantCulture)));
+      return normalizedName;
     }
 
     protected void AddUseStatement(SqlCompilerContext context, Catalog catalog, StringBuilder output)
