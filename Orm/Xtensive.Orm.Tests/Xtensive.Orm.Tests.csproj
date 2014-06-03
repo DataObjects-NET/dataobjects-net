@@ -270,6 +270,7 @@
     <Compile Include="Issues\IssueJira0519_StaleKeyInEntitySet.cs" />
     <Compile Include="Issues\KeyFormatBug.cs" />
     <Compile Include="Issues\LocalCollectionsTest.cs" />
+    <Compile Include="Issues\IssueJira0537_DropDefaultConstraintBugTest.cs" />
     <Compile Include="Issues\NotEqualsForNullableColumnTest.cs" />
     <Compile Include="Linq\CompiledQueriesWithClosureTest.cs" />
     <Compile Include="Linq\MemberCompilerProviderTest.Classes.cs" />
