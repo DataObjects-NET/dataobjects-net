@@ -244,6 +244,8 @@ namespace Xtensive.Orm.Upgrade
           string ns = TryStripRecycledSuffix(r.Type.Namespace);
           oldName = ns + "." + oldName;
         }
+        if (string.IsNullOrEmpty(r.Attribute.OriginalName) && !context.ExtractedTypeMap.ContainsKey(oldName))
+          continue;
         var renameHint = new RenameTypeHint(oldName, r.Type);
         var similarHints =
           from h in hints
