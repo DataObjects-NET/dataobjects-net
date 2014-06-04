@@ -283,7 +283,8 @@ namespace Xtensive.Orm.Upgrade
     /// <returns>The original name of the recycled type.</returns>
     protected virtual string GetOriginalName(Type recycledType)
     {
-      return TryStripRecycledSuffix(recycledType.Namespace) + "." + recycledType.Name;
+      var nameOfType = recycledType.IsNested ? recycledType.FullName.Replace(recycledType.Namespace + ".", string.Empty) : recycledType.Name;
+      return TryStripRecycledSuffix(recycledType.Namespace) + "." + nameOfType;
     }
 
     /// <summary>
