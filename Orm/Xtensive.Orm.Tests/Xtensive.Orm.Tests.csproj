@@ -228,6 +228,8 @@
     <Compile Include="Issues\IssueJira0516_PartialIndexConstruction.cs" />
     <Compile Include="Issues\IssueJira0528_LongEnumBitOperations.cs" />
     <Compile Include="Issues\IssueJira0529_MultipleInOperations.cs" />
+    <Compile Include="Issues\IssueJira0531_IncorrectNameOfRecycledNestedType.cs" />
+    <Compile Include="Issues\IssueJira0540_IncorrectBehaviorOnDomainUpgradeWithRecycledTypeBug.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion3.cs" />
