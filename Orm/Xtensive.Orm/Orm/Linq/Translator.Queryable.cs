@@ -1196,7 +1196,10 @@ namespace Xtensive.Orm.Linq
         var predicateLambda = predicateExpression.ToLambda(context);
         var parameterSource = context.Bindings[parameter];
         var parameterRecordSet = parameterSource.ItemProjector.DataSource;
-        var rawProvider = ((RawProvider) ((StoreProvider) visitedSource.ItemProjector.DataSource).Source);
+
+        var rawProvider = (!context.Translator.state.JoinLocalCollectionEntity)
+          ? ((RawProvider) ((StoreProvider) visitedSource.ItemProjector.DataSource).Source)
+          : ((RawProvider) ((StoreProvider) ((JoinProvider) visitedSource.ItemProjector.DataSource).Left).Source);
         var filterColumnCount = rawProvider.Header.Length;
         var filteredTuple = context.GetApplyParameter(context.Bindings[outerParameter]);
 

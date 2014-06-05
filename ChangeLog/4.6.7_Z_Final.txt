@@ -1,3 +1,4 @@
 [main] Fixed handling of bit operations for long type for many providers
 [main] Fixed handling of recycled nested types.
 [main] Fixed handling of recycled types.
+[main] Fixed handling of queries with muliple IN operations

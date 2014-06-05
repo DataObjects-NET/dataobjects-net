@@ -114,8 +114,109 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(urls.Contains("2Hi"));
         Assert.That(urls.Contains("2Low"));
         Assert.That(urls.Contains("2Status"));
+      }
+    }
 
-        tx.Complete();
+    [Test]
+    public void OnlyInOperationTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction())
+      {
+        var equipment1 = new Equipment();
+        var equipment2 = new Equipment();
+        var equipment3 = new Equipment();
+
+        var parameter1Hi = new EquipmentParameter { Url = "1Hi" };
+        var parameter1Low = new EquipmentParameter { Url = "1Low" };
+        var parameter1Status = new EquipmentParameter { Url = "1Status" };
+        var parameter2Hi = new EquipmentParameter { Url = "2Hi" };
+        var parameter2Low = new EquipmentParameter { Url = "2Low" };
+        var parameter2Status = new EquipmentParameter { Url = "2Status" };
+        var parameter3Hi = new EquipmentParameter { Url = "3Hi" };
+        var parameter3Low = new EquipmentParameter { Url = "3Low" };
+        var parameter3Status = new EquipmentParameter { Url = "3Status" };
+
+        var technicalProcess1 = new TechnicalProcess
+        {
+          Equipment = equipment1,
+          RunIdHiParameter = parameter1Hi,
+          RunIdLowParameter = parameter1Low,
+          StatusParameter = parameter1Status,
+        };
+        var technicalProcess2 = new TechnicalProcess
+        {
+          Equipment = equipment2,
+          RunIdHiParameter = parameter2Hi,
+          RunIdLowParameter = parameter2Low,
+          StatusParameter = parameter2Status,
+        };
+        var technicalProcess3 = new TechnicalProcess
+        {
+          Equipment = equipment3,
+          RunIdHiParameter = parameter3Hi,
+          RunIdLowParameter = parameter3Low,
+          StatusParameter = parameter3Status,
+        };
+
+        var equipments = new[] { equipment1, equipment2 };
+
+        var technicalProcesses = Query.All<TechnicalProcess>()
+          .Where(tp => tp.Equipment.In(equipments)).ToArray();
+
+        Assert.AreEqual(2, technicalProcesses.Length);
+      }
+    }
+
+    [Test]
+    public void OnlyJoinOperationTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction())
+      {
+        var equipment1 = new Equipment();
+        var equipment2 = new Equipment();
+        var equipment3 = new Equipment();
+
+        var parameter1Hi = new EquipmentParameter { Url = "1Hi" };
+        var parameter1Low = new EquipmentParameter { Url = "1Low" };
+        var parameter1Status = new EquipmentParameter { Url = "1Status" };
+        var parameter2Hi = new EquipmentParameter { Url = "2Hi" };
+        var parameter2Low = new EquipmentParameter { Url = "2Low" };
+        var parameter2Status = new EquipmentParameter { Url = "2Status" };
+        var parameter3Hi = new EquipmentParameter { Url = "3Hi" };
+        var parameter3Low = new EquipmentParameter { Url = "3Low" };
+        var parameter3Status = new EquipmentParameter { Url = "3Status" };
+
+        var technicalProcess1 = new TechnicalProcess
+        {
+          Equipment = equipment1,
+          RunIdHiParameter = parameter1Hi,
+          RunIdLowParameter = parameter1Low,
+          StatusParameter = parameter1Status,
+        };
+        var technicalProcess2 = new TechnicalProcess
+        {
+          Equipment = equipment2,
+          RunIdHiParameter = parameter2Hi,
+          RunIdLowParameter = parameter2Low,
+          StatusParameter = parameter2Status,
+        };
+        var technicalProcess3 = new TechnicalProcess
+        {
+          Equipment = equipment3,
+          RunIdHiParameter = parameter3Hi,
+          RunIdLowParameter = parameter3Low,
+          StatusParameter = parameter3Status,
+        };
+
+        var urls = session.Query.All<TechnicalProcess>()
+          .Select(p => p.RunIdHiParameter.Url)
+          .Concat(session.Query.All<TechnicalProcess>().Select(p => p.RunIdLowParameter.Url))
+          .Concat(session.Query.All<TechnicalProcess>().Select(p => p.StatusParameter.Url))
+          .ToArray();
+
+        Assert.AreEqual(9, urls.Length);
       }
     }
   }
