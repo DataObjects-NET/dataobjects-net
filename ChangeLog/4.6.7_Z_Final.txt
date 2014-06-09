@@ -1,1 +1,2 @@
 [main] Fixed handling of bit operations for long type for many providers
+[sqlserver] Fixed dropping of default constraint under some scenarios.
