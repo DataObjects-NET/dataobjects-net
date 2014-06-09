@@ -55,21 +55,20 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var dropConstrainAction = node.Action as SqlDropConstraint;
       if (dropConstrainAction!=null) {
         if (dropConstrainAction.Constraint is DefaultConstraint) {
-          //We must know name of default constraint for drop it.
-          //But MS SQL creates name of default constrain by itself.
-          //And if we moved table to another schema or database or renamed table by recreation during upgrade,
-          //we doesn't know real name of default constraint.
-          //Because of this we should find name of constraint in system views.
-          //And we able to drop default constraint after that.
           var constraint = dropConstrainAction.Constraint as DefaultConstraint;
-          context.Output.AppendText(((Translator)translator).Translate(context, node, constraint));
-          return;
+          if (constraint.NameIsStale) {
+            //We must know name of default constraint for drop it.
+            //But MS SQL creates name of default constrain by itself.
+            //And if we moved table to another schema or database or renamed table by recreation during upgrade,
+            //we doesn't know real name of default constraint.
+            //Because of this we should find name of constraint in system views.
+            //And we able to drop default constraint after that.
+            context.Output.AppendText(((Translator)translator).Translate(context, node, constraint));
+            return;
+          }
         }
-        base.Visit(node);
-        return;
       }
-      else
-        base.Visit(node);
+      base.Visit(node);
     }
 
     /// <inheritdoc/>

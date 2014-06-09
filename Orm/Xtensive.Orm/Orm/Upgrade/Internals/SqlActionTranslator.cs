@@ -56,6 +56,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly List<Table> createdTables = new List<Table>();
     private readonly List<Sequence> createdSequences = new List<Sequence>();
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
+    private readonly HashSet<TableColumn> recreatedColumns = new HashSet<TableColumn>(); 
 
 
     private UpgradeActionSequenceBuilder currentOutput;
@@ -326,6 +327,7 @@ namespace Xtensive.Orm.Upgrade
         else {
           newColumn.DefaultValue = oldColumn.DefaultValue;
         }
+        recreatedColumns.Add(oldColumn);
       }
 
       // Clone primary key
@@ -428,6 +430,8 @@ namespace Xtensive.Orm.Upgrade
       var constraint = table.TableConstraints.OfType<DefaultConstraint>().FirstOrDefault(c => c.Column==column);
       if (constraint==null)
         return;
+      if (recreatedColumns.Contains(column))
+        constraint.NameIsStale = true;
       commandOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(constraint)));
     }
 
@@ -845,7 +849,13 @@ namespace Xtensive.Orm.Upgrade
 
       // Rename old column
       var tempName = GetTemporaryName(column);
-      RenameColumn(column, tempName);
+      if(recreatedColumns.Contains(column)) {
+        recreatedColumns.Remove(column);
+        RenameColumn(column, tempName);
+        recreatedColumns.Add(column);
+      }
+      else
+        RenameColumn(column, tempName);
 
       // Create new columns
       var newTypeInfo = targetColumn.Type;
