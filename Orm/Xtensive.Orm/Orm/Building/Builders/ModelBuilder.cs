@@ -457,7 +457,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       foreach (var type in typesToRegisterReferences) {
         var typeImplementors = type.GetImplementors();
-        var descendantTypes = type.GetDescendants();
+        var descendantTypes = type.GetDescendants(true);
         if (typeImplementors.Any())
         {
           foreach (var implementor in typeImplementors)
