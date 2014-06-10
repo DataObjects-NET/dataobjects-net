@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using System.Text;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
@@ -47,10 +48,27 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     public override void Visit(SqlAlterTable node)
     {
       var renameColumnAction = node.Action as SqlRenameColumn;
-      if (renameColumnAction!=null)
+      if (renameColumnAction!=null) {
         context.Output.AppendText(((Translator) translator).Translate(context, renameColumnAction));
-      else
-        base.Visit(node);
+        return;
+      }
+      var dropConstrainAction = node.Action as SqlDropConstraint;
+      if (dropConstrainAction!=null) {
+        if (dropConstrainAction.Constraint is DefaultConstraint) {
+          var constraint = dropConstrainAction.Constraint as DefaultConstraint;
+          if (constraint.NameIsStale) {
+            //We must know name of default constraint for drop it.
+            //But MS SQL creates name of default constrain by itself.
+            //And if we moved table to another schema or database or renamed table by recreation during upgrade,
+            //we doesn't know real name of default constraint.
+            //Because of this we should find name of constraint in system views.
+            //And we able to drop default constraint after that.
+            context.Output.AppendText(((Translator)translator).Translate(context, node, constraint));
+            return;
+          }
+        }
+      }
+      base.Visit(node);
     }
 
     /// <inheritdoc/>

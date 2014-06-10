@@ -20,6 +20,10 @@ namespace Xtensive.Sql.Model
     /// </summary>
     public TableColumn Column { get; private set; }
 
+    /// <summary>
+    /// Gets or sets value indicates that name of constraint is stale.
+    /// </summary>
+    internal bool NameIsStale { get; set; }
 
     // Constructors
 
@@ -28,6 +32,7 @@ namespace Xtensive.Sql.Model
     {
       ArgumentValidator.EnsureArgumentNotNull(column, "column");
       Column = column;
+      NameIsStale = false;
     }
   }
 }
