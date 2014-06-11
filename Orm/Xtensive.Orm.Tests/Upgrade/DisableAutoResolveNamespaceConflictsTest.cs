@@ -12,6 +12,7 @@ using NUnit.Framework;
 using Xtensive.Orm.Upgrade;
 using model1 = Xtensive.Orm.Tests.Upgrade.DisableAutoResolveNamespaceConflictsTestModel1;
 using model2 = Xtensive.Orm.Tests.Upgrade.DisableAutoResolveNamespaceConflictsTestModel2;
+using model3 = Xtensive.Orm.Tests.Upgrade.DisableAutoResolveNamespaceConflictsTestModel3;
 
 namespace Xtensive.Orm.Tests.Upgrade.DisableAutoResolveNamespaceConflictsTestModel1
 {
@@ -21,7 +22,7 @@ namespace Xtensive.Orm.Tests.Upgrade.DisableAutoResolveNamespaceConflictsTestMod
     [Key, Field]
     public int ID { get; private set; }
 
-    [Field(Nullable = false)]
+    [Field]
     public string NotEmpty { get; set; }
   }
 }
@@ -29,10 +30,36 @@ namespace Xtensive.Orm.Tests.Upgrade.DisableAutoResolveNamespaceConflictsTestMod
 namespace Xtensive.Orm.Tests.Upgrade.DisableAutoResolveNamespaceConflictsTestModel2
 {
   [HierarchyRoot]
-  public class Foo
+  public class Foo : Entity
   {
     [Key, Field]
     public int ID { get; private set; }
+
+    [Field]
+    public string NotEmpty { get; set; }
+  }
+}
+
+namespace Xtensive.Orm.Tests.Upgrade.DisableAutoResolveNamespaceConflictsTestModel3
+{
+  [HierarchyRoot]
+  public class Foo : Entity
+  {
+    [Key, Field]
+    public int ID { get; private set; }
+  }
+
+  public class Upgrader : UpgradeHandler
+  {
+    public override bool CanUpgradeFrom(string oldVersion)
+    {
+      return true;
+    }
+
+    public override bool AutodetectTypesMovements
+    {
+      get { return false; }
+    }
   }
 }
 
@@ -57,7 +84,23 @@ namespace Xtensive.Orm.Tests.Upgrade
       
       Assert.DoesNotThrow(()=>BuildDomain(secondModelConfiguration));
     }
-    
+
+    [Test]
+    public void UpgradeWhenAutoResolveIsDisabled()
+    {
+      var firstModelConfiguration = DomainConfigurationFactory.Create();
+      firstModelConfiguration.Types.Register(typeof (model1.Foo));
+      firstModelConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
+      var domain = BuildDomain(firstModelConfiguration);
+      domain.Dispose();
+
+      var secondModelConfiguration = DomainConfigurationFactory.Create();
+      secondModelConfiguration.Types.Register(typeof (model3.Foo));
+      secondModelConfiguration.Types.Register(typeof (model3.Upgrader));
+      secondModelConfiguration.UpgradeMode = DomainUpgradeMode.PerformSafely;
+
+      Assert.Throws<SchemaSynchronizationException>(() => BuildDomain(secondModelConfiguration));
+    }
 
   }
 }
