@@ -39,6 +39,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly IEnumerable<UpgradeHint> inputHints;
     private readonly MappingResolver resolver;
     private readonly DomainModel domainModel;
+    private readonly bool autoDetectTypesMovements;
 
     public HintGenerationResult Run()
     {
@@ -310,7 +311,8 @@ namespace Xtensive.Orm.Upgrade
         if (newType!=null)
           MapType(oldType, newType);
         else
-          suspiciousTypes.Add(oldType);
+          if (autoDetectTypesMovements)
+            suspiciousTypes.Add(oldType);
       }
 
       if (suspiciousTypes.Count==0)
@@ -1245,7 +1247,8 @@ namespace Xtensive.Orm.Upgrade
     public HintGenerator(
       HandlerAccessor handlers,
       StoredDomainModel extractedDomainModel, StorageModel extractedStorageModel,
-      IEnumerable<UpgradeHint> inputHints)
+      IEnumerable<UpgradeHint> inputHints,
+      bool autoDetectTypesMovements)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       ArgumentValidator.EnsureArgumentNotNull(extractedDomainModel, "extractedDomainModel");
@@ -1274,6 +1277,7 @@ namespace Xtensive.Orm.Upgrade
 
       foreach (var type in extractedModel.Types)
         extractedModelFields.Add(type, type.Fields.Flatten(f => f.Fields, null, true).ToArray());
+      this.autoDetectTypesMovements = autoDetectTypesMovements;
     }
   }
 }
