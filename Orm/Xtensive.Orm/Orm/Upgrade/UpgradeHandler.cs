@@ -70,6 +70,13 @@ namespace Xtensive.Orm.Upgrade
     public UpgradeContext UpgradeContext { get; private set; }
 
     /// <inheritdoc/>
+    public bool TypesMovementsAutoDetectIsEnabled
+    {
+      get { return UpgradeContext.TypesMovementsAutoDetectIsEnabled; }
+      protected set { UpgradeContext.TypesMovementsAutoDetectIsEnabled = value; }
+    }
+
+    /// <inheritdoc/>
     public virtual void OnPrepare()
     {
     }

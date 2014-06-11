@@ -40,6 +40,11 @@ namespace Xtensive.Orm.Upgrade
     UpgradeContext UpgradeContext { get; }
 
     /// <summary>
+    /// Determines whether handler is enabled autodetect of types, which moved from one namespace to another.
+    /// </summary>
+    bool TypesMovementsAutoDetectIsEnabled { get; }
+
+    /// <summary>
     /// Override this method to perform actions before any operation on database
     /// is performed.
     /// </summary>

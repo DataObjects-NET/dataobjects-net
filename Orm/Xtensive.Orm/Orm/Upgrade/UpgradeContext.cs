@@ -169,6 +169,8 @@ namespace Xtensive.Orm.Upgrade
 
     internal ITypeIdProvider TypeIdProvider { get; set; }
 
+    internal bool TypesMovementsAutoDetectIsEnabled { get; set; }
+
     internal static UpgradeContext GetCurrent(object cookie)
     {
       var current = Current;
