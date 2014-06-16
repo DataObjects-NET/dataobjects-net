@@ -189,6 +189,7 @@ namespace Xtensive.Orm.Upgrade
       Stage = configuration.UpgradeMode.IsMultistage() ? UpgradeStage.Upgrading : UpgradeStage.Final;
       Hints = new SetSlim<UpgradeHint>();
       Cookie = new object();
+      TypesMovementsAutoDetectIsEnabled = true;
     }
   }
 }
