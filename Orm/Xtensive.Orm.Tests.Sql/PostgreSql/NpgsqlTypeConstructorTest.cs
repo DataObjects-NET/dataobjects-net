@@ -14,6 +14,12 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 {
   public class NpgsqlTypeConstructorTest : SqlTest
   {
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.ProviderIs(StorageProvider.PostgreSql);
+    }
+
     [Test]
     public void NpgsqlPointConstructorTest()
     {
