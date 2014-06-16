@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Upgrade.DisableAutoResolveNamespaceConflictsTestMod
     }
     public override void OnBeforeStage()
     {
-      AutodetectTypesMovements = false;
+      TypesMovementsAutoDetectIsEnabled = false;
     }
   }
 }
