@@ -193,6 +193,8 @@ namespace Xtensive.Orm.Upgrade
 
     internal ITypeIdProvider TypeIdProvider { get; set; }
 
+    internal bool TypesMovementsAutoDetection { get; set; }
+
     internal static UpgradeContext GetCurrent(object cookie)
     {
       var current = Current;
@@ -234,7 +236,7 @@ namespace Xtensive.Orm.Upgrade
       NodeConfiguration = new NodeConfiguration(WellKnown.DefaultNodeId);
       NodeConfiguration.Lock();
       Cookie = new object();
-
+      TypesMovementsAutoDetection = true;
       Initialize();
     }
   }

@@ -69,6 +69,18 @@ namespace Xtensive.Orm.Upgrade
     /// <inheritdoc/>
     public UpgradeContext UpgradeContext { get; private set; }
 
+    /// <summary>
+    /// Determines whether handler is enabled autodetect of types, which moved from one namespace to another.
+    /// <para>
+    /// Detection is enabled by default.
+    /// </para>
+    /// </summary>
+    public bool TypesMovementsAutoDetection
+    {
+      get { return UpgradeContext.TypesMovementsAutoDetection; }
+      protected set { UpgradeContext.TypesMovementsAutoDetection = value; }
+    }
+
     /// <inheritdoc/>
     public void OnConfigureUpgradeDomain()
     {

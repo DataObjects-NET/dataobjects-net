@@ -340,7 +340,7 @@ namespace Xtensive.Orm.Upgrade
       if (oldModel==null)
         return;
       var handlers = Domain.Demand().Handlers;
-      var hintGenerator = new HintGenerator(handlers, context.Services.MappingResolver, oldModel, extractedSchema, context.Hints);
+      var hintGenerator = new HintGenerator(handlers, context.Services.MappingResolver, oldModel, extractedSchema, context.Hints, context.TypesMovementsAutoDetection);
       var hints = hintGenerator.Run();
       context.UpgradedTypesMapping = hints.UpgradedTypesMapping;
       context.Hints.Clear();

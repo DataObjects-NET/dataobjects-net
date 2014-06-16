@@ -382,6 +382,7 @@
     <Compile Include="Storage\TypeDiscriminatorFromInterfaceTest.cs" />
     <Compile Include="Storage\UpgradeModesTest.cs" />
     <Compile Include="Storage\ValidateEntityVersionsOnPersistTest.cs" />
+    <Compile Include="Upgrade\DisableAutoResolveNamespaceConflictsTest.cs" />
     <Compile Include="Storage\ValidationConstraintsOnGenericTypeTest.cs" />
     <Compile Include="Storage\ValidationContextClientProfileTest.cs" />
     <Compile Include="Upgrade\ChangeColumnCaseTest.cs" />
