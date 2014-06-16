@@ -169,7 +169,7 @@ namespace Xtensive.Orm.Upgrade
 
     internal ITypeIdProvider TypeIdProvider { get; set; }
 
-    internal bool TypesMovementsAutoDetectIsEnabled { get; set; }
+    internal bool TypesMovementsAutoDetection { get; set; }
 
     internal static UpgradeContext GetCurrent(object cookie)
     {
@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Upgrade
       Stage = configuration.UpgradeMode.IsMultistage() ? UpgradeStage.Upgrading : UpgradeStage.Final;
       Hints = new SetSlim<UpgradeHint>();
       Cookie = new object();
-      TypesMovementsAutoDetectIsEnabled = true;
+      TypesMovementsAutoDetection = true;
     }
   }
 }

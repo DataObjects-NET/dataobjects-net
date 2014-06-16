@@ -77,8 +77,8 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     public bool TypesMovementsAutoDetection
     {
-      get { return UpgradeContext.TypesMovementsAutoDetectIsEnabled; }
-      protected set { UpgradeContext.TypesMovementsAutoDetectIsEnabled = value; }
+      get { return UpgradeContext.TypesMovementsAutoDetection; }
+      protected set { UpgradeContext.TypesMovementsAutoDetection = value; }
     }
 
     /// <inheritdoc/>
