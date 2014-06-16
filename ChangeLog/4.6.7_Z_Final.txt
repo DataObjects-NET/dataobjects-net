@@ -1,3 +1,4 @@
+[main] Added UpgradeHandler.TypesMovementsAutoDetection option
 [main] Fixed handling of bit operations for long type for many providers
 [main] Fixed handling of recycled nested types.
 [sqlserver] Fixed dropping of default constraint under some scenarios.
