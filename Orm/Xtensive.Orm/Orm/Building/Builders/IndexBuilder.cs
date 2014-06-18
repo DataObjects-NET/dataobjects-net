@@ -788,6 +788,7 @@ namespace Xtensive.Orm.Building.Builders
             continue;
           var clone = column.Clone();
           clone.Name = nameBuilder.BuildColumnName(column);
+          clone.Field.MappingName = clone.Name;
           valueColumns.Add(clone);
         }
         else
