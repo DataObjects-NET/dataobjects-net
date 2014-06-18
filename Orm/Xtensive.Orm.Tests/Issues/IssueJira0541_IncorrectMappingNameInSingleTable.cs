@@ -44,8 +44,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      Assert.AreEqual(Domain.Model.Types[typeof (FirstChild)].Fields["Name"].MappingName, "Name");
-      Assert.AreEqual(Domain.Model.Types[typeof (SecondChild)].Fields["Name"].MappingName, "SecondChild.Name");
+      Assert.AreEqual("Name", Domain.Model.Types[typeof (FirstChild)].Fields["Name"].MappingName);
+      Assert.AreEqual("SecondChild.Name", Domain.Model.Types[typeof (SecondChild)].Fields["Name"].MappingName);
     }
 
     protected override DomainConfiguration BuildConfiguration()
