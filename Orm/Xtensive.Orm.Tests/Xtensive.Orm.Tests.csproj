@@ -274,6 +274,7 @@
     <Compile Include="Issues\LocalCollectionsTest.cs" />
     <Compile Include="Issues\IssueJira0537_DropDefaultConstraintBugTest.cs" />
     <Compile Include="Issues\NotEqualsForNullableColumnTest.cs" />
+    <Compile Include="Issues\IssueJira0541_IncorrectMappingNameInSingleTable.cs" />
     <Compile Include="Linq\CompiledQueriesWithClosureTest.cs" />
     <Compile Include="Linq\MemberCompilerProviderTest.Classes.cs" />
     <Compile Include="Linq\MemberCompilerProviderTest.cs" />
