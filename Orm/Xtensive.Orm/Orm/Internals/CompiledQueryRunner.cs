@@ -61,6 +61,15 @@ namespace Xtensive.Orm.Internals
       return result;
     }
 
+    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      var parameterizedQuery = GetSequenceQuery(query);
+      var parameterContext = CreateParameterContext(parameterizedQuery);
+      var result = new DelayedSequence<TElement>(session, parameterizedQuery, parameterContext);
+      session.RegisterDelayedQuery(result.Task);
+      return result;
+    }
+
     private ParameterizedQuery<TResult> GetScalarQuery<TResult>(
       Func<QueryEndpoint, TResult> query, bool executeAsSideEffect, out TResult result)
     {
