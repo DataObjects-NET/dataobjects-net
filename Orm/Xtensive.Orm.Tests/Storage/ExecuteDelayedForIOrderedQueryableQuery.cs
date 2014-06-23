@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq.ExecuteDelayedForIOrderedQueryableQueryModel;
@@ -31,6 +30,8 @@ namespace Xtensive.Orm.Tests.Linq
   [TestFixture]
   public class ExecuteDelayedForIOrderedQueryableQuery : AutoBuildTest
   {
+    private readonly int[] unsortedValueSequence = new[] {10, 5, 100, 2, 15, 1, 18, 9};
+    
     [Test]
     public void MainTest()
     {
@@ -44,10 +45,13 @@ namespace Xtensive.Orm.Tests.Linq
             select zoo);
         Assert.IsInstanceOf<IEnumerable<TestEntity>>(delaedQuery);
         session.ExecuteDelayedQueries(true);
-        int previousValue = -1;
+        var sortedValues = new int[unsortedValueSequence.Length];
+        unsortedValueSequence.CopyTo(sortedValues, 0);
+        Array.Sort(sortedValues);
+        var currentValueIndex = 0;
         foreach (var testEntity in delaedQuery) {
-          Assert.GreaterOrEqual(testEntity.OrderByThisField, previousValue);
-          previousValue = testEntity.OrderByThisField;
+          Assert.AreEqual(sortedValues[currentValueIndex], testEntity.OrderByThisField);
+          currentValueIndex++;
         }
       }
     }
@@ -65,12 +69,10 @@ namespace Xtensive.Orm.Tests.Linq
       var randomer = new Random();
       using (var session = Domain.OpenSession())
       using (session.Activate())
-      using (var transaction = session.OpenTransaction())
-      {
-        for (int i = 0; i < 10; i++)
-        {
-          new TestEntity { OrderByThisField = randomer.Next(0, 1000) };
-        }
+      using (var transaction = session.OpenTransaction()) {
+        foreach (var value in unsortedValueSequence)
+          new TestEntity { OrderByThisField = value };
+
         transaction.Complete();
       }
     }
