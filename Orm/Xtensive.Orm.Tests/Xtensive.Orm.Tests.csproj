@@ -288,6 +288,7 @@
     <Compile Include="Linq\ConvariantQueriesTest.cs" />
     <Compile Include="Linq\DateTimeToStringTest.cs" />
     <Compile Include="Linq\DoubleAggregateToStructTest.cs" />
+    <Compile Include="Storage\ExecuteDelayedForIOrderedQueryableQuery.cs" />
     <Compile Include="Linq\GroupByTwoEntitiesWithSameColumnsTest.cs" />
     <Compile Include="Linq\InOverSubtypeColumnTest.cs" />
     <Compile Include="Linq\KeysUnionTest.cs" />

@@ -368,6 +368,35 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
+    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
+    }
+
+    /// <summary>
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    public IEnumerable<TElement> ExecuteDelayed<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayed(query);
+    }
+
+    /// <summary>
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
     public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint,IQueryable<TElement>> query)
     {
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
