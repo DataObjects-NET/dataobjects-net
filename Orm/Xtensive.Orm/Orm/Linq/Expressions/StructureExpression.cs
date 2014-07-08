@@ -29,8 +29,7 @@ namespace Xtensive.Orm.Linq.Expressions
       private set
       {
         fields = value;
-        // Set owner only for non dynamic added properties
-        foreach (var fieldExpression in fields.OfType<FieldExpression>().Where(f => f.UnderlyingProperty != null))
+        foreach (var fieldExpression in fields.OfType<FieldExpression>())
           fieldExpression.Owner = this;
       }
     }

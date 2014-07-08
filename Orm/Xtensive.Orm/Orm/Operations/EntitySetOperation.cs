@@ -42,11 +42,22 @@ namespace Xtensive.Orm.Operations
     protected EntitySetOperation(Key key, FieldInfo field)
       : base(key, field)
     {
-      if (!entitySetBaseType.IsAssignableFrom(field.UnderlyingProperty.PropertyType))
-        throw new ArgumentOutOfRangeException(
-          Strings.ExTypeOfXMustBeADescendantOfYType,
-            field.UnderlyingProperty.GetShortName(true),
-            entitySetBaseType.GetShortName());
+      Type fieldType;
+      string fieldName = string.Empty;
+      if (field.IsDynalicallyDefined) {
+        fieldType = field.ValueType;
+        var name = field.Name;
+      }
+      else {
+        fieldType = field.UnderlyingProperty.PropertyType;
+        var name = field.UnderlyingProperty.GetShortName(true);
+      }
+      
+      if (!entitySetBaseType.IsAssignableFrom(fieldType))
+          throw new ArgumentOutOfRangeException(
+            Strings.ExTypeOfXMustBeADescendantOfYType,
+              fieldName,
+              entitySetBaseType.GetShortName());
     }
 
     /// <inheritdoc/>

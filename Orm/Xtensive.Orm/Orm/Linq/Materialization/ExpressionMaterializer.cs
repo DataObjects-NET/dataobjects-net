@@ -443,13 +443,22 @@ namespace Xtensive.Orm.Linq.Materialization
         defaultIfEmpty |= field.DefaultIfEmpty;
         var owner = field.Owner;
         var materializedOwner = MaterializeThroughOwner((Expression) owner, tuple, defaultIfEmpty);
+        Expression fieldExpression;
+        if (field.Field.IsDynalicallyDefined) {
+          var attributes = materializedOwner.Type.GetCustomAttributes(typeof (DefaultMemberAttribute), true);
+          var indexerPropertyName = ((DefaultMemberAttribute) attributes.Single()).MemberName;
+          var methodInfo = materializedOwner.Type.GetProperty(indexerPropertyName).GetGetMethod();
+          fieldExpression = Expression.Convert(Expression.Call(materializedOwner, methodInfo, Expression.Constant(field.Field.Name)), field.Field.ValueType);
+        }
+        else
+          fieldExpression = Expression.MakeMemberAccess(materializedOwner, field.Field.UnderlyingProperty);
         if (defaultIfEmpty) {
           return Expression.Condition(
             Expression.Equal(materializedOwner, Expression.Constant(null, materializedOwner.Type)),
             Expression.Call(MaterializationHelper.GetDefaultMethodInfo.MakeGenericMethod(field.Type)),
-            Expression.MakeMemberAccess(materializedOwner, field.Field.UnderlyingProperty));
+            fieldExpression);
         }
-        return Expression.MakeMemberAccess(materializedOwner, field.Field.UnderlyingProperty);
+        return fieldExpression;
       }
       return CreateEntity((EntityExpression) target, tuple);
     }
