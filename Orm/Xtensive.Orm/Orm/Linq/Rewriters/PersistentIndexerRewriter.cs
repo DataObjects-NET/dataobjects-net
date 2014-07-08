@@ -64,14 +64,24 @@ namespace Xtensive.Orm.Linq.Rewriters
     }
 
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
-    private static MemberExpression GetMemberExpression(MethodCallExpression mc)
+    private Expression GetMemberExpression(MethodCallExpression mc)
     {
       var name = (string) ExpressionEvaluator.Evaluate(mc.Arguments[0]).Value;
+      var visitedObject = Visit(mc.Object);
+      if (mc.Object != visitedObject)
+        mc = Expression.Call(visitedObject, mc.Method, mc.Arguments);
+      
       var propertyInfo = mc.Object.Type
         .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
         .SingleOrDefault(property => property.Name==name);
       if (propertyInfo!=null)
         return Expression.MakeMemberAccess(mc.Object, propertyInfo);
+
+      var attributes = mc.Object.Type.GetCustomAttributes(typeof (DefaultMemberAttribute), true);
+      var indexerPropertyName = ((DefaultMemberAttribute)attributes.Single()).MemberName;
+      var indexerProperty = mc.Object.Type.GetProperty(indexerPropertyName);
+      if (indexerProperty!=null)
+        return Expression.MakeIndex(mc.Object, indexerProperty, new[] {Expression.Constant(name)});
       throw new InvalidOperationException(String.Format(Strings.ExFieldXNotFoundInTypeX, name, mc.Object.Type));
     }
 
