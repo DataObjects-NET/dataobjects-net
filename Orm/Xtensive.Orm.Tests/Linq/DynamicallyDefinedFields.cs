@@ -1285,7 +1285,7 @@ namespace Xtensive.Orm.Tests.Linq
       testData.ByteFieldName = "ByteField";
       testData.ByteFieldValue = 10;
       testData.DateTimeFieldName = "DateTimeField";
-      testData.DateTimeFieldValue = new DateTime(12, 12, 12, 12, 12, 12, 12);
+      testData.DateTimeFieldValue = new DateTime(2012, 12, 12, 12, 12, 12);
       testData.DecimalFieldName = "DecimalField";
       testData.DecimalFieldValue = new decimal(10);
       testData.DoubleFieldName = "DoubleField";
