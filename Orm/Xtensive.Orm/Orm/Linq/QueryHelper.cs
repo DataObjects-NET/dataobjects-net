@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Model;
@@ -82,12 +83,20 @@ namespace Xtensive.Orm.Linq
       var wrapper = Activator.CreateInstance(
         typeof (OwnerWrapper<>).MakeGenericType(owner.GetType()), owner);
       var wrappedOwner = Expression.Property(Expression.Constant(wrapper), "Owner");
-      return Expression.Property(wrappedOwner, entitySet.Field.UnderlyingProperty);
+      if (!entitySet.Field.IsDynalicallyDefined)
+        return Expression.Property(wrappedOwner, entitySet.Field.UnderlyingProperty);
+      
+      var indexers = owner.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+        .Where(p => p.GetIndexParameters().Any())
+        .Select(p => p.GetGetMethod());
+      return Expression.Convert(Expression.Call(Expression.Constant(owner),indexers.Single(), new []{Expression.Constant(entitySet.Field.Name)}), entitySet.Field.ValueType);
     }
 
     public static Expression CreateEntitySetQuery(Expression ownerEntity, FieldInfo field)
     {
-      if (!field.UnderlyingProperty.PropertyType.IsOfGenericType(typeof (EntitySet<>)))
+      if (!field.IsDynalicallyDefined && !field.UnderlyingProperty.PropertyType.IsOfGenericType(typeof (EntitySet<>)))
+        throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, OrmLog.Instance);
+      if (field.IsDynalicallyDefined && !field.ValueType.IsOfGenericType(typeof (EntitySet<>)))
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, OrmLog.Instance);
 
       var elementType = field.ItemType;

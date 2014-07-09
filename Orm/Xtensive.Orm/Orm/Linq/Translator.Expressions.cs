@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Linq
           ? e
           : ExpressionEvaluator.Evaluate(e);
       }
-      return base.Visit(e);
+      return e.NodeType==ExpressionType.Index ? VisitIndex((IndexExpression) e) : base.Visit(e);
     }
 
     protected override Expression VisitUnknown(Expression e)
@@ -540,6 +540,16 @@ namespace Xtensive.Orm.Linq
 
       var rightIsConstant = context.Evaluator.CanBeEvaluated(right);
       var leftIsConstant = context.Evaluator.CanBeEvaluated(left);
+      bool leftOrRightIsIndex = false;
+
+      if (left is IndexExpression) {
+        left = VisitIndex((IndexExpression)left);
+        leftOrRightIsIndex = true;
+      }
+      if (right is IndexExpression) {
+        right = VisitIndex((IndexExpression)right);
+        leftOrRightIsIndex = true;
+      }
 
       IList<Expression> leftExpressions;
       IList<Expression> rightExpressions;
@@ -671,6 +681,10 @@ namespace Xtensive.Orm.Linq
         break;
       default:
         // Primitive types don't has subexpressions. Use standart routine.
+        if (leftOrRightIsIndex) {
+          var binary = Expression.MakeBinary(binaryExpression.NodeType, left, right, binaryExpression.IsLiftedToNull, binaryExpression.Method);
+          return VisitBinaryRecursive(binary, binaryExpression);
+        }
         return binaryExpression;
       }
 
@@ -715,6 +729,43 @@ namespace Xtensive.Orm.Linq
 
       // Return result.
       return resultExpression;
+    }
+
+    private Expression VisitIndex(IndexExpression ie)
+    {
+      var objectExpression = Visit(ie.Object).StripCasts();
+      var argument = Visit(ie.Arguments[0]);
+      var evaluatedArgument = (string) ExpressionEvaluator.Evaluate(argument).Value;
+      var entityExpression = objectExpression as EntityExpression;
+      if(entityExpression!=null)
+        return entityExpression.Fields.First(field => field.Name==evaluatedArgument);
+
+      var structureExpression = objectExpression as StructureExpression;
+      if (structureExpression!=null)
+        return structureExpression.Fields.First(field => field.Name==evaluatedArgument);
+
+      var entityFieldExpression = objectExpression as EntityFieldExpression;
+      if (entityFieldExpression!=null)
+        return entityFieldExpression.Fields.First(field => field.Name==evaluatedArgument);
+
+      var structureFieldExpression = objectExpression as StructureFieldExpression;
+      if (structureFieldExpression!=null)
+        return structureFieldExpression.Fields.First(field => field.Name==evaluatedArgument);
+
+      var typeInfo = context.Model.Types[objectExpression.Type];
+      var parameterExpression = objectExpression as ParameterExpression;
+      if (objectExpression is ParameterExpression || objectExpression is ConstantExpression) {
+        if (typeInfo.IsEntity) {
+          entityExpression = EntityExpression.Create(typeInfo, 0, false);
+          return entityExpression.Fields.First(field => field.Name==evaluatedArgument);
+        }
+        if (typeInfo.IsStructure) {
+          structureExpression = StructureExpression.CreateLocalCollectionStructure(typeInfo, new Segment<int>(0, typeInfo.TupleDescriptor.Count));
+          return structureExpression.Fields.First(field => field.Name==evaluatedArgument);
+        }
+      }
+      var fieldInfo = typeInfo.Fields[evaluatedArgument];
+      return Expression.Convert(Expression.Call(objectExpression, objectExpression.Type.GetProperty("Item").GetGetMethod(), new[] {Expression.Constant(evaluatedArgument)}), fieldInfo.ValueType);
     }
 
     private static bool IsConditionalOrWellknown(Expression expression, bool isRoot = true)
@@ -770,15 +821,23 @@ namespace Xtensive.Orm.Linq
       var result = new List<Expression>();
       foreach (PersistentFieldExpression fieldExpression in structureFields) {
         if (!structureType.GetProperties(BindingFlags.Instance | BindingFlags.Public).Contains(fieldExpression.UnderlyingProperty))
-          continue;
-
+          if (!context.Model.Types[structureType].Fields[fieldExpression.Name].IsDynalicallyDefined)
+            continue;
         Type nullableType = fieldExpression.Type.ToNullable();
-
+        Expression propertyAccessorExpression;
+        if (fieldExpression.UnderlyingProperty!=null)
+          propertyAccessorExpression = Expression.MakeMemberAccess(Expression.Convert(expression, structureType), fieldExpression.UnderlyingProperty);
+        else {
+          var attributes = structureType.GetCustomAttributes(typeof(DefaultMemberAttribute), true);
+          var indexerPropertyName = ((DefaultMemberAttribute)attributes.Single()).MemberName;
+          var methodInfo = structureType.GetProperty(indexerPropertyName).GetGetMethod();
+          propertyAccessorExpression = Expression.Call(Expression.Convert(expression, structureType), methodInfo, Expression.Constant(fieldExpression.Name));
+        }
         var memberExpression = (Expression) Expression.Condition(
           isNullExpression,
           Expression.Constant(null, nullableType),
           Expression.Convert(
-            Expression.MakeMemberAccess(Expression.Convert(expression, structureType), fieldExpression.UnderlyingProperty),
+            propertyAccessorExpression,
             nullableType));
 
         switch (fieldExpression.GetMemberType()) {

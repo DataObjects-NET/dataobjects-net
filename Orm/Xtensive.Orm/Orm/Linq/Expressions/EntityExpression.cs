@@ -34,8 +34,7 @@ namespace Xtensive.Orm.Linq.Expressions
       private set
       {
         fields = value;
-        // Set owner only for non dynamic added properties 
-        var fieldExpressions = fields.OfType<FieldExpression>().Where(f => f.UnderlyingProperty!=null || PersistentType.IsInterface);
+        var fieldExpressions = fields.OfType<FieldExpression>();
         foreach (var fieldExpression in fieldExpressions)
           fieldExpression.Owner = this;
       }

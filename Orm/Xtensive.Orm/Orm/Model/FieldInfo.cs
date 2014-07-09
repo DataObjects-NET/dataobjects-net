@@ -657,6 +657,11 @@ namespace Xtensive.Orm.Model
       }
     }
 
+    /// <summary>
+    /// Gets a value indicating whether field is dynamically defined.
+    /// </summary>
+    public bool IsDynalicallyDefined { get { return UnderlyingProperty==null; } }
+
     private void GetColumns(ColumnInfoCollection result)
     {
       if (Column != null)
