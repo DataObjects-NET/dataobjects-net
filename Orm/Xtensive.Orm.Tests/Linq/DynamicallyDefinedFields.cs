@@ -264,12 +264,14 @@ namespace Xtensive.Orm.Tests.Linq
         Assert.NotNull(storedArea);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
-        storedArea = session.Query.All<Area>()
-          .Where(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue)
-          .FirstOrDefault();
-        Assert.NotNull(storedArea);
-        TestFields(storedArea, group, someClass, interfaceImplementor);
-        
+        if (!IsOracle()) {
+          storedArea = session.Query.All<Area>()
+            .Where(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue)
+            .FirstOrDefault();
+          Assert.NotNull(storedArea);
+          TestFields(storedArea, group, someClass, interfaceImplementor);
+        }
+
         storedArea = session.Query.All<Area>()
           .Where(el => (string)el[testData.StringFieldName]==testData.StringFieldValue)
           .FirstOrDefault();
@@ -305,7 +307,8 @@ namespace Xtensive.Orm.Tests.Linq
         Assert.IsTrue(session.Query.All<Area>().All(el => (double)el[testData.DoubleFieldName]==testData.DoubleFieldValue));
         Assert.IsTrue(session.Query.All<Area>().All(el => (bool)el[testData.BooleanFieldName]==testData.BooleanFieldValue));
         Assert.IsTrue(session.Query.All<Area>().All(el => (decimal)el[testData.DecimalFieldName]==testData.DecimalFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().All(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue));
+        if (!IsOracle())
+          Assert.IsTrue(session.Query.All<Area>().All(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue));
         Assert.IsTrue(session.Query.All<Area>().All(el => (string)el[testData.StringFieldName]==testData.StringFieldValue));
         Assert.IsTrue(session.Query.All<Area>().All(el => (ITestInterface)el[testData.InterfaceImplementorFieldName]==interfaceImplementor));
       }
@@ -332,7 +335,8 @@ namespace Xtensive.Orm.Tests.Linq
         Assert.IsTrue(session.Query.All<Area>().Any(el => (double)el[testData.DoubleFieldName]==testData.DoubleFieldValue));
         Assert.IsTrue(session.Query.All<Area>().Any(el => (bool)el[testData.BooleanFieldName]==testData.BooleanFieldValue));
         Assert.IsTrue(session.Query.All<Area>().Any(el => (decimal)el[testData.DecimalFieldName]==testData.DecimalFieldValue));
-        Assert.IsTrue(session.Query.All<Area>().Any(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue));
+        if (!IsOracle())
+          Assert.IsTrue(session.Query.All<Area>().Any(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue));
         Assert.IsTrue(session.Query.All<Area>().Any(el => (string)el[testData.StringFieldName]==testData.StringFieldValue));
         Assert.IsTrue(session.Query.All<Area>().Any(el => (ITestInterface)el[testData.InterfaceImplementorFieldName]==interfaceImplementor));
       }
@@ -359,7 +363,8 @@ namespace Xtensive.Orm.Tests.Linq
         Assert.AreEqual(1, session.Query.All<Area>().Count(el => (double)el[testData.DoubleFieldName]==testData.DoubleFieldValue));
         Assert.AreEqual(1, session.Query.All<Area>().Count(el => (bool)el[testData.BooleanFieldName]==testData.BooleanFieldValue));
         Assert.AreEqual(1, session.Query.All<Area>().Count(el => (decimal)el[testData.DecimalFieldName]==testData.DecimalFieldValue));
-        Assert.AreEqual(1, session.Query.All<Area>().Count(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue));
+        if (!IsOracle())
+          Assert.AreEqual(1, session.Query.All<Area>().Count(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue));
         Assert.AreEqual(1, session.Query.All<Area>().Count(el => (string)el[testData.StringFieldName]==testData.StringFieldValue));
         Assert.AreEqual(1, session.Query.All<Area>().Count(el => (ITestInterface)el[testData.InterfaceImplementorFieldName]==interfaceImplementor));
       }
@@ -420,9 +425,11 @@ namespace Xtensive.Orm.Tests.Linq
         storedArea = session.Query.All<Area>().First(el => (decimal)el[testData.DecimalFieldName]==testData.DecimalFieldValue);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
-        Assert.DoesNotThrow(() => session.Query.All<Area>().First(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue));
-        storedArea = session.Query.All<Area>().First(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue);
-        TestFields(storedArea, group, someClass, interfaceImplementor);
+        if (!IsOracle()) {
+          Assert.DoesNotThrow(() => session.Query.All<Area>().First(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue));
+          storedArea = session.Query.All<Area>().First(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue);
+          TestFields(storedArea, group, someClass, interfaceImplementor);
+        }
 
         Assert.DoesNotThrow(() => session.Query.All<Area>().First(el => (string)el[testData.StringFieldName]==testData.StringFieldValue));
         storedArea = session.Query.All<Area>().First(el => (string)el[testData.StringFieldName]==testData.StringFieldValue);
@@ -488,9 +495,11 @@ namespace Xtensive.Orm.Tests.Linq
         Assert.NotNull(storedArea);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
-        storedArea = session.Query.All<Area>().FirstOrDefault(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue);
-        Assert.NotNull(storedArea);
-        TestFields(storedArea, group, someClass, interfaceImplementor);
+        if (!IsOracle()) {
+          storedArea = session.Query.All<Area>().FirstOrDefault(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue);
+          Assert.NotNull(storedArea);
+          TestFields(storedArea, group, someClass, interfaceImplementor);
+        }
 
         storedArea = session.Query.All<Area>().FirstOrDefault(el => (string)el[testData.StringFieldName]==testData.StringFieldValue);
         Assert.NotNull(storedArea);
@@ -552,9 +561,11 @@ namespace Xtensive.Orm.Tests.Linq
         Assert.NotNull(storedArea);
         Assert.AreEqual(1, storedArea.Length);
 
-        var storedArea10 = session.Query.All<Area>().GroupBy(el => (byte[])el[testData.ByteArrayFieldName]).ToArray();
-        Assert.NotNull(storedArea);
-        Assert.AreEqual(1, storedArea.Length);
+        if (!IsOracle()) {
+          var storedArea10 = session.Query.All<Area>().GroupBy(el => (byte[])el[testData.ByteArrayFieldName]).ToArray();
+          Assert.NotNull(storedArea);
+          Assert.AreEqual(1, storedArea.Length);
+        }
 
         var storedArea11 = session.Query.All<Area>().GroupBy(el => (string)el[testData.StringFieldName]).ToArray();
         Assert.NotNull(storedArea);
@@ -571,8 +582,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (session.Activate())
-      using (var transaction = session.OpenTransaction())
-      {
+      using (var transaction = session.OpenTransaction()) {
         var group = session.Query.Single<Group>(testData.Group);
         var someClass = session.Query.Single<SomeClass>(testData.SomeClassKey);
         var interfaceImplementor = session.Query.Single<TestInterfaceImplementor>(testData.InterfaceImplementorKey);
@@ -590,7 +600,7 @@ namespace Xtensive.Orm.Tests.Linq
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
         storedArea = session.Query.All<Area>()
-          .OrderBy(el => (int)((GeoLocation)el[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName])
+          .OrderBy(el => (int) ((GeoLocation)el[testData.GeoLocationFieldName])[testData.GeoLocationDynamicFieldName])
           .FirstOrDefault();
         Assert.NotNull(storedArea);
         TestFields(storedArea, group, someClass, interfaceImplementor);
@@ -643,11 +653,14 @@ namespace Xtensive.Orm.Tests.Linq
         Assert.NotNull(storedArea);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
-        storedArea = session.Query.All<Area>()
-          .OrderBy(el => (byte[])el[testData.ByteArrayFieldName])
-          .FirstOrDefault();
-        Assert.NotNull(storedArea);
-        TestFields(storedArea, group, someClass, interfaceImplementor);
+        if (!IsOracle()) {
+          storedArea = session.Query.All<Area>()
+            .OrderBy(el => (byte[])el[testData.ByteArrayFieldName])
+            .FirstOrDefault();
+
+          Assert.NotNull(storedArea);
+          TestFields(storedArea, group, someClass, interfaceImplementor);
+        }
 
         storedArea = session.Query.All<Area>()
           .OrderBy(el => (string)el[testData.StringFieldName])
@@ -857,9 +870,11 @@ namespace Xtensive.Orm.Tests.Linq
         storedArea = session.Query.All<Area>().Single(el => (decimal)el[testData.DecimalFieldName]==testData.DecimalFieldValue);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
-        Assert.DoesNotThrow(() => session.Query.All<Area>().Single(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue));
-        storedArea = session.Query.All<Area>().Single(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue);
-        TestFields(storedArea, group, someClass, interfaceImplementor);
+        if (!IsOracle()) {
+          Assert.DoesNotThrow(() => session.Query.All<Area>().Single(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue));
+          storedArea = session.Query.All<Area>().Single(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue);
+          TestFields(storedArea, group, someClass, interfaceImplementor);
+        }
 
         Assert.DoesNotThrow(() => session.Query.All<Area>().Single(el => (string)el[testData.StringFieldName]==testData.StringFieldValue));
         storedArea = session.Query.All<Area>().Single(el => (string)el[testData.StringFieldName]==testData.StringFieldValue);
@@ -925,9 +940,11 @@ namespace Xtensive.Orm.Tests.Linq
         Assert.NotNull(storedArea);
         TestFields(storedArea, group, someClass, interfaceImplementor);
 
-        storedArea = session.Query.All<Area>().SingleOrDefault(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue);
-        Assert.NotNull(storedArea);
-        TestFields(storedArea, group, someClass, interfaceImplementor);
+        if (!IsOracle()) {
+          storedArea = session.Query.All<Area>().SingleOrDefault(el => (byte[])el[testData.ByteArrayFieldName]==testData.ByteArrayFieldValue);
+          Assert.NotNull(storedArea);
+          TestFields(storedArea, group, someClass, interfaceImplementor);
+        }
 
         storedArea = session.Query.All<Area>().SingleOrDefault(el => (string)el[testData.StringFieldName]==testData.StringFieldValue);
         Assert.NotNull(storedArea);
@@ -942,6 +959,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void IndirectAppearToDynamicallyDefinedField()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
@@ -957,6 +975,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void MethodResultAsIndexedInstanceTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
@@ -1020,6 +1039,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ComplexMaxTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
@@ -1084,6 +1104,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ComplexMinTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
@@ -1128,9 +1150,6 @@ namespace Xtensive.Orm.Tests.Linq
         var group = session.Query.Single<Group>(testData.Group);
         var someClass = session.Query.Single<SomeClass>(testData.SomeClassKey);
         var interfaceImplementor = session.Query.Single<TestInterfaceImplementor>(testData.InterfaceImplementorKey);
-
-        //var isIn = session.Query.All<SomeClass>().In((EntitySet<SomeClass>)session.Query.All<Area>().First()[testData.SomeClassesFieldName]);
-        //Assert.IsTrue(isIn);
 
         var area = session.Query.All<Area>().First(el => ((byte)el[testData.ByteFieldName]).In(localByteCollection));
         TestFields(area ,group, someClass, interfaceImplementor);
@@ -1271,6 +1290,12 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual(testData.FloatFieldValue, (float)area[testData.FloatFieldName]);
       Assert.AreEqual(testData.BooleanFieldValue, (bool)area[testData.BooleanFieldName]);
       Assert.AreEqual((ITestInterface)implementor, (ITestInterface)area[testData.InterfaceImplementorFieldName]);
+    }
+
+    private bool IsOracle()
+    {
+      var info = StorageProviderInfo.Instance;
+      return info.CheckProviderIs(StorageProvider.Oracle);
     }
 
     public override void TestFixtureSetUp()
