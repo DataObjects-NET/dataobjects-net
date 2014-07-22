@@ -114,6 +114,12 @@ namespace Xtensive.Orm.Upgrade
     public Dictionary<string, int> FullTypeMap { get; internal set; }
 
     /// <summary>
+    /// Describes type identifier map which difined by user.
+    /// All Type identifier in this collection must be greater than 100, otherwise, will thrown exception. 
+    /// </summary>
+    public Dictionary<string, int> CustomTypeIdMap { get; internal set; } 
+
+    /// <summary>
     /// Gets the map of upgrade handlers.
     /// </summary>
     public ReadOnlyDictionary<Assembly, IUpgradeHandler> UpgradeHandlers { get { return Services.UpgradeHandlers; } }
@@ -190,6 +196,7 @@ namespace Xtensive.Orm.Upgrade
       Hints = new SetSlim<UpgradeHint>();
       Cookie = new object();
       TypesMovementsAutoDetection = true;
+      CustomTypeIdMap = new Dictionary<string, int>();
     }
   }
 }
