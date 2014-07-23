@@ -256,6 +256,8 @@ namespace Xtensive.Orm.Upgrade
 
     private void CheckUserDefinedTypeMap(Domain domain)
     {
+      if (UpgradeContext.UserDefinedTypeMap.Count==0)
+        return;
       var types = domain.Model.Types;
       var typesExtracted = UpgradeContext.ExtractedTypeMap!=null;
       var mapping = UpgradeContext.UpgradedTypesMapping ?? new Dictionary<string, string>();
