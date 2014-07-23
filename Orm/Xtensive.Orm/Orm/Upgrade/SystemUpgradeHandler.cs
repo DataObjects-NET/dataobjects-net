@@ -268,7 +268,7 @@ namespace Xtensive.Orm.Upgrade
             throw new DomainBuilderException(string.Format(Strings.ExUserDefinedTypeIdentifierXForTypeYLessThan100, customTypeIdMapping.Value, customTypeIdMapping.Key));
         }
         else {
-          var type = types[customTypeIdMapping.Key];
+          var type = types.Find(customTypeIdMapping.Key);
           var databaseConfiguration = domain.Model.Databases[type.MappingDatabase].Configuration;
           if (customTypeIdMapping.Value < databaseConfiguration.MinTypeId || customTypeIdMapping.Value > databaseConfiguration.MaxTypeId)
             throw new DomainBuilderException(
