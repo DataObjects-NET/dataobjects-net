@@ -1396,6 +1396,57 @@ namespace Xtensive.Orm.Tests.Upgrade
         Assert.AreEqual(300, domain.Model.Types[typeof (multyDatabaseModel.Database3.Car)].TypeId);
         Assert.AreEqual(301, domain.Model.Types[typeof (multyDatabaseModel.Database3.Engine)].TypeId);
       }
+
+      using (var domain = BuildDomain(firstConfiguration)) {
+        var currentMap = domain.Model.Types.ToDictionary(key => key.UnderlyingType.FullName, value => value.TypeId);
+        Assert.AreEqual(expectedMap.Count, currentMap.Count);
+        Assert.AreEqual(expectedMap, currentMap);
+      }
+
+      using (var domain = BuildDomain(secondConfiguration)) {
+        var currentMap = domain.Model.Types.ToDictionary(key => key.UnderlyingType.FullName, value => value.TypeId);
+        foreach (var map in expectedMap) {
+          int typeId;
+          currentMap.TryGetValue(map.Key, out typeId);
+          Assert.AreEqual(map.Value, typeId);
+        }
+        Assert.AreEqual(200, domain.Model.Types[typeof (multyDatabaseModel.Database2.Parent)].TypeId);
+        Assert.AreEqual(201, domain.Model.Types[typeof (multyDatabaseModel.Database2.Child)].TypeId);
+        Assert.AreEqual(300, domain.Model.Types[typeof (multyDatabaseModel.Database3.Car)].TypeId);
+        Assert.AreEqual(301, domain.Model.Types[typeof (multyDatabaseModel.Database3.Engine)].TypeId);
+      }
+
+      using (var domain = BuildDomain(secondConfiguration)) {
+        var currentMap = domain.Model.Types.ToDictionary(key => key.UnderlyingType.FullName, value => value.TypeId);
+        foreach (var map in expectedMap) {
+          int typeId;
+          currentMap.TryGetValue(map.Key, out typeId);
+          Assert.AreEqual(map.Value, typeId);
+        }
+        Assert.AreEqual(200, domain.Model.Types[typeof (multyDatabaseModel.Database2.Parent)].TypeId);
+        Assert.AreEqual(201, domain.Model.Types[typeof (multyDatabaseModel.Database2.Child)].TypeId);
+        Assert.AreEqual(300, domain.Model.Types[typeof (multyDatabaseModel.Database3.Car)].TypeId);
+        Assert.AreEqual(301, domain.Model.Types[typeof (multyDatabaseModel.Database3.Engine)].TypeId);
+      }
+
+      using (var domain = BuildDomain(firstConfiguration)) {
+        var currentMap = domain.Model.Types.ToDictionary(key => key.UnderlyingType.FullName, value => value.TypeId);
+        Assert.AreEqual(expectedMap.Count, currentMap.Count);
+        Assert.AreEqual(expectedMap, currentMap);
+      }
+
+      using (var domain = BuildDomain(secondConfiguration)) {
+        var currentMap = domain.Model.Types.ToDictionary(key => key.UnderlyingType.FullName, value => value.TypeId);
+        foreach (var map in expectedMap) {
+          int typeId;
+          currentMap.TryGetValue(map.Key, out typeId);
+          Assert.AreEqual(map.Value, typeId);
+        }
+        Assert.AreEqual(200, domain.Model.Types[typeof (multyDatabaseModel.Database2.Parent)].TypeId);
+        Assert.AreEqual(201, domain.Model.Types[typeof (multyDatabaseModel.Database2.Child)].TypeId);
+        Assert.AreEqual(300, domain.Model.Types[typeof (multyDatabaseModel.Database3.Car)].TypeId);
+        Assert.AreEqual(301, domain.Model.Types[typeof (multyDatabaseModel.Database3.Engine)].TypeId);
+      }
     }
 
     [Test]
