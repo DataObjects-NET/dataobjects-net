@@ -2494,4 +2494,7 @@ Error: {1}</value>
   <data name="ExUserDefinedTypeIdentifierXForTypeYBeyongTheLimitsDefinedForDatabaseZ">
     <value xml:space="preserve">Custom type identifier '{0}' for type '{1}' beyongs the limits defined for database '{2}'.</value>
   </data>
+  <data name="ExTypeIdentifierXDefinesDifferentTypesInExtractedMapOfTypesAndDefinedByUserMapOfTypes">
+    <value xml:space="preserve">Type identifier '{0}' defines different types in extracted map of types and defined by user map of types.</value>
+  </data>
 </root>

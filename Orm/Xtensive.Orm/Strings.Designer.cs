@@ -4557,6 +4557,16 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type identifier &apos;{0}&apos; defines different types in extracted map of types and defined by user map of types..
+        /// </summary>
+        internal static string ExTypeIdentifierXDefinesDifferentTypesInExtractedMapOfTypesAndDefinedByUserMapOfTypes {
+            get {
+                return ResourceManager.GetString("ExTypeIdentifierXDefinesDifferentTypesInExtractedMapOfTypesAndDefinedByUserMapOfT" +
+                        "ypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to TypeId for type &apos;{0}&apos; is not found..
         /// </summary>
         internal static string ExTypeIdForTypeXIsNotFound {

@@ -257,7 +257,7 @@ namespace Xtensive.Orm.Upgrade
     private void CheckCustomTypeIdMap(Domain domain)
     {
       var types = domain.Model.Types;
-      var typesWasExtracted = UpgradeContext.ExtractedTypeMap!=null;
+      var typesExtracted = UpgradeContext.ExtractedTypeMap!=null;
       var mapping = UpgradeContext.UpgradedTypesMapping ?? new Dictionary<string, string>();
       foreach (var customTypeIdMapping in UpgradeContext.UserDefinedTypeMap) {
         if (types.Contains(customTypeIdMapping.Key))
@@ -277,7 +277,12 @@ namespace Xtensive.Orm.Upgrade
                 customTypeIdMapping.Key,
                 databaseConfiguration.Name));
         }
-      }
+        if (typesExtracted) {
+          if (UpgradeContext.ExtractedTypeMap.ContainsValue(customTypeIdMapping.Value))
+            if (UpgradeContext.ExtractedTypeMap[customTypeIdMapping.Key]!=customTypeIdMapping.Value)
+              throw new DomainBuilderException(string.Format(Strings.ExTypeIdentifierXDefinesDifferentTypesInExtractedMapOfTypesAndDefinedByUserMapOfTypes, customTypeIdMapping.Value));
+        }
+      } 
     }
   }
 }
