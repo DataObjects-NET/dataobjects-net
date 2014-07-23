@@ -265,7 +265,7 @@ namespace Xtensive.Orm.Upgrade
         if (types.Contains(userDefindeTypeMap.Key))
           throw new DomainBuilderException(string.Format(Strings.ExUnableToDefineTypeIdentifierXForTypeYTypeIsNotExists, userDefindeTypeMap.Value, userDefindeTypeMap.Key));
 
-        if (domain.Model.Databases.Count == 0) {
+        if (domain.Model.Databases.Count==0) {
           if (userDefindeTypeMap.Value <= TypeInfo.MinTypeId)
             throw new DomainBuilderException(string.Format(Strings.ExUserDefinedTypeIdentifierXForTypeYLessThan100, userDefindeTypeMap.Value, userDefindeTypeMap.Key));
         }
