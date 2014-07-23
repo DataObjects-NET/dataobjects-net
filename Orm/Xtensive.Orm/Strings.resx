@@ -2485,4 +2485,13 @@ Error: {1}</value>
   <data name="ExKeyGeneratorsXAndYHaveTheSameSeedValue">
     <value xml:space="preserve">Key generators '{0}' and '{1}' have the same seed value.</value>
   </data>
+  <data name="ExUnableToDefineTypeIdentifierXForTypeYTypeIsNotExists">
+    <value xml:space="preserve">Unable to define type identifier '{0}' for type '{1}'. Type is not exists.</value>
+  </data>
+  <data name="ExUserDefinedTypeIdentifierXForTypeYLessThan100">
+    <value xml:space="preserve">User defined type identifier '{0}' for type '{1}'  less then 100.</value>
+  </data>
+  <data name="ExUserDefinedTypeIdentifierXForTypeYBeyongTheLimitsDefinedForDatabaseZ">
+    <value xml:space="preserve">Custom type identifier '{0}' for type '{1}' beyongs the limits defined for database '{2}'.</value>
+  </data>
 </root>
