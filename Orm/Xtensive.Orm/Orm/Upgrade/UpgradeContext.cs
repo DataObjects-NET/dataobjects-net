@@ -114,6 +114,21 @@ namespace Xtensive.Orm.Upgrade
     public Dictionary<string, int> FullTypeMap { get; internal set; }
 
     /// <summary>
+    /// Gets or sets additional type identifier map which defined by user.
+    /// <para>
+    /// NOTE THAT, this collection has lower priority than <see cref="ExtractedTypeMap"/>. 
+    /// It means, if this collection and <see cref="ExtractedTypeMap"/> both have mapping for the same type, 
+    /// then type identifier will be defined by value from <see cref="ExtractedTypeMap"/>.
+    /// </para>
+    /// <para>
+    /// If domain configuration has configurations for databases with defined minimal and maximal type identifier,
+    /// then type identifier must be set within limits, which defined in mapped database.
+    /// If domain has not configurations for databases then all type identifiers in this collection must be greater then or equal to 100.
+    /// </para>
+    /// </summary>
+    public Dictionary<string, int> UserDefinedTypeMap { get; internal set; } 
+
+    /// <summary>
     /// Gets the map of upgrade handlers.
     /// </summary>
     public ReadOnlyDictionary<Assembly, IUpgradeHandler> UpgradeHandlers { get { return Services.UpgradeHandlers; } }
@@ -190,6 +205,7 @@ namespace Xtensive.Orm.Upgrade
       Hints = new SetSlim<UpgradeHint>();
       Cookie = new object();
       TypesMovementsAutoDetection = true;
+      UserDefinedTypeMap = new Dictionary<string, int>();
     }
   }
 }
