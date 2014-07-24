@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using System.Linq;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using initialModel = Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel1;
 using onlyCustomsTypeIdsModel = Xtensive.Orm.Tests.Upgrade.CustomTypeIdModel2;
@@ -1358,6 +1359,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void LegacySkipMultiDatabaseTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Multidatabase | ProviderFeatures.Multischema);
       var expectedMap = new Dictionary<string, int>();
       BuildInitialDomains();
       var firstConfiguration = DomainConfigurationFactory.Create();
@@ -1452,6 +1454,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void LegacyValidateMultiDatabaseTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Multidatabase | ProviderFeatures.Multischema);
       var expectedMap = new Dictionary<string, int>();
       BuildInitialDomains();
       var firstConfiguration = DomainConfigurationFactory.Create();
@@ -1495,6 +1498,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void UserTypeIdLimits()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Multidatabase | ProviderFeatures.Multischema);
       var rightConfiguration = DomainConfigurationFactory.Create();
       rightConfiguration.Types.Register(typeof (multyDatabaseModel.Database2.Child).Assembly, typeof (multyDatabaseModel.Database2.Child).Namespace);
       rightConfiguration.Types.Register(typeof (multyDatabaseModel.Database1.Book).Assembly, typeof (multyDatabaseModel.Database1.Book).Namespace);
