@@ -1197,9 +1197,14 @@ namespace Xtensive.Orm.Linq
         var parameterSource = context.Bindings[parameter];
         var parameterRecordSet = parameterSource.ItemProjector.DataSource;
 
-        var rawProvider = (!context.Translator.state.JoinLocalCollectionEntity)
-          ? ((RawProvider) ((StoreProvider) visitedSource.ItemProjector.DataSource).Source)
-          : ((RawProvider) ((StoreProvider) ((JoinProvider) visitedSource.ItemProjector.DataSource).Left).Source);
+        RawProvider rawProvider;
+        var storeProvider = visitedSource.ItemProjector.DataSource as StoreProvider;
+        if (storeProvider!=null)
+          rawProvider = (RawProvider) storeProvider.Source;
+        else {
+          var joinProvider = (JoinProvider) visitedSource.ItemProjector.DataSource;
+          rawProvider = (RawProvider) ((StoreProvider)joinProvider.Left).Source;
+        }
         var filterColumnCount = rawProvider.Header.Length;
         var filteredTuple = context.GetApplyParameter(context.Bindings[outerParameter]);
 
