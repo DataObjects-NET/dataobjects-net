@@ -1203,7 +1203,7 @@ namespace Xtensive.Orm.Linq
           rawProvider = (RawProvider) storeProvider.Source;
         else {
           var joinProvider = (JoinProvider) visitedSource.ItemProjector.DataSource;
-          rawProvider = (RawProvider) joinProvider.Left;
+          rawProvider = (RawProvider) ((StoreProvider)joinProvider.Left).Source;
         }
         var filterColumnCount = rawProvider.Header.Length;
         var filteredTuple = context.GetApplyParameter(context.Bindings[outerParameter]);
