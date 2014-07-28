@@ -93,10 +93,12 @@ namespace Xtensive.Orm.Linq
       var elementType = field.ItemType;
       var association = field.Associations.Last();
       if (association.Multiplicity==Multiplicity.OneToMany) {
+        var targetField = association.TargetType.Fields[association.Reversed.OwnerField.Name];
         var whereParameter = Expression.Parameter(elementType, "p");
+        var expression = BuildExpressionForFieldRecursivly(targetField, whereParameter);
         var whereExpression = Expression.Equal(
           Expression.Property(
-            Expression.Property(whereParameter, association.Reversed.OwnerField.Name),
+            expression,
             WellKnownMembers.IEntityKey),
           Expression.Property(
             ownerEntity,
@@ -177,6 +179,15 @@ namespace Xtensive.Orm.Linq
       var sequenceType = type.GetGenericType(typeof (IEnumerable<>))
         ?? type.GetInterfaces().Select(i => i.GetGenericType(typeof (IEnumerable<>))).FirstOrDefault(i => i!=null);
       return sequenceType!=null ? sequenceType.GetGenericArguments()[0] : null;
+    }
+
+    private static Expression BuildExpressionForFieldRecursivly(FieldInfo field, Expression parameter)
+    {
+      if (field.IsNested) {
+        var expression = BuildExpressionForFieldRecursivly(field.Parent, parameter);
+        return Expression.Property(expression, field.DeclaringField.UnderlyingProperty);
+      }
+      return Expression.Property(parameter, field.DeclaringField.UnderlyingProperty);
     }
   }
 }
