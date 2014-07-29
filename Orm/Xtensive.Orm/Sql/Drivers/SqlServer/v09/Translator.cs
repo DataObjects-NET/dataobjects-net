@@ -145,12 +145,15 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case ConstraintSection.Exit:
           ForeignKey fk = constraint as ForeignKey;
           if (fk!=null) {
+            StringBuilder builder = new StringBuilder();
+            builder.Append(")");
             if (fk.OnUpdate!=ReferentialAction.Restrict &&
               fk.OnUpdate!=ReferentialAction.NoAction)
-              return ") ON UPDATE " + Translate(fk.OnUpdate);
+              builder.Append(" ON UPDATE " + Translate(fk.OnUpdate));
             if (fk.OnDelete!=ReferentialAction.Restrict &&
               fk.OnDelete!=ReferentialAction.NoAction)
-              return ") ON DELETE " + Translate(fk.OnDelete);
+              builder.Append(" ON DELETE " + Translate(fk.OnDelete));
+            return builder.ToString();
           }
           return ")";
         default:
