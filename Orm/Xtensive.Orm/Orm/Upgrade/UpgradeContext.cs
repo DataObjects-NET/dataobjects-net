@@ -238,6 +238,7 @@ namespace Xtensive.Orm.Upgrade
       NodeConfiguration = nodeConfiguration;
       Cookie = parentDomain.UpgradeContextCookie;
       ParentDomain = parentDomain;
+      UserDefinedTypeMap = new Dictionary<string, int>();
 
       Initialize();
     }
