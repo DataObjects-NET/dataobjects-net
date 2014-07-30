@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2014.05.21
 
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Issues.IssueJira0529_MultipleInOperationsTestModel;
@@ -46,6 +47,31 @@ namespace Xtensive.Orm.Tests.Issues
 
       [Field]
       public string Url { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class Entity1 : Entity
+    {
+      [Key]
+      [Field(Nullable = false)]
+      public Guid Id { get; private set; }
+
+      [Field]
+      public string Name { get; set; }
+
+      [Field]
+      public Entity2 Link { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class Entity2 : Entity
+    {
+      [Key]
+      [Field(Nullable = false)]
+      public Guid Id { get; private set; }
+
+      [Field]
+      public string Name { get; set; }
     }
   }
 
@@ -102,6 +128,7 @@ namespace Xtensive.Orm.Tests.Issues
         var technicalProcesses = Query.All<TechnicalProcess>()
           .Where(tp => tp.Equipment.In(equipments));
 
+        
         var urls = technicalProcesses.Select(p => p.RunIdHiParameter.Url)
           .Concat(technicalProcesses.Select(p => p.RunIdLowParameter.Url))
           .Concat(technicalProcesses.Select(p => p.StatusParameter.Url))
@@ -117,6 +144,24 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+    [Test]
+    public void NonPersistentTypesTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var someIds = new[] { Guid.NewGuid(), Guid.NewGuid() };
+        var query1 = session.Query.All<Entity2>().Where(a => a.Id.In(someIds));
+        var query2 = session.Query.All<Entity1>().Select(a => a.Link);
+        var query3 = query1.Except(query2).ToList();
+
+        query3 = query1.Intersect(query2).ToList();
+
+        query3 = query1.Union(query2).ToList();
+
+        query3 = query1.Union(query2).ToList();
+      }
+    }
+    
     [Test]
     public void OnlyInOperationTest()
     {

@@ -19,20 +19,33 @@ namespace Xtensive.Orm.Upgrade
 
     public int GetTypeId(Type type)
     {
-      var typeIdMap = context.FullTypeMap;
-      if (typeIdMap==null)
+      var mainTypeIdMap = context.FullTypeMap;
+      var additionalTypeIdMap = context.UserDefinedTypeMap;
+      if (mainTypeIdMap==null && additionalTypeIdMap.Count==0)
         return TypeInfo.NoTypeId;
       var typeName = type.GetFullName();
+      int typeId = TypeInfo.NoTypeId;
       if (context.Stage==UpgradeStage.Upgrading) {
         var mapping = context.UpgradedTypesMapping;
         if (mapping!=null) {
           string oldTypeName;
-          return mapping.TryGetValue(typeName, out oldTypeName)
-            ? FindTypeId(typeIdMap, oldTypeName)
-            : TypeInfo.NoTypeId;
+          if (mapping.TryGetValue(typeName, out oldTypeName))
+            return FindTypeIdInBothMapSources(mainTypeIdMap, additionalTypeIdMap, oldTypeName);
         }
       }
-      return FindTypeId(typeIdMap, typeName);
+      return FindTypeIdInBothMapSources(mainTypeIdMap, additionalTypeIdMap, typeName);
+    }
+
+    private int FindTypeIdInBothMapSources(IDictionary<string, int> mainSource, IDictionary<string, int> additionalSource, string typeName)
+    {
+      int typeId = TypeInfo.NoTypeId;
+      if (mainSource!=null)
+        typeId = FindTypeId(mainSource, typeName);
+      if (typeId!=TypeInfo.NoTypeId)
+        return typeId;
+      if (additionalSource!=null)
+        return FindTypeId(additionalSource, typeName);
+      return TypeInfo.NoTypeId;
     }
 
     private int FindTypeId(IDictionary<string, int> typeIdMap, string typeName)

@@ -52,6 +52,7 @@ namespace Xtensive.Orm.Upgrade
       var context = UpgradeContext;
       var upgradeMode = context.UpgradeMode;
       var session = Session.Demand();
+      CheckUserDefinedTypeMap(session.Domain);
 
       switch (context.Stage) {
       case UpgradeStage.Upgrading:
@@ -262,6 +263,39 @@ namespace Xtensive.Orm.Upgrade
     private void SaveFullTypeMap(TypeIdRegistry registry)
     {
       UpgradeContext.FullTypeMap = registry.Types.ToDictionary(t => t.UnderlyingType.GetFullName(), t => registry[t]);
+    }
+
+    private void CheckUserDefinedTypeMap(Domain domain)
+    {
+      if (UpgradeContext.UserDefinedTypeMap.Count==0)
+        return;
+      var types = domain.Model.Types;
+      var typesExtracted = UpgradeContext.ExtractedTypeMap!=null;
+      var mapping = UpgradeContext.UpgradedTypesMapping ?? new Dictionary<string, string>();
+      foreach (var userDefindeTypeMap in UpgradeContext.UserDefinedTypeMap) {
+        if (types.Contains(userDefindeTypeMap.Key))
+          throw new DomainBuilderException(string.Format(Strings.ExUnableToDefineTypeIdentifierXForTypeYTypeIsNotExists, userDefindeTypeMap.Value, userDefindeTypeMap.Key));
+
+        if (domain.Model.Databases.Count==0) {
+          if (userDefindeTypeMap.Value <= TypeInfo.MinTypeId)
+            throw new DomainBuilderException(string.Format(Strings.ExUserDefinedTypeIdentifierXForTypeYLessThan100, userDefindeTypeMap.Value, userDefindeTypeMap.Key));
+        }
+        else {
+          var type = types.Find(userDefindeTypeMap.Key);
+          var databaseConfiguration = domain.Model.Databases[type.MappingDatabase].Configuration;
+          if (userDefindeTypeMap.Value < databaseConfiguration.MinTypeId || userDefindeTypeMap.Value > databaseConfiguration.MaxTypeId)
+            throw new DomainBuilderException(
+              string.Format(Strings.ExUserDefinedTypeIdentifierXForTypeYBeyongTheLimitsDefinedForDatabaseZ, 
+                userDefindeTypeMap.Value, 
+                userDefindeTypeMap.Key,
+                databaseConfiguration.Name));
+        }
+        if (typesExtracted) {
+          if (UpgradeContext.ExtractedTypeMap.ContainsValue(userDefindeTypeMap.Value))
+            if (UpgradeContext.ExtractedTypeMap[userDefindeTypeMap.Key]!=userDefindeTypeMap.Value)
+              throw new DomainBuilderException(string.Format(Strings.ExTypeIdentifierXDefinesDifferentTypesInExtractedMapOfTypesAndDefinedByUserMapOfTypes, userDefindeTypeMap.Value));
+        }
+      } 
     }
   }
 }

@@ -196,6 +196,7 @@
     <Compile Include="Issues\IssueJira0531_IncorrectNameOfRecycledNestedType.cs" />
     <Compile Include="Issues\IssueJira0540_IncorrectBehaviorOnDomainUpgradeWithRecycledTypeBug.cs" />
     <Compile Include="Issues\IssueJira0208_IncorrectUpgradeSequence\UpgradeTest.cs" />
+    <Compile Include="Issues\IssueJira0542_OfTypeTranslationBug.cs" />
     <Compile Include="Issues\IssueJira0213_GroupByNewDate.cs" />
     <Compile Include="Issues\IssueJira0215_DirectSqlAccessorDoesNotBindCommandToTransaction.cs" />
     <Compile Include="Issues\IssueJira0221_UnableToTranslateAggregate.cs" />
@@ -385,6 +386,7 @@
     <Compile Include="Storage\TypeDiscriminatorFromInterfaceTest.cs" />
     <Compile Include="Storage\UpgradeModesTest.cs" />
     <Compile Include="Storage\ValidateEntityVersionsOnPersistTest.cs" />
+    <Compile Include="Upgrade\CustomTypeIdMap\CustomTypeIdMap.cs" />
     <Compile Include="Upgrade\DisableAutoResolveNamespaceConflictsTest.cs" />
     <Compile Include="Storage\ValidationConstraintsOnGenericTypeTest.cs" />
     <Compile Include="Storage\ValidationContextClientProfileTest.cs" />

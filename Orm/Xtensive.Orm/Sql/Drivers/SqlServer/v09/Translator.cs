@@ -144,12 +144,16 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           return "PRIMARY KEY (";
         case ConstraintSection.Exit:
           ForeignKey fk = constraint as ForeignKey;
-          if (fk != null)
-          {
-            if (fk.OnUpdate == ReferentialAction.Cascade)
-              return ") ON UPDATE CASCADE";
-            if (fk.OnDelete == ReferentialAction.Cascade)
-              return ") ON DELETE CASCADE";
+          if (fk!=null) {
+            StringBuilder builder = new StringBuilder();
+            builder.Append(")");
+            if (fk.OnUpdate!=ReferentialAction.Restrict &&
+              fk.OnUpdate!=ReferentialAction.NoAction)
+              builder.Append(" ON UPDATE " + Translate(fk.OnUpdate));
+            if (fk.OnDelete!=ReferentialAction.Restrict &&
+              fk.OnDelete!=ReferentialAction.NoAction)
+              builder.Append(" ON DELETE " + Translate(fk.OnDelete));
+            return builder.ToString();
           }
           return ")";
         default:

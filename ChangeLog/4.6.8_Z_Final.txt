@@ -1,0 +1,2 @@
+[main] Fixed handling of qeries with multiple IN operations
+[main] Fixed handling of query to EntitySet<T> which associates with field of Structure
