@@ -61,10 +61,10 @@ namespace Xtensive.Orm.Tests.Issues
       configuration.Types.Register(typeof(Test2));
 
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      var sessionConfiguration = new SessionConfiguration(SessionOptions.AutoActivation);
 
       using (var domain = Domain.Build(configuration)) {
-        using (var session = domain.OpenSession(sessionConfiguration))
+      using (var session = domain.OpenSession())
+      using (session.Activate())
         using (var t = session.OpenTransaction()) {
           var test2 = new Test2();
           var test = new Test {
@@ -74,7 +74,8 @@ namespace Xtensive.Orm.Tests.Issues
           t.Complete();
         }
 
-        using (var session = domain.OpenSession(sessionConfiguration))
+        using (var session = domain.OpenSession())
+        using (session.Activate())
         using (var t = session.OpenTransaction()) {
           var test2 = Session.Current.Query.All<Test2>().SingleOrDefault();
           var result2 = test2.StructSet.OfType<Test>().ToList();
