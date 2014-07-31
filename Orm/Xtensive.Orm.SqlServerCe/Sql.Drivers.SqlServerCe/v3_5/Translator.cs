@@ -82,6 +82,9 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
         return "+";
       case SqlNodeType.Overlaps:
         throw new NotSupportedException(string.Format(Strings.ExOperationXIsNotSupported, type));
+      case SqlNodeType.Intersect:
+      case SqlNodeType.Except:
+        throw SqlHelper.NotSupported(type.ToString());
       }
       return base.Translate(type);
     }
