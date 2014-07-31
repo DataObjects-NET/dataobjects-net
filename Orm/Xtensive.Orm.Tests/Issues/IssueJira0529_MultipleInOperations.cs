@@ -145,20 +145,58 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void NonPersistentTypesTest()
+    public void NonPersistentTypesExceptTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.MySql);
+
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var someIds = new[] { Guid.NewGuid(), Guid.NewGuid() };
         var query1 = session.Query.All<Entity2>().Where(a => a.Id.In(someIds));
         var query2 = session.Query.All<Entity1>().Select(a => a.Link);
         var query3 = query1.Except(query2).ToList();
+      }
+    }
 
-        query3 = query1.Intersect(query2).ToList();
+    [Test]
+    public void NonPersistentTypesIntersectTest()
+    {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.MySql);
 
-        query3 = query1.Union(query2).ToList();
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var someIds = new[] { Guid.NewGuid(), Guid.NewGuid() };
+        var query1 = session.Query.All<Entity2>().Where(a => a.Id.In(someIds));
+        var query2 = session.Query.All<Entity1>().Select(a => a.Link);
+        var query3 = query1.Intersect(query2).ToList();
+      }
+    }
 
-        query3 = query1.Union(query2).ToList();
+    [Test]
+    public void NonPersistentTypesUnionTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var someIds = new[] { Guid.NewGuid(), Guid.NewGuid() };
+        var query1 = session.Query.All<Entity2>().Where(a => a.Id.In(someIds));
+        var query2 = session.Query.All<Entity1>().Select(a => a.Link);
+        var query3 = query1.Union(query2).ToList();
+      }
+    }
+
+    [Test]
+    public void NonPersistentTypesConcatTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var someIds = new[] { Guid.NewGuid(), Guid.NewGuid() };
+        var query1 = session.Query.All<Entity2>().Where(a => a.Id.In(someIds));
+        var query2 = session.Query.All<Entity1>().Select(a => a.Link);
+        var query3 = query1.Concat(query2).ToList();
       }
     }
     
