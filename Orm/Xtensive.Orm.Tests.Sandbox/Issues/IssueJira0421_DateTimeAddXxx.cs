@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   public class IssueJira0421_DateTimeAddXxx : AutoBuildTest
   {
-    private DateTime today = DateTime.Today;
+    private DateTime today = new DateTime(2012, 12, 12);
 
     protected override Configuration.DomainConfiguration BuildConfiguration()
     {
@@ -83,6 +83,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void AddMonthsTest()
     {
+      var date = DateTime.Today.AddDays(-5*30);
       RunAllTestsInt(value => e => e.Today.AddMonths(value)==today.AddMonths(value));
     }
 
