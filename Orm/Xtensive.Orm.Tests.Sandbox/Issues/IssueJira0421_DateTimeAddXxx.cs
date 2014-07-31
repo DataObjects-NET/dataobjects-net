@@ -83,7 +83,6 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void AddMonthsTest()
     {
-      var date = DateTime.Today.AddDays(-5*30);
       RunAllTestsInt(value => e => e.Today.AddMonths(value)==today.AddMonths(value));
     }
 
