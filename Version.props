@@ -3,7 +3,7 @@
 
 <PropertyGroup>
   <Version>4.6.8</Version>
-  <Modifier></Modifier>
+  <Modifier>Final</Modifier>
   <BuildNumberBase>8321</BuildNumberBase>
 </PropertyGroup>
 
