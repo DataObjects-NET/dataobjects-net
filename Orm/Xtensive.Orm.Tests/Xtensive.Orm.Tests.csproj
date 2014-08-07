@@ -224,7 +224,6 @@
     <Compile Include="Issues\IssueJira0195_DeleteAndCreateWithValidation.cs" />
     <Compile Include="Issues\IssueJira0196_GuidAsTypeDiscriminator.cs" />
     <Compile Include="Issues\IssueJira0197_ExtendedErrorInformation.cs" />
-    <Compile Include="Issues\IssueJira0357_IndexWithInheritedFields.cs" />
     <Compile Include="Issues\IssueJira0500_OptimizeMultipleAggregatesWithProjections.cs" />
     <Compile Include="Issues\IssueJira0516_PartialIndexConstruction.cs" />
     <Compile Include="Issues\IssueJira0528_LongEnumBitOperations.cs" />
