@@ -180,6 +180,7 @@
     <Compile Include="Issues\IssueJira0195_DeleteAndCreateWithValidation.cs" />
     <Compile Include="Issues\IssueJira0196_GuidAsTypeDiscriminator.cs" />
     <Compile Include="Issues\IssueJira0197_ExtendedErrorInformation.cs" />
+    <Compile Include="Issues\IssueJira0357_IndexWithInheritedFields.cs" />
     <Compile Include="Issues\IssueJira0416_NpgsqlBox.cs" />
     <Compile Include="Issues\IssueJira0416_NpgsqlCircle.cs" />
     <Compile Include="Issues\IssueJira0416_NpgsqlLSeg.cs" />
