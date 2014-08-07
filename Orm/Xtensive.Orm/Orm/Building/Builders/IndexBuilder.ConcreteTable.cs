@@ -7,7 +7,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Building.Builders
@@ -24,33 +23,16 @@ namespace Xtensive.Orm.Building.Builders
       var typeDef = context.ModelDef.Types[type.UnderlyingType];
       var root = type.Hierarchy.Root;
 
-      var possiblyInheritedIndexes = new List<IndexDef>();
-
       // Building declared indexes both secondary and primary (for root of the hierarchy only)
       foreach (var indexDescriptor in typeDef.Indexes) {
-        // Skip indexdef building if all fields are inherited and parent class has this indexdef
+        // Skip indef building for inherited fields
         var inherited = indexDescriptor.KeyFields
           .Select(kvp => type.Fields[kvp.Key])
-          .All(f => f.IsInherited);
-        if (inherited) {
-          possiblyInheritedIndexes.Add(indexDescriptor);
+          .Any(f => f.IsInherited);
+        if (inherited)
           continue;
-        }
-
         var declaredIndex = BuildIndex(type, indexDescriptor, type.IsAbstract); 
 
-        type.Indexes.Add(declaredIndex);
-        if (!declaredIndex.IsAbstract)
-          context.Model.RealIndexes.Add(declaredIndex);
-      }
-
-      foreach (var possiblyInheritedIndex in possiblyInheritedIndexes) {
-        var indexIsInherited = possiblyInheritedIndex.KeyFields
-          .Select(keyField => context.ModelDef.Types[type.Fields[keyField.Key].DeclaringType.UnderlyingType])
-          .Any(t => t.Indexes.Contains(possiblyInheritedIndex.Name));
-        if (indexIsInherited)
-          continue;
-        var declaredIndex = BuildIndex(type, possiblyInheritedIndex, type.IsAbstract);
         type.Indexes.Add(declaredIndex);
         if (!declaredIndex.IsAbstract)
           context.Model.RealIndexes.Add(declaredIndex);
