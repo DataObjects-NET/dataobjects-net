@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Building.Builders
         // Skip indef building for inherited fields
         var inherited = indexDescriptor.KeyFields
           .Select(kvp => type.Fields[kvp.Key])
-          .All(f => f.IsInherited);
+          .Any(f => f.IsInherited);
         if (inherited)
           continue;
         var declaredIndex = BuildIndex(type, indexDescriptor, false);
