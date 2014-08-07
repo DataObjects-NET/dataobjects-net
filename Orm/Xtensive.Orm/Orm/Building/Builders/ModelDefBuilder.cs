@@ -166,22 +166,45 @@ namespace Xtensive.Orm.Building.Builders
 
     private void ProcessIndexes(TypeDef typeDef)
     {
-      var targets = typeDef.Fields
+      // process indexes which defined directly for type
+      var ownIndexesOfType = typeDef.Fields
         .Where(f => f.IsIndexed)
         .Select(f => new IndexAttribute(f.Name))
-        .Concat(typeDef.UnderlyingType.GetAttributes<IndexAttribute>(AttributeSearchOptions.InheritAll) ??
-                EnumerableUtils<IndexAttribute>.Empty)
-        .ToList();
+        .Concat(typeDef.UnderlyingType.GetAttributes<IndexAttribute>(AttributeSearchOptions.InheritNone) ??
+          EnumerableUtils<IndexAttribute>.Empty);
 
-      if (targets.Count == 0)
-        return;
+      var ownIndexesCollection = new HashSet<IndexAttribute>();
+      foreach (var attribute in ownIndexesOfType) {
+        var index = DefineIndex(typeDef, attribute);
+        ownIndexesCollection.Add(attribute);
+        if (typeDef.Indexes.Contains(index.Name))
+          throw new DomainBuilderException(
+            string.Format(Strings.ExIndexWithNameXIsAlreadyRegistered, index.Name));
 
-      foreach (var attribute in targets) {
+        typeDef.Indexes.Add(index);
+        BuildLog.Info(Strings.LogIndexX, index.Name);
+      }
+
+      //process indexes which inherited from base classes
+      //GetAttribute<T>(AttributeSearchOptions.InheritFromAllBase) extension return all attributes of T type - own indexes and inherited.
+      //We need only inherited attributes. We checks all IndexAttributes in allIndexes and skip indexes
+      //which own of type.
+      var allIndexes = typeDef.UnderlyingType
+        .GetAttributes<IndexAttribute>(AttributeSearchOptions.InheritFromAllBase) ??
+          EnumerableUtils<IndexAttribute>.Empty;
+
+      //GetAttribute<T>(AttributeSearchOptions.InheritFromAllBase) extension returns all attributes of T - own indexes of type and inherited.
+      //We need only inherited attributes. We checks all IndexAttributes in allIndexes and skip indexes
+      //which own of type.
+      foreach (var attribute in allIndexes) {
+        if (ownIndexesCollection.Contains(attribute))
+          continue;
         var index = DefineIndex(typeDef, attribute);
         if (typeDef.Indexes.Contains(index.Name))
           throw new DomainBuilderException(
             string.Format(Strings.ExIndexWithNameXIsAlreadyRegistered, index.Name));
 
+        index.IsInherited = true;
         typeDef.Indexes.Add(index);
         BuildLog.Info(Strings.LogIndexX, index.Name);
       }
