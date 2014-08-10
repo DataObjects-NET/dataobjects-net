@@ -157,6 +157,13 @@ namespace Xtensive.Orm.Internals
           query.QueryParameter.Value = queryTarget;
       return parameterContext;
     }
+    private object GetQueryKey(object method, object target)
+    {
+      var closureType = target.GetType();
+      if (closureType.GetFields().Any(field => field.FieldType.IsClass))
+        return new Tuple<object, object>(method, target);
+      return method;
+    }
 
     public CompiledQueryRunner(QueryEndpoint endpoint, object queryKey, object queryTarget)
     {
@@ -164,7 +171,7 @@ namespace Xtensive.Orm.Internals
       domain = session.Domain;
 
       this.endpoint = endpoint;
-      this.queryKey = new Pair<object, string>(queryKey, session.StorageNodeId);
+      this.queryKey = new Pair<object, string>(GetQueryKey(queryKey, queryTarget), session.StorageNodeId);
       this.queryTarget = queryTarget;
     }
   }
