@@ -124,6 +124,14 @@ namespace Xtensive.Orm.Internals
           throw new NotSupportedException(String.Format(
             Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
         }
+        if (expression.NodeType==ExpressionType.Constant && closureType.DeclaringType==expression.Type) {
+          var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
+          if (memberInfo!=null) {
+            return Expression.MakeMemberAccess(
+              Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo), 
+              memberInfo);
+          }
+        }
         return null;
       });
     }
@@ -157,13 +165,6 @@ namespace Xtensive.Orm.Internals
           query.QueryParameter.Value = queryTarget;
       return parameterContext;
     }
-    private object GetQueryKey(object method, object target)
-    {
-      var closureType = target.GetType();
-      if (closureType.GetFields().Any(field => field.FieldType.IsClass))
-        return new Tuple<object, object>(method, target);
-      return method;
-    }
 
     public CompiledQueryRunner(QueryEndpoint endpoint, object queryKey, object queryTarget)
     {
@@ -171,7 +172,7 @@ namespace Xtensive.Orm.Internals
       domain = session.Domain;
 
       this.endpoint = endpoint;
-      this.queryKey = new Pair<object, string>(GetQueryKey(queryKey, queryTarget), session.StorageNodeId);
+      this.queryKey = new Pair<object, string>(queryKey, session.StorageNodeId);
       this.queryTarget = queryTarget;
     }
   }
