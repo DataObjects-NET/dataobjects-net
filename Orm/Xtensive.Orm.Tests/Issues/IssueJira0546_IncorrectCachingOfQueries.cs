@@ -33,45 +33,70 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0546_IncorrectCachingOfQueriesModel
     public bool Active { get; set; }
 
     [Field]
-    public string Zone { get; set; }
+    public Zone Zone { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class Zone : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public string Name { get; set; }
+
+    [Field]
+    [Association(PairTo = "Zone")]
+    public EntitySet<Location> Locations { get; set; } 
   }
 }
 
 namespace Xtensive.Orm.Tests.Issues
 { 
-  internal class Task
+  internal class BaseTask
   {
-    private Session session;
-    private int startValue;
+    public int StartValue { get; set; }
+
+    public BaseTask(int startValue)
+    {
+      StartValue = startValue;
+    }
+  }
+  internal class Task: BaseTask
+  {
+    public Session Session { get; private set; }
+    
+    public Zone NullZone { get; private set; }
 
     public int GetMinimalLocationId()
     {
       Func<Session, int> func = (s) => {
-        var locations = session.Query.Execute(endpoint => from location in s.Query.All<Location>()
+        var locations = Session.Query.ExecuteDelayed(endpoint => from location in s.Query.All<Location>()
           where location.Active && location.Id.In((
             from loc in s.Query.All<Location>()
-            where loc.Id > startValue && loc.Zone==null
-            orderby loc.Id
-            select loc.Id))
-          select location);
+              where loc.Id > StartValue && loc.Zone==NullZone
+              orderby loc.Id
+              select loc.Id))
+            select location);
         var minId = locations.Min(entity => entity.Id);
         return minId;
       };
       int result = 0;
-      Action<IsolationLevel?> action = (isolationLevel) => {
-        using (var tx = session.OpenTransaction()) {
-          result = func.Invoke(session);
+      Action action = () => {
+        using (var tx = Session.OpenTransaction()) {
+          result = func.Invoke(Session);
           tx.Complete();
         }
       };
-      action.Invoke(null);
+      action.Invoke();
       return result;
     }
 
     public Task(Session session, int startValue)
+      : base(startValue)
     {
-      this.session = session;
-      this.startValue = startValue;
+      this.Session = session;
+      NullZone = null;
     }
   }
 
@@ -94,6 +119,8 @@ namespace Xtensive.Orm.Tests.Issues
         for (int i = 0; i < 100; i++) {
           var location = new Location {Active = true};
         }
+
+        new Location {Active = true, Zone = new Zone {Name = "Zone"}};
         transaction.Complete();
       }
     }
@@ -144,7 +171,22 @@ namespace Xtensive.Orm.Tests.Issues
         }
         var cachedQueriesCountAfter = Domain.QueryCache.Count;
         Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
-        Assert.AreEqual(iterationsCount, cachedQueriesCountAfter - cachedQueriesCountBefore);
+        Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
+      }
+    }
+
+    public void LocalReferenceTypeVariableTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var cachedQueriesCountBefore = Domain.QueryCache.Count;
+        var zone = session.Query.All<Zone>().First();
+        for (int i = 0; i < 80; i++)
+          GetMinimalIdWithZone(session, zone);
+        var cachedQueriesCountAfter = Domain.QueryCache.Count;
+        Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
+        Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
       }
     }
 
@@ -172,7 +214,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
       var cachedQueriesCountAfter = Domain.QueryCache.Count;
       Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
-      Assert.AreEqual(iterationsCount, cachedQueriesCountAfter - cachedQueriesCountBefore);
+      Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
     }
 
     private int GetMinimalId(Session session, int startId)
@@ -181,6 +223,19 @@ namespace Xtensive.Orm.Tests.Issues
         where location.Active && location.Id.In((
           from loc in session.Query.All<Location>()
           where loc.Id > startId && loc.Zone==null
+          orderby loc.Id
+          select loc.Id))
+        select location);
+      session.Query.All<Location>();
+      return locations.Min(field => field.Id);
+    }
+
+    private int GetMinimalIdWithZone(Session session, Zone zone)
+    {
+      var locations = session.Query.ExecuteDelayed(endpoint => from location in Query.All<Location>()
+        where location.Active && location.Id.In((
+          from loc in session.Query.All<Location>()
+          where loc.Zone==zone
           orderby loc.Id
           select loc.Id))
         select location);
