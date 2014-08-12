@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Transactions;
 using NUnit.Framework;
+using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.Issues.IssueJira0546_IncorrectCachingOfQueriesModel;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0546_IncorrectCachingOfQueriesModel
@@ -68,7 +69,7 @@ namespace Xtensive.Orm.Tests.Issues
     
     public Zone NullZone { get; private set; }
 
-    public int GetMinimalLocationId()
+    public int GetMinimalLocationIdDelayedApi()
     {
       Func<Session, int> func = (s) => {
         var locations = Session.Query.ExecuteDelayed(endpoint => from location in s.Query.All<Location>()
@@ -85,6 +86,30 @@ namespace Xtensive.Orm.Tests.Issues
       Action action = () => {
         using (var tx = Session.OpenTransaction()) {
           result = func.Invoke(Session);
+          tx.Complete();
+        }
+      };
+      action.Invoke();
+      return result;
+    }
+
+    public int GetMinimalLocationIdFutureApi()
+    {
+      Func<int> func = () => {
+        var locations = Query.ExecuteFuture(() => from location in Query.All<Location>()
+          where location.Active && location.Id.In((
+            from loc in Query.All<Location>()
+            where loc.Id > StartValue && loc.Zone == NullZone
+            orderby loc.Id
+            select loc.Id))
+          select location);
+        var minId = locations.Min(entity => entity.Id);
+        return minId;
+      };
+      int result = 0;
+      Action action = () => {
+        using (var tx = Session.OpenTransaction()) {
+          result = func.Invoke();
           tx.Complete();
         }
       };
@@ -126,7 +151,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void LoopIndexTest()
+    public void LoopIndexExecuteDelayedTest()
     {
       using (var session = Domain.OpenSession())
       using (session.Activate())
@@ -135,7 +160,7 @@ namespace Xtensive.Orm.Tests.Issues
         List<IEnumerable<Location>> queries = new List<IEnumerable<Location>>();
         var cachedQueriesCountBefore = Domain.QueryCache.Count;
         for (int i = 0; i < upperLimit; i++) {
-          var locations = session.Query.ExecuteDelayed(endpoint => from location in Query.All<Location>()
+          var locations = session.Query.ExecuteDelayed(endpoint => from location in session.Query.All<Location>()
             where location.Active && location.Id.In((
               from loc in session.Query.All<Location>()
               where loc.Id > i && loc.Zone==null
@@ -148,9 +173,38 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
         Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
         var result = session.Query.All<TestEntity>().ToList();
-        var id = upperLimit + 1;
+        upperLimit++;
         foreach (var query in queries)
-          Assert.AreEqual(id, query.Min(entity => entity.Id));
+          Assert.AreEqual(upperLimit, query.Min(entity => entity.Id));
+      }
+    }
+
+    [Test]
+    public void LoopIndexExecuteFeatureTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var upperLimit = 80;
+        List<IEnumerable<Location>> queries = new List<IEnumerable<Location>>();
+        var cachedQueriesCountBefore = Domain.QueryCache.Count;
+        for (int i = 0; i < upperLimit; i++) {
+          var locations = Query.ExecuteFuture(() => from location in Query.All<Location>()
+            where location.Active && location.Id.In((
+              from loc in Query.All<Location>()
+              where loc.Id > i && loc.Zone == null
+              orderby loc.Id
+              select loc.Id))
+            select location);
+          queries.Add(locations);
+        }
+        var cachedQueriesCountAfter = Domain.QueryCache.Count;
+        Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
+        Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
+        var result = session.Query.All<TestEntity>().ToList();
+        upperLimit++;
+        foreach (var query in queries)
+          Assert.AreEqual(upperLimit, query.Min(entity => entity.Id));
       }
     }
 
@@ -163,28 +217,51 @@ namespace Xtensive.Orm.Tests.Issues
         var cachedQueriesCountBefore = Domain.QueryCache.Count;
         var currentValue = 1;
         var iterationsCount = 0;
+        var oldValue = currentValue;
         while (currentValue<80) {
-          var oldValue = currentValue;
           currentValue = GetMinimalId(session, currentValue);
           Assert.AreEqual(oldValue+1, currentValue);
+          oldValue = currentValue;
           iterationsCount++;
         }
         var cachedQueriesCountAfter = Domain.QueryCache.Count;
         Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
         Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
+
+        cachedQueriesCountBefore = Domain.QueryCache.Count;
+        currentValue = oldValue = 1;
+        iterationsCount = 0;
+        while (currentValue < 80) {
+          currentValue = GetMinimalId(currentValue);
+          Assert.AreEqual(oldValue + 1, currentValue);
+          oldValue = currentValue;
+          iterationsCount++;
+        }
+        cachedQueriesCountAfter = Domain.QueryCache.Count;
+        Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
+        Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
       }
     }
-
+    
     public void LocalReferenceTypeVariableTest()
     {
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
+        //ExecuteDelayed API
         var cachedQueriesCountBefore = Domain.QueryCache.Count;
         var zone = session.Query.All<Zone>().First();
         for (int i = 0; i < 80; i++)
           GetMinimalIdWithZone(session, zone);
         var cachedQueriesCountAfter = Domain.QueryCache.Count;
+        Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
+        Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
+
+        //ExecuteFuture API
+        cachedQueriesCountBefore = Domain.QueryCache.Count;
+        for (int i = 0; i < 80; i++)
+          GetMinimalIdWithZone(zone);
+        cachedQueriesCountAfter = Domain.QueryCache.Count;
         Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
         Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
       }
@@ -202,24 +279,40 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void TaskSequencesGenerator(Session session)
     {
+      //ExecuteDelayed API
       var cachedQueriesCountBefore = Domain.QueryCache.Count;
       var currentId = 1;
       var iterationsCount = 0;
       while (currentId<80) {
         var task = new Task(session, currentId);
         var previousId = currentId;
-        currentId = task.GetMinimalLocationId();
+        currentId = task.GetMinimalLocationIdDelayedApi();
         Assert.AreEqual(previousId+1, currentId);
         iterationsCount++;
       }
       var cachedQueriesCountAfter = Domain.QueryCache.Count;
       Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
       Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
+
+      //ExecuteFuture API
+      cachedQueriesCountBefore = Domain.QueryCache.Count;
+      currentId = 1;
+      iterationsCount = 0;
+      while (currentId < 80) {
+        var task = new Task(session, currentId);
+        var previousId = currentId;
+        currentId = task.GetMinimalLocationIdFutureApi();
+        Assert.AreEqual(previousId + 1, currentId);
+        iterationsCount++;
+      }
+      cachedQueriesCountAfter = Domain.QueryCache.Count;
+      Assert.Greater(cachedQueriesCountAfter, cachedQueriesCountBefore);
+      Assert.AreEqual(1, cachedQueriesCountAfter - cachedQueriesCountBefore);
     }
 
     private int GetMinimalId(Session session, int startId)
     {
-      var locations = session.Query.ExecuteDelayed(endpoint => from location in Query.All<Location>()
+      var locations = session.Query.ExecuteDelayed(endpoint => from location in session.Query.All<Location>()
         where location.Active && location.Id.In((
           from loc in session.Query.All<Location>()
           where loc.Id > startId && loc.Zone==null
@@ -230,9 +323,22 @@ namespace Xtensive.Orm.Tests.Issues
       return locations.Min(field => field.Id);
     }
 
+    private int GetMinimalId(int startId)
+    {
+      var locations = Query.ExecuteFuture(() => from location in Query.All<Location>()
+        where location.Active && location.Id.In((
+          from loc in Query.All<Location>()
+          where loc.Id > startId && loc.Zone == null
+          orderby loc.Id
+          select loc.Id))
+        select location);
+      Query.All<Location>();
+      return locations.Min(field => field.Id);
+    }
+
     private int GetMinimalIdWithZone(Session session, Zone zone)
     {
-      var locations = session.Query.ExecuteDelayed(endpoint => from location in Query.All<Location>()
+      var locations = session.Query.ExecuteDelayed(endpoint => from location in session.Query.All<Location>()
         where location.Active && location.Id.In((
           from loc in session.Query.All<Location>()
           where loc.Zone==zone
@@ -240,6 +346,19 @@ namespace Xtensive.Orm.Tests.Issues
           select loc.Id))
         select location);
       session.Query.All<Location>();
+      return locations.Min(field => field.Id);
+    }
+
+    private int GetMinimalIdWithZone(Zone zone)
+    {
+      var locations = Query.ExecuteFuture(() => from location in Query.All<Location>()
+        where location.Active && location.Id.In((
+          from loc in Query.All<Location>()
+          where loc.Zone == zone
+          orderby loc.Id
+          select loc.Id))
+        select location);
+      Query.All<Location>();
       return locations.Min(field => field.Id);
     }
   }
