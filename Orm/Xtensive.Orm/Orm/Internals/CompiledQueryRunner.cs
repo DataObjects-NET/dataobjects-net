@@ -124,12 +124,17 @@ namespace Xtensive.Orm.Internals
           throw new NotSupportedException(String.Format(
             Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
         }
-        if (expression.NodeType==ExpressionType.Constant && closureType.DeclaringType==expression.Type) {
-          var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
-          if (memberInfo!=null) {
-            return Expression.MakeMemberAccess(
-              Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo), 
-              memberInfo);
+        if (expression.NodeType==ExpressionType.Constant) {
+          if (closureType.DeclaringType!=null && expression.Type == closureType.DeclaringType) {
+            var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
+            if (memberInfo!=null) {
+              return Expression.MakeMemberAccess(
+                Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
+                memberInfo);
+            }
+          }
+          if (closureType.DeclaringType==null && expression.Type==closureType) {
+            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           }
         }
         return null;
