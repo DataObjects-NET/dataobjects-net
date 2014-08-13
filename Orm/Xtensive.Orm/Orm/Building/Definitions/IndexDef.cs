@@ -152,6 +152,8 @@ namespace Xtensive.Orm.Building.Definitions
       }
     }
 
+    internal bool IsInherited { get; set; }
+
     /// <summary>
     /// Performs additional custom processes before setting new name to this instance.
     /// </summary>
@@ -160,6 +162,7 @@ namespace Xtensive.Orm.Building.Definitions
     {
       base.ValidateName(newName);
       validator.ValidateName(newName, ValidationRule.Index);
+      IsInherited = false;
     }
 
 
