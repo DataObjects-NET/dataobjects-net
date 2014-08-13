@@ -1,0 +1,1 @@
+[main] Delayed/Featured queries no longer cached closure variables in some scenarios

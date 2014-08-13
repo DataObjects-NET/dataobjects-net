@@ -1007,7 +1007,22 @@ namespace Xtensive.Reflection
       return type.IsPublic && !type.IsAbstract && baseType.IsAssignableFrom(type);
     }
 
+    
+
     #region Private \ internal methods
+
+    /// <summary>
+    /// Gets information about field in closure.
+    /// </summary>
+    /// <param name="closureType">Closure type.</param>
+    /// <param name="typeOfField">Type of field in closure.</param>
+    /// <returns>If field of <paramref name="typeOfField"/> is exist then return <see cref="MemberInfo"/> of field in closure, overwise, <see langword="null"/>.</returns>
+    internal static MemberInfo TryGetFieldInfoFromClosure(this Type closureType, Type typeOfField)
+    {
+      return closureType.IsClosure()
+        ? closureType.GetFields().FirstOrDefault(property => property.FieldType == typeOfField)
+        : null;
+    }
 
     private static string TrimGenericSuffix(string @string)
     {
