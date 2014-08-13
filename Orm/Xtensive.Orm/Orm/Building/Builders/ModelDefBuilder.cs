@@ -186,19 +186,14 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       //process indexes which inherited from base classes
-      //GetAttribute<T>(AttributeSearchOptions.InheritFromAllBase) extension return all attributes of T type - own indexes and inherited.
-      //We need only inherited attributes. We checks all IndexAttributes in allIndexes and skip indexes
-      //which own of type.
+      //GetAttribute<T>(AttributeSearchOptions.InheritFromAllBase) extension returns all attributes of T - own indexes of type and inherited.
       var allIndexes = typeDef.UnderlyingType
         .GetAttributes<IndexAttribute>(AttributeSearchOptions.InheritFromAllBase) ??
           EnumerableUtils<IndexAttribute>.Empty;
 
-      //GetAttribute<T>(AttributeSearchOptions.InheritFromAllBase) extension returns all attributes of T - own indexes of type and inherited.
       //We need only inherited attributes. We checks all IndexAttributes in allIndexes and skip indexes
       //which own of type.
-      foreach (var attribute in allIndexes) {
-        if (ownIndexesCollection.Contains(attribute))
-          continue;
+      foreach (var attribute in allIndexes.Where(index => !ownIndexesCollection.Contains(index))) {
         var index = DefineIndex(typeDef, attribute);
         if (typeDef.Indexes.Contains(index.Name))
           throw new DomainBuilderException(
