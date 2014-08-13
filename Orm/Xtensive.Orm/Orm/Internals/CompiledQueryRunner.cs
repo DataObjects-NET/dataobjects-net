@@ -118,25 +118,46 @@ namespace Xtensive.Orm.Internals
       var valueMemberInfo = parameterType.GetProperty("Value", closureType);
       queryParameter = (Parameter) System.Activator.CreateInstance(parameterType, "pClosure");
       queryParameterReplacer = new ExtendedExpressionReplacer(expression => {
-        if (expression.NodeType==ExpressionType.Constant && expression.Type.IsClosure()) {
-          if (expression.Type==closureType)
-            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-          throw new NotSupportedException(String.Format(
-            Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
-        }
         if (expression.NodeType==ExpressionType.Constant) {
-          if (closureType.DeclaringType!=null && expression.Type == closureType.DeclaringType) {
-            var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
-            if (memberInfo!=null) {
-              return Expression.MakeMemberAccess(
-                Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
-                memberInfo);
+          if (expression.Type.IsClosure())
+            if (expression.Type==closureType) 
+              return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+            else
+              throw new NotSupportedException(String.Format(
+                Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
+
+          if (closureType.DeclaringType==null) {
+            if (expression.Type==closureType)
+              return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+          }
+          else
+            if (expression.Type==closureType.DeclaringType) {
+              var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
+              if (memberInfo!=null)
+                return Expression.MakeMemberAccess(
+                  Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
+                  memberInfo);
             }
-          }
-          if (closureType.DeclaringType==null && expression.Type==closureType) {
-            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-          }
         }
+        //if (expression.NodeType==ExpressionType.Constant && expression.Type.IsClosure()) {
+        //  if (expression.Type==closureType)
+        //    return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+        //  throw new NotSupportedException(String.Format(
+        //    Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
+        //}
+        //if (expression.NodeType==ExpressionType.Constant) {
+        //  if (closureType.DeclaringType!=null && expression.Type == closureType.DeclaringType) {
+        //    var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
+        //    if (memberInfo!=null) {
+        //      return Expression.MakeMemberAccess(
+        //        Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
+        //        memberInfo);
+        //    }
+        //  }
+        //  if (closureType.DeclaringType==null && expression.Type==closureType) {
+        //    return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+        //  }
+        //}
         return null;
       });
     }
