@@ -2,12 +2,10 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
-// Created:    2013.12.30
+// Created:    2014.08.07
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
@@ -70,7 +68,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0357_IndexWithInheritedFields2
 
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.SingleTable)]
   [Index("TestField", "TestLink", Unique = true, Name = "DescendantA.IX_TestFieldTestLink")]
-  [Index("TestField", Unique = true, Name = "DescendantA.IX_TestField")]
+  
   public class EntityA : Entity
   {
     [Field, Key]
@@ -95,6 +93,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0357_IndexWithInheritedFields2
 
   [Index("Field", "TestField", Unique = true, Name = "DescendantA.IX_FieldTestField")]
   [Index("Field", Unique = true, Name = "DescendantA.IX_Field")]
+  [Index("TestField", Unique = true, Name = "DescendantA.IX_TestField")]
   public class DescendantA : EntityA
   {
     [Field]
