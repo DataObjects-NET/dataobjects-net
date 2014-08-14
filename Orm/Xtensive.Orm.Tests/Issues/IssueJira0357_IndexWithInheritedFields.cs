@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0357_IndexWithInheritedFields1
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field]
+    [Field(Length = 10)]
     public string TestField { get; set; }
 
     [Field(Nullable = false)]
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0357_IndexWithInheritedFields1
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field]
+    [Field(Length = 10)]
     public string TestField { get; set; }
   }
 
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0357_IndexWithInheritedFields2
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field]
+    [Field(Length = 10)]
     public string TestField { get; set; }
 
     [Field(Nullable = false)]
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0357_IndexWithInheritedFields2
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field]
+    [Field(Length = 10)]
     public string TestField { get; set; }
   }
 
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0357_IndexWithInheritedFields3
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field]
+    [Field(Length = 10)]
     public string TestField { get; set; }
 
     [Field(Nullable = false)]
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0357_IndexWithInheritedFields3
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field]
+    [Field(Length = 10)]
     public string TestField { get; set; }
   }
 
