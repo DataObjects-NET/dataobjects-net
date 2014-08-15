@@ -1,2 +1,2 @@
-[main] Delayed/Featured queries no longer cached closure variables in some scenarios
-[main] Secondary indexes which includes inherited fields no longer ignored in some scenarios
+[main] Delayed/Future queries are no longer cached closure variables values in some scenarios
+[main] Secondary indexes which includes inherited fields are no longer ignored in some scenarios
