@@ -1,0 +1,1 @@
+[main] Association between Key fields is no longer creates additional index
