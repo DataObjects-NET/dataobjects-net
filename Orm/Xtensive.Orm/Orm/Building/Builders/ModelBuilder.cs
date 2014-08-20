@@ -310,7 +310,8 @@ namespace Xtensive.Orm.Building.Builders
         return;
       var typeDef = context.ModelDef.Types[association.OwnerType.UnderlyingType];
       var field = association.OwnerField;
-      if ((field.Attributes & FieldAttributes.NotIndexed) != 0)
+      if ((field.Attributes & FieldAttributes.NotIndexed) != 0 ||
+          (field.Attributes.HasFlag(FieldAttributes.PrimaryKey)))
         return;
       bool addIndex = true;
       while (field.Parent!=null) {
