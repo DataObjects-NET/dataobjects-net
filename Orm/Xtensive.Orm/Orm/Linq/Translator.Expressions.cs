@@ -24,6 +24,7 @@ using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
 using FieldInfo = System.Reflection.FieldInfo;
 using Tuple = Xtensive.Tuples.Tuple;
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq
 {

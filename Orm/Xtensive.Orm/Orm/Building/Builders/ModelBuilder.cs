@@ -18,6 +18,7 @@ using Xtensive.Reflection;
 using Xtensive.Sorting;
 using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
 using TypeHelper = Xtensive.Reflection.TypeHelper;
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Building.Builders
 {

@@ -21,6 +21,7 @@ using Activator = Xtensive.Orm.Internals.Activator;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 using OperationType = Xtensive.Orm.PairIntegrity.OperationType;
 using Tuple = Xtensive.Tuples.Tuple;
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm
 {
