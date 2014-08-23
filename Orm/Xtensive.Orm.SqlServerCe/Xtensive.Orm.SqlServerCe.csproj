@@ -37,9 +37,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Net45-Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Net45-Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\Net40\Xtensive.Orm.SqlServerCe.xml</DocumentationFile>
+    <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net45\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
+    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\Net45\Xtensive.Orm.SqlServerCe.xml</DocumentationFile>
     <WarningLevel>2</WarningLevel>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -47,9 +47,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Net45-Release|AnyCPU'">
-    <OutputPath>bin\Net45-Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net40\Xtensive.Orm.SqlServerCe.xml</DocumentationFile>
+    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net45\</OutputPath>
+    <DefineConstants>TRACE;NET45</DefineConstants>
+    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net45\Xtensive.Orm.SqlServerCe.xml</DocumentationFile>
     <Optimize>true</Optimize>
     <WarningLevel>2</WarningLevel>
     <DebugType>pdbonly</DebugType>
