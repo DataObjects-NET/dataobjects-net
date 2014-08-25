@@ -96,8 +96,6 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="WindowsBase" />
-  </ItemGroup>
-  <ItemGroup Condition="$(Configuration.StartsWith('Net40'))">
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
