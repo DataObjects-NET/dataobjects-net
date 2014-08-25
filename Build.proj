@@ -23,11 +23,9 @@
   <BinariesNet40 Include="BuildBinaries.proj">
     <Properties>Framework=Net40;Configuration=$(Configuration)</Properties>
   </BinariesNet40>
-  <!--  
   <BinariesNet45 Include="BuildBinaries.proj">
     <Properties>Framework=Net45;Configuration=$(Configuration)</Properties>
   </BinariesNet45>
-  -->
   <!-- Distribution -->
   <Distributions Include="Dist\Zip.Binaries.proj" Condition="'$(EnableBinariesZip)'=='true'">
     <Properties>Configuration=$(Configuration)</Properties>
@@ -63,15 +61,11 @@
 <!-- Binaries -->
 <Target Name="BuildBinaries" DependsOnTargets="BuildProductInfo">
   <MSBuild Projects="@(BinariesNet40)" Targets="Build" />
-  <!--
   <MSBuild Projects="@(BinariesNet45)" Targets="Build" />
-  -->
 </Target>
 <Target Name="CleanBinaries">
   <MSBuild Projects="@(BinariesNet40)" Targets="Clean" />
-  <!--
   <MSBuild Projects="@(BinariesNet45)" Targets="Clean" />
-  -->
   <RemoveDir Directories="_Build\Binaries\$(Configuration)" />
 </Target>
 
