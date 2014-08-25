@@ -41,7 +41,7 @@
     <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net45\</OutputPath>
     <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net45-Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -50,7 +50,7 @@
     <OutputPath>..\..\_Build\Binaries\Release\Lib\Net45\</OutputPath>
     <DefineConstants>TRACE;NET45</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="FsUnit.fs" />
