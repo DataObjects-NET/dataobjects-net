@@ -19,6 +19,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Weaving;
 using Xtensive.Reflection;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Providers
 {

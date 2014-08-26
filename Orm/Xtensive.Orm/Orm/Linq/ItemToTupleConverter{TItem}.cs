@@ -19,6 +19,7 @@ using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Model;
 
 using FieldInfo=System.Reflection.FieldInfo;
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq
 {

@@ -15,6 +15,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq
 {

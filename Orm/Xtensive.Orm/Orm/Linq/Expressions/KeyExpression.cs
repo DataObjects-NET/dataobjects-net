@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq.Expressions
 {

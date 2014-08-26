@@ -18,6 +18,7 @@ using Xtensive.Reflection;
 using Xtensive.Tuples;
 using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Building.Builders
 {
