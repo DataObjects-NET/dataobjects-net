@@ -1,2 +1,3 @@
 [main] Association between Key fields is no longer creates additional index
 [main] Fixed behavior when DataObjects.Net puts type identifier to the wrong column
+[mysql] Fixed incorrect statement of multiple joins.

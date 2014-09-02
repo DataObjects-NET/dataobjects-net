@@ -286,6 +286,7 @@
     <Compile Include="Issues\IssueJira0541_IncorrectMappingNameInSingleTable.cs" />
     <Compile Include="Issues\IssueJira0546_IncorrectCachingOfQueries.cs" />
     <Compile Include="Issues\IssueJira0551_IncorrectTypeIdFieldBug.cs" />
+    <Compile Include="Issues\IssueJira0550_IncorrectJoinSequenceTranslationInMySqlTest.cs" />
     <Compile Include="Linq\CompiledQueriesWithClosureTest.cs" />
     <Compile Include="Issues\StrangeLockingExceptionTest.cs" />
     <Compile Include="Issues\StructureFieldRemoveTest.cs" />
