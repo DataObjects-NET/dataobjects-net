@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Orm.Internals;
 
@@ -50,6 +51,8 @@ namespace Xtensive.Orm
     /// </returns>
     public static IQueryable All(Type elementType)
     {
+      var session = Session.Current;
+      var sessionOnDemand = Session.Demand();
       return Session.Demand().Query.All(elementType);
     }
 
@@ -236,6 +239,50 @@ namespace Xtensive.Orm
       var endpoint = Session.Demand().Query;
       return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteCompiled(WrapQuery(query));
     }
+
+    #region Async metods region
+
+    public static Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<IQueryable<TElement>> query)
+    {
+      var session = Session.Demand();
+      var endpoint = session.Query;
+      return endpoint.CreateAsyncTask(() => {
+        using (session.Activate())
+          return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteCompiled(WrapQuery(query));
+      });
+    }
+
+    public static Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<IQueryable<TElement>> query)
+    {
+      var session = Session.Demand();
+      var endpoint = session.Query;
+      return endpoint.CreateAsyncTask(() => {
+        using (session.Activate())
+          return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteCompiled(WrapQuery(query));
+      });
+    }
+
+    public static Task<TResult> ExecuteAsync<TResult>(Func<TResult> query)
+    {
+      var session = Session.Demand();
+      var endpoint = session.Query;
+      return endpoint.CreateAsyncTask(() => {
+        using (session.Activate())
+          return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteCompiled(WrapQuery(query));
+      });
+    }
+
+    public static Task<TResult> ExecuteAsync<TResult>(object key, Func<TResult> query)
+    {
+      var session = Session.Demand();
+      var endpoint = session.Query;
+      return endpoint.CreateAsyncTask(() => {
+        using (session.Activate())
+          return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteCompiled(WrapQuery(query));
+      });
+    }
+
+    #endregion
 
     /// <summary>
     /// Creates future scalar query and registers it for the later execution.

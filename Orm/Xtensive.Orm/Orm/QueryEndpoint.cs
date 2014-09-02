@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -315,6 +316,29 @@ namespace Xtensive.Orm
       return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query);
     }
 
+    #region Async executors
+    
+    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
+    {
+      return CreateAsyncTask(() => { return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiled(query); });
+    }
+
+    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
+    {
+      return CreateAsyncTask(() => { return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query); });
+    }
+
+    public Task<TResult> ExecuteAsync<TResult>(Func<QueryEndpoint, TResult> query)
+    {
+      return CreateAsyncTask(() => { return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiled(query); });
+    }
+
+    public Task<TResult> ExecuteAsync<TResult>(object key, Func<QueryEndpoint, TResult> query)
+    {
+      return CreateAsyncTask(() => { return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query); });
+    }
+    #endregion
+
     /// <summary>
     /// Creates future scalar query and registers it for the later execution.
     /// The query associated with the future scalar will be cached.
@@ -402,6 +426,97 @@ namespace Xtensive.Orm
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
     }
 
+    #region Async delayed queries
+
+    /// <summary>
+    /// Creates future scalar query and registers it for the later execution.
+    /// The query associated with the future scalar will be cached.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    public Delayed<TResult> ExecuteDelayedAsync<TResult>(object key, Func<QueryEndpoint, TResult> query)
+    {
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayed(query);
+    }
+
+    /// <summary>
+    /// Creates future scalar query and registers it for the later execution.
+    /// The query associated with the future scalar will not be cached.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    public Delayed<TResult> ExecuteDelayedAsync<TResult>(Func<QueryEndpoint, TResult> query)
+    {
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
+    }
+
+    /// <summary>
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    public IEnumerable<TElement> ExecuteDelayedAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
+    {
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayed(query);
+    }
+
+    /// <summary>
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    public IEnumerable<TElement> ExecuteDelayedAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
+    }
+
+    /// <summary>
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    public IEnumerable<TElement> ExecuteDelayedAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayed(query);
+    }
+
+    /// <summary>
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    public IEnumerable<TElement> ExecuteDelayedAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
+    {
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
+    }
+
+    #endregion
+
     /// <summary>
     /// Stores specified <paramref name="source"/> in the database
     /// and provides a query for stored items.
@@ -432,6 +547,24 @@ namespace Xtensive.Orm
     }
 
     #region Private / internal methods
+
+    internal Task<TResult> CreateAsyncTask<TResult>(Func<TResult> func)
+    {
+      var userUsableTaskSource = new TaskCompletionSource<TResult>();
+      var userUsableTask = userUsableTaskSource.Task;
+      Task<TResult>.Factory
+        .StartNew(func.Invoke)
+        .ContinueWith(t => {
+          if (t.IsFaulted)
+            userUsableTaskSource.SetException(t.Exception.InnerException);
+          if (t.IsCanceled)
+            userUsableTaskSource.TrySetCanceled();
+          if (t.IsCompleted)
+            userUsableTaskSource.SetResult(t.Result);
+        });
+
+      return userUsableTask;
+    }
 
     /// <exception cref="ArgumentException"><paramref name="keyValues"/> array is empty.</exception>
     private Key GetKeyByValues<T>(object[] keyValues)
