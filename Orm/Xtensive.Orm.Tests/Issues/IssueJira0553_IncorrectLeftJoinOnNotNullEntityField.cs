@@ -45,19 +45,17 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   public class IssueJira0553_IncorrectLeftJoinOnNotNullEntityField : AutoBuildTest
   {
-    SessionConfiguration configuration = new SessionConfiguration(SessionOptions.AutoActivation | SessionOptions.ServerProfile);
     protected override DomainConfiguration BuildConfiguration()
     {
       var domainConfiguration = base.BuildConfiguration();
       domainConfiguration.Types.Register(typeof(Car).Assembly, typeof(Car).Namespace);
-
       domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
       return domainConfiguration;
     }
 
     protected override void PopulateData()
     {
-      using (var session = Domain.OpenSession(configuration))
+      using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var car = new Car();
         new EmployeeWithCar { Car = car };
@@ -70,17 +68,14 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void BadWorkTest()
     {
-      using (var session = Domain.OpenSession(configuration))
+      using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var q = Session.Current.Query;
-
-        var badResult = q.All<Employee>()
+        var badResult = session.Query.All<Employee>()
           .LeftJoin(
-            q.All<EmployeeWithCar>(),
+            session.Query.All<EmployeeWithCar>(),
             e => e.Id,
             ewc => ewc.Id,
-            (e, ewc) => new
-            {
+            (e, ewc) => new {
               e.Id,
               CarObject = ewc.Car
             });
@@ -92,20 +87,17 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void GoodWorkTest()
     {
-      using (var session = Domain.OpenSession(configuration))
+      using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var q = Session.Current.Query;
-
-        var goodResult = q.All<Employee>()
-                    .LeftJoin(
-                        q.All<EmployeeWithCar>(),
-                        e => e.Id,
-                        ewc => ewc.Id,
-                        (e, ewc) => new
-                        {
-                          e.Id,
-                          Car = ewc.Car.Id
-                        });
+        var goodResult = session.Query.All<Employee>()
+          .LeftJoin(
+            session.Query.All<EmployeeWithCar>(),
+            e => e.Id,
+            ewc => ewc.Id,
+            (e, ewc) => new {
+              e.Id,
+              Car = ewc.Car.Id
+            });
         Assert.AreEqual(3, goodResult.Count());
       }
     }
@@ -113,29 +105,25 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void WorkaroundTest()
     {
-      using (var session = Domain.OpenSession(configuration))
+      using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var q = Session.Current.Query;
-
-        var wordaround = q.All<Employee>()
-                    .LeftJoin(
-                        q.All<EmployeeWithCar>(),
-                        e => e.Id,
-                        ewc => ewc.Id,
-                        (e, ewc) => new
-                        {
-                          e.Id,
-                          CarId = ewc.Car.Id
-                        })
-                        .LeftJoin(
-                            q.All<Car>(),
-                            e => e.CarId,
-                            c => c.Id,
-                            (e, c) => new
-                            {
-                              e.Id,
-                              Car = c
-                            });
+        var wordaround = session.Query.All<Employee>()
+          .LeftJoin(
+            session.Query.All<EmployeeWithCar>(),
+              e => e.Id,
+              ewc => ewc.Id,
+              (e, ewc) => new {
+                e.Id,
+                CarId = ewc.Car.Id
+              })
+          .LeftJoin(
+            session.Query.All<Car>(),
+            e => e.CarId,
+            c => c.Id,
+            (e, c) => new {
+              e.Id,
+              Car = c
+            });
         Assert.AreEqual(3, wordaround.Count());
       }
     }
