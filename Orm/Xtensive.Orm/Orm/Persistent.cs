@@ -379,6 +379,8 @@ namespace Xtensive.Orm
               var valueKey = entityValue.Key;
               Session.ReferenceFieldsChangesRegistry.Register(entity.Key, valueKey, field);
             }
+            if (field.IsEntity)
+              RegisterReferenceReset(entity, oldValue, value);
           }
           else {
             var persistent = this;
@@ -399,6 +401,8 @@ namespace Xtensive.Orm
                 var valueKey = entityValue.Key;
                 Session.ReferenceFieldsChangesRegistry.Register(entity.Key, valueKey, field);
               }
+              if (field.IsEntity)
+                RegisterReferenceReset(entity, oldValue, value);
             }
           }
           
@@ -784,6 +788,27 @@ namespace Xtensive.Orm
       if (diffTuple!=null && diffTuple.Difference.IsAtLeastOneColumAvailable(mappingInfo))
         state = PersistentFieldState.Modified;
       return state;
+    }
+
+    private void RegisterReferenceReset(Entity fieldOwner, object oldValue, object newValue)
+    {
+      Entity oldEntity, newEntity;
+      if (oldValue==null && newValue==null)
+        return;
+      if (oldValue!=null && newValue==null) {
+        oldEntity = oldValue as Entity;
+        Session.EntityReferenceChangesRegistry.RegisterRemovedReference(oldEntity.State, fieldOwner.State);
+        return;
+      }
+      if (oldValue==null) {
+        newEntity = newValue as Entity;
+        Session.EntityReferenceChangesRegistry.RegisterAddedReference(newEntity.State, fieldOwner.State);
+        return;
+      }
+      oldEntity = oldValue as Entity;
+      Session.EntityReferenceChangesRegistry.RegisterRemovedReference(oldEntity.State, fieldOwner.State);
+      newEntity = newValue as Entity;
+      Session.EntityReferenceChangesRegistry.RegisterAddedReference(newEntity.State, fieldOwner.State);
     }
 
     #endregion
