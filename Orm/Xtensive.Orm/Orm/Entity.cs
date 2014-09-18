@@ -438,6 +438,34 @@ namespace Xtensive.Orm
       Session.Handler.FetchField(Key, field);
     }
 
+    /// <summary>
+    /// Checks that reference from <paramref name="entity"/> to this entity have not removed.
+    /// </summary>
+    /// <param name="entity">Entity to check.</param>
+    /// <returns><see langword="false"/> if <see cref="Session.EntityReferenceChangesRegistry"/> contains information about removed reference, otherwise, <see langword="true"/>.</returns>
+    internal bool HasReferenceFrom(Entity entity)
+    {
+      return Session.EntityReferenceChangesRegistry.HasReferenceFrom(State, entity.State);
+    }
+
+    /// <summary>
+    /// Gets all entities which have new references to this entity until <see cref="Session.Persist(PersistReason)"/> or <see cref="Session.CancelChanges()"/> executed.
+    /// </summary>
+    /// <returns>All entities which have new references to this entity until persist.</returns>
+    internal IEnumerable<Entity> GetNewReferencesFromEntities()
+    {
+      return Session.EntityReferenceChangesRegistry.GetAddedReferences(State).Keys.Select(referencingState => referencingState.Entity);
+    }
+
+    /// <summary>
+    /// Gets all entities which have new references to this entity until <see cref="Session.Persist(PersistReason)"/> or <see cref="Session.CancelChanges()"/> executed.
+    /// </summary>
+    /// <returns>All entities which have new references to this entity until persist.</returns>
+    internal IEnumerable<Entity> GetRemovedReferencesFromEntities()
+    {
+      return Session.EntityReferenceChangesRegistry.GetAddedReferences(State).Keys.Select(referensingState => referensingState.Entity);
+    }
+
     #endregion
 
     #region System-level event-like members & GetSubscription members
