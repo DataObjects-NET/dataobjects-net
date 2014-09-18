@@ -151,6 +151,7 @@ namespace Xtensive.Orm
                 else
                   EntityChangeRegistry.Clear();
                 EntitySetChangeRegistry.Clear();
+                EntityReferenceChangesRegistry.Clear();
               }
               
               OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
@@ -256,6 +257,7 @@ namespace Xtensive.Orm
         removedEntity.PersistenceState = PersistenceState.Synchronized;
       }
       EntityChangeRegistry.Clear();
+      EntityReferenceChangesRegistry.Clear();
     }
 
     private void ProcessChangesOfEntitySets(Action<EntitySetState> action)
