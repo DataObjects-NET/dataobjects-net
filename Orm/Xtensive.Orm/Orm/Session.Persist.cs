@@ -21,6 +21,7 @@ namespace Xtensive.Orm
     private KeyRemapper remapper;
     private bool persistingIsFailed;
     
+    internal EntityReferenceChangesRegistry EntityReferenceChangesRegistry { get; private set; }
     internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry { get; private set; }
     /// <summary>
     /// Saves all modified instances immediately to the database.
