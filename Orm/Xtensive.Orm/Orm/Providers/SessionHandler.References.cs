@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Providers
     private IEnumerable<ReferenceInfo> GetReferencesToInternal(AssociationInfo association, Entity target, RecordSetHeader header, QueryTask queryTask)
     {
       Session.ExecuteDelayedQueries(true);
-      foreach (var entity in queryTask.ToEntities(header, Session, 0).Where(target.HasReferenceFrom).Concat(target.GetNewReferencingEntities()))
+      foreach (var entity in queryTask.ToEntities(header, Session, 0).Where(target.HasReferenceFrom).Concat(target.GetNewReferencesFromEntities()))
         yield return new ReferenceInfo(entity, target, association);
     }
 
