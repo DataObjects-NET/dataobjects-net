@@ -438,6 +438,20 @@ namespace Xtensive.Orm
       Session.Handler.FetchField(Key, field);
     }
 
+    internal IEnumerable<FieldInfo> GetKeyFieldsOfEntityType()
+    {
+      return TypeInfo.Key.Fields.Where(field => field.IsEntity && !field.IsNested).Select(field => field);
+    }
+
+    internal void RegisterKeyFieldsOfEntityTypeForRemap(Key keyOfThisEntity, params object[] values)
+    {
+      foreach (var fieldInfo in GetKeyFieldsOfEntityType()) {
+        var referencedEntity = values[fieldInfo.MappingInfo.Offset] as Entity;
+        Session.ReferenceFieldsChangesRegistry.Register(keyOfThisEntity, referencedEntity.Key, fieldInfo);
+        Session.EntityReferenceChangesRegistry.RegisterAddedReference(State, referencedEntity.State);
+      }
+    }
+
     /// <summary>
     /// Checks that reference from <paramref name="entity"/> to this entity have not removed.
     /// </summary>
@@ -882,6 +896,7 @@ namespace Xtensive.Orm
         ArgumentValidator.EnsureArgumentNotNull(values, "values");
         var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
+        RegisterKeyFieldsOfEntityTypeForRemap(key, values);
         var operations = Session.Operations;
         using (operations.BeginRegistration(OperationType.System)) {
           if (operations.CanRegisterOperation)
@@ -932,6 +947,7 @@ namespace Xtensive.Orm
         ArgumentValidator.EnsureArgumentNotNull(values, "values");
         var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
+        RegisterKeyFieldsOfEntityTypeForRemap(key, values);
         var operations = Session.Operations;
         using (operations.BeginRegistration(OperationType.System)) {
           if (operations.CanRegisterOperation)
