@@ -292,7 +292,8 @@ namespace Xtensive.Orm
           throw new InvalidOperationException(string.Format("Key of {0} type is not assignable to field of {1} type", value.TypeInfo.Name, field.ValueType.Name));
 
         value.Value.CopyTo(Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
-
+        if (field.IsPrimaryKey)
+          value.Value.CopyTo(((Entity)this).Key.Value, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
         SystemSetValue(field, oldValue, value);
         SystemSetValueCompleted(field, oldValue, value, null);
       }
