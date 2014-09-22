@@ -448,7 +448,7 @@ namespace Xtensive.Orm
       foreach (var fieldInfo in GetKeyFieldsOfEntityType()) {
         var referencedEntity = values[fieldInfo.MappingInfo.Offset] as Entity;
         Session.ReferenceFieldsChangesRegistry.Register(keyOfThisEntity, referencedEntity.Key, fieldInfo);
-        Session.EntityReferenceChangesRegistry.RegisterAddedReference(State, referencedEntity.State);
+        Session.EntityReferenceChangesRegistry.RegisterAddedReference(referencedEntity.State, State);
       }
     }
 
