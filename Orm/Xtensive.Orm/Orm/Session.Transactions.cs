@@ -189,6 +189,7 @@ namespace Xtensive.Orm
             if(!persistingIsFailed) {
               CancelEntitySetsChanges();
               ClearChangeRegistry();
+              EntityReferenceChangesRegistry.Clear();
             }
             persistingIsFailed = false;
           }
