@@ -12,7 +12,6 @@ using Xtensive.Orm.Tests.Issues.IssueJira0554_NewClientProfileBugModel;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0554_NewClientProfileBugModel
 {
-  [Serializable]
   [HierarchyRoot]
   public class TestA : Entity
   {
@@ -23,7 +22,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0554_NewClientProfileBugModel
     public string Text { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class TestB : Entity
   {
@@ -56,7 +54,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0554_NewClientProfileBugModel
     public TestA TestA { get; set; }
   }
 
-  [Serializable]
   [HierarchyRoot]
   public class TestC : Entity
   {
@@ -69,6 +66,36 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0554_NewClientProfileBugModel
     [Field]
     public EntitySet<TestA> TestAs { get; set; }
   }
+
+  [HierarchyRoot]
+  public class EntityWithTwoReferencesToTheSameEntity : Entity
+  {
+    [Field, Key]
+    public int Id { get; set; }
+
+    [Field]
+    public TestA FirstTestA { get; set; }
+
+    [Field]
+    public TestA SecondTestA { get; set; }
+  }
+
+  [HierarchyRoot]
+  [KeyGenerator(KeyGeneratorKind.None)]
+  public class EntityWithEntityAsKey : Entity
+  {
+    [Field, Key]
+    public TestA Key { get; set; }
+
+    [Field]
+    public string Text { get; set; }
+
+    public EntityWithEntityAsKey(Session session, TestA key)
+      : base(session, key)
+    {
+    }
+  }
+
 }
 
 namespace Xtensive.Orm.Tests.Issues
@@ -82,10 +109,10 @@ namespace Xtensive.Orm.Tests.Issues
       Key keyA2, keyB, keyC, keyA3;
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var testA1 = new TestA { Text = "A1" };
-        keyA2 = new TestA { Text = "A2" }.Key;
-        keyB = new TestB { Text = "B1", TestA = testA1 }.Key;
-        var testA3 = new TestA { Text = "A3" };
+        var testA1 = new TestA {Text = "A1"};
+        keyA2 = new TestA {Text = "A2"}.Key;
+        keyB = new TestB {Text = "B1", TestA = testA1}.Key;
+        var testA3 = new TestA {Text = "A3"};
         keyA3 = testA3.Key;
         var testC1 = new TestC { Text = "C1" };
         testC1.TestAs.Add(testA3);
@@ -136,8 +163,8 @@ namespace Xtensive.Orm.Tests.Issues
       Key testA1Key, testBKey;
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var testA1 = new TestA { Text = "Test02TestA" };
-        var testB = new TestB { Text = "Test02TestB", TestA = testA1 };
+        var testA1 = new TestA {Text = "Test02TestA"};
+        var testB = new TestB {Text = "Test02TestB", TestA = testA1};
         testA1Key = testA1.Key;
         testBKey = testB.Key;
         transaction.Complete();
@@ -169,8 +196,8 @@ namespace Xtensive.Orm.Tests.Issues
       Key testA1Key, testBKey;
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var testA1 = new TestA { Text = "Test03TestA" };
-        var testB = new TestB { Text = "Test03TestB", TestA = testA1 };
+        var testA1 = new TestA {Text = "Test03TestA"};
+        var testB = new TestB {Text = "Test03TestB", TestA = testA1};
         testA1Key = testA1.Key;
         testBKey = testB.Key;
         transaction.Complete();
@@ -207,8 +234,8 @@ namespace Xtensive.Orm.Tests.Issues
       Key testA2Key, testBKey;
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var testA1 = new TestA { Text = "Test04TestA1" };
-        var testB = new TestB { Text = "Test04TestB", TestA = testA1 };
+        var testA1 = new TestA {Text = "Test04TestA1"};
+        var testB = new TestB {Text = "Test04TestB", TestA = testA1};
         var testA2 = new TestA {Text = "Test04TestA2"};
         testA2Key = testA2.Key;
         testBKey = testB.Key;
@@ -255,7 +282,7 @@ namespace Xtensive.Orm.Tests.Issues
       Key testA1Key, testA2Key, testD1Key;
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var testA1 = new TestA { Text = "Test05TestA1" };
+        var testA1 = new TestA {Text = "Test05TestA1"};
         var testD1 = new TestD {Text = "Test05TestD1", Structure = new TestStructure() {TestA = testA1}};
         var testA2 = new TestA {Text = "Test05TestA2"};
         testA1Key = testA1.Key;
@@ -300,8 +327,8 @@ namespace Xtensive.Orm.Tests.Issues
       Key testA1Key, testBKey;
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var testA1 = new TestA { Text = "Test01TestA" };
-        var testB = new TestB { Text = "Test01TestB", TestA = testA1 };
+        var testA1 = new TestA {Text = "Test06TestA"};
+        var testB = new TestB {Text = "Test06TestB", TestA = testA1};
         testA1Key = testA1.Key;
         testBKey = testB.Key;
         transaction.Complete();
@@ -327,6 +354,112 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
       }
     }
+
+    [Test]
+    public void Test07()
+    {
+      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile)))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var testA = new TestA {Text = "Test07TestA"};
+        var entity = new EntityWithEntityAsKey(session, testA);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(entity.State).Count);
+        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State).Count);
+        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State)[entity.State]);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State).Count);
+      }
+    }
+
+    [Test]
+
+    public void Test08()
+    {
+      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile)))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var testA = new TestA {Text = "Test08TestA"};
+        var entity = new EntityWithTwoReferencesToTheSameEntity {FirstTestA = testA, SecondTestA = testA};
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(entity.State).Count);
+        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State).Count);
+        Assert.AreEqual(2, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State)[entity.State]);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State).Count);
+        entity.SecondTestA = null;
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(entity.State).Count);
+        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State).Count);
+        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State)[entity.State]);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State).Count);
+        entity.FirstTestA = null;
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State).Count);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State).Count);
+      }
+    }
+
+    [Test]
+    public void Test09()
+    {
+      Key testAKey, entityKey;
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var testA = new TestA {Text = "Test09TestA"};
+        var entity = new EntityWithTwoReferencesToTheSameEntity { FirstTestA = testA, SecondTestA = testA };
+        testAKey = testA.Key;
+        entityKey = entity.Key;
+        transaction.Complete();
+      }
+
+      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile)))
+      using (var transaction = session.OpenTransaction()) {
+        var testA = session.Query.Single<TestA>(testAKey);
+        var entity = session.Query.Single<EntityWithTwoReferencesToTheSameEntity>(entityKey);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State).Count);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State).Count);
+        entity.SecondTestA = null;
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State).Count);
+        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State).Count);
+        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State)[entity.State]);
+        entity.FirstTestA = null;
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State).Count);
+        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State).Count);
+        Assert.AreEqual(2, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State)[entity.State]);
+      }
+    }
+
+    [Test]
+    public void Test10()
+    {
+      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile))) {
+        using (session.Activate())
+        using (var transaction = session.OpenTransaction()) {
+          var testA = new TestA {Text = "Test10TestA"};
+          var entity = new EntityWithTwoReferencesToTheSameEntity { FirstTestA = testA, SecondTestA = testA };
+        }
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.AddedReferencesCount);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.RemovedReferencesCount);
+        Key testAKey, entityKey;
+        using (session.Activate())
+        using (var transaction = session.OpenTransaction()) {
+          var testA = new TestA {Text = "Test10TestA"};
+          var entity = new EntityWithTwoReferencesToTheSameEntity { FirstTestA = testA, SecondTestA = testA };
+          testAKey = testA.Key;
+          entityKey = entity.Key;
+          transaction.Complete();
+        }
+        Assert.AreEqual(2, session.EntityReferenceChangesRegistry.AddedReferencesCount);
+        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.RemovedReferencesCount);
+      }
+    }
+
 
     protected override DomainConfiguration BuildConfiguration()
     {
