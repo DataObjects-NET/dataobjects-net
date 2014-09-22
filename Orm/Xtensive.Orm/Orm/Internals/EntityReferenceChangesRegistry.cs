@@ -14,16 +14,27 @@ namespace Xtensive.Orm.Internals
 {
   internal class EntityReferenceChangesRegistry : SessionBound
   {
+    private const int InitialReferencesCount = 1;
     private object lockableObject = new object();
 
     /// <summary>
     /// For removed references and added references:
     /// TKey is entity which referenced;
-    /// TValue is entities which referencing or no longer referencing to TKey.
+    /// TValue is dictionary of entities where TKey is referencing entity and TValue is count of references
     /// </summary>
-    private readonly IDictionary<EntityState, IDictionary<EntityState, EntityState>> removedReferences = new Dictionary<EntityState, IDictionary<EntityState, EntityState>>();
-    private readonly IDictionary<EntityState, IDictionary<EntityState, EntityState>> addedReferences = new Dictionary<EntityState, IDictionary<EntityState, EntityState>>();
-    
+    private readonly IDictionary<EntityState, IDictionary<EntityState, int>> removedReferences = new Dictionary<EntityState, IDictionary<EntityState, int>>();
+    private readonly IDictionary<EntityState, IDictionary<EntityState, int>> addedReferences = new Dictionary<EntityState, IDictionary<EntityState, int>>();
+
+    /// <summary>
+    /// Gets count of removed references in registry.
+    /// </summary>
+    public int RemovedReferencesCount { get { return removedReferences.Values.Sum(el => el.Values.Sum()); } }
+
+    /// <summary>
+    /// Gets count of added references in registry.
+    /// </summary>
+    public int AddedReferencesCount { get { return addedReferences.Values.Sum(el => el.Values.Sum()); } }
+
     /// <summary>
     /// Checks that reference from <paramref name="entityStateForSearch"/> was removed.
     /// </summary>
@@ -31,10 +42,10 @@ namespace Xtensive.Orm.Internals
     /// <returns><see langword="false"/> if registry contains information about removed reference, otherwise, <see langword="true"/>.</returns>
     public bool HasReferenceFrom(EntityState target, EntityState entityStateForSearch)
     {
-      IDictionary<EntityState, EntityState> foundEntities;
+      IDictionary<EntityState, int> foundEntities;
       if (!removedReferences.TryGetValue(target, out foundEntities))
         return true;
-      var isExistsInRemoved = foundEntities.ContainsKey(entityStateForSearch);
+      var isExistsInRemoved = foundEntities.ContainsKey(entityStateForSearch) && foundEntities.Count>0;
       return !isExistsInRemoved;
     }
 
@@ -43,14 +54,14 @@ namespace Xtensive.Orm.Internals
     /// </summary>
     /// <param name="target">Referenced state</param>
     /// <returns>Read-only list of states which no longer referencing to <paramref name="target"/>.</returns>
-    public ReadOnlyDictionary<EntityState, EntityState> GetRemovedReferences(EntityState target)
+    public ReadOnlyDictionary<EntityState, int> GetRemovedReferences(EntityState target)
     {
-      IDictionary<EntityState, EntityState> removedReferences;
+      IDictionary<EntityState, int> removedReferences;
       if(this.removedReferences.TryGetValue(target, out removedReferences))
-        return new ReadOnlyDictionary<EntityState, EntityState>(removedReferences);
-      var dictionary = new Dictionary<EntityState, EntityState>();
+        return new ReadOnlyDictionary<EntityState, int>(removedReferences);
+      var dictionary = new Dictionary<EntityState, int>();
       this.removedReferences.Add(target, dictionary);
-      return new ReadOnlyDictionary<EntityState, EntityState>(dictionary);
+      return new ReadOnlyDictionary<EntityState, int>(dictionary);
     }
 
     /// <summary>
@@ -58,14 +69,14 @@ namespace Xtensive.Orm.Internals
     /// </summary>
     /// <param name="target">Referenced state.</param>
     /// <returns>Read-only list of states which add reference to <paramref name="target"/>.</returns>
-    public ReadOnlyDictionary<EntityState, EntityState> GetAddedReferences(EntityState target)
+    public ReadOnlyDictionary<EntityState, int> GetAddedReferences(EntityState target)
     {
-      IDictionary<EntityState, EntityState> addedReferences;
+      IDictionary<EntityState, int> addedReferences;
       if (this.addedReferences.TryGetValue(target, out addedReferences))
-        return new ReadOnlyDictionary<EntityState, EntityState>(addedReferences);
-      var dictionary = new Dictionary<EntityState, EntityState>();
+        return new ReadOnlyDictionary<EntityState, int>(addedReferences);
+      var dictionary = new Dictionary<EntityState, int>();
       this.addedReferences.Add(target, dictionary);
-      return new ReadOnlyDictionary<EntityState, EntityState>(dictionary);
+      return new ReadOnlyDictionary<EntityState, int>(dictionary);
     }
 
     /// <summary>
@@ -76,18 +87,34 @@ namespace Xtensive.Orm.Internals
     public void RegisterRemovedReference(EntityState referencedEntityState, EntityState noLongerReferncingEntityState)
     {
       lock (lockableObject) {
-        IDictionary<EntityState, EntityState> foundStates;
-        if (addedReferences.TryGetValue(referencedEntityState, out foundStates))
+        var objectsAreSame = referencedEntityState.Equals(noLongerReferncingEntityState);
+        IDictionary<EntityState, int> foundStates;
+        if (addedReferences.TryGetValue(referencedEntityState, out foundStates)) {
           if (foundStates.ContainsKey(noLongerReferncingEntityState)) {
-            foundStates.Remove(noLongerReferncingEntityState);
-            return;
+            if (foundStates[noLongerReferncingEntityState]==InitialReferencesCount) {
+              foundStates.Remove(noLongerReferncingEntityState);
+              return;
+            }
+            if (foundStates[noLongerReferncingEntityState] > 0) {
+              foundStates[noLongerReferncingEntityState]--;
+              return;
+            }
           }
+        }
 
-        if (removedReferences.TryGetValue(referencedEntityState, out foundStates))
-          foundStates.Add(noLongerReferncingEntityState, noLongerReferncingEntityState);
+        if (removedReferences.TryGetValue(referencedEntityState, out foundStates)) {
+          if (foundStates.ContainsKey(noLongerReferncingEntityState)) {
+            if (objectsAreSame)
+              return;
+            foundStates[noLongerReferncingEntityState]++;
+          }
+          else {
+            foundStates.Add(noLongerReferncingEntityState, InitialReferencesCount);
+          }
+        }
         else {
-          var dictionary = new Dictionary<EntityState, EntityState>();
-          dictionary.Add(noLongerReferncingEntityState, noLongerReferncingEntityState);
+          var dictionary = new Dictionary<EntityState, int>();
+          dictionary.Add(noLongerReferncingEntityState, InitialReferencesCount);
           removedReferences.Add(referencedEntityState, dictionary);
         }
       }
@@ -101,18 +128,34 @@ namespace Xtensive.Orm.Internals
     public void RegisterAddedReference(EntityState referencedEntityState, EntityState newReferencingEntity)
     {
       lock (lockableObject) {
-        IDictionary<EntityState, EntityState> foundStates;
-        if (removedReferences.TryGetValue(referencedEntityState, out foundStates))
+        var objectsAreSame = referencedEntityState.Equals(newReferencingEntity);
+
+        IDictionary<EntityState, int> foundStates;
+        if (removedReferences.TryGetValue(referencedEntityState, out foundStates)) {
           if (foundStates.ContainsKey(newReferencingEntity)) {
-            foundStates.Remove(newReferencingEntity);
-            return;
+            if (foundStates[newReferencingEntity]==InitialReferencesCount) {
+              foundStates.Remove(newReferencingEntity);
+              return;
+            }
+            if (foundStates[newReferencingEntity] > 0) {
+              foundStates[newReferencingEntity]--;
+              return;
+            }
           }
-      
-        if (addedReferences.TryGetValue(referencedEntityState, out foundStates))
-          foundStates.Add(newReferencingEntity,newReferencingEntity);
+        }
+
+        if (addedReferences.TryGetValue(referencedEntityState, out foundStates)) {
+          if (foundStates.ContainsKey(newReferencingEntity)) {
+            if (objectsAreSame)
+              return;
+            foundStates[newReferencingEntity]++;
+          }
+          else
+            foundStates.Add(newReferencingEntity, InitialReferencesCount);
+        }
         else {
-          var dictionary = new Dictionary<EntityState, EntityState>();
-          dictionary.Add(newReferencingEntity, newReferencingEntity);
+          var dictionary = new Dictionary<EntityState, int>();
+          dictionary.Add(newReferencingEntity, InitialReferencesCount);
           addedReferences.Add(referencedEntityState, dictionary);
         }
       }
