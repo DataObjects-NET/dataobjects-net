@@ -320,22 +320,94 @@ namespace Xtensive.Orm
     
     public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
-      return CreateAsyncTask(() => { return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiled(query); });
+      var userUsableTaskSource = new TaskCompletionSource<IEnumerable<TElement>>();
+      var userUsableTask = userUsableTaskSource.Task;
+      new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query).ContinueWith(
+        task => {
+          if (task.IsFaulted) {
+            userUsableTaskSource.SetException(task.Exception.InnerException);
+            return;
+          }
+          if (task.IsCanceled) {
+            userUsableTaskSource.TrySetCanceled();
+            return;
+          }
+          if (task.IsCompleted) {
+            var parameterizedTask = task;
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
+          }
+        });
+
+      return userUsableTask;
     }
 
     public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
     {
-      return CreateAsyncTask(() => { return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query); });
+      var userUsableTaskSource = new TaskCompletionSource<IEnumerable<TElement>>();
+      var userUsableTask = userUsableTaskSource.Task;
+      new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query).ContinueWith(
+        task => {
+          if (task.IsFaulted) {
+            userUsableTaskSource.SetException(task.Exception.InnerException);
+            return;
+          }
+          if (task.IsCanceled) {
+            userUsableTaskSource.TrySetCanceled();
+            return;
+          }
+          if (task.IsCompleted) {
+          var parameterizedTask = task;
+          userUsableTaskSource.SetResult(parameterizedTask.Result);
+        }
+      });
+
+      return userUsableTask;
     }
 
     public Task<TResult> ExecuteAsync<TResult>(Func<QueryEndpoint, TResult> query)
     {
-      return CreateAsyncTask(() => { return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiled(query); });
+      var userUsableTaskSource = new TaskCompletionSource<TResult>();
+      var userUsableTask = userUsableTaskSource.Task;
+      new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query).ContinueWith(
+        task => {
+          if (task.IsFaulted) {
+            userUsableTaskSource.SetException(task.Exception.InnerException);
+            return;
+          }
+          if (task.IsCanceled) {
+            userUsableTaskSource.TrySetCanceled();
+            return;
+          }
+          if (task.IsCompleted) {
+          var parameterizedTask = task;
+          userUsableTaskSource.SetResult(parameterizedTask.Result);
+        }
+      });
+
+      return userUsableTask;
     }
 
     public Task<TResult> ExecuteAsync<TResult>(object key, Func<QueryEndpoint, TResult> query)
     {
-      return CreateAsyncTask(() => { return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query); });
+      var userUsableTaskSource = new TaskCompletionSource<TResult>();
+      var userUsableTask = userUsableTaskSource.Task;
+      new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query).ContinueWith(
+        task => {
+          if (task.IsFaulted) {
+            userUsableTaskSource.SetException(task.Exception.InnerException);
+            return;
+          }
+          if (task.IsCanceled) {
+            userUsableTaskSource.TrySetCanceled();
+            return;
+          }
+          if (task.IsCompleted) {
+            var parameterizedTask = task;
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
+          }
+        });
+
+      return userUsableTask;
     }
     #endregion
 
@@ -452,9 +524,9 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public Delayed<TResult> ExecuteDelayedAsync<TResult>(Func<QueryEndpoint, TResult> query)
+    public DelayedTask<TResult> ExecuteDelayedAsync<TResult>(Func<QueryEndpoint, TResult> query)
     {
-      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayedAsync(query);
     }
 
     /// <summary>
@@ -467,9 +539,9 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public IEnumerable<TElement> ExecuteDelayedAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
+    public DelayedTask<IEnumerable<TElement>> ExecuteDelayedAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
     {
-      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayed(query);
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayedAsync(query);
     }
 
     /// <summary>
@@ -481,9 +553,9 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public IEnumerable<TElement> ExecuteDelayedAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    public DelayedTask<IEnumerable<TElement>> ExecuteDelayedAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
     {
-      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayedAsync(query);
     }
 
     /// <summary>
@@ -496,9 +568,9 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public IEnumerable<TElement> ExecuteDelayedAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    public DelayedTask<IEnumerable<TElement>> ExecuteDelayedAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
     {
-      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayed(query);
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayedAsync(query);
     }
 
     /// <summary>
@@ -510,9 +582,9 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public IEnumerable<TElement> ExecuteDelayedAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
+    public DelayedTask<IEnumerable<TElement>> ExecuteDelayedAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
-      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayedAsync(query);
     }
 
     #endregion
@@ -548,23 +620,7 @@ namespace Xtensive.Orm
 
     #region Private / internal methods
 
-    internal Task<TResult> CreateAsyncTask<TResult>(Func<TResult> func)
-    {
-      var userUsableTaskSource = new TaskCompletionSource<TResult>();
-      var userUsableTask = userUsableTaskSource.Task;
-      Task<TResult>.Factory
-        .StartNew(func.Invoke)
-        .ContinueWith(t => {
-          if (t.IsFaulted)
-            userUsableTaskSource.SetException(t.Exception.InnerException);
-          if (t.IsCanceled)
-            userUsableTaskSource.TrySetCanceled();
-          if (t.IsCompleted)
-            userUsableTaskSource.SetResult(t.Result);
-        });
-
-      return userUsableTask;
-    }
+    
 
     /// <exception cref="ArgumentException"><paramref name="keyValues"/> array is empty.</exception>
     private Key GetKeyByValues<T>(object[] keyValues)
