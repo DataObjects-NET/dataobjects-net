@@ -76,8 +76,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var teachers = session.Query.All<Teacher>().ToList();
         
         for (int i = 0; i < disceplines.Count; i++) {
-          new DisciplinesOfCourse(session, courses[0], disceplines[i]) {Teacher = teachers[i]};
-          new DisciplinesOfCourse(session, courses[1], disceplines[i]) {Teacher = teachers[i]};
+          new DisceplinesOfCourse(session, courses[0], disceplines[i]) {Teacher = teachers[i]};
+          new DisceplinesOfCourse(session, courses[1], disceplines[i]) {Teacher = teachers[i]};
         }
         transaction.Complete();
       }

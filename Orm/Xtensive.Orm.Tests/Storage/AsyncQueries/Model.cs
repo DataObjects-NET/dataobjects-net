@@ -5,6 +5,7 @@
 // Created:    2014.08.28
 
 using System;
+using Xtensive.Orm.Tests.Linq.MsSamples;
 
 namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
 {
@@ -27,13 +28,12 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
     public Gender Gender { get; set; }
   }
 
+  [TableMapping("FuncyTableName")]
   public class Teacher : Human
   {
     [Field]
     [Association(PairTo = "Teacher")]
-    public EntitySet<DisciplinesOfCourse> Disciplines { get; set; }
-
-
+    public EntitySet<DisceplinesOfCourse> Disciplines { get; set; }
   }
 
   public class Student : Human
@@ -43,6 +43,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
   }
 
   [HierarchyRoot]
+  [Index("Id", Name="PK_Group1")]
   public class Group : Entity
   {
     [Field, Key]
@@ -62,7 +63,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
 
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
-  public class DisciplinesOfCourse : Entity
+  public class DisceplinesOfCourse : Entity
   {
     [Field, Key(0)]
     public Course Course { get; set; }
@@ -73,7 +74,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
     [Field]
     public Teacher Teacher { get; set; }
 
-    public DisciplinesOfCourse(Session session, Course course, Discepline discepline)
+    public DisceplinesOfCourse(Session session, Course course, Discepline discepline)
       : base(session, course, discepline)
     {
       

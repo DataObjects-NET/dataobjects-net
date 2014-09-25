@@ -316,8 +316,9 @@
     <Compile Include="Linq\DateTimeToStringTest.cs" />
     <Compile Include="Linq\DoubleAggregateToStructTest.cs" />
     <Compile Include="Storage\AsyncQueries\AsyncQueriesBaseTest.cs" />
-    <Compile Include="Storage\AsyncQueries\CompiledAsyncQueriesTest.cs" />
-    <Compile Include="Storage\AsyncQueries\DelayedAsyncQueries.cs" />
+    <Compile Include="Storage\AsyncQueries\Compiled\ClientProfileCompiledAsyncQueriesTest.cs" />
+    <Compile Include="Storage\AsyncQueries\Compiled\CompiledAsyncQueriesTest.cs" />
+    <Compile Include="Storage\AsyncQueries\Delayed\DelayedAsyncQueries.cs" />
     <Compile Include="Storage\AsyncQueries\Model.cs" />
     <Compile Include="Storage\ExecuteDelayedForIOrderedQueryableQuery.cs" />
     <Compile Include="Linq\DynamicallyDefinedFields.cs" />
