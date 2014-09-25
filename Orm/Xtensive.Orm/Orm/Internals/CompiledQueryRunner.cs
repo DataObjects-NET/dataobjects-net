@@ -6,8 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions.Visitors;
@@ -42,6 +44,28 @@ namespace Xtensive.Orm.Internals
       return result;
     }
 
+#if NET45
+    public async Task<IEnumerable<TElement>> ExecuteCompiledAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
+    {
+      var parameterizedQuery = await GetSequenceQueryAsync(query);
+      var result = await parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery));
+      return result;
+    }
+
+    public async Task<TResult> ExecuteCompiledAsync<TResult>(Func<QueryEndpoint, TResult> query)
+    {
+      var parameterizedQuery = await GetCachedQueryAsync<TResult>();
+      if (parameterizedQuery!=null)
+        return await parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery));
+      // dirty hack of async method
+      // async methods cannot contains out or ref parameters
+      // In synchroniously method out used because TResult can be value-type
+      // But ParameterizedQuery<T> is always reference type and we can pass ref to instance without ref or out
+      // To make sure that parameterizedQuery is initialized within GetScalarQueryAsync we must await result of method
+      return await GetScalarQueryAsync(query, true, parameterizedQuery);
+    }
+#endif
+
     public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
       var parameterizedQuery = GetSequenceQuery(query);
@@ -70,6 +94,36 @@ namespace Xtensive.Orm.Internals
       return result;
     }
 
+#if NET45
+    public DelayedTask<IEnumerable<TElement>> ExecuteDelayedAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
+    {
+      var parameterizedQuery = GetSequenceQuery(query);
+      var parameterContext = CreateParameterContext(parameterizedQuery);
+      var result = new DelayedSequence<TElement>(session, parameterizedQuery, parameterContext);
+      session.RegisterDelayedQuery(result.Task);
+      return DelayedTask<IEnumerable<TElement>>.Factory.CreateNew(session, result);
+    }
+
+    public DelayedTask<TResult> ExecuteDelayedAsync<TResult>(Func<QueryEndpoint, TResult> query)
+    {
+      TResult dummy;
+      var parameterizedQuery = GetCachedQuery<TResult>() ?? GetScalarQuery(query, false, out dummy);
+      var parameterContext = CreateParameterContext(parameterizedQuery);
+      var result = new Delayed<TResult>(session, parameterizedQuery, parameterContext);
+      session.RegisterDelayedQuery(result.Task);
+      return DelayedTask<TResult>.Factory.CreateNew(session, result);
+    }
+
+    public DelayedTask<IEnumerable<TElement>> ExecuteDelayedAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      var parameterizedQuery = GetSequenceQuery(query);
+      var parameterContext = CreateParameterContext(parameterizedQuery);
+      var result = new DelayedSequence<TElement>(session, parameterizedQuery, parameterContext);
+      session.RegisterDelayedQuery(result.Task);
+      return DelayedTask<IEnumerable<TElement>>.Factory.CreateNew(session, result);
+    }
+#endif
+
     private ParameterizedQuery<TResult> GetScalarQuery<TResult>(
       Func<QueryEndpoint, TResult> query, bool executeAsSideEffect, out TResult result)
     {
@@ -88,6 +142,27 @@ namespace Xtensive.Orm.Internals
       }
     }
 
+#if NET45
+    private async Task<TResult> GetScalarQueryAsync<TResult>(
+      Func<QueryEndpoint, TResult> query, bool executeAsSideEffects, ParameterizedQuery<TResult> parameterizedQuery)
+    {
+      await AllocateParameterAndReplacerAsync();
+      TResult result;
+      using (var scope = new QueryCachingScope(queryParameter, queryParameterReplacer, executeAsSideEffects)) {
+        using (new ParameterContext().Activate()) {
+          if (queryParameter!=null)
+            queryParameter.Value = queryTarget;
+          result = query.Invoke(endpoint);
+        }
+        parameterizedQuery = (ParameterizedQuery<TResult>) scope.ParameterizedQuery;
+        if (parameterizedQuery==null && queryTarget!=null)
+          throw new NotSupportedException(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
+        await PutCachedQueryAsync(parameterizedQuery);
+        return result;
+      }
+    }
+#endif
+
     private ParameterizedQuery<IEnumerable<TElement>> GetSequenceQuery<TElement>(
       Func<QueryEndpoint, IQueryable<TElement>> query)
     {
@@ -104,6 +179,24 @@ namespace Xtensive.Orm.Internals
       }
       return parameterizedQuery;
     }
+
+#if NET45
+    private async Task<ParameterizedQuery<IEnumerable<TElement>>> GetSequenceQueryAsync<TElement>(
+      Func<QueryEndpoint, IQueryable<TElement>> query)
+    {
+      var parameterizedQuery = await GetCachedQueryAsync<IEnumerable<TElement>>();
+      if (parameterizedQuery!=null)
+        return parameterizedQuery;
+      await AllocateParameterAndReplacerAsync();
+      using (new QueryCachingScope(queryParameter, queryParameterReplacer)) {
+        var result = query.Invoke(endpoint);
+        var translatedQuery = await endpoint.Provider.TranslateAsync<IEnumerable<TElement>>(result.Expression);
+        parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) translatedQuery;
+        await PutCachedQueryAsync(parameterizedQuery);
+      }
+      return parameterizedQuery;
+    }
+#endif
 
     private void AllocateParameterAndReplacer()
     {
@@ -162,6 +255,13 @@ namespace Xtensive.Orm.Internals
       });
     }
 
+#if NET45
+    private Task AllocateParameterAndReplacerAsync()
+    {
+      return Task.Factory.StartNew(AllocateParameterAndReplacer);
+    }
+#endif
+
     private ParameterizedQuery<TResult> GetCachedQuery<TResult>()
     {
       var cache = domain.QueryCache;
@@ -173,6 +273,14 @@ namespace Xtensive.Orm.Internals
       }
     }
 
+#if NET45
+    private Task<ParameterizedQuery<TResult>> GetCachedQueryAsync<TResult>()
+    {
+      return Task<ParameterizedQuery<TResult>>.Factory.StartNew(
+        GetCachedQuery<TResult>);
+    }
+#endif
+
     private void PutCachedQuery<TResult>(ParameterizedQuery<TResult> parameterizedQuery)
     {
       var cache = domain.QueryCache;
@@ -182,6 +290,13 @@ namespace Xtensive.Orm.Internals
           cache.Add(new Pair<object, TranslatedQuery>(queryKey, parameterizedQuery));
       }
     }
+
+#if NET45
+    private Task PutCachedQueryAsync<TResult>(ParameterizedQuery<TResult> parameterizedQuery)
+    {
+      return Task.Factory.StartNew(() => PutCachedQuery<TResult>(parameterizedQuery));
+    }
+#endif
 
     private ParameterContext CreateParameterContext<TResult>(ParameterizedQuery<TResult> query)
     {

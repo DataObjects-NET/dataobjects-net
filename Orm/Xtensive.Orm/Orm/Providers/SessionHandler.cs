@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
@@ -49,6 +50,21 @@ namespace Xtensive.Orm.Providers
     /// <param name="queryTasks">The query tasks to execute.</param>
     /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
     public abstract void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution);
+
+#if NET45
+
+    /// <summary>
+    /// Executes the specified query tasks asynchronously.
+    /// </summary>
+    /// <param name="queryTasks">The query tasks to execute.</param>
+    /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
+    /// <returns>Started task</returns>
+    public virtual Task ExecuteQueryTasksAsync(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
+    {
+      return Task.Factory.StartNew(()=>ExecuteQueryTasks(queryTasks, allowPartialExecution));
+    }
+
+#endif
 
     /// <summary>
     /// Sets command timeout for all <see cref="IDbCommand"/> created within current instance.

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Providers;
@@ -85,6 +86,15 @@ namespace Xtensive.Orm.Linq
       return Translate<TResult>(expression, session.CompilationService.CreateConfiguration(session));
     }
 
+#if NET45
+
+    internal Task<TranslatedQuery<TResult>> TranslateAsync<TResult>(Expression expression)
+    {
+      return TranslateAsync<TResult>(expression, session.CompilationService.CreateConfiguration(session));
+    }
+
+#endif
+
     internal TranslatedQuery<TResult> Translate<TResult>(Expression expression, CompilerConfiguration compilerConfiguration)
     {
       try {
@@ -96,6 +106,33 @@ namespace Xtensive.Orm.Linq
           Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, expression.ToString(true)), ex);
       }
     }
+
+#if NET45
+    internal Task<TranslatedQuery<TResult>> TranslateAsync<TResult>(Expression expression, CompilerConfiguration compilerConfiguration)
+    {
+      var cachinngScope = QueryCachingScope.Current;
+      var useCachingScope = cachinngScope!=null;
+      return Task<TranslatedQuery<TResult>>.Factory.StartNew(
+        () => {
+          try {
+            if (useCachingScope) {
+              using (new QueryCachingScope(cachinngScope.QueryParameter, cachinngScope.QueryParameterReplacer)) {
+                var context = new TranslatorContext(session, compilerConfiguration, expression);
+                return context.Translator.Translate<TResult>();
+              }
+            }
+            else {
+              var context = new TranslatorContext(session, compilerConfiguration, expression);
+              return context.Translator.Translate<TResult>();
+            }
+          }
+          catch (Exception exception) {
+            throw new QueryTranslationException(String.Format(Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, expression.ToString(true)), exception);
+          }
+        });
+    }
+
+#endif
 
     #endregion
 
