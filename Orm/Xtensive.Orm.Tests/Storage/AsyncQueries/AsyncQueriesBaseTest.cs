@@ -1,5 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Copyright (C) 2012 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2014.08.28
+
+#if NET45
+using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -142,3 +148,4 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
   }
 }
+#endif

@@ -4,6 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2014.08.28
 
+#if NET45
 using System;
 using Xtensive.Orm.Tests.Linq.MsSamples;
 
@@ -130,3 +131,4 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
     Female
   }
 }
+#endif

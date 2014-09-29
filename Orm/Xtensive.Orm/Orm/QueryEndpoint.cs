@@ -316,6 +316,7 @@ namespace Xtensive.Orm
       return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query);
     }
 
+#if NET45
     #region Async executors
     
     public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
@@ -410,6 +411,7 @@ namespace Xtensive.Orm
       return userUsableTask;
     }
     #endregion
+#endif
 
     /// <summary>
     /// Creates future scalar query and registers it for the later execution.
@@ -498,6 +500,7 @@ namespace Xtensive.Orm
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
     }
 
+#if NET45
     #region Async delayed queries
 
     /// <summary>
@@ -588,6 +591,7 @@ namespace Xtensive.Orm
     }
 
     #endregion
+#endif
 
     /// <summary>
     /// Stores specified <paramref name="source"/> in the database
