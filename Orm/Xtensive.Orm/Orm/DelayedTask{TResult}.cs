@@ -4,6 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2014.08.29
 
+using System;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Xtensive.Orm.Internals;
@@ -27,14 +28,40 @@ namespace Xtensive.Orm
 
     private readonly TaskCompletionSource<TResult> source;
     private readonly DelayedQueryResult<TResult> delayedResult;
-    private Session session;
     private DelayedTaskStatus internalStatus;
 
     internal static DelayedTaskFactory<TResult> Factory { get; private set; }
 
     public TaskStatus Status
     {
-      get { return source.Task.Status; }
+      get {
+        switch (internalStatus) {
+          case DelayedTaskStatus.Canceled:
+          case DelayedTaskStatus.Failed:
+          case DelayedTaskStatus.Started:
+          case DelayedTaskStatus.Completed:
+            return source.Task.Status;
+          case DelayedTaskStatus.Created: {
+            if (!delayedResult.LifetimeToken.IsActive)
+              throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
+            if (delayedResult.Task.Result!=null) {
+              var delayedResultAsDelayed = delayedResult as Delayed<TResult>;
+              if (delayedResultAsDelayed!=null) {
+                source.SetResult(delayedResultAsDelayed.Value);
+                internalStatus = DelayedTaskStatus.Completed;
+              }
+              else {
+                object aa = delayedResult;
+                source.SetResult((TResult) aa);
+                internalStatus = DelayedTaskStatus.Completed;
+              }
+            }
+            return source.Task.Status;
+          }
+          default:
+            return source.Task.Status;
+        }
+      }
     }
 
     /// <summary>
@@ -51,11 +78,15 @@ namespace Xtensive.Orm
       case DelayedTaskStatus.Completed:
         return awaiter;
       case DelayedTaskStatus.Created: {
-        session.ExecuteDelayedQueriesAsync(false).ContinueWith(
+        Session.ExecuteDelayedQueriesAsync(false).ContinueWith(
           task => {
             if (task.IsFaulted) {
               source.SetException(task.Exception.InnerException);
               internalStatus = DelayedTaskStatus.Failed;
+              return;
+            }
+            if (!delayedResult.LifetimeToken.IsActive) {
+              source.SetException(new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries));
               return;
             }
             if (task.IsCanceled) {
@@ -65,6 +96,10 @@ namespace Xtensive.Orm
             }
             var delayedResultAsDelayed = delayedResult as Delayed<TResult>;
             if (delayedResultAsDelayed!=null) {
+              if (!delayedResultAsDelayed.LifetimeToken.IsActive) {
+                source.SetException(new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries));
+                return;
+              }
               source.SetResult(delayedResultAsDelayed.Value);
               internalStatus = DelayedTaskStatus.Completed;
               return;
@@ -98,6 +133,10 @@ namespace Xtensive.Orm
             if (task.IsFaulted) {
               source.SetException(task.Exception.InnerException);
               internalStatus = DelayedTaskStatus.Failed;
+              return;
+            }
+            if (!delayedResult.LifetimeToken.IsActive) {
+              source.SetException(new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries));
               return;
             }
             if (task.IsCanceled) {
