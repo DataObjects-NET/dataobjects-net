@@ -3,11 +3,10 @@
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
 // Created:    2014.08.28
-
+#if NET45
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Storage.AsyncQueries.Model;
@@ -24,14 +23,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       using (var transaction = session.OpenTransaction()) {
         //Create delayed task
         var task = session.Query.ExecuteDelayedAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline));
-        Assert.AreEqual(task.Status, TaskStatus.WaitingForActivation);
-        //Ensure that it is a task
+        Assert.AreEqual(TaskStatus.WaitingForActivation, task.Status);
         Assert.IsInstanceOf<DelayedTask<IEnumerable<Discepline>>>(task);
-        //try to await task
-        //by await starts all delayed tasks
-        //and maybe delayed query
         var disceplinesOfLastYearCourse = await task;
-        Assert.AreEqual(task.Status, TaskStatus.RanToCompletion);
+        Assert.AreEqual(TaskStatus.RanToCompletion, task.Status);
         Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
         var listOfLastYearCourseDisceplines = disceplinesOfLastYearCourse.ToList();
         Assert.AreEqual(20, listOfLastYearCourseDisceplines.Count);
@@ -44,16 +39,16 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {  
-        var task = session.Query.ExecuteDelayedAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline));
-        Assert.AreEqual(task.Status, TaskStatus.WaitingForActivation);
+        var task = session.Query.ExecuteDelayedAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline));
+        Assert.AreEqual(TaskStatus.WaitingForActivation, task.Status);
         //Ensure that it is a task
         Assert.IsInstanceOf<DelayedTask<IEnumerable<Discepline>>>(task);
         //try to await task
         //by await starts all delayed tasks
         //and maybe delayed query
         //we must execute all delayed tasks as sync tasks
-        var allDisceplines = session.Query.All<Discepline>();
-        Assert.AreEqual(task.Status, TaskStatus.RanToCompletion);
+        var allDisceplines = session.Query.All<Discepline>().ToList();
+        Assert.AreEqual(TaskStatus.RanToCompletion, task.Status);
         Assert.IsInstanceOf<IEnumerable<Discepline>>(allDisceplines);
         var listOfLastYearCourseDisceplines = allDisceplines.ToList();
         Assert.AreEqual(20, listOfLastYearCourseDisceplines.Count);
@@ -66,10 +61,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var task1 = session.Query.ExecuteDelayedAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline));
-        Assert.AreEqual(task1.Status, TaskStatus.WaitingForActivation);
+        Assert.AreEqual(TaskStatus.WaitingForActivation, task1.Status);
         //we must execute delayed async query as async
         var task2 = await session.Query.ExecuteAsync(query => query.All<Discepline>());
-        Assert.AreEqual(task1.Status, TaskStatus.RanToCompletion);
+        Assert.AreEqual(TaskStatus.RanToCompletion, task1.Status);
       }
     }
 
@@ -86,15 +81,15 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         listOfTasks.Add(task2.ToTask());
         listOfTasks.Add(task3.ToTask());
         var globalTask = Task.WhenAll(listOfTasks);
-        Assert.AreEqual(task1.Status, TaskStatus.Running);
-        Assert.AreEqual(task2.Status, TaskStatus.Running);
-        Assert.AreEqual(task3.Status, TaskStatus.Running);
-        Assert.AreEqual(globalTask.Status, TaskStatus.Running);
+        Assert.AreEqual(TaskStatus.WaitingForActivation, task1.Status);
+        Assert.AreEqual(TaskStatus.WaitingForActivation, task2.Status);
+        Assert.AreEqual(TaskStatus.WaitingForActivation, task3.Status);
+        Assert.AreEqual(TaskStatus.WaitingForActivation, globalTask.Status);
         await globalTask;
-        Assert.AreEqual(task1.Status, TaskStatus.RanToCompletion);
-        Assert.AreEqual(task2.Status, TaskStatus.RanToCompletion);
-        Assert.AreEqual(task3.Status, TaskStatus.RanToCompletion);
-        Assert.AreEqual(globalTask.Status, TaskStatus.RanToCompletion);
+        Assert.AreEqual(TaskStatus.RanToCompletion, task1.Status);
+        Assert.AreEqual(TaskStatus.RanToCompletion, task2.Status);
+        Assert.AreEqual(TaskStatus.RanToCompletion, task3.Status);
+        Assert.AreEqual(TaskStatus.RanToCompletion, globalTask.Status);
       }
     }
 
@@ -119,8 +114,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        var task = session.Query.ExecuteAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First());
-        Assert.IsInstanceOf<Task<Discepline>>(task);
+        var task = session.Query.ExecuteDelayedAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First());
+        Assert.IsInstanceOf<DelayedTask<Discepline>>(task);
         var disceplineOfLastYearCourse = await task;
         Assert.IsInstanceOf<Discepline>(disceplineOfLastYearCourse);
         Assert.NotNull(disceplineOfLastYearCourse);
@@ -133,14 +128,14 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        var task = session.Query.ExecuteAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1));
-        Assert.IsInstanceOf<Task<IEnumerable<Discepline>>>(task);
+        var task = session.Query.ExecuteDelayedAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d=>d.Discepline));
+        Assert.IsInstanceOf<DelayedTask<IEnumerable<Discepline>>>(task);
         var disceplinesOfLastYearCourse = await task;
         Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
         var list = disceplinesOfLastYearCourse.ToList();
         Assert.NotNull(list);
         Assert.AreNotEqual(0, list.Count);
-        Assert.Equals(20,list.Count);
+        Assert.AreEqual(20, list.Count);
       }
     }
 
@@ -150,14 +145,14 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        var task = session.Query.ExecuteAsync(new object(),query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1));
-        Assert.IsInstanceOf<Task<IEnumerable<Discepline>>>(task);
+        var task = session.Query.ExecuteDelayedAsync(new object(),query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d=>d.Discepline));
+        Assert.IsInstanceOf<DelayedTask<IEnumerable<Discepline>>>(task);
         var disceplinesOfLastYearCourse = await task;
         Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
         var list = disceplinesOfLastYearCourse.ToList();
         Assert.NotNull(list);
         Assert.AreNotEqual(0, list.Count);
-        Assert.Equals(20,list.Count);
+        Assert.AreEqual(20,list.Count);
       }
     }
 
@@ -167,14 +162,14 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        var task = session.Query.ExecuteAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).OrderBy(d=>d.Teacher));
-        Assert.IsInstanceOf<Task<IEnumerable<Discepline>>>(task);
+        var task = session.Query.ExecuteDelayedAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).OrderBy(d=>d.Teacher));
+        Assert.IsInstanceOf<DelayedTask<IEnumerable<DisceplinesOfCourse>>>(task);
         var disceplinesOfLastYearCourse = await task;
-        Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
-        var list = disceplinesOfLastYearCourse.ToList();
+        Assert.IsInstanceOf<IEnumerable<DisceplinesOfCourse>>(disceplinesOfLastYearCourse);
+        var list = disceplinesOfLastYearCourse.Select(d=>d.Discepline).ToList();
         Assert.NotNull(list);
         Assert.AreNotEqual(0, list.Count);
-        Assert.Equals(20, list.Count);
+        Assert.AreEqual(20, list.Count);
       }
     }
 
@@ -184,14 +179,14 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        var task = session.Query.ExecuteAsync(new object(), query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).OrderBy(d => d.Teacher));
-        Assert.IsInstanceOf<Task<IEnumerable<Discepline>>>(task);
+        var task = session.Query.ExecuteDelayedAsync(new object(), query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).OrderBy(d => d.Teacher));
+        Assert.IsInstanceOf<DelayedTask<IEnumerable<DisceplinesOfCourse>>>(task);
         var disceplinesOfLastYearCourse = await task;
-        Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
-        var list = disceplinesOfLastYearCourse.ToList();
+        Assert.IsInstanceOf<IEnumerable<DisceplinesOfCourse>>(disceplinesOfLastYearCourse);
+        var list = disceplinesOfLastYearCourse.Select(d=>d.Discepline).ToList();
         Assert.NotNull(list);
         Assert.AreNotEqual(0, list.Count);
-        Assert.Equals(20, list.Count);
+        Assert.AreEqual(20, list.Count);
       }
     }
 
@@ -204,7 +199,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var task = Query.ExecuteFutureScalarAsync(() => Query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).First());
         Assert.IsInstanceOf<DelayedTask<Discepline>>(task);
         var discepline = await task;
-        Assert.IsInstanceOf<Discepline>(task);
+        Assert.IsInstanceOf<Discepline>(discepline);
         Assert.NotNull(discepline);
       }
     }
@@ -229,79 +224,48 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async void GetIEnumerableOfValuesWithCustomQueryKeyUsingOnDemandSession()
     {
-      
-    }
-
-    [Test]
-    public async void Test04()
-    {
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        var task = Query.ExecuteAsync(new object(),() => Query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).First());
-        Assert.IsInstanceOf<Task<Discepline>>(task);
-        var disceplineOfLastYearCourse = await task;
-        Assert.IsInstanceOf<Discepline>(disceplineOfLastYearCourse);
-        Assert.NotNull(disceplineOfLastYearCourse);
+        var task = Query.ExecuteFutureAsync(new object(), () => Query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline));
+        Assert.IsInstanceOf<DelayedTask<IEnumerable<Discepline>>>(task);
+        var disceplinesOfCourses = await task;
+        Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfCourses);
+        var list = disceplinesOfCourses.ToList();
+        Assert.NotNull(list);
+        Assert.AreNotEqual(0, list.Count);
+        Assert.AreEqual(20, list.Count);
       }
     }
 
-    //[Test]
-    //public async void Test05()
-    //{
-    //  using (var session = Domain.OpenSession())
-    //  using (session.Activate())
-    //  using (var transaction = session.OpenTransaction()) {
-    //    var task = Query.ExecuteAsync(() => Query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline));
-    //    Assert.IsInstanceOf<Task<IEnumerable<Discepline>>>(task);
-    //    var disceplinesOfLastYearCourse = await task;
-    //    Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
-    //    var listOfLastYearCourseDisceplines = disceplinesOfLastYearCourse.ToList();
-    //    Assert.AreEqual(20, listOfLastYearCourseDisceplines.Count);
-    //  }
-    //}
+    [Test]
+    [ExpectedException(typeof (InvalidOperationException))]
+    public async void DelayedTaskAwaitingOutOfTransaction()
+    {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
+        DelayedTask<Discepline> task;
+        using (var transaction = session.OpenTransaction()) {
+          task = session.Query.ExecuteDelayedAsync(endpoint => endpoint.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).First());
+        }
+        var result = await task;
+      }
+    }
 
-    //[Test]
-    //public async void Test06()
-    //{
-    //  using (var session = Domain.OpenSession())
-    //  using (session.Activate())
-    //  using (var transaction = session.OpenTransaction()) {
-    //    var task = Query.ExecuteAsync(new object(), () => Query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline));
-    //    Assert.IsInstanceOf<Task<IEnumerable<Discepline>>>(task);
-    //    var disceplinesOfLastYearCourse = await task;
-    //    Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
-    //    var listOfLastYearCourseDisceplines = disceplinesOfLastYearCourse.ToList();
-    //    Assert.AreEqual(20, listOfLastYearCourseDisceplines.Count);
-    //  }
-    //}
-
-    //[Test]
-    //public async void Test07()
-    //{
-    //  using (var session = Domain.OpenSession())
-    //  using (session.Activate())
-    //  using (var transaction = session.OpenTransaction()) {
-    //    var task = Query.ExecuteAsync(() => Query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).First());
-    //    Assert.IsInstanceOf<Task<Discepline>>(task);
-    //    var disceplineOfLastYearCourse = await task;
-    //    Assert.IsInstanceOf<Discepline>(disceplineOfLastYearCourse);
-    //    Assert.NotNull(disceplineOfLastYearCourse);
-    //  }
-    //}
-
-    //[Test]
-    //public async void Test08()
-    //{
-    //  using (var session = Domain.OpenSession())
-    //  using (session.Activate())
-    //  using (var transaction = session.OpenTransaction()) {
-    //    var task = Query.ExecuteAsync(new object(), ()=>Query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).First());
-    //    Assert.IsInstanceOf<Task<Discepline>>(task);
-    //    var disceplineOfLastYearCourse = await task;
-    //    Assert.IsInstanceOf<Discepline>(disceplineOfLastYearCourse);
-    //    Assert.NotNull(disceplineOfLastYearCourse);
-    //  }
-    //}
+    [Test]
+    [ExpectedException(typeof (InvalidOperationException))]
+    public async void DelayedTaskAwaitingOutOfActiveSession()
+    {
+      using (var session = Domain.OpenSession()) {
+        DelayedTask<Discepline> task;
+        using (session.Activate()) {
+          using (var transaction = session.OpenTransaction()) {
+            task = Query.ExecuteFutureScalarAsync(() => Query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First());
+          }
+        }
+        var result = await task;
+      }
+    }
   }
 }
+#endif
