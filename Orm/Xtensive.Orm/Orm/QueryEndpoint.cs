@@ -513,9 +513,9 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public Delayed<TResult> ExecuteDelayedAsync<TResult>(object key, Func<QueryEndpoint, TResult> query)
+    public DelayedTask<TResult> ExecuteDelayedAsync<TResult>(object key, Func<QueryEndpoint, TResult> query)
     {
-      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayed(query);
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayedAsync(query);
     }
 
     /// <summary>
