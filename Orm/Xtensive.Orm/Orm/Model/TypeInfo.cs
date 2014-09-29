@@ -645,7 +645,7 @@ namespace Xtensive.Orm.Model
         .Where(a => a.IsMaster)
         .ToList();
 
-      typeIdField = Fields.FirstOrDefault(f => f.IsTypeId);
+      typeIdField = Fields.FirstOrDefault(f => f.IsTypeId && f.IsSystem);
 
       BuildTuplePrototype();
       BuildVersionExtractor();

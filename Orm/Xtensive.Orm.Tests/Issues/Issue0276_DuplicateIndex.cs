@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Issues
       Assert.AreEqual(6, type.Indexes.Count);
 
       type = Domain.Model.Types[typeof (MyEntityInfo<MyEntity>)];
-      Assert.AreEqual(4, type.Indexes.Count);
+      Assert.AreEqual(2, type.Indexes.Count);
     }
   }
 }
