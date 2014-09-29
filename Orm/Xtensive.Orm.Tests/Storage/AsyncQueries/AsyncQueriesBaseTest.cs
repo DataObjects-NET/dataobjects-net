@@ -7,12 +7,8 @@
 #if NET45
 using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Model.Association;
 using Xtensive.Orm.Tests.Storage.AsyncQueries.Model;
 
 namespace Xtensive.Orm.Tests.Storage.AsyncQueries

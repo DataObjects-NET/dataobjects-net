@@ -6,7 +6,6 @@
 
 #if NET45
 using System;
-using Xtensive.Orm.Tests.Linq.MsSamples;
 
 namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
 {
