@@ -132,7 +132,7 @@ namespace Xtensive.Orm
             catch(Exception) {
               persistingIsFailed = true;
               RollbackChangesOfEntitySets();
-              //RestoreEntityChangesAfterPersistFailed();
+              RestoreEntityChangesAfterPersistFailed();
               throw;
             }
             finally {
