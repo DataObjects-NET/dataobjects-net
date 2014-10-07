@@ -2,7 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
-// Created:    2013.12.30
+// Created:    2014.10.03
 
 using System;
 using System.Globalization;
