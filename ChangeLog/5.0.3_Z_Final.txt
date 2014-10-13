@@ -1,0 +1,2 @@
+[main] Fixed key remapping for key fields of Entity type
+[main] Fixed registration of information about changes references during client profile session
