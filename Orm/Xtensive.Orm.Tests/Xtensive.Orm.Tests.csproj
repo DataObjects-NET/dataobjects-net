@@ -23,6 +23,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>2</WarningLevel>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -81,6 +82,7 @@
     <Compile Include="Interfaces\InterfaceImplementationTest.cs" />
     <Compile Include="Issues\BatchingCommandProcessorFrenzy.cs" />
     <Compile Include="Issues\ClientProfileEntitySetTest.cs" />
+    <Compile Include="Issues\IssueJira0556_ArithmeticExceptionWhenSubstractionOfDates.cs" />
     <Compile Include="Issues\CustomCompilerException.cs" />
     <Compile Include="Issues\CustomCompilerFeatureTest.cs" />
     <Compile Include="Issues\InterfaceEntitySetTest.cs" />

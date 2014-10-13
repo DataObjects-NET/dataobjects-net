@@ -486,14 +486,24 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         default:
           throw new ArgumentOutOfRangeException("section");
         }
+      if (sqlType==SqlType.Decimal) {
+        switch (section) {
+          case NodeSection.Entry:
+            return "CAST(";
+          case NodeSection.Exit:
+            return "AS " + Translate(node.Type) + ")";
+          default:
+            throw new ArgumentOutOfRangeException("section");
+        }
+      }
       if (sqlType==SqlType.Decimal ||
         sqlType==SqlType.Double ||
         sqlType==SqlType.Float)
         switch (section) {
         case NodeSection.Entry:
-          return string.Empty;
+          return String.Empty;
         case NodeSection.Exit:
-          return string.Empty;
+          return String.Empty;
         default:
           throw new ArgumentOutOfRangeException("section");
         }
