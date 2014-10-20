@@ -15,6 +15,7 @@ namespace Xtensive.Orm.Weaver
     private MessageType type;
     private string messageText;
     private string messageCode;
+    private Exception exception;
 
     public MessageLocation Location
     {
@@ -40,12 +41,22 @@ namespace Xtensive.Orm.Weaver
       set { messageText = value; }
     }
 
+    public Exception Exception
+    {
+      get { return exception; }
+      set { exception = value; }
+    }
+
     public override string ToString()
     {
       var resultBuilder = new StringBuilder();
       if (location!=null)
         resultBuilder.Append(location);
       resultBuilder.AppendFormat("{0} {1}: {2}", GetMessageTypeName(type), messageCode, messageText);
+      if (Exception!=null) {
+        resultBuilder.AppendLine();
+        resultBuilder.Append(Exception.StackTrace);
+      }
       return resultBuilder.ToString();
     }
 

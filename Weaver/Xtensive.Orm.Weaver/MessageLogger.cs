@@ -18,20 +18,30 @@ namespace Xtensive.Orm.Weaver
 
     public void Write(MessageCode code)
     {
-      Write(code, null, null);
+      Write(code, null, null, null);
     }
 
     public void Write(MessageCode code, MessageLocation location)
     {
-      Write(code, null, location);
+      Write(code, null, location, null);
     }
 
     public void Write(MessageCode code, string extraInformation)
     {
-      Write(code, extraInformation, null);
+      Write(code, extraInformation, null, null);
     }
 
     public void Write(MessageCode code, string extraInformation, MessageLocation location)
+    {
+      Write(code, extraInformation, location, null);
+    }
+
+    public void Write(MessageCode code, Exception exception)
+    {
+      Write(code, exception.Message, null, exception);
+    }
+
+    public void Write(MessageCode code, string extraInformation, MessageLocation location, Exception exception)
     {
       string description;
       if (!Messages.TryGetValue(code, out description))
@@ -47,6 +57,7 @@ namespace Xtensive.Orm.Weaver
         MessageText = messageText,
         Location = location,
         Type = GetMessageType(code),
+        Exception = exception
       };
 
       writer.Write(message);
