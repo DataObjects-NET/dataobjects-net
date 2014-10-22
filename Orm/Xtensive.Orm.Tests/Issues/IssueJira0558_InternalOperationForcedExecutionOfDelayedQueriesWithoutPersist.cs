@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Tests.Issues
     private List<QueryTask> GetUserDefinedQueryTasks(Session session)
     {
       var type = session.GetType();
-      var property = type.GetField("queryTasks", BindingFlags.Instance | BindingFlags.NonPublic);
+      var property = type.GetField("userDefinedQueryTasks", BindingFlags.Instance | BindingFlags.NonPublic);
       var result = property.GetValue(session);
       return (List<QueryTask>) result;
     }
