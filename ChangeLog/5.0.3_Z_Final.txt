@@ -1,2 +1,4 @@
 [main] Fixed key remapping for key fields of Entity type
-[main] Fixed registration of information about changes references during client profile session
+[main] Fixed removing of entities which no longer referenced from another entity in client profile session
+[mysql] Fixed substraction of dates
+[sqlserver] Fixed substraction of dates
