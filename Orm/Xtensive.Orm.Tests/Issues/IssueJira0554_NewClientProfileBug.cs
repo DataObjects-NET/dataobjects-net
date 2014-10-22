@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0554_NewClientProfileBugModel
   public class EntityWithEntityAsKey : Entity
   {
     [Field, Key]
-    public TestA Key { get; set; }
+    public TestA Id { get; set; }
 
     [Field]
     public string Text { get; set; }
