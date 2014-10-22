@@ -151,7 +151,7 @@ namespace Xtensive.Orm
 
     private void ValidateFetchedVersions()
     {
-      Session.ExecuteUserDefinedDelayedQueries(true);
+      Session.ExecuteInternalDelayedQueries(true);
       if (fetchVersionTasks.Count > 0)
         foreach (var task in fetchVersionTasks) {
           var key = task.Key;
