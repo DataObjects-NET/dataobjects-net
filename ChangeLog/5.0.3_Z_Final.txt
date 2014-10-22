@@ -1,4 +1,5 @@
 [main] Fixed key remapping for key fields of Entity type
 [main] Fixed removing of entities which no longer referenced from another entity in client profile session
+[main] Weaving is no longer failed while processing inplementations of types from third-party libraries
 [mysql] Fixed substraction of dates
 [sqlserver] Fixed substraction of dates
