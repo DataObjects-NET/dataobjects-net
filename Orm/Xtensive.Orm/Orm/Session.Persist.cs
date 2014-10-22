@@ -133,6 +133,7 @@ namespace Xtensive.Orm
             catch(Exception) {
               persistingIsFailed = true;
               RollbackChangesOfEntitySets();
+              RestoreEntityChangesAfterPersistFailed();
               throw;
             }
             finally {
@@ -258,6 +259,18 @@ namespace Xtensive.Orm
       }
       EntityChangeRegistry.Clear();
       EntityReferenceChangesRegistry.Clear();
+    }
+
+    private void RestoreEntityChangesAfterPersistFailed()
+    {
+      foreach (var entityState in EntityChangeRegistry.GetItems(PersistenceState.New))
+        entityState.RestoreDifference();
+
+      foreach (var entityState in EntityChangeRegistry.GetItems(PersistenceState.Modified))
+        entityState.RestoreDifference();
+
+      foreach (var entityState in EntityChangeRegistry.GetItems(PersistenceState.Removed))
+        entityState.RestoreDifference();
     }
 
     private void ProcessChangesOfEntitySets(Action<EntitySetState> action)

@@ -182,8 +182,10 @@ namespace Xtensive.Orm
     public void RollbackDifference()
     {
       var dTuple = DifferentialTuple;
-      if (dTuple!=null)
+      if (dTuple!=null) {
+        dTuple.BackupDifference();
         dTuple.Difference = null;
+      }
     }
 
     /// <summary>
@@ -195,6 +197,17 @@ namespace Xtensive.Orm
       var dTuple = tuple as DifferentialTuple;
       if (dTuple!=null)
         dTuple.Merge();
+    }
+
+    /// <summary>
+    /// Restore difference of <see cref="DifferentialTuple"/>
+    /// </summary>
+    public void RestoreDifference()
+    {
+      var dTuple = DifferentialTuple;
+      if (dTuple!=null) {
+        dTuple.RestoreDifference();
+      }
     }
 
     /// <summary>
