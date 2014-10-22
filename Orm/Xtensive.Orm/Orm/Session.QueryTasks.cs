@@ -25,6 +25,7 @@ namespace Xtensive.Orm
     private readonly IList<QueryTask> internalQueryTasks = new List<QueryTask>();
 
     private bool isInternalDelayedQueryRunning;
+    private bool isDelayedQueryRunning;
 
     internal void RegisterUserDefinedDelayedQuery(QueryTask task)
     {

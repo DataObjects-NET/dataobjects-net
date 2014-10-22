@@ -81,7 +81,6 @@ namespace Xtensive.Orm
     private readonly Pinner pinner;
 
     private int? commandTimeout;
-    private bool isDelayedQueryRunning;
     private volatile bool isDisposed;
 
     /// <summary>
