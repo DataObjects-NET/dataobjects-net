@@ -668,13 +668,33 @@ namespace Xtensive.Orm.Model
       foreach (var ancestorAssociation in overridenAssociations)
         associations.Remove(ancestorAssociation);
 
+      //
+      //Commented action sequence bellow may add dublicates to "sequence".
+      //Besides, it takes 6 times enumeration of "associations"
+      //
+
+      //var sequence = new List<AssociationInfo>(associations.Count);
+      //sequence.AddRange(associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Deny && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      //sequence.AddRange(associations.Where(a => a.OnTargetRemove == OnRemoveAction.Deny && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      //sequence.AddRange(associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Clear && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      //sequence.AddRange(associations.Where(a => a.OnTargetRemove == OnRemoveAction.Clear && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      //sequence.AddRange(associations.Where(a => a.OnOwnerRemove == OnRemoveAction.Cascade && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      //sequence.AddRange(associations.Where(a => a.OnTargetRemove == OnRemoveAction.Cascade && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+
+      //
+      // Code bellow adds the same associations, but without dublicates.
+      // Also it takes only one enumeration of associations sequence.
+      //
       var sequence = new List<AssociationInfo>(associations.Count);
-      sequence.AddRange(associations.Where(a => a.OnOwnerRemove==OnRemoveAction.Deny && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
-      sequence.AddRange(associations.Where(a => a.OnTargetRemove==OnRemoveAction.Deny && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
-      sequence.AddRange(associations.Where(a => a.OnOwnerRemove==OnRemoveAction.Clear && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
-      sequence.AddRange(associations.Where(a => a.OnTargetRemove==OnRemoveAction.Clear && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
-      sequence.AddRange(associations.Where(a => a.OnOwnerRemove==OnRemoveAction.Cascade && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
-      sequence.AddRange(associations.Where(a => a.OnTargetRemove==OnRemoveAction.Cascade && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      var b = associations.Where(
+        a => (a.OnOwnerRemove==OnRemoveAction.Deny && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
+          (a.OnTargetRemove==OnRemoveAction.Deny && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
+          (a.OnOwnerRemove==OnRemoveAction.Clear && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
+          (a.OnTargetRemove==OnRemoveAction.Clear && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
+          (a.OnOwnerRemove==OnRemoveAction.Cascade && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
+          (a.OnTargetRemove==OnRemoveAction.Cascade && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
+      sequence.AddRange(b);
+      
       var first = sequence.Where(a => a.Ancestors.Count > 0).ToList();
       if (first.Count==0)
         removalSequence = new ReadOnlyList<AssociationInfo>(sequence);
