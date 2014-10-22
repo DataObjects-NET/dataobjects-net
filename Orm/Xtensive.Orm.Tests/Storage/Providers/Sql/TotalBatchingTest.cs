@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         CreateEntities(3);
         session.SaveChanges();
         CreateQueries(5);
-        session.ExecuteDelayedQueries(true);
+        session.ExecuteUserDefinedDelayedQueries(true);
         ValidateQueries(3);
       }
     }
@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         Initialize();
         CreateEntities(5);
         CreateQueries(5);
-        session.ExecuteDelayedQueries(false);
+        session.ExecuteUserDefinedDelayedQueries(false);
         ValidateQueries(5);
         ValidateEntities(5);
       }
@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var compiledProvider = session.Compile(rs);
         var task = new QueryTask(compiledProvider, session.GetLifetimeToken(), null);
         tasks.Add(task);
-        Session.Current.RegisterDelayedQuery(task);
+        Session.Current.RegisterUserDefinedDelayedQuery(task);
       }
     }
 

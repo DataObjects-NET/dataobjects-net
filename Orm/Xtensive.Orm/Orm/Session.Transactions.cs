@@ -216,7 +216,7 @@ namespace Xtensive.Orm
 
     internal void CompleteTransaction(Transaction transaction)
     {
-      queryTasks.Clear();
+      userDefinedQueryTasks.Clear();
       pinner.ClearRoots();
       ValidationContext.Reset();
 

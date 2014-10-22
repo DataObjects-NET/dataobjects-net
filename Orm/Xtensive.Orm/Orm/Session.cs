@@ -228,7 +228,7 @@ namespace Xtensive.Orm
     internal EnumerationContext CreateEnumerationContext()
     {
       Persist(PersistReason.Query);
-      ProcessDelayedQueries(true);
+      ProcessUserDefinedDelayedQueries(true);
       return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
     }
 
