@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         if (state==null || state.IsFullyLoaded)
           return;
       itemsQueryTask = CreateQueryTask();
-      manager.Owner.Session.RegisterDelayedQuery(itemsQueryTask);
+      manager.Owner.Session.RegisterInternalDelayedQuery(itemsQueryTask);
     }
 
     public void UpdateCache()
