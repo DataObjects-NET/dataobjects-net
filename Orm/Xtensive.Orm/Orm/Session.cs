@@ -81,7 +81,6 @@ namespace Xtensive.Orm
     private readonly Pinner pinner;
 
     private int? commandTimeout;
-    private bool isDelayedQueryRunning;
     private volatile bool isDisposed;
 
     /// <summary>
@@ -228,7 +227,7 @@ namespace Xtensive.Orm
     internal EnumerationContext CreateEnumerationContext()
     {
       Persist(PersistReason.Query);
-      ProcessDelayedQueries(true);
+      ProcessUserDefinedDelayedQueries(true);
       return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
     }
 

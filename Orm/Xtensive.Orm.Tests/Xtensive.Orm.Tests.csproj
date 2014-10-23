@@ -242,6 +242,7 @@
     <Compile Include="Issues\IssueJira0538_IncorrectSortedActionSequence.cs" />
     <Compile Include="Issues\IssueJira0549_AssociationOwnerFieldIsEntityAndIsPrimaryKey.cs" />
     <Compile Include="Issues\IssueJira0553_IncorrectLeftJoinOnNotNullEntityField.cs" />
+    <Compile Include="Issues\IssueJira0558_InternalOperationForcedExecutionOfDelayedQueriesWithoutPersist.cs" />
     <Compile Include="Issues\IssueJira0554_NewClientProfileBug.cs" />
     <Compile Include="Issues\IssueJira0557_RollbackOfDifferentialTupleDifferenceWhenPersistFailed.cs" />
     <Compile Include="Issues\IssueJira0555_KeyRemapBug.cs" />

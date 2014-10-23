@@ -41,14 +41,14 @@ namespace Xtensive.Orm.Providers
         executableProvider = Session.Compile(recordSet);
       }
       var queryTask = new QueryTask(executableProvider, Session.GetLifetimeToken(), parameterContext);
-      Session.RegisterDelayedQuery(queryTask);
+      Session.RegisterInternalDelayedQuery(queryTask);
 
       return GetReferencesToInternal(association, target, recordSet.Header, queryTask);
     }
 
     private IEnumerable<ReferenceInfo> GetReferencesToInternal(AssociationInfo association, Entity target, RecordSetHeader header, QueryTask queryTask)
     {
-      Session.ExecuteDelayedQueries(true);
+      Session.ExecuteInternalDelayedQueries(true);
       foreach (var entity in queryTask.ToEntities(header, Session, 0).Where(target.HasReferenceFrom).Concat(target.GetNewReferencesFromEntities()))
         yield return new ReferenceInfo(entity, target, association);
     }

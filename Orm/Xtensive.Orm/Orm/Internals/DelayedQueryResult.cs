@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Internals
       if (!LifetimeToken.IsActive)
         throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
       if (Task.Result==null)
-        session.ExecuteDelayedQueries(false);
+        session.ExecuteUserDefinedDelayedQueries(false);
       return materializer.Invoke(Task.Result, session, tupleParameterBindings, parameterContext);
     }
 
