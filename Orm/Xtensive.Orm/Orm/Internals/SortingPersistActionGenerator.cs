@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.22
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections.Graphs;
@@ -160,10 +161,33 @@ namespace Xtensive.Orm.Internals
           new Edge<AssociationInfo>(ownerNode, targetNode, association).Attach();
         }
       }
+      //In some cases, 
+      List<Edge<AssociationInfo>> notBreakedEdges = new List<Edge<AssociationInfo>>();
+
+      //This predicate filter edges where source node value can't be null reference
+      Predicate<Edge<AssociationInfo>> edgeBreaker =
+        edge => {
+          var association = edge.Value;
+          if (association.OwnerField.IsNullable)
+            return true;
+          notBreakedEdges.Add(edge);
+          return false;
+        };
 
       // Sort
-      var result = TopologicalSorter.Sort(graph, _ => true);
-      sortedNodes = result.SortedNodes;
+      var result = TopologicalSorter.Sort(graph, edgeBreaker);
+
+      //Sometimes we have loops after topological sorter.
+      //In this case, we add loop nodes in tail of sorted nodes list and broke last edge in loop.
+      if (result.HasLoops) {
+        sortedNodes = result.SortedNodes.Union(result.LoopNodes).ToList();
+        var loopNodes = result.LoopNodes.ToDictionary(el => el as Collections.Graphs.Node);
+        notBreakedEdges.Reverse();
+        var loopEdgeForBreak = notBreakedEdges.First(edge => loopNodes.ContainsKey(edge.Source) && loopNodes.ContainsKey(edge.Target));
+        result.BrokenEdges.Add(loopEdgeForBreak);
+      }
+      else
+        sortedNodes = result.SortedNodes;
 
       // Remove loop links
       referencesToRestore = new List<Triplet<EntityState, FieldInfo, Entity>>();
