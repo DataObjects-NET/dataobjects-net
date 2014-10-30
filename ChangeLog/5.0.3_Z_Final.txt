@@ -5,3 +5,4 @@
 [main] Fixed incorrect sorting of insert operations in some cases
 [mysql] Fixed substraction of dates
 [sqlserver] Fixed substraction of dates
+[bulkoperations] Fixed inserts and updates of fields which definded in ancestor
