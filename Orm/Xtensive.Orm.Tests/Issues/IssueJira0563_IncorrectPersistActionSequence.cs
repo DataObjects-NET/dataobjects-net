@@ -2361,7 +2361,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model06Test()
     {
       Require.ProviderIsNot(StorageProvider.MySql);
-      Require.ProviderIsNot(StorageProvider.PostgreSql);//Postgresql do not use Sorting before insert
+      Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Sqlite | StorageProvider.Oracle);//do not use Sorting before insert
       var config = BuildConfiguration();
       config.Types.Register(typeof (model6.Customer).Assembly, typeof (model6.Customer).Namespace);
 
@@ -2389,7 +2389,7 @@ namespace Xtensive.Orm.Tests.Issues
     [ExpectedException(typeof (StorageException))]
     public void Model06TestForMySql()
     {
-      Require.ProviderIs(StorageProvider.MySql);
+      Require.ProviderIs(StorageProvider.MySql | StorageProvider.SqlServerCe);
       var config = BuildConfiguration();
       config.Types.Register(typeof (model6.Customer).Assembly, typeof (model6.Customer).Namespace);
 
@@ -2575,7 +2575,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model13Test()
     {
       Require.ProviderIsNot(StorageProvider.MySql);
-      Require.ProviderIsNot(StorageProvider.PostgreSql);//Postgresql do not use Sorting before insert
+      Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Sqlite | StorageProvider.Oracle);//do not use Sorting before insert
       var config = BuildConfiguration();
       config.Types.Register(typeof (model13.Customer).Assembly, typeof (model13.Customer).Namespace);
 
@@ -2603,7 +2603,7 @@ namespace Xtensive.Orm.Tests.Issues
     [ExpectedException(typeof (StorageException))]
     public void Model13TestForMySql()
     {
-      Require.ProviderIs(StorageProvider.MySql);
+      Require.ProviderIs(StorageProvider.MySql | StorageProvider.SqlServerCe);
       var config = BuildConfiguration();
       config.Types.Register(typeof (model13.Customer).Assembly, typeof (model13.Customer).Namespace);
 
@@ -2632,7 +2632,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model14Test()
     {
       Require.ProviderIsNot(StorageProvider.MySql);
-      Require.ProviderIsNot(StorageProvider.PostgreSql);//Postgresql do not use Sorting before insert
+      Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Sqlite | StorageProvider.Oracle);//do not use Sorting before insert
       var config = BuildConfiguration();
       config.Types.Register(typeof (model14.Customer).Assembly, typeof (model14.Customer).Namespace);
 
@@ -2660,7 +2660,7 @@ namespace Xtensive.Orm.Tests.Issues
     [ExpectedException(typeof (StorageException))]
     public void Model14TestForMySql()
     {
-      Require.ProviderIs(StorageProvider.MySql);
+      Require.ProviderIs(StorageProvider.MySql | StorageProvider.SqlServerCe);
 
       var config = BuildConfiguration();
       config.Types.Register(typeof (model14.Customer).Assembly, typeof (model14.Customer).Namespace);
@@ -2690,7 +2690,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void Model15Test()
     {
       Require.ProviderIsNot(StorageProvider.MySql);
-      Require.ProviderIsNot(StorageProvider.PostgreSql);//Postgresql do not use Sorting before insert
+      Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Sqlite | StorageProvider.Oracle);//do not use Sorting before insert
       var configuration = BuildConfiguration();
       configuration.Types.Register(typeof (model15.A).Assembly, typeof (model15.A).Namespace);
 
@@ -2717,7 +2717,7 @@ namespace Xtensive.Orm.Tests.Issues
     [ExpectedException(typeof (StorageException))]
     public void Model15TestForMySQl()
     {
-      Require.ProviderIs(StorageProvider.MySql);
+      Require.ProviderIs(StorageProvider.MySql | StorageProvider.SqlServerCe);
 
       var configuration = BuildConfiguration();
       configuration.Types.Register(typeof (model15.A).Assembly, typeof (model15.A).Namespace);
