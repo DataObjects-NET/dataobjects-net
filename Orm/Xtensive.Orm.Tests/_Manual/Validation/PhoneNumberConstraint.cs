@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Tests._Manual.Validation
 
     public override IPropertyValidator CreateNew()
     {
-      return new EmailConstraint {
+      return new PhoneNumberConstraint {
         IsImmediate = IsImmediate,
       };
     }

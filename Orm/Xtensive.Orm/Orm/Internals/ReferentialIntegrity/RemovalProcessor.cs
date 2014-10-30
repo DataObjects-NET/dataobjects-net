@@ -159,7 +159,7 @@ namespace Xtensive.Orm.ReferentialIntegrity
       }
 
       if (Session.Handler.ExecutePrefetchTasks()==null)
-        Session.ExecuteDelayedQueries(false);
+        Session.ExecuteUserDefinedDelayedQueries(false);
 
       foreach (var container in referenceDescriptors) {
         var processor = container.Processor;

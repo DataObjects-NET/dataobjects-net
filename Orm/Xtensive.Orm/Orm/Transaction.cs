@@ -75,7 +75,7 @@ namespace Xtensive.Orm
     
     /// <summary>
     /// Gets a value indicating whether this instance is 
-    /// transaction running locally in <see cref="DisconnectedState"/>.
+    /// transaction running locally.
     /// </summary>
     public bool IsDisconnected { get; private set; }
     

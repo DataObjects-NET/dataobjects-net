@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Internals
       var parameterizedQuery = GetSequenceQuery(query);
       var parameterContext = CreateParameterContext(parameterizedQuery);
       var result = new DelayedSequence<TElement>(session, parameterizedQuery, parameterContext);
-      session.RegisterDelayedQuery(result.Task);
+      session.RegisterUserDefinedDelayedQuery(result.Task);
       return result;
     }
 
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Internals
       var parameterizedQuery = GetCachedQuery<TResult>() ?? GetScalarQuery(query, false, out dummy);
       var parameterContext = CreateParameterContext(parameterizedQuery);
       var result = new Delayed<TResult>(session, parameterizedQuery, parameterContext);
-      session.RegisterDelayedQuery(result.Task);
+      session.RegisterUserDefinedDelayedQuery(result.Task);
       return result;
     }
 
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Internals
       var parameterizedQuery = GetSequenceQuery(query);
       var parameterContext = CreateParameterContext(parameterizedQuery);
       var result = new DelayedSequence<TElement>(session, parameterizedQuery, parameterContext);
-      session.RegisterDelayedQuery(result.Task);
+      session.RegisterUserDefinedDelayedQuery(result.Task);
       return result;
     }
 
@@ -139,25 +139,6 @@ namespace Xtensive.Orm.Internals
                   memberInfo);
             }
         }
-        //if (expression.NodeType==ExpressionType.Constant && expression.Type.IsClosure()) {
-        //  if (expression.Type==closureType)
-        //    return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-        //  throw new NotSupportedException(String.Format(
-        //    Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
-        //}
-        //if (expression.NodeType==ExpressionType.Constant) {
-        //  if (closureType.DeclaringType!=null && expression.Type == closureType.DeclaringType) {
-        //    var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
-        //    if (memberInfo!=null) {
-        //      return Expression.MakeMemberAccess(
-        //        Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
-        //        memberInfo);
-        //    }
-        //  }
-        //  if (closureType.DeclaringType==null && expression.Type==closureType) {
-        //    return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-        //  }
-        //}
         return null;
       });
     }

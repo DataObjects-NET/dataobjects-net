@@ -139,7 +139,8 @@ namespace Xtensive.Orm.Linq.Expressions
             .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
             .ToArray();
           var offset = dataSource.Header.Length;
-          dataSource = entityFieldExpression.IsNullable 
+          var dataSourceAsJoin = dataSource as JoinProvider;
+          dataSource = entityFieldExpression.IsNullable || (dataSourceAsJoin!=null &&dataSourceAsJoin.JoinType==JoinType.LeftOuter)
             ? dataSource.LeftJoin(joinedRs, keyPairs)
             : dataSource.Join(joinedRs, keyPairs);
           entityFieldExpression.RegisterEntityExpression(offset);

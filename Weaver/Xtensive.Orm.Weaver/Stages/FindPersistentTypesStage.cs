@@ -78,20 +78,29 @@ namespace Xtensive.Orm.Weaver.Stages
       if (processedTypes.TryGetValue(identity, out existing))
         return existing;
 
-      if (type.Scope.MetadataScopeType==MetadataScopeType.AssemblyNameReference) {
-        var reference = (AssemblyNameReference) type.Scope;
-        if (context.AssemblyChecker.IsFrameworkAssembly(reference)) {
-          var result = new TypeInfo(type, PersistentTypeKind.None);
-          processedTypes.Add(identity, result);
-          return result;
-        }
-        if (reference.FullName==WellKnown.OrmAssemblyFullName) {
-          var result = new TypeInfo(type, ClassifyOrmType(type));
-          processedTypes.Add(identity, result);
-          return result;
-        }
+      AssemblyNameReference reference;
+      if (type.Scope.MetadataScopeType==MetadataScopeType.AssemblyNameReference)
+        reference = (AssemblyNameReference) type.Scope;
+      else if (type.Scope.MetadataScopeType==MetadataScopeType.ModuleDefinition) {
+        var defenition = (ModuleDefinition) type.Scope;
+        reference = defenition.Assembly.Name;
       }
-
+      else {
+        // If type.Scope.MetadataScoreType==MetadataScoreType.ModuleReference
+        // then unable to understand which assembly is it, 
+        // because ModuleReference contains only name of Module.
+        throw new InvalidOperationException("Unable to inspect ModuleReference");
+      }
+      if (context.AssemblyChecker.IsFrameworkAssembly(reference)) {
+        var result = new TypeInfo(type, PersistentTypeKind.None);
+        processedTypes.Add(identity, result);
+        return result;
+      }
+      if (reference.FullName==WellKnown.OrmAssemblyFullName) {
+        var result = new TypeInfo(type, ClassifyOrmType(type));
+        processedTypes.Add(identity, result);
+        return result;
+      }
       return InspectDefinedType(context, identity, type.Resolve());
     }
 

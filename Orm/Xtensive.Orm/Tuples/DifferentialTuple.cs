@@ -23,6 +23,7 @@ namespace Xtensive.Tuples
   {
     private Tuple origin;
     private Tuple difference;
+    private DifferentialTuple backupedDifference;
 
     /// <inheritdoc/>
     public override TupleDescriptor Descriptor {
@@ -83,9 +84,28 @@ namespace Xtensive.Tuples
     {
       if (difference==null)
         return;
+      BackupDifference();
       origin = origin.ToRegular();
       origin.MergeWith(difference, 0, origin.Descriptor.Count, MergeBehavior.PreferDifference);
       difference = null;
+    }
+
+    protected internal void RestoreDifference()
+    {
+      if (backupedDifference != null) {
+        origin.MergeWith(backupedDifference.Origin, MergeBehavior.PreferDifference);
+        if (difference==null)
+          difference = backupedDifference.Difference.Clone();
+        else
+          difference.MergeWith(backupedDifference, 0, MergeBehavior.PreferDifference);
+        backupedDifference = null;
+      }
+    }
+
+    protected internal void BackupDifference()
+    {
+      if (difference != null)
+        backupedDifference = (DifferentialTuple) this.Clone();
     }
 
     /// <inheritdoc/>
@@ -153,7 +173,10 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public override Tuple Clone()
     {
-      return new DifferentialTuple(origin.Clone(), difference==null ? null : difference.Clone());
+      return new DifferentialTuple(
+        origin.Clone(), 
+        difference==null ? null : difference.Clone(), 
+        backupedDifference==null ? null : (DifferentialTuple) backupedDifference.Clone());
     }
 
     /// <summary>
@@ -165,7 +188,6 @@ namespace Xtensive.Tuples
     }
 
     #endregion
-    
 
     // Constructors
 
@@ -178,6 +200,7 @@ namespace Xtensive.Tuples
       ArgumentValidator.EnsureArgumentNotNull(origin, "origin");
       this.origin = origin;
       difference = null;
+      backupedDifference = null;
     }
 
     /// <summary>
@@ -195,6 +218,13 @@ namespace Xtensive.Tuples
           "difference");
       this.origin = origin;
       this.difference = difference;
+      backupedDifference = null;
+    }
+
+    private DifferentialTuple(Tuple origin, Tuple difference, DifferentialTuple backupedDifference)
+      : this(origin, difference)
+    {
+      this.backupedDifference = backupedDifference;
     }
   }
 }
