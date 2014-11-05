@@ -438,6 +438,48 @@ namespace Xtensive.Orm
       Session.Handler.FetchField(Key, field);
     }
 
+    internal IEnumerable<FieldInfo> GetKeyFieldsOfEntityType()
+    {
+      return TypeInfo.Key.Fields.Where(field => field.IsEntity && !field.IsNested).Select(field => field);
+    }
+
+    internal void RegisterKeyFieldsOfEntityTypeForRemap(Key keyOfThisEntity, params object[] values)
+    {
+      foreach (var fieldInfo in GetKeyFieldsOfEntityType()) {
+        var referencedEntity = values[fieldInfo.MappingInfo.Offset] as Entity;
+        Session.ReferenceFieldsChangesRegistry.Register(keyOfThisEntity, referencedEntity.Key, fieldInfo);
+        Session.EntityReferenceChangesRegistry.RegisterAddedReference(referencedEntity.State, State);
+      }
+    }
+
+    /// <summary>
+    /// Checks that reference from <paramref name="entity"/> to this entity have not removed.
+    /// </summary>
+    /// <param name="entity">Entity to check.</param>
+    /// <returns><see langword="false"/> if <see cref="Session.EntityReferenceChangesRegistry"/> contains information about removed reference, otherwise, <see langword="true"/>.</returns>
+    internal bool HasReferenceFrom(Entity entity)
+    {
+      return Session.EntityReferenceChangesRegistry.HasReferenceFrom(State, entity.State);
+    }
+
+    /// <summary>
+    /// Gets all entities which have new references to this entity until <see cref="Session.Persist(PersistReason)"/> or <see cref="Session.CancelChanges()"/> executed.
+    /// </summary>
+    /// <returns>All entities which have new references to this entity until persist.</returns>
+    internal IEnumerable<Entity> GetNewReferencesFromEntities()
+    {
+      return Session.EntityReferenceChangesRegistry.GetAddedReferences(State).Keys.Select(referencingState => referencingState.Entity);
+    }
+
+    /// <summary>
+    /// Gets all entities which have new references to this entity until <see cref="Session.Persist(PersistReason)"/> or <see cref="Session.CancelChanges()"/> executed.
+    /// </summary>
+    /// <returns>All entities which have new references to this entity until persist.</returns>
+    internal IEnumerable<Entity> GetRemovedReferencesFromEntities()
+    {
+      return Session.EntityReferenceChangesRegistry.GetAddedReferences(State).Keys.Select(referensingState => referensingState.Entity);
+    }
+
     #endregion
 
     #region System-level event-like members & GetSubscription members
@@ -854,6 +896,7 @@ namespace Xtensive.Orm
         ArgumentValidator.EnsureArgumentNotNull(values, "values");
         var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
+        RegisterKeyFieldsOfEntityTypeForRemap(key, values);
         var operations = Session.Operations;
         using (operations.BeginRegistration(OperationType.System)) {
           if (operations.CanRegisterOperation)
@@ -904,6 +947,7 @@ namespace Xtensive.Orm
         ArgumentValidator.EnsureArgumentNotNull(values, "values");
         var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
+        RegisterKeyFieldsOfEntityTypeForRemap(key, values);
         var operations = Session.Operations;
         using (operations.BeginRegistration(OperationType.System)) {
           if (operations.CanRegisterOperation)

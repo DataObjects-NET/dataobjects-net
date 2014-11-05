@@ -103,9 +103,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     protected virtual SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
-      return CastToLong(DateDiffDay(date1, date2)) * NanosecondsPerDay
+      return CastToDecimal(DateDiffDay(date1, date2), 18, 0) * NanosecondsPerDay
         +
-        CastToLong(DateDiffMicrosecond(DateAddDay(date2, DateDiffDay(date1, date2)), date1)) * NanosecondsPerMicrosecond;
+        CastToDecimal(DateDiffMicrosecond(DateAddDay(date2, DateDiffDay(date1, date2)), date1), 18, 0) * NanosecondsPerMicrosecond;
     }
 
     protected virtual SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
@@ -223,6 +223,11 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     private static SqlCast CastToLong(SqlExpression arg)
     {
       return SqlDml.Cast(arg, SqlType.Int64);
+    }
+
+    private static SqlCast CastToDecimal(SqlExpression arg, short precision, short scale)
+    {
+      return SqlDml.Cast(arg, SqlType.Decimal, precision, scale);
     }
 
     private static SqlUserFunctionCall DateDiffDay(SqlExpression date1, SqlExpression date2)

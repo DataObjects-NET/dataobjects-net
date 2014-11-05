@@ -369,6 +369,7 @@
     <Compile Include="Orm\Configuration\NameMappingCollection.cs" />
     <Compile Include="Orm\Configuration\NodeConfiguration.cs" />
     <Compile Include="Orm\DelayedTask{TResult}.cs" />
+    <Compile Include="Orm\Internals\EntityReferenceChangesRegistry.cs" />
     <Compile Include="Orm\Internals\DelayedTaskFactory{T}.cs" />
     <Compile Include="Orm\Internals\KeyRemapper.cs" />
     <Compile Include="Orm\Internals\ReferenceFieldChangeInfo.cs" />

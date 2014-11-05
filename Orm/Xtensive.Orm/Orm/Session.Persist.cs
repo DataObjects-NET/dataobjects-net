@@ -21,6 +21,7 @@ namespace Xtensive.Orm
     private KeyRemapper remapper;
     private bool persistingIsFailed;
     
+    internal EntityReferenceChangesRegistry EntityReferenceChangesRegistry { get; private set; }
     internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry { get; private set; }
     /// <summary>
     /// Saves all modified instances immediately to the database.
@@ -132,6 +133,7 @@ namespace Xtensive.Orm
             catch(Exception) {
               persistingIsFailed = true;
               RollbackChangesOfEntitySets();
+              RestoreEntityChangesAfterPersistFailed();
               throw;
             }
             finally {
@@ -150,6 +152,7 @@ namespace Xtensive.Orm
                 else
                   EntityChangeRegistry.Clear();
                 EntitySetChangeRegistry.Clear();
+                EntityReferenceChangesRegistry.Clear();
               }
               
               OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
@@ -255,6 +258,19 @@ namespace Xtensive.Orm
         removedEntity.PersistenceState = PersistenceState.Synchronized;
       }
       EntityChangeRegistry.Clear();
+      EntityReferenceChangesRegistry.Clear();
+    }
+
+    private void RestoreEntityChangesAfterPersistFailed()
+    {
+      foreach (var entityState in EntityChangeRegistry.GetItems(PersistenceState.New))
+        entityState.RestoreDifference();
+
+      foreach (var entityState in EntityChangeRegistry.GetItems(PersistenceState.Modified))
+        entityState.RestoreDifference();
+
+      foreach (var entityState in EntityChangeRegistry.GetItems(PersistenceState.Removed))
+        entityState.RestoreDifference();
     }
 
     private void ProcessChangesOfEntitySets(Action<EntitySetState> action)

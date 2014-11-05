@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         RegisterAllEntityGroupTasks();
         RegisterAllEntitySetTasks(containers);
 
-        batchExecuted += manager.Owner.Session.ExecuteDelayedQueries(skipPersist) ? 1 : 0;
+        batchExecuted += manager.Owner.Session.ExecuteInternalDelayedQueries(skipPersist) ? 1 : 0;
         UpdateCacheFromAllEntityGroupTasks();
         UpdateCacheFromAllEntitySetTasks(containers);
 
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Internals.Prefetch
           return batchExecuted;
         RegisterAllEntityGroupTasks();
 
-        batchExecuted += manager.Owner.Session.ExecuteDelayedQueries(skipPersist) ? 1 : 0;
+        batchExecuted += manager.Owner.Session.ExecuteInternalDelayedQueries(skipPersist) ? 1 : 0;
         UpdateCacheFromAllEntityGroupTasks();
         return batchExecuted;
       }
