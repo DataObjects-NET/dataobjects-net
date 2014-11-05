@@ -43,9 +43,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0550_IncorrectJoinSequenceTranslati
   public class Teacher : Worker
   {
     [Field]
-    public string Field { get; set; }
-
-    [Field]
     public EntitySet<Discepline> Disceplines { get; set; }
   }
 

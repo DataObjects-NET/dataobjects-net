@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Internals
       var parameterizedQuery = GetSequenceQuery(query);
       var parameterContext = CreateParameterContext(parameterizedQuery);
       var result = new DelayedSequence<TElement>(session, parameterizedQuery, parameterContext);
-      session.RegisterDelayedQuery(result.Task);
+      session.RegisterUserDefinedDelayedQuery(result.Task);
       return result;
     }
 
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Internals
       var parameterizedQuery = GetCachedQuery<TResult>() ?? GetScalarQuery(query, false, out dummy);
       var parameterContext = CreateParameterContext(parameterizedQuery);
       var result = new Delayed<TResult>(session, parameterizedQuery, parameterContext);
-      session.RegisterDelayedQuery(result.Task);
+      session.RegisterUserDefinedDelayedQuery(result.Task);
       return result;
     }
 
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Internals
       var parameterizedQuery = GetSequenceQuery(query);
       var parameterContext = CreateParameterContext(parameterizedQuery);
       var result = new DelayedSequence<TElement>(session, parameterizedQuery, parameterContext);
-      session.RegisterDelayedQuery(result.Task);
+      session.RegisterUserDefinedDelayedQuery(result.Task);
       return result;
     }
 

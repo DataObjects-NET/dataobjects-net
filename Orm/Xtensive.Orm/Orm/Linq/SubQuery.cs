@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Linq
         tupleParameterBindings,
         EnumerableUtils<Parameter<Tuple>>.Empty);
       delayedSequence = new DelayedSequence<TElement>(context.Session, translatedQuery, parameterContext);
-      context.Session.RegisterDelayedQuery(delayedSequence.Task);
+      context.Session.RegisterUserDefinedDelayedQuery(delayedSequence.Task);
       context.MaterializationContext.MaterializationQueue.Enqueue(MaterializeSelf);
     }
   }

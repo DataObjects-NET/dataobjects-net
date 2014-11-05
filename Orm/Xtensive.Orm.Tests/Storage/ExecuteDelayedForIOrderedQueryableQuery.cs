@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Linq
             orderby zoo.OrderByThisField
             select zoo);
         Assert.IsInstanceOf<IEnumerable<TestEntity>>(delaedQuery);
-        session.ExecuteDelayedQueries(true);
+        session.ExecuteUserDefinedDelayedQueries(true);
         var sortedValues = new int[unsortedValueSequence.Length];
         unsortedValueSequence.CopyTo(sortedValues, 0);
         Array.Sort(sortedValues);

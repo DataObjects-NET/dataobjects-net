@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Mono.Cecil;
@@ -73,7 +74,7 @@ namespace Xtensive.Orm.Weaver
         return ActionResult.Failure;
       }
       catch (Exception exception) {
-        context.Logger.Write(MessageCode.ErrorInternal, exception.Message);
+        context.Logger.Write(MessageCode.ErrorInternal, exception);
         return ActionResult.Failure;
       }
     }

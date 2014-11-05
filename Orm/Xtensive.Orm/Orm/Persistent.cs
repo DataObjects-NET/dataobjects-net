@@ -293,7 +293,8 @@ namespace Xtensive.Orm
           throw new InvalidOperationException(string.Format("Key of {0} type is not assignable to field of {1} type", value.TypeInfo.Name, field.ValueType.Name));
 
         value.Value.CopyTo(Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
-
+        if (field.IsPrimaryKey)
+          value.Value.CopyTo(((Entity)this).Key.Value, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
         SystemSetValue(field, oldValue, value);
         SystemSetValueCompleted(field, oldValue, value, null);
       }
@@ -380,6 +381,8 @@ namespace Xtensive.Orm
               var valueKey = entityValue.Key;
               Session.ReferenceFieldsChangesRegistry.Register(entity.Key, valueKey, field);
             }
+            if (field.IsEntity)
+              RegisterReferenceReset(entity, oldValue, value);
           }
           else {
             var persistent = this;
@@ -400,6 +403,8 @@ namespace Xtensive.Orm
                 var valueKey = entityValue.Key;
                 Session.ReferenceFieldsChangesRegistry.Register(entity.Key, valueKey, field);
               }
+              if (field.IsEntity)
+                RegisterReferenceReset(entity, oldValue, value);
             }
           }
           
@@ -785,6 +790,27 @@ namespace Xtensive.Orm
       if (diffTuple!=null && diffTuple.Difference.IsAtLeastOneColumAvailable(mappingInfo))
         state = PersistentFieldState.Modified;
       return state;
+    }
+
+    private void RegisterReferenceReset(Entity fieldOwner, object oldValue, object newValue)
+    {
+      Entity oldEntity, newEntity;
+      if (oldValue==null && newValue==null)
+        return;
+      if (oldValue!=null && newValue==null) {
+        oldEntity = oldValue as Entity;
+        Session.EntityReferenceChangesRegistry.RegisterRemovedReference(oldEntity.State, fieldOwner.State);
+        return;
+      }
+      if (oldValue==null) {
+        newEntity = newValue as Entity;
+        Session.EntityReferenceChangesRegistry.RegisterAddedReference(newEntity.State, fieldOwner.State);
+        return;
+      }
+      oldEntity = oldValue as Entity;
+      Session.EntityReferenceChangesRegistry.RegisterRemovedReference(oldEntity.State, fieldOwner.State);
+      newEntity = newValue as Entity;
+      Session.EntityReferenceChangesRegistry.RegisterAddedReference(newEntity.State, fieldOwner.State);
     }
 
     #endregion

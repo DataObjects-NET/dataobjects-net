@@ -105,6 +105,7 @@
     <Compile Include="Interfaces\InterfaceImplementationTest.cs" />
     <Compile Include="Issues\BatchingCommandProcessorFrenzy.cs" />
     <Compile Include="Issues\ClientProfileEntitySetTest.cs" />
+    <Compile Include="Issues\IssueJira0556_ArithmeticExceptionWhenSubstractionOfDates.cs" />
     <Compile Include="Issues\CustomCompilerException.cs" />
     <Compile Include="Issues\CustomCompilerFeatureTest.cs" />
     <Compile Include="Issues\InterfaceEntitySetTest.cs" />
@@ -264,6 +265,11 @@
     <Compile Include="Issues\IssueJira0538_IncorrectSortedActionSequence.cs" />
     <Compile Include="Issues\IssueJira0549_AssociationOwnerFieldIsEntityAndIsPrimaryKey.cs" />
     <Compile Include="Issues\IssueJira0553_IncorrectLeftJoinOnNotNullEntityField.cs" />
+    <Compile Include="Issues\IssueJira0558_InternalOperationForcedExecutionOfDelayedQueriesWithoutPersist.cs" />
+    <Compile Include="Issues\IssueJira0554_NewClientProfileBug.cs" />
+    <Compile Include="Issues\IssueJira0557_RollbackOfDifferentialTupleDifferenceWhenPersistFailed.cs" />
+    <Compile Include="Issues\IssueJira0555_KeyRemapBug.cs" />
+    <Compile Include="Issues\IssueJira0563_IncorrectPersistActionSequence.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion3.cs" />

@@ -127,7 +127,7 @@ namespace Xtensive.Orm
         queuedVersions.Add(state.Key, version);
       else {
         var task = CreateFetchVersionTask(state.Key);
-        Session.RegisterDelayedQuery(task);
+        Session.RegisterInternalDelayedQuery(task);
         fetchVersionTasks.Add(state.Key, task);
       }
     }
@@ -137,7 +137,7 @@ namespace Xtensive.Orm
       if (processed.Contains(key))
         return;
       var task = CreateFetchVersionTask(key);
-      Session.RegisterDelayedQuery(task);
+      Session.RegisterInternalDelayedQuery(task);
       fetchVersionTasks.Add(key, task);
     }
 
@@ -151,7 +151,7 @@ namespace Xtensive.Orm
 
     private void ValidateFetchedVersions()
     {
-      Session.ExecuteDelayedQueries(true);
+      Session.ExecuteInternalDelayedQueries(true);
       if (fetchVersionTasks.Count > 0)
         foreach (var task in fetchVersionTasks) {
           var key = task.Key;

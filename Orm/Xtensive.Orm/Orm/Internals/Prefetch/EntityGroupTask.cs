@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Internals.Prefetch
           count = 0;
           var queryTask = CreateQueryTask(currentKeySet);
           queryTasks.Add(queryTask);
-          manager.Owner.Session.RegisterDelayedQuery(queryTask);
+          manager.Owner.Session.RegisterInternalDelayedQuery(queryTask);
         }
       }
     }

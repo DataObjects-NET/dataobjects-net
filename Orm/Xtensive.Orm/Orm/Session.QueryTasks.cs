@@ -14,34 +14,74 @@ namespace Xtensive.Orm
 {
   partial class Session 
   {
-    private readonly List<QueryTask> queryTasks = new List<QueryTask>();
+    /// <summary>
+    /// Uses only for queries which defined by Future/Delayed api
+    /// </summary>
+    private readonly IList<QueryTask> userDefinedQueryTasks = new List<QueryTask>();
 
-    internal void RegisterDelayedQuery(QueryTask task)
+    /// <summary>
+    /// Uses for internal query tasks like fetching, validation of versions and some others
+    /// </summary>
+    private readonly IList<QueryTask> internalQueryTasks = new List<QueryTask>();
+
+    private bool isInternalDelayedQueryRunning;
+    private bool isDelayedQueryRunning;
+
+    internal void RegisterUserDefinedDelayedQuery(QueryTask task)
     {
       if (isDelayedQueryRunning)
         throw new InvalidOperationException();
-      queryTasks.Add(task);
+      userDefinedQueryTasks.Add(task);
     }
 
-    internal bool ExecuteDelayedQueries(bool skipPersist)
+    internal void RegisterInternalDelayedQuery(QueryTask task)
+    {
+      if(isInternalDelayedQueryRunning)
+        throw new InvalidOperationException();
+      internalQueryTasks.Add(task);
+    }
+
+    internal bool ExecuteUserDefinedDelayedQueries(bool skipPersist)
     {
       if (!skipPersist)
         Persist(PersistReason.Query);
-      return ProcessDelayedQueries(false);
+      return ProcessUserDefinedDelayedQueries(false);
+    }
+    
+    internal bool ExecuteInternalDelayedQueries(bool skipPersist)
+    {
+      if (!skipPersist)
+        Persist(PersistReason.Other);
+      return ProcessInternalDelayedQueries(false);
     }
 
-    private bool ProcessDelayedQueries(bool allowPartialExecution)
+    private bool ProcessUserDefinedDelayedQueries(bool allowPartialExecution)
     {
-      if (isDelayedQueryRunning || queryTasks.Count==0)
+      if (isDelayedQueryRunning || userDefinedQueryTasks.Count==0)
         return false;
       try {
         isDelayedQueryRunning = true;
-        Handler.ExecuteQueryTasks(queryTasks.Where(t => t.LifetimeToken.IsActive), allowPartialExecution);
+        Handler.ExecuteQueryTasks(userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive), allowPartialExecution);
         return true;
       }
       finally {
-        queryTasks.Clear();
+        userDefinedQueryTasks.Clear();
         isDelayedQueryRunning = false;
+      }
+    }
+
+    private bool ProcessInternalDelayedQueries(bool allowPartialExecution)
+    {
+      if (isInternalDelayedQueryRunning || internalQueryTasks.Count == 0)
+        return false;
+      try {
+        isInternalDelayedQueryRunning = true;
+        Handler.ExecuteQueryTasks(internalQueryTasks.Where(t=>t.LifetimeToken.IsActive), allowPartialExecution);
+        return true;
+      }
+      finally {
+        internalQueryTasks.Clear();
+        isInternalDelayedQueryRunning = false;
       }
     }
   }

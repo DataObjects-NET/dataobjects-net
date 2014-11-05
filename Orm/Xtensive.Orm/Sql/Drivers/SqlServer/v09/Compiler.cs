@@ -210,8 +210,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     
     protected virtual SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
-      return CastToLong(DateDiffDay(date2, date1)) * NanosecondsPerDay
-          + CastToLong(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1)) * NanosecondsPerMillisecond;
+      
+      return CastToDecimal(DateDiffDay(date2, date1), 18, 0) * NanosecondsPerDay
+          + CastToDecimal(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1),18 , 0) * NanosecondsPerMillisecond;
     }
 
     protected virtual SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
@@ -283,6 +284,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     private static SqlCast CastToLong(SqlExpression arg)
     {
       return SqlDml.Cast(arg, SqlType.Int64);
+    }
+
+    private static SqlCast CastToDecimal(SqlExpression arg, short precision, short scale)
+    {
+      return SqlDml.Cast(arg, SqlType.Decimal, precision, scale);
     }
 
     protected static SqlUserFunctionCall DatePartWeekDay(SqlExpression date)

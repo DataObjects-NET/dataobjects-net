@@ -81,7 +81,6 @@ namespace Xtensive.Orm
     private readonly Pinner pinner;
 
     private int? commandTimeout;
-    private bool isDelayedQueryRunning;
     private volatile bool isDisposed;
 
     /// <summary>
@@ -228,7 +227,7 @@ namespace Xtensive.Orm
     internal EnumerationContext CreateEnumerationContext()
     {
       Persist(PersistReason.Query);
-      ProcessDelayedQueries(true);
+      ProcessUserDefinedDelayedQueries(true);
       return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
     }
 
@@ -507,6 +506,7 @@ namespace Xtensive.Orm
       EntitySetChangeRegistry = new EntitySetChangeRegistry(this);
       ReferenceFieldsChangesRegistry = new ReferenceFieldsChangesRegistry(this);
       entitySetsWithInvalidState = new HashSet<EntitySetBase>();
+      EntityReferenceChangesRegistry = new EntityReferenceChangesRegistry(this);
 
       // Events
       EntityEvents = new EntityEventBroker();
@@ -567,6 +567,7 @@ namespace Xtensive.Orm
         EntitySetChangeRegistry.Clear();
         EntityStateCache.Clear();
         ReferenceFieldsChangesRegistry.Clear();
+        EntityReferenceChangesRegistry.Clear();
       }
       finally {
         isDisposed = true;

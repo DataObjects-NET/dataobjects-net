@@ -1,0 +1,7 @@
+[main] Fixed remap of temporary keys
+[main] No longer referenced entities remove correctly in client profile session
+[main] Fixed weaving of implementations of types from third-party libraries
+[main] Enitites restores their states after persisting failed
+[main] Fixed incorrect sorting of insert operations in some cases
+[mysql] Fixed substraction of dates
+[sqlserver] Fixed substraction of dates
