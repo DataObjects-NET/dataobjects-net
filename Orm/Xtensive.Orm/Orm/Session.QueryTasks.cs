@@ -100,15 +100,15 @@ namespace Xtensive.Orm
 
     private async Task<bool> ProcessDelayedQueriesAsync(bool allowPartalExecution)
     {
-      if (isDelayedQueryRunning || queryTasks.Count==0)
+      if (isDelayedQueryRunning || userDefinedQueryTasks.Count==0)
         return false;
       try {
         isDelayedQueryRunning = true;
-        await Handler.ExecuteQueryTasksAsync(queryTasks.Where(t => t.LifetimeToken.IsActive), allowPartalExecution);
+        await Handler.ExecuteQueryTasksAsync(userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive), allowPartalExecution);
         return true;
       }
       finally {
-        queryTasks.Clear();
+        userDefinedQueryTasks.Clear();
         isDelayedQueryRunning = false;
       }
     }

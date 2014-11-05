@@ -67,7 +67,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets awaiter for this delayed task.
     /// </summary>
-    /// <returns>Returns awaiter of <see cref="TResult"/></returns>
+    /// <returns>Returns awaiter</returns>
     public TaskAwaiter<TResult> GetAwaiter()
     {
       var awaiter = source.Task.GetAwaiter();
@@ -116,9 +116,9 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Convert this instance to Task of <see cref="TResult"/>.
+    /// Convert this instance to Task.
     /// </summary>
-    /// <returns>Task of <see cref="TResult"/>.</returns>
+    /// <returns>Conversion result.</returns>
     public Task<TResult> ToTask()
     {
       switch (internalStatus) {
