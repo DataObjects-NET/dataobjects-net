@@ -410,6 +410,52 @@ namespace Xtensive.Orm
 
       return userUsableTask;
     }
+
+    public Task<IEnumerable<TElement>> ExcuteAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      var userUsableTaskSource = new TaskCompletionSource<IEnumerable<TElement>>();
+      var userUsableTask = userUsableTaskSource.Task;
+      new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query).ContinueWith(
+        task => {
+          if (task.IsFaulted) {
+            userUsableTaskSource.SetException(task.Exception.InnerException);
+            return;
+          }
+          if (task.IsCanceled) {
+            userUsableTaskSource.TrySetCanceled();
+            return;
+          }
+          if (task.IsCompleted) {
+            var parameterizedTask = task;
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
+          }
+        });
+
+      return userUsableTask;
+    }
+
+    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      var userUsableTaskSource = new TaskCompletionSource<IEnumerable<TElement>>();
+      var userUsableTask = userUsableTaskSource.Task;
+      new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query).ContinueWith(
+        task => {
+          if (task.IsFaulted) {
+            userUsableTaskSource.SetException(task.Exception.InnerException);
+            return;
+          }
+          if (task.IsCanceled) {
+            userUsableTaskSource.TrySetCanceled();
+            return;
+          }
+          if (task.IsCompleted) {
+            var parameterizedTask = task;
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
+          }
+        });
+
+      return userUsableTask;
+    }
     #endregion
 #endif
 

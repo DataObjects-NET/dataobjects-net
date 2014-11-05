@@ -325,7 +325,55 @@ namespace Xtensive.Orm
       var endpoint = session.Query;
       var userUsableTaskSource = new TaskCompletionSource<TResult>();
       var userUsableTask = userUsableTaskSource.Task;
+      new CompiledQueryRunner(endpoint, key, query.Target).ExecuteCompiledAsync(WrapQuery(query)).ContinueWith(
+        task => {
+          if (task.IsFaulted) {
+            userUsableTaskSource.SetException(task.Exception.InnerException);
+            return;
+          }
+          if (task.IsCanceled) {
+            userUsableTaskSource.TrySetCanceled();
+            return;
+          }
+          if (task.IsCompleted) {
+            var parameterizedTask = task;
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
+          }
+        });
+      return userUsableTask;
+    }
+
+    public static Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<IOrderedQueryable<TElement>> query)
+    {
+      var session = Session.Demand();
+      var endpoint = session.Query;
+      var userUsableTaskSource = new TaskCompletionSource<IEnumerable<TElement>>();
+      var userUsableTask = userUsableTaskSource.Task;
       new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteCompiledAsync(WrapQuery(query)).ContinueWith(
+        task => {
+          if (task.IsFaulted) {
+            userUsableTaskSource.SetException(task.Exception.InnerException);
+            return;
+          }
+          if (task.IsCanceled) {
+            userUsableTaskSource.TrySetCanceled();
+            return;
+          }
+          if (task.IsCompleted) {
+            var parameterizedTask = task;
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
+          }
+        });
+      return userUsableTask;
+    }
+
+    public static Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<IOrderedQueryable<TElement>> query)
+    {
+      var session = Session.Demand();
+      var endpoint = session.Query;
+      var userUsableTaskSource = new TaskCompletionSource<IEnumerable<TElement>>();
+      var userUsableTask = userUsableTaskSource.Task;
+      new CompiledQueryRunner(endpoint, key, query.Target).ExecuteCompiledAsync(WrapQuery(query)).ContinueWith(
         task => {
           if (task.IsFaulted) {
             userUsableTaskSource.SetException(task.Exception.InnerException);
@@ -427,6 +475,12 @@ namespace Xtensive.Orm
     {
       var endpoint = Session.Demand().Query;
       return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteDelayedAsync(WrapQuery(query));
+    }
+
+    public static DelayedTask<IEnumerable<TElement>> ExecuteFutureAsync<TElement>(Func<IOrderedQueryable<TElement>> orderedQuery)
+    {
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, orderedQuery.Method, orderedQuery.Target).ExecuteDelayedAsync(WrapQuery(orderedQuery));
     }
 
     #endregion
