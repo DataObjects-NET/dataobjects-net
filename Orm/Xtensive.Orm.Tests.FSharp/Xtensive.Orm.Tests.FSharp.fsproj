@@ -31,7 +31,7 @@
     <OutputPath>..\..\_Build\Binaries\Release\Lib\Net40\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net45-Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,7 +41,7 @@
     <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net45\</OutputPath>
     <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net45-Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -50,7 +50,7 @@
     <OutputPath>..\..\_Build\Binaries\Release\Lib\Net45\</OutputPath>
     <DefineConstants>TRACE;NET45</DefineConstants>
     <WarningLevel>3</WarningLevel>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="FsUnit.fs" />
@@ -86,19 +86,28 @@
     </ProjectReference>
   </ItemGroup>
   <Choose>
-    <When Condition="'$(VisualStudioVersion)' == '11.0'">
-      <PropertyGroup>
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </When>
-    <Otherwise>
-      <PropertyGroup>
-        <FSharpTargetsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetsPath>
-      </PropertyGroup>
-    </Otherwise>
+    <When Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets')">
+	  <PropertyGroup>
+	    <FSharpTargetPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\FSharp\Microsoft.FSharp.Targets</FSharpTargetPath>
+	  </PropertyGroup>
+	</When>
+    <When Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets')">
+	  <PropertyGroup>
+	    <FSharpTargetPath>$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets</FSharpTargetPath>
+	  </PropertyGroup>
+	</When>
+	<When Condition="Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.targets')">
+	  <PropertyGroup>
+	    <FSharpTargetPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.1\Framework\v4.0\Microsoft.FSharp.targets</FSharpTargetPath>
+	  </PropertyGroup>
+	</When>
+	<Otherwise>
+	  <PropertyGroup>
+	    <FSharpTargetPath>$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets</FSharpTargetPath>
+	  </PropertyGroup>
+	</Otherwise>
   </Choose>
-  <Import Project="$(FSharpTargetsPath)" Condition="Exists('$(FSharpTargetsPath)')" />
-  <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
+  <Import Project="$(FSharpTargetPath)" Condition ="Exists('$(FSharpTargetPath)')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
 	     Other similar extension points exist, see Microsoft.Common.targets.
 	<Target Name="BeforeBuild">
