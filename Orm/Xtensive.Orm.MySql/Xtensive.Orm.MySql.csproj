@@ -52,9 +52,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Net45-Release|AnyCPU'">
-    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net40\</OutputPath>
+    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net45\</OutputPath>
     <DefineConstants>TRACE;NET45</DefineConstants>
-    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net40\Xtensive.Orm.MySql.xml</DocumentationFile>
+    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net45\Xtensive.Orm.MySql.xml</DocumentationFile>
     <Optimize>true</Optimize>
     <WarningLevel>2</WarningLevel>
     <DebugType>pdbonly</DebugType>
