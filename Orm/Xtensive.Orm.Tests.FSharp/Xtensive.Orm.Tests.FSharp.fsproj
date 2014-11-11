@@ -76,13 +76,11 @@
     <Reference Include="WindowsBase" />
     <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj">
       <Name>Xtensive.Orm.Tests.Framework</Name>
-      <Project>{f2ce47f7-8170-4fc4-b619-d32e6398d4f9}</Project>
-      <Private>True</Private>
+      <Project>{F2CE47F7-8170-4FC4-B619-D32E6398D4F9}</Project>
     </ProjectReference>
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj">
       <Name>Xtensive.Orm</Name>
-      <Project>{628737e8-3581-4793-99c8-9a4d2d83fea0}</Project>
-      <Private>True</Private>
+      <Project>{628737E8-3581-4793-99C8-9A4D2D83FEA0}</Project>
     </ProjectReference>
   </ItemGroup>
   <Choose>
