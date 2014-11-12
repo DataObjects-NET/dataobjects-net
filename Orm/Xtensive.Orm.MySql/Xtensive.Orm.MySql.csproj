@@ -13,8 +13,6 @@
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,20 +46,20 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Net45-Release|AnyCPU'">
-    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net40\</OutputPath>
+    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net45\</OutputPath>
     <DefineConstants>TRACE;NET45</DefineConstants>
-    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net40\Xtensive.Orm.MySql.xml</DocumentationFile>
+    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net45\Xtensive.Orm.MySql.xml</DocumentationFile>
     <Optimize>true</Optimize>
     <WarningLevel>2</WarningLevel>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
