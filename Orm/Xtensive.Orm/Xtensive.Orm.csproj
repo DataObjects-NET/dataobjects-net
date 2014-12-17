@@ -367,6 +367,8 @@
     <Compile Include="Orm\Configuration\NameMappingCollection.cs" />
     <Compile Include="Orm\Configuration\NodeConfiguration.cs" />
     <Compile Include="Orm\DelayedTask{TResult}.cs" />
+    <Compile Include="Orm\Internals\IncompletedTaskInfo.cs" />
+    <Compile Include="Orm\Internals\AsyncQueriesManager.cs" />
     <Compile Include="Orm\Internals\EntityReferenceChangesRegistry.cs" />
     <Compile Include="Orm\Internals\DelayedTaskFactory{T}.cs" />
     <Compile Include="Orm\Internals\KeyRemapper.cs" />
@@ -390,6 +392,7 @@
     <Compile Include="Orm\Logging\LogProvider.cs" />
     <Compile Include="Orm\Logging\Internals\NullLog.cs" />
     <Compile Include="Orm\Model\TypeIdRegistry.cs" />
+    <Compile Include="Orm\Session.AsyncQueries.cs" />
     <Compile Include="Orm\StorageNodeManager.cs" />
     <Compile Include="Orm\Providers\CompilationService.cs" />
     <Compile Include="Orm\Providers\CompilerConfiguration.cs" />

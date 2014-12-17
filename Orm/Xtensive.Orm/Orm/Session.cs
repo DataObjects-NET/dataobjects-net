@@ -519,6 +519,7 @@ namespace Xtensive.Orm
       ReferenceFieldsChangesRegistry = new ReferenceFieldsChangesRegistry(this);
       entitySetsWithInvalidState = new HashSet<EntitySetBase>();
       EntityReferenceChangesRegistry = new EntityReferenceChangesRegistry(this);
+      asyncQueriesManager = new AsyncQueriesManager(this);
 
       // Events
       EntityEvents = new EntityEventBroker();
@@ -580,6 +581,8 @@ namespace Xtensive.Orm
         EntityStateCache.Clear();
         ReferenceFieldsChangesRegistry.Clear();
         EntityReferenceChangesRegistry.Clear();
+        CancelAllAsyncQueries();
+        DisposeBlockingCommands();
       }
       finally {
         isDisposed = true;

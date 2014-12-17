@@ -5,6 +5,7 @@
 // Created:    2008.08.30
 
 using System;
+using System.Threading.Tasks;
 using Xtensive.Core;
 
 namespace Xtensive.Orm
@@ -59,6 +60,8 @@ namespace Xtensive.Orm
       try {
         if (Transaction==null || !Transaction.State.IsActive())
           return;
+        Transaction.Session.CancelAllAsyncQueriesForToken(Transaction.LifetimeToken);
+        Transaction.Session.DisposeBlockingCommandsForToken(Transaction.LifetimeToken);
         if (IsCompleted)
           Transaction.Commit();
         else

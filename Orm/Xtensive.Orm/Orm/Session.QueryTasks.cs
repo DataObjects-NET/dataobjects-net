@@ -27,6 +27,8 @@ namespace Xtensive.Orm
 
     private bool isInternalDelayedQueryRunning;
     private bool isDelayedQueryRunning;
+    private bool queryAsyncTaskStarted;
+    private object lockableObject = new object();
 
     internal void RegisterUserDefinedDelayedQuery(QueryTask task)
     {
@@ -52,9 +54,21 @@ namespace Xtensive.Orm
 
     internal async Task<bool> ExecuteDelayedQueriesAsync(bool skipPersist)
     {
-      if (!skipPersist)
-        await Task.Factory.StartNew(()=>Persist(PersistReason.Query));
-      return await ProcessDelayedQueriesAsync(false);
+      if (queryAsyncTaskStarted)
+        return false;
+      try {
+        lock (lockableObject) {
+          queryAsyncTaskStarted = true;
+        }
+        if (!skipPersist)
+          await Task.Factory.StartNew(() => Persist(PersistReason.Query));
+        return await ProcessDelayedQueriesAsync(false);
+      }
+      finally {
+        lock (lockableObject) {
+          queryAsyncTaskStarted = false;
+        }
+      }
     }
 
 #endif
@@ -102,10 +116,20 @@ namespace Xtensive.Orm
     {
       if (isDelayedQueryRunning || userDefinedQueryTasks.Count==0)
         return false;
+      var aliveTasks = userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive).ToList();
       try {
         isDelayedQueryRunning = true;
-        await Handler.ExecuteQueryTasksAsync(userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive), allowPartalExecution);
+        foreach (var userDefinedQueryTask in aliveTasks)
+          userDefinedQueryTask.TrySetDelayedTaskStarted();
+        await Handler.ExecuteQueryTasksAsync(aliveTasks, allowPartalExecution);
+        foreach (var userDefinedQueryTask in aliveTasks)
+          userDefinedQueryTask.TrySetDelayedTaskFinished(null);
         return true;
+      }
+      catch (Exception exception) {
+        foreach (var userDefinedQueryTask in aliveTasks)
+          userDefinedQueryTask.TrySetDelayedTaskFinished(exception);
+        return false;
       }
       finally {
         userDefinedQueryTasks.Clear();

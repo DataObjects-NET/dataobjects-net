@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Core;
@@ -318,143 +319,161 @@ namespace Xtensive.Orm
 
 #if NET45
     #region Async executors
-    
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="query"/> delegate
+    /// (in fact, by its <see cref="MethodInfo"/> instance)
+    /// and executes them asyncronously if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate asynchronously
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Started task.</returns>
     public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
+      //EnsureSessionIsNotActivated();
       var userUsableTaskSource = new TaskCompletionSource<IEnumerable<TElement>>();
-      var userUsableTask = userUsableTaskSource.Task;
-      new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query).ContinueWith(
+      var cancellationTokenSource = new CancellationTokenSource();
+      var internalTask = new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, cancellationTokenSource.Token);
+      session.AddNewAsyncQuery(internalTask, cancellationTokenSource);
+      internalTask.ContinueWith(
         task => {
           if (task.IsFaulted) {
             userUsableTaskSource.SetException(task.Exception.InnerException);
+            session.RemoveFinishedAsyncQuery(task);
             return;
           }
           if (task.IsCanceled) {
             userUsableTaskSource.TrySetCanceled();
+            session.RemoveFinishedAsyncQuery(task);
             return;
           }
           if (task.IsCompleted) {
             var parameterizedTask = task;
             userUsableTaskSource.SetResult(parameterizedTask.Result);
+            session.RemoveFinishedAsyncQuery(task);
           }
-        });
+        }, cancellationTokenSource.Token);
 
-      return userUsableTask;
+      return userUsableTaskSource.Task;
     }
 
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and executes them asynchronously if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate asynchronously
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Started task.</returns>
     public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
     {
+      EnsureSessionIsNotActivated();
       var userUsableTaskSource = new TaskCompletionSource<IEnumerable<TElement>>();
-      var userUsableTask = userUsableTaskSource.Task;
-      new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query).ContinueWith(
+      var cancellationTokenSource = new CancellationTokenSource();
+      var internalTask = new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, cancellationTokenSource.Token);
+      session.AddNewAsyncQuery(internalTask, cancellationTokenSource);
+      internalTask.ContinueWith(
         task => {
           if (task.IsFaulted) {
             userUsableTaskSource.SetException(task.Exception.InnerException);
+            session.RemoveFinishedAsyncQuery(task);
             return;
           }
           if (task.IsCanceled) {
             userUsableTaskSource.TrySetCanceled();
+            session.RemoveFinishedAsyncQuery(task);
             return;
           }
           if (task.IsCompleted) {
           var parameterizedTask = task;
           userUsableTaskSource.SetResult(parameterizedTask.Result);
+          session.RemoveFinishedAsyncQuery(task);
         }
-      });
+      }, cancellationTokenSource.Token);
 
-      return userUsableTask;
+      return userUsableTaskSource.Task;
     }
 
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="query"/> delegate
+    /// (in fact, by its <see cref="MethodInfo"/> instance)
+    /// and executes them asynchronously if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate asynchronously
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Query result.</returns>
     public Task<TResult> ExecuteAsync<TResult>(Func<QueryEndpoint, TResult> query)
     {
+      //EnsureSessionIsNotActivated();
       var userUsableTaskSource = new TaskCompletionSource<TResult>();
-      var userUsableTask = userUsableTaskSource.Task;
-      new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query).ContinueWith(
+      var cancellationTokenSource = new CancellationTokenSource();
+
+      var internalTask = new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, cancellationTokenSource.Token);
+      session.AddNewAsyncQuery(internalTask, cancellationTokenSource);
+      internalTask.ContinueWith(
         task => {
           if (task.IsFaulted) {
             userUsableTaskSource.SetException(task.Exception.InnerException);
+            session.RemoveFinishedAsyncQuery(task);
             return;
           }
           if (task.IsCanceled) {
             userUsableTaskSource.TrySetCanceled();
+            session.RemoveFinishedAsyncQuery(task);
             return;
           }
           if (task.IsCompleted) {
           var parameterizedTask = task;
           userUsableTaskSource.SetResult(parameterizedTask.Result);
+          session.RemoveFinishedAsyncQuery(task);
         }
-      });
+      }, cancellationTokenSource.Token);
 
-      return userUsableTask;
+      return userUsableTaskSource.Task;
     }
 
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and executes them asynchronously if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate asynchronously
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Started task.</returns>
     public Task<TResult> ExecuteAsync<TResult>(object key, Func<QueryEndpoint, TResult> query)
     {
+      EnsureSessionIsNotActivated();
       var userUsableTaskSource = new TaskCompletionSource<TResult>();
-      var userUsableTask = userUsableTaskSource.Task;
-      new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query).ContinueWith(
+      var cancellationTokenSource = new CancellationTokenSource();
+      var internalTask = new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, cancellationTokenSource.Token);
+      session.AddNewAsyncQuery(internalTask, cancellationTokenSource);
+      internalTask.ContinueWith(
         task => {
           if (task.IsFaulted) {
             userUsableTaskSource.SetException(task.Exception.InnerException);
+            session.RemoveFinishedAsyncQuery(task);
             return;
           }
           if (task.IsCanceled) {
             userUsableTaskSource.TrySetCanceled();
+            session.RemoveFinishedAsyncQuery(task);
             return;
           }
           if (task.IsCompleted) {
             var parameterizedTask = task;
             userUsableTaskSource.SetResult(parameterizedTask.Result);
+            session.RemoveFinishedAsyncQuery(task);
           }
         });
 
-      return userUsableTask;
-    }
-
-    public Task<IEnumerable<TElement>> ExcuteAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
-    {
-      var userUsableTaskSource = new TaskCompletionSource<IEnumerable<TElement>>();
-      var userUsableTask = userUsableTaskSource.Task;
-      new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query).ContinueWith(
-        task => {
-          if (task.IsFaulted) {
-            userUsableTaskSource.SetException(task.Exception.InnerException);
-            return;
-          }
-          if (task.IsCanceled) {
-            userUsableTaskSource.TrySetCanceled();
-            return;
-          }
-          if (task.IsCompleted) {
-            var parameterizedTask = task;
-            userUsableTaskSource.SetResult(parameterizedTask.Result);
-          }
-        });
-
-      return userUsableTask;
-    }
-
-    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
-    {
-      var userUsableTaskSource = new TaskCompletionSource<IEnumerable<TElement>>();
-      var userUsableTask = userUsableTaskSource.Task;
-      new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query).ContinueWith(
-        task => {
-          if (task.IsFaulted) {
-            userUsableTaskSource.SetException(task.Exception.InnerException);
-            return;
-          }
-          if (task.IsCanceled) {
-            userUsableTaskSource.TrySetCanceled();
-            return;
-          }
-          if (task.IsCompleted) {
-            var parameterizedTask = task;
-            userUsableTaskSource.SetResult(parameterizedTask.Result);
-          }
-        });
-
-      return userUsableTask;
+      return userUsableTaskSource.Task;
     }
     #endregion
 #endif
@@ -561,6 +580,7 @@ namespace Xtensive.Orm
     /// </returns>
     public DelayedTask<TResult> ExecuteDelayedAsync<TResult>(object key, Func<QueryEndpoint, TResult> query)
     {
+      EnsureSessionIsNotActivated();
       return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayedAsync(query);
     }
 
@@ -575,6 +595,7 @@ namespace Xtensive.Orm
     /// </returns>
     public DelayedTask<TResult> ExecuteDelayedAsync<TResult>(Func<QueryEndpoint, TResult> query)
     {
+      EnsureSessionIsNotActivated();
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayedAsync(query);
     }
 
@@ -590,6 +611,7 @@ namespace Xtensive.Orm
     /// </returns>
     public DelayedTask<IEnumerable<TElement>> ExecuteDelayedAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
     {
+      EnsureSessionIsNotActivated();
       return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayedAsync(query);
     }
 
@@ -604,6 +626,7 @@ namespace Xtensive.Orm
     /// </returns>
     public DelayedTask<IEnumerable<TElement>> ExecuteDelayedAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
     {
+      EnsureSessionIsNotActivated();
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayedAsync(query);
     }
 
@@ -619,6 +642,7 @@ namespace Xtensive.Orm
     /// </returns>
     public DelayedTask<IEnumerable<TElement>> ExecuteDelayedAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
     {
+      EnsureSessionIsNotActivated();
       return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayedAsync(query);
     }
 
@@ -633,6 +657,7 @@ namespace Xtensive.Orm
     /// </returns>
     public DelayedTask<IEnumerable<TElement>> ExecuteDelayedAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
+      EnsureSessionIsNotActivated();
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayedAsync(query);
     }
 
@@ -694,6 +719,12 @@ namespace Xtensive.Orm
       return RootBuilder!=null
         ? RootBuilder.BuildRootExpression(elementType)
         : Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(elementType));
+    }
+
+    private void EnsureSessionIsNotActivated()
+    {
+      if(Session.Current!=null)
+        throw new InvalidOperationException(Strings.ExUnableToUseAsynchronousQueriesInsideSessionActivationScope);
     }
 
     #endregion

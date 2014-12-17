@@ -182,6 +182,8 @@ namespace Xtensive.Orm
       try {
         if (inner!=null)
           throw new InvalidOperationException(Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
+        Session.CancelAllAsyncQueriesForToken(LifetimeToken);
+        Session.DisposeBlockingCommandsForToken(LifetimeToken);
         Session.CommitTransaction(this);
       }
       catch {
@@ -206,6 +208,8 @@ namespace Xtensive.Orm
         try {
           if (inner!=null)
             inner.Rollback();
+          Session.CancelAllAsyncQueriesForToken(LifetimeToken);
+          Session.DisposeBlockingCommandsForToken(LifetimeToken);
         }
         finally {
           Session.RollbackTransaction(this);
