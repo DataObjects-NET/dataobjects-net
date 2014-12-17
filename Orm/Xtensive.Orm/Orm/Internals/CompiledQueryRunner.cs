@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
@@ -45,24 +46,22 @@ namespace Xtensive.Orm.Internals
     }
 
 #if NET45
-    public async Task<IEnumerable<TElement>> ExecuteCompiledAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
+    public Task<IEnumerable<TElement>> ExecuteCompiledAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query, CancellationToken token)
     {
-      var parameterizedQuery = await GetSequenceQueryAsync(query);
-      var result = await parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery));
+      var parameterizedQuery = GetSequenceQuery(query);
+      var result = parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), token);
       return result;
     }
 
-    public async Task<TResult> ExecuteCompiledAsync<TResult>(Func<QueryEndpoint, TResult> query)
+    public Task<TResult> ExecuteCompiledAsync<TResult>(Func<QueryEndpoint, TResult> query, CancellationToken token)
     {
-      var parameterizedQuery = await GetCachedQueryAsync<TResult>();
+      
+      var parameterizedQuery = GetCachedQuery<TResult>();
       if (parameterizedQuery!=null)
-        return await parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery));
-      // dirty hack of async method
-      // async methods cannot contains out or ref parameters
-      // In synchroniously method out used because TResult can be value-type
-      // But ParameterizedQuery<T> is always reference type and we can pass ref to instance without ref or out
-      // To make sure that parameterizedQuery is initialized within GetScalarQueryAsync we must await result of method
-      return await GetScalarQueryAsync(query, true, parameterizedQuery);
+        return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), token);
+      TResult result;
+      parameterizedQuery = GetScalarQuery(query, false, out result);
+      return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), token);
     }
 #endif
 
@@ -142,27 +141,6 @@ namespace Xtensive.Orm.Internals
       }
     }
 
-#if NET45
-    private async Task<TResult> GetScalarQueryAsync<TResult>(
-      Func<QueryEndpoint, TResult> query, bool executeAsSideEffects, ParameterizedQuery<TResult> parameterizedQuery)
-    {
-      await AllocateParameterAndReplacerAsync();
-      TResult result;
-      using (var scope = new QueryCachingScope(queryParameter, queryParameterReplacer, executeAsSideEffects)) {
-        using (new ParameterContext().Activate()) {
-          if (queryParameter!=null)
-            queryParameter.Value = queryTarget;
-          result = query.Invoke(endpoint);
-        }
-        parameterizedQuery = (ParameterizedQuery<TResult>) scope.ParameterizedQuery;
-        if (parameterizedQuery==null && queryTarget!=null)
-          throw new NotSupportedException(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
-        await PutCachedQueryAsync(parameterizedQuery);
-        return result;
-      }
-    }
-#endif
-
     private ParameterizedQuery<IEnumerable<TElement>> GetSequenceQuery<TElement>(
       Func<QueryEndpoint, IQueryable<TElement>> query)
     {
@@ -179,24 +157,6 @@ namespace Xtensive.Orm.Internals
       }
       return parameterizedQuery;
     }
-
-#if NET45
-    private async Task<ParameterizedQuery<IEnumerable<TElement>>> GetSequenceQueryAsync<TElement>(
-      Func<QueryEndpoint, IQueryable<TElement>> query)
-    {
-      var parameterizedQuery = await GetCachedQueryAsync<IEnumerable<TElement>>();
-      if (parameterizedQuery!=null)
-        return parameterizedQuery;
-      await AllocateParameterAndReplacerAsync();
-      using (new QueryCachingScope(queryParameter, queryParameterReplacer)) {
-        var result = query.Invoke(endpoint);
-        var translatedQuery = await endpoint.Provider.TranslateAsync<IEnumerable<TElement>>(result.Expression);
-        parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) translatedQuery;
-        await PutCachedQueryAsync(parameterizedQuery);
-      }
-      return parameterizedQuery;
-    }
-#endif
 
     private void AllocateParameterAndReplacer()
     {
