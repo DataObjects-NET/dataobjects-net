@@ -7054,6 +7054,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to use asynchronous queries inside session activation scope..
+        /// </summary>
+        internal static string ExUnableToUseAsynchronousQueriesInsideSessionActivationScope {
+            get {
+                return ResourceManager.GetString("ExUnableToUseAsynchronousQueriesInsideSessionActivationScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to use base implementation of VisitGenericExpression without specifying genericProcessor delegate..
         /// </summary>
         internal static string ExUnableToUseBaseImplementationOfVisitGenericExpressionWithoutSpecifyingGenericProcessorDelegate {

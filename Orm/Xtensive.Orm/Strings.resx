@@ -3340,4 +3340,7 @@ Error: {1}</value>
   <data name="ExTypeIdentifierXDefinesDifferentTypesInExtractedMapOfTypesAndDefinedByUserMapOfTypes">
     <value xml:space="preserve">Type identifier '{0}' defines different types in extracted map of types and defined by user map of types.</value>
   </data>
+  <data name="ExUnableToUseAsynchronousQueriesInsideSessionActivationScope" xml:space="preserve">
+    <value>Unable to use asynchronous queries inside session activation scope.</value>
+  </data>
 </root>
