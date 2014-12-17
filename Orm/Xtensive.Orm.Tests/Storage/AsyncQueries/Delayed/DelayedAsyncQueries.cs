@@ -191,54 +191,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test]
-    public async void GetScalarValueUsingOnDemandSesion()
-    {
-      using (var session = Domain.OpenSession())
-      using (session.Activate())
-      using (var transaction = session.OpenTransaction()) {
-        var task = Query.ExecuteFutureScalarAsync(() => Query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).First());
-        Assert.IsInstanceOf<DelayedTask<Discepline>>(task);
-        var discepline = await task;
-        Assert.IsInstanceOf<Discepline>(discepline);
-        Assert.NotNull(discepline);
-      }
-    }
-
-    [Test]
-    public async void GetIEnumerableOfValesUsingOnDemandSession()
-    {
-      using (var session = Domain.OpenSession())
-      using (session.Activate())
-      using (var transaction = session.OpenTransaction()) {
-        var task = Query.ExecuteFutureAsync(() => Query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline));
-        Assert.IsInstanceOf<DelayedTask<IEnumerable<Discepline>>>(task);
-        var disceplinesOfCourse = await task;
-        Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfCourse);
-        var list = disceplinesOfCourse.ToList();
-        Assert.NotNull(list);
-        Assert.AreNotEqual(0, list.Count);
-        Assert.AreEqual(20, list.Count);
-      }
-    }
-
-    [Test]
-    public async void GetIEnumerableOfValuesWithCustomQueryKeyUsingOnDemandSession()
-    {
-      using (var session = Domain.OpenSession())
-      using (session.Activate())
-      using (var transaction = session.OpenTransaction()) {
-        var task = Query.ExecuteFutureAsync(new object(), () => Query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline));
-        Assert.IsInstanceOf<DelayedTask<IEnumerable<Discepline>>>(task);
-        var disceplinesOfCourses = await task;
-        Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfCourses);
-        var list = disceplinesOfCourses.ToList();
-        Assert.NotNull(list);
-        Assert.AreNotEqual(0, list.Count);
-        Assert.AreEqual(20, list.Count);
-      }
-    }
-
-    [Test]
     [ExpectedException(typeof (InvalidOperationException))]
     public async void DelayedTaskAwaitingOutOfTransaction()
     {
@@ -247,21 +199,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         DelayedTask<Discepline> task;
         using (var transaction = session.OpenTransaction()) {
           task = session.Query.ExecuteDelayedAsync(endpoint => endpoint.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).First());
-        }
-        var result = await task;
-      }
-    }
-
-    [Test]
-    [ExpectedException(typeof (InvalidOperationException))]
-    public async void DelayedTaskAwaitingOutOfActiveSession()
-    {
-      using (var session = Domain.OpenSession()) {
-        DelayedTask<Discepline> task;
-        using (session.Activate()) {
-          using (var transaction = session.OpenTransaction()) {
-            task = Query.ExecuteFutureScalarAsync(() => Query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First());
-          }
         }
         var result = await task;
       }

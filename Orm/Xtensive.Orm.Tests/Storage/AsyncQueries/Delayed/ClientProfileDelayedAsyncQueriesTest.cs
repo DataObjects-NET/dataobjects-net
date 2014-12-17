@@ -57,19 +57,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test]
-    public async void GetScalarResultUsingSessionOnDemand()
-    {
-      using (var session = Domain.OpenSession(clientProfileConfiguration)) {
-        var task = Query.ExecuteFutureScalarAsync(
-          () => Query.All<DisceplinesOfCourse>().Where(el => el.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First());
-        Assert.IsInstanceOf<DelayedTask<Discepline>>(task);
-        var result = await task;
-        Assert.IsInstanceOf<Discepline>(result);
-        Assert.NotNull(result);
-      }
-    }
-
-    [Test]
     public async void GetIEnumerableOfResultsUsingSessionDirectly()
     {
       using (var session = Domain.OpenSession(clientProfileConfiguration)) {
@@ -86,42 +73,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test]
-
-    public async void GetIEnumerableOfResultsUsingSessionOnDemand()
-    {
-      using (var session = Domain.OpenSession(clientProfileConfiguration)) {
-        var task = Query.ExecuteFutureAsync(
-          () => Query.All<DisceplinesOfCourse>().Where(el => el.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline));
-        Assert.IsInstanceOf<DelayedTask<IEnumerable<Discepline>>>(task);
-        var result = await task;
-        Assert.IsInstanceOf<IEnumerable<Discepline>>(result);
-        var disceplinesOfCourse = result.ToList();
-        Assert.NotNull(disceplinesOfCourse);
-        Assert.AreNotEqual(0, disceplinesOfCourse.Count);
-        Assert.AreEqual(20, disceplinesOfCourse.Count);
-      }
-    }
-
-    [Test]
     public async void GetOrderedIEnumerableOfResultsUsingSessionDirectly()
     {
       using (var session = Domain.OpenSession(clientProfileConfiguration)) {
         var task = session.Query.ExecuteDelayedAsync(endpoint => endpoint.All<DisceplinesOfCourse>().Where(el => el.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).OrderBy(d => d.Name));
-        Assert.IsInstanceOf<DelayedTask<IEnumerable<Discepline>>>(task);
-        var result = await task;
-        Assert.IsInstanceOf<IEnumerable<Discepline>>(result);
-        var orderedDisceplines = result.ToList();
-        Assert.NotNull(orderedDisceplines);
-        Assert.AreNotEqual(0, orderedDisceplines.Count);
-        Assert.AreEqual(20, orderedDisceplines.Count);
-      }
-    }
-
-    [Test]
-    public async void GetOrderedIEntumerableOfResultsUsingSessionOnDemand()
-    {
-      using (var session = Domain.OpenSession(clientProfileConfiguration)) {
-        var task = Query.ExecuteFutureAsync(() => Query.All<DisceplinesOfCourse>().Where(el => el.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).OrderBy(d => d.Name));
         Assert.IsInstanceOf<DelayedTask<IEnumerable<Discepline>>>(task);
         var result = await task;
         Assert.IsInstanceOf<IEnumerable<Discepline>>(result);
