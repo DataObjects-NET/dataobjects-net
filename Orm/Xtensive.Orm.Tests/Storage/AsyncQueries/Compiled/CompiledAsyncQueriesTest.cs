@@ -201,7 +201,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var lastYearDisceplines = session.Query.ExecuteAsync(query => query.All<DisceplinesOfCourse>().Where(el => el.Course.Year - 1==DateTime.Now.Year).Select(el=>el.Discepline));
         var bbb = await lastYearDisceplines;
         using (var transaction1 = session.OpenTransaction(TransactionOpenMode.New)) {
-          new Teacher() {DateOfBirth = DateTime.Now, Gender = Gender.Female, Name = "Alena", Surname = "Feoctistova"};
+          new Teacher(session) {DateOfBirth = DateTime.Now, Gender = Gender.Female, Name = "Alena", Surname = "Feoctistova"};
           transaction1.Complete();
         }
         //var aaa = await lastYearDisceplines;

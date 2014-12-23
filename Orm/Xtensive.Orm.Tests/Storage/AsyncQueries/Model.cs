@@ -26,6 +26,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
 
     [Field]
     public Gender Gender { get; set; }
+
+    public Human(Session session)
+      :base(session)
+    { }
   }
 
   [TableMapping("FuncyTableName")]
@@ -34,12 +38,20 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
     [Field]
     [Association(PairTo = "Teacher")]
     public EntitySet<DisceplinesOfCourse> Disciplines { get; set; }
+
+    public Teacher(Session session)
+      :base(session)
+    { }
   }
 
   public class Student : Human
   {
     [Field]
     public Group Group { get; set; }
+
+    public Student(Session session)
+      : base(session)
+    { }
   }
 
   [HierarchyRoot]
@@ -76,9 +88,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
 
     public DisceplinesOfCourse(Session session, Course course, Discepline discepline)
       : base(session, course, discepline)
-    {
-      
-    }
+    { }
   }
 
   [HierarchyRoot]
@@ -99,6 +109,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
 
     [Field]
     public EntitySet<Group> Groups { get; set; }
+
+    public Course(Session session)
+      : base(session)
+    { }
   }
 
   [HierarchyRoot]
@@ -112,6 +126,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
 
     [Field]
     public EntitySet<Course> Courses { get; set; }
+
+    public Speciality(Session session)
+      : base(session)
+    { }
   }
 
   [HierarchyRoot]
@@ -122,6 +140,24 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
 
     [Field]
     public string Name { get; set; }
+
+    public Discepline(Session session)
+      : base(session)
+    { }
+  }
+
+  [HierarchyRoot]
+  public class ClassWithParameterizedConstructor : Entity
+  {
+    [Key, Field]
+    public int Id { get; set; }
+
+    [Field]
+    public string TextField { get; set; }
+
+    public ClassWithParameterizedConstructor(Session session)
+      : base(session)
+    { }
   }
   
   public enum Gender

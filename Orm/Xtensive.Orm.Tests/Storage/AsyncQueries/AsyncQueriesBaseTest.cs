@@ -40,10 +40,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
     private void PopulateDisceplines(Session session)
     {
-      EnsureSessionIsActivated(session);
       using (var transaction = session.OpenTransaction()) {
         for (int i = 0; i < 20; i++) {
-          new Discepline {Name = string.Format("Discepline {0}", i + 1)};
+          new Discepline(session) {Name = string.Format("Discepline {0}", i + 1)};
         }
         transaction.Complete();
       }
@@ -51,27 +50,24 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
     private void PopulateCourses(Session session)
     {
-      EnsureSessionIsActivated(session);
       using (var transaction = session.OpenTransaction()) {
         var speciality = session.Query.All<Speciality>().First();
-        var currentCourse = new Course {Name = "Some course", Year = DateTime.Now.Year, Speciality = speciality};
-        var previousCourse = new Course {Name = "Some course", Year = DateTime.Now.Year - 1, Speciality = speciality};
+        var currentCourse = new Course(session) { Name = "Some course", Year = DateTime.Now.Year, Speciality = speciality };
+        var previousCourse = new Course(session) { Name = "Some course", Year = DateTime.Now.Year - 1, Speciality = speciality };
         transaction.Complete();
       }
     }
 
     private void PopulateSpecialities(Session session)
     {
-      EnsureSessionIsActivated(session);
       using (var transaction = session.OpenTransaction()) {
-        new Speciality {Name = "Some speciality"};
+        new Speciality(session) { Name = "Some speciality" };
         transaction.Complete();
       }
     }
 
     private void PopulateDisceplinesOfCourses(Session session)
     {
-      EnsureSessionIsActivated(session);
       using (var transaction = session.OpenTransaction()) {
         var courses = session.Query.All<Course>().ToList();
         var disceplines = session.Query.All<Discepline>().ToList();
@@ -87,7 +83,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
     private void PopulateGroups(Session session)
     {
-      EnsureSessionIsActivated(session);
       using (var transaction = session.OpenTransaction()) {
         var courses = session.Query.All<Course>();
         foreach (var course in courses) {
@@ -99,12 +94,11 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
     private void PopulateTeachers(Session session)
     {
-      EnsureSessionIsActivated(session);
       using (var transaction = session.OpenTransaction()) {
         var allDisceplines = session.Query.All<Discepline>();
         var index = 1;
         foreach (var allDiscepline in allDisceplines) {
-          new Teacher {
+          new Teacher(session) {
                           Name = string.Format("Name Of Teacher {0}", index),
                           Surname = string.Format("Surname Of Teacher {0}", index),
                           DateOfBirth = DateTime.Now.AddYears(-(index + 20)),
@@ -118,14 +112,13 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 
     private void PopulateStudents(Session session)
     {
-      EnsureSessionIsActivated(session);
       var random = new Random();
       using (var transaction = session.OpenTransaction()) {
         var allGroups = session.Query.All<Group>();
         var index = 1;
         foreach (var @group in allGroups) {
           for (int i = 0; i < 10; i++) {
-            @group.Students.Add(new Student {
+            @group.Students.Add(new Student(session) {
                                               Name = string.Format("Name Of Student {0}", index),
                                               Surname = string.Format("Surname Of Student {0}", index),
                                               DateOfBirth = DateTime.Now.AddYears(-random.Next(20, 25)),
@@ -135,12 +128,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           transaction.Complete();
         }
       }
-    }
-
-    private void EnsureSessionIsActivated(Session session)
-    {
-      if (!session.IsActive)
-        session.Activate();
     }
   }
 }
