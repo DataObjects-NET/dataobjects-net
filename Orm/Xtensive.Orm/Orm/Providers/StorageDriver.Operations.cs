@@ -7,6 +7,8 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm.Configuration;
 using Xtensive.Sql;
 
@@ -206,6 +208,25 @@ namespace Xtensive.Orm.Providers
     {
       return ExecuteCommand(session, command, c => c.ExecuteReader());
     }
+
+#if NET45
+
+    public Task<int> ExecuteNonQueryAsync(Session session, DbCommand command, CancellationToken token)
+    {
+      return ExecuteCommand(session, command, c => c.ExecuteNonQueryAsync(token));
+    }
+
+    public Task<object> ExecuteScalarAsync(Session session, DbCommand command, CancellationToken token)
+    {
+      return ExecuteCommand(session, command, c => c.ExecuteScalarAsync(token));
+    }
+
+    public Task<DbDataReader> ExecuteReaderAsync(Session session, DbCommand command, CancellationToken token)
+    {
+      return ExecuteCommand(session, command, c => command.ExecuteReaderAsync(token));
+    }
+
+#endif
 
     private TResult ExecuteCommand<TResult>(Session session, DbCommand command, Func<DbCommand, TResult> action)
     {
