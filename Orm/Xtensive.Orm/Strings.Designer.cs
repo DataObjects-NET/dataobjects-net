@@ -5934,6 +5934,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Task has already been completed with fault..
+        /// </summary>
+        internal static string ExTaskHasAlreadyBeenCompletedWithFault {
+            get {
+                return ResourceManager.GetString("ExTaskHasAlreadyBeenCompletedWithFault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Temporary tables are not supported by current storage.
         /// </summary>
         internal static string ExTemporaryTablesAreNotSupportedByCurrentStorage {
@@ -6748,6 +6757,33 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to cancel delayed task: task has been canceled..
+        /// </summary>
+        internal static string ExUnableToCancelDelayedTaskTaskHasBeenCanceled {
+            get {
+                return ResourceManager.GetString("ExUnableToCancelDelayedTaskTaskHasBeenCanceled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to cancel delayed task: task has been completed.
+        /// </summary>
+        internal static string ExUnableToCancelDelayedTaskTaskHasBeenCompleted {
+            get {
+                return ResourceManager.GetString("ExUnableToCancelDelayedTaskTaskHasBeenCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to cancel delayed task: task has been completed with fault..
+        /// </summary>
+        internal static string ExUnableToCancelDelayedTaskTaskHasBeenCompletedWithFault {
+            get {
+                return ResourceManager.GetString("ExUnableToCancelDelayedTaskTaskHasBeenCompletedWithFault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to cast item of type &apos;{0}&apos; to &apos;{1}&apos; in queries..
         /// </summary>
         internal static string ExUnableToCastItemOfTypeXToY {
@@ -6771,6 +6807,69 @@ namespace Xtensive {
         internal static string ExUnableToCloneNonUserSessionConfiguration {
             get {
                 return ResourceManager.GetString("ExUnableToCloneNonUserSessionConfiguration", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to complete delayed task: task has been cancelled..
+        /// </summary>
+        internal static string ExUnableToCompleteDelayedTaskTaskHasBeenCancelled {
+            get {
+                return ResourceManager.GetString("ExUnableToCompleteDelayedTaskTaskHasBeenCancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to complete delayed task: task has been completed..
+        /// </summary>
+        internal static string ExUnableToCompleteDelayedTaskTaskHasBeenCompleted {
+            get {
+                return ResourceManager.GetString("ExUnableToCompleteDelayedTaskTaskHasBeenCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to complete delayed task: task has been completed with fault..
+        /// </summary>
+        internal static string ExUnableToCompleteDelayedTaskTaskHasBeenCompletedWithFault {
+            get {
+                return ResourceManager.GetString("ExUnableToCompleteDelayedTaskTaskHasBeenCompletedWithFault", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to complete delayed task: task has not been started yet..
+        /// </summary>
+        internal static string ExUnableToCompleteDelayedTaskTaskHasNotBeenStartedYet {
+            get {
+                return ResourceManager.GetString("ExUnableToCompleteDelayedTaskTaskHasNotBeenStartedYet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to complete delayed task with fault: task has been cancelled..
+        /// </summary>
+        internal static string ExUnableToCompleteDelayedTaskWithFaultTaskHasBeenCancelled {
+            get {
+                return ResourceManager.GetString("ExUnableToCompleteDelayedTaskWithFaultTaskHasBeenCancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to complete delayed task with fault: task has been completed..
+        /// </summary>
+        internal static string ExUnableToCompleteDelayedTaskWithFaultTaskHasBeenCompleted {
+            get {
+                return ResourceManager.GetString("ExUnableToCompleteDelayedTaskWithFaultTaskHasBeenCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to complete with fault unstarted delayed task: task has not been started yet..
+        /// </summary>
+        internal static string ExUnableToCompleteWithFaultUnstartedDelayedTaskTaskHasNotBeenStartedYet {
+            get {
+                return ResourceManager.GetString("ExUnableToCompleteWithFaultUnstartedDelayedTaskTaskHasNotBeenStartedYet", resourceCulture);
             }
         }
         
@@ -6879,6 +6978,15 @@ namespace Xtensive {
         internal static string ExUnableToModifyDeletedObject {
             get {
                 return ResourceManager.GetString("ExUnableToModifyDeletedObject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to open new transaction, there are incompleted asynchronous queries..
+        /// </summary>
+        internal static string ExUnableToOpenNewTransactionThereAreIncompletedAsynchronousQueries {
+            get {
+                return ResourceManager.GetString("ExUnableToOpenNewTransactionThereAreIncompletedAsynchronousQueries", resourceCulture);
             }
         }
         
@@ -7014,6 +7122,42 @@ namespace Xtensive {
         internal static string ExUnableToSetKeyFieldXExplicitly {
             get {
                 return ResourceManager.GetString("ExUnableToSetKeyFieldXExplicitly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to start delayed task: task has already been started..
+        /// </summary>
+        internal static string ExUnableToStartDelayedTaskTaskHasAlreadyBeenStarted {
+            get {
+                return ResourceManager.GetString("ExUnableToStartDelayedTaskTaskHasAlreadyBeenStarted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to start delayed task: task has been cancelled..
+        /// </summary>
+        internal static string ExUnableToStartDelayedTaskTaskHasBeenCancelled {
+            get {
+                return ResourceManager.GetString("ExUnableToStartDelayedTaskTaskHasBeenCancelled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to start delayed task: task has been completed..
+        /// </summary>
+        internal static string ExUnableToStartDelayedTaskTaskhasBeenCompleted {
+            get {
+                return ResourceManager.GetString("ExUnableToStartDelayedTaskTaskhasBeenCompleted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to start delayed task: task has been completed with fault..
+        /// </summary>
+        internal static string ExUnableToStartDelayedTaskTaskHasBeenCompletedWithFault {
+            get {
+                return ResourceManager.GetString("ExUnableToStartDelayedTaskTaskHasBeenCompletedWithFault", resourceCulture);
             }
         }
         
@@ -9483,6 +9627,24 @@ namespace Xtensive {
         internal static string UnableToInvalidateSessionStateNewlyCreatedEntitiesAreAttachedToSession {
             get {
                 return ResourceManager.GetString("UnableToInvalidateSessionStateNewlyCreatedEntitiesAreAttachedToSession", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to open new transaction, there are unenumerable results of asynchronous queries..
+        /// </summary>
+        internal static string UnableToOpenNewTransactionThereAreUnenumerableResultsOfAsynchronousQueries {
+            get {
+                return ResourceManager.GetString("UnableToOpenNewTransactionThereAreUnenumerableResultsOfAsynchronousQueries", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to save modified enitities, there are incompleted asynchronous queries..
+        /// </summary>
+        internal static string UnableToSaveModifiedEnititiesThereAreIncompletedAsynchronousQueries {
+            get {
+                return ResourceManager.GetString("UnableToSaveModifiedEnititiesThereAreIncompletedAsynchronousQueries", resourceCulture);
             }
         }
         

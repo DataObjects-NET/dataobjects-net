@@ -367,6 +367,7 @@
     <Compile Include="Orm\Configuration\LoggingConfiguration.cs" />
     <Compile Include="Orm\Configuration\NameMappingCollection.cs" />
     <Compile Include="Orm\Configuration\NodeConfiguration.cs" />
+    <Compile Include="Orm\DelayedTask.cs" />
     <Compile Include="Orm\DelayedTask{TResult}.cs" />
     <Compile Include="Orm\ExecutionBehavior.cs" />
     <Compile Include="Orm\Internals\CommandInfo.cs" />

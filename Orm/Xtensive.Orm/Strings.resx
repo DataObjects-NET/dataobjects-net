@@ -3343,4 +3343,58 @@ Error: {1}</value>
   <data name="ExUnableToUseAsynchronousQueriesInsideSessionActivationScope" xml:space="preserve">
     <value>Unable to use asynchronous queries inside session activation scope.</value>
   </data>
+  <data name="ExUnableToOpenNewTransactionThereAreIncompletedAsynchronousQueries" xml:space="preserve">
+    <value>Unable to open new transaction, there are incompleted asynchronous queries.</value>
+  </data>
+  <data name="UnableToOpenNewTransactionThereAreUnenumerableResultsOfAsynchronousQueries" xml:space="preserve">
+    <value>Unable to open new transaction, there are unenumerable results of asynchronous queries.</value>
+  </data>
+  <data name="UnableToSaveModifiedEnititiesThereAreIncompletedAsynchronousQueries" xml:space="preserve">
+    <value>Unable to save modified enitities, there are incompleted asynchronous queries.</value>
+  </data>
+  <data name="ExUnableToStartDelayedTaskTaskHasBeenCancelled" xml:space="preserve">
+    <value>Unable to start delayed task: task has been cancelled.</value>
+  </data>
+  <data name="ExUnableToStartDelayedTaskTaskhasBeenCompleted" xml:space="preserve">
+    <value>Unable to start delayed task: task has been completed.</value>
+  </data>
+  <data name="ExUnableToStartDelayedTaskTaskHasBeenCompletedWithFault" xml:space="preserve">
+    <value>Unable to start delayed task: task has been completed with fault.</value>
+  </data>
+  <data name="ExUnableToStartDelayedTaskTaskHasAlreadyBeenStarted" xml:space="preserve">
+    <value>Unable to start delayed task: task has already been started.</value>
+  </data>
+  <data name="ExUnableToCompleteDelayedTaskTaskHasBeenCompleted" xml:space="preserve">
+    <value>Unable to complete delayed task: task has been completed.</value>
+  </data>
+  <data name="ExUnableToCompleteDelayedTaskTaskHasBeenCancelled" xml:space="preserve">
+    <value>Unable to complete delayed task: task has been cancelled.</value>
+  </data>
+  <data name="ExUnableToCompleteDelayedTaskTaskHasBeenCompletedWithFault" xml:space="preserve">
+    <value>Unable to complete delayed task: task has been completed with fault.</value>
+  </data>
+  <data name="ExUnableToCompleteDelayedTaskTaskHasNotBeenStartedYet" xml:space="preserve">
+    <value>Unable to complete delayed task: task has not been started yet.</value>
+  </data>
+  <data name="ExTaskHasAlreadyBeenCompletedWithFault" xml:space="preserve">
+    <value>Task has already been completed with fault.</value>
+  </data>
+  <data name="ExUnableToCompleteDelayedTaskWithFaultTaskHasBeenCancelled" xml:space="preserve">
+    <value>Unable to complete delayed task with fault: task has been cancelled.</value>
+  </data>
+  <data name="ExUnableToCompleteDelayedTaskWithFaultTaskHasBeenCompleted" xml:space="preserve">
+    <value>Unable to complete delayed task with fault: task has been completed.</value>
+  </data>
+  <data name="ExUnableToCompleteWithFaultUnstartedDelayedTaskTaskHasNotBeenStartedYet" xml:space="preserve">
+    <value>Unable to complete with fault unstarted delayed task: task has not been started yet.</value>
+  </data>
+  <data name="ExUnableToCancelDelayedTaskTaskHasBeenCanceled" xml:space="preserve">
+    <value>Unable to cancel delayed task: task has been canceled.</value>
+  </data>
+  <data name="ExUnableToCancelDelayedTaskTaskHasBeenCompletedWithFault" xml:space="preserve">
+    <value>Unable to cancel delayed task: task has been completed with fault.</value>
+  </data>
+  <data name="ExUnableToCancelDelayedTaskTaskHasBeenCompleted" xml:space="preserve">
+    <value>Unable to cancel delayed task: task has been completed</value>
+  </data>
 </root>
