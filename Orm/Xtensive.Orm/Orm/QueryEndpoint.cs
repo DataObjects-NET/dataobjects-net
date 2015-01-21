@@ -331,7 +331,7 @@ namespace Xtensive.Orm
     /// <returns>Started task.</returns>
     public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
-      //EnsureSessionIsNotActivated();
+      EnsureSessionIsNotActivated();
       var userUsableTaskSource = new TaskCompletionSource<IEnumerable<TElement>>();
       var cancellationTokenSource = new CancellationTokenSource();
       var internalTask = new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, cancellationTokenSource.Token);
@@ -409,7 +409,7 @@ namespace Xtensive.Orm
     /// <returns>Query result.</returns>
     public Task<TResult> ExecuteAsync<TResult>(Func<QueryEndpoint, TResult> query)
     {
-      //EnsureSessionIsNotActivated();
+      EnsureSessionIsNotActivated();
       var userUsableTaskSource = new TaskCompletionSource<TResult>();
       var cancellationTokenSource = new CancellationTokenSource();
 
