@@ -49,8 +49,13 @@ namespace Xtensive.Orm.Internals
     public Task<IEnumerable<TElement>> ExecuteCompiledAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query, CancellationToken token)
     {
       var parameterizedQuery = GetSequenceQuery(query);
-      var result = parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), token);
-      return result;
+      try {
+        var result = parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), token);
+        return result;
+      }
+      catch (Exception exception) {
+        throw exception;
+      }
     }
 
     public Task<TResult> ExecuteCompiledAsync<TResult>(Func<QueryEndpoint, TResult> query, CancellationToken token)

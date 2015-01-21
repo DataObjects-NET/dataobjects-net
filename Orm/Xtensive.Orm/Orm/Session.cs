@@ -232,16 +232,12 @@ namespace Xtensive.Orm
       return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
     }
 
-#if NET45
-
-    internal async Task<EnumerationContext> CreateEnumerationContextAsync()
+    internal EnumerationContext CreateEnumerationContextForAsyncQuery()
     {
-      Persist(PersistReason.Query);
-      await ProcessDelayedQueriesAsync(true);
+      Persist(PersistReason.Other);//creates persist tasks and launch CommandProcessor.ExecuteTasks(false)
+      ProcessUserDefinedDelayedQueries(ExecutionBehavior.ExecuteWithNextQuery);//creates load tasks and launch CommandProcessor.ExecuteTasks(true)
       return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
     }
-
-#endif
 
     private EnumerationContextOptions GetEnumerationContextOptions()
     {

@@ -307,6 +307,7 @@
     </Compile>
     <Compile Include="Core\Extensions\DisposableExtensions.cs" />
     <Compile Include="Core\Extensions\EnumerableExtensions.cs" />
+    <Compile Include="Core\Extensions\EnumeratorExtensions.cs" />
     <Compile Include="Core\Extensions\ExpressionCompileExtensions.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

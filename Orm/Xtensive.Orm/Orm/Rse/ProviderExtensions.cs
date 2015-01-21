@@ -44,37 +44,18 @@ namespace Xtensive.Orm.Rse
       return new RecordSet(session.CreateEnumerationContext(), provider);
     }
 
-#if NET45
-
     /// <summary>
     /// Gets <see cref="RecordSet"/> bound to the specified <paramref name="provider"/> asynchronously.
     /// </summary>
     /// <param name="provider">Provider to get <see cref="RecordSet"/> for.</param>
     /// <param name="session">Session to bind</param>
     /// <returns>New <see cref="RecordSet"/> bound to specified <paramref name="session"/>.</returns>
-    public static async Task<RecordSet> GetRecordSetAsync(this ExecutableProvider provider, Session session)
+    public static RecordSet GetRecordSetForAsyncQuery(this ExecutableProvider provider, Session session)
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return new RecordSet(await session.CreateEnumerationContextAsync(), provider);
+      return new RecordSet(session.CreateEnumerationContextForAsyncQuery(), provider);
     }
-
-    /// <summary>
-    /// Compiles specified <paramref name="provider"/>
-    /// and returns new <see cref="RecordSet"/> bound to specified <paramref name="session"/> asyncronously.
-    /// </summary>
-    /// <param name="provider">The provider.</param>
-    /// <param name="session">The session.</param>
-    /// <returns>New <see cref="RecordSet"/> bound to specified <paramref name="session"/>.</returns>
-    public static async Task<RecordSet> GetRecordSetAsync(this CompilableProvider provider, Session session)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      var compiled = session.Compile(provider);
-      return new RecordSet(await session.CreateEnumerationContextAsync(), compiled);
-    }
-
-#endif
 
     /// <summary>
     /// Calculates count of elements of provided <paramref name="provider"/>.

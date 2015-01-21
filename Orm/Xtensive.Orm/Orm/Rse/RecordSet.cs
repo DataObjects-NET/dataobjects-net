@@ -9,6 +9,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Core;
@@ -32,6 +34,16 @@ namespace Xtensive.Orm.Rse
         return GetGreedyEnumerator();
       return GetBatchedEnumerator();
     }
+#if NET45
+    public async Task<IEnumerator<Tuple>> GetEnumeratorAsunc(CancellationToken token)
+    {
+      IEnumerator<Tuple> enumerator;
+      if (Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator))
+        return await GetGreedyEnumeratorAsync(token);
+      return await GetBatchedEnumeratorAsync(token);
+    }
+
+#endif
 
     /// <summary>
     ///   Way 1: preloading all the data into memory and returning it inside this scope.
@@ -70,6 +82,66 @@ namespace Xtensive.Orm.Rse
       }
     }
 
+#if NET45
+    /// <summary>
+    /// Way 1: asynchroniously preloading all the data into memory and returning it inside this scope.
+    /// </summary>
+    private async Task<IEnumerator<Tuple>> GetGreedyEnumeratorAsync(CancellationToken token)
+    {
+      var cs = Context.BeginEnumeration();
+      List<Tuple> items;
+      Action<object> afterEnumrationAction =
+          o => {
+            if (o==null)
+              return;
+            var completableScope = (ICompletableScope)o;
+            completableScope.Complete();
+            completableScope.Dispose();
+            
+          };
+
+      using (Context.Activate()) {
+        var enumerator = await Source.GetEnumeratorAsync(Context, token);
+        items = enumerator.ToEnumerable().ToList();
+      }
+
+      return items.ToEnumerator(afterEnumrationAction, cs);
+    }
+
+    /// <summary>
+    /// Way 2: batched async enumeration.
+    /// </summary>
+    private async Task<IEnumerator<Tuple>> GetBatchedEnumeratorAsync(CancellationToken token)
+    {
+      EnumerationScope currentScope = null;
+      var enumerator = await Source.GetEnumeratorAsync(Context, token);
+      var batched = enumerator.ToEnumerable().Batch(2);
+
+      var cs = Context.BeginEnumeration();
+      Action<object> afterEnumerationAction =
+        o => {
+          if (o==null)
+            return;
+          var completableScope = (ICompletableScope) o;
+          completableScope.Complete();
+          completableScope.Dispose();
+        };
+      return GetTwoLevelEnumerator(batched, afterEnumerationAction, cs);
+    }
+
+    private static IEnumerator<Tuple> GetTwoLevelEnumerator(IEnumerable<IEnumerable<Tuple>> enumerable, Action<object> afterEnumerationAction, object parameterForAction)
+    {
+      try {
+        foreach (var batch in enumerable)
+          foreach (var tuple in batch)
+            yield return tuple;
+      }
+      finally {
+        afterEnumerationAction.Invoke(parameterForAction);
+      }
+    }
+#endif
+    
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator()
     {
