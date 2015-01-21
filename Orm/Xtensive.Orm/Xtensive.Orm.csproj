@@ -367,6 +367,8 @@
     <Compile Include="Orm\Configuration\NameMappingCollection.cs" />
     <Compile Include="Orm\Configuration\NodeConfiguration.cs" />
     <Compile Include="Orm\DelayedTask{TResult}.cs" />
+    <Compile Include="Orm\ExecutionBehavior.cs" />
+    <Compile Include="Orm\Internals\CommandInfo.cs" />
     <Compile Include="Orm\Internals\IncompletedTaskInfo.cs" />
     <Compile Include="Orm\Internals\AsyncQueriesManager.cs" />
     <Compile Include="Orm\Internals\EntityReferenceChangesRegistry.cs" />

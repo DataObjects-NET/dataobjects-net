@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.24
 
+using System;
+
 namespace Xtensive.Orm.Providers
 {
   public interface ISqlTaskProcessor
@@ -12,12 +14,12 @@ namespace Xtensive.Orm.Providers
     /// Processes the specified task.
     /// </summary>
     /// <param name="task">The task to process.</param>
-    void ProcessTask(SqlLoadTask task);
+    void ProcessTask(SqlLoadTask task, Guid uniqueIdentifier);
 
     /// <summary>
     /// Processes the specified task.
     /// </summary>
     /// <param name="task">The task to process.</param>
-    void ProcessTask(SqlPersistTask task);
+    void ProcessTask(SqlPersistTask task, Guid uniqueIdentifier);
   }
 }

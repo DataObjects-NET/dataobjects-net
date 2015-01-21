@@ -5,8 +5,9 @@
 // Created:    2009.08.20
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
-
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
@@ -40,23 +41,52 @@ namespace Xtensive.Orm.Providers
     /// <returns>A <see cref="IEnumerator{Tuple}"/> for the specified request.</returns>
     public abstract IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest request);
 
+#if NET45
+    /// <summary>
+    /// Executes all registred requests plus the specified one query asynchronously,
+    /// returning <see cref="Task{Command}"/> for the last query.
+    /// </summary>
+    /// <param name="request">The request to execute.</param>
+    /// <param name="token"><see cref="CancellationToken">Cancellation token</see> to cancel task.</param>
+    /// <returns>A <see cref="Task{Command}"/> for the specified request.</returns>
+    public abstract Task<Command> ExecuteTasksWithReaderAsync(QueryRequest request, CancellationToken token);
+#endif
+
     /// <summary>
     /// Executes all registred requests,
-    /// optionally skipping the last requests according to 
-    /// <paramref name="allowPartialExecution"/> argument.
+    /// optionally skipping the last requests or all requests according to 
+    /// <paramref name="executionBehavior"/> argument.
     /// </summary>
-    /// <param name="allowPartialExecution">
-    /// if set to <see langword="true"/> command processor is allowed to skip last request,
-    /// if it decides to.</param>
-    public abstract void ExecuteTasks(bool allowPartialExecution);
+    /// <param name="executionBehavior">
+    /// If set to <see cref="ExecutionBehavior.PartialExecutionIsAllowed"/> command processor is allowed to skip last request,
+    /// if it decides to.
+    /// If set to <see cref="ExecutionBehavior.PartialExecutionIsAllowed"/> command processor leaved excecution until next query.
+    /// </param>
+    public abstract void ExecuteTasks(ExecutionBehavior executionBehavior);
+
+#if NET45
+    /// <summary>
+    /// Executes all registred requests asynchronously,
+    /// optionally skipping the last requests or all requests according to 
+    /// <paramref name="executionBehavior"/> argument.
+    /// </summary>
+    /// <param name="executionBehavior">
+    /// If set to <see cref="ExecutionBehavior.PartialExecutionIsAllowed"/> command processor is allowed to skip last request,
+    /// if it decides to.
+    /// If set to <see cref="ExecutionBehavior.PartialExecutionIsAllowed"/> command processor leaved excecution until next query.
+    /// </param>
+    /// <returns></returns>
+    public abstract Task ExecuteTasksAsync(ExecutionBehavior executionBehavior, CancellationToken token);
+#endif
+
 
     /// <summary>
     /// Executes the all registered requests.
-    /// Calling this method is equivalent to calling <see cref="ExecuteTasks(bool)"/> with <see langword="false"/>.
+    /// Calling this method is equivalent to calling <see cref="ExecuteTasks(ExecutionBehavior)"/> with <see cref="ExecutionBehavior.PartialExecutionIsNotAllowed"/>.
     /// </summary>
     public void ExecuteTasks()
     {
-      ExecuteTasks(false);
+      ExecuteTasks(ExecutionBehavior.PartialExecutionIsNotAllowed);
     }
 
     // Constructors
