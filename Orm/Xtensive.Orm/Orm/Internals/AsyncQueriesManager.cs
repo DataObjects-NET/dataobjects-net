@@ -26,11 +26,11 @@ namespace Xtensive.Orm.Internals
     internal long BlockingCommandsCount { get; private set; }
 
     /// <summary>
-    /// Registers information about new asynchronous query
+    /// Registers information about new asynchronous query.
     /// </summary>
-    /// <param name="lifetimeToken"></param>
-    /// <param name="task"></param>
-    /// <param name="cancellationTokenSource"></param>
+    /// <param name="lifetimeToken">Token to bound</param>
+    /// <param name="task">Async query.</param>
+    /// <param name="cancellationTokenSource">Cancellation token.</param>
     internal void AddNewAsyncQuery(StateLifetimeToken lifetimeToken, Task task, CancellationTokenSource cancellationTokenSource)
     {
       lock (lockableObject) {
@@ -49,10 +49,10 @@ namespace Xtensive.Orm.Internals
     }
 
     /// <summary>
-    /// Removes information about asynchronous query
+    /// Removes information about asynchronous query which have already finished.
     /// </summary>
-    /// <param name="lifetimeToken"></param>
-    /// <param name="task"></param>
+    /// <param name="lifetimeToken">Token the task bounds to.</param>
+    /// <param name="task">Finished task.</param>
     /// <returns></returns>
     internal bool TryRemoveFinishedAsyncQuery(StateLifetimeToken lifetimeToken, Task task)
     {
@@ -70,6 +70,12 @@ namespace Xtensive.Orm.Internals
       }
     }
 
+    /// <summary>
+    /// Try cancel specified <see cref="Task"/> bounded to specified <see cref="stateLifetimeToken"/>.
+    /// </summary>
+    /// <param name="stateLifetimeToken">Token the task bounds to.</param>
+    /// <param name="task">Task to cancel.</param>
+    /// <returns></returns>
     internal bool TryCancelAsyncQuery(StateLifetimeToken stateLifetimeToken, Task task)
     {
       lock (lockableObject) {
@@ -90,6 +96,11 @@ namespace Xtensive.Orm.Internals
       }
     }
 
+    /// <summary>
+    /// Sets cancellation tokens to canceled state for queries bounded to specified <see cref="StateLifetimeToken"/>.
+    /// </summary>
+    /// <param name="stateLifetimeToken">Token to search</param>
+    /// <returns><see langword="true"/> if there is queries bounded <paramref name="stateLifetimeToken"/>, otherwise, <see langword="false"/></returns>
     internal bool TryCancelAllAsyncQueriesForToken(StateLifetimeToken stateLifetimeToken)
     {
       lock (lockableObject) {
@@ -104,6 +115,10 @@ namespace Xtensive.Orm.Internals
       }
     }
 
+    /// <summary>
+    /// Sets all cancellation tokens to canceled and tries to cancel queries.
+    /// </summary>
+    /// <returns><see langword="true"/></returns>
     internal bool TryCancelAllAsyncQueries()
     {
       lock (lockableObject) {
@@ -115,18 +130,32 @@ namespace Xtensive.Orm.Internals
       }
     }
 
+    /// <summary>
+    /// Checks if manager has incompleted async queries.
+    /// </summary>
+    /// <returns><see langword="true"/> if manager has incomleted async queries bounded to, otherwise, <see langword="false"/>.</returns>
     internal bool HasAsyncQueries()
     {
       var result = asyncQueries.Count > 0;
       return result;
     }
 
+    /// <summary>
+    /// Checks if manager has incompleted async queries for specified <see cref="StateLifetimeToken"/>.
+    /// </summary>
+    /// <param name="stateLifetimeToken">Token to check.</param>
+    /// <returns><see langword="true"/> if manager has incomleted async queries bounded to <paramref name="stateLifetimeToken"/>, otherwise, <see langword="false"/>.</returns>
     internal bool HasAsyncQueriesForToken(StateLifetimeToken stateLifetimeToken)
     {
       var @return = asyncQueries.ContainsKey(stateLifetimeToken);
       return @return;
     }
 
+    /// <summary>
+    /// Register blocking command.
+    /// </summary>
+    /// <param name="token"><see cref="StateLifetimeToken"/> command bounds to.</param>
+    /// <param name="command">Blocing command.</param>
     internal void AddNewBlockingCommand(StateLifetimeToken token, Command command)
     {
       lock (lockableObject) {
@@ -140,6 +169,9 @@ namespace Xtensive.Orm.Internals
       }
     }
 
+    /// <summary>
+    /// Disposes all registered blocking commands.
+    /// </summary>
     internal void DisposeBlockingCommands()
     {
       lock (lockableObject) {
@@ -150,6 +182,10 @@ namespace Xtensive.Orm.Internals
       }
     }
 
+    /// <summary>
+    /// Disposes all blocking commands which bounded to specified <see cref="StateLifetimeToken"/>.
+    /// </summary>
+    /// <param name="stateLifetimeToken">Token to search.</param>
     internal void DisposeBlockingCommandForToken(StateLifetimeToken stateLifetimeToken)
     {
       lock (lockableObject) {
@@ -162,6 +198,11 @@ namespace Xtensive.Orm.Internals
       }
     }
 
+    /// <summary>
+    /// Checks if manager has blocking commands for specified <see cref="StateLifetimeToken"/>.
+    /// </summary>
+    /// <param name="token">Token to check.</param>
+    /// <returns><see langword="true"/> if manager has registered blocking command bounded to, otherwise, <see langword="false"/>.</returns>
     internal bool HasBlockingCommandsForToken(StateLifetimeToken token)
     {
       lock (lockableObject) {
@@ -172,6 +213,10 @@ namespace Xtensive.Orm.Internals
       return false;
     }
 
+    /// <summary>
+    /// Checks if manager has blocking commands.
+    /// </summary>
+    /// <returns><see langword="true"/> if manager has registered blocking command, otherwise, <see langword="false"/>.</returns>
     internal bool HasBlockingCommands()
     {
       lock (lockableObject) {

@@ -18,16 +18,16 @@ namespace Xtensive.Orm
     internal AsyncQueriesManager AsyncQueriesManager { get; private set; }
 
     /// <summary>
-    /// 
+    /// Unbounds information about completed asynchronous query from current <see cref="StateLifetimeToken">lifetime token</see>.
     /// </summary>
-    /// <param name="task"></param>
+    /// <param name="task">Completed task.</param>
     internal void RemoveFinishedAsyncQuery(Task task)
     {
       AsyncQueriesManager.TryRemoveFinishedAsyncQuery(GetLifetimeToken(), task);
     }
 
     /// <summary>
-    /// 
+    /// Bounds information about incompleted token to current <see cref="StateLifetimeToken">lifetime token</see>.
     /// </summary>
     /// <param name="task"></param>
     /// <param name="cancellationTokenSource"></param>
@@ -37,16 +37,16 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// 
+    /// Cancels all incompleted asynchronous queries for specified <see cref="StateLifetimeToken">lifetime token</see>.
     /// </summary>
-    /// <param name="token"></param>
+    /// <param name="token"><see cref="StateLifetimeToken"/></param>
     internal void CancelAllAsyncQueriesForToken(StateLifetimeToken token)
     {
       AsyncQueriesManager.TryCancelAllAsyncQueriesForToken(token);
     }
 
     /// <summary>
-    /// 
+    /// Adds new blocking command for current <see cref="StateLifetimeToken">lifetime token</see>.
     /// </summary>
     /// <param name="command">Blocking command</param>
     internal void AddNewBlockingCommand(Command command)
