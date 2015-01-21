@@ -60,8 +60,6 @@ namespace Xtensive.Orm
       try {
         if (Transaction==null || !Transaction.State.IsActive())
           return;
-        Transaction.Session.CancelAllAsyncQueriesForToken(Transaction.LifetimeToken);
-        Transaction.Session.DisposeBlockingCommandsForToken(Transaction.LifetimeToken);
         if (IsCompleted)
           Transaction.Commit();
         else

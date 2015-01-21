@@ -4,8 +4,8 @@
 // Created by: Alexey Kulakov
 // Created:    2014.11.17
 
-using System.Collections.Generic;
-using System.Linq;
+#if NET45
+using System;
 using System.Threading.Tasks;
 using System.Threading;
 using Xtensive.Orm.Internals;
@@ -15,7 +15,7 @@ namespace Xtensive.Orm
 {
   public partial class Session
   {
-    internal AsyncQueriesManager asyncQueriesManager { get; private set; }
+    internal AsyncQueriesManager AsyncQueriesManager { get; private set; }
 
     /// <summary>
     /// 
@@ -23,7 +23,7 @@ namespace Xtensive.Orm
     /// <param name="task"></param>
     internal void RemoveFinishedAsyncQuery(Task task)
     {
-      asyncQueriesManager.TryRemoveFinishedAsyncQuery(GetLifetimeToken(), task);
+      AsyncQueriesManager.TryRemoveFinishedAsyncQuery(GetLifetimeToken(), task);
     }
 
     /// <summary>
@@ -33,7 +33,7 @@ namespace Xtensive.Orm
     /// <param name="cancellationTokenSource"></param>
     internal void AddNewAsyncQuery(Task task, CancellationTokenSource cancellationTokenSource)
     {
-      asyncQueriesManager.AddNewAsyncQuery(GetLifetimeToken(), task, cancellationTokenSource);
+      AsyncQueriesManager.AddNewAsyncQuery(GetLifetimeToken(), task, cancellationTokenSource);
     }
 
     /// <summary>
@@ -42,50 +42,92 @@ namespace Xtensive.Orm
     /// <param name="token"></param>
     internal void CancelAllAsyncQueriesForToken(StateLifetimeToken token)
     {
-      asyncQueriesManager.TryCancelAllAsyncQueriesForToken(token);
-    }
-
-    internal void AddNewBlockingCommand(Command command)
-    {
-      asyncQueriesManager.AddNewBlockingCommand(GetLifetimeToken(), command);
-    }
-
-    internal void DisposeBlockingCommandsForToken(StateLifetimeToken token)
-    {
-      asyncQueriesManager.DisposeBlockingCommandForToken(token);
-    }
-
-    internal bool HasIncompletedAsyncQueries()
-    {
-      return asyncQueriesManager.HasAsyncQueries();
-    }
-
-    internal bool HasIncompletedAsyncQueriesForToken(StateLifetimeToken token)
-    {
-      return asyncQueriesManager.HasAsyncQueriesForToken(token);
-    }
-
-    internal bool HasBlockingQueries()
-    {
-      return asyncQueriesManager.HasBlockingCommands();
-    }
-
-    internal bool HasBlockingQueriesForToken(StateLifetimeToken token)
-    {
-      return asyncQueriesManager.HasBlockingCommandsForToken(token);
+      AsyncQueriesManager.TryCancelAllAsyncQueriesForToken(token);
     }
 
     /// <summary>
     /// 
     /// </summary>
+    /// <param name="command">Blocking command</param>
+    internal void AddNewBlockingCommand(Command command)
+    {
+      AsyncQueriesManager.AddNewBlockingCommand(GetLifetimeToken(), command);
+    }
+
+    /// <summary>
+    /// Disposes all registered blocking commands for specified <see cref="StateLifetimeToken">lifetime token</see>.
+    /// </summary>
+    /// <param name="token"><see cref="StateLifetimeToken">Lifetime token</see> to register.</param>
+    internal void DisposeBlockingCommandsForToken(StateLifetimeToken token)
+    {
+      AsyncQueriesManager.DisposeBlockingCommandForToken(token);
+    }
+
+    /// <summary>
+    /// Checks existance of incompleted asynchronous queries for specified <see cref="StateLifetimeToken">lifetime token</see>.
+    /// </summary>
+    /// <returns>Returns <see langword="true"/> if there is incompleted asyncronous queries, otherwise, returns <see langword="false"/>.</returns>
+    internal bool HasIncompletedAsyncQueries()
+    {
+      return AsyncQueriesManager.HasAsyncQueries();
+    }
+
+    /// <summary>
+    /// Checks existance of incompleted asynchronous queries for specified <see cref="StateLifetimeToken">lifetime token</see>.
+    /// </summary>
+    /// <param name="token"><see cref="StateLifetimeToken">Lifetime token to check.</see></param>
+    /// <returns>Returns <see langword="true"/> if there is incompleted asyncronous queries, otherwise, returns <see langword="false"/>.</returns>
+    internal bool HasIncompletedAsyncQueriesForToken(StateLifetimeToken token)
+    {
+      return AsyncQueriesManager.HasAsyncQueriesForToken(token);
+    }
+
+    /// <summary>
+    /// Checks existance of blocking readers of results of asynchronous queries.
+    /// </summary>
+    /// <returns>Returns <see langword="true"/> if there are blocking commands, otherwise, returns <see langword="false"/>.</returns>
+    internal bool HasBlockingQueries()
+    {
+      return AsyncQueriesManager.HasBlockingCommands();
+    }
+
+    /// <summary>
+    /// Checks existance of blocking commands of results of asynchronous queries for specified <see cref="StateLifetimeToken">lifetime token</see>.
+    /// </summary>
+    /// <param name="token"><see cref="StateLifetimeToken">Lifetime token to check.</see></param>
+    /// <returns>Returns <see langword="true"/> if there are blocking commands, otherwise, returns <see langword="false"/>.</returns>
+    internal bool HasBlockingCommandsForToken(StateLifetimeToken token)
+    {
+      return AsyncQueriesManager.HasBlockingCommandsForToken(token);
+    }
+
     private void CancelAllAsyncQueries()
     {
-      asyncQueriesManager.TryCancelAllAsyncQueries();
+      AsyncQueriesManager.TryCancelAllAsyncQueries();
     }
 
     private void DisposeBlockingCommands()
     {
-      asyncQueriesManager.DisposeBlockingCommands();
+      AsyncQueriesManager.DisposeBlockingCommands();
+    }
+
+    internal void EnsureAllAsyncQueriesFinished(StateLifetimeToken token, string errorMessage)
+    {
+      if (HasIncompletedAsyncQueriesForToken(token))
+        throw new InvalidOperationException(errorMessage);
+    }
+
+    internal void EnsureAllAsyncQueriesFinished(string errorMessage)
+    {
+      if (HasIncompletedAsyncQueries())
+        throw new InvalidOperationException(errorMessage);
+    }
+
+    internal void EnsureAllCommandsDisposed(StateLifetimeToken token, string errorMessage)
+    {
+      if (HasBlockingCommandsForToken(token))
+        throw new InvalidOperationException(errorMessage);
     }
   }
 }
+#endif

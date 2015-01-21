@@ -228,7 +228,7 @@ namespace Xtensive.Orm
     internal EnumerationContext CreateEnumerationContext()
     {
       Persist(PersistReason.Query);
-      ProcessUserDefinedDelayedQueries(true);
+      ProcessUserDefinedDelayedQueries(ExecutionBehavior.PartialExecutionIsAllowed);
       return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
     }
 
@@ -515,7 +515,9 @@ namespace Xtensive.Orm
       ReferenceFieldsChangesRegistry = new ReferenceFieldsChangesRegistry(this);
       entitySetsWithInvalidState = new HashSet<EntitySetBase>();
       EntityReferenceChangesRegistry = new EntityReferenceChangesRegistry(this);
-      asyncQueriesManager = new AsyncQueriesManager(this);
+#if NET45
+      AsyncQueriesManager = new AsyncQueriesManager(this);
+#endif
 
       // Events
       EntityEvents = new EntityEventBroker();
@@ -577,8 +579,11 @@ namespace Xtensive.Orm
         EntityStateCache.Clear();
         ReferenceFieldsChangesRegistry.Clear();
         EntityReferenceChangesRegistry.Clear();
+#if NET45
         CancelAllAsyncQueries();
         DisposeBlockingCommands();
+        AsyncQueriesManager.ClearAsyncQueriesAndBlockingCommands();
+#endif
       }
       finally {
         isDisposed = true;

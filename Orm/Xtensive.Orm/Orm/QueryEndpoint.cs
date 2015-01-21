@@ -339,19 +339,19 @@ namespace Xtensive.Orm
       internalTask.ContinueWith(
         task => {
           if (task.IsFaulted) {
-            userUsableTaskSource.SetException(task.Exception.InnerException);
             session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetException(task.Exception.InnerException);
             return;
           }
           if (task.IsCanceled) {
-            userUsableTaskSource.TrySetCanceled();
             session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.TrySetCanceled();
             return;
           }
           if (task.IsCompleted) {
             var parameterizedTask = task;
-            userUsableTaskSource.SetResult(parameterizedTask.Result);
             session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
           }
         }, cancellationTokenSource.Token);
 
@@ -378,20 +378,20 @@ namespace Xtensive.Orm
       internalTask.ContinueWith(
         task => {
           if (task.IsFaulted) {
-            userUsableTaskSource.SetException(task.Exception.InnerException);
             session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetException(task.Exception.InnerException);
             return;
           }
           if (task.IsCanceled) {
-            userUsableTaskSource.TrySetCanceled();
             session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.TrySetCanceled();
             return;
           }
           if (task.IsCompleted) {
-          var parameterizedTask = task;
-          userUsableTaskSource.SetResult(parameterizedTask.Result);
-          session.RemoveFinishedAsyncQuery(task);
-        }
+            var parameterizedTask = task;
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
+          }
       }, cancellationTokenSource.Token);
 
       return userUsableTaskSource.Task;
@@ -418,20 +418,20 @@ namespace Xtensive.Orm
       internalTask.ContinueWith(
         task => {
           if (task.IsFaulted) {
-            userUsableTaskSource.SetException(task.Exception.InnerException);
             session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetException(task.Exception.InnerException);
             return;
           }
           if (task.IsCanceled) {
-            userUsableTaskSource.TrySetCanceled();
             session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.TrySetCanceled();
             return;
           }
           if (task.IsCompleted) {
-          var parameterizedTask = task;
-          userUsableTaskSource.SetResult(parameterizedTask.Result);
-          session.RemoveFinishedAsyncQuery(task);
-        }
+            var parameterizedTask = task;
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
+          }
       }, cancellationTokenSource.Token);
 
       return userUsableTaskSource.Task;
@@ -457,21 +457,21 @@ namespace Xtensive.Orm
       internalTask.ContinueWith(
         task => {
           if (task.IsFaulted) {
-            userUsableTaskSource.SetException(task.Exception.InnerException);
             session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetException(task.Exception.InnerException);
             return;
           }
           if (task.IsCanceled) {
+            session.RemoveFinishedAsyncQuery(task); 
             userUsableTaskSource.TrySetCanceled();
-            session.RemoveFinishedAsyncQuery(task);
             return;
           }
           if (task.IsCompleted) {
             var parameterizedTask = task;
-            userUsableTaskSource.SetResult(parameterizedTask.Result);
             session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
           }
-        });
+        }, cancellationTokenSource.Token);
 
       return userUsableTaskSource.Task;
     }

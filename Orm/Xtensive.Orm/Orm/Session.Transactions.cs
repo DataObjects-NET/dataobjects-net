@@ -138,14 +138,16 @@ namespace Xtensive.Orm
     
     internal void BeginTransaction(Transaction transaction)
     {
-      EnsureAllAsyncQueriesFinished(transaction);
-      EnsureAllCommandsDisposed(transaction);
+      
       if (transaction.IsNested) {
+        EnsureAllAsyncQueriesFinished(transaction.Outermost.LifetimeToken, Strings.ExUnableToOpenNewTransactionThereAreIncompletedAsynchronousQueries);
+        EnsureAllCommandsDisposed(transaction.Outermost.LifetimeToken, Strings.UnableToOpenNewTransactionThereAreUnenumerableResultsOfAsynchronousQueries);
         Persist(PersistReason.NestedTransaction);
         Handler.CreateSavepoint(transaction);
       }
-      else
+      else {
         Handler.BeginTransaction(transaction);
+      }
     }
 
     internal void CommitTransaction(Transaction transaction)
@@ -324,23 +326,6 @@ namespace Xtensive.Orm
       if (Configuration.Supports(SessionOptions.NonTransactionalReads))
         return sessionLifetimeToken;
       throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt);
-    }
-
-    private void EnsureAllAsyncQueriesFinished(Transaction transaction)
-    {
-      if (transaction.IsNested) {
-        if (asyncQueriesManager.HasAsyncQueriesForToken(transaction.Outermost.LifetimeToken)) {
-          throw new InvalidOperationException("Unable to open new transaction, there are incompleted asynchronous queries.");
-        }
-      }
-    }
-
-    private void EnsureAllCommandsDisposed(Transaction transaction)
-    {
-      if (transaction.IsNested) {
-        if (asyncQueriesManager.HasBlockingCommands())
-          throw new InvalidOperationException("Unable to open new transaction, there are unenumerable results of asyncronous queries.");
-      }
     }
   }
 }

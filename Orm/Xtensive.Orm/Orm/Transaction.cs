@@ -182,7 +182,7 @@ namespace Xtensive.Orm
       try {
         if (inner!=null)
           throw new InvalidOperationException(Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
-        Session.CancelAllAsyncQueriesForToken(LifetimeToken);
+        Session.EnsureAllAsyncQueriesFinished(LifetimeToken, string.Format("Unable to complete transaction: there are incompleted asynchronous queries"));
         Session.DisposeBlockingCommandsForToken(LifetimeToken);
         Session.CommitTransaction(this);
       }
@@ -208,8 +208,6 @@ namespace Xtensive.Orm
         try {
           if (inner!=null)
             inner.Rollback();
-          Session.CancelAllAsyncQueriesForToken(LifetimeToken);
-          Session.DisposeBlockingCommandsForToken(LifetimeToken);
         }
         finally {
           Session.RollbackTransaction(this);

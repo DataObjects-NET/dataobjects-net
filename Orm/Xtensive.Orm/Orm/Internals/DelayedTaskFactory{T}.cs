@@ -11,13 +11,9 @@ namespace Xtensive.Orm.Internals
   {
     public DelayedTask<T> CreateNew<T>(Session session, DelayedQueryResult<T> delayedResult)
     {
-      return new DelayedTask<T>(session, delayedResult);
-    }
-
-    public DelayedTask<T> CreateNew<T>(DelayedQueryResult<T> delayedResult)
-    {
-      var session = Session.Demand();
-      return new DelayedTask<T>(session, delayedResult);
+      var task = new DelayedTask<T>(session, delayedResult);
+      session.AsyncQueriesManager.AddNewDelayedTask(delayedResult.Task,task);
+      return task;
     }
   }
 #endif

@@ -93,6 +93,7 @@ namespace Xtensive.Orm
       if (IsPersisting || EntityChangeRegistry.Count==0)
         return;
 
+      EnsureAllAsyncQueriesFinished(Strings.UnableToSaveModifiedEnititiesThereAreIncompletedAsynchronousQueries);
       var performPinning = pinner.RootCount > 0;
       if (performPinning || (disableAutoSaveChanges && !Configuration.Supports(SessionOptions.NonTransactionalEntityStates))) 
         switch (reason) {

@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.IoC;
@@ -49,7 +50,28 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="queryTasks">The query tasks to execute.</param>
     /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
+    [Obsolete("Use SessionHandler.ExecuteQueryTasks(IEnumerable<QueryTask>, ExecutionBehavior) instead.")]
     public abstract void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution);
+
+    /// <summary>
+    /// Executes the specified query tasks.
+    /// </summary>
+    /// <param name="queryTasks">The query tasks to execute.</param>
+    /// <param name="behavior">Defines behavior of tasks' execution.</param>
+    public virtual void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, ExecutionBehavior behavior)
+    {
+      switch (behavior) {
+        case ExecutionBehavior.PartialExecutionIsNotAllowed:
+          ExecuteQueryTasks(queryTasks, false);
+          break;
+        case ExecutionBehavior.PartialExecutionIsAllowed:
+          ExecuteQueryTasks(queryTasks, true);
+          break;
+        default:
+          ExecuteQueryTasks(queryTasks, true);
+          break;
+      }
+    }
 
 #if NET45
 
@@ -57,12 +79,10 @@ namespace Xtensive.Orm.Providers
     /// Executes the specified query tasks asynchronously.
     /// </summary>
     /// <param name="queryTasks">The query tasks to execute.</param>
-    /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
-    /// <returns>Started task</returns>
-    public virtual Task ExecuteQueryTasksAsync(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
-    {
-      return Task.Factory.StartNew(()=>ExecuteQueryTasks(queryTasks, allowPartialExecution));
-    }
+    /// <param name="behavior">Defines behavior of queries' execution.</param>
+    /// <param name="token"><see cref="CancellationToken">Cancellation token</see> to cancel task.</param>
+    /// <returns>Started task.</returns>
+    public abstract Task ExecuteQueryTasksAsync(IEnumerable<QueryTask> queryTasks, ExecutionBehavior behavior, CancellationToken token);
 
 #endif
 
@@ -80,6 +100,15 @@ namespace Xtensive.Orm.Providers
     public abstract void Persist(EntityChangeRegistry registry, bool allowPartialExecution);
 
     /// <summary>
+    /// Persists changed entities.
+    /// </summary>
+    /// <param name="registry"></param>
+    /// <param name="executionBehavior"></param>
+    protected internal virtual void Persist(EntityChangeRegistry registry, ExecutionBehavior executionBehavior)
+    {
+    }
+
+    /// <summary>
     /// Adds system session service registration entries.
     /// </summary>
     /// <param name="r">The list of service registrations.</param>
@@ -93,6 +122,11 @@ namespace Xtensive.Orm.Providers
     }
 
     internal abstract void SetStorageNode(StorageNode node);
+
+    protected ExecutionBehavior ConvertToTaskExecutionBehavior(bool allowPartialExecution)
+    {
+      return (allowPartialExecution) ? ExecutionBehavior.PartialExecutionIsAllowed : ExecutionBehavior.PartialExecutionIsNotAllowed;
+    }
 
     protected SessionHandler(Session session)
     {
