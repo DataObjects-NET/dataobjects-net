@@ -79,10 +79,9 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test]
-    public async void Test09()
+    public async void Test05()
     {
       using (var session = Domain.OpenSession())
-      using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
         var qelayedQuery = session.Query.ExecuteDelayed(endpoint => { return endpoint.All<Discepline>(); });
         var task = session.Query.ExecuteAsync(endpoint => endpoint.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).First());
@@ -92,12 +91,11 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test]
-    public async void Test11()
+    public async void Test06()
     {
       using (var session = Domain.OpenSession())
-      using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        var qelayedQuery = Query.ExecuteFuture(() => { return Query.All<Discepline>(); });
+        var qelayedQuery = session.Query.ExecuteDelayed(query => query.All<Discepline>());
         var task = session.Query.ExecuteAsync(endpoint => endpoint.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).First());
         var result = await task;
         Assert.NotNull(((DelayedSequence<Discepline>) qelayedQuery).Task.Result);
@@ -105,19 +103,14 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test]
-    [ExpectedException(typeof (ObjectDisposedException))]
+    [ExpectedException(typeof (InvalidOperationException))]
     public async void AsyncQueryOutOfSession02()
     {
       Task<Discepline> asyncQuery;
-      using (var session = Domain.OpenSession()) {
-        using (session.Activate())
-        using (var transaction = session.OpenTransaction()) {
-          asyncQuery = session.Query.ExecuteAsync((query) => {
-            Thread.Sleep(15000);
-            return session.Query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First();
-          });
-          transaction.Complete();
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        asyncQuery = session.Query.ExecuteAsync((query) => session.Query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).First());
+        transaction.Complete();
       }
       var result = await asyncQuery;
     }
@@ -191,22 +184,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       Assert.AreEqual(1, sessionOpenedCount);
       Assert.AreEqual(1, transactionOpeningCount);
       Assert.AreEqual(1, transactionOpenedCount);
-    }
-
-    [Test]
-    public async void TemporaryTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var lastYearDisceplines = session.Query.ExecuteAsync(query => query.All<DisceplinesOfCourse>().Where(el => el.Course.Year - 1==DateTime.Now.Year).Select(el=>el.Discepline));
-        var bbb = await lastYearDisceplines;
-        using (var transaction1 = session.OpenTransaction(TransactionOpenMode.New)) {
-          new Teacher(session) {DateOfBirth = DateTime.Now, Gender = Gender.Female, Name = "Alena", Surname = "Feoctistova"};
-          transaction1.Complete();
-        }
-        //var aaa = await lastYearDisceplines;
-        transaction.Complete();
-      }
     }
   }
 }
