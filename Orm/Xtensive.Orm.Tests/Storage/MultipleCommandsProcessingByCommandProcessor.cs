@@ -4,18 +4,11 @@
 // Created by: Alexey Kulakov
 // Created:    2014.12.26
 
-using System.ComponentModel;
-using System.Web.UI.WebControls.WebParts;
-using JetBrains.Annotations;
+#if NET45
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.MultipleCommandsProcessingByCommandProcessorModel;
-using Xtensive.Orm.Weaving;
-#if NET45
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Xtensive.Orm.Tests.Storage.MultipleCommandsProcessingByCommandProcessorModel
 {

@@ -140,8 +140,10 @@ namespace Xtensive.Orm
     {
       
       if (transaction.IsNested) {
+#if NET45
         EnsureAllAsyncQueriesFinished(transaction.Outermost.LifetimeToken, Strings.ExUnableToOpenNewTransactionThereAreIncompletedAsynchronousQueries);
         EnsureAllCommandsDisposed(transaction.Outermost.LifetimeToken, Strings.UnableToOpenNewTransactionThereAreUnenumerableResultsOfAsynchronousQueries);
+#endif
         Persist(PersistReason.NestedTransaction);
         Handler.CreateSavepoint(transaction);
       }

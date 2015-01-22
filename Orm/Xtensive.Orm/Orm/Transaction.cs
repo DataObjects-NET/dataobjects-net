@@ -182,8 +182,10 @@ namespace Xtensive.Orm
       try {
         if (inner!=null)
           throw new InvalidOperationException(Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
+#if NET45
         Session.EnsureAllAsyncQueriesFinished(LifetimeToken, string.Format("Unable to complete transaction: there are incompleted asynchronous queries"));
         Session.DisposeBlockingCommandsForToken(LifetimeToken);
+#endif
         Session.CommitTransaction(this);
       }
       catch {
