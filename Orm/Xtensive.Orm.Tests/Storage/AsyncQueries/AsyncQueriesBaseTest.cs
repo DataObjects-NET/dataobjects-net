@@ -16,11 +16,26 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
   [TestFixture]
   public abstract class AsyncQueriesBaseTest : AutoBuildTest
   {
+    protected const int DisceplinesPerCourse = 20;
+    protected const int InitialSpecialitiesCount = 1;
+    protected const int InitialCoursesCount = 2;
+    protected const int StudentsPerGroup = 10;
+    protected const int InitialGroupsCount = 2;
+    protected const int InitialDisceplinesCount = DisceplinesPerCourse;
+    protected const int InitialStudentsCount = StudentsPerGroup * InitialGroupsCount;
+    protected const int InitialTeachersCount = InitialDisceplinesCount;
+
+    protected virtual SessionOptions SessionOptions
+    {
+      get { return SessionOptions.Default; }
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof(Human).Assembly, typeof(Human).Namespace);
+      configuration.Sessions["Default"].Options = SessionOptions;
       return configuration;
     }
 
@@ -41,7 +56,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     private void PopulateDisceplines(Session session)
     {
       using (var transaction = session.OpenTransaction()) {
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < DisceplinesPerCourse; i++) {
           new Discepline(session) {Name = string.Format("Discepline {0}", i + 1)};
         }
         transaction.Complete();
@@ -117,7 +132,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var allGroups = session.Query.All<Group>();
         var index = 1;
         foreach (var @group in allGroups) {
-          for (int i = 0; i < 10; i++) {
+          for (int i = 0; i < StudentsPerGroup; i++) {
             @group.Students.Add(new Student(session) {
                                               Name = string.Format("Name Of Student {0}", index),
                                               Surname = string.Format("Surname Of Student {0}", index),
