@@ -397,6 +397,7 @@
     <Compile Include="Storage\Multimapping\MultimappingTest.cs" />
     <Compile Include="Storage\Multimapping\MultischemaTest.cs" />
     <Compile Include="Storage\Multinode\DatabaseMultinodeTest.cs" />
+    <Compile Include="Storage\MultipleCommandsProcessingByCommandProcessor.cs" />
     <Compile Include="Storage\NewProfilesTest.cs" />
     <Compile Include="Storage\Multinode\DynamicTypeIdTest.cs" />
     <Compile Include="Storage\Multinode\SchemaMultinodeTest.cs" />
