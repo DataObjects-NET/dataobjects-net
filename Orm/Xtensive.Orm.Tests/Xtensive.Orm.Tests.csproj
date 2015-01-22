@@ -329,6 +329,7 @@
     <Compile Include="Storage\AsyncQueries\DelayedTaskTest.cs" />
     <Compile Include="Storage\AsyncQueries\Delayed\ClientProfileDelayedAsyncQueriesTest.cs" />
     <Compile Include="Storage\AsyncQueries\Delayed\DelayedAsyncQueries.cs" />
+    <Compile Include="Storage\AsyncQueries\IncompletedTasksRegistrationTest.cs" />
     <Compile Include="Storage\AsyncQueries\Model.cs" />
     <Compile Include="Storage\AsyncQueries\AsyncQueriesManagerTest.cs" />
     <Compile Include="Storage\ExecuteDelayedForIOrderedQueryableQuery.cs" />
