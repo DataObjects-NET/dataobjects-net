@@ -32,7 +32,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
     { }
   }
 
-  [TableMapping("FuncyTableName")]
   public class Teacher : Human
   {
     [Field]
@@ -55,7 +54,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
   }
 
   [HierarchyRoot]
-  [Index("Id", Name="PK_Group1")]
   public class Group : Entity
   {
     [Field, Key]
