@@ -148,7 +148,6 @@ namespace Xtensive.Orm
       EnsureStatusIsNot(DelayedTaskStatus.Faulted, Strings.ExTaskHasAlreadyBeenCompletedWithFault);
       EnsureStatusIsNot(DelayedTaskStatus.Canceled, Strings.ExUnableToCompleteDelayedTaskWithFaultTaskHasBeenCancelled);
       EnsureStatusIsNot(DelayedTaskStatus.Completed, Strings.ExUnableToCompleteDelayedTaskWithFaultTaskHasBeenCompleted);
-      EnsureStatusIsNot(DelayedTaskStatus.Created, Strings.ExUnableToCompleteWithFaultUnstartedDelayedTaskTaskHasNotBeenStartedYet);
       if (IsExecutionStarter)
         Exception = exception;
       else source.TrySetException(exception);
@@ -186,8 +185,9 @@ namespace Xtensive.Orm
                   source.SetCanceled();
                   return;
                 }
-                if (InternalStatus==DelayedTaskStatus.Faulted) {
-                  source.SetException(Exception);
+                if (InternalStatus==DelayedTaskStatus.Faulted || task.IsFaulted) {
+                  var exception = (task.IsFaulted) ? task.Exception : Exception;
+                  source.SetException(exception);
                   return;
                 }
                 if (InternalStatus==DelayedTaskStatus.Completed) {

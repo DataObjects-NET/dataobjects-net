@@ -223,6 +223,10 @@ namespace Xtensive.Orm
 
     internal void CompleteTransaction(Transaction transaction)
     {
+#if NET45
+      if (userDefinedQueryTasks.Count > 0)
+        AsyncQueriesManager.SetDelayedTasksToFault(userDefinedQueryTasks, new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries));
+#endif
       userDefinedQueryTasks.Clear();
       pinner.ClearRoots();
       ValidationContext.Reset();

@@ -580,6 +580,8 @@ namespace Xtensive.Orm
         ReferenceFieldsChangesRegistry.Clear();
         EntityReferenceChangesRegistry.Clear();
 #if NET45
+        if (userDefinedQueryTasks.Count > 0)
+          AsyncQueriesManager.SetDelayedTasksToFault(userDefinedQueryTasks, new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries));
         CancelAllAsyncQueries();
         DisposeBlockingCommands();
         AsyncQueriesManager.ClearAsyncQueriesAndBlockingCommands();
