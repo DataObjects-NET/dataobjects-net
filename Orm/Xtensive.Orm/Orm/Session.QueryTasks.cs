@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm.Internals;
 
 
@@ -26,6 +28,8 @@ namespace Xtensive.Orm
 
     private bool isInternalDelayedQueryRunning;
     private bool isDelayedQueryRunning;
+    private bool queryAsyncTaskStarted;
+    private object lockableObject = new object();
 
     internal void RegisterUserDefinedDelayedQuery(QueryTask task)
     {
@@ -45,44 +49,85 @@ namespace Xtensive.Orm
     {
       if (!skipPersist)
         Persist(PersistReason.Query);
-      return ProcessUserDefinedDelayedQueries(false);
+      return ProcessUserDefinedDelayedQueries(ExecutionBehavior.PartialExecutionIsNotAllowed);
     }
+#if NET45
+
+    internal async Task<bool> ExecuteDelayedQueriesAsync(bool skipPersist, CancellationToken token)
+    {
+      if (!skipPersist)
+        Persist(PersistReason.Other);
+      return await ProcessUserDefinedDelayedQueriesAsync(token);
+    }
+
+#endif
     
     internal bool ExecuteInternalDelayedQueries(bool skipPersist)
     {
       if (!skipPersist)
         Persist(PersistReason.Other);
-      return ProcessInternalDelayedQueries(false);
+      return ProcessInternalDelayedQueries(ExecutionBehavior.PartialExecutionIsNotAllowed);
     }
 
-    private bool ProcessUserDefinedDelayedQueries(bool allowPartialExecution)
+    private bool ProcessUserDefinedDelayedQueries(ExecutionBehavior executionBehavior)
     {
-      if (isDelayedQueryRunning || userDefinedQueryTasks.Count==0)
+      if (isDelayedQueryRunning || userDefinedQueryTasks.Count == 0)
         return false;
+      var aliveTasks = userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive).ToList();
+      userDefinedQueryTasks.Clear();
       try {
         isDelayedQueryRunning = true;
-        Handler.ExecuteQueryTasks(userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive), allowPartialExecution);
+        Handler.ExecuteQueryTasks(aliveTasks, executionBehavior);
         return true;
       }
       finally {
-        userDefinedQueryTasks.Clear();
         isDelayedQueryRunning = false;
       }
     }
 
-    private bool ProcessInternalDelayedQueries(bool allowPartialExecution)
+    private bool ProcessInternalDelayedQueries(ExecutionBehavior executionBehavior)
     {
       if (isInternalDelayedQueryRunning || internalQueryTasks.Count == 0)
         return false;
+      var aliveTasks = internalQueryTasks.Where(t => t.LifetimeToken.IsActive).ToList();
+      internalQueryTasks.Clear();
       try {
         isInternalDelayedQueryRunning = true;
-        Handler.ExecuteQueryTasks(internalQueryTasks.Where(t=>t.LifetimeToken.IsActive), allowPartialExecution);
+        Handler.ExecuteQueryTasks(aliveTasks, executionBehavior);
         return true;
       }
       finally {
-        internalQueryTasks.Clear();
         isInternalDelayedQueryRunning = false;
       }
     }
+
+#if NET45
+
+    private async Task<bool> ProcessUserDefinedDelayedQueriesAsync(CancellationToken token)
+    {
+      if (isDelayedQueryRunning || userDefinedQueryTasks.Count==0)
+        return false;
+      var aliveTasks = userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive).ToList();
+      userDefinedQueryTasks.Clear();
+      isDelayedQueryRunning = true;
+      try {
+        return await Handler.ExecuteQueryTasksAsync(aliveTasks, ExecutionBehavior.PartialExecutionIsNotAllowed, token)
+          .ContinueWith(
+            task => {
+              lock (lockableObject) {
+                isDelayedQueryRunning = false;
+              }
+              if (task.IsFaulted) {
+                return false;
+              }
+              return true;
+            });
+      }
+      finally {
+        isDelayedQueryRunning = false;
+      }
+    }
+
+#endif
   }
 }

@@ -5,6 +5,8 @@
 // Created:    2010.02.09
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
@@ -23,6 +25,17 @@ namespace Xtensive.Orm.Providers
           yield return enumerator.Current;
       }
     }
+
+#if NET45
+    /// <inheritdoc/>
+    async Task<IEnumerator<Tuple>> IProviderExecutor.ExecuteTupleReaderAsync(QueryRequest request, CancellationToken token)
+    {
+      Prepare();
+      var command = await commandProcessor.ExecuteTasksWithReaderAsync(request, token);
+      Session.AddNewBlockingCommand(command);
+      return command.AsReaderOf(request);
+    }
+#endif
 
     /// <inheritdoc/>
     void IProviderExecutor.Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)

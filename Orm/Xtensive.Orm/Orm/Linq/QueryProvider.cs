@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Providers;

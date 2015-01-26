@@ -100,7 +100,7 @@ namespace Xtensive.Orm
         processed.Add(item.Key);
       }
       if (fetchVersionTasks.Count > 0)
-        Session.Handler.ExecuteQueryTasks(fetchVersionTasks.Values, true);
+        Session.Handler.ExecuteQueryTasks(fetchVersionTasks.Values, ExecutionBehavior.PartialExecutionIsAllowed);
     }
 
     private void FetchLeftVersions()
@@ -113,7 +113,7 @@ namespace Xtensive.Orm
         processed.Add(pair.Key);
       }
       if (fetchVersionTasks.Count > 0)
-        Session.Handler.ExecuteQueryTasks(fetchVersionTasks.Values, true);
+        Session.Handler.ExecuteQueryTasks(fetchVersionTasks.Values, ExecutionBehavior.PartialExecutionIsAllowed);
     }
 
     private void EnqueueVersionValidation(EntityState state)

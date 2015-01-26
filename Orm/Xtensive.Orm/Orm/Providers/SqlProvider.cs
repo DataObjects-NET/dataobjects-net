@@ -7,8 +7,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
-
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
@@ -56,13 +57,23 @@ namespace Xtensive.Orm.Providers
     {
       var storageContext = (EnumerationContext) context;
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
-      var enumerator = executor.ExecuteTupleReader(Request);
+      IEnumerator<Tuple> enumerator = executor.ExecuteTupleReader(Request);
       using (enumerator) {
         while (enumerator.MoveNext()) {
           yield return enumerator.Current;
         }
       }
     }
+
+#if NET45
+    protected async override Task<IEnumerable<Tuple>> OnEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
+    {
+      var storageContext = (EnumerationContext) context;
+      var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
+      var enumerator = await executor.ExecuteTupleReaderAsync(Request, token);
+      return enumerator.ToEnumerable();
+    }
+#endif
 
     #region ToString related methods
 

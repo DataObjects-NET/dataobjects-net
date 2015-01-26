@@ -138,12 +138,18 @@ namespace Xtensive.Orm
     
     internal void BeginTransaction(Transaction transaction)
     {
+      
       if (transaction.IsNested) {
+#if NET45
+        EnsureAllAsyncQueriesFinished(transaction.Outermost.LifetimeToken, Strings.ExUnableToOpenNewTransactionThereAreIncompletedAsynchronousQueries);
+        EnsureAllCommandsDisposed(transaction.Outermost.LifetimeToken, Strings.UnableToOpenNewTransactionThereAreUnenumerableResultsOfAsynchronousQueries);
+#endif
         Persist(PersistReason.NestedTransaction);
         Handler.CreateSavepoint(transaction);
       }
-      else
+      else {
         Handler.BeginTransaction(transaction);
+      }
     }
 
     internal void CommitTransaction(Transaction transaction)
@@ -217,6 +223,10 @@ namespace Xtensive.Orm
 
     internal void CompleteTransaction(Transaction transaction)
     {
+#if NET45
+      if (userDefinedQueryTasks.Count > 0)
+        AsyncQueriesManager.SetDelayedTasksToFault(userDefinedQueryTasks, new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries));
+#endif
       userDefinedQueryTasks.Clear();
       pinner.ClearRoots();
       ValidationContext.Reset();

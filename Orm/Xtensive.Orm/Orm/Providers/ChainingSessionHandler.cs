@@ -82,6 +82,11 @@ namespace Xtensive.Orm.Providers
       ChainedHandler.ExecuteQueryTasks(queryTasks, allowPartialExecution);
     }
 
+    public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, ExecutionBehavior behavior)
+    {
+      ChainedHandler.ExecuteQueryTasks(queryTasks, behavior);
+    }
+
     /// <inheritdoc/>
     public override void Persist(EntityChangeRegistry registry, bool allowPartialExecution)
     {

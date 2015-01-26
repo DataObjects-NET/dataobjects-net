@@ -9,7 +9,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 
 namespace Xtensive.Orm
@@ -50,6 +52,8 @@ namespace Xtensive.Orm
     /// </returns>
     public static IQueryable All(Type elementType)
     {
+      var session = Session.Current;
+      var sessionOnDemand = Session.Demand();
       return Session.Demand().Query.All(elementType);
     }
 

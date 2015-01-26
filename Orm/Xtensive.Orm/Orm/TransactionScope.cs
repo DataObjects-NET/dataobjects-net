@@ -5,6 +5,7 @@
 // Created:    2008.08.30
 
 using System;
+using System.Threading.Tasks;
 using Xtensive.Core;
 
 namespace Xtensive.Orm

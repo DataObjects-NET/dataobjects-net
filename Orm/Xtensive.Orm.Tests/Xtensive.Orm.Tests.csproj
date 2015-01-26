@@ -323,6 +323,15 @@
     <Compile Include="Linq\ConvariantQueriesTest.cs" />
     <Compile Include="Linq\DateTimeToStringTest.cs" />
     <Compile Include="Linq\DoubleAggregateToStructTest.cs" />
+    <Compile Include="Storage\AsyncQueries\AsyncQueriesBaseTest.cs" />
+    <Compile Include="Storage\AsyncQueries\Compiled\ClientProfileCompiledAsyncQueriesTest.cs" />
+    <Compile Include="Storage\AsyncQueries\Compiled\CompiledAsyncQueriesTest.cs" />
+    <Compile Include="Storage\AsyncQueries\DelayedTaskTest.cs" />
+    <Compile Include="Storage\AsyncQueries\Delayed\ClientProfileDelayedAsyncQueriesTest.cs" />
+    <Compile Include="Storage\AsyncQueries\Delayed\DelayedAsyncQueries.cs" />
+    <Compile Include="Storage\AsyncQueries\IncompletedTasksRegistrationTest.cs" />
+    <Compile Include="Storage\AsyncQueries\Model.cs" />
+    <Compile Include="Storage\AsyncQueries\AsyncQueriesManagerTest.cs" />
     <Compile Include="Storage\ExecuteDelayedForIOrderedQueryableQuery.cs" />
     <Compile Include="Linq\DynamicallyDefinedFields.cs" />
     <Compile Include="Linq\GroupByTwoEntitiesWithSameColumnsTest.cs" />
@@ -389,6 +398,7 @@
     <Compile Include="Storage\Multimapping\MultimappingTest.cs" />
     <Compile Include="Storage\Multimapping\MultischemaTest.cs" />
     <Compile Include="Storage\Multinode\DatabaseMultinodeTest.cs" />
+    <Compile Include="Storage\MultipleCommandsProcessingByCommandProcessor.cs" />
     <Compile Include="Storage\NewProfilesTest.cs" />
     <Compile Include="Storage\Multinode\DynamicTypeIdTest.cs" />
     <Compile Include="Storage\Multinode\SchemaMultinodeTest.cs" />

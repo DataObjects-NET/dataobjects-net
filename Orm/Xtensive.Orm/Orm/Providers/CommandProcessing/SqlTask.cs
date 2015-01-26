@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.10.30
 
+using System;
+
 namespace Xtensive.Orm.Providers
 {
   /// <summary>
@@ -15,6 +17,14 @@ namespace Xtensive.Orm.Providers
     /// Processes this command with the specified <see cref="CommandProcessor"/>.
     /// </summary>
     /// <param name="processor">The processor to use.</param>
-    public abstract void ProcessWith(ISqlTaskProcessor processor);
+    public abstract void ProcessWith(ISqlTaskProcessor processor, Guid uniqueIdentifier);
+
+#if NET45
+    ///// <summary>
+    ///// Processes this command asynchroniously with the specified <see cref="CommandProcessor"/>.
+    ///// </summary>
+    ///// <param name="processor">The processor to use.</param>
+    //public abstract Task ProcessWithAsync(ISqlTaskProcessor processor, CancellationToken token);
+#endif
   }
 }

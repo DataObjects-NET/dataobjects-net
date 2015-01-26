@@ -10,6 +10,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -227,7 +228,14 @@ namespace Xtensive.Orm
     internal EnumerationContext CreateEnumerationContext()
     {
       Persist(PersistReason.Query);
-      ProcessUserDefinedDelayedQueries(true);
+      ProcessUserDefinedDelayedQueries(ExecutionBehavior.PartialExecutionIsAllowed);
+      return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
+    }
+
+    internal EnumerationContext CreateEnumerationContextForAsyncQuery()
+    {
+      Persist(PersistReason.Other);//creates persist tasks and launch CommandProcessor.ExecuteTasks(false)
+      ProcessUserDefinedDelayedQueries(ExecutionBehavior.ExecuteWithNextQuery);//creates load tasks and launch CommandProcessor.ExecuteTasks(true)
       return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
     }
 
@@ -507,6 +515,9 @@ namespace Xtensive.Orm
       ReferenceFieldsChangesRegistry = new ReferenceFieldsChangesRegistry(this);
       entitySetsWithInvalidState = new HashSet<EntitySetBase>();
       EntityReferenceChangesRegistry = new EntityReferenceChangesRegistry(this);
+#if NET45
+      AsyncQueriesManager = new AsyncQueriesManager(this);
+#endif
 
       // Events
       EntityEvents = new EntityEventBroker();
@@ -568,6 +579,13 @@ namespace Xtensive.Orm
         EntityStateCache.Clear();
         ReferenceFieldsChangesRegistry.Clear();
         EntityReferenceChangesRegistry.Clear();
+#if NET45
+        if (userDefinedQueryTasks.Count > 0)
+          AsyncQueriesManager.SetDelayedTasksToFault(userDefinedQueryTasks, new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries));
+        CancelAllAsyncQueries();
+        DisposeBlockingCommands();
+        AsyncQueriesManager.ClearAsyncQueriesAndBlockingCommands();
+#endif
       }
       finally {
         isDisposed = true;

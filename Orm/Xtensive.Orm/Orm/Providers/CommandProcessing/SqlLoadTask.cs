@@ -4,7 +4,10 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.21
 
+using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -31,11 +34,10 @@ namespace Xtensive.Orm.Providers
     public readonly List<Tuple> Output;
 
     /// <inheritdoc/>
-    public override void ProcessWith(ISqlTaskProcessor processor)
+    public override void ProcessWith(ISqlTaskProcessor processor, Guid uniqueIdentifier)
     {
-      processor.ProcessTask(this);
+      processor.ProcessTask(this, uniqueIdentifier);
     }
-
 
     // Constructors
 

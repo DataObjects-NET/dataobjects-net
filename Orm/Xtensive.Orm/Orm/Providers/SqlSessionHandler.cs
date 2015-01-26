@@ -4,8 +4,11 @@
 // Created by: Alexey Gamzov
 // Created:    2008.05.20
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
@@ -154,30 +157,93 @@ namespace Xtensive.Orm.Providers
     #endregion
 
     /// <inheritdoc/>
-    public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
+    public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, ExecutionBehavior behavior)
     {
       Prepare();
-
+      var queryTasksList = queryTasks.ToList();
       var nonBatchedTasks = new List<QueryTask>();
-      foreach (var task in queryTasks) {
+#if NET45
+      Session.AsyncQueriesManager.SetDelayedTaskToStarted(queryTasksList);
+#endif
+      foreach (var task in queryTasksList) {
         var sqlProvider = task.DataSource as SqlProvider;
         if (sqlProvider!=null && sqlProvider.Request.CheckOptions(QueryRequestOptions.AllowOptimization))
           RegisterQueryTask(task, sqlProvider.Request);
         else
           nonBatchedTasks.Add(task);
       }
+      try {
+        if (nonBatchedTasks.Count==0) {
+          commandProcessor.ExecuteTasks(behavior);
+#if NET45
+          Session.AsyncQueriesManager.SetDelayedTasksToCompleted(queryTasksList);
+#endif
+          return;
+        }
 
-      if (nonBatchedTasks.Count==0) {
-        commandProcessor.ExecuteTasks(allowPartialExecution);
-        return;
+        commandProcessor.ExecuteTasks();
+        foreach (var task in nonBatchedTasks) {
+          using (new EnumerationContext(Session).Activate())
+          using (task.ParameterContext.ActivateSafely())
+            task.Result = task.DataSource.ToList();
+        }
+#if NET45
+        Session.AsyncQueriesManager.SetDelayedTasksToCompleted(queryTasksList);
+#endif
+      }
+      catch (Exception exception) {
+#if NET45
+        Session.AsyncQueriesManager.SetDelayedTasksToFault(queryTasksList, exception);
+#endif
+        throw;
+      }
+    }
+
+#if NET45
+    public override async Task ExecuteQueryTasksAsync(IEnumerable<QueryTask> queryTasks, ExecutionBehavior behavior, CancellationToken token)
+    {
+      Prepare();
+      var queryTasksList = queryTasks.ToList();
+      var nonBatchedTasks = new List<QueryTask>();
+
+      Session.AsyncQueriesManager.SetDelayedTaskToStarted(queryTasksList);
+      foreach (var task in queryTasksList) {
+        var sqlProvider = task.DataSource as SqlProvider;
+        if (sqlProvider != null && sqlProvider.Request.CheckOptions(QueryRequestOptions.AllowOptimization))
+          RegisterQueryTask(task, sqlProvider.Request);
+        else
+          nonBatchedTasks.Add(task);
       }
 
-      commandProcessor.ExecuteTasks();
-      foreach (var task in nonBatchedTasks) {
-        using (new EnumerationContext(Session).Activate())
-        using (task.ParameterContext.ActivateSafely())
-          task.Result = task.DataSource.ToList();
+      try {
+        if (nonBatchedTasks.Count==0) {
+          await commandProcessor.ExecuteTasksAsync(ExecutionBehavior.PartialExecutionIsNotAllowed, token)
+            .ContinueWith((task, tuple) => {
+                            var state = (Tuple<Session, IList<QueryTask>>) tuple;
+                            state.Item1.AsyncQueriesManager.SetDelayedTasksToCompleted(state.Item2);
+                          }, new Tuple<Session, IList<QueryTask>>(Session, queryTasksList), token);
+          return;
+        }
+
+        foreach (var task in nonBatchedTasks) {
+          using (new EnumerationContext(Session).Activate())
+          using (task.ParameterContext.ActivateSafely())
+            task.Result = task.DataSource.ToList();
+        }
+        Session.AsyncQueriesManager.SetDelayedTasksToCompleted(queryTasksList);
       }
+      catch (Exception exception) {
+        Session.AsyncQueriesManager.SetDelayedTasksToFault(queryTasksList, exception);
+        throw;
+      }
+    }
+#endif
+
+    /// <inheritdoc/>
+    [Obsolete("Use SqlSessionHandler.ExecuteQueryTasks(IEnumerable<QueryTask>, ExecutionBehavior) instead.")]
+    public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
+    {
+      ExecuteQueryTasks(queryTasks, ConvertToTaskExecutionBehavior(allowPartialExecution));
     }
 
     /// <inheritdoc/>
@@ -193,7 +259,7 @@ namespace Xtensive.Orm.Providers
     {
       Prepare();
       domainHandler.Persister.Persist(registry, commandProcessor);
-      commandProcessor.ExecuteTasks(allowPartialExecution);
+      commandProcessor.ExecuteTasks(ConvertToTaskExecutionBehavior(allowPartialExecution));
     }
 
     /// <inheritdoc/>

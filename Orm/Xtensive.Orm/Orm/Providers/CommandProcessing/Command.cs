@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 
 using Tuple = Xtensive.Tuples.Tuple;
@@ -27,6 +29,7 @@ namespace Xtensive.Orm.Providers
     private DbDataReader reader;
 
     public int Count { get { return statements.Count; } }
+    public bool IsDisposed { get; private set; }
 
     public void AddPart(CommandPart part)
     {
@@ -58,6 +61,30 @@ namespace Xtensive.Orm.Providers
       Prepare();
       reader = origin.Driver.ExecuteReader(origin.Session, underlyingCommand);
     }
+
+#if NET45
+
+    public async Task<int> ExecuteNonQueryAsync(CancellationToken token)
+    {
+      Prepare();
+      return await origin.Driver.ExecuteNonQueryAsync(origin.Session, underlyingCommand, token);
+    }
+
+    public async Task ExecuteReaderAsync(CancellationToken token)
+    {
+      Prepare();
+      reader = await origin.Driver.ExecuteReaderAsync(origin.Session, underlyingCommand, token);
+    }
+
+    public IEnumerator<Tuple> AsReaderOfAsync(QueryRequest request, CancellationToken token)
+    {
+      var accessor = request.GetAccessor();
+      using (this)
+        while (NextRow())
+          yield return ReadTupleWith(accessor);
+    }
+
+#endif
 
     public bool NextResult()
     {
@@ -111,9 +138,12 @@ namespace Xtensive.Orm.Providers
 
     public void Dispose()
     {
+      if (IsDisposed)
+        return;
       reader.DisposeSafely();
       resources.DisposeSafely();
       underlyingCommand.DisposeSafely();
+      IsDisposed = true;
     }
 
     // Constructors
@@ -122,6 +152,7 @@ namespace Xtensive.Orm.Providers
     {
       this.origin = origin;
       this.underlyingCommand = underlyingCommand;
+      IsDisposed = false;
     }
   }
 }

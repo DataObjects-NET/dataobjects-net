@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -315,6 +317,167 @@ namespace Xtensive.Orm
       return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query);
     }
 
+#if NET45
+    #region Async executors
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="query"/> delegate
+    /// (in fact, by its <see cref="MethodInfo"/> instance)
+    /// and executes them asyncronously if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate asynchronously
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Started task.</returns>
+    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
+    {
+      EnsureSessionIsNotActivated();
+      var userUsableTaskSource = new TaskCompletionSource<IEnumerable<TElement>>();
+      var cancellationTokenSource = new CancellationTokenSource();
+      var internalTask = new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, cancellationTokenSource.Token);
+      session.AddNewAsyncQuery(internalTask, cancellationTokenSource);
+      internalTask.ContinueWith(
+        task => {
+          if (task.IsFaulted) {
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetException(task.Exception.InnerException);
+            return;
+          }
+          if (task.IsCanceled) {
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.TrySetCanceled();
+            return;
+          }
+          if (task.IsCompleted) {
+            var parameterizedTask = task;
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
+          }
+        }, cancellationTokenSource.Token);
+
+      return userUsableTaskSource.Task;
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and executes them asynchronously if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate asynchronously
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Started task.</returns>
+    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
+    {
+      EnsureSessionIsNotActivated();
+      var userUsableTaskSource = new TaskCompletionSource<IEnumerable<TElement>>();
+      var cancellationTokenSource = new CancellationTokenSource();
+      var internalTask = new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, cancellationTokenSource.Token);
+      session.AddNewAsyncQuery(internalTask, cancellationTokenSource);
+      internalTask.ContinueWith(
+        task => {
+          if (task.IsFaulted) {
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetException(task.Exception.InnerException);
+            return;
+          }
+          if (task.IsCanceled) {
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.TrySetCanceled();
+            return;
+          }
+          if (task.IsCompleted) {
+            var parameterizedTask = task;
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
+          }
+      }, cancellationTokenSource.Token);
+
+      return userUsableTaskSource.Task;
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="query"/> delegate
+    /// (in fact, by its <see cref="MethodInfo"/> instance)
+    /// and executes them asynchronously if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate asynchronously
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Query result.</returns>
+    public Task<TResult> ExecuteAsync<TResult>(Func<QueryEndpoint, TResult> query)
+    {
+      EnsureSessionIsNotActivated();
+      var userUsableTaskSource = new TaskCompletionSource<TResult>();
+      var cancellationTokenSource = new CancellationTokenSource();
+
+      var internalTask = new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, cancellationTokenSource.Token);
+      session.AddNewAsyncQuery(internalTask, cancellationTokenSource);
+      internalTask.ContinueWith(
+        task => {
+          if (task.IsFaulted) {
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetException(task.Exception.InnerException);
+            return;
+          }
+          if (task.IsCanceled) {
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.TrySetCanceled();
+            return;
+          }
+          if (task.IsCompleted) {
+            var parameterizedTask = task;
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
+          }
+      }, cancellationTokenSource.Token);
+
+      return userUsableTaskSource.Task;
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and executes them asynchronously if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate asynchronously
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Started task.</returns>
+    public Task<TResult> ExecuteAsync<TResult>(object key, Func<QueryEndpoint, TResult> query)
+    {
+      EnsureSessionIsNotActivated();
+      var userUsableTaskSource = new TaskCompletionSource<TResult>();
+      var cancellationTokenSource = new CancellationTokenSource();
+      var internalTask = new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, cancellationTokenSource.Token);
+      session.AddNewAsyncQuery(internalTask, cancellationTokenSource);
+      internalTask.ContinueWith(
+        task => {
+          if (task.IsFaulted) {
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetException(task.Exception.InnerException);
+            return;
+          }
+          if (task.IsCanceled) {
+            session.RemoveFinishedAsyncQuery(task); 
+            userUsableTaskSource.TrySetCanceled();
+            return;
+          }
+          if (task.IsCompleted) {
+            var parameterizedTask = task;
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
+          }
+        }, cancellationTokenSource.Token);
+
+      return userUsableTaskSource.Task;
+    }
+    #endregion
+#endif
+
     /// <summary>
     /// Creates future scalar query and registers it for the later execution.
     /// The query associated with the future scalar will be cached.
@@ -402,6 +565,105 @@ namespace Xtensive.Orm
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
     }
 
+#if NET45
+    #region Async delayed queries
+
+    /// <summary>
+    /// Creates future scalar query and registers it for the later execution.
+    /// The query associated with the future scalar will be cached.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    public DelayedTask<TResult> ExecuteDelayedAsync<TResult>(object key, Func<QueryEndpoint, TResult> query)
+    {
+      EnsureSessionIsNotActivated();
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayedAsync(query);
+    }
+
+    /// <summary>
+    /// Creates future scalar query and registers it for the later execution.
+    /// The query associated with the future scalar will not be cached.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    public DelayedTask<TResult> ExecuteDelayedAsync<TResult>(Func<QueryEndpoint, TResult> query)
+    {
+      EnsureSessionIsNotActivated();
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayedAsync(query);
+    }
+
+    /// <summary>
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    public DelayedTask<IEnumerable<TElement>> ExecuteDelayedAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
+    {
+      EnsureSessionIsNotActivated();
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayedAsync(query);
+    }
+
+    /// <summary>
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    public DelayedTask<IEnumerable<TElement>> ExecuteDelayedAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      EnsureSessionIsNotActivated();
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayedAsync(query);
+    }
+
+    /// <summary>
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    public DelayedTask<IEnumerable<TElement>> ExecuteDelayedAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      EnsureSessionIsNotActivated();
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayedAsync(query);
+    }
+
+    /// <summary>
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    public DelayedTask<IEnumerable<TElement>> ExecuteDelayedAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
+    {
+      EnsureSessionIsNotActivated();
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayedAsync(query);
+    }
+
+    #endregion
+#endif
+
     /// <summary>
     /// Stores specified <paramref name="source"/> in the database
     /// and provides a query for stored items.
@@ -433,6 +695,8 @@ namespace Xtensive.Orm
 
     #region Private / internal methods
 
+    
+
     /// <exception cref="ArgumentException"><paramref name="keyValues"/> array is empty.</exception>
     private Key GetKeyByValues<T>(object[] keyValues)
       where T : class, IEntity
@@ -455,6 +719,12 @@ namespace Xtensive.Orm
       return RootBuilder!=null
         ? RootBuilder.BuildRootExpression(elementType)
         : Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(elementType));
+    }
+
+    private void EnsureSessionIsNotActivated()
+    {
+      if(Session.Current!=null)
+        throw new InvalidOperationException(Strings.ExUnableToUseAsynchronousQueriesInsideSessionActivationScope);
     }
 
     #endregion

@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Rse;
@@ -54,6 +56,23 @@ namespace Xtensive.Orm.Linq
       return Materializer.Invoke(DataSource.GetRecordSet(session), session, TupleParameterBindings, parameterContext);
     }
 
+#if NET45
+
+    /// <summary>
+    /// Executes the query in specified parameter context asynchronously.
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <param name="parameterContext">The parameter context.</param>
+    /// <returns>Query execution result.</returns>
+    public async Task<TResult> ExecuteAsync(Session session, ParameterContext parameterContext, CancellationToken token)
+    {
+      var recordSet = DataSource.GetRecordSetForAsyncQuery(session);
+      var enumerable = (await recordSet.GetEnumeratorAsunc(token)).ToEnumerable();
+      enumerable.GetEnumerator().Dispose();
+      return Materializer.Invoke(enumerable, session, TupleParameterBindings, parameterContext);
+    }
+
+#endif
 
     // Constructors
 

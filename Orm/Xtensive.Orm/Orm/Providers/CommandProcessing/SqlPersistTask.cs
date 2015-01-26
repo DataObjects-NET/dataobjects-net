@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.21
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Tuples;
@@ -42,11 +43,10 @@ namespace Xtensive.Orm.Providers
     public readonly bool ValidateRowCount;
 
     /// <inheritdoc/>
-    public override void ProcessWith(ISqlTaskProcessor processor)
+    public override void ProcessWith(ISqlTaskProcessor processor, Guid uniqueIdentifier)
     {
-      processor.ProcessTask(this);
+      processor.ProcessTask(this, uniqueIdentifier);
     }
-
 
     // Constructors
 
