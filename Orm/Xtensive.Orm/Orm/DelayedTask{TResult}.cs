@@ -179,9 +179,11 @@ namespace Xtensive.Orm
             Session.AddNewAsyncQuery(InternalTask, CancellationTokenSource);
           InternalTask
             .ContinueWith(
-              (task, session) => {
-                ((Session) session).RemoveFinishedAsyncQuery(task);
-                if (InternalStatus==DelayedTaskStatus.Canceled) {
+              (task, state) => {
+                var session = (Session) state;
+                session.RemoveFinishedAsyncQuery(task);
+                
+                if (InternalStatus==DelayedTaskStatus.Canceled || task.IsCanceled) {
                   source.SetCanceled();
                   return;
                 }
