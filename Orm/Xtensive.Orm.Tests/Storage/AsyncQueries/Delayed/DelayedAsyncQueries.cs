@@ -320,7 +320,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test]
-    public async void TwoPersistsStartedByAsyncQueryAndDelayedQuery()
+    public void TwoPersistsStartedByAsyncQueryAndDelayedQuery()
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {

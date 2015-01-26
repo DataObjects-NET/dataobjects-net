@@ -16,9 +16,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 {
   public class ClientProfileDelayedAsyncQueriesTest : AsyncQueriesBaseTest
   {
-    private SessionConfiguration clientProfileConfiguration = new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation);
+    private SessionConfiguration clientProfileConfiguration = new SessionConfiguration(SessionOptions.ClientProfile);
 
     [Test]
+    [ExpectedException(typeof (InvalidOperationException))]
     public async void AwaitOutOfSessionTest()
     {
       DelayedTask<Discepline> task;
@@ -30,6 +31,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test]
+    [ExpectedException(typeof (InvalidOperationException))]
     public async void AwaitOutOfTransaction()
     {
       DelayedTask<Discepline> task;

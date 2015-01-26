@@ -8,7 +8,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
@@ -20,12 +19,11 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
   public sealed class ClientProfileCompiledAsyncQueriesTest : AsyncQueriesBaseTest
   {
     private readonly SessionConfiguration inactiveSession = new SessionConfiguration(SessionOptions.ClientProfile);
-    private readonly SessionConfiguration activeSession = new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation);
 
     [Test]
     public async void Test01()
     {
-      using (var session = Domain.OpenSession(activeSession)) {
+      using (var session = Domain.OpenSession(inactiveSession)) {
         var task = session.Query.ExecuteAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline));
         Assert.IsInstanceOf<Task<IEnumerable<Discepline>>>(task);
         var disceplinesOfLastYearCourse = await task;
@@ -38,7 +36,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async void Test02()
     {
-      using (var session = Domain.OpenSession(activeSession)) {
+      using (var session = Domain.OpenSession(inactiveSession)) {
         var task = session.Query.ExecuteAsync(new object(), query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline));
         Assert.IsInstanceOf<Task<IEnumerable<Discepline>>>(task);
         var disceplinesOfLastYearCourse = await task;
@@ -51,7 +49,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async void Test03()
     {
-      using (var session = Domain.OpenSession(activeSession)) {
+      using (var session = Domain.OpenSession(inactiveSession)) {
         var task = session.Query.ExecuteAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).First());
         Assert.IsInstanceOf<Task<Discepline>>(task);
         var disceplineOfLastYearCourse = await task;
@@ -63,7 +61,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async void Test04()
     {
-      using (var session = Domain.OpenSession(activeSession)) {
+      using (var session = Domain.OpenSession(inactiveSession)) {
         var task = session.Query.ExecuteAsync(new object(), query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).First());
         Assert.IsInstanceOf<Task<Discepline>>(task);
         var disceplineOfLastYearCourse = await task;
@@ -75,19 +73,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async void Test09()
     {
-      using (var session = Domain.OpenSession(activeSession)) {
+      using (var session = Domain.OpenSession(inactiveSession)) {
         var qelayedQuery = session.Query.ExecuteDelayed(endpoint => { return endpoint.All<Discepline>(); });
-        var task = session.Query.ExecuteAsync(endpoint => endpoint.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).First());
-        var result = await task;
-        Assert.NotNull(((DelayedSequence<Discepline>)qelayedQuery).Task.Result);
-      }
-    }
-
-    [Test]
-    public async void Test11()
-    {
-      using (var session = Domain.OpenSession(activeSession)) {
-        var qelayedQuery = Query.ExecuteFuture(() => { return Query.All<Discepline>(); });
         var task = session.Query.ExecuteAsync(endpoint => endpoint.All<DisceplinesOfCourse>().Where(d => d.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).First());
         var result = await task;
         Assert.NotNull(((DelayedSequence<Discepline>)qelayedQuery).Task.Result);
@@ -116,7 +103,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidOperationException))]
     public async void AsyncQueryInsideInactiveSessionTest03()
     {
       using (var session = Domain.OpenSession(inactiveSession)) {
@@ -126,7 +112,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidOperationException))]
     public async void AsyncQueryInsideInactiveSessionTest04()
     {
       using (var session = Domain.OpenSession(inactiveSession)) {
