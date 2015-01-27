@@ -215,8 +215,22 @@ namespace Xtensive.Orm
 
     private void Rollback(Transaction transaction)
     {
-      if (transaction.IsNested)
+      if (transaction.IsNested) {  
+#if NET45
+        try {
+          EnsureAllAsyncQueriesFinished(transaction.LifetimeToken, Strings.ExUnableToRollbackNestedTransactionThereAreIncompletedAsynchronousQueries);
+          EnsureAllCommandsDisposed(transaction.LifetimeToken, Strings.ExUnableToRollbackNestedTransactionThereAreUnenumeratedResultsOfAsynchronousQueries);
+        }
+        catch (Exception) {
+          var outermostTransaction = transaction.Outermost;
+          while (outermostTransaction.Outermost.IsNested)
+            outermostTransaction = outermostTransaction.Outermost;
+          Handler.RollbackTransaction(transaction);
+          throw;
+        }
+#endif
         Handler.RollbackToSavepoint(transaction);
+      }
       else
         Handler.RollbackTransaction(transaction);
     }

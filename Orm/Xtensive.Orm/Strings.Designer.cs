@@ -7099,6 +7099,25 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to rollback nested transaction: there are incompleted asynchronous queries..
+        /// </summary>
+        internal static string ExUnableToRollbackNestedTransactionThereAreIncompletedAsynchronousQueries {
+            get {
+                return ResourceManager.GetString("ExUnableToRollbackNestedTransactionThereAreIncompletedAsynchronousQueries", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to rollback nested transaction: there are unenumerable results of asynchronous queries..
+        /// </summary>
+        internal static string ExUnableToRollbackNestedTransactionThereAreUnenumeratedResultsOfAsynchronousQueries {
+            get {
+                return ResourceManager.GetString("ExUnableToRollbackNestedTransactionThereAreUnenumeratedResultsOfAsynchronousQueri" +
+                        "es", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to set &apos;Indexed&apos; flag on EntitySet field {0}..
         /// </summary>
         internal static string ExUnableToSetIndexedFlagOnEntitySetFieldX {
