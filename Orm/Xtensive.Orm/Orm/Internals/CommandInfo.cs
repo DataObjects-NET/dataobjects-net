@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Internals
   {
     internal Command Command { get; set; }
 
-    internal List<SqlLoadTask> SelectTasks { get; set; }
+    internal IList<SqlLoadTask> SelectTasks { get; set; }
 
     internal int ReentersCount { get; set; }
   }

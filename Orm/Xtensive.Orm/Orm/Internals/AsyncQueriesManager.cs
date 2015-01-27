@@ -16,9 +16,9 @@ namespace Xtensive.Orm.Internals
 {
   internal class AsyncQueriesManager: SessionBound
   {
-    private readonly Dictionary<StateLifetimeToken, Dictionary<Task, IncompletedTaskInfo>> asyncQueries;
-    private readonly Dictionary<StateLifetimeToken, IList<Command>> blockingCommands;
-    private readonly Dictionary<QueryTask, DelayedTask> queryToDelayedTaskMap; 
+    private readonly IDictionary<StateLifetimeToken, Dictionary<Task, IncompletedTaskInfo>> asyncQueries;
+    private readonly IDictionary<StateLifetimeToken, IList<Command>> blockingCommands;
+    private readonly IDictionary<QueryTask, DelayedTask> queryToDelayedTaskMap; 
     private readonly object lockableObject = new object();
 
     internal long WorkingAsyncQueriesCount { get; private set; }
