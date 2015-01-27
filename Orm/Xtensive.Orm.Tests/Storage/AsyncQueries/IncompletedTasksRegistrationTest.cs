@@ -19,180 +19,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
   public class IncompletedTasksRegistrationTest : AsyncQueriesBaseTest
   {
     [Test]
-    public async void IncompletedRegisteredTasksTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var asyncQueriesManager = session.AsyncQueriesManager;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var task = session.Query.ExecuteAsync(query => query.All<Discepline>());
-        Assert.AreEqual(session.GetLifetimeToken(), transaction.Transaction.LifetimeToken);
-        Assert.IsTrue(asyncQueriesManager.HasAsyncQueriesForToken(session.GetLifetimeToken()));
-        Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var taskResult = await task;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-      }
-
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var asyncQueriesManager = session.AsyncQueriesManager;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var task = session.Query.ExecuteAsync(query => query.All<Discepline>());
-        Assert.AreEqual(session.GetLifetimeToken(), transaction.Transaction.LifetimeToken);
-        Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        using (var innerTransaction = session.OpenTransaction(TransactionOpenMode.New)) {
-          var task1 = session.Query.ExecuteAsync(query => query.All<Discepline>());
-          Assert.AreEqual(session.GetLifetimeToken(), innerTransaction.Transaction.LifetimeToken);
-          Assert.AreEqual(2, asyncQueriesManager.WorkingAsyncQueriesCount);
-          using (var anotherInnerTransaction = session.OpenTransaction(TransactionOpenMode.New)) {
-            var task2 = session.Query.ExecuteAsync(query => query.All<Discepline>());
-            Assert.AreEqual(session.GetLifetimeToken(), anotherInnerTransaction.Transaction.LifetimeToken);
-            Assert.AreEqual(3, asyncQueriesManager.WorkingAsyncQueriesCount);
-            var result2 = await task2;
-            Assert.AreEqual(2, asyncQueriesManager.WorkingAsyncQueriesCount);
-          }
-          Assert.AreEqual(2, asyncQueriesManager.WorkingAsyncQueriesCount);
-          var result1 = await task1;
-          Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        }
-        Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var taskResult = await task;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-      }
-    }
-
-    [Test]
-    public async void IncompletedRegisteredTasksTest02()
-    {
-      var key = new object();
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var asyncQueriesManager = session.AsyncQueriesManager;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var task = session.Query.ExecuteAsync(key, query => query.All<Discepline>());
-        Assert.AreEqual(session.GetLifetimeToken(), transaction.Transaction.LifetimeToken);
-        Assert.IsTrue(asyncQueriesManager.HasAsyncQueriesForToken(session.GetLifetimeToken()));
-        Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var taskResult = await task;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-      }
-
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var asyncQueriesManager = session.AsyncQueriesManager;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var task = session.Query.ExecuteAsync(key, query => query.All<Discepline>().First());
-        Assert.AreEqual(session.GetLifetimeToken(), transaction.Transaction.LifetimeToken);
-        Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        using (var innerTransaction = session.OpenTransaction(TransactionOpenMode.New)) {
-          var task1 = session.Query.ExecuteAsync(key, query => query.All<Discepline>().First());
-          Assert.AreEqual(session.GetLifetimeToken(), innerTransaction.Transaction.LifetimeToken);
-          Assert.AreEqual(2, asyncQueriesManager.WorkingAsyncQueriesCount);
-          using (var anotherInnerTransaction = session.OpenTransaction(TransactionOpenMode.New)) {
-            var task2 = session.Query.ExecuteAsync(key, query => query.All<Discepline>().First());
-            Assert.AreEqual(session.GetLifetimeToken(), anotherInnerTransaction.Transaction.LifetimeToken);
-            Assert.AreEqual(3, asyncQueriesManager.WorkingAsyncQueriesCount);
-            var result2 = await task2;
-            Assert.AreEqual(2, asyncQueriesManager.WorkingAsyncQueriesCount);
-          }
-          Assert.AreEqual(2, asyncQueriesManager.WorkingAsyncQueriesCount);
-          var result1 = await task1;
-          Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        }
-        Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var taskResult = await task;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-      }
-    }
-
-    [Test]
-    public async void IncompletedRegisteredTasksTest03()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var asyncQueriesManager = session.AsyncQueriesManager;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var task = session.Query.ExecuteAsync(query => query.All<Discepline>().First());
-        Assert.AreEqual(session.GetLifetimeToken(), transaction.Transaction.LifetimeToken);
-        Assert.IsTrue(asyncQueriesManager.HasAsyncQueriesForToken(session.GetLifetimeToken()));
-        Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var taskResult = await task;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-      }
-
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var asyncQueriesManager = session.AsyncQueriesManager;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var task = session.Query.ExecuteAsync(query => query.All<Discepline>().First());
-        Assert.AreEqual(session.GetLifetimeToken(), transaction.Transaction.LifetimeToken);
-        Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        using (var innerTransaction = session.OpenTransaction(TransactionOpenMode.New)) {
-          var task1 = session.Query.ExecuteAsync(query => query.All<Discepline>().First());
-          Assert.AreEqual(session.GetLifetimeToken(), innerTransaction.Transaction.LifetimeToken);
-          Assert.AreEqual(2, asyncQueriesManager.WorkingAsyncQueriesCount);
-          using (var anotherInnerTransaction = session.OpenTransaction(TransactionOpenMode.New)) {
-            var task2 = session.Query.ExecuteAsync(query => query.All<Discepline>().First());
-            Assert.AreEqual(session.GetLifetimeToken(), anotherInnerTransaction.Transaction.LifetimeToken);
-            Assert.AreEqual(3, asyncQueriesManager.WorkingAsyncQueriesCount);
-            var result2 = await task2;
-            Assert.AreEqual(2, asyncQueriesManager.WorkingAsyncQueriesCount);
-          }
-          Assert.AreEqual(2, asyncQueriesManager.WorkingAsyncQueriesCount);
-          var result1 = await task1;
-          Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        }
-        Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var taskResult = await task;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-      }
-    }
-
-    [Test]
-    public async void IncompletedRegisteredTasksTest04()
-    {
-      var key = new object();
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var asyncQueriesManager = session.AsyncQueriesManager;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var task = session.Query.ExecuteAsync(key, query => query.All<Discepline>().First());
-        Assert.AreEqual(session.GetLifetimeToken(), transaction.Transaction.LifetimeToken);
-        Assert.IsTrue(asyncQueriesManager.HasAsyncQueriesForToken(session.GetLifetimeToken()));
-        Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var taskResult = await task;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-      }
-
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var asyncQueriesManager = session.AsyncQueriesManager;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var task = session.Query.ExecuteAsync(key, query => query.All<Discepline>().First());
-        Assert.AreEqual(session.GetLifetimeToken(), transaction.Transaction.LifetimeToken);
-        Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        using (var innerTransaction = session.OpenTransaction(TransactionOpenMode.New)) {
-          var task1 = session.Query.ExecuteAsync(key, query => query.All<Discepline>().First());
-          Assert.AreEqual(session.GetLifetimeToken(), innerTransaction.Transaction.LifetimeToken);
-          Assert.AreEqual(2, asyncQueriesManager.WorkingAsyncQueriesCount);
-          using (var anotherInnerTransaction = session.OpenTransaction(TransactionOpenMode.New)) {
-            var task2 = session.Query.ExecuteAsync(key, query => query.All<Discepline>().First());
-            Assert.AreEqual(session.GetLifetimeToken(), anotherInnerTransaction.Transaction.LifetimeToken);
-            Assert.AreEqual(3, asyncQueriesManager.WorkingAsyncQueriesCount);
-            var result2 = await task2;
-            Assert.AreEqual(2, asyncQueriesManager.WorkingAsyncQueriesCount);
-          }
-          Assert.AreEqual(2, asyncQueriesManager.WorkingAsyncQueriesCount);
-          var result1 = await task1;
-          Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        }
-        Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
-        var taskResult = await task;
-        Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
-      }
-    }
-
-    [Test]
     public void DisposingTransactionScopeWhileTaskIncompleted01()
     {
       using (var session = Domain.OpenSession())
@@ -249,6 +75,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       using (var transaction = session.OpenTransaction()) {
         var asyncQueriesManager = session.AsyncQueriesManager;
         Assert.AreEqual(0, asyncQueriesManager.WorkingAsyncQueriesCount);
+        //var aaa = session.Query.Execute(query => query.All<Discepline>().OrderBy(discepline => discepline.Name));
         var task = session.Query.ExecuteAsync(query => query.All<Discepline>().OrderBy(discepline => discepline.Name));
         Assert.AreEqual(1, asyncQueriesManager.WorkingAsyncQueriesCount);
       }
@@ -282,7 +109,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidOperationException))]
+    [ExpectedException(typeof (InvalidOperationException))]
     public void DisposingInnerTransactionWhenSessionWithNonTransactionalReadsOption()
     {
       using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ServerProfile | SessionOptions.NonTransactionalReads)))
@@ -407,11 +234,12 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         catch (Exception exception) {
           exceptionCatched = true;
         }
-        Assert.IsFalse(exceptionCatched);
+        Assert.IsTrue(exceptionCatched);
       }
     }
 
     [Test]
+    [ExpectedException(typeof (StorageException))]
     public void DisposingHighLevelTransaction()
     {
       using (var session = Domain.OpenSession()) {
