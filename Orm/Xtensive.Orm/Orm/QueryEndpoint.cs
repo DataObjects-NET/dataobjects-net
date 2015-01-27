@@ -400,6 +400,84 @@ namespace Xtensive.Orm
     /// <summary>
     /// Finds compiled query in cache by provided <paramref name="query"/> delegate
     /// (in fact, by its <see cref="MethodInfo"/> instance)
+    /// and executes them asyncronously if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate asynchronously
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns></returns>
+    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      EnsureSessionIsNotActivated();
+      var userUsableTaskSource = new TaskCompletionSource<IEnumerable<TElement>>();
+      var cancellationTokenSource = new CancellationTokenSource();
+      var internalTask = new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, cancellationTokenSource.Token);
+      session.AddNewAsyncQuery(internalTask, cancellationTokenSource);
+      internalTask.ContinueWith(
+        task => {
+          if (task.IsFaulted) {
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetException(task.Exception.InnerException);
+            return;
+          }
+          if (task.IsCanceled) {
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.TrySetCanceled();
+            return;
+          }
+          if (task.IsCompleted) {
+            var parameterizedTask = task;
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
+          }
+        }, cancellationTokenSource.Token);
+
+      return userUsableTaskSource.Task;
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and executes them asynchronously if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate asynchronously
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns></returns>
+    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      EnsureSessionIsNotActivated();
+      var userUsableTaskSource = new TaskCompletionSource<IEnumerable<TElement>>();
+      var cancellationTokenSource = new CancellationTokenSource();
+      var internalTask = new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, cancellationTokenSource.Token);
+      session.AddNewAsyncQuery(internalTask, cancellationTokenSource);
+      internalTask.ContinueWith(
+        task => {
+          if (task.IsFaulted) {
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetException(task.Exception.InnerException);
+            return;
+          }
+          if (task.IsCanceled) {
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.TrySetCanceled();
+            return;
+          }
+          if (task.IsCompleted) {
+            var parameterizedTask = task;
+            session.RemoveFinishedAsyncQuery(task);
+            userUsableTaskSource.SetResult(parameterizedTask.Result);
+          }
+        }, cancellationTokenSource.Token);
+
+      return userUsableTaskSource.Task;
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="query"/> delegate
+    /// (in fact, by its <see cref="MethodInfo"/> instance)
     /// and executes them asynchronously if it's already cached;
     /// otherwise executes the <paramref name="query"/> delegate asynchronously
     /// and caches the result.
