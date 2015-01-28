@@ -108,7 +108,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test]
-    [ExpectedException(typeof (InvalidOperationException))]
     public async void AwaitAlreadyCompletdedDelayedTaskTest()
     {
       using (var session = Domain.OpenSession())

@@ -58,6 +58,13 @@ namespace Xtensive.Orm.Internals
       }
     }
 
+    public Task<IEnumerable<TElement>> ExecuteCompiledAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query, CancellationToken token)
+    {
+      var parameterizedQuery = GetSequenceQuery(query);
+      var result = parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), token);
+      return result;
+    }
+
     public Task<TResult> ExecuteCompiledAsync<TResult>(Func<QueryEndpoint, TResult> query, CancellationToken token)
     {
       

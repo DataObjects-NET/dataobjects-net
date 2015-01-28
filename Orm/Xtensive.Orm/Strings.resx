@@ -3397,4 +3397,10 @@ Error: {1}</value>
   <data name="ExUnableToCancelDelayedTaskTaskHasBeenCompleted" xml:space="preserve">
     <value>Unable to cancel delayed task: task has been completed</value>
   </data>
+  <data name="ExUnableToRollbackNestedTransactionThereAreIncompletedAsynchronousQueries" xml:space="preserve">
+    <value>Unable to rollback nested transaction: there are incompleted asynchronous queries.</value>
+  </data>
+  <data name="ExUnableToRollbackNestedTransactionThereAreUnenumeratedResultsOfAsynchronousQueries" xml:space="preserve">
+    <value>Unable to rollback nested transaction: there are unenumerable results of asynchronous queries.</value>
+  </data>
 </root>
