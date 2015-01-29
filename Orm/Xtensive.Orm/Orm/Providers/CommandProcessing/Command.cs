@@ -29,7 +29,9 @@ namespace Xtensive.Orm.Providers
     private DbDataReader reader;
 
     public int Count { get { return statements.Count; } }
-    public bool IsDisposed { get; private set; }
+    public bool IsReaderDisposed {
+      get { return (reader==null) ? true : reader.IsClosed; }
+    }
 
     public void AddPart(CommandPart part)
     {
@@ -138,12 +140,11 @@ namespace Xtensive.Orm.Providers
 
     public void Dispose()
     {
-      if (IsDisposed)
+      if (IsReaderDisposed)
         return;
       reader.DisposeSafely();
       resources.DisposeSafely();
       underlyingCommand.DisposeSafely();
-      IsDisposed = true;
     }
 
     // Constructors
@@ -152,7 +153,6 @@ namespace Xtensive.Orm.Providers
     {
       this.origin = origin;
       this.underlyingCommand = underlyingCommand;
-      IsDisposed = false;
     }
   }
 }

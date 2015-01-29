@@ -208,7 +208,7 @@ namespace Xtensive.Orm.Internals
       lock (lockableObject) {
         IList<Command> commands;
         if (blockingCommands.TryGetValue(token, out commands))
-          return commands.Any(el => !el.IsDisposed);
+          return commands.Any(el => !el.IsReaderDisposed);
       }
       return false;
     }
@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Internals
       lock (lockableObject) {
         foreach (var blockingCommand in blockingCommands)
           foreach (var command in blockingCommand.Value)
-            if (!command.IsDisposed)
+            if (!command.IsReaderDisposed)
               return true;
       }
       return false;
