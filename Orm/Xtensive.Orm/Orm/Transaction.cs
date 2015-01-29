@@ -179,12 +179,14 @@ namespace Xtensive.Orm
     {
       EnsureIsActive();
       State = TransactionState.Committing;
+#if NET45
+      Session.DisposeBlockingCommandsForToken(LifetimeToken);
+#endif
       try {
         if (inner!=null)
           throw new InvalidOperationException(Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
 #if NET45
         Session.EnsureAllAsyncQueriesFinished(LifetimeToken, string.Format("Unable to complete transaction: there are incompleted asynchronous queries"));
-        Session.DisposeBlockingCommandsForToken(LifetimeToken);
 #endif
         Session.CommitTransaction(this);
       }
@@ -206,6 +208,9 @@ namespace Xtensive.Orm
     {
       EnsureIsActive();
       State = TransactionState.RollingBack;
+#if NET45
+      Session.DisposeBlockingCommandsForToken(LifetimeToken);
+#endif
       try {
         try {
           if (inner!=null)
