@@ -85,6 +85,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async void ListOfDelayedTasksExecution()
     {
+      Require.ProviderIs(StorageProvider.SqlServer, "No one storage library provides real async queries except MS Sql Server.");
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var task1 = session.Query.ExecuteDelayedAsync(query => query.All<Discepline>());

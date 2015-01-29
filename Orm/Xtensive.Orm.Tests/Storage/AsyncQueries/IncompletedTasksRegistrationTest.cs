@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.AsyncQueries.Model;
 
 namespace Xtensive.Orm.Tests.Storage.AsyncQueries
@@ -98,6 +99,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [ExpectedException(typeof (InvalidOperationException))]
     public void DisposingInnerTransaction()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var incompletedTasksRegistry = session.AsyncQueriesManager;
@@ -112,6 +114,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [ExpectedException(typeof (InvalidOperationException))]
     public void DisposingInnerTransactionWhenSessionWithNonTransactionalReadsOption()
     {
+      Require.ProviderIs(StorageProvider.SqlServer, "No one storage library provides real async queries except Sql Server");
       using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ServerProfile | SessionOptions.NonTransactionalReads)))
       using (var transaction = session.OpenTransaction()) {
         var asyncQueriesManager = session.AsyncQueriesManager;
@@ -242,6 +245,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [ExpectedException(typeof (StorageException))]
     public void DisposingHighLevelTransaction()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
       using (var session = Domain.OpenSession()) {
         var transaction = session.OpenTransaction();
         using (var innerTransaction = session.OpenTransaction(TransactionOpenMode.New)) {

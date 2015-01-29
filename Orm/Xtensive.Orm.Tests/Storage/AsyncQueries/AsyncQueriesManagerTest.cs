@@ -19,6 +19,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async void AsyncQueryRegistration()
     {
+      Require.ProviderIs(StorageProvider.SqlServer, "No one storage library provides real async queries except Sql Server");
+
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var task1 = session.Query
@@ -159,6 +161,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [ExpectedException(typeof(InvalidOperationException))]
     public async void TryOpenNewTransactionWhenThereIsBlockingCommand()
     {
+      //Require.ProviderIs(StorageProvider.SqlServer, "No one storage library provides real async queries except Sql Server");
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var task = session.Query.ExecuteAsync(query => query.All<Discepline>());
@@ -245,6 +248,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [ExpectedException(typeof (InvalidOperationException))]
     public async void TryStartAnotherAsyncQueryWhenThereIsIncompletedTask()
     {
+      Require.ProviderIs(StorageProvider.SqlServer);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         new Teacher(session) {Name = MethodBase.GetCurrentMethod().Name, Surname = MethodBase.GetCurrentMethod().Name, DateOfBirth = DateTime.Now, Gender = Gender.Male};
@@ -258,6 +262,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async void PersistChangedEnititiesWithAsyncQuery()
     {
+      Require.ProviderIs(StorageProvider.SqlServer, "No one storage library provides real async queries except Sql Server");
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var teacher1 = new Teacher(session) { Name = "PersistChangedEnititiesWithAsyncQuery" + "1", Surname = "PersistChangedEnititiesWithAsyncQuery", DateOfBirth = DateTime.Now, Gender = Gender.Male };
@@ -275,6 +280,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async void TryPersistChangesAfterAsyncQuery()
     {
+      Require.ProviderIs(StorageProvider.SqlServer, "No one storage library provides real async queries except Sql Server");
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var task = session.Query.ExecuteAsync(query => query.All<Discepline>());
@@ -293,6 +299,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async void TrySaveChangesDuringAsyncQuery()
     {
+      Require.ProviderIs(StorageProvider.SqlServer, "No one storage library provides real async queries except Sql Server");
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var task = session.Query.ExecuteAsync(query => query.All<Discepline>());

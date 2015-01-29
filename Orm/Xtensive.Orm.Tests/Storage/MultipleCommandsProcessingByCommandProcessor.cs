@@ -79,16 +79,16 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async void PersistBatchAndAsyncQuery()
     {
-      Key jessyPinkmanKey;
+      Key sandraBullockKey;
       Key gregHouseKey;
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var countOfContacts = session.Query.All<Contact>().Count();
         var countOfPersons = session.Query.All<Person>().Count();
         var contactTypes = session.Query.All<ContactType>().ToList();
-        var jessyPinkman = new Person(session) {Name = "Jassy", Surname = "Pinkman"};
-        jessyPinkmanKey = jessyPinkman.Key;
-        jessyPinkman.Contacts.Add(new Contact(session) {Value = string.Format("{0} of {1} {2}", contactTypes[0].TypeName, jessyPinkman.Name, jessyPinkman.Surname), Type = contactTypes[0]});
+        var sandraBullock = new Person(session) {Name = "Sandra", Surname = "Bullock"};
+        sandraBullockKey = sandraBullock.Key;
+        sandraBullock.Contacts.Add(new Contact(session) {Value = string.Format("{0} of {1} {2}", contactTypes[0].TypeName, sandraBullock.Name, sandraBullock.Surname), Type = contactTypes[0]});
 
         var gregHouse = new Person(session) {Name = "Greg", Surname = "House"};
         gregHouseKey = gregHouse.Key;
@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Tests.Storage
         var contacts7 = session.Query.ExecuteDelayed(query => query.All<Contact>().Where(c => c.Type==contactTypes[6]));
         var allPersons = session.Query.ExecuteDelayed(query => query.All<Person>());
 
-        var persons = (await session.Query.ExecuteAsync(query => query.All<Person>().Where(p => p.Contacts.Count() > 5))).ToList();
+        var persons = (await session.Query.ExecuteAsync(query => query.All<Person>().Where(p => p.Name.StartsWith("J")))).ToList();
         Assert.AreEqual(allContacts.Count(), countOfContacts + 2);
         Assert.AreEqual(5, contacts1.Count());
         Assert.AreEqual(4, contacts2.Count());
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var jessy = session.Query.Single<Person>(jessyPinkmanKey);
+        var jessy = session.Query.Single<Person>(sandraBullockKey);
         var contacts = jessy.Contacts.ToList();
         jessy.Contacts.Clear();
         foreach (var contact in contacts)
@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async void BatchPersistAndAsyncQuery()
     {
-      Key jessyPinkmanKey;
+      Key sandraBullockKey;
       Key gregHouseKey;
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -158,15 +158,15 @@ namespace Xtensive.Orm.Tests.Storage
         var contacts7 = session.Query.ExecuteDelayed(query => query.All<Contact>().Where(c => c.Type==contactTypes[6]));
         var allPersons = session.Query.ExecuteDelayed(query => query.All<Person>());
 
-        var jessyPinkman = new Person(session) { Name = "Jassy", Surname = "Pinkman" };
-        jessyPinkmanKey = jessyPinkman.Key;
-        jessyPinkman.Contacts.Add(new Contact(session) {Value = string.Format("{0} of {1} {2}", contactTypes[0].TypeName, jessyPinkman.Name, jessyPinkman.Surname), Type = contactTypes[0]});
+        var sandraBullock = new Person(session) { Name = "Sandra", Surname = "Bullock" };
+        sandraBullockKey = sandraBullock.Key;
+        sandraBullock.Contacts.Add(new Contact(session) {Value = string.Format("{0} of {1} {2}", contactTypes[0].TypeName, sandraBullock.Name, sandraBullock.Surname), Type = contactTypes[0]});
 
         var gregHouse = new Person(session) { Name = "Greg", Surname = "House" };
         gregHouseKey = gregHouse.Key;
         gregHouse.Contacts.Add(new Contact(session) {Value = string.Format("{0} of {1} {2}", contactTypes[3].TypeName, gregHouse.Name, gregHouse.Surname), Type = contactTypes[3]});
 
-        var persons = (await session.Query.ExecuteAsync(query => query.All<Person>().Where(p => p.Contacts.Count() > 5))).ToList();
+        var persons = (await session.Query.ExecuteAsync(query => query.All<Person>().Where(p => p.Name.StartsWith("J")))).ToList();
 
         Assert.AreEqual(allContacts.Count(), countOfContacts + 2);
         Assert.AreEqual(5, contacts1.Count());
@@ -185,7 +185,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var jessy = session.Query.Single<Person>(jessyPinkmanKey);
+        var jessy = session.Query.Single<Person>(sandraBullockKey);
         var contacts = jessy.Contacts.ToList();
         jessy.Contacts.Clear();
         foreach (var contact in contacts)
@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async void PersistAsyncQuery()
     {
-      Key jessyPinkmanKey;
+      Key sandraBullockKey;
       Key gregHouseKey;
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -213,15 +213,15 @@ namespace Xtensive.Orm.Tests.Storage
         var contactTypes = session.Query.All<ContactType>().ToList();
         var countOfPersons = session.Query.All<Person>().Count();
         var allContacts = session.Query.ExecuteDelayed(query => query.All<Contact>());
-        var jessyPinkman = new Person(session) {Name = "Jassy", Surname = "Pinkman"};
-        jessyPinkmanKey = jessyPinkman.Key;
-        jessyPinkman.Contacts.Add(new Contact(session) {Value = string.Format("{0} of {1} {2}", contactTypes[0].TypeName, jessyPinkman.Name, jessyPinkman.Surname), Type = contactTypes[0]});
+        var sandraBullock = new Person(session) {Name = "Sandra", Surname = "Bullock"};
+        sandraBullockKey = sandraBullock.Key;
+        sandraBullock.Contacts.Add(new Contact(session) {Value = string.Format("{0} of {1} {2}", contactTypes[0].TypeName, sandraBullock.Name, sandraBullock.Surname), Type = contactTypes[0]});
 
         var gregHouse = new Person(session) {Name = "Greg", Surname = "House"};
         gregHouseKey = gregHouse.Key;
         gregHouse.Contacts.Add(new Contact(session) {Value = string.Format("{0} of {1} {2}", contactTypes[3].TypeName, gregHouse.Name, gregHouse.Surname), Type = contactTypes[3]});
 
-        var persons = (await session.Query.ExecuteAsync(query => query.All<Person>().Where(p => p.Contacts.Count() > 5))).ToList();
+        var persons = (await session.Query.ExecuteAsync(query => query.All<Person>().Where(p => p.Name.StartsWith("J")))).ToList();
 
         var allPersons = session.Query.All<Person>().ToList();
         Assert.AreEqual(allContacts.Count(), countOfContacts + 2);
@@ -233,7 +233,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var jessy = session.Query.Single<Person>(jessyPinkmanKey);
+        var jessy = session.Query.Single<Person>(sandraBullockKey);
         var contacts = jessy.Contacts.ToList();
         jessy.Contacts.Clear();
         foreach (var contact in contacts)
@@ -253,7 +253,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async void PersistAsyncQueryPersistBatchAsyncQuery()
     {
-      Key jessyPinkmanKey;
+      Key sandraBullockKey;
       Key gregHouseKey;
       Key nelsonMandelaKey;
       Key gregMorisonKey;
@@ -264,15 +264,15 @@ namespace Xtensive.Orm.Tests.Storage
         var contactTypes = session.Query.All<ContactType>().ToList();
         var countOfPersons = session.Query.All<Person>().Count();
         var allContacts = session.Query.ExecuteDelayed(query => query.All<Contact>());
-        var jessyPinkman = new Person(session) {Name = "Jassy", Surname = "Pinkman"};
-        jessyPinkmanKey = jessyPinkman.Key;
-        jessyPinkman.Contacts.Add(new Contact(session) {Value = string.Format("{0} of {1} {2}", contactTypes[0].TypeName, jessyPinkman.Name, jessyPinkman.Surname), Type = contactTypes[0]});
+        var sandraBullock = new Person(session) {Name = "Sandra", Surname = "Bullock"};
+        sandraBullockKey = sandraBullock.Key;
+        sandraBullock.Contacts.Add(new Contact(session) {Value = string.Format("{0} of {1} {2}", contactTypes[0].TypeName, sandraBullock.Name, sandraBullock.Surname), Type = contactTypes[0]});
 
         var gregHouse = new Person(session) {Name = "Greg", Surname = "House"};
         gregHouseKey = gregHouse.Key;
         gregHouse.Contacts.Add(new Contact(session) {Value = string.Format("{0} of {1} {2}", contactTypes[3].TypeName, gregHouse.Name, gregHouse.Surname), Type = contactTypes[3]});
 
-        var persons = (await session.Query.ExecuteAsync(query => query.All<Person>().Where(p => p.Contacts.Count() > 5))).ToList();
+        var persons = (await session.Query.ExecuteAsync(query => query.All<Person>().Where(p => p.Name.StartsWith("J")))).ToList();
 
         var allPersons = session.Query.All<Person>().ToList();
         Assert.AreEqual(allContacts.Count(), countOfContacts + 2);
@@ -298,7 +298,7 @@ namespace Xtensive.Orm.Tests.Storage
         var contacts7 = session.Query.ExecuteDelayed(query => query.All<Contact>().Where(c => c.Type==contactTypes[6]));
         var allPersonsDelayed = session.Query.ExecuteDelayed(query => query.All<Person>());
 
-        persons = (await session.Query.ExecuteAsync(query => query.All<Person>().Where(p => p.Contacts.Count() > 5))).ToList();
+        persons = (await session.Query.ExecuteAsync(query => query.All<Person>().Where(p => p.Name.StartsWith("J")))).ToList();
         Assert.AreEqual(allContacts.Count(), countOfContacts + 4);
         Assert.AreEqual(6, contacts1.Count());
         Assert.AreEqual(4, contacts2.Count());
@@ -315,7 +315,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var jessy = session.Query.Single<Person>(jessyPinkmanKey);
+        var jessy = session.Query.Single<Person>(sandraBullockKey);
         var contacts = jessy.Contacts.ToList();
         jessy.Contacts.Clear();
         foreach (var contact in contacts)
@@ -361,7 +361,7 @@ namespace Xtensive.Orm.Tests.Storage
         var contacts6 = session.Query.ExecuteDelayed(query => query.All<Contact>().Where(c => c.Type == contactTypes[5]));
         var contacts7 = session.Query.ExecuteDelayed(query => query.All<Contact>().Where(c => c.Type == contactTypes[6]));
         var allPersonsDelayed = session.Query.ExecuteDelayed(query => query.All<Person>());
-        var persons = (await session.Query.ExecuteAsync(query => query.All<Person>().Where(p => p.Contacts.Count() > 5))).ToList();
+        var persons = (await session.Query.ExecuteAsync(query => query.All<Person>().Where(p => p.Name.StartsWith("J")))).ToList();
         var contacts = (await session.Query.ExecuteAsync(query => query.All<Contact>().Where(c=>c.Value.Contains("Sparrow")))).ToList();
         transaction.Complete();
       }
