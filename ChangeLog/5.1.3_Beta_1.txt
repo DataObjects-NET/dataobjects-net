@@ -1,0 +1,3 @@
+[main] Added support for asyncronous queries
+[main] Added virtual method SessionHandler.ExecuteQueryTasks(IEnumerable<QueryTask>, ExecutionBehavior)
+[main] Method SessionHandler.ExecuteQueryTasks(IEnumerable<QueryTask>, bool) is marked as obsolete
