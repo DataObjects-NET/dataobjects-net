@@ -1,2 +1,3 @@
 [main] Fixed building of indexes which inherited from types without hierarchy
 [main] Fixed mapping of query columns for types which contains structure fields
+[main] Added unique identifier of session
