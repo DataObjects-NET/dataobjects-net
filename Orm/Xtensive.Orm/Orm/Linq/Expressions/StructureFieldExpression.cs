@@ -156,7 +156,7 @@ namespace Xtensive.Orm.Linq.Expressions
       if (!structureField.IsStructure)
         throw new ArgumentException(string.Format(Strings.ExFieldIsNotStructure, structureField.Name));
       var persistentType = structureField.ReflectedType.Model.Types[structureField.ValueType];
-      var mapping = new Segment<int>(offset, structureField.MappingInfo.Length);
+      var mapping = new Segment<int>(offset + structureField.MappingInfo.Offset, structureField.MappingInfo.Length);
       var result = new StructureFieldExpression(persistentType, structureField, mapping, null, false);
       result.Fields = persistentType.Fields
         .Select(f => BuildNestedFieldExpression(f, offset + structureField.MappingInfo.Offset))
