@@ -206,6 +206,11 @@ namespace Xtensive.Orm
     /// </summary>
     public IServiceContainer Services { get; private set; }
 
+    /// <summary>
+    /// Gets the unique identifier of this session.
+    /// </summary>
+    public Guid Guid { get; private set; }
+
     #region Private / internal members
 
     internal SessionHandler Handler { get; set; }
@@ -486,6 +491,7 @@ namespace Xtensive.Orm
     internal Session(Domain domain, SessionConfiguration configuration, bool activate)
       : base(domain)
     {
+      Guid = Guid.NewGuid();
       IsDebugEventLoggingEnabled = OrmLog.IsLogged(LogLevel.Debug); // Just to cache this value
 
       // Both Domain and Configuration are valid references here;
