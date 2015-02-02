@@ -26,9 +26,14 @@ namespace Xtensive.Orm.Building.Builders
 
       // Building declared indexes both secondary and primary (for root of the hierarchy only)
       foreach (var indexDescriptor in typeDef.Indexes) {
+        
         // Skip indef building for inherited indexes
-        var inherited = indexDescriptor.IsInherited;
-        if (inherited)
+        //
+        // NOTE THAT DO optimizes model and removes entities, which has no hierarchy, from model
+        // and if they have some indexes then IndexDef.IsInherited of them will be true and it's truth actually,
+        // but fields inherited from removed entities will have FieldInfo.IsInherited = false.
+        // So, if we check only IndexDef.IsInherited then some indexes will be ignored.
+        if (indexDescriptor.IsInherited && indexDescriptor.KeyFields.Select(kf => type.Fields[kf.Key]).Any(f => f.IsInherited))
           continue;
         var declaredIndex = BuildIndex(type, indexDescriptor, false);
         root.Indexes.Add(declaredIndex);
