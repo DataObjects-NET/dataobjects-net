@@ -15,16 +15,32 @@ namespace Xtensive.Orm.Providers
 
     public string SelectQuery { get; private set; }
 
+    public string DeleteQuery { get; private set; }
+
     public SequenceQueryCompartment Compartment { get; private set; }
 
     public long ExecuteWith(ISqlExecutor sqlExecutor)
     {
+      if (DeleteQuery != null)
+        sqlExecutor.ExecuteNonQuery(DeleteQuery);
       if (InsertQuery!=null)
         sqlExecutor.ExecuteNonQuery(InsertQuery);
       return Convert.ToInt64(sqlExecutor.ExecuteScalar(SelectQuery));
     }
 
     // Constructors
+
+    public SequenceQuery(string deleteQuery, string insertQuery, string selectQuery, SequenceQueryCompartment compartment)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(deleteQuery, "deleteQuery");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(insertQuery, "insertQuery");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(selectQuery, "selectQuery");
+
+      DeleteQuery = deleteQuery;
+      InsertQuery = insertQuery;
+      SelectQuery = selectQuery;
+      Compartment = compartment;
+    }
 
     public SequenceQuery(string insertQuery, string selectQuery, SequenceQueryCompartment compartment)
     {
