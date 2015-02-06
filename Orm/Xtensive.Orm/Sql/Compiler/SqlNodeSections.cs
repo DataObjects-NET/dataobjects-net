@@ -262,6 +262,7 @@ namespace Xtensive.Sql.Compiler
     Set = 2,
     From = 3,
     Where = 4,
+    Limit = 5,
   }
 
   public enum WhileSection
