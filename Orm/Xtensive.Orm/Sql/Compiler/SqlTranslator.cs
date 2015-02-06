@@ -1275,6 +1275,8 @@ namespace Xtensive.Sql.Compiler
         return "FROM";
       case UpdateSection.Where:
         return (node.Where is SqlCursor) ? "WHERE CURRENT OF" : "WHERE";
+      case UpdateSection.Limit:
+        return "LIMIT";
       }
       return string.Empty;
     }

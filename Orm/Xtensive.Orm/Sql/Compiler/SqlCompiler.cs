@@ -1376,6 +1376,85 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    public void VisitUpdateDefault(SqlUpdate node)
+    {
+      using (context.EnterScope(node)) {
+        VisitUpdateEntry(node);
+        VisitUpdateUpdate(node);
+        VisitUpdateSet(node);
+        VisitUpdateFrom(node);
+        VisitUpdateWhere(node);
+        VisitUpdateLimit(node);
+        VisitUpdateExit(node);
+      }
+    }
+
+    public virtual void VisitUpdateEntry(SqlUpdate node)
+    {
+      context.Output.AppendText(translator.Translate(context, node, UpdateSection.Entry));
+    }
+
+    public virtual void VisitUpdateUpdate(SqlUpdate node)
+    {
+      if (node.Update == null)
+        throw new SqlCompilerException(Strings.ExTablePropertyIsNotSet);
+
+      using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableAliasing)) {
+        node.Update.AcceptVisitor(this);
+      }
+    }
+
+    public virtual void VisitUpdateSet(SqlUpdate node)
+    {
+      context.Output.AppendText(translator.Translate(context, node, UpdateSection.Set));
+
+      using (context.EnterCollectionScope()) {
+        foreach (ISqlLValue item in node.Values.Keys) {
+          if (!context.IsEmpty)
+            context.Output.AppendDelimiter(translator.ColumnDelimiter);
+          var tc = item as SqlTableColumn;
+          if (!tc.IsNullReference() && tc.SqlTable!=node.Update)
+            throw new SqlCompilerException(string.Format(Strings.ExUnboundColumn, tc.Name));
+          context.Output.AppendText(translator.QuoteIdentifier(tc.Name));
+          context.Output.AppendText(translator.Translate(SqlNodeType.Equals));
+          SqlExpression value = node.Values[item];
+          value.AcceptVisitor(this);
+        }
+      }
+    }
+
+    public virtual void VisitUpdateFrom(SqlUpdate node)
+    {
+      if (Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateFrom) && node.From!=null) {
+        context.Output.AppendText(translator.Translate(context, node, UpdateSection.From));
+        node.From.AcceptVisitor(this);
+      }
+    }
+
+    public virtual void VisitUpdateWhere(SqlUpdate node)
+    {
+      if (!node.Where.IsNullReference()) {
+        context.Output.AppendText(translator.Translate(context, node, UpdateSection.Where));
+        node.Where.AcceptVisitor(this);
+      }
+    }
+
+    public virtual void VisitUpdateLimit(SqlUpdate node)
+    {
+      if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateLimit))
+        throw new NotSupportedException("Storage is not supported limitation of rows to update.");
+
+      if (!node.Limit.IsNullReference()) {
+        context.Output.AppendText(translator.Translate(context, node, UpdateSection.Limit));
+        node.Limit.AcceptVisitor(this);
+      }
+    }
+
+    public virtual void VisitUpdateExit(SqlUpdate node)
+    {
+      context.Output.AppendText(translator.Translate(context, node, UpdateSection.Exit));
+    }
+
     public virtual void Visit(SqlPlaceholder node)
     {
       context.Output.AppendPlaceholder(node.Id);
