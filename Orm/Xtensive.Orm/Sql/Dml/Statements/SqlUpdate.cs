@@ -14,6 +14,7 @@ namespace Xtensive.Sql.Dml
     private readonly Dictionary<ISqlLValue, SqlExpression> values = new Dictionary<ISqlLValue, SqlExpression>();
     private SqlTable from;
     private SqlTableRef update;
+    private SqlExpression limit;
 
     /// <summary>
     /// Gets or sets the table.
@@ -57,6 +58,15 @@ namespace Xtensive.Sql.Dml
       set { from = value; }
     }
 
+    /// <summary>
+    /// Gets or sets the LIMIT clause expression.
+    /// </summary>
+    public SqlExpression Limit
+    {
+      get { return limit; }
+      set { limit = value; }
+    }
+
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.ContainsKey(this))
@@ -72,7 +82,8 @@ namespace Xtensive.Sql.Dml
           p.Value.IsNullReference() ? null : (SqlExpression) p.Value.Clone(context);
       if (!where.IsNullReference())
         clone.Where = (SqlExpression)where.Clone(context);
-
+      if (!limit.IsNullReference())
+        clone.Limit = (SqlExpression)where.Clone(context);
       if (Hints.Count>0)
         foreach (SqlHint hint in Hints)
           clone.Hints.Add((SqlHint)hint.Clone(context));
