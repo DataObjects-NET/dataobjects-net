@@ -39,6 +39,19 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
     }
 
+    public override void Visit(SqlUpdate node)
+    {
+      using (context.EnterScope(node)) {
+        VisitUpdateEntry(node);
+        VisitUpdateLimit(node);
+        VisitUpdateUpdate(node);
+        VisitUpdateSet(node);
+        VisitUpdateFrom(node);
+        VisitUpdateWhere(node);
+        VisitUpdateExit(node);
+      }
+    }
+
     public override void VisitSelectLock(SqlSelect node)
     {
       return;

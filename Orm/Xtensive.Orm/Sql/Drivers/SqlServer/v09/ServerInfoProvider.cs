@@ -190,6 +190,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         QueryFeatures.Batches |
         QueryFeatures.CrossApply |
         QueryFeatures.UpdateFrom |
+        QueryFeatures.UpdateLimit |
         QueryFeatures.DeleteFrom |
         QueryFeatures.Limit |
         QueryFeatures.InsertDefaultValues |
