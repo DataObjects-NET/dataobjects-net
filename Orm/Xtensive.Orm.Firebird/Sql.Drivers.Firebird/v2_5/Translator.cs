@@ -222,6 +222,15 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       return base.Translate(context, node, section);
     }
 
+    public override string Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
+    {
+      switch (section) {
+        case UpdateSection.Limit:
+          return "ROWS";
+      }
+      return base.Translate(context, node, section);
+    }
+
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
