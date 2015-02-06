@@ -1336,44 +1336,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlUpdate node)
     {
-      using (context.EnterScope(node)) {
-        context.Output.AppendText(translator.Translate(context, node, UpdateSection.Entry));
-
-        if (node.Update==null)
-          throw new SqlCompilerException(Strings.ExTablePropertyIsNotSet);
-
-        using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableAliasing)) {
-          node.Update.AcceptVisitor(this);
-        }
-
-        context.Output.AppendText(translator.Translate(context, node, UpdateSection.Set));
-
-        using (context.EnterCollectionScope()) {
-          foreach (ISqlLValue item in node.Values.Keys) {
-            if (!context.IsEmpty)
-              context.Output.AppendDelimiter(translator.ColumnDelimiter);
-            var tc = item as SqlTableColumn;
-            if (!tc.IsNullReference() && tc.SqlTable!=node.Update)
-              throw new SqlCompilerException(string.Format(Strings.ExUnboundColumn, tc.Name));
-            context.Output.AppendText(translator.QuoteIdentifier(tc.Name));
-            context.Output.AppendText(translator.Translate(SqlNodeType.Equals));
-            SqlExpression value = node.Values[item];
-            value.AcceptVisitor(this);
-          }
-        }
-
-        if (Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateFrom) && node.From!=null) {
-          context.Output.AppendText(translator.Translate(context, node, UpdateSection.From));
-          node.From.AcceptVisitor(this);
-        }
-
-        if (!node.Where.IsNullReference()) {
-            context.Output.AppendText(translator.Translate(context, node, UpdateSection.Where));
-            node.Where.AcceptVisitor(this);
-        }
-
-        context.Output.AppendText(translator.Translate(context, node, UpdateSection.Exit));
-      }
+      VisitUpdateDefault(node);
     }
 
     public void VisitUpdateDefault(SqlUpdate node)
