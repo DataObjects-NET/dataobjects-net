@@ -51,7 +51,6 @@
     <Compile Include="CompilerTest.cs" />
     <Compile Include="Firebird\CompilerTest.cs" />
     <Compile Include="MySQL\CompilerTest.cs" />
-    <Compile Include="Oracle\CompilerTest.cs" />
     <Compile Include="PostgreSql\NpgsqlTypeConstructorTest.cs" />
     <Compile Include="SqlServer\CompilerTest.cs" />
     <Compile Include="SqlServer\DateTimeOffsetTest.cs" />
