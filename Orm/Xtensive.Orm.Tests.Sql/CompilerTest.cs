@@ -81,6 +81,53 @@ namespace Xtensive.Orm.Tests.Sql
       }
     }
 
+    [Test]
+    public void DeleteTest01()
+    {
+      var tableRef = SqlDml.TableRef(Catalog.DefaultSchema.Tables["Department"]);
+      var update = SqlDml.Delete(tableRef);
+      Console.WriteLine(Driver.Compile(update).GetCommandText());
+      using (var command = Connection.CreateCommand(update)) {
+        command.ExecuteNonQuery();
+      }
+    }
+
+    [Test]
+    public void DeleteTest02()
+    {
+      var tableRef = SqlDml.TableRef(Catalog.DefaultSchema.Tables["Department"]);
+      var update = SqlDml.Delete(tableRef);
+      update.Where = SqlDml.Equals(tableRef.Columns["Name"], SqlDml.Literal("Human Resources Department"));
+      Console.WriteLine(Driver.Compile(update).GetCommandText());
+      using (var command = Connection.CreateCommand(update)) {
+        command.ExecuteNonQuery();
+      }
+    }
+
+    [Test]
+    public void DeleteTest03()
+    {
+      var tableRef = SqlDml.TableRef(Catalog.DefaultSchema.Tables["Department"]);
+      var update = SqlDml.Delete(tableRef);
+      update.Limit = SqlDml.Native("100");
+      Console.WriteLine(Driver.Compile(update).GetCommandText());
+      using (var command = Connection.CreateCommand(update)) {
+        command.ExecuteNonQuery();
+      }
+    }
+
+    [Test]
+    public void DeleteTest04()
+    {
+      var tableRef = SqlDml.TableRef(Catalog.DefaultSchema.Tables["Department"]);
+      var update = SqlDml.Delete(tableRef);
+      update.Where = SqlDml.Equals(tableRef.Columns["Name"], SqlDml.Literal("Human Resources Department"));
+      update.Limit = SqlDml.Native("100");
+      Console.WriteLine(Driver.Compile(update).GetCommandText());
+      using (var command = Connection.CreateCommand(update)) {
+        command.ExecuteNonQuery();
+      }
+    }
     protected virtual void CreateTables(Catalog catalog)
     {
       var schema = catalog.DefaultSchema;
