@@ -321,6 +321,15 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return base.Translate(context, node, section);
     }
 
+    public override string Translate(SqlCompilerContext context, SqlDelete node, DeleteSection section)
+    {
+      switch (section) {
+        case DeleteSection.Limit:
+          return "TOP";
+      }
+      return base.Translate(context, node, section);
+    }
+
     public override string Translate(SqlCompilerContext context, SqlRenameTable node)
     {
       return TranslateExecSpRename(context, node.Table, Translate(context, node.Table), node.NewName, null);

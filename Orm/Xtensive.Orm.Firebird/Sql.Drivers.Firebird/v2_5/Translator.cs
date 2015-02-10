@@ -231,6 +231,16 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       return base.Translate(context, node, section);
     }
 
+    /// <inheritdoc />
+    public override string Translate(SqlCompilerContext context, SqlDelete node, DeleteSection section)
+    {
+      switch (section) {
+        case DeleteSection.Limit:
+          return "ROWS";
+      }
+      return base.Translate(context, node, section);
+    }
+
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
