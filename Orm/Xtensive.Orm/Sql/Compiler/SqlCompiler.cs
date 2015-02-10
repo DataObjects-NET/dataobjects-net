@@ -1462,10 +1462,9 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void VisitUpdateLimit(SqlUpdate node)
     {
-      if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateLimit))
-        throw new NotSupportedException("Storage is not supported limitation of rows to update.");
-
       if (!node.Limit.IsNullReference()) {
+        if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateLimit))
+          throw new NotSupportedException(Strings.ExStorageIsNotSupportedLimitationOfRowCountToUpdate);
         context.Output.AppendText(translator.Translate(context, node, UpdateSection.Limit));
         node.Limit.AcceptVisitor(this);
       }
