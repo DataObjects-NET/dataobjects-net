@@ -735,6 +735,64 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    public void VisitDeleteDefault(SqlDelete node)
+    {
+      using (context.EnterScope(node)) {
+        VisitDeleteEntry(node);
+        VisitDeleteDelete(node);
+        VisitDeleteFrom(node);
+        VisitDeleteWhere(node);
+        VisitDeleteLimit(node);
+        VisitDeleteExit(node);
+      }
+    }
+
+    public virtual void VisitDeleteEntry(SqlDelete node)
+    {
+      context.Output.AppendText(translator.Translate(context, node, DeleteSection.Entry));
+    }
+
+    public virtual void VisitDeleteDelete(SqlDelete node)
+    {
+      if (node.Delete == null)
+        throw new SqlCompilerException(Strings.ExTablePropertyIsNotSet);
+
+      using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableAliasing)) {
+        node.Delete.AcceptVisitor(this);
+      }
+    }
+
+    public virtual void VisitDeleteFrom(SqlDelete node)
+    {
+      if (CheckFeature(QueryFeatures.DeleteFrom) && node.From!=null) {
+        context.Output.AppendText(translator.Translate(context, node, DeleteSection.From));
+        node.From.AcceptVisitor(this);
+      }
+    }
+
+    public virtual void VisitDeleteWhere(SqlDelete node)
+    {
+      if (!node.Where.IsNullReference()) {
+        context.Output.AppendText(translator.Translate(context, node, DeleteSection.Where));
+        node.Where.AcceptVisitor(this);
+      }
+    }
+
+    public virtual void VisitDeleteLimit(SqlDelete node)
+    {
+      if (!node.Limit.IsNullReference()) {
+        if (!CheckFeature(QueryFeatures.DeleteLimit))
+          throw new NotSupportedException(Strings.ExStorageIsNotSupportedLimitationOfRowCountToDelete);
+        context.Output.AppendText(translator.Translate(context, node, DeleteSection.Limit));
+        node.Limit.AcceptVisitor(this);
+      }
+    }
+
+    public virtual void VisitDeleteExit(SqlDelete node)
+    {
+      context.Output.AppendText(translator.Translate(context, node, DeleteSection.Exit));
+    }
+
     public virtual void Visit(SqlDropAssertion node)
     {
       context.Output.AppendText(translator.Translate(context, node));
