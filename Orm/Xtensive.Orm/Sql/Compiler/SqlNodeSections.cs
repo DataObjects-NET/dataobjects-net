@@ -120,6 +120,7 @@ namespace Xtensive.Sql.Compiler
     Exit = 1,
     Where = 2,
     From = 3,
+    Limit = 4,
   }
 
   public enum FetchSection
