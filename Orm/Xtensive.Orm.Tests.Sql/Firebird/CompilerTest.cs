@@ -2,12 +2,7 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
-// Created:    2013.12.30
-
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+// Created:    2015.02.06
 
 namespace Xtensive.Orm.Tests.Sql.Firebird
 {

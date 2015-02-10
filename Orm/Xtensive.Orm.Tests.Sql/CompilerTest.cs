@@ -2,10 +2,9 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
-// Created:    2013.12.30
+// Created:    2015.02.06
 
 using System;
-using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
