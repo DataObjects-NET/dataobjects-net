@@ -143,6 +143,11 @@ namespace Xtensive.Sql.Info
     UpdateLimit = 1 << 24,
 
     /// <summary>
+    /// Indicates that RDBMS supports limiting operator (LIMIT or TOP or ROWS) in DELETE statement.
+    /// </summary>
+    DeleteLimit = 1 << 25,
+
+    /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
     /// </summary>
     Paging = Limit | Offset,

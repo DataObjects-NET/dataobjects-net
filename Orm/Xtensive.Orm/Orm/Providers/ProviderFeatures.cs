@@ -66,6 +66,8 @@ namespace Xtensive.Orm.Providers
     SelfReferencingRowRemovalIsError = 1L << 48,
     FullTextColumnDataTypeSpecification = 1L << 49,
     DateTimeOffset = 1L << 50,
+    UpdateLimit = 1L << 51,
+    DeleteLimit = 1L << 52,
 
     // Feature groups
     Paging = Take | Skip,
