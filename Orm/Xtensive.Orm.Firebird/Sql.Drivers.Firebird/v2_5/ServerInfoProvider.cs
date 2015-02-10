@@ -186,7 +186,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
               QueryFeatures.Paging |
                 QueryFeatures.Limit |
                   QueryFeatures.Offset |
-                    QueryFeatures.UpdateLimit;
+                    QueryFeatures.UpdateLimit |
+                      QueryFeatures.DeleteLimit;
       return queryInfo;
     }
 

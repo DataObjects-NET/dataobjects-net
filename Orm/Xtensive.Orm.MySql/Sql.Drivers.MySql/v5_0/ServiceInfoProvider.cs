@@ -202,6 +202,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         QueryFeatures.InsertDefaultValues |
         QueryFeatures.UpdateDefaultValues |
         QueryFeatures.UpdateLimit |
+        QueryFeatures.DeleteLimit |
         QueryFeatures.ExplicitJoinOrder |
         QueryFeatures.ScalarSubquery |
         QueryFeatures.SelfReferencingRowRemovalIsError |
