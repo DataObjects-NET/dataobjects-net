@@ -807,6 +807,8 @@ namespace Xtensive.Sql.Compiler
         return "FROM";
       case DeleteSection.Where:
         return "WHERE";
+      case DeleteSection.Limit:
+        return "LIMIT";
       }
       return string.Empty;
     }
