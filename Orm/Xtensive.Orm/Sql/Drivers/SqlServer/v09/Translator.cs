@@ -324,6 +324,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     public override string Translate(SqlCompilerContext context, SqlDelete node, DeleteSection section)
     {
       switch (section) {
+        case DeleteSection.Entry:
+          return "DELETE";
         case DeleteSection.Limit:
           return "TOP";
       }

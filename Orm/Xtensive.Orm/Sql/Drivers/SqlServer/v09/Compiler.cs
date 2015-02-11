@@ -70,6 +70,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       using (context.EnterScope(node)) {
         VisitDeleteEntry(node);
         VisitDeleteLimit(node);
+        context.Output.AppendText(translator.Translate(context, node, DeleteSection.From));
         VisitDeleteDelete(node);
         VisitDeleteFrom(node);
         VisitDeleteWhere(node);
