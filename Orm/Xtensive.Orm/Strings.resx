@@ -3340,4 +3340,10 @@ Error: {1}</value>
   <data name="ExTypeIdentifierXDefinesDifferentTypesInExtractedMapOfTypesAndDefinedByUserMapOfTypes">
     <value xml:space="preserve">Type identifier '{0}' defines different types in extracted map of types and defined by user map of types.</value>
   </data>
+  <data name="ExStorageIsNotSupportedLimitationOfRowCountToUpdate">
+    <value xml:space="preserve">Storage is not supported limitation of row count to update.</value>
+  </data>
+  <data name="ExStorageIsNotSupportedLimitationOfRowCountToDelete">
+    <value xml:space="preserve">Storage is not supported limitation of row count to delete.</value>
+  </data>
 </root>
