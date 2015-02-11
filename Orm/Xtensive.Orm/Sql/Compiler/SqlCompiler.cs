@@ -713,26 +713,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlDelete node)
     {
-      using (context.EnterScope(node)) {
-        context.Output.AppendText(translator.Translate(context, node, DeleteSection.Entry));
-        if (node.Delete==null)
-          throw new SqlCompilerException(Strings.ExTablePropertyIsNotSet);
-
-        using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableAliasing)) {
-          node.Delete.AcceptVisitor(this);
-        }
-
-        if (CheckFeature(QueryFeatures.DeleteFrom) && node.From!=null) {
-          context.Output.AppendText(translator.Translate(context, node, DeleteSection.From));
-          node.From.AcceptVisitor(this);
-        }
-
-        if (!node.Where.IsNullReference()) {
-            context.Output.AppendText(translator.Translate(context, node, DeleteSection.Where));
-            node.Where.AcceptVisitor(this);
-        }
-        context.Output.AppendText(translator.Translate(context, node, DeleteSection.Exit));
-      }
+      VisitDeleteDefault(node);
     }
 
     public void VisitDeleteDefault(SqlDelete node)
