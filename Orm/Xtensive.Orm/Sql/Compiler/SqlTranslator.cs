@@ -807,6 +807,8 @@ namespace Xtensive.Sql.Compiler
         return "FROM";
       case DeleteSection.Where:
         return "WHERE";
+      case DeleteSection.Limit:
+        return "LIMIT";
       }
       return string.Empty;
     }
@@ -1275,6 +1277,8 @@ namespace Xtensive.Sql.Compiler
         return "FROM";
       case UpdateSection.Where:
         return (node.Where is SqlCursor) ? "WHERE CURRENT OF" : "WHERE";
+      case UpdateSection.Limit:
+        return "LIMIT";
       }
       return string.Empty;
     }

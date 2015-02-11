@@ -67,6 +67,8 @@ namespace Xtensive.Orm.Providers
     FullTextColumnDataTypeSpecification = 1L << 49,
     DateTimeOffset = 1L << 50,
     AutoIncrementSettingsInMemory = 1L << 51,
+    UpdateLimit = 1L << 52,
+    DeleteLimit = 1L << 53,
 
     // Feature groups
     Paging = Take | Skip,

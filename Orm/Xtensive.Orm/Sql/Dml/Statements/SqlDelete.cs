@@ -15,6 +15,7 @@ namespace Xtensive.Sql.Dml
     private SqlExpression where;
     private SqlTableRef delete;
     private SqlTable from;
+    private SqlExpression limit;
 
     /// <summary>
     /// Gets or sets the table.
@@ -48,6 +49,15 @@ namespace Xtensive.Sql.Dml
     {
       get { return from;}
       set { from = value; }
+    }
+
+    /// <summary>
+    /// Gets or sets the LIMIT clause expression
+    /// </summary>
+    public SqlExpression Limit
+    {
+      get { return limit; }
+      set { limit = value; }
     }
 
     internal override object Clone(SqlNodeCloneContext context)

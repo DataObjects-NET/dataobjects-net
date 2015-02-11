@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Text;
 using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
@@ -36,6 +37,56 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         VisitSelectOrderBy(node);
         VisitSelectLock(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
+      }
+    }
+
+    public override void Visit(SqlUpdate node)
+    {
+      using (context.EnterScope(node)) {
+        VisitUpdateEntry(node);
+        VisitUpdateLimit(node);
+        VisitUpdateUpdate(node);
+        VisitUpdateSet(node);
+        VisitUpdateFrom(node);
+        VisitUpdateWhere(node);
+        VisitUpdateExit(node);
+      }
+    }
+
+    public override void VisitUpdateLimit(SqlUpdate node)
+    {
+      if (!node.Limit.IsNullReference()) {
+        if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateLimit))
+          throw new NotSupportedException(Strings.ExStorageIsNotSupportedLimitationOfRowCountToUpdate);
+        context.Output.AppendText(translator.Translate(context, node, UpdateSection.Limit));
+        context.Output.AppendText("(");
+        node.Limit.AcceptVisitor(this);
+        context.Output.AppendText(")");
+      }
+    }
+
+    public override void Visit(SqlDelete node)
+    {
+      using (context.EnterScope(node)) {
+        VisitDeleteEntry(node);
+        VisitDeleteLimit(node);
+        context.Output.AppendText(translator.Translate(context, node, DeleteSection.From));
+        VisitDeleteDelete(node);
+        VisitDeleteFrom(node);
+        VisitDeleteWhere(node);
+        VisitDeleteExit(node);
+      }
+    }
+
+    public override void VisitDeleteLimit(SqlDelete node)
+    {
+      if (!node.Limit.IsNullReference()) {
+        if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.DeleteLimit))
+          throw new NotSupportedException(Strings.ExStorageIsNotSupportedLimitationOfRowCountToDelete);
+        context.Output.AppendText(translator.Translate(context, node, DeleteSection.Limit));
+        context.Output.AppendText("(");
+        node.Limit.AcceptVisitor(this);
+        context.Output.AppendText(")");
       }
     }
 
