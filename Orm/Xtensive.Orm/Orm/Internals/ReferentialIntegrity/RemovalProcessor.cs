@@ -170,7 +170,7 @@ namespace Xtensive.Orm.ReferentialIntegrity
             processor.Process(Context, association, removingEntity, reference.ReferencedEntity, removingEntity, reference.ReferencedEntity);
         else
           foreach (var reference in container.References.ToList())
-            processor.Process(Context, association, removingEntity, reference.ReferencingEntity, reference.ReferencingEntity, removingEntity);
+            processor.Process(Context, association, removingEntity, reference.ReferencedEntity, reference.ReferencingEntity, removingEntity);
       }
     }
 
