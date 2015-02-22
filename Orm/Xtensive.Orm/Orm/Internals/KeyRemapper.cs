@@ -65,7 +65,9 @@ namespace Xtensive.Orm.Internals
 
     private void RemapEntityReference(RemapContext context, ReferenceFieldChangeInfo info)
     {
-      var entity = Session.Query.Single(info.FieldOwner);
+      var entity = Session.Query.SingleOrDefault(info.FieldOwner);
+      if (entity==null)
+        return;
       var value = context.TryRemapKey(info.FieldValue);
       entity.SetReferenceKey(info.Field, value);
     }

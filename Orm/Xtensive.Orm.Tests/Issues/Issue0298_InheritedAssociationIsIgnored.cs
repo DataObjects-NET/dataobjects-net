@@ -5,6 +5,7 @@
 // Created:    a
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Configuration;
@@ -74,6 +75,29 @@ namespace Xtensive.Orm.Tests.Issues
           Assert.AreEqual(0, session.Query.All<MasterTrack>().Count());
           // Rollback
         }
+      }
+    }
+
+    [Test]
+    public void ClientPrifileTest()
+    {
+      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile)))
+      using (session.Activate()){
+
+          var am = new AudioMaster();
+          am.Tracks.Add(new MasterTrack());
+          am.Tracks.Add(new MasterTrack());
+
+          //Assert.AreEqual(1, session.Query.All<AudioMaster>().Count());
+          //Assert.AreEqual(2, session.Query.All<MasterTrack>().Count());
+
+          AssertEx.Throws<ReferentialIntegrityException>(() => ((IEnumerable<MasterTrack>) am.Tracks).First().Remove());
+
+          am.Remove();
+
+          //Assert.AreEqual(0, session.Query.All<AudioMaster>().Count());
+          //Assert.AreEqual(0, session.Query.All<MasterTrack>().Count());
+          // Rollback
       }
     }
   }

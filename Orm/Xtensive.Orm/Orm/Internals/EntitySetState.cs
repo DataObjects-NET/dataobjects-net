@@ -37,6 +37,7 @@ namespace Xtensive.Orm.Internals
 
     private readonly IDictionary<Key, Key> addedKeys;
     private readonly IDictionary<Key, Key> removedKeys;
+    private readonly EntitySetBase owner;
     private bool isLoaded;
     private long? totalItemCount;
 
@@ -165,6 +166,7 @@ namespace Xtensive.Orm.Internals
     /// <param name="key">The key to add.</param>
     public void Add(Key key)
     {
+      Session.EntityReferenceChangesRegistry.RegisterAddedReference(Session.Query.SingleOrDefault(key).State, owner.Owner.State);
       if (removedKeys.ContainsKey(key))
         removedKeys.Remove(key);
       else
@@ -180,6 +182,7 @@ namespace Xtensive.Orm.Internals
     /// <param name="key">The key to remove.</param>
     public void Remove(Key key)
     {
+      Session.EntityReferenceChangesRegistry.RegisterRemovedReference(Session.Query.SingleOrDefault(key).State, owner.Owner.State);
       if (addedKeys.ContainsKey(key))
         addedKeys.Remove(key);
       else
@@ -309,6 +312,7 @@ namespace Xtensive.Orm.Internals
       : base(entitySet.Session)
     {
       InitializeFetchedKeys();
+      owner = entitySet;
       addedKeys = new Dictionary<Key, Key>();
       removedKeys = new Dictionary<Key, Key>();
     }

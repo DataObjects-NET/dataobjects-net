@@ -99,7 +99,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0554_NewClientProfileBugModel
     {
     }
   }
-
 }
 
 namespace Xtensive.Orm.Tests.Issues
@@ -467,28 +466,34 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test11()
     {
-      Key KeyA2, KeyB1, KeyB2;
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ServerProfile)))
-      {
+      Key referencedToNothingKey, referencingB1ToA1Key, referencingB2ToA1Key;
+      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ServerProfile))) {
         using (session.Activate())
         using (var transaction = session.OpenTransaction()) {
+          var referencedTo = new TestA() {Text = "A1"};
+          var referencedToNothing = new TestA() {Text = "A2"};
           var TestA1 = new TestA {Text = "A1"};
-          KeyA2 = new TestA {Text = "A2"}.Key;
-          KeyB1 = new TestB {Text = "B1", TestA = TestA1}.Key;
-          KeyB2 = new TestB {Text = "B2", TestA = TestA1}.Key;
+          referencedToNothingKey = referencedToNothing.Key;
+
+          var firstRefernsingToA1 = new TestB() {Text = "B1", TestA = referencedTo};
+          referencingB1ToA1Key = firstRefernsingToA1.Key;
+
+          var secondReferencingToA1 = new TestB() {Text = "B2", TestA = referencedTo};
+          referencingB2ToA1Key = secondReferencingToA1.Key;
           transaction.Complete();
         }
       }
 
       using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile))) {
-        var TestA2 = session.Query.Single<TestA>(KeyA2);
-        var TestB1 = session.Query.Single<TestB>(KeyB1);
-        var TestB2 = session.Query.Single<TestB>(KeyB2);
-        TestB2.Remove();
-        var TestA1 = TestB1.TestA;
-        TestB1.TestA = TestA2;
+        var referencingToNothing = session.Query.Single<TestA>(referencedToNothingKey);
+        var firstReferencingToA1 = session.Query.Single<TestB>(referencingB1ToA1Key);
+        var secondReferencingToA1 = session.Query.Single<TestB>(referencingB2ToA1Key);
+        secondReferencingToA1.Remove();
+        var referencedTo = firstReferencingToA1.TestA;
+        firstReferencingToA1.TestA = referencingToNothing;
         // Exception!
-        TestA1.Remove();
+        referencedTo.Remove();
+        session.SaveChanges();
       }
     }
 
@@ -496,11 +501,10 @@ namespace Xtensive.Orm.Tests.Issues
     public void Test12()
     {
       using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile)))
-      using (session.Activate())
-      {
-        var TestA = new TestA { Text = "A" };
-        var TestB = new TestB { Text = "B", TestA = TestA };
-        TestB.Remove();
+      using (session.Activate()) {
+        var testA = new TestA { Text = "A" };
+        var testB = new TestB { Text = "B", TestA = testA };
+        testB.Remove();
         // Exception!
         session.SaveChanges();
       }
@@ -511,9 +515,9 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile)))
       using (session.Activate()) {
-        var TestB = new TestB { Text = "B" };
-        var TestA = new TestA { Text = "A", TestBs = { TestB } };
-        TestB.Remove();
+        var testB = new TestB { Text = "B" };
+        var testA = new TestA { Text = "A", TestBs = { testB } };
+        testB.Remove();
         // Exception!
         session.SaveChanges();
       }
