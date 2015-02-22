@@ -304,6 +304,7 @@
     <Compile Include="Linq\ConvariantQueriesTest.cs" />
     <Compile Include="Linq\DateTimeToStringTest.cs" />
     <Compile Include="Linq\DoubleAggregateToStructTest.cs" />
+    <Compile Include="Storage\ClientProfileReferentialIntegrityTest.cs" />
     <Compile Include="Storage\ExecuteDelayedForIOrderedQueryableQuery.cs" />
     <Compile Include="Linq\DynamicallyDefinedFields.cs" />
     <Compile Include="Linq\GroupByTwoEntitiesWithSameColumnsTest.cs" />
