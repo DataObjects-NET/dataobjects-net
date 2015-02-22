@@ -453,13 +453,13 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Checks that reference from <paramref name="entity"/> to this entity have not removed.
+    /// Checks that reference from <paramref name="entity"/> was removed since last saving.
     /// </summary>
     /// <param name="entity">Entity to check.</param>
-    /// <returns><see langword="false"/> if <see cref="Session.EntityReferenceChangesRegistry"/> contains information about removed reference, otherwise, <see langword="true"/>.</returns>
-    internal bool HasReferenceFrom(Entity entity)
+    /// <returns><see langword="true"/> if <see cref="Session.EntityReferenceChangesRegistry"/> contains information about removed reference, otherwise, <see langword="false"/>.</returns>
+    internal bool IsReferenceDeleted(Entity entity)
     {
-      return Session.EntityReferenceChangesRegistry.HasReferenceFrom(State, entity.State);
+      return Session.EntityReferenceChangesRegistry.IsReferenceDeleted(State, entity.State);
     }
 
     /// <summary>
