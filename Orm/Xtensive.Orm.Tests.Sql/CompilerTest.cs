@@ -249,7 +249,7 @@ namespace Xtensive.Orm.Tests.Sql
       }
       if (batch.Count > 0)
         foreach (var query in batch) {
-          using (var command = Connection.CreateCommand((SqlDropTable)query)) {
+          using (var command = Connection.CreateCommand((ISqlCompileUnit) query)) {
             Console.WriteLine(command.CommandText);
             command.ExecuteNonQuery();
           }
