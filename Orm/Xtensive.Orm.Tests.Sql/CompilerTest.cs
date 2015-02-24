@@ -5,9 +5,11 @@
 // Created:    2015.02.06
 
 using System;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
+using Xtensive.Sql.Dml;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 
@@ -25,6 +27,8 @@ namespace Xtensive.Orm.Tests.Sql
     protected override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
+      var initialCatalog = ExtractCatalog();
+      DropSchema(initialCatalog);
       Catalog = ExtractCatalog();
       CreateTables(Catalog);
     }
@@ -134,22 +138,13 @@ namespace Xtensive.Orm.Tests.Sql
       Table table;
       TableColumn column;
       var createBatch = SqlDml.Batch();
-      var dropBatch = SqlDml.Batch();
 
-      if (schema.Tables["EmployeeAddress"]!=null) {
-        dropBatch.Add(SqlDdl.Drop(schema.Tables["EmployeeAddress"]));
-        schema.Tables.Remove(schema.Tables["EmployeeAddress"]);
-      }
       table = schema.CreateTable("EmployeeAddress");
       table.CreateColumn("EmployeeID", new SqlValueType(SqlType.Int32));
       table.CreateColumn("AddressID", new SqlValueType(SqlType.Int32));
       table.CreateColumn("ModifiedDate", new SqlValueType(SqlType.DateTime));
       createBatch.Add(SqlDdl.Create(table));
 
-      if (schema.Tables["EmployeeDepartmentHistory"]!=null) {
-        dropBatch.Add(SqlDdl.Drop(schema.Tables["EmployeeDepartmentHistory"]));
-        schema.Tables.Remove(schema.Tables["EmployeeDepartmentHistory"]);
-      }
       table = schema.CreateTable("EmployeeDepartmentHistory");
       table.CreateColumn("EmployeeID", new SqlValueType(SqlType.Int32));
       table.CreateColumn("DepartmentID", new SqlValueType(SqlType.Int16));
@@ -159,10 +154,6 @@ namespace Xtensive.Orm.Tests.Sql
       table.CreateColumn("ModifiedDate", new SqlValueType(SqlType.DateTime));
       createBatch.Add(SqlDdl.Create(table));
 
-      if (schema.Tables["EmployeePayHistory"]!=null) {
-        dropBatch.Add(SqlDdl.Drop(schema.Tables["EmployeePayHistory"]));
-        schema.Tables.Remove(schema.Tables["EmployeePayHistory"]);
-      }
       table = schema.CreateTable("EmployeePayHistory");
       table.CreateColumn("EmployeeID", new SqlValueType(SqlType.Int32));
       table.CreateColumn("RateChangeDate", new SqlValueType(SqlType.DateTime));
@@ -171,10 +162,6 @@ namespace Xtensive.Orm.Tests.Sql
       table.CreateColumn("ModifiedDate", new SqlValueType(SqlType.DateTime));
       createBatch.Add(SqlDdl.Create(table));
 
-      if (schema.Tables["Employee"]!=null) {
-        dropBatch.Add(SqlDdl.Drop(schema.Tables["Employee"]));
-        schema.Tables.Remove(schema.Tables["Employee"]);
-      }
       table = schema.CreateTable("Employee");
       table.CreateColumn("EmployeeID", new SqlValueType(SqlType.Int32));
       table.CreateColumn("NationalIDNumber", Driver.TypeMappings[typeof(string)].MapType());
@@ -191,10 +178,6 @@ namespace Xtensive.Orm.Tests.Sql
       table.CreateColumn("ModifiedDate", new SqlValueType(SqlType.DateTime));
       createBatch.Add(SqlDdl.Create(table));
 
-      if (schema.Tables["Department"]!=null) {
-        dropBatch.Add(SqlDdl.Drop(schema.Tables["Department"]));
-        schema.Tables.Remove(schema.Tables["Department"]);
-      }
       table = schema.CreateTable("Department");
       table.CreateColumn("DepartmentID", new SqlValueType(SqlType.Int32));
       table.CreateColumn("Name", Driver.TypeMappings[typeof (string)].MapType());
@@ -202,10 +185,6 @@ namespace Xtensive.Orm.Tests.Sql
       table.CreateColumn("ModifiedDate", new SqlValueType(SqlType.DateTime));
       createBatch.Add(SqlDdl.Create(table));
 
-      if (schema.Tables["Shift"]!=null) {
-        dropBatch.Add(SqlDdl.Drop(schema.Tables["Shift"]));
-        schema.Tables.Remove(schema.Tables["Shift"]);
-      }
       table = schema.CreateTable("Shift");
       table.CreateColumn("ShiftID", new SqlValueType(SqlType.Int32));
       table.CreateColumn("Name", Driver.TypeMappings[typeof (string)].MapType());
@@ -214,43 +193,67 @@ namespace Xtensive.Orm.Tests.Sql
       table.CreateColumn("ModifiedDate", new SqlValueType(SqlType.DateTime));
       createBatch.Add(SqlDdl.Create(table));
 
-      if (schema.Tables["JobCandidate"]!=null) {
-        dropBatch.Add(SqlDdl.Drop(schema.Tables["JobCandidate"]));
-        schema.Tables.Remove(schema.Tables["JobCandidate"]);
-      }
       table = schema.CreateTable("JobCandidate");
       table.CreateColumn("JobCandidateID", new SqlValueType(SqlType.Int32));
       table.CreateColumn("EmployeeID", new SqlValueType(SqlType.Int32));
       table.CreateColumn("ModifiedDate", new SqlValueType(SqlType.DateTime));
       createBatch.Add(SqlDdl.Create(table));
 
+      ExecuteBatch(createBatch);
+    }
+
+    private void DropSchema(Catalog catalog)
+    {
+      var schema = catalog.DefaultSchema;
+      var dropBatch = SqlDml.Batch();
+
+      foreach (var constraint in schema.Tables.Where(t => t.TableConstraints.Count != 0).SelectMany(t => t.TableConstraints.OfType<ForeignKey>())) {
+        if (dropBatch.Count > 31) {
+          ExecuteBatch(dropBatch);
+          dropBatch = SqlDml.Batch();
+        }
+        dropBatch.Add(SqlDdl.Alter(constraint.Table, SqlDdl.DropConstraint(constraint)));
+      }
+
+      foreach (var view in schema.Views) {
+        if (dropBatch.Count > 31) {
+          ExecuteBatch(dropBatch);
+          dropBatch = SqlDml.Batch();
+        }
+        dropBatch.Add(SqlDdl.Drop(view));
+        schema.Tables.Remove(schema.Tables[view.Name]);
+      }
+
+      foreach (var schemaTable in schema.Tables) {
+        if (dropBatch.Count > 31) {
+          ExecuteBatch(dropBatch);
+          dropBatch = SqlDml.Batch();
+        }
+        dropBatch.Add(SqlDdl.Drop(schemaTable));
+      }
+
+      if (dropBatch.Count!=0)
+        ExecuteBatch(dropBatch);
+    }
+
+    private void ExecuteBatch(SqlBatch batch)
+    {
       if (Driver.ServerInfo.Query.Features.HasFlag(QueryFeatures.Batches)) {
-        if (dropBatch.Count > 0) {
-          using (var command = Connection.CreateCommand(dropBatch)) {
+        if (batch.Count > 0) {
+          using (var command = Connection.CreateCommand(batch)) {
             Console.WriteLine(command.CommandText);
             command.ExecuteNonQuery();
           }
         }
-        using (var command = Connection.CreateCommand(createBatch)) {
-          Console.WriteLine(command.CommandText);
-          command.ExecuteNonQuery();
-        }
+        return;
       }
-      else {
-        if (dropBatch.Count > 0)
-          foreach (var query in dropBatch) {
-            using (var command = Connection.CreateCommand((SqlDropTable) query)) {
-              Console.WriteLine(command.CommandText);
-              command.ExecuteNonQuery();
-            }
-          }
-        foreach (var query in createBatch) {
-          using (var command = Connection.CreateCommand((SqlCreateTable) query)) {
+      if (batch.Count > 0)
+        foreach (var query in batch) {
+          using (var command = Connection.CreateCommand((SqlDropTable)query)) {
             Console.WriteLine(command.CommandText);
             command.ExecuteNonQuery();
           }
         }
-      }
     }
   }
 }
