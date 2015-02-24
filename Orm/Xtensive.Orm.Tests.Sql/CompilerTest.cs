@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       var tableRef = SqlDml.TableRef(Catalog.DefaultSchema.Tables["Department"]);
       var update = SqlDml.Update(tableRef);
-      update.Values.Add(tableRef.Columns["ModifiedDate"], SqlDml.Literal(DateTime.Now.ToString()));
+      update.Values.Add(tableRef.Columns["ModifiedDate"], SqlDml.Literal(DateTime.Now));
       Console.WriteLine(Driver.Compile(update).GetCommandText());
       using (var command = Connection.CreateCommand(update)) {
         command.ExecuteNonQuery();
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       var tableRef = SqlDml.TableRef(Catalog.DefaultSchema.Tables["Department"]);
       var update = SqlDml.Update(tableRef);
-      update.Values.Add(tableRef.Columns["ModifiedDate"], SqlDml.Literal(DateTime.Now.ToString()));
+      update.Values.Add(tableRef.Columns["ModifiedDate"], SqlDml.Literal(DateTime.Now));
       update.Where = SqlDml.Equals(tableRef.Columns["Name"], SqlDml.Literal("Human Resources Department"));
       Console.WriteLine(Driver.Compile(update).GetCommandText());
       using (var command = Connection.CreateCommand(update)) {
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       var tableRef = SqlDml.TableRef(Catalog.DefaultSchema.Tables["Department"]);
       var update = SqlDml.Update(tableRef);
-      update.Values.Add(tableRef.Columns["ModifiedDate"], SqlDml.Literal(DateTime.Now.ToString()));
+      update.Values.Add(tableRef.Columns["ModifiedDate"], SqlDml.Literal(DateTime.Now));
       update.Limit = SqlDml.Native("100");
       Console.WriteLine(Driver.Compile(update).GetCommandText());
       using (var command = Connection.CreateCommand(update)) {
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       var tableRef = SqlDml.TableRef(Catalog.DefaultSchema.Tables["Department"]);
       var update = SqlDml.Update(tableRef);
-      update.Values.Add(tableRef.Columns["ModifiedDate"], SqlDml.Literal(DateTime.Now.ToString()));
+      update.Values.Add(tableRef.Columns["ModifiedDate"], SqlDml.Literal(DateTime.Now.Date));
       update.Where = SqlDml.Equals(tableRef.Columns["Name"], SqlDml.Literal("Human Resources Department"));
       update.Limit = SqlDml.Native("100");
       Console.WriteLine(Driver.Compile(update).GetCommandText());
