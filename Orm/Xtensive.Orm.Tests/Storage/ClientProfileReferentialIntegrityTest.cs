@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(null, a.B);
           AssertEx.Throws<ReferentialIntegrityException>(a.C.Remove);
           a.Remove();
-          Session.Current.Persist();
+          Session.Current.SaveChanges();
           Assert.AreEqual(0, session.Query.All<A>().Count());
           Assert.AreEqual(0, session.Query.All<B>().Count());
           Assert.AreEqual(0, session.Query.All<C>().Count());

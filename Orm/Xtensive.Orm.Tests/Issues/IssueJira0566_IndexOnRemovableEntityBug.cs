@@ -34,10 +34,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0566_BuildingUnderlyingIndexForFore
   [HierarchyRoot(InheritanceSchema.ConcreteTable)]
   public class TestEntity : BaseEntity
   {
-    [Key]
-    [Field(Nullable = false)]
-    public Guid Id { get; private set; }
-
     [Field(Nullable = false, Length = 400)]
     public string Name { get; set; }
   }
@@ -78,10 +74,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0566_BuildingUnderlyingIndexForFore
   [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
   public class TestEntity : BaseEntity
   {
-    [Key]
-    [Field(Nullable = false)]
-    public Guid Id { get; private set; }
-
     [Field(Nullable = false, Length = 400)]
     public string Name { get; set; }
   }
@@ -128,10 +120,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0566_BuildingUnderlyingIndexForFore
   [HierarchyRoot(InheritanceSchema.SingleTable)]
   public class TestEntity : BaseEntity
   {
-    [Key]
-    [Field(Nullable = false)]
-    public Guid Id { get; private set; }
-
     [Field(Nullable = false, Length = 400)]
     public string Name { get; set; }
   }
