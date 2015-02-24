@@ -66,6 +66,7 @@ namespace Xtensive.Orm.Providers
     SelfReferencingRowRemovalIsError = 1L << 48,
     FullTextColumnDataTypeSpecification = 1L << 49,
     DateTimeOffset = 1L << 50,
+    AutoIncrementSettingsInMemory = 1L << 51,
     UpdateLimit = 1L << 52,
     DeleteLimit = 1L << 53,
 
@@ -77,5 +78,6 @@ namespace Xtensive.Orm.Providers
     // Obsolete features
     [Obsolete("Use ProviderFeatures.ExclusiveWriterConnection instead.")]
     SingleSessionAccess = ExclusiveWriterConnection,
+    
   }
 }

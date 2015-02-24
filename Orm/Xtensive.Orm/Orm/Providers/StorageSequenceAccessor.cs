@@ -26,6 +26,7 @@ namespace Xtensive.Orm.Providers
     private readonly SequenceQueryBuilder queryBuilder;
     private readonly bool hasArbitaryIncrement;
     private readonly bool hasSequences;
+    private readonly bool hasAISettingsInMemory;
 
     /// <inheritdoc/>
     public Segment<long> NextBulk(SequenceInfo sequenceInfo, Session session)
@@ -73,9 +74,12 @@ namespace Xtensive.Orm.Providers
       long result;
       using (var session = domain.OpenSession(SessionType.KeyGenerator)) {
         session.SetStorageNode(node);
-        using (session.OpenTransaction()) {
+        using (var transaction = session.OpenTransaction()) {
           result = query.ExecuteWith(session.Services.Demand<ISqlExecutor>());
-          // Rollback
+          // This is for stupid MySQL auto-increment settings
+          // DO NOT COMMIT transaction when provider is not MySql
+          if (hasAISettingsInMemory)
+            transaction.Complete();
         }
       }
       return result;
@@ -108,6 +112,7 @@ namespace Xtensive.Orm.Providers
         providerInfo.Supports(ProviderFeatures.Sequences)
         || providerInfo.Supports(ProviderFeatures.ArbitraryIdentityIncrement);
       hasSequences = providerInfo.Supports(ProviderFeatures.Sequences);
+      hasAISettingsInMemory = providerInfo.Supports(ProviderFeatures.AutoIncrementSettingsInMemory);
     }
   }
 }

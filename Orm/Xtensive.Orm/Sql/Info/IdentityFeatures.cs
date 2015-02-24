@@ -35,5 +35,19 @@ namespace Xtensive.Sql.Info
     /// identity columns.
     /// </summary>
     AutoIncrement = 0x4,
+
+    /// <summary>
+    /// Indicates that RDBMS stores state of automatically increment
+    /// in memory and restore it according data in identity column.
+    /// </summary>
+    // 
+    // --------------------------------------------------------------------------------------
+    // WARNING!!!!!!
+    // THIS OPTION CAN BROKE CONCURENT ACCESS FROM FEW DOMAINS TO GENERATOR TABLE.
+    // DO NOT USE THIS OPTION WITH ANY RDBMS EXCEPT MYSQL.
+    //---------------------------------------------------------------------------------------
+    // This option fix dropping settings of auto-increment for generator table in MySQL.
+    // It makes DO store last generated value in generator table.
+    AutoIncrementSettingsInMemory = 0x8,
   }
 }

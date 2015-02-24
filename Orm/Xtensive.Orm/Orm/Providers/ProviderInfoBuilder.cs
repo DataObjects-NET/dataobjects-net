@@ -46,6 +46,8 @@ namespace Xtensive.Orm.Providers
       else {
         if (serverInfo.Identity!=null && serverInfo.Identity.Features.Supports(IdentityFeatures.Increment))
           f |= ProviderFeatures.ArbitraryIdentityIncrement;
+        if (serverInfo.Identity!=null && serverInfo.Identity.Features.Supports(IdentityFeatures.AutoIncrementSettingsInMemory))
+          f |= ProviderFeatures.AutoIncrementSettingsInMemory;
       }
       if (queryFeatures.Supports(QueryFeatures.CrossApply))
         f |= ProviderFeatures.Apply;

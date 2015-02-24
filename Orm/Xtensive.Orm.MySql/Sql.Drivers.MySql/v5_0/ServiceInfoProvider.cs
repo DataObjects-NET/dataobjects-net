@@ -221,7 +221,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override IdentityInfo GetIdentityInfo()
     {
       var identityInfo = new IdentityInfo();
-      identityInfo.Features = IdentityFeatures.Seed | IdentityFeatures.AutoIncrement;
+      identityInfo.Features = IdentityFeatures.Seed | IdentityFeatures.AutoIncrement | IdentityFeatures.AutoIncrementSettingsInMemory;
       return identityInfo;
     }
 
