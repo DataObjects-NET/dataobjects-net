@@ -273,7 +273,7 @@ namespace Xtensive.Orm.Upgrade
       var typesExtracted = UpgradeContext.ExtractedTypeMap!=null;
       var mapping = UpgradeContext.UpgradedTypesMapping ?? new Dictionary<string, string>();
       foreach (var userDefindeTypeMap in UpgradeContext.UserDefinedTypeMap) {
-        if (types.Contains(userDefindeTypeMap.Key))
+        if (types.Find(userDefindeTypeMap.Key)==null)
           throw new DomainBuilderException(string.Format(Strings.ExUnableToDefineTypeIdentifierXForTypeYTypeIsNotExists, userDefindeTypeMap.Value, userDefindeTypeMap.Key));
 
         if (domain.Model.Databases.Count==0) {
