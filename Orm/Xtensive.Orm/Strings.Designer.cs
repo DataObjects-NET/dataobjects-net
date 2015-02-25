@@ -1770,6 +1770,24 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Custom type identifier &apos;{0}&apos; of type &apos;{1}&apos; beyongs the limits defined for database..
+        /// </summary>
+        internal static string ExCustomTypeIdentifierXOfTypeYBeyongsTheLimitsDefinedForDatabase {
+            get {
+                return ResourceManager.GetString("ExCustomTypeIdentifierXOfTypeYBeyongsTheLimitsDefinedForDatabase", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Custom type identifier &apos;{0}&apos; of type &apos;{1}&apos; conflicts with type &apos;{2}&apos; in extracted map of types..
+        /// </summary>
+        internal static string ExCustomTypeIdentifierXOfTypeYConflictsWithTypeZInExtractedMapOfTypes {
+            get {
+                return ResourceManager.GetString("ExCustomTypeIdentifierXOfTypeYConflictsWithTypeZInExtractedMapOfTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cyclic dependency between databases found: {0}.
         /// </summary>
         internal static string ExCyclicDependencyBetweenDatabasesFoundX {
@@ -6268,16 +6286,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type identifier &apos;{0}&apos; defines different types in extracted map of types and defined by user map of types..
-        /// </summary>
-        internal static string ExTypeIdentifierXDefinesDifferentTypesInExtractedMapOfTypesAndDefinedByUserMapOfTypes {
-            get {
-                return ResourceManager.GetString("ExTypeIdentifierXDefinesDifferentTypesInExtractedMapOfTypesAndDefinedByUserMapOfT" +
-                        "ypes", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to TypeId for type &apos;{0}&apos; is not found..
         /// </summary>
         internal static string ExTypeIdForTypeXIsNotFound {
@@ -7321,15 +7329,6 @@ namespace Xtensive {
         internal static string ExUseMethodXOnFirstInsteadOfSingle {
             get {
                 return ResourceManager.GetString("ExUseMethodXOnFirstInsteadOfSingle", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Custom type identifier &apos;{0}&apos; for type &apos;{1}&apos; beyongs the limits defined for database &apos;{2}&apos;..
-        /// </summary>
-        internal static string ExUserDefinedTypeIdentifierXForTypeYBeyongTheLimitsDefinedForDatabaseZ {
-            get {
-                return ResourceManager.GetString("ExUserDefinedTypeIdentifierXForTypeYBeyongTheLimitsDefinedForDatabaseZ", resourceCulture);
             }
         }
         

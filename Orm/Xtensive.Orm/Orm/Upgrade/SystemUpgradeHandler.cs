@@ -267,35 +267,47 @@ namespace Xtensive.Orm.Upgrade
 
     private void CheckUserDefinedTypeMap(Domain domain)
     {
-      if (UpgradeContext.UserDefinedTypeMap.Count==0)
+      if (UpgradeContext.UserDefinedTypeMap.Count == 0)
         return;
       var types = domain.Model.Types;
-      var typesExtracted = UpgradeContext.ExtractedTypeMap!=null;
+      var typesExtracted = UpgradeContext.ExtractedTypeMap != null;
+      var extractedTypeMapping = UpgradeContext.ExtractedTypeMap;
+      var reversedTypeMapping = (typesExtracted) ? extractedTypeMapping.ToDictionary(el => el.Value, el => el.Key) : null;
       var mapping = UpgradeContext.UpgradedTypesMapping ?? new Dictionary<string, string>();
       foreach (var userDefindeTypeMap in UpgradeContext.UserDefinedTypeMap) {
-        if (types.Find(userDefindeTypeMap.Key)==null)
-          throw new DomainBuilderException(string.Format(Strings.ExUnableToDefineTypeIdentifierXForTypeYTypeIsNotExists, userDefindeTypeMap.Value, userDefindeTypeMap.Key));
+        var type = types.Find(userDefindeTypeMap.Key);
+        if (type==null)
+          throw new DomainBuilderException(
+            string.Format(Strings.ExUnableToDefineTypeIdentifierXForTypeYTypeIsNotExists, userDefindeTypeMap.Value, userDefindeTypeMap.Key));
 
-        if (domain.Model.Databases.Count==0) {
-          if (userDefindeTypeMap.Value <= TypeInfo.MinTypeId)
-            throw new DomainBuilderException(string.Format(Strings.ExUserDefinedTypeIdentifierXForTypeYLessThan100, userDefindeTypeMap.Value, userDefindeTypeMap.Key));
-        }
-        else {
-          var type = types.Find(userDefindeTypeMap.Key);
-          var databaseConfiguration = domain.Model.Databases[type.MappingDatabase].Configuration;
-          if (userDefindeTypeMap.Value < databaseConfiguration.MinTypeId || userDefindeTypeMap.Value > databaseConfiguration.MaxTypeId)
-            throw new DomainBuilderException(
-              string.Format(Strings.ExUserDefinedTypeIdentifierXForTypeYBeyongTheLimitsDefinedForDatabaseZ, 
-                userDefindeTypeMap.Value, 
-                userDefindeTypeMap.Key,
-                databaseConfiguration.Name));
-        }
         if (typesExtracted) {
-          if (UpgradeContext.ExtractedTypeMap.ContainsValue(userDefindeTypeMap.Value))
-            if (UpgradeContext.ExtractedTypeMap[userDefindeTypeMap.Key]!=userDefindeTypeMap.Value)
-              throw new DomainBuilderException(string.Format(Strings.ExTypeIdentifierXDefinesDifferentTypesInExtractedMapOfTypesAndDefinedByUserMapOfTypes, userDefindeTypeMap.Value));
+          string extractedTypeName;
+          if (reversedTypeMapping.TryGetValue(userDefindeTypeMap.Value, out extractedTypeName)) {
+            var extractedType = types.Find(extractedTypeName);
+            if (extractedType!=type)
+              throw new DomainBuilderException(
+                string.Format(
+                  Strings.ExCustomTypeIdentifierXOfTypeYConflictsWithTypeZInExtractedMapOfTypes,
+                  userDefindeTypeMap.Value,
+                  userDefindeTypeMap.Key,
+                  extractedType.Name));
+          }
         }
-      } 
+
+        var minimalTypeId = TypeInfo.MinTypeId;
+        var maximalTypeId = int.MaxValue;
+        if (domain.Model.Databases.Count!=0) {
+          var databaseConfiguration = domain.Model.Databases[type.MappingDatabase].Configuration;
+          minimalTypeId = databaseConfiguration.MinTypeId;
+          maximalTypeId = databaseConfiguration.MaxTypeId;
+        }
+
+        if (userDefindeTypeMap.Value < minimalTypeId || userDefindeTypeMap.Value > maximalTypeId)
+          throw new DomainBuilderException(
+            string.Format(Strings.ExCustomTypeIdentifierXOfTypeYBeyongsTheLimitsDefinedForDatabase,
+              userDefindeTypeMap.Value,
+              userDefindeTypeMap.Key));
+      }
     }
   }
 }
