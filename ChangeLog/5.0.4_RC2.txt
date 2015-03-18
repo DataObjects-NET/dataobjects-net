@@ -1,0 +1,2 @@
+[main] Fixed incorrect rollback of transaction in some scenarios
+[main] Speeded up building of domain in UpgradeMode.Skip mode
