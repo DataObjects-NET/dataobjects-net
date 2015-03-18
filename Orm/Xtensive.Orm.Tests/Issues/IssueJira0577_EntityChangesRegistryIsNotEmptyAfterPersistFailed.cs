@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void PersistFailedServerProfileOnTransactionRollbacked()
     {
       using (var session = Domain.OpenSession()) {
-        Assert.Catch<Exception>(
+        Assert.DoesNotThrow(
           () => {
             using (var transaction = session.OpenTransaction()) {
               var call = session.Query.All<Call>().First(el => el.TextField == "3");
