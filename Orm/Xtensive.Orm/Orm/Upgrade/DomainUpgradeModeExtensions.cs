@@ -91,6 +91,7 @@ namespace Xtensive.Orm.Upgrade
     {
       switch (upgradeMode) {
       case DomainUpgradeMode.Skip:
+        return SqlWorkerTask.ExtractMetadata;
       case DomainUpgradeMode.Validate:
       case DomainUpgradeMode.Perform:
       case DomainUpgradeMode.PerformSafely:
