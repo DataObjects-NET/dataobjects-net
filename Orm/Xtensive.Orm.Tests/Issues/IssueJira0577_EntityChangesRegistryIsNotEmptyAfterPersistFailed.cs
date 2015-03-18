@@ -115,13 +115,6 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    [Test]
-    public void PerstistFailedClientProfile()
-    {
-      
-    }
-
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var domainConfiguration = base.BuildConfiguration();
