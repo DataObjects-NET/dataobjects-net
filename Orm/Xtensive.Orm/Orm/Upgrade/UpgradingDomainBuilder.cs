@@ -360,13 +360,14 @@ namespace Xtensive.Orm.Upgrade
       Domain domain, SchemaUpgrader upgrader, SchemaExtractor extractor, SchemaUpgradeMode schemaUpgradeMode)
     {
       using (UpgradeLog.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
-        var targetSchema = GetTargetModel(domain);
-        context.TargetStorageModel = targetSchema;
+        
         if (schemaUpgradeMode==SchemaUpgradeMode.Skip) {
           OnSchemaReady();
           return; // Skipping comparison completely
         }
         var extractedSchema = extractor.GetSchema();
+        var targetSchema = GetTargetModel(domain);
+        context.TargetStorageModel = targetSchema;
 
         if (UpgradeLog.IsLogged(LogLevel.Info)) {
           UpgradeLog.Info(Strings.LogExtractedSchema);
