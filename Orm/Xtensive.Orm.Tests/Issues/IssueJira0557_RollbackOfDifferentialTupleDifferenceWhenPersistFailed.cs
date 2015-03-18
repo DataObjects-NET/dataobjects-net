@@ -127,7 +127,6 @@ namespace Xtensive.Orm.Tests.Issues
           exceptionCatched = true;
         }
         Assert.IsTrue(exceptionCatched);
-        Assert.IsNull(secondCall.State.DifferentialTuple.Difference);
         Assert.IsTrue(secondCall.IsRemoved);
         Assert.AreEqual(secondCall.PersistenceState, PersistenceState.Removed);
       }
@@ -155,7 +154,6 @@ namespace Xtensive.Orm.Tests.Issues
           exceptionCatched = true;
         }
         Assert.IsTrue(exceptionCatched);
-        Assert.IsNotNull(secondCall.State.DifferentialTuple.Difference);
         Assert.IsTrue(secondCall.IsRemoved);
         Assert.AreEqual(secondCall.PersistenceState, PersistenceState.Removed);
       }
