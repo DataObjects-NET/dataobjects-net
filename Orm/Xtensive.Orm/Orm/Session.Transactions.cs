@@ -190,6 +190,7 @@ namespace Xtensive.Orm
               CancelEntitySetsChanges();
               ClearChangeRegistry();
               EntityReferenceChangesRegistry.Clear();
+              EntitySetChangeRegistry.Clear();
             }
             persistingIsFailed = false;
           }
