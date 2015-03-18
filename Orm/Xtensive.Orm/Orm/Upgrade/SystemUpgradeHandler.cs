@@ -283,14 +283,24 @@ namespace Xtensive.Orm.Upgrade
         if (typesExtracted) {
           string extractedTypeName;
           if (reversedTypeMapping.TryGetValue(userDefindeTypeMap.Value, out extractedTypeName)) {
-            var extractedType = types.Find(extractedTypeName);
-            if (extractedType!=type)
+            string oldTypeName;
+            if (!TryGetOldTypeName(userDefindeTypeMap.Key, out oldTypeName)) {
               throw new DomainBuilderException(
                 string.Format(
                   Strings.ExCustomTypeIdentifierXOfTypeYConflictsWithTypeZInExtractedMapOfTypes,
                   userDefindeTypeMap.Value,
                   userDefindeTypeMap.Key,
-                  extractedType.Name));
+                  extractedTypeName));
+            }
+            else {
+              if (extractedTypeName!=oldTypeName)
+                throw new DomainBuilderException(
+                  string.Format(
+                    Strings.ExCustomTypeIdentifierXOfTypeYConflictsWithTypeZInExtractedMapOfTypes,
+                    userDefindeTypeMap.Value,
+                    userDefindeTypeMap.Key,
+                    oldTypeName));
+            }
           }
         }
 
@@ -308,6 +318,21 @@ namespace Xtensive.Orm.Upgrade
               userDefindeTypeMap.Value,
               userDefindeTypeMap.Key));
       }
+    }
+
+    public bool TryGetOldTypeName(string newTypeName, out string oldTypeName)
+    {
+      string oldName;
+      if(UpgradeContext.UpgradedTypesMapping==null) {
+        oldTypeName = newTypeName;
+        return true;
+      }
+      if (UpgradeContext.UpgradedTypesMapping.TryGetValue(newTypeName, out oldName)) {
+        oldTypeName = oldName;
+        return true;
+      }
+      oldTypeName = newTypeName;
+      return false;
     }
   }
 }
