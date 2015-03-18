@@ -186,7 +186,7 @@ namespace Xtensive.Orm
               Rollback(transaction);
           }
           finally {
-            if(!persistingIsFailed) {
+            if(!persistingIsFailed || !Configuration.Supports(SessionOptions.NonTransactionalReads)) {
               CancelEntitySetsChanges();
               ClearChangeRegistry();
               EntityReferenceChangesRegistry.Clear();

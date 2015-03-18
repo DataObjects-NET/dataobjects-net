@@ -137,7 +137,7 @@ namespace Xtensive.Orm
               throw;
             }
             finally {
-              if (!persistingIsFailed) {
+              if (!Configuration.Supports(SessionOptions.NonTransactionalReads) || !persistingIsFailed) {
                 foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
                   item.PersistenceState = PersistenceState.Synchronized;
                 foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified))
@@ -145,7 +145,8 @@ namespace Xtensive.Orm
                 foreach (var item in itemsToPersist.GetItems(PersistenceState.Removed))
                   item.Update(null);
 
-                if (performPinning) {
+                if (performPinning)
+                {
                   EntityChangeRegistry = pinner.PinnedItems;
                   pinner.Reset();
                 }
