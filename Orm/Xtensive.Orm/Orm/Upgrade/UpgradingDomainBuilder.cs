@@ -360,14 +360,27 @@ namespace Xtensive.Orm.Upgrade
       Domain domain, SchemaUpgrader upgrader, SchemaExtractor extractor, SchemaUpgradeMode schemaUpgradeMode)
     {
       using (UpgradeLog.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
-        
+        StorageModel targetSchema = null;
         if (schemaUpgradeMode==SchemaUpgradeMode.Skip) {
+          if (context.StorageNode==null) {
+            //If we build main domain we should log target model.
+            //Log of Storage Node target model is not necessary
+            //because storage target model exactly the same.
+            targetSchema = GetTargetModel(domain);
+            context.TargetStorageModel = targetSchema;
+            if (UpgradeLog.IsLogged(LogLevel.Info)) {
+              UpgradeLog.Info(Strings.LogTargetSchema);
+              targetSchema.Dump();
+            }
+          }
           OnSchemaReady();
           return; // Skipping comparison completely
         }
-        var extractedSchema = extractor.GetSchema();
-        var targetSchema = GetTargetModel(domain);
+        
+        targetSchema = GetTargetModel(domain);
         context.TargetStorageModel = targetSchema;
+
+        var extractedSchema = extractor.GetSchema();
 
         if (UpgradeLog.IsLogged(LogLevel.Info)) {
           UpgradeLog.Info(Strings.LogExtractedSchema);
