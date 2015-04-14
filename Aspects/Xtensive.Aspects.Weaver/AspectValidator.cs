@@ -14,6 +14,7 @@ using PostSharp;
 using PostSharp.Extensibility;
 using PostSharp.Hosting;
 using PostSharp.Sdk.Extensibility;
+using Xtensive.Aspects.Weaver.ExtensionBase;
 using Xtensive.Licensing;
 using Xtensive.Licensing.Validator;
 
@@ -54,6 +55,25 @@ namespace Xtensive.Aspects.Weaver
 
       var validator = new LicenseValidator(selfLocation);
       var licenseInfo = validator.ReloadLicense();
+
+      if (licenseInfo.LicenseType==LicenseType.OemUltimate) {
+        Assembly assembly;
+        var assemblyName = string.Format(
+        "{0}, Version={1}, Culture=neutral, PublicKeyToken={2}",
+        "Xtensive.Aspects.Weaver.Extension", ThisAssembly.Version, ThisAssembly.PublicKeyToken);
+        if (!TryLoadExtensionAssembly(assemblyName, out assembly))
+          return false;
+        var validationStages = assembly.GetCustomAttributes(typeof (ValidatorStageAttribute), false)
+          .Cast<ValidatorStageAttribute>()
+          .Select(a => Activator.CreateInstance(a.StageType))
+          .Cast<ValidatorStage>().ToList();
+        if (validationStages.Count==0)
+          ErrorLog.Write(MessageLocation.Of(MethodBase.GetCurrentMethod()), SeverityType.Error, "Oem license validaton stages are not found.");
+        if (validationStages.All(projectValidator => !projectValidator.Validate(project))) {
+          ErrorLog.Write(MessageLocation.Of(MethodBase.GetCurrentMethod()), SeverityType.Error, "MesControl references validation failed.");
+          return false;
+        }
+      }
 
       if (!ValidateLicense(validator, licenseInfo))
         return false;
@@ -173,6 +193,30 @@ namespace Xtensive.Aspects.Weaver
       if (runManager)
         Process.Start(new ProcessStartInfo(executable) {UseShellExecute = false});
       ErrorLog.Write(MessageLocation.Unknown, SeverityType.Fatal, format, args);
+    }
+
+    private bool TryLoadExtensionAssembly(string oemTasksAssemblyFullName, out Assembly assembly)
+    {
+      assembly = null;
+      try {
+        assembly = Assembly.Load(oemTasksAssemblyFullName);
+        return true;
+      }
+      catch (BadImageFormatException) {
+        ErrorLog.Write(MessageLocation.Of(MethodBase.GetCurrentMethod()), SeverityType.Error, "BadImageFormatExceprion");
+        return false;
+      }
+      catch (FileLoadException) {
+        ErrorLog.Write(MessageLocation.Of(MethodBase.GetCurrentMethod()), SeverityType.Error, "FileLoadExcetion");
+        return false;
+      }
+      catch (FileNotFoundException) {
+        ErrorLog.Write(MessageLocation.Of(MethodBase.GetCurrentMethod()), SeverityType.Error, "FileNotFoundException");
+        return false;
+      }
+      catch (Exception) {
+        return false;
+      }
     }
 
     // Constructors
