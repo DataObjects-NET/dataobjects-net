@@ -28,6 +28,7 @@ internal static class ThisAssembly
   public const string ProductVersion = "${VersionName}, " + Configuration + ", ${BuildStamp}";
   public const string Version = "${Version2}.0.0";
   public const string FileVersion = "${Version4}";
+  public const string PublicKeyToken = "${PublicKeyToken}";
 
   #if NET40
     #if DEBUG
