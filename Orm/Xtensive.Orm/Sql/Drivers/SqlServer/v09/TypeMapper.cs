@@ -75,10 +75,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       var nativeReader = (SqlDataReader) reader;
       var sqlDecimal = nativeReader.GetSqlDecimal(index);
-      if (sqlDecimal > MaxDecimal)
-        return MaxDecimal;
-      if (sqlDecimal < MinDecimal)
-        return MinDecimal;
+      if (ShouldCompareValues(sqlDecimal)) {
+        if (sqlDecimal > MaxDecimal)
+          return decimal.MaxValue;
+        if (sqlDecimal < MinDecimal)
+          return decimal.MinValue;
+      }
       decimal result;
       if (TryConvert(sqlDecimal, out result))
         return result;
@@ -111,6 +113,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var newScale = newPrecision - d.Precision + d.Scale;
       var truncated = SqlDecimal.Truncate(d, newScale);
       return SqlDecimal.ConvertToPrecScale(truncated, newPrecision, newScale);
+    }
+
+    private bool ShouldCompareValues(SqlDecimal valueFromDatabase)
+    {
+      var floorDigitCount = valueFromDatabase.Precision - valueFromDatabase.Scale;
+      if (floorDigitCount >= 29) //29 is max count of floor in .net Decimal
+        return true;
+      return false;
     }
 
     // Constructors
