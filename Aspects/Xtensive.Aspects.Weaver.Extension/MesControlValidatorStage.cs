@@ -11,28 +11,15 @@ namespace Xtensive.Aspects.Weaver
     private const string MesControlAssemblyCulture = "neutral";
     private const  string MesControlAssemblyPublicKeyToken = "67d5889111bf42c8";
     private readonly Regex mescontrolReferencesMatcher = new Regex(@"^MEScontrol\.[A-Za-z\.]*");
-    private LogToFile log = new LogToFile();
 
     public override bool Validate(PostSharp.Sdk.Extensibility.Project project)
     {
-      var aaa = Licensing.LicenseType.OemUltimate;
       var mescontrolReferences = project.Module.AssemblyRefs
         .Where(el => mescontrolReferencesMatcher.IsMatch(el.Name)).ToList();
       if (mescontrolReferences.Count != 0 && mescontrolReferences.Any(el => PublicKeyTokenToString(el.GetPublicKeyToken())==MesControlAssemblyPublicKeyToken))
         return true;
       return false;
     }
-
-    //private byte[] ParsePublicKeyToken(string value)
-    //{
-    //  var result = new List<byte>();
-    //  for (var i = 0; i + 1 < value.Length; i += 2)
-    //  {
-    //    var itemValue = value.Substring(i, 2);
-    //    result.Add(Convert.ToByte(itemValue, 16));
-    //  }
-    //  return result.ToArray();
-    //}
 
     private string PublicKeyTokenToString(byte[] bytes)
     {
