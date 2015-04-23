@@ -1,0 +1,2 @@
+[sqlserver] Improved reading decimals
+[sqlserver] Fixed reading decimal values which beyond the .Net decimal limits
