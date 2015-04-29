@@ -398,7 +398,7 @@ namespace Xtensive.Orm.Upgrade
           hints, context.Hints, schemaUpgradeMode, domain.Model, breifExceptionFormat);
         var shouldDumpSchema = !schemaUpgradeMode.In(
           SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate);
-        if (shouldDumpSchema)
+        if (shouldDumpSchema && UpgradeLog.IsLogged(LogLevel.Info))
           UpgradeLog.Info(result.ToString());
 
         if (UpgradeLog.IsLogged(LogLevel.Info))
