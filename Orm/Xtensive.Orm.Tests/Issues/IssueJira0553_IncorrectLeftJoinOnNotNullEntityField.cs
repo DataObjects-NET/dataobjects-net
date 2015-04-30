@@ -38,6 +38,54 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0553_IncorrectLeftJoinOnNotNullEnti
     [Field(Nullable = false)]
     public Guid Id { get; private set; }
   }
+
+  public class BaseClass : Entity
+  {
+    [Field, Key]
+    public int Id { get; set; }
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  public class Job : BaseClass
+  {
+    [Field(Nullable = false)]
+    public Location Location { get; set; }
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  public class Invoice : BaseClass
+  {
+    [Field]
+    public Job Job { get; set; }
+
+    [Field(Nullable = true)]
+    public Customer Customer { get; set; }
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  public class Location : BaseClass
+  {
+    [Field]
+    public Address Address { get; set; }
+  }
+
+  [Serializable]
+  [HierarchyRoot]
+  public class Address : BaseClass
+  {
+    [Field]
+    public string Street { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class Customer : BaseClass
+  {
+    [Field]
+    public string Name { get; set; }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Issues
@@ -61,6 +109,23 @@ namespace Xtensive.Orm.Tests.Issues
         new EmployeeWithCar { Car = car };
         new Employee();
         new Employee();
+
+        var customer = new Customer();
+        for (var i = 0; i < 10; i++) {
+          if (i % 2==0) {
+            var job = new Job() {
+                                  Location = new Location() {
+                                                              Address = new Address() {
+                                                                                        Street = string.Format("{0} street", i + 1.ToString())
+                                                                                      }
+                                                            }
+                                };
+            var invoice = new Invoice() {Customer = customer, Job = job};
+          }
+          else {
+            var invoice = new Invoice() { Customer = customer };
+          }
+        }
         t.Complete();
       }
     }
@@ -125,6 +190,47 @@ namespace Xtensive.Orm.Tests.Issues
               Car = c
             });
         Assert.AreEqual(3, wordaround.Count());
+      }
+    }
+
+    [Test]
+    public void Test01()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var customer = session.Query.All<Customer>().First();
+        var result = (from i in session.Query.All<Invoice>()
+          from j in session.Query.All<Job>().Where(j => j==i.Job).DefaultIfEmpty()
+          where i.Customer.Id==customer.Id
+          select new {i.Id, Location = j!=null && j.Location!=null ? j.Location.Address.Street : ""}).ToList();
+        Assert.AreEqual(10, result.Count);
+      }
+    }
+
+    [Test]
+    public void Test02()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var results = (from i in session.Query.All<Invoice>()
+          from j in session.Query.All<Job>().Where(j => j==i.Job).DefaultIfEmpty()
+          select new {i.Id, Location = j.Location}).Where(el => el.Location!=null || string.IsNullOrEmpty(el.Location.Address.Street)).ToList();
+        Assert.AreEqual(5, results.Count);
+      }
+    }
+
+    [Test]
+    public void Test3()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var cusomer = session.Query.All<Customer>().First();
+        var result = (from i in session.Query.All<Invoice>()
+                      from j in session.Query.All<Job>().Where(j => j==i.Job).DefaultIfEmpty()
+                      from l in session.Query.All<Location>().Where(l => l==j.Location).DefaultIfEmpty()
+                      where i.Customer.Id==cusomer.Id
+                      select new { i.Id, Location = l!=null ? l.Address.Street : "", }).ToList();
+        Assert.AreEqual(10, result.Count);
       }
     }
   }

@@ -1318,7 +1318,24 @@ namespace Xtensive.Orm.Linq
         : context.Bindings[entityFieldExpression.OuterParameter].ItemProjector;
       int offset = originalItemProjector.DataSource.Header.Length;
       var oldDataSource = originalItemProjector.DataSource;
-      var newDataSource = entityFieldExpression.IsNullable
+      bool shouldUseLeftJoin = false;
+      var filterProvider = oldDataSource as FilterProvider;
+      if (filterProvider!=null) {
+        var applyProvider = filterProvider.Source as ApplyProvider;
+        if (applyProvider!=null)
+          shouldUseLeftJoin = applyProvider.ApplyType==JoinType.LeftOuter;
+        else {
+          var joinProvider = filterProvider.Source as JoinProvider; 
+          if (joinProvider!=null)
+            shouldUseLeftJoin = joinProvider.JoinType==JoinType.LeftOuter;
+        }
+      }
+      else {
+        var joinProvider = oldDataSource as JoinProvider;
+        if (joinProvider!=null)
+          shouldUseLeftJoin = joinProvider.JoinType==JoinType.LeftOuter;
+      }
+      var newDataSource = entityFieldExpression.IsNullable || shouldUseLeftJoin
         ? originalItemProjector.DataSource.LeftJoin(joinedRs, keyPairs)
         : originalItemProjector.DataSource.Join(joinedRs, keyPairs);
       originalItemProjector.DataSource = newDataSource;
