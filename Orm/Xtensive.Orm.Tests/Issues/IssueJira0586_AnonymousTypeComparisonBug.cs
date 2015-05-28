@@ -2,12 +2,10 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
-// Created:    2013.12.30
+// Created:    2015.05.28
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0586_AnonymousTypeComparisonBugModel;
