@@ -636,8 +636,11 @@ namespace Xtensive.Orm.Linq
         break;
       case MemberType.Anonymous:
         // Anonymous type split to constructor arguments.
-        leftExpressions = GetAnonymousArguments(left);
-        rightExpressions = GetAnonymousArguments(right);
+        var anonymousType = (left.Type==typeof (object))
+          ? right.Type
+          : left.Type;
+        leftExpressions = GetAnonymousArguments(left, anonymousType);
+        rightExpressions = GetAnonymousArguments(right, anonymousType);
         break;
       case MemberType.Structure:
         if ((leftIsConstant && ExpressionEvaluator.Evaluate(left).Value==null)
@@ -1052,7 +1055,7 @@ namespace Xtensive.Orm.Linq
       return new SubQueryExpression(resultType, state.Parameters[0], false, subQuery, applyParameter);
     }
 
-    private static IList<Expression> GetAnonymousArguments(Expression expression)
+    private static IList<Expression> GetAnonymousArguments(Expression expression, Type anonymousTypeForNullValues = null)
     {
       if (expression.NodeType==ExpressionType.New) {
         var newExpression = ((NewExpression) expression);
@@ -1062,6 +1065,21 @@ namespace Xtensive.Orm.Linq
           .OrderBy(a => a.Name)
           .Select(a => a.Argument);
         return arguments.ToList();
+      }
+
+      if (expression.NodeType==ExpressionType.Constant) {
+        var constantExpression = expression as ConstantExpression;
+        if (constantExpression.Value==null && constantExpression.Type==typeof (object)) {
+          var newConstantExpressionType = anonymousTypeForNullValues ?? constantExpression.Type;
+          constantExpression = Expression.Constant(null, newConstantExpressionType);
+          return constantExpression
+            .Type
+            .GetProperties()
+            .OrderBy(property => property.Name)
+            .Select(p => Expression.MakeMemberAccess(constantExpression, p))
+            .Cast<Expression>()
+            .ToList();
+        }
       }
 
       return expression
