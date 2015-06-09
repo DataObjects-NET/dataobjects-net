@@ -6963,6 +6963,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to remap one of filtered columns..
+        /// </summary>
+        internal static string ExUnableToRemapOneOfFilteredColumns {
+            get {
+                return ResourceManager.GetString("ExUnableToRemapOneOfFilteredColumns", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to remove Owner from EntitySetExpression..
         /// </summary>
         internal static string ExUnableToRemoveOwnerFromEntitySetExpression {

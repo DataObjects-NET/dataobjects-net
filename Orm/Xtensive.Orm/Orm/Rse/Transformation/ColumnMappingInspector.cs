@@ -37,8 +37,18 @@ namespace Xtensive.Orm.Rse.Transformation
       mappings[provider] = Merge(mappings[provider], mappings[provider.Source]);
       if (source==provider.Source)
         return provider;
+      int[] filteredColumns = provider.FilteredColumns;
+      if (source.Header.Length!=sourceLength) {
+        for (int i = 0; i < provider.FilteredColumns.Length; i++) {
+          var oldFilteredColumnIndex = provider.FilteredColumns[i];
+          var newFilteredColumnIndex = mappings[provider.Source].IndexOf(oldFilteredColumnIndex);
+          if (newFilteredColumnIndex==-1)
+            throw new QueryTranslationException(Strings.ExUnableToRemapOneOfFilteredColumns);
+          filteredColumns[i] = newFilteredColumnIndex;
+        }
+      }
       return new IncludeProvider(source, provider.Algorithm, provider.IsInlined,
-        provider.FilterDataSource, provider.ResultColumnName, provider.FilteredColumns);
+        provider.FilterDataSource, provider.ResultColumnName, filteredColumns);
     }
 
     protected override Provider VisitSelect(SelectProvider provider)
