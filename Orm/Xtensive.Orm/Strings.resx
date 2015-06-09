@@ -3346,4 +3346,7 @@ Error: {1}</value>
   <data name="ExStorageIsNotSupportedLimitationOfRowCountToDelete">
     <value xml:space="preserve">Storage is not supported limitation of row count to delete.</value>
   </data>
+  <data name="ExUnableToRemapOneOfFilteredColumns" xml:space="preserve">
+    <value>Unable to remap one of filtered columns.</value>
+  </data>
 </root>
