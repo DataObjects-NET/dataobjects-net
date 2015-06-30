@@ -250,6 +250,7 @@
     <Compile Include="Issues\IssueJira0566_IndexOnRemovableEntityBug.cs" />
     <Compile Include="Issues\IssueJira0573_IncorrectMappingOfStructureFields.cs" />
     <Compile Include="Issues\IssueJira0577_EntityChangesRegistryIsNotEmptyAfterPersistFailed.cs" />
+    <Compile Include="Issues\IssueJira0582_OverrideInterfaceDefinedAssociation.cs" />
     <Compile Include="Issues\IssueJira0584_IncorrectMappingOfColumnInQuery.cs" />
     <Compile Include="Issues\IssueJira0586_AnonymousTypeComparisonBug.cs" />
     <Compile Include="Issues\IssueJira0587_KeyComparisonBug.cs" />
