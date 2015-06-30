@@ -1,0 +1,4 @@
+[main] Fixed various cases of using Inner Join instead of Left Join
+[main] Fixed comparison of Anonymous types with null value
+[main] Fixed columns optimization for queries with ternary operator
+[main] Fixed Key comparison
