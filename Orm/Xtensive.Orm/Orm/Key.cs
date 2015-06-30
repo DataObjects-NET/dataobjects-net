@@ -166,6 +166,14 @@ namespace Xtensive.Orm
         return false;
       if (NodeId!=other.NodeId)
         return false;
+      if (thisType.IsInterface && !otherType.IsInterface) {
+        if (!thisType.UnderlyingType.IsAssignableFrom(otherType.UnderlyingType))
+          return false;
+      }
+      else if (otherType.IsInterface && !thisType.IsInterface) {
+        if (!otherType.UnderlyingType.IsAssignableFrom(thisType.UnderlyingType))
+          return false;
+      }
       if (other.GetType().IsGenericType)
         return other.ValueEquals(this);
       return ValueEquals(other);
