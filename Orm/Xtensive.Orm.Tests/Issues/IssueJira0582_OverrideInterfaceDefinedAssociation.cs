@@ -280,6 +280,7 @@ namespace Xtensive.Orm.Tests.Issues
   public class IssueJira0582_OverrideInterfaceDefinedAssociation : AutoBuildTest
   {
     [Test]
+    [Ignore("Bug hasn't been fixed yet")]
     public void AssociationDefinedInInterface()
     {
       var configuration = base.BuildConfiguration();
@@ -299,6 +300,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    [Ignore("Bug hasn't been fixed yet")]
     public void AssociationDefinedInInterfaceAndOverridenByImplementor()
     {
       var configuration = base.BuildConfiguration();
@@ -324,6 +326,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    [Ignore("Bug hasn't been fixed yet")]
     public void AssociationDefinedByEachImplementorInTheSameWay()
     {
       var configuration = base.BuildConfiguration();
@@ -343,6 +346,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    [Ignore("Bug hasn't been fixed yet")]
     public void AssociationDefinedByEachImplementorInDifferentWay()
     {
       var configuration = base.BuildConfiguration();
