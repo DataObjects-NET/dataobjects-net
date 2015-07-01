@@ -94,9 +94,10 @@ namespace Xtensive.Orm.Rse.Transformation
       var newSourceProvider = VisitCompilable(provider.Source);
       mappings[provider] = mappings[provider.Source];
 
-      var predicate = TranslateLambda(provider, provider.Predicate);
-      if (newSourceProvider==provider.Source && predicate==provider.Predicate)
+      if (newSourceProvider==provider.Source)
         return provider;
+
+      var predicate = TranslateLambda(provider, provider.Predicate);
       return new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) predicate);
     }
 
