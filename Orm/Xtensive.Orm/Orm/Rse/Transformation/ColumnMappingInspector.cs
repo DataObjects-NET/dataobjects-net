@@ -94,10 +94,9 @@ namespace Xtensive.Orm.Rse.Transformation
       var newSourceProvider = VisitCompilable(provider.Source);
       mappings[provider] = mappings[provider.Source];
 
-      if (newSourceProvider==provider.Source)
-        return provider;
-
       var predicate = TranslateLambda(provider, provider.Predicate);
+      if (newSourceProvider==provider.Source && predicate==provider.Predicate)
+        return provider;
       return new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) predicate);
     }
 
@@ -217,9 +216,9 @@ namespace Xtensive.Orm.Rse.Transformation
 
       mappings[provider] = Merge(leftMapping, rightMapping.Select(map => map + provider.Left.Header.Length));
 
-      return newLeftProvider==provider.Left && newRightProvider==provider.Right
-        ? provider
-        : new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.IsInlined, provider.SequenceType, provider.ApplyType);
+      if (newLeftProvider==provider.Left && newRightProvider==provider.Right)
+        return provider;
+      return new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.IsInlined, provider.SequenceType, provider.ApplyType);
     }
 
     protected override Provider VisitAggregate(AggregateProvider provider)
