@@ -356,6 +356,39 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0584_IncorrectMappingOfColumnInQuer
     }
   }
 
+  [HierarchyRoot]
+  public class RegTransaction : Entity
+  {
+    [Field, Key]
+    public Guid Id { get; set; }
+
+    [Field]
+    public DateTime? AuthorizeDate { get; set; }
+
+    [Field]
+    public DateTime? OperDate { get; set; }
+
+    [Field]
+    public Portfolio Portfolio { get; set; }
+
+    [Field]
+    public TablePartBase.FinToolKind FinTool { get; set; }
+
+    [Field]
+    public TransactionMethod Method { get; set; }
+
+    [Field]
+    public decimal Qty { get; set; }
+
+    [Field]
+    public decimal Price { get; set; }
+  }
+
+  public enum TransactionMethod
+  {
+    Debit
+  }
+
   public class CustomPosting
   {
     public Guid Id { get; set; }
@@ -394,198 +427,6 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0584_IncorrectMappingOfColumnInQuery : AutoBuildTest
   {
-    protected override void PopulateData()
-    {
-      using (var session = Domain.OpenSession())
-      using (session.Activate())
-      using (var transaction = session.OpenTransaction()) {
-        var currency = new Currency(Guid.NewGuid()){CurCode = "RU", Name="Ruble"};
-
-        var debitPassiveAccount = new PacioliAccount(Guid.NewGuid());
-        debitPassiveAccount.AccountType = PacioliAccountType.Passive;
-        debitPassiveAccount.Code = "12345";
-        debitPassiveAccount.Description = "debitPassiveAccount";
-        debitPassiveAccount.FastAccess = "debitPassiveAccount";
-        debitPassiveAccount.Name = "debitPassiveAccount";
-
-        var debitActiveAccount = new PacioliAccount(Guid.NewGuid());
-        debitActiveAccount.AccountType = PacioliAccountType.Active;
-        debitActiveAccount.Code = "23456";
-        debitActiveAccount.Description = "debitActiveAccount";
-        debitActiveAccount.FastAccess = "debitActiveAccount";
-        debitActiveAccount.Name = "debitActiveAccount";
-
-        var debitActivePassiveAccount = new PacioliAccount(Guid.NewGuid());
-        debitActivePassiveAccount.AccountType = PacioliAccountType.ActivePassive;
-        debitActivePassiveAccount.Code = "34567";
-        debitActivePassiveAccount.Description = "debitActivePassiveAccount";
-        debitActivePassiveAccount.FastAccess = "debitActivePassiveAccount";
-        debitActivePassiveAccount.Name = "debitActivePassiveAccount";
-
-        var creditPassiveAccount = new PacioliAccount(Guid.NewGuid());
-        creditPassiveAccount.AccountType = PacioliAccountType.Passive;
-        creditPassiveAccount.Code = "45678";
-        creditPassiveAccount.Description = "creditPassiveAccount";
-        creditPassiveAccount.FastAccess = "creditPassiveAccount";
-        creditPassiveAccount.Name = "creditPassiveAccount";
-
-        var creditActiveAccount = new PacioliAccount(Guid.NewGuid());
-        creditActiveAccount.AccountType = PacioliAccountType.Active;
-        creditActiveAccount.Code = "56789";
-        creditActiveAccount.Description = "creditActiveAccount";
-        creditActiveAccount.FastAccess = "creditActiveAccount";
-        creditActiveAccount.Name = "creditActiveAccount";
-
-        var creditActivePassiveAccount = new PacioliAccount(Guid.NewGuid());
-        creditActivePassiveAccount.AccountType = PacioliAccountType.ActivePassive;
-        creditActivePassiveAccount.Code = "67890";
-        creditActivePassiveAccount.Description = "creditActivePassiveAccount";
-        creditActivePassiveAccount.FastAccess = "creditActivePassiveAccount";
-        creditActivePassiveAccount.Name = "creditActivePassiveAccount";
-
-        var fintoolkindOwner = new TablePartBase.FinToolKind(Guid.NewGuid()) {Name = "fgjlhjfglkhjfg", FullName = "jfhjhgfkdhkgjhfkgjh"};
-        var priceCalc1 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
-        priceCalc1.OnlyCurrentType = true;
-        priceCalc1.Account = debitActiveAccount;
-
-        var priceCalc2 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
-        priceCalc2.OnlyCurrentType = true;
-        priceCalc2.Account = debitPassiveAccount;
-
-        var priceCalc3 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
-        priceCalc3.OnlyCurrentType = true;
-        priceCalc3.Account = debitActivePassiveAccount;
-
-        var priceCalc4 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
-        priceCalc4.OnlyCurrentType = true;
-        priceCalc4.Account = creditActiveAccount;
-
-        var priceCalc5 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
-        priceCalc5.OnlyCurrentType = true;
-        priceCalc5.Account = creditPassiveAccount;
-
-        var priceCalc6 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
-        priceCalc6.OnlyCurrentType = true;
-        priceCalc6.Account = creditActivePassiveAccount;
-
-        var priceCalc7 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
-        priceCalc7.OnlyCurrentType = false;
-        priceCalc7.Account = debitActiveAccount;
-
-        var priceCalc8 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
-        priceCalc8.OnlyCurrentType = false;
-        priceCalc8.Account = debitPassiveAccount;
-
-        var priceCalc9 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
-        priceCalc9.OnlyCurrentType = false;
-        priceCalc9.Account = debitActivePassiveAccount;
-
-        var priceCalc10 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
-        priceCalc10.OnlyCurrentType = false;
-        priceCalc10.Account = creditActiveAccount;
-
-        var priceCalc11 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
-        priceCalc11.OnlyCurrentType = false;
-        priceCalc11.Account = creditPassiveAccount;
-
-        var priceCalc12 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
-        priceCalc12.OnlyCurrentType = false;
-        priceCalc12.Account = creditActivePassiveAccount;
-
-        var posting1 = new PacioliPosting(Guid.NewGuid());
-        posting1.Sum = new decimal(11);
-        posting1.BalanceHolder = new RealPortfolio(Guid.NewGuid()){Name = "dfhgkjhdfgkjhdfj", FullName = "dhsfhkjh khgkjdfhgkj", Identifier = "uyiyriet"};
-        posting1.CreationDate = DateTime.Now;
-        posting1.CreditAccount = creditPassiveAccount;
-        posting1.DebitAccount = debitPassiveAccount;
-        posting1.FinDebit = new OtherFinTools(Guid.NewGuid()){Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "aaaa",Name = "aaaa"};
-        posting1.FinCredit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "bbbb", Name = "bbbb" }; 
-        posting1.Operation = new TechOperation(Guid.NewGuid());
-
-        var posting2 = new PacioliPosting(Guid.NewGuid());
-        posting2.Sum = new decimal(12);
-        posting2.BalanceHolder = new RealPortfolio(Guid.NewGuid()) { Name = "dfhgkjhdfg", FullName = "dhsfhkjh khgkj", Identifier = "udfjgkjhfdk" };
-        posting2.CreationDate = DateTime.Now;
-        posting2.CreditAccount = creditPassiveAccount;
-        posting2.DebitAccount = debitActiveAccount;
-        posting2.FinDebit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "cccc", Name = "cccc" };
-        posting2.FinCredit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "dddd", Name = "dddd" };
-        posting2.Operation = new TechOperation(Guid.NewGuid());
-
-        var posting3 = new PacioliPosting(Guid.NewGuid());
-        posting3.Sum = new decimal(13);
-        posting3.BalanceHolder = new RealPortfolio(Guid.NewGuid()) { Name = "dfhgkjhdfj", FullName = "dhsfhkjh", Identifier = "utrtoiore" };
-        posting3.CreationDate = DateTime.Now;
-        posting3.CreditAccount = creditPassiveAccount;
-        posting3.DebitAccount = debitActivePassiveAccount;
-        posting3.FinDebit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "eeee", Name = "eeee" };
-        posting3.FinCredit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "ffff", Name = "ffff" };
-        posting3.Operation = new TechOperation(Guid.NewGuid());
-
-        var posting4 = new PacioliPosting(Guid.NewGuid());
-        posting4.Sum = new decimal(14);
-        posting4.BalanceHolder = new RealPortfolio(Guid.NewGuid()) { Name = "kjhdfgkjhdfj", FullName = "kjh khgkjdfhgkj", Identifier = "dfkgkfdj" };
-        posting4.CreationDate = DateTime.Now;
-        posting4.CreditAccount = creditActiveAccount;
-        posting4.DebitAccount = debitPassiveAccount;
-        posting4.FinDebit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "gggg", Name = "gggg" };
-        posting4.FinCredit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "hhh", Name = "hhh" };
-        posting4.Operation = new TechOperation(Guid.NewGuid());
-
-        var posting5 = new PacioliPosting(Guid.NewGuid());
-        posting5.Sum = new decimal(-15);
-        posting5.BalanceHolder = new RealPortfolio(Guid.NewGuid()) { Name = "reotoihre", FullName = "fghdg hdufgihiu", Identifier = "ghdfgjhf" };
-        posting5.CreationDate = DateTime.Now;
-        posting5.CreditAccount = creditActiveAccount;
-        posting5.DebitAccount = debitActiveAccount;
-        posting5.FinDebit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "iii", Name = "iiii" };
-        posting5.FinCredit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "jjj", Name = "jjj" };
-        posting5.Operation = new TechOperation(Guid.NewGuid());
-
-        var posting6 = new PacioliPosting(Guid.NewGuid());
-        posting6.Sum = new decimal(-14);
-        posting6.BalanceHolder = new RealPortfolio(Guid.NewGuid()) { Name = "hfgdhdfhjghhkj", FullName = "kjh jdfhghjdgh", Identifier = "jdhfkgjhfkjgh" };
-        posting6.CreationDate = DateTime.Now;
-        posting6.CreditAccount = creditActiveAccount;
-        posting6.DebitAccount = debitActivePassiveAccount;
-        posting6.FinDebit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "kkkk", Name = "kkkk" };
-        posting6.FinCredit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "llll", Name = "llll" };
-        posting6.Operation = new TechOperation(Guid.NewGuid());
-
-        var posting7 = new PacioliPosting(Guid.NewGuid());
-        posting7.Sum = new decimal(-13);
-        posting7.BalanceHolder = new RealPortfolio(Guid.NewGuid()) { Name = "hjdjhfghjdfhg", FullName = "dfgjdfhkgkj khgkjdfhgkj", Identifier = "dfbghkjdfhgkj" };
-        posting7.CreationDate = DateTime.Now;
-        posting7.CreditAccount = creditActivePassiveAccount;
-        posting7.DebitAccount = debitPassiveAccount;
-        posting7.FinDebit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "mmmm", Name = "mmm" };
-        posting7.FinCredit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "nnn", Name = "nnn" };
-        posting7.Operation = new TechOperation(Guid.NewGuid());
-
-        var posting8 = new PacioliPosting(Guid.NewGuid());
-        posting8.Sum = new decimal(130);
-        posting8.BalanceHolder = new RealPortfolio(Guid.NewGuid()) { Name = "yrietyiury", FullName = "dhkgkj khgkjdfhgkj", Identifier = "dfbghj" };
-        posting8.CreationDate = DateTime.Now;
-        posting8.CreditAccount = creditActivePassiveAccount;
-        posting8.DebitAccount = debitActiveAccount;
-        posting8.FinDebit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "oooo", Name = "ooo" };
-        posting8.FinCredit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "ppp", Name = "ppp" };
-        posting8.Operation = new TechOperation(Guid.NewGuid());
-
-        var posting9 = new PacioliPosting(Guid.NewGuid());
-        posting9.Sum = new decimal(-113);
-        posting9.BalanceHolder = new RealPortfolio(Guid.NewGuid()) { Name = "biibibibob", FullName = "nbknf riewuruiet", Identifier = "ncvbmnvbcm" };
-        posting9.CreationDate = DateTime.Now;
-        posting9.CreditAccount = creditActivePassiveAccount;
-        posting9.DebitAccount = debitActivePassiveAccount;
-        posting9.FinDebit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "qqqq", Name = "qqq" };
-        posting9.FinCredit = new OtherFinTools(Guid.NewGuid()) { Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "rrr", Name = "rrr" };
-        posting9.Operation = new TechOperation(Guid.NewGuid());
-
-        transaction.Complete();
-      }
-    }
-
     [Test]
     public void MainTest()
     {
@@ -667,6 +508,223 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.DoesNotThrow(()=>result.Where(a => a.MasterAccount.Code.In("123")).LongCount());
         Assert.DoesNotThrow(()=>result.Where(a => a.MasterAccount.Id.In(new[] { id })).ToArray());
         Assert.DoesNotThrow(()=>result.Where(a => a.MasterAccount.Id.In(new[] { id })).LongCount());
+      }
+    }
+
+    [Test]
+    public void AdditionalTest01()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var portfolioId = session.Query.All<Portfolio>().Select(el=>el.Id).First();
+        var assistant = new {PortfolioId = portfolioId, PriceOnDate = DateTime.Now, DateOfFormation = DateTime.Now,};
+        var transactions = Session.Current.Query.All<RegTransaction>()
+                       .Where(a => a.AuthorizeDate!=null && a.OperDate!=null && a.Portfolio.Id==assistant.PortfolioId)
+                       .Where(a => a.AuthorizeDate.Value.Date <= assistant.DateOfFormation && a.OperDate.Value.Date <= assistant.PriceOnDate);
+
+        var balanceFinTools = transactions.Select(
+          z => new {
+                     z.FinTool,
+                     Sum = z.Method==TransactionMethod.Debit ? z.Qty : -z.Qty,
+                     SumPrice = z.Method==TransactionMethod.Debit ? z.Price : -z.Price
+                   }).GroupBy(r => r.FinTool)
+          .Select(f => new {FinTool = f.Key, Summ = f.Sum(s => s.Sum), SummPrice = f.Sum(s => s.SumPrice)})
+          .Where(a => a.Summ!=0);
+
+        var result = balanceFinTools.Select(a => a.FinTool.Id).Distinct().ToArray();
+      }
+    }
+
+    protected override void PopulateData()
+    {
+      using (var session = Domain.OpenSession())
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction())
+      {
+        var currency = new Currency(Guid.NewGuid()) { CurCode = "RU", Name = "Ruble" };
+
+        var debitPassiveAccount = new PacioliAccount(Guid.NewGuid());
+        debitPassiveAccount.AccountType = PacioliAccountType.Passive;
+        debitPassiveAccount.Code = "12345";
+        debitPassiveAccount.Description = "debitPassiveAccount";
+        debitPassiveAccount.FastAccess = "debitPassiveAccount";
+        debitPassiveAccount.Name = "debitPassiveAccount";
+
+        var debitActiveAccount = new PacioliAccount(Guid.NewGuid());
+        debitActiveAccount.AccountType = PacioliAccountType.Active;
+        debitActiveAccount.Code = "23456";
+        debitActiveAccount.Description = "debitActiveAccount";
+        debitActiveAccount.FastAccess = "debitActiveAccount";
+        debitActiveAccount.Name = "debitActiveAccount";
+
+        var debitActivePassiveAccount = new PacioliAccount(Guid.NewGuid());
+        debitActivePassiveAccount.AccountType = PacioliAccountType.ActivePassive;
+        debitActivePassiveAccount.Code = "34567";
+        debitActivePassiveAccount.Description = "debitActivePassiveAccount";
+        debitActivePassiveAccount.FastAccess = "debitActivePassiveAccount";
+        debitActivePassiveAccount.Name = "debitActivePassiveAccount";
+
+        var creditPassiveAccount = new PacioliAccount(Guid.NewGuid());
+        creditPassiveAccount.AccountType = PacioliAccountType.Passive;
+        creditPassiveAccount.Code = "45678";
+        creditPassiveAccount.Description = "creditPassiveAccount";
+        creditPassiveAccount.FastAccess = "creditPassiveAccount";
+        creditPassiveAccount.Name = "creditPassiveAccount";
+
+        var creditActiveAccount = new PacioliAccount(Guid.NewGuid());
+        creditActiveAccount.AccountType = PacioliAccountType.Active;
+        creditActiveAccount.Code = "56789";
+        creditActiveAccount.Description = "creditActiveAccount";
+        creditActiveAccount.FastAccess = "creditActiveAccount";
+        creditActiveAccount.Name = "creditActiveAccount";
+
+        var creditActivePassiveAccount = new PacioliAccount(Guid.NewGuid());
+        creditActivePassiveAccount.AccountType = PacioliAccountType.ActivePassive;
+        creditActivePassiveAccount.Code = "67890";
+        creditActivePassiveAccount.Description = "creditActivePassiveAccount";
+        creditActivePassiveAccount.FastAccess = "creditActivePassiveAccount";
+        creditActivePassiveAccount.Name = "creditActivePassiveAccount";
+
+        var fintoolkindOwner = new TablePartBase.FinToolKind(Guid.NewGuid()) { Name = "fgjlhjfglkhjfg", FullName = "jfhjhgfkdhkgjhfkgjh" };
+        var priceCalc1 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
+        priceCalc1.OnlyCurrentType = true;
+        priceCalc1.Account = debitActiveAccount;
+
+        var priceCalc2 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
+        priceCalc2.OnlyCurrentType = true;
+        priceCalc2.Account = debitPassiveAccount;
+
+        var priceCalc3 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
+        priceCalc3.OnlyCurrentType = true;
+        priceCalc3.Account = debitActivePassiveAccount;
+
+        var priceCalc4 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
+        priceCalc4.OnlyCurrentType = true;
+        priceCalc4.Account = creditActiveAccount;
+
+        var priceCalc5 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
+        priceCalc5.OnlyCurrentType = true;
+        priceCalc5.Account = creditPassiveAccount;
+
+        var priceCalc6 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
+        priceCalc6.OnlyCurrentType = true;
+        priceCalc6.Account = creditActivePassiveAccount;
+
+        var priceCalc7 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
+        priceCalc7.OnlyCurrentType = false;
+        priceCalc7.Account = debitActiveAccount;
+
+        var priceCalc8 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
+        priceCalc8.OnlyCurrentType = false;
+        priceCalc8.Account = debitPassiveAccount;
+
+        var priceCalc9 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
+        priceCalc9.OnlyCurrentType = false;
+        priceCalc9.Account = debitActivePassiveAccount;
+
+        var priceCalc10 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
+        priceCalc10.OnlyCurrentType = false;
+        priceCalc10.Account = creditActiveAccount;
+
+        var priceCalc11 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
+        priceCalc11.OnlyCurrentType = false;
+        priceCalc11.Account = creditPassiveAccount;
+
+        var priceCalc12 = new TablePartBase.FinToolKind.TpPriceCalc(Guid.NewGuid(), fintoolkindOwner);
+        priceCalc12.OnlyCurrentType = false;
+        priceCalc12.Account = creditActivePassiveAccount;
+
+        var posting1 = new PacioliPosting(Guid.NewGuid());
+        posting1.Sum = new decimal(11);
+        posting1.BalanceHolder = new RealPortfolio(Guid.NewGuid()) {Name = "dfhgkjhdfgkjhdfj", FullName = "dhsfhkjh khgkjdfhgkj", Identifier = "uyiyriet"};
+        posting1.CreationDate = DateTime.Now;
+        posting1.CreditAccount = creditPassiveAccount;
+        posting1.DebitAccount = debitPassiveAccount;
+        posting1.FinDebit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "aaaa", Name = "aaaa"};
+        posting1.FinCredit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "bbbb", Name = "bbbb"};
+        posting1.Operation = new TechOperation(Guid.NewGuid());
+
+        var posting2 = new PacioliPosting(Guid.NewGuid());
+        posting2.Sum = new decimal(12);
+        posting2.BalanceHolder = new RealPortfolio(Guid.NewGuid()) {Name = "dfhgkjhdfg", FullName = "dhsfhkjh khgkj", Identifier = "udfjgkjhfdk"};
+        posting2.CreationDate = DateTime.Now;
+        posting2.CreditAccount = creditPassiveAccount;
+        posting2.DebitAccount = debitActiveAccount;
+        posting2.FinDebit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "cccc", Name = "cccc"};
+        posting2.FinCredit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "dddd", Name = "dddd"};
+        posting2.Operation = new TechOperation(Guid.NewGuid());
+
+        var posting3 = new PacioliPosting(Guid.NewGuid());
+        posting3.Sum = new decimal(13);
+        posting3.BalanceHolder = new RealPortfolio(Guid.NewGuid()) {Name = "dfhgkjhdfj", FullName = "dhsfhkjh", Identifier = "utrtoiore"};
+        posting3.CreationDate = DateTime.Now;
+        posting3.CreditAccount = creditPassiveAccount;
+        posting3.DebitAccount = debitActivePassiveAccount;
+        posting3.FinDebit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "eeee", Name = "eeee"};
+        posting3.FinCredit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "ffff", Name = "ffff"};
+        posting3.Operation = new TechOperation(Guid.NewGuid());
+
+        var posting4 = new PacioliPosting(Guid.NewGuid());
+        posting4.Sum = new decimal(14);
+        posting4.BalanceHolder = new RealPortfolio(Guid.NewGuid()) { Name = "kjhdfgkjhdfj", FullName = "kjh khgkjdfhgkj", Identifier = "dfkgkfdj" };
+        posting4.CreationDate = DateTime.Now;
+        posting4.CreditAccount = creditActiveAccount;
+        posting4.DebitAccount = debitPassiveAccount;
+        posting4.FinDebit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "gggg", Name = "gggg"};
+        posting4.FinCredit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "hhh", Name = "hhh"};
+        posting4.Operation = new TechOperation(Guid.NewGuid());
+
+        var posting5 = new PacioliPosting(Guid.NewGuid());
+        posting5.Sum = new decimal(-15);
+        posting5.BalanceHolder = new RealPortfolio(Guid.NewGuid()) {Name = "reotoihre", FullName = "fghdg hdufgihiu", Identifier = "ghdfgjhf"};
+        posting5.CreationDate = DateTime.Now;
+        posting5.CreditAccount = creditActiveAccount;
+        posting5.DebitAccount = debitActiveAccount;
+        posting5.FinDebit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "iii", Name = "iiii"};
+        posting5.FinCredit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "jjj", Name = "jjj"};
+        posting5.Operation = new TechOperation(Guid.NewGuid());
+
+        var posting6 = new PacioliPosting(Guid.NewGuid());
+        posting6.Sum = new decimal(-14);
+        posting6.BalanceHolder = new RealPortfolio(Guid.NewGuid()) {Name = "hfgdhdfhjghhkj", FullName = "kjh jdfhghjdgh", Identifier = "jdhfkgjhfkjgh"};
+        posting6.CreationDate = DateTime.Now;
+        posting6.CreditAccount = creditActiveAccount;
+        posting6.DebitAccount = debitActivePassiveAccount;
+        posting6.FinDebit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "kkkk", Name = "kkkk"};
+        posting6.FinCredit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "llll", Name = "llll"};
+        posting6.Operation = new TechOperation(Guid.NewGuid());
+
+        var posting7 = new PacioliPosting(Guid.NewGuid());
+        posting7.Sum = new decimal(-13);
+        posting7.BalanceHolder = new RealPortfolio(Guid.NewGuid()) {Name = "hjdjhfghjdfhg", FullName = "dfgjdfhkgkj khgkjdfhgkj", Identifier = "dfbghkjdfhgkj"};
+        posting7.CreationDate = DateTime.Now;
+        posting7.CreditAccount = creditActivePassiveAccount;
+        posting7.DebitAccount = debitPassiveAccount;
+        posting7.FinDebit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "mmmm", Name = "mmm"};
+        posting7.FinCredit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "nnn", Name = "nnn"};
+        posting7.Operation = new TechOperation(Guid.NewGuid());
+
+        var posting8 = new PacioliPosting(Guid.NewGuid());
+        posting8.Sum = new decimal(130);
+        posting8.BalanceHolder = new RealPortfolio(Guid.NewGuid()) {Name = "yrietyiury", FullName = "dhkgkj khgkjdfhgkj", Identifier = "dfbghj"};
+        posting8.CreationDate = DateTime.Now;
+        posting8.CreditAccount = creditActivePassiveAccount;
+        posting8.DebitAccount = debitActiveAccount;
+        posting8.FinDebit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "oooo", Name = "ooo"};
+        posting8.FinCredit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "ppp", Name = "ppp"};
+        posting8.Operation = new TechOperation(Guid.NewGuid());
+
+        var posting9 = new PacioliPosting(Guid.NewGuid());
+        posting9.Sum = new decimal(-113);
+        posting9.BalanceHolder = new RealPortfolio(Guid.NewGuid()) {Name = "biibibibob", FullName = "nbknf riewuruiet", Identifier = "ncvbmnvbcm"};
+        posting9.CreationDate = DateTime.Now;
+        posting9.CreditAccount = creditActivePassiveAccount;
+        posting9.DebitAccount = debitActivePassiveAccount;
+        posting9.FinDebit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "qqqq", Name = "qqq"};
+        posting9.FinCredit = new OtherFinTools(Guid.NewGuid()) {Cur = currency, FinToolKind = fintoolkindOwner, DocumentIdentifier = "rrr", Name = "rrr"};
+        posting9.Operation = new TechOperation(Guid.NewGuid());
+
+        transaction.Complete();
       }
     }
 
