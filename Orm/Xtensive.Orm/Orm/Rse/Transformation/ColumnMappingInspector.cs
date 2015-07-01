@@ -278,7 +278,7 @@ namespace Xtensive.Orm.Rse.Transformation
       mappings[provider] = currentMapping;
       if (descriptors.Count==0)
         return newSourceProvider;
-      if (!translated && newSourceProvider==provider.Source)
+      if (!translated && newSourceProvider==provider.Source && descriptors.Count==provider.CalculatedColumns.Length)
         return provider;
       return new CalculateProvider(newSourceProvider, descriptors.ToArray());
     }
