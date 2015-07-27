@@ -17,45 +17,58 @@ namespace Xtensive.Orm.Weaver
     private readonly MessageLogger logger;
     private readonly Dictionary<string, string> assemblyFiles = new Dictionary<string, string>(WeavingHelper.AssemblyNameComparer);
     private readonly Dictionary<string, ModuleDefinition> loadedAssemblies = new Dictionary<string, ModuleDefinition>(WeavingHelper.AssemblyNameComparer);
+    private readonly IAssemblyResolver defaultAssemblyResolver;
 
     public AssemblyDefinition Resolve(AssemblyNameReference name)
     {
-      return ResolveInternal(name.Name);
+      return ResolveInternal(name);
     }
 
     public AssemblyDefinition Resolve(AssemblyNameReference name, ReaderParameters parameters)
     {
-      return ResolveInternal(name.Name);
+      return ResolveInternal(name);
     }
 
     public AssemblyDefinition Resolve(string fullName)
     {
-      return ResolveInternal(new AssemblyName(fullName).Name);
+      return ResolveInternal(AssemblyNameReference.Parse(fullName));
     }
 
     public AssemblyDefinition Resolve(string fullName, ReaderParameters parameters)
     {
-      return ResolveInternal(new AssemblyName(fullName).Name);
+      return ResolveInternal(AssemblyNameReference.Parse(fullName));
     }
 
-    private AssemblyDefinition ResolveInternal(string shortName)
+    private AssemblyDefinition ResolveInternal(AssemblyNameReference name)
     {
+      var shortName = name.Name;
       ModuleDefinition module;
       if (!loadedAssemblies.TryGetValue(shortName, out module)) {
-        var file = GetAssemblyFile(shortName);
+        string file;
+        if (!TryGetAssemblyFile(shortName, out file)) {
+          AssemblyDefinition resolvedAssembly;
+          try {
+            resolvedAssembly = defaultAssemblyResolver.Resolve(name);
+          }
+          catch (Exception) {
+            resolvedAssembly = null;
+          }
+          if (resolvedAssembly==null) {
+            logger.Write(MessageCode.ErrorUnableToFindReferencedAssembly, shortName);
+            throw new StageFailedException();
+          }
+        }
         module = LoadAssembly(file);
         loadedAssemblies.Add(shortName, module);
       }
       return module.Assembly;
     }
 
-    private string GetAssemblyFile(string shortName)
+    private bool TryGetAssemblyFile(string shortName, out string file)
     {
-      string file;
       if (assemblyFiles.TryGetValue(shortName, out file))
-        return file;
-      logger.Write(MessageCode.ErrorUnableToFindReferencedAssembly, shortName);
-      throw new StageFailedException();
+        return true;
+      return false;
     }
 
     private ModuleDefinition LoadAssembly(string file)
@@ -84,6 +97,7 @@ namespace Xtensive.Orm.Weaver
         else
           logger.Write(MessageCode.WarningReferencedAssemblyFileIsNotFound, file);
       }
+      this.defaultAssemblyResolver = new DefaultAssemblyResolver();
     }
   }
 }
