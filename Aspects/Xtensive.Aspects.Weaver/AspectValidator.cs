@@ -203,15 +203,15 @@ namespace Xtensive.Aspects.Weaver
         return true;
       }
       catch (BadImageFormatException) {
-        ErrorLog.Write(MessageLocation.Of(MethodBase.GetCurrentMethod()), SeverityType.Error, "BadImageFormatExceprion");
+        ErrorLog.Write(MessageLocation.Of(MethodBase.GetCurrentMethod()), SeverityType.Error, "Unable to load OEM support extension assembly. Given assembly is not a valid assembly.");
         return false;
       }
-      catch (FileLoadException) {
-        ErrorLog.Write(MessageLocation.Of(MethodBase.GetCurrentMethod()), SeverityType.Error, "FileLoadExcetion");
+      catch (FileLoadException e) {
+        ErrorLog.Write(MessageLocation.Of(MethodBase.GetCurrentMethod()), SeverityType.Error, "Unable to load OEM support extension assembly. Assembly has different version, culture or public key token.");
         return false;
       }
       catch (FileNotFoundException) {
-        ErrorLog.Write(MessageLocation.Of(MethodBase.GetCurrentMethod()), SeverityType.Error, "FileNotFoundException");
+        ErrorLog.Write(MessageLocation.Of(MethodBase.GetCurrentMethod()), SeverityType.Error, "Unable to load OEM support extension assembly. Assembly is not found.");
         return false;
       }
       catch (Exception) {
