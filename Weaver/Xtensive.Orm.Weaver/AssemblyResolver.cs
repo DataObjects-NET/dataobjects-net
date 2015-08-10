@@ -57,6 +57,7 @@ namespace Xtensive.Orm.Weaver
             logger.Write(MessageCode.ErrorUnableToFindReferencedAssembly, shortName);
             throw new StageFailedException();
           }
+          return resolvedAssembly;
         }
         module = LoadAssembly(file);
         loadedAssemblies.Add(shortName, module);
