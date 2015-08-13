@@ -54,14 +54,16 @@ namespace Xtensive.Orm.Weaver.Stages
       registry.PersistentInitialize = ImportMethod(context, persistentType, "Initialize", true, voidType, typeType);
       registry.PersistentInitializationError = ImportMethod(context, persistentType, "InitializationError", true, voidType, typeType, exceptionType);
 
-      var getterType = new GenericParameter(0, GenericParameterType.Method, context.TargetModule);
-      var persistentGetter = new MethodReference("GetFieldValue", getterType, persistentType) {HasThis = true};
+
+      var persistentGetter = new MethodReference("GetFieldValue", voidType, persistentType) {HasThis = true};
+      var getterType = new GenericParameter("!!T", persistentGetter);
+      persistentGetter.ReturnType = getterType;
       persistentGetter.Parameters.Add(new ParameterDefinition(stringType));
       persistentGetter.GenericParameters.Add(getterType);
       registry.PersistentGetterDefinition = context.TargetModule.Import(persistentGetter);
 
-      var setterType = new GenericParameter(0, GenericParameterType.Method, context.TargetModule);
       var persistentSetter = new MethodReference("SetFieldValue", voidType, persistentType) {HasThis = true};
+      var setterType = new GenericParameter("!!T", persistentSetter);
       persistentSetter.Parameters.Add(new ParameterDefinition(stringType));
       persistentSetter.Parameters.Add(new ParameterDefinition(setterType));
       persistentSetter.GenericParameters.Add(setterType);
