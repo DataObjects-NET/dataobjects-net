@@ -43,8 +43,10 @@ namespace Xtensive.Orm.Building.Builders
 
     public void BuildTypeIds(TypeIdRegistry registry)
     {
-      // Import static type identifiers
-      foreach (var type in GetTypesWithTypeId())
+      // Import static type identifiers.
+      // Static types are system types, which don't change their type identifiers.
+      // User types are not static by default.
+      foreach (var type in GetTypesWithStaticTypeIds())
         registry.Register(type.TypeId, type);
 
       // Load old type identifiers from database
@@ -94,9 +96,11 @@ namespace Xtensive.Orm.Building.Builders
       return new TypeIdSequence(current, minTypeId, maxTypeId, mappingDatabase);
     }
 
-    private IEnumerable<TypeInfo> GetTypesWithTypeId()
+    private IEnumerable<TypeInfo> GetTypesWithStaticTypeIds()
     {
-      return domain.Model.Types.Where(t => t.IsEntity && t.TypeId!=TypeInfo.NoTypeId);
+      return
+        domain.Model.Types.Where(
+          t => t.IsEntity && t.IsSystem && t.TypeId != TypeInfo.NoTypeId && t.TypeId < TypeInfo.MinTypeId);
     }
 
     private IEnumerable<TypeInfo> GetTypesWithoutTypeId()

@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Linq.Materialization
       if (cache.Items.TryGetValue(typeId, out result))
         return result;
 
-      var type       = Model.Types[typeId];
+      var type       = Session.StorageNode.TypeIdRegistry[typeId];
       var keyInfo    = type.Key;
       var descriptor = type.TupleDescriptor;
 
