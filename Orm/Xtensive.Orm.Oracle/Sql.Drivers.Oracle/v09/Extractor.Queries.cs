@@ -9,9 +9,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
   partial class Extractor 
   {
     protected const string SchemaFilterPlaceholder = "{SCHEMA_FILTER}";
-
-    protected const string FirstSchemaFilterPlaceholder = "{SCHEMA_FILTER1}";
-    protected const string SecondSchemaFilterPlaceholder = "{SCHEMA_FILTER2}";
     protected const string TableFilterPlaceholder = "{TABLE_FILTER}";
     protected const string IndexesFilterPlaceholder = "{INDEXES_FILTER}";
 
@@ -36,7 +33,7 @@ FROM
     SYS.ALL_TABLES
 WHERE
     (NESTED = 'NO')
-    AND ({SCHEMA_FILTER1})
+    AND (OWNER {SCHEMA_FILTER})
     AND (TABLE_NAME {TABLE_FILTER})";
     }
 
@@ -60,7 +57,7 @@ FROM
         ON ((columns.TABLE_NAME = tables.TABLE_NAME)
         AND (columns.OWNER = tables.OWNER)) 
 WHERE
-    {SCHEMA_FILTER1}
+    columns.OWNER {SCHEMA_FILTER}
     AND columns.TABLE_NAME {TABLE_FILTER}
 ORDER BY
     columns.OWNER,
@@ -78,7 +75,7 @@ ORDER BY
 FROM
     SYS.ALL_VIEWS views
 WHERE
-    {SCHEMA_FILTER1}";
+    OWNER {SCHEMA_FILTER}";
     }
 
     protected string GetExtractViewColumnsQuery()
@@ -95,7 +92,7 @@ FROM
         ON ((columns.TABLE_NAME = views.VIEW_NAME)
         AND (columns.OWNER = views.OWNER))
 WHERE
-    {SCHEMA_FILTER1}
+    columns.OWNER {SCHEMA_FILTER}
 ORDER BY
     columns.OWNER,
     columns.TABLE_NAME,
@@ -128,7 +125,7 @@ FROM
 WHERE
     indexes.INDEX_TYPE IN ('NORMAL', 'BITMAP', 'FUNCTION-BASED NORMAL', 'FUNCTION-BASED BITMAP')
     AND (indexes.TABLE_NAME {TABLE_FILTER})
-    AND ({SCHEMA_FILTER1})
+    AND (indexes.TABLE_OWNER {SCHEMA_FILTER})
     AND ({INDEXES_FILTER})
     AND ((indexes.OWNER, indexes.INDEX_NAME) NOT IN (
         SELECT
@@ -141,7 +138,7 @@ WHERE
                 AND (constraints.TABLE_NAME = tables.TABLE_NAME))
         WHERE
             (constraints.CONSTRAINT_TYPE IN ('P', 'U')
-            AND ({SCHEMA_FILTER2}))))
+            AND (constraints.OWNER {SCHEMA_FILTER}))))
 ORDER BY
     indexes.TABLE_OWNER,
     indexes.TABLE_NAME,
@@ -178,7 +175,7 @@ FROM
         AND (constraints.TABLE_NAME = tables.TABLE_NAME))
 WHERE
     (constraints.CONSTRAINT_TYPE = 'R')
-    AND ({SCHEMA_FILTER1})
+    AND (constraints.OWNER {SCHEMA_FILTER})
 ORDER BY
     constraints.OWNER, constraints.TABLE_NAME, constraints.CONSTRAINT_NAME, rel_columns.POSITION";
     }
@@ -201,7 +198,7 @@ FROM
 WHERE
     (constraints.CONSTRAINT_TYPE = 'C')
     AND (constraints.GENERATED = 'USER NAME')
-    AND ({SCHEMA_FILTER1})";
+    AND (constraints.OWNER {SCHEMA_FILTER})";
     }
 
     protected string GetExtractUniqueAndPrimaryKeyConstraintsQuery()
@@ -224,7 +221,7 @@ FROM
         AND (constraints.TABLE_NAME = tables.TABLE_NAME))
 WHERE
     (constraints.CONSTRAINT_TYPE IN ('P', 'U'))
-    AND ({SCHEMA_FILTER1})
+    AND (constraints.OWNER {SCHEMA_FILTER})
     AND (constraints.TABLE_NAME {TABLE_FILTER})
 ORDER BY
     constraints.OWNER,
@@ -246,7 +243,7 @@ ORDER BY
 FROM
     SYS.ALL_SEQUENCES
 WHERE
-    {SCHEMA_FILTER1}";
+    SEQUENCE_OWNER {SCHEMA_FILTER}";
     }
   }
 }
