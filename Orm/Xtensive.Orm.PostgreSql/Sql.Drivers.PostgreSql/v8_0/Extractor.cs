@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private readonly Dictionary<long, string> mUserLookup = new Dictionary<long, string>();
 
     protected Catalog catalog;
-    protected Schema schema;
+    protected Dictionary<string, Schema> schemes = new Dictionary<string, Schema>();
 
     protected long PgClassOid { get; private set; }
     protected Schema PgCatalogSchema { get; private set; }
@@ -77,10 +77,23 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
       catalog = new Catalog(catalogName);
-      schema = catalog.CreateSchema(schemaName);
+      schemes.Add(schemaName,catalog.CreateSchema(schemaName));
       ExtractUsers();
       ExtractSchemas(catalog);
-      return schema;
+      var result = schemes[schemaName];
+      schemes.Clear();
+      return result;
+    }
+
+    public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
+    {
+      catalog = new Catalog(catalogName);
+      foreach (var schemaName in schemaNames)
+        schemes.Add(schemaName, catalog.CreateSchema(schemaName));
+      ExtractUsers();
+      ExtractSchemas(catalog);
+      schemes.Clear();
+      return catalog;
     }
 
     private Schema CreatePgCatalogSchema(Type dummy)
@@ -321,15 +334,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         q1.Columns.Add(nsp1["nspname"]);
         q1.Columns.Add(nsp1["oid"]);
         q1.Columns.Add(nsp1["nspowner"]);
-        if (schema!=null)
-          q1.Where &= nsp1["nspname"]==schema.Name;
+        if (schemes!=null && schemes.Count!=0)
+          foreach (var schemaName in schemes.Keys)
+            q1.Where &= nsp1["nspname"]==schemaName;
         SqlSelect q2 = SqlDml.Select(nsp2);
         q2.Where = nsp2["nspowner"]==me;
         q2.Columns.Add(nsp2["nspname"]);
         q2.Columns.Add(nsp2["oid"]);
         q2.Columns.Add(nsp2["nspowner"]);
-        if (schema!=null)
-          q2.Where &= nsp2["nspname"]==schema.Name;
+        if (schemes != null && schemes.Count != 0)
+          foreach (var schemaName in schemes.Keys)
+            q1.Where &= nsp1["nspname"] == schemaName;
         ISqlCompileUnit q = q1.UnionAll(q2);
         using (var cmd = Connection.CreateCommand(q))
         using (DbDataReader dr = cmd.ExecuteReader()) {
