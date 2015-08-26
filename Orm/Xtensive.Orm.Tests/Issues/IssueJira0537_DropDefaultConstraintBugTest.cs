@@ -402,7 +402,7 @@ namespace Xtensive.Orm.Tests.Issues
               command.ExecuteNonQuery();
           }
         }
-        catch(Exception) {
+        finally {
           connection.Close();
         }
       }
