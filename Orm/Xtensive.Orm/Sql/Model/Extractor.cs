@@ -38,6 +38,23 @@ namespace Xtensive.Sql.Model
     public abstract Schema ExtractSchema(string catalogName, string schemaName);
 
     /// <summary>
+    /// Extract specified schemes from the database
+    /// </summary>
+    /// <param name="catalogName">Catalog to extract</param>
+    /// <param name="schemaNames">Names of schemes which must be extracted</param>
+    /// <returns><see cref="Catalog"/> that holds specified schemas schemes in the database.</returns>
+    public virtual Catalog ExtractSchemes(string catalogName, string[] schemaNames)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(catalogName, "catalogName");
+      ArgumentValidator.EnsureArgumentNotNull(schemaNames, "schemaNames");
+      if(schemaNames.Length==0)
+        return new Catalog(catalogName);
+      var schema = ExtractSchema(catalogName, schemaNames[0]);
+      return schema.Catalog;
+    }
+
+
+    /// <summary>
     /// Initializes the translator with specified <see cref="SqlConnection"/> and <see cref="DbTransaction"/>.
     /// </summary>
     /// <param name="connection">The connection.</param>
