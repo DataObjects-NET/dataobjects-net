@@ -39,7 +39,6 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void NormalModeGeneration()
     {
-      
       Require.AllFeaturesNotSupported(ProviderFeatures.Sequences);
       Require.AllFeaturesNotSupported(ProviderFeatures.AutoIncrementSettingsInMemory);
       using (var session = Domain.OpenSession())
@@ -152,6 +151,11 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       return recreateConfiguration;
+    }
+
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.MySql);
     }
 
     public override void TestFixtureSetUp()
