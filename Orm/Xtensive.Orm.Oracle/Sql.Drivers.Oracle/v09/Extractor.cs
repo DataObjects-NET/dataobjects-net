@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Text;
 using Oracle.DataAccess.Client;
 using Xtensive.Core;
 using Xtensive.Sql.Model;
@@ -24,6 +25,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private Catalog theCatalog;
     private string targetSchema;
+
+    private Dictionary<string, string> targetSchemes = new Dictionary<string, string>();
 
     private string nonSystemSchemasFilter;
 
@@ -51,6 +54,20 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       RegisterReplacements(replacementsRegistry);
       ExtractCatalogContents();
       return theCatalog.Schemas[targetSchema];
+    }
+
+    public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
+    {
+      theCatalog = new Catalog(catalogName);
+      foreach (var schemaName in schemaNames){
+        var realName = schemaName.ToUpperInvariant();
+        theCatalog.CreateSchema(realName);
+        targetSchemes.Add(realName, realName);
+      }
+
+      RegisterReplacements(replacementsRegistry);
+      ExtractCatalogContents();
+      return theCatalog;
     }
 
     private void ExtractCatalogContents()
@@ -81,6 +98,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private void ExtractTables()
     {
+      RegisterReplacements(replacementsRegistry, "OWNER");
       using (var reader = ExecuteReader(GetExtractTablesQuery())) {
         while (reader.Read()) {
           var schema = theCatalog.Schemas[reader.GetString(0)];
@@ -100,6 +118,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private void ExtractTableColumns()
     {
+      RegisterReplacements(replacementsRegistry, "columns.OWNER");
       using (var reader = ExecuteReader(GetExtractTableColumnsQuery())) {
         Table table = null;
         int lastColumnId = int.MaxValue;
@@ -122,6 +141,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private void ExtractViews()
     {
+      RegisterReplacements(replacementsRegistry, "OWNER");
       using (var reader = ExecuteReader(GetExtractViewsQuery())) {
         while (reader.Read()) {
           var schema = theCatalog.Schemas[reader.GetString(0)];
@@ -137,6 +157,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private void ExtractViewColumns()
     {
+      RegisterReplacements(replacementsRegistry, "columns.OWNER");
       using (var reader = ExecuteReader(GetExtractViewColumnsQuery())) {
         int lastColumnId = int.MaxValue;
         View view = null;
@@ -156,6 +177,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     {
       // it's possible to have table and index in different schemas in oracle.
       // we silently ignore this, indexes are always belong to the same schema as its table.
+      RegisterReplacements(replacementsRegistry, "(indexes.TABLE_OWNER", "constraints.OWNER");
       using (var reader = (OracleDataReader) ExecuteReader(GetExtractIndexesQuery())) {
         int lastColumnPosition = int.MaxValue;
         Table table = null;
@@ -185,6 +207,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private void ExtractForeignKeys()
     {
+      RegisterReplacements(replacementsRegistry, "constraints.OWNER");
       using (var reader = ExecuteReader(GetExtractForeignKeysQuery())) {
         int lastColumnPosition = int.MaxValue;
         ForeignKey constraint = null;
@@ -213,6 +236,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private void ExtractUniqueAndPrimaryKeyConstraints()
     {
+      RegisterReplacements(replacementsRegistry, "constraints.OWNER");
       using (var reader = ExecuteReader(GetExtractUniqueAndPrimaryKeyConstraintsQuery())) {
         Table table = null;
         string constraintName = null;
@@ -241,6 +265,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private void ExtractCheckConstaints()
     {
+      RegisterReplacements(replacementsRegistry, "constraints.OWNER");
       using (var reader = ExecuteReader(GetExtractCheckConstraintsQuery())) {
         while (reader.Read()) {
           var schema = theCatalog.Schemas[reader.GetString(0)];
@@ -259,6 +284,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private void ExtractSequences()
     {
+      RegisterReplacements(replacementsRegistry, "SEQUENCE_OWNER");
       using (var reader = ExecuteReader(GetExtractSequencesQuery())) {
         while (reader.Read()) {
           var schema = theCatalog.Schemas[reader.GetString(0)];
@@ -389,13 +415,25 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
     
-    protected virtual void RegisterReplacements(Dictionary<string, string> replacements)
+    protected virtual void RegisterReplacements(Dictionary<string, string> replacements, params string [] schemaHolders)
     {
-      var schemaFilter = targetSchema!=null
-        ? "= " + SqlHelper.QuoteString(targetSchema)
-        : GetNonSystemSchemasFilter();
-
-      replacements[SchemaFilterPlaceholder] = schemaFilter;
+      replacementsRegistry.Clear();
+      //var schemaFilter = targetSchema!=null
+      //  ? "= " + SqlHelper.QuoteString(targetSchema)
+      //  : GetNonSystemSchemasFilter();
+      switch (schemaHolders.Length) {
+        case 1: {
+          replacements[FirstSchemaFilterPlaceholder] = MakeSchemaFilterFor(schemaHolders[0]);
+          break;
+        }
+        case 2: {
+          replacements[FirstSchemaFilterPlaceholder] = MakeSchemaFilterFor(schemaHolders[0]);
+          replacements[SecondSchemaFilterPlaceholder] = MakeSchemaFilterFor(schemaHolders[1]);
+          break;
+        }
+        default:
+          throw new InvalidOperationException("Filtered");
+      }
       replacements[IndexesFilterPlaceholder] = "1 > 0";
       replacements[TableFilterPlaceholder] = "IS NOT NULL";
     }
@@ -405,6 +443,22 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       foreach (var registry in replacementsRegistry)
         query = query.Replace(registry.Key, registry.Value);
       return query;
+    }
+
+    private string MakeSchemaFilterFor(string owner)
+    {
+      string newSchemaFilter;
+      if (targetSchemes != null && targetSchemes.Count!=0) {
+        var schemaFilterBuilder = new StringBuilder();
+        foreach (var targetSchemaName in targetSchemes.Keys) {
+          var pattern = schemaFilterBuilder.Length == 0 ? "{0} = {1}" : " OR {0} = {1}";
+          schemaFilterBuilder.Append(string.Format(pattern, owner, targetSchemaName));
+        }
+        newSchemaFilter = string.Format("({0})", schemaFilterBuilder.ToString());
+      }
+      else
+        newSchemaFilter = GetNonSystemSchemasFilter();
+      return newSchemaFilter;
     }
 
     protected override DbDataReader ExecuteReader(string commandText)
