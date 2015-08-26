@@ -10,9 +10,9 @@ namespace Xtensive.Sql.Drivers.Oracle.v10
 {
   internal class Extractor : v09.Extractor
   {
-    protected override void RegisterReplacements(Dictionary<string, string> replacements, params string[] schemaHolders)
+    protected override void RegisterReplacements(Dictionary<string, string> replacements)
     {
-      base.RegisterReplacements(replacements, schemaHolders);
+      base.RegisterReplacements(replacements);
       replacements[TableFilterPlaceholder] = "NOT LIKE 'BIN$%'";
       replacements[IndexesFilterPlaceholder] = "indexes.DROPPED = 'NO'";
     }
