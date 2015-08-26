@@ -180,7 +180,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       1 type
     FROM {CATALOG}.sys.views
     ) AS t
-  WHERE t.schema_id IN {SCHEMA_FILTER}
+  WHERE t.schema_id {SCHEMA_FILTER}
   ORDER BY t.schema_id, t.object_id";
       query = PerformReplacements(query);
 
@@ -241,7 +241,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   LEFT OUTER JOIN {CATALOG}.sys.computed_columns AS cc 
     ON c.object_id = cc.object_id 
       AND c.column_id = cc.column_id
-  WHERE t.schema_id IN {SCHEMA_FILTER}
+  WHERE t.schema_id {SCHEMA_FILTER}
   ORDER BY
     t.schema_id,
     c.object_id,
@@ -318,7 +318,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   WHERE seed_value IS NOT NULL
     AND increment_value IS NOT NULL
     AND {SYSTABLE_FILTER}
-    AND t.schema_id IN {SCHEMA_FILTER}
+    AND t.schema_id {SCHEMA_FILTER}
   ORDER BY
     t.schema_id,
     ic.object_id";
@@ -387,7 +387,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     ON i.object_id = ic.object_id
       AND i.index_id = ic.index_id
   WHERE i.type <> 3
-    AND schema_id IN {SCHEMA_FILTER}
+    AND schema_id {SCHEMA_FILTER}
   ORDER BY
     t.schema_id,
     t.object_id,
@@ -492,7 +492,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   FROM {CATALOG}.sys.foreign_keys fk
   INNER JOIN {CATALOG}.sys.foreign_key_columns fkc
     ON fk.object_id = fkc.constraint_object_id
-  WHERE fk.schema_id IN {SCHEMA_FILTER}
+  WHERE fk.schema_id {SCHEMA_FILTER}
   ORDER BY
     fk.schema_id,
     fkc.parent_object_id,
@@ -549,7 +549,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     ON fic.object_id = i.object_id
       AND fi.unique_index_id = i.index_id
   WHERE {SYSTABLE_FILTER}
-    AND t.schema_id IN {SCHEMA_FILTER}
+    AND t.schema_id {SCHEMA_FILTER}
   ORDER BY
     t.schema_id,
     fic.object_id,
@@ -674,7 +674,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     protected virtual string MakeSchemaFilter()
     {
-      if (targetSchemes==null && targetSchemes.Count==0)
+      if (targetSchemes.Count==0)
         return " > 0";
       StringBuilder builder = new StringBuilder();
       foreach (var targetScheme in targetSchemes) {
@@ -686,7 +686,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         else
           builder.Append(string.Format(", {0}", schemaId.ToString(CultureInfo.InvariantCulture)));
       }
-      return string.Format("({0})", builder);
+      return string.Format(" IN ({0})", builder);
     }
 
     // Constructors
