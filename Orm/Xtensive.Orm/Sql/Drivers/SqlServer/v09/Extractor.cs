@@ -6,15 +6,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using DataTable = Xtensive.Sql.Model.DataTable;
+using Domain = Xtensive.Sql.Model.Domain;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
   internal class Extractor : Model.Extractor
   {
     private readonly Dictionary<int, Schema> schemaIndex = new Dictionary<int, Schema>();
+    private readonly Dictionary<Schema, int> reversedSchemaIndex = new Dictionary<Schema, int>();
     private readonly Dictionary<int, Domain> domainIndex = new Dictionary<int, Domain>();
     private readonly Dictionary<int, string> typeNameIndex = new Dictionary<int, string>();
     private readonly Dictionary<int, ColumnResolver> columnResolverIndex = new Dictionary<int, ColumnResolver>();
@@ -24,10 +28,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     protected const string CatalogPlaceholder = "{CATALOG}";
     protected const string SchemaFilterPlaceholder = "{SCHEMA_FILTER}";
 
-    protected int schemaId;
     protected Catalog catalog;
-    protected Schema schema;
-    private const bool flag = true;
+    protected HashSet<string> targetSchemes = new HashSet<string>();
+    //protected Dictionary<string, Schema> targetSchemes = new Dictionary<string, Schema>();
 
     public override Catalog ExtractCatalog(string catalogName)
     {
@@ -39,9 +42,20 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
       catalog = new Catalog(catalogName);
-      schema = catalog.CreateSchema(schemaName);
+      catalog.CreateSchema(schemaName);
       ExtractCatalogContents();
-      return schema;
+      return catalog.Schemas[schemaName];
+    }
+
+    public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
+    {
+      catalog = new Catalog(catalogName);
+      foreach (var schemaName in schemaNames) {
+        targetSchemes.Add(schemaName);
+        catalog.CreateSchema(schemaName);
+      }
+      ExtractCatalogContents();
+      return catalog;
     }
 
     protected virtual void ExtractCatalogContents()
@@ -76,14 +90,22 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           Schema currentSchema;
           int identifier = reader.GetInt32(0);
           string name = reader.GetString(1);
-          if (schema!=null && schema.Name==name) {
-            currentSchema = schema;
-            schemaId = identifier;  
-          }
-          else
+          // if we've already had the schema we mustn't create schema
+          if (!targetSchemes.Contains(name))
             currentSchema = catalog.CreateSchema(name);
+          else
+            currentSchema = catalog.Schemas[name];
           schemaIndex[identifier] = currentSchema;
+          reversedSchemaIndex[currentSchema] = identifier;
           currentSchema.Owner = reader.GetString(2);
+
+          //if (schema!=null && schema.Name==name) {
+          //  currentSchema = schema;
+          //  schemaId = identifier;  
+          //}
+          //else
+          //  currentSchema = catalog.CreateSchema(name);
+          
         }
       RegisterReplacements(replacementsRegistry);
     }
@@ -107,8 +129,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     user_type_id";
       query = PerformReplacements(query);
 
-      int currentSchemaId = schemaId;
-      Schema currentSchema = schema;
+      //int currentSchemaId = schemaId;
+      //Schema currentSchema = schema;
       using (var command = Connection.CreateCommand(query))
       using (var reader = command.ExecuteReader())
         while (reader.Read()) {
@@ -127,7 +149,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           if (!typeNameIndex.TryGetValue(systemTypeId, out systemName))
             continue;
 
-          GetSchema(reader.GetInt32(0), ref currentSchemaId, ref currentSchema);
+          var currentSchema = GetSchema(reader.GetInt32(0));
           var dataType = GetValueType(typeNameIndex[systemTypeId], reader.GetByte(4), reader.GetByte(5), reader.GetInt16(6));
           var domain = currentSchema.CreateDomain(name, dataType);
           domainIndex[userTypeId] = domain;
@@ -158,16 +180,16 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       1 type
     FROM {CATALOG}.sys.views
     ) AS t
-  WHERE t.schema_id{SCHEMA_FILTER}
+  WHERE t.schema_id IN {SCHEMA_FILTER}
   ORDER BY t.schema_id, t.object_id";
       query = PerformReplacements(query);
 
-      var currentSchemaId = schemaId;
-      var currentSchema = schema;
+      //var currentSchemaId = schemaId;
+      //var currentSchema = schema;
       using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader())
         while (reader.Read()) {
-          GetSchema(reader.GetInt32(0), ref currentSchemaId, ref currentSchema);
+          var currentSchema = GetSchema(reader.GetInt32(0));
           int tableType = reader.GetInt32(3);
           DataTable dataTable;
           if (tableType==0)
@@ -219,7 +241,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   LEFT OUTER JOIN {CATALOG}.sys.computed_columns AS cc 
     ON c.object_id = cc.object_id 
       AND c.column_id = cc.column_id
-  WHERE t.schema_id{SCHEMA_FILTER}
+  WHERE t.schema_id IN {SCHEMA_FILTER}
   ORDER BY
     t.schema_id,
     c.object_id,
@@ -228,8 +250,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
       int currentTableId = 0;
       ColumnResolver columnResolver = null;
-      int currentSchemaId = schemaId;
-      Schema currentSchema = schema;
+      //int currentSchemaId = schemaId;
+      //Schema currentSchema = schema;
       using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader()) {
         while (reader.Read()) {
@@ -255,7 +277,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
             // Collation
             if (!reader.IsDBNull(8)) {
-              GetSchema(reader.GetInt32(0), ref currentSchemaId, ref currentSchema);
+              var currentSchema = GetSchema(reader.GetInt32(0));
               string collationName = reader.GetString(8);
               column.Collation = currentSchema.Collations[collationName] ?? currentSchema.CreateCollation(collationName);
             }
@@ -296,7 +318,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   WHERE seed_value IS NOT NULL
     AND increment_value IS NOT NULL
     AND {SYSTABLE_FILTER}
-    AND t.schema_id{SCHEMA_FILTER}
+    AND t.schema_id IN {SCHEMA_FILTER}
   ORDER BY
     t.schema_id,
     ic.object_id";
@@ -365,7 +387,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     ON i.object_id = ic.object_id
       AND i.index_id = ic.index_id
   WHERE i.type <> 3
-    AND schema_id{SCHEMA_FILTER}
+    AND schema_id IN {SCHEMA_FILTER}
   ORDER BY
     t.schema_id,
     t.object_id,
@@ -470,7 +492,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   FROM {CATALOG}.sys.foreign_keys fk
   INNER JOIN {CATALOG}.sys.foreign_key_columns fkc
     ON fk.object_id = fkc.constraint_object_id
-  WHERE fk.schema_id{SCHEMA_FILTER}
+  WHERE fk.schema_id IN {SCHEMA_FILTER}
   ORDER BY
     fk.schema_id,
     fkc.parent_object_id,
@@ -527,7 +549,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     ON fic.object_id = i.object_id
       AND fi.unique_index_id = i.index_id
   WHERE {SYSTABLE_FILTER}
-    AND t.schema_id{SCHEMA_FILTER}
+    AND t.schema_id IN {SCHEMA_FILTER}
   ORDER BY
     t.schema_id,
     fic.object_id,
@@ -623,18 +645,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return new SqlValueType(type, typeName, size, precision, scale);
     }
 
-    protected void GetSchema(int id, ref int currentId, ref Schema currentObj)
+    protected Schema GetSchema(int id)
     {
-      if ((schema!=null && id==currentId)) {
-        currentObj = schema;
-        return;
-      }
-
-      if (id==currentId)
-        return;
-
-      currentObj = schemaIndex[id];
-      currentId = id;
+      return schemaIndex[id];
     }
 
     private void GetDataTable(int id, ref int currentId, ref ColumnResolver currentObj)
@@ -650,13 +663,30 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       var catalogRef = Driver.Translator.QuoteIdentifier(catalog.Name);
 
-      string schemaFilter = (this.schema)!=null
-        ? " = " + schemaId
-        : " > 0";
+      //string schemaFilter = (this.schema)!=null
+      //  ? " = " + schemaId
+      //  : " > 0";
 
-      replacements[SchemaFilterPlaceholder] = schemaFilter;
+      replacements[SchemaFilterPlaceholder] = MakeSchemaFilter();
       replacements[SysTablesFilterPlaceholder] = "1 > 0";
       replacements[CatalogPlaceholder] = catalogRef;
+    }
+
+    protected virtual string MakeSchemaFilter()
+    {
+      if (targetSchemes==null && targetSchemes.Count==0)
+        return " > 0";
+      StringBuilder builder = new StringBuilder();
+      foreach (var targetScheme in targetSchemes) {
+        int schemaId;
+        if (!reversedSchemaIndex.TryGetValue(catalog.Schemas[targetScheme], out schemaId))
+          continue;
+        if (builder.Length==0)
+          builder.Append(schemaId.ToString(CultureInfo.InvariantCulture));
+        else
+          builder.Append(string.Format(", {0}", schemaId.ToString(CultureInfo.InvariantCulture)));
+      }
+      return string.Format("({0})", builder);
     }
 
     // Constructors
