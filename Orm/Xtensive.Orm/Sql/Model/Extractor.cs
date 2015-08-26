@@ -35,6 +35,7 @@ namespace Xtensive.Sql.Model
     /// Extracts the specified schema from the database.
     /// </summary>
     /// <returns>Extracted <see cref="Schema"/> instance.</returns>
+    [Obsolete("Use Extractor.ExtractSchemes(...) instead")]
     public abstract Schema ExtractSchema(string catalogName, string schemaName);
 
     /// <summary>
