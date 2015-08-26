@@ -155,7 +155,7 @@ namespace Xtensive.Sql
     public Schema ExtractDefaultSchema(SqlConnection connection)
     {
       var defaultSchema = GetDefaultSchema(connection);
-      return ExtractSchema(connection, defaultSchema.Schema);
+      return ExtractSchema(connection, defaultSchema.Database, defaultSchema.Schema);
     }
 
     /// <summary>
@@ -168,8 +168,7 @@ namespace Xtensive.Sql
     public Schema ExtractSchema(SqlConnection connection, string schemaName)
     {
       var defaultSchema = GetDefaultSchema(connection);
-      var task = new SqlExtractionTask(defaultSchema.Database, schemaName);
-      return Extract(connection, new[] {task}).Catalogs.SelectMany(catalog => catalog.Schemas).Single();
+      return ExtractSchema(connection, defaultSchema.Database, schemaName);
     }
 
     /// <summary>
@@ -348,6 +347,12 @@ namespace Xtensive.Sql
       var requested = configuration.DatabaseQualifiedObjects;
       if (requested && !supported)
         throw SqlHelper.NotSupported(QueryFeatures.MultidatabaseQueries);
+    }
+
+    private Schema ExtractSchema(SqlConnection connection, string databaseName, string schemaName)
+    {
+      var task = new SqlExtractionTask(databaseName, schemaName);
+      return Extract(connection, new[] {task}).Catalogs[databaseName].Schemas[schemaName];
     }
 
     private void CleanSchemas(Catalog catalog, IEnumerable<string> allowedSchemas)
