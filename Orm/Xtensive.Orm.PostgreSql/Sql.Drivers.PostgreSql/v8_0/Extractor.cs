@@ -448,7 +448,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             var relationName = dataReader["relname"].ToString();
             var relationNamespace = Convert.ToInt64(dataReader["relnamespace"]);
 
-            var schema = schemaIndex[relationNamespace];
+            Schema schema;
+            if (!schemaIndex.TryGetValue(relationNamespace, out schema))
+              continue;
             Debug.Assert(schema!=null);
             if (relationKind=="r") {
               var table = schema.CreateTable(relationName);
@@ -693,7 +695,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             int typmod = Convert.ToInt32(dataReader["typmod"]);
             var defaultValue = (dataReader["default"]!=DBNull.Value) ? dataReader["default"].ToString() : (string)null;
 
-            var schema = schemaIndex[typeNamespace];
+            Schema schema;
+            if (!schemaIndex.TryGetValue(typeNamespace, out schema))
+              continue;
             var domain = schema.CreateDomain(typeName, GetSqlValueType(baseTypeName, typmod));
             domain.DefaultValue = (defaultValue==null) ? (SqlExpression)SqlDml.Null : (SqlExpression)SqlDml.Native(defaultValue);
             domains.Add(typeId, domain);
