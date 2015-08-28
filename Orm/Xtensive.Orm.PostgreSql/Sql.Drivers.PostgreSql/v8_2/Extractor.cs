@@ -14,10 +14,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
     protected override void BuildPgCatalogSchema(Schema schema)
     {
       base.BuildPgCatalogSchema(schema);
-      Table t;
-      t = schema.Tables["pg_class"];
+      var table = schema.Tables["pg_class"];
       // fillfactor extension
-      CreateTextColumn(t, "reloptions");
+      CreateTextColumn(table, "reloptions");
     }
 
     protected RelOptions ParseRelOptions(object value)

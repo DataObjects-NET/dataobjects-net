@@ -22,12 +22,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
   {
     private static ThreadSafeDictionary<Type, Schema> pgCatalogs = ThreadSafeDictionary<Type, Schema>.Create(new object());
 
+    private readonly Dictionary<long, Schema> schemaIndex = new Dictionary<long, Schema>();
+    private readonly Dictionary<Schema, long> reversedSchemaIndex = new Dictionary<Schema, long>();
+
     // The identifier of the current user
     private long mUserSysId = -1;
     private readonly Dictionary<long, string> mUserLookup = new Dictionary<long, string>();
 
     protected Catalog catalog;
-    protected Dictionary<string, Schema> schemes = new Dictionary<string, Schema>();
+    protected Dictionary<string, Schema> targetSchemes = new Dictionary<string, Schema>();
 
     protected long PgClassOid { get; private set; }
     protected Schema PgCatalogSchema { get; private set; }
@@ -77,11 +80,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
       catalog = new Catalog(catalogName);
-      schemes.Add(schemaName,catalog.CreateSchema(schemaName));
+      targetSchemes.Add(schemaName,catalog.CreateSchema(schemaName));
       ExtractUsers();
       ExtractSchemas(catalog);
-      var result = schemes[schemaName];
-      schemes.Clear();
+      var result = targetSchemes[schemaName];
+      targetSchemes.Clear();
       return result;
     }
 
@@ -89,10 +92,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       catalog = new Catalog(catalogName);
       foreach (var schemaName in schemaNames)
-        schemes.Add(schemaName, catalog.CreateSchema(schemaName));
+        targetSchemes.Add(schemaName, catalog.CreateSchema(schemaName));
       ExtractUsers();
       ExtractSchemas(catalog);
-      schemes.Clear();
+      targetSchemes.Clear();
       return catalog;
     }
 
@@ -312,113 +315,156 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
     }
 
+    protected virtual ISqlCompileUnit GetAllAvaliableSchemaForUser(long currentUser)
+    {
+      var firstNamespace = PgNamespace;
+      var secondNamespace = PgNamespace;
+      var selectPublicButNotMineSchemas = SqlDml.Select(firstNamespace);
+      selectPublicButNotMineSchemas.Where = firstNamespace["nspowner"]!=currentUser &&
+                                            firstNamespace["nspname"]=="public";
+      selectPublicButNotMineSchemas.Columns.Add(firstNamespace["nspname"]);
+      selectPublicButNotMineSchemas.Columns.Add(firstNamespace["oid"]);
+      selectPublicButNotMineSchemas.Columns.Add(firstNamespace["nspowner"]);
+
+      var selectMySchemas = SqlDml.Select(secondNamespace);
+      selectMySchemas.Where = secondNamespace["nspowner"]==currentUser;
+      selectMySchemas.Columns.Add(secondNamespace["nspname"]);
+      selectMySchemas.Columns.Add(secondNamespace["oid"]);
+      selectMySchemas.Columns.Add(secondNamespace["nspowner"]);
+
+      var union = selectPublicButNotMineSchemas.UnionAll(selectMySchemas);
+      return union;
+    }
+
+    protected virtual ISqlCompileUnit GetTablesViewsSequencesQuery(long currentUser)
+    {
+      var rel = PgClass;
+      var tableSpace = PgTablespace;
+      var join = rel.LeftOuterJoin(tableSpace, tableSpace["oid"]==rel["reltablespace"]);
+      var select = SqlDml.Select(join);
+      select.Where = rel["relowner"]==currentUser
+        && SqlDml.In(rel["relkind"], SqlDml.Row('r', 'v', 'S'));
+      if (targetSchemes!=null && targetSchemes.Count!=0) {
+        var schemesIndexes = catalog.Schemas.Where(sch => targetSchemes.ContainsKey(sch.Name)).Select(sch => reversedSchemaIndex[sch]);
+        select.Where &= SqlDml.In(rel["relnamespace"], CreateOidRow(schemesIndexes));
+      }
+      select.Columns.Add(rel["oid"], "reloid");
+      select.Columns.Add(rel["relname"]);
+      select.Columns.Add(rel["relkind"]);
+      select.Columns.Add(rel["relnamespace"]);
+      select.Columns.Add(tableSpace["spcname"]);
+      select.Columns.Add(new Func<SqlCase>(() => {
+        SqlCase defCase = SqlDml.Case(rel["relkind"]);
+        defCase.Add('v', SqlDml.FunctionCall("pg_get_viewdef", rel["oid"]));
+        return defCase;
+      })(), "definition");
+      return select;
+    }
+
     /// <summary>
     /// Extracts the current user's schemas in the specified catalog.
     /// </summary>
     /// <param name="catalog"></param>
     protected void ExtractSchemas(Catalog catalog)
     {
-      long me = GetMyUserSysId();
+      long currentUserIdentifier = GetMyUserSysId();
 
-      //schemas
+      //Extraction of public schemas and schemas which is owned by current user
 
       #region Schemas
 
-      var schemas = new Dictionary<long, Schema>();
-      {
-        SqlTableRef nsp1 = PgNamespace;
-        SqlTableRef nsp2 = PgNamespace;
-        SqlSelect q1 = SqlDml.Select(nsp1);
-        q1.Where = nsp1["nspname"]=="public"
-          && nsp1["nspowner"]!=me;
-        q1.Columns.Add(nsp1["nspname"]);
-        q1.Columns.Add(nsp1["oid"]);
-        q1.Columns.Add(nsp1["nspowner"]);
-        if (schemes!=null && schemes.Count!=0)
-          foreach (var schemaName in schemes.Keys)
-            q1.Where &= nsp1["nspname"]==schemaName;
-        SqlSelect q2 = SqlDml.Select(nsp2);
-        q2.Where = nsp2["nspowner"]==me;
-        q2.Columns.Add(nsp2["nspname"]);
-        q2.Columns.Add(nsp2["oid"]);
-        q2.Columns.Add(nsp2["nspowner"]);
-        if (schemes != null && schemes.Count != 0)
-          foreach (var schemaName in schemes.Keys)
-            q1.Where &= nsp1["nspname"] == schemaName;
-        ISqlCompileUnit q = q1.UnionAll(q2);
-        using (var cmd = Connection.CreateCommand(q))
-        using (DbDataReader dr = cmd.ExecuteReader()) {
-          while (dr.Read()) {
-            long oid = Convert.ToInt64(dr["oid"]);
-            string name = dr["nspname"].ToString();
-            long owner = Convert.ToInt64(dr["nspowner"]);
-            Schema sch;
-            if (catalog.Schemas[name]==null) {
-              sch = catalog.CreateSchema(name);
-              if (name=="public")
-                catalog.DefaultSchema = sch;
-            }
-            else
-              sch = catalog.Schemas[name];
-            sch.Owner = mUserLookup[owner];
-            schemas[oid] = sch;
-          }
+      var namespaceTable1 = PgNamespace;
+      var namespaceTable2 = PgNamespace;
+      var selectPublic = SqlDml.Select(namespaceTable1);
+      selectPublic.Where = namespaceTable1["nspname"]=="public"
+        && namespaceTable1["nspowner"]!=currentUserIdentifier;
+      selectPublic.Columns.Add(namespaceTable1["nspname"]);
+      selectPublic.Columns.Add(namespaceTable1["oid"]);
+      selectPublic.Columns.Add(namespaceTable1["nspowner"]);
+
+      var selectMine = SqlDml.Select(namespaceTable2);
+      selectMine.Where = namespaceTable2["nspowner"]==currentUserIdentifier;
+      selectMine.Columns.Add(namespaceTable2["nspname"]);
+      selectMine.Columns.Add(namespaceTable2["oid"]);
+      selectMine.Columns.Add(namespaceTable2["nspowner"]);
+
+      var union = selectPublic.UnionAll(selectMine);
+
+      using (var command = Connection.CreateCommand(union))
+      using (var dataReader = command.ExecuteReader()) {
+        while (dataReader.Read()) {
+          var oid = Convert.ToInt64(dataReader["oid"]);
+          var name = dataReader["nspname"].ToString();
+          var owner = Convert.ToInt64(dataReader["nspowner"]);
+          
+          var schema = catalog.Schemas[name] ?? catalog.CreateSchema(name);
+          if (name=="public")
+            catalog.DefaultSchema = schema;
+          schema.Owner = mUserLookup[owner];
+          schemaIndex[oid] = schema;
+          reversedSchemaIndex[schema] = oid;
         }
       }
 
       #endregion
 
-      //tables,views,sequences
+      //Extraction of tables, views and sequences
 
       #region Tables, views, sequences
 
-      var tables = new Dictionary<long, Table>();
-      var views = new Dictionary<long, View>();
-      var sequences = new Dictionary<long, Sequence>();
-      var expressionIndexes = new Dictionary<long, ExpressionIndexInfo>();
+      var tableMap = new Dictionary<long, Table>();
+      var viewMap = new Dictionary<long, View>();
+      var sequenceMap = new Dictionary<long, Sequence>();
+      var expressionIndexeMap = new Dictionary<long, ExpressionIndexInfo>();
 
-      if (schemas.Count > 0) {
-        SqlTableRef rel = PgClass;
-        SqlTableRef spc = PgTablespace;
-        SqlSelect q = SqlDml.Select(rel.LeftOuterJoin(spc, spc["oid"]==rel["reltablespace"]));
-        q.Where = rel["relowner"]==me
-          && SqlDml.In(rel["relkind"], SqlDml.Row('r', 'v', 'S'))
-          && SqlDml.In(rel["relnamespace"], CreateOidRow(schemas.Keys));
-        q.Columns.Add(rel["oid"], "reloid");
-        q.Columns.Add(rel["relname"]);
-        q.Columns.Add(rel["relkind"]);
-        q.Columns.Add(rel["relnamespace"]);
-        q.Columns.Add(spc["spcname"]);
-        q.Columns.Add(new Func<SqlCase>(() => {
-          SqlCase defCase = SqlDml.Case(rel["relkind"]);
-          defCase.Add('v', SqlDml.FunctionCall("pg_get_viewdef", rel["oid"]));
+      if (schemaIndex.Count > 0) {
+        var relationsTable = PgClass;
+        var tablespacesTable = PgTablespace;
+
+        var join = relationsTable.LeftOuterJoin(tablespacesTable, tablespacesTable["oid"]==relationsTable["reltablespace"]);
+        var select = SqlDml.Select(join);
+        select.Where = relationsTable["relowner"]==currentUserIdentifier
+          && SqlDml.In(relationsTable["relkind"], SqlDml.Row('r', 'v', 'S'));
+        if (targetSchemes!=null && targetSchemes.Count > 0) {
+          var schemesIndexes = catalog.Schemas.Where(sch => targetSchemes.ContainsKey(sch.Name)).Select(sch => reversedSchemaIndex[sch]);
+          select.Where &= SqlDml.In(relationsTable["relnamespace"], CreateOidRow(schemesIndexes));
+        }
+        select.Columns.Add(relationsTable["oid"], "reloid");
+        select.Columns.Add(relationsTable["relname"]);
+        select.Columns.Add(relationsTable["relkind"]);
+        select.Columns.Add(relationsTable["relnamespace"]);
+        select.Columns.Add(tablespacesTable["spcname"]);
+        select.Columns.Add(new Func<SqlCase>(() => {
+          SqlCase defCase = SqlDml.Case(relationsTable["relkind"]);
+          defCase.Add('v', SqlDml.FunctionCall("pg_get_viewdef", relationsTable["oid"]));
           return defCase;
         })(), "definition");
 
-        using (var cmd = Connection.CreateCommand(q))
-        using (DbDataReader dr = cmd.ExecuteReader()) {
-          while (dr.Read()) {
-            long reloid = Convert.ToInt64(dr["reloid"]);
-            string relkind = dr["relkind"].ToString();
-            string relname = dr["relname"].ToString();
-            long relnamespace = Convert.ToInt64(dr["relnamespace"]);
-            Schema sch = schemas[relnamespace];
-            Debug.Assert(sch!=null);
-            if (relkind=="r") {
-              Table t = sch.CreateTable(relname);
-              object spcname = dr["spcname"];
-              if (spcname!=DBNull.Value && spcname!=null)
-                t.Filegroup = Convert.ToString(spcname);
-              tables.Add(reloid, t);
+        using (var command = Connection.CreateCommand(select))
+        using (var dataReader = command.ExecuteReader()) {
+          while (dataReader.Read()) {
+            var relationOid = Convert.ToInt64(dataReader["reloid"]);
+            var relationKind = dataReader["relkind"].ToString();
+            var relationName = dataReader["relname"].ToString();
+            var relationNamespace = Convert.ToInt64(dataReader["relnamespace"]);
+
+            var schema = schemaIndex[relationNamespace];
+            Debug.Assert(schema!=null);
+            if (relationKind=="r") {
+              var table = schema.CreateTable(relationName);
+              var tableSpaceName = dataReader["spcname"];
+              if (tableSpaceName!=DBNull.Value && tableSpaceName!=null)
+                table.Filegroup = Convert.ToString(tableSpaceName);
+              tableMap.Add(relationOid, table);
             }
-            else if (relkind=="v") {
-              string def = dr["definition"].ToString();
-              View v = sch.CreateView(relname, SqlDml.Native(def), CheckOptions.None);
-              views.Add(reloid, v);
+            else if (relationKind=="v") {
+              var definition = dataReader["definition"].ToString();
+              var view = schema.CreateView(relationName, SqlDml.Native(definition), CheckOptions.None);
+              viewMap.Add(relationOid, view);
             }
-            else if (relkind=="S") {
-              Sequence s = sch.CreateSequence(relname);
-              sequences.Add(reloid, s);
+            else if (relationKind=="S") {
+              var sequence = schema.CreateSequence(relationName);
+              sequenceMap.Add(relationOid, sequence);
             }
           }
         }
@@ -426,62 +472,63 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       #endregion
 
-      //table, view columns
+      //Extraction of columns of table and view
 
       #region Table and view columns
 
       var tableColumns = new Dictionary<long, Dictionary<long, TableColumn>>();
-      if (tables.Count > 0 || views.Count > 0) {
-        SqlTableRef att = PgAttribute;
-        SqlTableRef ad = PgAttrDef;
-        SqlTableRef typ = PgType;
-        SqlSelect q = SqlDml.Select(att
-          .LeftOuterJoin(ad, att["attrelid"]==ad["adrelid"] && att["attnum"]==ad["adnum"])
-          .InnerJoin(typ, typ["oid"]==att["atttypid"]));
-        q.Where = att["attisdropped"]==false && att["attnum"] > 0
-          && (SqlDml.In(att["attrelid"], CreateOidRow(tables.Keys)) || SqlDml.In(att["attrelid"], CreateOidRow(views.Keys)));
-        q.Columns.Add(att["attrelid"]);
-        q.Columns.Add(att["attnum"]);
-        q.Columns.Add(att["attname"]);
-        q.Columns.Add(typ["typname"]);
-        q.Columns.Add(att["atttypmod"]);
-        q.Columns.Add(att["attnotnull"]);
-        q.Columns.Add(att["atthasdef"]);
-        q.Columns.Add(ad["adsrc"]);
-        q.OrderBy.Add(att["attrelid"]);
-        q.OrderBy.Add(att["attnum"]);
+      if (tableMap.Count > 0 || viewMap.Count > 0) {
+        var columnsTable = PgAttribute;
+        var dafaultValuesTable = PgAttrDef;
+        var typesTable = PgType;
 
-        using (var cmd = Connection.CreateCommand(q))
-        using (DbDataReader dr = cmd.ExecuteReader()) {
-          while (dr.Read()) {
-            long attrelid = Convert.ToInt64(dr["attrelid"]);
-            long attnum = Convert.ToInt64(dr["attnum"]);
-            string attname = dr["attname"].ToString();
-            if (tables.ContainsKey(attrelid)) {
-              Table t = tables[attrelid];
-              Debug.Assert(t!=null);
-              TableColumn col = t.CreateColumn(attname);
-              if (!tableColumns.ContainsKey(attrelid)) {
-                tableColumns.Add(attrelid, new Dictionary<long, TableColumn>());
+        var select = SqlDml.Select(columnsTable
+          .LeftOuterJoin(dafaultValuesTable, columnsTable["attrelid"]==dafaultValuesTable["adrelid"] && columnsTable["attnum"]==dafaultValuesTable["adnum"])
+          .InnerJoin(typesTable, typesTable["oid"]==columnsTable["atttypid"]));
+        select.Where = columnsTable["attisdropped"]==false && 
+          columnsTable["attnum"] > 0
+          && (SqlDml.In(columnsTable["attrelid"], CreateOidRow(tableMap.Keys)) || 
+              SqlDml.In(columnsTable["attrelid"], CreateOidRow(viewMap.Keys)));
+        select.Columns.Add(columnsTable["attrelid"]);
+        select.Columns.Add(columnsTable["attnum"]);
+        select.Columns.Add(columnsTable["attname"]);
+        select.Columns.Add(typesTable["typname"]);
+        select.Columns.Add(columnsTable["atttypmod"]);
+        select.Columns.Add(columnsTable["attnotnull"]);
+        select.Columns.Add(columnsTable["atthasdef"]);
+        select.Columns.Add(dafaultValuesTable["adsrc"]);
+        select.OrderBy.Add(columnsTable["attrelid"]);
+        select.OrderBy.Add(columnsTable["attnum"]);
+
+        using (var command = Connection.CreateCommand(select))
+        using (DbDataReader dataReader = command.ExecuteReader()) {
+          while (dataReader.Read()) {
+            var columnOwnerId = Convert.ToInt64(dataReader["attrelid"]);
+            var columnId = Convert.ToInt64(dataReader["attnum"]);
+            var columnName = dataReader["attname"].ToString();
+            if (tableMap.ContainsKey(columnOwnerId)) {
+              var table = tableMap[columnOwnerId];
+              Debug.Assert(table!=null);
+              TableColumn col = table.CreateColumn(columnName);
+              if (!tableColumns.ContainsKey(columnOwnerId))
+                tableColumns.Add(columnOwnerId, new Dictionary<long, TableColumn>());
+              tableColumns[columnOwnerId].Add(columnId, col);
+
+              var columnTypeName = dataReader["typname"].ToString();
+              var columnTypeSpecificData = Convert.ToInt32(dataReader["atttypmod"]);
+              var notNullFlag = dataReader.GetBoolean(dataReader.GetOrdinal("attnotnull"));
+              var defaultValueFlag = dataReader.GetBoolean(dataReader.GetOrdinal("atthasdef"));
+              if (defaultValueFlag) {
+                var defaultValue = dataReader["adsrc"].ToString();
+                col.DefaultValue = SqlDml.Native(defaultValue);
               }
-              tableColumns[attrelid].Add(attnum, col);
-
-              string typname = dr["typname"].ToString();
-              int atttypmod = Convert.ToInt32(dr["atttypmod"]);
-              bool attnotnull = dr.GetBoolean(dr.GetOrdinal("attnotnull"));
-              bool atthasdef = dr.GetBoolean(dr.GetOrdinal("atthasdef"));
-              if (atthasdef) {
-                string def = dr["adsrc"].ToString();
-                col.DefaultValue = SqlDml.Native(def);
-              }
-              col.IsNullable = !attnotnull;
-
-              col.DataType = GetSqlValueType(typname, atttypmod);
+              col.IsNullable = !notNullFlag;
+              col.DataType = GetSqlValueType(columnTypeName, columnTypeSpecificData);
             }
             else {
-              View v = views[attrelid];
-              Debug.Assert(v!=null);
-              v.CreateColumn(attname);
+              var view = viewMap[columnOwnerId];
+              Debug.Assert(view!=null);
+              view.CreateColumn(columnName);
             }
           }
         }
@@ -489,69 +536,65 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       #endregion
 
-      //table indexes
+      //Extraction of table indexes
 
       #region Table indexes
 
-      if (tables.Count > 0) {
-        SqlTableRef spc = PgTablespace;
-        SqlTableRef rel = PgClass;
-        SqlTableRef ind = PgIndex;
-        SqlTableRef depend = PgDepend;
+      if (tableMap.Count > 0) {
+        var tableSpacesTable = PgTablespace;
+        var relationsTable = PgClass;
+        var indexTable = PgIndex;
+        var dependencyTable = PgDepend;
 
         //subselect that index was not created automatically
-        SqlSelect subSelect = SqlDml.Select(depend);
-        subSelect.Where = depend["classid"]==PgClassOid && depend["objid"]==ind["indexrelid"] && depend["deptype"]=='i';
-        subSelect.Columns.Add(depend[0]);
+        var subSelect = SqlDml.Select(dependencyTable);
+        subSelect.Where = dependencyTable["classid"]==PgClassOid && dependencyTable["objid"]==indexTable["indexrelid"] && dependencyTable["deptype"]=='i';
+        subSelect.Columns.Add(dependencyTable[0]);
 
         //not automatically created indexes of our tables
-        SqlSelect q = SqlDml.Select(ind
-          .InnerJoin(rel, rel["oid"]==ind["indexrelid"])
-          .LeftOuterJoin(spc, spc["oid"]==rel["reltablespace"]));
-        q.Where = SqlDml.In(ind["indrelid"], CreateOidRow(tables.Keys)) && !SqlDml.Exists(subSelect);
-        q.Columns.Add(ind["indrelid"]);
-        q.Columns.Add(ind["indexrelid"]);
-        q.Columns.Add(rel["relname"]);
-        q.Columns.Add(ind["indisunique"]);
-        q.Columns.Add(ind["indisclustered"]);
-        q.Columns.Add(ind["indkey"]);
-        q.Columns.Add(spc["spcname"]);
-        q.Columns.Add(ind["indnatts"]);
-        q.Columns.Add(ind["indexprs"]);
-        q.Columns.Add(SqlDml.FunctionCall("pg_get_expr", ind["indpred"], ind["indrelid"], true), "indpredtext");
-        q.Columns.Add(SqlDml.FunctionCall("pg_get_indexdef", ind["indexrelid"]), "inddef");
-        AddSpecialIndexQueryColumns(q, spc, rel, ind, depend);
+        var select = SqlDml.Select(indexTable
+          .InnerJoin(relationsTable, relationsTable["oid"]==indexTable["indexrelid"])
+          .LeftOuterJoin(tableSpacesTable, tableSpacesTable["oid"]==relationsTable["reltablespace"]));
+        select.Where = SqlDml.In(indexTable["indrelid"], CreateOidRow(tableMap.Keys)) && !SqlDml.Exists(subSelect);
+        select.Columns.Add(indexTable["indrelid"]);
+        select.Columns.Add(indexTable["indexrelid"]);
+        select.Columns.Add(relationsTable["relname"]);
+        select.Columns.Add(indexTable["indisunique"]);
+        select.Columns.Add(indexTable["indisclustered"]);
+        select.Columns.Add(indexTable["indkey"]);
+        select.Columns.Add(tableSpacesTable["spcname"]);
+        select.Columns.Add(indexTable["indnatts"]);
+        select.Columns.Add(indexTable["indexprs"]);
+        select.Columns.Add(SqlDml.FunctionCall("pg_get_expr", indexTable["indpred"], indexTable["indrelid"], true), "indpredtext");
+        select.Columns.Add(SqlDml.FunctionCall("pg_get_indexdef", indexTable["indexrelid"]), "inddef");
+        AddSpecialIndexQueryColumns(select, tableSpacesTable, relationsTable, indexTable, dependencyTable);
 
         int maxColumnNumber = 0;
-        using (var cmd = Connection.CreateCommand(q))
-        using (DbDataReader dr = cmd.ExecuteReader()) {
-          while (dr.Read()) {
-            long tableOid = Convert.ToInt64(dr["indrelid"]);
-            long indexOid = Convert.ToInt64(dr["indexrelid"]);
-            string indexName = dr["relname"].ToString();
-            bool isUnique = dr.GetBoolean(dr.GetOrdinal("indisunique"));
-            bool isClustered = dr.GetBoolean(dr.GetOrdinal("indisclustered"));
-            string indKey = dr["indkey"].ToString();
-            string tablespaceName = null;
-            if (dr["spcname"]!=DBNull.Value)
-              tablespaceName = dr["spcname"].ToString();
-            string filterExpression = string.Empty;
-            if (dr["indpredtext"]!=DBNull.Value)
-              filterExpression = dr["indpredtext"].ToString();
+        using (var command = Connection.CreateCommand(select))
+        using (var dataReader = command.ExecuteReader()) {
+          while (dataReader.Read()) {
+            var tableIdentifier = Convert.ToInt64(dataReader["indrelid"]);
+            var indexIdentifier = Convert.ToInt64(dataReader["indexrelid"]);
+            var indexName = dataReader["relname"].ToString();
+            var isUnique = dataReader.GetBoolean(dataReader.GetOrdinal("indisunique"));
+            var isClustered = dataReader.GetBoolean(dataReader.GetOrdinal("indisclustered"));
+            var indexKey = dataReader["indkey"].ToString();
+            var tablespaceName =(dataReader["spcname"]!=DBNull.Value) ? dataReader["spcname"].ToString() : (string)null;
+            var filterExpression = (dataReader["indpredtext"]!=DBNull.Value) ? dataReader["indpredtext"].ToString() : string.Empty;
 
-            Table t = tables[tableOid];
+            var table = tableMap[tableIdentifier];
 
-            string fullTextRegex = @"(?<=CREATE INDEX \S+ ON \S+ USING (?:gist|gin)(?:\s|\S)*)to_tsvector\('(\w+)'::regconfig, \(*(?:(?:\s|\)|\(|\|)*(?:\(""(\w+)""\)|'\s')::text)+\)";
-            string indexScript = dr["inddef"].ToString();
+            var fullTextRegex = @"(?<=CREATE INDEX \S+ ON \S+ USING (?:gist|gin)(?:\s|\S)*)to_tsvector\('(\w+)'::regconfig, \(*(?:(?:\s|\)|\(|\|)*(?:\(""(\w+)""\)|'\s')::text)+\)";
+            var indexScript = dataReader["inddef"].ToString();
             var matches = Regex.Matches(indexScript, fullTextRegex, RegexOptions.Compiled);
             if (matches.Count > 0) {
               // Fulltext index
-              var fullTextIndex = t.CreateFullTextIndex(indexName);
+              var fullTextIndex = table.CreateFullTextIndex(indexName);
               foreach (Match match in matches) {
                 var columnConfigurationName = match.Groups[1].Value;
                 foreach (Capture capture in match.Groups[2].Captures) {
                   var columnName = capture.Value;
-                  IndexColumn fullTextColumn = fullTextIndex.Columns[columnName] ?? fullTextIndex.CreateIndexColumn(t.Columns.Single(column => column.Name==columnName));
+                  var fullTextColumn = fullTextIndex.Columns[columnName] ?? fullTextIndex.CreateIndexColumn(table.Columns.Single(column => column.Name==columnName));
                   if (fullTextColumn.Languages[columnConfigurationName]==null) 
                     fullTextColumn.Languages.Add(new Language(columnConfigurationName));
                 }
@@ -559,28 +602,27 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             }
             else {
               //Regular index
-              Index i = t.CreateIndex(indexName);
-              i.IsBitmap = false;
-              i.IsUnique = isUnique;
-              i.Filegroup = tablespaceName;
+              var index = table.CreateIndex(indexName);
+              index.IsBitmap = false;
+              index.IsUnique = isUnique;
+              index.Filegroup = tablespaceName;
               if (!string.IsNullOrEmpty(filterExpression))
-                i.Where = SqlDml.Native(filterExpression);
+                index.Where = SqlDml.Native(filterExpression);
 
               // Expression-based index
-              if (dr["indexprs"]!=DBNull.Value) {
-                expressionIndexes[indexOid] = new ExpressionIndexInfo(i, indKey);
-                int columnNumber = dr.GetInt16(dr.GetOrdinal("indnatts"));
+              if (dataReader["indexprs"]!=DBNull.Value) {
+                expressionIndexeMap[indexIdentifier] = new ExpressionIndexInfo(index, indexKey);
+                int columnNumber = dataReader.GetInt16(dataReader.GetOrdinal("indnatts"));
                 if (columnNumber > maxColumnNumber)
                   maxColumnNumber = columnNumber;
               }
               else {
                 //index columns
-                string[] indKeyArray = indKey.Split(' ');
-                for (int j = 0; j < indKeyArray.Length; j++) {
-                  int colIndex = Int32.Parse(indKeyArray[j]);
-                  if (colIndex > 0) {
-                    i.CreateIndexColumn(tableColumns[tableOid][colIndex], true);
-                  }
+                var indexKeyColumns = indexKey.Split(' ');
+                for (int j = 0; j < indexKeyColumns.Length; j++) {
+                  int colIndex = Int32.Parse(indexKeyColumns[j]);
+                  if (colIndex > 0)
+                    index.CreateIndexColumn(tableColumns[tableIdentifier][colIndex], true);
                   else {
                     int z = 7;
                     //column index is 0
@@ -589,29 +631,31 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
                   }
                 }
               }
-              ReadSpecialIndexProperties(dr, i);
+              ReadSpecialIndexProperties(dataReader, index);
             }
           }
         }
 
-        if (expressionIndexes.Count > 0) {
-          q = SqlDml.Select(ind);
-          q.Columns.Add(ind["indrelid"]);
-          q.Columns.Add(ind["indexrelid"]);
+        if (expressionIndexeMap.Count > 0) {
+          select = SqlDml.Select(indexTable);
+          select.Columns.Add(indexTable["indrelid"]);
+          select.Columns.Add(indexTable["indexrelid"]);
+
           for (int i = 1; i <= maxColumnNumber; i++)
-            q.Columns.Add(SqlDml.FunctionCall("pg_get_indexdef", ind["indexrelid"], i, true), i.ToString());
-          q.Where = SqlDml.In(ind["indexrelid"], SqlDml.Array(expressionIndexes.Keys.ToArray()));
-          using (var cmd = Connection.CreateCommand(q))
-          using (DbDataReader dr = cmd.ExecuteReader()) {
-            while (dr.Read()) {
-              var exprIndexInfo = expressionIndexes[Convert.ToInt64(dr[1])];
-              string[] indKeyArray = exprIndexInfo.Columns.Split(' ');
-              for (int j = 0; j < indKeyArray.Length; j++) {
-                int colIndex = Int32.Parse(indKeyArray[j]);
+            select.Columns.Add(SqlDml.FunctionCall("pg_get_indexdef", indexTable["indexrelid"], i, true), i.ToString());
+          select.Where = SqlDml.In(indexTable["indexrelid"], SqlDml.Array(expressionIndexeMap.Keys.ToArray()));
+
+          using (var command = Connection.CreateCommand(select))
+          using (var dataReader = command.ExecuteReader()) {
+            while (dataReader.Read()) {
+              var exprIndexInfo = expressionIndexeMap[Convert.ToInt64(dataReader[1])];
+              var indexKeyColumns = exprIndexInfo.Columns.Split(' ');
+              for (int j = 0; j < indexKeyColumns.Length; j++) {
+                int colIndex = Int32.Parse(indexKeyColumns[j]);
                 if (colIndex > 0)
-                  exprIndexInfo.Index.CreateIndexColumn(tableColumns[Convert.ToInt64(dr[0])][colIndex], true);
+                  exprIndexInfo.Index.CreateIndexColumn(tableColumns[Convert.ToInt64(dataReader[0])][colIndex], true);
                 else
-                  exprIndexInfo.Index.CreateIndexColumn(SqlDml.Native(dr[(j + 1).ToString()].ToString()));
+                  exprIndexInfo.Index.CreateIndexColumn(SqlDml.Native(dataReader[(j + 1).ToString()].ToString()));
               }
             }
           }
@@ -625,135 +669,126 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       #region Domains
 
       var domains = new Dictionary<long, Domain>();
-      if (schemas.Count > 0) {
-        SqlTableRef typ = PgType;
-        SqlTableRef basetyp = PgType;
-        SqlSelect q = SqlDml.Select(typ.InnerJoin(basetyp, basetyp["oid"]==typ["typbasetype"]));
-        q.Where = typ["typisdefined"]==true && typ["typtype"]=='d'
-          && SqlDml.In(typ["typnamespace"], CreateOidRow(schemas.Keys))
-            && typ["typowner"]==me;
-        q.Columns.Add(typ["oid"]);
-        q.Columns.Add(typ["typname"], "typname");
-        q.Columns.Add(typ["typnamespace"], "typnamespace");
-        q.Columns.Add(typ["typtypmod"], "typmod");
-        q.Columns.Add(typ["typdefault"], "default");
-        q.Columns.Add(basetyp["typname"], "basetypname");
+      if (schemaIndex.Count > 0) {
+        var typeTable = PgType;
+        var baseTypeTable = PgType;
+        var select = SqlDml.Select(typeTable.InnerJoin(baseTypeTable, baseTypeTable["oid"]==typeTable["typbasetype"]));
+        select.Where = typeTable["typisdefined"]==true && typeTable["typtype"]=='d'
+          && SqlDml.In(typeTable["typnamespace"], CreateOidRow(schemaIndex.Keys))
+            && typeTable["typowner"]==currentUserIdentifier;
+        select.Columns.Add(typeTable["oid"]);
+        select.Columns.Add(typeTable["typname"], "typname");
+        select.Columns.Add(typeTable["typnamespace"], "typnamespace");
+        select.Columns.Add(typeTable["typtypmod"], "typmod");
+        select.Columns.Add(typeTable["typdefault"], "default");
+        select.Columns.Add(baseTypeTable["typname"], "basetypname");
 
-        using (var cmd = Connection.CreateCommand(q))
-        using (DbDataReader dr = cmd.ExecuteReader()) {
-          while (dr.Read()) {
-            long oid = Convert.ToInt64(dr["oid"]);
-            long typnamespace = Convert.ToInt64(dr["typnamespace"]);
-            string typname = dr["typname"].ToString();
-            string basetypname = dr["basetypname"].ToString();
-            int typmod = Convert.ToInt32(dr["typmod"]);
-            string defaultValue = null;
-            if (dr["default"]!=DBNull.Value)
-              defaultValue = dr["default"].ToString();
+        using (var command = Connection.CreateCommand(select))
+        using (var dataReader = command.ExecuteReader()) {
+          while (dataReader.Read()) {
+            var typeId = Convert.ToInt64(dataReader["oid"]);
+            var typeNamespace = Convert.ToInt64(dataReader["typnamespace"]);
+            var typeName = dataReader["typname"].ToString();
+            var baseTypeName = dataReader["basetypname"].ToString();
+            int typmod = Convert.ToInt32(dataReader["typmod"]);
+            var defaultValue = (dataReader["default"]!=DBNull.Value) ? dataReader["default"].ToString() : (string)null;
 
-            Schema sch = schemas[typnamespace];
-            Domain d = sch.CreateDomain(typname, GetSqlValueType(basetypname, typmod));
-            if (defaultValue==null)
-              d.DefaultValue = SqlDml.Null;
-            else
-              d.DefaultValue = SqlDml.Native(defaultValue);
-            domains.Add(oid, d);
+            var schema = schemaIndex[typeNamespace];
+            var domain = schema.CreateDomain(typeName, GetSqlValueType(baseTypeName, typmod));
+            domain.DefaultValue = (defaultValue==null) ? (SqlExpression)SqlDml.Null : (SqlExpression)SqlDml.Native(defaultValue);
+            domains.Add(typeId, domain);
           }
         }
       }
 
       #endregion
 
-      //table and domain constraints
+      //Extraction of table and domain constraints
 
       #region Table and domain constraints (check, unique, primary, foreign key)
 
-      if (tables.Count > 0 || domains.Count > 0) {
-        SqlTableRef con = PgConstraint;
-        SqlSelect q = SqlDml.Select(con);
-        q.Where = SqlDml.In(con["conrelid"], CreateOidRow(tables.Keys))
-          || SqlDml.In(con["contypid"], CreateOidRow(domains.Keys));
-        q.Columns.AddRange(con["conname"], con["contype"], con["condeferrable"],
-          con["condeferred"], con["conrelid"], con["contypid"], con["conkey"], con["consrc"],
-          con["confrelid"], con["confkey"], con["confupdtype"],
-          con["confdeltype"], con["confmatchtype"]);
+      if (tableMap.Count > 0 || domains.Count > 0) {
+        var constraintTable = PgConstraint;
+        var select = SqlDml.Select(constraintTable);
+        select.Where = SqlDml.In(constraintTable["conrelid"], CreateOidRow(tableMap.Keys))
+          || SqlDml.In(constraintTable["contypid"], CreateOidRow(domains.Keys));
+        select.Columns.AddRange(constraintTable["conname"], constraintTable["contype"], constraintTable["condeferrable"],
+          constraintTable["condeferred"], constraintTable["conrelid"], constraintTable["contypid"], constraintTable["conkey"], constraintTable["consrc"],
+          constraintTable["confrelid"], constraintTable["confkey"], constraintTable["confupdtype"],
+          constraintTable["confdeltype"], constraintTable["confmatchtype"]);
 
-        using (var cmd = Connection.CreateCommand(q))
-        using (DbDataReader dr = cmd.ExecuteReader()) {
-          while (dr.Read()) {
-            char contype = dr["contype"].ToString()[0];
-            string conname = dr["conname"].ToString();
-            bool condeferrable = dr.GetBoolean(dr.GetOrdinal("condeferrable"));
-            bool condeferred = dr.GetBoolean(dr.GetOrdinal("condeferred"));
-            long conrelid = Convert.ToInt64(dr["conrelid"]);
-            long contypid = Convert.ToInt64(dr["contypid"]);
-            object conkey = dr["conkey"];
+        using (var command = Connection.CreateCommand(select))
+        using (var dataReader = command.ExecuteReader()) {
+          while (dataReader.Read()) {
+            var constraintType = dataReader["contype"].ToString()[0];
+            var constraintName = dataReader["conname"].ToString();
+            var isDeferrable = dataReader.GetBoolean(dataReader.GetOrdinal("condeferrable"));
+            var isDeferred = dataReader.GetBoolean(dataReader.GetOrdinal("condeferred"));
+            var tableId = Convert.ToInt64(dataReader["conrelid"]);
+            var domainId = Convert.ToInt64(dataReader["contypid"]);
+            object constraintKeyColumns = dataReader["conkey"];
 
-            if (conrelid!=0) //table constraint
-            {
-              Table t = tables[conrelid];
-              if (contype=='c') //check
-              {
-                string consrc = dr["consrc"].ToString();
-                CheckConstraint c = t.CreateCheckConstraint(conname, SqlDml.Native(consrc));
-                c.IsDeferrable = condeferrable;
-                c.IsInitiallyDeferred = condeferred;
+            if (tableId!=0) {
+              //table constraint
+              var table = tableMap[tableId];
+              if (constraintType=='c') {
+                //[c]heck
+                var consrc = dataReader["consrc"].ToString();
+                var constraint = table.CreateCheckConstraint(constraintName, SqlDml.Native(consrc));
+                constraint.IsDeferrable = isDeferrable;
+                constraint.IsInitiallyDeferred = isDeferred;
               }
               else {
-                Dictionary<long, TableColumn> keyColumns = tableColumns[conrelid];
-                if (contype=='u' || contype=='p') //unique / primary key
-                {
-                  UniqueConstraint c;
-                  if (contype=='u')
-                    c = t.CreateUniqueConstraint(conname);
-                  else
-                    c = t.CreatePrimaryKey(conname);
+                var columnsOfTable = tableColumns[tableId];
+                if (constraintType=='u' || constraintType=='p')  {
+                  //[u]nique or [p]rimary key
+                  UniqueConstraint constraint = (constraintType=='u') 
+                    ? table.CreateUniqueConstraint(constraintName)
+                    : table.CreatePrimaryKey(constraintName);
 
-                  c.IsDeferrable = condeferrable;
-                  c.IsInitiallyDeferred = condeferred;
-                  int[] colIndexes = ReadIntArray(conkey);
-                  for (int i = 0; i < colIndexes.Length; i++) {
-                    c.Columns.Add(keyColumns[colIndexes[i]]);
-                  }
+                  constraint.IsDeferrable = isDeferrable;
+                  constraint.IsInitiallyDeferred = isDeferred;
+                  int[] colIndexes = ReadIntArray(constraintKeyColumns);
+                  for (int i = 0; i < colIndexes.Length; i++) 
+                    constraint.Columns.Add(columnsOfTable[colIndexes[i]]);
                 }
-                else if (contype=='f') //foreign key
-                {
-                  object confkey = dr["confkey"];
-                  long confrelid = Convert.ToInt64(dr["confrelid"]);
-                  char confupdtype = dr["confupdtype"].ToString()[0];
-                  char confdeltype = dr["confdeltype"].ToString()[0];
-                  char confmatchtype = dr["confmatchtype"].ToString()[0];
+                else if (constraintType=='f') {
+                  //[f]oreign key
+                  object confkey = dataReader["confkey"];
+                  var referencedTableId = Convert.ToInt64(dataReader["confrelid"]);
+                  var updateAction = dataReader["confupdtype"].ToString()[0];
+                  var deleteAction = dataReader["confdeltype"].ToString()[0];
+                  var matchType = dataReader["confmatchtype"].ToString()[0];
 
-                  ForeignKey fk = t.CreateForeignKey(conname);
-                  fk.IsDeferrable = condeferrable;
-                  fk.IsInitiallyDeferred = condeferred;
-                  fk.OnDelete = GetReferentialAction(confdeltype);
-                  fk.OnUpdate = GetReferentialAction(confupdtype);
-                  fk.MatchType = GetMatchType(confmatchtype);
-                  fk.ReferencedTable = tables[confrelid];
+                  var foreignKey = table.CreateForeignKey(constraintName);
+                  foreignKey.IsDeferrable = isDeferrable;
+                  foreignKey.IsInitiallyDeferred = isDeferred;
+                  foreignKey.OnDelete = GetReferentialAction(deleteAction);
+                  foreignKey.OnUpdate = GetReferentialAction(updateAction);
+                  foreignKey.MatchType = GetMatchType(matchType);
+                  foreignKey.ReferencedTable = tableMap[referencedTableId];
 
-                  Dictionary<long, TableColumn> fkeyColumns = tableColumns[confrelid];
+                  var fkeyColumns = tableColumns[referencedTableId];
 
-                  int[] colIndexes = ReadIntArray(conkey);
-                  for (int i = 0; i < colIndexes.Length; i++) {
-                    fk.Columns.Add(keyColumns[colIndexes[i]]);
-                  }
+                  int[] colIndexes = ReadIntArray(constraintKeyColumns);
+                  for (int i = 0; i < colIndexes.Length; i++)
+                    foreignKey.Columns.Add(columnsOfTable[colIndexes[i]]);
+                  
                   colIndexes = ReadIntArray(confkey);
-                  for (int i = 0; i < colIndexes.Length; i++) {
-                    fk.ReferencedColumns.Add(fkeyColumns[colIndexes[i]]);
-                  }
+                  for (int i = 0; i < colIndexes.Length; i++)
+                    foreignKey.ReferencedColumns.Add(fkeyColumns[colIndexes[i]]);
                 }
               }
             }
-            else if (contypid!=0) //domain constraint
-            {
-              if (contype=='c') //check
-              {
-                string consrc = dr["consrc"].ToString();
-                Domain d = domains[contypid];
-                DomainConstraint c = d.CreateConstraint(conname, SqlDml.Native(consrc));
-                c.IsDeferrable = condeferrable;
-                c.IsInitiallyDeferred = condeferred;
+            else if (domainId!=0)  {
+              //domain constraint
+              if (constraintType=='c') {
+                //check
+                string consrc = dataReader["consrc"].ToString();
+                var domain = domains[domainId];
+                var constraint = domain.CreateConstraint(constraintName, SqlDml.Native(consrc));
+                constraint.IsDeferrable = isDeferrable;
+                constraint.IsInitiallyDeferred = isDeferred;
               }
             }
           }
@@ -766,17 +801,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       #region Sequence info
 
-      if (sequences.Count > 0) {
+      if (sequenceMap.Count > 0) {
         //Have to do it traditional string concat because cannot select from 
         //a sequence with Sql.Dom
         var query = new StringBuilder();
         {
-          Sequence[] seqArray = new Sequence[sequences.Count];
-          sequences.Values.CopyTo(seqArray, 0);
+          Sequence[] seqArray = new Sequence[sequenceMap.Count];
+          sequenceMap.Values.CopyTo(seqArray, 0);
           Sequence seq = seqArray[0];
           query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", 0,
             Driver.Translator.Translate(null, seq)); // context is not used in PostrgreSQL translator
-          for (int i = 1; i < sequences.Count; i++) {
+          for (int i = 1; i < sequenceMap.Count; i++) {
             seq = seqArray[i];
             query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", i,
               Driver.Translator.Translate(null, seq)); // context is not used in PostgreSQL translator
@@ -787,7 +822,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         using (DbCommand cmd = Connection.UnderlyingConnection.CreateCommand()) {
           cmd.CommandText = query.ToString();
           using (DbDataReader dr = cmd.ExecuteReader()) {
-            foreach (Sequence seq in sequences.Values) {
+            foreach (Sequence seq in sequenceMap.Values) {
               dr.Read();
               ReadSequenceDescriptor(dr, seq.SequenceDescriptor);
             }
