@@ -43,12 +43,14 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
-      theCatalog = new Catalog(catalogName);
       targetSchemes.Clear();
+      theCatalog = new Catalog(catalogName);
       var targetSchema = schemaName.ToUpperInvariant();
-      theCatalog.CreateSchema(targetSchema);
+      targetSchemes.Add(targetSchema);
 
       RegisterReplacements(replacementsRegistry);
+      ExtractSchemas();
+      EnsureShemasExists(theCatalog, new []{schemaName});
       ExtractCatalogContents();
       return theCatalog.Schemas[targetSchema];
     }
@@ -57,13 +59,14 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     {
       theCatalog = new Catalog(catalogName);
       targetSchemes.Clear();
-      foreach (var schemaName in schemaNames){
-        var realName = schemaName.ToUpperInvariant();
-        theCatalog.CreateSchema(realName);
-        targetSchemes.Add(realName);
+      foreach (var schemaName in schemaNames) {
+        var targetSchema = schemaName.ToUpperInvariant();
+        targetSchemes.Add(targetSchema);
       }
 
       RegisterReplacements(replacementsRegistry);
+      ExtractSchemas();
+      EnsureShemasExists(theCatalog, schemaNames);
       ExtractCatalogContents();
       return theCatalog;
     }
@@ -491,6 +494,16 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         nonSystemSchemasFilter = string.Format("NOT IN ({0})", schemaList);
       }
       return nonSystemSchemasFilter;
+    }
+
+    private void EnsureShemasExists(Catalog catalog, string[] schemaNames)
+    {
+      foreach (var schemaName in schemaNames) {
+        var realSchemaName = schemaName.ToUpperInvariant();
+        var schema = catalog.Schemas[realSchemaName];
+        if (schema==null)
+          catalog.CreateSchema(realSchemaName);
+      }
     }
 
 
