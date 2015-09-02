@@ -369,6 +369,7 @@
     <Compile Include="Orm\Internals\StorageNodeRegistry.cs" />
     <Compile Include="Orm\Providers\SimpleMappingResolver.cs" />
     <Compile Include="Orm\StateLifetimeToken.cs" />
+    <Compile Include="Orm\Upgrade\Internals\NodeSchemasMapper.cs" />
     <Compile Include="Properties\Visibility.cs" />
     <Compile Include="IoC\Attributes\ServiceAttribute.cs" />
     <Compile Include="IoC\Attributes\ServiceConstructorAttribute.cs" />
