@@ -114,22 +114,16 @@ namespace Xtensive.Sql
       foreach (var taskGroup in taskGroups) {
         var catalogName = taskGroup.Key;
         var tasksForCatalog = taskGroup.Value;
-        var extractSingle = tasksForCatalog.Count==1 && !tasksForCatalog[0].AllSchemas;
 
-        if (extractSingle) {
-          // Extracting only specified schema
-          var schemaName = tasksForCatalog[0].Schema;
-          var schema = BuildExtractor(connection).ExtractSchema(catalogName, schemaName);
-          var catalog = schema.Catalog;
-          CleanSchemas(catalog, new[]{schemaName}); // Remove the rest, if any
+        if (tasksForCatalog.All(t => !t.AllSchemas)) {
+          // extracting all the schemes we need
+          var catalog = BuildExtractor(connection)
+            .ExtractSchemes(catalogName, tasksForCatalog.Select(t => t.Schema).ToArray());
           result.Catalogs.Add(catalog);
         }
         else {
-          // Extracting all schemas
+          // Extracting whole catalog
           var catalog = BuildExtractor(connection).ExtractCatalog(catalogName);
-          var needClean = tasksForCatalog.All(t => !t.AllSchemas);
-          if (needClean)
-            CleanSchemas(catalog, tasksForCatalog.Select(t => t.Schema));
           result.Catalogs.Add(catalog);
         }
       }
@@ -161,7 +155,7 @@ namespace Xtensive.Sql
     public Schema ExtractDefaultSchema(SqlConnection connection)
     {
       var defaultSchema = GetDefaultSchema(connection);
-      return ExtractSchema(connection, defaultSchema.Schema);
+      return ExtractSchema(connection, defaultSchema.Database, defaultSchema.Schema);
     }
 
     /// <summary>
@@ -174,8 +168,7 @@ namespace Xtensive.Sql
     public Schema ExtractSchema(SqlConnection connection, string schemaName)
     {
       var defaultSchema = GetDefaultSchema(connection);
-      var task = new SqlExtractionTask(defaultSchema.Database, schemaName);
-      return Extract(connection, new[] {task}).Catalogs.SelectMany(catalog => catalog.Schemas).Single();
+      return ExtractSchema(connection, defaultSchema.Database, schemaName);
     }
 
     /// <summary>
@@ -354,6 +347,12 @@ namespace Xtensive.Sql
       var requested = configuration.DatabaseQualifiedObjects;
       if (requested && !supported)
         throw SqlHelper.NotSupported(QueryFeatures.MultidatabaseQueries);
+    }
+
+    private Schema ExtractSchema(SqlConnection connection, string databaseName, string schemaName)
+    {
+      var task = new SqlExtractionTask(databaseName, schemaName);
+      return Extract(connection, new[] {task}).Catalogs[databaseName].Schemas[schemaName];
     }
 
     private void CleanSchemas(Catalog catalog, IEnumerable<string> allowedSchemas)

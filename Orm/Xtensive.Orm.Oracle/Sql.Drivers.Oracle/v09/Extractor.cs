@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Text;
 using Oracle.DataAccess.Client;
 using Xtensive.Core;
 using Xtensive.Sql.Model;
@@ -22,18 +23,17 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     private const int DefaultPrecision = 38;
     private const int DefaultScale = 0;
 
+    private readonly HashSet<string> targetSchemes = new HashSet<string>();
+    private readonly Dictionary<string, string> replacementsRegistry = new Dictionary<string, string>();
+
     private Catalog theCatalog;
-    private string targetSchema;
 
     private string nonSystemSchemasFilter;
-
-    private readonly Dictionary<string, string> replacementsRegistry = new Dictionary<string, string>();
 
     public override Catalog ExtractCatalog(string catalogName)
     {
       theCatalog = new Catalog(catalogName);
-
-      targetSchema = null;
+      targetSchemes.Clear();
 
       RegisterReplacements(replacementsRegistry);
       ExtractSchemas();
@@ -43,14 +43,32 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override Schema ExtractSchema(string catalogName, string schemaName)
     {
+      targetSchemes.Clear();
       theCatalog = new Catalog(catalogName);
-
-      targetSchema = schemaName.ToUpperInvariant();
-      theCatalog.CreateSchema(targetSchema);
+      var targetSchema = schemaName.ToUpperInvariant();
+      targetSchemes.Add(targetSchema);
 
       RegisterReplacements(replacementsRegistry);
+      ExtractSchemas();
+      EnsureShemasExists(theCatalog, new []{schemaName});
       ExtractCatalogContents();
       return theCatalog.Schemas[targetSchema];
+    }
+
+    public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
+    {
+      theCatalog = new Catalog(catalogName);
+      targetSchemes.Clear();
+      foreach (var schemaName in schemaNames) {
+        var targetSchema = schemaName.ToUpperInvariant();
+        targetSchemes.Add(targetSchema);
+      }
+
+      RegisterReplacements(replacementsRegistry);
+      ExtractSchemas();
+      EnsureShemasExists(theCatalog, schemaNames);
+      ExtractCatalogContents();
+      return theCatalog;
     }
 
     private void ExtractCatalogContents()
@@ -391,10 +409,10 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     
     protected virtual void RegisterReplacements(Dictionary<string, string> replacements)
     {
-      var schemaFilter = targetSchema!=null
-        ? "= " + SqlHelper.QuoteString(targetSchema)
+      var schemaFilter = targetSchemes!=null && targetSchemes.Count!=0
+        ? MakeSchemaFilter()
+        //? "= " + SqlHelper.QuoteString(targetSchema)
         : GetNonSystemSchemasFilter();
-
       replacements[SchemaFilterPlaceholder] = schemaFilter;
       replacements[IndexesFilterPlaceholder] = "1 > 0";
       replacements[TableFilterPlaceholder] = "IS NOT NULL";
@@ -405,6 +423,13 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       foreach (var registry in replacementsRegistry)
         query = query.Replace(registry.Key, registry.Value);
       return query;
+    }
+
+    private string MakeSchemaFilter()
+    {
+      var schemaStrings = targetSchemes.Select(SqlHelper.QuoteString);
+      var schemaList = string.Join(",", schemaStrings);
+      return string.Format("IN ({0})", schemaList);
     }
 
     protected override DbDataReader ExecuteReader(string commandText)
@@ -468,8 +493,17 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         var schemaList = string.Join(",", schemaStrings);
         nonSystemSchemasFilter = string.Format("NOT IN ({0})", schemaList);
       }
-
       return nonSystemSchemasFilter;
+    }
+
+    private void EnsureShemasExists(Catalog catalog, string[] schemaNames)
+    {
+      foreach (var schemaName in schemaNames) {
+        var realSchemaName = schemaName.ToUpperInvariant();
+        var schema = catalog.Schemas[realSchemaName];
+        if (schema==null)
+          catalog.CreateSchema(realSchemaName);
+      }
     }
 
 
