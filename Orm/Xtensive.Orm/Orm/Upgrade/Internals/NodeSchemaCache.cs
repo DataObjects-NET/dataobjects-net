@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     public void Dispose()
     {
-      lock (locableObject) {
+      lock (lockableObject) {
         if(isDisposed)
           return;
         Clear();
@@ -140,12 +140,13 @@ namespace Xtensive.Orm.Upgrade.Internals
       return targetCatalog;
     }
 
-    public NodeSchemaCache(UpgradeContext context)
+    public NodeSchemaCache(DomainConfiguration domainConfiguration, DefaultSchemaInfo defaultSchemaInfo)
     {
-      ArgumentValidator.EnsureArgumentNotNull(context, "context");
-      domainConfiguration = context.Configuration;
-      defaultSchemaInfo = context.Services.StorageDriver.GetDefaultSchema(context.Services.Connection);
-      mapper = new NodeSchemasMapper(context.Configuration);
+      ArgumentValidator.EnsureArgumentNotNull(domainConfiguration, "domainConfiguration");
+      ArgumentValidator.EnsureArgumentNotNull(defaultSchemaInfo, "defaultSchemaInfo");
+      this.domainConfiguration = domainConfiguration;
+      this.defaultSchemaInfo = defaultSchemaInfo;
+      mapper = new NodeSchemasMapper(domainConfiguration);
     }
   }
 }
