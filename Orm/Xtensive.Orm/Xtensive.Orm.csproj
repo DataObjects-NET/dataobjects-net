@@ -369,6 +369,7 @@
     <Compile Include="Orm\Internals\StorageNodeRegistry.cs" />
     <Compile Include="Orm\Providers\SimpleMappingResolver.cs" />
     <Compile Include="Orm\StateLifetimeToken.cs" />
+    <Compile Include="Orm\Upgrade\Internals\NodeSchemaCache.cs" />
     <Compile Include="Orm\Upgrade\Internals\NodeSchemasMapper.cs" />
     <Compile Include="Properties\Visibility.cs" />
     <Compile Include="IoC\Attributes\ServiceAttribute.cs" />
@@ -1521,6 +1522,7 @@
     <Compile Include="Sql\Model\Action.cs" />
     <Compile Include="Sql\Model\BoundaryType.cs" />
     <Compile Include="Sql\Model\Catalog.cs" />
+    <Compile Include="Sql\Model\CatalogHelper.cs" />
     <Compile Include="Sql\Model\CatalogNode.cs" />
     <Compile Include="Sql\Model\CharacterSet.cs" />
     <Compile Include="Sql\Model\CheckOptions.cs" />
