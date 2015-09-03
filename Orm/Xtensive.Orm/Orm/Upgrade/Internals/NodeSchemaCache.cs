@@ -44,8 +44,9 @@ namespace Xtensive.Orm.Upgrade.Internals
     }
     #endregion
 
-    private readonly object locableObject = new object();
-    private readonly ConcurrentDictionary<string, Catalog> catalogs = new ConcurrentDictionary<string, Catalog>();
+    private readonly object lockableObject = new object();
+    private readonly ConcurrentDictionary<ConnectionInfo, ConcurrentDictionary<string, Catalog>> catalogsPerConnection = new ConcurrentDictionary<ConnectionInfo, ConcurrentDictionary<string, Catalog>>(); 
+    //private readonly ConcurrentDictionary<string, Catalog> catalogs = new ConcurrentDictionary<string, Catalog>();
     private readonly ConcurrentDictionary<Catalog, CatalogMappingContainer> actualMapping = new ConcurrentDictionary<Catalog, CatalogMappingContainer>();
 
     private readonly DomainConfiguration domainConfiguration;
@@ -60,7 +61,10 @@ namespace Xtensive.Orm.Upgrade.Internals
       
       var databases = GetNodeDatabases(nodeConfiguration);
       var nodeCatalogs = new List<Catalog>(databases.Count);
-
+      var connectionInfo = nodeConfiguration.ConnectionInfo ?? domainConfiguration.ConnectionInfo;
+      ConcurrentDictionary<string, Catalog> catalogs;
+      if (!catalogsPerConnection.TryGetValue(connectionInfo, out catalogs))
+        return null;
       foreach (var database in databases) {
         Catalog catalog;
         if (!catalogs.TryGetValue(database, out catalog))
@@ -76,6 +80,15 @@ namespace Xtensive.Orm.Upgrade.Internals
     {
       ArgumentValidator.EnsureArgumentNotNull(catalog, "catalog");
       ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, "nodeConfiguration");
+      var connectionInfo = nodeConfiguration.ConnectionInfo ?? domainConfiguration.ConnectionInfo;
+      ConcurrentDictionary<string, Catalog> catalogs;
+      if (!catalogsPerConnection.TryGetValue(connectionInfo, out catalogs)) {
+        catalogs = new ConcurrentDictionary<string, Catalog>();
+        catalogsPerConnection.AddOrUpdate(connectionInfo, catalogs, (info, dictionary) => {
+          catalogs = dictionary;
+          return dictionary;
+        });
+      }
       if (!catalogs.ContainsKey(catalog.Name)) {
         catalogs.AddOrUpdate(catalog.Name, catalog, (s, catalog1) => catalog1);
         var databaseMapping = (NameMappingCollection)nodeConfiguration.DatabaseMapping.Clone();
@@ -89,7 +102,7 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     public void Clear()
     {
-      catalogs.Clear();
+      catalogsPerConnection.Clear();
       actualMapping.Clear();
     }
 
