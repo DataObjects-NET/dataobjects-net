@@ -46,7 +46,6 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     private readonly object lockableObject = new object();
     private readonly ConcurrentDictionary<ConnectionInfo, ConcurrentDictionary<string, Catalog>> catalogsPerConnection = new ConcurrentDictionary<ConnectionInfo, ConcurrentDictionary<string, Catalog>>(); 
-    //private readonly ConcurrentDictionary<string, Catalog> catalogs = new ConcurrentDictionary<string, Catalog>();
     private readonly ConcurrentDictionary<Catalog, CatalogMappingContainer> actualMapping = new ConcurrentDictionary<Catalog, CatalogMappingContainer>();
 
     private readonly DomainConfiguration domainConfiguration;
@@ -135,9 +134,26 @@ namespace Xtensive.Orm.Upgrade.Internals
       ArgumentValidator.EnsureArgumentNotNull(sourceCatalog, "sourceCatalog");
       ArgumentValidator.EnsureArgumentNotNull(mapping, "mapping");
       var targetCatalog = Cloner.Clone(sourceCatalog);
-      foreach (var pair in mapping)
+      var uselessSchemes = new HashSet<string>(targetCatalog.Schemas.Select(el=>el.Name));
+      foreach (var pair in mapping) {
         CatalogHelper.MoveSchemaNodes(targetCatalog, pair.Key, pair.Value);
+        uselessSchemes.Remove(pair.Value);
+      }
+      CleanSchemas(targetCatalog, uselessSchemes);
       return targetCatalog;
+    }
+
+    private void CleanSchemas(Catalog catalog, IEnumerable<string> disallowedSchemas)
+    {
+      // We allow extractors to extract schemas that were not requested
+      // After extraction is complete, this methods removes not-necessary parts
+
+      var schemasToRemove = catalog.Schemas
+        .Where(s => disallowedSchemas.Contains(s.Name))
+        .ToList();
+
+      foreach (var schema in schemasToRemove)
+        catalog.Schemas.Remove(schema);
     }
 
     public NodeSchemaCache(DomainConfiguration domainConfiguration, DefaultSchemaInfo defaultSchemaInfo)
@@ -146,7 +162,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       ArgumentValidator.EnsureArgumentNotNull(defaultSchemaInfo, "defaultSchemaInfo");
       this.domainConfiguration = domainConfiguration;
       this.defaultSchemaInfo = defaultSchemaInfo;
-      mapper = new NodeSchemasMapper(domainConfiguration);
+      mapper = new NodeSchemasMapper(domainConfiguration, defaultSchemaInfo);
     }
   }
 }
