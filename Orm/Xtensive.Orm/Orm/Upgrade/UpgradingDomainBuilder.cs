@@ -296,8 +296,9 @@ namespace Xtensive.Orm.Upgrade
 
     private StorageNode BuildStorageNode(Domain domain, SchemaExtractor extractor)
     {
+      var schemaExtractionResult = extractor.GetSqlSchema();
       var modelMapping = ModelMappingBuilder.Build(
-        domain.Handlers, extractor.GetSqlSchema(),
+        domain.Handlers, schemaExtractionResult,
         context.Services.MappingResolver, context.UpgradeMode.IsLegacy());
       var result = new StorageNode(context.NodeConfiguration, modelMapping, new TypeIdRegistry());
 
@@ -305,6 +306,9 @@ namespace Xtensive.Orm.Upgrade
       // non-default nodes are registered in NodeManager after everything completes successfully.
       if (result.Id==WellKnown.DefaultNodeId)
         domain.Handlers.StorageNodeRegistry.Add(result);
+
+      if(context.Stage==UpgradeStage.Final)
+        domain.SchemaCacheManager.CacheExtractionResult(schemaExtractionResult, context.NodeConfiguration);
 
       context.StorageNode = result;
       return result;
