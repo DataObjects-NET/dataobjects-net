@@ -4,6 +4,8 @@
 // Created by: Alexey Kulakov
 // Created:    2015.09.03
 
+using System.Linq;
+
 namespace Xtensive.Sql.Model
 {
   public class CatalogHelper
@@ -15,13 +17,14 @@ namespace Xtensive.Sql.Model
 
       ChangeSchemaOfNodeCollection(sourceSchema.Sequences, targetSchema);
       ChangeSchemaOfNodeCollection(sourceSchema.Tables, targetSchema);
-      ChangeSchemaOfNodeCollection(sourceSchema.Views, targetSchema);
+      //ChangeSchemaOfNodeCollection(sourceSchema.Views, targetSchema);
       ChangeSchemaOfNodeCollection(sourceSchema.Collations, targetSchema);
     }
 
     private static void ChangeSchemaOfNodeCollection<T>(NodeCollection<T> nodeCollection, Schema targetSchema) where T : SchemaNode
     {
-      foreach (var node in nodeCollection)
+      var localCollectionExpression = nodeCollection.ToList();
+      foreach (var node in localCollectionExpression)
         node.Schema = targetSchema;
     }
   }
