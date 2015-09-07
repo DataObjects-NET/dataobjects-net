@@ -420,6 +420,8 @@
     <Compile Include="Upgrade\EntitySetUpgrade\Upgrader.cs" />
     <Compile Include="Upgrade\EntitySetUpgrade\UpgradeTest.cs" />
     <Compile Include="Upgrade\FullText\FullTextDataTypeColumnUpgradeTest.cs" />
+    <Compile Include="Upgrade\ExtractedSchemaCaching\NodeSchemaCacheTest.cs" />
+    <Compile Include="Upgrade\ExtractedSchemaCaching\NodeSchemasMapperTest.cs" />
     <Compile Include="Upgrade\TypeIdPreserveTest.cs" />
     <Compile Include="Upgrade\ExtractSuperClassTest.cs" />
     <Compile Include="Upgrade\KeyGeneratorTableCleanUpTest.cs" />
