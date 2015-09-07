@@ -222,6 +222,11 @@ namespace Xtensive.Orm.Upgrade
       Hints = new SetSlim<UpgradeHint>();
       RecycledDefinitions = new List<RecycledDefinition>();
       Services = new UpgradeServiceAccessor();
+      if (ParentDomain!=null && NodeConfiguration.UpgradeMode==DomainUpgradeMode.Skip) {
+        var extractionResult = ParentDomain.SchemaCacheManager.TryGetExtractionResult(NodeConfiguration);
+        if (extractionResult!=null)
+          ExtractedSqlModelCache = extractionResult;
+      }
     }
 
     #endregion
