@@ -33,6 +33,14 @@ namespace Xtensive.Orm.Internals
         cache.Add(catalog, node);
     }
 
+    /// <summary>
+    /// Clears cache.
+    /// </summary>
+    public void ClearCache()
+    {
+      cache.Clear();
+    }
+
     public SchemaCacheManager(DomainConfiguration configuration, DefaultSchemaInfo defaultSchemaInfo)
     {
       cache = new NodeSchemaCache(configuration, defaultSchemaInfo);
