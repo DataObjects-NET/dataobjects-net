@@ -472,7 +472,8 @@ namespace Xtensive.Orm.Upgrade
         return;
       var result = workerResult.Get();
       context.Metadata = result.Metadata;
-      context.ExtractedSqlModelCache = result.Schema;
+      if (result.Schema!=null)
+        context.ExtractedSqlModelCache = result.Schema;
     }
 
     private void OnBeforeStage()
