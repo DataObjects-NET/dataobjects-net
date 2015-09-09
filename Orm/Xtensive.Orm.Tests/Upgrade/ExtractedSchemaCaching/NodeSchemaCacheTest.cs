@@ -430,6 +430,11 @@ namespace Xtensive.Orm.Tests.Upgrade.Multinode
       var catalogs = catalogCache.GetNodeSchema(nodeConfiguration1);
     }
 
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+    }
+
     private Catalog BuildCatalog(string catalogName, int countOfFullSchemes = 1)
     {
       var catalog = new Catalog(catalogName);
