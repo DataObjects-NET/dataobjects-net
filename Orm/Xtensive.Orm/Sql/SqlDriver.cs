@@ -352,7 +352,7 @@ namespace Xtensive.Sql
     private Schema ExtractSchema(SqlConnection connection, string databaseName, string schemaName)
     {
       var task = new SqlExtractionTask(databaseName, schemaName);
-      return Extract(connection, new[] {task}).Catalogs[databaseName].Schemas[schemaName];
+      return Extract(connection, new[] {task}).Catalogs[databaseName].Schemas.FirstOrDefault(el=>el.Name==schemaName);
     }
 
     private void CleanSchemas(Catalog catalog, IEnumerable<string> allowedSchemas)
