@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Providers
 
     public override MappingResolveResult Resolve(SchemaExtractionResult model, string nodeName)
     {
-      var schema = model.Catalogs[extractionTask.Catalog].Schemas[extractionTask.Schema];
+      var schema = model.Catalogs.Single().Schemas.Single();
       return new MappingResolveResult(schema, nodeName);
     }
 
