@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Multinode
     [Test]
     public void GetCatalogByNonDefaultNode()
     {
-      var initialCatalog = BuildCatalog("DO40-Tests");
+      var initialCatalog = BuildCatalog("DO-Tests");
       VerifyCatalog(initialCatalog);
 
       var domainConfiguration = base.BuildConfiguration();
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Multinode
     [Test]
     public void GetCatalogForNodeWithoutConnectionInfoTest()
     {
-      var initialCatalog = BuildCatalog("DO40-Tests");
+      var initialCatalog = BuildCatalog("DO-Tests");
       VerifyCatalog(initialCatalog);
 
       var domainConfiguration = base.BuildConfiguration();
@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Multinode
     [Test]
     public void GetCatalogForNodeWithSameConnectionInfoTest()
     {
-      var initialCatalog = BuildCatalog("DO40-Tests");
+      var initialCatalog = BuildCatalog("DO-Tests");
       VerifyCatalog(initialCatalog);
 
       var domainConfiguration = base.BuildConfiguration();
@@ -201,7 +201,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Multinode
     [Test]
     public void GetCatalogWithClonedConnectionInfoTest()
     {
-      var initialCatalog = BuildCatalog("DO40-Tests");
+      var initialCatalog = BuildCatalog("DO-Tests");
       VerifyCatalog(initialCatalog);
 
       var domainConfiguration = base.BuildConfiguration();
@@ -268,7 +268,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Multinode
     [Test]
     public void GetCatalogForNodeWithDifferentConnectionInfoTest()
     {
-      var initialCatalog = BuildCatalog("DO40-Tests");
+      var initialCatalog = BuildCatalog("DO-Tests");
       VerifyCatalog(initialCatalog);
 
       var domainConfiguration = base.BuildConfiguration();
@@ -284,7 +284,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Multinode
 
       var nodeConfiguration1 = new NodeConfiguration("TestNode1");
       nodeConfiguration1.ConnectionInfo =
-        new ConnectionInfo(@"sqlserver://dotest:dotest@ALEXEYKULAKOVPC\LOCSERV/DO40-Tests");
+        new ConnectionInfo(@"sqlserver://dotest:dotest@ALEXEYKULAKOVPC\LOCSERV/DO-Tests");
       nodeConfiguration1.SchemaMapping.Add("dbo", "Model5");
       nodeConfiguration1.Lock();
 
@@ -300,7 +300,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Multinode
     [Test]
     public void MultishemaTest()
     {
-      var initialCatalog = BuildCatalog("DO40-Tests");
+      var initialCatalog = BuildCatalog("DO-Tests");
 
       var domainConfiguration = base.BuildConfiguration();
       domainConfiguration.DefaultSchema = "dbo";
@@ -398,13 +398,13 @@ namespace Xtensive.Orm.Tests.Upgrade.Multinode
     [Test]
     public void MultidatabaseTest()
     {
-      var initialCatalog = BuildCatalog("DO40-Tests");
+      var initialCatalog = BuildCatalog("DO-Tests");
       var anotherInitialCatalog = BuildCatalog("DO-Tests-1");
 
       var domainConfiguration = base.BuildConfiguration();
-      domainConfiguration.DefaultDatabase = "DO40-Tests";
+      domainConfiguration.DefaultDatabase = "DO-Tests";
       domainConfiguration.DefaultSchema = "dbo";
-      domainConfiguration.MappingRules.Map(GetType().Assembly, GetType().Namespace).To("DO40-Tests", "dbo");
+      domainConfiguration.MappingRules.Map(GetType().Assembly, GetType().Namespace).To("DO-Tests", "dbo");
       domainConfiguration.MappingRules.Map(GetType().Assembly, GetType().Namespace).To("DO-Tests-1", "Model2");
 
       Assert.That(domainConfiguration.ConnectionInfo, Is.Not.Null);
@@ -416,7 +416,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Multinode
       defaultNodeConfiguration.Lock();
 
       var nodeConfiguration1 = new NodeConfiguration("TestNode1");
-      nodeConfiguration1.DatabaseMapping.Add("DO40-Tests", "DO40-Tests");
+      nodeConfiguration1.DatabaseMapping.Add("DO-Tests", "DO-Tests");
       nodeConfiguration1.DatabaseMapping.Add("DO-Tests-1", "DO-Tests-1");
       nodeConfiguration1.SchemaMapping.Add("dbo", "Model4");
       nodeConfiguration1.SchemaMapping.Add("Model2", "Model5");
