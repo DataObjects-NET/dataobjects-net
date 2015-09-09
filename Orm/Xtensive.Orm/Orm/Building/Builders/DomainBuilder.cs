@@ -56,12 +56,12 @@ namespace Xtensive.Orm.Building.Builders
         var useSingleConnection =
           services.ProviderInfo.Supports(ProviderFeatures.SingleConnection)
           && context.BuilderConfiguration.Stage==UpgradeStage.Final;
-        var defaultSchemaInfo = services.StorageDriver.GetDefaultSchema(services.Connection);
+        
         context.Domain = new Domain(
           context.Configuration,
           context.BuilderConfiguration.UpgradeContextCookie,
           useSingleConnection ? services.Connection : null,
-          defaultSchemaInfo);
+          context.DefaultSchemaInfo);
       }
     }
 

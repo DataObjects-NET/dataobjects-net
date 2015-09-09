@@ -21,6 +21,7 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
 using Xtensive.Sql;
+using Xtensive.Sql.Info;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -29,6 +30,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly UpgradeContext context;
     private readonly DomainUpgradeMode upgradeMode;
 
+    private DefaultSchemaInfo defaultSchemaInfo;
     private FutureResult<SqlWorkerResult> workerResult;
 
     public static Domain Build(DomainConfiguration configuration)
@@ -167,7 +169,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       CreateConnection(services);
-      var defaultSchemaInfo = services.StorageDriver.GetDefaultSchema(services.Connection);
+      defaultSchemaInfo = services.StorageDriver.GetDefaultSchema(services.Connection);
       services.MappingResolver = MappingResolver.Create(configuration, context.NodeConfiguration, defaultSchemaInfo);
       BuildExternalServices(services, configuration);
       services.Lock();
@@ -322,7 +324,8 @@ namespace Xtensive.Orm.Upgrade
         Services = context.Services,
         ModelFilter = new StageModelFilter(context.UpgradeHandlers, stage),
         UpgradeContextCookie = context.Cookie,
-        RecycledDefinitions = context.RecycledDefinitions
+        RecycledDefinitions = context.RecycledDefinitions,
+        DefaultSchemaInfo = defaultSchemaInfo
       };
 
       configuration.Lock();

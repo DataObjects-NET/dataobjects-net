@@ -14,6 +14,7 @@ using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
+using Xtensive.Sql.Info;
 
 namespace Xtensive.Orm.Building
 {
@@ -93,6 +94,8 @@ namespace Xtensive.Orm.Building
 
     internal ModelDefBuilder ModelDefBuilder { get; set; }
 
+    internal DefaultSchemaInfo DefaultSchemaInfo { get; private set; }
+
     // Constructors
 
     internal BuildingContext(DomainBuilderConfiguration builderConfiguration)
@@ -108,6 +111,7 @@ namespace Xtensive.Orm.Building
       Modules = BuilderConfiguration.Services.Modules.ToList().AsReadOnly();
       Modules2 = Modules.OfType<IModule2>().ToList().AsReadOnly();
       Validator = new Validator(builderConfiguration.Services.ProviderInfo.SupportedTypes);
+      DefaultSchemaInfo = builderConfiguration.DefaultSchemaInfo;
     }
   }
 }
