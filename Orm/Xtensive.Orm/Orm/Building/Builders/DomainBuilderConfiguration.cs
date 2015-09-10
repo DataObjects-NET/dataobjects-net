@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;
+using Xtensive.Sql.Info;
 
 namespace Xtensive.Orm.Building.Builders
 {
@@ -20,6 +21,7 @@ namespace Xtensive.Orm.Building.Builders
     private IModelFilter modelFilter;
     private object upgradeContextCookie;
     private ICollection<RecycledDefinition> recycledDefinitions;
+    private DefaultSchemaInfo defaultSchemaInfo;
 
     /// <summary>
     /// Gets <see cref="DomainConfiguration"/> for domain.
@@ -84,6 +86,16 @@ namespace Xtensive.Orm.Building.Builders
       {
         this.EnsureNotLocked();
         recycledDefinitions = value;
+      }
+    }
+
+    internal DefaultSchemaInfo DefaultSchemaInfo
+    {
+      get { return defaultSchemaInfo; }
+      set
+      {
+        this.EnsureNotLocked();
+        defaultSchemaInfo = value;
       }
     }
 

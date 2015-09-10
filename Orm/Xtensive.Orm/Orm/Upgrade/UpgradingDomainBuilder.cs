@@ -21,6 +21,7 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
 using Xtensive.Sql;
+using Xtensive.Sql.Info;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -29,6 +30,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly UpgradeContext context;
     private readonly DomainUpgradeMode upgradeMode;
 
+    private DefaultSchemaInfo defaultSchemaInfo;
     private FutureResult<SqlWorkerResult> workerResult;
 
     public static Domain Build(DomainConfiguration configuration)
@@ -167,7 +169,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       CreateConnection(services);
-      var defaultSchemaInfo = services.StorageDriver.GetDefaultSchema(services.Connection);
+      defaultSchemaInfo = services.StorageDriver.GetDefaultSchema(services.Connection);
       services.MappingResolver = MappingResolver.Create(configuration, context.NodeConfiguration, defaultSchemaInfo);
       BuildExternalServices(services, configuration);
       services.Lock();
@@ -296,8 +298,9 @@ namespace Xtensive.Orm.Upgrade
 
     private StorageNode BuildStorageNode(Domain domain, SchemaExtractor extractor)
     {
+      var schemaExtractionResult = extractor.GetSqlSchema();
       var modelMapping = ModelMappingBuilder.Build(
-        domain.Handlers, extractor.GetSqlSchema(),
+        domain.Handlers, schemaExtractionResult,
         context.Services.MappingResolver, context.UpgradeMode.IsLegacy());
       var result = new StorageNode(context.NodeConfiguration, modelMapping, new TypeIdRegistry());
 
@@ -305,6 +308,9 @@ namespace Xtensive.Orm.Upgrade
       // non-default nodes are registered in NodeManager after everything completes successfully.
       if (result.Id==WellKnown.DefaultNodeId)
         domain.Handlers.StorageNodeRegistry.Add(result);
+
+      if(context.Stage==UpgradeStage.Final)
+        domain.SchemaCacheManager.CacheExtractionResult(schemaExtractionResult, context.NodeConfiguration);
 
       context.StorageNode = result;
       return result;
@@ -318,7 +324,8 @@ namespace Xtensive.Orm.Upgrade
         Services = context.Services,
         ModelFilter = new StageModelFilter(context.UpgradeHandlers, stage),
         UpgradeContextCookie = context.Cookie,
-        RecycledDefinitions = context.RecycledDefinitions
+        RecycledDefinitions = context.RecycledDefinitions,
+        DefaultSchemaInfo = defaultSchemaInfo
       };
 
       configuration.Lock();
@@ -468,7 +475,8 @@ namespace Xtensive.Orm.Upgrade
         return;
       var result = workerResult.Get();
       context.Metadata = result.Metadata;
-      context.ExtractedSqlModelCache = result.Schema;
+      if (result.Schema!=null)
+        context.ExtractedSqlModelCache = result.Schema;
     }
 
     private void OnBeforeStage()

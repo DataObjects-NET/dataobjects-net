@@ -56,10 +56,12 @@ namespace Xtensive.Orm.Building.Builders
         var useSingleConnection =
           services.ProviderInfo.Supports(ProviderFeatures.SingleConnection)
           && context.BuilderConfiguration.Stage==UpgradeStage.Final;
+        
         context.Domain = new Domain(
           context.Configuration,
           context.BuilderConfiguration.UpgradeContextCookie,
-          useSingleConnection ? services.Connection : null);
+          useSingleConnection ? services.Connection : null,
+          context.DefaultSchemaInfo);
       }
     }
 

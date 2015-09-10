@@ -31,19 +31,19 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
     is_cycling,
     current_value
   FROM {CATALOG}.sys.sequences
-  WHERE schema_id{SCHEMA_FILTER}
+  WHERE schema_id {SCHEMA_FILTER}
   ORDER BY
     schema_id,
     object_id";
       query = PerformReplacements(query);
 
-      var currentSchemaId = schemaId;
-      var currentSchema = schema;
+      //var currentSchemaId = schemaId;
+      //var currentSchema = schema;
 
       using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader())
         while (reader.Read()) {
-          GetSchema(reader.GetInt32(0), ref currentSchemaId, ref currentSchema);
+          var currentSchema = GetSchema(reader.GetInt32(0));
           var sequence = currentSchema.CreateSequence(reader.GetString(1));
           var descriptor = sequence.SequenceDescriptor;
           descriptor.StartValue = reader.GetInt64(2);

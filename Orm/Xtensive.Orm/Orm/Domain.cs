@@ -23,6 +23,7 @@ using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Sql;
+using Xtensive.Sql.Info;
 
 namespace Xtensive.Orm
 {
@@ -101,6 +102,7 @@ namespace Xtensive.Orm
     /// </summary>
     public StorageNodeManager StorageNodeManager { get; private set; }
 
+
     #region Private / internal members
 
     internal RecordSetReader RecordSetReader { get; private set; }
@@ -124,6 +126,8 @@ namespace Xtensive.Orm
     internal object UpgradeContextCookie { get; private set; }
 
     internal SqlConnection SingleConnection { get; private set; }
+
+    internal SchemaCacheManager SchemaCacheManager { get; private set; }
 
     internal IServiceContainer CreateSystemServices()
     {
@@ -279,7 +283,7 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    internal Domain(DomainConfiguration configuration, object upgradeContextCookie, SqlConnection singleConnection)
+    internal Domain(DomainConfiguration configuration, object upgradeContextCookie, SqlConnection singleConnection, DefaultSchemaInfo defaultSchemaInfo)
     {
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
@@ -294,6 +298,7 @@ namespace Xtensive.Orm
       UpgradeContextCookie = upgradeContextCookie;
       SingleConnection = singleConnection;
       StorageNodeManager = new StorageNodeManager(Handlers);
+      SchemaCacheManager = new SchemaCacheManager(configuration, defaultSchemaInfo);
     }
 
     /// <inheritdoc/>
