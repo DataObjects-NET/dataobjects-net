@@ -29,7 +29,12 @@ namespace Xtensive.Orm.Providers
 
     public override MappingResolveResult Resolve(SchemaExtractionResult model, string nodeName)
     {
-      var schema = model.Catalogs[extractionTask.Catalog].Schemas[extractionTask.Schema] ?? model.Catalogs.Single().Schemas.Single();
+      // Since 5.0.7 we extract all schemas of catalog when it's possible.
+      // Anyway, model have the only catalog at this point. But the catalog might have more than 1 schema.
+      // General behavior is to get single catalog and find schema by name.
+      // But, for some RDBMS, extraction task has empty schema name and look up by empty string returns null. 
+      // Fortunately, these RDBMS does not support multiple schemas in catalog.
+      var schema = model.Catalogs.Single().Schemas[extractionTask.Schema] ?? model.Catalogs.Single().Schemas.Single();
       return new MappingResolveResult(schema, nodeName);
     }
 
