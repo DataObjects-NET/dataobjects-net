@@ -1,8 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms.VisualStyles;
+﻿// Copyright (C) 2015 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2015.09.03
+
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade.Internals;

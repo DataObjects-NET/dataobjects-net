@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Xtensive.Core;
+﻿// Copyright (C) 2015 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2015.09.03
+
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Upgrade.Internals;
-using Xtensive.Sql;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Orm.Internals
