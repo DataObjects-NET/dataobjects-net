@@ -254,6 +254,7 @@
     <Compile Include="Issues\IssueJira0584_IncorrectMappingOfColumnInQuery.cs" />
     <Compile Include="Issues\IssueJira0586_AnonymousTypeComparisonBug.cs" />
     <Compile Include="Issues\IssueJira0587_KeyComparisonBug.cs" />
+    <Compile Include="Issues\IssueJira604_SetOperationsWithDuplicateFieldsUsageFail.cs" />
     <Compile Include="Issues\IssueJira_0530_LowSpeedDecimalMaterializationCouseSqlDecimalInternalException.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
