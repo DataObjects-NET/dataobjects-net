@@ -52,8 +52,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void ConcatTest()
     {
       using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
+      using (var transaction = session.OpenTransaction()) {
         var query1 = session.Query.All<TestEntity>().Where(el => el.Id > 1000).Select(el => new { el.Id, Text = el.SomeText, TextDublicate = el.SomeText });
         var query2 = session.Query.All<TestEntity>().Where(el => el.Id < 1000).Select(el => new { el.Id, Text = el.SomeText, TextDublicate = el.SomeText });
         Assert.DoesNotThrow(() => query1.Concat(query2).Run());
@@ -72,8 +71,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void IntersectTest()
     {
       using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
+      using (var transaction = session.OpenTransaction()) {
         var query1 = session.Query.All<TestEntity>().Where(el => el.Id <= 200).Select(el => new { el.Id, Text = el.SomeText, TextDublicate = el.SomeText });
         var query2 = session.Query.All<TestEntity>().Where(el => el.Id >= 100).Select(el => new { el.Id, Text = el.SomeText, TextDublicate = el.SomeText });
         Assert.DoesNotThrow(() => query1.Intersect(query2).Run());
@@ -92,8 +90,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void ExceptTest()
     {
       using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
+      using (var transaction = session.OpenTransaction()) {
         var query1 = session.Query.All<TestEntity>().Select(el => new { el.Id, Text = el.SomeText, TextDublicate = el.SomeText });
         var query2 = session.Query.All<TestEntity>().Where(el => el.Id < 1000).Select(el => new { el.Id, Text = el.SomeText, TextDublicate = el.SomeText });
         Assert.DoesNotThrow(() => query1.Except(query2).Run());
