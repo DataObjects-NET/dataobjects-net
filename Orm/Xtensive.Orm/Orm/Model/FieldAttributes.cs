@@ -39,5 +39,6 @@ namespace Xtensive.Orm.Model
     Indexed = 0x400000,
     Nested = 0x800000,
     NotIndexed = 0x1000000,
+    DeclaredAsNullable = 0x2000000,
   }
 }
