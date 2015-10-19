@@ -280,7 +280,7 @@ namespace Xtensive.Orm.Upgrade
           return false;
         if (!domainModel.Types.TryGetValue(targetColumnInfo.Parent.Name, out typeInfo))
           return false;
-        var field = typeInfo.Fields[targetColumnInfo.Name];
+        var field = typeInfo.Columns[targetColumnInfo.Name].Field;
         if (sourceType.IsNullable==field.Attributes.HasFlag(FieldAttributes.DeclaredAsNullable))
           return true;
       }
