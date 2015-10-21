@@ -9,6 +9,8 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0584_IncorrectMappingOfColumnInQueryModel;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0584_IncorrectMappingOfColumnInQueryModel
 {
@@ -350,6 +352,12 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0584_IncorrectMappingOfColumnInQuer
     [Field]
     public Currency Currency { get; set; }
 
+    [Field(Indexed = false)]
+    public FinToolBase DebitFinTool { get; set; }
+
+    [Field(Indexed = false)]
+    public FinToolBase CreditFinTool { get; set; }
+
     public PacioliPosting(Guid id)
       : base(id)
     {
@@ -420,6 +428,26 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0584_IncorrectMappingOfColumnInQuer
     public TablePartBase.FinToolKind MasterFinToolKind { get; set; }
 
     public TablePartBase.FinToolKind SlaveFinToolKind { get; set; }
+  }
+
+  public static class GuidModifier
+  {
+    public static Guid ReplaceOne(Guid source, string replacement)
+    {
+      return Guid.Parse(source.ToString().Substring(0, 35) + replacement);
+    }
+  }
+
+  [CompilerContainer(typeof(SqlExpression))]
+  public class GuidCompilers
+  {
+    [Compiler(typeof(GuidModifier), "ReplaceOne", TargetKind.Method | TargetKind.Static)]
+    public static SqlExpression CompileReplaceOne(SqlExpression sourceSqlExpression, SqlExpression replacement)
+    {
+      var stringId = SqlDml.Cast(sourceSqlExpression, SqlType.VarCharMax);
+      var substringId = SqlDml.Substring(stringId, 0, 35);
+      return SqlDml.Cast(SqlDml.Concat(substringId, replacement), SqlType.Guid);
+    }
   }
 }
 
@@ -533,6 +561,104 @@ namespace Xtensive.Orm.Tests.Issues
 
         var result = balanceFinTools.Select(a => a.FinTool.Id).Distinct().ToArray();
       }
+    }
+
+    [Test]
+    public void GroupByTest()
+    {
+      RebuildDomain();
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var status = new Status(Guid.NewGuid()) {Name = "aa"};
+        var currency = new Currency(Guid.NewGuid()) {Name = "aa", CurCode = "qwe", DigitCode = "123", EngName = "re"};
+        session.SaveChanges();
+
+        var port = new RealPortfolio(Guid.NewGuid()) {Name = "ww", FullName = "ee", Identifier = "w"};
+        var operation = new TechOperation(Guid.NewGuid());
+        operation.Status = status;
+        session.SaveChanges();
+
+        var finToolKind = new TablePartBase.FinToolKind(Guid.NewGuid()) {Name = "aa", FullName = "qq"};
+        var finTool1 = new OtherFinTools(Guid.NewGuid()) {Name = "aa", DocumentIdentifier = "wewe", Cur = currency, FinToolKind = finToolKind };
+        var finTool2 = new OtherFinTools(Guid.NewGuid()) {
+          Name = "aaw",
+          DocumentIdentifier = "wewee",
+          Cur = currency,
+          FinToolKind = finToolKind,
+        };
+        session.SaveChanges();
+
+        var pp = new PacioliAccount(Guid.NewGuid()) {AccountType = PacioliAccountType.Active, Name = "aa", FastAccess = "w", Code = "x"};
+        new PacioliPosting(Guid.NewGuid()) {
+          Name = "a",
+          Status = status,
+          DebitAccount = pp,
+          CreditAccount = pp,
+          CreditFinTool = finTool1,
+          DebitFinTool = finTool2,
+          Sum = 1,
+          Currency = currency,
+          BalanceHolder = port,
+          Operation = operation
+        };
+        transaction.Complete();
+      }
+
+
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var allPostings = Query.All<PacioliPosting>();
+        var masterDebit =
+            allPostings.Select(
+                posting =>
+                new {
+                  Id = GuidModifier.ReplaceOne(posting.Id, "1"),
+                  Posting = posting,
+                  Sum = posting.DebitAccount.AccountType==PacioliAccountType.Passive ? -posting.Sum : posting.Sum,
+                  MasterFinToolBase = posting.DebitFinTool
+                });
+
+        var masterCredit =
+            allPostings.Select(
+                posting =>
+                new {
+                  Id = GuidModifier.ReplaceOne(posting.Id, "9"),
+                  Posting = posting,
+                  Sum = posting.CreditAccount.AccountType==PacioliAccountType.Active || posting.CreditAccount.AccountType==PacioliAccountType.ActivePassive
+                    ? -posting.Sum
+                    : posting.Sum,
+                  MasterFinToolBase = posting.CreditFinTool
+                });
+
+        var concatination = masterCredit.Concat(masterDebit);
+        var usefullColumnsSelection = from raw in concatination
+          select new {
+            Id = raw.Id,
+            Posting = raw.Posting,
+            Sum = raw.Sum,
+            MasterFinToolBase = raw.MasterFinToolBase,
+          };
+
+        var finalQuery = from raw in usefullColumnsSelection.Select(
+          selectionItem => new {
+            MasterFinToolBase = selectionItem.MasterFinToolBase,
+            Sum = selectionItem.Sum,
+            Id = selectionItem.Posting.Id
+          })
+          where raw.MasterFinToolBase!=null
+          group raw by new {
+            MasterFinToolBase = raw.MasterFinToolBase
+          }
+          into grouping
+          select new {
+            MasterFinToolBase = grouping.Key.MasterFinToolBase,
+            Sum = grouping.Sum(s => s.Sum),
+            Id = grouping.Select(x => x.Id).First()
+          };
+        var localCollection = finalQuery.ToArray();
+        transaction.Complete();
+      }
+      
     }
 
     protected override void PopulateData()
