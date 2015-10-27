@@ -402,7 +402,7 @@ namespace Xtensive.Orm.Upgrade
 
         var breifExceptionFormat = domain.Configuration.SchemaSyncExceptionFormat==SchemaSyncExceptionFormat.Brief;
         var result = SchemaComparer.Compare(extractedSchema, targetSchema,
-          hints, context.Hints, schemaUpgradeMode, domain.Model, breifExceptionFormat);
+          hints, context.Hints, schemaUpgradeMode, domain.Model, breifExceptionFormat, context.Stage);
         var shouldDumpSchema = !schemaUpgradeMode.In(
           SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate);
         if (shouldDumpSchema && UpgradeLog.IsLogged(LogLevel.Info))

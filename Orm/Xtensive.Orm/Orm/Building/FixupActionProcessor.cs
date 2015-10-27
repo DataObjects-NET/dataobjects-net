@@ -218,6 +218,7 @@ namespace Xtensive.Orm.Building
     public void Process(MarkFieldAsNotNullableAction action)
     {
       action.Field.IsNullable = false;
+      action.Field.IsDeclaredAsNullable = false;
     }
 
     public void Process(CopyKeyFieldsAction action)
