@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Rse.Providers
       var left = Left.Header.TupleDescriptor;
       var right = Right.Header.TupleDescriptor;
       if (!left.Equals(right))
-        throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Concatenation"));
+        throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Union operation"));
     }
 
 
