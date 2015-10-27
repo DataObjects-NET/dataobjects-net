@@ -288,6 +288,15 @@ namespace Xtensive.Orm.Building.Definitions
     /// </summary>
     public IList<IPropertyValidator> Validators { get; private set; }
 
+    internal bool IsDeclaredAsNullable
+    {
+      get { return (attributes & FieldAttributes.DeclaredAsNullable) != 0; }
+      set {
+        validator.EnsureIsNullable(ValueType);
+        attributes = value ? attributes | FieldAttributes.DeclaredAsNullable : attributes & ~FieldAttributes.DeclaredAsNullable;
+      }
+    }
+
     /// <summary>
     /// Performs additional custom processes before setting new name to this instance.
     /// </summary>
