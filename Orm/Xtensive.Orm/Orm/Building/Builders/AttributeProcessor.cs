@@ -221,8 +221,10 @@ namespace Xtensive.Orm.Building.Builders
       bool canUseNullableFlag = !fieldDef.ValueType.IsValueType && !fieldDef.IsStructure;
 
       if (attribute.nullable!=null) {
-        if (canUseNullableFlag)
+        if (canUseNullableFlag) {
           fieldDef.IsNullable = attribute.nullable.Value;
+          fieldDef.IsDeclaredAsNullable = attribute.nullable.Value;
+        }
         else if (attribute.nullable.Value!=(fieldDef.ValueType.IsNullable()))
           throw new DomainBuilderException(
             string.Format(Strings.ExNullableAndNullableOnUpgradeCannotBeUsedWithXField, fieldDef.Name));

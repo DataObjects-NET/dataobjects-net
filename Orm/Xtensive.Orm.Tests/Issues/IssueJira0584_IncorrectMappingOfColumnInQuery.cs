@@ -9,6 +9,8 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0584_IncorrectMappingOfColumnInQueryModel;
+using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0584_IncorrectMappingOfColumnInQueryModel
 {
@@ -350,6 +352,12 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0584_IncorrectMappingOfColumnInQuer
     [Field]
     public Currency Currency { get; set; }
 
+    [Field(Indexed = false)]
+    public FinToolBase DebitFinTool { get; set; }
+
+    [Field(Indexed = false)]
+    public FinToolBase CreditFinTool { get; set; }
+
     public PacioliPosting(Guid id)
       : base(id)
     {
@@ -421,99 +429,455 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0584_IncorrectMappingOfColumnInQuer
 
     public TablePartBase.FinToolKind SlaveFinToolKind { get; set; }
   }
+
+  public static class GuidModifier
+  {
+    public static Guid ReplaceOne(Guid source, string replacement)
+    {
+      return Guid.Parse(source.ToString().Substring(0, 35) + replacement);
+    }
+  }
+
+  [CompilerContainer(typeof(SqlExpression))]
+  public class GuidCompilers
+  {
+    [Compiler(typeof(GuidModifier), "ReplaceOne", TargetKind.Method | TargetKind.Static)]
+    public static SqlExpression CompileReplaceOne(SqlExpression sourceSqlExpression, SqlExpression replacement)
+    {
+      var stringId = SqlDml.Cast(sourceSqlExpression, SqlType.VarCharMax);
+      var substringId = SqlDml.Substring(stringId, 0, 35);
+      return SqlDml.Cast(SqlDml.Concat(substringId, replacement), SqlType.Guid);
+    }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0584_IncorrectMappingOfColumnInQuery : AutoBuildTest
   {
-    [Test]
-    public void MainTest()
+    private ProviderKind? previousProviderKind;
+
+    [Test(Description = "Case when calculated column in the midle of selected columns averege")]
+    public void IncludeProviderOptimizationTest01()
     {
+      EnsureRightDateIsInStorage(ProviderKind.IncludeProvider);
+
       using (var session = Domain.OpenSession())
-      using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        var tp = from q in Query.All<TablePartBase.FinToolKind.TpPriceCalc>() where !q.OnlyCurrentType select q;
+        var priceCalculation = from tablePart in Query.All<TablePartBase.FinToolKind.TpPriceCalc>() where !tablePart.OnlyCurrentType select tablePart;
 
-        var masterDebit = from q in
-                            Query.All<PacioliPosting>()
-                          select
-                             new {
-                               Id = q.Id,
-                               Status = q.Status,
-                               BalanceHolder = q.BalanceHolder,
-                               CreationDate = q.CreationDate,
-                               Currency = q.Currency,
-                               ExecutionDate = q.ExecutionDate,
-                               Operation = q.Operation,
-                               OperationType = q.Operation.OperationType,
-                               Sum = (q.DebitAccount.AccountType==PacioliAccountType.Passive)?-q.Sum : q.Sum,
-                               MasterAccount = q.DebitAccount,
-                               MasterFinToolBase = q.FinDebit,
-                               SlaveAccount = q.CreditAccount,
-                               SlaveFinToolBase = q.FinCredit
-                             };
+        var masterDebit = from posting in
+          Query.All<PacioliPosting>()
+          select
+            new {
+              Id = posting.Id,
+              Status = posting.Status,
+              BalanceHolder = posting.BalanceHolder,
+              CreationDate = posting.CreationDate,
+              Currency = posting.Currency,
+              ExecutionDate = posting.ExecutionDate,
+              Operation = posting.Operation,
+              OperationType = posting.Operation.OperationType,
+              Sum = (posting.DebitAccount.AccountType==PacioliAccountType.Passive) ? -posting.Sum : posting.Sum,
+              MasterAccount = posting.DebitAccount,
+              MasterFinToolBase = posting.FinDebit,
+              SlaveAccount = posting.CreditAccount,
+              SlaveFinToolBase = posting.FinCredit
+            };
 
-        var masterCredit = from q in Query.All<PacioliPosting>()
-                           select
-                              new {
-                                Id = q.Id,
-                                Status = q.Status,
-                                BalanceHolder = q.BalanceHolder,
-                                CreationDate = q.CreationDate,
-                                Currency = q.Currency,
-                                ExecutionDate = q.ExecutionDate,
-                                Operation = q.Operation,
-                                OperationType = q.Operation.OperationType,
-                                Sum =
-                                   q.CreditAccount.AccountType == PacioliAccountType.Active
-                                   || q.CreditAccount.AccountType == PacioliAccountType.ActivePassive
-                                      ? -q.Sum
-                                      : q.Sum,
-                                MasterAccount = q.CreditAccount,
-                                MasterFinToolBase = q.FinCredit,
-                                SlaveAccount = q.DebitAccount,
-                                SlaveFinToolBase = q.FinDebit
-                              };
+        var masterCredit = from posting in Query.All<PacioliPosting>()
+          select
+            new {
+              Id = posting.Id,
+              Status = posting.Status,
+              BalanceHolder = posting.BalanceHolder,
+              CreationDate = posting.CreationDate,
+              Currency = posting.Currency,
+              ExecutionDate = posting.ExecutionDate,
+              Operation = posting.Operation,
+              OperationType = posting.Operation.OperationType,
+              Sum =
+                posting.CreditAccount.AccountType==PacioliAccountType.Active
+                || posting.CreditAccount.AccountType==PacioliAccountType.ActivePassive
+                  ? -posting.Sum
+                  : posting.Sum,
+              MasterAccount = posting.CreditAccount,
+              MasterFinToolBase = posting.FinCredit,
+              SlaveAccount = posting.DebitAccount,
+              SlaveFinToolBase = posting.FinDebit
+            };
 
-        var preResult = masterCredit.Union(masterDebit);
-        var result = from r in preResult
-                         .LeftJoin(tp, a => a.SlaveAccount, a => a.Account, (pp, ps) => new { pp, ps })
-                         .LeftJoin(tp, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new { a.pp, a.ps, pm })
-                     let q = r.pp
-                     select new CustomPosting() {
-                       Id = q.Id,
-                       Status = q.Status,
-                       BalanceHolder = q.BalanceHolder,
-                       CreationDate = q.CreationDate,
-                       Currency = q.Currency,
-                       ExecutionDate = q.ExecutionDate,
-                       Operation = q.Operation,
-                       OperationType = q.Operation.OperationType,
-                       Sum = q.Sum,
-                       MasterAccount = q.MasterAccount,
-                       MasterFinToolBase = q.MasterFinToolBase,
-                       SlaveAccount = q.SlaveAccount,
-                       SlaveFinToolBase = q.SlaveFinToolBase,
-                       MasterFinToolKind = r.pm!=null ? r.pm.Owner : q.MasterFinToolBase.FinToolKind,
-                       SlaveFinToolKind = r.pm!=null ? r.ps.Owner : q.SlaveFinToolBase.FinToolKind,
-                     };
-
-
+        var usefulColumns = masterCredit.Union(masterDebit);
+        var readyForFilterQuery = from joinResult in usefulColumns
+          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
+          .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
+          let item = joinResult.pp
+          select new CustomPosting() {
+            Id = item.Id,
+            Status = item.Status,
+            BalanceHolder = item.BalanceHolder,
+            CreationDate = item.CreationDate,
+            Currency = item.Currency,
+            ExecutionDate = item.ExecutionDate,
+            Operation = item.Operation,
+            OperationType = item.Operation.OperationType,
+            Sum = item.Sum,
+            MasterAccount = item.MasterAccount,
+            MasterFinToolBase = item.MasterFinToolBase,
+            SlaveAccount = item.SlaveAccount,
+            SlaveFinToolBase = item.SlaveFinToolBase,
+            MasterFinToolKind = joinResult.pm!=null ? joinResult.pm.Owner : item.MasterFinToolBase.FinToolKind,
+            SlaveFinToolKind = joinResult.pm!=null ? joinResult.ps.Owner : item.SlaveFinToolBase.FinToolKind,
+          };
 
         var id = session.Query.All<PacioliAccount>().First().Id;
 
-        Assert.DoesNotThrow(() => result.Where(a => a.MasterAccount.Id == id).LongCount());
-        Assert.DoesNotThrow(()=>result.Where(a => a.MasterAccount.Code == "123").LongCount());
-        Assert.DoesNotThrow(()=>result.Where(a => a.MasterAccount.Code.In("123")).LongCount());
-        Assert.DoesNotThrow(()=>result.Where(a => a.MasterAccount.Id.In(new[] { id })).ToArray());
-        Assert.DoesNotThrow(()=>result.Where(a => a.MasterAccount.Id.In(new[] { id })).LongCount());
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Id == id).LongCount());
+        Assert.DoesNotThrow(()=>readyForFilterQuery.Where(a => a.MasterAccount.Code == "123").LongCount());
+        Assert.DoesNotThrow(()=>readyForFilterQuery.Where(a => a.MasterAccount.Code.In("123")).LongCount());
+        Assert.DoesNotThrow(()=>readyForFilterQuery.Where(a => a.MasterAccount.Id.In(new[] { id })).ToArray());
+        Assert.DoesNotThrow(()=>readyForFilterQuery.Where(a => a.MasterAccount.Id.In(new[] { id })).LongCount());
+      }
+    }
+
+    [Test(Description = "Case when calculated column is first columns of selection")]
+    public void IncludeProviderOptimizationTest02()
+    {
+      EnsureRightDateIsInStorage(ProviderKind.IncludeProvider);
+
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var priceCalculation = from tablePart in Query.All<TablePartBase.FinToolKind.TpPriceCalc>() where !tablePart.OnlyCurrentType select tablePart;
+
+        var masterDebit = from posting in
+          Query.All<PacioliPosting>()
+          select
+            new {
+              Sum = (posting.DebitAccount.AccountType==PacioliAccountType.Passive) ? -posting.Sum : posting.Sum,
+              Id = posting.Id,
+              Status = posting.Status,
+              BalanceHolder = posting.BalanceHolder,
+              CreationDate = posting.CreationDate,
+              Currency = posting.Currency,
+              ExecutionDate = posting.ExecutionDate,
+              Operation = posting.Operation,
+              OperationType = posting.Operation.OperationType,
+              MasterAccount = posting.DebitAccount,
+              MasterFinToolBase = posting.FinDebit,
+              SlaveAccount = posting.CreditAccount,
+              SlaveFinToolBase = posting.FinCredit
+            };
+
+        var masterCredit = from posting in Query.All<PacioliPosting>()
+          select
+            new {
+              Sum =
+                posting.CreditAccount.AccountType==PacioliAccountType.Active
+                || posting.CreditAccount.AccountType==PacioliAccountType.ActivePassive
+                  ? -posting.Sum
+                  : posting.Sum,
+              Id = posting.Id,
+              Status = posting.Status,
+              BalanceHolder = posting.BalanceHolder,
+              CreationDate = posting.CreationDate,
+              Currency = posting.Currency,
+              ExecutionDate = posting.ExecutionDate,
+              Operation = posting.Operation,
+              OperationType = posting.Operation.OperationType,
+              MasterAccount = posting.CreditAccount,
+              MasterFinToolBase = posting.FinCredit,
+              SlaveAccount = posting.DebitAccount,
+              SlaveFinToolBase = posting.FinDebit
+            };
+
+        var usefulColumns = masterCredit.Union(masterDebit);
+        var readyForFilterQuery = from joinResult in usefulColumns
+          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
+          .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
+          let item = joinResult.pp
+          select new CustomPosting {
+            Id = item.Id,
+            Status = item.Status,
+            BalanceHolder = item.BalanceHolder,
+            CreationDate = item.CreationDate,
+            Currency = item.Currency,
+            ExecutionDate = item.ExecutionDate,
+            Operation = item.Operation,
+            OperationType = item.Operation.OperationType,
+            Sum = item.Sum,
+            MasterAccount = item.MasterAccount,
+            MasterFinToolBase = item.MasterFinToolBase,
+            SlaveAccount = item.SlaveAccount,
+            SlaveFinToolBase = item.SlaveFinToolBase,
+            MasterFinToolKind = joinResult.pm!=null ? joinResult.pm.Owner : item.MasterFinToolBase.FinToolKind,
+            SlaveFinToolKind = joinResult.pm!=null ? joinResult.ps.Owner : item.SlaveFinToolBase.FinToolKind,
+          };
+
+        var id = session.Query.All<PacioliAccount>().First().Id;
+
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Id == id).LongCount());
+        Assert.DoesNotThrow(()=>readyForFilterQuery.Where(a => a.MasterAccount.Code == "123").LongCount());
+        Assert.DoesNotThrow(()=>readyForFilterQuery.Where(a => a.MasterAccount.Code.In("123")).LongCount());
+        Assert.DoesNotThrow(()=>readyForFilterQuery.Where(a => a.MasterAccount.Id.In(new[] { id })).ToArray());
+        Assert.DoesNotThrow(()=>readyForFilterQuery.Where(a => a.MasterAccount.Id.In(new[] { id })).LongCount());
+      }
+    }
+
+    [Test(Description = "Case when calculated column is the second column in selection")]
+    public void IncludeProviderOptimizationTest03()
+    {
+      EnsureRightDateIsInStorage(ProviderKind.IncludeProvider);
+
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var priceCalculation = from tablePart in Query.All<TablePartBase.FinToolKind.TpPriceCalc>() where !tablePart.OnlyCurrentType select tablePart;
+
+        var masterDebit = from posting in
+          Query.All<PacioliPosting>()
+          select
+            new {
+              Id = posting.Id,
+              Sum = (posting.DebitAccount.AccountType==PacioliAccountType.Passive) ? -posting.Sum : posting.Sum,
+              Status = posting.Status,
+              BalanceHolder = posting.BalanceHolder,
+              CreationDate = posting.CreationDate,
+              Currency = posting.Currency,
+              ExecutionDate = posting.ExecutionDate,
+              Operation = posting.Operation,
+              OperationType = posting.Operation.OperationType,
+              MasterAccount = posting.DebitAccount,
+              MasterFinToolBase = posting.FinDebit,
+              SlaveAccount = posting.CreditAccount,
+              SlaveFinToolBase = posting.FinCredit
+            };
+
+        var masterCredit = from posting in Query.All<PacioliPosting>()
+          select
+            new {
+              Id = posting.Id,
+              Sum =
+                posting.CreditAccount.AccountType==PacioliAccountType.Active
+                || posting.CreditAccount.AccountType==PacioliAccountType.ActivePassive
+                  ? -posting.Sum
+                  : posting.Sum,
+              Status = posting.Status,
+              BalanceHolder = posting.BalanceHolder,
+              CreationDate = posting.CreationDate,
+              Currency = posting.Currency,
+              ExecutionDate = posting.ExecutionDate,
+              Operation = posting.Operation,
+              OperationType = posting.Operation.OperationType,
+              MasterAccount = posting.CreditAccount,
+              MasterFinToolBase = posting.FinCredit,
+              SlaveAccount = posting.DebitAccount,
+              SlaveFinToolBase = posting.FinDebit
+            };
+
+        var usefulColumns = masterCredit.Union(masterDebit);
+        var readyForFilterQuery = from joinResult in usefulColumns
+          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
+          .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
+          let item = joinResult.pp
+          select new CustomPosting {
+            Id = item.Id,
+            Status = item.Status,
+            BalanceHolder = item.BalanceHolder,
+            CreationDate = item.CreationDate,
+            Currency = item.Currency,
+            ExecutionDate = item.ExecutionDate,
+            Operation = item.Operation,
+            OperationType = item.Operation.OperationType,
+            Sum = item.Sum,
+            MasterAccount = item.MasterAccount,
+            MasterFinToolBase = item.MasterFinToolBase,
+            SlaveAccount = item.SlaveAccount,
+            SlaveFinToolBase = item.SlaveFinToolBase,
+            MasterFinToolKind = joinResult.pm!=null ? joinResult.pm.Owner : item.MasterFinToolBase.FinToolKind,
+            SlaveFinToolKind = joinResult.pm!=null ? joinResult.ps.Owner : item.SlaveFinToolBase.FinToolKind,
+          };
+
+        var id = session.Query.All<PacioliAccount>().First().Id;
+
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Id == id).LongCount());
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Code == "123").LongCount());
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Code.In("123")).LongCount());
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Id.In(new[] { id })).ToArray());
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Id.In(new[] { id })).LongCount());
+      }
+    }
+
+    [Test(Description = "Case when calculated columns is right before the last columns in selection")]
+    public void IncludeProviderOptimizationTest04()
+    {
+      EnsureRightDateIsInStorage(ProviderKind.IncludeProvider);
+
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var priceCalculation = from tablePart in Query.All<TablePartBase.FinToolKind.TpPriceCalc>() where !tablePart.OnlyCurrentType select tablePart;
+
+        var masterDebit = from posting in
+          Query.All<PacioliPosting>()
+          select
+            new {
+              Id = posting.Id,
+              Status = posting.Status,
+              BalanceHolder = posting.BalanceHolder,
+              CreationDate = posting.CreationDate,
+              Currency = posting.Currency,
+              ExecutionDate = posting.ExecutionDate,
+              Operation = posting.Operation,
+              OperationType = posting.Operation.OperationType,
+              MasterAccount = posting.DebitAccount,
+              MasterFinToolBase = posting.FinDebit,
+              SlaveAccount = posting.CreditAccount,
+              Sum = (posting.DebitAccount.AccountType==PacioliAccountType.Passive) ? -posting.Sum : posting.Sum,
+              SlaveFinToolBase = posting.FinCredit
+            };
+
+        var masterCredit = from posting in Query.All<PacioliPosting>()
+          select
+            new {
+              Id = posting.Id,
+              Status = posting.Status,
+              BalanceHolder = posting.BalanceHolder,
+              CreationDate = posting.CreationDate,
+              Currency = posting.Currency,
+              ExecutionDate = posting.ExecutionDate,
+              Operation = posting.Operation,
+              OperationType = posting.Operation.OperationType,
+
+              MasterAccount = posting.CreditAccount,
+              MasterFinToolBase = posting.FinCredit,
+              SlaveAccount = posting.DebitAccount,
+              Sum =
+                posting.CreditAccount.AccountType==PacioliAccountType.Active
+                || posting.CreditAccount.AccountType==PacioliAccountType.ActivePassive
+                  ? -posting.Sum
+                  : posting.Sum,
+              SlaveFinToolBase = posting.FinDebit
+            };
+
+        var usefulColumns = masterCredit.Union(masterDebit);
+        var readyForFilterQuery = from joinResult in usefulColumns
+          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
+          .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
+          let item = joinResult.pp
+          select new CustomPosting {
+            Id = item.Id,
+            Status = item.Status,
+            BalanceHolder = item.BalanceHolder,
+            CreationDate = item.CreationDate,
+            Currency = item.Currency,
+            ExecutionDate = item.ExecutionDate,
+            Operation = item.Operation,
+            OperationType = item.Operation.OperationType,
+            Sum = item.Sum,
+            MasterAccount = item.MasterAccount,
+            MasterFinToolBase = item.MasterFinToolBase,
+            SlaveAccount = item.SlaveAccount,
+            SlaveFinToolBase = item.SlaveFinToolBase,
+            MasterFinToolKind = joinResult.pm!=null ? joinResult.pm.Owner : item.MasterFinToolBase.FinToolKind,
+            SlaveFinToolKind = joinResult.pm!=null ? joinResult.ps.Owner : item.SlaveFinToolBase.FinToolKind,
+          };
+
+        var id = session.Query.All<PacioliAccount>().First().Id;
+
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Id == id).LongCount());
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Code == "123").LongCount());
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Code.In("123")).LongCount());
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Id.In(new[] { id })).ToArray());
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Id.In(new[] { id })).LongCount());
+      }
+    }
+
+    [Test (Description = "Case when calculated column is the last column in selection")]
+    public void IncludeProviderOptimizationTest05()
+    {
+      EnsureRightDateIsInStorage(ProviderKind.IncludeProvider);
+
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var priceCalculation = from tablePart in Query.All<TablePartBase.FinToolKind.TpPriceCalc>() where !tablePart.OnlyCurrentType select tablePart;
+
+        var masterDebit = from posting in
+          Query.All<PacioliPosting>()
+          select
+            new {
+              Id = posting.Id,
+              Status = posting.Status,
+              BalanceHolder = posting.BalanceHolder,
+              CreationDate = posting.CreationDate,
+              Currency = posting.Currency,
+              ExecutionDate = posting.ExecutionDate,
+              Operation = posting.Operation,
+              OperationType = posting.Operation.OperationType,
+              MasterAccount = posting.DebitAccount,
+              MasterFinToolBase = posting.FinDebit,
+              SlaveAccount = posting.CreditAccount,
+              SlaveFinToolBase = posting.FinCredit,
+              Sum = (posting.DebitAccount.AccountType==PacioliAccountType.Passive) ? -posting.Sum : posting.Sum
+            };
+
+        var masterCredit = from posting in Query.All<PacioliPosting>()
+          select
+            new {
+              Id = posting.Id,
+              Status = posting.Status,
+              BalanceHolder = posting.BalanceHolder,
+              CreationDate = posting.CreationDate,
+              Currency = posting.Currency,
+              ExecutionDate = posting.ExecutionDate,
+              Operation = posting.Operation,
+              OperationType = posting.Operation.OperationType,
+              MasterAccount = posting.CreditAccount,
+              MasterFinToolBase = posting.FinCredit,
+              SlaveAccount = posting.DebitAccount,
+              SlaveFinToolBase = posting.FinDebit,
+              Sum =
+                posting.CreditAccount.AccountType==PacioliAccountType.Active
+                || posting.CreditAccount.AccountType==PacioliAccountType.ActivePassive
+                  ? -posting.Sum
+                  : posting.Sum,
+            };
+
+        var usefulColumns = masterCredit.Union(masterDebit);
+        var readyForFilterQuery = from joinResult in usefulColumns
+          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
+          .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
+          let item = joinResult.pp
+          select new CustomPosting {
+            Id = item.Id,
+            Status = item.Status,
+            BalanceHolder = item.BalanceHolder,
+            CreationDate = item.CreationDate,
+            Currency = item.Currency,
+            ExecutionDate = item.ExecutionDate,
+            Operation = item.Operation,
+            OperationType = item.Operation.OperationType,
+            Sum = item.Sum,
+            MasterAccount = item.MasterAccount,
+            MasterFinToolBase = item.MasterFinToolBase,
+            SlaveAccount = item.SlaveAccount,
+            SlaveFinToolBase = item.SlaveFinToolBase,
+            MasterFinToolKind = joinResult.pm!=null ? joinResult.pm.Owner : item.MasterFinToolBase.FinToolKind,
+            SlaveFinToolKind = joinResult.pm!=null ? joinResult.ps.Owner : item.SlaveFinToolBase.FinToolKind,
+          };
+
+        var id = session.Query.All<PacioliAccount>().First().Id;
+
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Id == id).LongCount());
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Code == "123").LongCount());
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Code.In("123")).LongCount());
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Id.In(new[] { id })).ToArray());
+        Assert.DoesNotThrow(() => readyForFilterQuery.Where(a => a.MasterAccount.Id.In(new[] { id })).LongCount());
       }
     }
 
     [Test]
     public void AdditionalTest01()
     {
+      EnsureRightDateIsInStorage(ProviderKind.IncludeProvider);
+
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var portfolioId = session.Query.All<Portfolio>().Select(el=>el.Id).First();
@@ -531,16 +895,74 @@ namespace Xtensive.Orm.Tests.Issues
           .Select(f => new {FinTool = f.Key, Summ = f.Sum(s => s.Sum), SummPrice = f.Sum(s => s.SumPrice)})
           .Where(a => a.Summ!=0);
 
-        var result = balanceFinTools.Select(a => a.FinTool.Id).Distinct().ToArray();
+        Assert.DoesNotThrow(() => { balanceFinTools.Select(a => a.FinTool.Id).Distinct().ToArray(); });
       }
     }
 
-    protected override void PopulateData()
+    [Test]
+    public void TakeProviderOptimizationTest01()
+    {
+      EnsureRightDateIsInStorage(ProviderKind.TakeProvider);
+
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var allPostings = Query.All<PacioliPosting>();
+        var masterDebit =
+            allPostings.Select(
+                posting =>
+                new {
+                  Id = GuidModifier.ReplaceOne(posting.Id, "1"),
+                  Posting = posting,
+                  Sum = posting.DebitAccount.AccountType==PacioliAccountType.Passive ? -posting.Sum : posting.Sum,
+                  MasterFinToolBase = posting.DebitFinTool
+                });
+
+        var masterCredit =
+            allPostings.Select(
+                posting =>
+                new {
+                  Id = GuidModifier.ReplaceOne(posting.Id, "9"),
+                  Posting = posting,
+                  Sum = posting.CreditAccount.AccountType==PacioliAccountType.Active || posting.CreditAccount.AccountType==PacioliAccountType.ActivePassive
+                    ? -posting.Sum
+                    : posting.Sum,
+                  MasterFinToolBase = posting.CreditFinTool
+                });
+
+        var concatination = masterCredit.Concat(masterDebit);
+        var usefulColumnsSelection = from raw in concatination
+          select new {
+            Id = raw.Id,
+            Posting = raw.Posting,
+            Sum = raw.Sum,
+            MasterFinToolBase = raw.MasterFinToolBase,
+          };
+
+        var finalQuery = from raw in usefulColumnsSelection.Select(
+          selectionItem => new {
+            MasterFinToolBase = selectionItem.MasterFinToolBase,
+            Sum = selectionItem.Sum,
+            Id = selectionItem.Posting.Id
+          })
+          where raw.MasterFinToolBase!=null
+          group raw by new {
+            MasterFinToolBase = raw.MasterFinToolBase
+          }
+          into grouping
+          select new {
+            MasterFinToolBase = grouping.Key.MasterFinToolBase,
+            Sum = grouping.Sum(s => s.Sum),
+            Id = grouping.Select(x => x.Id).First()
+          };
+        Assert.DoesNotThrow(() => { finalQuery.ToArray(); });
+        transaction.Complete();
+      }
+    }
+
+    private void PopulateDataForIncludeProvider()
     {
       using (var session = Domain.OpenSession())
-      using (session.Activate())
-      using (var transaction = session.OpenTransaction())
-      {
+      using (var transaction = session.OpenTransaction()) {
         var currency = new Currency(Guid.NewGuid()) { CurCode = "RU", Name = "Ruble" };
 
         var debitPassiveAccount = new PacioliAccount(Guid.NewGuid());
@@ -728,6 +1150,67 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+    public void PopulateDataForTakeProvider()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var status = new Status(Guid.NewGuid()) { Name = "aa" };
+        var currency = new Currency(Guid.NewGuid()) { Name = "aa", CurCode = "qwe", DigitCode = "123", EngName = "re" };
+        session.SaveChanges();
+
+        var port = new RealPortfolio(Guid.NewGuid()) { Name = "ww", FullName = "ee", Identifier = "w" };
+        var operation = new TechOperation(Guid.NewGuid());
+        operation.Status = status;
+        session.SaveChanges();
+
+        var finToolKind = new TablePartBase.FinToolKind(Guid.NewGuid()) { Name = "aa", FullName = "qq" };
+        var finTool1 = new OtherFinTools(Guid.NewGuid()) { Name = "aa", DocumentIdentifier = "wewe", Cur = currency, FinToolKind = finToolKind };
+        var finTool2 = new OtherFinTools(Guid.NewGuid())
+        {
+          Name = "aaw",
+          DocumentIdentifier = "wewee",
+          Cur = currency,
+          FinToolKind = finToolKind,
+        };
+        session.SaveChanges();
+
+        var pp = new PacioliAccount(Guid.NewGuid()) { AccountType = PacioliAccountType.Active, Name = "aa", FastAccess = "w", Code = "x" };
+        new PacioliPosting(Guid.NewGuid()) {
+          Name = "a",
+          Status = status,
+          DebitAccount = pp,
+          CreditAccount = pp,
+          CreditFinTool = finTool1,
+          DebitFinTool = finTool2,
+          Sum = 1,
+          Currency = currency,
+          BalanceHolder = port,
+          Operation = operation
+        };
+        transaction.Complete();
+      }
+    }
+
+    public void EnsureRightDateIsInStorage(ProviderKind providerKind)
+    {
+      if (previousProviderKind.HasValue && previousProviderKind!=providerKind) {
+        RebuildDomain();
+        previousProviderKind = providerKind;
+      }
+      switch (providerKind) {
+        case ProviderKind.IncludeProvider: {
+          PopulateDataForTakeProvider();
+          return;
+        }
+        case ProviderKind.TakeProvider: {
+          PopulateDataForIncludeProvider();
+          return;
+        }
+      }
+    }
+
+    
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
@@ -735,5 +1218,11 @@ namespace Xtensive.Orm.Tests.Issues
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
+  }
+
+  public enum ProviderKind
+  {
+    IncludeProvider,
+    TakeProvider
   }
 }

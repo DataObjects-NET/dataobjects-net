@@ -1293,8 +1293,12 @@ namespace Xtensive.Orm.Linq
       }
       var outerItemProjector = outer.ItemProjector.RemoveOwner();
       var innerItemProjector = inner.ItemProjector.RemoveOwner();
-      var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToList();
-      var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToList();
+      var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
+      var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
+      if (!outerColumnList.Except(innerColumnList).Any() && outerColumnList.Count==innerColumnList.Count) {
+        outerColumnList = outerColumnList.OrderBy(i => i).ToList();
+        innerColumnList = innerColumnList.OrderBy(i => i).ToList();
+      }
       var outerColumns = outerColumnList.ToArray();
       var outerRecordSet = outerItemProjector.DataSource.Header.Length!=outerColumnList.Count || outerColumnList.Select((c, i) => new {c, i}).Any(x => x.c!=x.i)
         ? outerItemProjector.DataSource.Select(outerColumns)
