@@ -1275,7 +1275,6 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-
     private Expression VisitSetOperations(Expression outerSource, Expression innerSource, QueryableMethodKind methodKind, Type elementType)
     {
       ProjectionExpression outer;
@@ -1300,10 +1299,10 @@ namespace Xtensive.Orm.Linq
         innerColumnList = innerColumnList.OrderBy(i => i).ToList();
       }
       var outerColumns = outerColumnList.ToArray();
-      var outerRecordSet = outerItemProjector.DataSource.Header.Length!=outerColumnList.Count || outerColumnList.Select((c, i) => new {c, i}).Any(x => x.c!=x.i)
+      var outerRecordSet = ShouldWrapDataSourceWithSelect(outerItemProjector, outerColumnList)
         ? outerItemProjector.DataSource.Select(outerColumns)
         : outerItemProjector.DataSource;
-      var innerRecordSet = innerItemProjector.DataSource.Header.Length!=innerColumnList.Count || innerColumnList.Select((c, i) => new {c, i}).Any(x => x.c!=x.i)
+      var innerRecordSet = ShouldWrapDataSourceWithSelect(innerItemProjector, innerColumnList)
         ? innerItemProjector.DataSource.Select(innerColumnList.ToArray())
         : innerItemProjector.DataSource;
 
@@ -1326,6 +1325,13 @@ namespace Xtensive.Orm.Linq
       var tupleParameterBindings = outer.TupleParameterBindings.Union(inner.TupleParameterBindings).ToDictionary(pair => pair.Key, pair => pair.Value);
       var itemProjector = outerItemProjector.Remap(recordSet, outerColumns);
       return new ProjectionExpression(outer.Type, itemProjector, tupleParameterBindings);
+    }
+
+    private bool ShouldWrapDataSourceWithSelect(ItemProjectorExpression expression, ICollection<int> columns)
+    {
+      return expression.DataSource.Type!=ProviderType.Select
+        || expression.DataSource.Header.Length!=columns.Count
+        || columns.Select((c, i) => new {c, i}).Any(x => x.c!=x.i);
     }
 
     private Expression AddSubqueryColumn(Type columnType, CompilableProvider subquery)

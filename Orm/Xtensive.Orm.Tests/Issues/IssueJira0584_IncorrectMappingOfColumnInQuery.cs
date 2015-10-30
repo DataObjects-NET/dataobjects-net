@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0584_IncorrectMappingOfColumnInQueryModel;
 using Xtensive.Sql;
@@ -19,6 +20,19 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0584_IncorrectMappingOfColumnInQuer
     Passive,
     Active,
     ActivePassive
+  }
+
+  public enum DealType
+  {
+    RoundsPlannedDeal,
+    LeftOffPlannedDeal,
+    RealDeal,
+  }
+
+  public enum DebitCredit
+  {
+    Debit,
+    Credit,
   }
 
   [KeyGenerator(KeyGeneratorKind.None)]
@@ -357,6 +371,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0584_IncorrectMappingOfColumnInQuer
 
     [Field(Indexed = false)]
     public FinToolBase CreditFinTool { get; set; }
+
+    [Field]
+    public DealType Deal { get; set; }
 
     public PacioliPosting(Guid id)
       : base(id)
@@ -959,6 +976,124 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+    [Test]
+    public void JoinAsSourceOfSetOperation()
+    {
+      EnsureRightDateIsInStorage(ProviderKind.TakeProvider);
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var tp = from q in Query.All<TablePartBase.FinToolKind.TpPriceCalc>()
+          select
+            new {
+              q.Account,
+              OnlyCurrentType = !q.OnlyCurrentType,
+              FinToolKind = q.OnlyCurrentType ? Guid.Empty : q.Owner.Id
+            };
+
+        var masterDebit = from q in Query.All<PacioliPosting>()
+          select
+            new {
+              Id = q.Id,
+              Posting = q,
+              DebitCredit = DebitCredit.Debit,
+              Status = q.Status,
+              BalanceHolder = q.BalanceHolder,
+              CreationDate = q.CreationDate,
+              Currency = q.Currency,
+              Deal = q.Deal,
+              ExecutionDate = q.ExecutionDate,
+              Sum = q.Sum,
+              MasterAccount = q.DebitAccount,
+              MasterFinToolBase = q.DebitFinTool,
+            };
+
+        var masterCredit = from q in Query.All<PacioliPosting>()
+          select
+            new {
+              Id = q.Id,
+              Posting = q,
+              DebitCredit = DebitCredit.Credit,
+              Status = q.Status,
+              BalanceHolder = q.BalanceHolder,
+              CreationDate = q.CreationDate,
+              Currency = q.Currency,
+              Deal = q.Deal,
+              ExecutionDate = q.ExecutionDate,
+              Sum = q.Sum,
+              MasterAccount = q.CreditAccount,
+              MasterFinToolBase = q.CreditFinTool,
+            };
+
+        var preResult = masterCredit.Concat(masterDebit);
+
+        var result =
+          from r in
+            preResult.Join(tp.Distinct(), a => a.MasterAccount, a => a.Account, (a, pm) => new {pp = a, pm})
+              .LeftJoin(Query.All<TablePartBase.FinToolKind>(), a => a.pm.FinToolKind, a => a.Id, (a, b) => new {pp = a.pp, pm = a.pm, fk = b})
+          let q = r.pp
+          select
+            new {
+              Id = q.Id,
+              Posting = q.Posting,
+              Status = q.Status,
+              BalanceHolder = q.BalanceHolder,
+              CreationDate = q.CreationDate,
+              Currency = q.Currency,
+              Deal = q.Deal,
+              ExecutionDate = q.ExecutionDate,
+              Sum = q.Sum,
+              MasterAccount = q.MasterAccount,
+              MasterFinToolBase = q.MasterFinToolBase,
+              MasterFinToolKind = r.pm.OnlyCurrentType ? r.fk : q.MasterFinToolBase.FinToolKind,
+              AccountType = q.MasterAccount.AccountType
+            };
+
+        var xx =
+          from a in
+            result
+              .Select(
+                a =>
+                  new {
+                    MasterFinToolBase = a.MasterFinToolBase,
+                    MasterFinToolKind = a.MasterFinToolKind,
+                    Currency = a.Currency,
+                    BalanceHolder = a.BalanceHolder,
+                    CreationDate = a.CreationDate,
+                    ExecutionDate = a.ExecutionDate,
+                    Deal = a.Deal,
+                    MasterAccount = a.MasterAccount,
+                    Sum = a.Sum,
+                    Posting = a.Posting
+                  })
+          where a.MasterFinToolBase!=null && a.MasterFinToolKind!=null
+          group a by
+            new {
+              Currency = a.Currency,
+              BalanceHolder = a.BalanceHolder,
+              CreationDate = a.CreationDate,
+              Deal = a.Deal,
+              ExecutionDate = a.ExecutionDate,
+              MasterAccount = a.MasterAccount,
+              MasterFinToolBase = a.MasterFinToolBase
+            }
+          into gr
+          select
+            new {
+              ExecutionDate = gr.Key.ExecutionDate,
+              BalanceHolder = gr.Key.BalanceHolder,
+              MasterFinToolBase = gr.Key.MasterFinToolBase,
+              Currency = gr.Key.Currency,
+              CreationDate = gr.Key.CreationDate,
+              Deal = gr.Key.Deal,
+              MasterAccount = gr.Key.MasterAccount,
+              Sum = gr.Sum(s => s.Sum),
+              Id = gr.Select(a => a.Posting).First().Id
+            };
+ 
+          Assert.DoesNotThrow(result.Run);
+      }
+    }
+
     private void PopulateDataForIncludeProvider()
     {
       using (var session = Domain.OpenSession())
@@ -1208,8 +1343,6 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
     }
-
-    
 
     protected override DomainConfiguration BuildConfiguration()
     {
