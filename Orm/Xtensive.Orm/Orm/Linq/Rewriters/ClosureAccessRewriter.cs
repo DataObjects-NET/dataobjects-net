@@ -35,6 +35,8 @@ namespace Xtensive.Orm.Linq.Rewriters
             throw new InvalidOperationException(String.Format(Strings.ExUnableToUseIQueryableXInQueryExecuteStatement, fieldInfo.Name));
           var constantValue = ((ConstantExpression) memberExpression.Expression).Value;
           var queryable = (IQueryable) fieldInfo.GetValue(constantValue);
+          if (queryable.Expression.Type.IsOfGenericInterface(typeof (IQueryable<>)))
+            return Visit(queryable.Expression);
           return queryable.Expression;
         }
       }

@@ -306,6 +306,7 @@
     <Compile Include="Issues\IssueJira0551_IncorrectTypeIdFieldBug.cs" />
     <Compile Include="Issues\IssueJira0550_IncorrectJoinSequenceTranslationInMySqlTest.cs" />
     <Compile Include="Issues\IssueJira0571_MySqlKeyGenerationProblem.cs" />
+    <Compile Include="Issues\IssueJira0609_RewritingQueriesInClosure.cs" />
     <Compile Include="Linq\CompiledQueriesWithClosureTest.cs" />
     <Compile Include="Issues\StrangeLockingExceptionTest.cs" />
     <Compile Include="Issues\StructureFieldRemoveTest.cs" />
