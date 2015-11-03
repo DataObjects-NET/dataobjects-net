@@ -107,6 +107,11 @@ namespace Xtensive.Orm.Linq
             return base.VisitUnary(u);
           throw new InvalidOperationException(String.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u, u.Operand.Type, u.Type));
         }
+        else if (u.Type==typeof (object) && state.ShouldOmmitConvertToObject) {
+          var expression = u.StripCasts();
+          var visitedExpression = Visit(expression);
+          return visitedExpression;
+        }
         break;
       }
       return u.Type==typeof (IQueryable)
