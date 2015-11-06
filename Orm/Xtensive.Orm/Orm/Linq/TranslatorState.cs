@@ -38,6 +38,8 @@ namespace Xtensive.Orm.Linq
 
     public bool IsTailMethod { get; set; }
 
+    public bool ShouldOmmitConvertToObject { get; set; }
+
     public bool RequestCalculateExpressions { get; set; }
 
     public bool RequestCalculateExpressionsOnce { get; set; }
