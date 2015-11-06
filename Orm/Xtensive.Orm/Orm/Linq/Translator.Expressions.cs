@@ -109,8 +109,7 @@ namespace Xtensive.Orm.Linq
         }
         else if (u.Type==typeof (object) && state.ShouldOmmitConvertToObject) {
           var expression = u.StripCasts();
-          var visitedExpression = Visit(expression);
-          return visitedExpression;
+          return Visit(expression);
         }
         break;
       }
