@@ -28,12 +28,35 @@ namespace Xtensive.Orm.Linq.Materialization
     
     private readonly EntityMappingCache[] entityMappings;
 
-    public readonly DomainModel Model;
-    public readonly Session Session;
-    public readonly int EntitiesInRow;
-    public readonly TypeIdRegistry TypeIdRegistry;
+    /// <summary>
+    /// Gets model of current <see cref="DomainModel">domain model.</see>
+    /// </summary>
+    public DomainModel Model { get; private set; }
 
-    public Queue<Action> MaterializationQueue;
+    /// <summary>
+    /// Gets the session in which materialization is executing.
+    /// </summary>
+    public Session Session { get; private set; }
+
+    /// <summary>
+    /// Gets count of entities in query row.
+    /// </summary>
+    public int EntitiesInRow { get; private set; }
+
+    /// <summary>
+    /// Gets <see cref="StorageNode">node</see> specific type identifiers registry of current node.
+    /// </summary>
+    public TypeIdRegistry TypeIdRegistry
+    {
+      get {
+        return Session.StorageNode.TypeIdRegistry;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets queue of materialization actions.
+    /// </summary>
+    public Queue<Action> MaterializationQueue { get; set; }
 
     public TypeMapping GetTypeMapping(int entityIndex, TypeInfo approximateType, int typeId, Pair<int>[] columns)
     {
@@ -47,7 +70,7 @@ namespace Xtensive.Orm.Linq.Materialization
       if (cache.Items.TryGetValue(typeId, out result))
         return result;
 
-      var type       = Session.StorageNode.TypeIdRegistry[typeId];
+      var type       = TypeIdRegistry[typeId];
       var keyInfo    = type.Key;
       var descriptor = type.TupleDescriptor;
 
@@ -88,7 +111,6 @@ namespace Xtensive.Orm.Linq.Materialization
       Session = session;
       Model = session.Domain.Model;
       EntitiesInRow = entityCount;
-      TypeIdRegistry = session.StorageNode.TypeIdRegistry;
 
       entityMappings = new EntityMappingCache[entityCount];
 
