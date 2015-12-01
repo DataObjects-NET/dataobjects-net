@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Internals
   internal class TypeMapping
   {
     public readonly TypeInfo Type;
-    public readonly int TypeId;
     public readonly MapTransform KeyTransform;
     public readonly int[] KeyIndexes;
     public readonly MapTransform Transform;
@@ -23,7 +22,6 @@ namespace Xtensive.Orm.Internals
     public TypeMapping(TypeInfo type, MapTransform keyTransform, MapTransform transform, int[] keyIndexes)
     {
       Type = type;
-      TypeId = type.TypeId;
       KeyTransform = keyTransform;
       Transform = transform;
       KeyIndexes = keyIndexes;

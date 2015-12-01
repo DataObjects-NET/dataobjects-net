@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Linq.Materialization
       TypeMapping result;
       var cache = entityMappings[entityIndex];
       if (cache.SingleItem!=null) {
-        if (typeId!=cache.SingleItem.TypeId)
+        if (typeId!=ResolveTypeToNodeSpecificTypeIdentifier(cache.SingleItem.Type))
           throw new ArgumentOutOfRangeException("typeId");
         return cache.SingleItem;
       }
@@ -101,6 +101,12 @@ namespace Xtensive.Orm.Linq.Materialization
       entityMappings[entityIndex] = cache;
       
       return result;
+    }
+
+    private int ResolveTypeToNodeSpecificTypeIdentifier(TypeInfo typeInfo)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(typeInfo, "typeInfo");
+      return TypeIdRegistry[typeInfo];
     }
 
     
