@@ -243,6 +243,7 @@ namespace Xtensive.Orm.Upgrade
       NodeConfiguration = nodeConfiguration;
       Cookie = parentDomain.UpgradeContextCookie;
       ParentDomain = parentDomain;
+      TypesMovementsAutoDetection = true;
       UserDefinedTypeMap = new Dictionary<string, int>();
 
       Initialize();
