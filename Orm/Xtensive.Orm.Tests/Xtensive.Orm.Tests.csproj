@@ -231,7 +231,6 @@
     <Compile Include="Issues\IssueJira0531_IncorrectNameOfRecycledNestedType.cs" />
     <Compile Include="Issues\IssueJira0540_IncorrectBehaviorOnDomainUpgradeWithRecycledTypeBug.cs" />
     <Compile Include="Issues\IssueJira0542_OfTypeTranslationBug.cs" />
-    <Compile Include="Issues\IssueJira0617_IncorrectRedundantColumnRemove.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion3.cs" />

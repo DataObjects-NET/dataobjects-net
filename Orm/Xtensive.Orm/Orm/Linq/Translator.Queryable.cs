@@ -1287,17 +1287,13 @@ namespace Xtensive.Orm.Linq
       }
       var outerItemProjector = outer.ItemProjector.RemoveOwner();
       var innerItemProjector = inner.ItemProjector.RemoveOwner();
-      var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToList();
-      var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToList();
-      if (!outerColumnList.Except(innerColumnList).Any() && outerColumnList.Count==innerColumnList.Count) {
-        outerColumnList = outerColumnList.OrderBy(i => i).ToList();
-        innerColumnList = innerColumnList.OrderBy(i => i).ToList();
-      }
+      var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Default).ToList();
+      var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Default).ToList();
       var outerColumns = outerColumnList.ToArray();
-      var outerRecordSet = ShouldWrapDataSourceWithSelect(outerItemProjector, outerColumnList)
+      var outerRecordSet = outerItemProjector.DataSource.Header.Length != outerColumnList.Count || outerColumnList.Select((c, i) => new { c, i }).Any(x => x.c != x.i)
         ? outerItemProjector.DataSource.Select(outerColumns)
         : outerItemProjector.DataSource;
-      var innerRecordSet = ShouldWrapDataSourceWithSelect(innerItemProjector, innerColumnList)
+      var innerRecordSet = innerItemProjector.DataSource.Header.Length != innerColumnList.Count || innerColumnList.Select((c, i) => new { c, i }).Any(x => x.c != x.i)
         ? innerItemProjector.DataSource.Select(innerColumnList.ToArray())
         : innerItemProjector.DataSource;
 
@@ -1320,13 +1316,6 @@ namespace Xtensive.Orm.Linq
       var tupleParameterBindings = outer.TupleParameterBindings.Union(inner.TupleParameterBindings).ToDictionary(pair => pair.Key, pair => pair.Value);
       var itemProjector = outerItemProjector.Remap(recordSet, outerColumns);
       return new ProjectionExpression(outer.Type, itemProjector, tupleParameterBindings);
-    }
-
-    private bool ShouldWrapDataSourceWithSelect(ItemProjectorExpression expression, ICollection<int> columns)
-    {
-      return expression.DataSource.Type != ProviderType.Select
-        || expression.DataSource.Header.Length != columns.Count
-        || columns.Select((c, i) => new { c, i }).Any(x => x.c != x.i);
     }
 
     private Expression AddSubqueryColumn(Type columnType, CompilableProvider subquery)
