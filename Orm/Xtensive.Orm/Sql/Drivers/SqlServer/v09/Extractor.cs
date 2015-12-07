@@ -393,7 +393,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     t.object_id,
     i.index_id,
     ic.is_included_column,
-    ic.key_ordinal";
+    ic.key_ordinal,
+    ic.index_column_id";
       query = PerformReplacements(query);
       return query;
     }
