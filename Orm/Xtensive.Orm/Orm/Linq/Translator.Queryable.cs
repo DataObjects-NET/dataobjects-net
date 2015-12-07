@@ -1290,10 +1290,10 @@ namespace Xtensive.Orm.Linq
       var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Default).ToList();
       var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Default).ToList();
       var outerColumns = outerColumnList.ToArray();
-      var outerRecordSet = outerItemProjector.DataSource.Header.Length!=outerColumnList.Count || outerColumnList.Select((c, i) => new {c, i}).Any(x => x.c!=x.i)
+      var outerRecordSet = outerItemProjector.DataSource.Header.Length != outerColumnList.Count || outerColumnList.Select((c, i) => new { c, i }).Any(x => x.c != x.i)
         ? outerItemProjector.DataSource.Select(outerColumns)
         : outerItemProjector.DataSource;
-      var innerRecordSet = innerItemProjector.DataSource.Header.Length!=innerColumnList.Count || innerColumnList.Select((c, i) => new {c, i}).Any(x => x.c!=x.i)
+      var innerRecordSet = innerItemProjector.DataSource.Header.Length != innerColumnList.Count || innerColumnList.Select((c, i) => new { c, i }).Any(x => x.c != x.i)
         ? innerItemProjector.DataSource.Select(innerColumnList.ToArray())
         : innerItemProjector.DataSource;
 

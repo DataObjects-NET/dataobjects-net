@@ -41,6 +41,7 @@ namespace Xtensive.Orm.Rse.Transformation
         provider.FilterDataSource, provider.ResultColumnName, provider.FilteredColumns);
     }
 
+
     protected override Provider VisitSelect(SelectProvider provider)
     {
       var requiredColumns = mappings[provider];
