@@ -194,7 +194,6 @@
     <Compile Include="Issues\IssueA413_KeyNotFoundException.cs" />
     <Compile Include="Issues\IssueA418_UnableToCompileModelWithPersistentInterface.cs" />
     <Compile Include="Issues\IssueA424_QueryByInterfaceException.cs" />
-    <Compile Include="Issues\IssueJira0616_ExistanceProviderProcessingBug.cs" />
     <Compile Include="Issues\IssueJIRA0003_OrderByStructureFieldLost.cs" />
     <Compile Include="Issues\IssueJIRA0020_CustomLINQCompilerContainerInterface.cs" />
     <Compile Include="Issues\IssueJIRA0028_StructureOnSetError.cs" />

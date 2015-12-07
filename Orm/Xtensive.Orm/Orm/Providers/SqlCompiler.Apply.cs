@@ -102,16 +102,14 @@ namespace Xtensive.Orm.Providers
         provider.Right.Type==ProviderType.Select && provider.Right.Sources[0].Type==ProviderType.Existence;
 
       if (isApplyExistence) {
-        for (int i = 0; i < rightQuery.Columns.Count; i++) {
-          var column = rightQuery.Columns[i];
-          if (provider.IsInlined) {
-            var columnStub = SqlDml.ColumnStub(column);
-            var userColumn = ExtractUserColumn(column);
-            stubColumnMap.Add(columnStub, userColumn.Expression);
-            column = columnStub;
-          }
-          query.Columns.Add(column);
+        var column = rightQuery.Columns[0];
+        if (provider.IsInlined) {
+          var columnStub = SqlDml.ColumnStub(column);
+          var userColumn = ExtractUserColumn(column);
+          stubColumnMap.Add(columnStub, userColumn.Expression);
+          column = columnStub;
         }
+        query.Columns.Add(column);
       }
       else {
         if (provider.IsInlined) {
