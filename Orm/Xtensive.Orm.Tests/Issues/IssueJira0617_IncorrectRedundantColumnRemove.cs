@@ -1,7 +1,9 @@
-﻿using System;
+﻿#if NET40
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic;
+using System.Linq.Expressions;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
@@ -63,7 +65,7 @@ namespace Xtensive.Orm.Tests.Issues
 
         var usefulColumns = masterCredit.Union(masterDebit);
         var readyForFilterQuery = from joinResult in usefulColumns
-          .LeftJoin(priceCalculation, a => a.SlaveAccount, a => a.Account, (pp, ps) => new {pp, ps})
+          .LeftJoin(priceCalculation, a => a, b => b.Account, (pp, ps) => new {pp, ps})
           .LeftJoin(priceCalculation, a => a.pp.MasterAccount, a => a.Account, (a, pm) => new {a.pp, a.ps, pm})
           let item = joinResult.pp
           select new CustomPosting() {
@@ -1695,4 +1697,4 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0617_IncorrectRedundantColumnRemove
     }
   }
 }
-
+#endif
