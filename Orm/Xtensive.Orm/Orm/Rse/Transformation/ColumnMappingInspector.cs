@@ -37,8 +37,9 @@ namespace Xtensive.Orm.Rse.Transformation
       mappings[provider] = Merge(mappings[provider], mappings[provider.Source]);
       if (source==provider.Source)
         return provider;
+      var filteredColumns = provider.FilteredColumns.Select(el => mappings[provider].IndexOf(el)).ToArray();
       return new IncludeProvider(source, provider.Algorithm, provider.IsInlined,
-        provider.FilterDataSource, provider.ResultColumnName, provider.FilteredColumns);
+        provider.FilterDataSource, provider.ResultColumnName, filteredColumns);
     }
 
     protected override Provider VisitSelect(SelectProvider provider)
@@ -267,7 +268,7 @@ namespace Xtensive.Orm.Rse.Transformation
       mappings[provider] = currentMapping;
       if (descriptors.Count==0)
         return newSourceProvider;
-      if (!translated && newSourceProvider==provider.Source)
+      if (!translated && newSourceProvider==provider.Source && descriptors.Count==provider.CalculatedColumns.Length)
         return provider;
       return new CalculateProvider(newSourceProvider, descriptors.ToArray());
     }
