@@ -18,14 +18,17 @@ namespace Xtensive.Orm.Tests.Issues
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
-        var stockFlow = new LogisticFlow();
-        var margin = 2;
-        Query.All<PickingProductRequirement>().Select(p => new
-        {
-          V2 = (int)(p.Quantity.NormalizedValue * (p.InventoryAction.LogisticFlow == stockFlow ? margin : 1))
-        }).OrderBy(t => t.V2).Run();
+      using (var transaction = session.OpenTransaction()) {
+        Assert.DoesNotThrow(() => session.Query.All<PickingPoolMember>().Select(p => new {
+          V2 = p.Product.MeasureType,
+          Value = p.Details.Any()
+            ? p.Details.Sum(d => d.Quantity.NormalizedValue)
+            : p.Requirement.Quantity.NormalizedValue
+        })
+          .GroupBy(groupByParam => groupByParam.V2).Select(aggregationSource => new {
+            V0 = aggregationSource.Key,
+            V1 = aggregationSource.Count()
+          }).Run());
       }
     }
 
