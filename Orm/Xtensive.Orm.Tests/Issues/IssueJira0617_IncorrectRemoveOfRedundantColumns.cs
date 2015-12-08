@@ -427,6 +427,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test06()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var transactions = Session.Current.Query.All<RegTransaction>();
@@ -450,6 +451,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test07()
     {
+      Require.ProviderIs(StorageProvider.SqlServer);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var allPostings = Query.All<PacioliPosting>();
@@ -630,6 +632,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test09()
     {
+      Require.ProviderIs(StorageProvider.SqlServer);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var pacioliPostings = Query.All<PacioliPosting>().Select(el => el.Id).ToList();
@@ -729,6 +732,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test10()
     {
+      Require.ProviderIs(StorageProvider.SqlServer);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var pacioliPostings = Query.All<PacioliPosting>().Select(el => el.Id).ToList();
@@ -846,6 +850,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test11()
     {
+      Require.ProviderIs(StorageProvider.SqlServer);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var pacioliPostings = Query.All<PacioliPosting>().Select(el => el.Id).ToList();
@@ -940,6 +945,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test12()
     {
+      Require.ProviderIs(StorageProvider.SqlServer);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var pacioliPostings = Query.All<PacioliPosting>().Select(el => el.Id).ToList();
