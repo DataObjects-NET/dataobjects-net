@@ -94,6 +94,7 @@ namespace Xtensive.Orm.Linq
       RequestCalculateExpressionsOnce = currentState.RequestCalculateExpressionsOnce;
       RequestCalculateExpressions = currentState.RequestCalculateExpressions;
       TypeOfEntityStoredInKey = currentState.TypeOfEntityStoredInKey;
+      ShouldOmmitConvertToObject = currentState.ShouldOmmitConvertToObject;
     }
   }
 }
