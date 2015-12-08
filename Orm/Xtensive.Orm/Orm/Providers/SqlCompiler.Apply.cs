@@ -112,14 +112,6 @@ namespace Xtensive.Orm.Providers
           }
           query.Columns.Add(column);
         }
-        //var column = rightQuery.Columns[0];
-        //if (provider.IsInlined) {
-        //  var columnStub = SqlDml.ColumnStub(column);
-        //  var userColumn = ExtractUserColumn(column);
-        //  stubColumnMap.Add(columnStub, userColumn.Expression);
-        //  column = columnStub;
-        //}
-        //query.Columns.Add(column);
       }
       else {
         if (provider.IsInlined) {
