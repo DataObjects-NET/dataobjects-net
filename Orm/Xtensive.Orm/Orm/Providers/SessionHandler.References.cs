@@ -46,17 +46,6 @@ namespace Xtensive.Orm.Providers
       return GetReferencesToInternal(association, target, recordSet.Header, queryTask);
     }
 
-    private IEnumerable<ReferenceInfo> GetReferencesToInternal(AssociationInfo association, Entity target, RecordSetHeader header, QueryTask queryTask)
-    {
-      Session.ExecuteInternalDelayedQueries(true);
-      var referenceToTarget = queryTask.ToEntities(header, Session, 0);
-      var exceptRemovedReferences = referenceToTarget.Where(el=>!target.IsReferenceDeleted(el));
-      var withNewReferences = exceptRemovedReferences.Concat(target.GetNewReferencesFromEntities());
-      foreach (var entity in withNewReferences)
-        yield return new ReferenceInfo(entity, target, association);
-    }
-
-
     /// <summary>
     /// Gets the references from specified entity.
     /// </summary>
@@ -66,6 +55,16 @@ namespace Xtensive.Orm.Providers
     public virtual IEnumerable<ReferenceInfo> GetReferencesFrom(Entity owner, AssociationInfo association)
     {
       return FindReferences(owner, association, false);
+    }
+
+    private IEnumerable<ReferenceInfo> GetReferencesToInternal(AssociationInfo association, Entity target, RecordSetHeader header, QueryTask queryTask)
+    {
+      Session.ExecuteInternalDelayedQueries(true);
+      var referenceToTarget = queryTask.ToEntities(header, Session, 0);
+      var exceptRemovedReferences = referenceToTarget.Where(el=>!target.IsReferenceDeleted(el));
+      var withNewReferences = exceptRemovedReferences.Concat(target.GetNewReferencesFromEntities());
+      foreach (var entity in withNewReferences)
+        yield return new ReferenceInfo(entity, target, association);
     }
 
     private static IEnumerable<ReferenceInfo> FindReferences(Entity owner, AssociationInfo association, bool reversed)
