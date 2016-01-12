@@ -1039,8 +1039,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0627_PocoClassPropertyRenitializati
 
     public Poco0()
     {
-      Key = Guid.NewGuid().ToString();
-      Value = string.Empty;
+      Key = default (string);
+      Value = default (string);
     }
 
     public Poco0(string key, string value)
@@ -1115,8 +1115,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0627_PocoClassPropertyRenitializati
 
     public BasePoco0()
     {
-      Key = Guid.NewGuid().ToString();
-      Value = string.Empty;
+      Key = default(string);
+      Value = default(string);
     }
 
     public BasePoco0(string key, string value)
@@ -1161,8 +1161,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0627_PocoClassPropertyRenitializati
 
     public BasePoco1()
     {
-      Key = Guid.NewGuid().ToString();
-      Value = string.Empty;
+      Key = default(string);
+      Value = default(string);
     }
 
     public BasePoco1(string key, string value)
@@ -1178,7 +1178,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0627_PocoClassPropertyRenitializati
 
     public DescendantPoco1()
     {
-      AdditionalInfo = string.Empty;
+      AdditionalInfo = default(string);
     }
 
     public DescendantPoco1(string additionalInfo)
@@ -1189,7 +1189,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0627_PocoClassPropertyRenitializati
     public DescendantPoco1(string key, string value)
       : base(key, value)
     {
-      AdditionalInfo = string.Empty;
+      AdditionalInfo = default(string);
     }
 
     public DescendantPoco1(string key, string value, string additionalInfo)
