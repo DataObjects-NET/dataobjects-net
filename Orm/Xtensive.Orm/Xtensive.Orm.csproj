@@ -373,6 +373,7 @@
     <Compile Include="Orm\Upgrade\Internals\IUpgradeHintValidator.cs" />
     <Compile Include="Orm\Upgrade\Internals\NodeSchemaCache.cs" />
     <Compile Include="Orm\Upgrade\Internals\NodeSchemasMapper.cs" />
+    <Compile Include="Orm\Upgrade\Internals\UpgradeHintProcessor.cs" />
     <Compile Include="Orm\Upgrade\Internals\UpgradeHintValidator.cs" />
     <Compile Include="Properties\Visibility.cs" />
     <Compile Include="IoC\Attributes\ServiceAttribute.cs" />
