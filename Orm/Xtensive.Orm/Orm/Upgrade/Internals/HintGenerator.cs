@@ -13,6 +13,7 @@ using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Upgrade.Internals;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
 
@@ -88,7 +89,7 @@ namespace Xtensive.Orm.Upgrade
       CalculateAffectedTablesAndColumns(hints);
 
       // Hints validation
-      ValidateHints(hints);
+      new UpgradeHintValidator(currentModel, extractedModel, typeMapping, reverseTypeMapping).Validate(hints);
 
       var upgradedTypesMapping = reverseTypeMapping
         .ToDictionary(item => item.Key.UnderlyingType, item => item.Value.UnderlyingType);
