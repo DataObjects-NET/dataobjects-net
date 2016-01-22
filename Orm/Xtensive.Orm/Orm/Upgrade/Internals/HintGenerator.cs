@@ -22,54 +22,23 @@ namespace Xtensive.Orm.Upgrade
   internal sealed class HintGenerator
   {
     private readonly NameBuilder nameBuilder;
+    private readonly MappingResolver resolver;
 
     private readonly StorageModel extractedStorageModel;
     private readonly StoredDomainModel extractedModel;
     private readonly StoredDomainModel currentModel;
 
-    private readonly Dictionary<string, StoredTypeInfo> currentTypes;
-    private readonly Dictionary<string, StoredTypeInfo> extractedTypes;
-
     private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> typeMapping;
     private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> reverseTypeMapping;
     private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping;
-    private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> reverseFieldMapping;
     private readonly Dictionary<StoredTypeInfo, StoredFieldInfo[]> extractedModelFields;
 
+    private readonly NativeTypeClassifier<UpgradeHint> hints; 
+
     private readonly List<Hint> schemaHints = new List<Hint>();
-    private readonly IEnumerable<UpgradeHint> inputHints;
-    private readonly MappingResolver resolver;
-    private readonly DomainModel domainModel;
-    private readonly bool autoDetectTypesMovements;
 
     public HintGenerationResult Run()
     {
-      // Starting from generics
-      var hints = new NativeTypeClassifier<UpgradeHint>(true);
-      hints.AddRange(RewriteGenericTypeHints(inputHints));
-      
-      // Type-level processing
-      
-      // Processing type renames
-      var renameTypeHints = hints.GetItems<RenameTypeHint>().ToList();
-      var removeTypeHints = hints.GetItems<RemoveTypeHint>().ToList();
-      BuildTypeMapping(renameTypeHints, removeTypeHints);
-
-      // Field-level processing
-      
-      // Building field mapping
-      var renameFieldHints = hints.GetItems<RenameFieldHint>().ToList();
-      var changeFieldTypeHints = hints.GetItems<ChangeFieldTypeHint>().ToList();
-      BuildFieldMapping(renameFieldHints, changeFieldTypeHints);
-
-      // Updating mappings for connector types
-      BuildConnectorTypeMapping();
-      
-      // Processing field movements
-      var moveFieldHints = hints.GetItems<MoveFieldHint>().ToList();
-      hints.AddRange(RewriteMoveFieldHints(moveFieldHints));
-      hints.AddRange(GenerateTypeIdFieldRemoveHintsForConcreteTable());
-      
       // Generating schema hints
 
       GenerateRenameTableHints();
@@ -97,338 +66,7 @@ namespace Xtensive.Orm.Upgrade
       return new HintGenerationResult(hints.ToList(), schemaHints, upgradedTypesMapping);
     }
 
-    #region Map
-
-    private void MapType(StoredTypeInfo oldType, StoredTypeInfo newType)
-    {
-      StoredTypeInfo existingNewType;
-      if (typeMapping.TryGetValue(oldType, out existingNewType)) {
-        throw new InvalidOperationException(string.Format(
-          Strings.ExUnableToAssociateTypeXWithTypeYTypeXIsAlreadyMappedToTypeZ,
-          oldType, newType, existingNewType));
-      }
-      typeMapping[oldType] = newType;
-      reverseTypeMapping[newType] = oldType;
-    }
-
-    private void MapField(StoredFieldInfo oldField, StoredFieldInfo newField)
-    {
-      StoredFieldInfo existingNewField;
-      if (fieldMapping.TryGetValue(oldField, out existingNewField)) {
-        throw new InvalidOperationException(string.Format(
-          Strings.ExUnableToAssociateFieldXWithFieldYFieldXIsAlreadyMappedToFieldZ,
-          oldField, newField, existingNewField));
-      }
-      fieldMapping[oldField] = newField;
-      reverseFieldMapping[newField] = oldField;
-    }
-
-    private void MapNestedFields(StoredFieldInfo oldField, StoredFieldInfo newField)
-    {
-      var oldNestedFields = ((IEnumerable<StoredFieldInfo>) oldField.Fields).ToArray();
-      if (oldNestedFields.Length==0)
-        return;
-      var oldValueType = extractedModel.Types
-        .Single(type => type.UnderlyingType==oldField.ValueType);
-      foreach (var oldNestedField in oldNestedFields) {
-        var oldNestedFieldOriginalName = oldNestedField.OriginalName;
-        var oldNestedFieldOrigin = oldValueType.AllFields
-          .Single(field => field.Name==oldNestedFieldOriginalName);
-        if (!fieldMapping.ContainsKey(oldNestedFieldOrigin))
-          continue;
-        var newNestedFieldOrigin = fieldMapping[oldNestedFieldOrigin];
-        var newNestedField = newField.Fields
-          .Single(field => field.OriginalName==newNestedFieldOrigin.Name);
-        MapFieldRecursively(oldNestedField, newNestedField);
-      }
-    }
-
-    private void MapFieldRecursively(StoredFieldInfo oldField, StoredFieldInfo newField)
-    {
-      MapField(oldField, newField);
-      MapNestedFields(oldField, newField);
-    }
-
-    private void BuildTypeMapping(IEnumerable<RenameTypeHint> renames, IEnumerable<RemoveTypeHint> removes)
-    {
-      // Excluding EntitySetItem<TL,TR> descendants.
-      // They're not interesting at all for us, since
-      // these types aren't ever referenced.
-      var oldModelTypes = GetNonConnectorTypes(extractedModel);
-
-      var newConnectorTypes = currentModel.Associations
-        .Select(association => association.ConnectorType)
-        .Where(type => type!=null)
-        .ToHashSet();
-
-      var newModelTypes = currentModel.Types
-        .Where(type => !newConnectorTypes.Contains(type))
-        .ToDictionary(type => type.UnderlyingType);
-
-      var renameLookup = renames.ToDictionary(hint => hint.OldType);
-      var removeLookup = removes.ToDictionary(hint => hint.Type);
-
-      // Types that are neither mapped nor removed.
-      var suspiciousTypes = new List<StoredTypeInfo>();
-
-      // Mapping types
-      foreach (var oldType in oldModelTypes) {
-        var removeTypeHint = removeLookup.GetValueOrDefault(oldType.UnderlyingType);
-        if (removeTypeHint!=null)
-          continue;
-        var renameTypeHint = renameLookup.GetValueOrDefault(oldType.UnderlyingType);
-        var newTypeName = renameTypeHint!=null
-          ? renameTypeHint.NewType.GetFullName()
-          : oldType.UnderlyingType;
-        var newType = newModelTypes.GetValueOrDefault(newTypeName);
-        if (newType!=null)
-          MapType(oldType, newType);
-        else
-          if (autoDetectTypesMovements)
-            suspiciousTypes.Add(oldType);
-      }
-
-      if (suspiciousTypes.Count==0)
-        return;
-
-      // Now we'll lookup by using DO type name instead of CLR type name
-      // By default DO type name is a CLR type name without namespace
-      // however this could be adjusted by domain configuration.
-      // If CLR name is changed but DO name is preserved we should
-      // automatically process this type without extra hints.
-
-      newModelTypes = newModelTypes.Values.ToDictionary(t => t.Name);
-
-      foreach (var oldType in suspiciousTypes) {
-        var newType = newModelTypes.GetValueOrDefault(oldType.Name);
-        if (newType!=null && !reverseTypeMapping.ContainsKey(newType))
-          MapType(oldType, newType);
-      }
-    }
-
-    private void BuildFieldMapping(IEnumerable<RenameFieldHint> renames, IEnumerable<ChangeFieldTypeHint> typeChanges)
-    {
-      foreach (var pair in typeMapping)
-        BuildFieldMapping(renames, typeChanges, pair.Key, pair.Value);
-      foreach (var pair in fieldMapping.ToList()) // Will be modified, so .ToList is necessary
-        MapNestedFields(pair.Key, pair.Value);
-    }
-
-    private void BuildFieldMapping(IEnumerable<RenameFieldHint> renames, IEnumerable<ChangeFieldTypeHint> typeChanges, 
-      StoredTypeInfo oldType, StoredTypeInfo newType)
-    {
-      var newFields = newType.Fields.ToDictionary(field => field.Name);
-      foreach (var oldField in oldType.Fields) {
-        var renameHint = renames
-          .FirstOrDefault(hint => hint.OldFieldName==oldField.Name && hint.TargetType.GetFullName()==newType.UnderlyingType);
-        var newFieldName = renameHint!=null
-          ? renameHint.NewFieldName
-          : oldField.Name;
-        var newField = newFields.GetValueOrDefault(newFieldName);
-        if (newField==null)
-          continue;
-        if (oldField.IsStructure) {
-          // If it is structure, we map it immediately
-          MapField(oldField, newField);
-          continue;
-        }
-        var typeChangeHint = typeChanges
-          .FirstOrDefault(hint => hint.Type.GetFullName()==newType.UnderlyingType && hint.FieldName==newField.Name);
-        if (typeChangeHint==null) {
-          // Check & skip field if type is changed
-          var newValueTypeName = newField.IsEntitySet
-            ? newField.ItemType
-            : newField.ValueType;
-          var oldValueTypeName = oldField.IsEntitySet
-            ? oldField.ItemType
-            : oldField.ValueType;
-          var newValueType = currentTypes.GetValueOrDefault(newValueTypeName);
-          var oldValueType = extractedTypes.GetValueOrDefault(oldValueTypeName);
-          if (newValueType!=null && oldValueType!=null) {
-            // We deal with reference field
-            var mappedOldValueType = typeMapping.GetValueOrDefault(oldValueType);
-            if (mappedOldValueType==null)
-              // Mapped to nothing = removed
-              continue;
-            if (mappedOldValueType!=newValueType && !newValueType.AllDescendants.Contains(mappedOldValueType))
-              // This isn't a Dog -> Animal type mapping
-              continue;
-          }
-          else
-            // We deal with regular field
-            if (oldValueTypeName!=newValueTypeName)
-              continue;
-        }
-        MapField(oldField, newField);
-      }
-    }
-
-    private void BuildConnectorTypeMapping()
-    {
-      var oldAssociations = extractedModel.Associations
-        .Where(association => association.ConnectorType!=null);
-      foreach (var oldAssociation in oldAssociations) {
-        if (typeMapping.ContainsKey(oldAssociation.ConnectorType))
-          continue;
-        
-        var oldReferencingField = oldAssociation.ReferencingField;
-        var oldReferencingType = oldReferencingField.DeclaringType;
-
-        var newReferencingType = typeMapping.GetValueOrDefault(oldReferencingType);
-        if (newReferencingType==null)
-          continue;
-
-        var newReferencingField = fieldMapping.GetValueOrDefault(oldReferencingField);
-        if (newReferencingField==null)
-          newReferencingField = newReferencingType.Fields
-            .SingleOrDefault(field => field.Name==oldReferencingField.Name);
-        if (newReferencingField==null)
-          continue;
-
-        var newAssociation = currentModel.Associations
-          .SingleOrDefault(association => association.ReferencingField==newReferencingField);
-        if (newAssociation==null || newAssociation.ConnectorType==null)
-          continue;
-          
-        MapType(oldAssociation.ConnectorType, newAssociation.ConnectorType);
-
-        var oldMaster = oldAssociation.ConnectorType.AllFields
-          .Single(field => field.Name==WellKnown.MasterFieldName);
-        var newMaster = newAssociation.ConnectorType.AllFields
-          .Single(field => field.Name==WellKnown.MasterFieldName);
-        var oldSlave = oldAssociation.ConnectorType.AllFields
-          .Single(field => field.Name==WellKnown.SlaveFieldName);
-        var newSlave = newAssociation.ConnectorType.AllFields
-          .Single(field => field.Name==WellKnown.SlaveFieldName);
-
-        MapFieldRecursively(oldMaster, newMaster);
-        MapFieldRecursively(oldSlave, newSlave);
-      }
-    }
-
-    #endregion
-
-    #region Hint rewriting
-
-    private IEnumerable<UpgradeHint> RewriteGenericTypeHints(IEnumerable<UpgradeHint> hints)
-    {
-      var renameTypeHints = hints.OfType<RenameTypeHint>().ToList();
-      var renameGenericTypeHints = renameTypeHints.Where(hint => hint.NewType.IsGenericTypeDefinition).ToList();
-      var renameFieldHints = hints.OfType<RenameFieldHint>().Where(hint => hint.TargetType.IsGenericTypeDefinition).ToList();
-
-      // Build generic types mapping
-      var genericTypeMapping = new List<Triplet<string, Type, List<Pair<string, Type>>>>();
-      var oldGenericTypes = GetGenericTypes(extractedModel);
-      var newGenericTypes = GetGenericTypes(domainModel);
-      var renamedTypesLookup = renameTypeHints.ToDictionary(h => h.OldType);
-      var newTypesLookup     = newGenericTypes.GetClasses().ToDictionary(t => t.GetFullName());
-      foreach (var oldGenericDefName in oldGenericTypes.GetClasses()) {
-        var newGenericDefType = GetNewType(oldGenericDefName, newTypesLookup, renamedTypesLookup);
-        if (newGenericDefType==null)
-          continue;
-        foreach (var pair in oldGenericTypes.GetItems(oldGenericDefName)) {
-          var genericArgumentsMapping = new List<Pair<string, Type>>();
-          foreach (string oldGenericArgumentType in pair.Second) {
-            var newGenericArgumentType = GetNewType(oldGenericArgumentType, newTypesLookup, renamedTypesLookup);
-            if (newGenericArgumentType==null)
-              break;
-            genericArgumentsMapping.Add(new Pair<string, Type>(oldGenericArgumentType, newGenericArgumentType));
-          }
-          if (genericArgumentsMapping.Count == pair.Second.Length)
-            genericTypeMapping.Add(new Triplet<string, Type, List<Pair<string, Type>>>(
-              oldGenericDefName, newGenericDefType, genericArgumentsMapping));
-        }
-      }
-
-      // Build rename generic type hints
-      var rewrittenHints = new List<UpgradeHint>();
-      foreach (var triplet in genericTypeMapping) {
-        var oldGenericArguments = triplet.Third.Select(pair => pair.First).ToArray();
-        var newGenericArguments = triplet.Third.Select(pair => pair.Second).ToArray();
-        var oldTypeFullName = GetGenericTypeFullName(triplet.First, oldGenericArguments);
-        var newType = triplet.Second.MakeGenericType(newGenericArguments);
-        if (oldTypeFullName != newType.GetFullName())
-          rewrittenHints.Add(new RenameTypeHint(oldTypeFullName, newType));
-      }
-
-      var genericTypeDefLookup = (
-        from triplet in genericTypeMapping
-        group triplet by triplet.Second.GetGenericTypeDefinition()
-        into g
-        select new {Definition = g.Key, Instances = g.ToArray()}
-        ).ToDictionary(g => g.Definition);
-      
-      // Build rename generic type field hints
-      foreach (var hint in renameFieldHints) {
-        var newGenericDefType = hint.TargetType;
-        var instanceGroup = genericTypeDefLookup.GetValueOrDefault(newGenericDefType);
-        if (instanceGroup==null)
-          continue;
-        foreach (var triplet in instanceGroup.Instances) {
-          var newGenericArguments = triplet.Third.Select(pair => pair.Second).ToArray();
-          rewrittenHints.Add(new RenameFieldHint(newGenericDefType.MakeGenericType(newGenericArguments), 
-            hint.OldFieldName, hint.NewFieldName));
-        }
-      }
-
-      // Return new hint set
-      return hints
-        .Except(renameGenericTypeHints.Cast<UpgradeHint>())
-        .Except(renameFieldHints.Cast<UpgradeHint>())
-        .Concat(rewrittenHints);
-    }
-
-    private IEnumerable<UpgradeHint> RewriteMoveFieldHints(IEnumerable<MoveFieldHint> moveFieldHints)
-    {
-      foreach (var hint in moveFieldHints) {
-        yield return new CopyFieldHint(hint.SourceType, hint.SourceField, hint.TargetType, hint.TargetField);
-        yield return new RemoveFieldHint(hint.SourceType, hint.SourceField);
-      }
-    }
-
-    #endregion
-
     #region Hint generation
-
-    private IEnumerable<UpgradeHint> GenerateTypeIdFieldRemoveHintsForConcreteTable()
-    {
-      // Removes TypeId field ( = column) from hierarchies with ConcreteTable inheritance mapping
-      var result = new List<UpgradeHint>();
-      var types =
-        from pair in typeMapping
-        let sourceHierarchy = pair.Key.Hierarchy
-        let targetHierarchy = pair.Value.Hierarchy
-        where
-          targetHierarchy!=null && sourceHierarchy!=null
-          && targetHierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable
-        select pair.Key;
-      foreach (var type in types) {
-        var typeIdField = type.AllFields.SingleOrDefault(f => f.IsTypeId);
-        if (typeIdField==null) // Table of old type may not contain TypeId
-          continue;
-        var targetType = typeMapping[type];
-        var targetTypeIdField = targetType.AllFields.SingleOrDefault(f => f.IsTypeId);
-        if (targetTypeIdField==null)
-          continue;
-        if (targetTypeIdField.IsPrimaryKey)
-          continue;
-        if (!extractedStorageModel.Tables.Contains(GetTableName(type)))
-          continue;
-        if (!extractedStorageModel.Tables[GetTableName(type)].Columns.Contains(typeIdField.MappingName))
-          continue;
-        var hint = new RemoveFieldHint(targetType.UnderlyingType, targetTypeIdField.Name);
-
-        // Generating affected columns list explicitly for a situation when "type" is renamed to "targetType"
-        if (type!=targetType) {
-          hint.IsExplicit = true;
-          hint.AffectedColumns = new ReadOnlyList<string>(new List<string> {
-            GetColumnPath(targetType, targetTypeIdField.MappingName)
-          });
-        }
-        result.Add(hint);
-      }
-      return result;
-    }
 
     private void GenerateRenameTableHints()
     {
@@ -842,7 +480,6 @@ namespace Xtensive.Orm.Upgrade
         schemaHints.Add(new RenameHint(
           GetColumnPath(oldType, oldColumnName),
           GetColumnPath(newType, newColumnName)));
-        
     }
 
     private bool EnsureTableExist(StoredTypeInfo type)
@@ -948,40 +585,6 @@ namespace Xtensive.Orm.Upgrade
       return result;
     }
 
-    private static Type GetNewType(string oldTypeName, Dictionary<string,Type> newTypes, Dictionary<string,RenameTypeHint> hints)
-    {
-      RenameTypeHint hint;
-      Type newType;
-      return hints.TryGetValue(oldTypeName, out hint)
-        ? hint.NewType
-        : (newTypes.TryGetValue(oldTypeName, out newType) ? newType : null);
-    }
-
-    private static ClassifiedCollection<string,  Pair<string, string[]>> GetGenericTypes(StoredDomainModel model)
-    {
-      var genericTypes = new ClassifiedCollection<string,  Pair<string, string[]>>(pair => new [] {pair.First});
-      foreach (var typeInfo in model.Types.Where(type => type.IsGeneric)) {
-        var typeDefinitionName = typeInfo.GenericTypeDefinition;
-        genericTypes.Add(new Pair<string, string[]>(typeDefinitionName, typeInfo.GenericArguments));
-      }
-      return genericTypes;
-    }
-
-    private static ClassifiedCollection<Type,  Pair<Type, Type[]>> GetGenericTypes(DomainModel model)
-    {
-      var genericTypes = new ClassifiedCollection<Type,  Pair<Type, Type[]>>(pair => new [] {pair.First});
-      foreach (var typeInfo in model.Types.Where(type => type.UnderlyingType.IsGenericType)) {
-        var typeDefinition = typeInfo.UnderlyingType.GetGenericTypeDefinition();
-        genericTypes.Add(new Pair<Type, Type[]>(typeDefinition, typeInfo.UnderlyingType.GetGenericArguments()));
-      }
-      return genericTypes;
-    }
-
-    private static string GetGenericTypeFullName(string genericDefinitionTypeName, string[] genericArgumentNames)
-    {
-      return string.Format("{0}<{1}>", genericDefinitionTypeName.Replace("<>", string.Empty), 
-        genericArgumentNames.ToCommaDelimitedString());
-    }
 
     private string GetTableName(StoredTypeInfo type)
     {
@@ -1117,42 +720,45 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public HintGenerator(
+    public HintGenerator(Dictionary<StoredTypeInfo, StoredTypeInfo> typeMapping,
+      Dictionary<StoredTypeInfo, StoredTypeInfo> reverseTypeMapping,
+      Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping,
+      NativeTypeClassifier<UpgradeHint> hints,
       HandlerAccessor handlers,
       MappingResolver resolver,
-      StoredDomainModel extractedDomainModel, StorageModel extractedStorageModel,
-      IEnumerable<UpgradeHint> inputHints,
-      bool autoDetectTypesMovements)
+      StorageModel extractedStorageModel,
+      StoredDomainModel currentDomainModel,
+      StoredDomainModel extractedDomainModel)
     {
+      ArgumentValidator.EnsureArgumentNotNull(typeMapping, "typeMapping");
+      ArgumentValidator.EnsureArgumentNotNull(reverseTypeMapping, "reverseTypeMapping");
+      ArgumentValidator.EnsureArgumentNotNull(fieldMapping, "fieldMapping");
+      ArgumentValidator.EnsureArgumentNotNull(hints, "hints");
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
-      ArgumentValidator.EnsureArgumentNotNull(extractedDomainModel, "extractedDomainModel");
       ArgumentValidator.EnsureArgumentNotNull(extractedStorageModel, "extractedStorageModel");
-      ArgumentValidator.EnsureArgumentNotNull(inputHints, "inputHints");
+      ArgumentValidator.EnsureArgumentNotNull(currentDomainModel, "currentDomainModel");
+      ArgumentValidator.EnsureArgumentNotNull(extractedDomainModel, "extractedDomainModel");
 
-      typeMapping = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
-      fieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
-      reverseTypeMapping = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
-      reverseFieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
+      this.typeMapping = typeMapping;
+      this.reverseTypeMapping = reverseTypeMapping;
+      this.fieldMapping = fieldMapping;
+      this.hints = hints;
+
       extractedModelFields = new Dictionary<StoredTypeInfo, StoredFieldInfo[]>();
 
       this.extractedStorageModel = extractedStorageModel;
-      this.inputHints = inputHints;
       this.resolver = resolver;
 
       nameBuilder = handlers.NameBuilder;
-      domainModel = handlers.Domain.Model;
 
-      currentModel = domainModel.ToStoredModel();
+      currentModel = currentDomainModel;
       currentModel.UpdateReferences();
-      currentTypes = currentModel.Types.ToDictionary(t => t.UnderlyingType);
 
       extractedModel = extractedDomainModel;
-      extractedTypes = extractedModel.Types.ToDictionary(t => t.UnderlyingType);
 
       foreach (var type in extractedModel.Types)
         extractedModelFields.Add(type, type.Fields.Flatten(f => f.Fields, null, true).ToArray());
-      this.autoDetectTypesMovements = autoDetectTypesMovements;
     }
   }
 }

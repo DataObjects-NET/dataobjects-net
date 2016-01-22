@@ -24,6 +24,21 @@ namespace Xtensive.Orm.Upgrade.Internals
     }
   }
 
+  internal static class MappingResolverExtensions
+  {
+    public static string GetTableName(this MappingResolver resolver, StoredTypeInfo type)
+    {
+      return resolver.GetNodeName(
+        type.MappingDatabase, type.MappingSchema, type.MappingName);
+    }
+
+    private static string GetTablePath(this MappingResolver resolver,StoredTypeInfo type)
+    {
+      var nodeName = resolver.GetTableName(type);
+      return string.Format("Tables/{0}", nodeName);
+    }
+  }
+
   internal static class StoredDomainModelExtensions
   {
     public static ClassifiedCollection<string, Pair<string, string[]>> GetGenericTypes(this StoredDomainModel model)
@@ -48,18 +63,34 @@ namespace Xtensive.Orm.Upgrade.Internals
     }
   }
 
-  internal sealed class UpgradeHintsProcessorResult
+  internal sealed class UpgradeHintsProcessingResult
   {
+    public NativeTypeClassifier<UpgradeHint> Hints { get; private set; }
 
+    public Dictionary<StoredTypeInfo, StoredTypeInfo> TypeMapping { get; private set; }
+
+    public Dictionary<StoredTypeInfo, StoredTypeInfo> ReverseTypeMapping { get; private set; }
+
+    public Dictionary<StoredFieldInfo, StoredFieldInfo> FieldMapping { get; private set; }
+
+    public UpgradeHintsProcessingResult(NativeTypeClassifier<UpgradeHint> hints,
+      Dictionary<StoredTypeInfo, StoredTypeInfo> typeMapping,
+      Dictionary<StoredTypeInfo, StoredTypeInfo> reverseTypeMapping,
+      Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping)
+    {
+      Hints = hints;
+      TypeMapping = typeMapping;
+      ReverseTypeMapping = reverseTypeMapping;
+      FieldMapping = fieldMapping;
+    }
   }
-
 
   internal sealed class UpgradeHintsProcessor
   {
     private readonly NameBuilder nameBuilder;
     private readonly MappingResolver resolver;
 
-    private readonly bool autoDetectTypesMovements = true;
+    private readonly bool autoDetectTypesMovements;
     private readonly DomainModel domainModel;
     private readonly StoredDomainModel currentModel;
     private readonly StoredDomainModel extractedModel;
@@ -74,15 +105,16 @@ namespace Xtensive.Orm.Upgrade.Internals
     private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping;
     private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> reverseFieldMapping;
 
-    public UpgradeHintsProcessorResult Process(IEnumerable<UpgradeHint> inputHints)
+    public UpgradeHintsProcessingResult Process(IEnumerable<UpgradeHint> inputHints)
     {
-      ProcessGenericTypeHints(inputHints);//transfered
-      ProcessTypeChanges();//transfered
-      ProcessFieldChanges();// seems to transfered
-      ProcessConnectorTypes();// seems to transfered
+      ArgumentValidator.EnsureArgumentNotNull(inputHints, "inputHints");
+      ProcessGenericTypeHints(inputHints);
+      ProcessTypeChanges();
+      ProcessFieldChanges();
+      ProcessConnectorTypes();
       ProcessFieldMovements();
 
-      return new UpgradeHintsProcessorResult();
+      return new UpgradeHintsProcessingResult(hints, typeMapping, reverseTypeMapping, fieldMapping);
     }
 
     #region General steps
@@ -551,16 +583,19 @@ namespace Xtensive.Orm.Upgrade.Internals
     }
     #endregion
 
+    // Constructors
 
     public UpgradeHintsProcessor(
       HandlerAccessor handlers,
       MappingResolver resolver,
+      StoredDomainModel currentDomainModel,
       StoredDomainModel extractedDomainModel,
       StorageModel extractedStorageModel,
       bool autoDetectTypesMovements)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
+      ArgumentValidator.EnsureArgumentNotNull(currentDomainModel, "currentDomainModel");
       ArgumentValidator.EnsureArgumentNotNull(extractedDomainModel, "extractedDomainModel");
       ArgumentValidator.EnsureArgumentNotNull(extractedStorageModel, "extractedStorageModel");
 
@@ -575,14 +610,14 @@ namespace Xtensive.Orm.Upgrade.Internals
 
       this.extractedStorageModel = extractedStorageModel;
 
-      currentModel = domainModel.ToStoredModel();
-      currentModel.UpdateReferences();
+      currentModel = currentDomainModel;
       currentTypes = currentModel.Types.ToDictionary(t => t.UnderlyingType);
 
       extractedModel = extractedDomainModel;
       extractedTypes = extractedModel.Types.ToDictionary(t => t.UnderlyingType);
 
       this.autoDetectTypesMovements = autoDetectTypesMovements;
+      hints = new NativeTypeClassifier<UpgradeHint>(true);
     }
   }
 }

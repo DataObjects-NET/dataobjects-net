@@ -17,7 +17,9 @@ using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Logging;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Upgrade.Internals;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
 using Xtensive.Sql;
@@ -347,7 +349,14 @@ namespace Xtensive.Orm.Upgrade
       if (oldModel==null)
         return;
       var handlers = Domain.Demand().Handlers;
-      var hintGenerator = new HintGenerator(handlers, context.Services.MappingResolver, oldModel, extractedSchema, context.Hints, context.TypesMovementsAutoDetection);
+      // It's important to use same StoredDomainModel of current domain
+      // in both UpgradeHintsProcessor and HintGenerator instances.
+      var currentDomainModel = GetStoredDomainModel(handlers.Domain.Model);
+      var upgradeHintProcessor = (context.TypesMovementsAutoDetection)
+        ? new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, true)
+        : new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, false);
+      var info = upgradeHintProcessor.Process(context.Hints);
+      var hintGenerator = new HintGenerator(info.TypeMapping, info.ReverseTypeMapping, info.FieldMapping, info.Hints, handlers, context.Services.MappingResolver, extractedSchema, currentDomainModel, oldModel);
       var hints = hintGenerator.Run();
       context.UpgradedTypesMapping = hints.UpgradedTypesMapping;
       context.Hints.Clear();
@@ -541,6 +550,13 @@ namespace Xtensive.Orm.Upgrade
       default:
         throw new ArgumentOutOfRangeException("stage");
       }
+    }
+
+    private StoredDomainModel GetStoredDomainModel(DomainModel domainModel)
+    {
+      var storedDomainModel = domainModel.ToStoredModel();
+      storedDomainModel.UpdateReferences();
+      return storedDomainModel;
     }
 
     // Constructors
