@@ -13,7 +13,9 @@ namespace Xtensive.Orm.Upgrade.Internals
       var typeMapping = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
       var reverseTypeMapping = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
       var fieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
-      return new UpgradeHintsProcessingResult(hints, typeMapping, reverseTypeMapping, fieldMapping);
+      var reverseFieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
+      var currentModelTypes = new Dictionary<string, StoredTypeInfo>();
+      return new UpgradeHintsProcessingResult(hints, typeMapping, reverseTypeMapping, fieldMapping, reverseFieldMapping, currentModelTypes);
     }
   }
 }

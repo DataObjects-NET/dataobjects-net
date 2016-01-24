@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       ProcessConnectorTypes();
       ProcessFieldMovements();
 
-      return new UpgradeHintsProcessingResult(hints, typeMapping, reverseTypeMapping, fieldMapping);
+      return new UpgradeHintsProcessingResult(hints, typeMapping, reverseTypeMapping, fieldMapping, reverseFieldMapping, currentTypes);
     }
 
     #region General steps
