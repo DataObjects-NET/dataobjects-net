@@ -5,87 +5,14 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Model.Stored;
+using Xtensive.Orm.Upgrade.Internals.Interfaces;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Upgrade.Internals
 {
-  internal static class DomainModelExtensions
-  {
-    public static ClassifiedCollection<Type, Pair<Type, Type[]>> GetGenericTypes(this DomainModel model)
-    {
-      var genericTypes = new ClassifiedCollection<Type, Pair<Type, Type[]>>(pair => new[] { pair.First });
-      foreach (var typeInfo in model.Types.Where(type => type.UnderlyingType.IsGenericType)) {
-        var typeDefinition = typeInfo.UnderlyingType.GetGenericTypeDefinition();
-        genericTypes.Add(new Pair<Type, Type[]>(typeDefinition, typeInfo.UnderlyingType.GetGenericArguments()));
-      }
-      return genericTypes;
-    }
-  }
-
-  internal static class MappingResolverExtensions
-  {
-    public static string GetTableName(this MappingResolver resolver, StoredTypeInfo type)
-    {
-      return resolver.GetNodeName(
-        type.MappingDatabase, type.MappingSchema, type.MappingName);
-    }
-
-    private static string GetTablePath(this MappingResolver resolver,StoredTypeInfo type)
-    {
-      var nodeName = resolver.GetTableName(type);
-      return string.Format("Tables/{0}", nodeName);
-    }
-  }
-
-  internal static class StoredDomainModelExtensions
-  {
-    public static ClassifiedCollection<string, Pair<string, string[]>> GetGenericTypes(this StoredDomainModel model)
-    {
-      var genericTypes = new ClassifiedCollection<string, Pair<string, string[]>>(pair => new[] { pair.First });
-      foreach (var typeInfo in model.Types.Where(type => type.IsGeneric)) {
-        var typeDefinitionName = typeInfo.GenericTypeDefinition;
-        genericTypes.Add(new Pair<string, string[]>(typeDefinitionName, typeInfo.GenericArguments));
-      }
-      return genericTypes;
-    }
-
-    public static IEnumerable<StoredTypeInfo> GetNonConnectorTypes(this StoredDomainModel model)
-    {
-      var connectorTypes = (
-        from association in model.Associations
-        let type = association.ConnectorType
-        where type!=null
-        select type
-        ).ToHashSet();
-      return model.Types.Where(type => !connectorTypes.Contains(type));
-    }
-  }
-
-  internal sealed class UpgradeHintsProcessingResult
-  {
-    public NativeTypeClassifier<UpgradeHint> Hints { get; private set; }
-
-    public Dictionary<StoredTypeInfo, StoredTypeInfo> TypeMapping { get; private set; }
-
-    public Dictionary<StoredTypeInfo, StoredTypeInfo> ReverseTypeMapping { get; private set; }
-
-    public Dictionary<StoredFieldInfo, StoredFieldInfo> FieldMapping { get; private set; }
-
-    public UpgradeHintsProcessingResult(NativeTypeClassifier<UpgradeHint> hints,
-      Dictionary<StoredTypeInfo, StoredTypeInfo> typeMapping,
-      Dictionary<StoredTypeInfo, StoredTypeInfo> reverseTypeMapping,
-      Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping)
-    {
-      Hints = hints;
-      TypeMapping = typeMapping;
-      ReverseTypeMapping = reverseTypeMapping;
-      FieldMapping = fieldMapping;
-    }
-  }
-
-  internal sealed class UpgradeHintsProcessor
+  internal sealed class UpgradeHintsProcessor : IUpgradeHintsProcessor
   {
     private readonly NameBuilder nameBuilder;
     private readonly MappingResolver resolver;
@@ -208,7 +135,7 @@ namespace Xtensive.Orm.Upgrade.Internals
     /// <summary>
     /// Builds <see cref="RenameTypeHint"/> for generic types.
     /// </summary>
-    public void BuildRenameHintsForGenericTypes(IList<Triplet<string, Type, List<Pair<string, Type>>>> genericTypeMapping, ChainedBuffer<UpgradeHint> rewrittenHints)
+    private void BuildRenameHintsForGenericTypes(IList<Triplet<string, Type, List<Pair<string, Type>>>> genericTypeMapping, ChainedBuffer<UpgradeHint> rewrittenHints)
     {
       foreach (var triplet in genericTypeMapping) {
         var oldGenericArguments = triplet.Third.Select(pair => pair.First).ToArray();
@@ -224,7 +151,7 @@ namespace Xtensive.Orm.Upgrade.Internals
     /// Builds <see cref="RenameFieldHint"/> for each of renamed field
     /// of generic type.
     /// </summary>
-    public void BuildRenameFieldHintsForGenericTypes(IEnumerable<Triplet<string, Type, List<Pair<string, Type>>>> genericTypeMapping, IEnumerable<RenameFieldHint> renameFieldHints, ChainedBuffer<UpgradeHint> rewrittenHints)
+    private void BuildRenameFieldHintsForGenericTypes(IEnumerable<Triplet<string, Type, List<Pair<string, Type>>>> genericTypeMapping, IEnumerable<RenameFieldHint> renameFieldHints, ChainedBuffer<UpgradeHint> rewrittenHints)
     {
       var genericTypeDefLookup = (
         from triplet in genericTypeMapping
