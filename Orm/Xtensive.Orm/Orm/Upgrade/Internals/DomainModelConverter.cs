@@ -13,6 +13,7 @@ using Xtensive.Modelling;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
@@ -47,6 +48,8 @@ namespace Xtensive.Orm.Upgrade
 
     public bool BuildForeignKeys { get; set; }
     public bool BuildHierarchyForeignKeys { get; set; }
+    public Dictionary<StoredTypeInfo, StoredTypeInfo> TypeMapping { get; set; }
+    public Dictionary<StoredFieldInfo, StoredFieldInfo> FieldMapping { get; set; }
 
     /// <summary>
     /// Converts the specified <see cref="DomainModel"/> to
@@ -551,6 +554,8 @@ namespace Xtensive.Orm.Upgrade
       providerInfo = handlers.ProviderInfo;
       driver = handlers.StorageDriver;
       nameBuilder = handlers.NameBuilder;
+      FieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
+      TypeMapping = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
     }
   }
 }
