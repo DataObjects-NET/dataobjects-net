@@ -394,8 +394,8 @@ namespace Xtensive.Orm.Upgrade
           return; // Skipping comparison completely
         }
         
-        targetSchema = GetTargetModel(domain);
-        context.TargetStorageModel = targetSchema;
+        //targetSchema = GetTargetModel(domain);
+        //context.TargetStorageModel = targetSchema;
 
         var extractedSchema = extractor.GetSchema();
 
@@ -403,6 +403,7 @@ namespace Xtensive.Orm.Upgrade
         //var hints = GetSchemaHints(extractedSchema, targetSchema);
         var pair = BuildTargetModelAndHints(extractedSchema);
         targetSchema = pair.First;
+        context.TargetStorageModel = targetSchema;
         var hints = pair.Second;
         if (UpgradeLog.IsLogged(LogLevel.Info)) {
           UpgradeLog.Info(Strings.LogExtractedSchema);
