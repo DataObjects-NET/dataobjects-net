@@ -5,6 +5,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Model.Stored;
+using Xtensive.Orm.Upgrade.Internals.Extensions;
 using Xtensive.Orm.Upgrade.Internals.Interfaces;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Orm.Providers;

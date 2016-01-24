@@ -4,6 +4,7 @@ using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model.Stored;
+using Xtensive.Orm.Upgrade.Internals.Interfaces;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Upgrade.Internals

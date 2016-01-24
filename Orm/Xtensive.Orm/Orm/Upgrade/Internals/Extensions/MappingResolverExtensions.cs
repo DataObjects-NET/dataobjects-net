@@ -1,7 +1,7 @@
 ﻿using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Providers;
 
-namespace Xtensive.Orm.Upgrade.Internals
+namespace Xtensive.Orm.Upgrade.Internals.Extensions
 {
   internal static class MappingResolverExtensions
   {

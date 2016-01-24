@@ -372,7 +372,7 @@
     <Compile Include="Orm\StateLifetimeToken.cs" />
     <Compile Include="Orm\Upgrade\Internals\Extensions\DomainModelExtensions.cs" />
     <Compile Include="Orm\Upgrade\Internals\Interfaces\IUpgradeHintsProcessor.cs" />
-    <Compile Include="Orm\Upgrade\Internals\IUpgradeHintValidator.cs" />
+    <Compile Include="Orm\Upgrade\Internals\Interfaces\IUpgradeHintValidator.cs" />
     <Compile Include="Orm\Upgrade\Internals\Extensions\MappingResolverExtensions.cs" />
     <Compile Include="Orm\Upgrade\Internals\NodeSchemaCache.cs" />
     <Compile Include="Orm\Upgrade\Internals\NodeSchemasMapper.cs" />

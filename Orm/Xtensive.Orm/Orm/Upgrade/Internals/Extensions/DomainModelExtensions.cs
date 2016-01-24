@@ -4,7 +4,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Orm.Upgrade.Internals
+namespace Xtensive.Orm.Upgrade.Internals.Extensions
 {
   internal static class DomainModelExtensions
   {
