@@ -469,7 +469,7 @@ namespace Xtensive.Orm.Upgrade
           ? (IUpgradeHintsProcessor)new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, true)
           : (IUpgradeHintsProcessor)new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, false);
       var processedInfo = hintProcessor.Process(context.Hints);
-      var targetModel = GetTargetModel(handlers.Domain, processedInfo.TypeMapping, processedInfo.FieldMapping);
+      var targetModel = GetTargetModel(handlers.Domain, processedInfo.ReverseFieldMapping, processedInfo.CurrentModelTypes, extractedSchema);
       context.SchemaHints = new HintSet(extractedSchema, targetModel);
       if (context.Stage==UpgradeStage.Upgrading)
         BuildSchemaHints(extractedSchema);
@@ -555,15 +555,18 @@ namespace Xtensive.Orm.Upgrade
 
     private StorageModel GetTargetModel(Domain domain)
     {
-      return GetTargetModel(domain, new Dictionary<StoredTypeInfo, StoredTypeInfo>(), new Dictionary<StoredFieldInfo, StoredFieldInfo>());
+      return GetTargetModel(domain, new Dictionary<StoredFieldInfo, StoredFieldInfo>(), new Dictionary<string, StoredTypeInfo>(), null);
     }
 
-    private StorageModel GetTargetModel(Domain domain, Dictionary<StoredTypeInfo, StoredTypeInfo> typeMapping, Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping)
+    private StorageModel GetTargetModel(Domain domain, Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping, Dictionary<string, StoredTypeInfo> currentTypes, StorageModel extractedModel)
     {
       var indexFilterCompiler = context.Services.IndexFilterCompiler;
-      var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, indexFilterCompiler, context.Services.MappingResolver) {
+      var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, indexFilterCompiler, context.Services.MappingResolver, context.Stage==UpgradeStage.Upgrading) {
         BuildForeignKeys = context.Configuration.Supports(ForeignKeyMode.Reference),
-        BuildHierarchyForeignKeys = context.Configuration.Supports(ForeignKeyMode.Hierarchy)
+        BuildHierarchyForeignKeys = context.Configuration.Supports(ForeignKeyMode.Hierarchy),
+        FieldMapping = fieldMapping,
+        CurrentModelTypes = currentTypes,
+        StorageModel = extractedModel
       };
       return converter.Run();
     }
