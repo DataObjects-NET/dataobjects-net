@@ -20,6 +20,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Internals;
+using Xtensive.Orm.Upgrade.Internals.Interfaces;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
 using Xtensive.Sql;
@@ -398,15 +399,17 @@ namespace Xtensive.Orm.Upgrade
 
         var extractedSchema = extractor.GetSchema();
 
+        // Hints
+        //var hints = GetSchemaHints(extractedSchema, targetSchema);
+        var pair = BuildTargetModelAndHints(extractedSchema);
+        targetSchema = pair.First;
+        var hints = pair.Second;
         if (UpgradeLog.IsLogged(LogLevel.Info)) {
           UpgradeLog.Info(Strings.LogExtractedSchema);
           extractedSchema.Dump();
           UpgradeLog.Info(Strings.LogTargetSchema);
           targetSchema.Dump();
         }
-
-        // Hints
-        var hints = GetSchemaHints(extractedSchema, targetSchema);
         OnSchemaReady();
 
         var breifExceptionFormat = domain.Configuration.SchemaSyncExceptionFormat==SchemaSyncExceptionFormat.Brief;
@@ -451,6 +454,26 @@ namespace Xtensive.Orm.Upgrade
             throw new ArgumentOutOfRangeException("schemaUpgradeMode");
         }
       }
+    }
+
+    private Pair<StorageModel, HintSet> BuildTargetModelAndHints(StorageModel extractedSchema)
+    {
+      var handlers = Domain.Demand().Handlers;
+      var currentDomainModel = GetStoredDomainModel(handlers.Domain.Model);
+      // oldModel can be null in case of empty database or schema
+      // need to handle somehow
+      var oldModel = context.ExtractedDomainModel;
+      IUpgradeHintsProcessor hintProcessor = (context.Stage==UpgradeStage.Final || oldModel==null)
+        ? (IUpgradeHintsProcessor)new NullUpgradeHintsProcessor()
+        : (context.TypesMovementsAutoDetection)
+          ? (IUpgradeHintsProcessor)new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, true)
+          : (IUpgradeHintsProcessor)new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, false);
+      var processedInfo = hintProcessor.Process(context.Hints);
+      var targetModel = GetTargetModel(handlers.Domain, processedInfo.TypeMapping, processedInfo.FieldMapping);
+      context.SchemaHints = new HintSet(extractedSchema, targetModel);
+      if (context.Stage==UpgradeStage.Upgrading)
+        BuildSchemaHints(extractedSchema);
+      return new Pair<StorageModel, HintSet>(targetModel, context.SchemaHints);
     }
 
     private void OnConfigureUpgradeDomain()
@@ -531,6 +554,11 @@ namespace Xtensive.Orm.Upgrade
     }
 
     private StorageModel GetTargetModel(Domain domain)
+    {
+      return GetTargetModel(domain, new Dictionary<StoredTypeInfo, StoredTypeInfo>(), new Dictionary<StoredFieldInfo, StoredFieldInfo>());
+    }
+
+    private StorageModel GetTargetModel(Domain domain, Dictionary<StoredTypeInfo, StoredTypeInfo> typeMapping, Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping)
     {
       var indexFilterCompiler = context.Services.IndexFilterCompiler;
       var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, indexFilterCompiler, context.Services.MappingResolver) {
