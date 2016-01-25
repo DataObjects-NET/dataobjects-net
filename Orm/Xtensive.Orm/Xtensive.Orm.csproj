@@ -378,7 +378,7 @@
     <Compile Include="Orm\Upgrade\Internals\NodeSchemasMapper.cs" />
     <Compile Include="Orm\Upgrade\Internals\Extensions\StoredDomainModelExtensions.cs" />
     <Compile Include="Orm\Upgrade\Internals\NullUpgradeHintsProcessor.cs" />
-    <Compile Include="Orm\Upgrade\Internals\UpgradeHintProcessor.cs" />
+    <Compile Include="Orm\Upgrade\Internals\UpgradeHintsProcessor.cs" />
     <Compile Include="Orm\Upgrade\Internals\UpgradeHintsProcessingResult.cs" />
     <Compile Include="Orm\Upgrade\Internals\UpgradeHintValidator.cs" />
     <Compile Include="Properties\Visibility.cs" />
