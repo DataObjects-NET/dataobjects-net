@@ -295,62 +295,62 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestMo
       [Field(Nullable = false, NullableOnUpgrade = true)]
       public TestEntity2 LongField01 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField02 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField02 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField03 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField03 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField04 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField04 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField05 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField05 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField06 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField06 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField07 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField07 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField08 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField08 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField09 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField09 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField10 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField10 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField11 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField11 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField12 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField12 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField13 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField13 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField14 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField14 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField15 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField15 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField16 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField16 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField17 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField17 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField18 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField18 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField19 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField19 { get; set; }
 
-      //[Field(Nullable = false, NullableOnUpgrade = true)]
-      //public TestEntity2 LongField20 { get; set; }
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField20 { get; set; }
     }
 
     [HierarchyRoot]
