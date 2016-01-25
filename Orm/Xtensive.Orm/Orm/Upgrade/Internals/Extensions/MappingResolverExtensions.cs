@@ -1,4 +1,10 @@
-﻿using Xtensive.Orm.Model.Stored;
+﻿// Copyright (C) 2015 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2015.01.22
+
+using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Upgrade.Internals.Extensions
