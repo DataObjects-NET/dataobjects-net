@@ -370,8 +370,17 @@
     <Compile Include="Orm\Internals\StorageNodeRegistry.cs" />
     <Compile Include="Orm\Providers\SimpleMappingResolver.cs" />
     <Compile Include="Orm\StateLifetimeToken.cs" />
+    <Compile Include="Orm\Upgrade\Internals\Extensions\DomainModelExtensions.cs" />
+    <Compile Include="Orm\Upgrade\Internals\Interfaces\IUpgradeHintsProcessor.cs" />
+    <Compile Include="Orm\Upgrade\Internals\Interfaces\IUpgradeHintValidator.cs" />
+    <Compile Include="Orm\Upgrade\Internals\Extensions\MappingResolverExtensions.cs" />
     <Compile Include="Orm\Upgrade\Internals\NodeSchemaCache.cs" />
     <Compile Include="Orm\Upgrade\Internals\NodeSchemasMapper.cs" />
+    <Compile Include="Orm\Upgrade\Internals\Extensions\StoredDomainModelExtensions.cs" />
+    <Compile Include="Orm\Upgrade\Internals\NullUpgradeHintsProcessor.cs" />
+    <Compile Include="Orm\Upgrade\Internals\UpgradeHintsProcessor.cs" />
+    <Compile Include="Orm\Upgrade\Internals\UpgradeHintsProcessingResult.cs" />
+    <Compile Include="Orm\Upgrade\Internals\UpgradeHintValidator.cs" />
     <Compile Include="Properties\Visibility.cs" />
     <Compile Include="IoC\Attributes\ServiceAttribute.cs" />
     <Compile Include="IoC\Attributes\ServiceConstructorAttribute.cs" />

@@ -13,6 +13,37 @@ namespace Xtensive.Orm.Tests.Issues
   public class IssueJira0607_ColumnUselessRecreationsTest
   {
     [Test]
+    public void MainTest()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+      var initialConfig = DomainConfigurationFactory.Create();
+      initialConfig.Types.Register(typeof(model.MainTestModel.TestEntity));
+      initialConfig.Types.Register(typeof(model.MainTestModel.TestEntity2));
+      initialConfig.UpgradeMode = DomainUpgradeMode.Recreate;
+      using (var domain = Domain.Build(initialConfig)) { }
+
+      // useful work
+      var configration = DomainConfigurationFactory.Create();
+      configration.Types.Register(typeof(model.MainTestModel.TestEntity));
+      configration.Types.Register(typeof(model.MainTestModel.TestEntity2));
+      configration.UpgradeMode = DomainUpgradeMode.PerformSafely;
+
+      Exception exception = null;
+      int step = 0;
+      for (var i = 0; i < 30; i++, step++) {
+        try {
+          using (var domain = Domain.Build(configration)) { }
+        }
+        catch (Exception e) {
+          exception = e;
+          break;
+        }
+      }
+      Assert.That(exception, Is.Null);
+      Assert.That(step, Is.EqualTo(30));
+    }
+
+    [Test]
     public void Test1()
     {
       using (var initialDomain = Domain.Build(BuildConfiguration(true, typeof (model.V1.Initial.TestEntity))))
@@ -28,9 +59,10 @@ namespace Xtensive.Orm.Tests.Issues
         }
         transaction.Complete();
       }
-      Domain domain = null;
-      Assert.DoesNotThrow(
+
+      Assert.Throws<CheckConstraintViolationException>(
         () => {
+          Domain domain = null;
           try {
             domain = Domain.Build(BuildConfiguration(false, typeof (model.V1.Final.TestEntity)));
           }
@@ -39,12 +71,11 @@ namespace Xtensive.Orm.Tests.Issues
               domain.Dispose();
           }
         });
-      Assert.That(domain, Is.Not.Null);
+      using (var domain = Domain.Build(BuildConfiguration(false, typeof(model.V1.Initial.TestEntity))))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var entities = session.Query.All<model.V1.Final.TestEntity>().ToList();
-        Assert.That(entities.Count, Is.EqualTo(11));
-        Assert.That(entities.Count(el=>string.IsNullOrEmpty(el.Name)), Is.EqualTo(1));
+        var entities = session.Query.All<model.V1.Initial.TestEntity>().ToList();
+        Assert.That(entities.Count, Is.EqualTo(10));
       }
     }
 
@@ -64,7 +95,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
         transaction.Complete();
       }
-      Assert.Throws<ReferentialConstraintViolationException>(() => {
+      Assert.Throws<CheckConstraintViolationException>(() => {
         Domain domain=null;
         try {
           domain = Domain.Build(BuildConfiguration(false, typeof (model.V2.Final.TestEntity)));
@@ -253,6 +284,83 @@ namespace Xtensive.Orm.Tests.Issues
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel
 {
+  namespace MainTestModel
+  {
+    [HierarchyRoot]
+    public class TestEntity : Entity
+    {
+      [Field, Key]
+      public long Id { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField01 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField02 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField03 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField04 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField05 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField06 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField07 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField08 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField09 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField10 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField11 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField12 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField13 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField14 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField15 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField16 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField17 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField18 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField19 { get; set; }
+
+      [Field(Nullable = false, NullableOnUpgrade = true)]
+      public TestEntity2 LongField20 { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class TestEntity2 : Entity
+    {
+      [Field, Key]
+      public long Id { get; set; }
+    }
+  }
+
   namespace V1
   {
     namespace Initial
@@ -339,7 +447,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestMo
 
         public override void OnUpgrade()
         {
-          var model = this.UpgradeContext.TargetStorageModel;
           new TestEntity() {Name = null};
         }
       }
