@@ -488,23 +488,24 @@ namespace Xtensive.Orm.Linq
 
       var duplicateMembers = new SetSlim<MemberInfo>();
       var bindings = new Dictionary<MemberInfo, Expression>();
-      for (int i = 0; i < constructorParameters.Length; i++) {
-        int parameterIndex = i;
-        var constructorParameter = constructorParameters[parameterIndex];
-        var members = newExpression
-          .Type
-          .GetMembers()
-          .Where(mi => FilterBindings(mi, constructorParameter.Name, constructorParameter.ParameterType))
-          .ToList();
-        if (members.Count()==1 && !duplicateMembers.Contains(members[0])) {
-          if (bindings.ContainsKey(members[0])) {
-            bindings.Remove(members[0]);
-            duplicateMembers.Add(members[0]);
-          }
-          else
-            bindings.Add(members[0], arguments[parameterIndex]);
-        }
-      }
+      //Temporary disabled
+      //for (int i = 0; i < constructorParameters.Length; i++) {
+      //  int parameterIndex = i;
+      //  var constructorParameter = constructorParameters[parameterIndex];
+      //  var members = newExpression
+      //    .Type
+      //    .GetMembers()
+      //    .Where(mi => FilterBindings(mi, constructorParameter.Name, constructorParameter.ParameterType))
+      //    .ToList();
+      //  if (members.Count()==1 && !duplicateMembers.Contains(members[0])) {
+      //    if (bindings.ContainsKey(members[0])) {
+      //      bindings.Remove(members[0]);
+      //      duplicateMembers.Add(members[0]);
+      //    }
+      //    else
+      //      bindings.Add(members[0], arguments[parameterIndex]);
+      //  }
+      //}
 
       return new ConstructorExpression(newExpression.Type, bindings, newExpression.Constructor, arguments);
     }
@@ -1152,11 +1153,12 @@ namespace Xtensive.Orm.Linq
         break;
       case ExtendedExpressionType.Constructor:
         var bindings = ((ConstructorExpression) extendedExpression).Bindings;
+        // only make sure that type has needed member
         if (!bindings.TryGetValue(member, out result)) {
           // Key in bindings might be a property/field reflected from a base type
           // but our member might be reflected from child type.
           var baseMember = member.DeclaringType.GetMember(member.Name).FirstOrDefault();
-          if (baseMember==null || !bindings.TryGetValue(baseMember, out result))
+          if (baseMember==null)
             throw new InvalidOperationException(string.Format(
               Strings.ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer,
               member.Name, member.ReflectedType.Name));
