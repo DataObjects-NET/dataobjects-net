@@ -23,6 +23,8 @@ namespace Xtensive.Orm.Linq
   {
     public Dictionary<MemberInfo, Expression> Bindings { get; private set; }
 
+    public Dictionary<MemberInfo, Expression> NativeBindings { get; private set; }
+
     public ConstructorInfo Constructor { get; private set; }
 
     public IEnumerable<Expression> ConstructorArguments { get; private set; }
@@ -39,6 +41,7 @@ namespace Xtensive.Orm.Linq
       return new ConstructorExpression(
         Type,
         Bindings.ToDictionary(kvp => kvp.Key, kvp => genericBinder(kvp.Value)),
+        NativeBindings.ToDictionary(kvp=>kvp.Key, kvp => genericBinder(kvp.Value)),
         Constructor,
         ConstructorArguments.Select(genericBinder).ToList());
     }
@@ -47,11 +50,13 @@ namespace Xtensive.Orm.Linq
     {
       Func<Expression, Expression> genericRemover =
         e => GenericExpressionVisitor<IMappedExpression>.Process(e, mapped => mapped.RemoveOuterParameter(processedExpressions));
-      return new ConstructorExpression(
+      var result = new ConstructorExpression(
         Type,
         Bindings.ToDictionary(kvp => kvp.Key, kvp => genericRemover(kvp.Value)),
+        NativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => genericRemover(kvp.Value)),
         Constructor,
         ConstructorArguments.Select(genericRemover).ToList());
+      return result;
     }
 
     public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
@@ -64,7 +69,14 @@ namespace Xtensive.Orm.Linq
       };
       var newBindings = Bindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
       var newConstructorArguments = ConstructorArguments.Select(arg =>  GenericExpressionVisitor<IMappedExpression>.Process(arg, remapper));
-      return new ConstructorExpression(Type, newBindings, Constructor, newConstructorArguments);
+      var newNativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
+      var result = new ConstructorExpression(
+        Type,
+        newBindings,
+        newNativeBindings,
+        Constructor,
+        newConstructorArguments);
+      return result;
     }
 
     public Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
@@ -77,13 +89,15 @@ namespace Xtensive.Orm.Linq
       };
       var newBindings = Bindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
       var newConstructorArguments = ConstructorArguments.Select(arg =>  GenericExpressionVisitor<IMappedExpression>.Process(arg, remapper));
-      return new ConstructorExpression(Type, newBindings, Constructor, newConstructorArguments);
+      var newNativeBindings = NativeBindings.ToDictionary(kvp => kvp.Key, kvp => GenericExpressionVisitor<IMappedExpression>.Process(kvp.Value, remapper));
+      return new ConstructorExpression(Type, newBindings, newNativeBindings, Constructor, newConstructorArguments);
     }
 
-    public ConstructorExpression(Type type, Dictionary<MemberInfo, Expression> bindings, ConstructorInfo constructor, IEnumerable<Expression> constructorArguments)
+    public ConstructorExpression(Type type, Dictionary<MemberInfo, Expression> bindings, Dictionary<MemberInfo, Expression> nativeBindings, ConstructorInfo constructor, IEnumerable<Expression> constructorArguments)
       : base(ExtendedExpressionType.Constructor, type, null, false)
     {
       Bindings = bindings ?? new Dictionary<MemberInfo, Expression>();
+      NativeBindings = nativeBindings;
       ConstructorArguments = constructorArguments ?? EnumerableUtils<Expression>.Empty;
       Constructor = constructor;
     }
