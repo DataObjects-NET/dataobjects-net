@@ -564,10 +564,10 @@ namespace Xtensive.Orm.Upgrade
       var typeName = column.Field.DeclaringType.UnderlyingType.GetFullName();
       var currentType = CurrentModelTypes.GetValueOrDefault(typeName);
       if(currentType==null)
-        throw new InvalidOperationException(string.Format("Unable to find type '{0}' in current model.", typeName));
+        throw new InvalidOperationException(string.Format(Strings.ExUnableToFindTypeXInCurrentModel, typeName));
       var currentField = currentType.Fields.Flatten(f=>f.Fields, info => { }, true).FirstOrDefault(el => el.MappingName==column.Field.MappingName);
       if (currentField==null)
-        throw new InvalidOperationException(string.Format("Unable to find column {0}' in current type {1}", column.Field.MappingName, typeName));
+        throw new InvalidOperationException(string.Format(Strings.UnableToFindColumnXInTypeYOfCurrentModel, column.Field.MappingName, typeName));
 
       var extractedField = FieldMapping.GetValueOrDefault(currentField);
       return extractedField;
