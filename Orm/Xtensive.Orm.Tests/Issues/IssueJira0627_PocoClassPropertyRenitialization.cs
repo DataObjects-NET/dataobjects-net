@@ -4,7 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2015.12.31
 
-using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
@@ -17,18 +17,87 @@ namespace Xtensive.Orm.Tests.Issues
     private int businessUnitCount;
 
     [Test]
+    public void MainTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var trasnaction = session.OpenTransaction()) {
+        List<QboClassModel> localClasses = new List<QboClassModel>();
+        var buClassesLocal = (
+                    from businessUnit in session.Query.All<BusinessUnit>()
+                    where businessUnit.Active && !string.IsNullOrEmpty(businessUnit.QuickbooksClass)
+                    select new {
+                      businessUnit.Id,
+                      businessUnit.QuickbooksClass
+                    }).ToList();
+
+        localClasses.AddRange(
+            buClassesLocal.Select(bu => new QboClassModel(bu.Id, bu.QuickbooksClass)));
+        Assert.That(localClasses.Count, Is.Not.EqualTo(0));
+        foreach (var qboClassModel in localClasses) {
+          Assert.That(qboClassModel.Name.StartsWith(" ") || qboClassModel.Name.EndsWith(" "), Is.False);
+        }
+
+        localClasses.Clear();
+
+        var buClasses = (
+          from businessUnit in session.Query.All<BusinessUnit>()
+          where businessUnit.Active && !string.IsNullOrEmpty(businessUnit.QuickbooksClass)
+          select new {
+            businessUnit.Id,
+            businessUnit.QuickbooksClass
+          });
+        localClasses.AddRange(
+            buClasses.Select(bu => new QboClassModel(bu.Id, bu.QuickbooksClass)));
+        Assert.That(localClasses.Count, Is.Not.EqualTo(0));
+        foreach (var qboClassModel in localClasses) {
+          Assert.That(qboClassModel.Name.StartsWith(" ") || qboClassModel.Name.EndsWith(" "), Is.False);
+        }
+      }
+    }
+
+    [Test]
     public void InitializationOnlyUsingConstructorParametersTest()
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var buClasses = (
-                    from businessUnit in session.Query.All<BusinessUnit>()
-                    where businessUnit.Active && !string.IsNullOrEmpty(businessUnit.QuickbooksClass)
-                    select new QboClassModel(businessUnit.Id, businessUnit.QuickbooksClass)).ToList();
+        var buClasses = (from businessUnit in session.Query.All<BusinessUnit>()
+          where businessUnit.Active && !string.IsNullOrEmpty(businessUnit.QuickbooksClass)
+          select new QboClassModel(businessUnit.Id, businessUnit.QuickbooksClass)).ToList();
+
         foreach (var qboClassModel in buClasses) {
           Assert.That(qboClassModel.Name.StartsWith(" ") || qboClassModel.Name.EndsWith(" "), Is.False);
           Assert.That(qboClassModel.SomeOtherField, Is.Null);
         }
+      }
+    }
+
+    [Test]
+    public void PocoClassConstructorInsideQuery()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var buClasses = (from dto in
+                           (
+                             from businessUnit in session.Query.All<BusinessUnit>()
+                             where businessUnit.Active && !string.IsNullOrEmpty(businessUnit.QuickbooksClass)
+                             select new QboClassModel(businessUnit.Id, businessUnit.QuickbooksClass))
+                         where dto.Name.StartsWith(" ")
+                         select dto.Name).ToList();
+      }
+    }
+
+    [Test]
+    public void PocoClassObjectInitializerInsideQuery()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var buClassess = (from dto in
+          (
+            from businessUnit in session.Query.All<BusinessUnit>()
+            where businessUnit.Active && !string.IsNullOrEmpty(businessUnit.QuickbooksClass)
+            select new Poco1() {Key = businessUnit.QuickbooksClass, Value = businessUnit.QuickbooksClass})
+          where dto.Key.StartsWith(" ")
+          select dto.Value).ToList();
       }
     }
 
@@ -1010,7 +1079,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (BusinessUnit));
+      configuration.Types.Register(typeof (BusinessUnit).Assembly, typeof(BusinessUnit).Namespace);
       return configuration;
     }
   }
@@ -1207,10 +1276,10 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0627_PocoClassPropertyRenitializati
 
     public string SomeOtherField { get; internal set; }
 
-    public QboClassModel(long initialId, string initialName)
+    public QboClassModel(long id, string name)
     {
-      Id = initialId;
-      Name = initialName.Trim();
+      Id = id;
+      Name = name.Trim();
     }
   }
 }

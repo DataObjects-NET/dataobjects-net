@@ -251,10 +251,12 @@ namespace Xtensive.Orm.Linq.Materialization
         ? Expression.New(expression.Type) // Value type with default ctor (expression.Constructor is null in that case)
         : Expression.New(expression.Constructor, expression.ConstructorArguments.Select(Visit));
 
-      return expression.Bindings.Count == 0 
+      var realBindings = expression.NativeBindings;
+
+      return expression.NativeBindings.Count == 0 
         ? newExpression 
         : (Expression) Expression.MemberInit(newExpression, expression
-        .Bindings
+        .NativeBindings
         .Where(item => Translator.FilterBindings(item.Key, item.Key.Name, item.Value.Type))
         .Select(item => Expression.Bind(item.Key, Visit(item.Value))).Cast<MemberBinding>());
     }

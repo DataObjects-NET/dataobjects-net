@@ -51,9 +51,13 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       var oldBindings = expression.Bindings.Select(b => b.Value).ToList().AsReadOnly();
       var newBindings = VisitExpressionList(oldBindings);
 
+      var oldNativeBindings = expression.NativeBindings.Select(b => b.Value).ToList().AsReadOnly();
+      var newNativeBindings = VisitExpressionList(oldNativeBindings);
+      
       var notChanged =
         ReferenceEquals(oldConstructorArguments, newConstructorArguments)
-        && ReferenceEquals(oldBindings, newBindings);
+        && ReferenceEquals(oldBindings, newBindings)
+        && ReferenceEquals(oldNativeBindings, newNativeBindings);
 
       if (notChanged)
         return expression;
@@ -61,8 +65,10 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       var bindings = expression.Bindings
         .Zip(newBindings)
         .ToDictionary(item => item.First.Key, item => item.Second);
-
-      return new ConstructorExpression(expression.Type, bindings, expression.Constructor, newConstructorArguments);
+      var nativeBingings = expression.NativeBindings
+        .Zip(newNativeBindings)
+        .ToDictionary(item => item.First.Key, item => item.Second);
+      return new ConstructorExpression(expression.Type, bindings, nativeBingings, expression.Constructor, newConstructorArguments);
     }
 
     protected override Expression VisitEntityExpression(EntityExpression expression)
