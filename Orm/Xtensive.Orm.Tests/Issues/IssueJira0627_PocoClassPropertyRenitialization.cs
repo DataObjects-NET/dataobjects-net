@@ -1,11 +1,13 @@
 ﻿// Copyright (C) 2015 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
-// Created by: Alexey Gamzov
+// Created by: Alexey Kulakov
 // Created:    2015.12.31
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0627_PocoClassPropertyRenitializationModel;
@@ -1061,6 +1063,66 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+    [Test]
+    public void OrderByFieldOfPoco01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+                        .Select(e => new Poco { Name = e.Name })
+                        .OrderBy(e => e.Name)
+                        .ToArray();
+      }
+    }
+
+    [Test]
+    public void OrderByFieldOfPoco02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+                        .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+                        .OrderBy(e => e.Name)
+                        .ToArray();
+      }
+    }
+
+    [Test]
+    public void OrderByFieldOfPoco03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+                        .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+                        .OrderBy(e => e.BaseName)
+                        .ToArray();
+      }
+    }
+
+    [Test]
+    public void OrderByFieldOfPoco04Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+                        .Select(e => new Poco { BaseName = e.Name })
+                        .OrderBy(e => e.Name)
+                        .ToArray();
+      }
+    }
+
+    [Test]
+    public void OrderByFieldOfPoco05Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+                        .Select(e => new Poco())
+                        .OrderBy(e => e.Name)
+                        .ToArray();
+      }
+    }
+
     protected override void PopulateData()
     {
       using (var session = Domain.OpenSession())
@@ -1098,6 +1160,16 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0627_PocoClassPropertyRenitializati
 
     [Field]
     public string QuickbooksClass { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class TestEntity : Entity
+  {
+    [Field, Key]
+    public Guid Id { get; set; }
+
+    [Field]
+    public string Name { get; set; }
   }
 
   public class Poco0
@@ -1266,6 +1338,16 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0627_PocoClassPropertyRenitializati
     {
       AdditionalInfo = additionalInfo;
     }
+  }
+
+  public class Poco : PocoBase
+  {
+    public string Name { get; set; }
+  }
+
+  public class PocoBase
+  {
+    public string BaseName { get; set; }
   }
 
   public class QboClassModel
