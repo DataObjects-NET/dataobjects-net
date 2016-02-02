@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Collections;
 using Xtensive.Modelling.Actions;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Upgrade.Model;
 using model = Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel;
@@ -259,6 +261,72 @@ namespace Xtensive.Orm.Tests.Issues
           Assert.That(entity.TimeSpanField, Is.EqualTo(new TimeSpan(3, 3, 3, 3)));
         }
       }
+    }
+
+    [Test]
+    public void AddNewFieldTest()
+    {
+      
+    }
+
+    [Test]
+    public void AddNewTypeTest()
+    {
+      
+    }
+
+    [Test]
+    public void RemoveFieldWithHintTest()
+    {
+      
+    }
+
+    [Test]
+    public void RemoveFieldWithoutHintTest()
+    {
+      
+    }
+
+    [Test]
+    public void RemoveTypeWithHintTest()
+    {
+      
+    }
+
+    [Test]
+    public void RemoveTypeWithoutHintTest()
+    {
+      
+    }
+
+    [Test]
+    public void RenameFieldWithHintTest()
+    {
+      
+    }
+
+    [Test]
+    public void RenameFieldWithoutHingTest()
+    {
+      
+    }
+
+    [Test]
+    public void RenameTypeWithHintTest()
+    {
+      
+    }
+
+    [Test]
+    public void RenameTypeWithoutHintTest()
+    {
+      
+    }
+
+    [Test]
+    public void MoveFieldTest()
+    {
+      
     }
 
     private DomainConfiguration BuildConfiguration(bool isInitial, params Type[] types)
@@ -895,6 +963,909 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestMo
         public override void OnUpgrade()
         {
           new TestEntity() { Name = null };
+        }
+      }
+    }
+  }
+
+  namespace RemoveFieldModel
+  {
+    namespace Source
+    {
+      [HierarchyRoot(InheritanceSchema.ClassTable)]
+      public class ClassTableHierarchyBase : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string ClassTableHBField { get; set; }
+
+        [Field]
+        public string ClassTableRemovableField { get; set; }
+      }
+
+      public class ClassTableDescendant : ClassTableHierarchyBase
+      {
+        [Field]
+        public double SomeDescendantField { get; set; }
+
+        [Field]
+        public string SomeDescendantRemovableField { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+      public class ConcreteTableHierarchyBase : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string ConcreteTableHBField { get; set; }
+
+        [Field]
+        public int ConcreteTableRemovableField { get; set; }
+      }
+
+      public class ConcreteTableDescendant : ConcreteTableHierarchyBase
+      {
+        [Field]
+        public double SomeDescendantField { get; set; }
+
+        [Field]
+        public string SomeDescendantRemovableField { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.SingleTable)]
+      public class SingleTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+
+        [Field]
+        public string SingleTableHBField { get; set; }
+
+        [Field]
+        public double SingleTableRemovableField { get; set; }
+      }
+
+      public class SingleTableDescendant : SingleTableHierarchyBase
+      {
+        [Field]
+        public string SomeDescendantField { get; set; }
+
+        [Field]
+        public string SomeDescendantRemovableField { get; set; }
+      }
+    }
+
+    namespace Target
+    {
+      [HierarchyRoot(InheritanceSchema.ClassTable)]
+      public class ClassTableHierarchyBase : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string ClassTableHBField { get; set; }
+      }
+
+      public class ClassTableDescendant : ClassTableHierarchyBase
+      {
+        [Field]
+        public double SomeDescendantField { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+      public class ConcreteTableHierarchyBase : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string ConcreteTableHBField { get; set; }
+      }
+
+      public class ConcreteTableDescendant : ConcreteTableHierarchyBase
+      {
+        [Field]
+        public double SomeDescendantField { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.SingleTable)]
+      public class SingleTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+
+        [Field]
+        public string SingleTableHBField { get; set; }
+      }
+
+      public class SingleTableDescendant : SingleTableHierarchyBase
+      {
+        [Field]
+        public string SomeDescendantField { get; set; }
+      }
+
+      public class CustomUpgradeHandler : UpgradeHandler
+      {
+        public override bool CanUpgradeFrom(string oldVersion)
+        {
+          return true;
+        }
+
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+        {
+          hints.Add(new RemoveFieldHint(typeof (SingleTableHierarchyBase), "SingleTableRemovableField"));
+          hints.Add(new RemoveFieldHint(typeof (ConcreteTableHierarchyBase), "ConcreteTableRemovableField"));
+          hints.Add(new RemoveFieldHint(typeof (ClassTableHierarchyBase), "ClassTableRemovableField"));
+
+          hints.Add(new RemoveFieldHint(typeof (SingleTableDescendant), "SomeDescendantRemovableField"));
+          hints.Add(new RemoveFieldHint(typeof (ConcreteTableDescendant), "SomeDescendantRemovableField"));
+          hints.Add(new RemoveFieldHint(typeof (ClassTableDescendant), "SomeDescendantRemovableField"));
+        }
+      }
+    }
+  }
+
+  namespace RemoveTypeModel
+  {
+    namespace Source
+    {
+      [HierarchyRoot(InheritanceSchema.SingleTable)]
+      public class SingleTableHierarchyBase : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string SinlgeTableHBField { get; set; }
+      }
+
+      public class SingleTableDescendant1 : SingleTableHierarchyBase
+      {
+        [Field]
+        public string SingleTableD1Field { get; set; }
+      }
+
+      public class SingleTableDescendant11 : SingleTableDescendant1
+      {
+        [Field]
+        public string SingleTableD11Field { get; set; }
+      }
+
+      public class SingleTableDescendant12Removed : SingleTableDescendant1
+      {
+        [Field]
+        public string SingleTableD12Field { get; set; }
+      }
+
+      public class SingleTableDescendant2 : SingleTableHierarchyBase
+      {
+        [Field]
+        public string SingleTableD2Field { get; set; }
+      }
+
+      public class SingleTableDescendant21 : SingleTableDescendant2
+      {
+        [Field]
+        public string SingleTableD21Field { get; set; }
+      }
+
+      public class SingleTableDescendant22Removed : SingleTableDescendant2
+      {
+        [Field]
+        public string SingleTableD22Field { get; set; }
+      }
+
+
+      [HierarchyRoot(InheritanceSchema.ClassTable)]
+      public class ClassTableHierarchyBase : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string ClassTableHRField { get; set; }
+      }
+
+      public class ClassTableDescendant1 : ClassTableHierarchyBase
+      {
+        [Field]
+        public string ClassTableD1Field { get; set; }
+      }
+
+      public class ClassTableDescendant11 : ClassTableDescendant1
+      {
+        [Field]
+        public string ClassTableD11Field { get; set; }
+      }
+
+      public class ClassTableDescendant12Removed : ClassTableDescendant1
+      {
+        [Field]
+        public string ClassTableD12Field { get; set; }
+      }
+
+      public class ClassTableDescendant2 : ClassTableHierarchyBase
+      {
+        [Field]
+        public string ClassTableD2Field { get; set; }
+      }
+
+      public class ClassTableDescendant21 : ClassTableDescendant2
+      {
+        [Field]
+        public string ClassTableD21Field { get; set; }
+      }
+
+      public class ClassTableDescendant22Removed : ClassTableDescendant2
+      {
+        [Field]
+        public string ClassTableD22Field { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+      public class ConcreteTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+
+        [Field]
+        public string ConcreteTableHBField { get; set; }
+      }
+
+      public class ConcreteTableDescendant1 : ConcreteTableHierarchyBase
+      {
+        [Field]
+        public string ConcreteTableD1Field { get; set; }
+      }
+
+      public class ConcreteTableDescendant11 : ConcreteTableDescendant1
+      {
+        [Field]
+        public string ConcreteTableD11Field { get; set; }
+      }
+
+      public class ConcreteTableDescendant12Removed : ConcreteTableDescendant1
+      {
+        [Field]
+        public string ConcreteTableD12Field { get; set; }
+      }
+
+      public class ConcreteTableDescendant2 : ConcreteTableHierarchyBase
+      {
+        [Field]
+        public string ConcreteTableD2Field { get; set; }
+      }
+
+      public class ConcreteTableDescendant21 : ConcreteTableDescendant2
+      {
+        [Field]
+        public string ConcreteTableD21 { get; set; }
+      }
+
+      public class ConcreteTableDescendant22Removed : ConcreteTableDescendant2
+      {
+        [Field]
+        public string ConcreteTableD22Field { get; set; }
+      }
+    }
+
+    namespace Target
+    {
+      [HierarchyRoot(InheritanceSchema.SingleTable)]
+      public class SingleTableHierarchyBase : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string SinlgeTableHBField { get; set; }
+      }
+
+      public class SingleTableDescendant1 : SingleTableHierarchyBase
+      {
+        [Field]
+        public string SingleTableD1Field { get; set; }
+      }
+
+      public class SingleTableDescendant11 : SingleTableDescendant1
+      {
+        [Field]
+        public string SingleTableD11Field { get; set; }
+      }
+
+      public class SingleTableDescendant2 : SingleTableHierarchyBase
+      {
+        [Field]
+        public string SingleTableD2Field { get; set; }
+      }
+
+      public class SingleTableDescendant21 : SingleTableDescendant2
+      {
+        [Field]
+        public string SingleTableD21Field { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ClassTable)]
+      public class ClassTableHierarchyBase : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string ClassTableHRField { get; set; }
+      }
+
+      public class ClassTableDescendant1 : ClassTableHierarchyBase
+      {
+        [Field]
+        public string ClassTableD1Field { get; set; }
+      }
+
+      public class ClassTableDescendant11 : ClassTableDescendant1
+      {
+        [Field]
+        public string ClassTableD11Field { get; set; }
+      }
+
+      public class ClassTableDescendant2 : ClassTableHierarchyBase
+      {
+        [Field]
+        public string ClassTableD2Field { get; set; }
+      }
+
+      public class ClassTableDescendant21 : ClassTableDescendant2
+      {
+        [Field]
+        public string ClassTableD21Field { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+      public class ConcreteTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+
+        [Field]
+        public string ConcreteTableHBField { get; set; }
+      }
+
+      public class ConcreteTableDescendant1 : ConcreteTableHierarchyBase
+      {
+        [Field]
+        public string ConcreteTableD1Field { get; set; }
+      }
+
+      public class ConcreteTableDescendant11 : ConcreteTableDescendant1
+      {
+        [Field]
+        public string ConcreteTableD11Field { get; set; }
+      }
+
+      public class ConcreteTableDescendant2 : ConcreteTableHierarchyBase
+      {
+        [Field]
+        public string ConcreteTableD2Field { get; set; }
+      }
+
+      public class ConcreteTableDescendant21 : ConcreteTableDescendant2
+      {
+        [Field]
+        public string ConcreteTableD21 { get; set; }
+      }
+
+      public class CustomUpgradeHandler : UpgradeHandler
+      {
+        public override bool CanUpgradeFrom(string oldVersion)
+        {
+          return true;
+        }
+
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+        {
+          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel.RemoveTypeModel.Source.SingleTableDescendant12Removed"));
+          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel.RemoveTypeModel.Source.SingleTableDescendant22Removed"));
+
+          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel.RemoveTypeModel.Source.ClassTableDescendant12Removed"));
+          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel.RemoveTypeModel.Source.ClassTableDescendant22Removed"));
+
+          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel.RemoveTypeModel.Source.ConcreteTableDescendant12Removed"));
+          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel.RemoveTypeModel.Source.ConcreteTableDescendant22Removed"));
+        }
+      }
+    }
+  }
+
+  namespace RenameFieldModel
+  {
+    namespace Source
+    {
+      [HierarchyRoot(InheritanceSchema.SingleTable)]
+      public class SingleTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+
+        [Field]
+        public string SingleTableHBFiele { get; set; }
+
+        [Field]
+        public int FieldWithWrongName { get; set; }
+      }
+
+      public class SingleTableDescendant : SingleTableHierarchyBase
+      {
+        [Field]
+        public double AnotherFieldWithWrongName { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ClassTable)]
+      public class ClassTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+
+        [Field]
+        public string SingleTableHBFiele { get; set; }
+
+        [Field]
+        public int FieldWithWrongName { get; set; }
+      }
+
+      public class ClassTableDescendant : ClassTableHierarchyBase
+      {
+        [Field]
+        public double AnotherFieldWithWrongName { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+      public class ConcreteTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+
+        [Field]
+        public string SingleTableHBFiele { get; set; }
+
+        [Field]
+        public int FieldWithWrongName { get; set; }
+      }
+
+      public class ConcreteTableDescendant : ConcreteTableHierarchyBase
+      {
+        [Field]
+        public double AnotherFieldWithWrongName { get; set; }
+      }
+    }
+
+    namespace Target
+    {
+      [HierarchyRoot(InheritanceSchema.SingleTable)]
+      public class SingleTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+
+        [Field]
+        public string SingleTableHBFiele { get; set; }
+
+        [Field]
+        public int FieldWithWrongName { get; set; }
+      }
+
+      public class SingleTableDescendant : SingleTableHierarchyBase
+      {
+        [Field]
+        public double AnotherFieldWithWrongName { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ClassTable)]
+      public class ClassTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+
+        [Field]
+        public string SingleTableHBFiele { get; set; }
+
+        [Field]
+        public int FieldWithWrongName { get; set; }
+      }
+
+      public class ClassTableDescendant : ClassTableHierarchyBase
+      {
+        [Field]
+        public double AnotherFieldWithWrongName { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+      public class ConcreteTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+
+        [Field]
+        public string SingleTableHBFiele { get; set; }
+
+        [Field]
+        public int FieldWithWrongName { get; set; }
+      }
+
+      public class ConcreteTableDescendant : ConcreteTableHierarchyBase
+      {
+        [Field]
+        public double AnotherFieldWithWrongName { get; set; }
+      }
+
+      public class CustomUpgradeHandler : UpgradeHandler
+      {
+        public override bool CanUpgradeFrom(string oldVersion)
+        {
+          return true;
+        }
+
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+        {
+          hints.Add(new RenameFieldHint(typeof (SingleTableHierarchyBase), "FieldWithWrongName", "FieldWithRightName"));
+          hints.Add(new RenameFieldHint(typeof (SingleTableDescendant), "AnotherFieldWithWrongName", "AnotherFieldWithRightName"));
+
+          hints.Add(new RenameFieldHint(typeof (ConcreteTableHierarchyBase), "FieldWithWrongName", "FieldWithRightName"));
+          hints.Add(new RenameFieldHint(typeof (ConcreteTableDescendant), "AnotherFieldWithWrongName", "AnotherFieldWithRightName"));
+
+          hints.Add(new RenameFieldHint(typeof (ClassTableHierarchyBase), "FieldWithWrongName", "FieldWithRightName"));
+          hints.Add(new RenameFieldHint(typeof (ClassTableDescendant), "AnotherFieldWithWrongName", "AnotherFieldWithRightName"));
+        }
+      }
+    }
+  }
+
+  namespace RenameTypeModel
+  {
+    namespace Source
+    {
+      [HierarchyRoot(InheritanceSchema.SingleTable)]
+      public class SingleTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+      }
+
+      public class SingleTableDescendant1 : SingleTableHierarchyBase
+      {
+        [Field]
+        public string SomeStringField { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ClassTable)]
+      public class ClassTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+      }
+
+      public class ClassTableDescendant1 : ClassTableHierarchyBase
+      {
+        [Field]
+        public string SomeStringField { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+      public class ConcreteTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+      }
+
+      public class ConcreteTableDescendant1 : Entity
+      {
+        [Field]
+        public string SomeStringField { get; set; }
+      }
+    }
+
+    namespace Target
+    {
+      [HierarchyRoot(InheritanceSchema.SingleTable)]
+      public class SingleTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+      }
+
+      public class SingleTableDescendant : SingleTableHierarchyBase
+      {
+        [Field]
+        public string SomeStringField { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ClassTable)]
+      public class ClassTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+      }
+
+      public class ClassTableDescendant : ClassTableHierarchyBase
+      {
+        [Field]
+        public string SomeStringField { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+      public class ConcreteTableHierarchyBase : Entity
+      {
+        [Field]
+        public int Id { get; set; }
+      }
+
+      public class ConcreteTableDescendant : Entity
+      {
+        [Field]
+        public string SomeStringField { get; set; }
+      }
+
+      public class CustomUpgradeHandler : UpgradeHandler
+      {
+        public override bool CanUpgradeFrom(string oldVersion)
+        {
+          return true;
+        }
+
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+        {
+          hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel.RenameTypeModel.Source.SingleTableDescendant1", typeof (SingleTableDescendant)));
+          hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel.RenameTypeModel.Source.ClassTableDescendant1", typeof (ClassTableDescendant)));
+          hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel.RenameTypeModel.Source.ConcreteTableDescendant1", typeof (ConcreteTableDescendant)));
+        }
+      }
+    }
+  }
+
+  namespace MoveFieldModel
+  {
+    namespace Source
+    {
+      [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
+      public abstract class ClassTableHierarchyBase : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string CTHBField { get; set; }
+
+        [Field]
+        public string MovableField { get; set; }
+      }
+
+      public class ClassTableDescendant1 : ClassTableHierarchyBase
+      {
+        [Field]
+        public int Value { get; set; }
+
+        [Field]
+        public string Comment { get; set; }
+      }
+
+      public class ClassTableDescendant2 : ClassTableHierarchyBase
+      {
+        [Field]
+        public double Price { get; set; }
+
+        [Field]
+        public string Summary { get; set; }
+      }
+
+      public class ClassTableDescendant3 : ClassTableDescendant1
+      {
+        [Field]
+        public float SomeField { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+      public abstract class ConcreteTableHierarchyBase : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string ContcreteTableHBField { get; set; }
+
+        [Field]
+        public string MovableField { get; set; }
+      }
+
+      public class ConcreteTableDescendant1 : ConcreteTableHierarchyBase
+      {
+        [Field]
+        public int Value { get; set; }
+
+        [Field]
+        public string Comment { get; set; }
+      }
+
+      public class ConcreteTableDescendant2 : ConcreteTableHierarchyBase
+      {
+        [Field]
+        public double Price { get; set; }
+
+        [Field]
+        public string Summary { get; set; }
+      }
+
+      public class ConcreteTableDescendant3 : ConcreteTableDescendant1
+      {
+        [Field]
+        public float SomeField { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.SingleTable)]
+      public abstract class SingleTableHierarchyBase : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string ContcreteTableHBField { get; set; }
+
+        [Field]
+        public string MovableField { get; set; }
+      }
+
+      public class SingleTableDescendant1 : SingleTableHierarchyBase
+      {
+        [Field]
+        public int Value { get; set; }
+
+        [Field]
+        public string Comment { get; set; }
+      }
+
+      public class SingleTableDescendant2 : SingleTableHierarchyBase
+      {
+        [Field]
+        public double Price { get; set; }
+
+        [Field]
+        public string Summary { get; set; }
+      }
+
+      public class SingleTableDescendant3 : SingleTableDescendant1
+      {
+        [Field]
+        public float SomeField { get; set; }
+      }
+    }
+
+    namespace Target
+    {
+      [HierarchyRoot(InheritanceSchema = InheritanceSchema.ClassTable)]
+      public abstract class ClassTableHierarchyBase : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string ClassTableHBField { get; set; }
+      }
+
+      public class ClassTableAncestor1 : ClassTableHierarchyBase
+      {
+        [Field]
+        public int Value { get; set; }
+
+        [Field]
+        public string Comment { get; set; }
+      }
+
+      public class ClassTableAncestor2 : ClassTableHierarchyBase
+      {
+        [Field]
+        public double Price { get; set; }
+
+        [Field]
+        public string Summary { get; set; }
+      }
+
+      public class ClassTableAncestor3 : ClassTableAncestor1
+      {
+        [Field]
+        public float SomeField { get; set; }
+
+        [Field]
+        public string MovableField { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+      public abstract class ConcreteTableHierarchyBase : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string ContcreteTableHBField { get; set; }
+      }
+
+      public class ConcreteTableAncestor1 : ConcreteTableHierarchyBase
+      {
+        [Field]
+        public int Value { get; set; }
+
+        [Field]
+        public string Comment { get; set; }
+      }
+
+      public class ConcreteTableAncestor2 : ConcreteTableHierarchyBase
+      {
+        [Field]
+        public double Price { get; set; }
+
+        [Field]
+        public string Summary { get; set; }
+      }
+
+      public class ConcreteTableAncestor3 : ConcreteTableAncestor1
+      {
+        [Field]
+        public float SomeField { get; set; }
+
+        [Field]
+        public string MovableField { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.SingleTable)]
+      public abstract class SingleTableHierarchyBase : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string ContcreteTableHBField { get; set; }
+      }
+
+      public class SingleTableAncestor1 : SingleTableHierarchyBase
+      {
+        [Field]
+        public int Value { get; set; }
+
+        [Field]
+        public string Comment { get; set; }
+      }
+
+      public class SingleTableAncestor2 : SingleTableHierarchyBase
+      {
+        [Field]
+        public double Price { get; set; }
+
+        [Field]
+        public string Summary { get; set; }
+      }
+
+      public class SingleTableAncestor3 : SingleTableAncestor1
+      {
+        [Field]
+        public float SomeField { get; set; }
+
+        [Field]
+        public string MovableField { get; set; }
+      }
+
+      public class CustomUpgradeHandler : UpgradeHandler
+      {
+        public override bool CanUpgradeFrom(string oldVersion)
+        {
+          return true;
+        }
+
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+        {
+          hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel.MoveFieldModel.Source.ClassTableHierarchyBase", "MovableField", typeof(ClassTableAncestor3)));
+          hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel.MoveFieldModel.Source.ConcreteTableHierarchyBase", "MovableField", typeof(ConcreteTableAncestor3)));
+          hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel.MoveFieldModel.Source.SingleTableHierarchyBase", "MovableField", typeof(SingleTableAncestor3)));
         }
       }
     }
