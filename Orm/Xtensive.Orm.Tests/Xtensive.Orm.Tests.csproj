@@ -445,6 +445,9 @@
     <Compile Include="Upgrade\RemoveColumnWithRenameTableTest.cs" />
     <Compile Include="Upgrade\SplitHierarchyTest.cs" />
     <Compile Include="Upgrade\TwoUpgradeHandlersTest.cs" />
+    <Compile Include="Upgrade\UpgradeAndNamingRulesAdvanced\SourceModels.cs" />
+    <Compile Include="Upgrade\UpgradeAndNamingRulesAdvanced\TargetModels.cs" />
+    <Compile Include="Upgrade\UpgradeAndNamingRulesAdvanced\TestBase.cs" />
     <Compile Include="Upgrade\UpgradeAndNamingRules\ModelVersion1.cs" />
     <Compile Include="Upgrade\UpgradeAndNamingRules\ModelVersion2.cs" />
     <Compile Include="Upgrade\UpgradeAndNamingRules\Upgrader.cs" />
