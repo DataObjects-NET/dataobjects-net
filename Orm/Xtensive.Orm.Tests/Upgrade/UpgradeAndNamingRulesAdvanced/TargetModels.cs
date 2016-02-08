@@ -1,7 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿// Copyright (C) 2016 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2016.02.03
+
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
 
@@ -81,7 +83,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
     [HierarchyRoot(InheritanceSchema.SingleTable)]
     public class SingleTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -103,7 +105,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
     [HierarchyRoot(InheritanceSchema.ClassTable)]
     public class ClassTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -125,7 +127,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
     [HierarchyRoot]
     public class ConcreteTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -160,7 +162,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
     public class ClassTableDescendant : ClassTableHierarchyBase
     {
       [Field]
-      public double SomeDescendantField { get; set; }
+      public string SomeDescendantField { get; set; }
     }
 
     [HierarchyRoot(InheritanceSchema.ConcreteTable)]
@@ -176,13 +178,13 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
     public class ConcreteTableDescendant : ConcreteTableHierarchyBase
     {
       [Field]
-      public double SomeDescendantField { get; set; }
+      public string SomeDescendantField { get; set; }
     }
 
     [HierarchyRoot(InheritanceSchema.SingleTable)]
     public class SingleTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -206,13 +208,13 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
 
         protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
         {
-          hints.Add(new RemoveFieldHint(typeof (SingleTableHierarchyBase), "SingleTableRemovableField"));
-          hints.Add(new RemoveFieldHint(typeof (ConcreteTableHierarchyBase), "ConcreteTableRemovableField"));
-          hints.Add(new RemoveFieldHint(typeof (ClassTableHierarchyBase), "ClassTableRemovableField"));
+          hints.Add(new RemoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveFieldModel.SingleTableHierarchyBase", "SingleTableRemovableField"));
+          hints.Add(new RemoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveFieldModel.ConcreteTableHierarchyBase", "ConcreteTableRemovableField"));
+          hints.Add(new RemoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveFieldModel.ClassTableHierarchyBase", "ClassTableRemovableField"));
 
-          hints.Add(new RemoveFieldHint(typeof (SingleTableDescendant), "SomeDescendantRemovableField"));
-          hints.Add(new RemoveFieldHint(typeof (ConcreteTableDescendant), "SomeDescendantRemovableField"));
-          hints.Add(new RemoveFieldHint(typeof (ClassTableDescendant), "SomeDescendantRemovableField"));
+          hints.Add(new RemoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveFieldModel.SingleTableDescendant", "SomeDescendantRemovableField"));
+          hints.Add(new RemoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveFieldModel.ConcreteTableDescendant", "SomeDescendantRemovableField"));
+          hints.Add(new RemoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveFieldModel.ClassTableDescendant", "SomeDescendantRemovableField"));
         }
       }
     }
@@ -261,7 +263,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
       public int Id { get; set; }
 
       [Field]
-      public string ClassTableHRField { get; set; }
+      public string ClassTableHBField { get; set; }
     }
 
     public class ClassTableDescendant1 : ClassTableHierarchyBase
@@ -291,7 +293,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
     [HierarchyRoot(InheritanceSchema.ConcreteTable)]
     public class ConcreteTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -319,7 +321,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
     public class ConcreteTableDescendant21 : ConcreteTableDescendant2
     {
       [Field]
-      public string ConcreteTableD21 { get; set; }
+      public string ConcreteTableD21Field { get; set; }
     }
 
     namespace UpgradeHandlers
@@ -333,14 +335,16 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
 
         protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
         {
-          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.UpgradeAndNamingRulesAdvanced.Sources.RemoveTypeModel.SingleTableDescendant12Removed"));
-          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.UpgradeAndNamingRulesAdvanced.Sources.RemoveTypeModel.SingleTableDescendant22Removed"));
+          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveTypeModel.SingleTableDescendant12Removed"));
+          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveTypeModel.SingleTableDescendant22Removed"));
+          hints.Add(new RemoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveTypeModel.SingleTableDescendant12Removed", "SingleTableD12Field"));
+          hints.Add(new RemoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveTypeModel.SingleTableDescendant22Removed", "SingleTableD22Field"));
 
-          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.UpgradeAndNamingRulesAdvanced.Sources.RemoveTypeModel.ClassTableDescendant12Removed"));
-          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.UpgradeAndNamingRulesAdvanced.Sources.RemoveTypeModel.ClassTableDescendant22Removed"));
+          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveTypeModel.ClassTableDescendant12Removed"));
+          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveTypeModel.ClassTableDescendant22Removed"));
 
-          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.UpgradeAndNamingRulesAdvanced.Sources.RemoveTypeModel.ConcreteTableDescendant12Removed"));
-          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.UpgradeAndNamingRulesAdvanced.Sources.RemoveTypeModel.ConcreteTableDescendant22Removed"));
+          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveTypeModel.ConcreteTableDescendant12Removed"));
+          hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveTypeModel.ConcreteTableDescendant22Removed"));
         }
       }
     }
@@ -351,7 +355,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
     [HierarchyRoot(InheritanceSchema.SingleTable)]
     public class SingleTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -370,7 +374,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
     [HierarchyRoot(InheritanceSchema.ClassTable)]
     public class ClassTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -389,7 +393,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
     [HierarchyRoot(InheritanceSchema.ConcreteTable)]
     public class ConcreteTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -434,7 +438,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
     [HierarchyRoot(InheritanceSchema.SingleTable)]
     public class SingleTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
     }
 
@@ -447,7 +451,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
     [HierarchyRoot(InheritanceSchema.ClassTable)]
     public class ClassTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
     }
 
@@ -460,11 +464,11 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
     [HierarchyRoot(InheritanceSchema.ConcreteTable)]
     public class ConcreteTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
     }
 
-    public class ConcreteTableDescendant : Entity
+    public class ConcreteTableDescendant : ConcreteTableHierarchyBase
     {
       [Field]
       public string SomeStringField { get; set; }
@@ -481,9 +485,9 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
 
         protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
         {
-          hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.UpgradeAndNamingRulesAdvanced.Sources.RenameTypeModel.SingleTableDescendant1", typeof (SingleTableDescendant)));
-          hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.UpgradeAndNamingRulesAdvanced.Sources.RenameTypeModel.ClassTableDescendant1", typeof (ClassTableDescendant)));
-          hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.UpgradeAndNamingRulesAdvanced.Sources.RenameTypeModel.ConcreteTableDescendant1", typeof (ConcreteTableDescendant)));
+          hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RenameTypeModel.SingleTableDescendant1", typeof(SingleTableDescendant)));
+          hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RenameTypeModel.ClassTableDescendant1", typeof(ClassTableDescendant)));
+          hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RenameTypeModel.ConcreteTableDescendant1", typeof(ConcreteTableDescendant)));
         }
       }
     }
@@ -501,7 +505,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
       public string ClassTableHBField { get; set; }
     }
 
-    public class ClassTableAncestor1 : ClassTableHierarchyBase
+    public class ClassTableDescendant1 : ClassTableHierarchyBase
     {
       [Field]
       public int Value { get; set; }
@@ -510,7 +514,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
       public string Comment { get; set; }
     }
 
-    public class ClassTableAncestor2 : ClassTableAncestor1
+    public class ClassTableDescendant2 : ClassTableDescendant1
     {
       [Field]
       public float SomeField { get; set; }
@@ -529,7 +533,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
       public string ConcreteTableHBField { get; set; }
     }
 
-    public class ConcreteTableAncestor1 : ConcreteTableHierarchyBase
+    public class ConcreteTableDescendant1 : ConcreteTableHierarchyBase
     {
       [Field]
       public int Value { get; set; }
@@ -538,7 +542,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
       public string Comment { get; set; }
     }
 
-    public class ConcreteTableAncestor2 : ConcreteTableAncestor1
+    public class ConcreteTableDescendant2 : ConcreteTableDescendant1
     {
       [Field]
       public float SomeField { get; set; }
@@ -557,7 +561,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
       public string SingleTableHBField { get; set; }
     }
 
-    public class SingleTableAncestor1 : SingleTableHierarchyBase
+    public class SingleTableDescendant1 : SingleTableHierarchyBase
     {
       [Field]
       public int Value { get; set; }
@@ -566,7 +570,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
       public string Comment { get; set; }
     }
 
-    public class SingleTableAncestor2 : SingleTableAncestor1
+    public class SingleTableDescendant2 : SingleTableDescendant1
     {
       [Field]
       public float SomeField { get; set; }
@@ -586,9 +590,9 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
 
         protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
         {
-          hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.UpgradeAndNamingRulesAdvanced.Sources.MoveFieldModel.ClassTableHierarchyBase", "MovableField", typeof(ClassTableAncestor2)));
-          hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.UpgradeAndNamingRulesAdvanced.Sources.MoveFieldModel.ConcreteTableHierarchyBase", "MovableField", typeof(ConcreteTableAncestor2)));
-          hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.UpgradeAndNamingRulesAdvanced.Sources.MoveFieldModel.SingleTableHierarchyBase", "MovableField", typeof(SingleTableAncestor2)));
+          hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.MoveFieldModel.ClassTableHierarchyBase", "MovableField", typeof(ClassTableDescendant2)));
+          hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.MoveFieldModel.ConcreteTableHierarchyBase", "MovableField", typeof(ConcreteTableDescendant2)));
+          hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.MoveFieldModel.SingleTableHierarchyBase", "MovableField", typeof(SingleTableDescendant2)));
         }
       }
     }
@@ -606,7 +610,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
       public string ClassTableHBField { get; set; }
     }
 
-    public class ClassTableAncestor1 : ClassTableHierarchyBase
+    public class ClassTableDescendant1 : ClassTableHierarchyBase
     {
       [Field]
       public int Value { get; set; }
@@ -618,11 +622,10 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
       public string MovableField { get; set; }
     }
 
-    public class ClassTableAncestor2 : ClassTableAncestor1
+    public class ClassTableDescendant2 : ClassTableDescendant1
     {
       [Field]
       public float SomeField { get; set; }
-
     }
 
     [HierarchyRoot(InheritanceSchema.ConcreteTable)]
@@ -635,7 +638,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
       public string ConcreteTableHBField { get; set; }
     }
 
-    public class ConcreteTableAncestor1 : ConcreteTableHierarchyBase
+    public class ConcreteTableDescendant1 : ConcreteTableHierarchyBase
     {
       [Field]
       public int Value { get; set; }
@@ -647,7 +650,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
       public string MovableField { get; set; }
     }
 
-    public class ConcreteTableAncestor2 : ConcreteTableAncestor1
+    public class ConcreteTableDescendant2 : ConcreteTableDescendant1
     {
       [Field]
       public float SomeField { get; set; }
@@ -663,7 +666,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
       public string SingleTableHBField { get; set; }
     }
 
-    public class SingleTableAncestor1 : SingleTableHierarchyBase
+    public class SingleTableDescendant1 : SingleTableHierarchyBase
     {
       [Field]
       public int Value { get; set; }
@@ -675,7 +678,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
       public string MovableField { get; set; }
     }
 
-    public class SingleTableAncestor2 : SingleTableAncestor1
+    public class SingleTableDescendant2 : SingleTableDescendant1
     {
       [Field]
       public float SomeField { get; set; }
@@ -683,7 +686,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
 
     namespace UpgradeHandlers
     {
-      public class FirstCustomUpgradeHandler : UpgradeHandler
+      public class CustomUpgradeHandler : UpgradeHandler
       {
         public override bool CanUpgradeFrom(string oldVersion)
         {
@@ -692,9 +695,9 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
 
         protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
         {
-          hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.UpgradeAndNamingRulesAdvanced.Sources.MoveFieldModel.ClassTableHierarchyBase", "MovableField", typeof(ClassTableAncestor1)));
-          hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.UpgradeAndNamingRulesAdvanced.Sources.MoveFieldModel.ConcreteTableHierarchyBase", "MovableField", typeof(ConcreteTableAncestor1)));
-          hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.UpgradeAndNamingRulesAdvanced.Sources.MoveFieldModel.SingleTableHierarchyBase", "MovableField", typeof(SingleTableAncestor1)));
+          hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.MoveFieldModel.ClassTableHierarchyBase", "MovableField", typeof(ClassTableDescendant1)));
+          hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.MoveFieldModel.ConcreteTableHierarchyBase", "MovableField", typeof(ConcreteTableDescendant1)));
+          hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.MoveFieldModel.SingleTableHierarchyBase", "MovableField", typeof(SingleTableDescendant1)));
         }
       }
     }

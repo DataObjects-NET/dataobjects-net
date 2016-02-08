@@ -1,16 +1,16 @@
-﻿
+﻿// Copyright (C) 2016 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2016.02.03
 
 using System;
 using System.Linq;
 using System.Reflection;
-using JetBrains.Annotations;
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0168_RemoveQueryableExtensionFails_Model;
-using Xtensive.Orm.Tests.ObjectModel.Interfaces.Alphabet;
-using Xtensive.Orm.Tests.Storage;
 using Xtensive.Reflection;
 using sources = Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels;
 using targets = Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels;
@@ -20,8 +20,9 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
   [TestFixture]
   public abstract class TestBase
   {
-    protected  abstract NamingConvention NamingConvention { get; }
-
+    public readonly object guard = new object();
+    private NamingConvention namingConvention;
+    
     [Test]
     public void AddNewFieldTest()
     {
@@ -43,7 +44,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
       var finalConfiguration = BuildFinalDomainConfiguration(GetType().Assembly, typeof (targets.AddNewFieldModel.SingleTableHierarchyBase).Namespace, false);
       using (var domain = BuildDomain(finalConfiguration))
       using (var session = domain.OpenSession())
-      using (var transaction = domain.OpenSession()) {
+      using (var transaction = session.OpenTransaction()) {
         var query1 = session.Query.All<targets.AddNewFieldModel.SingleTableHierarchyBase>().ToList();
         Assert.That(query1.Count, Is.EqualTo(2));
         foreach (var singleTableHierarchyBase in query1) {
@@ -109,7 +110,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
       var finalConfiguration = BuildFinalDomainConfiguration(GetType().Assembly, typeof(targets.AddNewTypeModel.SingleTableHierarchyBase).Namespace, false);
       using (var domain = BuildDomain(finalConfiguration))
       using (var session = domain.OpenSession())
-      using (var transaction = domain.OpenSession()) {
+      using (var transaction = session.OpenTransaction()) {
         var query1 = session.Query.All<targets.AddNewTypeModel.SingleTableHierarchyBase>().ToList();
         Assert.That(query1.Count, Is.EqualTo(2));
         foreach (var singleTableHierarchyBase in query1) {
@@ -205,9 +206,23 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
       using (var domain = Domain.Build(finalConfiguration))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        foreach (var entityType in domain.Model.Types.Where(el=>el.IsEntity && !el.IsSystem).Select(el=>el.UnderlyingType)) {
-          Assert.That(session.Query.All(entityType).Cast<Entity>().ToList(), Is.EqualTo(0));
-        }
+        var query1 = session.Query.All<targets.RemoveFieldModel.SingleTableHierarchyBase>().ToArray();
+        Assert.That(query1.Length, Is.EqualTo(2));
+
+        var query2 = session.Query.All<targets.RemoveFieldModel.SingleTableDescendant>().ToArray();
+        Assert.That(query2.Length, Is.EqualTo(1));
+
+        var query3 = session.Query.All<targets.RemoveFieldModel.ConcreteTableHierarchyBase>().ToArray();
+        Assert.That(query3.Length, Is.EqualTo(2));
+
+        var query4 = session.Query.All<targets.RemoveFieldModel.ConcreteTableDescendant>().ToArray();
+        Assert.That(query4.Length, Is.EqualTo(1));
+
+        var query5 = session.Query.All<targets.RemoveFieldModel.ClassTableHierarchyBase>().ToArray();
+        Assert.That(query5.Length, Is.EqualTo(2));
+
+        var query6 = session.Query.All<targets.RemoveFieldModel.ClassTableDescendant>().ToArray();
+        Assert.That(query6.Length, Is.EqualTo(1));
       }
     }
 
@@ -218,8 +233,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
 
       using (var domain = Domain.Build(initialConfiguration))
       using (var session = domain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
+      using (var transaction = session.OpenTransaction()) {
         new sources.RemoveFieldModel.ClassTableHierarchyBase {
           ClassTableHBField = Guid.NewGuid().ToString(),
           ClassTableRemovableField = Guid.NewGuid().ToString()
@@ -254,8 +268,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
       }
 
       var finalConfiguration = BuildFinalDomainConfiguration(GetType().Assembly, typeof(targets.RemoveFieldModel.SingleTableHierarchyBase).Namespace, false);
-
-      Assert.Throws<DomainBuilderException>(() => BuildDomain(finalConfiguration));
+      Assert.Throws<SchemaSynchronizationException>(() => BuildDomain(finalConfiguration));
     }
 
     [Test]
@@ -369,10 +382,50 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
       using (var domain = Domain.Build(finalConfiguration))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        foreach (var entityType in domain.Model.Types.Where(t=>!t.IsSystem && t.IsEntity).Select(t=>t.UnderlyingType)) {
-          var entities = session.Query.All(entityType).Cast<Entity>().ToList();
-          Assert.That(entities.Count, Is.Not.EqualTo(0));
-        }
+        var query1 = session.Query.All<targets.RemoveTypeModel.SingleTableHierarchyBase>().ToArray();
+        Assert.That(query1.Length, Is.EqualTo(5));
+
+        var query2 = session.Query.All<targets.RemoveTypeModel.SingleTableDescendant1>().ToArray();
+        Assert.That(query2.Length, Is.EqualTo(2));
+
+        var query3 = session.Query.All<targets.RemoveTypeModel.SingleTableDescendant2>().ToArray();
+        Assert.That(query3.Length, Is.EqualTo(2));
+
+        var query4 = session.Query.All<targets.RemoveTypeModel.SingleTableDescendant11>().ToArray();
+        Assert.That(query4.Length, Is.EqualTo(1));
+
+        var query5 = session.Query.All<targets.RemoveTypeModel.SingleTableDescendant21>().ToArray();
+        Assert.That(query5.Length, Is.EqualTo(1));
+
+        var query6 = session.Query.All<targets.RemoveTypeModel.ClassTableHierarchyBase>().ToArray();
+        Assert.That(query6.Length, Is.EqualTo(5));
+
+        var query7 = session.Query.All<targets.RemoveTypeModel.ClassTableDescendant1>().ToArray();
+        Assert.That(query7.Length, Is.EqualTo(2));
+
+        var query8 = session.Query.All<targets.RemoveTypeModel.ClassTableDescendant2>().ToArray();
+        Assert.That(query8.Length, Is.EqualTo(2));
+
+        var query9 = session.Query.All<targets.RemoveTypeModel.ClassTableDescendant11>().ToArray();
+        Assert.That(query9.Length, Is.EqualTo(1));
+
+        var query10 = session.Query.All<targets.RemoveTypeModel.ClassTableDescendant21>().ToArray();
+        Assert.That(query10.Length, Is.EqualTo(1));
+
+        var query11 = session.Query.All<targets.RemoveTypeModel.ConcreteTableHierarchyBase>().ToArray();
+        Assert.That(query11.Length, Is.EqualTo(5));
+
+        var query12 = session.Query.All<targets.RemoveTypeModel.ConcreteTableDescendant1>().ToArray();
+        Assert.That(query12.Length, Is.EqualTo(2));
+
+        var query13 = session.Query.All<targets.RemoveTypeModel.ConcreteTableDescendant2>().ToArray();
+        Assert.That(query13.Length, Is.EqualTo(2));
+
+        var query14 = session.Query.All<targets.RemoveTypeModel.ConcreteTableDescendant11>().ToArray();
+        Assert.That(query14.Length, Is.EqualTo(1));
+
+        var query15 = session.Query.All<targets.RemoveTypeModel.ConcreteTableDescendant21>().ToArray();
+        Assert.That(query15.Length, Is.EqualTo(1));
       }
     }
 
@@ -484,7 +537,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
 
       var finalConfiguration = BuildFinalDomainConfiguration(GetType().Assembly, typeof(targets.RemoveTypeModel.SingleTableHierarchyBase).Namespace, false);
 
-      Assert.Throws<DomainBuilderException>(() => BuildDomain(finalConfiguration));
+      Assert.Throws<SchemaSynchronizationException>(() => BuildDomain(finalConfiguration));
     }
 
     [Test]
@@ -556,7 +609,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
         Assert.That(query3.Length, Is.EqualTo(2));
         Assert.That(query3[0].FieldWithRightName, Is.EqualTo(intValues[6]));
         Assert.That(query3[0].ConcreteTableHBField.IsNullOrEmpty(), Is.False);
-        Assert.That(query3[1] is targets.RenameFieldModel.SingleTableDescendant, Is.True);
+        Assert.That(query3[1] is targets.RenameFieldModel.ConcreteTableDescendant, Is.True);
         var concreteTableDescendant = query3[1] as targets.RenameFieldModel.ConcreteTableDescendant;
         Assert.That(concreteTableDescendant.FieldWithRightName, Is.EqualTo(intValues[7]));
         Assert.That(concreteTableDescendant.AnotherFieldWithRightName, Is.EqualTo((double)intValues[8]));
@@ -606,7 +659,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
 
       var finalConfiguration = BuildFinalDomainConfiguration(GetType().Assembly, typeof (targets.RenameFieldModel.SingleTableHierarchyBase).Namespace, false);
 
-      Assert.Throws<DomainBuilderException>(() => BuildDomain(finalConfiguration));
+      Assert.Throws<SchemaSynchronizationException>(() => BuildDomain(finalConfiguration));
 
       finalConfiguration = BuildFinalDomainConfiguration(GetType().Assembly, typeof(targets.RenameFieldModel.SingleTableHierarchyBase).Namespace, true);
 
@@ -637,7 +690,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
         Assert.That(query3.Length, Is.EqualTo(2));
         Assert.That(query3[0].FieldWithRightName, Is.EqualTo(intValues[6]));
         Assert.That(query3[0].ConcreteTableHBField.IsNullOrEmpty(), Is.False);
-        Assert.That(query3[1] is targets.RenameFieldModel.SingleTableDescendant, Is.True);
+        Assert.That(query3[1] is targets.RenameFieldModel.ConcreteTableDescendant, Is.True);
         var concreteTableDescendant = query3[1] as targets.RenameFieldModel.ConcreteTableDescendant;
         Assert.That(concreteTableDescendant.FieldWithRightName, Is.EqualTo(intValues[7]));
         Assert.That(concreteTableDescendant.AnotherFieldWithRightName, Is.EqualTo((double)intValues[8]));
@@ -709,7 +762,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
       }
 
       var finalConfiguration = BuildFinalDomainConfiguration(GetType().Assembly, typeof(targets.RenameTypeModel.SingleTableHierarchyBase).Namespace, false);
-      Assert.Throws<DomainBuilderException>(() => BuildDomain(finalConfiguration));
+      Assert.Throws<SchemaSynchronizationException>(() => BuildDomain(finalConfiguration));
 
       finalConfiguration = BuildFinalDomainConfiguration(GetType().Assembly, typeof(targets.RenameTypeModel.SingleTableHierarchyBase).Namespace, true);
 
@@ -796,20 +849,17 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
       using (var domain = Domain.Build(finalConfiguration))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var query1 = session.Query.All<targets.MoveFieldToLastDescendantModel.SingleTableAncestor2>().ToArray();
-        Assert.That(query1.Length, Is.EqualTo(2));
-        Assert.That(query1[0].MovableField.IsNullOrEmpty(), Is.True);
-        Assert.That(query1[1].MovableField.IsNullOrEmpty(), Is.True);
+        var query1 = session.Query.All<targets.MoveFieldToLastDescendantModel.SingleTableDescendant2>().ToArray();
+        Assert.That(query1.Length, Is.EqualTo(1));
+        Assert.That(query1[0].MovableField.IsNullOrEmpty(), Is.False);
 
-        var query2 = session.Query.All<targets.MoveFieldToLastDescendantModel.ConcreteTableAncestor2>().ToArray();
-        Assert.That(query2.Length, Is.EqualTo(2));
-        Assert.That(query2[0].MovableField.IsNullOrEmpty(), Is.True);
-        Assert.That(query2[1].MovableField.IsNullOrEmpty(), Is.True);
+        var query2 = session.Query.All<targets.MoveFieldToLastDescendantModel.ConcreteTableDescendant2>().ToArray();
+        Assert.That(query2.Length, Is.EqualTo(1));
+        Assert.That(query2[0].MovableField.IsNullOrEmpty(), Is.False);
 
-        var query3 = session.Query.All<targets.MoveFieldToLastDescendantModel.SingleTableAncestor2>().ToArray();
-        Assert.That(query3.Length, Is.EqualTo(2));
-        Assert.That(query3[0].MovableField.IsNullOrEmpty(), Is.True);
-        Assert.That(query3[1].MovableField.IsNullOrEmpty(), Is.True);
+        var query3 = session.Query.All<targets.MoveFieldToLastDescendantModel.ClassTableDescendant2>().ToArray();
+        Assert.That(query3.Length, Is.EqualTo(1));
+        Assert.That(query3[0].MovableField.IsNullOrEmpty(), Is.False);
       }
     }
 
@@ -873,48 +923,62 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced
       using (var domain = BuildDomain(finalConfiguration))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var query1 = session.Query.All<targets.MoveFieldToFirstDescendantModel.SingleTableAncestor1>().ToArray();
+        var query1 = session.Query.All<targets.MoveFieldToFirstDescendantModel.SingleTableDescendant1>().ToArray();
         Assert.That(query1.Length, Is.EqualTo(2));
-        Assert.That(query1[0].MovableField.IsNullOrEmpty(), Is.True);
-        Assert.That(query1[1].MovableField.IsNullOrEmpty(), Is.True);
+        Assert.That(query1[0].MovableField.IsNullOrEmpty(), Is.False);
+        Assert.That(query1[1].MovableField.IsNullOrEmpty(), Is.False);
 
-        var query2 = session.Query.All<targets.MoveFieldToFirstDescendantModel.ConcreteTableAncestor1>().ToArray();
+        var query2 = session.Query.All<targets.MoveFieldToFirstDescendantModel.ConcreteTableDescendant1>().ToArray();
         Assert.That(query2.Length, Is.EqualTo(2));
-        Assert.That(query2[0].MovableField.IsNullOrEmpty(), Is.True);
-        Assert.That(query2[1].MovableField.IsNullOrEmpty(), Is.True);
+        Assert.That(query2[0].MovableField.IsNullOrEmpty(), Is.False);
+        Assert.That(query2[1].MovableField.IsNullOrEmpty(), Is.False);
 
-        var query3 = session.Query.All<targets.MoveFieldToFirstDescendantModel.SingleTableAncestor1>().ToArray();
+        var query3 = session.Query.All<targets.MoveFieldToFirstDescendantModel.ClassTableDescendant1>().ToArray();
         Assert.That(query3.Length, Is.EqualTo(2));
-        Assert.That(query3[0].MovableField.IsNullOrEmpty(), Is.True);
-        Assert.That(query3[1].MovableField.IsNullOrEmpty(), Is.True);
+        Assert.That(query3[0].MovableField.IsNullOrEmpty(), Is.False);
+        Assert.That(query3[1].MovableField.IsNullOrEmpty(), Is.False);
       }
     }
 
+    protected abstract NamingConvention CreateNamingConvention();
 
     protected virtual DomainConfiguration BuildInitialDomainConfiguration(Assembly assembly, string @namespace)
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.NamingConvention = NamingConvention;
+      configuration.NamingConvention = GetNamingConvention();
       configuration.Types.Register(assembly, @namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
 
-    protected virtual DomainConfiguration BuildFinalDomainConfiguration(Assembly assembly, string @namespace, bool includeUpgrader)
+    protected virtual DomainConfiguration BuildFinalDomainConfiguration(Assembly assembly, string @namespace, bool withUpgrader)
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.NamingConvention = NamingConvention;
-      configuration.Types.Register(assembly, @namespace);
-      if (includeUpgrader)
-        configuration.Types.Register(assembly, @namespace + ".UpgradeHandlers");
+      configuration.NamingConvention = GetNamingConvention();
+      foreach (var type in assembly.GetTypes().Where(t => t.Namespace==@namespace))
+        configuration.Types.Register(type);
+
+      if (withUpgrader) {
+        var type = Type.GetType(@namespace + ".UpgradeHandlers.CustomUpgradeHandler");
+        configuration.Types.Register(type);
+      }
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
       return configuration;
     }
 
+    protected NamingConvention GetNamingConvention()
+    {
+      lock (guard) {
+        if (namingConvention!=null)
+          return namingConvention;
+        namingConvention = CreateNamingConvention();
+        return namingConvention;
+      }
+    }
+
     protected Domain BuildDomain(DomainConfiguration configuration)
     {
-      try
-      {
+      try {
         return Domain.Build(configuration);
       }
       catch (Exception e) {

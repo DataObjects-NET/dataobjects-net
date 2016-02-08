@@ -1,7 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿// Copyright (C) 2016 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2016.02.03
+
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
@@ -62,7 +64,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
     [HierarchyRoot(InheritanceSchema.SingleTable)]
     public class SingleTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -78,7 +80,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
     [HierarchyRoot(InheritanceSchema.ClassTable)]
     public class ClassTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -94,7 +96,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
     [HierarchyRoot]
     public class ConcreteTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -157,7 +159,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
     [HierarchyRoot(InheritanceSchema.SingleTable)]
     public class SingleTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -275,7 +277,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
     [HierarchyRoot(InheritanceSchema.ConcreteTable)]
     public class ConcreteTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -324,7 +326,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
     [HierarchyRoot(InheritanceSchema.SingleTable)]
     public class SingleTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -343,7 +345,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
     [HierarchyRoot(InheritanceSchema.ClassTable)]
     public class ClassTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -362,7 +364,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
     [HierarchyRoot(InheritanceSchema.ConcreteTable)]
     public class ConcreteTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
 
       [Field]
@@ -384,7 +386,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
     [HierarchyRoot(InheritanceSchema.SingleTable)]
     public class SingleTableHierarchyBase : Entity
     {
-      [Field]
+      [Field , Key]
       public int Id { get; set; }
     }
 
@@ -397,7 +399,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
     [HierarchyRoot(InheritanceSchema.ClassTable)]
     public class ClassTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
     }
 
@@ -410,11 +412,11 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
     [HierarchyRoot(InheritanceSchema.ConcreteTable)]
     public class ConcreteTableHierarchyBase : Entity
     {
-      [Field]
+      [Field, Key]
       public int Id { get; set; }
     }
 
-    public class ConcreteTableDescendant1 : Entity
+    public class ConcreteTableDescendant1 : ConcreteTableHierarchyBase
     {
       [Field]
       public string SomeStringField { get; set; }
