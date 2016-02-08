@@ -561,7 +561,7 @@ namespace Xtensive.Orm.Upgrade
 
     private StoredFieldInfo GetExtractedStoredColumn(ColumnInfo column)
     {
-      var typeName = column.Field.DeclaringType.UnderlyingType.GetFullName();
+      var typeName = column.Field.ReflectedType.UnderlyingType.GetFullName();
       var currentType = CurrentModelTypes.GetValueOrDefault(typeName);
       if(currentType==null)
         throw new InvalidOperationException(string.Format(Strings.ExUnableToFindTypeXInCurrentModel, typeName));
