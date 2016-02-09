@@ -456,11 +456,9 @@ namespace Xtensive.Orm.Upgrade
     {
       var handlers = Domain.Demand().Handlers;
       var currentDomainModel = GetStoredDomainModel(handlers.Domain.Model);
-      // oldModel can be null in case of empty database or schema
-      // need to handle somehow
       var oldModel = context.ExtractedDomainModel;
-      IUpgradeHintsProcessor hintProcessor = (context.Stage==UpgradeStage.Final || oldModel==null)
-        ? (IUpgradeHintsProcessor)new NullUpgradeHintsProcessor()
+      var hintProcessor = (context.Stage==UpgradeStage.Final || oldModel==null)
+        ? (IUpgradeHintsProcessor)new NullUpgradeHintsProcessor(currentDomainModel)
         : (context.TypesMovementsAutoDetection)
           ? (IUpgradeHintsProcessor)new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, true)
           : (IUpgradeHintsProcessor)new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, false);
