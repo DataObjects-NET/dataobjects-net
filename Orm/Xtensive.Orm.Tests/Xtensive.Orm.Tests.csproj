@@ -418,6 +418,7 @@
     <Compile Include="Storage\TypeDiscriminatorFromInterfaceTest.cs" />
     <Compile Include="Storage\UpgradeModesTest.cs" />
     <Compile Include="Storage\ValidateEntityVersionsOnPersistTest.cs" />
+    <Compile Include="Upgrade\BuildOnEmptySchemaTest.cs" />
     <Compile Include="Upgrade\CustomTypeIdMap\CustomTypeIdMap.cs" />
     <Compile Include="Upgrade\DisableAutoResolveNamespaceConflictsTest.cs" />
     <Compile Include="Storage\ValidationConstraintsOnGenericTypeTest.cs" />
