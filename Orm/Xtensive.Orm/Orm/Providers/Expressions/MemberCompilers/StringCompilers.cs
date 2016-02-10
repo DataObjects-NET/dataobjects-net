@@ -431,8 +431,8 @@ namespace Xtensive.Orm.Providers
       MemberInfo member, SqlExpression value)
     {
       var method = (MethodInfo) member;
-      if (method.GetGenericArguments()[0] != typeof(string))
-        throw new NotSupportedException();
+      if (!method.GetParameters()[0].ParameterType.IsAssignableFrom(typeof (string)))
+        throw new NotSupportedException(string.Format(Strings.ExTranslationOfXMethodDoesNotSupportAnyTypeOfParameterButY, "EnumearbleExtensions.IsNullOrEmpty()", "IEnumerable<char>"));
       return StringIsNullOrEmpty(value);
     }
 

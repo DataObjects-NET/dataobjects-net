@@ -3355,4 +3355,7 @@ Error: {1}</value>
   <data name="UnableToFindColumnXInTypeYOfCurrentModel" xml:space="preserve">
     <value>Unable to find column '{0}' of type '{1}' of current model.</value>
   </data>
+  <data name="ExTranslationOfXMethodDoesNotSupportAnyTypeOfParameterButY" xml:space="preserve">
+    <value>Translation of {0} method does not support any parameter type, but {1}.</value>
+  </data>
 </root>

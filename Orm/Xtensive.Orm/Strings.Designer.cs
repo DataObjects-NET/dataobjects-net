@@ -6223,6 +6223,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Translation of {0} method does not support any parameter type, but {1}..
+        /// </summary>
+        internal static string ExTranslationOfXMethodDoesNotSupportAnyTypeOfParameterButY {
+            get {
+                return ResourceManager.GetString("ExTranslationOfXMethodDoesNotSupportAnyTypeOfParameterButY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type cannot be null..
         /// </summary>
         internal static string ExTypeCantBeNull {
