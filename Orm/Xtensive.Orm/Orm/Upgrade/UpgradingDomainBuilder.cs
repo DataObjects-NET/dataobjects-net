@@ -336,15 +336,15 @@ namespace Xtensive.Orm.Upgrade
       return builder.Bind(configuration);
     }
 
-    private HintSet GetSchemaHints(StorageModel extractedSchema, StorageModel targetSchema)
-    {
-      context.SchemaHints = new HintSet(extractedSchema, targetSchema);
-      if (context.Stage==UpgradeStage.Upgrading)
-        BuildSchemaHints(extractedSchema);
-      return context.SchemaHints;
-    }
+    //private HintSet GetSchemaHints(StorageModel extractedSchema, StorageModel targetSchema)
+    //{
+    //  context.SchemaHints = new HintSet(extractedSchema, targetSchema);
+    //  if (context.Stage==UpgradeStage.Upgrading)
+    //    BuildSchemaHints(extractedSchema);
+    //  return context.SchemaHints;
+    //}
 
-    private void BuildSchemaHints(StorageModel extractedSchema)
+    private void BuildSchemaHints(StorageModel extractedSchema, UpgradeHintsProcessingResult result, StoredDomainModel currentDomainModel)
     {
       var oldModel = context.ExtractedDomainModel;
       if (oldModel==null)
@@ -352,12 +352,7 @@ namespace Xtensive.Orm.Upgrade
       var handlers = Domain.Demand().Handlers;
       // It's important to use same StoredDomainModel of current domain
       // in both UpgradeHintsProcessor and HintGenerator instances.
-      var currentDomainModel = GetStoredDomainModel(handlers.Domain.Model);
-      var upgradeHintProcessor = (context.TypesMovementsAutoDetection)
-        ? new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, true)
-        : new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, false);
-      var info = upgradeHintProcessor.Process(context.Hints);
-      var hintGenerator = new HintGenerator(info.TypeMapping, info.ReverseTypeMapping, info.FieldMapping, info.Hints, handlers, context.Services.MappingResolver, extractedSchema, currentDomainModel, oldModel);
+      var hintGenerator = new HintGenerator(result.TypeMapping, result.ReverseTypeMapping, result.FieldMapping, result.Hints, handlers, context.Services.MappingResolver, extractedSchema, currentDomainModel, oldModel);
       var hints = hintGenerator.Run();
       context.UpgradedTypesMapping = hints.UpgradedTypesMapping;
       context.Hints.Clear();
@@ -461,11 +456,9 @@ namespace Xtensive.Orm.Upgrade
     {
       var handlers = Domain.Demand().Handlers;
       var currentDomainModel = GetStoredDomainModel(handlers.Domain.Model);
-      // oldModel can be null in case of empty database or schema
-      // need to handle somehow
       var oldModel = context.ExtractedDomainModel;
-      IUpgradeHintsProcessor hintProcessor = (context.Stage==UpgradeStage.Final || oldModel==null)
-        ? (IUpgradeHintsProcessor)new NullUpgradeHintsProcessor()
+      var hintProcessor = (context.Stage==UpgradeStage.Final || oldModel==null)
+        ? (IUpgradeHintsProcessor)new NullUpgradeHintsProcessor(currentDomainModel)
         : (context.TypesMovementsAutoDetection)
           ? (IUpgradeHintsProcessor)new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, true)
           : (IUpgradeHintsProcessor)new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, false);
@@ -473,7 +466,7 @@ namespace Xtensive.Orm.Upgrade
       var targetModel = GetTargetModel(handlers.Domain, processedInfo.ReverseFieldMapping, processedInfo.CurrentModelTypes, extractedSchema);
       context.SchemaHints = new HintSet(extractedSchema, targetModel);
       if (context.Stage==UpgradeStage.Upgrading)
-        BuildSchemaHints(extractedSchema);
+        BuildSchemaHints(extractedSchema, processedInfo, currentDomainModel);
       return new Pair<StorageModel, HintSet>(targetModel, context.SchemaHints);
     }
 

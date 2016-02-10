@@ -3,6 +3,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Modelling.Actions;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Upgrade.Model;
 using model = Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel;
