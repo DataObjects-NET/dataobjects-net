@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0627_PocoClassPropertyRenitializationModel;
 
@@ -1064,14 +1064,712 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    public void AllByFieldOfPoco01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name})
+          .All(el => el.Name.IsNullOrEmpty());
+      }
+    }
+
+    [Test]
+    public void AllByFieldOfPoco02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .All(el => el.Name.IsNullOrEmpty());
+      }
+    }
+
+    [Test]
+    public void AllByFieldOfPoco03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .All(el => el.Name.IsNullOrEmpty());
+      }
+    }
+
+    [Test]
+    public void AllByFieldOfPoco04Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco { BaseName = e.Name })
+          .All(el => el.Name.IsNullOrEmpty());
+      }
+    }
+
+    [Test]
+    public void AllByFieldOfPoco05Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco())
+          .All(el => el.Name.IsNullOrEmpty());
+      }
+    }
+
+
+    [Test]
+    public void AnyByFieldOfPoco01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name}).Any(el => el.Name.IsNullOrEmpty());
+      }
+    }
+
+    [Test]
+    public void AnyByFieldOfPoco02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .Any(el => el.Name.IsNullOrEmpty());
+      }
+    }
+
+    [Test]
+    public void AnyByFieldOfPoco03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Any(el => el.BaseName.IsNullOrEmpty());
+      }
+    }
+
+    [Test]
+    public void AnyByFieldOfPoco04Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {BaseName = e.Name})
+          .Any(el => el.BaseName.IsNullOrEmpty());
+      }
+    }
+
+    [Test]
+    public void AnyByFieldOfPoco05Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco())
+          .Any(el => el.Name.IsNullOrEmpty());
+      }
+    }
+
+    [Test]
+    public void AverageByFieldOfPoco01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name})
+          .Average(el => el.Name.Length);
+      }
+    }
+
+    [Test]
+    public void AverageByFieldOfPoco02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Average(el => el.Name.Length);
+      }
+    }
+
+    [Test]
+    public void AverageByFieldOfPoco03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Average(el => el.BaseName.Length);
+      }
+    }
+
+    [Test]
+    public void AverageByFieldOfPoco04Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {BaseName = e.Name})
+          .Average(el => el.BaseName.Length);
+      }
+    }
+
+    [Test]
+    public void AverageByFieldOfPoco05Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco())
+          .Average(el => el.Name.Length);
+      }
+    }
+
+    [Test]
+    public void ConcatOfPocos01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name })
+          .Concat(session.Query.All<TestEntity>().Select(e => new Poco { Name = e.Name }))
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void ConcatOfPocos02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Concat(session.Query.All<TestEntity>().Select(e => new Poco {Name = e.Name, BaseName = e.Name}))
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void ConcatOfPocos03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco { BaseName = e.Name })
+          .Concat(session.Query.All<TestEntity>().Select(e => new Poco { BaseName = e.Name }))
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void ConcatOfPocos04Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco())
+          .Concat(session.Query.All<TestEntity>().Select(e => new Poco()))
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void CountByFieldOfPoco01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name})
+          .Count(el => el.Name.IsNullOrEmpty());
+      }
+    }
+
+    [Test]
+    public void CountByFieldOfPoco02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .Count(el => el.Name.IsNullOrEmpty());
+      }
+    }
+
+    [Test]
+    public void CountByFieldOfPoco03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .Count(el => el.BaseName.IsNullOrEmpty());
+      }
+    }
+
+    [Test]
+    public void CountByFieldOfPoco04Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco { BaseName = e.Name })
+          .Count(el => el.BaseName.IsNullOrEmpty());
+      }
+    }
+
+    [Test]
+    public void CountByFieldOfPoco05Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco())
+          .Count(el => el.Name.IsNullOrEmpty());
+      }
+    }
+
+    [Test]
+    public void DistinctOfPocos01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name })
+          .Distinct()
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void ExceptOfPocos01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name})
+          .Except(session.Query.All<TestEntity>()
+            .Select(e => new Poco {Name = e.Name}))
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void ExceptOfPocos02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .Except(session.Query.All<TestEntity>()
+            .Select(e => new Poco { Name = e.Name, BaseName = e.Name }))
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void ExceptOfPocos03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {BaseName = e.Name})
+          .Except(session.Query.All<TestEntity>()
+            .Select(e => new Poco {BaseName = e.Name}))
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void ExceptOfPocos05Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco())
+          .Except(session.Query.All<TestEntity>()
+            .Select(e => new Poco()))
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void GroupByFieldOfPoco01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name})
+          .GroupBy(e => e.Name)
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void GroupByFieldOfPoco02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .GroupBy(e => e.Name)
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void GroupByFieldOfPoco03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .GroupBy(e => e.BaseName)
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void GroupByFieldOfPoco04Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {BaseName = e.Name})
+          .GroupBy(e => e.Name)
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void GroupByFieldOfPoco05Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco())
+          .GroupBy(e => e.Name)
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void GroupJoinOfPoco01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name})
+          .GroupJoin(session.Query.All<TestEntity>()
+            .Select(e => new Poco {Name = e.Name}), (poco) => poco.Name, poco => poco.Name, (poco, pocos) => new {Key = poco.Name, Values = pocos})
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void GroupJoinOfPoco02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .GroupJoin(session.Query.All<TestEntity>()
+            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}), (poco) => poco.Name, poco => poco.Name, (poco, pocos) => new {Key = poco.Name, Values = pocos})
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void GroupJoinOfPocos03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .GroupJoin(session.Query.All<TestEntity>()
+            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}), (poco) => poco.Name, poco => poco.BaseName, (poco, pocos) => new {Key = poco.Name, Values = pocos})
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void GroupJoinOfPocos04Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .GroupJoin(session.Query.All<TestEntity>()
+            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}), (poco) => poco.BaseName, poco => poco.Name, (poco, pocos) => new {Key = poco.BaseName, Values = pocos})
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void GroupJoinOfPocos05Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .GroupJoin(session.Query.All<TestEntity>()
+            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}), (poco) => poco.BaseName, poco => poco.BaseName, (poco, pocos) => new {Key = poco.BaseName, Values = pocos})
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void GroupJoinOfPocos06Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {BaseName = e.Name})
+          .GroupJoin(session.Query.All<TestEntity>()
+            .Select(e => new Poco {BaseName = e.Name}), (poco) => poco.BaseName, poco => poco.BaseName, (poco, pocos) => new {Key = poco.BaseName, Values = pocos})
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void IntersectOfPocos01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name })
+          .Except(session.Query.All<TestEntity>()
+            .Select(e => new Poco { Name = e.Name }))
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void IntersectOfPocos02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .Intersect(session.Query.All<TestEntity>()
+            .Select(e => new Poco { Name = e.Name, BaseName = e.Name }))
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void IntersectOfPocos03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco { BaseName = e.Name })
+          .Intersect(session.Query.All<TestEntity>()
+            .Select(e => new Poco { BaseName = e.Name }))
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void IntersectOfPocos05Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco())
+          .Intersect(session.Query.All<TestEntity>()
+            .Select(e => new Poco()))
+          .ToArray();
+      }
+    }
+
+    
+    [Test]
+    public void JoinOfPocos01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name})
+          .Join(session.Query.All<TestEntity>()
+            .Select(e => new Poco {Name = e.Name}), poco => poco.Name, poco => poco.Name, (poco, poco1) => new {poco, poco1})
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void JoinOfPoco02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Join(session.Query.All<TestEntity>()
+            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}), poco => poco.Name, poco => poco.Name, (poco, poco1) => new {poco, poco1})
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void JoinOfPocos03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Join(session.Query.All<TestEntity>()
+            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}), poco => poco.BaseName, poco => poco.Name, (poco, poco1) => new {poco, poco1})
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void JoinOfPocos04Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .Join(session.Query.All<TestEntity>()
+            .Select(e => new Poco { Name = e.Name, BaseName = e.Name }), poco => poco.Name, poco => poco.BaseName, (poco, poco1) => new { poco, poco1 })
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void JoinOfPocos05Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Join(session.Query.All<TestEntity>()
+            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}), poco => poco.BaseName, poco => poco.BaseName, (poco, poco1) => new {poco, poco1})
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void JoinOfPocos06Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {BaseName = e.Name})
+          .Join(session.Query.All<TestEntity>().Select(e => new Poco {BaseName = e.Name}), poco => poco.BaseName, poco => poco.BaseName, (poco, poco1) => new {poco, poco1})
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void MaxByFieldOfPoco01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name}).Max(el => el.Name.Length);
+      }
+    }
+
+    [Test]
+    public void MaxByFieldOfPoco02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name}).Max(el => el.Name.Length + el.BaseName.Length);
+      }
+    }
+
+    [Test]
+    public void MaxByFieldOfPoco03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {BaseName = e.Name}).Max(el => el.BaseName.Length);
+      }
+    }
+
+    [Test]
+    public void MaxByFieldOfPoco04Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco()).Max(el => el.Name.Length);
+      }
+    }
+
+    [Test]
+    public void MinByFieldOfPoco01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name}).Min(el => el.Name.Length);
+      }
+    }
+
+    [Test]
+    public void MinByFieldOfPoco02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name}).Min(el => el.Name.Length + el.BaseName.Length);
+      }
+    }
+
+    [Test]
+    public void MinByFieldOfPoco03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {BaseName = e.Name}).Min(el => el.BaseName.Length);
+      }
+    }
+
+    [Test]
+    public void MinByFieldOfPoco04Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco()).Min(el => el.Name.Length);
+      }
+    }
+
+    [Test]
     public void OrderByFieldOfPoco01Test()
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-                        .Select(e => new Poco { Name = e.Name })
-                        .OrderBy(e => e.Name)
-                        .ToArray();
+          .Select(e => new Poco {Name = e.Name})
+          .OrderBy(e => e.Name)
+          .ToArray();
       }
     }
 
@@ -1081,9 +1779,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-                        .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
-                        .OrderBy(e => e.Name)
-                        .ToArray();
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .OrderBy(e => e.Name)
+          .ToArray();
       }
     }
 
@@ -1093,9 +1791,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-                        .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
-                        .OrderBy(e => e.BaseName)
-                        .ToArray();
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .OrderBy(e => e.BaseName)
+          .ToArray();
       }
     }
 
@@ -1105,9 +1803,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-                        .Select(e => new Poco { BaseName = e.Name })
-                        .OrderBy(e => e.Name)
-                        .ToArray();
+          .Select(e => new Poco {BaseName = e.Name})
+          .OrderBy(e => e.Name)
+          .ToArray();
       }
     }
 
@@ -1117,9 +1815,161 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-                        .Select(e => new Poco())
-                        .OrderBy(e => e.Name)
-                        .ToArray();
+          .Select(e => new Poco())
+          .OrderBy(e => e.Name)
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void OrderByDescendingByFieldOfPoco01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name})
+          .OrderByDescending(e => e.Name)
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void OrderByDescendingByFieldOfPoco02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .OrderByDescending(e => e.Name)
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void OrderByDescendingByFieldOfPoco03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .OrderByDescending(e => e.BaseName)
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void OrderByDescendingByFieldOfPoco04Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {BaseName = e.Name})
+          .OrderByDescending(e => e.Name)
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void OrderByDescendingByFieldOfPoco05Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco())
+          .OrderByDescending(e => e.Name)
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void SumByFieldOfPoco01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name}).Sum(el => el.Name.Length);
+      }
+    }
+
+    [Test]
+    public void SumByFieldOfPoco02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name}).Sum(el => el.Name.Length + el.BaseName.Length);
+      }
+    }
+
+    [Test]
+    public void SumByFieldOfPoco03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {BaseName = e.Name}).Sum(el => el.BaseName.Length);
+      }
+    }
+
+    [Test]
+    public void SumByFieldOfPoco04Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco()).Sum(el => el.Name.Length);
+      }
+    }
+
+    [Test]
+    public void UnionOfPocos01Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name})
+          .Union(session.Query.All<TestEntity>()
+            .Select(e => new Poco {Name = e.Name}))
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void UnionOfPocos02Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Union(session.Query.All<TestEntity>()
+            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}))
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void UnionOfPocos03Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco {BaseName = e.Name})
+          .Union(session.Query.All<TestEntity>()
+            .Select(e => new Poco {BaseName = e.Name}))
+          .ToArray();
+      }
+    }
+
+    [Test]
+    public void UnionOfPocos05Test()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        session.Query.All<TestEntity>()
+          .Select(e => new Poco())
+          .Union(session.Query.All<TestEntity>()
+            .Select(e => new Poco()))
+          .ToArray();
       }
     }
 
@@ -1132,6 +1982,26 @@ namespace Xtensive.Orm.Tests.Issues
         new BusinessUnit {Active = true, QuickbooksClass = " jdfhgkjhjdhfgfdgjkhjhjh"};
         new BusinessUnit {Active = true, QuickbooksClass = "dfhgkaaaaajkhjhjh "};
         new BusinessUnit {Active = true, QuickbooksClass = " jdfhgkjhfdgaaaaajh"};
+
+        new TestEntity {Name = Guid.NewGuid().ToString()};
+        new TestEntity {Name = Guid.NewGuid().ToString()};
+        new TestEntity {Name = Guid.NewGuid().ToString()};
+        new TestEntity {Name = Guid.NewGuid().ToString()};
+        new TestEntity {Name = Guid.NewGuid().ToString()};
+        new TestEntity {Name = Guid.NewGuid().ToString()};
+        new TestEntity {Name = Guid.NewGuid().ToString()};
+        new TestEntity {Name = Guid.NewGuid().ToString()};
+        new TestEntity {Name = Guid.NewGuid().ToString()};
+
+        new TestEntity {Name = "klegjkrlksl hdfhgh jhthkjhjth "};
+        new TestEntity {Name = " ohgoih oierigh oihreho hoiherigh oherg"};
+        new TestEntity {Name = "jshfhjhgjkherjghewogerogp reopertgo   "};
+        new TestEntity {Name = "hjwroiheorihi oerhoigho hohergoh "};
+        new TestEntity {Name = "wieoru ioritgierh oiheroihg hoidfhgdf"};
+        new TestEntity {Name = "joijie oersidfgo dhhri "};
+        new TestEntity {Name = "fdg lhwoih jngoj bhoihiwht e"};
+        new TestEntity {Name = "rh ihh4i3hi ohierth094t pjpigd"};
+        new TestEntity {Name = "i049 hi0 4th 0fgi08 h03gh "};
         businessUnitCount = 5;
         transaction.Complete();
       }
