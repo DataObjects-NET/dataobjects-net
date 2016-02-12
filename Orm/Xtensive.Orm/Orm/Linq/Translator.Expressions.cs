@@ -1106,8 +1106,11 @@ namespace Xtensive.Orm.Linq
       var bindings = VisitBindingList(mi.Bindings).Cast<MemberAssignment>();
       var constructorExpression = (ConstructorExpression) VisitNew(mi.NewExpression);
       foreach (var binding in bindings) {
-        constructorExpression.Bindings[binding.Member] = binding.Expression;
-        constructorExpression.NativeBindings[binding.Member] = binding.Expression;
+        // I don't know why but binging.Member.ReflectedType is not equal to mi.NewExpression.Type
+        // So we have to handle it.
+        var member = TryGetActualMemberInfo(binding.Member, mi.NewExpression.Type);
+        constructorExpression.Bindings[member] = binding.Expression;
+        constructorExpression.NativeBindings[member] = binding.Expression;
       }
       return constructorExpression;
     }
@@ -1447,6 +1450,27 @@ namespace Xtensive.Orm.Linq
         current = Expression.Condition(Expression.TypeIs(ma.Expression, field.ReflectedType), expression, current);
       }
       return current;
+    }
+
+    private MemberInfo TryGetActualMemberInfo(MemberInfo memberInfo, Type initializingType)
+    {
+      if (!memberInfo.ReflectedType.IsAssignableFrom(initializingType))
+        return memberInfo;
+
+      if (memberInfo.ReflectedType==initializingType)
+        return memberInfo;
+      switch (memberInfo.MemberType) {
+        case MemberTypes.Field: {
+          var inheritedField = initializingType.GetField(memberInfo.Name);
+          return inheritedField ?? memberInfo;
+        }
+        case MemberTypes.Property: {
+          var inheritedProperty = initializingType.GetProperty(memberInfo.Name);
+          return inheritedProperty ?? memberInfo;
+        }
+        default:
+          return memberInfo;
+      }
     }
 
     #endregion
