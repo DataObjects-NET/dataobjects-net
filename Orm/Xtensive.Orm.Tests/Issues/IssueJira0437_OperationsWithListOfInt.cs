@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.IssueJira0437_OperationsWithListOfIntModel;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -48,6 +49,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void GroupJoinTest()
     {
+      Require.AnyFeatureNotSupported(ProviderFeatures.TemporaryTableEmulation | ProviderFeatures.TemporaryTables);
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var items = new List<int> {2, 3};
@@ -64,6 +66,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void JoinTest()
     {
+      Require.AnyFeatureNotSupported(ProviderFeatures.TemporaryTableEmulation | ProviderFeatures.TemporaryTables);
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var items = new List<int> {1, 2};
@@ -84,6 +87,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ApplyTest()
     {
+      Require.AnyFeatureNotSupported(ProviderFeatures.TemporaryTableEmulation | ProviderFeatures.TemporaryTables);
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var items = new List<int> {1, 2, 3};

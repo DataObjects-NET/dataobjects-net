@@ -11,6 +11,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.IssueJira0627_PocoClassPropertyRenitializationModel;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -107,6 +108,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void AnonymousTypeInitializationTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var buClasses = (from businessUnit in session.Query.All<BusinessUnit>()
@@ -121,6 +123,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MixedInitialization()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var buClasses = (from businessUnit in session.Query.All<BusinessUnit>()
@@ -1349,6 +1352,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ExceptOfPocos01Test()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
@@ -1362,13 +1366,13 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ExceptOfPocos02Test()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
+      using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
           .Except(session.Query.All<TestEntity>()
-            .Select(e => new Poco { Name = e.Name, BaseName = e.Name }))
+            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}))
           .ToArray();
       }
     }
@@ -1376,6 +1380,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ExceptOfPocos03Test()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
@@ -1389,6 +1394,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ExceptOfPocos05Test()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
@@ -1540,6 +1546,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void IntersectOfPocos01Test()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
@@ -1553,6 +1560,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void IntersectOfPocos02Test()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
@@ -1566,6 +1574,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void IntersectOfPocos03Test()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
@@ -1579,6 +1588,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void IntersectOfPocos05Test()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
@@ -1808,6 +1818,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void OrderByFieldOfPoco05Test()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         Assert.Throws<StorageException>(() =>
@@ -1870,6 +1881,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void OrderByDescendingByFieldOfPoco05Test()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         Assert.Throws<StorageException>(() =>
