@@ -56,6 +56,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
+      Require.ProviderIs(StorageProvider.Oracle);
       BuildWithMode(DomainUpgradeMode.Recreate);
       BuildWithMode(DomainUpgradeMode.Validate);
     }

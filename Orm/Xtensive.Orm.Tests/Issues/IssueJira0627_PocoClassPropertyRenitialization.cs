@@ -1352,7 +1352,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ExceptOfPocos01Test()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
@@ -1366,7 +1366,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ExceptOfPocos02Test()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
@@ -1380,7 +1380,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ExceptOfPocos03Test()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
@@ -1394,7 +1394,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ExceptOfPocos05Test()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
@@ -1546,7 +1546,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void IntersectOfPocos01Test()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
@@ -1560,7 +1560,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void IntersectOfPocos02Test()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
@@ -1574,7 +1574,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void IntersectOfPocos03Test()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
@@ -1588,7 +1588,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void IntersectOfPocos05Test()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
@@ -1818,7 +1818,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void OrderByFieldOfPoco05Test()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         Assert.Throws<StorageException>(() =>
@@ -1881,7 +1881,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void OrderByDescendingByFieldOfPoco05Test()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql | StorageProvider.PostgreSql);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         Assert.Throws<StorageException>(() =>
