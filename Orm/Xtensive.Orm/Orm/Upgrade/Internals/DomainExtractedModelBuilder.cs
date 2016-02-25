@@ -1,4 +1,10 @@
-﻿using System;
+﻿// Copyright (C) 2016 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2016.02.23
+
+using System;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -9,12 +15,13 @@ using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
+using Xtensive.Orm.Upgrade.Internals.Interfaces;
 using ReferentialAction = Xtensive.Sql.ReferentialAction;
 using TableInfo = Xtensive.Orm.Upgrade.Model.TableInfo;
 
 namespace Xtensive.Orm.Upgrade.Internals
 {
-  internal sealed class SchemaExtractionResultBuilder
+  internal sealed class DomainExtractedModelBuilder : ISchemaExtractionResultBuilder
   {
     private readonly string collationName;
     private readonly string typeIdColumnName;
@@ -26,15 +33,7 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     private readonly SchemaExtractionResult targetResult;
 
-    public static SchemaExtractionResult Build(UpgradeServiceAccessor services, StorageModel model)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(model, "model");
-      ArgumentValidator.EnsureArgumentNotNull(services, "services");
-      
-      return new SchemaExtractionResultBuilder(services, model).Run();
-    }
-
-    private SchemaExtractionResult Run()
+    public SchemaExtractionResult Run()
     {
       BuildCatalogsAndSchemas();
       BuildTables();
@@ -171,7 +170,7 @@ namespace Xtensive.Orm.Upgrade.Internals
     private void CreateFullTextIndex(TableInfo tableInfo, Table table, StorageFullTextIndexInfo fullTextIndexInfo)
     {
       var ftIndex = table.CreateFullTextIndex(fullTextIndexInfo.Name);
-
+      
       ftIndex.UnderlyingUniqueIndex = tableInfo.PrimaryIndex.EscapedName;
       ftIndex.FullTextCatalog = "Default";
       foreach (var column in fullTextIndexInfo.Columns) {
@@ -266,7 +265,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       }
     }
 
-    private SchemaExtractionResultBuilder(UpgradeServiceAccessor services, StorageModel model)
+    internal DomainExtractedModelBuilder(UpgradeServiceAccessor services, StorageModel model)
     {
       this.model = model;
       this.mappingResolver = services.MappingResolver;
