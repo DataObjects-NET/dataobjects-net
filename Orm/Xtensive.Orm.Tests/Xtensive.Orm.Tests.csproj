@@ -430,6 +430,13 @@
     <Compile Include="Upgrade\EntitySetUpgrade\Upgrader.cs" />
     <Compile Include="Upgrade\EntitySetUpgrade\UpgradeTest.cs" />
     <Compile Include="Upgrade\FullText\FullTextDataTypeColumnUpgradeTest.cs" />
+    <Compile Include="Upgrade\NewSkip\Model.cs" />
+    <Compile Include="Upgrade\NewSkip\MultidatabaseDomainTest.cs" />
+    <Compile Include="Upgrade\NewSkip\MultischemaDomainTest.cs" />
+    <Compile Include="Upgrade\NewSkip\SimpleDomainTest.cs" />
+    <Compile Include="Upgrade\NewSkip\SingleDatabaseNodeTest.cs" />
+    <Compile Include="Upgrade\NewSkip\SingleSchemaNodeBuildingTest.cs" />
+    <Compile Include="Upgrade\NewSkip\SkipBuildingTestBase.cs" />
     <Compile Include="Upgrade\TypeIdPreserveTest.cs" />
     <Compile Include="Upgrade\ExtractSuperClassTest.cs" />
     <Compile Include="Upgrade\KeyGeneratorTableCleanUpTest.cs" />
