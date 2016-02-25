@@ -344,7 +344,6 @@
     <Compile Include="Orm\Internals\ReferenceFieldsChangesRegistry.cs" />
     <Compile Include="Orm\Internals\EntitySetChangeRegistry.cs" />
     <Compile Include="Orm\Internals\RemapContext.cs" />
-    <Compile Include="Orm\Internals\SchemaCacheManager.cs" />
     <Compile Include="Orm\Linq\LocalCollectionKeyTypeExtractor.cs" />
     <Compile Include="Orm\Logging\BaseLog.cs" />
     <Compile Include="Orm\Logging\IndentManager.cs" />
@@ -374,8 +373,6 @@
     <Compile Include="Orm\Upgrade\Internals\Interfaces\IUpgradeHintsProcessor.cs" />
     <Compile Include="Orm\Upgrade\Internals\Interfaces\IUpgradeHintValidator.cs" />
     <Compile Include="Orm\Upgrade\Internals\Extensions\MappingResolverExtensions.cs" />
-    <Compile Include="Orm\Upgrade\Internals\NodeSchemaCache.cs" />
-    <Compile Include="Orm\Upgrade\Internals\NodeSchemasMapper.cs" />
     <Compile Include="Orm\Upgrade\Internals\Extensions\StoredDomainModelExtensions.cs" />
     <Compile Include="Orm\Upgrade\Internals\NullUpgradeHintsProcessor.cs" />
     <Compile Include="Orm\Upgrade\Internals\SchemaExtractionResultBuilder.cs" />

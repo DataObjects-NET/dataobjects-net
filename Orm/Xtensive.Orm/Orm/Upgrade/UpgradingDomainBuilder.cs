@@ -312,9 +312,6 @@ namespace Xtensive.Orm.Upgrade
       if (result.Id==WellKnown.DefaultNodeId)
         domain.Handlers.StorageNodeRegistry.Add(result);
 
-      if(context.Stage==UpgradeStage.Final)
-        domain.SchemaCacheManager.CacheExtractionResult(schemaExtractionResult, context.NodeConfiguration);
-
       context.StorageNode = result;
       return result;
     }
@@ -385,6 +382,7 @@ namespace Xtensive.Orm.Upgrade
               targetSchema.Dump();
             }
           }
+          context.ExtractedSqlModelCache = SchemaExtractionResultBuilder.Build(context.Services, context.TargetStorageModel);
           OnSchemaReady();
           return; // Skipping comparison completely
         }
