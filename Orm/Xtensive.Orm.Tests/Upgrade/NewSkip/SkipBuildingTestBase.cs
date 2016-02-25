@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
     }
   }
 
-  internal class CustomUpgradeHandler : UpgradeHandler
+  public class CustomUpgradeHandler : UpgradeHandler
   {
     public override bool CanUpgradeFrom(string oldVersion)
     {
@@ -101,6 +101,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
 
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
+      configuration.Types.Register(typeof (CustomUpgradeHandler));
       var initialConfiguration = configuration;
       var finalConfiguration = initialConfiguration.Clone();
 

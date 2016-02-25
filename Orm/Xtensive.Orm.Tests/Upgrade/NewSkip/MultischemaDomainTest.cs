@@ -79,8 +79,8 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
 
       var md5hash = new MD5Hash();
       var buildInProvider = new BuildInProviderInfo(md5hash);
-      var googleProvider = new GoogleOAuthProvider(md5hash);
-      var aolProvider = new AolOpenIdProviderInfo(md5hash);
+      var googleProvider = new GoogleOAuthProvider(md5hash) {Url = "google.com"};
+      var aolProvider = new AolOpenIdProviderInfo(md5hash) {Url = "aol.com"};
       var providers = new ProviderInfo[] {buildInProvider, googleProvider, aolProvider};
 
       for (var index = 0; index < names.Length; index++) {
@@ -158,7 +158,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
         DisplayInfo = new DisplayInfo {
           Dpi = 300,
           Format = Formats.Wide,
-          Manufacturer = new Manufacturer {Name = "FistDisplayProducer"},
+          Manufacturer = new Manufacturer {Name = "FirstDisplayProducer"},
           Resolution = new Resolution {Wide = 1920, Hight = 1080},
         },
         CpuInfo = new CPUInfo {

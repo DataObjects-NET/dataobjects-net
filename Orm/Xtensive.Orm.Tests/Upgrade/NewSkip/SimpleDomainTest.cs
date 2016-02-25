@@ -151,6 +151,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
     }
 
     [Test]
+    [Ignore("Due to it's inconsistent for now")]
     public void CatalogsComparisonTest()
     {
       Assert.That(ExtractionResultKeepers.Count, Is.EqualTo(2));
@@ -177,8 +178,8 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
 
         var md5hash = new MD5Hash();
         var buildInProvider = new BuildInProviderInfo(md5hash);
-        var googleProvider = new GoogleOAuthProvider(md5hash);
-        var aolProvider = new AolOpenIdProviderInfo(md5hash);
+        var googleProvider = new GoogleOAuthProvider(md5hash) {Url = "google.com"};
+        var aolProvider = new AolOpenIdProviderInfo(md5hash) {Url = "aol.com"};
         var providers = new ProviderInfo[] {buildInProvider, googleProvider, aolProvider};
 
         for (var index = 0; index < names.Length; index++) {

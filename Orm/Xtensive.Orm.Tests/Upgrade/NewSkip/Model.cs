@@ -221,7 +221,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip.Model
     [HierarchyRoot, Index("TestField", Filter = "Index")]
     public class SimpleFilterWithProperty : EntityBase<int>
     {
-      public static Expression<Func<Storage.PartialIndexTestModel.SimpleFilterWithProperty, bool>> Index
+      public static Expression<Func<SimpleFilterWithProperty, bool>> Index
       {
         get { return test => test.TestField.GreaterThan("hello world"); }
       }
