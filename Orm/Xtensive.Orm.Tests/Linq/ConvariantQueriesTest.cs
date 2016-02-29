@@ -62,6 +62,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void IntersectTest()
     {
+      //some storages does not support Intersect operation
+      Require.ProviderIs(StorageProvider.Firebird | StorageProvider.MySql);
       var q1 = Query.All<MyBaseEntity>().Intersect(Query.All<MyChildEntity>()).ToList();
       var q2 = Query.All<MyChildEntity>().Intersect(Query.All<MyBaseEntity>()).ToList();
     }
@@ -69,6 +71,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ExceptTest()
     {
+      //Some storages does not support Except operation 
+      Require.ProviderIs(StorageProvider.Firebird | StorageProvider.MySql);
       var q1 = Query.All<MyBaseEntity>().Except(Query.All<MyChildEntity>()).ToList();
       var q2 = Query.All<MyChildEntity>().Except(Query.All<MyBaseEntity>()).ToList();
     }
