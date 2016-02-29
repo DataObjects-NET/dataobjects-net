@@ -263,25 +263,25 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip.Model
       [Field(DefaultValue = ushort.MaxValue)]
       public ushort FUShort { get; set; }
 
-      [Field(DefaultValue = int.MaxValue)]
+      [Field(DefaultValue = 10)]
       public int FInt { get; set; }
 
-      [Field(DefaultValue = uint.MaxValue)]
+      [Field(DefaultValue = 100)]
       public uint FUInt { get; set; }
 
-      [Field(DefaultValue = long.MaxValue)]
+      [Field(DefaultValue = 1000)]
       public long FLong { get; set; }
 
-      [Field(DefaultValue = long.MaxValue)]
+      [Field(DefaultValue = 10000)]
       public ulong FULong { get; set; }
 
       [Field(DefaultValue = CodeRegistry.GuidDefaultValue)]
       public Guid FGuid { get; set; }
 
-      [Field(DefaultValue = float.MaxValue)]
+      [Field(DefaultValue = 10.0)]
       public float FFloat { get; set; }
 
-      [Field(DefaultValue = float.MaxValue)]
+      [Field(DefaultValue = 100.0)]
       public double FDouble { get; set; }
 
       [Field(DefaultValue = 12.12, Precision = 18, Scale = 9)]
@@ -343,25 +343,25 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip.Model
       [Field(DefaultValue = ushort.MaxValue)]
       public ushort? FNUShort { get; set; }
 
-      [Field(DefaultValue = int.MaxValue)]
+      [Field(DefaultValue = 10)]
       public int? FNInt { get; set; }
 
-      [Field(DefaultValue = uint.MaxValue)]
+      [Field(DefaultValue = 100)]
       public uint? FNUInt { get; set; }
 
-      [Field(DefaultValue = long.MaxValue)]
+      [Field(DefaultValue = 1000)]
       public long? FNLong { get; set; }
 
-      [Field(DefaultValue = long.MaxValue)] // SQLite provides only 8 byte signed integer
+      [Field(DefaultValue = 10000)] // SQLite provides only 8 byte signed integer
       public ulong? FNULong { get; set; }
 
       [Field(DefaultValue = CodeRegistry.GuidDefaultValue)]
       public Guid? FNGuid { get; set; }
 
-      [Field(DefaultValue = float.MaxValue)]
+      [Field(DefaultValue = 10.0)]
       public float? FNFloat { get; set; }
 
-      [Field(DefaultValue = float.MaxValue)]
+      [Field(DefaultValue = 100.0)]
       public double? FNDouble { get; set; }
 
       [Field(DefaultValue = 12.12)]

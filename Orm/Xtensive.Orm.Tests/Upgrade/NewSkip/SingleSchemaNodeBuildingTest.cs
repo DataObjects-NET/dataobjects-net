@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
           Assert.That(x.FFloat, Is.EqualTo(1.0f));
           Assert.That(x.FDouble, Is.EqualTo(1.0d));
           Assert.That(x.FDecimal, Is.EqualTo(1));
-          Assert.That(x.FDateTime, Is.EqualTo(new DateTime(2001, 1, 1, 1, 1, 1, 1)));
+          Assert.That(x.FDateTime, Is.EqualTo(new DateTime(2001, 1, 1, 1, 1, 1)));
           Assert.That(x.FTimeSpan, Is.EqualTo(new TimeSpan(1, 1, 1, 1)));
           Assert.That(x.FString, Is.EqualTo(1.ToString()));
           Assert.That(x.FLongString, Is.EqualTo(1.ToString()));
@@ -199,7 +199,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
           Assert.That(x.FNFloat, Is.EqualTo(1.0f));
           Assert.That(x.FNDouble, Is.EqualTo(1.0d));
           Assert.That(x.FNDecimal, Is.EqualTo(1));
-          Assert.That(x.FNDateTime, Is.EqualTo(new DateTime(2001, 1, 1, 1, 1, 1, 1)));
+          Assert.That(x.FNDateTime, Is.EqualTo(new DateTime(2001, 1, 1, 1, 1, 1)));
           Assert.That(x.FNTimeSpan, Is.EqualTo(new TimeSpan(1, 1, 1, 1)));
           Assert.That(x.FNEByte, Is.EqualTo(EByte.Min));
           Assert.That(x.FNESByte, Is.EqualTo(ESByte.Min));
@@ -255,7 +255,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
         FFloat = 1.0f,
         FDouble = 1.0d,
         FDecimal = 1,
-        FDateTime = new DateTime(2001, 1, 1, 1, 1, 1, 1),
+        FDateTime = new DateTime(2001, 1, 1, 1, 1, 1),
         FTimeSpan = new TimeSpan(1, 1, 1, 1),
         FString = "1",
         FLongString = "1",
@@ -281,7 +281,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
         FNFloat = 1.0f,
         FNDouble = 1.0d,
         FNDecimal = 1,
-        FNDateTime = new DateTime(2001, 1, 1, 1, 1, 1, 1),
+        FNDateTime = new DateTime(2001, 1, 1, 1, 1, 1),
         FNTimeSpan = new TimeSpan(1, 1, 1, 1),
         FNEByte = EByte.Min,
         FNESByte = ESByte.Min,
