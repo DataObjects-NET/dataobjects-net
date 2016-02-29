@@ -121,9 +121,11 @@ namespace Xtensive.Orm.Tests.Storage.UpgradeModesTest
       Assert.AreEqual(personTypeId, types[typeof (Person)]);
       Assert.AreEqual(bookTypeId, types[typeof (Book)]);
 
-      AssertEx.Throws<Exception>(() => {
-        BuildFullDomain(DomainUpgradeMode.Skip);
-      });
+      //Exceptions no longer throws because in Skip mode DO no longer get Sql schema
+      //AssertEx.Throws<Exception>(() => {
+      //  BuildFullDomain(DomainUpgradeMode.Skip);
+      //});
+      BuildFullDomain(DomainUpgradeMode.Skip);
     }
 
     [Test]
