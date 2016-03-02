@@ -348,7 +348,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string ClassTableHBField { get; set; }
 
       [Field]
@@ -367,7 +367,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string ConcreteTableHBField { get; set; }
 
       [Field]
@@ -505,7 +505,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
 
     public class SingleTableDescendant2 : SingleTableDescendant1
     {
-      [Field(Length = 50)]
+      [Field]
       public float SomeField { get; set; }
     }
   }
