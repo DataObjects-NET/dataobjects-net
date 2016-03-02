@@ -16,13 +16,13 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string BaseClassField { get; set; }
     }
 
     public class SingleTableDescendant : SingleTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string DescendantClassField { get; set; }
     }
 
@@ -32,13 +32,13 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string BaseClassField { get; set; }
     }
 
     public class ClassTableDescendant : ClassTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string DescendantClassField { get; set; }
     }
 
@@ -48,13 +48,13 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string BaseClassField { get; set; }
     }
 
     public class ConcreteTableDescendant : ConcreteTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string DescendantClassField { get; set; }
     }
   }
@@ -67,13 +67,13 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string SomeKindOfText { get; set; }
     }
 
     public class SingleTableDescendant : SingleTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string Comment { get; set; }
     }
 
@@ -83,13 +83,13 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string SomeKindOfText { get; set; }
     }
 
     public class ClassTableDescendant : ClassTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string Comment { get; set; }
     }
 
@@ -99,13 +99,13 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string SomeKindOfText { get; set; }
     }
 
     public class ConcreteTableDescendant : ConcreteTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string Comment { get; set; }
     }
   }
@@ -118,19 +118,19 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string ClassTableHBField { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string ClassTableRemovableField { get; set; }
     }
 
     public class ClassTableDescendant : ClassTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string SomeDescendantField { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string SomeDescendantRemovableField { get; set; }
     }
 
@@ -140,19 +140,19 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string ConcreteTableHBField { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string ConcreteTableRemovableField { get; set; }
     }
 
     public class ConcreteTableDescendant : ConcreteTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string SomeDescendantField { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string SomeDescendantRemovableField { get; set; }
     }
 
@@ -162,19 +162,19 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string SingleTableHBField { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string SingleTableRemovableField { get; set; }
     }
 
     public class SingleTableDescendant : SingleTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string SomeDescendantField { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string SomeDescendantRemovableField { get; set; }
     }
   }
@@ -187,43 +187,43 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string SinlgeTableHBField { get; set; }
     }
 
     public class SingleTableDescendant1 : SingleTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string SingleTableD1Field { get; set; }
     }
 
     public class SingleTableDescendant11 : SingleTableDescendant1
     {
-      [Field]
+      [Field(Length = 50)]
       public string SingleTableD11Field { get; set; }
     }
 
     public class SingleTableDescendant12Removed : SingleTableDescendant1
     {
-      [Field]
+      [Field(Length = 50)]
       public string SingleTableD12Field { get; set; }
     }
 
     public class SingleTableDescendant2 : SingleTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string SingleTableD2Field { get; set; }
     }
 
     public class SingleTableDescendant21 : SingleTableDescendant2
     {
-      [Field]
+      [Field(Length = 50)]
       public string SingleTableD21Field { get; set; }
     }
 
     public class SingleTableDescendant22Removed : SingleTableDescendant2
     {
-      [Field]
+      [Field(Length = 50)]
       public string SingleTableD22Field { get; set; }
     }
 
@@ -234,43 +234,43 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string ClassTableHBField { get; set; }
     }
 
     public class ClassTableDescendant1 : ClassTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string ClassTableD1Field { get; set; }
     }
 
     public class ClassTableDescendant11 : ClassTableDescendant1
     {
-      [Field]
+      [Field(Length = 50)]
       public string ClassTableD11Field { get; set; }
     }
 
     public class ClassTableDescendant12Removed : ClassTableDescendant1
     {
-      [Field]
+      [Field(Length = 50)]
       public string ClassTableD12Field { get; set; }
     }
 
     public class ClassTableDescendant2 : ClassTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string ClassTableD2Field { get; set; }
     }
 
     public class ClassTableDescendant21 : ClassTableDescendant2
     {
-      [Field]
+      [Field(Length = 50)]
       public string ClassTableD21Field { get; set; }
     }
 
     public class ClassTableDescendant22Removed : ClassTableDescendant2
     {
-      [Field]
+      [Field(Length = 50)]
       public string ClassTableD22Field { get; set; }
     }
 
@@ -280,43 +280,43 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string ConcreteTableHBField { get; set; }
     }
 
     public class ConcreteTableDescendant1 : ConcreteTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string ConcreteTableD1Field { get; set; }
     }
 
     public class ConcreteTableDescendant11 : ConcreteTableDescendant1
     {
-      [Field]
+      [Field(Length = 50)]
       public string ConcreteTableD11Field { get; set; }
     }
 
     public class ConcreteTableDescendant12Removed : ConcreteTableDescendant1
     {
-      [Field]
+      [Field(Length = 50)]
       public string ConcreteTableD12Field { get; set; }
     }
 
     public class ConcreteTableDescendant2 : ConcreteTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string ConcreteTableD2Field { get; set; }
     }
 
     public class ConcreteTableDescendant21 : ConcreteTableDescendant2
     {
-      [Field]
+      [Field(Length = 50)]
       public string ConcreteTableD21Field { get; set; }
     }
 
     public class ConcreteTableDescendant22Removed : ConcreteTableDescendant2
     {
-      [Field]
+      [Field(Length = 50)]
       public string ConcreteTableD22Field { get; set; }
     }
   }
@@ -329,7 +329,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string SingleTableHBField { get; set; }
 
       [Field]
@@ -392,7 +392,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
 
     public class SingleTableDescendant1 : SingleTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string SomeStringField { get; set; }
     }
 
@@ -405,7 +405,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
 
     public class ClassTableDescendant1 : ClassTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string SomeStringField { get; set; }
     }
 
@@ -418,7 +418,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
 
     public class ConcreteTableDescendant1 : ConcreteTableHierarchyBase
     {
-      [Field]
+      [Field(Length = 50)]
       public string SomeStringField { get; set; }
     }
   }
@@ -431,10 +431,10 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string ClassTableHBField { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string MovableField { get; set; }
     }
 
@@ -443,7 +443,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field]
       public int Value { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string Comment { get; set; }
     }
 
@@ -459,10 +459,10 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string ConcreteTableHBField { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string MovableField { get; set; }
     }
 
@@ -471,7 +471,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field]
       public int Value { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string Comment { get; set; }
     }
 
@@ -487,10 +487,10 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string SingleTableHBField { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string MovableField { get; set; }
     }
 
@@ -499,13 +499,13 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels
       [Field]
       public int Value { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string Comment { get; set; }
     }
 
     public class SingleTableDescendant2 : SingleTableDescendant1
     {
-      [Field]
+      [Field(Length = 50)]
       public float SomeField { get; set; }
     }
   }
