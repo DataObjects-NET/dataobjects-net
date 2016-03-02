@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip.Model
     [Index("Email", Unique = true, IncludedFields = new []{"Person.Id"})]
     public class User : EntityBase<long>
     {
-      [Field]
+      [Field(Length = 128)]
       public string Email { get; set; }
 
       [Field]
@@ -85,10 +85,10 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip.Model
     [Index("FirstName", Clustered = false, FillFactor = 0.5)]
     public sealed class Person : EntityBase<long>
     {
-      [Field]
+      [Field(Length = 100)]
       public string LastName { get; set; }
 
-      [Field]
+      [Field(Length = 100)]
       public string FirstName { get; set; }
 
       [Field]
@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip.Model
       [Field]
       public ProviderInfo Provider { get; set; }
 
-      [Field]
+      [Field(Length = 100)]
       public string TokenHash { get; set; }
 
       [Field]
@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip.Model
     [Index("Name", Unique = true)]
     public abstract class ProviderInfo : EntityBase<int>
     {
-      [Field]
+      [Field(Length = 100)]
       public string Name { get; private set; }
 
       [Field]
@@ -226,7 +226,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip.Model
         get { return test => test.TestField.GreaterThan("hello world"); }
       }
 
-      [Field]
+      [Field(Length = 100)]
       public string TestField { get; set; }
     }
 
@@ -473,7 +473,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip.Model
       [Field]
       public Manufacturer Manufacturer { get; set; }
 
-      [Field]
+      [Field(Length = 50)]
       public string SerialNumber { get; set; }
 
       [Field]
@@ -502,7 +502,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip.Model
       [Field, Key]
       public int Id { get; set; }
 
-      [Field]
+      [Field(Length = 100)]
       public string Name { get; set; }
     }
 
@@ -571,7 +571,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip.Model
       [Field]
       public Manufacturer Manufacturer { get; set; }
 
-      [Field]
+      [Field(Length = 100)]
       public string Name { get; set; }
 
       [Field]
@@ -601,7 +601,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip.Model
       [Field]
       public Manufacturer Vendor { get; set; }
 
-      [Field]
+      [Field(Length = 100)]
       public string Name { get; set; }
 
       [Field]
