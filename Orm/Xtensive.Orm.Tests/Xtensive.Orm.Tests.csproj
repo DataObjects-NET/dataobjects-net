@@ -403,6 +403,10 @@
     <Compile Include="Storage\PartialIndexTest.cs" />
     <Compile Include="Storage\PostgreSqlSpatialTest.cs" />
     <Compile Include="Storage\QueryBuilderTest.cs" />
+    <Compile Include="Storage\ReadOnlySupport\OracleReadOnlyTest.cs" />
+    <Compile Include="Storage\ReadOnlySupport\PostgreSqlReadOnlyTest.cs" />
+    <Compile Include="Storage\ReadOnlySupport\ReadOnlyStorageTestBase.cs" />
+    <Compile Include="Storage\ReadOnlySupport\SqlServerReadOnlyTest.cs" />
     <Compile Include="Storage\ReadRemovedObjectTest.cs" />
     <Compile Include="Storage\RefTest.cs" />
     <Compile Include="Storage\RemapKeysWhenLazyKeyGenerationEnabledTest.cs" />
