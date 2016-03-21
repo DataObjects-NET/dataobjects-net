@@ -55,11 +55,7 @@ namespace Xtensive.Orm.Providers
 
     private long Execute(SequenceQuery query, Session session)
     {
-      var compartment = UpgradeContext.GetCurrent(session.Domain.UpgradeContextCookie)!=null
-        ? SequenceQueryCompartment.SameSession
-        : query.Compartment;
-
-      switch (compartment) {
+      switch (query.Compartment) {
         case SequenceQueryCompartment.SameSession:
           return query.ExecuteWith(session.Services.Demand<ISqlExecutor>());
         case SequenceQueryCompartment.SeparateSession:
