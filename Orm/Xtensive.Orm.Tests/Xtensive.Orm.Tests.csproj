@@ -260,6 +260,7 @@
     <Compile Include="Issues\IssueJira0604_SetOperationsWithDuplicateFieldsUsageFail.cs" />
     <Compile Include="Issues\IssueJira0617_IncorrectRemoveOfRedundantColumns.cs" />
     <Compile Include="Issues\IssueJira0619_InvalidExpressionInOrderBy.cs" />
+    <Compile Include="Issues\IssueJira0630_IntefaceToInterfaceMappingIndexesBug.cs" />
     <Compile Include="Issues\IssueJira_0530_LowSpeedDecimalMaterializationCouseSqlDecimalInternalException.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
