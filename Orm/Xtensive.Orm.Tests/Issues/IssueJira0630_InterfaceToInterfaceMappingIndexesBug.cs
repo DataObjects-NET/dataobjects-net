@@ -133,7 +133,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0630_IntefaceToInterfaceMappingInde
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  public sealed class IssueJira0630_IntefaceToInterfaceMappingIndexesBug : AutoBuildTest
+  public sealed class IssueJira0630_InterfaceToInterfaceMappingIndexesBug : AutoBuildTest
   {
     [Test]
     public void SelectInterfaceFieldTest()
