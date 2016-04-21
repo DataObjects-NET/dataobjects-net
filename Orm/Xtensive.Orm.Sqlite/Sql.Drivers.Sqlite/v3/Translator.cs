@@ -11,7 +11,6 @@ using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.Drivers.Sqlite.Resources;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Drivers.Sqlite.v3
@@ -21,7 +20,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public override string DateTimeFormatString
     {
-      get { return @"\'yyyy\-MM\-dd HH\:mm\:ss\.FFFFFFF\'"; }
+      get { return @"\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'"; }
     }
 
     /// <inheritdoc/>
@@ -297,36 +296,45 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
     }
 
+    public override string Translate(SqlDateTimePart dateTimePart)
+    {
+      switch (dateTimePart) {
+      case SqlDateTimePart.Year:
+        return "'%Y'";
+      case SqlDateTimePart.Month:
+        return "'%m'";
+      case SqlDateTimePart.Day:
+        return "'%d'";
+      case SqlDateTimePart.DayOfWeek:
+        return "'%w'";
+      case SqlDateTimePart.DayOfYear:
+        return "'%j'";
+      case SqlDateTimePart.Hour:
+        return "'%H'";
+      case SqlDateTimePart.Minute:
+        return "'%M'";
+      case SqlDateTimePart.Second:
+        return "'%S'";
+      default:
+        throw SqlHelper.NotSupported(dateTimePart.ToString());
+      }
+    }
+
+    public override string Translate(SqlIntervalPart intervalPart)
+    {
+      throw SqlHelper.NotSupported(intervalPart.ToString());
+    }
+
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SqlExtract extract, ExtractSection section)
     {
       switch (section) {
       case ExtractSection.Entry:
-        return "STRFTIME(";
+        return "CAST(STRFTIME(";
       case ExtractSection.From:
-        if (extract.DateTimePart==SqlDateTimePart.Year)
-          return "'%Y'";
-        if (extract.DateTimePart==SqlDateTimePart.Month)
-          return "'%m'";
-        if (extract.DateTimePart==SqlDateTimePart.Day)
-          return "'%d'";
-        if (extract.DateTimePart==SqlDateTimePart.DayOfWeek)
-          return "'%w'";
-        if (extract.DateTimePart == SqlDateTimePart.DayOfYear)
-          return "'%j'";
-        if (extract.DateTimePart==SqlDateTimePart.Hour)
-          return "'%H'";
-        if (extract.DateTimePart==SqlDateTimePart.Minute)
-          return "'%M'";
-        if (extract.DateTimePart==SqlDateTimePart.Second)
-          return "'%S'";
-        if (extract.DateTimePart==SqlDateTimePart.Millisecond)
-          return "'%f'";
-        throw extract.DateTimePart!=SqlDateTimePart.Nothing
-          ? SqlHelper.NotSupported(extract.DateTimePart.ToString())
-          : SqlHelper.NotSupported(extract.IntervalPart.ToString());
+        return ", ";
       case ExtractSection.Exit:
-        return ")";
+        return ") as INTEGER)";
       default:
         return string.Empty;
       }
