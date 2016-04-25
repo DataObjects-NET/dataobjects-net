@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Tests.Sql
         new TimeSpan(10, 0, 0, 0));
     }
 
-    private void CheckEquality(SqlExpression left, SqlExpression right)
+    protected void CheckEquality(SqlExpression left, SqlExpression right)
     {
       var select = SqlDml.Select("ok");
       select.Where = left==right;
