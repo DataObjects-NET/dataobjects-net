@@ -256,7 +256,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateTimeToStringIso(SqlExpression dateTime)
     {
-      return SqlDml.FunctionCall("DATETIME", dateTime);
+      return SqlDml.FunctionCall("strftime", "%Y-%m-%dT%H:%M:%S", dateTime);
     }
 
     private static SqlExpression DateAddYear(SqlExpression date, SqlExpression years)
