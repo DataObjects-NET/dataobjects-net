@@ -373,7 +373,17 @@ namespace Xtensive.Orm.Building.Builders
         columns.AddRange(types.SelectMany(t => t.Columns
           .Find(ColumnAttributes.Inherited | ColumnAttributes.PrimaryKey, MatchType.None)
           .Where(c => skipTypeId ? !(c.Field.IsTypeId && c.IsSystem) : true)));
-        result.ValueColumns.AddRange(GatherValueColumns(columns));
+
+        // in case of interface it can be multiple inherited
+        // and sometimes index columns order isnt the same as type has.
+        if (typeInfo.IsInterface) {
+          var indexedColumns = columns.Select((column, i) => new { i, j = typeInfo.Columns.IndexOf(column), column }).ToList();
+          var orderedColumns = indexedColumns.OrderBy(el => el.j).Select(el => el.column).Distinct();
+          result.ValueColumns.AddRange(GatherValueColumns(orderedColumns));
+        }
+        else 
+          result.ValueColumns.AddRange(GatherValueColumns(columns));
+        
       }
       else {
         foreach (var column in typeInfo.Columns.Where(c => c.IsPrimaryKey)) {
