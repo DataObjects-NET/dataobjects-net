@@ -49,8 +49,8 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateTimeSubtractDateTimeTest()
     {
       CheckEquality(
-        SqlDml.DateTimeMinusDateTime(new DateTime(2005, 5, 5, 5, 5, 5, 5), new DateTime(2005, 5, 6, 6, 6, 6, 6)),
-        new TimeSpan(1, 1, 1, 1, 1).Negate());
+        SqlDml.DateTimeMinusDateTime(new DateTime(2005, 5, 5, 5, 5, 5), new DateTime(2005, 5, 6, 6, 6, 6)),
+        new TimeSpan(1, 1, 1, 1).Negate());
     }
 
     [Test]

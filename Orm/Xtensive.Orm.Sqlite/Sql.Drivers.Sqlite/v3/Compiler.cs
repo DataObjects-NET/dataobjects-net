@@ -246,7 +246,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateTimeTruncate(SqlExpression date)
     {
-      return SqlDml.FunctionCall("strftime", "%Y-%m-%d %H:%M:%f", SqlDml.FunctionCall("DATE", date));
+      return SqlDml.FunctionCall("DATETIME", SqlDml.FunctionCall("DATE", date));
     }
 
     private static SqlCast CastToLong(SqlExpression arg)
@@ -256,27 +256,27 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateTimeToStringIso(SqlExpression dateTime)
     {
-      return SqlDml.FunctionCall("strftime", "%Y-%m-%dT%H:%M:%f", dateTime);
+      return SqlDml.FunctionCall("DATETIME", dateTime);
     }
 
     private static SqlExpression DateAddYear(SqlExpression date, SqlExpression years)
     {
-      return SqlDml.FunctionCall("strftime", "%Y-%m-%d %H:%M:%f", date, SqlDml.Concat(years, " ", "YEARS"));
+      return SqlDml.FunctionCall("DATETIME", date, SqlDml.Concat(years, " ", "YEARS"));
     }
 
     private static SqlExpression DateAddMonth(SqlExpression date, SqlExpression months)
     {
-      return SqlDml.FunctionCall("strftime", "%Y-%m-%d %H:%M:%f", date, SqlDml.Concat(months, " ", "MONTHS"));
+      return SqlDml.FunctionCall("DATETIME", date, SqlDml.Concat(months, " ", "MONTHS"));
     }
 
     private static SqlExpression DateAddDay(SqlExpression date, SqlExpression days)
     {
-      return SqlDml.FunctionCall("strftime", "%Y-%m-%d %H:%M:%f", date, SqlDml.Concat(days, " ", "DAYS"));
+      return SqlDml.FunctionCall("DATETIME", date, SqlDml.Concat(days, " ", "DAYS"));
     }
 
     private static SqlExpression DateAddSeconds(SqlExpression date, SqlExpression seconds)
     {
-      return SqlDml.FunctionCall("strftime", "%Y-%m-%d %H:%M:%f", date, SqlDml.Concat(seconds, " ", "seconds"));
+      return SqlDml.FunctionCall("DATETIME", date, SqlDml.Concat(seconds, " ", "seconds"));
     }
 
     private static SqlExpression DateGetMilliseconds(SqlExpression date)
@@ -292,9 +292,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
-      return (DateGetTotalSeconds(date1) - DateGetTotalSeconds(date2)) * MillisecondsPerSecond
-             + DateGetMilliseconds(date1)
-             - DateGetMilliseconds(date2);
+      return (DateGetTotalSeconds(date1) - DateGetTotalSeconds(date2)) * MillisecondsPerSecond;
+//             + DateGetMilliseconds(date1)
+//             - DateGetMilliseconds(date2);
     }
 
     // Constructors
