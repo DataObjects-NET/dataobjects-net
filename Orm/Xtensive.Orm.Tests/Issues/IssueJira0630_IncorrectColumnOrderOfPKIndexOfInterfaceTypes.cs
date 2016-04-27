@@ -8,11 +8,11 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Issues.IssueJira0630_IntefaceToInterfaceMappingIndexesBugModel;
-using Xtensive.Orm.Tests.Issues.IssueJira0630_IntefaceToInterfaceMappingIndexesBugModel.Populator;
+using Xtensive.Orm.Tests.Issues.IssueJira0630_IncorrectColumnOrderOfPKIndexOfInterfaceTypesModel;
+using Xtensive.Orm.Tests.Issues.IssueJira0630_IncorrectColumnOrderOfPKIndexOfInterfaceTypesModel.Populator;
 namespace Xtensive.Orm.Tests.Issues
 {
-  public sealed class IssueJira0630_InterfaceToInterfaceMappingIndexesBug : AutoBuildTest
+  public sealed class IssueJira0630_IncorrectColumnOrderOfPKIndexOfInterfaceTypes : AutoBuildTest
   {
     [Test]
     public void ColumnsOrderTestTest()
@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Tests.Issues
   }
 }
 
-namespace Xtensive.Orm.Tests.Issues.IssueJira0630_IntefaceToInterfaceMappingIndexesBugModel
+namespace Xtensive.Orm.Tests.Issues.IssueJira0630_IncorrectColumnOrderOfPKIndexOfInterfaceTypesModel
 {
   namespace Populator
   {
