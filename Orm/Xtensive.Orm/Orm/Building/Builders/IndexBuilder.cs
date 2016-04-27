@@ -374,8 +374,8 @@ namespace Xtensive.Orm.Building.Builders
           .Find(ColumnAttributes.Inherited | ColumnAttributes.PrimaryKey, MatchType.None)
           .Where(c => skipTypeId ? !(c.Field.IsTypeId && c.IsSystem) : true)));
 
-        // in case of interface it can be multiple inherited
-        // and sometimes index columns order isnt the same as type has.
+        // There might be difference in columns order of type and columns list
+        // so we have to reorder them in correct sequence.
         if (typeInfo.IsInterface) {
           var indexedColumns = columns.Select((column, i) => new { i, j = typeInfo.Columns.IndexOf(column), column }).ToList();
           var orderedColumns = indexedColumns.OrderBy(el => el.j).Select(el => el.column).Distinct();
