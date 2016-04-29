@@ -116,10 +116,11 @@ namespace Xtensive.Orm.Upgrade
     private static IList<NodeAction> GetUnsafeActions(ICollection<NodeAction> actions, SetSlim<UpgradeHint> hints)
     {
       var unsafeActions = new List<NodeAction>();
-      
+
       GetUnsafeColumnTypeChanges(actions, hints, unsafeActions);
       GetUnsafeColumnRemovals(actions, hints, unsafeActions);
       GetUnsafeTableRemovals(actions, hints, unsafeActions);
+      GetUnhandledCrossHierarchicalMovements(actions, hints, unsafeActions);
 
       return unsafeActions;
     }
@@ -217,6 +218,14 @@ namespace Xtensive.Orm.Upgrade
         .Where(IsTableAction)
         .Where(a => !safeTableRemovals.Contains(a.Path, Comparer))
         .ForEach(output.Add);
+    }
+
+    private static void GetUnhandledCrossHierarchicalMovements(IEnumerable<NodeAction> actions, IEnumerable<UpgradeHint> hints, ICollection<NodeAction> output)
+    {
+      (from action in actions.OfType<DataAction>()
+        let deleteDataHint = action.DataHint as DeleteDataHint
+        where deleteDataHint!=null && deleteDataHint.PostCopy
+        select action).ForEach(output.Add);
     }
 
     private static bool IsTypeChangeAction(PropertyChangeAction action)
