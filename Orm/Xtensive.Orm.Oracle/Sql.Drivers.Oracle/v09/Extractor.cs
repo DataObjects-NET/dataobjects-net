@@ -306,7 +306,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
       if (typeName.StartsWith("TIMESTAMP")) {
         // "timestamp precision" is saved as "scale", ignoring too
-        if (typeName.ToUpper()=="TIMESTAMP WITH TIMEZONE")
+        if (typeName.Contains("WITH TIME ZONE"))
           return new SqlValueType(SqlType.DateTimeOffset);
         return new SqlValueType(SqlType.DateTime);
       }
