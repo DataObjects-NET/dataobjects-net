@@ -23,7 +23,11 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       get { return @"\'yyyy\-MM\-dd HH\:mm\:ss\'"; }
     }
 
-    /// <inheritdoc/>
+    public virtual string DateTimeOffsetFormatString
+    {
+      get { return @"\'yyyy\-MM\-dd HH\:mm\:ssK\'"; }
+    }
+
     public override string TimeSpanFormatString
     {
       get { return @"{0}{1}"; }
@@ -105,6 +109,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         return ((Boolean) literalValue) ? "1" : "0";
       if (literalType==typeof (Guid))
         return ByteArrayToString(((Guid) literalValue).ToByteArray());
+      if (literalType==typeof (DateTimeOffset))
+        return ((DateTimeOffset) literalValue).ToString(DateTimeOffsetFormatString, DateTimeFormat);
 
       return base.Translate(context, literalValue);
     }
@@ -347,9 +353,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       var sqlType = node.Type.Type;
 
       if (sqlType==SqlType.Binary ||
-        sqlType==SqlType.Char ||
-        sqlType==SqlType.Interval ||
-        sqlType==SqlType.DateTime)
+          sqlType==SqlType.Char ||
+          sqlType==SqlType.Interval ||
+          sqlType==SqlType.DateTime)
         switch (section) {
         case NodeSection.Entry:
           return "CAST(";
@@ -359,7 +365,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           throw new ArgumentOutOfRangeException("section");
         }
       if (sqlType==SqlType.Int16 ||
-        sqlType==SqlType.Int32)
+          sqlType==SqlType.Int32)
         switch (section) {
         case NodeSection.Entry:
           return "CAST(";
@@ -369,8 +375,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           throw new ArgumentOutOfRangeException("section");
         }
       if (sqlType==SqlType.Decimal ||
-        sqlType==SqlType.Double ||
-        sqlType==SqlType.Float)
+          sqlType==SqlType.Double ||
+          sqlType==SqlType.Float)
         switch (section) {
         case NodeSection.Entry:
           return string.Empty;

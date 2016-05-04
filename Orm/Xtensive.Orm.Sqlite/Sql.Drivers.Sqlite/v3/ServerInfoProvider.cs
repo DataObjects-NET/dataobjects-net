@@ -180,8 +180,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override ServerFeatures GetServerFeatures()
     {
       var result = ServerFeatures.Savepoints
-        | ServerFeatures.TransactionalKeyGenerators
-        | ServerFeatures.ExclusiveWriterConnection;
+                   | ServerFeatures.TransactionalKeyGenerators
+                   | ServerFeatures.ExclusiveWriterConnection;
       var dataSource = Driver.CoreServerInfo.DatabaseName.Trim().ToLowerInvariant();
       if (dataSource==":memory:")
         result |= ServerFeatures.SingleConnection;
@@ -200,11 +200,11 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       var types = new DataTypeCollection();
 
       var common = DataTypeFeatures.Default | DataTypeFeatures.Nullable
-        | DataTypeFeatures.NonKeyIndexing | DataTypeFeatures.Grouping
-        | DataTypeFeatures.Ordering | DataTypeFeatures.Multiple;
+                   | DataTypeFeatures.NonKeyIndexing | DataTypeFeatures.Grouping
+                   | DataTypeFeatures.Ordering | DataTypeFeatures.Multiple;
 
       var index = DataTypeFeatures.Indexing | DataTypeFeatures.Clustering
-        | DataTypeFeatures.FillFactor | DataTypeFeatures.KeyConstraint;
+                  | DataTypeFeatures.FillFactor | DataTypeFeatures.KeyConstraint;
 
       var identity = DataTypeFeatures.Identity;
 
@@ -226,6 +226,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index, ValueRange.DateTime, "datetime");
 
+      types.DateTimeOffset = DataTypeInfo.Range(SqlType.DateTimeOffset, common | index, ValueRange.DateTimeOffset, "datetimeoffset");
+
       types.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, common | index,
         "varchar", "nvarchar", "nchar", "char", "text", "xml");
       types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarBinaryMax, common, "blob");
@@ -238,10 +240,10 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override IsolationLevels GetIsolationLevels()
     {
       var levels = IsolationLevels.ReadUncommitted
-        | IsolationLevels.ReadCommitted
-        | IsolationLevels.RepeatableRead
-        | IsolationLevels.Serializable
-        | IsolationLevels.Snapshot;
+                   | IsolationLevels.ReadCommitted
+                   | IsolationLevels.RepeatableRead
+                   | IsolationLevels.Serializable
+                   | IsolationLevels.Snapshot;
       return levels;
     }
 

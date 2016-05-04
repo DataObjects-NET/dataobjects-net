@@ -53,6 +53,7 @@
     <Compile Include="MySQL\CompilerTest.cs" />
     <Compile Include="PostgreSql\NpgsqlTypeConstructorTest.cs" />
     <Compile Include="Sqlite\DateTimeIntervalTest.cs" />
+    <Compile Include="Sqlite\DateTimeOffsetTest.cs" />
     <Compile Include="SqlServer\CompilerTest.cs" />
     <Compile Include="SqlServer\DateTimeOffsetTest.cs" />
     <Compile Include="TestConnectionInfoProvider.cs" />

@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateTimeAddMonthsTest()
     {
       CheckEquality(
-        SqlDml.DateTimeAddMonths(new DateTime(2001, 1, 1), 15) ,
+        SqlDml.DateTimeAddMonths(new DateTime(2001, 1, 1), 15),
         new DateTime(2002, 4, 1));
     }
 
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateTimeAddYearsTest()
     {
       CheckEquality(
-        SqlDml.DateTimeAddYears(new DateTime(2001, 1, 1), 5) ,
+        SqlDml.DateTimeAddYears(new DateTime(2001, 1, 1), 5),
         new DateTime(2006, 1, 1));
     }
 
@@ -124,7 +124,7 @@ namespace Xtensive.Orm.Tests.Sql
         SqlDml.Extract(SqlDateTimePart.Millisecond, new DateTime(2006, 5, 4, 3, 2, 1, 333)),
         333);
     }
-    
+
     [Test]
     public virtual void DateTimeExtractDayOfWeekTest()
     {
@@ -194,7 +194,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       CheckEquality(
         SqlDml.IntervalToMilliseconds(new TimeSpan(0, 0, 8, 5, 5)),
-        (int)new TimeSpan(0, 0, 8, 5, 5).TotalMilliseconds);
+        (int) new TimeSpan(0, 0, 8, 5, 5).TotalMilliseconds);
     }
 
     [Test]
