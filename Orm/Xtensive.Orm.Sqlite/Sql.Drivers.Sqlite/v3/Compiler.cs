@@ -51,7 +51,20 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         DateTimeAddInterval(node.Left, -node.Right).AcceptVisitor(this);
         return;
       case SqlNodeType.DateTimeMinusDateTime:
+      case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
         DateTimeSubtractDateTime(node.Left, node.Right).AcceptVisitor(this);
+        return;
+      case SqlNodeType.DateTimeOffsetPlusInterval:
+        SqlDml.Concat(
+          SqlDml.DateTimePlusInterval(DateTimeOffsetExtractDateTimeAsString(node.Left), node.Right),
+          DateTimeOffsetExtractOffsetAsString(node.Left))
+          .AcceptVisitor(this);
+        return;
+      case SqlNodeType.DateTimeOffsetMinusInterval:
+        SqlDml.Concat(
+          SqlDml.DateTimePlusInterval(DateTimeOffsetExtractDateTimeAsString(node.Left), -node.Right),
+          DateTimeOffsetExtractOffsetAsString(node.Left))
+          .AcceptVisitor(this);
         return;
       default:
         base.Visit(node);
@@ -64,7 +77,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       var renameColumnAction = node.Action as SqlRenameColumn;
       if (renameColumnAction!=null)
         context.Output.AppendText(((Translator) translator).Translate(context, renameColumnAction));
-      else if (node.Action is SqlDropConstraint)
+      else if (node.Action is SqlDropConstraint) {
         using (context.EnterScope(node)) {
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.Entry));
 
@@ -78,6 +91,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.DropBehavior));
           context.Output.AppendText(translator.Translate(context, node, AlterTableSection.Exit));
         }
+      }
       else
         base.Visit(node);
     }
@@ -150,6 +164,28 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         return;
       case SqlFunctionType.DateTimeToStringIso:
         DateTimeToStringIso(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetAddMonths:
+        SqlDml.Concat(DateAddMonth(DateTimeOffsetExtractDateTimeAsString(node.Arguments[0]), node.Arguments[1]), DateTimeOffsetExtractOffsetAsString(node.Arguments[0])).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetAddYears:
+        SqlDml.Concat(DateAddYear(DateTimeOffsetExtractDateTimeAsString(node.Arguments[0]), node.Arguments[1]), DateTimeOffsetExtractOffsetAsString(node.Arguments[0])).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetConstruct:
+        SqlDml.Concat(node.Arguments[0], OffsetToOffsetAsString(node.Arguments[1])).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetToLocalTime:
+        DateTimeOffsetToLocalDateTime(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetToUtcTime:
+        SqlDml.Concat(DateTimeOffsetToUtcDateTime(node.Arguments[0]), "+00:00").AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetTimeOfDay:
+        SqlDml.DateTimeMinusDateTime(
+          DateTimeOffsetExtractDateTimeAsString(node.Arguments[0]),
+          DateTimeTruncate(DateTimeOffsetExtractDateTimeAsString(node.Arguments[0])))
+          .AcceptVisitor(this);
+//        SqlDml.FunctionCall("TIME", DateTimeOffsetExtractDateTimeAsString(node.Arguments[0])).AcceptVisitor(this);
         return;
       }
       base.Visit(node);
@@ -264,28 +300,28 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       switch (node.DateTimeOffsetPart) {
       case SqlDateTimeOffsetPart.Date:
-        DateTimeTruncate(DateTimeOffsetExtractDateTime(node.Operand)).AcceptVisitor(this);
+        DateTimeTruncate(DateTimeOffsetExtractDateTimeAsString(node.Operand)).AcceptVisitor(this);
         return;
       case SqlDateTimeOffsetPart.DateTime:
-        DateTime(DateTimeOffsetExtractDateTime(node.Operand)).AcceptVisitor(this);
+        DateTime(DateTimeOffsetExtractDateTimeAsString(node.Operand)).AcceptVisitor(this);
         return;
       case SqlDateTimeOffsetPart.LocalDateTime:
-        DateTimeOffsetExtractLocalDateTime(node.Operand).AcceptVisitor(this);
+        DateTimeOffsetToLocalDateTime(node.Operand).AcceptVisitor(this);
         return;
       case SqlDateTimeOffsetPart.UtcDateTime:
-        DateTimeOffsetExtractUtcDateTime(node.Operand).AcceptVisitor(this);
+        DateTimeOffsetToUtcDateTime(node.Operand).AcceptVisitor(this);
         return;
       case SqlDateTimeOffsetPart.Offset:
-        DateTimeOffsetExtractOffset(node.Operand).AcceptVisitor(this);
+        DateTimeOffsetExtractOffsetAsTotalMilliseconds(node.Operand).AcceptVisitor(this);
         return;
       case SqlDateTimeOffsetPart.TimeZoneHour:
-        (DateTimeOffsetExtractOffset(node.Operand) / MillisecondsPerHour).AcceptVisitor(this);
+        (DateTimeOffsetExtractOffsetAsTotalMilliseconds(node.Operand) / MillisecondsPerHour).AcceptVisitor(this);
         return;
       case SqlDateTimeOffsetPart.TimeZoneMinute:
-        ((DateTimeOffsetExtractOffset(node.Operand) % MillisecondsPerHour) / (60 * MillisecondsPerSecond)).AcceptVisitor(this);
+        ((DateTimeOffsetExtractOffsetAsTotalMilliseconds(node.Operand) % MillisecondsPerHour) / (60 * MillisecondsPerSecond)).AcceptVisitor(this);
         return;
       }
-      Visit(SqlDml.Extract(ConvertDateTimeOffsetPartToDateTimePart(node.DateTimeOffsetPart), DateTimeOffsetExtractDateTime(node.Operand)));
+      Visit(SqlDml.Extract(ConvertDateTimeOffsetPartToDateTimePart(node.DateTimeOffsetPart), DateTimeOffsetExtractDateTimeAsString(node.Operand)));
     }
 
     private static SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
@@ -303,27 +339,64 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       return SqlDml.FunctionCall("DATETIME", date);
     }
 
+    private static SqlCast CastToInt(SqlExpression arg)
+    {
+      return SqlDml.Cast(arg, SqlType.Int32);
+    }
+
     private static SqlCast CastToLong(SqlExpression arg)
     {
       return SqlDml.Cast(arg, SqlType.Int64);
     }
 
-    private static SqlExpression DateTimeOffsetExtractDateTime(SqlExpression dateTimeOffset)
+    private static SqlExpression OffsetToOffsetAsString(SqlExpression offset)
+    {
+      var sign = '+';
+      var offsetAsInt = offset as SqlLiteral<int>;
+      var offsetAsDouble = offset as SqlLiteral<double>;
+      if (offsetAsInt!=null) {
+        if (offsetAsInt.Value < 0) {
+          sign = '-';
+          offset = -offset;
+        }
+      }
+      else if (offsetAsDouble!=null) {
+        if (offsetAsDouble.Value < 0) {
+          sign = '-';
+          offset = -offset;
+        }
+      }
+      return SqlDml.Concat(sign, ToStringWithLeadZero(CastToInt(offset / 60), 2), ':', ToStringWithLeadZero(CastToInt(offset % 60), 2));
+    }
+
+    /// Magic function: (2, 3) => "002"; (41, 3) => "041", (4321, 3) => "321"
+    private static
+      SqlExpression ToStringWithLeadZero(SqlExpression expression, int resultStringLength)
+    {
+      return SqlDml.Substring(SqlDml.Concat(new String('0', resultStringLength), expression), -resultStringLength - 1, resultStringLength);
+    }
+
+    private static SqlExpression DateTimeOffsetExtractDateTimeAsString(SqlExpression dateTimeOffset)
     {
       return SqlDml.Substring(dateTimeOffset, 0, 19);
     }
 
-    private static SqlExpression DateTimeOffsetExtractOffset(SqlExpression dateTimeOffset)
+    private static SqlExpression DateTimeOffsetExtractOffsetAsString(SqlExpression dateTimeOffset)
     {
-      return DateTimeSubtractDateTime(DateTimeOffsetExtractDateTime(dateTimeOffset), dateTimeOffset);
+      return SqlDml.Substring(dateTimeOffset, 19);
     }
 
-    private static SqlExpression DateTimeOffsetExtractUtcDateTime(SqlExpression dateTimeOffset)
+    private static SqlExpression DateTimeOffsetExtractOffsetAsTotalMilliseconds(SqlExpression dateTimeOffset)
+    {
+      return DateTimeSubtractDateTime(DateTimeOffsetExtractDateTimeAsString(dateTimeOffset), dateTimeOffset);
+    }
+
+    private static SqlExpression DateTimeOffsetToUtcDateTime(SqlExpression dateTimeOffset)
     {
       return SqlDml.FunctionCall("DATETIME", dateTimeOffset, "LOCALTIME", "UTC");
     }
 
-    private static SqlExpression DateTimeOffsetExtractLocalDateTime(SqlExpression dateTimeOffset)
+    private static SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression dateTimeOffset)
     {
       return SqlDml.FunctionCall("DATETIME", dateTimeOffset, "LOCALTIME");
     }

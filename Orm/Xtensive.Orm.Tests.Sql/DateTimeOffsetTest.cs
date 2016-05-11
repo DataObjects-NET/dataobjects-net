@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Tests.Sql
       get { return true; }
     }
 
-    private static readonly TimeSpan DefaultTimeSpan = new TimeSpan(4, 10, 0);
+    private static readonly TimeSpan DefaultTimeSpan = -new TimeSpan(4, 10, 0);
     private static readonly DateTimeOffset DefaultDateTimeOffset = new DateTimeOffset(2001, 2, 3, 14, 15, 16, DefaultTimeSpan);
 
     [Test]
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateTimeOffsetMinusDateTimeOffsetTest()
     {
       var now = DateTimeOffset.Now;
-      now = new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, now.Millisecond, now.Offset); // nanosecond error
+      now = new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, now.Offset); // nanosecond error, milliseconds not supported for sqlite
       CheckEquality(SqlDml.DateTimeOffsetMinusDateTimeOffset(DefaultDateTimeOffset, now), DefaultDateTimeOffset - now);
     }
 

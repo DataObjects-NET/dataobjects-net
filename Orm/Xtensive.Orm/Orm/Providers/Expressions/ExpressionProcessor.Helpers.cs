@@ -203,6 +203,16 @@ namespace Xtensive.Orm.Providers
       return StripObjectCasts(expression).Type.StripNullable()==typeof (bool);
     }
 
+    private static bool IsDateTimeExpression(Expression expression)
+    {
+      return StripObjectCasts(expression).Type.StripNullable()==typeof (DateTime);
+    }
+
+    private static bool IsDateTimeOffsetExpression(Expression expression)
+    {
+      return StripObjectCasts(expression).Type.StripNullable()==typeof (DateTimeOffset);
+    }
+
     private static Expression StripObjectCasts(Expression expression)
     {
       while (expression.Type==typeof (object) && expression.NodeType==ExpressionType.Convert)

@@ -22,7 +22,7 @@ namespace Xtensive.Sql
   {
     private const int DecimalPrecisionLimit = 60;
 
-    private static readonly ValueRange<TimeSpan> Int64TimeSpanRange = new ValueRange<TimeSpan>(
+    protected static readonly ValueRange<TimeSpan> Int64TimeSpanRange = new ValueRange<TimeSpan>(
       TimeSpan.FromTicks(TimeSpan.MinValue.Ticks / 100),
       TimeSpan.FromTicks(TimeSpan.MaxValue.Ticks / 100));
 

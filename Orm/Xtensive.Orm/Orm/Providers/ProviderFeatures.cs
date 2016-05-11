@@ -69,6 +69,7 @@ namespace Xtensive.Orm.Providers
     AutoIncrementSettingsInMemory = 1L << 51,
     UpdateLimit = 1L << 52,
     DeleteLimit = 1L << 53,
+    DateTimeOffsetEmulation = 1L << 54,
 
     // Feature groups
     Paging = Take | Skip,

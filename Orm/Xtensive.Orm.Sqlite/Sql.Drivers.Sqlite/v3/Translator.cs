@@ -352,20 +352,24 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       //http://www.sqlite.org/lang_expr.html
       var sqlType = node.Type.Type;
 
-      if (sqlType==SqlType.Binary ||
-          sqlType==SqlType.Char ||
-          sqlType==SqlType.Interval ||
-          sqlType==SqlType.DateTime)
+      if (sqlType==SqlType.DateTime ||
+          sqlType==SqlType.DateTimeOffset) {
         switch (section) {
         case NodeSection.Entry:
-          return "CAST(";
+          return "DATETIME(";
         case NodeSection.Exit:
-          return "AS " + Translate(node.Type) + ")";
+          return ")";
         default:
           throw new ArgumentOutOfRangeException("section");
         }
-      if (sqlType==SqlType.Int16 ||
-          sqlType==SqlType.Int32)
+      }
+
+      if (sqlType==SqlType.Binary ||
+          sqlType==SqlType.Char ||
+          sqlType==SqlType.Interval ||
+          sqlType==SqlType.Int16 ||
+          sqlType==SqlType.Int32 ||
+          sqlType==SqlType.Int64)
         switch (section) {
         case NodeSection.Entry:
           return "CAST(";
