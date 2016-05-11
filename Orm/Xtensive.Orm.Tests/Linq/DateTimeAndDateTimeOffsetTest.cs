@@ -219,6 +219,71 @@ namespace Xtensive.Orm.Tests.Linq
       }
     }
 
+    [Test]
+    public void DateTimeCompareWithDateTimeTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        RunTest(c => c.Date==DefaultDateTime);
+        RunTest(c => c.Date > DefaultDateTime.AddMinutes(-1));
+        RunWrongTest(c => c.Date < DefaultDateTime.AddMinutes(-1));
+      }
+    }
+
+//    [Test] // Comparing datetime with datetimeoffset is not supported
+    public void DateTimeCompareWithDateTimeOffsetTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var defaultDateWithOffset = new DateTimeOffset(DefaultDateTime).ToOffset(DefaultOffset1);
+        RunTest(c => c.Date == defaultDateWithOffset);
+        RunTest(c => c.Date == defaultDateWithOffset.ToOffset(DefaultOffset1));
+        RunTest(c => c.Date == defaultDateWithOffset.ToOffset(DefaultOffset2));
+        RunTest(c => c.Date == defaultDateWithOffset.ToOffset(DefaultOffset3));
+        RunTest(c => c.Date > defaultDateWithOffset.AddMinutes(-1));
+        RunTest(c => c.Date > defaultDateWithOffset.AddMinutes(-1).ToOffset(DefaultOffset1));
+        RunTest(c => c.Date > defaultDateWithOffset.AddMinutes(-1).ToOffset(DefaultOffset2));
+        RunTest(c => c.Date > defaultDateWithOffset.AddMinutes(-1).ToOffset(DefaultOffset3));
+        RunWrongTest(c => c.Date < defaultDateWithOffset.AddMinutes(-1));
+        RunWrongTest(c => c.Date < defaultDateWithOffset.AddMinutes(-1).ToOffset(DefaultOffset1));
+        RunWrongTest(c => c.Date < defaultDateWithOffset.AddMinutes(-1).ToOffset(DefaultOffset2));
+        RunWrongTest(c => c.Date < defaultDateWithOffset.AddMinutes(-1).ToOffset(DefaultOffset3));
+      }
+    }
+
+    [Test]
+    public void DateTimeOffsetCompareWithDateTimeTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        RunTest(c => c.DateWithOffset==DefaultDateTimeOffset.UtcDateTime);
+        RunTest(c => c.DateWithOffset > DefaultDateTimeOffset.UtcDateTime.AddMinutes(-1));
+        RunWrongTest(c => c.DateWithOffset < DefaultDateTimeOffset.UtcDateTime.AddMinutes(-1));
+      }
+    }
+
+    [Test]
+    public void DateTimeOffsetCompareWithDateTimeOffsetTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        RunTest(c => c.DateWithOffset == DefaultDateTimeOffset);
+        RunTest(c => c.DateWithOffset == DefaultDateTimeOffset.ToOffset(DefaultOffset1));
+        RunTest(c => c.DateWithOffset == DefaultDateTimeOffset.ToOffset(DefaultOffset2));
+        RunTest(c => c.DateWithOffset == DefaultDateTimeOffset.ToOffset(DefaultOffset3));
+
+        RunTest(c => c.DateWithOffset > DefaultDateTimeOffset.AddMinutes(-1));
+        RunTest(c => c.DateWithOffset > DefaultDateTimeOffset.AddMinutes(-1).ToOffset(DefaultOffset1));
+        RunTest(c => c.DateWithOffset > DefaultDateTimeOffset.AddMinutes(-1).ToOffset(DefaultOffset2));
+        RunTest(c => c.DateWithOffset > DefaultDateTimeOffset.AddMinutes(-1).ToOffset(DefaultOffset3));
+
+        RunWrongTest(c => c.DateWithOffset < DefaultDateTimeOffset.AddMinutes(-1));
+        RunWrongTest(c => c.DateWithOffset < DefaultDateTimeOffset.AddMinutes(-1).ToOffset(DefaultOffset1));
+        RunWrongTest(c => c.DateWithOffset < DefaultDateTimeOffset.AddMinutes(-1).ToOffset(DefaultOffset2));
+        RunWrongTest(c => c.DateWithOffset < DefaultDateTimeOffset.AddMinutes(-1).ToOffset(DefaultOffset3));
+      }
+    }
+
     private void RunTest(Expression<Func<TestEntity, bool>> filter, int rightCount = 1)
     {
       var count = Query.All<TestEntity>().Count(filter);
