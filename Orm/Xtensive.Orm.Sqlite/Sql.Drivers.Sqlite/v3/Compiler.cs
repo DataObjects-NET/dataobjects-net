@@ -16,11 +16,10 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 {
   internal class Compiler : SqlCompiler
   {
+    private const long NanosecondsPerMillisecond = 1000000L;
     private static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
     private static readonly long MillisecondsPerHour = (long) TimeSpan.FromHours(1).TotalMilliseconds;
-    private static readonly long MillisecondsPerMinute = (long) TimeSpan.FromMinutes(1).TotalMilliseconds;
     private static readonly long MillisecondsPerSecond = (long) TimeSpan.FromSeconds(1).TotalMilliseconds;
-    private const long NanosecondsPerMillisecond = 1000000L;
 
     protected override bool VisitCreateTableConstraints(SqlCreateTable node, IEnumerable<TableConstraint> constraints, bool hasItems)
     {
@@ -138,14 +137,16 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         }
         break;
       case SqlFunctionType.Truncate:
-      case SqlFunctionType.IntervalToMilliseconds:
         Visit(CastToLong(node.Arguments[0]));
-        return;
-      case SqlFunctionType.IntervalToNanoseconds:
-        Visit(CastToLong(node.Arguments[0] / NanosecondsPerMillisecond));
         return;
       case SqlFunctionType.IntervalConstruct:
         Visit(CastToLong(node.Arguments[0] / NanosecondsPerMillisecond));
+        return;
+      case SqlFunctionType.IntervalToNanoseconds:
+        Visit(CastToLong(node.Arguments[0] * NanosecondsPerMillisecond));
+        return;
+      case SqlFunctionType.IntervalToMilliseconds:
+        Visit(CastToLong(node.Arguments[0]));
         return;
       case SqlFunctionType.DateTimeAddMonths:
         DateAddMonth(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
@@ -185,7 +186,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           DateTimeOffsetExtractDateTimeAsString(node.Arguments[0]),
           DateTimeTruncate(DateTimeOffsetExtractDateTimeAsString(node.Arguments[0])))
           .AcceptVisitor(this);
-//        SqlDml.FunctionCall("TIME", DateTimeOffsetExtractDateTimeAsString(node.Arguments[0])).AcceptVisitor(this);
         return;
       }
       base.Visit(node);
