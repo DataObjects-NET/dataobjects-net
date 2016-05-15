@@ -47,6 +47,7 @@ namespace Xtensive.Orm.Tests.Linq
     private static readonly DateTime DefaultDateTime = new DateTime(2016, 04, 27, 13, 14, 15);
     private static readonly DateTimeOffset DefaultDateTimeOffset = new DateTimeOffset(DefaultDateTime, DefaultOffset1);
     private static readonly DateTime WrongDateTime = DefaultDateTime.AddYears(1).AddMonths(1).Add(new TimeSpan(1, 1, 1, 1));
+    private static readonly DateTime WrongDateTime2 = WrongDateTime.AddYears(1).AddMonths(1).Add(new TimeSpan(1, 1, 1, 1));
     private static readonly DateTimeOffset WrongDateTimeOffset = new DateTimeOffset(WrongDateTime, DefaultOffset3);
 
     private const string FirstEntityName = "FirstEntity";
@@ -185,6 +186,37 @@ namespace Xtensive.Orm.Tests.Linq
         RunWrongTest(c => c.DateWithOffset.DayOfYear==WrongDateTimeOffset.DayOfYear);
         RunWrongTest(c => c.DateWithOffset.LocalDateTime==WrongDateTimeOffset.LocalDateTime);
         //        RunTest(c => c.DateWithOffset.UtcDateTime==wrongDateTimeOffset.UtcDateTime);
+      }
+    }
+
+    [Test]
+    public void DateTimeOperationsTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        RunTest(c => c.Date==DefaultDateTime);
+        RunTest(c => c.Date.AddYears(1) == DefaultDateTime.AddYears(1));
+        RunTest(c => c.Date.AddMonths(1) == DefaultDateTime.AddMonths(1));
+        RunTest(c => c.Date.AddDays(1) == DefaultDateTime.AddDays(1));
+        RunTest(c => c.Date.AddHours(1) == DefaultDateTime.AddHours(1));
+        RunTest(c => c.Date.AddMinutes(1) == DefaultDateTime.AddMinutes(1));
+        RunTest(c => c.Date.AddSeconds(1) == DefaultDateTime.AddSeconds(1));
+        RunTest(c => c.Date.Add(BigTimeSpan) == DefaultDateTime.Add(BigTimeSpan));
+        RunTest(c => c.Date.Subtract(DefaultOffset3) == DefaultDateTime.Subtract(DefaultOffset3));
+        RunTest(c => c.Date.Subtract(WrongDateTime) == DefaultDateTime.Subtract(WrongDateTime));
+        //        RunTest(c => c.Date.ToLocalTime() == DefaultDateTime.ToLocalTime());
+
+        RunWrongTest(c => c.Date == WrongDateTime);
+        RunWrongTest(c => c.Date.AddYears(1) == WrongDateTime.AddYears(1));
+        RunWrongTest(c => c.Date.AddMonths(1) == WrongDateTime.AddMonths(1));
+        RunWrongTest(c => c.Date.AddDays(1) == WrongDateTime.AddDays(1));
+        RunWrongTest(c => c.Date.AddHours(1) == WrongDateTime.AddHours(1));
+        RunWrongTest(c => c.Date.AddMinutes(1) == WrongDateTime.AddMinutes(1));
+        RunWrongTest(c => c.Date.AddSeconds(1) == WrongDateTime.AddSeconds(1));
+        RunWrongTest(c => c.Date.Add(BigTimeSpan) == WrongDateTime.Add(BigTimeSpan));
+        RunWrongTest(c => c.Date.Subtract(DefaultOffset3) == WrongDateTime.Subtract(DefaultOffset3));
+        RunWrongTest(c => c.Date.Subtract(WrongDateTime2) == WrongDateTime.Subtract(WrongDateTime2));
+        //        RunWrongTest(c => c.Date.ToLocalTime() == WrongDateTime.ToLocalTime());
       }
     }
 

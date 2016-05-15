@@ -17,8 +17,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
   internal class Compiler : SqlCompiler
   {
     private const long NanosecondsPerMillisecond = 1000000L;
-    private static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
-    private static readonly long MillisecondsPerHour = (long) TimeSpan.FromHours(1).TotalMilliseconds;
+    private static readonly long NanosecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds * NanosecondsPerMillisecond;
+    private static readonly long NanosecondsPerHour = (long) TimeSpan.FromHours(1).TotalMilliseconds * NanosecondsPerMillisecond;
+    private static readonly long NanosecondsPerSecond = (long) TimeSpan.FromSeconds(1).TotalMilliseconds * NanosecondsPerMillisecond;
     private static readonly long MillisecondsPerSecond = (long) TimeSpan.FromSeconds(1).TotalMilliseconds;
 
     protected override bool VisitCreateTableConstraints(SqlCreateTable node, IEnumerable<TableConstraint> constraints, bool hasItems)
@@ -140,13 +141,13 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         Visit(CastToLong(node.Arguments[0]));
         return;
       case SqlFunctionType.IntervalConstruct:
-        Visit(CastToLong(node.Arguments[0] / NanosecondsPerMillisecond));
+        Visit(CastToLong(node.Arguments[0]));
         return;
       case SqlFunctionType.IntervalToNanoseconds:
-        Visit(CastToLong(node.Arguments[0] * NanosecondsPerMillisecond));
+        Visit(CastToLong(node.Arguments[0]));
         return;
       case SqlFunctionType.IntervalToMilliseconds:
-        Visit(CastToLong(node.Arguments[0]));
+        Visit(CastToLong(node.Arguments[0] / NanosecondsPerMillisecond));
         return;
       case SqlFunctionType.DateTimeAddMonths:
         DateAddMonth(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
@@ -268,22 +269,23 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       switch (node.IntervalPart) {
       case SqlIntervalPart.Day:
-        Visit(CastToLong(node.Operand / MillisecondsPerDay));
+        Visit(CastToLong(node.Operand / NanosecondsPerDay));
         return;
       case SqlIntervalPart.Hour:
-        Visit(CastToLong(node.Operand / (60 * 60 * MillisecondsPerSecond)) % 24);
+        Visit(CastToLong(node.Operand / (60 * 60 * NanosecondsPerSecond)) % 24);
         return;
       case SqlIntervalPart.Minute:
-        Visit(CastToLong(node.Operand / (60 * MillisecondsPerSecond)) % 60);
+        Visit(CastToLong(node.Operand / (60 * NanosecondsPerSecond)) % 60);
         return;
       case SqlIntervalPart.Second:
-        Visit(CastToLong(node.Operand / MillisecondsPerSecond) % 60);
+        Visit(CastToLong(node.Operand / NanosecondsPerSecond) % 60);
         return;
       case SqlIntervalPart.Millisecond:
-        Visit(CastToLong(node.Operand) % MillisecondsPerSecond);
+        Visit(CastToLong(node.Operand / NanosecondsPerMillisecond) % MillisecondsPerSecond);
         return;
       case SqlIntervalPart.Nanosecond:
-        throw SqlHelper.NotSupported(node.IntervalPart.ToString());
+        Visit(CastToLong(node.Operand % NanosecondsPerMillisecond));
+        return;
       }
     }
 
@@ -312,13 +314,13 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         DateTimeOffsetToUtcDateTime(node.Operand).AcceptVisitor(this);
         return;
       case SqlDateTimeOffsetPart.Offset:
-        DateTimeOffsetExtractOffsetAsTotalMilliseconds(node.Operand).AcceptVisitor(this);
+        (DateTimeOffsetExtractOffsetAsTotalNanoseconds(node.Operand)).AcceptVisitor(this);
         return;
       case SqlDateTimeOffsetPart.TimeZoneHour:
-        (DateTimeOffsetExtractOffsetAsTotalMilliseconds(node.Operand) / MillisecondsPerHour).AcceptVisitor(this);
+        (DateTimeOffsetExtractOffsetAsTotalNanoseconds(node.Operand) / NanosecondsPerHour).AcceptVisitor(this);
         return;
       case SqlDateTimeOffsetPart.TimeZoneMinute:
-        ((DateTimeOffsetExtractOffsetAsTotalMilliseconds(node.Operand) % MillisecondsPerHour) / (60 * MillisecondsPerSecond)).AcceptVisitor(this);
+        (((DateTimeOffsetExtractOffsetAsTotalNanoseconds(node.Operand)) % NanosecondsPerHour) / (60 * NanosecondsPerSecond)).AcceptVisitor(this);
         return;
       }
       Visit(SqlDml.Extract(ConvertDateTimeOffsetPartToDateTimePart(node.DateTimeOffsetPart), DateTimeOffsetExtractDateTimeAsString(node.Operand)));
@@ -326,7 +328,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
     {
-      return DateAddSeconds(date, interval / Convert.ToDouble(MillisecondsPerSecond));
+      return DateAddSeconds(date, interval / Convert.ToDouble(NanosecondsPerSecond));
     }
 
     private static SqlExpression DateTimeTruncate(SqlExpression date)
@@ -386,7 +388,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       return SqlDml.Substring(dateTimeOffset, 19);
     }
 
-    private static SqlExpression DateTimeOffsetExtractOffsetAsTotalMilliseconds(SqlExpression dateTimeOffset)
+    private static SqlExpression DateTimeOffsetExtractOffsetAsTotalNanoseconds(SqlExpression dateTimeOffset)
     {
       return DateTimeSubtractDateTime(DateTimeOffsetExtractDateTimeAsString(dateTimeOffset), dateTimeOffset);
     }
@@ -439,7 +441,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
-      return (DateGetTotalSeconds(date1) - DateGetTotalSeconds(date2)) * MillisecondsPerSecond;
+      return (DateGetTotalSeconds(date1) - DateGetTotalSeconds(date2)) * NanosecondsPerSecond;
       //             + DateGetMilliseconds(date1)
       //             - DateGetMilliseconds(date2);
     }

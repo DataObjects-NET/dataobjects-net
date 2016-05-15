@@ -74,17 +74,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       parameter.Value = correctValue.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture);
     }
 
-    public override void BindTimeSpan(DbParameter parameter, object value)
-    {
-      parameter.DbType = DbType.Int64;
-      if (value!=null) {
-        var timeSpan = ValueRangeValidator.Correct((TimeSpan) value, Int64TimeSpanRange);
-        parameter.Value = timeSpan.TotalMilliseconds;
-      }
-      else
-        parameter.Value = DBNull.Value;
-    }
-
     public override SqlValueType MapDecimal(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Decimal);

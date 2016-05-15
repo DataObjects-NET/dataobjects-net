@@ -104,7 +104,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       if (literalType==typeof (byte[]))
         return ByteArrayToString((byte[]) literalValue);
       if (literalType==typeof (TimeSpan))
-        return Convert.ToString((long) ((TimeSpan) literalValue).TotalMilliseconds);
+        return Convert.ToString((long) ((TimeSpan) literalValue).Ticks * 100);
       if (literalType==typeof (Boolean))
         return ((Boolean) literalValue) ? "1" : "0";
       if (literalType==typeof (Guid))
