@@ -395,7 +395,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateTimeOffsetToUtcDateTime(SqlExpression dateTimeOffset)
     {
-      return SqlDml.FunctionCall("DATETIME", dateTimeOffset, "UTC");
+      return SqlDml.FunctionCall("DATETIME", dateTimeOffset, "LOCALTIME", "UTC");
     }
 
     private static SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression dateTimeOffset)
