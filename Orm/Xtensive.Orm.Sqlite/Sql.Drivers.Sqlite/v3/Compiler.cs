@@ -56,13 +56,13 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         return;
       case SqlNodeType.DateTimeOffsetPlusInterval:
         SqlDml.Concat(
-          SqlDml.DateTimePlusInterval(DateTimeOffsetExtractDateTimeAsString(node.Left), node.Right),
+          DateTimeAddInterval(DateTimeOffsetExtractDateTimeAsString(node.Left), node.Right),
           DateTimeOffsetExtractOffsetAsString(node.Left))
           .AcceptVisitor(this);
         return;
       case SqlNodeType.DateTimeOffsetMinusInterval:
         SqlDml.Concat(
-          SqlDml.DateTimePlusInterval(DateTimeOffsetExtractDateTimeAsString(node.Left), -node.Right),
+          DateTimeAddInterval(DateTimeOffsetExtractDateTimeAsString(node.Left), -node.Right),
           DateTimeOffsetExtractOffsetAsString(node.Left))
           .AcceptVisitor(this);
         return;

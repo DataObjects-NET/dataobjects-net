@@ -479,9 +479,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       switch (type) {
       case SqlNodeType.DateTimePlusInterval:
+      case SqlNodeType.DateTimeOffsetPlusInterval:
         return "+";
       case SqlNodeType.DateTimeMinusInterval:
       case SqlNodeType.DateTimeMinusDateTime:
+      case SqlNodeType.DateTimeOffsetMinusInterval:
+      case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
         return "-";
       case SqlNodeType.Overlaps:
         throw SqlHelper.NotSupported(type.ToString());

@@ -208,7 +208,15 @@ namespace Xtensive.Orm.Providers
           right = booleanExpressionConverter.BooleanToInt(right);
       }
 
-      if (dateTimeOffsetEmulation && (IsDateTimeOffsetExpression(expression.Left) || IsDateTimeOffsetExpression(expression.Right))) {
+      var isCompareNodeType = expression.NodeType.In(
+        ExpressionType.Equal,
+        ExpressionType.NotEqual,
+        ExpressionType.GreaterThan,
+        ExpressionType.LessThan,
+        ExpressionType.GreaterThanOrEqual,
+        ExpressionType.LessThanOrEqual);
+
+      if (dateTimeOffsetEmulation && isCompareNodeType && (IsDateTimeOffsetExpression(expression.Left) || IsDateTimeOffsetExpression(expression.Right))) {
         left = SqlDml.Cast(left, SqlType.DateTimeOffset);
         right = SqlDml.Cast(right, SqlType.DateTimeOffset);
       }
