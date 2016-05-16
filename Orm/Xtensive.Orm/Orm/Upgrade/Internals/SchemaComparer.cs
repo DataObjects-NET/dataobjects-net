@@ -120,7 +120,7 @@ namespace Xtensive.Orm.Upgrade
       GetUnsafeColumnTypeChanges(actions, hints, unsafeActions);
       GetUnsafeColumnRemovals(actions, hints, unsafeActions);
       GetUnsafeTableRemovals(actions, hints, unsafeActions);
-      GetUnhandledCrossHierarchicalMovements(actions, hints, unsafeActions);
+      GetCrossHierarchicalMovements(actions, hints, unsafeActions);
 
       return unsafeActions;
     }
@@ -220,7 +220,7 @@ namespace Xtensive.Orm.Upgrade
         .ForEach(output.Add);
     }
 
-    private static void GetUnhandledCrossHierarchicalMovements(IEnumerable<NodeAction> actions, IEnumerable<UpgradeHint> hints, ICollection<NodeAction> output)
+    private static void GetCrossHierarchicalMovements(IEnumerable<NodeAction> actions, IEnumerable<UpgradeHint> hints, ICollection<NodeAction> output)
     {
       (from action in actions.OfType<DataAction>()
         let deleteDataHint = action.DataHint as DeleteDataHint
