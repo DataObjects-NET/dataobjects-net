@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private ValueRange<DateTime> dateTimeRange;
     private ValueRange<DateTimeOffset> dateTimeOffsetRange;
 
-    private const string DateTimeOffsetFormat = "yyyy-MM-ddTHH:mm:ssK";
+    private const string DateTimeOffsetFormat = "yyyy-MM-dd HH:mm:ssK";
 
     public override object ReadBoolean(DbDataReader reader, int index)
     {

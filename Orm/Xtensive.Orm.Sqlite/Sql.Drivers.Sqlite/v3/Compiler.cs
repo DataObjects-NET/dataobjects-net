@@ -177,7 +177,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         SqlDml.Concat(node.Arguments[0], OffsetToOffsetAsString(node.Arguments[1])).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeOffsetToLocalTime:
-        DateTimeOffsetToLocalDateTime(node.Arguments[0]).AcceptVisitor(this);
+        SqlDml.Concat(DateTimeOffsetToLocalDateTime(node.Arguments[0]), ServerOffsetAsString()).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeOffsetToUtcTime:
         SqlDml.Concat(DateTimeOffsetToUtcDateTime(node.Arguments[0]), "+00:00").AcceptVisitor(this);
@@ -371,9 +371,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       return SqlDml.Concat(sign, ToStringWithLeadZero(CastToInt(offset / 60), 2), ':', ToStringWithLeadZero(CastToInt(offset % 60), 2));
     }
 
-    /// Magic function: (2, 3) => "002"; (41, 3) => "041", (4321, 3) => "321"
-    private static
-      SqlExpression ToStringWithLeadZero(SqlExpression expression, int resultStringLength)
+    /// Truncate string from start, if length larger resultStringLength; Add lead zero, if length less resultStringLength
+    /// (2, 3) => "002"; (41, 3) => "041", (4321, 3) => "321"
+    private static SqlExpression ToStringWithLeadZero(SqlExpression expression, int resultStringLength)
     {
       return SqlDml.Substring(SqlDml.Concat(new String('0', resultStringLength), expression), -resultStringLength - 1, resultStringLength);
     }
@@ -395,7 +395,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateTimeOffsetToUtcDateTime(SqlExpression dateTimeOffset)
     {
-      return SqlDml.FunctionCall("DATETIME", dateTimeOffset, "LOCALTIME", "UTC");
+      return SqlDml.FunctionCall("DATETIME", dateTimeOffset, "UTC");
     }
 
     private static SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression dateTimeOffset)
@@ -444,6 +444,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       return (DateGetTotalSeconds(date1) - DateGetTotalSeconds(date2)) * NanosecondsPerSecond;
       //             + DateGetMilliseconds(date1)
       //             - DateGetMilliseconds(date2);
+    }
+
+    private static SqlExpression ServerOffsetAsString()
+    {
+      const string constDateTime = "2016-01-01 12:00:00";
+      return OffsetToOffsetAsString((SqlDml.FunctionCall("STRFTIME", "%s", constDateTime) - SqlDml.FunctionCall("STRFTIME", "%s", constDateTime, "UTC")) / 60);
     }
 
     private static SqlDateTimePart ConvertDateTimeOffsetPartToDateTimePart(SqlDateTimeOffsetPart dateTimeOffsetPart)
