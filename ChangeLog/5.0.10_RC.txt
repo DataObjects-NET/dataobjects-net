@@ -1,0 +1,3 @@
+[main] Fixed handling of pdb-files created by Roslyn
+[main] Cross-hierarchical persistent type movements are unsafe actions now
+[oracle] Correct extraction of DateTimeOffset columns
