@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2015 Xtensive LLC.
+﻿// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
