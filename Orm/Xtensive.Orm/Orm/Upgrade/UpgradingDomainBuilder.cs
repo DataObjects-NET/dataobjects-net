@@ -583,6 +583,9 @@ namespace Xtensive.Orm.Upgrade
     {
       var storedDomainModel = domainModel.ToStoredModel();
       storedDomainModel.UpdateReferences();
+      // Since we support storage nodes, stored domain model and real model of a node
+      // must be synchronized. So we must update types' mappings
+      storedDomainModel.UpdateMappings(context.NodeConfiguration);
       return storedDomainModel;
     }
 
