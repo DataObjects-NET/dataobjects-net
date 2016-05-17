@@ -254,6 +254,7 @@
     <Compile Include="Issues\IssueJira0584_IncorrectMappingOfColumnInQuery.cs" />
     <Compile Include="Issues\IssueJira0586_AnonymousTypeComparisonBug.cs" />
     <Compile Include="Issues\IssueJira0587_KeyComparisonBug.cs" />
+    <Compile Include="Issues\IssueJira0613_DataCleanUpInPerformSafely.cs" />
     <Compile Include="Issues\IssueJira0616_ExistanceProviderProcessingBug.cs" />
     <Compile Include="Issues\IssueJira0607_ColumnUselessRecreationsTest.cs" />
     <Compile Include="Issues\IssueJira0614_TypeMappingCachingInMaterializationContext.cs" />
