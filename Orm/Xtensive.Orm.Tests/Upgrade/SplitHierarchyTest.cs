@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     private Domain BuildUpgradedDomain()
     {
-      return BuildDomain(DomainUpgradeMode.PerformSafely, typeof (V2.MyBaseClass));
+      return BuildDomain(DomainUpgradeMode.Perform, typeof (V2.MyBaseClass));
     }
 
     private Domain BuildDomain(DomainUpgradeMode upgradeMode, Type sampleType)
