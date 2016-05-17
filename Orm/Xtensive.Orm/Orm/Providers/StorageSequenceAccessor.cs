@@ -32,9 +32,13 @@ namespace Xtensive.Orm.Providers
     public Segment<long> NextBulk(SequenceInfo sequenceInfo, Session session)
     {
       var generatorNode = GetGeneratorNode(sequenceInfo, session.StorageNode);
-      var query = queryBuilder.BuildNextValueQuery(generatorNode, sequenceInfo.Increment);
+      var executionFromUpgrade = UpgradeContext.GetCurrent(session.Domain.UpgradeContextCookie)!=null;
+
+      var query = queryBuilder.BuildNextValueQuery(generatorNode, sequenceInfo.Increment, executionFromUpgrade);
 
       long hiValue = Execute(query, session);
+      if (executionFromUpgrade && !hasAISettingsInMemory)
+        CleanUp(Enumerable.Repeat(sequenceInfo, 1), session);
 
       var increment = sequenceInfo.Increment;
       var current = hasArbitaryIncrement ? hiValue - increment : (hiValue - 1) * increment;
