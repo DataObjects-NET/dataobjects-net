@@ -6,11 +6,10 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Model;
-using source = Xtensive.Orm.Tests.Issues.IssueJira0613_DataCleanUpInPerformSafelyModel.Source;
-using badCase = Xtensive.Orm.Tests.Issues.IssueJira0613_DataCleanUpInPerformSafelyModel.BadCase;
-using goodCase = Xtensive.Orm.Tests.Issues.IssueJira0613_DataCleanUpInPerformSafelyModel.GoodCase;
+using userCase = Xtensive.Orm.Tests.Issues.IssueJira0613_DataCleanUpInPerformSafelyModel.UserCase;
+using upgradeSource = Xtensive.Orm.Tests.Issues.IssueJira0613_DataCleanUpInPerformSafelyModel.Sources;
+using upgradeTargets = Xtensive.Orm.Tests.Issues.IssueJira0613_DataCleanUpInPerformSafelyModel.Targets;
 
 
 namespace Xtensive.Orm.Tests.Issues
@@ -19,196 +18,465 @@ namespace Xtensive.Orm.Tests.Issues
   public class IssueJira0613_DataCleanUpInPerformSafely
   {
     [Test]
-    public void IncorrectCrossHierarchicalMovementTest()
+    public void MainTest()
     {
-      var initialDomainConfiguration = DomainConfigurationFactory.Create();
-      initialDomainConfiguration.UpgradeMode= DomainUpgradeMode.Recreate;
-      initialDomainConfiguration.Types.Register(typeof (source.A1).Assembly, typeof (source.A1).Namespace);
-      using (var initialDomain = Domain.Build(initialDomainConfiguration))
-      using (var session = initialDomain.OpenSession())
-      using (session.Activate())
-      using (var transaction = session.OpenTransaction()) {
+      var sourceType = typeof (userCase.Source.A1);
+      var targetType = typeof (userCase.Target.A1);
+
+      Action populateAction = () => {
         for (int i = 0; i < 10; i++) {
-          new source.A1 {Date = DateTime.Now, Text = "A1 " + i};
+          new userCase.Source.A1 {Date = DateTime.Now, Text = "A1 " + i};
         }
         for (int i = 0; i < 10; i++) {
-          new source.A2 {Length = i, Text = "A2 " + i};
+          new userCase.Source.A2 {Length = i, Text = "A2 " + i};
         }
-        transaction.Complete();
-      }
+      };
 
-      var performedDomainConfiguration = DomainConfigurationFactory.Create();
-      performedDomainConfiguration.UpgradeMode= DomainUpgradeMode.PerformSafely;
-      performedDomainConfiguration.Types.Register(typeof (badCase.A1).Assembly, typeof (badCase.A1).Namespace);
+      Action<Session> validateAction = (session) => {
+        var count = session.Query.All<userCase.Source.A1>().Count();
+        Assert.That(count, Is.EqualTo(10));
 
-      //Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(performedDomainConfiguration));
+        count = session.Query.All<userCase.Source.A2>().Count();
+        Assert.That(count, Is.EqualTo(10));
+      };
+
+      RunTest(populateAction, validateAction, sourceType, targetType, true);
+      RunTest(populateAction, validateAction, sourceType, targetType, false);
+    }
+
+    // Movement handling algorithm is based on source type's hierarchy
+    // We need to test only three cases
+    // 1) type is moved from ConcreteTable hierarchy
+    // 2) type is moved from ClassTable hierarcy
+    // 3) type is moved from SingleTable hierarchy
+    // Target types' hierarchies are not so important so we are free to choose
+    // whatever hierarchy we like. The esiest case is to get target hierarchy of same type
+
+    [Test]
+    public void ConcreteTableToConcreteTableMovement()
+    {
+      var sourceType = typeof (upgradeSource.ConcreteToConcrete.BaseType1);
+      var targetType = typeof (upgradeTargets.ConcreteToConcrete.BaseType1);
+
+      Action populateAction = () => {
+        for (int i = 0; i < 10; i++) {
+          new upgradeSource.ConcreteToConcrete.A1 {
+            Date = DateTime.Now.Date,
+            Text = (100 + i).ToString()
+          };
+        }
+        for (int i = 0; i < 10; i++) {
+          new upgradeSource.ConcreteToConcrete.A2 {
+            Date = DateTime.Now.AddDays(10).Date,
+            Text = (200 + i).ToString()
+          };
+        }
+      };
+
+      Action<Session> validateAction = (session) => {
+        var count = session.Query.All<upgradeSource.ConcreteToConcrete.A1>().Count();
+        Assert.That(count, Is.EqualTo(10));
+
+        count = session.Query.All<upgradeSource.ConcreteToConcrete.A2>().Count();
+        Assert.That(count, Is.EqualTo(10));
+      };
+
+      RunTest(populateAction, validateAction, sourceType, targetType, true);
+      RunTest(populateAction, validateAction, sourceType, targetType, false);
     }
 
     [Test]
-    public void CorrectCrossHierarchicalMovements()
+    public void ClassTableToClassTable()
     {
-      var initialDomainConfiguration = DomainConfigurationFactory.Create();
-      initialDomainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
-      initialDomainConfiguration.Types.Register(typeof(source.A1).Assembly, typeof(source.A1).Namespace);
-      using (var initialDomain = Domain.Build(initialDomainConfiguration))
+      var sourceType = typeof(upgradeSource.ClassToClass.BaseType1);
+      var targetType = typeof(upgradeTargets.ClassToClass.BaseType1);
+
+      Action populateAction = () => {
+        for (int i = 0; i < 10; i++) {
+          new upgradeSource.ClassToClass.A1 {
+            Text = (100 + i).ToString(),
+            Value = i
+          };
+        }
+        for (int i = 0; i < 10; i++) {
+          new upgradeSource.ClassToClass.A2 {
+            Date = DateTime.Now.Date,
+            Text = (100 + i).ToString()
+          };
+        }
+      };
+
+      Action<Session> validateAction = (session) =>
+      {
+        var count = session.Query.All<upgradeSource.ClassToClass.A1>().Count();
+        Assert.That(count, Is.EqualTo(10));
+
+        count = session.Query.All<upgradeSource.ClassToClass.A2>().Count();
+        Assert.That(count, Is.EqualTo(10));
+      };
+
+      RunTest(populateAction, validateAction, sourceType, targetType, true);
+      RunTest(populateAction, validateAction, sourceType, targetType, false);
+    }
+
+    [Test]
+    public void SingleTableToSingleTable()
+    {
+      var sourceType = typeof(upgradeSource.SingleToSingle.BaseType1);
+      var targetType = typeof(upgradeTargets.SingleToSingle.BaseType1);
+
+      Action populateAction = () => {
+        for (int i = 0; i < 10; i++) {
+          new upgradeSource.SingleToSingle.A1 {
+            Text = (100 + i).ToString(),
+          };
+        }
+        for (int i = 0; i < 10; i++) {
+          new upgradeSource.SingleToSingle.A2 {
+
+            Text = (100 + i).ToString()
+          };
+        }
+      };
+
+      Action<Session> validateAction = (session) =>
+      {
+        var count = session.Query.All<upgradeSource.SingleToSingle.A1>().Count();
+        Assert.That(count, Is.EqualTo(10));
+
+        count = session.Query.All<upgradeSource.SingleToSingle.A2>().Count();
+        Assert.That(count, Is.EqualTo(10));
+      };
+
+      RunTest(populateAction, validateAction, sourceType, targetType, true);
+      // There is no difference in structure of database before and after uprade in this case
+      // Needn't run test one more time.
+      //RunTest(populateAction, validateAction, sourceType, targetType, false);
+    }
+
+    private void RunTest(Action populateAction, Action<Session> validateAction, Type initialType, Type upgradedType, bool isSafelyMode)
+    {
+      var inintialConfiguration = DomainConfigurationFactory.Create();
+      inintialConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
+      inintialConfiguration.Types.Register(initialType.Assembly, initialType.Namespace);
+      using (var initialDomain = Domain.Build(inintialConfiguration))
       using (var session = initialDomain.OpenSession())
-      using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        for (int i = 0; i < 10; i++) {
-          new source.A1 { Date = DateTime.Now, Text = "A1 " + i };
-        }
-        for (int i = 0; i < 10; i++) {
-          new source.A2 { Length = i, Text = "A2 " + i };
-        }
+        populateAction.Invoke();
         transaction.Complete();
       }
 
-      var performedDomainConfiguration = DomainConfigurationFactory.Create();
-      performedDomainConfiguration.UpgradeMode= DomainUpgradeMode.PerformSafely;
-      performedDomainConfiguration.Types.Register(typeof (goodCase.A1).Assembly, typeof (goodCase.A1).Namespace);
+      var upgradingConfiguration = DomainConfigurationFactory.Create();
+      upgradingConfiguration.UpgradeMode = (isSafelyMode) ? DomainUpgradeMode.PerformSafely : DomainUpgradeMode.Perform;
+      upgradingConfiguration.Types.Register(upgradedType.Assembly, upgradedType.Namespace);
+      if (isSafelyMode)
+        Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(upgradingConfiguration));
+      else
+        Assert.DoesNotThrow(() => Domain.Build(upgradingConfiguration));
 
-      using (var performedDomain = Domain.Build(performedDomainConfiguration))
-      using (var session = performedDomain.OpenSession())
-      using (session.Activate())
-      using (var transaction = session.OpenTransaction()) {
-        var count = session.Query.All<goodCase.A1>().Count();
-        Assert.That(count, Is.EqualTo(10));
-
-        count = session.Query.All<goodCase.A2>().Count();
-        Assert.That(count, Is.EqualTo(10));
+      var validationConfiguration = inintialConfiguration.Clone();
+      validationConfiguration.UpgradeMode = DomainUpgradeMode.Validate;
+      if (isSafelyMode) {
+        using (var performedDomain = Domain.Build(validationConfiguration))
+        using (var session = performedDomain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          validateAction.Invoke(session);
+        }
       }
+      else
+        Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(validationConfiguration));
     }
   }
 }
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0613_DataCleanUpInPerformSafelyModel
 {
-  namespace Source
+  namespace UserCase
   {
-    public abstract class BaseType : Entity
+    namespace Source
     {
-      [Field, Key]
-      public int Id { get; private set; }
-
-      [Field]
-      public string Text { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class A1 : BaseType
-    {
-      [Field]
-      public DateTime Date { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class A2 : BaseType
-    {
-      [Field]
-      public int Length { get; set; }
-    }
-  }
-
-  namespace BadCase
-  {
-    [HierarchyRoot(InheritanceSchema.ConcreteTable)]
-    public abstract class BaseType : Entity
-    {
-      [Field, Key]
-      public int Id { get; private set; }
-
-      [Field]
-      public string Text { get; set; }
-    }
-
-    public class A1 : BaseType
-    {
-      [Field]
-      public DateTime Date { get; set; }
-    }
-
-    public class A2 : BaseType
-    {
-      [Field]
-      public int Length { get; set; }
-    }
-  }
-
-  namespace GoodCase
-  {
-    [HierarchyRoot(InheritanceSchema.ConcreteTable)]
-    public abstract class BaseType : Entity
-    {
-      [Field, Key]
-      public int Id { get; private set; }
-
-      [Field]
-      public string Text { get; set; }
-    }
-
-    public class A1 : BaseType
-    {
-      [Field]
-      public DateTime Date { get; set; }
-    }
-
-    public class A2 : BaseType
-    {
-      [Field]
-      public int Length { get; set; }
-    }
-
-    public class RecycledBaseType : Entity
-    {
-      [Field, Key]
-      public int Id { get; private set; }
-
-      [Field]
-      public string Text { get; set; }
-    }
-
-    [HierarchyRoot]
-    [Recycled(OriginalName = "Xtensive.Orm.Tests.Issues.IssueJira0613_DataCleanUpInPerformSafelyModel.Source.A1")]
-    public class RecycledA1 : RecycledBaseType
-    {
-      [Field]
-      public DateTime Date { get; set; }
-    }
-
-    [HierarchyRoot]
-    [Recycled(OriginalName = "Xtensive.Orm.Tests.Issues.IssueJira0613_DataCleanUpInPerformSafelyModel.Source.A2")]
-    public class RecycledA2 : RecycledBaseType
-    {
-      [Field]
-      public int Length { get; set; }
-    }
-
-    public class Upgrader : UpgradeHandler
-    {
-      public override bool CanUpgradeFrom(string oldVersion)
+      public abstract class BaseType : Entity
       {
-        return true;
+        [Field, Key]
+        public int Id { get; private set; }
+
+        [Field]
+        public string Text { get; set; }
       }
 
-      public override void OnUpgrade()
+      [HierarchyRoot]
+      public class A1 : BaseType
       {
-        using (var tx = UpgradeContext.Session.OpenTransaction(TransactionOpenMode.New)) {
-          var oldA1Values = UpgradeContext.Session.Query.All<RecycledA1>();
-          var oldA2Values = UpgradeContext.Session.Query.All<RecycledA2>();
-          foreach (var recycledA2 in oldA2Values) {
-            new A2 {
-              Text = recycledA2.Text,
-              Length = recycledA2.Length,
-            };
-          }
-          foreach (var recycledA1 in oldA1Values) {
-            new A1 {
-              Text = recycledA1.Text,
-              Date = recycledA1.Date
-            };
-          }
-          tx.Complete();
-        }
+        [Field]
+        public DateTime Date { get; set; }
+      }
+
+      [HierarchyRoot]
+      public class A2 : BaseType
+      {
+        [Field]
+        public int Length { get; set; }
+      }
+    }
+
+    namespace Target
+    {
+      [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+      public abstract class BaseType : Entity
+      {
+        [Field, Key]
+        public int Id { get; private set; }
+
+        [Field]
+        public string Text { get; set; }
+      }
+
+      public class A1 : BaseType
+      {
+        [Field]
+        public DateTime Date { get; set; }
+      }
+
+      public class A2 : BaseType
+      {
+        [Field]
+        public int Length { get; set; }
+      }
+    }
+  }
+
+  namespace Sources
+  {
+    namespace ConcreteToConcrete
+    {
+      [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+      public abstract class BaseType1 : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string Text { get; set; }
+      }
+
+      public class A1 : BaseType1
+      {
+        [Field]
+        public DateTime Date { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+      public abstract class BaseType2: Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string Text { get; set; }
+      }
+
+      public class A2 : BaseType2
+      {
+        [Field]
+        public DateTime Date { get; set; }
+      }
+    }
+
+    namespace ClassToClass
+    {
+      [HierarchyRoot]
+      public class BaseType1 : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        public string Text { get; set; }
+      }
+
+      public class A1 : BaseType1
+      {
+        public double Value { get; set; }
+      }
+
+      public class A2 : BaseType1
+      {
+        public DateTime Date { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ClassTable)]
+      public class BaseType2 : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        public string Text { get; set; }
+      }
+
+      public class A3 : BaseType2
+      {
+        public double Value { get; set; }
+      }
+
+      public class A4 : BaseType2
+      {
+        public DateTime Date { get; set; }
+      }
+    }
+
+    namespace SingleToSingle
+    {
+      [HierarchyRoot(InheritanceSchema.SingleTable)]
+      public abstract class BaseType1 : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string Text { get; set; }
+      }
+
+      public class A1 : BaseType1
+      {
+      }
+
+      public class A2 : BaseType1
+      {
+      }
+
+      [HierarchyRoot(InheritanceSchema.SingleTable)]
+      public abstract class BaseType2 : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string Text { get; set; }
+      }
+
+      public class A3 : BaseType2
+      {
+      }
+
+      public class A4 : BaseType2
+      {
+      }
+    }
+  }
+
+  namespace Targets
+  {
+    namespace ConcreteToConcrete
+    {
+      [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+      public abstract class BaseType1 : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string Text { get; set; }
+      }
+
+      public class A2 : BaseType1
+      {
+        [Field]
+        public DateTime Date { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+      public abstract class BaseType2 : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string Text { get; set; }
+      }
+
+      public class A1 : BaseType2
+      {
+        [Field]
+        public DateTime Date { get; set; }
+      }
+    }
+
+    namespace ClassToClass
+    {
+      [HierarchyRoot]
+      public class BaseType1 : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        public string Text { get; set; }
+      }
+
+      public class A3 : BaseType1
+      {
+        public double Value { get; set; }
+      }
+
+      public class A4 : BaseType1
+      {
+        public DateTime Date { get; set; }
+      }
+
+      [HierarchyRoot(InheritanceSchema.ClassTable)]
+      public class BaseType2 : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        public string Text { get; set; }
+      }
+
+      public class A1 : BaseType2
+      {
+        public double Value { get; set; }
+      }
+
+      public class A2 : BaseType2
+      {
+        public DateTime Date { get; set; }
+      }
+    }
+
+    namespace SingleToSingle
+    {
+      [HierarchyRoot(InheritanceSchema.SingleTable)]
+      public abstract class BaseType1 : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string Text { get; set; }
+      }
+
+      public class A3 : BaseType1
+      {
+      }
+
+      public class A4 : BaseType1
+      {
+      }
+
+      [HierarchyRoot(InheritanceSchema.SingleTable)]
+      public abstract class BaseType2 : Entity
+      {
+        [Field, Key]
+        public int Id { get; set; }
+
+        [Field]
+        public string Text { get; set; }
+      }
+
+      public class A1 : BaseType2
+      {
+      }
+
+      public class A2 : BaseType2
+      {
       }
     }
   }
