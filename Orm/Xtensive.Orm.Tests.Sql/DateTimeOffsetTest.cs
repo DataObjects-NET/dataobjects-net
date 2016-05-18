@@ -67,7 +67,6 @@ namespace Xtensive.Orm.Tests.Sql
     public virtual void DateTimeOffsetMinusDateTimeOffsetTest()
     {
       var now = DateTimeOffset.Now;
-      now = new DateTimeOffset(now.Year, now.Month, now.Day, now.Hour, now.Minute, now.Second, now.Offset); // nanosecond error, milliseconds not supported for sqlite
       CheckEquality(SqlDml.DateTimeOffsetMinusDateTimeOffset(DefaultDateTimeOffset, now), DefaultDateTimeOffset - now);
     }
 
@@ -119,7 +118,7 @@ namespace Xtensive.Orm.Tests.Sql
       CheckEquality(SqlDml.DateTimeOffsetToUtcTime(DefaultDateTimeOffset), DefaultDateTimeOffset.ToUniversalTime());
     }
 
-    private void CheckEquality(SqlExpression left, SqlExpression right)
+    protected void CheckEquality(SqlExpression left, SqlExpression right)
     {
       var select = SqlDml.Select("ok");
       select.Where = left==right;
