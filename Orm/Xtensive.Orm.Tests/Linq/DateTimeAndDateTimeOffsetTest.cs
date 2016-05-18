@@ -40,6 +40,8 @@ namespace Xtensive.Orm.Tests.Linq
 {
   public class DateTimeAndDateTimeOffsetTest : AutoBuildTest
   {
+    private const string FirstEntityName = "FirstEntity";
+
     private static readonly TimeSpan BigTimeSpan = new TimeSpan(5, 4, 3, 2);
     private static readonly TimeSpan DefaultOffset1 = TimeSpan.FromHours(-2.75);
     private static readonly TimeSpan DefaultOffset2 = TimeSpan.FromHours(3);
@@ -49,28 +51,6 @@ namespace Xtensive.Orm.Tests.Linq
     private static readonly DateTime WrongDateTime = DefaultDateTime.AddYears(1).AddMonths(1).Add(new TimeSpan(1, 1, 1, 1));
     private static readonly DateTime WrongDateTime2 = WrongDateTime.AddYears(1).AddMonths(1).Add(new TimeSpan(1, 1, 1, 1));
     private static readonly DateTimeOffset WrongDateTimeOffset = new DateTimeOffset(WrongDateTime, DefaultOffset3);
-
-    private const string FirstEntityName = "FirstEntity";
-
-    protected override DomainConfiguration BuildConfiguration()
-    {
-      var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (TestEntity));
-      return configuration;
-    }
-
-    protected override void PopulateData()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        new TestEntity {
-          Name = FirstEntityName,
-          Date = DefaultDateTime,
-          DateWithOffset = DefaultDateTimeOffset
-        };
-        tx.Complete();
-      }
-    }
 
     [Test]
     public void EqualsTest()
@@ -332,6 +312,27 @@ namespace Xtensive.Orm.Tests.Linq
         RunWrongTest(c => c.DateWithOffset < DefaultDateTimeOffset.AddMinutes(-1).ToOffset(DefaultOffset2));
         RunWrongTest(c => c.DateWithOffset < DefaultDateTimeOffset.AddMinutes(-1).ToOffset(DefaultOffset3));
       }
+    }
+
+    protected override void PopulateData()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        new TestEntity {
+          Name = FirstEntityName,
+          Date = DefaultDateTime,
+          DateWithOffset = DefaultDateTimeOffset
+        };
+        tx.Complete();
+      }
+    }
+
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      var configuration = base.BuildConfiguration();
+      configuration.Types.Register(typeof(TestEntity));
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      return configuration;
     }
 
     private void RunTest(Expression<Func<TestEntity, bool>> filter, int rightCount = 1)
