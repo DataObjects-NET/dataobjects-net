@@ -10,8 +10,6 @@ using NUnit.Framework;
 using Xtensive.Comparison;
 using Xtensive.Orm.Logging;
 using Xtensive.Reflection;
-using Xtensive.Tuples;
-using Xtensive.Orm.Tests;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Tests.Core.Testing
@@ -69,7 +67,7 @@ namespace Xtensive.Orm.Tests.Core.Testing
       TestSequence<uint?>(sequenceLength, 0, baseTolerance);
       TestSequence<ulong>(sequenceLength, 0, baseTolerance);
       TestSequence<ulong?>(sequenceLength, 0, baseTolerance);
-      TestSequence<Xtensive.Tuples.Tuple>(sequenceLength/10, 0, baseTolerance*10);
+      TestSequence<Tuple>(sequenceLength/10, 0, baseTolerance*10);
     }
 
     // Calculates probability for original type (actually does nothing)
@@ -122,11 +120,19 @@ namespace Xtensive.Orm.Tests.Core.Testing
         if (!isMoved1)
           break;
         totalCount++;
-        if (comparer.Compare(enumerator1.Current, enumerator2.Current) == 0)
+        if (CheckIfEquals(comparer, enumerator1.Current, enumerator2.Current))
           equalCount++;
       }
       return (totalCount==0)?1:(double)equalCount/(double)totalCount;
     }
-    
+
+    private bool CheckIfEquals<T>(AdvancedComparer<T> comparer, T x, T y)
+    {
+      // Tuple is no longer implementation of IComparable
+      // so need to use Equals
+      if (x is Tuple)
+        return comparer.Equals(x, y);
+      return comparer.Compare(x, y)==0;
+    }
   }
 }
