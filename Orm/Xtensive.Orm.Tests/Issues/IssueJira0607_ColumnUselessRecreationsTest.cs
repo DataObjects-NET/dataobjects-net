@@ -264,6 +264,12 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+    [TestFixtureSetUp]
+    public void TestFixtureSetup()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+    }
+
     private DomainConfiguration BuildConfiguration(bool isInitial, params Type[] types)
     {
       var configuration = DomainConfigurationFactory.Create();

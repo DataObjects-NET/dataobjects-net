@@ -169,8 +169,9 @@ namespace Xtensive.Orm.Tests.Issues
       var upgradingConfiguration = DomainConfigurationFactory.Create();
       upgradingConfiguration.UpgradeMode = (isSafelyMode) ? DomainUpgradeMode.PerformSafely : DomainUpgradeMode.Perform;
       upgradingConfiguration.Types.Register(upgradedType.Assembly, upgradedType.Namespace);
-      if (isSafelyMode)
+      if (isSafelyMode) {
         Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(upgradingConfiguration));
+      }
       else
         Assert.DoesNotThrow(() => Domain.Build(upgradingConfiguration));
 
@@ -184,7 +185,13 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
       else
-        Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(validationConfiguration));
+        // In this kind of tests we have only primary keys changed.
+        // To be clear, only name is changed.
+        // But MySQL has no named PKs so we have no difference in mysql
+        if (validationConfiguration.ConnectionInfo.Provider!=WellKnown.Provider.MySql)
+          Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(validationConfiguration));
+        else
+          Assert.DoesNotThrow(()=>Domain.Build(validationConfiguration));
     }
   }
 }
