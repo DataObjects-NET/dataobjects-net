@@ -3,7 +3,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Modelling.Actions;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Upgrade.Model;
 using model = Xtensive.Orm.Tests.Issues.IssueJira0607_ColumnUselessRecreationsTestModel;
@@ -47,6 +47,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test1()
     {
+      Require.AnyFeatureSupported(ProviderFeatures.TransactionalDdl);
+
       using (var initialDomain = Domain.Build(BuildConfiguration(true, typeof (model.V1.Initial.TestEntity))))
       using (var session = initialDomain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
