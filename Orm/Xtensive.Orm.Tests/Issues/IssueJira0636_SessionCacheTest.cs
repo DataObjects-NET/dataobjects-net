@@ -4,6 +4,8 @@
 // Created by: Alex Groznov
 // Created:    2016.05.16
 
+using System;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0636_Model;
@@ -41,37 +43,94 @@ namespace Xtensive.Orm.Tests.Issues
       return configuration;
     }
 
+    protected override void PopulateData()
+    {
+      using (var session = Domain.OpenSession())
+      using (var trasnaction = session.OpenTransaction()) {
+        new FirstSuccessor();
+        new SecondSuccessor();
+        trasnaction.Complete();
+      }
+    }
+
     [Test]
-    public void MainTest()
+    public void SelectBaseEntityFirstTest()
     {
       long keyValue1;
       long keyValue2;
-      using (var session = Domain.OpenSession())
-      using (var trasnaction = session.OpenTransaction()) {
-        var first = new FirstSuccessor();
-        keyValue1 = first.Id;
-        var second = new SecondSuccessor();
-        keyValue2 = second.Id;
-        trasnaction.Complete();
-      }
+      GetKeyValues(out keyValue1, out keyValue2);
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var firstSuccessor1 = Query.SingleOrDefault<FirstSuccessor>(keyValue1);
-        Assert.That(firstSuccessor1, Is.Not.Null);
-        var firstSuccessor2 = Query.SingleOrDefault<FirstSuccessor>(keyValue2);
-        Assert.That(firstSuccessor2, Is.Null);
+        GetEntity<BaseEntity>(keyValue1, false);
+        GetEntity<BaseEntity>(keyValue2, false);
 
-        var secondSuccessor1 = Query.SingleOrDefault<SecondSuccessor>(keyValue1);
-        Assert.That(secondSuccessor1, Is.Null);
-        var secondSuccessor2 = Query.SingleOrDefault<SecondSuccessor>(keyValue2);
-        Assert.That(secondSuccessor2, Is.Not.Null);
+        GetEntity<FirstSuccessor>(keyValue1, false);
+        GetEntity<FirstSuccessor>(keyValue2, true);
 
-        var baseEntity1 = Query.SingleOrDefault<BaseEntity>(keyValue1);
-        Assert.That(baseEntity1, Is.Not.Null);
-        var baseEntity2 = Query.SingleOrDefault<BaseEntity>(keyValue2);
-        Assert.That(baseEntity2, Is.Not.Null);
+        GetEntity<SecondSuccessor>(keyValue1, true);
+        GetEntity<SecondSuccessor>(keyValue2, false);
       }
+    }
+
+    [Test]
+    public void SelectBaseEntityInTheMiddleTest()
+    {
+      long keyValue1;
+      long keyValue2;
+      GetKeyValues(out keyValue1, out keyValue2);
+
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        GetEntity<FirstSuccessor>(keyValue1, false);
+        GetEntity<FirstSuccessor>(keyValue2, true);
+
+        GetEntity<BaseEntity>(keyValue1, false);
+        GetEntity<BaseEntity>(keyValue2, false);
+
+        GetEntity<SecondSuccessor>(keyValue1, true);
+        GetEntity<SecondSuccessor>(keyValue2, false);
+      }
+    }
+
+    [Test]
+    public void SelectBaseEntityLastTest()
+    {
+      long keyValue1;
+      long keyValue2;
+      GetKeyValues(out keyValue1, out keyValue2);
+
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        GetEntity<FirstSuccessor>(keyValue1, false);
+        GetEntity<FirstSuccessor>(keyValue2, true);
+
+        GetEntity<SecondSuccessor>(keyValue1, true);
+        GetEntity<SecondSuccessor>(keyValue2, false);
+
+        GetEntity<BaseEntity>(keyValue1, false);
+        GetEntity<BaseEntity>(keyValue2, false);
+      }
+    }
+
+    private void GetKeyValues(out long keyValue1, out long keyValue2)
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        keyValue1 = Query.All<FirstSuccessor>().Single().Id;
+        keyValue2 = Query.All<SecondSuccessor>().Single().Id;
+      }
+    }
+
+    private T GetEntity<T>(long keyValue, bool expectedNull)
+      where T : Entity
+    {
+      var entity = Query.SingleOrDefault<T>(keyValue);
+      if (expectedNull)
+        Assert.IsNull(entity);
+      else
+        Assert.IsNotNull(entity);
+      return entity;
     }
   }
 }
