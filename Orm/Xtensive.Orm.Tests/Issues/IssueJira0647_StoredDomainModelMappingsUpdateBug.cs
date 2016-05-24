@@ -370,6 +370,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0647_StoredDomainModelMappingsUpdat
 
 namespace Xtensive.Orm.Tests.Issues
 {
+  [TestFixture]
   public sealed class IssueJira0647_StoredDomainModelMappingsUpdateBug
   {
     private class ClientNodeConfiguration
@@ -402,8 +403,8 @@ namespace Xtensive.Orm.Tests.Issues
         domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, alpha, DomainUpgradeMode.Recreate));
         domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, beta, DomainUpgradeMode.Recreate));
 
-        CheckNode(domain, "alpha", false);
-        CheckNode(domain, "beta", true);
+        CheckNode(domain, alpha.Name, false);
+        CheckNode(domain, beta.Name, true);
       }
     }
 
@@ -471,7 +472,7 @@ namespace Xtensive.Orm.Tests.Issues
         domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, beta, DomainUpgradeMode.Recreate));
 
         using (var session = domain.OpenSession()) {
-          session.SelectStorageNode("alpha");
+          session.SelectStorageNode(alpha.Name);
           using (var tx = session.OpenTransaction()) {
             new ModelNamespace.HintTest.BaseVersion.Customer { Name = "CustomerName" };
             new ModelNamespace.HintTest.BaseVersion.Customer { Name = "Groznov" };
@@ -543,7 +544,7 @@ namespace Xtensive.Orm.Tests.Issues
         Name = "main",
         ConnectionInfo = ComposeConnectionToMasterDatabase(defaultConnection),
         InitializationSql = "USE [DO-Tests-1]",
-        DefaultSchema = "MainModel"
+        DefaultSchema = "dbo"
       };
       alpha = new ClientNodeConfiguration {
         Name = "alpha",
