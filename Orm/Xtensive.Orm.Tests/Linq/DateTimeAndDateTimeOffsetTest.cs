@@ -101,6 +101,7 @@ namespace Xtensive.Orm.Tests.Linq
         RunTest(c => c.Date.Hour==DefaultDateTime.Hour);
         RunTest(c => c.Date.Minute==DefaultDateTime.Minute);
         RunTest(c => c.Date.Second==DefaultDateTime.Second);
+        RunTest(c => c.Date.Millisecond==DefaultDateTime.Millisecond);
 
         RunTest(c => c.Date.Date==DefaultDateTime.Date);
         RunTest(c => c.Date.TimeOfDay==DefaultDateTime.TimeOfDay);
@@ -114,6 +115,7 @@ namespace Xtensive.Orm.Tests.Linq
         RunWrongTest(c => c.Date.Hour==WrongDateTime.Hour);
         RunWrongTest(c => c.Date.Minute==WrongDateTime.Minute);
         RunWrongTest(c => c.Date.Second==WrongDateTime.Second);
+        RunWrongTest(c => c.Date.Millisecond==WrongDateTime.Millisecond);
 
         RunWrongTest(c => c.Date.Date==WrongDateTime.Date);
         RunWrongTest(c => c.Date.TimeOfDay==WrongDateTime.TimeOfDay);
@@ -134,6 +136,7 @@ namespace Xtensive.Orm.Tests.Linq
         RunTest(c => c.DateWithOffset.Hour==DefaultDateTimeOffset.Hour);
         RunTest(c => c.DateWithOffset.Minute==DefaultDateTimeOffset.Minute);
         RunTest(c => c.DateWithOffset.Second==DefaultDateTimeOffset.Second);
+        RunTest(c => c.DateWithOffset.Millisecond==DefaultDateTimeOffset.Millisecond);
 
         RunTest(c => c.DateWithOffset.Offset==DefaultDateTimeOffset.Offset);
         RunTest(c => c.DateWithOffset.Offset.Hours==DefaultDateTimeOffset.Offset.Hours);
@@ -154,6 +157,7 @@ namespace Xtensive.Orm.Tests.Linq
         RunWrongTest(c => c.DateWithOffset.Hour==WrongDateTimeOffset.Hour);
         RunWrongTest(c => c.DateWithOffset.Minute==WrongDateTimeOffset.Minute);
         RunWrongTest(c => c.DateWithOffset.Second==WrongDateTimeOffset.Second);
+        RunWrongTest(c => c.DateWithOffset.Millisecond==WrongDateTime.Millisecond);
 
         RunWrongTest(c => c.DateWithOffset.Offset==WrongDateTimeOffset.Offset);
         RunWrongTest(c => c.DateWithOffset.Offset.Hours==WrongDateTimeOffset.Offset.Hours);
@@ -181,6 +185,7 @@ namespace Xtensive.Orm.Tests.Linq
         RunTest(c => c.Date.AddHours(1)==DefaultDateTime.AddHours(1));
         RunTest(c => c.Date.AddMinutes(1)==DefaultDateTime.AddMinutes(1));
         RunTest(c => c.Date.AddSeconds(1)==DefaultDateTime.AddSeconds(1));
+        RunTest(c => c.Date.AddMilliseconds(321)==DefaultDateTime.AddMilliseconds(321));
         RunTest(c => c.Date.Add(BigTimeSpan)==DefaultDateTime.Add(BigTimeSpan));
         RunTest(c => c.Date.Subtract(DefaultOffset3)==DefaultDateTime.Subtract(DefaultOffset3));
         RunTest(c => c.Date.Subtract(WrongDateTime)==DefaultDateTime.Subtract(WrongDateTime));
@@ -197,6 +202,7 @@ namespace Xtensive.Orm.Tests.Linq
         RunWrongTest(c => c.Date.AddHours(1)==WrongDateTime.AddHours(1));
         RunWrongTest(c => c.Date.AddMinutes(1)==WrongDateTime.AddMinutes(1));
         RunWrongTest(c => c.Date.AddSeconds(1)==WrongDateTime.AddSeconds(1));
+        RunWrongTest(c => c.Date.AddMilliseconds(321)==WrongDateTime.AddMilliseconds(321));
         RunWrongTest(c => c.Date.Add(BigTimeSpan)==WrongDateTime.Add(BigTimeSpan));
         RunWrongTest(c => c.Date.Subtract(DefaultOffset3)==WrongDateTime.Subtract(DefaultOffset3));
         RunWrongTest(c => c.Date.Subtract(WrongDateTime2)==WrongDateTime.Subtract(WrongDateTime2));
@@ -220,6 +226,7 @@ namespace Xtensive.Orm.Tests.Linq
         RunTest(c => c.DateWithOffset.AddHours(1)==DefaultDateTimeOffset.AddHours(1));
         RunTest(c => c.DateWithOffset.AddMinutes(1)==DefaultDateTimeOffset.AddMinutes(1));
         RunTest(c => c.DateWithOffset.AddSeconds(1)==DefaultDateTimeOffset.AddSeconds(1));
+        RunTest(c => c.DateWithOffset.AddMilliseconds(321)==DefaultDateTimeOffset.AddMilliseconds(321));
         RunTest(c => c.DateWithOffset.Add(BigTimeSpan)==DefaultDateTimeOffset.Add(BigTimeSpan));
         RunTest(c => c.DateWithOffset.Subtract(DefaultOffset3)==DefaultDateTimeOffset.Subtract(DefaultOffset3));
         RunTest(c => c.DateWithOffset.Subtract(WrongDateTimeOffset)==DefaultDateTimeOffset.Subtract(WrongDateTimeOffset));
@@ -236,6 +243,7 @@ namespace Xtensive.Orm.Tests.Linq
         RunWrongTest(c => c.DateWithOffset.AddDays(1)==WrongDateTimeOffset.AddDays(1));
         RunWrongTest(c => c.DateWithOffset.AddHours(1)==WrongDateTimeOffset.AddHours(1));
         RunWrongTest(c => c.DateWithOffset.AddMinutes(1)==WrongDateTimeOffset.AddMinutes(1));
+        RunWrongTest(c => c.DateWithOffset.AddMilliseconds(321)==WrongDateTimeOffset.AddMilliseconds(321));
         RunWrongTest(c => c.DateWithOffset.AddSeconds(1)==WrongDateTimeOffset.AddSeconds(1));
         RunWrongTest(c => c.DateWithOffset.Add(BigTimeSpan)==WrongDateTimeOffset.Add(BigTimeSpan));
         RunWrongTest(c => c.DateWithOffset.Subtract(DefaultOffset3)==WrongDateTimeOffset.Subtract(DefaultOffset3));
