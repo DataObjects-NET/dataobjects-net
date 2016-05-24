@@ -7,6 +7,8 @@
 using System.IO;
 using System.Xml.Serialization;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Model.Stored.Internals;
 
 namespace Xtensive.Orm.Model.Stored
 {
@@ -61,6 +63,17 @@ namespace Xtensive.Orm.Model.Stored
     public void UpdateReferences()
     {
       new ReferenceUpdater().UpdateReferences(this);
+    }
+
+    /// <summary>
+    /// Updates type mappings to database or scheme according to <paramref name="nodeConfiguration"/>
+    /// </summary>
+    /// <param name="nodeConfiguration">The node configuration</param>
+    public void UpdateMappings(NodeConfiguration nodeConfiguration)
+    {
+      if (nodeConfiguration==null)
+        return;
+      new TypeMappingUpdater().UpdateMappings(this, nodeConfiguration);
     }
   }
 }
