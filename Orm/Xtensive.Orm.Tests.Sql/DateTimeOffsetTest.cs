@@ -14,7 +14,12 @@ namespace Xtensive.Orm.Tests.Sql
   public abstract class DateTimeOffsetTest : SqlTest
   {
     protected static readonly TimeSpan DefaultTimeSpan = -new TimeSpan(4, 10, 0);
-    protected static readonly DateTimeOffset DefaultDateTimeOffset = new DateTimeOffset(2001, 2, 3, 14, 15, 16, DefaultTimeSpan);
+    protected static readonly TimeSpan SecondTimeSpan = new TimeSpan(9, 45, 0);
+    protected static readonly DateTimeOffset DefaultDateTimeOffset = new DateTimeOffset(2001, 2, 3, 14, 15, 16, 333, DefaultTimeSpan);
+    protected static readonly DateTimeOffset SecondDateTimeOffset = new DateTimeOffset(2000, 12, 11, 10, 9, 8, 765, SecondTimeSpan);
+    protected static readonly TimeSpan OperationTimeSpanConst = new TimeSpan(10, 9, 8, 7, 543);
+    protected static readonly int AddYearsConst = 5;
+    protected static readonly int AddMonthsConst = 15;
 
     protected virtual bool IsNanosecondSupported
     {
@@ -48,13 +53,13 @@ namespace Xtensive.Orm.Tests.Sql
     [Test]
     public virtual void DateTimeOffsetAddMonthsTest()
     {
-      CheckEquality(SqlDml.DateTimeOffsetAddMonths(DefaultDateTimeOffset, 15), DefaultDateTimeOffset.AddMonths(15));
+      CheckEquality(SqlDml.DateTimeOffsetAddMonths(DefaultDateTimeOffset, AddMonthsConst), DefaultDateTimeOffset.AddMonths(AddMonthsConst));
     }
 
     [Test]
     public virtual void DateTimeOffsetAddYearsTest()
     {
-      CheckEquality(SqlDml.DateTimeOffsetAddYears(DefaultDateTimeOffset, 5), DefaultDateTimeOffset.AddYears(5));
+      CheckEquality(SqlDml.DateTimeOffsetAddYears(DefaultDateTimeOffset, AddYearsConst), DefaultDateTimeOffset.AddYears(AddYearsConst));
     }
 
     [Test]
@@ -66,20 +71,19 @@ namespace Xtensive.Orm.Tests.Sql
     [Test]
     public virtual void DateTimeOffsetMinusDateTimeOffsetTest()
     {
-      var now = DateTimeOffset.Now;
-      CheckEquality(SqlDml.DateTimeOffsetMinusDateTimeOffset(DefaultDateTimeOffset, now), DefaultDateTimeOffset - now);
+      CheckEquality(SqlDml.DateTimeOffsetMinusDateTimeOffset(DefaultDateTimeOffset, SecondDateTimeOffset), DefaultDateTimeOffset.Subtract(SecondDateTimeOffset));
     }
 
     [Test]
     public virtual void DateTimeOffsetMinusIntervalTest()
     {
-      CheckEquality(SqlDml.DateTimeOffsetMinusInterval(DefaultDateTimeOffset, new TimeSpan(4, 4, 4, 4, 4)), DefaultDateTimeOffset - new TimeSpan(4, 4, 4, 4, 4));
+      CheckEquality(SqlDml.DateTimeOffsetMinusInterval(DefaultDateTimeOffset, OperationTimeSpanConst), DefaultDateTimeOffset - OperationTimeSpanConst);
     }
 
     [Test]
     public virtual void DateTimeOffsetPlusIntervalTest()
     {
-      CheckEquality(SqlDml.DateTimeOffsetPlusInterval(DefaultDateTimeOffset, new TimeSpan(10, 10, 10, 10, 10)), DefaultDateTimeOffset + new TimeSpan(10, 10, 10, 10, 10));
+      CheckEquality(SqlDml.DateTimeOffsetPlusInterval(DefaultDateTimeOffset, OperationTimeSpanConst), DefaultDateTimeOffset + OperationTimeSpanConst);
     }
 
     [Test]

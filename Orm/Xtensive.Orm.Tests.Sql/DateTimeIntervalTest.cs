@@ -13,196 +13,202 @@ namespace Xtensive.Orm.Tests.Sql
 {
   public abstract class DateTimeIntervalTest : SqlTest
   {
+    protected static readonly DateTime DefaultDateTime = new DateTime(2001, 2, 3, 4, 5, 6, 333);
+    protected static readonly DateTime SecondDateTime = new DateTime(2000, 12, 11, 10, 9, 8, 765);
+    protected static readonly TimeSpan DefaultTimeSpan = new TimeSpan(10, 9, 8, 7, 654);
+    protected static readonly int AddYearsConst = 5;
+    protected static readonly int AddMonthsConst = 15;
+
     [Test]
     public virtual void DateTimeAddIntervalTest()
     {
       CheckEquality(
-        SqlDml.DateTimePlusInterval(new DateTime(2001, 1, 1, 1, 1, 1, 1), new TimeSpan(10, 10, 10, 10, 10)),
-        new DateTime(2001, 1, 11, 11, 11, 11, 11));
+        SqlDml.DateTimePlusInterval(DefaultDateTime, DefaultTimeSpan),
+        DefaultDateTime.Add(DefaultTimeSpan));
     }
 
     [Test]
     public virtual void DateTimeAddMonthsTest()
     {
       CheckEquality(
-        SqlDml.DateTimeAddMonths(new DateTime(2001, 1, 1), 15),
-        new DateTime(2002, 4, 1));
+        SqlDml.DateTimeAddMonths(DefaultDateTime, AddMonthsConst),
+        DefaultDateTime.AddMonths(AddMonthsConst));
     }
 
     [Test]
     public virtual void DateTimeAddYearsTest()
     {
       CheckEquality(
-        SqlDml.DateTimeAddYears(new DateTime(2001, 1, 1), 5),
-        new DateTime(2006, 1, 1));
+        SqlDml.DateTimeAddYears(DefaultDateTime, AddYearsConst),
+        DefaultDateTime.AddYears(AddYearsConst));
     }
 
     [Test]
     public virtual void DateTimeConstructTest()
     {
       CheckEquality(
-        SqlDml.DateTimeConstruct(2005, 5, 5),
-        new DateTime(2005, 5, 5));
+        SqlDml.DateTimeConstruct(DefaultDateTime.Year, DefaultDateTime.Month, DefaultDateTime.Day),
+        DefaultDateTime.Date);
     }
 
     [Test]
     public virtual void DateTimeSubtractDateTimeTest()
     {
       CheckEquality(
-        SqlDml.DateTimeMinusDateTime(new DateTime(2005, 5, 5, 5, 5, 5), new DateTime(2005, 5, 6, 6, 6, 6)),
-        new TimeSpan(1, 1, 1, 1).Negate());
+        SqlDml.DateTimeMinusDateTime(DefaultDateTime, SecondDateTime),
+        DefaultDateTime.Subtract(SecondDateTime));
     }
 
     [Test]
     public virtual void DateTimeSubtractIntervalTest()
     {
       CheckEquality(
-        SqlDml.DateTimeMinusInterval(new DateTime(2005, 5, 5, 5, 5, 5, 5), new TimeSpan(4, 4, 4, 4, 4)),
-        new DateTime(2005, 5, 1, 1, 1, 1, 1));
+        SqlDml.DateTimeMinusInterval(DefaultDateTime, DefaultTimeSpan),
+        DefaultDateTime.Subtract(DefaultTimeSpan));
     }
 
     [Test]
     public virtual void DateTimeTruncateTest()
     {
       CheckEquality(
-        SqlDml.DateTimeTruncate(new DateTime(2005, 1, 1, 1, 1, 1, 1)),
-        new DateTime(2005, 1, 1));
+        SqlDml.DateTimeTruncate(DefaultDateTime),
+        DefaultDateTime.Date);
     }
 
     [Test]
     public virtual void DateTimeExtractYearTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.Year, new DateTime(2006, 5, 4)),
-        2006);
+        SqlDml.Extract(SqlDateTimePart.Year, DefaultDateTime),
+        DefaultDateTime.Year);
     }
 
     [Test]
     public virtual void DateTimeExtractMonthTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.Month, new DateTime(2006, 5, 4)),
-        5);
+        SqlDml.Extract(SqlDateTimePart.Month, DefaultDateTime),
+        DefaultDateTime.Month);
     }
 
     [Test]
     public virtual void DateTimeExtractDayTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.Day, new DateTime(2006, 5, 4)),
-        4);
+        SqlDml.Extract(SqlDateTimePart.Day, DefaultDateTime),
+        DefaultDateTime.Day);
     }
 
     [Test]
     public virtual void DateTimeExtractHourTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.Hour, new DateTime(2006, 5, 4, 3, 2, 1, 333)),
-        3);
+        SqlDml.Extract(SqlDateTimePart.Hour, DefaultDateTime),
+        DefaultDateTime.Hour);
     }
 
     [Test]
     public virtual void DateTimeExtractMinuteTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.Minute, new DateTime(2006, 5, 4, 3, 2, 1, 333)),
-        2);
+        SqlDml.Extract(SqlDateTimePart.Minute, DefaultDateTime),
+        DefaultDateTime.Minute);
     }
 
     [Test]
     public virtual void DateTimeExtractSecondTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.Second, new DateTime(2006, 5, 4, 3, 2, 1, 333)),
-        1);
+        SqlDml.Extract(SqlDateTimePart.Second, DefaultDateTime),
+        DefaultDateTime.Second);
     }
 
     [Test]
     public virtual void DateTimeExtractMillisecondTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.Millisecond, new DateTime(2006, 5, 4, 3, 2, 1, 333)),
-        333);
+        SqlDml.Extract(SqlDateTimePart.Millisecond, DefaultDateTime),
+        DefaultDateTime.Millisecond);
     }
 
     [Test]
     public virtual void DateTimeExtractDayOfWeekTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.DayOfWeek, new DateTime(2009, 3, 2)),
-        (int) DayOfWeek.Monday);
+        SqlDml.Extract(SqlDateTimePart.DayOfWeek, DefaultDateTime),
+        (int) DefaultDateTime.DayOfWeek);
     }
 
     [Test]
     public virtual void DateTimeExtractDayOfYearTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlDateTimePart.DayOfYear, new DateTime(2005, 2, 2)),
-        33);
+        SqlDml.Extract(SqlDateTimePart.DayOfYear, DefaultDateTime),
+        DefaultDateTime.DayOfYear);
     }
 
     [Test]
     public virtual void IntervalConstructTest()
     {
       CheckEquality(
-        SqlDml.IntervalConstruct(500000000),
-        new TimeSpan(0, 0, 0, 0, 500));
+        SqlDml.IntervalConstruct((long) DefaultTimeSpan.TotalMilliseconds * 1000000),
+        DefaultTimeSpan);
     }
 
     [Test]
     public virtual void IntervalExtractDayTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlIntervalPart.Day, new TimeSpan(6, 5, 4, 3, 2)),
-        6);
+        SqlDml.Extract(SqlIntervalPart.Day, DefaultTimeSpan),
+        DefaultTimeSpan.Days);
     }
 
     [Test]
     public virtual void IntervalExtractHourTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlIntervalPart.Hour, new TimeSpan(6, 5, 4, 3, 2)),
-        5);
+        SqlDml.Extract(SqlIntervalPart.Hour, DefaultTimeSpan),
+        DefaultTimeSpan.Hours);
     }
 
     [Test]
     public virtual void IntervalExtractMinuteTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlIntervalPart.Minute, new TimeSpan(6, 5, 4, 3, 2)),
-        4);
+        SqlDml.Extract(SqlIntervalPart.Minute, DefaultTimeSpan),
+        DefaultTimeSpan.Minutes);
     }
 
     [Test]
     public virtual void IntervalExtractSecondTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlIntervalPart.Second, new TimeSpan(6, 5, 4, 3, 2)),
-        3);
+        SqlDml.Extract(SqlIntervalPart.Second, DefaultTimeSpan),
+        DefaultTimeSpan.Seconds);
     }
 
     [Test]
     public virtual void IntervalExtractMillisecondTest()
     {
       CheckEquality(
-        SqlDml.Extract(SqlIntervalPart.Millisecond, new TimeSpan(6, 5, 4, 3, 2)),
-        2);
+        SqlDml.Extract(SqlIntervalPart.Millisecond, DefaultTimeSpan),
+        DefaultTimeSpan.Milliseconds);
     }
 
     [Test]
     public virtual void IntervalToMillisecondsTest()
     {
       CheckEquality(
-        SqlDml.IntervalToMilliseconds(new TimeSpan(0, 0, 8, 5, 5)),
-        (int) new TimeSpan(0, 0, 8, 5, 5).TotalMilliseconds);
+        SqlDml.IntervalToMilliseconds(DefaultTimeSpan),
+        (int) DefaultTimeSpan.TotalMilliseconds);
     }
 
     [Test]
     public virtual void IntervalAbsTest()
     {
       CheckEquality(
-        SqlDml.IntervalAbs(new TimeSpan(10, 0, 0, 0).Negate()),
-        new TimeSpan(10, 0, 0, 0));
+        SqlDml.IntervalAbs(DefaultTimeSpan.Negate()),
+        DefaultTimeSpan);
     }
 
     protected void CheckEquality(SqlExpression left, SqlExpression right)
