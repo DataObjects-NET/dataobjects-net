@@ -318,6 +318,11 @@
     <Compile Include="Linq\ContainsOverKeysCollectionTest.cs" />
     <Compile Include="Linq\ConvariantQueriesTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffsetTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\BaseDateTimeAndDateTimeOffsetTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeMillisecondAccuracyTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetMillisecondAccuracyTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeTest.cs" />
     <Compile Include="Linq\DateTimeToStringTest.cs" />
     <Compile Include="Linq\DoubleAggregateToStructTest.cs" />
     <Compile Include="Storage\ClientProfileReferentialIntegrityTest.cs" />
