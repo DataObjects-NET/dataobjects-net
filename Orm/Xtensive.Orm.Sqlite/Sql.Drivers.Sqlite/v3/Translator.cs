@@ -17,15 +17,17 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 {
   internal class Translator : SqlTranslator
   {
+    private const string DateTimeCastFormat = "%Y-%m-%d %H:%M:%f";
+
     /// <inheritdoc/>
     public override string DateTimeFormatString
     {
-      get { return @"\'yyyy\-MM\-dd HH\:mm\:ss\'"; }
+      get { return @"\'yyyy\-MM\-dd HH\:mm\:ss.fff\'"; }
     }
 
     public virtual string DateTimeOffsetFormatString
     {
-      get { return @"\'yyyy\-MM\-dd HH\:mm\:ssK\'"; }
+      get { return @"\'yyyy\-MM\-dd HH\:mm\:ss.fffK\'"; }
     }
 
     public override string TimeSpanFormatString
@@ -356,7 +358,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           sqlType==SqlType.DateTimeOffset) {
         switch (section) {
         case NodeSection.Entry:
-          return "DATETIME(";
+          return string.Format("STRFTIME('{0}', ", DateTimeCastFormat);
         case NodeSection.Exit:
           return ")";
         default:

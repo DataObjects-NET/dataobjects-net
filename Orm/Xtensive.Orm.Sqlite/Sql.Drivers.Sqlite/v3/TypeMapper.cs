@@ -18,12 +18,19 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private ValueRange<DateTime> dateTimeRange;
     private ValueRange<DateTimeOffset> dateTimeOffsetRange;
 
-    private const string DateTimeOffsetFormat = "yyyy-MM-dd HH:mm:ssK";
+    private const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss.fff";
+    private const string DateTimeOffsetFormat = "yyyy-MM-dd HH:mm:ss.fffK";
 
     public override object ReadBoolean(DbDataReader reader, int index)
     {
       var value = reader.GetDecimal(index);
       return SQLiteConvert.ToBoolean(value);
+    }
+
+    public override object ReadDateTime(DbDataReader reader, int index)
+    {
+      var value = reader.GetString(index);
+      return DateTime.ParseExact(value, DateTimeFormat, CultureInfo.InvariantCulture);
     }
 
     public override object ReadDateTimeOffset(DbDataReader reader, int index)
@@ -58,9 +65,13 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     public override void BindDateTime(DbParameter parameter, object value)
     {
-      if (value!=null)
-        value = ValueRangeValidator.Correct((DateTime) value, dateTimeRange);
-      base.BindDateTime(parameter, value);
+      parameter.DbType = DbType.String;
+      if (value==null) {
+        parameter.Value = DBNull.Value;
+        return;
+      }
+      var correctValue = ValueRangeValidator.Correct((DateTime) value, dateTimeRange);
+      parameter.Value = correctValue.ToString(DateTimeFormat, CultureInfo.InvariantCulture);
     }
 
     public override void BindDateTimeOffset(DbParameter parameter, object value)
@@ -112,6 +123,11 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override SqlValueType MapULong(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int64);
+    }
+
+    public override SqlValueType MapDateTime(int? length, int? precision, int? scale)
+    {
+      return new SqlValueType(SqlType.DateTime);
     }
 
     public override SqlValueType MapDateTimeOffset(int? length, int? precision, int? scale)

@@ -22,6 +22,13 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private static readonly long NanosecondsPerSecond = (long) TimeSpan.FromSeconds(1).TotalMilliseconds * NanosecondsPerMillisecond;
     private static readonly long MillisecondsPerSecond = (long) TimeSpan.FromSeconds(1).TotalMilliseconds;
 
+    private const string DateFormat = "%Y-%m-%d 00:00:00.000";
+    private const string DateTimeFormat = "%Y-%m-%d %H:%M:%f";
+    private const string DateTimeIsoFormat = "%Y-%m-%dT%H:%M:%S";
+
+    private const string DateTimeOffsetExampleString = "2001-02-03 04:05:06.789+02.45";
+    private static readonly int StartOffsetIndex = DateTimeOffsetExampleString.IndexOf('+');
+
     protected override bool VisitCreateTableConstraints(SqlCreateTable node, IEnumerable<TableConstraint> constraints, bool hasItems)
     {
       // SQLite has special syntax for autoincrement primary keys
@@ -333,12 +340,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateTimeTruncate(SqlExpression date)
     {
-      return DateTime(SqlDml.FunctionCall("DATE", date));
+      return DateTime(SqlDml.FunctionCall("STRFTIME", DateFormat, date));
     }
 
     private static SqlExpression DateTime(SqlExpression date)
     {
-      return SqlDml.FunctionCall("DATETIME", date);
+      return SqlDml.FunctionCall("STRFTIME", DateTimeFormat, date);
     }
 
     private static SqlCast CastToInt(SqlExpression arg)
@@ -380,12 +387,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateTimeOffsetExtractDateTimeAsString(SqlExpression dateTimeOffset)
     {
-      return SqlDml.Substring(dateTimeOffset, 0, 19);
+      return SqlDml.Substring(dateTimeOffset, 0, StartOffsetIndex);
     }
 
     private static SqlExpression DateTimeOffsetExtractOffsetAsString(SqlExpression dateTimeOffset)
     {
-      return SqlDml.Substring(dateTimeOffset, 19);
+      return SqlDml.Substring(dateTimeOffset, StartOffsetIndex);
     }
 
     private static SqlExpression DateTimeOffsetExtractOffsetAsTotalNanoseconds(SqlExpression dateTimeOffset)
@@ -395,37 +402,37 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateTimeOffsetToUtcDateTime(SqlExpression dateTimeOffset)
     {
-      return SqlDml.FunctionCall("DATETIME", dateTimeOffset, "LOCALTIME", "UTC");
+      return SqlDml.FunctionCall("STRFTIME", DateTimeFormat, dateTimeOffset, "LOCALTIME", "UTC");
     }
 
     private static SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression dateTimeOffset)
     {
-      return SqlDml.FunctionCall("DATETIME", dateTimeOffset, "LOCALTIME");
+      return SqlDml.FunctionCall("STRFTIME", DateTimeFormat, dateTimeOffset, "LOCALTIME");
     }
 
     private static SqlExpression DateTimeToStringIso(SqlExpression dateTime)
     {
-      return SqlDml.FunctionCall("STRFTIME", "%Y-%m-%dT%H:%M:%S", dateTime);
+      return SqlDml.FunctionCall("STRFTIME", DateTimeIsoFormat, dateTime);
     }
 
     private static SqlExpression DateAddYear(SqlExpression date, SqlExpression years)
     {
-      return SqlDml.FunctionCall("DATETIME", date, SqlDml.Concat(years, " ", "YEARS"));
+      return SqlDml.FunctionCall("STRFTIME", DateTimeFormat, date, SqlDml.Concat(years, " ", "YEARS"));
     }
 
     private static SqlExpression DateAddMonth(SqlExpression date, SqlExpression months)
     {
-      return SqlDml.FunctionCall("DATETIME", date, SqlDml.Concat(months, " ", "MONTHS"));
+      return SqlDml.FunctionCall("STRFTIME", DateTimeFormat, date, SqlDml.Concat(months, " ", "MONTHS"));
     }
 
     private static SqlExpression DateAddDay(SqlExpression date, SqlExpression days)
     {
-      return SqlDml.FunctionCall("DATETIME", date, SqlDml.Concat(days, " ", "DAYS"));
+      return SqlDml.FunctionCall("STRFTIME", DateTimeFormat, date, SqlDml.Concat(days, " ", "DAYS"));
     }
 
     private static SqlExpression DateAddSeconds(SqlExpression date, SqlExpression seconds)
     {
-      return SqlDml.FunctionCall("DATETIME", date, SqlDml.Concat(seconds, " ", "SECONDS"));
+      return SqlDml.FunctionCall("STRFTIME", DateTimeFormat, date, SqlDml.Concat(seconds, " ", "SECONDS"));
     }
 
     private static SqlExpression DateGetMilliseconds(SqlExpression date)
@@ -441,9 +448,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
-      return (DateGetTotalSeconds(date1) - DateGetTotalSeconds(date2)) * NanosecondsPerSecond;
-      //             + DateGetMilliseconds(date1)
-      //             - DateGetMilliseconds(date2);
+      return ((DateGetTotalSeconds(date1) - DateGetTotalSeconds(date2)) * MillisecondsPerSecond
+              + DateGetMilliseconds(date1) - DateGetMilliseconds(date2)) * NanosecondsPerMillisecond;
     }
 
     private static SqlExpression ServerOffsetAsString()
