@@ -221,6 +221,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     protected override void OrderByProtected()
     {
       OrderByProtected<MultipleEntity, DateTime, int>(c => c.DateTime, c => c.Id);
+      OrderByProtected<MultipleEntity, DateTime, DateTime>(c => c.DateTime, c => c);
     }
 
     protected override void DistinctProtected()

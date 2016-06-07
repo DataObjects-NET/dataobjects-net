@@ -137,6 +137,25 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       Assert.IsFalse(orderedLocalDescending.SequenceEqual(orderedByServer));
     }
 
+    protected void OrderByProtected<T1, T2, T3>(Expression<Func<T1, T2>> selectorExpression, Expression<Func<T2, T3>> orderByExpression)
+      where T1 : Entity
+    {
+      var compiledOrderByExpression = orderByExpression.Compile();
+
+      var notOrderedLocal = Query.All<T1>().Select(selectorExpression).ToArray();
+      var orderedLocal = notOrderedLocal.OrderBy(compiledOrderByExpression);
+      var orderedLocalDescending = notOrderedLocal.OrderByDescending(compiledOrderByExpression);
+      var orderedByServer = Query.All<T1>().Select(selectorExpression).OrderBy(orderByExpression);
+      var orderedByServerDescending = Query.All<T1>().Select(selectorExpression).OrderByDescending(orderByExpression);
+
+      Assert.IsFalse(notOrderedLocal.SequenceEqual(orderedLocal));
+      Assert.IsFalse(notOrderedLocal.SequenceEqual(orderedByServer));
+      Assert.IsTrue(orderedLocal.SequenceEqual(orderedByServer));
+      Assert.IsTrue(orderedLocalDescending.SequenceEqual(orderedByServerDescending));
+      Assert.IsFalse(orderedLocal.SequenceEqual(orderedByServerDescending));
+      Assert.IsFalse(orderedLocalDescending.SequenceEqual(orderedByServer));
+    }
+
     protected void DistinctProtected<T, TK>(Expression<Func<T, TK>> selectExpression)
       where T : Entity
     {

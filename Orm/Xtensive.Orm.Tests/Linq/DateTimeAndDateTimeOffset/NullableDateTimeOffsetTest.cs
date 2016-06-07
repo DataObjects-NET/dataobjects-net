@@ -2,17 +2,17 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Groznov
-// Created:    2016.05.30
+// Created:    2016.06.07
 
 using System;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsetTestModels;
+using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.NullableDateTimeOffsetTestModels;
 
 namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 {
-  namespace DateTimeOffsetTestModels
+  namespace NullableDateTimeOffsetTestModels
   {
     [HierarchyRoot]
     public class SingleEntity : Entity
@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       public int Id { get; private set; }
 
       [Field]
-      public DateTimeOffset DateTimeOffset { get; set; }
+      public DateTimeOffset? DateTimeOffset { get; set; }
     }
 
     [HierarchyRoot]
@@ -31,18 +31,18 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       public int Id { get; private set; }
 
       [Field]
-      public DateTimeOffset DateTimeOffset { get; set; }
+      public DateTimeOffset? DateTimeOffset { get; set; }
     }
   }
 
-  public class DateTimeOffsetTest : BaseDateTimeAndDateTimeOffsetTest
+  public class NullableDateTimeOffsetTest : BaseDateTimeAndDateTimeOffsetTest
   {
     private class JoinResult
     {
       public int LeftId { get; set; }
       public int RightId { get; set; }
-      public DateTimeOffset LeftDateTimeOffset { get; set; }
-      public DateTimeOffset RightDateTimeOffset { get; set; }
+      public DateTimeOffset? LeftDateTimeOffset { get; set; }
+      public DateTimeOffset? RightDateTimeOffset { get; set; }
 
       public override bool Equals(object obj)
       {
@@ -142,6 +142,9 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       new MultipleEntity { DateTimeOffset = DefaultDateTimeOffset.AddSeconds(1) };
       new MultipleEntity { DateTimeOffset = DefaultDateTimeOffset.AddSeconds(-2) };
 
+      new MultipleEntity { DateTimeOffset = null };
+      new MultipleEntity { DateTimeOffset = null };
+
       var dateTime = DefaultDateTimeOffset;
       for (var i = 0; i < MultipleEntityCount; ++i) {
         new MultipleEntity { DateTimeOffset = dateTime };
@@ -169,28 +172,28 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 
     protected override void OrderByProtected()
     {
-      OrderByProtected<MultipleEntity, DateTimeOffset, int>(c => c.DateTimeOffset, c => c.Id);
-      OrderByProtected<MultipleEntity, DateTimeOffset, DateTimeOffset>(c => c.DateTimeOffset, c => c);
+      OrderByProtected<MultipleEntity, DateTimeOffset?, int>(c => c.DateTimeOffset, c => c.Id);
+      OrderByProtected<MultipleEntity, DateTimeOffset?, DateTimeOffset?>(c => c.DateTimeOffset, c => c);
     }
 
     protected override void DistinctProtected()
     {
-      DistinctProtected<MultipleEntity, DateTimeOffset>(c => c.DateTimeOffset);
+      DistinctProtected<MultipleEntity, DateTimeOffset?>(c => c.DateTimeOffset);
     }
 
     protected override void MinMaxProtected()
     {
-      MinMaxProtected<MultipleEntity, DateTimeOffset>(c => c.DateTimeOffset);
+      MinMaxProtected<MultipleEntity, DateTimeOffset?>(c => c.DateTimeOffset);
     }
 
     protected override void GroupByProtected()
     {
-      GroupByProtected<MultipleEntity, DateTimeOffset, int>(c => c.DateTimeOffset, c => c.Id);
+      GroupByProtected<MultipleEntity, DateTimeOffset?, int>(c => c.DateTimeOffset, c => c.Id);
     }
 
     protected override void JoinProtected()
     {
-      JoinProtected<MultipleEntity, MultipleEntity, JoinResult, DateTimeOffset, int>(
+      JoinProtected<MultipleEntity, MultipleEntity, JoinResult, DateTimeOffset?, int>(
         left => left.DateTimeOffset,
         right => right.DateTimeOffset,
         (left, right) => new JoinResult { LeftId = left.Id, RightId = right.Id, LeftDateTimeOffset = left.DateTimeOffset, RightDateTimeOffset = right.DateTimeOffset },
@@ -207,11 +210,12 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       RunWrongTest(c => c.DateTimeOffset==WrongDateTimeOffset);
       RunWrongTest(c => c.DateTimeOffset==WrongDateTimeOffset.ToOffset(SecondOffset));
       RunWrongTest(c => c.DateTimeOffset==WrongDateTimeOffset.ToOffset(ThirdOffset));
+      RunWrongTest(c => c.DateTimeOffset==null);
     }
 
     protected override void SkipTakeProtected()
     {
-      SkipTakeProctected<MultipleEntity, DateTimeOffset, int>(c => c.DateTimeOffset, c => c.Id, 3, 5);
+      SkipTakeProctected<MultipleEntity, DateTimeOffset?, int>(c => c.DateTimeOffset, c => c.Id, 3, 5);
     }
 
     #endregion
@@ -221,75 +225,75 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     protected virtual void ExtractDateTimeOffsetProtected()
     {
       RunTest(c => c.DateTimeOffset==DefaultDateTimeOffset);
-      RunTest(c => c.DateTimeOffset.Year==DefaultDateTimeOffset.Year);
-      RunTest(c => c.DateTimeOffset.Month==DefaultDateTimeOffset.Month);
-      RunTest(c => c.DateTimeOffset.Day==DefaultDateTimeOffset.Day);
-      RunTest(c => c.DateTimeOffset.Hour==DefaultDateTimeOffset.Hour);
-      RunTest(c => c.DateTimeOffset.Minute==DefaultDateTimeOffset.Minute);
-      RunTest(c => c.DateTimeOffset.Second==DefaultDateTimeOffset.Second);
+      RunTest(c => c.DateTimeOffset.Value.Year==DefaultDateTimeOffset.Year);
+      RunTest(c => c.DateTimeOffset.Value.Month==DefaultDateTimeOffset.Month);
+      RunTest(c => c.DateTimeOffset.Value.Day==DefaultDateTimeOffset.Day);
+      RunTest(c => c.DateTimeOffset.Value.Hour==DefaultDateTimeOffset.Hour);
+      RunTest(c => c.DateTimeOffset.Value.Minute==DefaultDateTimeOffset.Minute);
+      RunTest(c => c.DateTimeOffset.Value.Second==DefaultDateTimeOffset.Second);
 
-      RunTest(c => c.DateTimeOffset.Offset==DefaultDateTimeOffset.Offset);
-      RunTest(c => c.DateTimeOffset.Offset.Hours==DefaultDateTimeOffset.Offset.Hours);
-      RunTest(c => c.DateTimeOffset.Offset.Minutes==DefaultDateTimeOffset.Offset.Minutes);
+      RunTest(c => c.DateTimeOffset.Value.Offset==DefaultDateTimeOffset.Offset);
+      RunTest(c => c.DateTimeOffset.Value.Offset.Hours==DefaultDateTimeOffset.Offset.Hours);
+      RunTest(c => c.DateTimeOffset.Value.Offset.Minutes==DefaultDateTimeOffset.Offset.Minutes);
 
-      RunTest(c => c.DateTimeOffset.TimeOfDay==DefaultDateTimeOffset.TimeOfDay);
-      RunTest(c => c.DateTimeOffset.Date==DefaultDateTimeOffset.Date);
-      RunTest(c => c.DateTimeOffset.DateTime==DefaultDateTimeOffset.DateTime);
-      RunTest(c => c.DateTimeOffset.DayOfWeek==DefaultDateTimeOffset.DayOfWeek);
-      RunTest(c => c.DateTimeOffset.DayOfYear==DefaultDateTimeOffset.DayOfYear);
-      RunTest(c => c.DateTimeOffset.LocalDateTime==DefaultDateTimeOffset.LocalDateTime);
-      //        RunTest(c => c.DateTimeOffset.UtcDateTime==DefaultDateTimeOffset.UtcDateTime);
+      RunTest(c => c.DateTimeOffset.Value.TimeOfDay==DefaultDateTimeOffset.TimeOfDay);
+      RunTest(c => c.DateTimeOffset.Value.Date==DefaultDateTimeOffset.Date);
+      RunTest(c => c.DateTimeOffset.Value.DateTime==DefaultDateTimeOffset.DateTime);
+      RunTest(c => c.DateTimeOffset.Value.DayOfWeek==DefaultDateTimeOffset.DayOfWeek);
+      RunTest(c => c.DateTimeOffset.Value.DayOfYear==DefaultDateTimeOffset.DayOfYear);
+      RunTest(c => c.DateTimeOffset.Value.LocalDateTime==DefaultDateTimeOffset.LocalDateTime);
+      //        RunTest(c => c.DateTimeOffset.Value.UtcDateTime==DefaultDateTimeOffset.UtcDateTime);
 
-      RunWrongTest(c => c.DateTimeOffset==WrongDateTimeOffset);
-      RunWrongTest(c => c.DateTimeOffset.Year==WrongDateTimeOffset.Year);
-      RunWrongTest(c => c.DateTimeOffset.Month==WrongDateTimeOffset.Month);
-      RunWrongTest(c => c.DateTimeOffset.Day==WrongDateTimeOffset.Day);
-      RunWrongTest(c => c.DateTimeOffset.Hour==WrongDateTimeOffset.Hour);
-      RunWrongTest(c => c.DateTimeOffset.Minute==WrongDateTimeOffset.Minute);
-      RunWrongTest(c => c.DateTimeOffset.Second==WrongDateTimeOffset.Second);
+      RunWrongTest(c => c.DateTimeOffset.Value==WrongDateTimeOffset);
+      RunWrongTest(c => c.DateTimeOffset.Value.Year==WrongDateTimeOffset.Year);
+      RunWrongTest(c => c.DateTimeOffset.Value.Month==WrongDateTimeOffset.Month);
+      RunWrongTest(c => c.DateTimeOffset.Value.Day==WrongDateTimeOffset.Day);
+      RunWrongTest(c => c.DateTimeOffset.Value.Hour==WrongDateTimeOffset.Hour);
+      RunWrongTest(c => c.DateTimeOffset.Value.Minute==WrongDateTimeOffset.Minute);
+      RunWrongTest(c => c.DateTimeOffset.Value.Second==WrongDateTimeOffset.Second);
 
-      RunWrongTest(c => c.DateTimeOffset.Offset==WrongDateTimeOffset.Offset);
-      RunWrongTest(c => c.DateTimeOffset.Offset.Hours==WrongDateTimeOffset.Offset.Hours);
-      RunWrongTest(c => c.DateTimeOffset.Offset.Minutes==WrongDateTimeOffset.Offset.Minutes);
+      RunWrongTest(c => c.DateTimeOffset.Value.Offset==WrongDateTimeOffset.Offset);
+      RunWrongTest(c => c.DateTimeOffset.Value.Offset.Hours==WrongDateTimeOffset.Offset.Hours);
+      RunWrongTest(c => c.DateTimeOffset.Value.Offset.Minutes==WrongDateTimeOffset.Offset.Minutes);
 
-      RunWrongTest(c => c.DateTimeOffset.TimeOfDay==WrongDateTimeOffset.TimeOfDay);
-      RunWrongTest(c => c.DateTimeOffset.Date==WrongDateTimeOffset.Date);
-      RunWrongTest(c => c.DateTimeOffset.DateTime==WrongDateTimeOffset.DateTime);
-      RunWrongTest(c => c.DateTimeOffset.DayOfWeek==WrongDateTimeOffset.DayOfWeek);
-      RunWrongTest(c => c.DateTimeOffset.DayOfYear==WrongDateTimeOffset.DayOfYear);
-      RunWrongTest(c => c.DateTimeOffset.LocalDateTime==WrongDateTimeOffset.LocalDateTime);
-      //        RunTest(c => c.DateTimeOffset.UtcDateTime==wrongDateTimeOffset.UtcDateTime);
+      RunWrongTest(c => c.DateTimeOffset.Value.TimeOfDay==WrongDateTimeOffset.TimeOfDay);
+      RunWrongTest(c => c.DateTimeOffset.Value.Date==WrongDateTimeOffset.Date);
+      RunWrongTest(c => c.DateTimeOffset.Value.DateTime==WrongDateTimeOffset.DateTime);
+      RunWrongTest(c => c.DateTimeOffset.Value.DayOfWeek==WrongDateTimeOffset.DayOfWeek);
+      RunWrongTest(c => c.DateTimeOffset.Value.DayOfYear==WrongDateTimeOffset.DayOfYear);
+      RunWrongTest(c => c.DateTimeOffset.Value.LocalDateTime==WrongDateTimeOffset.LocalDateTime);
+      //        RunTest(c => c.DateTimeOffset.Value.UtcDateTime==wrongDateTimeOffset.UtcDateTime);
     }
 
     protected virtual void DateTimeOffsetOperationsProtected()
     {
-      RunTest(c => c.DateTimeOffset==DefaultDateTimeOffset);
-      RunTest(c => c.DateTimeOffset.AddYears(1)==DefaultDateTimeOffset.AddYears(1));
-      RunTest(c => c.DateTimeOffset.AddMonths(1)==DefaultDateTimeOffset.AddMonths(1));
-      RunTest(c => c.DateTimeOffset.AddDays(1)==DefaultDateTimeOffset.AddDays(1));
-      RunTest(c => c.DateTimeOffset.AddHours(1)==DefaultDateTimeOffset.AddHours(1));
-      RunTest(c => c.DateTimeOffset.AddMinutes(1)==DefaultDateTimeOffset.AddMinutes(1));
-      RunTest(c => c.DateTimeOffset.AddSeconds(1)==DefaultDateTimeOffset.AddSeconds(1));
-      RunTest(c => c.DateTimeOffset.Add(DefaultTimeSpan)==DefaultDateTimeOffset.Add(DefaultTimeSpan));
-      RunTest(c => c.DateTimeOffset.Subtract(DateTimeForSubstract)==DefaultDateTimeOffset.Subtract(DateTimeForSubstract));
-      RunTest(c => c.DateTimeOffset.Subtract(DateTimeOffsetForSubstract)==DefaultDateTimeOffset.Subtract(DateTimeOffsetForSubstract));
-      //        RunTest(c => c.DateTimeOffset.ToLocalTime() == DefaultDateTimeOffset.ToLocalTime());
+      RunTest(c => c.DateTimeOffset.Value==DefaultDateTimeOffset);
+      RunTest(c => c.DateTimeOffset.Value.AddYears(1)==DefaultDateTimeOffset.AddYears(1));
+      RunTest(c => c.DateTimeOffset.Value.AddMonths(1)==DefaultDateTimeOffset.AddMonths(1));
+      RunTest(c => c.DateTimeOffset.Value.AddDays(1)==DefaultDateTimeOffset.AddDays(1));
+      RunTest(c => c.DateTimeOffset.Value.AddHours(1)==DefaultDateTimeOffset.AddHours(1));
+      RunTest(c => c.DateTimeOffset.Value.AddMinutes(1)==DefaultDateTimeOffset.AddMinutes(1));
+      RunTest(c => c.DateTimeOffset.Value.AddSeconds(1)==DefaultDateTimeOffset.AddSeconds(1));
+      RunTest(c => c.DateTimeOffset.Value.Add(DefaultTimeSpan)==DefaultDateTimeOffset.Add(DefaultTimeSpan));
+      RunTest(c => c.DateTimeOffset.Value.Subtract(DateTimeForSubstract)==DefaultDateTimeOffset.Subtract(DateTimeForSubstract));
+      RunTest(c => c.DateTimeOffset.Value.Subtract(DateTimeOffsetForSubstract)==DefaultDateTimeOffset.Subtract(DateTimeOffsetForSubstract));
+      //        RunTest(c => c.DateTimeOffset.Value.ToLocalTime() == DefaultDateTimeOffset.ToLocalTime());
 
       RunTest(c => c.DateTimeOffset + DefaultTimeSpan==DefaultDateTimeOffset + DefaultTimeSpan);
       RunTest(c => c.DateTimeOffset - DefaultTimeSpan==DefaultDateTimeOffset - DefaultTimeSpan);
       RunTest(c => c.DateTimeOffset - WrongDateTimeOffset==DefaultDateTimeOffset - WrongDateTimeOffset);
       RunTest(c => c.DateTimeOffset - DateTimeOffsetForSubstract==DefaultDateTimeOffset - DateTimeOffsetForSubstract);
 
-      RunWrongTest(c => c.DateTimeOffset==WrongDateTimeOffset);
-      RunWrongTest(c => c.DateTimeOffset.AddYears(1)==WrongDateTimeOffset.AddYears(1));
-      RunWrongTest(c => c.DateTimeOffset.AddMonths(1)==WrongDateTimeOffset.AddMonths(1));
-      RunWrongTest(c => c.DateTimeOffset.AddDays(1)==WrongDateTimeOffset.AddDays(1));
-      RunWrongTest(c => c.DateTimeOffset.AddHours(1)==WrongDateTimeOffset.AddHours(1));
-      RunWrongTest(c => c.DateTimeOffset.AddMinutes(1)==WrongDateTimeOffset.AddMinutes(1));
-      RunWrongTest(c => c.DateTimeOffset.AddSeconds(1)==WrongDateTimeOffset.AddSeconds(1));
-      RunWrongTest(c => c.DateTimeOffset.Add(DefaultTimeSpan)==WrongDateTimeOffset.Add(DefaultTimeSpan));
-      RunWrongTest(c => c.DateTimeOffset.Subtract(DefaultTimeSpan)==WrongDateTimeOffset.Subtract(DefaultTimeSpan));
-      RunWrongTest(c => c.DateTimeOffset.Subtract(DateTimeOffsetForSubstract)==WrongDateTimeOffset.Subtract(DateTimeOffsetForSubstract));
+      RunWrongTest(c => c.DateTimeOffset.Value==WrongDateTimeOffset);
+      RunWrongTest(c => c.DateTimeOffset.Value.AddYears(1)==WrongDateTimeOffset.AddYears(1));
+      RunWrongTest(c => c.DateTimeOffset.Value.AddMonths(1)==WrongDateTimeOffset.AddMonths(1));
+      RunWrongTest(c => c.DateTimeOffset.Value.AddDays(1)==WrongDateTimeOffset.AddDays(1));
+      RunWrongTest(c => c.DateTimeOffset.Value.AddHours(1)==WrongDateTimeOffset.AddHours(1));
+      RunWrongTest(c => c.DateTimeOffset.Value.AddMinutes(1)==WrongDateTimeOffset.AddMinutes(1));
+      RunWrongTest(c => c.DateTimeOffset.Value.AddSeconds(1)==WrongDateTimeOffset.AddSeconds(1));
+      RunWrongTest(c => c.DateTimeOffset.Value.Add(DefaultTimeSpan)==WrongDateTimeOffset.Add(DefaultTimeSpan));
+      RunWrongTest(c => c.DateTimeOffset.Value.Subtract(DefaultTimeSpan)==WrongDateTimeOffset.Subtract(DefaultTimeSpan));
+      RunWrongTest(c => c.DateTimeOffset.Value.Subtract(DateTimeOffsetForSubstract)==WrongDateTimeOffset.Subtract(DateTimeOffsetForSubstract));
       //        RunWrongTest(c => c.DateTimeOffset.ToLocalTime() == WrongDateTimeOffset.ToLocalTime());
 
       RunWrongTest(c => c.DateTimeOffset + DefaultTimeSpan==WrongDateTimeOffset + DefaultTimeSpan);
@@ -318,8 +322,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         RunTest(c => c.DateTimeOffset==DefaultDateTimeOffset.UtcDateTime);
-        RunTest(c => c.DateTimeOffset > DefaultDateTimeOffset.UtcDateTime.AddMinutes(-1));
-        RunWrongTest(c => c.DateTimeOffset < DefaultDateTimeOffset.UtcDateTime.AddMinutes(-1));
+        RunTest(c => c.DateTimeOffset > (DateTime?) DefaultDateTimeOffset.UtcDateTime.AddMinutes(-1));
+        RunWrongTest(c => c.DateTimeOffset < (DateTime?) DefaultDateTimeOffset.UtcDateTime.AddMinutes(-1));
       }
     }
 
