@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -289,6 +290,26 @@ namespace Xtensive.Orm.Providers
       }
 
       return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
+    }
+
+    private SqlExpression GetOrderByExpression(SqlExpression expression, SortProvider provider, int index)
+    {
+      if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation) 
+        && provider.Header.Columns.Count > index 
+        && provider.Header.Columns[index].Type==typeof (DateTimeOffset))
+        return SqlDml.Cast(expression, SqlType.DateTimeOffset);
+      return expression;
+    }
+
+    private SqlExpression GetJoinExpression(SqlExpression leftExpression, SqlExpression rightExpression, JoinProvider provider, int index)
+    {
+      if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation) && provider.EqualColumns.Length > index) {
+        if (provider.EqualColumns[index].First.Type==typeof (DateTimeOffset))
+          leftExpression = SqlDml.Cast(leftExpression, SqlType.DateTimeOffset);
+        if (provider.EqualColumns[index].Second.Type==typeof (DateTimeOffset))
+          rightExpression = SqlDml.Cast(rightExpression, SqlType.DateTimeOffset);
+      }
+      return leftExpression==rightExpression;
     }
 
     public SqlExpression GetOuterExpression(ApplyParameter parameter, int columnIndex)
