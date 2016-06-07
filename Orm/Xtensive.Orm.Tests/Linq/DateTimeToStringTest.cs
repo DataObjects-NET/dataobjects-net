@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Tests.Linq
 
   public class DateTimeToStringTest : AutoBuildTest
   {
-    private DateTime date = new DateTime(2013, 2, 12, 22, 11, 30, 333);
+    private DateTime date = new DateTime(2013, 2, 12, 22, 11, 30, 334);
 
     protected override DomainConfiguration BuildConfiguration()
     {

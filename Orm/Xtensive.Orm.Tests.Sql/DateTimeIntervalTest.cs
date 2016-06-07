@@ -13,9 +13,9 @@ namespace Xtensive.Orm.Tests.Sql
 {
   public abstract class DateTimeIntervalTest : SqlTest
   {
-    protected static readonly DateTime DefaultDateTime = new DateTime(2001, 2, 3, 4, 5, 6, 333);
+    protected static readonly DateTime DefaultDateTime = new DateTime(2001, 2, 3, 4, 5, 6, 334);
     protected static readonly DateTime SecondDateTime = new DateTime(2000, 12, 11, 10, 9, 8, 765);
-    protected static readonly TimeSpan DefaultTimeSpan = new TimeSpan(10, 9, 8, 7, 654);
+    protected static readonly TimeSpan DefaultTimeSpan = new TimeSpan(10, 9, 8, 7, 652);
     protected static readonly int AddYearsConst = 5;
     protected static readonly int AddMonthsConst = 15;
 

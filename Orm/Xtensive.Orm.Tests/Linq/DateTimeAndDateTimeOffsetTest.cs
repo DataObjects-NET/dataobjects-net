@@ -42,14 +42,14 @@ namespace Xtensive.Orm.Tests.Linq
   {
     private const string FirstEntityName = "FirstEntity";
 
-    private static readonly TimeSpan BigTimeSpan = new TimeSpan(5, 4, 3, 2, 333);
+    private static readonly TimeSpan BigTimeSpan = new TimeSpan(5, 4, 3, 2, 334);
     private static readonly TimeSpan DefaultOffset1 = TimeSpan.FromHours(-2.75);
     private static readonly TimeSpan DefaultOffset2 = TimeSpan.FromHours(3);
     private static readonly TimeSpan DefaultOffset3 = TimeSpan.FromHours(-3.25);
     private static readonly DateTime DefaultDateTime = new DateTime(2016, 04, 27, 13, 14, 15, 333);
     private static readonly DateTimeOffset DefaultDateTimeOffset = new DateTimeOffset(DefaultDateTime, DefaultOffset1);
-    private static readonly DateTime WrongDateTime = DefaultDateTime.AddYears(1).AddMonths(1).Add(new TimeSpan(1, 1, 1, 1, 333));
-    private static readonly DateTime WrongDateTime2 = WrongDateTime.AddYears(1).AddMonths(1).Add(new TimeSpan(1, 1, 1, 1, 333));
+    private static readonly DateTime WrongDateTime = DefaultDateTime.AddYears(1).AddMonths(1).Add(new TimeSpan(1, 1, 1, 1, 334));
+    private static readonly DateTime WrongDateTime2 = WrongDateTime.AddYears(1).AddMonths(1).Add(new TimeSpan(1, 1, 1, 1, 334));
     private static readonly DateTimeOffset WrongDateTimeOffset = new DateTimeOffset(WrongDateTime, DefaultOffset3);
 
     [Test]
@@ -263,6 +263,7 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         RunTest(c => c.Date==DefaultDateTime);
+        RunTest(c => c.Date.Date==DefaultDateTime.Date);
         RunTest(c => c.Date > DefaultDateTime.AddMinutes(-1));
         RunWrongTest(c => c.Date < DefaultDateTime.AddMinutes(-1));
       }
