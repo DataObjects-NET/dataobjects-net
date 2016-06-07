@@ -898,6 +898,8 @@ namespace Xtensive.Orm.Upgrade
 
           if (newSqlType.Type==SqlType.DateTimeOffset)
             getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.DateTimeToDateTimeOffset(tableRef[tempName]));
+          else if (newSqlType.Type==SqlType.DateTime && providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation))
+            getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(SqlDml.Extract(SqlDateTimeOffsetPart.DateTime, tableRef[tempName]), newSqlType));
           else
             getValue.Add(SqlDml.IsNotNull(tableRef[tempName]), SqlDml.Cast(tableRef[tempName], newSqlType));
 

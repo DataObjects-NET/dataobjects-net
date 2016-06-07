@@ -195,6 +195,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           DateTimeTruncate(DateTimeOffsetExtractDateTimeAsString(node.Arguments[0])))
           .AcceptVisitor(this);
         return;
+      case SqlFunctionType.DateTimeToDateTimeOffset:
+        SqlDml.Concat(DateTime(node.Arguments[0]), ServerOffsetAsString()).AcceptVisitor(this);
+        return;
       }
       base.Visit(node);
     }
