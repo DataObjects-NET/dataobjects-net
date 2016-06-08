@@ -12,6 +12,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 {
   public class DateTimeOffsetMillisecondAccuracyTest : DateTimeOffsetTest
   {
+    #region Default values
+
     public override DateTimeOffset DefaultDateTimeOffset
     {
       get { return base.DefaultDateTimeOffset.AddMilliseconds(333); }
@@ -41,6 +43,16 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     {
       get { return TimeSpan.FromMilliseconds(1); }
     }
+
+    #endregion
+
+    [Test]
+    public void MillisecondAccuracyTest()
+    {
+      OpenSessionAndAction(MillisecondAccuracyProtected);
+    }
+
+    #region Implementation of own and ancestor's tests
 
     protected override void ExtractDateTimeOffsetProtected()
     {
@@ -80,10 +92,6 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       }
     }
 
-    [Test]
-    public void MillisecondAccuracyTest()
-    {
-      OpenSessionAndAction(MillisecondAccuracyProtected);
-    }
+    #endregion;
   }
 }

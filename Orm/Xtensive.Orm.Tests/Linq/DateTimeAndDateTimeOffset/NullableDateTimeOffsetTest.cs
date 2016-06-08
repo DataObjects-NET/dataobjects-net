@@ -8,6 +8,7 @@ using System;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.NullableDateTimeOffsetTestModels;
 
 namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
@@ -107,7 +108,52 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 
     #endregion
 
-    #region Build config and populate data
+    [Test]
+    public void ExtractDateTimeOffsetTest()
+    {
+      OpenSessionAndAction(ExtractDateTimeOffsetProtected);
+    }
+
+    [Test]
+    public void DateTimeOffsetOperationsTest()
+    {
+      OpenSessionAndAction(DateTimeOffsetOperationsProtected);
+    }
+
+    [Test]
+    public void DateTimeOffsetCompareWithDateTimeTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        RunTest(c => c.DateTimeOffset==DefaultDateTimeOffset.UtcDateTime);
+        RunTest(c => c.DateTimeOffset > (DateTime?) DefaultDateTimeOffset.UtcDateTime.AddMinutes(-1));
+        RunWrongTest(c => c.DateTimeOffset < (DateTime?) DefaultDateTimeOffset.UtcDateTime.AddMinutes(-1));
+      }
+    }
+
+    [Test]
+    public void DateTimeOffsetCompareWithDateTimeOffsetTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        RunTest(c => c.DateTimeOffset==DefaultDateTimeOffset);
+        RunTest(c => c.DateTimeOffset==DefaultDateTimeOffset.ToOffset(DefaultOffset));
+        RunTest(c => c.DateTimeOffset==DefaultDateTimeOffset.ToOffset(SecondOffset));
+        RunTest(c => c.DateTimeOffset==DefaultDateTimeOffset.ToOffset(ThirdOffset));
+
+        RunTest(c => c.DateTimeOffset > DefaultDateTimeOffset.AddMinutes(-1));
+        RunTest(c => c.DateTimeOffset > DefaultDateTimeOffset.AddMinutes(-1).ToOffset(DefaultOffset));
+        RunTest(c => c.DateTimeOffset > DefaultDateTimeOffset.AddMinutes(-1).ToOffset(SecondOffset));
+        RunTest(c => c.DateTimeOffset > DefaultDateTimeOffset.AddMinutes(-1).ToOffset(ThirdOffset));
+
+        RunWrongTest(c => c.DateTimeOffset < DefaultDateTimeOffset.AddMinutes(-1));
+        RunWrongTest(c => c.DateTimeOffset < DefaultDateTimeOffset.AddMinutes(-1).ToOffset(DefaultOffset));
+        RunWrongTest(c => c.DateTimeOffset < DefaultDateTimeOffset.AddMinutes(-1).ToOffset(SecondOffset));
+        RunWrongTest(c => c.DateTimeOffset < DefaultDateTimeOffset.AddMinutes(-1).ToOffset(ThirdOffset));
+      }
+    }
+
+    #region Build config, populate data and check requirements
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -150,6 +196,11 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
         new MultipleEntity { DateTimeOffset = dateTime };
         dateTime = dateTime.Add(MultipleEntityDateStep);
       }
+    }
+
+    protected override void CheckRequirements()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.DateTimeOffset);
     }
 
     #endregion
@@ -303,50 +354,5 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     }
 
     #endregion
-
-    [Test]
-    public void ExtractDateTimeOffsetTest()
-    {
-      OpenSessionAndAction(ExtractDateTimeOffsetProtected);
-    }
-
-    [Test]
-    public void DateTimeOffsetOperationsTest()
-    {
-      OpenSessionAndAction(DateTimeOffsetOperationsProtected);
-    }
-
-    [Test]
-    public void DateTimeOffsetCompareWithDateTimeTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        RunTest(c => c.DateTimeOffset==DefaultDateTimeOffset.UtcDateTime);
-        RunTest(c => c.DateTimeOffset > (DateTime?) DefaultDateTimeOffset.UtcDateTime.AddMinutes(-1));
-        RunWrongTest(c => c.DateTimeOffset < (DateTime?) DefaultDateTimeOffset.UtcDateTime.AddMinutes(-1));
-      }
-    }
-
-    [Test]
-    public void DateTimeOffsetCompareWithDateTimeOffsetTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        RunTest(c => c.DateTimeOffset==DefaultDateTimeOffset);
-        RunTest(c => c.DateTimeOffset==DefaultDateTimeOffset.ToOffset(DefaultOffset));
-        RunTest(c => c.DateTimeOffset==DefaultDateTimeOffset.ToOffset(SecondOffset));
-        RunTest(c => c.DateTimeOffset==DefaultDateTimeOffset.ToOffset(ThirdOffset));
-
-        RunTest(c => c.DateTimeOffset > DefaultDateTimeOffset.AddMinutes(-1));
-        RunTest(c => c.DateTimeOffset > DefaultDateTimeOffset.AddMinutes(-1).ToOffset(DefaultOffset));
-        RunTest(c => c.DateTimeOffset > DefaultDateTimeOffset.AddMinutes(-1).ToOffset(SecondOffset));
-        RunTest(c => c.DateTimeOffset > DefaultDateTimeOffset.AddMinutes(-1).ToOffset(ThirdOffset));
-
-        RunWrongTest(c => c.DateTimeOffset < DefaultDateTimeOffset.AddMinutes(-1));
-        RunWrongTest(c => c.DateTimeOffset < DefaultDateTimeOffset.AddMinutes(-1).ToOffset(DefaultOffset));
-        RunWrongTest(c => c.DateTimeOffset < DefaultDateTimeOffset.AddMinutes(-1).ToOffset(SecondOffset));
-        RunWrongTest(c => c.DateTimeOffset < DefaultDateTimeOffset.AddMinutes(-1).ToOffset(ThirdOffset));
-      }
-    }
   }
 }

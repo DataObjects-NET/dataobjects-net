@@ -8,6 +8,7 @@ using System;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeTestModels;
 
 namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
@@ -86,6 +87,44 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     }
 
     #endregion
+
+    [Test]
+    public void ExtractDateTimeTest()
+    {
+      OpenSessionAndAction(ExtractDateTimeProtected);
+    }
+
+    [Test]
+    public void DateTimeOperationsTest()
+    {
+      OpenSessionAndAction(DateTimeOperationsProtected);
+    }
+
+    [Test]
+    public void DateTimeCompareWithDateTimeTest()
+    {
+      OpenSessionAndAction(() => {
+        RunTest(c => c.DateTime==DefaultDateTime);
+        RunTest(c => c.DateTime.Date==DefaultDateTime.Date);
+        RunTest(c => c.DateTime > DefaultDateTime.AddMinutes(-1));
+        RunWrongTest(c => c.DateTime < DefaultDateTime.AddMinutes(-1));
+      });
+    }
+
+    [Test]
+    public void ToIsoStringTest()
+    {
+      OpenSessionAndAction(() => {
+        RunTest(c => c.DateTime.ToString("s")==DefaultDateTime.ToString("s"));
+        RunWrongTest(c => c.DateTime.ToString("s")==DefaultDateTime.AddMinutes(1).ToString("s"));
+      });
+    }
+
+    //    [Test] Not supported
+    public void ConvertToAnotherKindTest()
+    {
+      OpenSessionAndAction(ConvertToAnotherKindProtected);
+    }
 
     #region Build config and populate data
 
@@ -262,43 +301,5 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     }
 
     #endregion
-
-    [Test]
-    public void ExtractDateTimeTest()
-    {
-      OpenSessionAndAction(ExtractDateTimeProtected);
-    }
-
-    [Test]
-    public void DateTimeOperationsTest()
-    {
-      OpenSessionAndAction(DateTimeOperationsProtected);
-    }
-
-    [Test]
-    public void DateTimeCompareWithDateTimeTest()
-    {
-      OpenSessionAndAction(() => {
-        RunTest(c => c.DateTime==DefaultDateTime);
-        RunTest(c => c.DateTime.Date==DefaultDateTime.Date);
-        RunTest(c => c.DateTime > DefaultDateTime.AddMinutes(-1));
-        RunWrongTest(c => c.DateTime < DefaultDateTime.AddMinutes(-1));
-      });
-    }
-
-    [Test]
-    public void ToIsoStringTest()
-    {
-      OpenSessionAndAction(() => {
-        RunTest(c => c.DateTime.ToString("s")==DefaultDateTime.ToString("s"));
-        RunWrongTest(c => c.DateTime.ToString("s")==DefaultDateTime.AddMinutes(1).ToString("s"));
-      });
-    }
-
-    //    [Test] Not supported
-    public void ConvertToAnotherKindTest()
-    {
-      OpenSessionAndAction(ConvertToAnotherKindProtected);
-    }
   }
 }
