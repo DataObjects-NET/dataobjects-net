@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.10.14
 
+using System;
 using System.Data.Common;
 using System.Text;
 
@@ -26,8 +27,14 @@ namespace Xtensive.Orm.Providers
         return commandText;
       var result = new StringBuilder(commandText);
       result.Append(" [");
-      foreach (DbParameter parameter in command.Parameters)
-        result.AppendFormat("{0}='{1}';", parameter.ParameterName, parameter.Value);
+      foreach (DbParameter parameter in command.Parameters) {
+        var value = parameter.Value;
+        if (value is DateTime)
+          value = ((DateTime) value).ToString("yyyy-MM-dd HH:mm:ss.fffffff");
+        else if (value is DateTimeOffset)
+          value = ((DateTimeOffset) value).ToString("yyyy-MM-dd HH:mm:ss.fffffffK");
+        result.AppendFormat("{0}='{1}';", parameter.ParameterName, value);
+      }
       result.Remove(result.Length - 1, 1);
       result.Append("]");
       return result.ToString();
