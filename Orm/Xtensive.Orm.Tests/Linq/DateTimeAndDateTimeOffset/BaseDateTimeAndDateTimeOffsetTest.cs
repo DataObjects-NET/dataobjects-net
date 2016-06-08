@@ -17,13 +17,13 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
   public abstract class BaseDateTimeAndDateTimeOffsetTest
     : AutoBuildTest
   {
-    [Test]
+    [Test(Description = "Might be failed on SQLite on reverse ordering because of certain restrictions of work with milliseconds")]
     public void OrderByTest()
     {
       OpenSessionAndAction(OrderByProtected);
     }
 
-    [Test]
+    [Test(Description = "Might be failed on SQLite because of incomplete emulating datetimeoffset")]
     public void DistinctTest()
     {
       OpenSessionAndAction(DistinctProtected);
@@ -35,13 +35,13 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       OpenSessionAndAction(MinMaxProtected);
     }
 
-    [Test]
+    [Test(Description = "Might be failed on SQLite on reverse ordering because of certain restrictions of work with milliseconds")]
     public void GroupByTest()
     {
       OpenSessionAndAction(GroupByProtected);
     }
 
-    [Test]
+    [Test(Description = "Might be failed on SQLite on reverse ordering because of certain restrictions of work with milliseconds")]
     public void JoinTest()
     {
       OpenSessionAndAction(JoinProtected);
