@@ -8,7 +8,6 @@ using System;
 using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeTestModels;
 
 namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
@@ -145,7 +144,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       new MultipleEntity { DateTime = DefaultDateTime };
       new MultipleEntity { DateTime = DefaultDateTime.Date };
       new MultipleEntity { DateTime = new DateTime(DefaultDateTime.Ticks, DateTimeKind.Local) };
-      new MultipleEntity { DateTime = new DateTime(DefaultDateTime.Ticks, DateTimeKind.Utc) };
+//      new MultipleEntity { DateTime = new DateTime(DefaultDateTime.Ticks, DateTimeKind.Utc) };
       new MultipleEntity { DateTime = DefaultDateTime.AddYears(1) };
       new MultipleEntity { DateTime = DefaultDateTime.AddYears(-2) };
       new MultipleEntity { DateTime = DefaultDateTime.AddMonths(44) };

@@ -83,9 +83,14 @@ namespace Xtensive.Sql.Info
     FullTextColumnDataTypeSpecification = 1 << 10,
 
     /// <summary>
+    /// Indicates whether RDBMS does not support DateTime natively, but allows to emulate it.
+    /// </summary>
+    DateTimeEmulation = 1 << 11,
+
+    /// <summary>
     /// Indicates whether RDBMS does not support DateTimeOffset natively, but allows to emulate it.
     /// </summary>
-    DateTimeOffsetEmulation = 1 << 11,
+    DateTimeOffsetEmulation = 1 << 12,
 
     /// <summary>
     /// Obsolete name for <see cref="ExclusiveWriterConnection"/>.

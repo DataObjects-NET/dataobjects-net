@@ -109,6 +109,8 @@ namespace Xtensive.Orm.Providers
         f |= ProviderFeatures.DeleteLimit;
       if (queryFeatures.Supports(QueryFeatures.UpdateLimit))
         f |= ProviderFeatures.UpdateLimit;
+      if (serverFeatures.Supports(ServerFeatures.DateTimeEmulation))
+        f |= ProviderFeatures.DateTimeEmulation;
       if (serverFeatures.Supports(ServerFeatures.DateTimeOffsetEmulation))
         f |= ProviderFeatures.DateTimeOffsetEmulation;
 

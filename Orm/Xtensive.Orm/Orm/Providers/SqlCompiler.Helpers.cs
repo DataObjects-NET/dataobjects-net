@@ -294,20 +294,32 @@ namespace Xtensive.Orm.Providers
 
     private SqlExpression GetOrderByExpression(SqlExpression expression, SortProvider provider, int index)
     {
-      if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation) 
-        && provider.Header.Columns.Count > index 
-        && provider.Header.Columns[index].Type==typeof (DateTimeOffset))
+      if (provider.Header.Columns.Count <= index)
+        return expression;
+
+      if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation) && provider.Header.Columns[index].Type == typeof(DateTime))
+        return SqlDml.Cast(expression, SqlType.DateTime);
+      if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation) && provider.Header.Columns[index].Type == typeof(DateTimeOffset))
         return SqlDml.Cast(expression, SqlType.DateTimeOffset);
       return expression;
     }
 
     private SqlExpression GetJoinExpression(SqlExpression leftExpression, SqlExpression rightExpression, JoinProvider provider, int index)
     {
-      if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation) && provider.EqualColumns.Length > index) {
-        if (provider.EqualColumns[index].First.Type==typeof (DateTimeOffset))
-          leftExpression = SqlDml.Cast(leftExpression, SqlType.DateTimeOffset);
-        if (provider.EqualColumns[index].Second.Type==typeof (DateTimeOffset))
-          rightExpression = SqlDml.Cast(rightExpression, SqlType.DateTimeOffset);
+      if (provider.EqualColumns.Length > index) {
+        if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation))
+        {
+          if (provider.EqualColumns[index].First.Type==typeof (DateTime))
+            leftExpression = SqlDml.Cast(leftExpression, SqlType.DateTime);
+          if (provider.EqualColumns[index].Second.Type==typeof (DateTime))
+            rightExpression = SqlDml.Cast(rightExpression, SqlType.DateTime);
+        }
+        if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation)) {
+          if (provider.EqualColumns[index].First.Type==typeof (DateTimeOffset))
+            leftExpression = SqlDml.Cast(leftExpression, SqlType.DateTimeOffset);
+          if (provider.EqualColumns[index].Second.Type==typeof (DateTimeOffset))
+            rightExpression = SqlDml.Cast(rightExpression, SqlType.DateTimeOffset);
+        }
       }
       return leftExpression==rightExpression;
     }

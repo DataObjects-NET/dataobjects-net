@@ -43,6 +43,7 @@ namespace Xtensive.Orm.Providers
 
     private readonly bool fixBooleanExpressions;
     private readonly bool emptyStringIsNull;
+    private readonly bool dateTimeEmulation;
     private readonly bool dateTimeOffsetEmulation;
     private readonly ProviderInfo providerInfo;
 
@@ -208,7 +209,13 @@ namespace Xtensive.Orm.Providers
           right = booleanExpressionConverter.BooleanToInt(right);
       }
 
-      //handle SQLite DateTimeOffset comparison
+      //handle SQLite DateTime comparsion
+      if (dateTimeEmulation && IsComparisonExpression(expression) && (IsDateTimeExpression(expression.Left) || IsDateTimeExpression(expression.Right))) {
+        left = SqlDml.Cast(left, SqlType.DateTime);
+        right = SqlDml.Cast(right, SqlType.DateTime);
+      }
+
+      //handle SQLite DateTimeOffset comparsion
       if (dateTimeOffsetEmulation && IsComparisonExpression(expression) && (IsDateTimeOffsetExpression(expression.Left) || IsDateTimeOffsetExpression(expression.Right))) {
         left = SqlDml.Cast(left, SqlType.DateTimeOffset);
         right = SqlDml.Cast(right, SqlType.DateTimeOffset);
@@ -422,6 +429,7 @@ namespace Xtensive.Orm.Providers
 
       fixBooleanExpressions = !providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions);
       emptyStringIsNull = providerInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
+      dateTimeEmulation = providerInfo.Supports(ProviderFeatures.DateTimeEmulation);
       dateTimeOffsetEmulation = providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation);
       memberCompilerProvider = handlers.DomainHandler.GetMemberCompilerProvider<SqlExpression>();
 

@@ -182,6 +182,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       var result = ServerFeatures.Savepoints
                    | ServerFeatures.TransactionalKeyGenerators
                    | ServerFeatures.ExclusiveWriterConnection
+                   | ServerFeatures.DateTimeEmulation
                    | ServerFeatures.DateTimeOffsetEmulation;
       var dataSource = Driver.CoreServerInfo.DatabaseName.Trim().ToLowerInvariant();
       if (dataSource==":memory:")
