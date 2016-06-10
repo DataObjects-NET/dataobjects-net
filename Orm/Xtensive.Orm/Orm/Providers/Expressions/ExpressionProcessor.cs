@@ -210,13 +210,21 @@ namespace Xtensive.Orm.Providers
       }
 
       //handle SQLite DateTime comparsion
-      if (dateTimeEmulation && IsComparisonExpression(expression) && (IsDateTimeExpression(expression.Left) || IsDateTimeExpression(expression.Right))) {
+      if (dateTimeEmulation
+          && left.NodeType != SqlNodeType.Null
+          && right.NodeType != SqlNodeType.Null
+          && IsComparisonExpression(expression)
+          && (IsDateTimeExpression(expression.Left) || IsDateTimeExpression(expression.Right))) {
         left = SqlDml.Cast(left, SqlType.DateTime);
         right = SqlDml.Cast(right, SqlType.DateTime);
       }
 
       //handle SQLite DateTimeOffset comparsion
-      if (dateTimeOffsetEmulation && IsComparisonExpression(expression) && (IsDateTimeOffsetExpression(expression.Left) || IsDateTimeOffsetExpression(expression.Right))) {
+      if (dateTimeOffsetEmulation
+          && left.NodeType!=SqlNodeType.Null
+          && right.NodeType!=SqlNodeType.Null
+          && IsComparisonExpression(expression)
+          && (IsDateTimeOffsetExpression(expression.Left) || IsDateTimeOffsetExpression(expression.Right))) {
         left = SqlDml.Cast(left, SqlType.DateTimeOffset);
         right = SqlDml.Cast(right, SqlType.DateTimeOffset);
       }

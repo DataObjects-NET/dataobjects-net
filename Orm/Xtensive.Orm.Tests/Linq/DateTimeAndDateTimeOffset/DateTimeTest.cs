@@ -296,7 +296,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 
     protected override void SkipTakeProtected()
     {
-      SkipTakeProctected<MultipleEntity, DateTimeOffset, int>(c => c.DateTime, c => c.Id, 3, 5);
+      SkipTakeProctected<MultipleEntity, DateTime, int>(c => c.DateTime, c => c.Id, 3, 5);
     }
 
     #endregion

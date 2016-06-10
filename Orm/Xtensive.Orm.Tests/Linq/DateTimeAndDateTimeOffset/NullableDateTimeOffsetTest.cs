@@ -54,6 +54,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       }
     }
 
+    private int multipleEntityWithNullDateTimeOffsetCount;
+
     #region Default values
 
     public virtual TimeSpan DefaultTimeSpan
@@ -153,6 +155,12 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       }
     }
 
+    [Test]
+    public void NullableFilterTest()
+    {
+      OpenSessionAndAction(() => RunTest<MultipleEntity>(c => c.DateTimeOffset==null, multipleEntityWithNullDateTimeOffsetCount));
+    }
+
     #region Build config, populate data and check requirements
 
     protected override DomainConfiguration BuildConfiguration()
@@ -190,6 +198,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 
       new MultipleEntity { DateTimeOffset = null };
       new MultipleEntity { DateTimeOffset = null };
+      multipleEntityWithNullDateTimeOffsetCount = 2;
 
       var dateTime = DefaultDateTimeOffset;
       for (var i = 0; i < MultipleEntityCount; ++i) {

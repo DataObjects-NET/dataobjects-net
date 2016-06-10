@@ -319,6 +319,7 @@
     <Compile Include="Linq\ConvariantQueriesTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffsetTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\BaseDateTimeAndDateTimeOffsetTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\NullableDateTimeTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeMillisecondAccuracyTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetMillisecondAccuracyTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetTest.cs" />
