@@ -148,15 +148,15 @@ namespace Xtensive.Orm.Tests.Issues
       using(var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile))) {
         var testB = session.Query.Single<TestB>(testBKey);
         var testA1 = testB.TestA;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
         testB.TestA = null;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
       }
     }
 
@@ -176,20 +176,20 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile))) {
         var testB = session.Query.Single<TestB>(testBKey);
         var testA1 = testB.TestA;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
         testB.TestA = null;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
         session.SaveChanges();
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
       }
     }
 
@@ -209,25 +209,25 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile))) {
         var testB = session.Query.Single<TestB>(testBKey);
         var testA1 = testB.TestA;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
         testB.TestA = null;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
         testB.TestA = testA1;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
         session.SaveChanges();
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
       }
     }
 
@@ -249,33 +249,33 @@ namespace Xtensive.Orm.Tests.Issues
         var testB = session.Query.Single<TestB>(testBKey);
         var testA2 = session.Query.Single<TestA>(testA2Key);
         var testA1 = testB.TestA;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA2.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA2.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA2.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA2.State).Count);
         testB.TestA = testA2;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA2.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetAddedReferences(testA2.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA2.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetAddedReferences(testA2.State).Count);
         testB.TestA = testA1;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA2.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA2.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA2.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA2.State).Count);
         session.SaveChanges();
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA2.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA2.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA2.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA2.State).Count);
       }
     }
 
@@ -299,28 +299,28 @@ namespace Xtensive.Orm.Tests.Issues
         var testA1 = session.Query.Single<TestA>(testA1Key);
         var testA2 = session.Query.Single<TestA>(testA2Key);
 
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testD1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testD1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA2.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA2.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testD1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testD1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA2.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA2.State).Count);
         testD1.Structure.TestA = testA2;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testD1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testD1.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(testD1.State, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Keys.First());
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA2.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetAddedReferences(testA2.State).Count);
-        Assert.AreEqual(testD1.State, session.EntityReferenceChangesRegistry.GetAddedReferences(testA2.State).Keys.First());
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testD1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testD1.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(testD1.State, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Keys.First());
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA2.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetAddedReferences(testA2.State).Count);
+        Assert.AreEqual(testD1.State, session.NonPairedReferenceRegistry.GetAddedReferences(testA2.State).Keys.First());
         session.SaveChanges();
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testD1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testD1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA2.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA2.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testD1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testD1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA2.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA2.State).Count);
       }
     }
 
@@ -340,21 +340,21 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile))) {
         var testB = session.Query.Single<TestB>(testBKey);
         var testA1 = testB.TestA;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
         testB.TestA = null;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
         session.CancelChanges();
         Assert.AreEqual(testA1, testB.TestA);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testB.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA1.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testB.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA1.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA1.State).Count);
       }
     }
 
@@ -366,11 +366,11 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var testA = new TestA {Text = "Test07TestA"};
         var entity = new EntityWithEntityAsKey(session, testA);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(entity.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(entity.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State)[entity.State]);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(entity.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetAddedReferences(testA.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetAddedReferences(testA.State)[entity.State]);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA.State).Count);
       }
     }
 
@@ -383,22 +383,22 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var testA = new TestA {Text = "Test08TestA"};
         var entity = new EntityWithTwoReferencesToTheSameEntity {FirstTestA = testA, SecondTestA = testA};
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(entity.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(entity.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State).Count);
-        Assert.AreEqual(2, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State)[entity.State]);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(entity.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetAddedReferences(testA.State).Count);
+        Assert.AreEqual(2, session.NonPairedReferenceRegistry.GetAddedReferences(testA.State)[entity.State]);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA.State).Count);
         entity.SecondTestA = null;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(entity.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(entity.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State)[entity.State]);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(entity.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetAddedReferences(testA.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetAddedReferences(testA.State)[entity.State]);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA.State).Count);
         entity.FirstTestA = null;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(entity.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(entity.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA.State).Count);
       }
     }
 
@@ -419,22 +419,22 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var testA = session.Query.Single<TestA>(testAKey);
         var entity = session.Query.Single<EntityWithTwoReferencesToTheSameEntity>(entityKey);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(entity.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(entity.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(testA.State).Count);
         entity.SecondTestA = null;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(entity.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(entity.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State)[entity.State]);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetRemovedReferences(testA.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetRemovedReferences(testA.State)[entity.State]);
         entity.FirstTestA = null;
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(entity.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetRemovedReferences(entity.State).Count);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.GetAddedReferences(testA.State).Count);
-        Assert.AreEqual(1, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State).Count);
-        Assert.AreEqual(2, session.EntityReferenceChangesRegistry.GetRemovedReferences(testA.State)[entity.State]);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetRemovedReferences(entity.State).Count);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.GetAddedReferences(testA.State).Count);
+        Assert.AreEqual(1, session.NonPairedReferenceRegistry.GetRemovedReferences(testA.State).Count);
+        Assert.AreEqual(2, session.NonPairedReferenceRegistry.GetRemovedReferences(testA.State)[entity.State]);
       }
     }
 
@@ -447,8 +447,8 @@ namespace Xtensive.Orm.Tests.Issues
           var testA = new TestA {Text = "Test10TestA"};
           var entity = new EntityWithTwoReferencesToTheSameEntity { FirstTestA = testA, SecondTestA = testA };
         }
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.AddedReferencesCount);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.RemovedReferencesCount);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.AddedReferencesCount);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.RemovedReferencesCount);
         Key testAKey, entityKey;
         using (session.Activate())
         using (var transaction = session.OpenTransaction()) {
@@ -458,8 +458,8 @@ namespace Xtensive.Orm.Tests.Issues
           entityKey = entity.Key;
           transaction.Complete();
         }
-        Assert.AreEqual(2, session.EntityReferenceChangesRegistry.AddedReferencesCount);
-        Assert.AreEqual(0, session.EntityReferenceChangesRegistry.RemovedReferencesCount);
+        Assert.AreEqual(2, session.NonPairedReferenceRegistry.AddedReferencesCount);
+        Assert.AreEqual(0, session.NonPairedReferenceRegistry.RemovedReferencesCount);
       }
     }
 

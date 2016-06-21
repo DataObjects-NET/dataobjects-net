@@ -798,18 +798,18 @@ namespace Xtensive.Orm
         return;
       if (oldValue!=null && newValue==null) {
         oldEntity = oldValue as Entity;
-        Session.EntityReferenceChangesRegistry.RegisterRemovedReference(oldEntity.State, fieldOwner.State);
+        Session.NonPairedReferenceRegistry.RegisterRemovedReference(oldEntity.State, fieldOwner.State);
         return;
       }
       if (oldValue==null) {
         newEntity = newValue as Entity;
-        Session.EntityReferenceChangesRegistry.RegisterAddedReference(newEntity.State, fieldOwner.State);
+        Session.NonPairedReferenceRegistry.RegisterAddedReference(newEntity.State, fieldOwner.State);
         return;
       }
       oldEntity = oldValue as Entity;
-      Session.EntityReferenceChangesRegistry.RegisterRemovedReference(oldEntity.State, fieldOwner.State);
+      Session.NonPairedReferenceRegistry.RegisterRemovedReference(oldEntity.State, fieldOwner.State);
       newEntity = newValue as Entity;
-      Session.EntityReferenceChangesRegistry.RegisterAddedReference(newEntity.State, fieldOwner.State);
+      Session.NonPairedReferenceRegistry.RegisterAddedReference(newEntity.State, fieldOwner.State);
     }
 
     #endregion
