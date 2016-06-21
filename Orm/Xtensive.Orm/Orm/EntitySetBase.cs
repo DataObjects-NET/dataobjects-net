@@ -532,6 +532,7 @@ namespace Xtensive.Orm
             var state = State;
             state.Add(itemKey);
             Session.EntitySetChangeRegistry.Register(state);
+            TryRegisterReferenceAddition(item, association);
             index = GetItemIndex(state, itemKey);
           };
           
@@ -602,6 +603,7 @@ namespace Xtensive.Orm
             index = GetItemIndex(state, itemKey);
             state.Remove(itemKey);
             Session.EntitySetChangeRegistry.Register(state);
+            TryRegisterReferenceRemove(item, association);
           };
 
           operations.NotifyOperationStarting();
@@ -906,6 +908,20 @@ namespace Xtensive.Orm
         i++;
       }
       return null;
+    }
+
+    private void TryRegisterReferenceAddition(Entity addedEntity, AssociationInfo association)
+    {
+      if (association.IsPaired)
+        return;
+      Session.NonPairedReferenceRegistry.RegisterChange(addedEntity.State, Owner.State, null, association);
+    }
+
+    private void TryRegisterReferenceRemove(Entity removedEntity, AssociationInfo association)
+    {
+      if (association.IsPaired)
+        return;
+      Session.NonPairedReferenceRegistry.RegisterChange(null, Owner.State, removedEntity.State, association);
     }
 
     internal static void ExecuteOnValidate(EntitySetBase target)
