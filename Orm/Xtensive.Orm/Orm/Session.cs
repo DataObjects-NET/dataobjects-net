@@ -512,7 +512,7 @@ namespace Xtensive.Orm
       EntitySetChangeRegistry = new EntitySetChangeRegistry(this);
       ReferenceFieldsChangesRegistry = new ReferenceFieldsChangesRegistry(this);
       entitySetsWithInvalidState = new HashSet<EntitySetBase>();
-      NonPairedReferencesRegistry = new EntityReferenceChangesRegistry(this);
+      NonPairedReferencesRegistry = new NonPairedReferenceChangesRegistry(this);
 
       // Events
       EntityEvents = new EntityEventBroker();
