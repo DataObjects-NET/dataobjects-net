@@ -340,6 +340,7 @@
     <Compile Include="Orm\Configuration\NodeConfiguration.cs" />
     <Compile Include="Orm\Internals\EntityReferenceChangesRegistry.cs" />
     <Compile Include="Orm\Internals\KeyRemapper.cs" />
+    <Compile Include="Orm\Internals\NonPairedReferenceChangesRegistry.cs" />
     <Compile Include="Orm\Internals\ReferenceFieldChangeInfo.cs" />
     <Compile Include="Orm\Internals\ReferenceFieldsChangesRegistry.cs" />
     <Compile Include="Orm\Internals\EntitySetChangeRegistry.cs" />
