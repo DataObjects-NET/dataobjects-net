@@ -448,7 +448,7 @@ namespace Xtensive.Orm
       foreach (var fieldInfo in GetKeyFieldsOfEntityType()) {
         var referencedEntity = values[fieldInfo.MappingInfo.Offset] as Entity;
         Session.ReferenceFieldsChangesRegistry.Register(keyOfThisEntity, referencedEntity.Key, fieldInfo);
-        Session.NonPairedReferenceRegistry.RegisterAddedReference(referencedEntity.State, State);
+        Session.NonPairedReferencesRegistry.RegisterAddedReference(referencedEntity.State, State);
       }
     }
 
@@ -456,10 +456,10 @@ namespace Xtensive.Orm
     /// Checks that reference from <paramref name="entity"/> was removed since last saving.
     /// </summary>
     /// <param name="entity">Entity to check.</param>
-    /// <returns><see langword="true"/> if <see cref="Session.NonPairedReferenceRegistry"/> contains information about removed reference, otherwise, <see langword="false"/>.</returns>
+    /// <returns><see langword="true"/> if <see cref="Session.NonPairedReferencesRegistry"/> contains information about removed reference, otherwise, <see langword="false"/>.</returns>
     internal bool IsReferenceDeleted(Entity entity)
     {
-      return Session.NonPairedReferenceRegistry.IsReferenceDeleted(State, entity.State);
+      return Session.NonPairedReferencesRegistry.IsReferenceDeleted(State, entity.State);
     }
 
     /// <summary>
@@ -468,7 +468,7 @@ namespace Xtensive.Orm
     /// <returns>All entities which have new references to this entity until persist.</returns>
     internal IEnumerable<Entity> GetNewReferencesFromEntities()
     {
-      return Session.NonPairedReferenceRegistry.GetAddedReferences(State).Keys.Select(referencingState => referencingState.Entity);
+      return Session.NonPairedReferencesRegistry.GetAddedReferences(State).Keys.Select(referencingState => referencingState.Entity);
     }
 
     /// <summary>
@@ -477,7 +477,7 @@ namespace Xtensive.Orm
     /// <returns>All entities which have new references to this entity until persist.</returns>
     internal IEnumerable<Entity> GetRemovedReferencesFromEntities()
     {
-      return Session.NonPairedReferenceRegistry.GetAddedReferences(State).Keys.Select(referensingState => referensingState.Entity);
+      return Session.NonPairedReferencesRegistry.GetAddedReferences(State).Keys.Select(referensingState => referensingState.Entity);
     }
 
     #endregion

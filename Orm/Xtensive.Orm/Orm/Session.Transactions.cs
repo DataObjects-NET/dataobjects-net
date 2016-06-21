@@ -189,7 +189,7 @@ namespace Xtensive.Orm
             if(!persistingIsFailed || !Configuration.Supports(SessionOptions.NonTransactionalReads)) {
               CancelEntitySetsChanges();
               ClearChangeRegistry();
-              NonPairedReferenceRegistry.Clear();
+              NonPairedReferencesRegistry.Clear();
               EntitySetChangeRegistry.Clear();
             }
             persistingIsFailed = false;

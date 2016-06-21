@@ -512,7 +512,7 @@ namespace Xtensive.Orm
       EntitySetChangeRegistry = new EntitySetChangeRegistry(this);
       ReferenceFieldsChangesRegistry = new ReferenceFieldsChangesRegistry(this);
       entitySetsWithInvalidState = new HashSet<EntitySetBase>();
-      NonPairedReferenceRegistry = new EntityReferenceChangesRegistry(this);
+      NonPairedReferencesRegistry = new EntityReferenceChangesRegistry(this);
 
       // Events
       EntityEvents = new EntityEventBroker();
@@ -573,7 +573,7 @@ namespace Xtensive.Orm
         EntitySetChangeRegistry.Clear();
         EntityStateCache.Clear();
         ReferenceFieldsChangesRegistry.Clear();
-        NonPairedReferenceRegistry.Clear();
+        NonPairedReferencesRegistry.Clear();
       }
       finally {
         isDisposed = true;

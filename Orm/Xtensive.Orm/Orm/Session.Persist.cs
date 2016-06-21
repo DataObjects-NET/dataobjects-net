@@ -21,7 +21,7 @@ namespace Xtensive.Orm
     private KeyRemapper remapper;
     private bool persistingIsFailed;
     
-    internal NonPairedReferenceChangesRegistry NonPairedReferenceRegistry { get; private set; }
+    internal NonPairedReferenceChangesRegistry NonPairedReferencesRegistry { get; private set; }
     internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry { get; private set; }
     /// <summary>
     /// Saves all modified instances immediately to the database.
@@ -153,7 +153,7 @@ namespace Xtensive.Orm
                 else
                   EntityChangeRegistry.Clear();
                 EntitySetChangeRegistry.Clear();
-                NonPairedReferenceRegistry.Clear();
+                NonPairedReferencesRegistry.Clear();
               }
               
               OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
@@ -259,7 +259,7 @@ namespace Xtensive.Orm
         removedEntity.PersistenceState = PersistenceState.Synchronized;
       }
       EntityChangeRegistry.Clear();
-      NonPairedReferenceRegistry.Clear();
+      NonPairedReferencesRegistry.Clear();
     }
 
     private void RestoreEntityChangesAfterPersistFailed()

@@ -73,8 +73,8 @@ namespace Xtensive.Orm.Tests.Issues
               call.Caller = new Caller() {Name = "Caller"};
               call.Parameters.Add(new Parameter() {Value = "parameterValue"});
               Assert.AreEqual(4, session.EntityChangeRegistry.Count);
-              Assert.AreEqual(0, session.NonPairedReferenceRegistry.RemovedReferencesCount);
-              Assert.AreEqual(2, session.NonPairedReferenceRegistry.AddedReferencesCount);
+              Assert.AreEqual(0, session.NonPairedReferencesRegistry.RemovedReferencesCount);
+              Assert.AreEqual(2, session.NonPairedReferencesRegistry.AddedReferencesCount);
               Assert.AreEqual(1, session.EntitySetChangeRegistry.Count);
 
               //must be persist
@@ -83,8 +83,8 @@ namespace Xtensive.Orm.Tests.Issues
           }
           );
         Assert.AreEqual(0, session.EntityChangeRegistry.Count);
-        Assert.AreEqual(0, session.NonPairedReferenceRegistry.RemovedReferencesCount);
-        Assert.AreEqual(0, session.NonPairedReferenceRegistry.AddedReferencesCount);
+        Assert.AreEqual(0, session.NonPairedReferencesRegistry.RemovedReferencesCount);
+        Assert.AreEqual(0, session.NonPairedReferencesRegistry.AddedReferencesCount);
         Assert.AreEqual(0, session.EntitySetChangeRegistry.Count);
       }
     }
@@ -102,15 +102,15 @@ namespace Xtensive.Orm.Tests.Issues
               call.Caller = new Caller() { Name = "Caller" };
               call.Parameters.Add(new Parameter() { Value = "parameterValue" });
               Assert.AreEqual(4, session.EntityChangeRegistry.Count);
-              Assert.AreEqual(0, session.NonPairedReferenceRegistry.RemovedReferencesCount);
-              Assert.AreEqual(2, session.NonPairedReferenceRegistry.AddedReferencesCount);
+              Assert.AreEqual(0, session.NonPairedReferencesRegistry.RemovedReferencesCount);
+              Assert.AreEqual(2, session.NonPairedReferencesRegistry.AddedReferencesCount);
               Assert.AreEqual(1, session.EntitySetChangeRegistry.Count);
             }
           }
           );
         Assert.AreEqual(0, session.EntityChangeRegistry.Count);
-        Assert.AreEqual(0, session.NonPairedReferenceRegistry.RemovedReferencesCount);
-        Assert.AreEqual(0, session.NonPairedReferenceRegistry.AddedReferencesCount);
+        Assert.AreEqual(0, session.NonPairedReferencesRegistry.RemovedReferencesCount);
+        Assert.AreEqual(0, session.NonPairedReferencesRegistry.AddedReferencesCount);
         Assert.AreEqual(0, session.EntitySetChangeRegistry.Count);
       }
     }

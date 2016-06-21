@@ -914,14 +914,14 @@ namespace Xtensive.Orm
     {
       if (association.IsPaired)
         return;
-      Session.NonPairedReferenceRegistry.RegisterChange(addedEntity.State, Owner.State, null, association);
+      Session.NonPairedReferencesRegistry.RegisterChange(addedEntity.State, Owner.State, null, association);
     }
 
     private void TryRegisterReferenceRemove(Entity removedEntity, AssociationInfo association)
     {
       if (association.IsPaired)
         return;
-      Session.NonPairedReferenceRegistry.RegisterChange(null, Owner.State, removedEntity.State, association);
+      Session.NonPairedReferencesRegistry.RegisterChange(null, Owner.State, removedEntity.State, association);
     }
 
     internal static void ExecuteOnValidate(EntitySetBase target)

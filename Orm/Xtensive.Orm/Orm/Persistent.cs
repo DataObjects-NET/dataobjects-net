@@ -818,7 +818,7 @@ namespace Xtensive.Orm
     {
       var oldEntityState = (oldEntity!=null) ? oldEntity.State : null;
       var newEntityState = (newEntity!=null) ? newEntity.State : null;
-      Session.NonPairedReferenceRegistry.RegisterChange(newEntityState, fieldOwner.State, oldEntityState, association);
+      Session.NonPairedReferencesRegistry.RegisterChange(newEntityState, fieldOwner.State, oldEntityState, association);
     }
 
     private void RegisterReferenceResetForStructureField(Entity fieldOwner, Structure oldStructure, Structure newStructure)

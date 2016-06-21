@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Internals
     /// <param name="key">The key to add.</param>
     public void Add(Key key)
     {
-      Session.NonPairedReferenceRegistry.RegisterAddedReference(Session.Query.SingleOrDefault(key).State, owner.Owner.State);
+      Session.NonPairedReferencesRegistry.RegisterAddedReference(Session.Query.SingleOrDefault(key).State, owner.Owner.State);
       if (removedKeys.ContainsKey(key))
         removedKeys.Remove(key);
       else
@@ -182,7 +182,7 @@ namespace Xtensive.Orm.Internals
     /// <param name="key">The key to remove.</param>
     public void Remove(Key key)
     {
-      Session.NonPairedReferenceRegistry.RegisterRemovedReference(Session.Query.SingleOrDefault(key).State, owner.Owner.State);
+      Session.NonPairedReferencesRegistry.RegisterRemovedReference(Session.Query.SingleOrDefault(key).State, owner.Owner.State);
       if (addedKeys.ContainsKey(key))
         addedKeys.Remove(key);
       else
