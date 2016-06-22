@@ -2066,7 +2066,7 @@ Referenced Entity Key: {4}</value>
     <value>Session '{0}'. Resolving key '{1}'. Exact type is unknown. Fetch is required.</value>
   </data>
   <data name="LogSessionXResolvingKeyYExactTypeIsZ" xml:space="preserve">
-    <value>Session '{0}'. Resolving key '{1}'. Exact type is {0}.</value>
+    <value>Session '{0}'. Resolving key '{1}'. Exact type is {2}.</value>
   </data>
   <data name="Known" xml:space="preserve">
     <value>known</value>
