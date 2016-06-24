@@ -318,6 +318,11 @@
     <Compile Include="Linq\ConvariantQueriesTest.cs" />
     <Compile Include="Linq\DateTimeToStringTest.cs" />
     <Compile Include="Linq\DoubleAggregateToStructTest.cs" />
+    <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\NonPairedReferencesFromEntitiesTest.cs" />
+    <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\NonPairedReferencesFromStructures.cs" />
+    <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\PairedReferencesFromEntitiesTest.cs" />
+    <Compile Include="Storage\ReferentialIntegrity\ClientProfile\NonPairedReferencesFromEntitiesTest.cs" />
+    <Compile Include="Storage\ReferentialIntegrity\ClientProfile\NonPairedReferencesFromStructures.cs" />
     <Compile Include="Storage\ClientProfileReferentialIntegrityTest.cs" />
     <Compile Include="Storage\ExecuteDelayedForIOrderedQueryableQuery.cs" />
     <Compile Include="Linq\DynamicallyDefinedFields.cs" />
@@ -403,6 +408,7 @@
     <Compile Include="Storage\PostgreSqlSpatialTest.cs" />
     <Compile Include="Storage\QueryBuilderTest.cs" />
     <Compile Include="Storage\ReadRemovedObjectTest.cs" />
+    <Compile Include="Storage\ReferentialIntegrity\ClientProfile\PairedReferencesFromEntitiesTest.cs" />
     <Compile Include="Storage\RefTest.cs" />
     <Compile Include="Storage\RemapKeysWhenLazyKeyGenerationEnabledTest.cs" />
     <Compile Include="Storage\SessionDeactivationTest.cs" />
