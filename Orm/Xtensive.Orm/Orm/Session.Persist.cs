@@ -23,6 +23,7 @@ namespace Xtensive.Orm
     
     internal NonPairedReferenceChangesRegistry NonPairedReferencesRegistry { get; private set; }
     internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry { get; private set; }
+
     /// <summary>
     /// Saves all modified instances immediately to the database.
     /// Obsolete, use <see cref="SaveChanges"/> method instead.
