@@ -20,7 +20,8 @@ namespace Xtensive.Orm
     private bool disableAutoSaveChanges;
     private KeyRemapper remapper;
     private bool persistingIsFailed;
-    
+
+    internal bool DisableAutoSaveChanges { get { return disableAutoSaveChanges; } }
     internal NonPairedReferenceChangesRegistry NonPairedReferencesRegistry { get; private set; }
     internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry { get; private set; }
 
@@ -86,6 +87,7 @@ namespace Xtensive.Orm
     {
       CancelEntitySetsChanges();
       CancelEntitiesChanges();
+      NonPairedReferencesRegistry.Clear();
     }
 
     internal void Persist(PersistReason reason)
