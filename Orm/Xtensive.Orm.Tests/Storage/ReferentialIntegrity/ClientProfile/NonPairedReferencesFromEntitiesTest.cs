@@ -47,10 +47,12 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
 {
   public class NonPairedReferencesFromEntitiesTest : AutoBuildTest
   {
+    private readonly SessionConfiguration sessionConfiguration = new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation);
+
     [Test]
     public void InitializeReferenceTest()
     {
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation))) {
+      using (var session = Domain.OpenSession(sessionConfiguration)) {
         var referencedEntity = new ReferencedEntity();
         var referencingEntity = new EntityWithOneReference();
         Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
@@ -108,7 +110,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
         transaction.Complete();
       }
 
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation))) {
+      using (var session = Domain.OpenSession(sessionConfiguration)) {
         var referencingEntity = session.Query.Single<EntityWithOneReference>(referencingEntityKey);
         var referencedEntity = referencingEntity.EntityField;
         var anotherReferencedEntity = session.Query.Single<ReferencedEntity>(anotherReferencedEntityKey);
@@ -157,7 +159,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
         transaction.Complete();
       }
 
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation))) {
+      using (var session = Domain.OpenSession(sessionConfiguration)) {
         var referencingEntity = session.Query.Single<EntityWithOneReference>(referencingEntityKey);
         var referencedEntity = referencingEntity.EntityField;
         var anotherReferencedEntity = session.Query.Single<ReferencedEntity>(anotherReferencedEntityKey);
@@ -229,7 +231,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
         transaction.Complete();
       }
 
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation))) {
+      using (var session = Domain.OpenSession(sessionConfiguration)) {
         var firstReferencingEntity = session.Query.Single<EntityWithManyReferences>(firstReferencingKey);
         var secondReferencingEntity = session.Query.Single<EntityWithManyReferences>(secondReferencingKey);
 
@@ -329,7 +331,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
         transaction.Complete();
       }
 
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation))) {
+      using (var session = Domain.OpenSession(sessionConfiguration)) {
         var firstReferencingEntity = session.Query.Single<EntityWithManyReferences>(firstReferencingEntityKey);
         var firstReferencedEntity = session.Query.Single<ReferencedEntity>(firstReferencedEntityKey);
         var secondReferencingEntity = session.Query.Single<EntityWithManyReferences>(secondReferencingEntityKey);
@@ -414,7 +416,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
         transaction.Complete();
       }
 
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation))) {
+      using (var session = Domain.OpenSession(sessionConfiguration)) {
         var firstReferencingEntity = session.Query.Single<EntityWithManyReferences>(firstReferencingEntityKey);
         var firstReferencedEntity = session.Query.Single<ReferencedEntity>(firstReferencedEntityKey);
         var secondReferencingEntity = session.Query.Single<EntityWithManyReferences>(secondReferencingEntityKey);

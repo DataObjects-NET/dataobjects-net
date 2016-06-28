@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike.Refe
 {
   public abstract class BaseEntity : Entity
   {
-    [Field]
+    [Field, Key]
     public int Id { get; set; }
 
     [Field]
@@ -131,25 +131,64 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
 {
   public class NonPairedReferencesFromStructures : AutoBuildTest
   {
-    private int EntitiesWithStructureCount;
+    private readonly int EntitiesWithStructureCount = 10;
 
     [Test]
-    public void SetReferenceLocalTest()
+    public void SetPrimitiveStructureLocalTest()
     {
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation)))
-      using (var transaction = session.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      using (session.DisableSaveChanges()) {
         SetPrimitiveStructure(session);
-        SetStructureWithReference(session);
-        SetStructureWithNestedStructures(session);
       }
     }
 
     [Test]
-    public void SetReferencesSavedTest()
+    public void SetStructureWithReferenceLocalTest()
     {
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation)))
-      using (var transaction = session.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      using (session.DisableSaveChanges()) {
+        SetStructureWithReference(session);
+      }
+    }
+
+    [Test]
+    public void SetStructureWithNestedStructuresBeforeBindTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      using (session.DisableSaveChanges()) {
+        ReferenceInitBeforeSetStructureField(session);
+      }
+    }
+
+    [Test]
+    public void SetStructureWithNestedStructresAfterBindTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      using (session.DisableSaveChanges()) {
+        ReferenceInitAfterSetStructureField(session);
+      }
+    }
+
+    [Test]
+    public void SetStructureWihtReferencesSavedTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      using (session.DisableSaveChanges()) {
         SetStructureWithReferenceSaved(session);
+      }
+    }
+
+    [Test]
+    public void SetStructureWithNestedStructuresSavedTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      using (session.DisableSaveChanges()) {
         SetStructureWithNestedStructuresSaved(session);
       }
     }
@@ -157,9 +196,9 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
     [Test]
     public void DropReferenceTest()
     {
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation)))
-      using (var transaction = session.OpenTransaction()) {
-        DropStructureWithReference(session);
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      using (session.DisableSaveChanges()) {
         DropStructureWithNestedStructures(session);
       }
     }
@@ -244,13 +283,6 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
       Assert.That(ReferenceFinder.GetReferencesTo(rub).Count(), Is.EqualTo(1));
       Assert.That(ReferenceFinder.GetReferencesTo(dollar).Count(), Is.EqualTo(0));
       Assert.That(ReferenceFinder.GetReferencesTo(euro).Count(), Is.EqualTo(1));
-      
-      product.GlobalCurrencyCost = null;
-      Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(1));
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
-      Assert.That(ReferenceFinder.GetReferencesTo(rub).Count(), Is.EqualTo(1));
-      Assert.That(ReferenceFinder.GetReferencesTo(dollar).Count(), Is.EqualTo(0));
-      Assert.That(ReferenceFinder.GetReferencesTo(euro).Count(), Is.EqualTo(0));
     }
 
     private void SetStructureWithReferenceSaved(Session session)
@@ -292,74 +324,52 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
       references = ReferenceFinder.GetReferencesTo(currency2).ToList();
       Assert.That(references.Count, Is.EqualTo(4));
 
-      product.LocalCurrencyCost = null;
+      product = products[2];
+      var currency = new Currency {Sign = "€", FullName = "euro"};
+      product.LocalCurrencyCost = new Cost{Value = 20, Currency = currency};
       Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(3));
-      Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
+      Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(1));
       references = ReferenceFinder.GetReferencesTo(currency1).ToList();
       Assert.That(references.Count, Is.EqualTo(3));
       references = ReferenceFinder.GetReferencesTo(currency2).ToList();
       Assert.That(references.Count, Is.EqualTo(4));
 
-      product.GlobalCurrencyCost = null;
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(4));
-      Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
-      references = ReferenceFinder.GetReferencesTo(currency1).ToList();
-      Assert.That(references.Count, Is.EqualTo(3));
-      references = ReferenceFinder.GetReferencesTo(currency2).ToList();
-      Assert.That(references.Count, Is.EqualTo(3));
-
-      product = products[2];
-      var currency = new Currency {Sign = "€", FullName = "euro"};
-      product.LocalCurrencyCost = new Cost{Value = 20, Currency = currency};
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(5));
-      Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(1));
-      references = ReferenceFinder.GetReferencesTo(currency1).ToList();
-      Assert.That(references.Count, Is.EqualTo(2));
-      references = ReferenceFinder.GetReferencesTo(currency2).ToList();
-      Assert.That(references.Count, Is.EqualTo(3));
-
       product.GlobalCurrencyCost = new Cost(){Value = 30, Currency = currency};
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(6));
+      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(4));
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(2));
       references = ReferenceFinder.GetReferencesTo(currency1).ToList();
-      Assert.That(references.Count, Is.EqualTo(2));
+      Assert.That(references.Count, Is.EqualTo(3));
       references = ReferenceFinder.GetReferencesTo(currency2).ToList();
-      Assert.That(references.Count, Is.EqualTo(2));
+      Assert.That(references.Count, Is.EqualTo(3));
 
       product = products[3];
       product.LocalCurrencyCost.Currency = currency;
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(7));
+      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(5));
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(3));
       references = ReferenceFinder.GetReferencesTo(currency1).ToList();
-      Assert.That(references.Count, Is.EqualTo(1));
-      references = ReferenceFinder.GetReferencesTo(currency2).ToList();
       Assert.That(references.Count, Is.EqualTo(2));
+      references = ReferenceFinder.GetReferencesTo(currency2).ToList();
+      Assert.That(references.Count, Is.EqualTo(3));
 
       product.GlobalCurrencyCost.Currency = currency;
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(8));
+      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(6));
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(4));
       references = ReferenceFinder.GetReferencesTo(currency1).ToList();
-      Assert.That(references.Count, Is.EqualTo(1));
+      Assert.That(references.Count, Is.EqualTo(2));
       references = ReferenceFinder.GetReferencesTo(currency2).ToList();
-      Assert.That(references.Count, Is.EqualTo(1));
+      Assert.That(references.Count, Is.EqualTo(2));
 
       product = products[4];
       currency1 = product.LocalCurrencyCost.Currency;
       currency2 = product.GlobalCurrencyCost.Currency;
       var cost1 = new Cost {Value = 250, Currency = currency};
       var cost2 = new Cost {Value = 25, Currency = currency2};
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(8));
+      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(6));
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(4));
       references = ReferenceFinder.GetReferencesTo(currency1).ToList();
-      Assert.That(references.Count, Is.EqualTo(1));
+      Assert.That(references.Count, Is.EqualTo(2));
       references = ReferenceFinder.GetReferencesTo(currency2).ToList();
-      Assert.That(references.Count, Is.EqualTo(1));
-    }
-
-    private void SetStructureWithNestedStructures(Session session)
-    {
-      ReferenceInitAfterSetStructureField(session);
-      ReferenceInitBeforeSetStructureField(session);
+      Assert.That(references.Count, Is.EqualTo(2));
     }
 
     private void SetStructureWithNestedStructuresSaved(Session session)
@@ -385,23 +395,6 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
       referencedEntity = entity.Structure.EntityField;
       references = ReferenceFinder.GetReferencesTo(referencedEntity).ToList();
       Assert.That(references.Count, Is.EqualTo(3));
-      entity.Structure.FirstLevelStructure.SecondLevelStructure = null;
-      entity.Structure.FirstLevelStructure = null;
-      entity.Structure = null;
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(6));
-      Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
-      references = ReferenceFinder.GetReferencesTo(referencedEntity).ToList();
-      Assert.That(references.Count, Is.EqualTo(0));
-
-      entity = entitiesWithStructure[2];
-      referencedEntity = entity.Structure.EntityField;
-      references = ReferenceFinder.GetReferencesTo(referencedEntity).ToList();
-      Assert.That(references.Count, Is.EqualTo(3));
-      entity.Structure = null;
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(9));
-      Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
-      references = ReferenceFinder.GetReferencesTo(referencedEntity).ToList();
-      Assert.That(references.Count, Is.EqualTo(0));
 
       var newReferencedEntity = new EntityReferencedFromStructure();
       entity = entitiesWithStructure[3];
@@ -413,7 +406,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
       entity.Structure.EntityField = newReferencedEntity;
       entity.Structure.FirstLevelStructure.EntityField = newReferencedEntity;
       entity.Structure.FirstLevelStructure.SecondLevelStructure.EntityField = newReferencedEntity;
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(12));
+      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(6));
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(3));
       references = ReferenceFinder.GetReferencesTo(referencedEntity).ToList();
       Assert.That(references.Count, Is.EqualTo(0));
@@ -437,7 +430,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
         }
       };
       entity.Structure = struct1;
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(15));
+      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(9));
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(6));
       references = ReferenceFinder.GetReferencesTo(referencedEntity).ToList();
       Assert.That(references.Count, Is.EqualTo(0));
@@ -457,8 +450,17 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
       Assert.That(references.Count, Is.EqualTo(3));
       references = ReferenceFinder.GetReferencesTo(newReferencedEntity).ToList();
       Assert.That(references.Count, Is.EqualTo(0));
+
       entity.Structure.FirstLevelStructure = struct2;
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(17));
+      var typeInfo = entity.TypeInfo;
+      var tAssociations = typeInfo.GetTargetAssociations();
+      var oAssociations = typeInfo.GetOwnerAssociations();
+
+      typeInfo = newReferencedEntity.TypeInfo;
+      tAssociations = typeInfo.GetTargetAssociations();
+      oAssociations = typeInfo.GetOwnerAssociations();
+
+      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(11));
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(8));
       references = ReferenceFinder.GetReferencesTo(referencedEntity).ToList();
       Assert.That(references.Count, Is.EqualTo(1));
@@ -476,7 +478,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
       references = ReferenceFinder.GetReferencesTo(newReferencedEntity).ToList();
       Assert.That(references.Count, Is.EqualTo(0));
       entity.Structure.FirstLevelStructure.SecondLevelStructure = struct3;
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(18));
+      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(12));
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(9));
       references = ReferenceFinder.GetReferencesTo(referencedEntity).ToList();
       Assert.That(references.Count, Is.EqualTo(2));
@@ -485,7 +487,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
 
       entity = entitiesWithStructure[7];
       referencedEntity = entity.Structure.EntityField;
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(18));
+      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(12));
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(9));
       references = ReferenceFinder.GetReferencesTo(referencedEntity).ToList();
       Assert.That(references.Count, Is.EqualTo(3));
@@ -499,40 +501,10 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
         }
       };
       entity.Structure = struct4;
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(18));
+      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(12));
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(9));
       references = ReferenceFinder.GetReferencesTo(referencedEntity).ToList();
       Assert.That(references.Count, Is.EqualTo(3));
-    }
-
-    private void DropStructureWithReference(Session session)
-    {
-      var rub = new Currency {Sign = "₽", FullName = "Ruble"};
-      var dollar = new Currency {Sign = "$", FullName = "Dollar"};
-      var localCost = new Cost { Value = 10, Currency = rub };
-      var globalCost1 = new Cost { Value = 10, Currency = dollar };
-      var product = new Product {
-        ProductName = "Super cool thing",
-        LocalCurrencyCost = localCost,
-        GlobalCurrencyCost = globalCost1
-      };
-
-      Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(2));
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
-      Assert.That(ReferenceFinder.GetReferencesTo(rub).Count(), Is.EqualTo(1));
-      Assert.That(ReferenceFinder.GetReferencesTo(dollar).Count(), Is.EqualTo(1));
-
-      product.GlobalCurrencyCost.Currency = null;
-      Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(1));
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
-      Assert.That(ReferenceFinder.GetReferencesTo(rub).Count(), Is.EqualTo(1));
-      Assert.That(ReferenceFinder.GetReferencesTo(dollar).Count(), Is.EqualTo(0));
-
-      product.LocalCurrencyCost = null;
-      Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
-      Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
-      Assert.That(ReferenceFinder.GetReferencesTo(rub).Count(), Is.EqualTo(0));
-      Assert.That(ReferenceFinder.GetReferencesTo(dollar).Count(), Is.EqualTo(0));
     }
 
     private void DropStructureWithNestedStructures(Session session)
@@ -564,10 +536,12 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
       };
 
       var associations = new AssociationInfo[3];
-      associations[0] = Domain.Model.Types[typeof (ZeroLevelStructure)].Fields["EntityField"].Associations.First();
-      associations[1] = Domain.Model.Types[typeof (FirstLevelStructure)].Fields["EntityField"].Associations.First();
-      associations[2] = Domain.Model.Types[typeof (SecondLevelStructure)].Fields["EntityField"].Associations.First();
-      Assert.That(associations.All(a=> a.IsPaired && a.TargetType==referencedEntity1.TypeInfo && a.OwnerType==entity1.TypeInfo));
+      var typeInfo = entity1.TypeInfo;
+      associations[0] = typeInfo.Fields["Structure.EntityField"].Associations.First();
+      associations[1] = typeInfo.Fields["Structure.FirstLevelStructure.EntityField"].Associations.First();
+      associations[2] = typeInfo.Fields["Structure.FirstLevelStructure.SecondLevelStructure.EntityField"].Associations.First();
+      Assert.That(associations.All(a=> !a.IsPaired && a.TargetType==referencedEntity1.TypeInfo && a.OwnerType==entity1.TypeInfo));
+     
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(6));
       Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
       var references = ReferenceFinder.GetReferencesTo(referencedEntity1).ToList();
@@ -588,20 +562,16 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(3));
       Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
       references = ReferenceFinder.GetReferencesTo(referencedEntity1).ToList();
-      Assert.That(references.Count, Is.EqualTo(3));
+      Assert.That(references.Count, Is.EqualTo(0));
       Assert.That(references.Any(r => r.Association==associations[0] && r.ReferencingEntity==entity1 && r.ReferencedEntity==referencedEntity1), Is.False);
       Assert.That(references.Any(r => r.Association==associations[1] && r.ReferencingEntity==entity1 && r.ReferencedEntity==referencedEntity1), Is.False);
       Assert.That(references.Any(r => r.Association==associations[2] && r.ReferencingEntity==entity1 && r.ReferencedEntity==referencedEntity1), Is.False);
 
-
-      entity2.Structure.FirstLevelStructure.SecondLevelStructure = null;
-      entity2.Structure.FirstLevelStructure = null;
-      entity2.Structure = null;
       references = ReferenceFinder.GetReferencesTo(referencedEntity2).ToList();
-      Assert.That(references.Count, Is.EqualTo(0));
-      Assert.That(references.Any(r => r.Association==associations[0] && r.ReferencingEntity==entity2 && r.ReferencedEntity==referencedEntity2), Is.False);
-      Assert.That(references.Any(r => r.Association==associations[1] && r.ReferencingEntity==entity2 && r.ReferencedEntity==referencedEntity2), Is.False);
-      Assert.That(references.Any(r => r.Association==associations[2] && r.ReferencingEntity==entity2 && r.ReferencedEntity==referencedEntity2), Is.False);
+      Assert.That(references.Count, Is.EqualTo(3));
+      Assert.That(references.Any(r => r.Association==associations[0] && r.ReferencingEntity==entity2 && r.ReferencedEntity==referencedEntity2), Is.True);
+      Assert.That(references.Any(r => r.Association==associations[1] && r.ReferencingEntity==entity2 && r.ReferencedEntity==referencedEntity2), Is.True);
+      Assert.That(references.Any(r => r.Association==associations[2] && r.ReferencingEntity==entity2 && r.ReferencedEntity==referencedEntity2), Is.True);
     }
 
     private void ReferenceInitBeforeSetStructureField(Session session)
@@ -632,19 +602,19 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
       Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
       var references = ReferenceFinder.GetReferencesTo(referencedEntity).ToList();
       Assert.That(references.Count, Is.EqualTo(3));
-      var expectedAssociation = twoLevelStructure.TypeInfo.Fields["EntityField"].Associations.First();
+      var expectedAssociation = entity.TypeInfo.Fields["Structure.FirstLevelStructure.SecondLevelStructure.EntityField"].Associations.First();
       Assert.That(expectedAssociation.IsPaired, Is.False);
       Assert.That(expectedAssociation.TargetType, Is.EqualTo(referencedEntity.TypeInfo));
       Assert.That(expectedAssociation.OwnerType, Is.EqualTo(entity.TypeInfo));
       Assert.That(references.Any(r => r.Association==expectedAssociation && r.ReferencingEntity==entity && r.ReferencedEntity==referencedEntity), Is.True);
 
-      expectedAssociation = oneLevelStructure.TypeInfo.Fields["EntityField"].Associations.First();
+      expectedAssociation = entity.TypeInfo.Fields["Structure.FirstLevelStructure.EntityField"].Associations.First();
       Assert.That(expectedAssociation.IsPaired, Is.False);
       Assert.That(expectedAssociation.TargetType, Is.EqualTo(referencedEntity.TypeInfo));
       Assert.That(expectedAssociation.OwnerType, Is.EqualTo(entity.TypeInfo));
       Assert.That(references.Any(r => r.Association==expectedAssociation && r.ReferencingEntity==entity && r.ReferencedEntity==referencedEntity), Is.True);
 
-      expectedAssociation = zeroLevelStructure.TypeInfo.Fields["EntityField"].Associations.First();
+      expectedAssociation = entity.TypeInfo.Fields["Structure.EntityField"].Associations.First();
       Assert.That(expectedAssociation.IsPaired, Is.False);
       Assert.That(expectedAssociation.TargetType, Is.EqualTo(referencedEntity.TypeInfo));
       Assert.That(expectedAssociation.OwnerType, Is.EqualTo(entity.TypeInfo));
@@ -657,11 +627,11 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
       Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
 
-      var oneLevelStructure = new FirstLevelStructure() { SecondLevelStructure = twoLevelStructure };
+      var oneLevelStructure = new FirstLevelStructure { SecondLevelStructure = twoLevelStructure };
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
       Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
 
-      var zeroLevelStructure = new ZeroLevelStructure() { FirstLevelStructure = oneLevelStructure };
+      var zeroLevelStructure = new ZeroLevelStructure { FirstLevelStructure = oneLevelStructure };
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
       Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
 
@@ -674,49 +644,52 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
       Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
       Assert.That(ReferenceFinder.GetReferencesTo(referencedEntity).Count(), Is.EqualTo(0));
 
+      zeroLevelStructure = entity.Structure;
+      oneLevelStructure = entity.Structure.FirstLevelStructure;
+      twoLevelStructure = entity.Structure.FirstLevelStructure.SecondLevelStructure;
+
       twoLevelStructure.EntityField = referencedEntity;
+
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(1));
       Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
       var references = ReferenceFinder.GetReferencesTo(referencedEntity).ToList();
       Assert.That(references.Count, Is.EqualTo(1));
-      var expectedAssociation = twoLevelStructure.TypeInfo.Fields["EntityField"].Associations.First();
+      var expectedAssociation = entity.TypeInfo.Fields["Structure.FirstLevelStructure.SecondLevelStructure.EntityField"].Associations.First();
       Assert.That(expectedAssociation.IsPaired, Is.False);
       Assert.That(expectedAssociation.TargetType, Is.EqualTo(referencedEntity.TypeInfo));
       Assert.That(expectedAssociation.OwnerType, Is.EqualTo(entity.TypeInfo));
-      Assert.That(references.Any(r => r.Association == expectedAssociation && r.ReferencingEntity == entity && r.ReferencedEntity == referencedEntity), Is.True);
+      Assert.That(references.Any(r => r.Association==expectedAssociation && r.ReferencingEntity==entity && r.ReferencedEntity==referencedEntity), Is.True);
 
       oneLevelStructure.EntityField = referencedEntity;
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(2));
       Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
       references = ReferenceFinder.GetReferencesTo(referencedEntity).ToList();
       Assert.That(references.Count, Is.EqualTo(2));
-      Assert.That(references.Any(r => r.Association == expectedAssociation && r.ReferencingEntity == entity && r.ReferencedEntity == referencedEntity), Is.True);
+      Assert.That(references.Any(r => r.Association==expectedAssociation && r.ReferencingEntity==entity && r.ReferencedEntity==referencedEntity), Is.True);
       var previousExprectedAssociation = expectedAssociation;
-      expectedAssociation = oneLevelStructure.TypeInfo.Fields["EntityField"].Associations.First();
-
+      expectedAssociation = entity.TypeInfo.Fields["Structure.FirstLevelStructure.EntityField"].Associations.First();
       Assert.That(expectedAssociation.IsPaired, Is.False);
       Assert.That(expectedAssociation.TargetType, Is.EqualTo(referencedEntity.TypeInfo));
       Assert.That(expectedAssociation.OwnerType, Is.EqualTo(entity.TypeInfo));
-      Assert.That(references.Any(r => r.Association == expectedAssociation && r.ReferencingEntity == entity && r.ReferencedEntity == referencedEntity), Is.True);
+      Assert.That(references.Any(r => r.Association==expectedAssociation && r.ReferencingEntity==entity && r.ReferencedEntity==referencedEntity), Is.True);
 
       zeroLevelStructure.EntityField = referencedEntity;
       Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(3));
       Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
       references = ReferenceFinder.GetReferencesTo(referencedEntity).ToList();
       Assert.That(references.Count, Is.EqualTo(3));
-      Assert.That(references.Any(r => r.Association == previousExprectedAssociation && r.ReferencingEntity == entity && r.ReferencedEntity == referencedEntity), Is.True);
-      Assert.That(references.Any(r => r.Association == expectedAssociation && r.ReferencingEntity == entity && r.ReferencedEntity == referencedEntity), Is.True);
+      Assert.That(references.Any(r => r.Association==previousExprectedAssociation && r.ReferencingEntity==entity && r.ReferencedEntity==referencedEntity), Is.True);
+      Assert.That(references.Any(r => r.Association==expectedAssociation && r.ReferencingEntity==entity && r.ReferencedEntity==referencedEntity), Is.True);
 
-      expectedAssociation = oneLevelStructure.TypeInfo.Fields["EntityField"].Associations.First();
+      expectedAssociation = entity.TypeInfo.Fields["Structure.EntityField"].Associations.First();
       Assert.That(expectedAssociation.IsPaired, Is.False);
       Assert.That(expectedAssociation.TargetType, Is.EqualTo(referencedEntity.TypeInfo));
       Assert.That(expectedAssociation.OwnerType, Is.EqualTo(entity.TypeInfo));
-      Assert.That(references.Any(r => r.Association == expectedAssociation && r.ReferencingEntity == entity && r.ReferencedEntity == referencedEntity), Is.True);
+      Assert.That(references.Any(r => r.Association==expectedAssociation && r.ReferencingEntity==entity && r.ReferencedEntity==referencedEntity), Is.True);
     }
 
     protected override void PopulateData()
     {
-      EntitiesWithStructureCount = 10;
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var rub = new Currency { Sign = "₽", FullName = "Ruble" };
@@ -735,8 +708,8 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
 
         for (int i = 0; i < EntitiesWithStructureCount; i++) {
           var referencedEntity = new EntityReferencedFromStructure();
-          new EntityWithStructure {
-            Structure = new ZeroLevelStructure {
+          var referencingEntity = new EntityWithStructure() {
+            Structure = new ZeroLevelStructure() {
               EntityField = referencedEntity,
               FirstLevelStructure = new FirstLevelStructure {
                 EntityField = referencedEntity,

@@ -56,6 +56,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile.PairedRe
     [Field]
     public string LastName { get; set;}
 
+    [Field]
     public DriverLicense DriverLicense { get; set; }
   }
 
@@ -102,10 +103,12 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
 {
   public class PairedReferencesFromEntitiesTest : AutoBuildTest
   {
+    private readonly SessionConfiguration sessionConfiguration = new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation);
+
     [Test]
     public void InitializeOneToOneReferenceFieldTest()
     {
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation))) {
+      using (var session = Domain.OpenSession(sessionConfiguration)) {
         var person = new Person();
         Assert.That(ReferenceFinder.GetReferencesTo(person).Count(), Is.EqualTo(0));
         var driverLicense = new DriverLicense();
@@ -131,7 +134,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
     [Test]
     public void InitializeOneToManyReferenceFieldTest()
     {
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation))) {
+      using (var session = Domain.OpenSession(sessionConfiguration)) {
         var tableOfContent = new TableOfContent();
         var tableOfContentItem1 = new TableOfContentItem();
         var tableOfContentItem2 = new TableOfContentItem();
@@ -207,7 +210,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
     [Test]
     public void InitializeManyToManyReferenceFieldTest()
     {
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation))) {
+      using (var session = Domain.OpenSession(sessionConfiguration)) {
         var author1 = new Author();
         var author2 = new Author();
         var author3 = new Author();
@@ -261,7 +264,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
         transaction.Complete();
       }
 
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation))) {
+      using (var session = Domain.OpenSession(sessionConfiguration)) {
         var person1 = session.Query.Single<Person>(person1Key);
         var person2 = session.Query.Single<Person>(person2Key);
         var license1 = person1.DriverLicense;
@@ -333,11 +336,11 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
         item3Key = item3.Key;
         tableOfContent.Items.Add(item1);
         tableOfContent.Items.Add(item2);
-        tableOfContent.Items.Add(item2);
+        tableOfContent.Items.Add(item3);
         transaction.Complete();
       }
 
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation))) {
+      using (var session = Domain.OpenSession(sessionConfiguration)) {
         var tableOfContent = session.Query.Single<TableOfContent>(tableOfContentKey);
         var item1 = session.Query.Single<TableOfContentItem>(item1Key);
         var item2 = session.Query.Single<TableOfContentItem>(item2Key);
@@ -401,7 +404,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
         transaction.Complete();
       }
 
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation))) {
+      using (var session = Domain.OpenSession(sessionConfiguration)) {
         var person = session.Query.Single<Person>(person1Key);
         var license = session.Query.Single<DriverLicense>(license1Key);
         Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
@@ -497,7 +500,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
         transaction.Complete();
       }
 
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession(sessionConfiguration)) {
         var tableWithItems = session.Query.Single<TableOfContent>(tableWithItemsKey);
         var item1 = session.Query.Single<TableOfContentItem>(item1Key);
         var item2 = session.Query.Single<TableOfContentItem>(item2Key);
@@ -585,6 +588,8 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
 
         oldAutor3.Books.Add(oldBook1);
         oldBook3.Authors.Add(oldAutor2);
+        Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
+        Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook1).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook2).Count(), Is.EqualTo(1));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook3).Count(), Is.EqualTo(2));
@@ -595,36 +600,42 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
 
         var newAuthor = new Author();
         var newBook = new Book();
-        oldAutor1.Books.Add(newBook);
+        oldAutor2.Books.Add(newBook);
         newBook.Authors.Add(oldAutor1);
-        Assert.That(ReferenceFinder.GetReferencesTo(oldBook1).Count(), Is.EqualTo(3));
+        Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
+        Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
+        Assert.That(ReferenceFinder.GetReferencesTo(oldBook1).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook2).Count(), Is.EqualTo(1));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook3).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(oldAutor1).Count(), Is.EqualTo(2));
-        Assert.That(ReferenceFinder.GetReferencesTo(oldAutor2).Count(), Is.EqualTo(2));
+        Assert.That(ReferenceFinder.GetReferencesTo(oldAutor2).Count(), Is.EqualTo(3));
         Assert.That(ReferenceFinder.GetReferencesTo(oldAutor3).Count(), Is.EqualTo(2));
-        Assert.That(ReferenceFinder.GetReferencesTo(newBook).Count(), Is.EqualTo(1));
-        Assert.That(ReferenceFinder.GetReferencesTo(newAuthor).Count(), Is.EqualTo(1));
+        Assert.That(ReferenceFinder.GetReferencesTo(newBook).Count(), Is.EqualTo(2));
+        Assert.That(ReferenceFinder.GetReferencesTo(newAuthor).Count(), Is.EqualTo(0));
 
         oldBook2.Authors.Add(newAuthor);
         newAuthor.Books.Add(oldBook3);
-        Assert.That(ReferenceFinder.GetReferencesTo(oldBook1).Count(), Is.EqualTo(3));
+        Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
+        Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
+        Assert.That(ReferenceFinder.GetReferencesTo(oldBook1).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook2).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook3).Count(), Is.EqualTo(3));
         Assert.That(ReferenceFinder.GetReferencesTo(oldAutor1).Count(), Is.EqualTo(2));
-        Assert.That(ReferenceFinder.GetReferencesTo(oldAutor2).Count(), Is.EqualTo(2));
+        Assert.That(ReferenceFinder.GetReferencesTo(oldAutor2).Count(), Is.EqualTo(3));
         Assert.That(ReferenceFinder.GetReferencesTo(oldAutor3).Count(), Is.EqualTo(2));
-        Assert.That(ReferenceFinder.GetReferencesTo(newBook).Count(), Is.EqualTo(1));
+        Assert.That(ReferenceFinder.GetReferencesTo(newBook).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(newAuthor).Count(), Is.EqualTo(2));
 
         newBook.Authors.Add(newAuthor);
-        Assert.That(ReferenceFinder.GetReferencesTo(oldBook1).Count(), Is.EqualTo(3));
+        Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
+        Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
+        Assert.That(ReferenceFinder.GetReferencesTo(oldBook1).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook2).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook3).Count(), Is.EqualTo(3));
         Assert.That(ReferenceFinder.GetReferencesTo(oldAutor1).Count(), Is.EqualTo(2));
-        Assert.That(ReferenceFinder.GetReferencesTo(oldAutor2).Count(), Is.EqualTo(2));
+        Assert.That(ReferenceFinder.GetReferencesTo(oldAutor2).Count(), Is.EqualTo(3));
         Assert.That(ReferenceFinder.GetReferencesTo(oldAutor3).Count(), Is.EqualTo(2));
-        Assert.That(ReferenceFinder.GetReferencesTo(newBook).Count(), Is.EqualTo(2));
+        Assert.That(ReferenceFinder.GetReferencesTo(newBook).Count(), Is.EqualTo(3));
         Assert.That(ReferenceFinder.GetReferencesTo(newAuthor).Count(), Is.EqualTo(3));
       }
     }
@@ -666,7 +677,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfile
         transaction.Complete();
       }
 
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation))) {
+      using (var session = Domain.OpenSession(sessionConfiguration)) {
         var tableWithItems = session.Query.Single<TableOfContent>(tableWithItemsKey);
         var item1 = session.Query.Single<TableOfContentItem>(item1Key);
         var item2 = session.Query.Single<TableOfContentItem>(item2Key);

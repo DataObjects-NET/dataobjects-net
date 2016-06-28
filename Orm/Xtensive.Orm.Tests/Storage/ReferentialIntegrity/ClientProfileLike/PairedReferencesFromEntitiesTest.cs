@@ -56,6 +56,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike.Pair
     [Field]
     public string LastName { get; set;}
 
+    [Field]
     public DriverLicense DriverLicense { get; set; }
   }
 
@@ -227,6 +228,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
         Assert.That(ReferenceFinder.GetReferencesTo(book1).Count(), Is.EqualTo(0));
         Assert.That(ReferenceFinder.GetReferencesTo(book2).Count(), Is.EqualTo(0));
 
+
         book1.Authors.Add(author1);
         book1.Authors.Add(author2);
         Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
@@ -250,16 +252,19 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
     }
 
     [Test]
-    public void ChangeStoredOneToOneReferenceTest()
+    public void ChangeSavedOneToOneReferenceTest()
     {
       Key person1Key, person2Key;
+      Key license1Key, license2Key;
       using (var populateSession = Domain.OpenSession())
       using (var transaction = populateSession.OpenTransaction()) {
-        var person = new Person {DriverLicense = new DriverLicense()};
+        var person = new Person() {DriverLicense = new DriverLicense()};
         person1Key = person.Key;
+        license1Key = person.DriverLicense.Key;
 
-        person = new Person {DriverLicense = new DriverLicense()};
+        person = new Person() {DriverLicense = new DriverLicense()};
         person2Key = person.Key;
+        license2Key = person.DriverLicense.Key;
         transaction.Complete();
       }
 
@@ -321,11 +326,10 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
     }
 
     [Test]
-    public void ChangeOneToManyReferenceTest()
+    public void ChangeSavedOneToManyReferenceTest()
     {
       Key tableOfContentKey;
       Key item1Key, item2Key, item3Key;
-
       using (var populateSession = Domain.OpenSession())
       using (var transaction = populateSession.OpenTransaction()) {
         var tableOfContent = new TableOfContent();
@@ -338,7 +342,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
         item3Key = item3.Key;
         tableOfContent.Items.Add(item1);
         tableOfContent.Items.Add(item2);
-        tableOfContent.Items.Add(item2);
+        tableOfContent.Items.Add(item3);
         transaction.Complete();
       }
 
@@ -384,6 +388,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
       Key person1Key, person2Key;
       Key license1Key, license2Key;
       Key tableOfContentKey, item1Key, item2Key;
+
       using (var populateSession = Domain.OpenSession())
       using (var transaction = populateSession.OpenTransaction()) {
         var person1 = new Person {DriverLicense = new DriverLicense()};
@@ -403,6 +408,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
         var item2 = new TableOfContentItem();
         item2Key = item2.Key;
         tableOfContent.Items.Add(item2);
+
         transaction.Complete();
       }
 
@@ -594,6 +600,8 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
 
         oldAutor3.Books.Add(oldBook1);
         oldBook3.Authors.Add(oldAutor2);
+        Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
+        Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook1).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook2).Count(), Is.EqualTo(1));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook3).Count(), Is.EqualTo(2));
@@ -604,36 +612,42 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
 
         var newAuthor = new Author();
         var newBook = new Book();
-        oldAutor1.Books.Add(newBook);
+        oldAutor2.Books.Add(newBook);
         newBook.Authors.Add(oldAutor1);
-        Assert.That(ReferenceFinder.GetReferencesTo(oldBook1).Count(), Is.EqualTo(3));
+        Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
+        Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
+        Assert.That(ReferenceFinder.GetReferencesTo(oldBook1).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook2).Count(), Is.EqualTo(1));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook3).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(oldAutor1).Count(), Is.EqualTo(2));
-        Assert.That(ReferenceFinder.GetReferencesTo(oldAutor2).Count(), Is.EqualTo(2));
+        Assert.That(ReferenceFinder.GetReferencesTo(oldAutor2).Count(), Is.EqualTo(3));
         Assert.That(ReferenceFinder.GetReferencesTo(oldAutor3).Count(), Is.EqualTo(2));
-        Assert.That(ReferenceFinder.GetReferencesTo(newBook).Count(), Is.EqualTo(1));
-        Assert.That(ReferenceFinder.GetReferencesTo(newAuthor).Count(), Is.EqualTo(1));
+        Assert.That(ReferenceFinder.GetReferencesTo(newBook).Count(), Is.EqualTo(2));
+        Assert.That(ReferenceFinder.GetReferencesTo(newAuthor).Count(), Is.EqualTo(0));
 
         oldBook2.Authors.Add(newAuthor);
         newAuthor.Books.Add(oldBook3);
-        Assert.That(ReferenceFinder.GetReferencesTo(oldBook1).Count(), Is.EqualTo(3));
+        Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
+        Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
+        Assert.That(ReferenceFinder.GetReferencesTo(oldBook1).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook2).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook3).Count(), Is.EqualTo(3));
         Assert.That(ReferenceFinder.GetReferencesTo(oldAutor1).Count(), Is.EqualTo(2));
-        Assert.That(ReferenceFinder.GetReferencesTo(oldAutor2).Count(), Is.EqualTo(2));
+        Assert.That(ReferenceFinder.GetReferencesTo(oldAutor2).Count(), Is.EqualTo(3));
         Assert.That(ReferenceFinder.GetReferencesTo(oldAutor3).Count(), Is.EqualTo(2));
-        Assert.That(ReferenceFinder.GetReferencesTo(newBook).Count(), Is.EqualTo(1));
+        Assert.That(ReferenceFinder.GetReferencesTo(newBook).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(newAuthor).Count(), Is.EqualTo(2));
 
         newBook.Authors.Add(newAuthor);
-        Assert.That(ReferenceFinder.GetReferencesTo(oldBook1).Count(), Is.EqualTo(3));
+        Assert.That(session.NonPairedReferencesRegistry.RemovedReferencesCount, Is.EqualTo(0));
+        Assert.That(session.NonPairedReferencesRegistry.AddedReferencesCount, Is.EqualTo(0));
+        Assert.That(ReferenceFinder.GetReferencesTo(oldBook1).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook2).Count(), Is.EqualTo(2));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook3).Count(), Is.EqualTo(3));
         Assert.That(ReferenceFinder.GetReferencesTo(oldAutor1).Count(), Is.EqualTo(2));
-        Assert.That(ReferenceFinder.GetReferencesTo(oldAutor2).Count(), Is.EqualTo(2));
+        Assert.That(ReferenceFinder.GetReferencesTo(oldAutor2).Count(), Is.EqualTo(3));
         Assert.That(ReferenceFinder.GetReferencesTo(oldAutor3).Count(), Is.EqualTo(2));
-        Assert.That(ReferenceFinder.GetReferencesTo(newBook).Count(), Is.EqualTo(2));
+        Assert.That(ReferenceFinder.GetReferencesTo(newBook).Count(), Is.EqualTo(3));
         Assert.That(ReferenceFinder.GetReferencesTo(newAuthor).Count(), Is.EqualTo(3));
       }
     }
@@ -714,6 +728,7 @@ namespace Xtensive.Orm.Tests.Storage.ReferentialIntegrity.ClientProfileLike
 
         newBook.Authors.Add(oldAutor1);
         newBook.Authors.Add(oldAutor2);
+
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook1).Count(), Is.EqualTo(3));
         Assert.That(ReferenceFinder.GetReferencesTo(oldBook2).Count(), Is.EqualTo(3));
         Assert.That(ReferenceFinder.GetReferencesTo(oldAutor1).Count(), Is.EqualTo(3));
