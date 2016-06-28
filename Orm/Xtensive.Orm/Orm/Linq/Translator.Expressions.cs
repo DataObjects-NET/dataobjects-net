@@ -486,27 +486,9 @@ namespace Xtensive.Orm.Linq
       if (constructorParameters.Length!=arguments.Count)
         throw Exceptions.InternalError(Strings.ExInvalidNumberOfParametersInNewExpression, OrmLog.Instance);
 
-      var duplicateMembers = new SetSlim<MemberInfo>();
-      var bindings = new Dictionary<MemberInfo, Expression>();
-      for (int i = 0; i < constructorParameters.Length; i++) {
-        int parameterIndex = i;
-        var constructorParameter = constructorParameters[parameterIndex];
-        var members = newExpression
-          .Type
-          .GetMembers()
-          .Where(mi => FilterBindings(mi, constructorParameter.Name, constructorParameter.ParameterType))
-          .ToList();
-        if (members.Count()==1 && !duplicateMembers.Contains(members[0])) {
-          if (bindings.ContainsKey(members[0])) {
-            bindings.Remove(members[0]);
-            duplicateMembers.Add(members[0]);
-          }
-          else
-            bindings.Add(members[0], arguments[parameterIndex]);
-        }
-      }
-
-      return new ConstructorExpression(newExpression.Type, bindings, newExpression.Constructor, arguments);
+      var bindings = GetBindingsForConstructor(constructorParameters, arguments, newExpression);
+      var nativeBindings = new Dictionary<MemberInfo, Expression>();
+      return new ConstructorExpression(newExpression.Type, bindings, nativeBindings, newExpression.Constructor, arguments);
     }
 
     internal static bool FilterBindings(MemberInfo mi, string name, Type type)
@@ -529,6 +511,28 @@ namespace Xtensive.Orm.Linq
     }
 
     #region Private helper methods
+
+    private Dictionary<MemberInfo, Expression> GetBindingsForConstructor(ParameterInfo[] constructorParameters, IList<Expression> constructorArguments, Expression newExpression)
+    {
+      var bindings = new Dictionary<MemberInfo, Expression>();
+      var duplicateMembers = new SetSlim<MemberInfo>();
+      var typeMembers = newExpression.Type.GetMembers();
+      for (var parameterIndex = 0; parameterIndex < constructorParameters.Length; parameterIndex++) {
+        var constructorParameter = constructorParameters[parameterIndex];
+        var members = typeMembers
+          .Where(mi => FilterBindings(mi, constructorParameter.Name, constructorParameter.ParameterType))
+          .ToList();
+        if (members.Count!=1 || duplicateMembers.Contains(members[0]))
+          continue;
+        if (bindings.ContainsKey(members[0])) {
+          bindings.Remove(members[0]);
+          duplicateMembers.Add(members[0]);
+        }
+        else
+          bindings.Add(members[0], constructorArguments[parameterIndex]);
+      }
+      return bindings;
+    }
 
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
@@ -1101,8 +1105,13 @@ namespace Xtensive.Orm.Linq
       var arguments = VisitNewExpressionArguments(newExpression);
       var bindings = VisitBindingList(mi.Bindings).Cast<MemberAssignment>();
       var constructorExpression = (ConstructorExpression) VisitNew(mi.NewExpression);
-      foreach (var binding in bindings)
-        constructorExpression.Bindings[binding.Member] = binding.Expression;
+      foreach (var binding in bindings) {
+        // I don't know why but binging.Member.ReflectedType is not equal to mi.NewExpression.Type
+        // So we have to handle it.
+        var member = TryGetActualMemberInfo(binding.Member, mi.NewExpression.Type);
+        constructorExpression.Bindings[member] = binding.Expression;
+        constructorExpression.NativeBindings[member] = binding.Expression;
+      }
       return constructorExpression;
     }
 
@@ -1152,11 +1161,12 @@ namespace Xtensive.Orm.Linq
         break;
       case ExtendedExpressionType.Constructor:
         var bindings = ((ConstructorExpression) extendedExpression).Bindings;
+        // only make sure that type has needed member
         if (!bindings.TryGetValue(member, out result)) {
           // Key in bindings might be a property/field reflected from a base type
           // but our member might be reflected from child type.
           var baseMember = member.DeclaringType.GetMember(member.Name).FirstOrDefault();
-          if (baseMember==null || !bindings.TryGetValue(baseMember, out result))
+          if (baseMember==null)
             throw new InvalidOperationException(string.Format(
               Strings.ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer,
               member.Name, member.ReflectedType.Name));
@@ -1440,6 +1450,27 @@ namespace Xtensive.Orm.Linq
         current = Expression.Condition(Expression.TypeIs(ma.Expression, field.ReflectedType), expression, current);
       }
       return current;
+    }
+
+    private MemberInfo TryGetActualMemberInfo(MemberInfo memberInfo, Type initializingType)
+    {
+      if (!memberInfo.ReflectedType.IsAssignableFrom(initializingType))
+        return memberInfo;
+
+      if (memberInfo.ReflectedType==initializingType)
+        return memberInfo;
+      switch (memberInfo.MemberType) {
+        case MemberTypes.Field: {
+          var inheritedField = initializingType.GetField(memberInfo.Name);
+          return inheritedField ?? memberInfo;
+        }
+        case MemberTypes.Property: {
+          var inheritedProperty = initializingType.GetProperty(memberInfo.Name);
+          return inheritedProperty ?? memberInfo;
+        }
+        default:
+          return memberInfo;
+      }
     }
 
     #endregion

@@ -72,19 +72,29 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void AverageTest()
     {
-      if (Domain.Configuration.ConnectionInfo.Provider == WellKnown.Provider.Firebird)
+      //"If Field is of an integer type, AVG is always rounded towards 0.
+      // For instance, 6 non-null INT records with a sum of -11 yield an average of -1, not -2."
+      // © Firebird documentation
+      // Funny, isn't it?
+      if (Domain.Configuration.ConnectionInfo.Provider==WellKnown.Provider.Firebird) {
         Assert.AreEqual(Math.Truncate(all.Average(x => x.FByte)), Session.Demand().Query.All<X>().Average(x => x.FByte));
-      else
+        Assert.AreEqual(Math.Truncate(all.Average(x => x.FSByte)), Session.Demand().Query.All<X>().Average(x => x.FSByte));
+        Assert.AreEqual(Math.Truncate(all.Average(x => x.FShort)), Session.Demand().Query.All<X>().Average(x => x.FShort));
+        Assert.AreEqual(Math.Truncate(all.Average(x => x.FUShort)), Session.Demand().Query.All<X>().Average(x => x.FUShort));
+        Assert.AreEqual(Math.Truncate(all.Average(x => x.FInt)), Session.Demand().Query.All<X>().Average(x => x.FInt));
+        Assert.AreEqual(Math.Truncate(all.Average(x => x.FUInt)), Session.Demand().Query.All<X>().Average(x => x.FUInt));
+        Assert.AreEqual(Math.Truncate(all.Average(x => x.FLong)), Session.Demand().Query.All<X>().Average(x => x.FLong));
+      }
+      else {
         Assert.AreEqual(all.Average(x => x.FByte), Session.Demand().Query.All<X>().Average(x => x.FByte));
-      Assert.AreEqual(all.Average(x => x.FSByte), Session.Demand().Query.All<X>().Average(x => x.FSByte));
+        Assert.AreEqual(all.Average(x => x.FSByte), Session.Demand().Query.All<X>().Average(x => x.FSByte));
+        Assert.AreEqual(all.Average(x => x.FShort), Session.Demand().Query.All<X>().Average(x => x.FShort));
+        Assert.AreEqual(all.Average(x => x.FUShort), Session.Demand().Query.All<X>().Average(x => x.FUShort));
+        Assert.AreEqual(all.Average(x => x.FInt), Session.Demand().Query.All<X>().Average(x => x.FInt));
+        Assert.AreEqual(all.Average(x => x.FUInt), Session.Demand().Query.All<X>().Average(x => x.FUInt));
+        Assert.AreEqual(all.Average(x => x.FLong), Session.Demand().Query.All<X>().Average(x => x.FLong));
+      }
 
-      Assert.AreEqual(all.Average(x => x.FShort), Session.Demand().Query.All<X>().Average(x => x.FShort));
-      Assert.AreEqual(all.Average(x => x.FUShort), Session.Demand().Query.All<X>().Average(x => x.FUShort));
-
-      Assert.AreEqual(all.Average(x => x.FInt), Session.Demand().Query.All<X>().Average(x => x.FInt));
-      Assert.AreEqual(all.Average(x => x.FUInt), Session.Demand().Query.All<X>().Average(x => x.FUInt));
-
-      Assert.AreEqual(all.Average(x => x.FLong), Session.Demand().Query.All<X>().Average(x => x.FLong));
       Assert.AreEqual(all.Average(x => x.FFloat), Session.Demand().Query.All<X>().Average(x => x.FFloat));
       Assert.AreEqual(all.Average(x => x.FDecimal), Session.Demand().Query.All<X>().Average(x => x.FDecimal));
     }

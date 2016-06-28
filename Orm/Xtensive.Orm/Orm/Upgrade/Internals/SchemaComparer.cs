@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
@@ -46,8 +45,6 @@ namespace Xtensive.Orm.Upgrade
       var difference = comparer.Compare(sourceSchema, targetSchema, schemaHints);
       var actions = GetUpgradeActions(comparer, difference, schemaHints);
       var actionList = actions.Flatten().ToList();
-      if (upgradeStage == UpgradeStage.Upgrading)
-        actionList.RemoveAll(el => el is PropertyChangeAction && IgnoreTypeChange((PropertyChangeAction)el, model));
       var comparisonStatus = GetComparisonStatus(actionList, schemaUpgradeMode);
       var unsafeActions = GetUnsafeActions(actionList, upgradeHints);
       var columnTypeChangeActions = actionList.OfType<PropertyChangeAction>().Where(IsTypeChangeAction).ToList();
@@ -119,10 +116,11 @@ namespace Xtensive.Orm.Upgrade
     private static IList<NodeAction> GetUnsafeActions(ICollection<NodeAction> actions, SetSlim<UpgradeHint> hints)
     {
       var unsafeActions = new List<NodeAction>();
-      
+
       GetUnsafeColumnTypeChanges(actions, hints, unsafeActions);
       GetUnsafeColumnRemovals(actions, hints, unsafeActions);
       GetUnsafeTableRemovals(actions, hints, unsafeActions);
+      GetCrossHierarchicalMovements(actions, hints, unsafeActions);
 
       return unsafeActions;
     }
@@ -222,6 +220,14 @@ namespace Xtensive.Orm.Upgrade
         .ForEach(output.Add);
     }
 
+    private static void GetCrossHierarchicalMovements(IEnumerable<NodeAction> actions, IEnumerable<UpgradeHint> hints, ICollection<NodeAction> output)
+    {
+      (from action in actions.OfType<DataAction>()
+        let deleteDataHint = action.DataHint as DeleteDataHint
+        where deleteDataHint!=null && deleteDataHint.PostCopy
+        select action).ForEach(output.Add);
+    }
+
     private static bool IsTypeChangeAction(PropertyChangeAction action)
     {
       return action.Properties.ContainsKey("Type")
@@ -259,43 +265,6 @@ namespace Xtensive.Orm.Upgrade
         return false;
       var item = diff.Source ?? diff.Target;
       return item is StorageColumnInfo;
-    }
-
-    private static bool IgnoreTypeChange(PropertyChangeAction action, DomainModel domainModel)
-    {
-      if (!IsTypeChangeAction(action))
-        return false;
-      var valueDifference = action.Difference as ValueDifference;
-      if (valueDifference==null)
-        return false;
-      var sourceType = action.Difference.Source as StorageTypeInfo;
-      var targetType = action.Difference.Target as StorageTypeInfo;
-      if (sourceType==null || targetType==null)
-        return false;
-      if (IsOnlyNullableChanged(sourceType, targetType)) {
-        TypeInfo typeInfo;
-        var targetColumnInfo = action.Difference.Parent.Target as StorageColumnInfo;
-        var sourceColumnInfo = action.Difference.Parent.Source as StorageColumnInfo;
-        if (targetColumnInfo==null || sourceColumnInfo==null)
-          return false;
-        if (!domainModel.Types.TryGetValue(targetColumnInfo.Parent.Name, out typeInfo))
-          return false;
-        var field = typeInfo.Columns[targetColumnInfo.Name].Field;
-        if (sourceType.IsNullable==field.Attributes.HasFlag(FieldAttributes.DeclaredAsNullable))
-          return true;
-      }
-      return false;
-    }
-
-    private static bool IsOnlyNullableChanged(StorageTypeInfo source, StorageTypeInfo target)
-    {
-      var a = source.Scale==target.Scale;
-      var b = source.Precision==target.Precision;
-      var c = source.NativeType==target.NativeType;
-      var d = source.Length==target.Length;
-      var e = source.IsNullable!=target.IsNullable;
-
-      return a && b && c && d && e;
     }
 
     private static SchemaComparisonStatus GetComparisonStatus(ICollection<NodeAction> actions, SchemaUpgradeMode schemaUpgradeMode)

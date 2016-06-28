@@ -13,12 +13,10 @@ using Xtensive.Modelling;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
-using Xtensive.Sql;
-using Xtensive.Sql.Dml;
-using Xtensive.Sql.Model;
 using PartialIndexFilterInfo = Xtensive.Orm.Upgrade.Model.PartialIndexFilterInfo;
 using ReferentialAction = Xtensive.Orm.Upgrade.Model.ReferentialAction;
 
@@ -33,6 +31,7 @@ namespace Xtensive.Orm.Upgrade
 
     private readonly HandlerAccessor handlers;
 
+    private readonly bool isUpgradingStage;
     private readonly ProviderInfo providerInfo;
     private readonly DomainModel sourceModel;
     private readonly NameBuilder nameBuilder;
@@ -47,6 +46,9 @@ namespace Xtensive.Orm.Upgrade
 
     public bool BuildForeignKeys { get; set; }
     public bool BuildHierarchyForeignKeys { get; set; }
+    public StorageModel StorageModel { get; set; }
+    public Dictionary<StoredFieldInfo, StoredFieldInfo> FieldMapping { get; set; }
+    public Dictionary<string, StoredTypeInfo> CurrentModelTypes { get; set; } 
 
     /// <summary>
     /// Converts the specified <see cref="DomainModel"/> to
@@ -178,13 +180,19 @@ namespace Xtensive.Orm.Upgrade
       var nonNullableType = column.ValueType;
       var nullableType    = ToNullable(nonNullableType, column.IsNullable);
 
+      StorageColumnInfo extractedConnectedColumn = null;
+      if (isUpgradingStage && ShouldGetExtractedColumnInformation(column)) {
+        extractedConnectedColumn = GetExtractedStorageColumnInfoFor(column);
+      }
+
       var typeInfoPrototype = new StorageTypeInfo(nullableType, null, column.IsNullable, column.Length, column.Precision, column.Scale);
       var nativeTypeInfo = CreateType(nonNullableType, column.Length, column.Precision, column.Scale);
 
       // We need the same type as in SQL database here (i.e. the same as native)
       var typeInfo = new StorageTypeInfo(ToNullable(nativeTypeInfo.Type, column.IsNullable), nativeTypeInfo.NativeType, column.IsNullable, nativeTypeInfo.Length, nativeTypeInfo.Precision, nativeTypeInfo.Scale);
+      var finalTypeInfo = GetStorageTypeInfo(typeInfo, extractedConnectedColumn, column);
 
-      var defaultValue = GetColumnDefaultValue(column, typeInfo);
+      var defaultValue = GetColumnDefaultValue(column, finalTypeInfo);
       var defaultSqlExpression = GetColumnDefaultSqlExpression(column);
       if (column.IsSystem && column.Field.IsTypeId) {
         var type = column.Field.ReflectedType;
@@ -192,8 +200,7 @@ namespace Xtensive.Orm.Upgrade
           defaultValue = typeIdProvider.GetTypeId(type.UnderlyingType);
         }
       }
-
-      return new StorageColumnInfo(currentTable, column.Name, typeInfo) {
+      return new StorageColumnInfo(currentTable, column.Name, finalTypeInfo) {
         DefaultValue = defaultValue,
         DefaultSqlExpression = defaultSqlExpression
       };
@@ -531,10 +538,76 @@ namespace Xtensive.Orm.Upgrade
       return index;
     }
 
+    private bool ShouldGetExtractedColumnInformation(ColumnInfo column)
+    {
+      if (column.Field.DeclaringType.IsSystem)
+        return false;
+      return !column.Field.Attributes.HasFlag(FieldAttributes.DeclaredAsNullable) && column.Field.IsNullable;
+    }
+
+    private StorageColumnInfo GetExtractedStorageColumnInfoFor(ColumnInfo column)
+    {
+      if (!isUpgradingStage)
+        return null;
+      if (StorageModel==null)
+        return null;
+      var extractedStoredColumn = GetExtractedStoredColumn(column);
+      if (extractedStoredColumn==null)
+        return null;
+      var path = string.Format("Tables/{0}/Columns/{1}", extractedStoredColumn.DeclaringType.MappingName, extractedStoredColumn.MappingName);
+
+      return StorageModel.Resolve(path) as StorageColumnInfo;
+    }
+
+    private StoredFieldInfo GetExtractedStoredColumn(ColumnInfo column)
+    {
+      var typeName = column.Field.DeclaringType.UnderlyingType.GetFullName();
+      var currentType = CurrentModelTypes.GetValueOrDefault(typeName);
+      if(currentType==null)
+        throw new InvalidOperationException(string.Format(Strings.ExUnableToFindTypeXInCurrentModel, typeName));
+      var currentField = currentType.Fields.Flatten(f=>f.Fields, info => { }, true).FirstOrDefault(el => el.MappingName==column.Field.MappingName);
+      if (currentField==null)
+        throw new InvalidOperationException(string.Format(Strings.UnableToFindColumnXInTypeYOfCurrentModel, column.Field.MappingName, typeName));
+
+      var extractedField = FieldMapping.GetValueOrDefault(currentField);
+      return extractedField;
+    }
+
+    private StorageTypeInfo GetStorageTypeInfo(StorageTypeInfo typeInfo, StorageColumnInfo extractedConnectedColumn, ColumnInfo column)
+    {
+      if (!isUpgradingStage)
+        return typeInfo;
+      if (extractedConnectedColumn==null)
+        return typeInfo;
+      var extractedTypeInfo = extractedConnectedColumn.Type;
+      if (IsOnlyNullableChanged(typeInfo, extractedTypeInfo)) {
+        var underlyingType = Nullable.GetUnderlyingType(typeInfo.Type);
+        var type = underlyingType ?? typeInfo.Type;
+        var isNullable = column.Field.Attributes.HasFlag(FieldAttributes.DeclaredAsNullable);
+        return new StorageTypeInfo(ToNullable(type, isNullable), typeInfo.NativeType, isNullable, typeInfo.Length, typeInfo.Precision, typeInfo.Scale);
+      }
+      return typeInfo;
+    }
+
+    private static bool IsOnlyNullableChanged(StorageTypeInfo source, StorageTypeInfo target)
+    {
+      var a = source.Scale==target.Scale;
+      var b = source.Precision==target.Precision;
+      var c = source.NativeType==target.NativeType;
+      var d = source.Length==target.Length;
+      var e = source.IsNullable!=target.IsNullable;
+
+      return a && b && c && d && e;
+    }
+
+
     // Constructors
 
     public DomainModelConverter(
-      HandlerAccessor handlers, ITypeIdProvider typeIdProvider, PartialIndexFilterCompiler compiler, MappingResolver resolver)
+      HandlerAccessor handlers,
+      ITypeIdProvider typeIdProvider,
+      PartialIndexFilterCompiler compiler,
+      MappingResolver resolver, bool isUpgradingStage)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       ArgumentValidator.EnsureArgumentNotNull(typeIdProvider, "typeIdProvider");
@@ -545,12 +618,16 @@ namespace Xtensive.Orm.Upgrade
       this.compiler = compiler;
       this.typeIdProvider = typeIdProvider;
       this.resolver = resolver;
+      this.isUpgradingStage = isUpgradingStage;
 
       sourceModel = handlers.Domain.Model;
       configuration = handlers.Domain.Configuration;
       providerInfo = handlers.ProviderInfo;
       driver = handlers.StorageDriver;
       nameBuilder = handlers.NameBuilder;
+      FieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
+      StorageModel = null;
+      CurrentModelTypes = new Dictionary<string, StoredTypeInfo>();
     }
   }
 }

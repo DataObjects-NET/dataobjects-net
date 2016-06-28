@@ -1,0 +1,3 @@
+[main] Fixed translation of EnumerableExtensions.IsNullOrEmpty()
+[main] Fixed Domain building on empty database/schema
+[main] Fixed incorrect translation of POCO costructors in some cases

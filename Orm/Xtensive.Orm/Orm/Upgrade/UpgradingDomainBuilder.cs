@@ -17,7 +17,10 @@ using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Logging;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Upgrade.Internals;
+using Xtensive.Orm.Upgrade.Internals.Interfaces;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
 using Xtensive.Sql;
@@ -290,8 +293,6 @@ namespace Xtensive.Orm.Upgrade
         var storageNode = BuildStorageNode(domain, extractor);
         session.SetStorageNode(storageNode);
         OnStage(session);
-        if (stage==UpgradeStage.Final)
-          CleanUpKeyGenerators(session);
         transaction.Complete();
       }
     }
@@ -308,9 +309,6 @@ namespace Xtensive.Orm.Upgrade
       // non-default nodes are registered in NodeManager after everything completes successfully.
       if (result.Id==WellKnown.DefaultNodeId)
         domain.Handlers.StorageNodeRegistry.Add(result);
-
-      if(context.Stage==UpgradeStage.Final)
-        domain.SchemaCacheManager.CacheExtractionResult(schemaExtractionResult, context.NodeConfiguration);
 
       context.StorageNode = result;
       return result;
@@ -333,21 +331,23 @@ namespace Xtensive.Orm.Upgrade
       return builder.Bind(configuration);
     }
 
-    private HintSet GetSchemaHints(StorageModel extractedSchema, StorageModel targetSchema)
-    {
-      context.SchemaHints = new HintSet(extractedSchema, targetSchema);
-      if (context.Stage==UpgradeStage.Upgrading)
-        BuildSchemaHints(extractedSchema);
-      return context.SchemaHints;
-    }
+    //private HintSet GetSchemaHints(StorageModel extractedSchema, StorageModel targetSchema)
+    //{
+    //  context.SchemaHints = new HintSet(extractedSchema, targetSchema);
+    //  if (context.Stage==UpgradeStage.Upgrading)
+    //    BuildSchemaHints(extractedSchema);
+    //  return context.SchemaHints;
+    //}
 
-    private void BuildSchemaHints(StorageModel extractedSchema)
+    private void BuildSchemaHints(StorageModel extractedSchema, UpgradeHintsProcessingResult result, StoredDomainModel currentDomainModel)
     {
       var oldModel = context.ExtractedDomainModel;
       if (oldModel==null)
         return;
       var handlers = Domain.Demand().Handlers;
-      var hintGenerator = new HintGenerator(handlers, context.Services.MappingResolver, oldModel, extractedSchema, context.Hints, context.TypesMovementsAutoDetection);
+      // It's important to use same StoredDomainModel of current domain
+      // in both UpgradeHintsProcessor and HintGenerator instances.
+      var hintGenerator = new HintGenerator(result.TypeMapping, result.ReverseTypeMapping, result.FieldMapping, result.Hints, handlers, context.Services.MappingResolver, extractedSchema, currentDomainModel, oldModel);
       var hints = hintGenerator.Run();
       context.UpgradedTypesMapping = hints.UpgradedTypesMapping;
       context.Hints.Clear();
@@ -375,29 +375,37 @@ namespace Xtensive.Orm.Upgrade
             //because storage target model exactly the same.
             targetSchema = GetTargetModel(domain);
             context.TargetStorageModel = targetSchema;
+            context.ExtractedSqlModelCache = ExtractedModelBuilderFactory.GetBuilder(context.Services, context.TargetStorageModel).Run();
             if (UpgradeLog.IsLogged(LogLevel.Info)) {
               UpgradeLog.Info(Strings.LogTargetSchema);
               targetSchema.Dump();
             }
           }
+          else {
+            var builder = ExtractedModelBuilderFactory.GetBuilder(context.Services, domain.StorageNodeManager.GetNode(WellKnown.DefaultNodeId));
+            context.ExtractedSqlModelCache = builder.Run();
+          }
           OnSchemaReady();
           return; // Skipping comparison completely
         }
         
-        targetSchema = GetTargetModel(domain);
-        context.TargetStorageModel = targetSchema;
+        //targetSchema = GetTargetModel(domain);
+        //context.TargetStorageModel = targetSchema;
 
         var extractedSchema = extractor.GetSchema();
 
+        // Hints
+        //var hints = GetSchemaHints(extractedSchema, targetSchema);
+        var pair = BuildTargetModelAndHints(extractedSchema);
+        targetSchema = pair.First;
+        context.TargetStorageModel = targetSchema;
+        var hints = pair.Second;
         if (UpgradeLog.IsLogged(LogLevel.Info)) {
           UpgradeLog.Info(Strings.LogExtractedSchema);
           extractedSchema.Dump();
           UpgradeLog.Info(Strings.LogTargetSchema);
           targetSchema.Dump();
         }
-
-        // Hints
-        var hints = GetSchemaHints(extractedSchema, targetSchema);
         OnSchemaReady();
 
         var breifExceptionFormat = domain.Configuration.SchemaSyncExceptionFormat==SchemaSyncExceptionFormat.Brief;
@@ -442,6 +450,24 @@ namespace Xtensive.Orm.Upgrade
             throw new ArgumentOutOfRangeException("schemaUpgradeMode");
         }
       }
+    }
+
+    private Pair<StorageModel, HintSet> BuildTargetModelAndHints(StorageModel extractedSchema)
+    {
+      var handlers = Domain.Demand().Handlers;
+      var currentDomainModel = GetStoredDomainModel(handlers.Domain.Model);
+      var oldModel = context.ExtractedDomainModel;
+      var hintProcessor = (context.Stage==UpgradeStage.Final || oldModel==null)
+        ? (IUpgradeHintsProcessor)new NullUpgradeHintsProcessor(currentDomainModel)
+        : (context.TypesMovementsAutoDetection)
+          ? (IUpgradeHintsProcessor)new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, true)
+          : (IUpgradeHintsProcessor)new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, false);
+      var processedInfo = hintProcessor.Process(context.Hints);
+      var targetModel = GetTargetModel(handlers.Domain, processedInfo.ReverseFieldMapping, processedInfo.CurrentModelTypes, extractedSchema);
+      context.SchemaHints = new HintSet(extractedSchema, targetModel);
+      if (context.Stage==UpgradeStage.Upgrading)
+        BuildSchemaHints(extractedSchema, processedInfo, currentDomainModel);
+      return new Pair<StorageModel, HintSet>(targetModel, context.SchemaHints);
     }
 
     private void OnConfigureUpgradeDomain()
@@ -497,21 +523,6 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private static void CleanUpKeyGenerators(Session session)
-    {
-      // User might generate some entities in OnStage() method
-      // Since upgrade connection was used for key generators
-      // we need to clean up key generator tables here.
-
-      var sequenceAccessor = session.Services.Demand<IStorageSequenceAccessor>();
-      var keyGenerators = session.Domain.Model.Hierarchies
-        .Select(h => h.Key.Sequence)
-        .Where(s => s!=null)
-        .Distinct();
-
-      sequenceAccessor.CleanUp(keyGenerators, session);
-    }
-
     private void OnComplete(Domain domain)
     {
       foreach (var handler in context.OrderedUpgradeHandlers)
@@ -523,10 +534,18 @@ namespace Xtensive.Orm.Upgrade
 
     private StorageModel GetTargetModel(Domain domain)
     {
+      return GetTargetModel(domain, new Dictionary<StoredFieldInfo, StoredFieldInfo>(), new Dictionary<string, StoredTypeInfo>(), null);
+    }
+
+    private StorageModel GetTargetModel(Domain domain, Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping, Dictionary<string, StoredTypeInfo> currentTypes, StorageModel extractedModel)
+    {
       var indexFilterCompiler = context.Services.IndexFilterCompiler;
-      var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, indexFilterCompiler, context.Services.MappingResolver) {
+      var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, indexFilterCompiler, context.Services.MappingResolver, context.Stage==UpgradeStage.Upgrading) {
         BuildForeignKeys = context.Configuration.Supports(ForeignKeyMode.Reference),
-        BuildHierarchyForeignKeys = context.Configuration.Supports(ForeignKeyMode.Hierarchy)
+        BuildHierarchyForeignKeys = context.Configuration.Supports(ForeignKeyMode.Hierarchy),
+        FieldMapping = fieldMapping,
+        CurrentModelTypes = currentTypes,
+        StorageModel = extractedModel
       };
       return converter.Run();
     }
@@ -541,6 +560,16 @@ namespace Xtensive.Orm.Upgrade
       default:
         throw new ArgumentOutOfRangeException("stage");
       }
+    }
+
+    private StoredDomainModel GetStoredDomainModel(DomainModel domainModel)
+    {
+      var storedDomainModel = domainModel.ToStoredModel();
+      storedDomainModel.UpdateReferences();
+      // Since we support storage nodes, stored domain model and real model of a node
+      // must be synchronized. So we must update types' mappings
+      storedDomainModel.UpdateMappings(context.NodeConfiguration);
+      return storedDomainModel;
     }
 
     // Constructors

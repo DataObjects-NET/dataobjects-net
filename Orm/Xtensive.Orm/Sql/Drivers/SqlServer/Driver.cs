@@ -38,6 +38,8 @@ namespace Xtensive.Sql.Drivers.SqlServer
         return SqlExceptionInfo.Create(SqlExceptionType.Deadlock);
       if ((errorCode >= 3950 && errorCode <= 3961) || errorCode==3966 || errorCode==3971)
         return SqlExceptionInfo.Create(SqlExceptionType.SerializationFailure);
+      if (errorCode==229 || errorCode==230)
+        return SqlExceptionInfo.Create(SqlExceptionType.Unknown);
       if (errorCode >= 100 && errorCode <= 499)
         return SqlExceptionInfo.Create(SqlExceptionType.SyntaxError);
       var info = new SqlExceptionInfo();

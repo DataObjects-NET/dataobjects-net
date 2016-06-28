@@ -5,6 +5,7 @@
 // Created:    2008.09.23
 
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Sql.Model;
@@ -86,6 +87,10 @@ namespace Xtensive.Orm.Providers
       sequenceMap[sequenceInfo] = sequence;
     }
 
+    internal IList<SchemaNode> GetAllSNodes()
+    {
+      return tableMap.Values.Union(sequenceMap.Values).ToList();
+    }
 
     // Constructors
 

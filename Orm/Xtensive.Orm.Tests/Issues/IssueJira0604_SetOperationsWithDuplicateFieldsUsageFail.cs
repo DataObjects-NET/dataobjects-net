@@ -70,6 +70,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void IntersectTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query1 = session.Query.All<TestEntity>().Where(el => el.Id <= 200).Select(el => new { el.Id, Text = el.SomeText, TextDublicate = el.SomeText });
@@ -89,6 +90,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ExceptTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query1 = session.Query.All<TestEntity>().Select(el => new { el.Id, Text = el.SomeText, TextDublicate = el.SomeText });

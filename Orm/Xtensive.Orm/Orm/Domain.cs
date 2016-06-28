@@ -127,8 +127,6 @@ namespace Xtensive.Orm
 
     internal SqlConnection SingleConnection { get; private set; }
 
-    internal SchemaCacheManager SchemaCacheManager { get; private set; }
-
     internal IServiceContainer CreateSystemServices()
     {
       var registrations = new List<ServiceRegistration>{
@@ -298,7 +296,6 @@ namespace Xtensive.Orm
       UpgradeContextCookie = upgradeContextCookie;
       SingleConnection = singleConnection;
       StorageNodeManager = new StorageNodeManager(Handlers);
-      SchemaCacheManager = new SchemaCacheManager(configuration, defaultSchemaInfo);
     }
 
     /// <inheritdoc/>

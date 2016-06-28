@@ -121,6 +121,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     {
       var arguments = new List<Expression>();
       var bindings = new Dictionary<MemberInfo, Expression>();
+      var nativeBindings = new Dictionary<MemberInfo, Expression>();
       bool recreate = false;
       foreach (var argument in expression.ConstructorArguments) {
         var result = Visit(argument);
@@ -134,11 +135,18 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
           recreate = true;
         bindings.Add(binding.Key, result);
       }
+      foreach (var nativeBinding in expression.NativeBindings) {
+        var result = Visit(nativeBinding.Value);
+        if (result!=nativeBinding.Value)
+          recreate = true;
+        nativeBindings.Add(nativeBinding.Key, result);
+      }
       if (!recreate)
         return expression;
       return new ConstructorExpression(
         expression.Type,
         bindings,
+        nativeBindings,
         expression.Constructor,
         arguments);
     }

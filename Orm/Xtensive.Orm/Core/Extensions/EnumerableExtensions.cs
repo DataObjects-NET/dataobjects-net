@@ -133,6 +133,19 @@ namespace Xtensive.Core
     }
 
     /// <summary>
+    /// Converts the sequence to the <see cref="ChainedBuffer{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of sequence item.</typeparam>
+    /// <param name="source">The sequence to convert</param>
+    /// <returns>A new <see cref="ChainedBuffer{T}"/> instance containing 
+    /// all the items from the <paramref name="source"/> sequence.</returns>
+    public static ChainedBuffer<T> ToChainedBuffer<T>(this IEnumerable<T> source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      return new ChainedBuffer<T>(source);
+    }
+
+    /// <summary>
     /// Converts the elements of <paramref name="source"/> sequence 
     /// using specified <paramref name="converter"/>.
     /// </summary>
