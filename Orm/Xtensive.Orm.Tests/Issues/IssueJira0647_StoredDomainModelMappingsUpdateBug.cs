@@ -430,13 +430,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void RecycledTypeHintTest()
-    {
-      BuildBaseVersion();
-      BuildUpgradedVersion(typeof (ModelNamespace.HintTest.RecycledTypeVersion.Customer));
-    }
-
-    [Test]
     public void RemoveFieldHintTest()
     {
       BuildBaseVersion();
