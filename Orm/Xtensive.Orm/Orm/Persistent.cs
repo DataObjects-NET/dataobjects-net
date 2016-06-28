@@ -367,14 +367,12 @@ namespace Xtensive.Orm
         oldValue = Activator.CreateStructure(Session, o.GetType(), o.Tuple.ToRegular());
       }
 
-      Entity referencingEntity = null;
       try {
         var operations = Session.Operations;
         var scope = operations.BeginRegistration(Operations.OperationType.System);
         try {
           var entity = this as Entity;
           if (entity!=null) {
-            referencingEntity = entity;
             if (operations.CanRegisterOperation)
               operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, field, value));
             var entityValue = value as IEntity;
@@ -395,7 +393,6 @@ namespace Xtensive.Orm
             }
             entity = persistent as Entity;
             if (entity!=null) {
-              referencingEntity = entity;
               if (operations.CanRegisterOperation)
                 operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, currentField, value));
               var entityValue = value as IEntity;
@@ -448,8 +445,6 @@ namespace Xtensive.Orm
                 value = AdjustFieldValue(field, oldValue, value);
                 fieldAccessor.SetUntypedValue(this, value);
                 SystemTupleChange();
-                if (referencingEntity!=null && (field.IsEntity || field.IsStructure))
-                  RegisterReferenceReset(referencingEntity, oldValue, value, association);
               }
             }
 
@@ -790,72 +785,6 @@ namespace Xtensive.Orm
       if (diffTuple!=null && diffTuple.Difference.IsAtLeastOneColumAvailable(mappingInfo))
         state = PersistentFieldState.Modified;
       return state;
-    }
-
-    private void RegisterReferenceReset(Entity fieldOwner, object oldValue, object newValue, AssociationInfo association)
-    {
-      if (association.IsPaired)
-        return;
-      if (oldValue==null && newValue==null)
-        return;
-      var isEntity = oldValue is Entity || newValue is Entity;
-      if (isEntity) {
-        var oldEntity = oldValue as Entity;
-        var newEntity = newValue as Entity;
-        RegisterReferenceResetForEntityField(fieldOwner, oldEntity, newEntity, association);
-      }
-      else {
-        var isStructure = oldValue is Structure || newValue is Structure;
-        if (!isStructure)
-          return;
-        var oldStructure = oldValue as Structure;
-        var newStructure = newValue as Structure;
-        RegisterReferenceResetForStructureField(fieldOwner, oldStructure, newStructure);
-      }
-    }
-
-    private void RegisterReferenceResetForEntityField(Entity fieldOwner, Entity oldEntity, Entity newEntity, AssociationInfo association)
-    {
-      var oldEntityState = (oldEntity!=null) ? oldEntity.State : null;
-      var newEntityState = (newEntity!=null) ? newEntity.State : null;
-      Session.NonPairedReferencesRegistry.RegisterChange(newEntityState, fieldOwner.State, oldEntityState, association);
-    }
-
-    private void RegisterReferenceResetForStructureField(Entity fieldOwner, Structure oldStructure, Structure newStructure)
-    {
-      var structure = this as Structure;
-      IEnumerable<FieldInfo> suitableFields = (structure==null)
-        ? fieldOwner.TypeInfo.StructureFieldMapping.Values.Where(f => f.IsEntity)
-        : structure.TypeInfo.StructureFieldMapping.Values.Where(f => f.IsEntity);
-
-      foreach (var field in suitableFields) {
-        var association = field.Associations.First();
-        if (association.IsPaired)
-          continue;
-        var pair = GetOldAndNewValueOfField(field, oldStructure, newStructure);
-        if (pair.First==null && pair.Second==null)
-          continue;
-        RegisterReferenceResetForEntityField(fieldOwner, pair.First, pair.Second, association);
-      }
-    }
-
-    private Pair<Entity> GetOldAndNewValueOfField(FieldInfo field, Structure oldStructure, Structure newStructure)
-    {
-      Entity oldValue;
-      Entity newValue;
-      if (oldStructure==null)
-        oldValue = null;
-      else {
-        var accessor = oldStructure.GetFieldAccessor(field);
-        oldValue = (Entity)accessor.GetUntypedValue(oldStructure);
-      }
-      if (newStructure==null)
-        newValue = null;
-      else {
-        var accessor = newStructure.GetFieldAccessor(field);
-        newValue = (Entity)accessor.GetUntypedValue(newStructure);
-      }
-      return new Pair<Entity>(oldValue, newValue);
     }
     #endregion
 

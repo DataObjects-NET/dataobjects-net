@@ -1,4 +1,10 @@
-﻿using System;
+﻿// Copyright (C) 2016 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2016.06.21
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
@@ -31,6 +37,16 @@ namespace Xtensive.Orm.Internals
       public override bool Equals(object obj)
       {
         return Equals(obj as Identifier);
+      }
+
+      public override int GetHashCode()
+      {
+        unchecked {
+          int hash = 139;
+          hash = hash * 311 + EntityState.GetHashCode();
+          hash = hash * 311 + Association.GetHashCode();
+          return hash;
+        }
       }
 
       public Identifier(EntityState entityState, AssociationInfo association)
@@ -78,15 +94,30 @@ namespace Xtensive.Orm.Internals
       return EnumerableUtils<EntityState>.Empty;
     }
 
-    public void RegisterChange(EntityState referencedState, EntityState referencingState, EntityState noLongerReferencedState, AssociationInfo association)
+    public void Invalidate()
+    {
+      Clear();
+    }
+
+    public void Clear()
+    {
+      lock (accessGuard) {
+        removedReferences.Clear();
+        addedReferences.Clear();
+      }
+    }
+
+    private void RegisterChange(EntityState referencedState, EntityState referencingState, EntityState noLongerReferencedState, AssociationInfo association)
     {
       ArgumentValidator.EnsureArgumentNotNull(association, "association");
       ArgumentValidator.EnsureArgumentNotNull(referencingState, "referencingState");
+      if (!Session.DisableAutoSaveChanges)
+        return;
 
       if (association.IsPaired)
         return;
 
-      if(referencedState==null && noLongerReferencedState==null)
+      if (referencedState==null && noLongerReferencedState==null)
         return;
       if (referencedState!=null && noLongerReferencedState!=null) {
         var oldKey = MakeKey(noLongerReferencedState, association);
@@ -101,19 +132,6 @@ namespace Xtensive.Orm.Internals
       else {
         var newKey = MakeKey(referencedState, association);
         RegisterAddInternal(newKey, referencingState);
-      }
-    }
-
-    public void Invalidate()
-    {
-      Clear();
-    }
-
-    public void Clear()
-    {
-      lock (accessGuard) {
-        removedReferences.Clear();
-        addedReferences.Clear();
       }
     }
 
@@ -159,9 +177,119 @@ namespace Xtensive.Orm.Internals
       return new Identifier(state, association);
     }
 
+    private void Initialize()
+    {
+      Session.SystemEvents.EntityFieldValueSetCompleted += OnEntityFieldValueSetCompleted;
+      Session.SystemEvents.EntitySetItemAddCompleted += OnEntitySetItemAddCompleted;
+      Session.SystemEvents.EntitySetItemRemoveCompleted += OnEntitySetItemRemoveCompleted;
+      Session.SystemEvents.Persisted += OnSessionPersisted;
+    }
+
+    private void OnSessionPersisted(object sender, EventArgs e)
+    {
+      Invalidate();
+    }
+
+    private void OnEntitySetItemRemoveCompleted(object sender, EntitySetItemActionCompletedEventArgs e)
+    {
+      if (ShouldSkipRegistration(e))
+        return;
+      RegisterChange(null, e.Entity.State, e.Item.State, e.Field.Associations.First());
+    }
+
+    private void OnEntitySetItemAddCompleted(object sender, EntitySetItemActionCompletedEventArgs e)
+    {
+      if (ShouldSkipRegistration(e))
+        return;
+      RegisterChange(e.Item.State, e.Entity.State, null, e.Field.Associations.First());
+    }
+
+    private void OnEntityFieldValueSetCompleted(object sender, EntityFieldValueSetCompletedEventArgs e)
+    {
+      if (ShouldSkipRegistration(e))
+        return;
+      if (e.Field.IsStructure)
+        HandleStructureValues(e.Entity, e.Field, (Structure) e.OldValue, (Structure) e.NewValue);
+      else
+        HandleEntityValues(e.Entity, e.Field, (Entity) e.OldValue, (Entity) e.NewValue);
+    }
+
+    private void HandleStructureValues(Entity owner, FieldInfo fieldOfOwner, Structure oldValue, Structure newValue)
+    {
+      var referenceFields = oldValue.TypeInfo.Fields.Where(f => f.IsEntity).Union(oldValue.TypeInfo.StructureFieldMapping.Values.Where(f => f.IsEntity));
+
+      foreach (var referenceFieldOfStructure in referenceFields) {
+        var realField = owner.TypeInfo.Fields[BuildNameOfEntityField(fieldOfOwner, referenceFieldOfStructure)];
+        if (realField.Associations.Count>1)
+          continue;
+        var realAssociation = realField.Associations.First();
+        var oldFieldValue = GetStructureFieldValue(referenceFieldOfStructure, oldValue);
+        var newFieldValue = GetStructureFieldValue(referenceFieldOfStructure, newValue);
+        RegisterChange(newFieldValue, owner.State, oldFieldValue, realAssociation);
+      }
+    }
+
+    private void HandleEntityValues(Entity owner, FieldInfo field, Entity oldValue, Entity newValue)
+    {
+      var oldEntityState = (oldValue!=null) ? oldValue.State : null;
+      var newEntityState = (newValue!=null) ? newValue.State : null;
+      var association = field.GetAssociation((oldValue ?? newValue).TypeInfo);
+      RegisterChange(newEntityState, owner.State, oldEntityState, association);
+    }
+
+    private bool ShouldSkipRegistration(EntityFieldValueSetCompletedEventArgs e)
+    {
+      if (!Session.DisableAutoSaveChanges)
+        return true;
+      if (Session.IsPersisting)
+        return true;
+      if (e.Exception!=null)
+        return true;
+      if (!e.Field.IsEntity && !e.Field.IsStructure)
+        return true;
+      if (e.Field.IsEntity && e.Field.Associations.First().IsPaired)
+        return true;
+      if (e.NewValue==null && e.OldValue==null)
+        return true;
+      return false;
+    }
+
+    private bool ShouldSkipRegistration(EntitySetItemActionCompletedEventArgs e)
+    {
+      if (!Session.DisableAutoSaveChanges)
+        return true;
+      if (Session.IsPersisting)
+        return true;
+      if (e.Exception!=null)
+        return true;
+      if (e.Field.Associations.First().IsPaired)
+        return true;
+      return false;
+    }
+
+    private EntityState GetStructureFieldValue(FieldInfo fieldOfStructure, Structure structure)
+    {
+      EntityState value;
+      if (structure==null)
+        value = null;
+      else {
+        var accessor = structure.GetFieldAccessor(fieldOfStructure);
+        var entity = (Entity) accessor.GetUntypedValue(structure);
+        value = (entity!=null) ? entity.State : null;
+      }
+      return value;
+    }
+
+    private string BuildNameOfEntityField(FieldInfo fieldOfOwner, FieldInfo referenceFieldOfStructure)
+    {
+      var name = string.Format("{0}.{1}", fieldOfOwner.Name, referenceFieldOfStructure.Name);
+      return name;
+    }
+
     internal NonPairedReferenceChangesRegistry(Session session)
       : base(session)
     {
+      Initialize();
     }
   }
 }

@@ -512,7 +512,6 @@ namespace Xtensive.Orm
       EntitySetChangeRegistry = new EntitySetChangeRegistry(this);
       ReferenceFieldsChangesRegistry = new ReferenceFieldsChangesRegistry(this);
       entitySetsWithInvalidState = new HashSet<EntitySetBase>();
-      NonPairedReferencesRegistry = new NonPairedReferenceChangesRegistry(this);
 
       // Events
       EntityEvents = new EntityEventBroker();
@@ -524,6 +523,7 @@ namespace Xtensive.Orm
       RemovalProcessor = new RemovalProcessor(this);
       pinner = new Pinner(this);
       Operations = new OperationRegistry(this);
+      NonPairedReferencesRegistry = new NonPairedReferenceChangesRegistry(this);
 
       // Validation context
       ValidationContext = Configuration.Supports(SessionOptions.ValidateEntities)
