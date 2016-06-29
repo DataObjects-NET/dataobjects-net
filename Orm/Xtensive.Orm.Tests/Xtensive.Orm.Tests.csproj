@@ -243,7 +243,6 @@
     <Compile Include="Issues\IssueJira0549_AssociationOwnerFieldIsEntityAndIsPrimaryKey.cs" />
     <Compile Include="Issues\IssueJira0553_IncorrectLeftJoinOnNotNullEntityField.cs" />
     <Compile Include="Issues\IssueJira0558_InternalOperationForcedExecutionOfDelayedQueriesWithoutPersist.cs" />
-    <Compile Include="Issues\IssueJira0554_NewClientProfileBug.cs" />
     <Compile Include="Issues\IssueJira0557_RollbackOfDifferentialTupleDifferenceWhenPersistFailed.cs" />
     <Compile Include="Issues\IssueJira0555_KeyRemapBug.cs" />
     <Compile Include="Issues\IssueJira0563_IncorrectPersistActionSequence.cs" />
@@ -254,6 +253,7 @@
     <Compile Include="Issues\IssueJira0584_IncorrectMappingOfColumnInQuery.cs" />
     <Compile Include="Issues\IssueJira0586_AnonymousTypeComparisonBug.cs" />
     <Compile Include="Issues\IssueJira0587_KeyComparisonBug.cs" />
+    <Compile Include="Issues\IssueJira0612_NonPairedReferencesSearchBug.cs" />
     <Compile Include="Issues\IssueJira0613_DataCleanUpInPerformSafely.cs" />
     <Compile Include="Issues\IssueJira0616_ExistanceProviderProcessingBug.cs" />
     <Compile Include="Issues\IssueJira0607_ColumnUselessRecreationsTest.cs" />
@@ -323,6 +323,11 @@
     <Compile Include="Linq\ConvariantQueriesTest.cs" />
     <Compile Include="Linq\DateTimeToStringTest.cs" />
     <Compile Include="Linq\DoubleAggregateToStructTest.cs" />
+    <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\NonPairedReferencesFromEntitiesTest.cs" />
+    <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\NonPairedReferencesFromStructures.cs" />
+    <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\PairedReferencesFromEntitiesTest.cs" />
+    <Compile Include="Storage\ReferentialIntegrity\ClientProfile\NonPairedReferencesFromEntitiesTest.cs" />
+    <Compile Include="Storage\ReferentialIntegrity\ClientProfile\NonPairedReferencesFromStructures.cs" />
     <Compile Include="Storage\ClientProfileReferentialIntegrityTest.cs" />
     <Compile Include="Storage\ExecuteDelayedForIOrderedQueryableQuery.cs" />
     <Compile Include="Linq\DynamicallyDefinedFields.cs" />
@@ -412,6 +417,7 @@
     <Compile Include="Storage\ReadOnlySupport\ReadOnlyStorageTestBase.cs" />
     <Compile Include="Storage\ReadOnlySupport\SqlServerReadOnlyTest.cs" />
     <Compile Include="Storage\ReadRemovedObjectTest.cs" />
+    <Compile Include="Storage\ReferentialIntegrity\ClientProfile\PairedReferencesFromEntitiesTest.cs" />
     <Compile Include="Storage\RefTest.cs" />
     <Compile Include="Storage\RemapKeysWhenLazyKeyGenerationEnabledTest.cs" />
     <Compile Include="Storage\SessionDeactivationTest.cs" />

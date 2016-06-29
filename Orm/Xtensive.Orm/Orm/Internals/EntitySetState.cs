@@ -166,7 +166,6 @@ namespace Xtensive.Orm.Internals
     /// <param name="key">The key to add.</param>
     public void Add(Key key)
     {
-      Session.EntityReferenceChangesRegistry.RegisterAddedReference(Session.Query.SingleOrDefault(key).State, owner.Owner.State);
       if (removedKeys.ContainsKey(key))
         removedKeys.Remove(key);
       else
@@ -182,7 +181,6 @@ namespace Xtensive.Orm.Internals
     /// <param name="key">The key to remove.</param>
     public void Remove(Key key)
     {
-      Session.EntityReferenceChangesRegistry.RegisterRemovedReference(Session.Query.SingleOrDefault(key).State, owner.Owner.State);
       if (addedKeys.ContainsKey(key))
         addedKeys.Remove(key);
       else

@@ -512,7 +512,6 @@ namespace Xtensive.Orm
       EntitySetChangeRegistry = new EntitySetChangeRegistry(this);
       ReferenceFieldsChangesRegistry = new ReferenceFieldsChangesRegistry(this);
       entitySetsWithInvalidState = new HashSet<EntitySetBase>();
-      EntityReferenceChangesRegistry = new EntityReferenceChangesRegistry(this);
 
       // Events
       EntityEvents = new EntityEventBroker();
@@ -524,6 +523,7 @@ namespace Xtensive.Orm
       RemovalProcessor = new RemovalProcessor(this);
       pinner = new Pinner(this);
       Operations = new OperationRegistry(this);
+      NonPairedReferencesRegistry = new NonPairedReferenceChangesRegistry(this);
 
       // Validation context
       ValidationContext = Configuration.Supports(SessionOptions.ValidateEntities)
@@ -573,7 +573,7 @@ namespace Xtensive.Orm
         EntitySetChangeRegistry.Clear();
         EntityStateCache.Clear();
         ReferenceFieldsChangesRegistry.Clear();
-        EntityReferenceChangesRegistry.Clear();
+        NonPairedReferencesRegistry.Clear();
       }
       finally {
         isDisposed = true;

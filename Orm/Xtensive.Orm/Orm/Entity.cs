@@ -448,36 +448,7 @@ namespace Xtensive.Orm
       foreach (var fieldInfo in GetKeyFieldsOfEntityType()) {
         var referencedEntity = values[fieldInfo.MappingInfo.Offset] as Entity;
         Session.ReferenceFieldsChangesRegistry.Register(keyOfThisEntity, referencedEntity.Key, fieldInfo);
-        Session.EntityReferenceChangesRegistry.RegisterAddedReference(referencedEntity.State, State);
       }
-    }
-
-    /// <summary>
-    /// Checks that reference from <paramref name="entity"/> was removed since last saving.
-    /// </summary>
-    /// <param name="entity">Entity to check.</param>
-    /// <returns><see langword="true"/> if <see cref="Session.EntityReferenceChangesRegistry"/> contains information about removed reference, otherwise, <see langword="false"/>.</returns>
-    internal bool IsReferenceDeleted(Entity entity)
-    {
-      return Session.EntityReferenceChangesRegistry.IsReferenceDeleted(State, entity.State);
-    }
-
-    /// <summary>
-    /// Gets all entities which have new references to this entity until <see cref="Session.Persist(PersistReason)"/> or <see cref="Session.CancelChanges()"/> executed.
-    /// </summary>
-    /// <returns>All entities which have new references to this entity until persist.</returns>
-    internal IEnumerable<Entity> GetNewReferencesFromEntities()
-    {
-      return Session.EntityReferenceChangesRegistry.GetAddedReferences(State).Keys.Select(referencingState => referencingState.Entity);
-    }
-
-    /// <summary>
-    /// Gets all entities which have new references to this entity until <see cref="Session.Persist(PersistReason)"/> or <see cref="Session.CancelChanges()"/> executed.
-    /// </summary>
-    /// <returns>All entities which have new references to this entity until persist.</returns>
-    internal IEnumerable<Entity> GetRemovedReferencesFromEntities()
-    {
-      return Session.EntityReferenceChangesRegistry.GetAddedReferences(State).Keys.Select(referensingState => referensingState.Entity);
     }
 
     #endregion
