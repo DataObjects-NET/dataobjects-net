@@ -8,21 +8,28 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
-using System.Security;
+using System.Globalization;
 using Xtensive.Sql.Info;
-using Xtensive.Sql;
 
 namespace Xtensive.Sql.Drivers.Sqlite.v3
 {
   internal class TypeMapper : Sql.TypeMapper
   {
-    private const int BooleanPrecision = 1;
     private ValueRange<DateTime> dateTimeRange;
+    private ValueRange<DateTimeOffset> dateTimeOffsetRange;
+
+    private const string DateTimeOffsetFormat = "yyyy-MM-dd HH:mm:ss.fffK";
 
     public override object ReadBoolean(DbDataReader reader, int index)
     {
       var value = reader.GetDecimal(index);
       return SQLiteConvert.ToBoolean(value);
+    }
+
+    public override object ReadDateTimeOffset(DbDataReader reader, int index)
+    {
+      var value = reader.GetString(index);
+      return DateTimeOffset.ParseExact(value, DateTimeOffsetFormat, CultureInfo.InvariantCulture);
     }
 
     public override void BindSByte(DbParameter parameter, object value)
@@ -54,6 +61,17 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       if (value!=null)
         value = ValueRangeValidator.Correct((DateTime) value, dateTimeRange);
       base.BindDateTime(parameter, value);
+    }
+
+    public override void BindDateTimeOffset(DbParameter parameter, object value)
+    {
+      parameter.DbType = DbType.String;
+      if (value==null) {
+        parameter.Value = DBNull.Value;
+        return;
+      }
+      var correctValue = ValueRangeValidator.Correct((DateTimeOffset) value, dateTimeOffsetRange);
+      parameter.Value = correctValue.ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture);
     }
 
     public override SqlValueType MapDecimal(int? length, int? precision, int? scale)
@@ -96,12 +114,17 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       return new SqlValueType(SqlType.Int64);
     }
 
+    public override SqlValueType MapDateTimeOffset(int? length, int? precision, int? scale)
+    {
+      return new SqlValueType(SqlType.DateTimeOffset);
+    }
+
     public override void Initialize()
     {
       base.Initialize();
       dateTimeRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
+      dateTimeOffsetRange = (ValueRange<DateTimeOffset>) Driver.ServerInfo.DataTypes.DateTimeOffset.ValueRange;
     }
-
 
     // Constructors
 

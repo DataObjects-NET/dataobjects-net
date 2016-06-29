@@ -41,9 +41,11 @@ namespace Xtensive.Orm.Providers
       = new Dictionary<QueryParameterIdentity, QueryParameterBinding>();
     private readonly List<QueryParameterBinding> otherBindings = new List<QueryParameterBinding>();
 
-    private bool fixBooleanExpressions;
-    private bool emptyStringIsNull;
-    private ProviderInfo providerInfo;
+    private readonly bool fixBooleanExpressions;
+    private readonly bool emptyStringIsNull;
+    private readonly bool dateTimeEmulation;
+    private readonly bool dateTimeOffsetEmulation;
+    private readonly ProviderInfo providerInfo;
 
     private bool executed;
 
@@ -197,7 +199,6 @@ namespace Xtensive.Orm.Providers
         left = Visit(expression.Left, isEqualityCheck);
         right = Visit(expression.Right, isEqualityCheck);
       }
-
       if (isBooleanFixRequired) {
         // boolean expressions should be compared as integers.
         // additional check is required because some type information might be lost.
@@ -206,6 +207,26 @@ namespace Xtensive.Orm.Providers
           left = booleanExpressionConverter.BooleanToInt(left);
         if (IsBooleanExpression(expression.Right))
           right = booleanExpressionConverter.BooleanToInt(right);
+      }
+
+      //handle SQLite DateTime comparsion
+      if (dateTimeEmulation
+          && left.NodeType != SqlNodeType.Null
+          && right.NodeType != SqlNodeType.Null
+          && IsComparisonExpression(expression)
+          && (IsDateTimeExpression(expression.Left) || IsDateTimeExpression(expression.Right))) {
+        left = SqlDml.Cast(left, SqlType.DateTime);
+        right = SqlDml.Cast(right, SqlType.DateTime);
+      }
+
+      //handle SQLite DateTimeOffset comparsion
+      if (dateTimeOffsetEmulation
+          && left.NodeType!=SqlNodeType.Null
+          && right.NodeType!=SqlNodeType.Null
+          && IsComparisonExpression(expression)
+          && (IsDateTimeOffsetExpression(expression.Left) || IsDateTimeOffsetExpression(expression.Right))) {
+        left = SqlDml.Cast(left, SqlType.DateTimeOffset);
+        right = SqlDml.Cast(right, SqlType.DateTimeOffset);
       }
 
       // handle special cases
@@ -416,6 +437,8 @@ namespace Xtensive.Orm.Providers
 
       fixBooleanExpressions = !providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions);
       emptyStringIsNull = providerInfo.Supports(ProviderFeatures.TreatEmptyStringAsNull);
+      dateTimeEmulation = providerInfo.Supports(ProviderFeatures.DateTimeEmulation);
+      dateTimeOffsetEmulation = providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation);
       memberCompilerProvider = handlers.DomainHandler.GetMemberCompilerProvider<SqlExpression>();
 
       bindings = new HashSet<QueryParameterBinding>();

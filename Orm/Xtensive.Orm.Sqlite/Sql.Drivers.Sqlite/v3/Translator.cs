@@ -11,20 +11,25 @@ using Xtensive.Core;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.Drivers.Sqlite.Resources;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Drivers.Sqlite.v3
 {
   internal class Translator : SqlTranslator
   {
+    private const string DateTimeCastFormat = "%Y-%m-%d %H:%M:%f";
+
     /// <inheritdoc/>
     public override string DateTimeFormatString
     {
-      get { return @"\'yyyy\-MM\-dd HH\:mm\:ss\.FFFFFFF\'"; }
+      get { return @"\'yyyy\-MM\-dd HH\:mm\:ss.fff\'"; }
     }
 
-    /// <inheritdoc/>
+    public virtual string DateTimeOffsetFormatString
+    {
+      get { return @"\'yyyy\-MM\-dd HH\:mm\:ss.fffK\'"; }
+    }
+
     public override string TimeSpanFormatString
     {
       get { return @"{0}{1}"; }
@@ -101,11 +106,13 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       if (literalType==typeof (byte[]))
         return ByteArrayToString((byte[]) literalValue);
       if (literalType==typeof (TimeSpan))
-        return Convert.ToString((long) ((TimeSpan) literalValue).TotalMilliseconds);
+        return Convert.ToString((long) ((TimeSpan) literalValue).Ticks * 100);
       if (literalType==typeof (Boolean))
         return ((Boolean) literalValue) ? "1" : "0";
       if (literalType==typeof (Guid))
         return ByteArrayToString(((Guid) literalValue).ToByteArray());
+      if (literalType==typeof (DateTimeOffset))
+        return ((DateTimeOffset) literalValue).ToString(DateTimeOffsetFormatString, DateTimeFormat);
 
       return base.Translate(context, literalValue);
     }
@@ -297,36 +304,45 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
     }
 
+    public override string Translate(SqlDateTimePart dateTimePart)
+    {
+      switch (dateTimePart) {
+      case SqlDateTimePart.Year:
+        return "'%Y'";
+      case SqlDateTimePart.Month:
+        return "'%m'";
+      case SqlDateTimePart.Day:
+        return "'%d'";
+      case SqlDateTimePart.DayOfWeek:
+        return "'%w'";
+      case SqlDateTimePart.DayOfYear:
+        return "'%j'";
+      case SqlDateTimePart.Hour:
+        return "'%H'";
+      case SqlDateTimePart.Minute:
+        return "'%M'";
+      case SqlDateTimePart.Second:
+        return "'%S'";
+      default:
+        throw SqlHelper.NotSupported(dateTimePart.ToString());
+      }
+    }
+
+    public override string Translate(SqlIntervalPart intervalPart)
+    {
+      throw SqlHelper.NotSupported(intervalPart.ToString());
+    }
+
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SqlExtract extract, ExtractSection section)
     {
       switch (section) {
       case ExtractSection.Entry:
-        return "STRFTIME(";
+        return "CAST(STRFTIME(";
       case ExtractSection.From:
-        if (extract.DateTimePart==SqlDateTimePart.Year)
-          return "'%Y'";
-        if (extract.DateTimePart==SqlDateTimePart.Month)
-          return "'%m'";
-        if (extract.DateTimePart==SqlDateTimePart.Day)
-          return "'%d'";
-        if (extract.DateTimePart==SqlDateTimePart.DayOfWeek)
-          return "'%w'";
-        if (extract.DateTimePart == SqlDateTimePart.DayOfYear)
-          return "'%j'";
-        if (extract.DateTimePart==SqlDateTimePart.Hour)
-          return "'%H'";
-        if (extract.DateTimePart==SqlDateTimePart.Minute)
-          return "'%M'";
-        if (extract.DateTimePart==SqlDateTimePart.Second)
-          return "'%S'";
-        if (extract.DateTimePart==SqlDateTimePart.Millisecond)
-          return "'%f'";
-        throw extract.DateTimePart!=SqlDateTimePart.Nothing
-          ? SqlHelper.NotSupported(extract.DateTimePart.ToString())
-          : SqlHelper.NotSupported(extract.IntervalPart.ToString());
+        return ", ";
       case ExtractSection.Exit:
-        return ")";
+        return ") as INTEGER)";
       default:
         return string.Empty;
       }
@@ -338,20 +354,24 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       //http://www.sqlite.org/lang_expr.html
       var sqlType = node.Type.Type;
 
-      if (sqlType==SqlType.Binary ||
-        sqlType==SqlType.Char ||
-        sqlType==SqlType.Interval ||
-        sqlType==SqlType.DateTime)
+      if (sqlType==SqlType.DateTime ||
+          sqlType==SqlType.DateTimeOffset) {
         switch (section) {
         case NodeSection.Entry:
-          return "CAST(";
+          return string.Format("STRFTIME('{0}', ", DateTimeCastFormat);
         case NodeSection.Exit:
-          return "AS " + Translate(node.Type) + ")";
+          return ")";
         default:
           throw new ArgumentOutOfRangeException("section");
         }
-      if (sqlType==SqlType.Int16 ||
-        sqlType==SqlType.Int32)
+      }
+
+      if (sqlType==SqlType.Binary ||
+          sqlType==SqlType.Char ||
+          sqlType==SqlType.Interval ||
+          sqlType==SqlType.Int16 ||
+          sqlType==SqlType.Int32 ||
+          sqlType==SqlType.Int64)
         switch (section) {
         case NodeSection.Entry:
           return "CAST(";
@@ -361,8 +381,8 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           throw new ArgumentOutOfRangeException("section");
         }
       if (sqlType==SqlType.Decimal ||
-        sqlType==SqlType.Double ||
-        sqlType==SqlType.Float)
+          sqlType==SqlType.Double ||
+          sqlType==SqlType.Float)
         switch (section) {
         case NodeSection.Entry:
           return string.Empty;
@@ -461,9 +481,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       switch (type) {
       case SqlNodeType.DateTimePlusInterval:
+      case SqlNodeType.DateTimeOffsetPlusInterval:
         return "+";
       case SqlNodeType.DateTimeMinusInterval:
       case SqlNodeType.DateTimeMinusDateTime:
+      case SqlNodeType.DateTimeOffsetMinusInterval:
+      case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
         return "-";
       case SqlNodeType.Overlaps:
         throw SqlHelper.NotSupported(type.ToString());

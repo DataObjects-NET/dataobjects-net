@@ -8,6 +8,7 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Orm.Linq;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -201,6 +202,27 @@ namespace Xtensive.Orm.Providers
     private static bool IsBooleanExpression(Expression expression)
     {
       return StripObjectCasts(expression).Type.StripNullable()==typeof (bool);
+    }
+
+    private static bool IsDateTimeExpression(Expression expression)
+    {
+      return StripObjectCasts(expression).Type.StripNullable()==typeof (DateTime);
+    }
+
+    private static bool IsDateTimeOffsetExpression(Expression expression)
+    {
+      return StripObjectCasts(expression).Type.StripNullable()==typeof (DateTimeOffset);
+    }
+
+    private static bool IsComparisonExpression(Expression expression)
+    {
+      return expression.NodeType.In(
+        ExpressionType.Equal,
+        ExpressionType.NotEqual,
+        ExpressionType.GreaterThan,
+        ExpressionType.LessThan,
+        ExpressionType.GreaterThanOrEqual,
+        ExpressionType.LessThanOrEqual);
     }
 
     private static Expression StripObjectCasts(Expression expression)

@@ -13,145 +13,116 @@ namespace Xtensive.Orm.Tests.Sql
 {
   public abstract class DateTimeOffsetTest : SqlTest
   {
+    protected static readonly TimeSpan DefaultTimeSpan = -new TimeSpan(4, 10, 0);
+    protected static readonly TimeSpan SecondTimeSpan = new TimeSpan(9, 45, 0);
+    protected static readonly DateTimeOffset DefaultDateTimeOffset = new DateTimeOffset(2001, 2, 3, 14, 15, 16, 334, DefaultTimeSpan);
+    protected static readonly DateTimeOffset SecondDateTimeOffset = new DateTimeOffset(2000, 12, 11, 10, 9, 8, 765, SecondTimeSpan);
+    protected static readonly TimeSpan OperationTimeSpanConst = new TimeSpan(10, 9, 8, 7, 542);
+    protected static readonly int AddYearsConst = 5;
+    protected static readonly int AddMonthsConst = 15;
+
+    protected virtual bool IsNanosecondSupported
+    {
+      get { return true; }
+    }
+
     [Test]
     public virtual void ExtractTest()
     {
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.Day, new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        1);
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.DayOfWeek, new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        1);
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.DayOfYear, new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        1);
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.Hour, new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        1);
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.Millisecond, new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        1);
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.Minute, new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        1);
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.Month, new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        1);
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.Nanosecond, new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        1000000);
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.Second, new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        1);
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.TimeZoneHour, new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        4);
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.TimeZoneMinute, new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        10);
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.Year, new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        2001);
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Day, DefaultDateTimeOffset), DefaultDateTimeOffset.Day);
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.DayOfWeek, DefaultDateTimeOffset), (int) DefaultDateTimeOffset.DayOfWeek);
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.DayOfYear, DefaultDateTimeOffset), DefaultDateTimeOffset.DayOfYear);
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Hour, DefaultDateTimeOffset), DefaultDateTimeOffset.Hour);
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Millisecond, DefaultDateTimeOffset), DefaultDateTimeOffset.Millisecond);
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Minute, DefaultDateTimeOffset), DefaultDateTimeOffset.Minute);
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Month, DefaultDateTimeOffset), DefaultDateTimeOffset.Month);
+      if (IsNanosecondSupported)
+        CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Nanosecond, DefaultDateTimeOffset), DefaultDateTimeOffset.Millisecond * 1000000);
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Second, DefaultDateTimeOffset), DefaultDateTimeOffset.Second);
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.TimeZoneHour, DefaultDateTimeOffset), DefaultDateTimeOffset.Offset.Hours);
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.TimeZoneMinute, DefaultDateTimeOffset), DefaultDateTimeOffset.Offset.Minutes);
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Year, DefaultDateTimeOffset), DefaultDateTimeOffset.Year);
+
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Date, DefaultDateTimeOffset), DefaultDateTimeOffset.Date);
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.DateTime, DefaultDateTimeOffset), DefaultDateTimeOffset.DateTime);
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Offset, DefaultDateTimeOffset), DefaultDateTimeOffset.Offset);
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.LocalDateTime, DefaultDateTimeOffset), DefaultDateTimeOffset.LocalDateTime);
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.UtcDateTime, DefaultDateTimeOffset), DefaultDateTimeOffset.UtcDateTime);
     }
 
     [Test]
     public virtual void DateTimeOffsetAddMonthsTest()
     {
-      CheckEquality(
-        SqlDml.DateTimeOffsetAddMonths(new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0)), 15),
-        new DateTimeOffset(2002, 4, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0)));
+      CheckEquality(SqlDml.DateTimeOffsetAddMonths(DefaultDateTimeOffset, AddMonthsConst), DefaultDateTimeOffset.AddMonths(AddMonthsConst));
     }
 
     [Test]
     public virtual void DateTimeOffsetAddYearsTest()
     {
-      CheckEquality(
-        SqlDml.DateTimeOffsetAddYears(new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0)), 5),
-        new DateTimeOffset(2006, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0)));
+      CheckEquality(SqlDml.DateTimeOffsetAddYears(DefaultDateTimeOffset, AddYearsConst), DefaultDateTimeOffset.AddYears(AddYearsConst));
     }
 
     [Test]
     public virtual void DateTimeOffsetConstructTest()
     {
-      CheckEquality(
-        SqlDml.DateTimeOffsetConstruct(new DateTime(2001, 1, 1, 1,1, 1,  1), 250),
-        new DateTimeOffset(2001, 1, 1, 0, 0, 0, 0, new TimeSpan(4, 10, 0)));
+      CheckEquality(SqlDml.DateTimeOffsetConstruct(DefaultDateTimeOffset.DateTime, DefaultTimeSpan.TotalMinutes), DefaultDateTimeOffset);
     }
 
     [Test]
     public virtual void DateTimeOffsetMinusDateTimeOffsetTest()
     {
-      CheckEquality(
-        SqlDml.DateTimeOffsetMinusDateTimeOffset(new DateTimeOffset(2005, 5, 5, 5, 5, 5, 5, new TimeSpan(4, 10, 0)),
-          new DateTimeOffset(2005, 5, 6, 6, 6, 6, 6, new TimeSpan(4, 10, 0))),
-        new TimeSpan(1, 1, 1, 1, 1).Negate());
+      CheckEquality(SqlDml.DateTimeOffsetMinusDateTimeOffset(DefaultDateTimeOffset, SecondDateTimeOffset), DefaultDateTimeOffset.Subtract(SecondDateTimeOffset));
     }
 
     [Test]
     public virtual void DateTimeOffsetMinusIntervalTest()
     {
-      CheckEquality(
-        SqlDml.DateTimeOffsetMinusInterval(new DateTimeOffset(2005, 5, 5, 5, 5, 5, 5, new TimeSpan(4, 10, 0)), new TimeSpan(4, 4, 4, 4, 4)),
-        new DateTimeOffset(2005, 5, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0)));
+      CheckEquality(SqlDml.DateTimeOffsetMinusInterval(DefaultDateTimeOffset, OperationTimeSpanConst), DefaultDateTimeOffset - OperationTimeSpanConst);
     }
 
     [Test]
     public virtual void DateTimeOffsetPlusIntervalTest()
     {
-      CheckEquality(
-        SqlDml.DateTimeOffsetPlusInterval(new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0)), new TimeSpan(10, 10, 10, 10, 10)),
-        new DateTimeOffset(2001, 1, 11, 11, 11, 11, 11, new TimeSpan(4, 10, 0)));
+      CheckEquality(SqlDml.DateTimeOffsetPlusInterval(DefaultDateTimeOffset, OperationTimeSpanConst), DefaultDateTimeOffset + OperationTimeSpanConst);
     }
 
     [Test]
     public virtual void DateTimeOffsetTimeOfDayTest()
     {
-      CheckEquality(
-        SqlDml.DateTimeOffsetTimeOfDay(new DateTimeOffset(2001, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        new TimeSpan(0, 1, 1, 1, 1));
+      CheckEquality(SqlDml.DateTimeOffsetTimeOfDay(DefaultDateTimeOffset), DefaultDateTimeOffset.TimeOfDay);
     }
 
     [Test]
     public virtual void DateTimeOffsetTruncateTest()
     {
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.Date, new DateTimeOffset(2005, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        new DateTime(2005, 1, 1, 0, 0, 0, 0));
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Date, DefaultDateTimeOffset), DefaultDateTimeOffset.Date);
     }
 
     [Test]
     public virtual void DateTimeOffsetToDateTimeTest()
     {
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.DateTime, new DateTimeOffset(2005, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        new DateTime(2005, 1, 1, 1, 1, 1, 1));
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.DateTime, DefaultDateTimeOffset), DefaultDateTimeOffset.DateTime);
     }
 
     [Test]
     public virtual void DateTimeOffsetPartOffsetTest()
     {
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.Offset, new DateTimeOffset(2005, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        new TimeSpan(4, 10, 0));
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Offset, DefaultDateTimeOffset), DefaultDateTimeOffset.Offset);
     }
 
     [Test]
     public virtual void DateTimeOffsetToUtcDateTimeTest()
     {
-      CheckEquality(
-        SqlDml.Extract(SqlDateTimeOffsetPart.UtcDateTime, new DateTimeOffset(2005, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        new DateTime(2004, 12, 31, 20, 51, 1, 1));
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.UtcDateTime, DefaultDateTimeOffset), DefaultDateTimeOffset.UtcDateTime);
     }
 
     [Test]
     public virtual void DateTimeOffsetToUtcTimeTest()
     {
-      CheckEquality(
-        SqlDml.DateTimeOffsetToUtcTime(new DateTimeOffset(2005, 1, 1, 1, 1, 1, 1, new TimeSpan(4, 10, 0))),
-        new DateTimeOffset(2004, 12, 31, 20, 51, 1, 1, new TimeSpan(0, 0, 0)));
+      CheckEquality(SqlDml.DateTimeOffsetToUtcTime(DefaultDateTimeOffset), DefaultDateTimeOffset.ToUniversalTime());
     }
 
-    private void CheckEquality(SqlExpression left, SqlExpression right)
+    protected void CheckEquality(SqlExpression left, SqlExpression right)
     {
       var select = SqlDml.Select("ok");
       select.Where = left==right;

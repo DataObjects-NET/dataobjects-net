@@ -52,6 +52,8 @@
     <Compile Include="Firebird\CompilerTest.cs" />
     <Compile Include="MySQL\CompilerTest.cs" />
     <Compile Include="PostgreSql\NpgsqlTypeConstructorTest.cs" />
+    <Compile Include="Sqlite\DateTimeIntervalTest.cs" />
+    <Compile Include="Sqlite\DateTimeOffsetTest.cs" />
     <Compile Include="SqlServer\CompilerTest.cs" />
     <Compile Include="SqlServer\DateTimeOffsetTest.cs" />
     <Compile Include="TestConnectionInfoProvider.cs" />
@@ -86,7 +88,6 @@
     <Compile Include="SavepointsTest.cs" />
     <Compile Include="Sqlite\ExtractorTest.cs" />
     <Compile Include="Sqlite\Northwind.cs" />
-    <Compile Include="Sqlite\DateTimeIntervalTests.cs" />
     <Compile Include="Sqlite\MiscTests.cs" />
     <Compile Include="Sqlite\NorthwindTest.cs" />
     <Compile Include="Sqlite\TypeMappingTests.cs" />

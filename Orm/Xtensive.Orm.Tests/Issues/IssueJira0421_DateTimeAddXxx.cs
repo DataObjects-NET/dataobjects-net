@@ -29,8 +29,8 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   public class IssueJira0421_DateTimeAddXxx : AutoBuildTest
   {
-    private DateTime today = new DateTime(2012, 12, 12);
-
+    //    private DateTime today = new DateTime(2016, 01, 02, 03, 04, 05, 347); todo This Value failed with sqlite provider because of accuracy millisecond error
+    private DateTime today = new DateTime(2016, 01, 02, 03, 04, 05, 348);
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();

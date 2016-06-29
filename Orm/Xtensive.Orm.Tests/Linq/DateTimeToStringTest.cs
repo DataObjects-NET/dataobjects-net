@@ -9,14 +9,13 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq.DateTimeToStringTestModel;
-using Xtensive.Sql;
 
 namespace Xtensive.Orm.Tests.Linq
 {
   namespace DateTimeToStringTestModel
   {
     [HierarchyRoot]
-    public class DateTimeTest : Entity
+    public class DateTimeEntity : Entity
     {
       [Key, Field]
       public int Id { get; private set; }
@@ -27,7 +26,7 @@ namespace Xtensive.Orm.Tests.Linq
       [Field]
       public DateTime Birthday { get; private set; }
 
-      public DateTimeTest(string name, DateTime birthday)
+      public DateTimeEntity(string name, DateTime birthday)
       {
         Name = name;
         Birthday = birthday;
@@ -37,12 +36,12 @@ namespace Xtensive.Orm.Tests.Linq
 
   public class DateTimeToStringTest : AutoBuildTest
   {
-    private DateTime date = new DateTime(2013, 2, 12, 22, 11, 30);
+    private DateTime date = new DateTime(2013, 2, 12, 22, 11, 30, 334);
 
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (DateTimeTest));
+      configuration.Types.Register(typeof (DateTimeEntity));
       return configuration;
     }
 
@@ -50,7 +49,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new DateTimeTest("Hello", date);
+        new DateTimeEntity("Hello", date);
         tx.Complete();
       }
     }
@@ -60,7 +59,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var result = session.Query.All<DateTimeTest>()
+        var result = session.Query.All<DateTimeEntity>()
           .Select(d => d.Birthday.ToString("s"))
           .ToList();
         Assert.That(result[0], Is.EqualTo(date.ToString("s")));
@@ -72,8 +71,8 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var result = session.Query.All<DateTimeTest>()
-          .Where(dd => dd.Birthday.ToString("s") == date.ToString("s"))
+        var result = session.Query.All<DateTimeEntity>()
+          .Where(dd => dd.Birthday.ToString("s")==date.ToString("s"))
           .ToList()
           .FirstOrDefault();
 
@@ -82,7 +81,3 @@ namespace Xtensive.Orm.Tests.Linq
     }
   }
 }
-
-
-
-

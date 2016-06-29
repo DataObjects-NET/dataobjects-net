@@ -185,9 +185,13 @@ namespace Xtensive.Orm.Providers
       var joinType = provider.JoinType==JoinType.LeftOuter
         ? SqlJoinType.LeftOuterJoin
         : SqlJoinType.InnerJoin;
-      var joinExpression = provider.EqualIndexes
-        .Select(pair => leftExpressions[pair.First]==rightExpressions[pair.Second])
-        .Aggregate(null as SqlExpression, (expression, binary) => expression & binary);
+
+      SqlExpression joinExpression = null;
+      for (var i = 0; i < provider.EqualIndexes.Count(); ++i) {
+        var leftExpression = leftExpressions[provider.EqualIndexes[i].First];
+        var rightExpression = rightExpressions[provider.EqualIndexes[i].Second];
+        joinExpression &= GetJoinExpression(leftExpression, rightExpression, provider, i);
+      }
 
       var joinedTable = SqlDml.Join(
         joinType,
@@ -313,28 +317,29 @@ namespace Xtensive.Orm.Providers
       var rootSelectProvider = RootProvider as SelectProvider;
       var currentIsRoot = RootProvider==provider;
       var currentIsOwnedRootSelect = (rootSelectProvider!=null && rootSelectProvider.Source==provider);
-      var currentIsOwnedByPaging = !currentIsRoot
-        && Owner.Type.In(ProviderType.Take, ProviderType.Skip, ProviderType.Paging);
+      var currentIsOwnedByPaging = !currentIsRoot && Owner.Type.In(ProviderType.Take, ProviderType.Skip, ProviderType.Paging);
 
       if (currentIsRoot || currentIsOwnedRootSelect || currentIsOwnedByPaging) {
         query.OrderBy.Clear();
         if (currentIsRoot) {
           foreach (var pair in provider.Header.Order)
-            query.OrderBy.Add(query.Columns[pair.Key], pair.Value == Direction.Positive);
+            query.OrderBy.Add(GetOrderByExpression(query.Columns[pair.Key], provider, pair.Key), pair.Value==Direction.Positive);
         }
         else {
           var columnExpressions = ExtractColumnExpressions(query);
           var shouldUseColumnPosition = provider.Header.Order.Any(o => o.Key >= columnExpressions.Count);
-          if (shouldUseColumnPosition)
+          if (shouldUseColumnPosition) {
             foreach (var pair in provider.Header.Order) {
               if (pair.Key >= columnExpressions.Count)
-                query.OrderBy.Add(pair.Key + 1, pair.Value == Direction.Positive);
+                query.OrderBy.Add(pair.Key + 1, pair.Value==Direction.Positive);
               else
-                query.OrderBy.Add(columnExpressions[pair.Key], pair.Value == Direction.Positive);
+                query.OrderBy.Add(GetOrderByExpression(columnExpressions[pair.Key], provider, pair.Key), pair.Value==Direction.Positive);
             }
-          else
+          }
+          else {
             foreach (var pair in provider.Header.Order)
-              query.OrderBy.Add(columnExpressions[pair.Key], pair.Value == Direction.Positive);
+              query.OrderBy.Add(GetOrderByExpression(columnExpressions[pair.Key], provider, pair.Key), pair.Value==Direction.Positive);
+          }
         }
       }
       return CreateProvider(query, provider, compiledSource);

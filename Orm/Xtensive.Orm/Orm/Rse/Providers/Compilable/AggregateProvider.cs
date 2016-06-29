@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Rse.Providers
       case TypeCode.DateTime:
         return sourceColumnType;
       default:
-        if (sourceColumnType == typeof(TimeSpan))
+        if (sourceColumnType==typeof (TimeSpan) || sourceColumnType==typeof (DateTimeOffset))
           return sourceColumnType;
         throw AggregateNotSupported(sourceColumnType, aggregateType);
       }
