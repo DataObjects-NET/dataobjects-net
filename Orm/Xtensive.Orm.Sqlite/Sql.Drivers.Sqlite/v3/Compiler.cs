@@ -16,18 +16,18 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 {
   internal class Compiler : SqlCompiler
   {
-    private const long NanosecondsPerMillisecond = 1000000L;
     private static readonly long NanosecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds * NanosecondsPerMillisecond;
     private static readonly long NanosecondsPerHour = (long) TimeSpan.FromHours(1).TotalMilliseconds * NanosecondsPerMillisecond;
     private static readonly long NanosecondsPerSecond = (long) TimeSpan.FromSeconds(1).TotalMilliseconds * NanosecondsPerMillisecond;
     private static readonly long MillisecondsPerSecond = (long) TimeSpan.FromSeconds(1).TotalMilliseconds;
+    private static readonly int StartOffsetIndex = DateTimeOffsetExampleString.IndexOf('+');
 
+    private const long NanosecondsPerMillisecond = 1000000L;
     private const string DateFormat = "%Y-%m-%d 00:00:00.000";
     private const string DateTimeFormat = "%Y-%m-%d %H:%M:%f";
     private const string DateTimeIsoFormat = "%Y-%m-%dT%H:%M:%S";
-
     private const string DateTimeOffsetExampleString = "2001-02-03 04:05:06.789+02.45";
-    private static readonly int StartOffsetIndex = DateTimeOffsetExampleString.IndexOf('+');
+    
 
     protected override bool VisitCreateTableConstraints(SqlCreateTable node, IEnumerable<TableConstraint> constraints, bool hasItems)
     {
