@@ -20,9 +20,11 @@ namespace Xtensive.Orm
     private bool disableAutoSaveChanges;
     private KeyRemapper remapper;
     private bool persistingIsFailed;
-    
-    internal EntityReferenceChangesRegistry EntityReferenceChangesRegistry { get; private set; }
+
+    internal bool DisableAutoSaveChanges { get { return disableAutoSaveChanges; } }
+    internal NonPairedReferenceChangesRegistry NonPairedReferencesRegistry { get; private set; }
     internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry { get; private set; }
+
     /// <summary>
     /// Saves all modified instances immediately to the database.
     /// Obsolete, use <see cref="SaveChanges"/> method instead.
@@ -85,6 +87,7 @@ namespace Xtensive.Orm
     {
       CancelEntitySetsChanges();
       CancelEntitiesChanges();
+      NonPairedReferencesRegistry.Clear();
     }
 
     internal void Persist(PersistReason reason)
@@ -153,7 +156,7 @@ namespace Xtensive.Orm
                 else
                   EntityChangeRegistry.Clear();
                 EntitySetChangeRegistry.Clear();
-                EntityReferenceChangesRegistry.Clear();
+                NonPairedReferencesRegistry.Clear();
               }
               
               OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
@@ -259,7 +262,7 @@ namespace Xtensive.Orm
         removedEntity.PersistenceState = PersistenceState.Synchronized;
       }
       EntityChangeRegistry.Clear();
-      EntityReferenceChangesRegistry.Clear();
+      NonPairedReferencesRegistry.Clear();
     }
 
     private void RestoreEntityChangesAfterPersistFailed()

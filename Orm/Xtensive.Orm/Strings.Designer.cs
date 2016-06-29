@@ -5241,6 +5241,24 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Reference registration error: Reference addition is already registered..
+        /// </summary>
+        internal static string ExReferenceRegistrationErrorReferenceAdditionIsAlreadyRegistered {
+            get {
+                return ResourceManager.GetString("ExReferenceRegistrationErrorReferenceAdditionIsAlreadyRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reference registration error: Reference removal is already registered..
+        /// </summary>
+        internal static string ExReferenceRregistrationErrorReferenceRemovalIsAlreadyRegistered {
+            get {
+                return ResourceManager.GetString("ExReferenceRregistrationErrorReferenceRemovalIsAlreadyRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Referencing columns count cannot be less then one..
         /// </summary>
         internal static string ExReferencingColumnsCountCantBeLessThenOne {

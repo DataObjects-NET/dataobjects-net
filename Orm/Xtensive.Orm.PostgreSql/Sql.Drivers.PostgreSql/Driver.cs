@@ -42,6 +42,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       case "08": // connection_exception
         return SqlExceptionType.ConnectionError;
       case "42": // syntax_error_or_access_rule_violation
+        if (errorCode=="42501")
+          return SqlExceptionType.Unknown;
         return SqlExceptionType.SyntaxError;
       }
 

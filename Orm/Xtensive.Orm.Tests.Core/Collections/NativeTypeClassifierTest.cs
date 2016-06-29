@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
       classifier.Add(l);
       Assert.IsTrue(classifier.Contains(l));
       Assert.AreEqual(2, classifier.Count);
-      Assert.AreEqual(8, classifier.ClassCount);
+      Assert.AreEqual(10, classifier.ClassCount);
       Assert.AreEqual(2, classifier.GetItems<object>().Count());
       Assert.AreEqual(1, classifier.GetItems<IEnumerable<int>>().Count());
 

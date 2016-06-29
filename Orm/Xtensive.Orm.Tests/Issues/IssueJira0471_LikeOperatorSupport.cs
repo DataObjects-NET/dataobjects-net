@@ -28,30 +28,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0471_LikeOperatorSupportModel
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  class IssueJira0471_LikeOperatorSupport : AutoBuildTest
+  public class IssueJira0471_LikeOperatorSupport : AutoBuildTest
   {
-    protected override DomainConfiguration BuildConfiguration()
-    {
-      var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Customer).Assembly, typeof (Customer).Namespace);
-      return configuration;
-    }
-
-    protected override void PopulateData()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        new Customer {FirstName = "Alexey", LastName = "Kulakov"};
-        new Customer {FirstName = "Ulexey", LastName = "Kerzhakov"};
-        new Customer {FirstName = "Klexey", LastName = "Komarov"};
-        new Customer {FirstName = "Klexey", LastName = "K%[maroff"};
-        new Customer {FirstName = "Martha", LastName = "$mith"};
-        new Customer {FirstName = "E%ric", LastName = "Cartman"};
-        new Customer {FirstName = "Kyle", LastName = "Broflovski"};
-        transaction.Complete();
-      }
-    }
-
     [Test]
     public void SimlpeOneSymbolTest()
     {
@@ -99,15 +77,53 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(firstQuery.First().FirstName, Is.EqualTo("E%ric"));
       }
     }
+
     [Test]
     public void AllInOneTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);// specified escape character can't be used in firebird
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var firstQuery = from a in session.Query.All<Customer>()
           where a.LastName.Like("K!%![m%f_", '!') 
           select a;
         Assert.That(firstQuery.First().LastName, Is.EqualTo("K%[maroff"));
+      }
+    }
+
+    [Test]
+    public void AllInOneForFirebirdTest()
+    {
+      Require.ProviderIs(StorageProvider.Firebird);
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var firstQuery = from a in session.Query.All<Customer>()
+                         where a.LastName.Like("K$%[m%f_", '$')
+                         select a;
+        Assert.That(firstQuery.First().LastName, Is.EqualTo("K%[maroff"));
+      }
+    }
+
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      var configuration = base.BuildConfiguration();
+      configuration.Types.Register(typeof(Customer).Assembly, typeof(Customer).Namespace);
+      return configuration;
+    }
+
+    protected override void PopulateData()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction())
+      {
+        new Customer { FirstName = "Alexey", LastName = "Kulakov" };
+        new Customer { FirstName = "Ulexey", LastName = "Kerzhakov" };
+        new Customer { FirstName = "Klexey", LastName = "Komarov" };
+        new Customer { FirstName = "Klexey", LastName = "K%[maroff" };
+        new Customer { FirstName = "Martha", LastName = "$mith" };
+        new Customer { FirstName = "E%ric", LastName = "Cartman" };
+        new Customer { FirstName = "Kyle", LastName = "Broflovski" };
+        transaction.Complete();
       }
     }
   }

@@ -171,7 +171,11 @@ namespace Xtensive.Orm.Upgrade
         var typeMetadata = GetTypeMetadata(types, registry);
         var assemblies = types.Select(t => t.UnderlyingType.Assembly).ToHashSet();
         var assemblyMetadata = GetAssemblyMetadata(assemblies);
-        var serializedModel = model.ToStoredModel(registry, filter).Serialize();
+        var storedModel = model.ToStoredModel(registry, filter);
+        // Since we support storage nodes, stored domain model and real model of a node
+        // must be synchronized. So we must update types' mappings
+        storedModel.UpdateMappings(UpgradeContext.NodeConfiguration);
+        var serializedModel = storedModel.Serialize();
         var modelExtension = new ExtensionMetadata(WellKnown.DomainModelExtensionName, serializedModel);
         var indexesExtension = GetPartialIndexes(domain, types);
         metadata.Assemblies.AddRange(assemblyMetadata);

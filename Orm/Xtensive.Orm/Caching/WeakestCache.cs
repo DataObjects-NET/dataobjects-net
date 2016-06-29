@@ -209,11 +209,7 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public TItem this[TKey key, bool markAsHit] {
       get {
-        TItem item;
-        if (TryGetItem(key, markAsHit, out item))
-          return item;
-        else
-          return null;
+        return GetItemByKeyInternal(key, markAsHit);
       }
     }
 
@@ -221,19 +217,8 @@ namespace Xtensive.Caching
     [SecuritySafeCritical]
     public virtual bool TryGetItem(TKey key, bool markAsHit, out TItem item)
     {
-      RegisterOperation(1);
-      WeakEntry entry;
-      if (items.TryGetValue(key, out entry)) {
-        var pair = entry.Value;
-        if (pair.Key!=null) {
-          item = pair.Value;
-          return true;
-        }
-        items.Remove(key);
-        entry.Dispose();
-      }
-      item = null;
-      return false;
+      item = GetItemByKeyInternal(key, markAsHit);
+      return item!=null;
     }
 
     /// <inheritdoc/>
@@ -245,8 +230,7 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public bool ContainsKey(TKey key)
     {
-      TItem item;
-      return TryGetItem(key, false, out item);
+      return GetItemByKeyInternal(key, false)!=null;
     }
 
     #region Modification methods: Add, Remove, Clear
@@ -396,6 +380,22 @@ namespace Xtensive.Caching
         return;
       if (time > ((count << 1) + count))
         CollectGarbage();
+    }
+
+    [SecuritySafeCritical]
+    private TItem GetItemByKeyInternal(TKey key, bool markAsHit)
+    {
+      RegisterOperation(1);
+      WeakEntry entry;
+      if (items.TryGetValue(key, out entry)) {
+        var pair = entry.Value;
+        if (pair.Key != null) {
+          return pair.Value;
+        }
+        items.Remove(key);
+        entry.Dispose();
+      }
+      return null;
     }
 
     #endregion

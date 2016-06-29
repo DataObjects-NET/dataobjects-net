@@ -293,8 +293,6 @@ namespace Xtensive.Orm.Upgrade
         var storageNode = BuildStorageNode(domain, extractor);
         session.SetStorageNode(storageNode);
         OnStage(session);
-        if (stage==UpgradeStage.Final)
-          CleanUpKeyGenerators(session);
         transaction.Complete();
       }
     }
@@ -525,21 +523,6 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private static void CleanUpKeyGenerators(Session session)
-    {
-      // User might generate some entities in OnStage() method
-      // Since upgrade connection was used for key generators
-      // we need to clean up key generator tables here.
-
-      var sequenceAccessor = session.Services.Demand<IStorageSequenceAccessor>();
-      var keyGenerators = session.Domain.Model.Hierarchies
-        .Select(h => h.Key.Sequence)
-        .Where(s => s!=null)
-        .Distinct();
-
-      sequenceAccessor.CleanUp(keyGenerators, session);
-    }
-
     private void OnComplete(Domain domain)
     {
       foreach (var handler in context.OrderedUpgradeHandlers)
@@ -583,6 +566,9 @@ namespace Xtensive.Orm.Upgrade
     {
       var storedDomainModel = domainModel.ToStoredModel();
       storedDomainModel.UpdateReferences();
+      // Since we support storage nodes, stored domain model and real model of a node
+      // must be synchronized. So we must update types' mappings
+      storedDomainModel.UpdateMappings(context.NodeConfiguration);
       return storedDomainModel;
     }
 
