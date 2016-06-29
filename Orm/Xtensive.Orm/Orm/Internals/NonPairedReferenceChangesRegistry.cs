@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Internals
     public IEnumerable<EntityState> GetAddedReferenceTo(EntityState target, AssociationInfo association)
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
-      ArgumentValidator.EnsureArgumentNotNull(association, "");
+      ArgumentValidator.EnsureArgumentNotNull(association, "association");
 
       if (association.IsPaired)
         return Enumerable.Empty<EntityState>();
