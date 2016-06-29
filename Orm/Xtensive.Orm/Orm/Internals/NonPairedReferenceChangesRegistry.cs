@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Internals
     public IEnumerable<EntityState> GetAddedReferenceTo(EntityState target, AssociationInfo association)
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
-      ArgumentValidator.EnsureArgumentNotNull(association, "");
+      ArgumentValidator.EnsureArgumentNotNull(association, "association");
 
       if (association.IsPaired)
         return Enumerable.Empty<EntityState>();
@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Internals
       }
       if (removedReferences.TryGetValue(oldKey, out references)) {
         if (references.Contains(referencingState))
-          throw new InvalidOperationException("Reference registration error: Unable to register reference remove twice.");
+          throw new InvalidOperationException(Strings.ExReferenceRregistrationErrorReferenceRemovalIsAlreadyRegistered);
         references.Add(referencingState);
         return;
       }
@@ -165,7 +165,7 @@ namespace Xtensive.Orm.Internals
       }
       if (addedReferences.TryGetValue(newKey, out references)) {
         if (references.Contains(referencingState))
-          throw new InvalidOperationException("Reference registration error: Unable to register new reference twice.");
+          throw new InvalidOperationException(Strings.ExReferenceRegistrationErrorReferenceAdditionIsAlreadyRegistered);
         references.Add(referencingState);
         return;
       }

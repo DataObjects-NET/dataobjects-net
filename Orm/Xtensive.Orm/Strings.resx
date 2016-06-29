@@ -3358,4 +3358,10 @@ Error: {1}</value>
   <data name="ExTranslationOfXMethodDoesNotSupportAnyTypeOfParameterButY" xml:space="preserve">
     <value>Translation of {0} method does not support any parameter type, but {1}.</value>
   </data>
+  <data name="ExReferenceRregistrationErrorReferenceRemovalIsAlreadyRegistered" xml:space="preserve">
+    <value>Reference registration error: Reference removal is already registered.</value>
+  </data>
+  <data name="ExReferenceRegistrationErrorReferenceAdditionIsAlreadyRegistered" xml:space="preserve">
+    <value>Reference registration error: Reference addition is already registered.</value>
+  </data>
 </root>
