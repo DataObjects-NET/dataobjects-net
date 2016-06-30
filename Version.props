@@ -3,7 +3,7 @@
 
 <PropertyGroup>
   <Version>5.0.10</Version>
-  <Modifier>RC</Modifier>
+  <Modifier></Modifier>
   <BuildNumberBase>9700</BuildNumberBase>
 </PropertyGroup>
 
