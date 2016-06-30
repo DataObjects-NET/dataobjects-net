@@ -321,7 +321,6 @@
     <Compile Include="Issues\StructureFieldRemoveTest.cs" />
     <Compile Include="Linq\ContainsOverKeysCollectionTest.cs" />
     <Compile Include="Linq\ConvariantQueriesTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffsetTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\BaseDateTimeAndDateTimeOffsetTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\NullableDateTimeTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeMillisecondAccuracyTest.cs" />
@@ -329,7 +328,6 @@
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\NullableDateTimeOffsetTest.cs" />
-    <Compile Include="Linq\DateTimeToStringTest.cs" />
     <Compile Include="Linq\DoubleAggregateToStructTest.cs" />
     <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\NonPairedReferencesFromEntitiesTest.cs" />
     <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\NonPairedReferencesFromStructures.cs" />
