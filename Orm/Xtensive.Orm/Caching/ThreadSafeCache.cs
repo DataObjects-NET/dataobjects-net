@@ -139,6 +139,11 @@ namespace Xtensive.Caching
       }
     }
 
+    public void RemoveKey(TKey key, bool removeFromInnerCaches)
+    {
+      RemoveKey(key);
+    }
+
     /// <inheritdoc/>
     public void Clear()
     {

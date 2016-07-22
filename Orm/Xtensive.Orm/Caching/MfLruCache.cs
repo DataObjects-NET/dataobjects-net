@@ -214,10 +214,19 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public virtual void RemoveKey(TKey key)
     {
+      RemoveKey(key, false);
+    }
+
+    public void RemoveKey(TKey key, bool removeFromInnerCaches)
+    {
       CachedItem cached;
       if (items.TryGetValue(key, out cached)) {
-        if (chainedCache!=null)
-          chainedCache.Add(cached.Item, true);
+        if (chainedCache!=null) {
+          if (removeFromInnerCaches)
+            chainedCache.RemoveKey(key);
+          else
+            chainedCache.Add(cached.Item, true);
+        }
         items.Remove(key);
         ItemRemoved(key);
       }
