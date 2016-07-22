@@ -355,6 +355,18 @@ namespace Xtensive.Orm.Tests.Issues
 
       config = CreateConfig(DomainUpgradeMode.Validate, typeof (TBaseEntity));
       using (var domain = Domain.Build(config)) {
+        OpenSessionAndAction(domain, false, () => {
+          var ids = new[] { baseEntityId, firstSuccessorId, secondSuccessorId, secondSuccessorLeafId, thirdSuccessorId, thirdSuccessorLeaf1Id, thirdSuccessorLeaf2Id };
+
+          foreach (var id in ids)
+            Assert.IsNotNull(Query.SingleOrDefault<TBaseEntity>(id));
+
+          Assert.IsNotNull(Query.SingleOrDefault<TFirstSuccessor>(firstSuccessorId));
+        });
+      }
+
+      config = CreateConfig(DomainUpgradeMode.Validate, typeof (TBaseEntity));
+      using (var domain = Domain.Build(config)) {
         var actions = new Action[] {
           CheckBaseEntity<TBaseEntity>, // 0
           CheckFirstSuccessor<TFirstSuccessor>, // 1
@@ -362,7 +374,7 @@ namespace Xtensive.Orm.Tests.Issues
           CheckThirdSuccessor<TThirdSuccessor>, // 3
           CheckSecondSuccessorLeaf<TSecondSuccessorLeaf>, // 4
           CheckThirdSuccessorLeaf1<TThirdSuccessorLeaf1>, // 5
-          CheckThirdSuccessorLeaf2<TThirdSuccessorLeaf2>, // 6
+          CheckThirdSuccessorLeaf2<TThirdSuccessorLeaf2> // 6
         };
 
         InvokeActions(domain, actions, 0, 1, 2, 3, 4, 5, 6); // GetEntityOrder: base entity, successors, leafs
