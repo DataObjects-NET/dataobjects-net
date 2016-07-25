@@ -12,6 +12,11 @@
   <EnableDebugSymbolsZip>true</EnableDebugSymbolsZip>
 </PropertyGroup>
 
+<PropertyGroup>
+  <PowerShellExe Condition=" '$(PowerShellExe)'=='' "> %WINDIR%\System32\WindowsPowerShell\v1.0\powershell.exe</PowerShellExe>
+  <ScriptLocation Condition=" '$(ScriptLocation)'=='' ">$(MSBuildProjectDirectory)\ChangeLog\mkchangelog.ps1</ScriptLocation>
+</PropertyGroup>
+
 <PropertyGroup Condition="'$(EnableAllDist)'=='true' and '$(Configuration)'=='Release'">
   <EnableNuGet>true</EnableNuGet>
 </PropertyGroup>
@@ -50,7 +55,7 @@
 
 <!-- ChangeLog -->
 <Target Name="BuildChangeLog">
-  <Exec Command="mkchangelog.bat" WorkingDirectory="ChangeLog" />
+  <Exec Command="powershell.exe –NonInteractive –ExecutionPolicy Unrestricted –command &quot;&amp; { &amp;&apos;$(ScriptLocation)&apos;} &quot;" WorkingDirectory="ChangeLog" />
 </Target>
 
 <!-- DataObjects.Net.targets -->
