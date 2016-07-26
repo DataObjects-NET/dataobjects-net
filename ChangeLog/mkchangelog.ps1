@@ -1,4 +1,10 @@
-$inputDir = $PSScriptRoot
+$useLegacy = ($PSVersionTable.PSVersion -as [version]) -le ("2.0" -as [version])
+if ($useLegacy){
+  $inputDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+}
+else {
+  $inputDir = $PSScriptRoot
+}
 $theRootestRoot = Split-Path -Parent $inputDir;
 $outputDir = Join-Path -Path $theRootestRoot -ChildPath \_Build\ProductInfo
 $changeLogFile = Join-Path -Path $outputDir -ChildPath "ChangeLog.txt"
@@ -19,9 +25,9 @@ $items = Get-ChildItem -Path $inputDir -Filter *.txt |
 #compose ChangeLog and ReleaseInfo files
 Foreach ($complexObject in $items) {
   #on first itteration create ReleaseNotes
-  if (-not(Test-Path $releaseNotesFile)) { Add-Content $releaseNotesFile (Get-Content $complexObject.File) }
+  if (-not(Test-Path $releaseNotesFile)) { Add-Content $releaseNotesFile (Get-Content $complexObject.File.FullName) }
   Add-Content $changeLogFile ("Changes in {0}" -f $complexObject.FileName)
-  Add-Content $changeLogFile "`r`n" -NoNewline
-  Add-Content $changeLogFile ( Get-Content $complexObject.File)
-  Add-Content $changeLogFile "`r`n" -NoNewline
+  Add-Content $changeLogFile ""
+  Add-Content $changeLogFile ( Get-Content $complexObject.File.FullName)
+  Add-Content $changeLogFile ""
 }
