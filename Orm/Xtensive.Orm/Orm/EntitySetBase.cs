@@ -75,8 +75,11 @@ namespace Xtensive.Orm
         yield break; // WPF tries to enumerate EntitySets of removed Entities
 
       Prefetch();
-      foreach (var key in State)
-        yield return Session.Query.SingleOrDefault(key);
+      foreach (var key in State) {
+        var entity = Session.Query.SingleOrDefault(key);
+        if (entity!=null)
+          yield return Session.Query.SingleOrDefault(key);
+      }
     }
 
     /// <summary>
