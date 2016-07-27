@@ -78,7 +78,7 @@ namespace Xtensive.Orm
       foreach (var key in State) {
         var entity = Session.Query.SingleOrDefault(key);
         if (entity!=null)
-          yield return Session.Query.SingleOrDefault(key);
+          yield return entity;
       }
     }
 
