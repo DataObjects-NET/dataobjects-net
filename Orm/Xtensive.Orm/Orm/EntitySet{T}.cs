@@ -12,6 +12,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
+using Xtensive.Caching;
 using Xtensive.Collections;
 using Xtensive.Core;
 
@@ -162,7 +163,10 @@ namespace Xtensive.Orm
     int ICollection<TItem>.Count
     {
       [DebuggerStepThrough]
-      get { return checked ((int) Count); }
+      get {
+        ((IInvalidatable)State).Invalidate();
+        return checked ((int) Count);
+      }
     }
 
     /// <inheritdoc/>
