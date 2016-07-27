@@ -164,7 +164,7 @@ namespace Xtensive.Orm
     {
       [DebuggerStepThrough]
       get {
-        ((IInvalidatable)State).Invalidate();
+        Prefetch();
         return checked ((int) Count);
       }
     }
