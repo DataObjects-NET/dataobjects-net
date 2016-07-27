@@ -5,7 +5,6 @@
 // Created:    2008.09.10
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -19,7 +18,6 @@ using Xtensive.Orm.Operations;
 using Xtensive.Orm.PairIntegrity;
 using Xtensive.Orm.ReferentialIntegrity;
 using Xtensive.Orm.Rse;
-using Xtensive.Orm.Validation;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Xtensive.Tuples.Transform;
