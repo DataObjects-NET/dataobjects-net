@@ -139,7 +139,7 @@ namespace Xtensive.Caching
       }
     }
 
-    public void RemoveKey(TKey key, bool removeFromInnerCaches)
+    public void RemoveKey(TKey key, bool removeCompletely)
     {
       RemoveKey(key);
     }

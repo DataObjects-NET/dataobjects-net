@@ -173,14 +173,14 @@ namespace Xtensive.Caching
       RemoveKey(key, false);
     }
 
-    public void RemoveKey(TKey key, bool removeFromInnerCaches)
+    public void RemoveKey(TKey key, bool removeCompletely)
     {
       KeyValuePair<TKey, TItem> oldCached;
       if (deque.TryGetValue(key, out oldCached)) {
         deque.Remove(key);
         size -= sizeExtractor(oldCached.Value);
         if (chainedCache!=null) {
-          if (removeFromInnerCaches)
+          if (removeCompletely)
             chainedCache.RemoveKey(key);
           else
             chainedCache.Add(oldCached.Value, true);

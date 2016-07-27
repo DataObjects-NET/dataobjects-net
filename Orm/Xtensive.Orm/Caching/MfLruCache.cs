@@ -217,12 +217,12 @@ namespace Xtensive.Caching
       RemoveKey(key, false);
     }
 
-    public void RemoveKey(TKey key, bool removeFromInnerCaches)
+    public void RemoveKey(TKey key, bool removeCompletely)
     {
       CachedItem cached;
       if (items.TryGetValue(key, out cached)) {
         if (chainedCache!=null) {
-          if (removeFromInnerCaches)
+          if (removeCompletely)
             chainedCache.RemoveKey(key);
           else
             chainedCache.Add(cached.Item, true);
