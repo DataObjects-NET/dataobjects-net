@@ -264,6 +264,7 @@
     <Compile Include="Issues\IssueJira0630_IncorrectColumnOrderOfPKIndexOfInterfaceTypes.cs" />
     <Compile Include="Issues\IssueJira0643_OracleDateTimeOffsetExtractionBug.cs" />
     <Compile Include="Issues\IssueJira0647_StoredDomainModelMappingsUpdateBug.cs" />
+    <Compile Include="Issues\IssueJira0656_RemapRestoresRemovedReferences.cs" />
     <Compile Include="Issues\IssueJira_0530_LowSpeedDecimalMaterializationCouseSqlDecimalInternalException.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
