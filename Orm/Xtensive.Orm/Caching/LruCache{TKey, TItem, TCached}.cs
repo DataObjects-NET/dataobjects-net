@@ -171,12 +171,21 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public virtual void RemoveKey(TKey key)
     {
+      RemoveKey(key, false);
+    }
+
+    public void RemoveKey(TKey key, bool removeCompletely)
+    {
       TCached oldCached;
       if (deque.TryGetValue(key, out oldCached)) {
         deque.Remove(key);
         size -= oldCached.Size;
-        if (chainedCache!=null)
-          chainedCache.Add(cacheConverter.ConvertBackward(oldCached), true);
+        if (chainedCache!=null) {
+          if (removeCompletely)
+            chainedCache.RemoveKey(key);
+          else
+            chainedCache.Add(cacheConverter.ConvertBackward(oldCached), true);
+        }
         ItemRemoved(key);
       }
     }

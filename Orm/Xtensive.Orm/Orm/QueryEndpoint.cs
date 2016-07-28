@@ -150,6 +150,14 @@ namespace Xtensive.Orm
           OrmLog.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsZ, session, key, key.HasExactType ? Strings.Known : Strings.Unknown);
           state = session.Handler.FetchEntityState(key);
         }
+        else if (state.Tuple==null) {
+          var stateKeyType = state.Key.TypeReference.Type.UnderlyingType;
+          var keyType = key.TypeReference.Type.UnderlyingType;
+          if (stateKeyType!=keyType && !stateKeyType.IsAssignableFrom(keyType)) {
+            session.RemoveStateFromCache(state.Key, true);
+            state = session.Handler.FetchEntityState(key);
+          }
+        }
         if (state==null || state.IsNotAvailableOrMarkedAsRemoved
           || !key.TypeReference.Type.UnderlyingType.IsAssignableFrom(state.Type.UnderlyingType))
           // No state or Tuple = null or incorrect query type => no data in storage

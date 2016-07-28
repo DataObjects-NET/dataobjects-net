@@ -238,6 +238,11 @@ namespace Xtensive.Orm
       return entitySet.UpdateState(entityKeys, isFullyLoaded);
     }
 
+    internal void RemoveStateFromCache(Key key, bool removeFromInnerCache = false)
+    {
+      EntityStateCache.RemoveKey(key, removeFromInnerCache);
+    }
+
     private EntityState AddEntityStateToCache(Key key, Tuple tuple, bool isStale)
     {
       var result = new EntityState(this, key, tuple, isStale) {
