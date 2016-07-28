@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var table = session.Query.All<Table>().First();
-        session.Remove(table.Legs.ToList());
+        session.Remove(table.Legs);
         int itterations = 0;
         foreach (var leg in table.Legs.AsEnumerable()) {
           itterations++;
@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var table = session.Query.All<Table>().First();
-        session.Remove(table.Legs.ToList());
+        session.Remove(table.Legs);
         int itterations = 0;
         foreach (var leg in table.Legs.ToList()) {
           itterations++;
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var table = session.Query.All<Table>().First();
-        session.Remove(table.Legs.ToList());
+        session.Remove(table.Legs);
         int itterations = 0;
         foreach (var leg in table.Legs.ToArray()) {
           itterations++;
