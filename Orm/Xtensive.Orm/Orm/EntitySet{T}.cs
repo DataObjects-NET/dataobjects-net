@@ -161,6 +161,7 @@ namespace Xtensive.Orm
     {
       [DebuggerStepThrough]
       get {
+        State.TotalItemCount = null;
         Prefetch();
         return checked ((int) Count);
       }
