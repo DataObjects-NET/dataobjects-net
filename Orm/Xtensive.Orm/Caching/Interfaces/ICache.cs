@@ -94,6 +94,13 @@ namespace Xtensive.Caching
     /// </summary>
     /// <param name="key">The key of the item to remove.</param>
     void RemoveKey(TKey key);
+
+    /// <summary>
+    /// Removes the item with specified <paramref name="key"/> from the cache.
+    /// </summary>
+    /// <param name="key">The key of the item to remove.</param>
+    /// <param name="removeCompletely">Indicates whether the item with specified key should be removed from inner caches if they exist</param>
+    void RemoveKey(TKey key, bool removeCompletely);
   
     /// <summary>
     ///  Clears the cache.
