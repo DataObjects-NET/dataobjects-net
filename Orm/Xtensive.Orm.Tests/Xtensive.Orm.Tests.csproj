@@ -82,7 +82,6 @@
     <Compile Include="Interfaces\InterfaceImplementationTest.cs" />
     <Compile Include="Issues\BatchingCommandProcessorFrenzy.cs" />
     <Compile Include="Issues\ClientProfileEntitySetTest.cs" />
-    <Compile Include="Issues\IssueJira0636_SessionCacheComplicatedModelTest.cs" />
     <Compile Include="Issues\IssueJira0636_SessionCacheTest.cs" />
     <Compile Include="Issues\IssueJira0556_ArithmeticExceptionWhenSubstractionOfDates.cs" />
     <Compile Include="Issues\CustomCompilerException.cs" />
