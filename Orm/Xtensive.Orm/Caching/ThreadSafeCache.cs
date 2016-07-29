@@ -139,6 +139,7 @@ namespace Xtensive.Caching
       }
     }
 
+    /// <inheritdoc/>
     public void RemoveKey(TKey key, bool removeCompletely)
     {
       RemoveKey(key);
