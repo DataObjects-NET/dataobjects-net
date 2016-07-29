@@ -10,9 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Runtime.Serialization;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 using Xtensive.Orm.Linq;
@@ -162,7 +160,11 @@ namespace Xtensive.Orm
     int ICollection<TItem>.Count
     {
       [DebuggerStepThrough]
-      get { return checked ((int) Count); }
+      get {
+        State.TotalItemCount = null;
+        Prefetch();
+        return checked ((int) Count);
+      }
     }
 
     /// <inheritdoc/>

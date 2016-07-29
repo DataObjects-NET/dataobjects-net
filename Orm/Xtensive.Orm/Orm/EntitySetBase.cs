@@ -5,7 +5,6 @@
 // Created:    2008.09.10
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -19,7 +18,6 @@ using Xtensive.Orm.Operations;
 using Xtensive.Orm.PairIntegrity;
 using Xtensive.Orm.ReferentialIntegrity;
 using Xtensive.Orm.Rse;
-using Xtensive.Orm.Validation;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Xtensive.Tuples.Transform;
@@ -75,8 +73,11 @@ namespace Xtensive.Orm
         yield break; // WPF tries to enumerate EntitySets of removed Entities
 
       Prefetch();
-      foreach (var key in State)
-        yield return Session.Query.SingleOrDefault(key);
+      foreach (var key in State) {
+        var entity = Session.Query.SingleOrDefault(key);
+        if (entity!=null)
+          yield return entity;
+      }
     }
 
     /// <summary>
