@@ -174,6 +174,7 @@ namespace Xtensive.Caching
       RemoveKey(key, false);
     }
 
+    /// <inheritdoc/>
     public void RemoveKey(TKey key, bool removeCompletely)
     {
       TCached oldCached;
