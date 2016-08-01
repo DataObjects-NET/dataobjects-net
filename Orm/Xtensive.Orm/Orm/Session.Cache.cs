@@ -66,11 +66,8 @@ namespace Xtensive.Orm
           Invalidate();
         }
         OrmLog.Debug(Strings.LogSessionXRemappingEntityKeys, this);
-        var oldCacheContent = EntityStateCache.ToDictionary(entityState => entityState.Key);
-        EntityStateCache.Clear();
-        foreach (var pair in oldCacheContent) {
-          var key = pair.Key;
-          var entityState = pair.Value;
+        foreach (var entityState in EntityChangeRegistry.GetItems(PersistenceState.New)) {
+          var key = entityState.Key;
           var remappedKey = keyMapping.TryRemapKey(key);
           if (remappedKey!=key)
             entityState.RemapKey(remappedKey);
