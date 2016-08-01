@@ -12,6 +12,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Tests.Issues.IssueJira0627_PocoClassPropertyRenitializationModel;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -1821,11 +1822,18 @@ namespace Xtensive.Orm.Tests.Issues
       Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<StorageException>(() =>
-          session.Query.All<TestEntity>()
-            .Select(e => new Poco())
-            .OrderBy(e => e.Name)
-            .ToArray());
+        if (ProviderAllowsOrderByNull())
+          Assert.DoesNotThrow(() =>
+            session.Query.All<TestEntity>()
+              .Select(e => new Poco())
+              .OrderBy(e => e.Name)
+              .ToArray());
+        else
+          Assert.Throws<StorageException>(() =>
+            session.Query.All<TestEntity>()
+              .Select(e => new Poco())
+              .OrderBy(e => e.Name)
+              .ToArray());
       }
     }
 
@@ -1983,6 +1991,12 @@ namespace Xtensive.Orm.Tests.Issues
             .Select(e => new Poco()))
           .ToArray();
       }
+    }
+
+    private bool ProviderAllowsOrderByNull()
+    {
+      var providers = new[] {WellKnown.Provider.PostgreSql};
+      return providers.Contains(ProviderInfo.ProviderName);
     }
 
     protected override void PopulateData()
