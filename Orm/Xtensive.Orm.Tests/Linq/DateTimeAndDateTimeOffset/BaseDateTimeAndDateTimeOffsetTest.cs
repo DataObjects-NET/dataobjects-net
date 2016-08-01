@@ -2,98 +2,356 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Groznov
-// Created:    2016.05.30
+// Created:    2016.07.29
 
 using System;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
+using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
 namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 {
+  namespace Model
+  {
+    [HierarchyRoot]
+    public class SingleDateTimeEntity : Entity
+    {
+      [Field, Key]
+      public long Id { get; private set; }
+
+      [Field]
+      public DateTime DateTime { get; set; }
+
+      [Field]
+      public DateTime MillisecondDateTime { get; set; }
+
+      [Field]
+      public DateTime? NullableDateTime { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class SingleDateTimeOffsetEntity : Entity
+    {
+      [Field, Key]
+      public long Id { get; private set; }
+
+      [Field]
+      public DateTimeOffset DateTimeOffset { get; set; }
+
+      [Field]
+      public DateTimeOffset MillisecondDateTimeOffset { get; set; }
+
+      [Field]
+      public DateTimeOffset? NullableDateTimeOffset { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class DateTimeEntity : Entity
+    {
+      [Field, Key]
+      public long Id { get; private set; }
+
+      [Field]
+      public DateTime DateTime { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class MillisecondDateTimeEntity : Entity
+    {
+      [Field, Key]
+      public long Id { get; private set; }
+
+      [Field]
+      public DateTime DateTime { get; set; }
+
+      public MillisecondDateTimeEntity()
+      {
+      }
+
+      public MillisecondDateTimeEntity(DateTimeEntity dateTimeEntity, int milliseconds)
+      {
+        DateTime = dateTimeEntity.DateTime.AddMilliseconds(milliseconds);
+      }
+    }
+
+    [HierarchyRoot]
+    public class NullableDateTimeEntity : Entity
+    {
+      [Field, Key]
+      public long Id { get; private set; }
+
+      [Field]
+      public DateTime? DateTime { get; set; }
+
+      public NullableDateTimeEntity()
+      {
+      }
+
+      public NullableDateTimeEntity(DateTimeEntity dateTimeEntity)
+      {
+        DateTime = dateTimeEntity.DateTime;
+      }
+    }
+
+    [HierarchyRoot]
+    public class DateTimeOffsetEntity : Entity
+    {
+      [Field, Key]
+      public long Id { get; private set; }
+
+      [Field]
+      public DateTimeOffset DateTimeOffset { get; set; }
+
+      public DateTimeOffsetEntity()
+      {
+      }
+
+      public DateTimeOffsetEntity(DateTimeEntity entity, TimeSpan offset)
+      {
+        DateTimeOffset = new DateTimeOffset(entity.DateTime, offset);
+      }
+    }
+
+    [HierarchyRoot]
+    public class MillisecondDateTimeOffsetEntity : Entity
+    {
+      [Field, Key]
+      public long Id { get; private set; }
+
+      [Field]
+      public DateTimeOffset DateTimeOffset { get; set; }
+
+      public MillisecondDateTimeOffsetEntity()
+      {
+      }
+
+      public MillisecondDateTimeOffsetEntity(MillisecondDateTimeEntity dateTimeEntity, TimeSpan offset)
+      {
+        DateTimeOffset = new DateTimeOffset(dateTimeEntity.DateTime, offset);
+      }
+    }
+
+    [HierarchyRoot]
+    public class NullableDateTimeOffsetEntity : Entity
+    {
+      [Field, Key]
+      public long Id { get; private set; }
+
+      [Field]
+      public DateTimeOffset? DateTimeOffset { get; set; }
+
+      public NullableDateTimeOffsetEntity()
+      {
+      }
+
+      public NullableDateTimeOffsetEntity(DateTimeOffsetEntity dateTimeOffsetEntity)
+      {
+        DateTimeOffset = dateTimeOffsetEntity.DateTimeOffset;
+      }
+    }
+  }
+
   public abstract class BaseDateTimeAndDateTimeOffsetTest
     : AutoBuildTest
   {
-    [Test(Description = "Might be failed on SQLite on reverse ordering because of certain restrictions of work with milliseconds")]
-    public void OrderByTest()
-    {
-      OpenSessionAndAction(OrderByProtected);
-    }
+    #region Consts && wellknowns
 
-    [Test(Description = "Might be failed on SQLite because of incomplete emulating datetimeoffset")]
-    public void DistinctTest()
-    {
-      OpenSessionAndAction(DistinctProtected);
-    }
+    protected static readonly DateTime FirstDateTime = new DateTime(2016, 01, 02, 03, 04, 05, DateTimeKind.Unspecified);
+    protected static readonly DateTime SecondDateTime = new DateTime(2019, 11, 23, 22, 58, 57, DateTimeKind.Unspecified);
+    protected static readonly DateTime WrongDateTime = new DateTime(2017, 02, 03, 04, 05, 06, DateTimeKind.Unspecified);
+    protected static readonly DateTime NullableDateTime = SecondDateTime;
 
-    [Test]
-    public void MinMaxTest()
-    {
-      OpenSessionAndAction(MinMaxProtected);
-    }
+    protected static readonly TimeSpan FirstOffset = new TimeSpan(2, 45, 0); // +02:45
+    protected static readonly TimeSpan SecondOffset = new TimeSpan(-11, 10, 0); // -11:10
+    protected static readonly TimeSpan WrongOffset = new TimeSpan(4, 35, 0); // +04:35
 
-    [Test(Description = "Might be failed on SQLite on reverse ordering because of certain restrictions of work with milliseconds")]
-    public void GroupByTest()
-    {
-      OpenSessionAndAction(GroupByProtected);
-    }
+    protected static readonly DateTime FirstMillisecondDateTime = FirstDateTime.AddMilliseconds(321);
+    protected static readonly DateTime SecondMillisecondDateTime = SecondDateTime.AddMilliseconds(987);
+    protected static readonly DateTime WrongMillisecondDateTime = WrongDateTime.AddMilliseconds(654);
 
-    [Test(Description = "Might be failed on SQLite on reverse ordering because of certain restrictions of work with milliseconds")]
-    public void JoinTest()
-    {
-      OpenSessionAndAction(JoinProtected);
-    }
+    protected static readonly DateTimeOffset FirstDateTimeOffset = new DateTimeOffset(FirstDateTime, FirstOffset);
+    protected static readonly DateTimeOffset SecondDateTimeOffset = new DateTimeOffset(SecondDateTime, SecondOffset);
+    protected static readonly DateTimeOffset WrongDateTimeOffset = new DateTimeOffset(WrongDateTime, WrongOffset);
+    protected static readonly DateTimeOffset NullableDateTimeOffset = SecondDateTimeOffset;
 
-    [Test]
-    public void SkipTakeTest()
-    {
-      OpenSessionAndAction(SkipTakeProtected);
-    }
+    protected static readonly DateTimeOffset FirstMillisecondDateTimeOffset = new DateTimeOffset(FirstMillisecondDateTime, FirstOffset);
+    protected static readonly DateTimeOffset SecondMillisecondDateTimeOffset = new DateTimeOffset(SecondMillisecondDateTime, SecondOffset);
+    protected static readonly DateTimeOffset WrongMillisecondDateTimeOffset = new DateTimeOffset(WrongMillisecondDateTime, WrongOffset);
 
-    [Test]
-    public void EqualsTest()
-    {
-      OpenSessionAndAction(EqualsProtected);
-    }
+    #endregion
 
-    [Test]
-    public void DifferentCulturesTest()
+    protected override DomainConfiguration BuildConfiguration()
     {
-      var oldCulture = Thread.CurrentThread.CurrentCulture;
-      using (new Disposable(c => Thread.CurrentThread.CurrentCulture = oldCulture)) {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
-        EqualsTest();
+      var config = base.BuildConfiguration();
+      config.Types.Register(typeof (SingleDateTimeEntity));
+      config.Types.Register(typeof (DateTimeEntity));
+      config.Types.Register(typeof (MillisecondDateTimeEntity));
+      config.Types.Register(typeof (NullableDateTimeEntity));
+      if (StorageProviderInfo.Instance.CheckAnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation)) {
+        config.Types.Register(typeof (SingleDateTimeOffsetEntity));
+        config.Types.Register(typeof (DateTimeOffsetEntity));
+        config.Types.Register(typeof (MillisecondDateTimeOffsetEntity));
+        config.Types.Register(typeof (NullableDateTimeOffsetEntity));
       }
-      using (new Disposable(c => Thread.CurrentThread.CurrentCulture = oldCulture)) {
-        Thread.CurrentThread.CurrentCulture = new CultureInfo("ru-RU");
-        EqualsTest();
-      }
-
-      using (new Disposable(c => Thread.CurrentThread.CurrentCulture = oldCulture)) {
-        Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
-        EqualsTest();
-      }
+      return config;
     }
-
-    protected abstract void PopulateDataProtected();
-
-    protected abstract void OrderByProtected();
-    protected abstract void DistinctProtected();
-    protected abstract void MinMaxProtected();
-    protected abstract void GroupByProtected();
-    protected abstract void JoinProtected();
-    protected abstract void SkipTakeProtected();
-    protected abstract void EqualsProtected();
 
     protected override void PopulateData()
     {
-      OpenSessionAndAction(PopulateDataProtected, true);
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        #region SingleEntities
+
+        new SingleDateTimeEntity {
+          DateTime = FirstDateTime,
+          MillisecondDateTime = FirstMillisecondDateTime,
+          NullableDateTime = NullableDateTime
+        };
+
+        if (StorageProviderInfo.Instance.CheckAnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation)) {
+          new SingleDateTimeOffsetEntity {
+            DateTimeOffset = FirstDateTimeOffset,
+            MillisecondDateTimeOffset = FirstMillisecondDateTimeOffset,
+            NullableDateTimeOffset = NullableDateTimeOffset
+          };
+        }
+
+        #endregion
+
+        #region DateTimeEntities
+
+        var i = 0;
+
+        new DateTimeEntity { DateTime = FirstDateTime };
+        new DateTimeEntity { DateTime = FirstDateTime };
+        new DateTimeEntity { DateTime = FirstDateTime.Date };
+        new DateTimeEntity { DateTime = SecondDateTime };
+        new DateTimeEntity { DateTime = SecondDateTime.Date };
+        new DateTimeEntity { DateTime = new DateTime(FirstDateTime.Year, FirstDateTime.Month, FirstDateTime.Day, FirstDateTime.Hour, FirstDateTime.Minute, 0) };
+        new DateTimeEntity { DateTime = new DateTime(FirstDateTime.Ticks, DateTimeKind.Local) };
+        new DateTimeEntity { DateTime = FirstDateTime.Add(new TimeSpan(987, 23, 34, 45)) };
+        new DateTimeEntity { DateTime = FirstDateTime.AddYears(1) };
+        new DateTimeEntity { DateTime = FirstDateTime.AddYears(-2) };
+        new DateTimeEntity { DateTime = FirstDateTime.AddMonths(44) };
+        new DateTimeEntity { DateTime = FirstDateTime.AddMonths(-55) };
+        new DateTimeEntity { DateTime = SecondDateTime.AddHours(5) };
+        new DateTimeEntity { DateTime = SecondDateTime.AddHours(-15) };
+        new DateTimeEntity { DateTime = SecondDateTime.AddMinutes(59) };
+        new DateTimeEntity { DateTime = SecondDateTime.AddMinutes(-49) };
+        new DateTimeEntity { DateTime = SecondDateTime.AddSeconds(57) };
+        new DateTimeEntity { DateTime = SecondDateTime.AddSeconds(-5) };
+
+        var dateTime = FirstDateTime.AddYears(10);
+        for (i = 0; i < 60; ++i)
+          new DateTimeEntity { DateTime = dateTime.AddSeconds(i) };
+
+        #endregion
+
+        #region MillisecondDateTimeEntities
+
+        new MillisecondDateTimeEntity { DateTime = FirstMillisecondDateTime };
+        new MillisecondDateTimeEntity { DateTime = FirstMillisecondDateTime };
+        new MillisecondDateTimeEntity { DateTime = FirstMillisecondDateTime.Date };
+        new MillisecondDateTimeEntity { DateTime = SecondMillisecondDateTime };
+        new MillisecondDateTimeEntity { DateTime = SecondMillisecondDateTime.Date };
+        new MillisecondDateTimeEntity { DateTime = new DateTime(FirstMillisecondDateTime.Year, FirstMillisecondDateTime.Month, FirstMillisecondDateTime.Day, FirstMillisecondDateTime.Hour, FirstMillisecondDateTime.Minute, 0) };
+        new MillisecondDateTimeEntity { DateTime = new DateTime(FirstMillisecondDateTime.Year, FirstMillisecondDateTime.Month, FirstMillisecondDateTime.Day, FirstMillisecondDateTime.Hour, FirstMillisecondDateTime.Minute, FirstMillisecondDateTime.Second, 0) };
+        new MillisecondDateTimeEntity { DateTime = new DateTime(FirstMillisecondDateTime.Ticks, DateTimeKind.Local) };
+        new MillisecondDateTimeEntity { DateTime = FirstMillisecondDateTime.Add(new TimeSpan(987, 23, 34, 45)) };
+
+        i = 0;
+        foreach (var dateTimeEntity1 in Query.All<DateTimeEntity>())
+          new MillisecondDateTimeEntity(dateTimeEntity1, ++i % 3==0 ? FirstMillisecondDateTime.Millisecond : SecondMillisecondDateTime.Millisecond);
+
+        dateTime = FirstMillisecondDateTime.AddYears(10);
+        for (i = 0; i < 1000; ++i)
+          new MillisecondDateTimeEntity { DateTime = dateTime.AddMilliseconds(i) };
+
+        #endregion
+
+        #region NullableDateTimeEntities
+
+        foreach (var dateTimeEntity in Query.All<DateTimeEntity>())
+          new NullableDateTimeEntity(dateTimeEntity);
+
+        new NullableDateTimeEntity { DateTime = null };
+        new NullableDateTimeEntity { DateTime = null };
+
+        #endregion
+
+        if (StorageProviderInfo.Instance.CheckAnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation)) {
+          #region DateTimeOffsetEntities
+
+          new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset };
+          new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset };
+          new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset.ToOffset(FirstOffset) };
+          new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset.ToOffset(SecondOffset) };
+          new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset.ToOffset(TimeSpan.Zero) };
+          new DateTimeOffsetEntity { DateTimeOffset = FirstDateTimeOffset.Date };
+          new DateTimeOffsetEntity { DateTimeOffset = SecondDateTimeOffset };
+          new DateTimeOffsetEntity { DateTimeOffset = SecondDateTimeOffset.ToOffset(FirstOffset) };
+          new DateTimeOffsetEntity { DateTimeOffset = SecondDateTimeOffset.ToOffset(SecondOffset) };
+          new DateTimeOffsetEntity { DateTimeOffset = SecondDateTimeOffset.Date };
+          new DateTimeOffsetEntity { DateTimeOffset = FirstDateTime };
+          new DateTimeOffsetEntity { DateTimeOffset = new DateTimeOffset(FirstDateTime, TimeSpan.Zero) };
+
+          i = 0;
+          foreach (var dateTimeEntity in Query.All<DateTimeEntity>())
+            new DateTimeOffsetEntity(dateTimeEntity, ++i % 3==0 ? FirstOffset : SecondOffset);
+
+          #endregion
+
+          #region MillisecondDateTimeOffsetEntities
+
+          new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset };
+          new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset };
+          new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset.ToOffset(FirstOffset) };
+          new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset.ToOffset(SecondOffset) };
+          new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset.ToOffset(TimeSpan.Zero) };
+          new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset.Date };
+          new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondMillisecondDateTimeOffset };
+          new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondMillisecondDateTimeOffset.ToOffset(FirstOffset) };
+          new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondMillisecondDateTimeOffset.ToOffset(SecondOffset) };
+          new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondMillisecondDateTimeOffset.Date };
+          new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondDateTimeOffset };
+          new MillisecondDateTimeOffsetEntity { DateTimeOffset = SecondDateTime };
+          new MillisecondDateTimeOffsetEntity { DateTimeOffset = new DateTimeOffset(SecondDateTime, TimeSpan.Zero) };
+
+          i = 0;
+          foreach (var dateTimeEntity in Query.All<MillisecondDateTimeEntity>())
+            new MillisecondDateTimeOffsetEntity(dateTimeEntity, ++i % 3==0 ? FirstOffset : SecondOffset);
+
+          var dateTimeOffset = FirstMillisecondDateTimeOffset.AddYears(10);
+          for (i = 0; i < 1000; ++i)
+            new MillisecondDateTimeOffsetEntity { DateTimeOffset = dateTimeOffset.AddMilliseconds(i) };
+
+          #endregion
+
+          #region NullableDateTimeOffsetEntities
+
+          foreach (var dateTimeEntity in Query.All<DateTimeOffsetEntity>())
+            new NullableDateTimeOffsetEntity(dateTimeEntity);
+
+          new NullableDateTimeOffsetEntity { DateTimeOffset = null };
+          new NullableDateTimeOffsetEntity { DateTimeOffset = null };
+
+          #endregion
+        }
+
+        tx.Complete();
+      }
     }
 
-    #region Implementation of base tests
+    protected void OpenSessionAndAction(Action action)
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        action();
+      }
+    }
 
     protected void RunTest<T>(Expression<Func<T, bool>> filter, int rightCount = 1)
       where T : Entity
@@ -107,138 +365,5 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     {
       RunTest(filter, 0);
     }
-
-    protected void OpenSessionAndAction(Action action, bool commitTransaction = false)
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        action();
-        if (commitTransaction)
-          tx.Complete();
-      }
-    }
-
-    protected void OrderByProtected<T, TK1, TK2>(Expression<Func<T, TK1>> orderByExpression, Expression<Func<T, TK2>> thenByExpression)
-      where T : Entity
-    {
-      var compiledOrderByExpression = orderByExpression.Compile();
-      var compiledThenByExpression = thenByExpression.Compile();
-      var notOrderedLocal = Query.All<T>().ToArray();
-      var orderedLocal = notOrderedLocal.OrderBy(compiledOrderByExpression).ThenBy(compiledThenByExpression);
-      var orderedLocalDescending = notOrderedLocal.OrderByDescending(compiledOrderByExpression).ThenBy(compiledThenByExpression);
-      var orderedByServer = Query.All<T>().OrderBy(orderByExpression).ThenBy(thenByExpression);
-      var orderedByServerDescending = Query.All<T>().OrderByDescending(orderByExpression).ThenBy(thenByExpression);
-
-      Assert.IsFalse(notOrderedLocal.SequenceEqual(orderedLocal));
-      Assert.IsFalse(notOrderedLocal.SequenceEqual(orderedByServer));
-      Assert.IsTrue(orderedLocal.SequenceEqual(orderedByServer));
-      Assert.IsTrue(orderedLocalDescending.SequenceEqual(orderedByServerDescending));
-      Assert.IsFalse(orderedLocal.SequenceEqual(orderedByServerDescending));
-      Assert.IsFalse(orderedLocalDescending.SequenceEqual(orderedByServer));
-    }
-
-    protected void OrderByProtected<T1, T2, T3>(Expression<Func<T1, T2>> selectorExpression, Expression<Func<T2, T3>> orderByExpression)
-      where T1 : Entity
-    {
-      var compiledOrderByExpression = orderByExpression.Compile();
-
-      var notOrderedLocal = Query.All<T1>().Select(selectorExpression).ToArray();
-      var orderedLocal = notOrderedLocal.OrderBy(compiledOrderByExpression);
-      var orderedLocalDescending = notOrderedLocal.OrderByDescending(compiledOrderByExpression);
-      var orderedByServer = Query.All<T1>().Select(selectorExpression).OrderBy(orderByExpression);
-      var orderedByServerDescending = Query.All<T1>().Select(selectorExpression).OrderByDescending(orderByExpression);
-
-      Assert.IsFalse(notOrderedLocal.SequenceEqual(orderedLocal));
-      Assert.IsFalse(notOrderedLocal.SequenceEqual(orderedByServer));
-      Assert.IsTrue(orderedLocal.SequenceEqual(orderedByServer));
-      Assert.IsTrue(orderedLocalDescending.SequenceEqual(orderedByServerDescending));
-      Assert.IsFalse(orderedLocal.SequenceEqual(orderedByServerDescending));
-      Assert.IsFalse(orderedLocalDescending.SequenceEqual(orderedByServer));
-    }
-
-    protected void DistinctProtected<T, TK>(Expression<Func<T, TK>> selectExpression)
-      where T : Entity
-    {
-      var compiledSelectExpression = selectExpression.Compile();
-      var distinctLocal = Query.All<T>().ToArray().Select(compiledSelectExpression).Distinct().OrderBy(c => c);
-      var distinctByServer = Query.All<T>().Select(selectExpression).Distinct().OrderBy(c => c);
-      Assert.IsTrue(distinctLocal.SequenceEqual(distinctByServer));
-
-      distinctByServer = Query.All<T>().Select(selectExpression).Distinct().OrderByDescending(c => c);
-      Assert.IsFalse(distinctLocal.SequenceEqual(distinctByServer));
-    }
-
-    protected void MinMaxProtected<T, TK>(Expression<Func<T, TK>> selectExpression)
-      where T : Entity
-    {
-      var compiledSelectExpression = selectExpression.Compile();
-      var minLocal = Query.All<T>().ToArray().Min(compiledSelectExpression);
-      var maxLocal = Query.All<T>().ToArray().Max(compiledSelectExpression);
-      var minServer = Query.All<T>().Min(selectExpression);
-      var maxServer = Query.All<T>().Max(selectExpression);
-
-      Assert.AreEqual(minLocal, minServer);
-      Assert.AreEqual(maxLocal, maxServer);
-      Assert.AreNotEqual(minLocal, maxServer);
-      Assert.AreNotEqual(maxLocal, minServer);
-    }
-
-    protected void GroupByProtected<T, TK1, TK2>(Expression<Func<T, TK1>> groupByExpression, Expression<Func<T, TK2>> orderByExpression)
-      where T : Entity
-    {
-      var compiledGroupByExpression = groupByExpression.Compile();
-      var compiledOrderByExpression = orderByExpression.Compile();
-      var groupByLocal = Query.All<T>().ToArray().GroupBy(compiledGroupByExpression).ToArray();
-      var groupByServer = Query.All<T>().GroupBy(groupByExpression);
-      foreach (var group in groupByServer) {
-        Assert.Contains(group, groupByLocal);
-        var localGroup = groupByLocal.Single(c => c.Key.Equals(group.Key));
-        Assert.IsTrue(group.OrderBy(compiledOrderByExpression).SequenceEqual(localGroup.OrderBy(compiledOrderByExpression)));
-      }
-    }
-
-    protected void SkipTakeProctected<T, TK1, TK2>(Expression<Func<T, TK1>> orderByExpression, Expression<Func<T, TK2>> thenByExpression, int skipCount, int takeCount)
-      where T : Entity
-    {
-      var compiledOrderByExpression = orderByExpression.Compile();
-      var compiledThenByExpression = thenByExpression.Compile();
-      var skipTakeLocal = Query.All<T>().ToArray().OrderBy(compiledOrderByExpression).ThenBy(compiledThenByExpression).Skip(skipCount).Take(takeCount).ToArray();
-      var skipTakeServer = Query.All<T>().OrderBy(orderByExpression).ThenBy(thenByExpression).Skip(skipCount).Take(takeCount);
-      Assert.IsTrue(skipTakeLocal.SequenceEqual(skipTakeServer));
-
-      skipTakeServer = Query.All<T>().OrderByDescending(orderByExpression).Skip(skipCount).Take(takeCount);
-      Assert.IsFalse(skipTakeLocal.SequenceEqual(skipTakeServer));
-    }
-
-    protected void JoinProtected<T1, T2, T3, TK1, TK3>(Expression<Func<T1, TK1>> leftJoinExpression, Expression<Func<T2, TK1>> rightJoinExpression,
-      Expression<Func<T1, T2, T3>> joinResultExpression, Expression<Func<T3, TK3>> orderByExpression, Expression<Func<T3, TK3>> thenByExpression)
-      where T1 : Entity
-      where T2 : Entity
-    {
-      var compiledLeftJoinExpression = leftJoinExpression.Compile();
-      var compiledRightJoinExpression = rightJoinExpression.Compile();
-      var compiledJoinResultExpression = joinResultExpression.Compile();
-      var compiledOrderByExpression = orderByExpression.Compile();
-      var compiledThenByExpression = thenByExpression.Compile();
-      var joinLocal = Query.All<T1>().ToArray()
-        .Join(Query.All<T2>().ToArray(), compiledLeftJoinExpression, compiledRightJoinExpression, compiledJoinResultExpression)
-        .OrderBy(compiledOrderByExpression)
-        .ThenBy(compiledThenByExpression);
-
-      var joinServer = Query.All<T1>()
-        .Join(Query.All<T2>(), leftJoinExpression, rightJoinExpression, joinResultExpression)
-        .OrderBy(orderByExpression)
-        .ThenBy(thenByExpression);
-
-      Assert.IsTrue(joinLocal.SequenceEqual(joinServer));
-
-      joinServer = Query.All<T1>()
-        .Join(Query.All<T2>(), leftJoinExpression, rightJoinExpression, joinResultExpression)
-        .OrderByDescending(orderByExpression)
-        .ThenBy(thenByExpression);
-      Assert.IsFalse(joinLocal.SequenceEqual(joinServer));
-    }
-
-    #endregion
   }
 }
