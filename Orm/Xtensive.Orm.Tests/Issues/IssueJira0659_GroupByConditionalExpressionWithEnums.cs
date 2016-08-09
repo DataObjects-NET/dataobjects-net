@@ -37,12 +37,39 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var genderGroups = session.Query.All<MyEntity>()
-          
           .GroupBy(x => x.Gender.HasValue ? x.Gender.Value : Gender.None)
           .ToArray();
         Assert.That(genderGroups.Length, Is.EqualTo(2));
         Assert.That(genderGroups.Any(g=>g.Key==Gender.None));
         Assert.That(genderGroups.Any(g=>g.Key==Gender.Female));
+      }
+    }
+
+    [Test]
+    public void GroupByNullCoalescingOperatorTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var genderGroups = session.Query.All<MyEntity>()
+          .GroupBy(x => x.Gender ?? Gender.None)
+          .ToArray();
+        Assert.That(genderGroups.Length, Is.EqualTo(2));
+        Assert.That(genderGroups.Any(g => g.Key==Gender.None));
+        Assert.That(genderGroups.Any(g => g.Key==Gender.Female));
+      }
+    }
+
+    [Test]
+    public void GroupByGetValueOrDefaultTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var genderGroups = session.Query.All<MyEntity>()
+          .GroupBy(x => x.Gender.GetValueOrDefault(Gender.None))
+          .ToArray();
+        Assert.That(genderGroups.Length, Is.EqualTo(2));
+        Assert.That(genderGroups.Any(g => g.Key==Gender.None));
+        Assert.That(genderGroups.Any(g => g.Key==Gender.Female));
       }
     }
 
