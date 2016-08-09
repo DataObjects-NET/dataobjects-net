@@ -5,6 +5,8 @@
 // Created:    2013.07.18
 
 using System.Linq;
+using System.Linq.Expressions;
+using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Model;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -23,7 +25,10 @@ namespace Xtensive.Orm.Providers
         .Select((name, i) => SqlDml.ColumnRef(table.Columns[i], name))
         .Cast<SqlExpression>()
         .ToList();
-      var processor = new ExpressionProcessor(index.Filter.Expression, handlers, null, columns);
+
+      // The filter expression can contain enums. To avoid treating enun values as strings they need to be rewritten.
+      var newExpression = (LambdaExpression)EnumRewriter.Rewrite(index.Filter.Expression);
+      var processor = new ExpressionProcessor(newExpression, handlers, null, columns);
       var fragment = SqlDml.Fragment(processor.Translate());
       var result = handlers.StorageDriver.Compile(fragment).GetCommandText();
       return result;
