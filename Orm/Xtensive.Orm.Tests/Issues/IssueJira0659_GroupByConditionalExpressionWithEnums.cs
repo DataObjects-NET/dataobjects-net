@@ -82,7 +82,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0659_GroupByConditionalExpressionWi
     public int Int { get; set; }
   }
 
-
   public enum Gender
   {
     None = 0,
@@ -155,6 +154,11 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0659_GroupByConditionalExpressionWithEnums : AutoBuildTest
   {
+    private readonly DateTime nullableFieldDateTime = new DateTime(2015, 6, 6);
+    private readonly DateTime firstDateTime = new DateTime(2013, 10, 10);
+    private readonly DateTime secondDateTime = new DateTime(2014, 12, 10);
+    private readonly DateTime defaultDateTime = new DateTime(2012, 12, 12);
+
     [Test]
     public void DirectGroupByByConditionalOperatorForIntEnumTest()
     {
@@ -186,7 +190,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void DirectGroupByConditionalOperatorForFlagTest()
+    public void DirectGroupByByConditionalOperatorForIntFlagTest()
     {
       Action<Session> testAction = (session) => {
         var genderGroups = session.Query.All<EntityWithIntFlags>()
@@ -201,7 +205,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void DirectGroupByByCondigionalOperatorForLongFlagTest()
+    public void DirectGroupByByConditionalOperatorForLongFlagTest()
     {
       Action<Session> testAction = (session) => {
         var genderGroups = session.Query.All<EntityWithLongFlags>()
@@ -220,12 +224,12 @@ namespace Xtensive.Orm.Tests.Issues
     {
       Action<Session> testAction = (session) => {
         var genderGroups = session.Query.All<EntityWithDateTime>()
-          .GroupBy(x => x.NullableDateTime.HasValue ? x.NullableDateTime.Value : DateTime.MinValue)
+          .GroupBy(x => x.NullableDateTime.HasValue ? x.NullableDateTime.Value : defaultDateTime)
           .Select(g => new { g.Key, Items = g })
           .ToArray();
         Assert.That(genderGroups.Length, Is.EqualTo(2));
-        Assert.That(genderGroups.Any(g => g.Key==DateTime.MaxValue));
-        Assert.That(genderGroups.Any(g => g.Key==DateTime.Now.Date));
+        Assert.That(genderGroups.Any(g => g.Key==defaultDateTime));
+        Assert.That(genderGroups.Any(g => g.Key==nullableFieldDateTime));
       };
       RunTestInSession(testAction);
     }
@@ -269,7 +273,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void IndirectGroupByConditionalOperatorForFlagTest()
+    public void IndirectGroupByByConditionalOperatorForIntFlagTest()
     {
       Action<Session> testAction = (session) => {
         var genderGroups = session.Query.All<EntityWithIntFlags>()
@@ -313,195 +317,356 @@ namespace Xtensive.Orm.Tests.Issues
         var genderGroups = session.Query.All<EntityWithDateTime>()
           .Select(el => new {
             Id = el.Id,
-            DateTime = el.NullableDateTime.HasValue ? el.NullableDateTime.Value : DateTime.MinValue
+            DateTime = el.NullableDateTime.HasValue ? el.NullableDateTime.Value : defaultDateTime
           })
           .GroupBy(x => x.DateTime)
           .Select(g => new {g.Key, Items = g})
           .ToArray();
         Assert.That(genderGroups.Length, Is.EqualTo(2));
-        Assert.That(genderGroups.Any(g => g.Key==DateTime.MinValue));
-        Assert.That(genderGroups.Any(g => g.Key==DateTime.Now.Date));
+        Assert.That(genderGroups.Any(g => g.Key==defaultDateTime));
+        Assert.That(genderGroups.Any(g => g.Key==nullableFieldDateTime));
       };
       RunTestInSession(testAction);
-    }
-    
-    [Test]
-    public void GroupByConditionalOperatorTest2()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var genderGroups = session.Query.All<EntityWithGender>()
-          .GroupBy(x => x.NullableGender.HasValue ? x.NullableGender : Gender.None)
-          .Select(g=>g.Key)
-          .ToArray();
-      }
-    }
-    
-    [Test]
-    public void GroupByNullCoalescingOperatorTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var genderGroups = session.Query.All<EntityWithGender>()
-          .GroupBy(x => x.NullableGender ?? Gender.None)
-          .ToArray();
-        Assert.That(genderGroups.Length, Is.EqualTo(2));
-        Assert.That(genderGroups.Any(g => g.Key==Gender.None));
-        Assert.That(genderGroups.Any(g => g.Key==Gender.Female));
-      }
     }
 
     [Test]
     public void DirectGroupByByCoalescingOperatorForIntEnumTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithGender>()
+          .GroupBy(x => x.NullableGender ?? Gender.None)
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==Gender.None));
+        Assert.That(result.Any(g => g.Key==Gender.Female));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
     public void DirectGroupByByCoalescingOperatorForLongEnumTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithExtendedGender>()
+          .GroupBy(x => x.NullableGender ?? ExtendedGender.None)
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==ExtendedGender.None));
+        Assert.That(result.Any(g => g.Key==ExtendedGender.Female));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
-    public void DirectGroupByCoalescingOperatorForFlagTest()
+    public void DirectGroupByByCoalescingOperatorForIntFlagTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithIntFlags>()
+          .GroupBy(x => x.NullableFlags ?? SomeIntFlags.None)
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==SomeIntFlags.None));
+        Assert.That(result.Any(g => g.Key==SomeIntFlags.Flag10));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
     public void DirectGroupByByCoalescingOperatorForLongFlagTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithLongFlags>()
+          .GroupBy(x => x.NullableFlags ?? SomeLongFlags.None)
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==SomeLongFlags.None));
+        Assert.That(result.Any(g => g.Key==SomeLongFlags.Flag10));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
     public void DirectGroupByByCoalescingOperatorForDateTimeTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithDateTime>()
+          .GroupBy(x => x.NullableDateTime ?? defaultDateTime)
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==nullableFieldDateTime));
+        Assert.That(result.Any(g => g.Key==defaultDateTime));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
     public void IndirectGroupByByCoalescingOperatorForIntEnumTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithGender>()
+          .Select(el=> new {
+            Id = el.Id,
+            NullableGender = el.NullableGender ?? Gender.None
+          })
+          .GroupBy(x => x.NullableGender)
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==Gender.None));
+        Assert.That(result.Any(g => g.Key==Gender.Female));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
     public void IndirectGroupByByCoalescingOperatorForLongEnumTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithExtendedGender>()
+          .Select(el => new {
+            Id = el.Id,
+            NullableGender = el.NullableGender ?? ExtendedGender.None
+          })
+          .GroupBy(x => x.NullableGender)
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==ExtendedGender.None));
+        Assert.That(result.Any(g => g.Key==ExtendedGender.Female));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
-    public void IndirectGroupByCoalescingOperatorForFlagTest()
+    public void IndirectGroupByByCoalescingOperatorForIntFlagTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithIntFlags>()
+          .Select(el => new {
+            Id = el.Id,
+            NullableGender = el.NullableFlags ?? SomeIntFlags.None
+          })
+          .GroupBy(x => x.NullableGender)
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==SomeIntFlags.None));
+        Assert.That(result.Any(g => g.Key==SomeIntFlags.Flag10));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
     public void IndirectGroupByByCoalescingOperatorForLongFlagTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithLongFlags>()
+          .Select(el => new {
+            Id = el.Id,
+            NullableGender = el.NullableFlags ?? SomeLongFlags.None
+          })
+          .GroupBy(x => x.NullableGender)
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key == SomeLongFlags.None));
+        Assert.That(result.Any(g => g.Key == SomeLongFlags.Flag10));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
     public void IndirectGroupByByCoalescingOperatorForDateTimeTest()
     {
-
-    }
-
-
-    [Test]
-    public void GroupByGetValueOrDefaultTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var genderGroups = session.Query.All<EntityWithGender>()
-          .GroupBy(x => x.NullableGender.GetValueOrDefault(Gender.None))
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithDateTime>()
+          .Select(el => new {
+            Id = el.Id,
+            NullableGender = el.NullableDateTime ?? defaultDateTime
+          })
+          .GroupBy(x => x.NullableGender)
+          .Select(g => new { Key = g.Key, Items = g })
           .ToArray();
-        Assert.That(genderGroups.Length, Is.EqualTo(2));
-        Assert.That(genderGroups.Any(g => g.Key==Gender.None));
-        Assert.That(genderGroups.Any(g => g.Key==Gender.Female));
-      }
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==defaultDateTime));
+        Assert.That(result.Any(g => g.Key==nullableFieldDateTime));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
     public void DirectGroupByByGetValueOrDefaultForIntEnumTest()
     {
-      
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithGender>()
+          .GroupBy(x => x.NullableGender.GetValueOrDefault(Gender.None))
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==Gender.None));
+        Assert.That(result.Any(g => g.Key==Gender.Female));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
     public void DirectGroupByByGetValueOrDefaultForLongEnumTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithExtendedGender>()
+          .GroupBy(x => x.NullableGender.GetValueOrDefault(ExtendedGender.None))
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==ExtendedGender.None));
+        Assert.That(result.Any(g => g.Key==ExtendedGender.Female));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
-    public void DirectGroupByGetValueOrDefaultForFlagTest()
+    public void DirectGroupByGetValueOrDefaultForIntFlagTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithIntFlags>()
+          .GroupBy(x => x.NullableFlags.GetValueOrDefault(SomeIntFlags.None))
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==SomeIntFlags.None));
+        Assert.That(result.Any(g => g.Key==SomeIntFlags.Flag10));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
     public void DirectGroupByByGetValueOrDefaultForLongFlagTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithLongFlags>()
+          .GroupBy(x => x.NullableFlags.GetValueOrDefault(SomeLongFlags.None))
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==SomeLongFlags.None));
+        Assert.That(result.Any(g => g.Key==SomeLongFlags.Flag10));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
     public void DirectGroupByByGetValueOrDefaultForDateTimeTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithDateTime>()
+          .GroupBy(x => x.NullableDateTime.GetValueOrDefault(defaultDateTime))
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==defaultDateTime));
+        Assert.That(result.Any(g => g.Key==nullableFieldDateTime));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
     public void IndirectGroupByByGetValueOrDefaultForIntEnumTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithGender>()
+          .Select(el=> new {
+            el.Id,
+            NullableGender = el.NullableGender.GetValueOrDefault(Gender.None)
+          })
+          .GroupBy(x => x.NullableGender)
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==Gender.None));
+        Assert.That(result.Any(g => g.Key==Gender.Female));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
     public void IndirectGroupByByGetValueOrDefaultForLongEnumTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithExtendedGender>()
+          .Select(el => new {
+            el.Id,
+            NullableGender = el.NullableGender.GetValueOrDefault(ExtendedGender.None)
+          })
+          .GroupBy(x => x.NullableGender)
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==ExtendedGender.None));
+        Assert.That(result.Any(g => g.Key==ExtendedGender.Female));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
-    public void IndirectGroupByGetValueOrDefaultForFlagTest()
+    public void IndirectGroupByByGetValueOrDefaultForFlagTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithIntFlags>()
+          .Select(el => new {
+            el.Id,
+            NullableGender = el.NullableFlags.GetValueOrDefault(SomeIntFlags.None)
+          })
+          .GroupBy(x => x.NullableGender)
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==SomeIntFlags.None));
+        Assert.That(result.Any(g => g.Key==SomeIntFlags.Flag10));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
     public void IndirectGroupByByGetValueOrDefaultForLongFlagTest()
     {
-
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithLongFlags>()
+          .Select(el => new {
+            el.Id,
+            NullableGender = el.NullableFlags.GetValueOrDefault(SomeLongFlags.None)
+          })
+          .GroupBy(x => x.NullableGender)
+          .Select(g => new { Key = g.Key, Items = g })
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==SomeLongFlags.None));
+        Assert.That(result.Any(g => g.Key==SomeLongFlags.Flag10));
+      };
+      RunTestInSession(testAction);
     }
 
     [Test]
     public void IndirectGroupByByGetValueOrDefaultForDateTimeTest()
     {
-
-    }
-
-
-
-
-    [Test]
-    public void ConditionalOperationInSelectTest()
-    {
-      var a = typeof (Gender).IsAssignableFrom(typeof (int));
-      var b = typeof (int).IsAssignableFrom(typeof (Gender));
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        var result = session.Query.All<EntityWithGender>().Select(el => new {
-          Id = el.Id,
-          Gender = el.NullableGender.HasValue ? el.NullableGender : Gender.None
-        })
-        .GroupBy(el=>el.Gender).ToArray();
-      }
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithDateTime>()
+          .Select(el => new {
+            el.Id,
+            NullableGender = el.NullableDateTime.GetValueOrDefault(defaultDateTime)
+          })
+          .GroupBy(x => x.NullableGender)
+          .Select(g => new {Key = g.Key, Items = g})
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==defaultDateTime));
+        Assert.That(result.Any(g => g.Key==nullableFieldDateTime));
+      };
+      RunTestInSession(testAction);
     }
 
     private void RunTestInSession(Action<Session> testBody)
@@ -516,8 +681,20 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        new EntityWithGender();
-        new EntityWithGender { NullableGender = Gender.Female };
+        new EntityWithGender {Gender = Gender.Male};
+        new EntityWithGender {Gender = Gender.Female, NullableGender = Gender.Female};
+
+        new EntityWithExtendedGender {Gender = ExtendedGender.Male};
+        new EntityWithExtendedGender {Gender = ExtendedGender.Female, NullableGender = ExtendedGender.Female};
+
+        new EntityWithIntFlags {Flags = SomeIntFlags.Flag1 | SomeIntFlags.Flag20};
+        new EntityWithIntFlags {Flags = SomeIntFlags.Flag1 | SomeIntFlags.Flag10, NullableFlags = SomeIntFlags.Flag10};
+
+        new EntityWithLongFlags {Flags = SomeLongFlags.Flag1 | SomeLongFlags.Flag20};
+        new EntityWithLongFlags {Flags = SomeLongFlags.Flag1 | SomeLongFlags.Flag20, NullableFlags = SomeLongFlags.Flag10};
+
+        new EntityWithDateTime {DateTime = firstDateTime};
+        new EntityWithDateTime {DateTime = secondDateTime, NullableDateTime = nullableFieldDateTime};
         transaction.Complete();
       }
     }
