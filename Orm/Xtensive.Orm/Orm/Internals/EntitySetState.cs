@@ -128,11 +128,10 @@ namespace Xtensive.Orm.Internals
     /// <param name="keys">The keys.</param>
     public void Update(IEnumerable<Key> keys, long? count)
     {
-      FetchedKeys.Clear();
-      TotalItemCount = count;
-      foreach (var key in keys)
-        FetchedKeys.Add(key);
-      Rebind();
+      if (HasChanges)
+        UpdateUnsynchronizedState(keys, count);
+      else
+        UpdateSynchronizedState(keys, count);
     }
 
     /// <summary>
@@ -302,6 +301,27 @@ namespace Xtensive.Orm.Internals
     private void InitializeFetchedKeys()
     {
       FetchedKeys = new LruCache<Key, Key>(WellKnown.EntitySetCacheSize, cachedKey => cachedKey);
+    }
+
+    public void UpdateSynchronizedState(IEnumerable<Key> keys, long? count)
+    {
+      FetchedKeys.Clear();
+      TotalItemCount = count;
+      foreach (var key in keys)
+        FetchedKeys.Add(key);
+      Rebind();
+    }
+
+    public void UpdateUnsynchronizedState(IEnumerable<Key> keys, long? count)
+    {
+      FetchedKeys.Clear();
+      foreach (var key in keys)
+        FetchedKeys.Add(key);
+      if (!count.HasValue)
+        TotalItemCount = count;
+      else
+        TotalItemCount = CachedItemCount;
+      Rebind();
     }
 
     // Constructors
