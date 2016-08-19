@@ -80,6 +80,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0659_GroupByConditionalExpressionWi
 
     [Field]
     public int Int { get; set; }
+
+    [Field]
+    public int? NullableInt { get; set; }
   }
 
   public enum Gender
@@ -160,6 +163,22 @@ namespace Xtensive.Orm.Tests.Issues
     private readonly DateTime defaultDateTime = new DateTime(2012, 12, 12);
 
     [Test]
+    public void DirectGroupByByNotNullEnum()
+    {
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithGender>()
+          .GroupBy(x => x.Gender)
+          .Select(g => new {g.Key, Items = g})
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g=> g.Key==Gender.Male));
+        Assert.That(result.Any(g=>g.Key==Gender.Female));
+
+      };
+      RunTestInSession(testAction);
+    }
+
+    [Test]
     public void DirectGroupByByConditionalOperatorForIntEnumTest()
     {
       Action<Session> testAction = (session) => {
@@ -224,12 +243,27 @@ namespace Xtensive.Orm.Tests.Issues
     {
       Action<Session> testAction = (session) => {
         var genderGroups = session.Query.All<EntityWithDateTime>()
-          .GroupBy(x => x.NullableDateTime.HasValue ? x.NullableDateTime.Value : defaultDateTime)
+          .GroupBy(x => x.NullableDateTime.HasValue ? x.NullableDateTime.Value : new DateTime(2012, 12, 12))
           .Select(g => new { g.Key, Items = g })
           .ToArray();
         Assert.That(genderGroups.Length, Is.EqualTo(2));
-        Assert.That(genderGroups.Any(g => g.Key==defaultDateTime));
+        Assert.That(genderGroups.Any(g => g.Key == new DateTime(2012, 12, 12)));
         Assert.That(genderGroups.Any(g => g.Key==nullableFieldDateTime));
+      };
+      RunTestInSession(testAction);
+    }
+
+    [Test]
+    public void DirectGroupByByConditionalOperatorForIntTest()
+    {
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithInt>()
+          .GroupBy(x => x.NullableInt.HasValue ? x.NullableInt : -1)
+          .Select(g => new {Key = g.Key, Items = g})
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==-1));
+        Assert.That(result.Any(g => g.Key==10));
       };
       RunTestInSession(testAction);
     }
@@ -292,7 +326,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void IndirectGroupByByCondigionalOperatorForLongFlagTest()
+    public void IndirectGroupByByConditionalOperatorForLongFlagTest()
     {
       Action<Session> testAction = (session) => {
         var genderGroups = session.Query.All<EntityWithLongFlags>()
@@ -325,6 +359,25 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(genderGroups.Length, Is.EqualTo(2));
         Assert.That(genderGroups.Any(g => g.Key==defaultDateTime));
         Assert.That(genderGroups.Any(g => g.Key==nullableFieldDateTime));
+      };
+      RunTestInSession(testAction);
+    }
+
+    [Test]
+    public void IndirectGroupByByConditionalOperatorForIntTest()
+    {
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithInt>()
+          .Select(el => new {
+            Id = el.Id,
+            NullableInt = el.NullableInt.HasValue ? el.NullableInt : -1
+          })
+          .GroupBy(x => x.NullableInt)
+          .Select(g => new {g.Key, Items = g})
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==-1));
+        Assert.That(result.Any(g => g.Key==10));
       };
       RunTestInSession(testAction);
     }
@@ -394,12 +447,27 @@ namespace Xtensive.Orm.Tests.Issues
     {
       Action<Session> testAction = (session) => {
         var result = session.Query.All<EntityWithDateTime>()
-          .GroupBy(x => x.NullableDateTime ?? defaultDateTime)
+          .GroupBy(x => x.NullableDateTime ?? new DateTime(2012, 12, 12))
           .Select(g => new { Key = g.Key, Items = g })
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==nullableFieldDateTime));
-        Assert.That(result.Any(g => g.Key==defaultDateTime));
+        Assert.That(result.Any(g => g.Key == new DateTime(2012, 12, 12)));
+      };
+      RunTestInSession(testAction);
+    }
+
+    [Test]
+    public void DirectGroupByByCoalescingOperatorForIntTest()
+    {
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithInt>()
+          .GroupBy(x => x.NullableInt ?? -1)
+          .Select(g => new {Key = g.Key, Items = g})
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==-1));
+        Assert.That(result.Any(g => g.Key==10));
       };
       RunTestInSession(testAction);
     }
@@ -500,6 +568,25 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    public void IndirectGroupByByCoalescingOperatorForIntTest()
+    {
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithInt>()
+          .Select(el => new {
+            Id = el.Id,
+            NullableInt = el.NullableInt ?? -1
+          })
+          .GroupBy(x => x.NullableInt)
+          .Select(g => new {g.Key, Items = g})
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==-1));
+        Assert.That(result.Any(g => g.Key==10));
+      };
+      RunTestInSession(testAction);
+    }
+
+    [Test]
     public void DirectGroupByByGetValueOrDefaultForIntEnumTest()
     {
       Action<Session> testAction = (session) => {
@@ -570,6 +657,21 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==defaultDateTime));
         Assert.That(result.Any(g => g.Key==nullableFieldDateTime));
+      };
+      RunTestInSession(testAction);
+    }
+
+    [Test]
+    public void DirectGroupByByGetValueOrDefaultForIntTest()
+    {
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithInt>()
+          .GroupBy(x => x.NullableInt.GetValueOrDefault(-1))
+          .Select(g => new {Key = g.Key, Items = g})
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==-1));
+        Assert.That(result.Any(g => g.Key==10));
       };
       RunTestInSession(testAction);
     }
@@ -669,6 +771,25 @@ namespace Xtensive.Orm.Tests.Issues
       RunTestInSession(testAction);
     }
 
+    [Test]
+    public void IndirectGroupByByGetValueOrDefaultForIntTest()
+    {
+      Action<Session> testAction = (session) => {
+        var result = session.Query.All<EntityWithInt>()
+          .Select(el => new {
+            Id = el.Id,
+            NullableInt = el.NullableInt.GetValueOrDefault(-1)
+          })
+          .GroupBy(x => x.NullableInt)
+          .Select(g => new {g.Key, Items = g})
+          .ToArray();
+        Assert.That(result.Length, Is.EqualTo(2));
+        Assert.That(result.Any(g => g.Key==-1));
+        Assert.That(result.Any(g => g.Key==10));
+      };
+      RunTestInSession(testAction);
+    }
+
     private void RunTestInSession(Action<Session> testBody)
     {
       using (var session = Domain.OpenSession())
@@ -695,6 +816,9 @@ namespace Xtensive.Orm.Tests.Issues
 
         new EntityWithDateTime {DateTime = firstDateTime};
         new EntityWithDateTime {DateTime = secondDateTime, NullableDateTime = nullableFieldDateTime};
+
+        new EntityWithInt {Int = 20};
+        new EntityWithInt {Int = 20, NullableInt = 10};
         transaction.Complete();
       }
     }
