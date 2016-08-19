@@ -332,6 +332,8 @@ namespace Xtensive.Orm.Providers
         var literal = SqlDml.Literal((bool) expression.Value);
         return booleanExpressionConverter.IntToBoolean(literal);
       }
+      if (type.IsEnum)
+        return SqlDml.LiteralOrContainer(Convert.ChangeType(expression.Value, type.GetEnumUnderlyingType()));
       return SqlDml.LiteralOrContainer(expression.Value);
     }
 
