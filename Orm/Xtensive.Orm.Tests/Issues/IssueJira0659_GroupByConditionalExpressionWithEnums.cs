@@ -199,7 +199,7 @@ namespace Xtensive.Orm.Tests.Issues
       Action<Session> testAction = (session) => {
         var genderGroups = session.Query.All<EntityWithExtendedGender>()
           .GroupBy(x => x.NullableGender.HasValue ? x.NullableGender.Value : ExtendedGender.None)
-          .Select(g => new { g.Key, Items = g })
+          .Select(g => new {g.Key, Items = g})
           .ToArray();
         Assert.That(genderGroups.Length, Is.EqualTo(2));
         Assert.That(genderGroups.Any(g => g.Key==ExtendedGender.None));
@@ -214,7 +214,7 @@ namespace Xtensive.Orm.Tests.Issues
       Action<Session> testAction = (session) => {
         var genderGroups = session.Query.All<EntityWithIntFlags>()
           .GroupBy(x => x.NullableFlags.HasValue ? x.NullableFlags.Value : SomeIntFlags.None)
-          .Select(g => new { g.Key, Items = g })
+          .Select(g => new {g.Key, Items = g})
           .ToArray();
         Assert.That(genderGroups.Length, Is.EqualTo(2));
         Assert.That(genderGroups.Any(g => g.Key==SomeIntFlags.None));
@@ -244,10 +244,10 @@ namespace Xtensive.Orm.Tests.Issues
       Action<Session> testAction = (session) => {
         var genderGroups = session.Query.All<EntityWithDateTime>()
           .GroupBy(x => x.NullableDateTime.HasValue ? x.NullableDateTime.Value : new DateTime(2012, 12, 12))
-          .Select(g => new { g.Key, Items = g })
+          .Select(g => new {g.Key, Items = g})
           .ToArray();
         Assert.That(genderGroups.Length, Is.EqualTo(2));
-        Assert.That(genderGroups.Any(g => g.Key == new DateTime(2012, 12, 12)));
+        Assert.That(genderGroups.Any(g => g.Key==new DateTime(2012, 12, 12)));
         Assert.That(genderGroups.Any(g => g.Key==nullableFieldDateTime));
       };
       RunTestInSession(testAction);
@@ -273,12 +273,12 @@ namespace Xtensive.Orm.Tests.Issues
     {
       Action<Session> testAction = (session) => {
         var genderGroups = session.Query.All<EntityWithGender>()
-          .Select(el=> new {
+          .Select(el => new {
             Id = el.Id,
             Gender = el.NullableGender.HasValue ? el.NullableGender.Value : Gender.None
           })
           .GroupBy(x => x.Gender)
-          .Select(g => new { g.Key, Items = g })
+          .Select(g => new {g.Key, Items = g})
           .ToArray();
         Assert.That(genderGroups.Length, Is.EqualTo(2));
         Assert.That(genderGroups.Any(g => g.Key==Gender.None));
@@ -403,7 +403,7 @@ namespace Xtensive.Orm.Tests.Issues
       Action<Session> testAction = (session) => {
         var result = session.Query.All<EntityWithExtendedGender>()
           .GroupBy(x => x.NullableGender ?? ExtendedGender.None)
-          .Select(g => new { Key = g.Key, Items = g })
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==ExtendedGender.None));
@@ -418,7 +418,7 @@ namespace Xtensive.Orm.Tests.Issues
       Action<Session> testAction = (session) => {
         var result = session.Query.All<EntityWithIntFlags>()
           .GroupBy(x => x.NullableFlags ?? SomeIntFlags.None)
-          .Select(g => new { Key = g.Key, Items = g })
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==SomeIntFlags.None));
@@ -448,11 +448,11 @@ namespace Xtensive.Orm.Tests.Issues
       Action<Session> testAction = (session) => {
         var result = session.Query.All<EntityWithDateTime>()
           .GroupBy(x => x.NullableDateTime ?? new DateTime(2012, 12, 12))
-          .Select(g => new { Key = g.Key, Items = g })
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==nullableFieldDateTime));
-        Assert.That(result.Any(g => g.Key == new DateTime(2012, 12, 12)));
+        Assert.That(result.Any(g => g.Key==new DateTime(2012, 12, 12)));
       };
       RunTestInSession(testAction);
     }
@@ -477,12 +477,12 @@ namespace Xtensive.Orm.Tests.Issues
     {
       Action<Session> testAction = (session) => {
         var result = session.Query.All<EntityWithGender>()
-          .Select(el=> new {
+          .Select(el => new {
             Id = el.Id,
             NullableGender = el.NullableGender ?? Gender.None
           })
           .GroupBy(x => x.NullableGender)
-          .Select(g => new { Key = g.Key, Items = g })
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==Gender.None));
@@ -501,7 +501,7 @@ namespace Xtensive.Orm.Tests.Issues
             NullableGender = el.NullableGender ?? ExtendedGender.None
           })
           .GroupBy(x => x.NullableGender)
-          .Select(g => new { Key = g.Key, Items = g })
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==ExtendedGender.None));
@@ -520,7 +520,7 @@ namespace Xtensive.Orm.Tests.Issues
             NullableGender = el.NullableFlags ?? SomeIntFlags.None
           })
           .GroupBy(x => x.NullableGender)
-          .Select(g => new { Key = g.Key, Items = g })
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==SomeIntFlags.None));
@@ -539,11 +539,11 @@ namespace Xtensive.Orm.Tests.Issues
             NullableGender = el.NullableFlags ?? SomeLongFlags.None
           })
           .GroupBy(x => x.NullableGender)
-          .Select(g => new { Key = g.Key, Items = g })
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
-        Assert.That(result.Any(g => g.Key == SomeLongFlags.None));
-        Assert.That(result.Any(g => g.Key == SomeLongFlags.Flag10));
+        Assert.That(result.Any(g => g.Key==SomeLongFlags.None));
+        Assert.That(result.Any(g => g.Key==SomeLongFlags.Flag10));
       };
       RunTestInSession(testAction);
     }
@@ -558,7 +558,7 @@ namespace Xtensive.Orm.Tests.Issues
             NullableGender = el.NullableDateTime ?? new DateTime(2012, 12, 12)
           })
           .GroupBy(x => x.NullableGender)
-          .Select(g => new { Key = g.Key, Items = g })
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==new DateTime(2012, 12, 12)));
@@ -592,7 +592,7 @@ namespace Xtensive.Orm.Tests.Issues
       Action<Session> testAction = (session) => {
         var result = session.Query.All<EntityWithGender>()
           .GroupBy(x => x.NullableGender.GetValueOrDefault(Gender.None))
-          .Select(g => new { Key = g.Key, Items = g })
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==Gender.None));
@@ -607,7 +607,7 @@ namespace Xtensive.Orm.Tests.Issues
       Action<Session> testAction = (session) => {
         var result = session.Query.All<EntityWithExtendedGender>()
           .GroupBy(x => x.NullableGender.GetValueOrDefault(ExtendedGender.None))
-          .Select(g => new { Key = g.Key, Items = g })
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==ExtendedGender.None));
@@ -637,7 +637,7 @@ namespace Xtensive.Orm.Tests.Issues
       Action<Session> testAction = (session) => {
         var result = session.Query.All<EntityWithLongFlags>()
           .GroupBy(x => x.NullableFlags.GetValueOrDefault(SomeLongFlags.None))
-          .Select(g => new { Key = g.Key, Items = g })
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==SomeLongFlags.None));
@@ -681,12 +681,12 @@ namespace Xtensive.Orm.Tests.Issues
     {
       Action<Session> testAction = (session) => {
         var result = session.Query.All<EntityWithGender>()
-          .Select(el=> new {
+          .Select(el => new {
             el.Id,
             NullableGender = el.NullableGender.GetValueOrDefault(Gender.None)
           })
           .GroupBy(x => x.NullableGender)
-          .Select(g => new { Key = g.Key, Items = g })
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==Gender.None));
@@ -705,7 +705,7 @@ namespace Xtensive.Orm.Tests.Issues
             NullableGender = el.NullableGender.GetValueOrDefault(ExtendedGender.None)
           })
           .GroupBy(x => x.NullableGender)
-          .Select(g => new { Key = g.Key, Items = g })
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==ExtendedGender.None));
@@ -724,7 +724,7 @@ namespace Xtensive.Orm.Tests.Issues
             NullableGender = el.NullableFlags.GetValueOrDefault(SomeIntFlags.None)
           })
           .GroupBy(x => x.NullableGender)
-          .Select(g => new { Key = g.Key, Items = g })
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==SomeIntFlags.None));
@@ -743,7 +743,7 @@ namespace Xtensive.Orm.Tests.Issues
             NullableGender = el.NullableFlags.GetValueOrDefault(SomeLongFlags.None)
           })
           .GroupBy(x => x.NullableGender)
-          .Select(g => new { Key = g.Key, Items = g })
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
         Assert.That(result.Any(g => g.Key==SomeLongFlags.None));
