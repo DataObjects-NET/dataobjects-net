@@ -351,13 +351,13 @@ namespace Xtensive.Orm.Tests.Issues
         var genderGroups = session.Query.All<EntityWithDateTime>()
           .Select(el => new {
             Id = el.Id,
-            DateTime = el.NullableDateTime.HasValue ? el.NullableDateTime.Value : defaultDateTime
+            DateTime = el.NullableDateTime.HasValue ? el.NullableDateTime.Value : new DateTime(2012, 12, 12)
           })
           .GroupBy(x => x.DateTime)
           .Select(g => new {g.Key, Items = g})
           .ToArray();
         Assert.That(genderGroups.Length, Is.EqualTo(2));
-        Assert.That(genderGroups.Any(g => g.Key==defaultDateTime));
+        Assert.That(genderGroups.Any(g => g.Key==new DateTime(2012, 12, 12)));
         Assert.That(genderGroups.Any(g => g.Key==nullableFieldDateTime));
       };
       RunTestInSession(testAction);
@@ -555,13 +555,13 @@ namespace Xtensive.Orm.Tests.Issues
         var result = session.Query.All<EntityWithDateTime>()
           .Select(el => new {
             Id = el.Id,
-            NullableGender = el.NullableDateTime ?? defaultDateTime
+            NullableGender = el.NullableDateTime ?? new DateTime(2012, 12, 12)
           })
           .GroupBy(x => x.NullableGender)
           .Select(g => new { Key = g.Key, Items = g })
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
-        Assert.That(result.Any(g => g.Key==defaultDateTime));
+        Assert.That(result.Any(g => g.Key==new DateTime(2012, 12, 12)));
         Assert.That(result.Any(g => g.Key==nullableFieldDateTime));
       };
       RunTestInSession(testAction);
@@ -651,11 +651,11 @@ namespace Xtensive.Orm.Tests.Issues
     {
       Action<Session> testAction = (session) => {
         var result = session.Query.All<EntityWithDateTime>()
-          .GroupBy(x => x.NullableDateTime.GetValueOrDefault(defaultDateTime))
-          .Select(g => new { Key = g.Key, Items = g })
+          .GroupBy(x => x.NullableDateTime.GetValueOrDefault(new DateTime(2012, 12, 12)))
+          .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
-        Assert.That(result.Any(g => g.Key==defaultDateTime));
+        Assert.That(result.Any(g => g.Key==new DateTime(2012, 12, 12)));
         Assert.That(result.Any(g => g.Key==nullableFieldDateTime));
       };
       RunTestInSession(testAction);
@@ -759,13 +759,13 @@ namespace Xtensive.Orm.Tests.Issues
         var result = session.Query.All<EntityWithDateTime>()
           .Select(el => new {
             el.Id,
-            NullableGender = el.NullableDateTime.GetValueOrDefault(defaultDateTime)
+            NullableGender = el.NullableDateTime.GetValueOrDefault(new DateTime(2012, 12, 12))
           })
           .GroupBy(x => x.NullableGender)
           .Select(g => new {Key = g.Key, Items = g})
           .ToArray();
         Assert.That(result.Length, Is.EqualTo(2));
-        Assert.That(result.Any(g => g.Key==defaultDateTime));
+        Assert.That(result.Any(g => g.Key==new DateTime(2012, 12, 12)));
         Assert.That(result.Any(g => g.Key==nullableFieldDateTime));
       };
       RunTestInSession(testAction);
