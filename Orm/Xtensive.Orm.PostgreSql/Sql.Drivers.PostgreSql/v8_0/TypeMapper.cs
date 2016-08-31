@@ -77,6 +77,16 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       parameter.Value = value==null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
 
+    [SecuritySafeCritical]
+    public override void BindDateTimeOffset(DbParameter parameter, object value)
+    {
+      var nativeParameter = (NpgsqlParameter) parameter;
+      nativeParameter.NpgsqlDbType = NpgsqlDbType.TimestampTZ;
+      nativeParameter.Value = value!=null
+        ? (object) (NpgsqlTimeStampTZ) (DateTimeOffset) value
+        : DBNull.Value;
+    }
+
     public override SqlValueType MapByte(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.Int16);
@@ -127,6 +137,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var nativeReader = (NpgsqlDataReader) reader;
       return (TimeSpan) nativeReader.GetInterval(index);
+    }
+
+    [SecuritySafeCritical]
+    public override object ReadDateTimeOffset(DbDataReader reader, int index)
+    {
+      var nativeReader = (NpgsqlDataReader) reader;
+      return (DateTimeOffset) nativeReader.GetTimeStampTZ(index);
     }
 
     // Constructors
