@@ -22,6 +22,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string FloatFormatString { get { return base.FloatFormatString + "'::float4'"; } }
     public override string DoubleFormatString { get { return base.DoubleFormatString + "'::float8'"; } }
 
+    public string DateTimeOffsetFormatString { get { return @"\'yyyyMMdd HHmmss.ffffff tz\''::timestamp(6) with time zone'"; } }
+
+
     public override void Initialize()
     {
       base.Initialize();
@@ -288,6 +291,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         return TranslateByteArrayLiteral((byte[]) literalValue);
       if (literalType==typeof(Guid))
         return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
+      if(literalType==typeof(DateTimeOffset))
+        return ((DateTimeOffset)literalValue).ToString(DateTimeOffsetFormatString);
+
       if (literalType==typeof (NpgsqlPoint)) {
         var point = (NpgsqlPoint) literalValue;
         return String.Format("point'({0},{1})'", point.X, point.Y);
