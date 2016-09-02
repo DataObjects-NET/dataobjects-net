@@ -790,6 +790,179 @@ namespace Xtensive.Orm.Tests.Issues
       RunTestInSession(testAction);
     }
 
+    [Test]
+    public void OrderByHasFlagExpressionTest()
+    {
+      Action<Session> testAction = (session) => {
+        var result1 = session.Query.All<EntityWithIntFlags>()
+          .OrderBy(el => el.Flags.HasFlag(SomeIntFlags.Flag10)).ToArray();
+        var result2 = session.Query.All<EntityWithLongFlags>()
+          .OrderBy(el => el.Flags.HasFlag(SomeLongFlags.Flag10)).ToArray();
+      };
+      RunTestInSession(testAction);
+    }
+
+    [Test]
+    public void OrderByBitAndExpressionTest()
+    {
+      Action<Session> testAction = (session) => {
+        var result1 = session.Query.All<EntityWithIntFlags>()
+          .OrderBy(el => (el.Flags & SomeIntFlags.Flag1)==SomeIntFlags.Flag1).ToArray();
+        var result2 = session.Query.All<EntityWithLongFlags>()
+          .OrderBy(el => (el.Flags & SomeLongFlags.Flag1)==SomeLongFlags.Flag1).ToArray();
+      };
+      RunTestInSession(testAction);
+    }
+
+    [Test]
+    public void OrderByCoalescingOperatorTest()
+    {
+      Action<Session> testAction = (session) => {
+        var result1 = session.Query.All<EntityWithIntFlags>()
+          .OrderBy(el => el.NullableFlags ?? SomeIntFlags.Flag1).ToArray();
+        var result2 = session.Query.All<EntityWithLongFlags>()
+          .OrderBy(el => el.NullableFlags ?? SomeLongFlags.Flag1).ToArray();
+        var result3 = session.Query.All<EntityWithGender>()
+          .OrderBy(el => el.NullableGender ?? Gender.None).ToArray();
+        var result4 = session.Query.All<EntityWithExtendedGender>()
+          .OrderBy(el => el.NullableGender ?? ExtendedGender.None).ToArray();
+      };
+      RunTestInSession(testAction);
+    }
+
+    [Test]
+    public void OrderByInequalityExpressionTest()
+    {
+      Action<Session> testAction = (session) => {
+        var result1 = session.Query.All<EntityWithGender>()
+          .OrderBy(el => el.Gender!=Gender.Male).ToArray();
+        var result2 = session.Query.All<EntityWithGender>()
+          .OrderBy(el => Gender.Male!=el.Gender).ToArray();
+
+        var result3 = session.Query.All<EntityWithExtendedGender>()
+          .OrderBy(el => el.Gender!=ExtendedGender.Male).ToArray();
+        var result4 = session.Query.All<EntityWithExtendedGender>()
+          .OrderBy(el => ExtendedGender.Male!=el.Gender).ToArray();
+
+        var result5 = session.Query.All<EntityWithIntFlags>()
+          .OrderBy(el => el.Flags!=SomeIntFlags.Flag1).ToArray();
+        var result6 = session.Query.All<EntityWithIntFlags>()
+          .OrderBy(el => SomeIntFlags.Flag1!=el.Flags).ToArray();
+
+        var result7 = session.Query.All<EntityWithLongFlags>()
+          .OrderBy(el => el.Flags!=SomeLongFlags.Flag1).ToArray();
+        var result8 = session.Query.All<EntityWithLongFlags>()
+          .OrderBy(el => SomeLongFlags.Flag1!=el.Flags).ToArray();
+      };
+      RunTestInSession(testAction);
+    }
+
+    [Test]
+    public void OrderByEqualityExpression()
+    {
+      Action<Session> testAction = (session) => {
+        var result1 = session.Query.All<EntityWithGender>()
+          .OrderBy(el => el.Gender==Gender.Male).ToArray();
+        var result2 = session.Query.All<EntityWithGender>()
+          .OrderBy(el => Gender.Male==el.Gender).ToArray();
+
+        var result3 = session.Query.All<EntityWithExtendedGender>()
+          .OrderBy(el => el.Gender==ExtendedGender.Male).ToArray();
+        var result4 = session.Query.All<EntityWithExtendedGender>()
+          .OrderBy(el => ExtendedGender.Male==el.Gender).ToArray();
+
+        var result5 = session.Query.All<EntityWithIntFlags>()
+          .OrderBy(el => el.Flags==SomeIntFlags.Flag1).ToArray();
+        var result6 = session.Query.All<EntityWithIntFlags>()
+          .OrderBy(el => SomeIntFlags.Flag1==el.Flags).ToArray();
+
+        var result7 = session.Query.All<EntityWithLongFlags>()
+          .OrderBy(el => el.Flags==SomeLongFlags.Flag1).ToArray();
+        var result8 = session.Query.All<EntityWithLongFlags>()
+          .OrderBy(el => SomeLongFlags.Flag1==el.Flags).ToArray();
+      };
+      RunTestInSession(testAction);
+    }
+
+    [Test]
+    public void WhereByHasValueTest()
+    {
+      Action<Session> testAction = (session) => {
+        var result1 = session.Query.All<EntityWithIntFlags>()
+          .Where(el => el.Flags.HasFlag(SomeIntFlags.Flag1)).ToArray();
+        var result2 = session.Query.All<EntityWithLongFlags>()
+          .Where(el => el.Flags.HasFlag(SomeLongFlags.Flag1)).ToArray();
+      };
+      RunTestInSession(testAction);
+    }
+
+    [Test]
+    public void WhereByBitAndExpressionTest()
+    {
+      Action<Session> testAction = (session) => {
+        var result1 = session.Query.All<EntityWithIntFlags>()
+          .Where(el => (el.Flags & SomeIntFlags.Flag1)==SomeIntFlags.Flag1).ToArray();
+
+        var result2 = session.Query.All<EntityWithLongFlags>()
+          .Where(el => (el.Flags & SomeLongFlags.Flag1)==SomeLongFlags.Flag1).ToArray();
+      };
+      RunTestInSession(testAction);
+    }
+
+    [Test]
+    public void WhereByEqualityTest()
+    {
+      Action<Session> testAction = (session) => {
+        var result1 = session.Query.All<EntityWithGender>()
+          .Where(el => el.Gender==Gender.Male).ToArray();
+        var result2 = session.Query.All<EntityWithGender>()
+          .Where(el => Gender.Male==el.Gender).ToArray();
+
+        var result3 = session.Query.All<EntityWithExtendedGender>()
+          .Where(el => el.Gender==ExtendedGender.Male).ToArray();
+        var result4 = session.Query.All<EntityWithExtendedGender>()
+          .Where(el => ExtendedGender.Male==el.Gender).ToArray();
+
+        var result5 = session.Query.All<EntityWithIntFlags>()
+          .Where(el => el.Flags==SomeIntFlags.Flag1).ToArray();
+        var result6 = session.Query.All<EntityWithIntFlags>()
+          .Where(el => SomeIntFlags.Flag1==el.Flags).ToArray();
+
+        var result7 = session.Query.All<EntityWithLongFlags>()
+          .Where(el => el.Flags==SomeLongFlags.Flag1).ToArray();
+        var result8 = session.Query.All<EntityWithLongFlags>()
+          .Where(el => SomeLongFlags.Flag1==el.Flags).ToArray();
+      };
+      RunTestInSession(testAction);
+    }
+
+    [Test]
+    public void WhereByInequalityTest()
+    {
+      Action<Session> testAction = (session) => {
+        var result1 = session.Query.All<EntityWithGender>()
+          .Where(el => el.Gender!=Gender.Female).ToArray();
+        var result2 = session.Query.All<EntityWithGender>()
+          .Where(el => Gender.Female!=el.Gender).ToArray();
+
+        var result3 = session.Query.All<EntityWithExtendedGender>()
+          .Where(el => el.Gender!=ExtendedGender.Female).ToArray();
+        var result4 = session.Query.All<EntityWithExtendedGender>()
+          .Where(el => ExtendedGender.Female!=el.Gender).ToArray();
+
+        var result5 = session.Query.All<EntityWithIntFlags>()
+          .Where(el => el.Flags!=SomeIntFlags.Flag1).ToArray();
+        var result6 = session.Query.All<EntityWithIntFlags>()
+          .Where(el => SomeIntFlags.Flag1!=el.Flags).ToArray();
+
+        var result7 = session.Query.All<EntityWithLongFlags>()
+          .Where(el => el.Flags!=SomeLongFlags.Flag1).ToArray();
+        var result8 = session.Query.All<EntityWithLongFlags>()
+          .Where(el => SomeLongFlags.Flag1!=el.Flags).ToArray();
+      };
+      RunTestInSession(testAction);
+    }
+    
     private void RunTestInSession(Action<Session> testBody)
     {
       using (var session = Domain.OpenSession())
