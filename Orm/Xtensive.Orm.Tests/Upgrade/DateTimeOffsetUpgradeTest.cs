@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.ObjectModel.Interfaces.Alphabet;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Upgrade.DateTimeOffsetUpgradeModel;
 using FirstModel = Xtensive.Orm.Tests.Upgrade.DateTimeOffsetUpgradeModel.FirstModel;
 using SecondModel = Xtensive.Orm.Tests.Upgrade.DateTimeOffsetUpgradeModel.SecondModel;
@@ -91,6 +91,12 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void PerformWithChanges()
     {
       TestWithChanges(DomainUpgradeMode.Perform, false);
+    }
+
+    [TestFixtureSetUp]
+    public void FixtureSetUp()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);
     }
 
     private void TestWithoutChanges(DomainUpgradeMode secondBuildUpgradeMode)
