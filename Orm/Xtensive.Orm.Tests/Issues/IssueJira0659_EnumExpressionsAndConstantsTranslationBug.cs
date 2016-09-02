@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0659_GroupByConditionalExpressionWi
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  public class IssueJira0659_GroupByConditionalExpressionWithEnums : AutoBuildTest
+  public class IssueJira0659_EnumExpressionsAndConstantsTranslationBug : AutoBuildTest
   {
     private readonly DateTime nullableFieldDateTime = new DateTime(2015, 6, 6);
     private readonly DateTime firstDateTime = new DateTime(2013, 10, 10);
