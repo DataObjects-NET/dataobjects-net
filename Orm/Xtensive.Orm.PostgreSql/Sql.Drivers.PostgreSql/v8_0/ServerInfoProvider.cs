@@ -203,7 +203,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       dtc.DateTimeOffset = DataTypeInfo.Range(SqlType.DateTimeOffset, commonFeatures,
         new ValueRange<DateTimeOffset>(new DateTimeOffset(1, 1, 1, 0, 0, 0, 0, new TimeSpan(0)),
           new DateTimeOffset(9999, 12, 31, 0, 0, 0, 0, new TimeSpan(0))),
-        "timestamp with time zone");
+        "timestamptz");
       
       var geo = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.Multiple | DataTypeFeatures.Spatial;
 
