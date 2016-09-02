@@ -451,6 +451,7 @@
     <Compile Include="Storage\ValidateEntityVersionsOnPersistTest.cs" />
     <Compile Include="Upgrade\BuildOnEmptySchemaTest.cs" />
     <Compile Include="Upgrade\CustomTypeIdMap\CustomTypeIdMap.cs" />
+    <Compile Include="Upgrade\DateTimeOffsetUpgradeTest.cs" />
     <Compile Include="Upgrade\DisableAutoResolveNamespaceConflictsTest.cs" />
     <Compile Include="Storage\ValidationConstraintsOnGenericTypeTest.cs" />
     <Compile Include="Storage\ValidationContextClientProfileTest.cs" />
