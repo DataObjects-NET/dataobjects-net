@@ -775,6 +775,26 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return base.Translate(part);
     }
 
+    public override string Translate(SqlDateTimeOffsetPart part)
+    {
+      switch (part) {
+        case SqlDateTimeOffsetPart.Millisecond:
+          return "MILLISECONDS";
+        case SqlDateTimeOffsetPart.DayOfYear:
+          return "DOY";
+        case SqlDateTimeOffsetPart.DayOfWeek:
+          return "DOW";
+        case SqlDateTimeOffsetPart.Offset:
+          return "TIMEZONE";
+        case SqlDateTimeOffsetPart.TimeZoneHour:
+          return "TIMEZONE_HOUR";
+        case SqlDateTimeOffsetPart.TimeZoneMinute:
+          return "TIMEZONE_MINUTE";
+      }
+
+      return base.Translate(part);
+    }
+
     public override string Translate(SqlLockType lockType)
     {
       if (lockType.Supports(SqlLockType.SkipLocked)
