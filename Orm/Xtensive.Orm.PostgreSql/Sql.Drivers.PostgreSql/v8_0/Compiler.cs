@@ -33,8 +33,20 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         var row = SqlDml.Row(right.GetValues().Select(value => SqlDml.Literal(value)).ToArray());
         base.Visit(node.NodeType==SqlNodeType.In ? SqlDml.In(node.Left, row) : SqlDml.NotIn(node.Left, row));
       }
-      else
+      else {
+        switch (node.NodeType) {
+          case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
+            (node.Left - node.Right).AcceptVisitor(this);
+            return;
+            case SqlNodeType.DateTimeOffsetMinusInterval:
+            (node.Left - node.Right).AcceptVisitor(this);
+            return;
+            case SqlNodeType.DateTimeOffsetPlusInterval:
+            (node.Left + node.Right).AcceptVisitor(this);
+            return;
+        }
         base.Visit(node);
+      }
     }
 
     public override void Visit(SqlFunctionCall node)
@@ -66,9 +78,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         return;
       case SqlFunctionType.DateTimeConstruct:
         var newNode = (SqlDml.Literal(new DateTime(2001, 1, 1))
-          + OneYearInterval * (node.Arguments[0] - 2001)
-          + OneMonthInterval * (node.Arguments[1] - 1)
-          + OneDayInterval * (node.Arguments[2] - 1));
+                       + OneYearInterval * (node.Arguments[0] - 2001)
+                       + OneMonthInterval * (node.Arguments[1] - 1)
+                       + OneDayInterval * (node.Arguments[2] - 1));
         newNode.AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeTruncate:
@@ -82,6 +94,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         return;
       case SqlFunctionType.DateTimeToStringIso:
         DateTimeToStringIso(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetTimeOfDay:
+        DateTimeOffsetTimeOfDay(node.Arguments[0]).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetAddMonths:
+        SqlDml.Cast(node.Arguments[0] + node.Arguments[1] * OneMonthInterval, SqlType.DateTimeOffset).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetAddYears:
+        SqlDml.Cast(node.Arguments[0] + node.Arguments[1] * OneYearInterval, SqlType.DateTimeOffset).AcceptVisitor(this);
+        return;
+      case SqlFunctionType.DateTimeOffsetConstruct:
         return;
       }
       base.Visit(node);
@@ -237,6 +260,82 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
               SqlDml.Native(")")))));
     }
 
+    public override void Visit(SqlExtract node)
+    {   
+      switch (node.DateTimeOffsetPart) {
+        case SqlDateTimeOffsetPart.Date:
+          DateTimeOffsetExtractDate(node.Operand).AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.DateTime:
+          DateTimeOffsetExtractDateTime(node.Operand).AcceptVisitor(this);
+          return;
+
+        case SqlDateTimeOffsetPart.UtcDateTime:
+          DateTimeOffsetToUtcDateTime(node.Operand).AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.LocalDateTime:
+          DateTimeOffsetToLocalDateTime(node.Operand).AcceptVisitor(this);
+          return;
+        case SqlDateTimeOffsetPart.Offset:
+          DateTimeOffsetExtractOffset(node.Operand).AcceptVisitor(this);
+          return;
+      }
+      base.Visit(node);
+    }
+
+    protected SqlExpression DateTimeOffsetExtractDate(SqlExpression timestamp)
+    {
+     
+      return SqlDml.FunctionCall("DATE", timestamp);
+    }
+
+    protected SqlExpression DateTimeOffsetExtractDateTime(SqlExpression timestamp)
+    {
+      return SqlDml.Cast(timestamp, SqlType.DateTime);
+    }
+
+    protected SqlExpression DateTimeOffsetToUtcDateTime(SqlExpression timeStamp)
+    {
+      return GetDateTimeInTimeZone(timeStamp, TimeSpan.Zero);
+    }
+    
+    protected SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression timestamp)
+    {
+      return GetDateTimeInTimeZone(timestamp, GetServerTimeZone());
+    }
+
+    protected SqlExpression DateTimeOffsetExtractOffset(SqlExpression timestamp)
+    {
+      var substract = GetDateTimeInTimeZone(timestamp, GetServerTimeZone()) - GetDateTimeInTimeZone(timestamp, TimeSpan.Zero);
+      return SqlDml.Cast(substract, SqlType.Interval);
+    }
+
+    protected SqlExpression DateTimeOffsetTimeOfDay(SqlExpression timestamp)
+    {
+      return DateTimeOffsetSubstract(timestamp, SqlDml.DateTimeTruncate(timestamp));
+    }
+
+    protected SqlExpression DateTimeOffsetSubstract(SqlExpression timestamp1, SqlExpression timestamp2)
+    {
+      return timestamp1 - timestamp2;
+    }
+
+    protected SqlExpression DateTimeOffsetAddMonths(SqlExpression timestamp, SqlExpression months)
+    {
+
+      return null;
+    }
+
+    private SqlExpression GetDateTimeInTimeZone(SqlExpression expression, SqlExpression zone)
+    {
+      return SqlDml.FunctionCall("TIMEZONE", zone, expression);
+    }
+
+    private SqlExpression GetServerTimeZone()
+    {
+      return SqlDml.FunctionCall("CURRENT_SETTING", SqlDml.Literal("TIMEZONE"));
+    }
+    
     // Constructors
 
     protected internal Compiler(SqlDriver driver)
