@@ -373,5 +373,59 @@ namespace Xtensive.Orm.Tests.Core.Reflection
       Assert.AreEqual(1, a.F1);
       Assert.AreEqual("2", a.F2);
     }
+
+    [Test]
+    public void IsNumericTest()
+    {
+      var numericTypes = new[] {
+        typeof (byte),
+        typeof (byte?),
+        typeof (sbyte),
+        typeof (sbyte?),
+        typeof (short),
+        typeof (short?),
+        typeof (ushort),
+        typeof (ushort?),
+        typeof (int),
+        typeof (int?),
+        typeof (uint),
+        typeof (uint?),
+        typeof (long),
+        typeof (long?),
+        typeof (ulong),
+        typeof (ulong?),
+        typeof (float),
+        typeof (float?),
+        typeof (double),
+        typeof (double?),
+        typeof (decimal),
+        typeof (decimal?)
+      };
+
+      var nonNumericTypes = new[] {
+        typeof (string),
+        typeof (char),
+        typeof (char?),
+        typeof (bool),
+        typeof (bool?),
+        typeof (DateTime),
+        typeof (DateTime?),
+        typeof (TimeSpan),
+        typeof (TimeSpan?),
+        typeof (Guid),
+        typeof (Guid?),
+        typeof (TypeCode),
+        typeof (TypeCode?),
+        typeof (byte[]),
+        typeof (Key),
+        this.GetType(),
+      };
+
+      foreach (var numericType in numericTypes)
+        Assert.IsTrue(numericType.IsNumericType());
+
+      foreach (var nonNumericType in nonNumericTypes)
+        Assert.IsFalse(nonNumericType.IsNumericType());
+    }
   }
 }

@@ -1007,7 +1007,40 @@ namespace Xtensive.Reflection
       return type.IsPublic && !type.IsAbstract && baseType.IsAssignableFrom(type);
     }
 
-    
+    /// <summary>
+    /// Determines whether <paramref name="type"/> is numeric or nullable numeric
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <returns>
+    /// <see langword="true"/> If type is numeric or nullable numeric;
+    /// otherwise, <see langword="false"/>.
+    /// </returns>
+    public static bool IsNumericType(this Type type)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      var nonNullableType = type;
+      if (type.IsNullable())
+        nonNullableType = Nullable.GetUnderlyingType(type);
+      if (nonNullableType.IsEnum)
+        return false;
+
+      switch (Type.GetTypeCode(nonNullableType)) {
+      case TypeCode.Byte:
+      case TypeCode.SByte:
+      case TypeCode.UInt16:
+      case TypeCode.UInt32:
+      case TypeCode.UInt64:
+      case TypeCode.Int16:
+      case TypeCode.Int32:
+      case TypeCode.Int64:
+      case TypeCode.Decimal:
+      case TypeCode.Double:
+      case TypeCode.Single:
+        return true;
+      default:
+        return false;
+      }
+    }
 
     #region Private \ internal methods
 
