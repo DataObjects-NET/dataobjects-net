@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string FloatFormatString { get { return base.FloatFormatString + "'::float4'"; } }
     public override string DoubleFormatString { get { return base.DoubleFormatString + "'::float8'"; } }
 
-    public string DateTimeOffsetFormatString { get { return @"\'yyyyMMdd HHmmss.ffffff tz\''::timestamp(6) with time zone'"; } }
+    public string DateTimeOffsetFormatString { get { return @"\'yyyyMMdd HHmmss.ffffff zzz\''::timestamp(6) with time zone'"; } }
 
 
     public override void Initialize()
