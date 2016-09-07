@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [TestFixtureSetUp]
     public void FixtureSetUp()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);
+      Require.AnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);
     }
 
     private void TestWithoutChanges(DomainUpgradeMode secondBuildUpgradeMode)
