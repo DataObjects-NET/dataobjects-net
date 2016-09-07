@@ -26,100 +26,160 @@ namespace Xtensive.Orm.Tests.Sql
       get { return true; }
     }
 
-    [Test]
-    public virtual void ExtractTest()
+    protected virtual bool ShouldTransformToLocalZone
     {
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Day, DefaultDateTimeOffset), DefaultDateTimeOffset.Day);
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.DayOfWeek, DefaultDateTimeOffset), (int) DefaultDateTimeOffset.DayOfWeek);
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.DayOfYear, DefaultDateTimeOffset), DefaultDateTimeOffset.DayOfYear);
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Hour, DefaultDateTimeOffset), DefaultDateTimeOffset.Hour);
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Millisecond, DefaultDateTimeOffset), DefaultDateTimeOffset.Millisecond);
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Minute, DefaultDateTimeOffset), DefaultDateTimeOffset.Minute);
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Month, DefaultDateTimeOffset), DefaultDateTimeOffset.Month);
-      if (IsNanosecondSupported)
-        CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Nanosecond, DefaultDateTimeOffset), DefaultDateTimeOffset.Millisecond * 1000000);
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Second, DefaultDateTimeOffset), DefaultDateTimeOffset.Second);
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.TimeZoneHour, DefaultDateTimeOffset), DefaultDateTimeOffset.Offset.Hours);
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.TimeZoneMinute, DefaultDateTimeOffset), DefaultDateTimeOffset.Offset.Minutes);
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Year, DefaultDateTimeOffset), DefaultDateTimeOffset.Year);
-
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Date, DefaultDateTimeOffset), DefaultDateTimeOffset.Date);
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.DateTime, DefaultDateTimeOffset), DefaultDateTimeOffset.DateTime);
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Offset, DefaultDateTimeOffset), DefaultDateTimeOffset.Offset);
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.LocalDateTime, DefaultDateTimeOffset), DefaultDateTimeOffset.LocalDateTime);
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.UtcDateTime, DefaultDateTimeOffset), DefaultDateTimeOffset.UtcDateTime);
+      get { return false; }
     }
 
     [Test]
+    public virtual void ExtractDateTimePartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.DateTime, DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).DateTime);
+    }
+
+    [Test]
+    public virtual void ExtractDatePartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Date, DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).Date);
+    }
+
+    [Test]
+    public virtual void ExtractYearPartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Year, DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).Year);
+    }
+
+    [Test]
+    public virtual void ExtractMonthPartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Month, DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).Month);
+    }
+    
+    [Test]
+    public virtual void ExtractDayPartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Day, DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).Day);
+    }
+
+    [Test]
+    public virtual void ExtractDayOfWeekPartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.DayOfWeek, DefaultDateTimeOffset), (int) TryTranformToLocalZone(DefaultDateTimeOffset).DayOfWeek);
+    }
+
+    [Test]
+    public virtual void ExtractDayOfYearPartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.DayOfYear, DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).DayOfYear);
+    }
+
+    [Test]
+    public virtual void ExtractHourPartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Hour, DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).Hour);
+    }
+
+    [Test]
+    public virtual void ExtractMinutePartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Minute, DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).Minute);
+    }
+
+    [Test]
+    public virtual void ExtractSecondPartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Second, DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).Second);
+    }
+
+    [Test]
+    public virtual void ExtractMillisecondPartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Millisecond, DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).Millisecond);
+    }
+
+    [Test]
+    public virtual void ExtractNanosecondPartTest()
+    {
+      if (IsNanosecondSupported)
+        CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Nanosecond, DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).Millisecond * 1000000);
+    }
+
+    [Test]
+    public virtual void ExtractOffsetPartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Offset, DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).Offset);
+    }
+
+    [Test]
+    public virtual void ExtractTimeZoneHourPartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.TimeZoneHour, DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).Offset.Hours);
+    }
+
+    [Test]
+    public virtual void ExtractTimezoneMinutePartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.TimeZoneMinute, DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).Offset.Minutes);
+    }
+
+    [Test]
+    public virtual void ExtractLocalDateTimePartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.LocalDateTime, DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).LocalDateTime);
+    }
+
+    [Test]
+    public virtual void ExtractUtcDateTimePartTest()
+    {
+      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.UtcDateTime, DefaultDateTimeOffset), DefaultDateTimeOffset.UtcDateTime);
+    }
+    
+    [Test]
     public virtual void DateTimeOffsetAddMonthsTest()
     {
-      CheckEquality(SqlDml.DateTimeOffsetAddMonths(DefaultDateTimeOffset, AddMonthsConst), DefaultDateTimeOffset.AddMonths(AddMonthsConst));
+      CheckEquality(SqlDml.DateTimeOffsetAddMonths(DefaultDateTimeOffset, AddMonthsConst), TryTranformToLocalZone(DefaultDateTimeOffset).AddMonths(AddMonthsConst));
     }
 
     [Test]
     public virtual void DateTimeOffsetAddYearsTest()
     {
-      CheckEquality(SqlDml.DateTimeOffsetAddYears(DefaultDateTimeOffset, AddYearsConst), DefaultDateTimeOffset.AddYears(AddYearsConst));
+      CheckEquality(SqlDml.DateTimeOffsetAddYears(DefaultDateTimeOffset, AddYearsConst), TryTranformToLocalZone(DefaultDateTimeOffset).AddYears(AddYearsConst));
     }
 
     [Test]
     public virtual void DateTimeOffsetConstructTest()
     {
-      CheckEquality(SqlDml.DateTimeOffsetConstruct(DefaultDateTimeOffset.DateTime, DefaultTimeSpan.TotalMinutes), DefaultDateTimeOffset);
+      CheckEquality(SqlDml.DateTimeOffsetConstruct(DefaultDateTimeOffset.DateTime, DefaultTimeSpan.TotalMinutes), TryTranformToLocalZone(DefaultDateTimeOffset));
     }
 
     [Test]
     public virtual void DateTimeOffsetMinusDateTimeOffsetTest()
     {
-      CheckEquality(SqlDml.DateTimeOffsetMinusDateTimeOffset(DefaultDateTimeOffset, SecondDateTimeOffset), DefaultDateTimeOffset.Subtract(SecondDateTimeOffset));
+      CheckEquality(SqlDml.DateTimeOffsetMinusDateTimeOffset(DefaultDateTimeOffset, SecondDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).Subtract(SecondDateTimeOffset));
     }
 
     [Test]
     public virtual void DateTimeOffsetMinusIntervalTest()
     {
-      CheckEquality(SqlDml.DateTimeOffsetMinusInterval(DefaultDateTimeOffset, OperationTimeSpanConst), DefaultDateTimeOffset - OperationTimeSpanConst);
+      CheckEquality(SqlDml.DateTimeOffsetMinusInterval(DefaultDateTimeOffset, OperationTimeSpanConst), TryTranformToLocalZone(DefaultDateTimeOffset) - OperationTimeSpanConst);
     }
 
     [Test]
     public virtual void DateTimeOffsetPlusIntervalTest()
     {
-      CheckEquality(SqlDml.DateTimeOffsetPlusInterval(DefaultDateTimeOffset, OperationTimeSpanConst), DefaultDateTimeOffset + OperationTimeSpanConst);
+      CheckEquality(SqlDml.DateTimeOffsetPlusInterval(DefaultDateTimeOffset, OperationTimeSpanConst), TryTranformToLocalZone(DefaultDateTimeOffset) + OperationTimeSpanConst);
     }
 
     [Test]
     public virtual void DateTimeOffsetTimeOfDayTest()
     {
-      CheckEquality(SqlDml.DateTimeOffsetTimeOfDay(DefaultDateTimeOffset), DefaultDateTimeOffset.TimeOfDay);
-    }
-
-    [Test]
-    public virtual void DateTimeOffsetTruncateTest()
-    {
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Date, DefaultDateTimeOffset), DefaultDateTimeOffset.Date);
-    }
-
-    [Test]
-    public virtual void DateTimeOffsetToDateTimeTest()
-    {
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.DateTime, DefaultDateTimeOffset), DefaultDateTimeOffset.DateTime);
-    }
-
-    [Test]
-    public virtual void DateTimeOffsetPartOffsetTest()
-    {
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.Offset, DefaultDateTimeOffset), DefaultDateTimeOffset.Offset);
-    }
-
-    [Test]
-    public virtual void DateTimeOffsetToUtcDateTimeTest()
-    {
-      CheckEquality(SqlDml.Extract(SqlDateTimeOffsetPart.UtcDateTime, DefaultDateTimeOffset), DefaultDateTimeOffset.UtcDateTime);
+      CheckEquality(SqlDml.DateTimeOffsetTimeOfDay(DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).TimeOfDay);
     }
 
     [Test]
     public virtual void DateTimeOffsetToUtcTimeTest()
     {
-      CheckEquality(SqlDml.DateTimeOffsetToUtcTime(DefaultDateTimeOffset), DefaultDateTimeOffset.ToUniversalTime());
+      CheckEquality(SqlDml.DateTimeOffsetToUtcTime(DefaultDateTimeOffset), TryTranformToLocalZone(DefaultDateTimeOffset).ToUniversalTime());
     }
 
     protected void CheckEquality(SqlExpression left, SqlExpression right)
@@ -132,6 +192,13 @@ namespace Xtensive.Orm.Tests.Sql
           Assert.IsTrue(reader.Read());
         }
       }
+    }
+
+    protected DateTimeOffset TryTranformToLocalZone(DateTimeOffset origin)
+    {
+      if (!ShouldTransformToLocalZone)
+        return origin;
+      return origin.ToLocalTime();
     }
   }
 }
