@@ -15,6 +15,8 @@ namespace Xtensive.Orm.Tests.Sql
   {
     protected static readonly TimeSpan DefaultTimeSpan = -new TimeSpan(4, 10, 0);
     protected static readonly TimeSpan SecondTimeSpan = new TimeSpan(9, 45, 0);
+
+    // some other values depend on this following value, be careful when change it.
     protected static readonly DateTimeOffset DefaultDateTimeOffset = new DateTimeOffset(2001, 2, 3, 14, 15, 16, 334, DefaultTimeSpan);
     protected static readonly DateTimeOffset SecondDateTimeOffset = new DateTimeOffset(2000, 12, 11, 10, 9, 8, 765, SecondTimeSpan);
     protected static readonly TimeSpan OperationTimeSpanConst = new TimeSpan(10, 9, 8, 7, 542);
