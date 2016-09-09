@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using Xtensive.Orm.Providers.PostgreSql;
 using Xtensive.Sql.Dml;
+using Xtensive.Sql.Drivers.PostgreSql.Resources;
 using SqlCompiler = Xtensive.Sql.Compiler.SqlCompiler;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
@@ -105,6 +106,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         SqlDml.Cast(node.Arguments[0] + node.Arguments[1] * OneYearInterval, SqlType.DateTimeOffset).AcceptVisitor(this);
         return;
       case SqlFunctionType.DateTimeOffsetConstruct:
+        ConstructDateTimeOffset(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
         return;
       }
       base.Visit(node);
@@ -320,10 +322,37 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return timestamp1 - timestamp2;
     }
 
-    protected SqlExpression DateTimeOffsetAddMonths(SqlExpression timestamp, SqlExpression months)
+    protected SqlExpression ConstructDateTimeOffset(SqlExpression dateTimeExpression, SqlExpression offsetInMinutes)
     {
+      int hours = 0;
+      int minutes = 0;
+      if (!TryDivideOffsetIntoParts(offsetInMinutes, ref hours, ref minutes))
+        throw new ArgumentException(Strings.ExTheTypeOfGivenParameterCannotBeTreatedAsOffsetForDateTimeOffsetConstruction, "offsetInMinutes");
+      var dateTimeLiteral = dateTimeExpression as SqlLiteral<DateTime>;
+      if (dateTimeLiteral!=null)
+        return ConstructDateTimeOffsetFromLiteral(dateTimeLiteral, hours, minutes);
+      return ConstructDateTimeOffsetFromExpression(dateTimeExpression, hours, minutes);
+    }
 
-      return null;
+    protected SqlExpression ConstructDateTimeOffsetFromLiteral(SqlLiteral<DateTime> datetime, int hours, int minutes)
+    {
+      var dateTimeFormat = @"yyyyMMdd HHmmss.ffffff";
+      var datetimestring = datetime.Value.ToString(dateTimeFormat);
+      var literalExpression = SqlDml.Native(string.Format("'{0}'", datetimestring + ZoneStringFromParts(hours, minutes)));
+      return SqlDml.Cast(literalExpression, SqlType.DateTimeOffset);
+    }
+
+    protected SqlExpression ConstructDateTimeOffsetFromExpression(SqlExpression dateTimeExpression, int hours, int minutes)
+    {
+      var datetimeAsIsoString = SqlDml.DateTimeToStringIso(dateTimeExpression);
+      var zoneLiteral = ZoneStringFromParts(hours, minutes);
+      var concat = SqlDml.Concat(datetimeAsIsoString, zoneLiteral);
+      return SqlDml.Cast(concat, SqlType.DateTimeOffset);
+    }
+
+    private string ZoneStringFromParts(int hours, int minutes)
+    {
+      return string.Format("{0}{1:00}:{2:00}", hours < 0 ? "-" : "+", Math.Abs(hours), Math.Abs(minutes));
     }
 
     private SqlExpression GetDateTimeInTimeZone(SqlExpression expression, SqlExpression zone)
@@ -335,7 +364,31 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       return SqlDml.FunctionCall("CURRENT_SETTING", SqlDml.Literal("TIMEZONE"));
     }
-    
+
+    private bool TryDivideOffsetIntoParts(SqlExpression offsetInMinutes, ref int hours , ref int minutes)
+    {
+      var offsetToDouble = offsetInMinutes as SqlLiteral<double>;
+      if (offsetToDouble!=null) {
+        hours = (int) offsetToDouble.Value / 60;
+        minutes = Math.Abs((int) offsetToDouble.Value % 60);
+        return true;
+      }
+      var offsetToInt = offsetInMinutes as SqlLiteral<int>;
+      if (offsetToInt!=null) {
+        hours = offsetToInt.Value / 60;
+        minutes = Math.Abs(offsetToInt.Value % 60);
+        return true;
+      }
+      var offsetToTimeSpan = offsetInMinutes as SqlLiteral<TimeSpan>;
+      if (offsetToTimeSpan!=null) {
+        var totalMinutes = offsetToTimeSpan.Value.TotalMinutes;
+        hours = (int)totalMinutes / 60;
+        minutes = Math.Abs((int)totalMinutes % 60);
+        return true;
+      }
+      return false;
+    }
+
     // Constructors
 
     protected internal Compiler(SqlDriver driver)
