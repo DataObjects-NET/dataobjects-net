@@ -327,6 +327,7 @@
     <Compile Include="Linq\DateTimeAndDateTimeOffset\BaseDateTimeAndDateTimeOffsetTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeCompareTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetCompareTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetConstructorTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetOperationsTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetExtractTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOperationsTest.cs" />
