@@ -36,6 +36,40 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0656_RemapRestoresRemovedReferences
     [Field]
     public string Text { get; set; }
   }
+
+  [Serializable]
+  [HierarchyRoot]
+  public class TestBase : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public string Text { get; set; }
+  }
+
+  [Serializable]
+  public class TestC : TestBase
+  {
+    [Field, Association(PairTo = "TestC", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear)]
+    public EntitySet<TestD> TestDs { get; private set; }
+  }
+
+
+  [Serializable]
+  [HierarchyRoot]
+  public class TestD : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public string Text { get; set; }
+
+    [Field]
+    public TestC TestC { get; set; }
+  }
+
 }
 
 namespace Xtensive.Orm.Tests.Issues
@@ -187,6 +221,21 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(testAReal, Is.Not.Null);
         Assert.That(testAReal.TestB, Is.Not.Null);
         Assert.That(testAReal.TestB.Id, Is.EqualTo(testB.Id));
+      }
+    }
+
+    [Test]
+    public void NewCaseTest()
+    {
+      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile)))
+      using (session.Activate())
+      {
+        var testC = new TestC { Text = "C" };
+        session.SaveChanges();
+        var testB = new TestD() { Text = "B", TestC = testC };
+        // Exception: Object Reference not set to an instance of an object
+        // Persistent - SetReferenceKey() - Key has no TypeInfo! (value.TypeInfo.UnderlyingType)
+        session.SaveChanges();
       }
     }
 
