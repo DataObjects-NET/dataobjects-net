@@ -225,17 +225,14 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void NewCaseTest()
+    public void BaseTypeAccuracyReferencedKeyTest()
     {
       using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile)))
-      using (session.Activate())
-      {
+      using (session.Activate()) {
         var testC = new TestC { Text = "C" };
         session.SaveChanges();
-        var testB = new TestD() { Text = "B", TestC = testC };
-        // Exception: Object Reference not set to an instance of an object
-        // Persistent - SetReferenceKey() - Key has no TypeInfo! (value.TypeInfo.UnderlyingType)
-        session.SaveChanges();
+        var testB = new TestD { Text = "B", TestC = testC };
+        Assert.DoesNotThrow(session.SaveChanges);
       }
     }
 
