@@ -203,8 +203,15 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     [Test]
     public void ConstructLocalTest()
     {
-      CheckEqualityLocal(
-        SqlDml.DateTimeOffsetConstruct(DefaultDateTimeOffset.DateTime, DefaultTimeSpan.TotalMinutes), TryTranformToLocalZone(DefaultDateTimeOffset));
+      var dateTimeLocal = TryTranformToLocalZone(DefaultDateTimeOffset).DateTime;
+      var dateTimeUtc = DefaultDateTimeOffset.ToOffset(new TimeSpan(0, 0, 0)).DateTime;
+      var offset = DefaultTimeSpan.TotalMinutes;
+      var dtoBasedOnLocalDateTime = new DateTimeOffset(dateTimeLocal, DefaultTimeSpan);
+      var dtoBasedOnUtcDateTime = new DateTimeOffset(dateTimeUtc, DefaultTimeSpan);
+
+
+      CheckEqualityLocal(SqlDml.DateTimeOffsetConstruct(dateTimeLocal, offset), dtoBasedOnLocalDateTime.ToLocalTime());
+      CheckEqualityLocal(SqlDml.DateTimeOffsetConstruct(dateTimeUtc, offset), dtoBasedOnUtcDateTime.ToLocalTime());
     }
 
     [Test]
@@ -241,7 +248,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       CheckEqualityLocal(
         SqlDml.DateTimeOffsetMinusInterval(DefaultDateTimeOffset, WithinSameDayHoursTimeSpan), TryTranformToLocalZone(DefaultDateTimeOffset) - WithinSameDayHoursTimeSpan);
       CheckEqualityLocal(
-        SqlDml.DateTimeOffsetMinusInterval(DefaultDateTimeOffset, ReachNewHourMinutesTimeSpan), TryTranformToLocalZone(DefaultDateTimeOffset) - WithinSameDayHoursTimeSpan);
+        SqlDml.DateTimeOffsetMinusInterval(DefaultDateTimeOffset, ReachNewDayHoursTimeSpan), TryTranformToLocalZone(DefaultDateTimeOffset) - ReachNewDayHoursTimeSpan);
     }
 
     [Test]
@@ -284,23 +291,18 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         Console.WriteLine(command.CommandText);
         using (var reader = command.ExecuteReader()) {
           reader.Read();
+          if (expression.NodeType==SqlNodeType.Extract) {
+            if (IsSecondOrMillisecondExtraction(expression))
+              Assert.That(reader.GetInt64(0), Is.EqualTo((long) expectedValue));
+            else
+              Assert.That(reader.GetDouble(0), Is.EqualTo((double) expectedValue));
+          }
+          else
           Assert.That(reader.GetInt32(0), Is.EqualTo(expectedValue));
         }
       }
     }
 
-    protected void CheckEqualityLocal(SqlExpression expression, long expectedValue)
-    {
-      var select = SqlDml.Select(expression);
-      using (var command = Connection.CreateCommand(select)) {
-        Console.WriteLine(command.CommandText);
-        using (var reader = command.ExecuteReader()) {
-          reader.Read();
-          Assert.That(reader.GetInt64(0), Is.EqualTo(expectedValue));
-        }
-      }
-    }
-    
     protected void CheckEqualityLocal(SqlExpression expression, TimeSpan expectedValue)
     {
       var select = SqlDml.Select(expression);
@@ -344,12 +346,19 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         Console.WriteLine(command.CommandText);
         using (var reader = command.ExecuteReader()) {
           reader.Read();
-          var readValue = reader.GetInt32(0);
-          DayOfWeek dayOfWeek;
-          Assert.That(Enum.TryParse(readValue.ToString(), out dayOfWeek), Is.True);
-          Assert.That(dayOfWeek, Is.EqualTo(expectedValue));
+          var readValue = reader.GetDouble(0);
+          Assert.That(Enum.ToObject(typeof (DayOfWeek), Convert.ToInt32(readValue)), Is.EqualTo(expectedValue));
         }
       }
+    }
+
+    protected bool IsSecondOrMillisecondExtraction(SqlExpression expression)
+    {
+      var extractExpression = expression as SqlExtract;
+      if (extractExpression==null)
+        return false;
+      return extractExpression.DateTimeOffsetPart==SqlDateTimeOffsetPart.Second ||
+             extractExpression.DateTimeOffsetPart==SqlDateTimeOffsetPart.Millisecond;
     }
   }
 }
