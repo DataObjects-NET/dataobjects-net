@@ -68,10 +68,11 @@ namespace Xtensive.Orm.Internals
       var entity = Session.Query.SingleOrDefault(info.FieldOwner);
       if (entity==null)
         return;
-      var temporaryKey = entity.GetReferenceKey(info.Field);
-      if (temporaryKey==null || !temporaryKey.IsTemporary(entity.Session.Domain))
+      var referencedEntity = (Entity) entity.GetFieldValue(info.Field);
+      if (referencedEntity==null)
         return;
-      var realKey = context.TryRemapKey(temporaryKey);
+      var referencedKey = referencedEntity.Key;
+      var realKey = context.TryRemapKey(referencedKey);
       entity.SetReferenceKey(info.Field, realKey);
     }
 
