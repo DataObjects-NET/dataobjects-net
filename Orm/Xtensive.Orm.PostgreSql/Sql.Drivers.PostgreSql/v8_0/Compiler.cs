@@ -16,6 +16,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private static readonly SqlNative OneYearInterval = SqlDml.Native("interval '1 year'");
     private static readonly SqlNative OneMonthInterval = SqlDml.Native("interval '1 month'");
     private static readonly SqlNative OneDayInterval = SqlDml.Native("interval '1 day'");
+    private static readonly SqlNative OneMinuteInterval = SqlDml.Native("interval '1 minute'");
     private static readonly SqlNative OneSecondInterval = SqlDml.Native("interval '1 second'");
 
     public override void Visit(SqlDeclareCursor node)
@@ -186,6 +187,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return SqlDml.FunctionCall("To_Char", dateTime, "YYYY-MM-DD\"T\"HH24:MI:SS");
     }
 
+    private static SqlExpression IntervalToIsoString(SqlExpression interval, bool signed)
+    {
+      if (!signed)
+        return SqlDml.FunctionCall("TO_CHAR", interval, "HH24:MI");
+      var hours = SqlDml.FunctionCall("TO_CHAR", SqlDml.Extract(SqlIntervalPart.Hour, interval), "SG09");
+      var minutes = SqlDml.FunctionCall("TO_CHAR", SqlDml.Extract(SqlIntervalPart.Minute, interval), "FM09");
+      return SqlDml.Concat(hours, ":", minutes);
+    }
+
     protected static SqlExpression NpgsqlPointExtractPart(SqlExpression expression, int part)
     {
       return SqlDml.RawConcat(expression, SqlDml.Native(String.Format("[{0}]", part)));
@@ -324,30 +334,31 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     protected SqlExpression ConstructDateTimeOffset(SqlExpression dateTimeExpression, SqlExpression offsetInMinutes)
     {
+      var dateTimeAsStringExpression = GetDateTimeAsStringExpression(dateTimeExpression);
+      var offsetAsStringExpression = GetOffsetAsStringExpression(offsetInMinutes);
+      return ConstructDateTimeOffsetFromExpressions(dateTimeAsStringExpression, offsetAsStringExpression);
+    }
+
+    protected SqlExpression ConstructDateTimeOffsetFromExpressions(SqlExpression datetimeStringExpression, SqlExpression offsetStringExpression)
+    {
+      return SqlDml.Cast(SqlDml.Concat(datetimeStringExpression, " ", offsetStringExpression), SqlType.DateTimeOffset);
+    }
+
+    protected SqlExpression GetDateTimeAsStringExpression(SqlExpression dateTimeExpression)
+    {
+      return SqlDml.DateTimeToStringIso(dateTimeExpression);
+    }
+
+    protected SqlExpression GetOffsetAsStringExpression(SqlExpression offsetInMinutes)
+    {
       int hours = 0;
       int minutes = 0;
-      if (!TryDivideOffsetIntoParts(offsetInMinutes, ref hours, ref minutes))
-        throw new ArgumentException(Strings.ExTheTypeOfGivenParameterCannotBeTreatedAsOffsetForDateTimeOffsetConstruction, "offsetInMinutes");
-      var dateTimeLiteral = dateTimeExpression as SqlLiteral<DateTime>;
-      if (dateTimeLiteral!=null)
-        return ConstructDateTimeOffsetFromLiteral(dateTimeLiteral, hours, minutes);
-      return ConstructDateTimeOffsetFromExpression(dateTimeExpression, hours, minutes);
-    }
+      //if something simple as double or int or even timespan can be separated into hours and minutes parts
+      if (TryDivideOffsetIntoParts(offsetInMinutes, ref hours, ref minutes))
+        return SqlDml.Native(string.Format("'{0}'", ZoneStringFromParts(hours, minutes)));
 
-    protected SqlExpression ConstructDateTimeOffsetFromLiteral(SqlLiteral<DateTime> datetime, int hours, int minutes)
-    {
-      var dateTimeFormat = @"yyyyMMdd HHmmss.ffffff";
-      var datetimestring = datetime.Value.ToString(dateTimeFormat);
-      var literalExpression = SqlDml.Native(string.Format("'{0}'", datetimestring + ZoneStringFromParts(hours, minutes)));
-      return SqlDml.Cast(literalExpression, SqlType.DateTimeOffset);
-    }
-
-    protected SqlExpression ConstructDateTimeOffsetFromExpression(SqlExpression dateTimeExpression, int hours, int minutes)
-    {
-      var datetimeAsIsoString = SqlDml.DateTimeToStringIso(dateTimeExpression);
-      var zoneLiteral = ZoneStringFromParts(hours, minutes);
-      var concat = SqlDml.Concat(datetimeAsIsoString, zoneLiteral);
-      return SqlDml.Cast(concat, SqlType.DateTimeOffset);
+      var intervalExpression = offsetInMinutes * OneMinuteInterval;
+      return IntervalToIsoString(intervalExpression, true);
     }
 
     private string ZoneStringFromParts(int hours, int minutes)
