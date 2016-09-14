@@ -7,14 +7,14 @@
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
-namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
+namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
 {
-  public class DateTimeCompareTest : BaseDateTimeAndDateTimeOffsetTest
+  public class ComparisonTest : DateTimeBaseTest
   {
     [Test]
     public void EqualsTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime==FirstDateTime);
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime==FirstMillisecondDateTime);
         RunTest<SingleDateTimeEntity>(c => c.NullableDateTime==NullableDateTime);
@@ -27,9 +27,19 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     }
 
     [Test]
+    public void NotEqualTest()
+    {
+      ExecuteInsideSession(() => {
+        RunTest<SingleDateTimeEntity>(c=>c.DateTime!=FirstDateTime.AddYears(1));
+        RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime!=FirstMillisecondDateTime.AddYears(1));
+        RunTest<SingleDateTimeEntity>(c=>c.NullableDateTime!=NullableDateTime.AddYears(1));
+      });
+    }
+
+    [Test]
     public void CompareTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime > FirstDateTime.Date);
         RunTest<SingleDateTimeEntity>(c => c.DateTime > FirstDateTime.AddSeconds(-1));
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime > FirstMillisecondDateTime.AddMilliseconds(-1));

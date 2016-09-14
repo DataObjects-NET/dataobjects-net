@@ -5,22 +5,16 @@
 // Created:    2016.08.01
 
 using NUnit.Framework;
-using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
-namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
+namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
 {
-  public class DateTimeOffsetExtractTest : BaseDateTimeAndDateTimeOffsetTest
+  public class PartsExtractionTest : DateTimeOffsetBaseTest
   {
-    protected override void CheckRequirements()
-    {
-      Require.AnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);
-    }
-
     [Test]
     public void ExtractYearTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Year==FirstDateTimeOffset.Year);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Year==FirstMillisecondDateTimeOffset.Year);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Year==NullableDateTimeOffset.Year);
@@ -34,7 +28,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void ExtractMonthTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Month==FirstDateTimeOffset.Month);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Month==FirstMillisecondDateTimeOffset.Month);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Month==NullableDateTimeOffset.Month);
@@ -48,7 +42,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void ExtractDayTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Day==FirstDateTimeOffset.Day);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Day==FirstMillisecondDateTimeOffset.Day);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Day==NullableDateTimeOffset.Day);
@@ -62,7 +56,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void ExtractHourTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Hour==FirstDateTimeOffset.Hour);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Hour==FirstMillisecondDateTimeOffset.Hour);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Hour==NullableDateTimeOffset.Hour);
@@ -76,7 +70,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void ExtractMinuteTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Minute==FirstDateTimeOffset.Minute);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Minute==FirstMillisecondDateTimeOffset.Minute);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Minute==NullableDateTimeOffset.Minute);
@@ -90,7 +84,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void ExtractSecondTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Second==FirstDateTimeOffset.Second);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Second==FirstMillisecondDateTimeOffset.Second);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Second==NullableDateTimeOffset.Second);
@@ -104,7 +98,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void ExtractMillisecondTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Millisecond==FirstMillisecondDateTimeOffset.Millisecond);
         RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Second==WrongMillisecondDateTimeOffset.Millisecond);
       });
@@ -113,7 +107,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void ExtractDateTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.Date==FirstDateTimeOffset.Date);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Date==FirstMillisecondDateTimeOffset.Date);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.Date==NullableDateTimeOffset.Date);
@@ -127,7 +121,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void ExtractTimeOfDayTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.TimeOfDay==FirstDateTimeOffset.TimeOfDay);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.TimeOfDay==FirstMillisecondDateTimeOffset.TimeOfDay);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.TimeOfDay==NullableDateTimeOffset.TimeOfDay);
@@ -141,7 +135,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void ExtractDayOfYearTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.DayOfYear==FirstDateTimeOffset.DayOfYear);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.DayOfYear==FirstMillisecondDateTimeOffset.DayOfYear);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.DayOfYear==NullableDateTimeOffset.DayOfYear);
@@ -155,7 +149,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void ExtractDayOfWeekTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.DayOfWeek==FirstDateTimeOffset.DayOfWeek);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.DayOfWeek==FirstMillisecondDateTimeOffset.DayOfWeek);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.DayOfWeek==NullableDateTimeOffset.DayOfWeek);
@@ -169,7 +163,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void ExtractDateTimeTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.DateTime==FirstDateTimeOffset.DateTime);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.DateTime==FirstMillisecondDateTimeOffset.DateTime);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.DateTime==NullableDateTimeOffset.DateTime);
@@ -183,7 +177,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void ExtractLocalDateTimeTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.LocalDateTime==FirstDateTimeOffset.LocalDateTime);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.LocalDateTime==FirstMillisecondDateTimeOffset.LocalDateTime);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.LocalDateTime==NullableDateTimeOffset.LocalDateTime);
@@ -197,7 +191,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void ExtractUtcDateTimeTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.UtcDateTime==FirstDateTimeOffset.UtcDateTime);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.UtcDateTime==FirstMillisecondDateTimeOffset.UtcDateTime);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.UtcDateTime==NullableDateTimeOffset.UtcDateTime);

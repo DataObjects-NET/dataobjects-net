@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsetConstr
   }
 }
 
-namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
+namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
 {
   public class DateTimeOffsetConstructorTest : AutoBuildTest
   {

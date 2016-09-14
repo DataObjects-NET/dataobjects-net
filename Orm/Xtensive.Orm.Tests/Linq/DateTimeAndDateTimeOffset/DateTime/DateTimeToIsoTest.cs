@@ -7,14 +7,14 @@
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
-namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
+namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
 {
-  public class DateTimeToIsoTest : BaseDateTimeAndDateTimeOffsetTest
+  public class DateTimeToIsoTest : DateTimeBaseTest
   {
     [Test]
     public void ToIsoStringTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime.ToString("s")==FirstDateTime.ToString("s"));
         RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.ToString("s")==FirstDateTime.AddMinutes(1).ToString("s"));
       });

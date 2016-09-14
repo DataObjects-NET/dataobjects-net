@@ -324,22 +324,31 @@
     <Compile Include="Issues\StructureFieldRemoveTest.cs" />
     <Compile Include="Linq\ContainsOverKeysCollectionTest.cs" />
     <Compile Include="Linq\ConvariantQueriesTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\BaseDateTimeAndDateTimeOffsetTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeCompareTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetCompareTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetConstructorTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetOperationsTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetExtractTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOperationsTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeToIsoTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DistinctTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeExtractTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\GroupByTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\JoinTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\MinMaxTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\OrderByTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\SkipTakeTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\WhereTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\BaseTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeBaseTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\DistinctTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\JoinTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\MinMaxTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\GroupByTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\ComparisonTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetBaseTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\ComparisonTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\DateTimeOffsetConstructorTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\OperationsTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\PartsExtractionTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\OperationsTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\DateTimeToIsoTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\DistinctTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\OrderByTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\PartsExtractionTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\GroupByTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\WhereTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\JoinTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\MinMaxTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\JoinResult{T}.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\Model.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\OrderByTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\WhereTest.cs" />
     <Compile Include="Linq\DoubleAggregateToStructTest.cs" />
     <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\NonPairedReferencesFromEntitiesTest.cs" />
     <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\NonPairedReferencesFromStructures.cs" />
@@ -851,6 +860,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
 </Project>

@@ -8,50 +8,28 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
-namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
+namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
 {
-  public class MinMaxTest : BaseDateTimeAndDateTimeOffsetTest
+  public class MinMaxTest : DateTimeOffsetBaseTest
   {
-    [Test]
-    public void DateTimeMinMaxTest()
-    {
-      OpenSessionAndAction(() => MinMaxPrivate<DateTimeEntity, DateTime>(c => c.DateTime));
-    }
-
-    [Test]
-    public void MillisecondDateTimeMinMaxTest()
-    {
-      OpenSessionAndAction(() => MinMaxPrivate<MillisecondDateTimeEntity, DateTime>(c => c.DateTime));
-    }
-
-    [Test]
-    public void NullableDateTimeMinMaxTest()
-    {
-      OpenSessionAndAction(() => MinMaxPrivate<NullableDateTimeEntity, DateTime?>(c => c.DateTime));
-    }
-
     [Test(Description = "Might be failed on SQLite because of incomplete emulating datetimeoffset")]
     public void DateTimeOffsetMinMaxTest()
     {
-      Require.AnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);
-      OpenSessionAndAction(() => MinMaxPrivate<DateTimeOffsetEntity, DateTimeOffset>(c => c.DateTimeOffset));
+      ExecuteInsideSession(() => MinMaxPrivate<DateTimeOffsetEntity, DateTimeOffset>(c => c.DateTimeOffset));
     }
 
     [Test(Description = "Might be failed on SQLite because of incomplete emulating datetimeoffset")]
     public void MillisecondDateTimeOffsetMinMaxTest()
     {
-      Require.AnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);
-      OpenSessionAndAction(() => MinMaxPrivate<MillisecondDateTimeOffsetEntity, DateTimeOffset>(c => c.DateTimeOffset));
+      ExecuteInsideSession(() => MinMaxPrivate<MillisecondDateTimeOffsetEntity, DateTimeOffset>(c => c.DateTimeOffset));
     }
 
     [Test(Description = "Might be failed on SQLite because of incomplete emulating datetimeoffset")]
     public void NullableDateTimeOffsetMinMaxTest()
     {
-      Require.AnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);
-      OpenSessionAndAction(() => MinMaxPrivate<NullableDateTimeOffsetEntity, DateTimeOffset?>(c => c.DateTimeOffset));
+      ExecuteInsideSession(() => MinMaxPrivate<NullableDateTimeOffsetEntity, DateTimeOffset?>(c => c.DateTimeOffset));
     }
 
     private void MinMaxPrivate<T, TK>(Expression<Func<T, TK>> selectExpression)

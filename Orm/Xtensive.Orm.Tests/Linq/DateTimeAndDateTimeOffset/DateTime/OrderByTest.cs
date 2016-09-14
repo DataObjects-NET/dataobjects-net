@@ -2,23 +2,22 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Groznov
-// Created:    2016.07.29
+// Created:    2016.08.01
 
 using System;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
-namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
+namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
 {
-  public class OrderByTest : BaseDateTimeAndDateTimeOffsetTest
+  public class OrderByTest : DateTimeBaseTest
   {
     [Test]
     public void DateTimeOrderByTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         OrderByPrivate<DateTimeEntity, DateTime, long>(c => c.DateTime, c => c.Id);
         OrderByPrivate<DateTimeEntity, DateTime, DateTime>(c => c.DateTime, c => c);
       });
@@ -27,7 +26,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void MillisecondDateTimeOrderByTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         OrderByPrivate<MillisecondDateTimeEntity, DateTime, long>(c => c.DateTime, c => c.Id);
         OrderByPrivate<MillisecondDateTimeEntity, DateTime, DateTime>(c => c.DateTime, c => c);
       });
@@ -36,39 +35,9 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void NullableDateTimeOrderByTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         OrderByPrivate<NullableDateTimeEntity, DateTime?, long>(c => c.DateTime, c => c.Id);
         OrderByPrivate<NullableDateTimeEntity, DateTime?, DateTime?>(c => c.DateTime, c => c);
-      });
-    }
-
-    [Test]
-    public void DateTimeOffsetOrderByTest()
-    {
-      Require.AnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);
-      OpenSessionAndAction(() => {
-        OrderByPrivate<DateTimeOffsetEntity, DateTimeOffset, long>(c => c.DateTimeOffset, c => c.Id);
-        OrderByPrivate<DateTimeOffsetEntity, DateTimeOffset, DateTimeOffset>(c => c.DateTimeOffset, c => c);
-      });
-    }
-
-    [Test(Description = "Might be failed on SQLite because of certain restrictions of work with milliseconds")]
-    public void MillisecondDateTimeOffsetOrderByTest()
-    {
-      Require.AnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);
-      OpenSessionAndAction(() => {
-        OrderByPrivate<MillisecondDateTimeOffsetEntity, DateTimeOffset, long>(c => c.DateTimeOffset, c => c.Id);
-        OrderByPrivate<MillisecondDateTimeOffsetEntity, DateTimeOffset, DateTimeOffset>(c => c.DateTimeOffset, c => c);
-      });
-    }
-
-    [Test]
-    public void NullableDateTimeOffsetOrderByTest()
-    {
-      Require.AnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);
-      OpenSessionAndAction(() => {
-        OrderByPrivate<NullableDateTimeOffsetEntity, DateTimeOffset?, long>(c => c.DateTimeOffset, c => c.Id);
-        OrderByPrivate<NullableDateTimeOffsetEntity, DateTimeOffset?, DateTimeOffset?>(c => c.DateTimeOffset, c => c);
       });
     }
 
