@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       where T : Entity
     {
       var count = Query.All<T>().Count(filter);
-      Assert.AreEqual(count, rightCount);
+      Assert.AreEqual(rightCount, count);
     }
 
     protected void RunWrongTest<T>(Expression<Func<T, bool>> filter)
