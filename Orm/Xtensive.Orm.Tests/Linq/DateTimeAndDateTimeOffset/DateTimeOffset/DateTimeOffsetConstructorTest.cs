@@ -7,7 +7,6 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsetConstructorTestModel;
@@ -45,15 +44,34 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     private readonly TimeSpan MoscowZone = new TimeSpan(3, 0, 0);
     private readonly TimeSpan EkaterinburgZone = new TimeSpan(5, 0, 0); 
     private readonly TimeSpan NewYorkZone = new TimeSpan(-5, 0, 0);
-    
+
+    private DateTime[] dateTimes = new DateTime[12];
+    private DateTimeOffset[] utcDateTimeOffsets = new DateTimeOffset[12];
+    private DateTimeOffset[] moscowDateTimeOffsets = new DateTimeOffset[12];
+    private DateTimeOffset[] ekaterinburgDateTimeOffsets = new DateTimeOffset[12];
+    private DateTimeOffset[] newYorkDateTimeOffsets = new DateTimeOffset[12];
+
     [Test]
     public void Test01()
     {
       //new DateTimeOffset(new DateTime());
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Where(el => new DateTimeOffset(el.DateTime).Hour > 12).Select(el => new {LocalDateTimeOffset = new DateTimeOffset(el.DateTime)}).Run();
+        var count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(el.DateTime).Hour > 15);
+
+        var expectedCount = ekaterinburgDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
+
+        var result = session.Query.All<TestEntity>()
+          .Where(el => new DateTimeOffset(dateTimes[0]).Hour==new DateTimeOffset(el.DateTime).Hour).ToArray();
+
+        Assert.That(result.Length, Is.EqualTo(1));
+        Assert.That(result[0].DateTime.Hour, Is.EqualTo(dateTimes[0].Hour));
       }
     }
 
@@ -63,21 +81,45 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       //new DateTimeOffset(new DateTime(), new TimeSpan());
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Where(el=> new DateTimeOffset(el.DateTime, UtcZone).Hour > 12)
-          .Run();
+        var count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(el.DateTime, UtcZone).Hour > 15);
 
-        session.Query.All<TestEntity>()
-          .Where(el => new DateTimeOffset(el.DateTime, EkaterinburgZone).Hour > 12)
-          .Run();
+        var expectedCount = utcDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
 
-        session.Query.All<TestEntity>()
-          .Where(el => new DateTimeOffset(el.DateTime, MoscowZone).Hour > 12)
-          .Run();
+        count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(el.DateTime, EkaterinburgZone).Hour > 15);
 
-        session.Query.All<TestEntity>()
-          .Where(el => new DateTimeOffset(el.DateTime, NewYorkZone).Hour > 12)
-          .Run();
+        expectedCount = ekaterinburgDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
+
+        count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(el.DateTime, MoscowZone).Hour > 15);
+
+        expectedCount = moscowDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
+
+        count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(el.DateTime, NewYorkZone).Hour > 15);
+
+        expectedCount = newYorkDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
       }
     }
 
@@ -87,49 +129,69 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       //new DateTimeOffset(0, 0, 0, 0, 0, 0, new TimeSpan());
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second, UtcZone).Hour > 12)
-          .Run();
+        var count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second, UtcZone).Hour > 15);
 
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second, MoscowZone).Hour > 12)
-          .Run();
+        var expectedCount = utcDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
 
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second, EkaterinburgZone).Hour > 12)
-          .Run();
+        count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second, MoscowZone).Hour > 15);
 
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second, NewYorkZone).Hour > 12)
-          .Run();
+        expectedCount = moscowDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
+
+        count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second, EkaterinburgZone).Hour > 15);
+
+        expectedCount = ekaterinburgDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
+
+        count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second, NewYorkZone).Hour > 15);
+
+        expectedCount = newYorkDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
       }
     }
 
@@ -139,53 +201,73 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       //new DateTimeOffset(0, 0, 0, 0, 0, 0, 0, new TimeSpan());
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second,
-              el.DateTime.Millisecond, UtcZone).Hour > 12)
-          .Run();
+        var count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second,
+            el.DateTime.Millisecond, UtcZone).Hour > 15);
 
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second,
-              el.DateTime.Millisecond, MoscowZone).Hour > 12)
-          .Run();
+        var expectedCount = utcDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
 
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second,
-              el.DateTime.Millisecond, EkaterinburgZone).Hour > 12)
-          .Run();
+        count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second,
+            el.DateTime.Millisecond, MoscowZone).Hour > 15);
 
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second,
-              el.DateTime.Millisecond, NewYorkZone).Hour > 12)
-          .Run();
+        expectedCount = moscowDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
+
+        count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second,
+            el.DateTime.Millisecond, EkaterinburgZone).Hour > 15);
+
+        expectedCount = ekaterinburgDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
+
+        count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second,
+            el.DateTime.Millisecond, NewYorkZone).Hour > 15);
+
+        expectedCount = newYorkDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
       }
     }
 
@@ -195,21 +277,41 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       //new DateTimeOffset(new DateTime(), new TimeSpan());
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Where(el => new DateTimeOffset(el.DateTime, el.UtcZone).Hour > 12)
-          .Run();
+        var count = session.Query.All<TestEntity>().Count(el => new DateTimeOffset(el.DateTime, el.UtcZone).Hour > 15);
 
-        session.Query.All<TestEntity>()
-          .Where(el => new DateTimeOffset(el.DateTime, el.EkaterinburgZone).Hour > 12)
-          .Run();
+        var expectedCount = utcDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
 
-        session.Query.All<TestEntity>()
-          .Where(el => new DateTimeOffset(el.DateTime, el.MoscowZone).Hour > 12)
-          .Run();
+        count = session.Query.All<TestEntity>().Count(el => new DateTimeOffset(el.DateTime, el.EkaterinburgZone).Hour > 15);
 
-        session.Query.All<TestEntity>()
-          .Where(el => new DateTimeOffset(el.DateTime, el.NewYorkZone).Hour > 12)
-          .Run();
+        expectedCount = ekaterinburgDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
+
+        count = session.Query.All<TestEntity>().Count(el => new DateTimeOffset(el.DateTime, el.MoscowZone).Hour > 15);
+
+        expectedCount = moscowDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
+
+        count = session.Query.All<TestEntity>().Count(el => new DateTimeOffset(el.DateTime, el.NewYorkZone).Hour > 15);
+
+        expectedCount = newYorkDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
       }
     }
 
@@ -219,49 +321,69 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       //new DateTimeOffset(0, 0, 0, 0, 0, 0, new TimeSpan());
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second, el.UtcZone).Hour > 12)
-          .Run();
+        var count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second, el.UtcZone).Hour > 15);
 
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second, el.MoscowZone).Hour > 12)
-          .Run();
+        var expectedCount = utcDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
 
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second, el.EkaterinburgZone).Hour > 12)
-          .Run();
+        count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second, el.MoscowZone).Hour > 15);
 
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second, el.NewYorkZone).Hour > 12)
-          .Run();
+        expectedCount = moscowDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
+
+        count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second, el.EkaterinburgZone).Hour > 15);
+
+        expectedCount = ekaterinburgDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
+
+        count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second, el.NewYorkZone).Hour > 15);
+
+        expectedCount = newYorkDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
       }
     }
 
@@ -271,63 +393,96 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       //new DateTimeOffset(0, 0, 0, 0, 0, 0, 0, new TimeSpan());
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second,
-              el.DateTime.Millisecond, el.UtcZone).Hour > 12)
-          .Run();
+        var count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second,
+            el.DateTime.Millisecond, el.UtcZone).Hour > 15);
 
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second,
-              el.DateTime.Millisecond, el.MoscowZone).Hour > 12)
-          .Run();
+        var expectedCount = utcDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
 
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second,
-              el.DateTime.Millisecond, el.EkaterinburgZone).Hour > 12)
-          .Run();
+        count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second,
+            el.DateTime.Millisecond, el.MoscowZone).Hour > 15);
 
-        session.Query.All<TestEntity>()
-          .Where(el =>
-            new DateTimeOffset(
-              el.DateTime.Year,
-              el.DateTime.Month,
-              el.DateTime.Day,
-              el.DateTime.Hour,
-              el.DateTime.Minute,
-              el.DateTime.Second,
-              el.DateTime.Millisecond, el.NewYorkZone).Hour > 12)
-          .Run();
+        expectedCount = moscowDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
+
+        count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second,
+            el.DateTime.Millisecond, el.EkaterinburgZone).Hour > 15);
+
+        expectedCount = ekaterinburgDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
+
+        count = session.Query.All<TestEntity>()
+          .Count(el => new DateTimeOffset(
+            el.DateTime.Year,
+            el.DateTime.Month,
+            el.DateTime.Day,
+            el.DateTime.Hour,
+            el.DateTime.Minute,
+            el.DateTime.Second,
+            el.DateTime.Millisecond, el.NewYorkZone).Hour > 15);
+
+        expectedCount = newYorkDateTimeOffsets
+          .Select(TryMoveToLocalTimeZone)
+          .Count(el => el.Hour > 15);
+        Assert.That(count, Is.Not.EqualTo(0));
+        Assert.That(expectedCount, Is.Not.EqualTo(0));
+        Assert.That(count, Is.EqualTo(expectedCount));
       }
     }
 
     protected override void PopulateData()
     {
+      dateTimes = new DateTime[12];
+      utcDateTimeOffsets = new DateTimeOffset[12];
+      moscowDateTimeOffsets = new DateTimeOffset[12];
+      ekaterinburgDateTimeOffsets = new DateTimeOffset[12];
+      newYorkDateTimeOffsets = new DateTimeOffset[12];
+
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         for (int i = 1; i < 13; i++) {
+          var datetime = new DateTime(2000 + i, i, 12 + i, 11 + i, 4 * i, 3 * i);
+          dateTimes[i - 1] = datetime;
+          utcDateTimeOffsets[i - 1] = new DateTimeOffset(datetime, UtcZone);
+          moscowDateTimeOffsets[i - 1] = new DateTimeOffset(datetime, MoscowZone);
+          ekaterinburgDateTimeOffsets[i - 1] = new DateTimeOffset(datetime, EkaterinburgZone);
+          newYorkDateTimeOffsets[i - 1] = new DateTimeOffset(datetime, NewYorkZone);
+
           new TestEntity {
-            DateTime = new DateTime(2000 + i, i, 12 + i, 11 + i, 4 * i, 3 * i),
+            DateTime = datetime,
             UtcZone = UtcZone,
             EkaterinburgZone = EkaterinburgZone,
             MoscowZone = MoscowZone,
@@ -349,6 +504,13 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       configuration.Types.Register(typeof (TestEntity).Assembly, typeof (TestEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
+    }
+
+    private DateTimeOffset TryMoveToLocalTimeZone(DateTimeOffset dateTimeOffset)
+    {
+      if (ProviderInfo.ProviderName==WellKnown.Provider.PostgreSql)
+        return dateTimeOffset.ToLocalTime();
+      return dateTimeOffset;
     }
   }
 }
