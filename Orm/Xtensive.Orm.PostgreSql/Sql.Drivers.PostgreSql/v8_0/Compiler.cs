@@ -109,6 +109,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       case SqlFunctionType.DateTimeOffsetConstruct:
         ConstructDateTimeOffset(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
         return;
+      case SqlFunctionType.DateTimeToDateTimeOffset:
+        SqlDml.Cast(node.Arguments[0], SqlType.DateTimeOffset).AcceptVisitor(this);
+        return;
       }
       base.Visit(node);
     }
