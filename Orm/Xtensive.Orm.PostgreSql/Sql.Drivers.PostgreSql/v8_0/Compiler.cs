@@ -6,7 +6,6 @@ using System;
 using System.Linq;
 using Xtensive.Orm.Providers.PostgreSql;
 using Xtensive.Sql.Dml;
-using Xtensive.Sql.Drivers.PostgreSql.Resources;
 using SqlCompiler = Xtensive.Sql.Compiler.SqlCompiler;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
@@ -300,7 +299,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     protected SqlExpression DateTimeOffsetExtractDate(SqlExpression timestamp)
     {
-     
       return SqlDml.FunctionCall("DATE", timestamp);
     }
 
