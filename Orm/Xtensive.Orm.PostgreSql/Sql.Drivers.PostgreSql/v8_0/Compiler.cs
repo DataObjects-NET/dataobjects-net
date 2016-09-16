@@ -314,7 +314,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     
     protected SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression timestamp)
     {
-      return GetDateTimeInTimeZone(timestamp, GetServerTimeZone());
+      return SqlDml.Cast(timestamp, SqlType.DateTime);
     }
 
     protected SqlExpression DateTimeOffsetExtractOffset(SqlExpression timestamp)
