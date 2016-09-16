@@ -28,6 +28,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       case TypeCode.DateTime:
         return true;
       }
+      if (type==typeof (DateTimeOffset))
+        return true;
       if (type==typeof(Guid))
         return true;
       if (type==typeof(TimeSpan))
@@ -82,9 +84,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var nativeParameter = (NpgsqlParameter) parameter;
       nativeParameter.NpgsqlDbType = NpgsqlDbType.TimestampTZ;
-      nativeParameter.Value = value!=null
-        ? (object) (NpgsqlTimeStampTZ) (DateTimeOffset) value
-        : DBNull.Value;
+      nativeParameter.NpgsqlValue = value!=null
+        ? (object)(NpgsqlTimeStampTZ) (DateTimeOffset) value
+        : (object)DBNull.Value;
     }
 
     public override SqlValueType MapByte(int? length, int? precision, int? scale)
