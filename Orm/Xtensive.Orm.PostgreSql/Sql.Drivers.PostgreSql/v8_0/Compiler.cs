@@ -347,7 +347,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     protected SqlExpression GetDateTimeAsStringExpression(SqlExpression dateTimeExpression)
     {
-      return SqlDml.DateTimeToStringIso(dateTimeExpression);
+      return SqlDml.FunctionCall("To_Char", dateTimeExpression, "YYYY-MM-DD\"T\"HH24:MI:SS.MS");
     }
 
     protected SqlExpression GetOffsetAsStringExpression(SqlExpression offsetInMinutes)
