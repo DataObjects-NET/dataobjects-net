@@ -5,6 +5,7 @@
 using System;
 using System.Linq;
 using Xtensive.Orm.Providers.PostgreSql;
+using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using SqlCompiler = Xtensive.Sql.Compiler.SqlCompiler;
 
@@ -291,7 +292,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           DateTimeOffsetToLocalDateTime(node.Operand).AcceptVisitor(this);
           return;
         case SqlDateTimeOffsetPart.Offset:
-          DateTimeOffsetExtractOffset(node.Operand).AcceptVisitor(this);
+          DateTimeOffsetExtractOffset(node);
           return;
       }
       base.Visit(node);
@@ -317,10 +318,22 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return SqlDml.Cast(timestamp, SqlType.DateTime);
     }
 
-    protected SqlExpression DateTimeOffsetExtractOffset(SqlExpression timestamp)
+    protected void DateTimeOffsetExtractOffset(SqlExtract node)
     {
-      var substract = GetDateTimeInTimeZone(timestamp, GetServerTimeZone()) - GetDateTimeInTimeZone(timestamp, TimeSpan.Zero);
-      return SqlDml.Cast(substract, SqlType.Interval);
+      using (context.EnterScope(node)) {
+        context.Output.AppendText(translator.Translate(context, node, ExtractSection.Entry));
+        var part = node.DateTimePart!=SqlDateTimePart.Nothing
+          ? translator.Translate(node.DateTimePart)
+          : node.IntervalPart!=SqlIntervalPart.Nothing
+            ? translator.Translate(node.IntervalPart)
+            : translator.Translate(node.DateTimeOffsetPart);
+        context.Output.AppendText(part);
+        context.Output.AppendText(translator.Translate(context, node, ExtractSection.From));
+        node.Operand.AcceptVisitor(this);
+        context.Output.AppendText(translator.Translate(context, node, ExtractSection.Exit));
+        context.Output.AppendText(translator.Translate(SqlNodeType.Multiply));
+        OneSecondInterval.AcceptVisitor(this);
+      }
     }
 
     protected SqlExpression DateTimeOffsetTimeOfDay(SqlExpression timestamp)
