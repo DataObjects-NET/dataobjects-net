@@ -173,14 +173,18 @@ namespace Xtensive.Orm.Upgrade.Internals
       
       ftIndex.UnderlyingUniqueIndex = tableInfo.PrimaryIndex.EscapedName;
       ftIndex.FullTextCatalog = "Default";
-      foreach (var column in fullTextIndexInfo.Columns) {
+      foreach (var columnRef in fullTextIndexInfo.Columns) {
+        var configuration = columnRef.Configuration;
+        var typeColumnName = columnRef.TypeColumnName;
+        var column = columnRef.Value;
+
         var tableColumn = FindColumn(table, column.Name);
         var ftColumn = ftIndex.CreateIndexColumn(tableColumn);
 
-        ftColumn.TypeColumn = (!column.TypeColumnName.IsNullOrEmpty() && provider.Supports(ProviderFeatures.FullTextColumnDataTypeSpecification))
-          ? FindColumn(table, column.TypeColumnName)
+        ftColumn.TypeColumn = (!typeColumnName.IsNullOrEmpty() && provider.Supports(ProviderFeatures.FullTextColumnDataTypeSpecification))
+          ? FindColumn(table, typeColumnName)
           : null;
-        ftColumn.Languages.Add(new Language(column.Configuration));
+        ftColumn.Languages.Add(new Language(configuration));
       }
     }
 
