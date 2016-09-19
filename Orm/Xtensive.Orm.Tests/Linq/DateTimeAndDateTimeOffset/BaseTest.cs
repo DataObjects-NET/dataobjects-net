@@ -24,6 +24,10 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     {
     }
 
+    protected virtual void InitializeCustomSettings(DomainConfiguration configuration)
+    {
+    }
+
     protected void ExecuteInsideSession(Action action)
     {
       using (var session = Domain.OpenSession())
@@ -49,6 +53,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       RegisterTypes(configuration);
+      InitializeCustomSettings(configuration);
       return configuration;
     }
 

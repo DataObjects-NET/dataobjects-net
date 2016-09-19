@@ -44,6 +44,16 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       configuration.Types.Register(typeof (DateTimeEntity));
     }
 
+    protected override void InitializeCustomSettings(DomainConfiguration configuration)
+    {
+      var providerInfo = StorageProviderInfo.Instance.Info;
+      if (providerInfo.ProviderName == WellKnown.Provider.PostgreSql) {
+        var localZone = DateTimeOffset.Now.ToLocalTime().Offset;
+        var localZoneString = ((localZone < TimeSpan.Zero) ? "-" : "+") + localZone.ToString(@"hh\:mm");
+        configuration.ConnectionInitializationSql = string.Format("SET TIME ZONE INTERVAL '{0}' HOUR TO MINUTE", localZoneString);
+      }
+    }
+
     protected override void CheckRequirements()
     {
       Require.AnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);
@@ -133,5 +143,14 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       new NullableDateTimeOffsetEntity { DateTimeOffset = null };
       new NullableDateTimeOffsetEntity { DateTimeOffset = null };
     }
+
+    protected DateTimeOffset TryMoveToLocalTimeZone(DateTimeOffset dateTimeOffset)
+    {
+      if (ProviderInfo.ProviderName == WellKnown.Provider.PostgreSql)
+        return dateTimeOffset.ToLocalTime();
+      return dateTimeOffset;
+    }
   }
+
+  
 }
