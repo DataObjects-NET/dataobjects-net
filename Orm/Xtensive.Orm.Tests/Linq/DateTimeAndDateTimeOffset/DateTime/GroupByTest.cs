@@ -33,8 +33,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
       var compiledOrderByExpression = orderByExpression.Compile();
       var groupByLocal = Query.All<T>().ToArray().GroupBy(compiledGroupByExpression).ToArray();
       var groupByServer = Query.All<T>().GroupBy(groupByExpression);
-      foreach (var group in groupByServer)
-      {
+      foreach (var group in groupByServer) {
         Assert.Contains(group, groupByLocal);
         var localGroup = groupByLocal.Single(c => c.Key.Equals(group.Key));
         Assert.IsTrue(group.OrderBy(compiledOrderByExpression).SequenceEqual(localGroup.OrderBy(compiledOrderByExpression)));

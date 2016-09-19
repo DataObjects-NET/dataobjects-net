@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       });
     }
 
-    [Test(Description = "Might be failed on SQLite because of certain restrictions of work with milliseconds")]
+    [Test]
     public void MillisecondDateTimeOffsetOrderByTest()
     {
       ExecuteInsideSession(() => {

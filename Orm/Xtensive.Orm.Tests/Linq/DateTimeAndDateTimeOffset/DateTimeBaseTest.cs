@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 
       var index = 0;
       foreach (var dateTimeEntity1 in Query.All<DateTimeEntity>())
-        new MillisecondDateTimeEntity(dateTimeEntity1, ++index % 3 == 0 ? FirstMillisecondDateTime.Millisecond : SecondMillisecondDateTime.Millisecond);
+        new MillisecondDateTimeEntity(dateTimeEntity1, ++index % 3==0 ? FirstMillisecondDateTime.Millisecond : SecondMillisecondDateTime.Millisecond);
 
       dateTime = FirstMillisecondDateTime.AddYears(10);
       for (var i = 0; i < 1000; ++i)

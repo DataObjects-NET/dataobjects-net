@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     protected void ExecuteInsideSession(Action action)
     {
       using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
+      using (var transaction = session.OpenTransaction()) {
         action();
       }
     }

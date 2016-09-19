@@ -188,7 +188,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       });
     }
 
-    [Test]
+    [Test(Description = "Will fail for PostgreSql because of its restrictions")]
     public void ToUniversalTime()
     {
       ExecuteInsideSession(() => {

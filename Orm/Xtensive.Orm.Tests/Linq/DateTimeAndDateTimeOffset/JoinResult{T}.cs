@@ -16,10 +16,10 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     public override bool Equals(object obj)
     {
       var equalTo = obj as JoinResult<T>;
-      if (equalTo == null)
+      if (equalTo==null)
         return false;
-      return LeftId == equalTo.LeftId &&
-             RightId == equalTo.RightId &&
+      return LeftId==equalTo.LeftId &&
+             RightId==equalTo.RightId &&
              LeftDateTime.Equals(equalTo.LeftDateTime) && RightDateTime.Equals(equalTo.RightDateTime);
     }
   }

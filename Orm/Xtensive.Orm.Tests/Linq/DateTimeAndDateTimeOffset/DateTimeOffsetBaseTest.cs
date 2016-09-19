@@ -37,17 +37,17 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 
     protected override void RegisterTypes(DomainConfiguration configuration)
     {
-      configuration.Types.Register(typeof(SingleDateTimeOffsetEntity));
-      configuration.Types.Register(typeof(DateTimeOffsetEntity));
-      configuration.Types.Register(typeof(MillisecondDateTimeOffsetEntity));
-      configuration.Types.Register(typeof(NullableDateTimeOffsetEntity));
+      configuration.Types.Register(typeof (SingleDateTimeOffsetEntity));
+      configuration.Types.Register(typeof (DateTimeOffsetEntity));
+      configuration.Types.Register(typeof (MillisecondDateTimeOffsetEntity));
+      configuration.Types.Register(typeof (NullableDateTimeOffsetEntity));
       configuration.Types.Register(typeof (DateTimeEntity));
     }
 
     protected override void InitializeCustomSettings(DomainConfiguration configuration)
     {
       var providerInfo = StorageProviderInfo.Instance.Info;
-      if (providerInfo.ProviderName == WellKnown.Provider.PostgreSql) {
+      if (providerInfo.ProviderName==WellKnown.Provider.PostgreSql) {
         var localZone = DateTimeOffset.Now.ToLocalTime().Offset;
         var localZoneString = ((localZone < TimeSpan.Zero) ? "-" : "+") + localZone.ToString(@"hh\:mm");
         configuration.ConnectionInitializationSql = string.Format("SET TIME ZONE INTERVAL '{0}' HOUR TO MINUTE", localZoneString);
@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 
       var index = 0;
       foreach (var dateTime in dateTimes)
-        new DateTimeOffsetEntity(dateTime, ++index % 3 == 0 ? FirstOffset : SecondOffset);
+        new DateTimeOffsetEntity(dateTime, ++index % 3==0 ? FirstOffset : SecondOffset);
       
       new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset };
       new MillisecondDateTimeOffsetEntity { DateTimeOffset = FirstMillisecondDateTimeOffset };
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 
       index = 0;
       foreach (var dateTime in dateTimesWithMilliseconds)
-        new MillisecondDateTimeOffsetEntity(dateTime, ++index % 3 == 0 ? FirstOffset : SecondOffset);
+        new MillisecondDateTimeOffsetEntity(dateTime, ++index % 3==0 ? FirstOffset : SecondOffset);
 
       var dateTimeOffset = FirstMillisecondDateTimeOffset.AddYears(10);
       for (var i = 0; i < 1000; ++i)
@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
 
     protected DateTimeOffset TryMoveToLocalTimeZone(DateTimeOffset dateTimeOffset)
     {
-      if (ProviderInfo.ProviderName == WellKnown.Provider.PostgreSql)
+      if (ProviderInfo.ProviderName==WellKnown.Provider.PostgreSql)
         return dateTimeOffset.ToLocalTime();
       return dateTimeOffset;
     }

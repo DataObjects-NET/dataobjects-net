@@ -322,7 +322,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         Console.WriteLine(command.CommandText);
         using (var reader = (NpgsqlDataReader) command.ExecuteReader()) {
           reader.Read();
-          Assert.That((DateTimeOffset)reader.GetTimeStampTZ(0), Is.EqualTo(expectedValue));
+          Assert.That((DateTimeOffset) reader.GetTimeStampTZ(0), Is.EqualTo(expectedValue));
         }
       } 
     }
