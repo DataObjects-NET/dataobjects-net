@@ -187,5 +187,15 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
         RunWrongTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset - SecondDateTime==NullableDateTimeOffset - WrongDateTime);
       });
     }
+
+    [Test]
+    public void ToUniversalTime()
+    {
+      ExecuteInsideSession(() => {
+        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.ToUniversalTime()==FirstDateTimeOffset.ToUniversalTime());
+        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.ToUniversalTime()==FirstMillisecondDateTimeOffset.ToUniversalTime());
+        RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.ToUniversalTime()==NullableDateTimeOffset.ToUniversalTime());
+      });
+    }
   }
 }
