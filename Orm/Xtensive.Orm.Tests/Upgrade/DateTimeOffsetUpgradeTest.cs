@@ -160,7 +160,16 @@ namespace Xtensive.Orm.Tests.Upgrade
       Assert.IsNotNull(entity);
       var k = entity.FirstDateTimeOffset;
       var r = k.Year;
-      Assert.AreEqual(entity.FirstDateTimeOffset, defaultDateTimeOffset);
+      var localDefaultDateTimeOffset = TryMoveToLocalTimeZone(defaultDateTimeOffset);
+      Assert.AreEqual(entity.FirstDateTimeOffset, localDefaultDateTimeOffset);
+    }
+
+    private DateTimeOffset TryMoveToLocalTimeZone(DateTimeOffset dateTimeOffset)
+    {
+      var providerInfo = StorageProviderInfo.Instance.Info;
+      if (providerInfo.ProviderName==WellKnown.Provider.PostgreSql)
+        return dateTimeOffset.ToLocalTime();
+      return dateTimeOffset;
     }
   }
 }
