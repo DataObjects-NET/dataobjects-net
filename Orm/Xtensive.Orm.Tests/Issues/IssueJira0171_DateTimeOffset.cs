@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tests.Issues
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       var providerInfo = StorageProviderInfo.Instance.Info;
       if (providerInfo.ProviderName == WellKnown.Provider.PostgreSql) {
-        var localZone = DateTimeOffset.Now.ToLocalTime().Offset;
+        var localZone = today.ToLocalTime().Offset;
         var localZoneString = ((localZone < TimeSpan.Zero) ? "-" : "+") + localZone.ToString(@"hh\:mm");
         configuration.ConnectionInitializationSql = string.Format("SET TIME ZONE INTERVAL '{0}' HOUR TO MINUTE", localZoneString);
       }

@@ -503,13 +503,20 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (TestEntity).Assembly, typeof (TestEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      var providerInfo = StorageProviderInfo.Instance.Info;
+      if (providerInfo.ProviderName == WellKnown.Provider.PostgreSql) {
+        var localZone = EkaterinburgZone;
+        var localZoneString = ((localZone < TimeSpan.Zero) ? "-" : "+") + localZone.ToString(@"hh\:mm");
+        configuration.ConnectionInitializationSql = string.Format("SET TIME ZONE INTERVAL '{0}' HOUR TO MINUTE", localZoneString);
+      }
+
       return configuration;
     }
 
     private DateTimeOffset TryMoveToLocalTimeZone(DateTimeOffset dateTimeOffset)
     {
       if (ProviderInfo.ProviderName==WellKnown.Provider.PostgreSql)
-        return dateTimeOffset.ToLocalTime();
+        return dateTimeOffset.ToOffset(EkaterinburgZone);
       return dateTimeOffset;
     }
   }
