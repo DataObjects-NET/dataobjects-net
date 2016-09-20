@@ -1,0 +1,4 @@
+[main] Full-text indexes no longer cause domain building error in DomainUpgradeMode.Skip mode
+[main] Fixed temporary keys remap which showed up in previous version
+[postgresql] Updated version of client library
+[postgresql] Added support for DateTimeOffset
