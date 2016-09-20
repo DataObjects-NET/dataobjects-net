@@ -147,10 +147,16 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     private DomainConfiguration BuildConfiguration(DomainUpgradeMode upgradeMode, Type type)
     {
-      var configruation = DomainConfigurationFactory.Create();
-      configruation.UpgradeMode = upgradeMode;
-      configruation.Types.Register(type);
-      return configruation;
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.UpgradeMode = upgradeMode;
+      configuration.Types.Register(type);
+      var providerInfo = StorageProviderInfo.Instance.Info;
+      if (providerInfo.ProviderName == WellKnown.Provider.PostgreSql) {
+        var localZone = DateTimeOffset.Now.ToLocalTime().Offset;
+        var localZoneString = ((localZone < TimeSpan.Zero) ? "-" : "+") + localZone.ToString(@"hh\:mm");
+        configuration.ConnectionInitializationSql = string.Format("SET TIME ZONE INTERVAL '{0}' HOUR TO MINUTE", localZoneString);
+      }
+      return configuration;
     }
 
     private void CheckTestEntity<T>()
