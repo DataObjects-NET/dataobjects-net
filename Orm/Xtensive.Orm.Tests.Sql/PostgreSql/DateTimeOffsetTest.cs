@@ -41,6 +41,17 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       Require.ProviderIs(StorageProvider.PostgreSql);
     }
 
+    protected override void TestFixtureSetUp()
+    {
+      base.TestFixtureSetUp();
+      var localZone = DateTimeOffset.Now.ToLocalTime().Offset;
+      var localZoneString = ((localZone < TimeSpan.Zero) ? "-" : "+") + localZone.ToString(@"hh\:mm");
+      using (var command = Connection.CreateCommand()) {
+        command.CommandText = string.Format("SET TIME ZONE INTERVAL '{0}' HOUR TO MINUTE", localZoneString);
+        command.ExecuteNonQuery();
+      }
+    }
+
     [Test]
     public override void DateTimeOffsetToUtcTimeTest()
     {
