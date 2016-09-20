@@ -7,14 +7,14 @@
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
-namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
+namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
 {
-  public class DateTimeOperationsTest : BaseDateTimeAndDateTimeOffsetTest
+  public class OperationsTest : DateTimeBaseTest
   {
     [Test]
     public void AddYearsTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime.AddYears(1)==FirstDateTime.AddYears(1));
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddYears(-2)==FirstMillisecondDateTime.AddYears(-2));
         RunTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddYears(33)==NullableDateTime.AddYears(33));
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void AddMonthsTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime.AddMonths(1)==FirstDateTime.AddMonths(1));
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddMonths(-2)==FirstMillisecondDateTime.AddMonths(-2));
         RunTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddMonths(33)==NullableDateTime.AddMonths(33));
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void AddDaysTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime.AddDays(1)==FirstDateTime.AddDays(1));
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddDays(-2)==FirstMillisecondDateTime.AddDays(-2));
         RunTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddDays(33)==NullableDateTime.AddDays(33));
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void AddHoursTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime.AddHours(1)==FirstDateTime.AddHours(1));
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddHours(-2)==FirstMillisecondDateTime.AddHours(-2));
         RunTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddHours(33)==NullableDateTime.AddHours(33));
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void AddMinutesTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime.AddMinutes(1)==FirstDateTime.AddMinutes(1));
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddMinutes(-2)==FirstMillisecondDateTime.AddMinutes(-2));
         RunTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddMinutes(33)==NullableDateTime.AddMinutes(33));
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void AddSecondsTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime.AddSeconds(1)==FirstDateTime.AddSeconds(1));
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddSeconds(-2)==FirstMillisecondDateTime.AddSeconds(-2));
         RunTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.AddSeconds(33)==NullableDateTime.AddSeconds(33));
@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void AddMillisecondsTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddMilliseconds(-2)==FirstMillisecondDateTime.AddMilliseconds(-2));
         RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.AddMilliseconds(-1)==FirstMillisecondDateTime.AddMilliseconds(-2));
       });
@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void AddTimeSpanTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime.Add(FirstOffset)==FirstDateTime.Add(FirstOffset));
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.Add(SecondOffset)==FirstMillisecondDateTime.Add(SecondOffset));
         RunTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.Add(FirstOffset)==NullableDateTime.Add(FirstOffset));
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void SubtractTimeSpanTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime.Subtract(FirstOffset)==FirstDateTime.Subtract(FirstOffset));
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.Subtract(SecondOffset)==FirstMillisecondDateTime.Subtract(SecondOffset));
         RunTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.Subtract(FirstOffset)==NullableDateTime.Subtract(FirstOffset));
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void SubtractDateTimeTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime.Subtract(SecondDateTime)==FirstDateTime.Subtract(SecondDateTime));
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.Subtract(SecondDateTime)==FirstMillisecondDateTime.Subtract(SecondDateTime));
         RunTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.Subtract(SecondDateTime)==NullableDateTime.Subtract(SecondDateTime));
@@ -149,7 +149,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void PlusTimeSpanTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime + FirstOffset==FirstDateTime + FirstOffset);
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime + SecondOffset==FirstMillisecondDateTime + SecondOffset);
         RunTest<SingleDateTimeEntity>(c => c.NullableDateTime + FirstOffset==NullableDateTime + FirstOffset);
@@ -163,7 +163,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void MinusTimeSpanTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime - FirstOffset==FirstDateTime - FirstOffset);
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime - SecondOffset==FirstMillisecondDateTime - SecondOffset);
         RunTest<SingleDateTimeEntity>(c => c.NullableDateTime - FirstOffset==NullableDateTime - FirstOffset);
@@ -177,7 +177,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void MinusDateTimeTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime - SecondDateTime==FirstDateTime - SecondDateTime);
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime - SecondDateTime==FirstMillisecondDateTime - SecondDateTime);
         RunTest<SingleDateTimeEntity>(c => c.NullableDateTime - SecondDateTime==NullableDateTime - SecondDateTime);

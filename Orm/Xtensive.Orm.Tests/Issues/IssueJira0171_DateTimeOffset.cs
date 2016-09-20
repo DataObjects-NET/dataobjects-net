@@ -36,6 +36,13 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (EntityWithDateTimeOffset));
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      var providerInfo = StorageProviderInfo.Instance.Info;
+      if (providerInfo.ProviderName == WellKnown.Provider.PostgreSql) {
+        var localZone = today.ToLocalTime().Offset;
+        var localZoneString = ((localZone < TimeSpan.Zero) ? "-" : "+") + localZone.ToString(@"hh\:mm");
+        configuration.ConnectionInitializationSql = string.Format("SET TIME ZONE INTERVAL '{0}' HOUR TO MINUTE", localZoneString);
+      }
       return configuration;
     }
 
@@ -96,50 +103,58 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void AddYearsTest()
     {
-      RunAllTestsInt(value => e => e.Today.AddYears(value)==today.AddYears(value));
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTestsInt(value => e => e.Today.AddYears(value)==todayLocal.AddYears(value));
     }
 
     [Test]
     public void AddMonthsTest()
     {
-      RunAllTestsInt(value => e => e.Today.AddMonths(value)==today.AddMonths(value));
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTestsInt(value => e => e.Today.AddMonths(value)==todayLocal.AddMonths(value));
     }
 
     [Test]
     public void AddDaysTest()
     {
-      RunAllTestsDouble(value => e => e.Today.AddDays(value)==today.AddDays(value));
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTestsDouble(value => e => e.Today.AddDays(value)==todayLocal.AddDays(value));
     }
 
     [Test]
     public void AddHoursTest()
     {
-      RunAllTestsDouble(value => e => e.Today.AddHours(value)==today.AddHours(value));
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTestsDouble(value => e => e.Today.AddHours(value)==todayLocal.AddHours(value));
     }
 
     [Test]
     public void AddMinutesTest()
     {
-      RunAllTestsDouble(value => e => e.Today.AddMinutes(value)==today.AddMinutes(value));
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTestsDouble(value => e => e.Today.AddMinutes(value)==todayLocal.AddMinutes(value));
     }
 
     [Test]
     public void AddSecondsTest()
     {
-      RunAllTestsDouble(value => e => e.Today.AddSeconds(value)==today.AddSeconds(value));
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTestsDouble(value => e => e.Today.AddSeconds(value)==todayLocal.AddSeconds(value));
     }
 
     [Test]
     public void AddMillisecondsTest()
     {
-      RunAllTestsDouble(value => e => e.Today.AddMilliseconds(value)==today.AddMilliseconds(value));
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTestsDouble(value => e => e.Today.AddMilliseconds(value)==todayLocal.AddMilliseconds(value));
     }
 
     [Test]
     public void AddTest()
     {
       TimeSpan timeSpan = new TimeSpan(-6, 00, 0);
-      RunAllTests(e => e.Today.Add(timeSpan)==today.Add(timeSpan));
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.Add(timeSpan)==todayLocal.Add(timeSpan));
     }
 
     # endregion
@@ -149,91 +164,106 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void YearTest()
     {
-      RunAllTests(e => e.Today.Year==today.Year);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.Year==todayLocal.Year);
     }
 
     [Test]
     public void MonthTest()
     {
-      RunAllTests(e => e.Today.Month==today.Month);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.Month==todayLocal.Month);
     }
 
     [Test]
     public void DayTest()
     {
-      RunAllTests(e => e.Today.Day==today.Day);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.Day==todayLocal.Day);
     }
 
     [Test]
     public void HourTest()
     {
-      RunAllTests(e => e.Today.Hour==today.Hour);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.Hour==todayLocal.Hour);
     }
 
     [Test]
     public void MinuteTest()
     {
-      RunAllTests(e => e.Today.Minute==today.Minute);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.Minute==todayLocal.Minute);
     }
 
     [Test]
     public void SecondTest()
     {
-      RunAllTests(e => e.Today.Second==today.Second);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.Second==todayLocal.Second);
     }
 
     [Test]
     public void MilliseconsTest()
     {
-      RunAllTests(e => e.Today.Millisecond==today.Millisecond);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.Millisecond==todayLocal.Millisecond);
     }
 
     [Test]
     public void TimeOfDayTest()
     {
-      RunAllTests(e => e.Today.TimeOfDay==today.TimeOfDay);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.TimeOfDay==todayLocal.TimeOfDay);
     }
 
     [Test]
     public void DateTest()
     {
-      RunAllTests(e => e.Today.Date==today.Date);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.Date==todayLocal.Date);
     }
 
     [Test]
     public void DayOfWeekTest()
     {
-      RunAllTests(e => e.Today.DayOfWeek==today.DayOfWeek);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.DayOfWeek==todayLocal.DayOfWeek);
     }
 
     [Test]
     public void DayOfYearTest()
     {
-      RunAllTests(e => e.Today.DayOfYear==today.DayOfYear);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.DayOfYear==todayLocal.DayOfYear);
     }
 
     [Test]
     public void DateTimeTest()
     {
-      RunAllTests(e => e.Today.DateTime==today.DateTime);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.DateTime==todayLocal.DateTime);
     }
 
     [Test]
     public void OffsetTest()
     {
-      RunAllTests(e => e.Today.Offset==today.Offset);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.Offset==todayLocal.Offset);
     }
 
     [Test]
     public void UtcDateTimeTest()
     {
-      RunAllTests(e => e.Today.UtcDateTime==today.UtcDateTime);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.UtcDateTime==todayLocal.UtcDateTime);
     }
 
     [Test]
     public void LocalDateTimeTest()
     {
-      RunAllTests(e => e.Today.LocalDateTime==today.LocalDateTime);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.LocalDateTime==todayLocal.LocalDateTime);
     }
 
     # endregion
@@ -243,40 +273,47 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void EqualityTest()
     {
-      RunAllTests(e => e.Today==today);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today==todayLocal);
     }
 
     [Test]
     public void InequalityTets()
     {
       DateTimeOffset dateTimeOffset = DateTimeOffset.Now;
-      RunAllTests(e => e.Today!=dateTimeOffset);
+      var nowLocal = TryMoveToLocalTimeZone(dateTimeOffset);
+      RunAllTests(e => e.Today!=nowLocal);
     }
 
     [Test]
     public void GreaterThanTest()
     {
       DateTimeOffset dateTimeOffset = new DateTimeOffset(2012, 11, 28, 16, 53, 0, 0, new TimeSpan(4, 10, 0));
-      RunAllTests(e => e.Today > dateTimeOffset);
+      var dtoLocal = TryMoveToLocalTimeZone(dateTimeOffset);
+      RunAllTests(e => e.Today > dtoLocal);
     }
 
     [Test]
     public void GreaterThanOrEqual()
     {
       DateTimeOffset dateTimeOffset = new DateTimeOffset(2012, 11, 28, 16, 53, 0, 0, new TimeSpan(4, 10, 0));
-      RunAllTests(e => e.Today >= dateTimeOffset);
-      RunAllTests(e => e.Today >= today);
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      var dtoLocal = TryMoveToLocalTimeZone(dateTimeOffset);
+      RunAllTests(e => e.Today >= dtoLocal);
+      RunAllTests(e => e.Today >= todayLocal);
     }
 
     [Test]
     public void LessThan()
     {
-      RunAllTests(e => e.Today < DateTimeOffset.Now);
+      var nowLocal = TryMoveToLocalTimeZone(DateTimeOffset.Now);
+      RunAllTests(e => e.Today < nowLocal);
     }
 
     [Test]
     public void LessThanOrEqual()
     {
+      var todayLocal = TryMoveToLocalTimeZone(today);
       RunAllTests(e => e.Today <= DateTimeOffset.Now);
       RunAllTests(e => e.Today <= today);
     }
@@ -285,20 +322,24 @@ namespace Xtensive.Orm.Tests.Issues
     public void AdditionTest()
     {
       TimeSpan timeSpan = new TimeSpan(1, 2, 3, 4, 5);
-      RunAllTests(e => (e.Today + timeSpan)==(today + timeSpan));
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => (e.Today + timeSpan)==(todayLocal + timeSpan));
     }
 
     [Test]
     public void SubtractDateTimeOffsetTest()
     {
       DateTimeOffset subtractDateTimeOffset = new DateTimeOffset(2013, 11, 27, 10, 0, 0, 0, new TimeSpan(-1, 0, 0));
-      RunAllTests(e => e.Today.Subtract(subtractDateTimeOffset)==today.Subtract(subtractDateTimeOffset));
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      var substractDTOLocal = TryMoveToLocalTimeZone(subtractDateTimeOffset);
+      RunAllTests(e => e.Today.Subtract(substractDTOLocal)==todayLocal.Subtract(substractDTOLocal));
     }
 
     [Test]
     public void SubtractTimeSpanTest()
     {
-      RunAllTests(e => e.Today.Subtract(new TimeSpan(1, 10, 2, 1))==today.Subtract(new TimeSpan(1, 10, 2, 1)));
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.Subtract(new TimeSpan(1, 10, 2, 1))==todayLocal.Subtract(new TimeSpan(1, 10, 2, 1)));
     }
 
     #endregion
@@ -306,7 +347,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ToUniversalTimeTest()
     {
-      RunAllTests(e => e.Today.ToUniversalTime()==today.ToUniversalTime());
+      var todayLocal = TryMoveToLocalTimeZone(today);
+      RunAllTests(e => e.Today.ToUniversalTime()==todayLocal.ToUniversalTime());
     }
 
     [Test]
@@ -325,7 +367,8 @@ namespace Xtensive.Orm.Tests.Issues
 
         if (resultQuery!=null) {
           var serverOffset = new TimeSpan(resultQuery.Key.ServerOffset.Hours, resultQuery.Key.ServerOffset.Minutes, 0);
-          Assert.That(resultQuery.Key.Date, Is.EqualTo(today.ToOffset(serverOffset)));
+          var todayLocal = TryMoveToLocalTimeZone(today);
+          Assert.That(resultQuery.Key.Date, Is.EqualTo(todayLocal.ToOffset(serverOffset)));
         }
         tx.Complete();
       }
@@ -339,9 +382,17 @@ namespace Xtensive.Orm.Tests.Issues
         var result = session.Query.All<EntityWithDateTimeOffset>()
           .Select(d => d.Today)
           .ToList();
-        Assert.That(result[0], Is.EqualTo(today));
+        var todayLocal = TryMoveToLocalTimeZone(today);
+        Assert.That(result[0], Is.EqualTo(todayLocal));
         tx.Complete();
       }
+    }
+
+    protected DateTimeOffset TryMoveToLocalTimeZone(DateTimeOffset dateTimeOffset)
+    {
+      if (ProviderInfo.ProviderName==WellKnown.Provider.PostgreSql)
+        return dateTimeOffset.ToLocalTime();
+      return dateTimeOffset;
     }
   }
 }

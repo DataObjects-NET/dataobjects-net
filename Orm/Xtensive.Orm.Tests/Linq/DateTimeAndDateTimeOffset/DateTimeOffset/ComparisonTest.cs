@@ -6,22 +6,16 @@
 
 using System;
 using NUnit.Framework;
-using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
-namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
+namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
 {
-  public class DateTimeOffsetCompareTest : BaseDateTimeAndDateTimeOffsetTest
+  public class ComparisonTest : DateTimeOffsetBaseTest
   {
-    protected override void CheckRequirements()
-    {
-      Require.AnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);
-    }
-
     [Test]
     public void EqualsTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset==FirstDateTimeOffset);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset==FirstMillisecondDateTimeOffset);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset==NullableDateTimeOffset);
@@ -36,7 +30,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void EqualsToDateTimeOffsetWithAnotherOffset()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset==FirstDateTimeOffset.ToOffset(FirstOffset));
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset==FirstDateTimeOffset.ToOffset(SecondOffset));
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset==FirstDateTimeOffset.ToOffset(TimeSpan.Zero));
@@ -78,7 +72,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void EqualsToUtcDateTime()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset==FirstDateTimeOffset.UtcDateTime);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset==FirstMillisecondDateTimeOffset.UtcDateTime);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset==NullableDateTimeOffset.UtcDateTime);
@@ -92,7 +86,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void EqualsToLocalDateTime()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset==FirstDateTimeOffset.LocalDateTime);
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset==FirstMillisecondDateTimeOffset.LocalDateTime);
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset==NullableDateTimeOffset.LocalDateTime);
@@ -106,7 +100,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void CompareTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset > FirstDateTimeOffset.AddHours(-1));
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset > FirstMillisecondDateTimeOffset.AddMilliseconds(-1));
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset > NullableDateTimeOffset.AddYears(-1));
@@ -124,7 +118,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     [Test]
     public void CompareToDateTimeTest()
     {
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset > FirstDateTimeOffset.ToLocalTime().AddHours(-1));
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset > FirstMillisecondDateTimeOffset.ToUniversalTime().AddMilliseconds(-1));
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset > NullableDateTimeOffset.ToLocalTime().Date);
@@ -143,7 +137,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     public void CompareToNullableDateTimeOffsetToOffsetTest()
     {
       DateTimeOffset? nullableDateTimeOffset = NullableDateTimeOffset;
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset!=NullableDateTimeOffset.ToOffset(FirstOffset)); // works fine
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset!=nullableDateTimeOffset.Value.ToOffset(FirstOffset)); // failed
       });
@@ -153,7 +147,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     public void CompareToNullableDateTimeOffsetGetUtcDateTimeTest()
     {
       DateTimeOffset? nullableDateTimeOffset = NullableDateTimeOffset;
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset!=NullableDateTimeOffset.UtcDateTime);
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset!=nullableDateTimeOffset.Value.UtcDateTime);
       });
@@ -163,7 +157,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     public void CompareToNullableDateTimeOffsetGetLocalDateTimeTest()
     {
       DateTimeOffset? nullableDateTimeOffset = NullableDateTimeOffset;
-      OpenSessionAndAction(() => {
+      ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset!=NullableDateTimeOffset.LocalDateTime);
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset!=nullableDateTimeOffset.Value.LocalDateTime);
       });
