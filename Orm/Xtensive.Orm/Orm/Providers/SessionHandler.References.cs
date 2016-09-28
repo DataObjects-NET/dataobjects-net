@@ -61,14 +61,12 @@ namespace Xtensive.Orm.Providers
     {
       Session.ExecuteInternalDelayedQueries(true);
 
-      var savedReferencesToTarget = queryTask.ToEntities(header, Session, 0);
-      var removedReferences = Session.NonPairedReferencesRegistry.GetRemovedReferencesTo(target.State, association).Select(es => es.Entity);
-      var addedReferences = Session.NonPairedReferencesRegistry.GetRemovedReferencesTo(target.State, association).Select(es => es.Entity);
-
-      var withAddedReferences = savedReferencesToTarget.Concat(addedReferences);
-      var finalReferences = withAddedReferences.Except(removedReferences);
-
-      foreach (var entity in finalReferences)
+      var referenceToTarget = queryTask.ToEntities(header, Session, 0);
+      var removedReferences = Session.NonPairedReferencesRegistry.GetRemovedReferencesTo(target.State, association).Select(es=>es.Entity);
+      var addedReferences = Session.NonPairedReferencesRegistry.GetAddedReferenceTo(target.State, association).Select(es => es.Entity).Where(e=>!e.IsRemoved);
+      var exceptRemovedReferences = referenceToTarget.Except(removedReferences);
+      var withNewReferences = exceptRemovedReferences.Concat(addedReferences);
+      foreach (var entity in withNewReferences)
         yield return new ReferenceInfo(entity, target, association);
     }
 
