@@ -60,9 +60,10 @@ namespace Xtensive.Orm.Providers
     private IEnumerable<ReferenceInfo> GetReferencesToInternal(AssociationInfo association, Entity target, RecordSetHeader header, QueryTask queryTask)
     {
       Session.ExecuteInternalDelayedQueries(true);
+
       var referenceToTarget = queryTask.ToEntities(header, Session, 0);
       var removedReferences = Session.NonPairedReferencesRegistry.GetRemovedReferencesTo(target.State, association).Select(es=>es.Entity);
-      var addedReferences = Session.NonPairedReferencesRegistry.GetAddedReferenceTo(target.State, association).Select(es => es.Entity);
+      var addedReferences = Session.NonPairedReferencesRegistry.GetAddedReferenceTo(target.State, association).Select(es => es.Entity).Where(e=>!e.IsRemoved);
       var exceptRemovedReferences = referenceToTarget.Except(removedReferences);
       var withNewReferences = exceptRemovedReferences.Concat(addedReferences);
       foreach (var entity in withNewReferences)
