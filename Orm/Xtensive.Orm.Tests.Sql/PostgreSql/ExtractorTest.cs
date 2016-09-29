@@ -58,5 +58,39 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       Assert.IsNull(index.Columns[2].Column);
       Assert.IsNotNull(index.Columns[2].Expression);
     }
+
+    [Test]
+    public void ExtractDateTimeOffsetFields()
+    {
+      var dropTableScript = "DROP TABLE IF EXISTS \"InteractionLog\"";
+      var createTableScript = "CREATE TABLE  \"InteractionLog\" (" +
+                              "\"ID\" bigint PRIMARY KEY NOT NULL," +
+                              "\"PacketId\" character varying(10485760)," +
+                              "\"SenderId\" character varying(10485760)," +
+                              "\"ReceiverId\" character varying(10485760)," +
+                              "\"IsTest\" boolean DEFAULT false NOT NULL," +
+                              "\"ResultCode\" integer," +
+                              "\"ErrorMessage\" character varying(10485760)," +
+                              "\"ErrorDescription\" character varying(10485760)," +
+                              "\"Description\" character varying(10485760)," +
+                              "\"Type\" integer DEFAULT 0 NOT NULL," +
+                              "\"FormatId\" character varying(10485760)," +
+                              "\"DateTimeOffset0\" timestamp(0) with time zone DEFAULT '0001-01-01 00:00:00+00:00'::timestamp(0) with time zone NOT NULL," +
+                              "\"DateTimeOffset1\" timestamp(1) with time zone DEFAULT '0001-01-01 00:00:00.0+00:00'::timestamp(1) with time zone NOT NULL," +
+                              "\"DateTimeOffset2\" timestamp(2) with time zone DEFAULT '0001-01-01 00:00:00.00+00:00'::timestamp(2) with time zone NOT NULL," +
+                              "\"DateTimeOffset3\" timestamp(3) with time zone DEFAULT '0001-01-01 00:00:00.000+00:00'::timestamp(3) with time zone NOT NULL," +
+                              "\"VersionID\" integer DEFAULT 0 NOT NULL" +
+                              ");";
+
+      using (var command = Connection.CreateCommand()) {
+        command.CommandText = dropTableScript;
+        command.ExecuteNonQuery();
+
+        command.CommandText = createTableScript;
+        command.ExecuteNonQuery();
+      }
+
+      var catalog = Driver.ExtractCatalog(Connection);
+    }
   }
 }
