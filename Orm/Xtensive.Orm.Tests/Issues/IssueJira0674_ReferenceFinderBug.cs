@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Issues.IssueReferenceFinderBug;
+using Xtensive.Orm.Tests.Issues.IssueJira0674_ReferenceFinderBugModel;
 
-namespace Xtensive.Orm.Tests.Issues.IssueReferenceFinderBug
+namespace Xtensive.Orm.Tests.Issues.IssueJira0674_ReferenceFinderBugModel
 {
   [Serializable]
   [HierarchyRoot]
@@ -36,7 +33,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueReferenceFinderBug
     [Field]
     public TestA TestA { get; set; }
   }
-
 }
 
 namespace Xtensive.Orm.Tests.Issues
@@ -44,28 +40,26 @@ namespace Xtensive.Orm.Tests.Issues
   public class IssueJira0674_ReferenceFinderBug : AutoBuildTest
   {
     [Test]
-    public void MainTest()
+    public void RemoveUnsavedReferenceClientTest()
     {
       using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile))) {
         var testA = new TestA(session) { Text = "A" };
         var testB = new TestB(session) { Text = "B", TestA = testA };
+
         testB.Remove();
-        // No problem with Server Session!
-        // Exception: Referential integrity violation on attempt to remove ...
         testA.Remove();
       }
     }
 
     [Test]
-    public void ServerTest()
+    public void RemoveUnsavedReferenceServerTest()
     {
       using (var session = Domain.OpenSession())
       using (var trasaction = session.OpenTransaction()) {
         var testA = new TestA(session) { Text = "A" };
         var testB = new TestB(session) { Text = "B", TestA = testA };
+
         testB.Remove();
-        // No problem with Server Session!
-        // Exception: Referential integrity violation on attempt to remove ...
         testA.Remove();
       }
     }
