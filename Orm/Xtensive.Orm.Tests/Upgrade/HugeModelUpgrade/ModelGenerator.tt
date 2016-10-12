@@ -1,0 +1,57 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ output extension=".cs" #>
+using System;
+
+namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade.Model
+{
+<# for(int i = 0; i < 200; i++) { #>
+  [HierarchyRoot]
+  [Index("Int16Field")]
+  [Index("Int32Field")]
+  [Index("Int64Field")]
+  [Index("FloatField")]
+  [Index("DoubleField")]
+  public class TestEntity<#= i #> : Entity {
+
+    [Key, Field]
+    public long Id{get;set;}
+
+    [Field]
+    public bool BooleanField {get;set;}
+
+    [Field]
+    public Int16 Int16Field {get;set;}
+
+    [Field]
+    public Int32 Int32Field {get;set;}
+
+    [Field]
+    public Int64 Int64Field {get;set;}
+
+    [Field]
+    public float FloatField {get;set;}
+
+    [Field]
+    public double DoubleField {get;set;}
+
+    [Field]
+    public DateTime DateTimeField {get;set;}
+
+    [Field]
+    public string StringField {get;set;}
+
+    [Field]
+    [FullText("English")]
+    public string Text {get;set;}
+
+<# for (int j = i - 1, index = 0; j >= 0; j--, index++) { #>
+    [Field]
+    public TestEntity<#= j #> TestEntity<#= j #>{get;set;}
+<# if (index > 9) break; #>
+<# if (0 - i < -1 )  #>
+
+<# } #>
+
+  }
+<# } #>
+}

@@ -474,6 +474,12 @@
     <Compile Include="Upgrade\EntitySetUpgrade\Upgrader.cs" />
     <Compile Include="Upgrade\EntitySetUpgrade\UpgradeTest.cs" />
     <Compile Include="Upgrade\FullText\FullTextDataTypeColumnUpgradeTest.cs" />
+    <Compile Include="Upgrade\HugeModelUpgrade\ModelGenerator.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ModelGenerator.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Upgrade\HugeModelUpgrade\UpgradeTest.cs" />
     <Compile Include="Upgrade\NewSkip\Model.cs" />
     <Compile Include="Upgrade\NewSkip\MultidatabaseDomainTest.cs" />
     <Compile Include="Upgrade\NewSkip\MultischemaDomainTest.cs" />
@@ -860,6 +866,10 @@
   <ItemGroup>
     <Content Include="Northwind.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Upgrade\HugeModelUpgrade\ModelGenerator.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ModelGenerator.cs</LastGenOutput>
     </Content>
   </ItemGroup>
   <ItemGroup />
