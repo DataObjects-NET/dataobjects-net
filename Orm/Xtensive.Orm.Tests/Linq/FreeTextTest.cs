@@ -13,6 +13,8 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 using System.Linq;
+using System.Linq.Expressions;
+using Xtensive.Orm.Tests.Issues.IssueJira0551_IncorrectTypeIdFieldBugModel;
 
 namespace Xtensive.Orm.Tests.Linq
 {
@@ -65,6 +67,49 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = from c in Session.Query.FreeText<Category>("Dessert candy and coffee seafood") select c.Rank;
       Assert.AreEqual(3, result.ToList().Count);
+    }
+
+    [Test]
+    public void TopNByRankTest()
+    {
+      var allMatchingRecords = Session.Query.FreeText<Category>("Dessert candy and coffee seafood");
+      Assert.AreEqual(3, allMatchingRecords.Count());
+      var topNMatchingRecords = Session.Query.FreeText<Category>("Dessert candy and coffee seafood", 2).ToList();
+      Assert.AreEqual(2, topNMatchingRecords.Count());
+      var top2Records = allMatchingRecords.OrderByDescending(record => record.Rank).Take(2);
+      Assert.IsTrue(topNMatchingRecords.Select(rec => rec.Entity.CategoryName).SequenceEqual(top2Records.Select(rec1 => rec1.Entity.CategoryName)));
+    }
+
+    [Test]
+    public void TopNByRankExpressionTest()
+    {
+      var allMatchingRecords = Session.Query.FreeText<Category>(() => "Dessert candy and coffee seafood");
+      Assert.AreEqual(3, allMatchingRecords.Count());
+      var topNMatchingRecords = Session.Query.FreeText<Category>(() => "Dessert candy and coffee seafood", 2).ToList();
+      Assert.AreEqual(2, topNMatchingRecords.Count);
+      var top2Records = allMatchingRecords.OrderByDescending(rec => rec.Rank).Take(2);
+      Assert.IsTrue(topNMatchingRecords.Select(rec=>rec.Entity.CategoryName).SequenceEqual(top2Records.Select(rec1 => rec1.Entity.CategoryName)));
+    }
+
+    [Test]
+    public void TopNByrankEmptyResultTest()
+    {
+      var allMatchingRecords = Session.Query.FreeText<Category>(() => "sdgfgfhghd");
+      Assert.IsTrue(!allMatchingRecords.Any());
+      var topNMatchingRecords = Session.Query.FreeText<Category>(() => "sdgfgfhghd", 1);
+      Assert.IsTrue(!topNMatchingRecords.Any());
+    }
+
+    [Test]
+    public void NegativeTopNTest()
+    {
+      Assert.Throws<ArgumentOutOfRangeException>(() => Session.Query.FreeText<Category>("sfdgfdhghgf", -1));
+    }
+
+    [Test]
+    public void ZeroTopNTest()
+    {
+      Assert.Throws<ArgumentOutOfRangeException>(() => Session.Query.FreeText<Category>("sfdgfhgfhhj", 0));
     }
 
     [Test]
