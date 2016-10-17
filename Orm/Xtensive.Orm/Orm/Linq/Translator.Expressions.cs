@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Windows;
+using System.Windows.Data;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
@@ -22,6 +24,7 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
+using Expression = System.Linq.Expressions.Expression;
 using FieldInfo = System.Reflection.FieldInfo;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -338,8 +341,12 @@ namespace Xtensive.Orm.Linq
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()==WellKnownMembers.Query.All)
             return ConstructQueryable(mc);
           // Query.FreeText<T>
-          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.Query.FreeTextString, WellKnownMembers.Query.FreeTextExpression))
-            return ConstructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
+          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()
+            .In(WellKnownMembers.Query.FreeTextString, 
+              WellKnownMembers.Query.FreeTextExpression, 
+              WellKnownMembers.Query.FreeTextExpressionTopNByRank, 
+              WellKnownMembers.Query.FreeTextStringTopNByRank))
+            return ConstructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments);
           // Query.Single<T> & Query.SingleOrDefault<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(
             WellKnownMembers.Query.SingleKey,
@@ -353,8 +360,13 @@ namespace Xtensive.Orm.Linq
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition() == WellKnownMembers.QueryEndpoint.All)
             return ConstructQueryable(mc);
           // Query.FreeText<T>
-          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.QueryEndpoint.FreeTextString, WellKnownMembers.QueryEndpoint.FreeTextExpression))
-            return ConstructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
+          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()
+            .In(WellKnownMembers.QueryEndpoint.FreeTextString, 
+              WellKnownMembers.QueryEndpoint.FreeTextExpression, 
+              WellKnownMembers.Query.FreeTextExpressionTopNByRank, 
+              WellKnownMembers.Query.FreeTextStringTopNByRank))
+            return ConstructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments);
+
           // Query.Single<T> & Query.SingleOrDefault<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(
             WellKnownMembers.QueryEndpoint.SingleKey,
@@ -415,7 +427,12 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    private Expression ConstructFreeTextQueryRoot(Type elementType, Expression searchCriteria)
+    private Expression ConstructFreeTextQueryRoot(Type elementType, System.Collections.ObjectModel.ReadOnlyCollection<Expression> expressions)
+    {
+      return ConstructFreeTextQueryRoot(elementType, expressions[0], expressions.Count() < 2 ? null : expressions[1]);
+    }
+
+    private Expression ConstructFreeTextQueryRoot(Type elementType, Expression searchCriteria, Expression topN)
     {
       TypeInfo type;
       if (!context.Model.Types.TryGetValue(elementType, out type))
@@ -429,9 +446,7 @@ namespace Xtensive.Orm.Linq
           && searchCriteria.Type==typeof (string))
         throw new InvalidOperationException(String.Format(Strings.ExFreeTextNotSupportedInCompiledQueries, ((ConstantExpression) searchCriteria).Value));
 
-
       // Prepare parameter
-
       Func<string> compiledParameter;
       if (searchCriteria.NodeType==ExpressionType.Quote)
         searchCriteria = searchCriteria.StripQuotes();
@@ -452,7 +467,15 @@ namespace Xtensive.Orm.Linq
 
       var fullFeatured = context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedFullText);
       var entityExpression = EntityExpression.Create(type, 0, !fullFeatured);
-      var dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(), fullFeatured);
+
+      FreeTextProvider dataSource;
+      if (topN==null)
+        dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(), fullFeatured);
+      else {
+        var topNParameter = context.ParameterExtractor.ExtractParameter<int>(topN).CachingCompile();
+        dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(), topNParameter, fullFeatured);
+      }
+
       var rankExpression = ColumnExpression.Create(typeof (double), dataSource.Header.Columns.Count - 1);
       var freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       var itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
