@@ -8,13 +8,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Orm.Linq;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 using System.Linq;
-using System.Linq.Expressions;
-using Xtensive.Orm.Tests.Issues.IssueJira0551_IncorrectTypeIdFieldBugModel;
 
 namespace Xtensive.Orm.Tests.Linq
 {

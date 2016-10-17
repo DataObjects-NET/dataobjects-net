@@ -9,8 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Windows;
-using System.Windows.Data;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
@@ -24,7 +22,6 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
-using Expression = System.Linq.Expressions.Expression;
 using FieldInfo = System.Reflection.FieldInfo;
 using Tuple = Xtensive.Tuples.Tuple;
 
