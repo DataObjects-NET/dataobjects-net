@@ -78,6 +78,17 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public void TopNByRankTest2()
+    {
+      var allMatchingRecords = Query.FreeText<Category>("Dessert candy and coffee seafood");
+      Assert.AreEqual(3, allMatchingRecords.Count());
+      var topNMatchingRecords = Query.FreeText<Category>("Dessert candy and coffee seafood", 2).ToList();
+      Assert.AreEqual(2, topNMatchingRecords.Count());
+      var top2Records = allMatchingRecords.OrderByDescending(record => record.Rank).Take(2);
+      Assert.IsTrue(topNMatchingRecords.Select(rec => rec.Entity.CategoryName).SequenceEqual(top2Records.Select(rec1 => rec1.Entity.CategoryName)));
+    }
+
+    [Test]
     public void TopNByRankExpressionTest()
     {
       var allMatchingRecords = Session.Query.FreeText<Category>(() => "Dessert candy and coffee seafood");
@@ -86,6 +97,16 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual(2, topNMatchingRecords.Count);
       var top2Records = allMatchingRecords.OrderByDescending(rec => rec.Rank).Take(2);
       Assert.IsTrue(topNMatchingRecords.Select(rec=>rec.Entity.CategoryName).SequenceEqual(top2Records.Select(rec1 => rec1.Entity.CategoryName)));
+    }
+
+    [Test]
+    public void TopNByRankExpressionTest2()
+    {
+      var allMatchingRecords = Query.FreeText<Category>(() => "Dessert candy and coffee seafood");
+      Assert.AreEqual(3, allMatchingRecords.Count());
+      var topNMatchingReocrds = Query.FreeText<Category>(() => "Dessert candy and coffee seafood", 2).ToList();
+      var top2Records = topNMatchingReocrds.OrderByDescending(rec => rec.Rank).Take(2);
+      Assert.IsTrue(topNMatchingReocrds.Select(rec => rec.Entity.CategoryName).SequenceEqual(top2Records.Select(rec1 => rec1.Entity.CategoryName)));
     }
 
     [Test]
@@ -107,6 +128,20 @@ namespace Xtensive.Orm.Tests.Linq
     public void ZeroTopNTest()
     {
       Assert.Throws<ArgumentOutOfRangeException>(() => Session.Query.FreeText<Category>("sfdgfhgfhhj", 0));
+    }
+
+    [Test]
+    public void TopNByRankJoinProductsTest()
+    {
+      var result =
+        from c in Session.Query.FreeText<Category>(() => "Dessert candy and coffee", 1)
+        join p in Session.Query.All<Product>() on c.Entity.Key equals p.Category.Key
+        select p;
+      Assert.AreEqual(13, result.ToList().Count);
+      foreach (var product in result) {
+        Assert.IsNotNull(product);
+        Assert.IsNotNull(product.Key);
+      }
     }
 
     [Test]
@@ -140,12 +175,39 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public void TopNByRankJoinProductsTest2()
+    {
+      var result =
+        from c in Session.Query.FreeText<Category>(() => "Dessert candy and coffee", 1)
+        join p in Session.Query.All<Product>() on c.Entity equals p.Category
+        select p;
+      Assert.AreEqual(13, result.ToList().Count);
+      foreach (var product in result) {
+        Assert.IsNotNull(product);
+        Assert.IsNotNull(product.Key);
+      }
+    }
+
+    [Test]
     public void JoinCategoryTest()
     {
       var keywords = "lager";
       var result =
         from p in Session.Query.FreeText<Product>(keywords)
         where p.Entity.ProductName != typeof (Product).Name
+        join c in Session.Query.All<Category>() on p.Entity.Category.Id equals c.Id
+        orderby p.Rank
+        select new {Id = c.Id, Name = c.CategoryName, Rank = p.Rank, Descr = GetProductDescription(p.Entity)};
+      var list = result.ToList();
+    }
+
+    [Test]
+    public void TopNByRankJoinCategoryTest()
+    {
+      var keywords = "lager";
+      var result =
+        from p in Session.Query.FreeText<Product>(keywords, 1)
+        where p.Entity.ProductName!=typeof (Product).Name
         join c in Session.Query.All<Category>() on p.Entity.Category.Id equals c.Id
         orderby p.Rank
         select new {Id = c.Id, Name = c.CategoryName, Rank = p.Rank, Descr = GetProductDescription(p.Entity)};
@@ -165,10 +227,31 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public void TopNByRankJoinCategory2Test()
+    {
+      var keywords = "lager";
+      var result = Session.Query.FreeText<Product>(keywords, 1)
+        .Where(p => p.Entity.ProductName!=typeof (Product).Name)
+        .Join(Session.Query.All<Category>(), p => p.Entity.Category.Id, c => c.Id, (p, c) => new {p.Rank, c})
+        .OrderBy(@t => @t.Rank)
+        .Select(@t => new {Id = @t.c.Id, Name = @t.c.CategoryName, Rank = @t.Rank});
+      var list = result.ToList();
+    }
+
+    [Test]
     public void JoinCategory2PgSqlTest()
     {
       var keywords = "lager";
       var result = Session.Query.FreeText<Product>(keywords)
+        .Join(Session.Query.All<Category>(), p => p.Entity.Category.Id, c => c.Id, (p, c) => new {p.Rank, c});
+      var list = result.ToList();
+    }
+
+    [Test]
+    public void TopNByRankJoinCategory2PgSqlTest()
+    {
+      var keywords = "lager";
+      var result = Session.Query.FreeText<Product>(keywords, 1)
         .Join(Session.Query.All<Category>(), p => p.Entity.Category.Id, c => c.Id, (p, c) => new {p.Rank, c});
       var list = result.ToList();
     }
@@ -206,6 +289,18 @@ namespace Xtensive.Orm.Tests.Linq
       var list = result.ToList();
     }
 
+    [Test]
+    public void TopNByRankJoinCategory3Test()
+    {
+      var keywords = "lager";
+      var result = (from ft in Session.Query.FreeText<Product>(keywords, 1)
+        where ft.Entity.ProductName!=typeof (Product).Name
+        join c in Session.Query.All<Category>() on ft.Entity.Category equals c
+        select new {ID = c.Id, Rank = ft.Rank, Name = ft.Entity.ProductName}
+        ).Take(100).OrderByDescending(i => i.Rank).ThenByDescending(i => i.ID);
+      var list = result.ToList();
+    }
+
     private static string GetProductDescription(Product p)
     {
       return p.ProductName + ":" + p.UnitPrice;
@@ -218,6 +313,20 @@ namespace Xtensive.Orm.Tests.Linq
         (from c in Session.Query.FreeText<Category>(() => "Dessert candy and coffee")
         orderby c.Rank
         select new {c.Entity, c.Rank});
+      var list = result.ToList();
+      Assert.AreEqual(2, list.Count);
+      foreach (var product in result) {
+        Assert.IsNotNull(product);
+      }
+    }
+
+    [Test]
+    public void TopNByRankJoinProductsWithRanks1Test()
+    {
+      var result = 
+        (from c in Session.Query.FreeText<Category>(() => "Dessert candy and coffee", 2)
+         orderby c.Rank
+         select new {c.Entity, c.Rank});
       var list = result.ToList();
       Assert.AreEqual(2, list.Count);
       foreach (var product in result) {
