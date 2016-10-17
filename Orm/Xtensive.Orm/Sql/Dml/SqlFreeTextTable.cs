@@ -21,6 +21,8 @@ namespace Xtensive.Sql.Dml
 
     public SqlExpression FreeText { get; private set; }
 
+    public SqlExpression TopN { get; private set; }
+
     internal override object Clone(SqlNodeCloneContext context)
     {
       throw new NotImplementedException();
@@ -70,15 +72,26 @@ namespace Xtensive.Sql.Dml
     // Constructors
 
     internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columnNames)
-      : this(dataTable, freeText, columnNames, ArrayUtils<string>.EmptyArray)
+      : this(dataTable, freeText, columnNames, ArrayUtils<string>.EmptyArray, null)
     {
     }
 
     internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columnNames, ICollection<string> targetColumnNames)
+      : this(dataTable, freeText, columnNames, targetColumnNames, null)
+    {
+    }
+
+    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columNames, SqlExpression topN)
+      : this(dataTable, freeText, columNames, ArrayUtils<string>.EmptyArray, topN)
+    {
+    }
+
+    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columnNames, ICollection<string> targetColumnNames, SqlExpression topN)
       : base(string.Empty)
     {
       TargetTable = SqlDml.TableRef(dataTable);
       FreeText = freeText;
+      TopN = topN;
       var targetColumns = new List<SqlTableColumn>();
       if (targetColumnNames.Count == 0)
         targetColumns.Add(Asterisk);
