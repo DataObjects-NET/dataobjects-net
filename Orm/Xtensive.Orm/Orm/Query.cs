@@ -69,6 +69,19 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
+    /// Performs full-text query for the text specified in free text form and limits the result by highest ranked number of elements.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">The search criteria in free text form.</param>
+    /// <param name="topNByRank">Limits the query result by topN elements.</param>
+    /// <returns></returns>
+    public static IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria, int topNByRank)
+      where T: Entity
+    {
+      return Session.Demand().Query.FreeText<T>(searchCriteria, topNByRank);
+    }
+
+    /// <summary>
     /// Performs full-text query for the text specified in free text form.
     /// </summary>
     /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
@@ -81,6 +94,19 @@ namespace Xtensive.Orm
       where T: Entity
     {
       return Session.Demand().Query.FreeText<T>(searchCriteria);
+    }
+
+    /// <summary>
+    /// Performs full-text query for the text specified in free text form
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">The search criteria in free text form.</param>
+    /// <param name="topNByRank">Limits the query resutlt by topN elements.</param>
+    /// <returns></returns>
+    public static IQueryable<FullTextMatch<T>> FreeText<T>(Expression<Func<string>> searchCriteria, int topNByRank) 
+      where T : Entity
+    {
+       return Session.Demand().Query.FreeText<T>(searchCriteria);
     }
 
     /// <summary>
