@@ -106,7 +106,7 @@ namespace Xtensive.Orm
     public static IQueryable<FullTextMatch<T>> FreeText<T>(Expression<Func<string>> searchCriteria, int topNByRank) 
       where T : Entity
     {
-       return Session.Demand().Query.FreeText<T>(searchCriteria);
+       return Session.Demand().Query.FreeText<T>(searchCriteria, topNByRank);
     }
 
     /// <summary>
