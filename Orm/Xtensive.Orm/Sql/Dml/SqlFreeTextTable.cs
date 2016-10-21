@@ -21,7 +21,7 @@ namespace Xtensive.Sql.Dml
 
     public SqlExpression FreeText { get; private set; }
 
-    public SqlExpression TopN { get; private set; }
+    public SqlExpression TopNByRank { get; private set; }
 
     internal override object Clone(SqlNodeCloneContext context)
     {
@@ -86,12 +86,12 @@ namespace Xtensive.Sql.Dml
     {
     }
 
-    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columnNames, ICollection<string> targetColumnNames, SqlExpression topN)
+    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columnNames, ICollection<string> targetColumnNames, SqlExpression topNByRank)
       : base(string.Empty)
     {
       TargetTable = SqlDml.TableRef(dataTable);
       FreeText = freeText;
-      TopN = topN;
+      TopNByRank = topNByRank;
       var targetColumns = new List<SqlTableColumn>();
       if (targetColumnNames.Count == 0)
         targetColumns.Add(Asterisk);
