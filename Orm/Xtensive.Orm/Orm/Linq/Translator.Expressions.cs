@@ -464,7 +464,6 @@ namespace Xtensive.Orm.Linq
       var entityExpression = EntityExpression.Create(type, 0, !fullFeatured);
       var rankColumnAlias = context.GetNextColumnAlias();
       var dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, rankColumnAlias, fullFeatured);
-      var rankColumnIndex = dataSource.Header.Columns[rankColumnAlias].Index;
 
       if (expressions.Count > 1) {
         var topNParameter = context.ParameterExtractor.ExtractParameter<int>(expressions[1]).CachingCompile();
@@ -475,6 +474,7 @@ namespace Xtensive.Orm.Linq
           itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
         }
         else {
+          var rankColumnIndex = dataSource.Header.Columns[rankColumnAlias].Index;
           var sortProvider = new SortProvider(dataSource, new DirectionCollection<int> {new KeyValuePair<int, Direction>(rankColumnIndex, Direction.Negative)});
           var takeProvider = new TakeProvider(sortProvider, () => topNParameter.Invoke());
           rankExpression = ColumnExpression.Create(typeof (double), dataSource.Header.Columns.Count - 1);
