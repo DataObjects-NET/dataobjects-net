@@ -426,18 +426,14 @@ namespace Xtensive.Orm.Linq
 
     private Expression ConstructFreeTextQueryRoot(Type elementType, System.Collections.ObjectModel.ReadOnlyCollection<Expression> expressions)
     {
-      return ConstructFreeTextQueryRoot(elementType, expressions[0], expressions.Count() < 2 ? null : expressions[1]);
-    }
 
-    private Expression ConstructFreeTextQueryRoot(Type elementType, Expression searchCriteria, Expression topN)
-    {
       TypeInfo type;
       if (!context.Model.Types.TryGetValue(elementType, out type))
         throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
       var fullTextIndex = type.FullTextIndex;
       if (fullTextIndex==null)
         throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHaveFullTextIndex, elementType.FullName));
-
+      var searchCriteria = expressions[0];
       if (QueryCachingScope.Current!=null
         && searchCriteria.NodeType==ExpressionType.Constant
           && searchCriteria.Type==typeof (string))
@@ -452,7 +448,6 @@ namespace Xtensive.Orm.Linq
           compiledParameter = ((Expression<Func<string>>) searchCriteria).CachingCompile();
         else {
           var replacer = QueryCachingScope.Current.QueryParameterReplacer;
-          var queryParameter = QueryCachingScope.Current.QueryParameter;
           var newSearchCriteria = replacer.Replace(searchCriteria);
           compiledParameter = ((Expression<Func<string>>) newSearchCriteria).CachingCompile();
         }
@@ -462,20 +457,36 @@ namespace Xtensive.Orm.Linq
         compiledParameter = parameter.CachingCompile();
       }
 
+      ColumnExpression rankExpression;
+      FullTextExpression freeTextExpression;
+      ItemProjectorExpression itemProjector;
       var fullFeatured = context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedFullText);
       var entityExpression = EntityExpression.Create(type, 0, !fullFeatured);
+      var rankColumnAlias = context.GetNextColumnAlias();
+      var dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, rankColumnAlias, fullFeatured);
+      var rankColumnIndex = dataSource.Header.Columns[rankColumnAlias].Index;
 
-      FreeTextProvider dataSource;
-      if (topN==null)
-        dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(), fullFeatured);
-      else {
-        var topNParameter = context.ParameterExtractor.ExtractParameter<int>(topN).CachingCompile();
-        dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(), topNParameter, fullFeatured);
+      if (expressions.Count > 1) {
+        var topNParameter = context.ParameterExtractor.ExtractParameter<int>(expressions[1]).CachingCompile();
+        if (context.ProviderInfo.Supports(ProviderFeatures.SingleKeyRankTableFullText)) {
+          dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, rankColumnAlias, topNParameter, fullFeatured);
+          rankExpression = ColumnExpression.Create(typeof (double), dataSource.Header.Columns.Count - 1);
+          freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
+          itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
+        }
+        else {
+          var sortProvider = new SortProvider(dataSource, new DirectionCollection<int> {new KeyValuePair<int, Direction>(rankColumnIndex, Direction.Negative)});
+          var takeProvider = new TakeProvider(sortProvider, () => topNParameter.Invoke());
+          rankExpression = ColumnExpression.Create(typeof (double), dataSource.Header.Columns.Count - 1);
+          freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
+          itemProjector = new ItemProjectorExpression(freeTextExpression, takeProvider, context);
+        }
       }
-
-      var rankExpression = ColumnExpression.Create(typeof (double), dataSource.Header.Columns.Count - 1);
-      var freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
-      var itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
+      else {
+        rankExpression = ColumnExpression.Create(typeof(double), dataSource.Header.Columns.Count - 1);
+        freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
+        itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
+      }
       return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
     }
 
