@@ -42,10 +42,9 @@ namespace Xtensive.Orm.Providers.SqlServer
         bindings = new[] { criteriaBinding, topNBinding };
       }
       var fromTableRef = SqlDml.QueryRef(fromTable);
-      SqlSelect select = SqlDml.Select();
+      SqlSelect select = SqlDml.Select(fromTableRef);
       select.Columns.Add(fromTableRef.Columns[0]);
       select.Columns.Add(SqlDml.Cast(fromTableRef.Columns[1], SqlType.Double), "RANK");
-      select.From = fromTableRef;
 
       return CreateProvider(select, bindings, provider);
     }
