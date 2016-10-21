@@ -348,6 +348,19 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public void TopNByRankJoinProductsWithRanks2Test()
+    {
+      var result = Session.Query.FreeText<Category>(() => "Dessert candy and coffee", 2)
+        .OrderBy(c => c.Rank)
+        .Select(x => x.Entity);
+      var list = result.ToList();
+      Assert.AreEqual(2, list.Count);
+      foreach (var product in result){
+        Assert.IsNotNull(product);
+      }
+    }
+
+    [Test]
     public void OrderByTest()
     {
       var result = from ft in Session.Query.FreeText<Product>(() => "lager")
@@ -356,6 +369,15 @@ namespace Xtensive.Orm.Tests.Linq
                    select new {Product = ft.Entity, ft.Entity.Category};
       var list = result.ToList();
       Assert.AreEqual(2, list.Count);
+    }
+
+    [Test]
+    public void TopNByRankOrderByTest()
+    {
+      var keywords = "Dessert candy and coffee";
+      var topnByrank = Session.Query.FreeText<Category>(keywords, 10).OrderBy(el => el.Rank).ToList();
+      var generalFreeText = Session.Query.FreeText<Category>(keywords, 10).OrderBy(el => el.Rank).ToList();
+      Assert.IsTrue(topnByrank.Select(el => el.Entity.CategoryName).SequenceEqual(generalFreeText.Select(el => el.Entity.CategoryName)));
     }
 
     private IEnumerable<FullTextMatch<Category>> TakeMatchesIncorrect(string searchCriteria)
