@@ -90,12 +90,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
       context.Output.AppendText(")");
 
       context.Output.AppendText(string.Format(" AS {0}", queryName));
-      context.Output.AppendText(string.Format(" FROM {0}) AS {1} WHERE {2} @@ {3}", tableName, alias, vectorName, queryName));
-      if (node.TopN!=null) {
-        context.Output.AppendText(string.Format("ORDER BY {0} DESC LIMIT", node.Columns[node.Columns.Count - 1].Name));
-        node.TopN.AcceptVisitor(this);
-      }
-      context.Output.AppendText(")");
+      context.Output.AppendText(string.Format(" FROM {0}) AS {1} WHERE {2} @@ {3})", tableName, alias, vectorName, queryName));
     }
 
     // Constructors
