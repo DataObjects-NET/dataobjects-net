@@ -489,7 +489,7 @@
     </Compile>
     <Compile Include="Upgrade\HugeModelUpgrade\DatabasePerNodeTest.cs" />
     <Compile Include="Upgrade\HugeModelUpgrade\SchemaPerNodeTest.cs" />
-    <Compile Include="Upgrade\HugeModelUpgrade\TwoDatabasesPerNode.cs" />
+    <Compile Include="Upgrade\HugeModelUpgrade\TwoDatabasesPerNodeTest.cs" />
     <Compile Include="Upgrade\HugeModelUpgrade\Models\TwoPartsModel.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

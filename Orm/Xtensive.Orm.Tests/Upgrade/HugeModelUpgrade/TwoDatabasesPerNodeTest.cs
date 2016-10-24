@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
 {
   [TestFixture]
   [Explicit]
-  public class TwoDatabasesPerNode
+  public class TwoDatabasesPerNodeTest
   {
     [Test]
     [Explicit]
