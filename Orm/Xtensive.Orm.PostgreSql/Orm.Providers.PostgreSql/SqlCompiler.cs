@@ -35,6 +35,10 @@ namespace Xtensive.Orm.Providers.PostgreSql
         select.Columns.Add(fromTableRef.Columns[column.Name] ?? column);
       select.Columns.Add(SqlDml.Cast(fromTableRef.Columns[rankColumnName], SqlType.Double), rankColumnName);
       select.From = fromTableRef;
+      if (provider.TopN!=null) {
+        select.Limit = provider.TopN.Invoke();
+        select.OrderBy.Add(select.Columns[rankColumnName], false);  
+      }
       return CreateProvider(select, binding, provider);
     }
 

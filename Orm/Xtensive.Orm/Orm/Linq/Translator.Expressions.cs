@@ -467,20 +467,10 @@ namespace Xtensive.Orm.Linq
 
       if (expressions.Count > 1) {
         var topNParameter = context.ParameterExtractor.ExtractParameter<int>(expressions[1]).CachingCompile();
-        if (context.ProviderInfo.Supports(ProviderFeatures.SingleKeyRankTableFullText)) {
-          dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, rankColumnAlias, topNParameter, fullFeatured);
-          rankExpression = ColumnExpression.Create(typeof (double), dataSource.Header.Columns.Count - 1);
-          freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
-          itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
-        }
-        else {
-          var rankColumnIndex = dataSource.Header.Columns[rankColumnAlias].Index;
-          var sortProvider = new SortProvider(dataSource, new DirectionCollection<int> {new KeyValuePair<int, Direction>(rankColumnIndex, Direction.Negative)});
-          var takeProvider = new TakeProvider(sortProvider, () => topNParameter.Invoke());
-          rankExpression = ColumnExpression.Create(typeof (double), dataSource.Header.Columns.Count - 1);
-          freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
-          itemProjector = new ItemProjectorExpression(freeTextExpression, takeProvider, context);
-        }
+        dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, rankColumnAlias, topNParameter, fullFeatured);
+        rankExpression = ColumnExpression.Create(typeof (double), dataSource.Header.Columns.Count - 1);
+        freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
+        itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
       }
       else {
         rankExpression = ColumnExpression.Create(typeof(double), dataSource.Header.Columns.Count - 1);
