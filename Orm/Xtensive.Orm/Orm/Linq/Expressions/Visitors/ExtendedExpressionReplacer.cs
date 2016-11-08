@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return expression;
     }
 
-    protected override Expression VisitFreeTextExpression(FullTextExpression expression)
+    protected override Expression VisitFullTextExpression(FullTextExpression expression)
     {
       var rankExpression = (ColumnExpression) Visit(expression.RankExpression);
       var entityExpression = (EntityExpression) Visit(expression.EntityExpression);

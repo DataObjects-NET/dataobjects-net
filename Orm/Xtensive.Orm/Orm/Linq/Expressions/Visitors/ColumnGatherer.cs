@@ -228,7 +228,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         columns.AddRange(expressionColumns.Select(i=>new Pair<int, Expression>(i, parameterizedExpression)));
     }
 
-    protected override Expression VisitFreeTextExpression(FullTextExpression expression)
+    protected override Expression VisitFullTextExpression(FullTextExpression expression)
     {
       VisitEntityExpression(expression.EntityExpression);
       VisitColumnExpression(expression.RankExpression);
