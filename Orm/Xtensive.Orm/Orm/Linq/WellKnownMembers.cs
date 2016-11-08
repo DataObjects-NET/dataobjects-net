@@ -36,16 +36,15 @@ namespace Xtensive.Orm.Linq
       {
 #pragma warning disable 612,618
         All = typeof(Orm.Query).GetMethod("All", ArrayUtils<Type>.EmptyArray);
-        FreeTextString = typeof (Orm.Query).GetMethods().Where(m => m.Name=="FreeText")
-          .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof (string));
-        FreeTextStringTopNByRank = typeof (Orm.Query).GetMethods()
-          .Where(m => m.Name=="FreeText")
-          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof (string) && ft.GetParameterTypes()[1]==typeof(int));
-        FreeTextExpression = typeof (Orm.Query).GetMethods().Where(m => m.Name=="FreeText")
-          .Single(ft =>ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof (Expression<Func<string>>));
-        FreeTextExpressionTopNByRank = typeof (Orm.Query).GetMethods()
-          .Where(m => m.Name=="FreeText")
-          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof (Expression<Func<string>>) && ft.GetParameterTypes()[1]==typeof (int));
+        var freetextMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name=="FreeText").ToArray();
+        FreeTextString = freetextMethods
+          .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(string));
+        FreeTextStringTopNByRank = freetextMethods
+          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(string) && ft.GetParameterTypes()[1]==typeof(int));
+        FreeTextExpression = freetextMethods
+          .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>));
+        FreeTextExpressionTopNByRank = freetextMethods
+          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1]==typeof(int));
         var singleMethods = typeof (Orm.Query).GetMethods().Where(m => m.Name=="Single" && m.IsGenericMethod);
         SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (Orm.Key));
         SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (object[]));
@@ -73,17 +72,14 @@ namespace Xtensive.Orm.Linq
       {
 #pragma warning disable 612,618
         All = typeof(Orm.QueryEndpoint).GetMethod("All", ArrayUtils<Type>.EmptyArray);
-        FreeTextString = typeof(Orm.QueryEndpoint).GetMethods()
-          .Where(m => m.Name=="FreeText")
+        var freetextMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name=="FreeText").ToArray();
+        FreeTextString = freetextMethods
           .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(string));
-        FreeTextStringTopNByRank = typeof(Orm.QueryEndpoint).GetMethods()
-          .Where(m => m.Name=="FreeText")
+        FreeTextStringTopNByRank = freetextMethods
           .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(string) && ft.GetParameterTypes()[1]==typeof(int));
-        FreeTextExpression = typeof(Orm.QueryEndpoint).GetMethods()
-          .Where(m => m.Name=="FreeText")
+        FreeTextExpression = freetextMethods
           .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>));
-        FreeTextExpressionTopNByRank = typeof(Orm.QueryEndpoint).GetMethods()
-          .Where(m => m.Name=="FreeText")
+        FreeTextExpressionTopNByRank = freetextMethods
           .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1]==typeof(int));
         var singleMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name=="Single" && m.IsGenericMethod);
         SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(Orm.Key));
