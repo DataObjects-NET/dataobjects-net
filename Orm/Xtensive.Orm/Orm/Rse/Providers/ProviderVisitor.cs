@@ -108,6 +108,9 @@ namespace Xtensive.Orm.Rse.Providers
         case ProviderType.FreeText:
           result = VisitFreeText((FreeTextProvider) cp);
           break;
+        case ProviderType.ContainsTable:
+          result = VisitContainsTable((ContainsTableProvider) cp);
+          break;
         case ProviderType.Void:
           throw new NotSupportedException(Strings.ExProcessingOfVoidProviderIsNotSupported);
         default:
