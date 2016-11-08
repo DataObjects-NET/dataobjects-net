@@ -21,6 +21,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Rse.Providers.Compilable;
 using Xtensive.Reflection;
 using FieldInfo = System.Reflection.FieldInfo;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -415,7 +416,60 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    private Expression ConstructFreeTextQueryRoot(Type elementType, Expression searchCriteria)
+      private Expression ConstructFreeTextQueryRoot(Type elementType, Expression searchCriteria)
+      {
+
+          TypeInfo type;
+          if (!context.Model.Types.TryGetValue(elementType, out type))
+              throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
+          var fullTextIndex = type.FullTextIndex;
+          if (fullTextIndex == null)
+              throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHaveFullTextIndex,
+                  elementType.FullName));
+
+          if (QueryCachingScope.Current != null
+              && searchCriteria.NodeType == ExpressionType.Constant
+              && searchCriteria.Type == typeof (string))
+              throw new InvalidOperationException(String.Format(Strings.ExFreeTextNotSupportedInCompiledQueries,
+                  ((ConstantExpression) searchCriteria).Value));
+
+
+          // Prepare parameter
+
+          Func<string> compiledParameter;
+          if (searchCriteria.NodeType == ExpressionType.Quote)
+              searchCriteria = searchCriteria.StripQuotes();
+          if (searchCriteria.Type == typeof (Func<string>))
+          {
+              if (QueryCachingScope.Current == null)
+                  compiledParameter = ((Expression<Func<string>>) searchCriteria).CachingCompile();
+              else
+              {
+                  var replacer = QueryCachingScope.Current.QueryParameterReplacer;
+                  var queryParameter = QueryCachingScope.Current.QueryParameter;
+                  var newSearchCriteria = replacer.Replace(searchCriteria);
+                  compiledParameter = ((Expression<Func<string>>) newSearchCriteria).CachingCompile();
+              }
+          }
+          else
+          {
+              Expression<Func<string>> parameter = context.ParameterExtractor.ExtractParameter<string>(searchCriteria);
+              compiledParameter = parameter.CachingCompile();
+          }
+
+          var fullFeatured = context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedFullText);
+          var entityExpression = EntityExpression.Create(type, 0, !fullFeatured);
+          var dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(),
+              fullFeatured);
+
+          var rankExpression = ColumnExpression.Create(typeof (double), dataSource.Header.Columns.Count - 1);
+          var freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
+          var itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
+          return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector,
+              new Dictionary<Parameter<Tuple>, Tuple>());
+      }
+
+    private Expression ConstructContainsTableQueryRoot(Type elementType, Expression searchCriteria, Expression targetColumnNames)
     {
       TypeInfo type;
       if (!context.Model.Types.TryGetValue(elementType, out type))
@@ -431,7 +485,6 @@ namespace Xtensive.Orm.Linq
 
 
       // Prepare parameter
-
       Func<string> compiledParameter;
       if (searchCriteria.NodeType==ExpressionType.Quote)
         searchCriteria = searchCriteria.StripQuotes();
@@ -449,10 +502,25 @@ namespace Xtensive.Orm.Linq
         Expression<Func<string>> parameter = context.ParameterExtractor.ExtractParameter<string>(searchCriteria);
         compiledParameter = parameter.CachingCompile();
       }
+        Func<IList<string>> targetColumnParameter;
+      if (targetColumnNames.Type==typeof (Func<IList<string>>)) {
+        if (QueryCachingScope.Current==null)
+          targetColumnParameter = ((Expression<Func<IList<string>>>) targetColumnNames).CachingCompile();
+        else {
+          var replacer = QueryCachingScope.Current.QueryParameterReplacer;
+          var newTargetColumns = replacer.Replace(searchCriteria);
+          targetColumnParameter = ((Expression<Func<IList<string>>>) newTargetColumns).CachingCompile();
+        }
+      }
+      else {
+        Expression<Func<IList<string>>> parameter = context.ParameterExtractor.ExtractParameter<IList<string>>(targetColumnNames);
+        targetColumnParameter = parameter.CachingCompile();
+      }     
+
 
       var fullFeatured = context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedFullText);
       var entityExpression = EntityExpression.Create(type, 0, !fullFeatured);
-      var dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(), fullFeatured);
+      var dataSource = new ContainsTableProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(), fullFeatured, targetColumnParameter);
       var rankExpression = ColumnExpression.Create(typeof (double), dataSource.Header.Columns.Count - 1);
       var freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       var itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
