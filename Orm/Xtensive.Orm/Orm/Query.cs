@@ -69,7 +69,8 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Performs full-text query for the text specified in free text form and limits the result by highest ranked number of elements.
+    /// Performs full-text query for the text specified in free text form.
+    /// Limits the result by top number of elements, sorted by rank in descending order.
     /// </summary>
     /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
     /// <param name="searchCriteria">The search criteria in free text form.</param>
@@ -97,7 +98,8 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Performs full-text query for the text specified in free text form
+    /// Performs full-text query for the text specified in free text form.
+    /// Limits the result by top number of elements, sorted by rank in descending order.
     /// </summary>
     /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
     /// <param name="searchCriteria">The search criteria in free text form.</param>
