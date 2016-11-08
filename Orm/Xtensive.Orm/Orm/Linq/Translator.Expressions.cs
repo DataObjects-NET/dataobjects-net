@@ -341,6 +341,8 @@ namespace Xtensive.Orm.Linq
           // Query.FreeText<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.Query.FreeTextString, WellKnownMembers.Query.FreeTextExpression))
             return ConstructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
+          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.Query.ContainsTableString, WellKnownMembers.Query.ContainsTableExpression))
+            return ConstructContainsTableQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0], mc.Arguments[1]);
           // Query.Single<T> & Query.SingleOrDefault<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(
             WellKnownMembers.Query.SingleKey,
@@ -356,6 +358,8 @@ namespace Xtensive.Orm.Linq
           // Query.FreeText<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.QueryEndpoint.FreeTextString, WellKnownMembers.QueryEndpoint.FreeTextExpression))
             return ConstructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
+          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.QueryEndpoint.ContainsTableString, WellKnownMembers.QueryEndpoint.ContainsTableExpression))
+            return ConstructContainsTableQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0], mc.Arguments[1]);
           // Query.Single<T> & Query.SingleOrDefault<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(
             WellKnownMembers.QueryEndpoint.SingleKey,
