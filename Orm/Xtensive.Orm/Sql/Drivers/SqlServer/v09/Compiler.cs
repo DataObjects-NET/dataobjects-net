@@ -308,6 +308,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       context.Output.AppendText(string.Format(
         "FREETEXTTABLE({0}, {1}, ", translator.Translate(context, node.TargetTable.DataTable), columns));
       node.FreeText.AcceptVisitor(this);
+      if (node.TopNByRank!=null) {
+        context.Output.AppendText(", ");
+        node.TopNByRank.AcceptVisitor(this);
+      }
       context.Output.AppendText(") ");
     }
 

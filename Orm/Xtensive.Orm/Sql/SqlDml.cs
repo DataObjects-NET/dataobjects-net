@@ -1841,6 +1841,23 @@ namespace Xtensive.Sql
       return new SqlFreeTextTable(dataTable, freeText, columnNames, targetColumnNames);
     }
 
+    public static SqlFreeTextTable FreeTextTable(DataTable dataTable, SqlExpression freeText, IList<string> columnNames, SqlExpression topN)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
+      ArgumentValidator.EnsureArgumentNotNull(freeText, "freeText");
+      ArgumentValidator.EnsureArgumentNotNull(topN, "topN");
+      return new SqlFreeTextTable(dataTable, freeText, columnNames, topN);
+    }
+
+    public static SqlFreeTextTable FreeTextTable(DataTable dataTable, SqlExpression freeText, IList<string> columnNames, IList<string> targetColumNames, SqlLiteral topN)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
+      ArgumentValidator.EnsureArgumentNotNull(freeText, "freeText");
+      ArgumentValidator.EnsureArgumentNotNull(targetColumNames, "targetColumNames");
+      ArgumentValidator.EnsureArgumentNotNull(topN, "topN");
+      return new SqlFreeTextTable(dataTable, freeText, columnNames, targetColumNames, topN);
+    }
+
     public static SqlTableRef TableRef(DataTable dataTable)
     {
       ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
