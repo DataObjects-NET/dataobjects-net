@@ -25,6 +25,8 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo All;
       public static readonly MethodInfo FreeTextString;
       public static readonly MethodInfo FreeTextExpression;
+      public static readonly MethodInfo ContainsTableString;
+      public static readonly MethodInfo ContainsTableExpression;
       public static readonly MethodInfo SingleKey;
       public static readonly MethodInfo SingleArray;
       public static readonly MethodInfo SingleOrDefaultKey;
@@ -36,12 +38,15 @@ namespace Xtensive.Orm.Linq
         All = typeof(Orm.Query).GetMethod("All", ArrayUtils<Type>.EmptyArray);
         FreeTextString = typeof (Orm.Query).GetMethods().Where(m => m.Name=="FreeText").Single(ft => ft.GetParameterTypes()[0]==typeof (string));
         FreeTextExpression = typeof (Orm.Query).GetMethods().Where(m => m.Name=="FreeText").Single(ft => ft.GetParameterTypes()[0]==typeof (Expression<Func<string>>));
+        ContainsTableString = typeof (Orm.Query).GetMethods().Where(m => m.Name=="ContainsTable").Single(ft => ft.GetParameterTypes()[0]==typeof (string)); 
+        ContainsTableExpression = typeof (Orm.Query).GetMethods().Where(m => m.Name=="ContainsTable").Single(ft => ft.GetParameterTypes()[0]==typeof (Expression<Func<string>>)); 
         var singleMethods = typeof (Orm.Query).GetMethods().Where(m => m.Name=="Single" && m.IsGenericMethod);
         SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (Orm.Key));
         SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (object[]));
         var singleOrDefaultMethods = typeof (Orm.Query).GetMethods().Where(m => m.Name=="SingleOrDefault" && m.IsGenericMethod);
         SingleOrDefaultKey = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (Orm.Key));
         SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (object[]));
+
 #pragma warning restore 612,618
       }
     }
@@ -51,6 +56,8 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo All;
       public static readonly MethodInfo FreeTextString;
       public static readonly MethodInfo FreeTextExpression;
+      public static readonly MethodInfo ContainsTableString;
+      public static readonly MethodInfo ContainsTableExpression;
       public static readonly MethodInfo SingleKey;
       public static readonly MethodInfo SingleArray;
       public static readonly MethodInfo SingleOrDefaultKey;
@@ -61,8 +68,10 @@ namespace Xtensive.Orm.Linq
       {
 #pragma warning disable 612,618
         All = typeof(Orm.QueryEndpoint).GetMethod("All", ArrayUtils<Type>.EmptyArray);
-        FreeTextString = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == "FreeText").Single(ft => ft.GetParameterTypes()[0] == typeof(string));
-        FreeTextExpression = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == "FreeText").Single(ft => ft.GetParameterTypes()[0] == typeof(Expression<Func<string>>));
+        FreeTextString = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name=="FreeText").Single(ft => ft.GetParameterTypes()[0] == typeof(string));
+        FreeTextExpression = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name=="FreeText").Single(ft => ft.GetParameterTypes()[0] == typeof(Expression<Func<string>>));
+        ContainsTableString = typeof (Orm.Query).GetMethods().Where(m => m.Name=="SearchCondition").Single(ft => ft.GetParameterTypes()[0]==typeof (string)); //???
+        ContainsTableExpression = typeof (Orm.Query).GetMethods().Where(m => m.Name=="SearchCondition").Single(ft => ft.GetParameterTypes()[0]==typeof (Expression<Func<string>>)); //???
         var singleMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == "Single" && m.IsGenericMethod);
         SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
         SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(object[]));
