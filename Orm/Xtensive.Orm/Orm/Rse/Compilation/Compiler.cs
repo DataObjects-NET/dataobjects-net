@@ -5,6 +5,7 @@ using Xtensive.Core;
 using Xtensive.Collections;
 
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Rse.Compilation
 {
@@ -304,6 +305,12 @@ namespace Xtensive.Orm.Rse.Compilation
     /// </summary>
     /// <param name="provider">FreeText provider.</param>
     protected abstract TResult VisitFreeText(FreeTextProvider provider);
+
+    /// <summary>
+    /// Compiles <see cref="FreeTextProvider"/>.
+    /// </summary>
+    /// <param name="provider">Full text searchCondition provider.</param>
+    protected abstract TResult VisitContainsTable(ContainsTableProvider provider);
 
     /// <summary>
     /// Initializes this instance just before first VisitXxx() is called.

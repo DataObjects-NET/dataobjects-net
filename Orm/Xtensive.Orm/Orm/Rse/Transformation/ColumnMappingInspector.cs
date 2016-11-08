@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Rse.Providers.Compilable;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse.Transformation
@@ -62,6 +63,12 @@ namespace Xtensive.Orm.Rse.Transformation
 
     /// <inheritdoc/>
     protected override Provider VisitFreeText(FreeTextProvider provider)
+    {
+      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
+      return provider;
+    }
+
+    protected override Provider VisitContainsTable(ContainsTableProvider provider)
     {
       mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
       return provider;

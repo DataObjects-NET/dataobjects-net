@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Rse.Providers.Compilable;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -224,6 +225,14 @@ namespace Xtensive.Orm.Rse.Providers
 
     /// <inheritdoc/>
     protected override Provider VisitFreeText(FreeTextProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      OnRecursionExit(provider);
+      return provider;
+    }
+
+    /// <inheritdoc/>
+    protected override Provider VisitContainsTable(ContainsTableProvider provider)
     {
       OnRecursionEntrance(provider);
       OnRecursionExit(provider);

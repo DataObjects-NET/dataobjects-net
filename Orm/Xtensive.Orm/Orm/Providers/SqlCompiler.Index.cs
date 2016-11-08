@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Rse.Providers.Compilable;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
@@ -18,6 +19,11 @@ namespace Xtensive.Orm.Providers
   partial class SqlCompiler 
   {
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
+    {
+      throw new NotSupportedException();
+    }
+
+    protected override SqlProvider VisitContainsTable(ContainsTableProvider provider)
     {
       throw new NotSupportedException();
     }

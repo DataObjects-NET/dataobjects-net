@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Rse.Compilation;
+using Xtensive.Orm.Rse.Providers.Compilable;
 
 
 namespace Xtensive.Orm.Rse.Providers
@@ -278,5 +279,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="provider">FreeText provider.</param>
     /// <returns></returns>
     protected abstract Provider VisitFreeText(FreeTextProvider provider);
+
+    /// <summary>
+    /// Visits the <see cref="FreeTextProvider"/>.
+    /// </summary>
+    /// <param name="provider">SearchCondition provider.</param>
+    /// <returns></returns>
+    protected abstract Provider VisitContainsTable(ContainsTableProvider provider);
   }
 }

@@ -13,6 +13,7 @@ using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 
 using System.Linq;
+using Xtensive.Orm.Rse.Providers.Compilable;
 
 namespace Xtensive.Orm.Rse.Transformation
 {
@@ -128,6 +129,12 @@ namespace Xtensive.Orm.Rse.Transformation
     }
 
     protected override Provider VisitFreeText(FreeTextProvider provider)
+    {
+      sortOrder = new DirectionCollection<int>();
+      return provider;
+    }
+
+    protected override Provider VisitContainsTable(ContainsTableProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
