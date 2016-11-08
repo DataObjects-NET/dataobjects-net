@@ -1365,6 +1365,7 @@
     <Compile Include="Sql\Dml\Collections\SqlColumnCollection.cs" />
     <Compile Include="Sql\Dml\Collections\SqlOrderCollection.cs" />
     <Compile Include="Sql\Dml\Collections\SqlTableColumnCollection.cs" />
+    <Compile Include="Sql\Dml\SqlContainsTable.cs" />
     <Compile Include="Sql\Dml\SqlCustomFunctionType.cs" />
     <Compile Include="Sql\Dml\Expressions\SqlCustomFunctionCall.cs" />
     <Compile Include="Sql\Dml\Expressions\SqlAggregate.cs" />

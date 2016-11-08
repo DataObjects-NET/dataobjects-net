@@ -298,6 +298,19 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return result;
     }
 
+    public override void Visit(SqlContainsTable node)
+    {
+      string columns;
+      if (node.TargetColumns.Count == 1)
+        columns = node.TargetColumns[0].Name;
+      else
+        columns = "(" + string.Join(", ", node.TargetColumns.Select(c => c.Name).ToArray()) + ")";
+      context.Output.AppendText(string.Format(
+        "CONTAINSTABLE({0}, {1}, ", translator.Translate(context, node.TargetTable.DataTable), columns));
+      node.SearchCondition.AcceptVisitor(this);
+      context.Output.AppendText(") ");
+    }
+
     public override void Visit(SqlFreeTextTable node)
     {
       string columns;
