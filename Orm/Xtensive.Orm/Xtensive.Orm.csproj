@@ -361,6 +361,7 @@
     <Compile Include="Orm\Logging\Internals\NullLog.cs" />
     <Compile Include="Orm\Model\Stored\Internals\TypeMappingUpdater.cs" />
     <Compile Include="Orm\Model\TypeIdRegistry.cs" />
+    <Compile Include="Orm\Rse\Providers\Compilable\ContainsTableProvider.cs" />
     <Compile Include="Orm\StorageNodeManager.cs" />
     <Compile Include="Orm\Providers\CompilationService.cs" />
     <Compile Include="Orm\Providers\CompilerConfiguration.cs" />
