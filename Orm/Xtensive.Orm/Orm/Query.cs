@@ -84,6 +84,36 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
+    /// Performs full-text query for the text specified in contains table form.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">The search criteria in contains table form.</param>
+    /// <returns>
+    /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.
+    /// </returns>
+    public static IQueryable<FullTextMatch<T>> ContainsTable<T>(string searchCriteria, IList<string> targetColumnNames = null)
+      where T: Entity
+    {
+      return Session.Demand().Query.ContainsTable<T>(searchCriteria, targetColumnNames);
+    }
+
+    /// <summary>
+    /// Performs full-text query for the text specified in contains table form.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">The search criteria in contains table form.</param>
+    /// <returns>
+    /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.
+    /// </returns>
+    public static IQueryable<FullTextMatch<T>> ContainsTable<T>(Expression<Func<string>> searchCriteria, IList<string> targetColumnNames = null)
+      where T: Entity
+    {
+      return Session.Demand().Query.ContainsTable<T>(searchCriteria, targetColumnNames);
+    }
+
+    /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
     /// in the current <see cref="Session"/>.
     /// </summary>
