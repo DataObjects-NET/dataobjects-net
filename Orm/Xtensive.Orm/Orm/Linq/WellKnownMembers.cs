@@ -60,7 +60,9 @@ namespace Xtensive.Orm.Linq
     {
       public static readonly MethodInfo All;
       public static readonly MethodInfo FreeTextString;
+      public static readonly MethodInfo FreeTextStringTopNByRank;
       public static readonly MethodInfo FreeTextExpression;
+      public static readonly MethodInfo FreeTextExpressionTopNByRank;
       public static readonly MethodInfo SingleKey;
       public static readonly MethodInfo SingleArray;
       public static readonly MethodInfo SingleOrDefaultKey;
@@ -71,8 +73,18 @@ namespace Xtensive.Orm.Linq
       {
 #pragma warning disable 612,618
         All = typeof(Orm.QueryEndpoint).GetMethod("All", ArrayUtils<Type>.EmptyArray);
-        FreeTextString = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == "FreeText").Single(ft => ft.GetParameterTypes()[0] == typeof(string));
-        FreeTextExpression = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == "FreeText").Single(ft => ft.GetParameterTypes()[0] == typeof(Expression<Func<string>>));
+        FreeTextString = typeof(Orm.QueryEndpoint).GetMethods()
+          .Where(m => m.Name=="FreeText")
+          .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(string));
+        FreeTextStringTopNByRank = typeof(Orm.QueryEndpoint).GetMethods()
+          .Where(m => m.Name=="FreeText")
+          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(string) && ft.GetParameterTypes()[1]==typeof(int));
+        FreeTextExpression = typeof(Orm.QueryEndpoint).GetMethods()
+          .Where(m => m.Name=="FreeText")
+          .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>));
+        FreeTextExpressionTopNByRank = typeof(Orm.QueryEndpoint).GetMethods()
+          .Where(m => m.Name=="FreeText")
+          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1]==typeof(int));
         var singleMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == "Single" && m.IsGenericMethod);
         SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
         SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(object[]));
