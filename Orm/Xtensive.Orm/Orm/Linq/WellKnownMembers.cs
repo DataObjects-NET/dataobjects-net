@@ -85,12 +85,12 @@ namespace Xtensive.Orm.Linq
         FreeTextExpressionTopNByRank = typeof(Orm.QueryEndpoint).GetMethods()
           .Where(m => m.Name=="FreeText")
           .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1]==typeof(int));
-        var singleMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == "Single" && m.IsGenericMethod);
-        SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
-        SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(object[]));
-        var singleOrDefaultMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == "SingleOrDefault" && m.IsGenericMethod);
-        SingleOrDefaultKey = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(Orm.Key));
-        SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0] == typeof(object[]));
+        var singleMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name=="Single" && m.IsGenericMethod);
+        SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(Orm.Key));
+        SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(object[]));
+        var singleOrDefaultMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name=="SingleOrDefault" && m.IsGenericMethod);
+        SingleOrDefaultKey = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(Orm.Key));
+        SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(object[]));
         Items = typeof (Orm.QueryEndpoint).GetMethod("Items");
 #pragma warning restore 612,618
       }
