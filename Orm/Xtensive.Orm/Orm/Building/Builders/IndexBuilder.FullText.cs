@@ -22,6 +22,8 @@ namespace Xtensive.Orm.Building.Builders
       var model = context.Model;
       var indexLookup = modelDef.FullTextIndexes.ToLookup(fi => model.Types[fi.Type.UnderlyingType].Hierarchy);
       foreach (var hierarchyIndexes in indexLookup) {
+        if (hierarchyIndexes.Key==null)
+          continue;
         var root = hierarchyIndexes.Key.Root;
         switch(hierarchyIndexes.Key.InheritanceSchema) {
           case InheritanceSchema.ClassTable:
