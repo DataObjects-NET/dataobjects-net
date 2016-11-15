@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Configuration;
@@ -250,8 +251,37 @@ namespace Xtensive.Orm.Building.Builders
           type.Hierarchy.TypeDiscriminatorMap.Field = fieldInfo.Fields.First();
       }
 
-      if (fieldInfo.IsStructure)
+      if (fieldInfo.IsStructure) {
         BuildNestedFields(null, fieldInfo, context.Model.Types[fieldInfo.ValueType].Fields);
+
+        var structureFullTextIndex = context.ModelDef.FullTextIndexes.TryGetValue(fieldInfo.UnderlyingProperty.PropertyType);
+        if (structureFullTextIndex!=null) {
+          var hierarchyType = fieldInfo.DeclaringType.UnderlyingType;
+          var structureType = fieldInfo.UnderlyingProperty.PropertyType;
+          TypeInfo hierarchyTypeInfo;
+          TypeInfo structureTypeInfo;
+
+          if (!context.Model.Types.TryGetValue(hierarchyType, out hierarchyTypeInfo))
+            throw new Exception(string.Format(Strings.ExCouldNotFindTypeXInDomainModel, hierarchyType.Name));
+          if (!context.Model.Types.TryGetValue(structureType, out structureTypeInfo))
+            throw new Exception(string.Format(Strings.ExCouldNotFindTypeXInDomainModel, structureType.Name));
+
+          var currentIndex = context.ModelDef.FullTextIndexes.TryGetValue(hierarchyTypeInfo.UnderlyingType);
+          if (currentIndex==null) {
+            currentIndex = new FullTextIndexDef(context.ModelDef.Types.TryGetValue(type.UnderlyingType));
+            context.ModelDef.FullTextIndexes.Add(currentIndex);
+          }
+          foreach (var field in structureFullTextIndex.Fields) {
+            var realFieldInfo = structureTypeInfo.Fields[field.Name];
+            var realTypeField = fieldInfo.DeclaringType.StructureFieldMapping[new Pair<FieldInfo>(fieldInfo, realFieldInfo)];
+            currentIndex.Fields.Add(new FullTextFieldDef(realTypeField.Name, field.IsAnalyzed) {
+              Configuration = field.Configuration,
+              TypeFieldName = field.TypeFieldName
+            });
+          }
+        }
+      }
+        
 
       if (fieldInfo.IsPrimitive) {
         fieldInfo.DefaultValue = fieldDef.DefaultValue;
