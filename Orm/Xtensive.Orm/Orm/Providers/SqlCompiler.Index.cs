@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Rse.Providers.Compilable;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
