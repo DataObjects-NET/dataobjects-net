@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Building.Builders
       var fullTextIndexDef = new FullTextIndexDef(typeDef);
       var modelDef = context.ModelDef;
       var hierarchy = modelDef.FindHierarchy(typeDef);
-      if (hierarchy == null)
+      if (hierarchy==null && !typeDef.IsStructure)
         return;
 
       foreach (var fieldDef in typeDef.Fields.Where(f => f.UnderlyingProperty != null)) {
