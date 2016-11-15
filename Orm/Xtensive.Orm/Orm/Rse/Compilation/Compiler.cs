@@ -308,7 +308,7 @@ namespace Xtensive.Orm.Rse.Compilation
     /// <summary>
     /// Compiles <see cref="FreeTextProvider"/>.
     /// </summary>
-    /// <param name="provider">Full text searchCondition provider.</param>
+    /// <param name="provider">ContainsTable provider.</param>
     protected abstract TResult VisitContainsTable(ContainsTableProvider provider);
 
     /// <summary>

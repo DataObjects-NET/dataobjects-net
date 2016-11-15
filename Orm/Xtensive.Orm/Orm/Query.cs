@@ -88,6 +88,7 @@ namespace Xtensive.Orm
     /// </summary>
     /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
     /// <param name="searchCriteria">The search criteria in contains table form.</param>
+    /// <param name="targetColumnNames">The columns of full-text index the query should search over.</param>
     /// <returns>
     /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
     /// allowing to continue building the query.
@@ -103,6 +104,7 @@ namespace Xtensive.Orm
     /// </summary>
     /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
     /// <param name="searchCriteria">The search criteria in contains table form.</param>
+    /// <param name="targetColumnNames">The columns of full-text index the query should search over.</param>
     /// <returns>
     /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
     /// allowing to continue building the query.
