@@ -17,6 +17,24 @@ namespace Xtensive.Orm.Tests.Model
 {
   namespace FullTextIndexOnStructureFieldNamingTestModel
   {
+    [HierarchyRoot]
+    public class HierarchyWithFullTextIndex : BaseEntity
+    {
+      [Field]
+      [FieldMapping("structureFieldMapping")]
+      public StructureWithIndexedField StructureWithIndexedField1 { get; set; }
+
+      [Field]
+      public StructureWithIndexedField StructureWithIndexedField2 { get; set; }
+
+      [Field]
+      public AnotherStructure StructureWithAnotherIndexedField { get; set; }
+
+      [Field, FullText("English")]
+      public string IndexedStringField { get; set; }
+
+    }
+
     [HierarchyRoot(InheritanceSchema.ClassTable)]
     public class ClassTableHierarchy : BaseEntity
     {
@@ -102,7 +120,17 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void FullTextIndexPresenceTest()
     {
-      Assert.That(Domain.Model.FullTextIndexes.Count(), Is.EqualTo(3));
+      Assert.That(Domain.Model.FullTextIndexes.Count(), Is.EqualTo(4));
+    }
+
+    [Test]
+    public void HierarchyWithFullTextIndexTest()
+    {
+      var hierarchy = Domain.Model.Types[typeof(HierarchyWithFullTextIndex)];
+      var hierarchyTableColumnNames = hierarchy.Columns.Select(c => c.Name).ToList();
+      var hierarchyIndexColumnNames = hierarchy.FullTextIndex.Columns.Select(c => c.Name).ToList();
+      Assert.IsTrue(hierarchy.FullTextIndex.Columns.Count==10);
+      Assert.IsTrue(hierarchyTableColumnNames.ContainsAll(hierarchyIndexColumnNames));
     }
 
     [Test]
