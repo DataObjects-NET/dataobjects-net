@@ -3364,7 +3364,4 @@ Error: {1}</value>
   <data name="ExReferenceRegistrationErrorReferenceAdditionIsAlreadyRegistered" xml:space="preserve">
     <value>Reference registration error: Reference addition is already registered.</value>
   </data>
-  <data name="ExCouldNotFindTypeXInDomainModel" xml:space="preserve">
-    <value>Could not find type: {0} in DomainModel.</value>
-  </data>
 </root>
