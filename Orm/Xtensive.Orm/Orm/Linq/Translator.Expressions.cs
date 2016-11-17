@@ -338,8 +338,12 @@ namespace Xtensive.Orm.Linq
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()==WellKnownMembers.Query.All)
             return ConstructQueryable(mc);
           // Query.FreeText<T>
-          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.Query.FreeTextString, WellKnownMembers.Query.FreeTextExpression))
-            return ConstructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
+          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()
+            .In(WellKnownMembers.Query.FreeTextString, 
+              WellKnownMembers.Query.FreeTextExpression, 
+              WellKnownMembers.Query.FreeTextExpressionTopNByRank, 
+              WellKnownMembers.Query.FreeTextStringTopNByRank))
+            return ConstructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments);
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.Query.ContainsTableString, WellKnownMembers.Query.ContainsTableExpression))
             return ConstructContainsTableQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0], mc.Arguments[1]);
           // Query.Single<T> & Query.SingleOrDefault<T>
@@ -355,8 +359,12 @@ namespace Xtensive.Orm.Linq
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition() == WellKnownMembers.QueryEndpoint.All)
             return ConstructQueryable(mc);
           // Query.FreeText<T>
-          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.QueryEndpoint.FreeTextString, WellKnownMembers.QueryEndpoint.FreeTextExpression))
-            return ConstructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0]);
+          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()
+            .In(WellKnownMembers.QueryEndpoint.FreeTextString, 
+              WellKnownMembers.QueryEndpoint.FreeTextExpression, 
+              WellKnownMembers.Query.FreeTextExpressionTopNByRank, 
+              WellKnownMembers.Query.FreeTextStringTopNByRank))
+            return ConstructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments);
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(WellKnownMembers.QueryEndpoint.ContainsTableString, WellKnownMembers.QueryEndpoint.ContainsTableExpression))
             return ConstructContainsTableQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments[0], mc.Arguments[1]);
           // Query.Single<T> & Query.SingleOrDefault<T>
@@ -419,7 +427,7 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-      private Expression ConstructFreeTextQueryRoot(Type elementType, Expression searchCriteria)
+    private Expression ConstructFreeTextQueryRoot(Type elementType, System.Collections.ObjectModel.ReadOnlyCollection<Expression> expressions)
       {
 
           TypeInfo type;
@@ -480,12 +488,11 @@ namespace Xtensive.Orm.Linq
       var fullTextIndex = type.FullTextIndex;
       if (fullTextIndex==null)
         throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHaveFullTextIndex, elementType.FullName));
-
+      var searchCriteria = expressions[0];
       if (QueryCachingScope.Current!=null
         && searchCriteria.NodeType==ExpressionType.Constant
           && searchCriteria.Type==typeof (string))
         throw new InvalidOperationException(String.Format(Strings.ExFreeTextNotSupportedInCompiledQueries, ((ConstantExpression) searchCriteria).Value));
-
 
       // Prepare parameter
       Func<string> compiledParameter;
@@ -496,7 +503,6 @@ namespace Xtensive.Orm.Linq
           compiledParameter = ((Expression<Func<string>>) searchCriteria).CachingCompile();
         else {
           var replacer = QueryCachingScope.Current.QueryParameterReplacer;
-          var queryParameter = QueryCachingScope.Current.QueryParameter;
           var newSearchCriteria = replacer.Replace(searchCriteria);
           compiledParameter = ((Expression<Func<string>>) newSearchCriteria).CachingCompile();
         }
@@ -521,12 +527,26 @@ namespace Xtensive.Orm.Linq
       }     
 
 
+      ColumnExpression rankExpression;
+      FullTextExpression freeTextExpression;
+      ItemProjectorExpression itemProjector;
       var fullFeatured = context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedFullText);
       var entityExpression = EntityExpression.Create(type, 0, !fullFeatured);
       var dataSource = new ContainsTableProvider(fullTextIndex, compiledParameter, context.GetNextColumnAlias(), fullFeatured, targetColumnParameter);
-      var rankExpression = ColumnExpression.Create(typeof (double), dataSource.Header.Columns.Count - 1);
-      var freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
-      var itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
+      var dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, rankColumnAlias, fullFeatured);
+
+      if (expressions.Count > 1) {
+        var topNParameter = context.ParameterExtractor.ExtractParameter<int>(expressions[1]).CachingCompile();
+        dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, rankColumnAlias, topNParameter, fullFeatured);
+        rankExpression = ColumnExpression.Create(typeof (double), dataSource.Header.Columns.Count - 1);
+        freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
+        itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
+      }
+      else {
+        rankExpression = ColumnExpression.Create(typeof(double), dataSource.Header.Columns.Count - 1);
+        freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
+        itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
+      }
       return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
     }
 

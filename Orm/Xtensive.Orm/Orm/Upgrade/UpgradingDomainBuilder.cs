@@ -369,7 +369,7 @@ namespace Xtensive.Orm.Upgrade
       using (UpgradeLog.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
         StorageModel targetSchema = null;
         if (schemaUpgradeMode==SchemaUpgradeMode.Skip) {
-          if (context.StorageNode==null) {
+          if (context.ParentDomain==null) {
             //If we build main domain we should log target model.
             //Log of Storage Node target model is not necessary
             //because storage target model exactly the same.
