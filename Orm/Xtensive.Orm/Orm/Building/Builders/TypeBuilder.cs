@@ -251,44 +251,45 @@ namespace Xtensive.Orm.Building.Builders
           type.Hierarchy.TypeDiscriminatorMap.Field = fieldInfo.Fields.First();
       }
 
+      if (fieldInfo.IsStructure) {
+        BuildNestedFields(null, fieldInfo, context.Model.Types[fieldInfo.ValueType].Fields);
+        var structureFullTextIndex = context.ModelDef.FullTextIndexes.TryGetValue(fieldInfo.ValueType);
+        if (structureFullTextIndex!=null) {
+          var hierarchyType = fieldInfo.DeclaringType.UnderlyingType;
+          var structureType = fieldInfo.ValueType;
+          TypeInfo hierarchyTypeInfo;
+          TypeInfo structureTypeInfo;
+
+          if (!context.Model.Types.TryGetValue(hierarchyType, out hierarchyTypeInfo))
+            throw new InvalidOperationException(string.Format(Strings.ExUnableToFindTypeXInCurrentModel, hierarchyType.Name));
+          if (!context.Model.Types.TryGetValue(structureType, out structureTypeInfo))
+            throw new InvalidOperationException(string.Format(Strings.ExUnableToFindTypeXInCurrentModel, structureType.Name));
+
+          var currentIndex = context.ModelDef.FullTextIndexes.TryGetValue(hierarchyTypeInfo.UnderlyingType);
+          if (currentIndex==null) {
+            currentIndex = new FullTextIndexDef(context.ModelDef.Types.TryGetValue(type.UnderlyingType));
+            context.ModelDef.FullTextIndexes.Add(currentIndex);
+          }
+          currentIndex.Fields.AddRange(structureFullTextIndex.Fields
+            .Select(f => new {
+              fieldInfo.DeclaringType.StructureFieldMapping[new Pair<FieldInfo>(fieldInfo, structureTypeInfo.Fields[f.Name])].Name,
+              f.IsAnalyzed,
+              f.Configuration,
+              f.TypeFieldName
+            })
+            .Select(g => new FullTextFieldDef(g.Name, g.IsAnalyzed) {
+              Configuration = g.Configuration,
+              TypeFieldName = g.TypeFieldName
+            }));
+        }
+      }
+
       if (fieldInfo.IsPrimitive) {
         fieldInfo.DefaultValue = fieldDef.DefaultValue;
         fieldInfo.DefaultSqlExpression = fieldDef.DefaultSqlExpression;
         fieldInfo.Column = BuildDeclaredColumn(fieldInfo);
         if (fieldDef.IsTypeDiscriminator)
           type.Hierarchy.TypeDiscriminatorMap.Field = fieldInfo;
-      }
-
-      if (!fieldInfo.IsStructure)
-        return fieldInfo;
-      BuildNestedFields(null, fieldInfo, context.Model.Types[fieldInfo.ValueType].Fields);
-      if (fieldInfo.UnderlyingProperty==null)
-        return fieldInfo;
-      var structureFullTextIndex = context.ModelDef.FullTextIndexes.TryGetValue(fieldInfo.UnderlyingProperty.PropertyType);
-      if (structureFullTextIndex!=null) {
-        var hierarchyType = fieldInfo.DeclaringType.UnderlyingType;
-        var structureType = fieldInfo.UnderlyingProperty.PropertyType;
-        TypeInfo hierarchyTypeInfo;
-        TypeInfo structureTypeInfo;
-
-        if (!context.Model.Types.TryGetValue(hierarchyType, out hierarchyTypeInfo))
-          throw new Exception(string.Format(Strings.ExCouldNotFindTypeXInDomainModel, hierarchyType.Name));
-        if (!context.Model.Types.TryGetValue(structureType, out structureTypeInfo))
-          throw new Exception(string.Format(Strings.ExCouldNotFindTypeXInDomainModel, structureType.Name));
-
-        var currentIndex = context.ModelDef.FullTextIndexes.TryGetValue(hierarchyTypeInfo.UnderlyingType);
-        if (currentIndex==null) {
-          currentIndex = new FullTextIndexDef(context.ModelDef.Types.TryGetValue(type.UnderlyingType));
-          context.ModelDef.FullTextIndexes.Add(currentIndex);
-        }
-        foreach (var field in structureFullTextIndex.Fields) {
-          var realFieldInfo = structureTypeInfo.Fields[field.Name];
-          var realTypeField = fieldInfo.DeclaringType.StructureFieldMapping[new Pair<FieldInfo>(fieldInfo, realFieldInfo)];
-          currentIndex.Fields.Add(new FullTextFieldDef(realTypeField.Name, field.IsAnalyzed) {
-            Configuration = field.Configuration,
-            TypeFieldName = field.TypeFieldName
-          });
-        }
       }
       return fieldInfo;
     }
