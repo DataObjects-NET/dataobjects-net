@@ -22,6 +22,11 @@ namespace Xtensive.Orm.Providers
       throw new NotSupportedException();
     }
 
+    protected override SqlProvider VisitContainsTable(ContainsTableProvider provider)
+    {
+      throw new NotSupportedException();
+    }
+
     /// <inheritdoc/>
     protected override SqlProvider VisitIndex(IndexProvider provider)
     {

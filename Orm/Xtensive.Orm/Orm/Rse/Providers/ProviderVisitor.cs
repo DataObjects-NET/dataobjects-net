@@ -5,8 +5,6 @@
 // Created:    2009.02.10
 
 using System;
-using Xtensive.Orm.Rse.Providers;
-using Xtensive.Orm.Rse.Compilation;
 
 
 namespace Xtensive.Orm.Rse.Providers
@@ -106,6 +104,9 @@ namespace Xtensive.Orm.Rse.Providers
           break;
         case ProviderType.FreeText:
           result = VisitFreeText((FreeTextProvider) cp);
+          break;
+        case ProviderType.ContainsTable:
+          result = VisitContainsTable((ContainsTableProvider) cp);
           break;
         case ProviderType.Void:
           throw new NotSupportedException(Strings.ExProcessingOfVoidProviderIsNotSupported);
@@ -278,5 +279,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="provider">FreeText provider.</param>
     /// <returns></returns>
     protected abstract Provider VisitFreeText(FreeTextProvider provider);
+
+    /// <summary>
+    /// Visits the <see cref="FreeTextProvider"/>.
+    /// </summary>
+    /// <param name="provider">SearchCondition provider.</param>
+    /// <returns></returns>
+    protected abstract Provider VisitContainsTable(ContainsTableProvider provider);
   }
 }

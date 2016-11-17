@@ -1114,9 +1114,9 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
       case TableSection.Entry:
-        return node.Query is SqlFreeTextTable ? String.Empty : "(";
+        return node.Query is SqlFreeTextTable || node.Query is  SqlContainsTable ? String.Empty : "(";
       case TableSection.Exit:
-        return node.Query is SqlFreeTextTable ? String.Empty : ")";
+        return node.Query is SqlFreeTextTable || node.Query is  SqlContainsTable ? String.Empty : ")";
       case TableSection.AliasDeclaration:
           string alias = context.TableNameProvider.GetName(node);
         return (string.IsNullOrEmpty(alias)) ? string.Empty : QuoteIdentifier(alias);
