@@ -255,16 +255,8 @@ namespace Xtensive.Orm.Building.Builders
         BuildNestedFields(null, fieldInfo, context.Model.Types[fieldInfo.ValueType].Fields);
         var structureFullTextIndex = context.ModelDef.FullTextIndexes.TryGetValue(fieldInfo.ValueType);
         if (structureFullTextIndex!=null) {
-          var hierarchyType = fieldInfo.DeclaringType.UnderlyingType;
-          var structureType = fieldInfo.ValueType;
-          TypeInfo hierarchyTypeInfo;
-          TypeInfo structureTypeInfo;
-
-          if (!context.Model.Types.TryGetValue(hierarchyType, out hierarchyTypeInfo))
-            throw new InvalidOperationException(string.Format(Strings.ExUnableToFindTypeXInCurrentModel, hierarchyType.Name));
-          if (!context.Model.Types.TryGetValue(structureType, out structureTypeInfo))
-            throw new InvalidOperationException(string.Format(Strings.ExUnableToFindTypeXInCurrentModel, structureType.Name));
-
+          var hierarchyTypeInfo = context.Model.Types[fieldInfo.DeclaringType.UnderlyingType];
+          var structureTypeInfo = context.Model.Types[fieldInfo.ValueType];
           var currentIndex = context.ModelDef.FullTextIndexes.TryGetValue(hierarchyTypeInfo.UnderlyingType);
           if (currentIndex==null) {
             currentIndex = new FullTextIndexDef(context.ModelDef.Types.TryGetValue(type.UnderlyingType));
