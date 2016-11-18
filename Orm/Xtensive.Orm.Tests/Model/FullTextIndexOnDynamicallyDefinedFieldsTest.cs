@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Tests.Model.FullTextIndexOnDynamicStructureFieldTestModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  public class FullTextIndexOnDynamicStructureFieldTest : AutoBuildTest
+  public class FullTextIndexOnDynamicallyDefinedFieldsTest : AutoBuildTest
   {
     [Test]
     public void EntityWithStringFieldTest()
