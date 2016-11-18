@@ -3,7 +3,7 @@
 
 <PropertyGroup>
   <Version>5.0.11</Version>
-  <Modifier>RC2</Modifier>
+  <Modifier>Nightly</Modifier>
   <BuildNumberBase>9700</BuildNumberBase>
 </PropertyGroup>
 

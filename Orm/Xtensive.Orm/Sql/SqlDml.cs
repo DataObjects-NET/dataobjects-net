@@ -1857,6 +1857,21 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(topN, "topN");
       return new SqlFreeTextTable(dataTable, freeText, columnNames, targetColumNames, topN);
     }
+    
+    public static SqlContainsTable ContainsTable(DataTable dataTable, SqlExpression searchText, IList<string> columnNames)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
+      ArgumentValidator.EnsureArgumentNotNull(searchText, "freeText");
+      return new SqlContainsTable(dataTable, searchText, columnNames);
+    }
+
+    public static SqlContainsTable ContainsTable(DataTable dataTable, SqlExpression searchText, IList<string> columnNames, IList<string> targetColumnNames)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
+      ArgumentValidator.EnsureArgumentNotNull(searchText, "searchText");
+      ArgumentValidator.EnsureArgumentNotNull(columnNames, "columnNames");
+      return new SqlContainsTable(dataTable, searchText, columnNames, targetColumnNames);
+    }
 
     public static SqlTableRef TableRef(DataTable dataTable)
     {

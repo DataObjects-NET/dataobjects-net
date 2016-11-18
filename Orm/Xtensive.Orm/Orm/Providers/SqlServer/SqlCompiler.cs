@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -49,6 +48,25 @@ namespace Xtensive.Orm.Providers.SqlServer
       return CreateProvider(select, bindings, provider);
     }
 
+    protected override SqlProvider VisitContainsTable(ContainsTableProvider provider)
+    {
+      var stringTypeMapping = Driver.GetTypeMapping(typeof (string));
+      var binding = new QueryParameterBinding(stringTypeMapping,
+        provider.SearchCriteria.Invoke, QueryParameterBindingType.Regular);
+
+      SqlSelect select = SqlDml.Select();
+      var index = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);
+      var table = Mapping[index.ReflectedType];
+      var fromTable = SqlDml.ContainsTable(table, binding.ParameterReference,
+        provider.Header.Columns.Select(column => column.Name).ToList(),
+        provider.TargetColumnNames.Invoke());
+      var fromTableRef = SqlDml.QueryRef(fromTable);
+      select.Columns.Add(fromTableRef.Columns[0]);
+      select.Columns.Add(SqlDml.Cast(fromTableRef.Columns[1], SqlType.Double), "RANK");
+      select.From = fromTableRef;
+      return CreateProvider(select, binding, provider);
+    }
+
     protected override SqlExpression ProcessAggregate(
       SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
@@ -63,7 +81,7 @@ namespace Xtensive.Orm.Providers.SqlServer
         return SqlDml.Cast(SqlDml.Avg(SqlDml.Cast(sourceColumns[aggregateColumn.SourceIndex], sqlType)), sqlType);
       }
       // cast to decimal is dangerous, because 'decimal' defaults to integer type
-      if (aggregateColumn.AggregateType==AggregateType.Sum && aggregateType!=typeof(decimal))
+      if (aggregateColumn.AggregateType==AggregateType.Sum && aggregateType!=typeof (decimal))
         return SqlDml.Cast(result, Driver.MapValueType(aggregateType));
       return result;
     }

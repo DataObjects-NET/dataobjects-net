@@ -111,6 +111,16 @@ namespace Xtensive.Orm.Providers
     {
     }
 
+    public void Visit(SqlContainsTable node)
+    {
+      if (node.TargetTable!=null)
+        Visit(node.TargetTable);
+      foreach (var column in node.Columns)
+        Visit(column);
+      foreach (var column in node.TargetColumns)
+        Visit(column);
+    }
+
     public void Visit(SqlContinue node)
     {
     }

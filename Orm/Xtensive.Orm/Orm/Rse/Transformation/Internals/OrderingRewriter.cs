@@ -6,12 +6,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Collections;
 using Xtensive.Orm.Rse.Providers;
-using Tuple = Xtensive.Tuples.Tuple;
-
 using System.Linq;
 
 namespace Xtensive.Orm.Rse.Transformation
@@ -128,6 +125,12 @@ namespace Xtensive.Orm.Rse.Transformation
     }
 
     protected override Provider VisitFreeText(FreeTextProvider provider)
+    {
+      sortOrder = new DirectionCollection<int>();
+      return provider;
+    }
+
+    protected override Provider VisitContainsTable(ContainsTableProvider provider)
     {
       sortOrder = new DirectionCollection<int>();
       return provider;
