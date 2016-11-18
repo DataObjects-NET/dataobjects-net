@@ -150,6 +150,26 @@ namespace Xtensive.Orm
       var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
+
+
+    /// <summary>
+    /// Performs full-text query for the text specified in contains table form.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">The search criteria in contains table form.</param>
+    /// <returns>An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.</returns>
+    public IQueryable<FullTextMatch<T>> ContainsTable<T>(string searchCriteria)
+      where T : Entity
+    {
+      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      var method = WellKnownMembers.QueryEndpoint.ContainsTableString.MakeGenericMethod(typeof(T));
+      var expression = Expression.Call(method, Expression.Constant(searchCriteria));
+      return Provider.CreateQuery<FullTextMatch<T>>(expression);
+    }
+
+    /// <summary>
+    /// Performs full-text query for the text specified in contains table form.
     /// </summary>
     /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
     /// <param name="searchCriteria">The search criteria in contains table form.</param>
@@ -162,7 +182,7 @@ namespace Xtensive.Orm
       where T : Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      var method = WellKnownMembers.Query.ContainsTableString.MakeGenericMethod(typeof(T));
+      var method = WellKnownMembers.QueryEndpoint.ContainsTableStringWithColumns.MakeGenericMethod(typeof(T));
       var expression = Expression.Call(method, Expression.Constant(searchCriteria), Expression.Constant(targetColumnNames));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
@@ -180,8 +200,8 @@ namespace Xtensive.Orm
       where T : Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      var method = WellKnownMembers.Query.ContainsTableExpression.MakeGenericMethod(typeof (T));
-      var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(new List<string>()));
+      var method = WellKnownMembers.QueryEndpoint.ContainsTableExpression.MakeGenericMethod(typeof (T));
+      var expression = Expression.Call(null, method, new []{searchCriteria});
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 
@@ -199,7 +219,7 @@ namespace Xtensive.Orm
       where T : Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      var method = WellKnownMembers.Query.ContainsTableExpression.MakeGenericMethod(typeof(T));
+      var method = WellKnownMembers.QueryEndpoint.ContainsTableExpressionWithColumns.MakeGenericMethod(typeof(T));
       var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetColumnNames));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
