@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Linq
     protected override Domain BuildDomain(Xtensive.Orm.Configuration.DomainConfiguration configuration)
     {
       var domain = base.BuildDomain(configuration);
-      Thread.Sleep(TimeSpan.FromSeconds(3));
+      Thread.Sleep(TimeSpan.FromSeconds(6));
       return domain;
     }
 
