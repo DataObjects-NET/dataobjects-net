@@ -453,6 +453,31 @@ namespace Xtensive.Orm.Tests.Linq
         .SequenceEqual(topNByrankOrderByAndTake.Select(rec=>rec.Entity.CategoryName)));
     }
 
+    [Test]
+    public void FreeTextOnFullTextStructureField()
+    {
+      var keywords = "Avda. de la Constitucion 2222";
+      var result = Query.FreeText<Customer>(keywords).ToList();
+      Assert.AreEqual(9, result.Count);
+    }
+
+    [Test]
+    public void FreeTextTopNByRankOnFullTextStructureField()
+    {
+      var keywords = "Avda. de la Constitucion 2222";
+      var result = Query.FreeText<Customer>("Avda. de la Constitucion 2222", 2).ToList();
+      var closestMatch = result.First().Entity;
+      Assert.AreEqual(2, result.Count);
+      Assert.IsTrue(closestMatch.Address.StreetAddress=="Avda. de la Constitucion 2222");
+    }
+
+    [Test]
+    public void FreeTextOnStructureField()
+    {
+      var result = Query.FreeText<Customer>("London").ToList();
+      Assert.IsTrue(!result.Any());
+    }
+
     private IEnumerable<FullTextMatch<Category>> TakeMatchesIncorrect(string searchCriteria)
     {
       return Session.Query.Execute(qe => qe.FreeText<Category>(searchCriteria));
