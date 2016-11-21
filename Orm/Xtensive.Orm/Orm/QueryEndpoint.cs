@@ -163,8 +163,8 @@ namespace Xtensive.Orm
       where T : Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      var method = WellKnownMembers.QueryEndpoint.ContainsTableString.MakeGenericMethod(typeof(T));
-      var expression = Expression.Call(method, Expression.Constant(searchCriteria));
+      var method = WellKnownMembers.Query.ContainsTableString.MakeGenericMethod(typeof(T));
+      var expression = Expression.Call(method, Expression.Constant(searchCriteria), Expression.Constant(new List<string>()));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 
@@ -182,7 +182,7 @@ namespace Xtensive.Orm
       where T : Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      var method = WellKnownMembers.QueryEndpoint.ContainsTableStringWithColumns.MakeGenericMethod(typeof(T));
+      var method = WellKnownMembers.Query.ContainsTableString.MakeGenericMethod(typeof(T));
       var expression = Expression.Call(method, Expression.Constant(searchCriteria), Expression.Constant(targetColumnNames));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
@@ -200,7 +200,7 @@ namespace Xtensive.Orm
       where T : Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      var method = WellKnownMembers.QueryEndpoint.ContainsTableExpression.MakeGenericMethod(typeof (T));
+      var method = WellKnownMembers.Query.ContainsTableExpression.MakeGenericMethod(typeof (T));
       var expression = Expression.Call(null, method, new []{searchCriteria});
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
@@ -219,7 +219,7 @@ namespace Xtensive.Orm
       where T : Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      var method = WellKnownMembers.QueryEndpoint.ContainsTableExpressionWithColumns.MakeGenericMethod(typeof(T));
+      var method = WellKnownMembers.Query.ContainsTableExpression.MakeGenericMethod(typeof(T));
       var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetColumnNames));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
