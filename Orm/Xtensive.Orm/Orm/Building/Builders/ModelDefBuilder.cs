@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void ProcessFullTextIndexes(TypeDef typeDef)
     {
-      if (!ShouldProcessFullTextIndex(typeDef))
+      if (ShouldSkipFulltextIndex(typeDef))
         return;
       var fullTextIndexDef = new FullTextIndexDef(typeDef);
       foreach (var fieldDef in typeDef.Fields.Where(f => f.UnderlyingProperty != null)) {
@@ -326,10 +326,10 @@ namespace Xtensive.Orm.Building.Builders
     #endregion
 
     #region Helper members (to reduce cohesion)
-    private bool ShouldProcessFullTextIndex(TypeDef typeDef)
+    private bool ShouldSkipFulltextIndex(TypeDef typeDef)
     {
       var hierarchy = context.ModelDef.FindHierarchy(typeDef);
-      return hierarchy!=null || typeDef.IsStructure;
+      return hierarchy==null && !typeDef.IsStructure;
     }
 
     private static T[] GetFieldAttributes<T>(PropertyInfo property)
