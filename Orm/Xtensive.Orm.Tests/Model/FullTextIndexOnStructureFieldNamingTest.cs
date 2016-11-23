@@ -13,108 +13,107 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Model.FullTextIndexOnStructureFieldNamingTestModel;
 
-namespace Xtensive.Orm.Tests.Model
+namespace Xtensive.Orm.Tests.Model.FullTextIndexOnStructureFieldNamingTestModel
 {
-  namespace FullTextIndexOnStructureFieldNamingTestModel
+  [HierarchyRoot]
+  public class HierarchyWithFullTextIndex : BaseEntity
   {
-    [HierarchyRoot]
-    public class HierarchyWithFullTextIndex : BaseEntity
-    {
-      [Field]
-      [FieldMapping("structureFieldMapping")]
-      public StructureWithIndexedField StructureWithIndexedField1 { get; set; }
+    [Field]
+    [FieldMapping("structureFieldMapping")]
+    public StructureWithIndexedField StructureWithIndexedField1 { get; set; }
 
-      [Field]
-      public StructureWithIndexedField StructureWithIndexedField2 { get; set; }
+    [Field]
+    public StructureWithIndexedField StructureWithIndexedField2 { get; set; }
 
-      [Field]
-      public AnotherStructure StructureWithAnotherIndexedField { get; set; }
+    [Field]
+    public AnotherStructure StructureWithAnotherIndexedField { get; set; }
 
-      [Field, FullText("English")]
-      public string IndexedStringField { get; set; }
+    [Field, FullText("English")]
+    public string IndexedStringField { get; set; }
 
-    }
-
-    [HierarchyRoot(InheritanceSchema.ClassTable)]
-    public class ClassTableHierarchy : BaseEntity
-    {
-      [Field]
-      [FieldMapping("structureFieldMapping")]
-      public StructureWithIndexedField StructureWithIndexedField1 { get; set; }
-
-      [Field]
-      public StructureWithIndexedField StructureWithIndexedField2 { get; set; }
-
-      [Field]
-      public AnotherStructure StructureWithAnotherIndexedField { get; set; }
-    }
-
-    [HierarchyRoot(InheritanceSchema.ConcreteTable)]
-    public class ConcreteTableHierarchy : BaseEntity
-    {
-      [Field]
-      [FieldMapping("structureFieldMapping")]
-      public StructureWithIndexedField StructureWithIndexedField1 { get; set; }
-
-      [Field]
-      public StructureWithIndexedField StructureWithIndexedField2 { get; set; }
-
-      [Field]
-      public AnotherStructure StructureWithAnotherIndexedField { get; set; }
-    }
-
-    [HierarchyRoot(InheritanceSchema.SingleTable)]
-    public class SingleTableHierarchy : BaseEntity
-    {
-      [Field]
-      [FieldMapping("structureFieldMapping")]
-      public StructureWithIndexedField StructureWithIndexedField1 { get; set; }
-
-      [Field]
-      public StructureWithIndexedField StructureWithIndexedField2 { get; set; }
-
-      [Field]
-      public AnotherStructure StructureWithAnotherIndexedField { get; set; }
-    }
-
-    public class StructureWithIndexedField : Structure
-    {
-      [Field, FullText("English")]
-      [FieldMapping("IndexedStringFieldMapping")]
-      public string IndexedStringField { get; set; }
-
-      [Field, FullText("English")]
-      [FieldMapping("IndexedStringFieldMapping2")]
-      public string IndexedStringField1 { get; set; }
-
-      [Field, FullText("English")]
-      public string IndexedStringField2 { get; set; }
-
-      [Field]
-      public string UnindexedStringField { get; set; }
-    }
-
-    public class AnotherStructure : Structure
-    {
-      [Field, FullText("English")]
-      [FieldMapping("AnotherStructureFieldMapping")]
-      public string StringField { get; set; }
-
-      [Field, FullText("Russian")]
-      public string StringField1 { get; set; }
-
-      [Field, FullText("Russian")]
-      [FieldMapping("AnotherStructureFieldMapping1")]
-      public string StringField2 { get; set; }
-    }
-
-    public class BaseEntity : Entity
-    {
-      [Key, Field]
-      public long Id { get; set; }
-    }
   }
 
+  [HierarchyRoot(InheritanceSchema.ClassTable)]
+  public class ClassTableHierarchy : BaseEntity
+  {
+    [Field]
+    [FieldMapping("structureFieldMapping")]
+    public StructureWithIndexedField StructureWithIndexedField1 { get; set; }
+
+    [Field]
+    public StructureWithIndexedField StructureWithIndexedField2 { get; set; }
+
+    [Field]
+    public AnotherStructure StructureWithAnotherIndexedField { get; set; }
+  }
+
+  [HierarchyRoot(InheritanceSchema.ConcreteTable)]
+  public class ConcreteTableHierarchy : BaseEntity
+  {
+    [Field]
+    [FieldMapping("structureFieldMapping")]
+    public StructureWithIndexedField StructureWithIndexedField1 { get; set; }
+
+    [Field]
+    public StructureWithIndexedField StructureWithIndexedField2 { get; set; }
+
+    [Field]
+    public AnotherStructure StructureWithAnotherIndexedField { get; set; }
+  }
+
+  [HierarchyRoot(InheritanceSchema.SingleTable)]
+  public class SingleTableHierarchy : BaseEntity
+  {
+    [Field]
+    [FieldMapping("structureFieldMapping")]
+    public StructureWithIndexedField StructureWithIndexedField1 { get; set; }
+
+    [Field]
+    public StructureWithIndexedField StructureWithIndexedField2 { get; set; }
+
+    [Field]
+    public AnotherStructure StructureWithAnotherIndexedField { get; set; }
+  }
+
+  public class StructureWithIndexedField : Structure
+  {
+    [Field, FullText("English")]
+    [FieldMapping("IndexedStringFieldMapping")]
+    public string IndexedStringField { get; set; }
+
+    [Field, FullText("English")]
+    [FieldMapping("IndexedStringFieldMapping2")]
+    public string IndexedStringField1 { get; set; }
+
+    [Field, FullText("English")]
+    public string IndexedStringField2 { get; set; }
+
+    [Field]
+    public string UnindexedStringField { get; set; }
+  }
+
+  public class AnotherStructure : Structure
+  {
+    [Field, FullText("English")]
+    [FieldMapping("AnotherStructureFieldMapping")]
+    public string StringField { get; set; }
+
+    [Field, FullText("Russian")]
+    public string StringField1 { get; set; }
+
+    [Field, FullText("Russian")]
+    [FieldMapping("AnotherStructureFieldMapping1")]
+    public string StringField2 { get; set; }
+  }
+
+  public class BaseEntity : Entity
+  {
+    [Key, Field]
+    public long Id { get; set; }
+  }
+}
+namespace Xtensive.Orm.Tests.Model
+{
   internal class FullTextIndexOnStructureFieldNamingTest : AutoBuildTest
   {
     [Test]
