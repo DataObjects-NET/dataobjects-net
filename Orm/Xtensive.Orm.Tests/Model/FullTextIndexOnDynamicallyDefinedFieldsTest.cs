@@ -174,9 +174,9 @@ namespace Xtensive.Orm.Tests.Model
     public void EntityWithStringFieldTest()
     {
       var hierarchy = Domain.Model.Types[typeof(EntityWithStringField)];
-      var hierarchyIndexColumns = hierarchy.FullTextIndex.Columns;
-      Assert.IsTrue(hierarchy.FullTextIndex.Columns.Count==1);
-      foreach (var column in hierarchyIndexColumns) {
+      var ftColumns = hierarchy.FullTextIndex.Columns;
+      Assert.IsTrue(ftColumns.Count==1);
+      foreach (var column in ftColumns) {
         FieldInfo correspondingField;
         hierarchy.Fields.TryGetValue(column.Name, out correspondingField);
         Assert.IsNotNull(correspondingField);
@@ -188,9 +188,9 @@ namespace Xtensive.Orm.Tests.Model
     public void EntityWithDinamicallyDefinedStringFieldTest()
     {
       var hierarchy = Domain.Model.Types[typeof (EntityWithDynamicallyDefinedStringField)];
-      var hierarchyIndexColumns = hierarchy.FullTextIndex.Columns;
-      Assert.IsTrue(hierarchy.FullTextIndex.Columns.Count==1);
-      foreach (var column in hierarchyIndexColumns) {
+      var ftColumns = hierarchy.FullTextIndex.Columns;
+      Assert.IsTrue(ftColumns.Count==1);
+      foreach (var column in ftColumns) {
         FieldInfo correspondingField;
         hierarchy.Fields.TryGetValue(column.Name, out correspondingField);
         Assert.IsNotNull(correspondingField);
@@ -202,9 +202,9 @@ namespace Xtensive.Orm.Tests.Model
     public void EntityWithDynamicallyAndExplicitlyDefinedStringFieldsTest()
     {
       var hierarchy = Domain.Model.Types[typeof(EntityWithDynamicallyAndExplicitlyDefinedStringFields)];
-      var hierarchyIndexColumns = hierarchy.FullTextIndex.Columns;
-      Assert.IsTrue(hierarchy.FullTextIndex.Columns.Count==2);
-      foreach (var column in hierarchyIndexColumns) {
+      var ftColumns = hierarchy.FullTextIndex.Columns;
+      Assert.IsTrue(ftColumns.Count==2);
+      foreach (var column in ftColumns) {
         FieldInfo correspondingField;
         hierarchy.Fields.TryGetValue(column.Name, out correspondingField);
         Assert.IsNotNull(correspondingField);
@@ -216,9 +216,9 @@ namespace Xtensive.Orm.Tests.Model
     public void EntityWithStructureFieldTest()
     {
       var hierarchy = Domain.Model.Types[typeof (EntityWithStructureField)];
-      var hierarchyIndexColumns = hierarchy.FullTextIndex.Columns;
-      Assert.IsTrue(hierarchy.FullTextIndex.Columns.Count==1);
-      foreach (var column in hierarchyIndexColumns) {
+      var ftColumns = hierarchy.FullTextIndex.Columns;
+      Assert.IsTrue(ftColumns.Count==1);
+      foreach (var column in ftColumns) {
         FieldInfo correspondingField;
         hierarchy.Fields.TryGetValue(column.Name, out correspondingField);
         Assert.IsNotNull(correspondingField);
@@ -230,9 +230,9 @@ namespace Xtensive.Orm.Tests.Model
     public void EntityWithDynamicalyDefinedStructureFieldTest()
     {
       var hierarchy = Domain.Model.Types[typeof (EntityWithDynamicallyDefinedStructureField)];
-      var hierarchyIndexColumns = hierarchy.FullTextIndex.Columns;
-      Assert.IsTrue(hierarchy.FullTextIndex.Columns.Count==1);
-      foreach (var column in hierarchyIndexColumns) {
+      var ftColumns = hierarchy.FullTextIndex.Columns;
+      Assert.IsTrue(ftColumns.Count==1);
+      foreach (var column in ftColumns) {
         FieldInfo correspondingField;
         hierarchy.Fields.TryGetValue(column.Name, out correspondingField);
         Assert.IsNotNull(correspondingField);
@@ -244,9 +244,9 @@ namespace Xtensive.Orm.Tests.Model
     public void EntityWithDynamicallyAndExplicitlyDefinedStructureFieldsTest()
     {
       var hierarchy = Domain.Model.Types[typeof(EntityWithDynamicallyAndExplicitlyDefinedStructureFields)];
-      var hierarchyIndexColumns = hierarchy.FullTextIndex.Columns;
-      Assert.IsTrue(hierarchy.FullTextIndex.Columns.Count==2);
-      foreach (var column in hierarchyIndexColumns) {
+      var ftColumns = hierarchy.FullTextIndex.Columns;
+      Assert.IsTrue(ftColumns.Count==2);
+      foreach (var column in ftColumns) {
         FieldInfo correspondingField;
         hierarchy.Fields.TryGetValue(column.Name, out correspondingField);
         Assert.IsNotNull(correspondingField);
@@ -258,9 +258,9 @@ namespace Xtensive.Orm.Tests.Model
     public void EntityWithMultipleStructureFieldsTest()
     {
       var hierarchy = Domain.Model.Types[typeof (EntityWithMultipleStructureFields)];
-      var hierarchyIndexColumns = hierarchy.FullTextIndex.Columns;
-      Assert.IsTrue(hierarchy.FullTextIndex.Columns.Count==4);
-      foreach (var column in hierarchyIndexColumns) {
+      var ftColumns = hierarchy.FullTextIndex.Columns;
+      Assert.IsTrue(ftColumns.Count==4);
+      foreach (var column in ftColumns) {
         FieldInfo correscpondingField;
         hierarchy.Fields.TryGetValue(column.Name, out correscpondingField);
         Assert.IsNotNull(correscpondingField);

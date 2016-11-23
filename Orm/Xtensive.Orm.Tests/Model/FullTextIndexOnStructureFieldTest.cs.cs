@@ -116,8 +116,7 @@ namespace Xtensive.Orm.Tests.Model
     public void HierarchyWithFullTextIndexTest()
     {
       var hierarchy = Domain.Model.Types[typeof(HierarchyWithFullTextIndex)];
-      var hierarchyIndexColumns = hierarchy.FullTextIndex.Columns;
-      foreach (var column in hierarchyIndexColumns){
+      foreach (var column in hierarchy.FullTextIndex.Columns) {
         FieldInfo correspondingField;
         hierarchy.Fields.TryGetValue(column.Name, out correspondingField);
         Assert.IsNotNull(correspondingField);
@@ -129,8 +128,7 @@ namespace Xtensive.Orm.Tests.Model
     public void ClassTableFullTextIndexTest()
     {
       var simpleClassTable = Domain.Model.Types[typeof(ClassTableHierarchy)];
-      var simpleClassTableIndexColumns = simpleClassTable.FullTextIndex.Columns;
-      foreach (var column in simpleClassTableIndexColumns) {
+      foreach (var column in simpleClassTable.FullTextIndex.Columns){
         FieldInfo correspondingField;
         simpleClassTable.Fields.TryGetValue(column.Name, out correspondingField);
         Assert.IsNotNull(correspondingField);
