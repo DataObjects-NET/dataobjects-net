@@ -114,12 +114,12 @@ namespace Xtensive.Orm.Tests.Model.FullTextIndexOnDynamicallyDefinedFieldsTestMo
 
     private void DefineDynamicFields(DomainModelDef model)
     {
-      model.Types[typeof(StructureWithDynamicallyDefinedField)].DefineField("StringField", typeof(string));
-      model.Types[typeof(StructureWithDynamicallyAndExplicitlyDefinedFields)].DefineField("SomeStringField", typeof (string));
-      model.Types[typeof(EntityWithDynamicallyDefinedStringField)].DefineField("StringField", typeof(string));
-      model.Types[typeof(EntityWithDynamicallyDefinedStructureField)].DefineField("HiddenField", typeof(StructureWithDynamicallyDefinedField));
-      model.Types[typeof(EntityWithDynamicallyAndExplicitlyDefinedStringFields)].DefineField("SomeStringField", typeof(string));
-      model.Types[typeof(EntityWithDynamicallyAndExplicitlyDefinedStructureFields)].DefineField("HiddenField", typeof(StructureWithDynamicallyDefinedField));
+      model.Types[typeof (StructureWithDynamicallyDefinedField)].DefineField("StringField", typeof (string));
+      model.Types[typeof (StructureWithDynamicallyAndExplicitlyDefinedFields)].DefineField("SomeStringField", typeof (string));
+      model.Types[typeof (EntityWithDynamicallyDefinedStringField)].DefineField("StringField", typeof (string));
+      model.Types[typeof (EntityWithDynamicallyDefinedStructureField)].DefineField("HiddenField", typeof (StructureWithDynamicallyDefinedField));
+      model.Types[typeof (EntityWithDynamicallyAndExplicitlyDefinedStringFields)].DefineField("SomeStringField", typeof (string));
+      model.Types[typeof (EntityWithDynamicallyAndExplicitlyDefinedStructureFields)].DefineField("HiddenField", typeof (StructureWithDynamicallyDefinedField));
     }
 
     private void DefineFullTextIndex(DomainModelDef model)
@@ -129,7 +129,7 @@ namespace Xtensive.Orm.Tests.Model.FullTextIndexOnDynamicallyDefinedFieldsTestMo
       structureWithFieldFtIndex.Fields.Add(new FullTextFieldDef("StringField",true) {
         Configuration = "english"
       });
-      var structureWithDynamicallyDefinedField = model.Types[typeof(StructureWithDynamicallyDefinedField)];
+      var structureWithDynamicallyDefinedField = model.Types[typeof (StructureWithDynamicallyDefinedField)];
       var structureFtIndex = new FullTextIndexDef(structureWithDynamicallyDefinedField);
       structureFtIndex.Fields.Add(new FullTextFieldDef("StringField", true) {
         Configuration = "English"
@@ -140,7 +140,7 @@ namespace Xtensive.Orm.Tests.Model.FullTextIndexOnDynamicallyDefinedFieldsTestMo
         new FullTextFieldDef("StringField", true) {Configuration = "English"},
         new FullTextFieldDef("SomeStringField", true) {Configuration = "English"}
       });
-      var entityWithStringField = model.Types[typeof(EntityWithStringField)];
+      var entityWithStringField = model.Types[typeof (EntityWithStringField)];
       var entityWithStringFieldFtIndex = new FullTextIndexDef(entityWithStringField);
       entityWithStringFieldFtIndex.Fields.Add(new FullTextFieldDef("SomeStringField", true) {
         Configuration = "English"
@@ -150,7 +150,7 @@ namespace Xtensive.Orm.Tests.Model.FullTextIndexOnDynamicallyDefinedFieldsTestMo
       entityWithDynamicallyDefinedStringFieldFtIndex.Fields.Add(new FullTextFieldDef("StringField", true) {
         Configuration = "English"
       });
-      var entityWithDynamicallyAndExplicitlyDefinedStringFields = model.Types[typeof(EntityWithDynamicallyAndExplicitlyDefinedStringFields)];
+      var entityWithDynamicallyAndExplicitlyDefinedStringFields = model.Types[typeof (EntityWithDynamicallyAndExplicitlyDefinedStringFields)];
       var entityWithDynamicallyAndExplicitlyDefinedStringFieldsFtIndex = new FullTextIndexDef(entityWithDynamicallyAndExplicitlyDefinedStringFields);
       entityWithDynamicallyAndExplicitlyDefinedStringFieldsFtIndex.Fields.AddRange(new List<FullTextFieldDef> {
         new FullTextFieldDef("SomeStringField", true) {Configuration = "English"},
@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void EntityWithStringFieldTest()
     {
-      var hierarchy = Domain.Model.Types[typeof(EntityWithStringField)];
+      var hierarchy = Domain.Model.Types[typeof (EntityWithStringField)];
       var ftColumns = hierarchy.FullTextIndex.Columns;
       Assert.IsTrue(ftColumns.Count==1);
       foreach (var column in ftColumns) {
@@ -201,7 +201,7 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void EntityWithDynamicallyAndExplicitlyDefinedStringFieldsTest()
     {
-      var hierarchy = Domain.Model.Types[typeof(EntityWithDynamicallyAndExplicitlyDefinedStringFields)];
+      var hierarchy = Domain.Model.Types[typeof (EntityWithDynamicallyAndExplicitlyDefinedStringFields)];
       var ftColumns = hierarchy.FullTextIndex.Columns;
       Assert.IsTrue(ftColumns.Count==2);
       foreach (var column in ftColumns) {
@@ -243,7 +243,7 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void EntityWithDynamicallyAndExplicitlyDefinedStructureFieldsTest()
     {
-      var hierarchy = Domain.Model.Types[typeof(EntityWithDynamicallyAndExplicitlyDefinedStructureFields)];
+      var hierarchy = Domain.Model.Types[typeof (EntityWithDynamicallyAndExplicitlyDefinedStructureFields)];
       var ftColumns = hierarchy.FullTextIndex.Columns;
       Assert.IsTrue(ftColumns.Count==2);
       foreach (var column in ftColumns) {

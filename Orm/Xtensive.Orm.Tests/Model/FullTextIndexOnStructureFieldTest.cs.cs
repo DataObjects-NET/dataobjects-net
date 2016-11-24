@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void HierarchyWithFullTextIndexTest()
     {
-      var hierarchy = Domain.Model.Types[typeof(HierarchyWithFullTextIndex)];
+      var hierarchy = Domain.Model.Types[typeof (HierarchyWithFullTextIndex)];
       foreach (var column in hierarchy.FullTextIndex.Columns) {
         FieldInfo correspondingField;
         hierarchy.Fields.TryGetValue(column.Name, out correspondingField);
@@ -127,8 +127,8 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void ClassTableFullTextIndexTest()
     {
-      var simpleClassTable = Domain.Model.Types[typeof(ClassTableHierarchy)];
-      foreach (var column in simpleClassTable.FullTextIndex.Columns){
+      var simpleClassTable = Domain.Model.Types[typeof (ClassTableHierarchy)];
+      foreach (var column in simpleClassTable.FullTextIndex.Columns) {
         FieldInfo correspondingField;
         simpleClassTable.Fields.TryGetValue(column.Name, out correspondingField);
         Assert.IsNotNull(correspondingField);
@@ -139,7 +139,7 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void ConcreteTableFullTextIndexTest()
     {
-      var simpleConcreteTable = Domain.Model.Types[typeof(ConcreteTableHierarchy)];
+      var simpleConcreteTable = Domain.Model.Types[typeof (ConcreteTableHierarchy)];
       foreach (var column in simpleConcreteTable.FullTextIndex.Columns) {
         FieldInfo correspondingField;
         simpleConcreteTable.Fields.TryGetValue(column.Name, out correspondingField);
@@ -151,7 +151,7 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void SingleTableFullTextIndexTest()
     {
-      var simpleSingleTable = Domain.Model.Types[typeof(SingleTableHierarchy)];
+      var simpleSingleTable = Domain.Model.Types[typeof (SingleTableHierarchy)];
       foreach (var column in simpleSingleTable.FullTextIndex.Columns) {
         FieldInfo correspondingField;
         simpleSingleTable.Fields.TryGetValue(column.Name, out correspondingField);
