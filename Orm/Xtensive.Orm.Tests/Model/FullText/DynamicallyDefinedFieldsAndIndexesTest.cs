@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Tests.Model.FullTextIndexOnDynamicallyDefinedFieldsTestMo
 
 namespace Xtensive.Orm.Tests.Model
 {
-  public class FullTextIndexOnDynamicallyDefinedFieldsTest : AutoBuildTest
+  public class DynamicallyDefinedFieldsAndIndexesTest : AutoBuildTest
   {
     protected override void CheckRequirements()
     {

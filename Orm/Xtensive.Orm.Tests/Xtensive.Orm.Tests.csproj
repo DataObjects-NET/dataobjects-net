@@ -352,9 +352,9 @@
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\OrderByTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\WhereTest.cs" />
     <Compile Include="Linq\DoubleAggregateToStructTest.cs" />
-    <Compile Include="Model\FullText\FullTextIndexOnDynamicallyDefinedFieldsTest.cs" />
-    <Compile Include="Model\FullText\FullTextIndexOnStructureFieldNamingTest.cs" />
-    <Compile Include="Model\FullText\FullTextIndexOnStructureFieldTest.cs.cs" />
+    <Compile Include="Model\FullText\DynamicallyDefinedFieldsAndIndexesTest.cs" />
+    <Compile Include="Model\FullText\IndexOnStructureFieldNamingTest.cs" />
+    <Compile Include="Model\FullText\IndexOnStructureFieldTest.cs" />
     <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\NonPairedReferencesFromEntitiesTest.cs" />
     <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\NonPairedReferencesFromStructures.cs" />
     <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\PairedReferencesFromEntitiesTest.cs" />

@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Tests.Model.FullTextIndexOnStructureFieldTestModel
 
 namespace Xtensive.Orm.Tests.Model
 {
-  public class FullTextIndexOnStructureFieldTest : AutoBuildTest
+  public class IndexOnStructureFieldTest : AutoBuildTest
   {
     [Test]
     public void FullTextIndexPresenceTest()
