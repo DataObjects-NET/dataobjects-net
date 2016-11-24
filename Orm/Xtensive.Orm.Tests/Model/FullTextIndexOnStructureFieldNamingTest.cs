@@ -182,7 +182,6 @@ namespace Xtensive.Orm.Tests.Model
     }
 
     protected override void CheckRequirements()
-
     {
       Require.AllFeaturesSupported(ProviderFeatures.FullText);
     }
