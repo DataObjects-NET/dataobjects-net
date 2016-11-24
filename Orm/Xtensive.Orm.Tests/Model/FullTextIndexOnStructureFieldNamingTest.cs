@@ -30,7 +30,6 @@ namespace Xtensive.Orm.Tests.Model.FullTextIndexOnStructureFieldNamingTestModel
 
     [Field, FullText("English")]
     public string IndexedStringField { get; set; }
-
   }
 
   [HierarchyRoot(InheritanceSchema.ClassTable)]
@@ -112,10 +111,21 @@ namespace Xtensive.Orm.Tests.Model.FullTextIndexOnStructureFieldNamingTestModel
     public long Id { get; set; }
   }
 }
+
 namespace Xtensive.Orm.Tests.Model
 {
   public class FullTextIndexOnStructureFieldNamingTest : AutoBuildTest
   {
+    private static readonly List<string> UnderscoreRuleExpectedColumns = new List<string> {
+      "structureFieldMapping_IndexedStringFieldMapping",
+      "structureFieldMapping_IndexedStringFieldMapping2",
+      "StructureWithIndexedField2_IndexedStringFieldMapping",
+      "StructureWithIndexedField2_IndexedStringFieldMapping2",
+      "StructureWithAnotherIndexedField_AnotherStructureFieldMapping",
+      "StructureWithAnotherIndexedField_StringField1",
+      "StructureWithAnotherIndexedField_AnotherStructureFieldMapping1"
+    };
+
     [Test]
     public void FullTextIndexPresenceTest()
     {
@@ -125,7 +135,7 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void HierarchyWithFullTextIndexTest()
     {
-      var hierarchy = Domain.Model.Types[typeof(HierarchyWithFullTextIndex)];
+      var hierarchy = Domain.Model.Types[typeof (HierarchyWithFullTextIndex)];
       var hierarchyTableColumnNames = hierarchy.Columns.Select(c => c.Name).ToList();
       var hierarchyIndexColumnNames = hierarchy.FullTextIndex.Columns.Select(c => c.Name).ToList();
       Assert.IsTrue(hierarchy.FullTextIndex.Columns.Count==10);
@@ -133,117 +143,56 @@ namespace Xtensive.Orm.Tests.Model
     }
 
     [Test]
-    public void ClassTableIndexTest()
+    public void ClassTableIndexUnderscoreDotsRuleTest()
     {
       var classTable = Domain.Model.Types[typeof (ClassTableHierarchy)];
       var classTableColumnNames = classTable.Columns.Select(c => c.Name).ToList();
       var classtableIndexColumnNames = classTable.FullTextIndex.Columns.Select(c => c.Name).ToList();
       Assert.IsTrue(classTable.FullTextIndex.Columns.Count==9);
       Assert.IsTrue(classTableColumnNames.ContainsAll(classtableIndexColumnNames));
-    }
-
-    [Test]
-    public void ClassTableIndexUnderscoreDotsRuleTest() 
-    {
-      Domain.Dispose();
-      Domain = BuildDomain(ConfigBuilder(NamingRules.UnderscoreDots));
-      var classTable = Domain.Model.Types[typeof(ClassTableHierarchy)];
-      var classTableIndexColumnNames = classTable.FullTextIndex.Columns.Select(c => c.Name).ToList();
-      foreach (var columnName in TestableNamingRules(NamingRules.UnderscoreDots)) {
-        Assert.IsTrue(classTableIndexColumnNames.Contains(columnName));
+      foreach (var columnName in UnderscoreRuleExpectedColumns) {
+        Assert.IsTrue(classtableIndexColumnNames.Contains(columnName));
       }
     }
 
     [Test]
-    public void ConcretetableIndexTest()
+    public void ConcreteTableIndexUnderscoreDotsRuleTest()
     {
       var concreteTable = Domain.Model.Types[typeof (ConcreteTableHierarchy)];
       var concreteTableColumnNames = concreteTable.Columns.Select(c => c.Name).ToList();
       var concreteTableIndexColumnNames = concreteTable.FullTextIndex.Columns.Select(c => c.Name).ToList();
       Assert.IsTrue(concreteTable.FullTextIndex.Columns.Count==9);
       Assert.IsTrue(concreteTableColumnNames.ContainsAll(concreteTableIndexColumnNames));
-    }
-
-    [Test]
-    public void ConcreteTableIndexUnderscoreDotsRuleTest()
-    {
-      Domain.Dispose();
-      Domain = BuildDomain(ConfigBuilder(NamingRules.UnderscoreDots));
-      var concreteTable = Domain.Model.Types[typeof(ConcreteTableHierarchy)];
-      var concreteTableIndexColumnNames = concreteTable.FullTextIndex.Columns.Select(c => c.Name).ToList();
-      foreach (var columnName in TestableNamingRules(NamingRules.UnderscoreDots)) {
+      foreach (var columnName in UnderscoreRuleExpectedColumns) {
         Assert.IsTrue(concreteTableIndexColumnNames.Contains(columnName));
       }
     }
 
     [Test]
-    public void SingleTableIndexTest()
+    public void SingleTableUnderscoreDotsRuleTest()
     {
-      var singleTable = Domain.Model.Types[typeof(SingleTableHierarchy)];
+      var singleTable = Domain.Model.Types[typeof (SingleTableHierarchy)];
       var singleTableColumnNames = singleTable.Columns.Select(c => c.Name).ToList().ToList();
       var singleTableIndexColumnNames = singleTable.FullTextIndex.Columns.Select(c => c.Name).ToList();
       Assert.IsTrue(singleTable.FullTextIndex.Columns.Count==9);
       Assert.IsTrue(singleTableColumnNames.ContainsAll(singleTableIndexColumnNames));
-    }
-
-    [Test]
-    public void SingleTableUnderscoreDotsRuleTest()
-    {
-      Domain.Dispose();
-      Domain = BuildDomain(ConfigBuilder(NamingRules.UnderscoreDots));
-      var singleTable = Domain.Model.Types[typeof(SingleTableHierarchy)];
-      var singleTableIndexColumnNames = singleTable.FullTextIndex.Columns.Select(c => c.Name).ToList();
-      foreach (var columnName in TestableNamingRules(NamingRules.UnderscoreDots)) {
+      foreach (var columnName in UnderscoreRuleExpectedColumns) {
         Assert.IsTrue(singleTableIndexColumnNames.Contains(columnName));
       }
     }
 
-    private List<string> TestableNamingRules(NamingRules namingRule)
-    {
-      var namingRules = new Dictionary<NamingRules, List<string>>() {
-        { NamingRules.UnderscoreDots, new List<string>() {
-            "structureFieldMapping_IndexedStringFieldMapping",
-            "structureFieldMapping_IndexedStringFieldMapping2",
-            "StructureWithIndexedField2_IndexedStringFieldMapping",
-            "StructureWithIndexedField2_IndexedStringFieldMapping2",
-            "StructureWithAnotherIndexedField_AnotherStructureFieldMapping",
-            "StructureWithAnotherIndexedField_StringField1",
-            "StructureWithAnotherIndexedField_AnotherStructureFieldMapping1"
-          }
-        }
-      };
-      return namingRules[namingRule];
-    }
-
-    #region domain configuration
-    private void RegisterTypes(DomainConfiguration configuration)
-    {
-      configuration.Types.Register(
-       typeof(ClassTableHierarchy).Assembly, typeof(ClassTableHierarchy).Namespace);
-    }
-
-    private DomainConfiguration ConfigBuilder(NamingRules rules = NamingRules.Default)
-    {
-      var config = DomainConfigurationFactory.Create();
-      RegisterTypes(config);
-      config.NamingConvention.NamingRules = rules;
-      return config;
-    }
-
     protected override void CheckRequirements()
+
     {
       Require.AllFeaturesSupported(ProviderFeatures.FullText);
     }
 
-    protected override Domain BuildDomain(DomainConfiguration configuration)
-    {
-      return Domain.Build(configuration);
-    }
-
     protected override DomainConfiguration BuildConfiguration()
     {
-      return ConfigBuilder();
+      var config = DomainConfigurationFactory.Create();
+      config.Types.Register(typeof (ClassTableHierarchy).Assembly, typeof (ClassTableHierarchy).Namespace);
+      config.NamingConvention.NamingRules = NamingRules.UnderscoreDots;
+      return config;
     }
-    #endregion
   }
 }
