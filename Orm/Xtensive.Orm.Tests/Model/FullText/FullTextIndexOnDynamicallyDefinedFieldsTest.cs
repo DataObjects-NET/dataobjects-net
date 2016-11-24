@@ -4,100 +4,82 @@
 // Created by: Julian Mamokin
 // Created:    2016.11.17
 
-using System.Collections.Generic;
+using System;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Model.FullTextIndexOnDynamicallyDefinedFieldsTestModel;
 
 namespace Xtensive.Orm.Tests.Model.FullTextIndexOnDynamicallyDefinedFieldsTestModel
 {
   [HierarchyRoot]
-  public class EntityWithDynamicallyDefinedStructureField : Entity
+  public class Store : Entity
   {
-    [Key, Field]
-    public long Id { get; set; }
+    [Field, Key]
+    public int Id { get; set; }
+
+    [Field]
+    public string Name { get; set; }
+
+    //Will be dynamically defined
+    //[Field]
+    //public Address Address { get; set; }
   }
 
   [HierarchyRoot]
-  public class EntityWithStructureField : Entity
+  public class Customer : Entity
   {
-    [Key, Field]
-    public long Id { get; set; }
+    [Field, Key]
+    public int Id { get; set; }
 
     [Field]
-    public StructureWithDynamicallyDefinedField StructureWithDynamicallyDefinedFieldField { get; set; }
+    // index will be added dynamically
+    //[FullText("English")]
+    public string FirstName { get; set; }
+
+    [Field]
+    // index will be added dynamically
+    //[FullText("English")]
+    public string LastName { get; set; }
+
+    [Field]
+    public DateTime DateOfBirth { get; set; }
+
+    //Field will be added dynamically
+    // and added to FullText
+    //[Field]
+    //public string ManagerSpecialComment { get; set; }
+
+    [Field]
+    public Address Address { get; set; }
+
+    //Field will be added dynamically
+    // and added to FullText
+    //[Field]
+    //public Address OptionalAddress { get; set; }
   }
 
-  [HierarchyRoot]
-  public class EntityWithDynamicallyAndExplicitlyDefinedStructureFields : Entity
-  {
-    [Key, Field]
-    public long Id { get; set; }
-
-    [Field]
-    public StructureWithDynamicallyDefinedField StructureWithDynamicallyDefinedFieldField { get; set; }
-  }
-
-  [HierarchyRoot]
-  public class EntityWithStringField : Entity
-  {
-    [Key, Field]
-    public long Id { get; set; }
-
-    [Field]
-    public string SomeStringField { get; set; }
-  }
-
-  [HierarchyRoot]
-  public class EntityWithDynamicallyDefinedStringField : Entity
-  {
-    [Key, Field]
-    public long Id { get; set; }
-  }
-
-  [HierarchyRoot]
-  public class EntityWithDynamicallyAndExplicitlyDefinedStringFields : Entity
-  {
-    [Key, Field]
-    public long Id { get; set; }
-
-    [Field]
-    public string StringField { get; set; }
-  }
-
-  [HierarchyRoot]
-  public class EntityWithMultipleStructureFields : Entity
-  {
-    [Key, Field]
-    public long Id { get; set; }
-
-    [Field]
-    public StructureWithField StructureField { get; set; }
-
-    [Field]
-    public StructureWithDynamicallyDefinedField AnotherStructureField{ get; set; }
-
-    [Field]
-    public StructureWithDynamicallyAndExplicitlyDefinedFields OneMoreStructureField { get; set; }
-  }
-
-  public class StructureWithDynamicallyDefinedField : Structure
-  {
-  }
-
-  public class StructureWithField : Structure
+  public class Address : Structure
   {
     [Field]
-    public string StringField { get; set; }
-  }
+    public string City { get; set; }
 
-  public class StructureWithDynamicallyAndExplicitlyDefinedFields : Structure
-  {
     [Field]
-    public string StringField { get; set; }
+    public string Country { get; set; }
+
+    // Will be defided dinamically
+    // also will be included to FT index
+    //[Field]
+    //public string Region { get; set; }
+
+    [Field]
+    public string Street { get; set; }
+
+    [Field]
+    public string BuildingNumber { get; set; }
   }
 
   public class Module : IModule
@@ -114,54 +96,38 @@ namespace Xtensive.Orm.Tests.Model.FullTextIndexOnDynamicallyDefinedFieldsTestMo
 
     private void DefineDynamicFields(DomainModelDef model)
     {
-      model.Types[typeof(StructureWithDynamicallyDefinedField)].DefineField("StringField", typeof(string));
-      model.Types[typeof(StructureWithDynamicallyAndExplicitlyDefinedFields)].DefineField("SomeStringField", typeof (string));
-      model.Types[typeof(EntityWithDynamicallyDefinedStringField)].DefineField("StringField", typeof(string));
-      model.Types[typeof(EntityWithDynamicallyDefinedStructureField)].DefineField("HiddenField", typeof(StructureWithDynamicallyDefinedField));
-      model.Types[typeof(EntityWithDynamicallyAndExplicitlyDefinedStringFields)].DefineField("SomeStringField", typeof(string));
-      model.Types[typeof(EntityWithDynamicallyAndExplicitlyDefinedStructureFields)].DefineField("HiddenField", typeof(StructureWithDynamicallyDefinedField));
+      var addressType = model.Types[typeof(Address)];
+      var region = addressType.DefineField("Region", typeof(string));
+      region.Length = 200;
+
+      var customerType = model.Types[typeof(Customer)];
+      var commentField = customerType.DefineField("ManagerSpecialComment", typeof(string));
+      commentField.Length = 250;
+
+      customerType.DefineField("OptionalAddress", typeof(Address));
+
+      var storeType = model.Types[typeof(Store)];
+      storeType.DefineField("Address", typeof(Address));
     }
 
     private void DefineFullTextIndex(DomainModelDef model)
     {
-      var structureWithField = model.Types[typeof (StructureWithField)];
-      var structureWithFieldFtIndex = new FullTextIndexDef(structureWithField);
-      structureWithFieldFtIndex.Fields.Add(new FullTextFieldDef("StringField",true) {
-        Configuration = "english"
-      });
-      var structureWithDynamicallyDefinedField = model.Types[typeof(StructureWithDynamicallyDefinedField)];
-      var structureFtIndex = new FullTextIndexDef(structureWithDynamicallyDefinedField);
-      structureFtIndex.Fields.Add(new FullTextFieldDef("StringField", true) {
-        Configuration = "English"
-      });
-      var structureWithDynamicallyAndExplicitlyDefinedField = model.Types[typeof (StructureWithDynamicallyAndExplicitlyDefinedFields)];
-      var structureWithDynamicallyAndExplicitlyDefinedFieldstructureFtIndex = new FullTextIndexDef(structureWithDynamicallyAndExplicitlyDefinedField);
-      structureWithDynamicallyAndExplicitlyDefinedFieldstructureFtIndex.Fields.AddRange(new List<FullTextFieldDef> {
-        new FullTextFieldDef("StringField", true) {Configuration = "English"},
-        new FullTextFieldDef("SomeStringField", true) {Configuration = "English"}
-      });
-      var entityWithStringField = model.Types[typeof(EntityWithStringField)];
-      var entityWithStringFieldFtIndex = new FullTextIndexDef(entityWithStringField);
-      entityWithStringFieldFtIndex.Fields.Add(new FullTextFieldDef("SomeStringField", true) {
-        Configuration = "English"
-      });
-      var entityWithDynamicallyDefinedStringField = model.Types[typeof (EntityWithDynamicallyDefinedStringField)];
-      var entityWithDynamicallyDefinedStringFieldFtIndex = new FullTextIndexDef(entityWithDynamicallyDefinedStringField);
-      entityWithDynamicallyDefinedStringFieldFtIndex.Fields.Add(new FullTextFieldDef("StringField", true) {
-        Configuration = "English"
-      });
-      var entityWithDynamicallyAndExplicitlyDefinedStringFields = model.Types[typeof(EntityWithDynamicallyAndExplicitlyDefinedStringFields)];
-      var entityWithDynamicallyAndExplicitlyDefinedStringFieldsFtIndex = new FullTextIndexDef(entityWithDynamicallyAndExplicitlyDefinedStringFields);
-      entityWithDynamicallyAndExplicitlyDefinedStringFieldsFtIndex.Fields.AddRange(new List<FullTextFieldDef> {
-        new FullTextFieldDef("SomeStringField", true) {Configuration = "English"},
-        new FullTextFieldDef("StringField", true) {Configuration = "English"}
-      });
-      model.FullTextIndexes.Add(structureFtIndex);
-      model.FullTextIndexes.Add(structureWithFieldFtIndex);
-      model.FullTextIndexes.Add(entityWithStringFieldFtIndex);
-      model.FullTextIndexes.Add(entityWithDynamicallyDefinedStringFieldFtIndex);
-      model.FullTextIndexes.Add(entityWithDynamicallyAndExplicitlyDefinedStringFieldsFtIndex);
-      model.FullTextIndexes.Add(structureWithDynamicallyAndExplicitlyDefinedFieldstructureFtIndex);
+      var customerType = model.Types[typeof(Customer)];
+      var fieldsToDefineIndex = customerType.Fields
+        .Where(f => f.Name.In("FirstName", "LastName"))
+        .Select(f => new FullTextFieldDef(f.Name, true) { Configuration = "English" });
+      var index = new FullTextIndexDef(customerType);
+      index.Fields.AddRange(fieldsToDefineIndex);
+
+      model.FullTextIndexes.Add(index);
+
+      var addressType = model.Types[typeof(Address)];
+      fieldsToDefineIndex = addressType.Fields
+        .Where(f => f.Name.In("Country", "Region", "City", "Street"))
+        .Select(f => new FullTextFieldDef(f.Name, true) { Configuration = "English" });
+      index = new FullTextIndexDef(addressType); 
+      index.Fields.AddRange(fieldsToDefineIndex);
+      model.FullTextIndexes.Add(index);
     }
   }
 }
@@ -170,116 +136,79 @@ namespace Xtensive.Orm.Tests.Model
 {
   public class FullTextIndexOnDynamicallyDefinedFieldsTest : AutoBuildTest
   {
-    [Test]
-    public void EntityWithStringFieldTest()
+    protected override void CheckRequirements()
     {
-      var hierarchy = Domain.Model.Types[typeof(EntityWithStringField)];
-      var ftColumns = hierarchy.FullTextIndex.Columns;
-      Assert.IsTrue(ftColumns.Count==1);
-      foreach (var column in ftColumns) {
-        FieldInfo correspondingField;
-        hierarchy.Fields.TryGetValue(column.Name, out correspondingField);
-        Assert.IsNotNull(correspondingField);
-        Assert.IsTrue(correspondingField.Columns.Contains(column.Name));
-      }
+      Require.AllFeaturesSupported(ProviderFeatures.FullText);
     }
 
     [Test]
-    public void EntityWithDinamicallyDefinedStringFieldTest()
+    public void FullTextIndexExistanceTest()
     {
-      var hierarchy = Domain.Model.Types[typeof (EntityWithDynamicallyDefinedStringField)];
-      var ftColumns = hierarchy.FullTextIndex.Columns;
-      Assert.IsTrue(ftColumns.Count==1);
-      foreach (var column in ftColumns) {
-        FieldInfo correspondingField;
-        hierarchy.Fields.TryGetValue(column.Name, out correspondingField);
-        Assert.IsNotNull(correspondingField);
-        Assert.IsTrue(correspondingField.Columns.Contains(column.Name));
-      }
+      var customer = Domain.Model.Types[typeof(Customer)];
+      var ftIndex = customer.FullTextIndex;
+      Assert.That(customer.FullTextIndex, Is.Not.Null);
+      Assert.That(ftIndex.Columns.Count, Is.EqualTo(10));
+
+      var store = Domain.Model.Types[typeof(Store)];
+      ftIndex = store.FullTextIndex;
+      Assert.That(store.FullTextIndex, Is.Not.Null);
+      Assert.That(ftIndex.Columns.Count, Is.EqualTo(4));
     }
 
     [Test]
-    public void EntityWithDynamicallyAndExplicitlyDefinedStringFieldsTest()
+    public void DynamicallyDefinedEntityIndexTest()
     {
-      var hierarchy = Domain.Model.Types[typeof(EntityWithDynamicallyAndExplicitlyDefinedStringFields)];
-      var ftColumns = hierarchy.FullTextIndex.Columns;
-      Assert.IsTrue(ftColumns.Count==2);
-      foreach (var column in ftColumns) {
-        FieldInfo correspondingField;
-        hierarchy.Fields.TryGetValue(column.Name, out correspondingField);
-        Assert.IsNotNull(correspondingField);
-        Assert.IsTrue(correspondingField.Columns.Contains(column.Name));
-      }
+      var customer = Domain.Model.Types[typeof(Customer)];
+      var ftIndex = customer.FullTextIndex;
+
+      var firstNameField = customer.Fields["FirstName"];
+      Assert.That(ftIndex.Columns.Contains(firstNameField.Column.Name));
+
+      var lastNameField = customer.Fields["LastName"];
+      Assert.IsTrue(ftIndex.Columns.Contains(lastNameField.Column.Name));
     }
 
     [Test]
-    public void EntityWithStructureFieldTest()
+    public void DynamicallyDefinedStructureIndexTest()
     {
-      var hierarchy = Domain.Model.Types[typeof (EntityWithStructureField)];
-      var ftColumns = hierarchy.FullTextIndex.Columns;
-      Assert.IsTrue(ftColumns.Count==1);
-      foreach (var column in ftColumns) {
-        FieldInfo correspondingField;
-        hierarchy.Fields.TryGetValue(column.Name, out correspondingField);
-        Assert.IsNotNull(correspondingField);
-        Assert.IsTrue(correspondingField.Columns.Contains(column.Name));
-      }
+      var customer = Domain.Model.Types[typeof(Customer)];
+      var ftIndex = customer.FullTextIndex;
+
+      var addressField = customer.Fields["Address"];
+      var indexedColumns = addressField.Fields
+        .Where(f => f.Name.In("Country", "Region", "City", "Street"))
+        .Select(f => f.Column);
+      Assert.IsTrue(indexedColumns.All(c => ftIndex.Columns.Contains(c.Name)));
     }
 
     [Test]
-    public void EntityWithDynamicalyDefinedStructureFieldTest()
+    public void DynamicallyDefinedBothEntityAndStrucureFieldsTest()
     {
-      var hierarchy = Domain.Model.Types[typeof (EntityWithDynamicallyDefinedStructureField)];
-      var ftColumns = hierarchy.FullTextIndex.Columns;
-      Assert.IsTrue(ftColumns.Count==1);
-      foreach (var column in ftColumns) {
-        FieldInfo correspondingField;
-        hierarchy.Fields.TryGetValue(column.Name, out correspondingField);
-        Assert.IsNotNull(correspondingField);
-        Assert.IsTrue(correspondingField.Columns.Contains(column.Name));
-      }
-    }
+      var customer = Domain.Model.Types[typeof(Customer)];
+      var ftIndex = customer.FullTextIndex;
 
-    [Test]
-    public void EntityWithDynamicallyAndExplicitlyDefinedStructureFieldsTest()
-    {
-      var hierarchy = Domain.Model.Types[typeof(EntityWithDynamicallyAndExplicitlyDefinedStructureFields)];
-      var ftColumns = hierarchy.FullTextIndex.Columns;
-      Assert.IsTrue(ftColumns.Count==2);
-      foreach (var column in ftColumns) {
-        FieldInfo correspondingField;
-        hierarchy.Fields.TryGetValue(column.Name, out correspondingField);
-        Assert.IsNotNull(correspondingField);
-        Assert.IsTrue(correspondingField.Columns.Contains(column.Name));
-      }
-    }
+      var optionalAddressField = customer.Fields["OptionalAddress"];
+      var indexedColumns = optionalAddressField.Fields
+        .Where(f => f.Name.In("Country", "Region", "City", "Street"))
+        .Select(f => f.Column);
+      Assert.IsTrue(indexedColumns.All(c => ftIndex.Columns.Contains(c.Name)));
 
-    [Test]
-    public void EntityWithMultipleStructureFieldsTest()
-    {
-      var hierarchy = Domain.Model.Types[typeof (EntityWithMultipleStructureFields)];
-      var ftColumns = hierarchy.FullTextIndex.Columns;
-      Assert.IsTrue(ftColumns.Count==4);
-      foreach (var column in ftColumns) {
-        FieldInfo correscpondingField;
-        hierarchy.Fields.TryGetValue(column.Name, out correscpondingField);
-        Assert.IsNotNull(correscpondingField);
-        Assert.IsTrue(correscpondingField.Columns.Contains(column.Name));
-      }
+      var store = Domain.Model.Types[typeof(Store)];
+      ftIndex = store.FullTextIndex;
+
+      var addressField = customer.Fields["Address"];
+      indexedColumns = addressField.Fields
+        .Where(f => f.Name.In("Country", "Region", "City", "Street"))
+        .Select(f => f.Column);
+      Assert.IsTrue(indexedColumns.All(c => ftIndex.Columns.Contains(c.Name)));
     }
 
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (EntityWithStructureField).Assembly, typeof (EntityWithStructureField).Namespace);
+      configuration.Types.Register(typeof(Customer).Assembly, typeof(Customer).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
   }
 }
-
-
-
-
-  
-
