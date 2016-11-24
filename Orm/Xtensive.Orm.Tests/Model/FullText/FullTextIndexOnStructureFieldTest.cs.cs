@@ -167,8 +167,9 @@ namespace Xtensive.Orm.Tests.Model
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      var configuration = DomainConfigurationFactory.Create();
+      var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (ClassTableHierarchy).Assembly, typeof (ClassTableHierarchy).Namespace);
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
   }

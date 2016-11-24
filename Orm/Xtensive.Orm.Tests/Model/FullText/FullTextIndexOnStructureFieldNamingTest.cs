@@ -188,9 +188,10 @@ namespace Xtensive.Orm.Tests.Model
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      var config = DomainConfigurationFactory.Create();
+      var config = base.BuildConfiguration();
       config.Types.Register(typeof (ClassTableHierarchy).Assembly, typeof (ClassTableHierarchy).Namespace);
       config.NamingConvention.NamingRules = NamingRules.UnderscoreDots;
+      config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
     }
   }
