@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Model.FullTextIndexOnDynamicallyDefinedFieldsTestMo
     [Field]
     public string Country { get; set; }
 
-    // Will be defided dinamically
+    // Will be defided dynamically
     // also will be included to FT index
     //[Field]
     //public string Region { get; set; }
@@ -96,35 +96,35 @@ namespace Xtensive.Orm.Tests.Model.FullTextIndexOnDynamicallyDefinedFieldsTestMo
 
     private void DefineDynamicFields(DomainModelDef model)
     {
-      var addressType = model.Types[typeof(Address)];
-      var region = addressType.DefineField("Region", typeof(string));
+      var addressType = model.Types[typeof (Address)];
+      var region = addressType.DefineField("Region", typeof (string));
       region.Length = 200;
 
-      var customerType = model.Types[typeof(Customer)];
-      var commentField = customerType.DefineField("ManagerSpecialComment", typeof(string));
+      var customerType = model.Types[typeof (Customer)];
+      var commentField = customerType.DefineField("ManagerSpecialComment", typeof (string));
       commentField.Length = 250;
 
       customerType.DefineField("OptionalAddress", typeof(Address));
 
-      var storeType = model.Types[typeof(Store)];
-      storeType.DefineField("Address", typeof(Address));
+      var storeType = model.Types[typeof (Store)];
+      storeType.DefineField("Address", typeof (Address));
     }
 
     private void DefineFullTextIndex(DomainModelDef model)
     {
-      var customerType = model.Types[typeof(Customer)];
+      var customerType = model.Types[typeof (Customer)];
       var fieldsToDefineIndex = customerType.Fields
         .Where(f => f.Name.In("FirstName", "LastName"))
-        .Select(f => new FullTextFieldDef(f.Name, true) { Configuration = "English" });
+        .Select(f => new FullTextFieldDef(f.Name, true) {Configuration = "English"});
       var index = new FullTextIndexDef(customerType);
       index.Fields.AddRange(fieldsToDefineIndex);
 
       model.FullTextIndexes.Add(index);
 
-      var addressType = model.Types[typeof(Address)];
+      var addressType = model.Types[typeof (Address)];
       fieldsToDefineIndex = addressType.Fields
         .Where(f => f.Name.In("Country", "Region", "City", "Street"))
-        .Select(f => new FullTextFieldDef(f.Name, true) { Configuration = "English" });
+        .Select(f => new FullTextFieldDef(f.Name, true) {Configuration = "English"});
       index = new FullTextIndexDef(addressType); 
       index.Fields.AddRange(fieldsToDefineIndex);
       model.FullTextIndexes.Add(index);
@@ -144,12 +144,12 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void FullTextIndexExistanceTest()
     {
-      var customer = Domain.Model.Types[typeof(Customer)];
+      var customer = Domain.Model.Types[typeof (Customer)];
       var ftIndex = customer.FullTextIndex;
       Assert.That(customer.FullTextIndex, Is.Not.Null);
       Assert.That(ftIndex.Columns.Count, Is.EqualTo(10));
 
-      var store = Domain.Model.Types[typeof(Store)];
+      var store = Domain.Model.Types[typeof (Store)];
       ftIndex = store.FullTextIndex;
       Assert.That(store.FullTextIndex, Is.Not.Null);
       Assert.That(ftIndex.Columns.Count, Is.EqualTo(4));
@@ -158,7 +158,7 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void DynamicallyDefinedEntityIndexTest()
     {
-      var customer = Domain.Model.Types[typeof(Customer)];
+      var customer = Domain.Model.Types[typeof (Customer)];
       var ftIndex = customer.FullTextIndex;
 
       var firstNameField = customer.Fields["FirstName"];
@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void DynamicallyDefinedStructureIndexTest()
     {
-      var customer = Domain.Model.Types[typeof(Customer)];
+      var customer = Domain.Model.Types[typeof (Customer)];
       var ftIndex = customer.FullTextIndex;
 
       var addressField = customer.Fields["Address"];
@@ -184,7 +184,7 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void DynamicallyDefinedBothEntityAndStrucureFieldsTest()
     {
-      var customer = Domain.Model.Types[typeof(Customer)];
+      var customer = Domain.Model.Types[typeof (Customer)];
       var ftIndex = customer.FullTextIndex;
 
       var optionalAddressField = customer.Fields["OptionalAddress"];
@@ -193,7 +193,7 @@ namespace Xtensive.Orm.Tests.Model
         .Select(f => f.Column);
       Assert.IsTrue(indexedColumns.All(c => ftIndex.Columns.Contains(c.Name)));
 
-      var store = Domain.Model.Types[typeof(Store)];
+      var store = Domain.Model.Types[typeof (Store)];
       ftIndex = store.FullTextIndex;
 
       var addressField = customer.Fields["Address"];
@@ -206,7 +206,7 @@ namespace Xtensive.Orm.Tests.Model
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(Customer).Assembly, typeof(Customer).Namespace);
+      configuration.Types.Register(typeof (Customer).Assembly, typeof (Customer).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
