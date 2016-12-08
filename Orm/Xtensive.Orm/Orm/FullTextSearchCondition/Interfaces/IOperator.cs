@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Xtensive.Orm.FullTextSearchCondition.Nodes;
 
 namespace Xtensive.Orm.FullTextSearchCondition.Interfaces
 {
@@ -22,5 +23,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Interfaces
     ICustomProximityTerm CustomProximityTerm(Func<ProximityOperandEndpoint, IProximityOperandsConstructionFlow> proximityTerms, long maximumDistanc, bool matchOrder);
 
     IWeightedTerm WeightedTerm(Func<WeightedTermEndpoint, IWeightedTermConstructionFlow> weightedTerms);
+
+    IComplexTerm ComplexTerm(Func<ConditionEndpoint, IOperand> complexTerm);
   }
 }

@@ -62,6 +62,11 @@ namespace Xtensive.Orm.FullTextSearchCondition.Internals
       return new WeightedTerm(source, weightedTerms);
     }
 
+    public static ComplexTerm CreateComplexTerm(IOperator source, IOperand complexTermRoot)
+    {
+      return new ComplexTerm(source, complexTermRoot);
+    }
+
     public static ConditionEndpoint CreateConditonRoot()
     {
       return new ConditionEndpoint();

@@ -20,5 +20,7 @@ namespace Xtensive.Orm.Providers
     public abstract void Visit(ICustomProximityTerm node);
 
     public abstract void Visit(IWeightedTerm node);
+
+    public abstract void Visit(IComplexTerm node);
   }
 }

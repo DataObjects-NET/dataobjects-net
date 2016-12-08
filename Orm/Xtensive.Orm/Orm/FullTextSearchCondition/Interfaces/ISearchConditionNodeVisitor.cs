@@ -11,5 +11,6 @@ namespace Xtensive.Orm.FullTextSearchCondition.Interfaces
     void Visit(IProximityTerm node);
     void Visit(ICustomProximityTerm node);
     void Visit(IWeightedTerm node);
+    void Visit(IComplexTerm node);
   }
 }

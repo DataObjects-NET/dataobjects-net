@@ -39,5 +39,10 @@ namespace Xtensive.Orm.Providers
     {
       throw new NotSupportedException();
     }
+
+    public override void Visit(IComplexTerm node)
+    {
+      throw new NotSupportedException();
+    }
   }
 }

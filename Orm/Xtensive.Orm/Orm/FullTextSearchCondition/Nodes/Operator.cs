@@ -72,6 +72,14 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
       return SearchConditionNodeFactory.CreateWeightedTerm(this, constructionFlow.WeightedOperands);
     }
 
+    public IComplexTerm ComplexTerm(Func<ConditionEndpoint, IOperand> complexTerm)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(complexTerm, "complexTerm");
+
+      var endpoint = SearchConditionNodeFactory.CreateConditonRoot();
+      return SearchConditionNodeFactory.CreateComplexTerm(this, complexTerm.Invoke(endpoint));
+    }
+
     public void AcceptVisitor(ISearchConditionNodeVisitor visitor)
     {
       AcceptVisitorInternal(visitor);

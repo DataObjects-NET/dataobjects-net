@@ -12,5 +12,6 @@ namespace Xtensive.Orm.FullTextSearchCondition
     GenericProximityTerm,
     CustomProximityTerm,
     WeightedTerm,
+    ComplexTerm,
   }
 }

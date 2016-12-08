@@ -113,6 +113,15 @@ namespace Xtensive.Orm.Providers.SqlServer
       builder.Append(")");
     }
 
+    public override void Visit(IComplexTerm node)
+    {
+      if (node.Source != null)
+        node.Source.AcceptVisitor(this);
+      builder.Append("(");
+      node.RootOperand.AcceptVisitor(this);
+      builder.Append(")");
+    }
+
     private void VisitRoot(IOperator node)
     {
       var conditionEndpoint = node as ConditionEndpoint;

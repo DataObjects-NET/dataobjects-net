@@ -339,8 +339,10 @@
     <Compile Include="Orm\Configuration\NameMappingCollection.cs" />
     <Compile Include="Orm\Configuration\NodeConfiguration.cs" />
     <Compile Include="Orm\FullTextSearchCondition\GenerationType.cs" />
+    <Compile Include="Orm\FullTextSearchCondition\Interfaces\IComplexTerm.cs" />
     <Compile Include="Orm\FullTextSearchCondition\Nodes\And.cs" />
     <Compile Include="Orm\FullTextSearchCondition\Nodes\AndNot.cs" />
+    <Compile Include="Orm\FullTextSearchCondition\Nodes\ComplexTerm.cs" />
     <Compile Include="Orm\FullTextSearchCondition\Nodes\ConditionEndpoint.cs" />
     <Compile Include="Orm\FullTextSearchCondition\Nodes\CustomProximityTerm.cs" />
     <Compile Include="Orm\FullTextSearchCondition\Nodes\GenerationTerm.cs" />
