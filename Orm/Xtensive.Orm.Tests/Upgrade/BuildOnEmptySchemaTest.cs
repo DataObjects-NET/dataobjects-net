@@ -10,8 +10,10 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Upgrade.BuildOnEmptySchemaModel.CleanUpUpgrader;
 using Xtensive.Orm.Tests.Upgrade.BuildOnEmptySchemaModel.TestModel;
+using Xtensive.Orm.Tests.Upgrade.BuildOnEmptySchemaModel.TestModel2;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;
 
@@ -39,6 +41,19 @@ namespace Xtensive.Orm.Tests.Upgrade.BuildOnEmptySchemaModel
         : base(session)
       {
       }
+    }
+  }
+
+  namespace TestModel2
+  {
+    [HierarchyRoot]
+    public class Symbol2 : Entity
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+
+      [Field]
+      public string Name { get; private set; }
     }
   }
 
@@ -70,7 +85,9 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void MainTest()
     {
-      using (var domain = BuildDomain(BuildConfiguration())) {
+      var configuration = BuildSimpleConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
+      using (var domain = RebuildDomain(configuration)) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           foreach (var intValue in Enumerable.Range(1000, 10)) {
@@ -87,6 +104,90 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
+    [Test]
+    public void PerformTest()
+    {
+      Require.AllFeaturesNotSupported(ProviderFeatures.Multidatabase);
+      var configuration = BuildSimpleConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Perform;
+      Assert.DoesNotThrow(() => RebuildDomain(configuration));
+    }
+
+    [Test]
+    public void RecreateTest()
+    {
+      Require.AllFeaturesNotSupported(ProviderFeatures.Multidatabase);
+      var configuration = BuildSimpleConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      Assert.DoesNotThrow(() => RebuildDomain(configuration));
+    }
+
+    [Test]
+    public void SkipTest()
+    {
+      Require.AllFeaturesNotSupported(ProviderFeatures.Multidatabase);
+      var configuration = BuildSimpleConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Skip;
+      Assert.DoesNotThrow(() => RebuildDomain(configuration));
+    }
+
+    [Test]
+    public void MultiSchemaPerformTest()
+    {
+      Require.AllFeaturesNotSupported(ProviderFeatures.Multidatabase);
+      Require.AllFeaturesSupported(ProviderFeatures.Multischema);
+      var configuration = BuildMultischemaConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Perform;
+      Assert.DoesNotThrow(() => RebuildDomain(configuration));
+    }
+
+    [Test]
+    public void MultiSchemaRecreateTest()
+    {
+      Require.AllFeaturesNotSupported(ProviderFeatures.Multidatabase);
+      Require.AllFeaturesSupported(ProviderFeatures.Multischema);
+      var configuration = BuildMultischemaConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      Assert.DoesNotThrow(() => RebuildDomain(configuration));
+    }
+
+    [Test]
+    public void MultiSchemaSkipTest()
+    {
+      Require.AllFeaturesNotSupported(ProviderFeatures.Multidatabase);
+      Require.AllFeaturesSupported(ProviderFeatures.Multischema);
+      var configuration = BuildMultischemaConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Skip;
+      Assert.DoesNotThrow(() => RebuildDomain(configuration));
+    }
+
+    [Test]
+    public void MultiDatabasePerformTest()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
+      var configuration = BuildMultiDataBaseConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Perform;
+      Assert.DoesNotThrow(() => RebuildDomain(configuration));
+    }
+
+    [Test]
+    public void MultiDatabaseRecreateTest()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
+      var configuraton = BuildMultiDataBaseConfiguration();
+      configuraton.UpgradeMode = DomainUpgradeMode.Recreate;
+      Assert.DoesNotThrow(() => RebuildDomain(configuraton));
+    }
+
+    [Test]
+    public void MultiDatabaseSkipTest()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
+      var configuration = BuildMultiDataBaseConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Skip;
+      Assert.DoesNotThrow(() => RebuildDomain(configuration));
+    }
+
     [TestFixtureSetUp]
     public void TestFixtureSetUp()
     {
@@ -96,29 +197,60 @@ namespace Xtensive.Orm.Tests.Upgrade
       catch (IgnoreException) {
         throw;
       }
-      catch (Exception e)
-      {
+      catch (Exception e) {
         Debug.WriteLine(ErrorInTestFixtureSetup, e);
+        throw;
+      }
+    }
+
+    private Domain RebuildDomain(DomainConfiguration configuration)
+    {
+      try {
+        ClearSchema();
+        return Domain.Build(configuration);
+      }
+      catch (Exception e) {
+        TestLog.Error(GetType().GetFullName());
+        TestLog.Error(e);
         throw;
       }
     }
 
     private void ClearSchema()
     {
-      using (var domain = BuildDomain(BuildInitialConfiguration())) {}
+      using (Domain.Build(BuildInitialConfiguration())) {}
     }
 
-    protected Domain BuildDomain(DomainConfiguration configuration)
+    private void RegisterTypes(DomainConfiguration configuration)
     {
-      try {
-        return Domain.Build(configuration);
-      }
-      catch (Exception e)
-      {
-        TestLog.Error(GetType().GetFullName());
-        TestLog.Error(e);
-        throw;
-      }
+      configuration.Types.Register(typeof (Symbol));
+      configuration.Types.Register(typeof (Symbol2));
+    }
+
+    private DomainConfiguration BuildSimpleConfiguration()
+    {
+      var config = DomainConfigurationFactory.Create();
+      RegisterTypes(config);
+      return config;
+    }
+
+    private DomainConfiguration BuildMultischemaConfiguration()
+    {
+      var config = BuildSimpleConfiguration();
+      config.DefaultSchema = "Model1";
+      config.MappingRules.Map(typeof (Symbol).Namespace).ToSchema("Model1");
+      config.MappingRules.Map(typeof (Symbol2).Namespace).ToSchema("Model2");
+      return config;
+    }
+
+    private DomainConfiguration BuildMultiDataBaseConfiguration()
+    {
+      var config = BuildSimpleConfiguration();
+      config.DefaultDatabase = "DO-Tests";
+      config.DefaultSchema = "Model1";
+      config.MappingRules.Map(typeof (Symbol).Namespace).ToDatabase("DO-Tests");
+      config.MappingRules.Map(typeof (Symbol2).Namespace).ToSchema("Model1");
+      return config;
     }
 
     private DomainConfiguration BuildInitialConfiguration()
@@ -126,14 +258,6 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configruation = DomainConfigurationFactory.Create();
       configruation.Types.Register(typeof (CleanupUpgradeHandler));
       configruation.UpgradeMode = DomainUpgradeMode.Recreate;
-      return configruation;
-    }
-
-    private DomainConfiguration BuildConfiguration()
-    {
-      var configruation = DomainConfigurationFactory.Create();
-      configruation.Types.Register(typeof(Symbol));
-      configruation.UpgradeMode = DomainUpgradeMode.PerformSafely;
       return configruation;
     }
   }
