@@ -1603,6 +1603,106 @@ namespace Xtensive.Orm.Tests.Linq
       CompileAndTest(sc, expectedTranslation);
     }
 
+    [Test]
+    [ExpectedException(typeof (ArgumentNullException))]
+    public void Test156()
+    {
+      Require.ProviderVersionAtLeast(new Version(11, 0));
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(null);
+      string expectedTranslation = "dummy";
+      CompileAndTest(sc, expectedTranslation);
+    }
+
+    [Test]
+    [ExpectedException(typeof (ArgumentNullException))]
+    public void Test157()
+    {
+      Require.ProviderVersionAtLeast(new Version(11, 0));
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(null, 5);
+      string expectedTranslation = "dummy";
+      CompileAndTest(sc, expectedTranslation);
+    }
+
+    [Test]
+    [ExpectedException(typeof (ArgumentNullException))]
+    public void Test158()
+    {
+      Require.ProviderVersionAtLeast(new Version(11, 0));
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(null, 5, true);
+      string expectedTranslation = "dummy";
+      CompileAndTest(sc, expectedTranslation);
+    }
+
+    [Test]
+    [ExpectedException(typeof (ArgumentNullException))]
+    public void Test159()
+    {
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(null);
+      string expectedTranslation = "dummy";
+      CompileAndTest(sc, expectedTranslation);
+    }
+
+    [Test]
+    [ExpectedException(typeof (ArgumentNullException))]
+    public void Test160()
+    {
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(null);
+      string expectedTranslation = "dummy";
+      CompileAndTest(sc, expectedTranslation);
+    }
+
+    [Test]
+    public void Test161()
+    {
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.SimpleTerm("abc").And().ComplexTerm(f => f.SimpleTerm("def"));
+      string expectedTranslation = "abc AND (def)";
+      CompileAndTest(sc, expectedTranslation);
+    }
+
+    [Test]
+    public void Test162()
+    {
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.ComplexTerm(f => f.SimpleTerm("abc")).And().SimpleTerm("def");
+      string expectedTranslation = "(abc) AND def";
+      CompileAndTest(sc, expectedTranslation);
+    }
+
+    [Test]
+    public void Test163()
+    {
+      Expression<Func<ConditionEndpoint, IOperand>> sc =
+        e => e.SimpleTerm("abc")
+          .And()
+          .ComplexTerm(f => f.SimpleTerm("def")
+            .And()
+            .ComplexTerm(g => g.SimpleTerm("aaa").Or().SimpleTerm("bbb"))
+            .AndNot()
+            .PrefixTerm("ghi")
+            .Or()
+            .ComplexTerm(h => h.GenerationTerm(GenerationType.Thesaurus, new[] { "www" }))
+            .And()
+            .SimpleTerm("xyz"));
+      string expectedTranslation = "abc AND (def AND (aaa OR bbb) AND NOT \"ghi*\" OR (FORMSOF (THESAURUS, www)) AND xyz)";
+      CompileAndTest(sc, expectedTranslation);
+    }
+
+    [Test]
+    public void Test164()
+    {
+      Expression<Func<ConditionEndpoint, IOperand>> sc = 
+        e => e.SimpleTerm("abc")
+          .And()
+          .SimpleTerm("def")
+          .AndNot()
+          .PrefixTerm("ghi")
+          .Or()
+          .GenerationTerm(GenerationType.Thesaurus, new[] { "www" })
+          .And()
+          .SimpleTerm("xyz");
+      string expectedTranslation = "abc AND def AND NOT \"ghi*\" OR FORMSOF (THESAURUS, www) AND xyz";
+      CompileAndTest(sc, expectedTranslation);
+    }
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
