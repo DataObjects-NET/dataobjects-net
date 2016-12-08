@@ -229,28 +229,28 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     private DomainConfiguration BuildSimpleConfiguration()
     {
-      var config = DomainConfigurationFactory.Create();
-      RegisterTypes(config);
-      return config;
+      var configuration = DomainConfigurationFactory.Create();
+      RegisterTypes(configuration);
+      return configuration;
     }
 
     private DomainConfiguration BuildMultischemaConfiguration()
     {
-      var config = BuildSimpleConfiguration();
-      config.DefaultSchema = "Model1";
-      config.MappingRules.Map(typeof (Symbol).Namespace).ToSchema("Model1");
-      config.MappingRules.Map(typeof (Symbol2).Namespace).ToSchema("Model2");
-      return config;
+      var configuration = BuildSimpleConfiguration();
+      configuration.DefaultSchema = "Model1";
+      configuration.MappingRules.Map(typeof (Symbol).Namespace).ToSchema("Model1");
+      configuration.MappingRules.Map(typeof (Symbol2).Namespace).ToSchema("Model2");
+      return configuration;
     }
 
     private DomainConfiguration BuildMultiDataBaseConfiguration()
     {
-      var config = BuildSimpleConfiguration();
-      config.DefaultDatabase = "DO-Tests";
-      config.DefaultSchema = "Model1";
-      config.MappingRules.Map(typeof (Symbol).Namespace).ToDatabase("DO-Tests");
-      config.MappingRules.Map(typeof (Symbol2).Namespace).ToSchema("Model1");
-      return config;
+      var configuration = BuildSimpleConfiguration();
+      configuration.DefaultDatabase = "DO-Tests";
+      configuration.DefaultSchema = "Model1";
+      configuration.MappingRules.Map(typeof (Symbol).Namespace).ToDatabase("DO-Tests");
+      configuration.MappingRules.Map(typeof (Symbol2).Namespace).ToSchema("Model1");
+      return configuration;
     }
 
     private DomainConfiguration BuildInitialConfiguration()
