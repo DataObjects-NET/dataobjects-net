@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.NorthwindDO
   [Serializable]
   public class Address : Structure
   {
-    [Field(Length = 60)]
+    [Field(Length = 60), FullText("English")]
     public string StreetAddress { get; set; }
 
     [Field(Length = 15)]
