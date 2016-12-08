@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;
 using Xtensive.Orm.FullTextSearchCondition.Internals;
 
@@ -28,6 +29,8 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
 
     public IProximityTerm GenericProximityTerm(Func<ProximityOperandEndpoint, IProximityOperandsConstructionFlow> proximityTerms)
     {
+      ArgumentValidator.EnsureArgumentNotNull(proximityTerms, "proximityTerms");
+
       var proximityOperandRoot = new ProximityOperandEndpoint();
       var constructionFlow = proximityTerms.Invoke(proximityOperandRoot);
       return SearchConditionNodeFactory.CreateGenericProximityTerm(this, constructionFlow.Operands);
@@ -35,6 +38,8 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
 
     public ICustomProximityTerm CustomProximityTerm(Func<ProximityOperandEndpoint, IProximityOperandsConstructionFlow> proximityTerms)
     {
+      ArgumentValidator.EnsureArgumentNotNull(proximityTerms, "proximityTerms");
+
       var proximityOperandRoot = new ProximityOperandEndpoint();
       var constructionFlow = proximityTerms.Invoke(proximityOperandRoot);
       return SearchConditionNodeFactory.CreateCustomProximityTerm(this, constructionFlow.Operands);
@@ -42,6 +47,8 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
 
     public ICustomProximityTerm CustomProximityTerm(Func<ProximityOperandEndpoint, IProximityOperandsConstructionFlow> proximityTerms, long maximumDistance)
     {
+      ArgumentValidator.EnsureArgumentNotNull(proximityTerms, "proximityTerms");
+
       var proximityOperandRoot = new ProximityOperandEndpoint();
       var constructionFlow = proximityTerms.Invoke(proximityOperandRoot);
       return SearchConditionNodeFactory.CreateCustomProximityTerm(this, constructionFlow.Operands, maximumDistance);
@@ -49,6 +56,8 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
 
     public ICustomProximityTerm CustomProximityTerm(Func<ProximityOperandEndpoint, IProximityOperandsConstructionFlow> proximityTerms, long maximumDistance, bool matchOrder)
     {
+      ArgumentValidator.EnsureArgumentNotNull(proximityTerms, "proximityTerms");
+
       var proximityOperandRoot = new ProximityOperandEndpoint();
       var constructionFlow = proximityTerms.Invoke(proximityOperandRoot);
       return SearchConditionNodeFactory.CreateCustomProximityTerm(this, constructionFlow.Operands, maximumDistance, matchOrder);
@@ -56,6 +65,8 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
 
     public IWeightedTerm WeightedTerm(Func<WeightedTermEndpoint, IWeightedTermConstructionFlow> weightedTerm)
     {
+      ArgumentValidator.EnsureArgumentNotNull(weightedTerm, "weightedTerm");
+
       var endpoint = new WeightedTermEndpoint();
       var constructionFlow = weightedTerm.Invoke(endpoint);
       return SearchConditionNodeFactory.CreateWeightedTerm(this, constructionFlow.WeightedOperands);
