@@ -21,21 +21,25 @@ namespace Xtensive.Orm.Rse.Providers
 
     public bool FullFeatured { get; private set; }
 
-    public Func<IList<string>> TargetColumnNames { get; private set; }
+    public Func<int> TopN { get; private set; } 
 
     protected override RecordSetHeader BuildHeader()
     {
       return indexHeader;
     }
 
-    public ContainsTableProvider(FullTextIndexInfo index, Func<string> searchCriteria, string rankColumnName,
-      bool fullFeatured, Func<IList<string>> targetColumnNames = null)
+    public ContainsTableProvider(FullTextIndexInfo index, Func<string> searchCriteria, string rankColumnName, bool fullFeatured)
+      : this(index, searchCriteria, rankColumnName, null, false)
+    {
+    }
+
+    public ContainsTableProvider(FullTextIndexInfo index, Func<string> searchCriteria, string rankColumnName,Func<int> topNByRank, bool fullFeatured)
       : base(ProviderType.ContainsTable)
     {
       SearchCriteria = searchCriteria;
       FullFeatured = fullFeatured;
       PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);
-      TargetColumnNames = targetColumnNames;
+      TopN = topNByRank;
       if (FullFeatured) {
         var primaryIndexRecordsetHeader =
           index.PrimaryIndex.ReflectedType.Indexes.PrimaryIndex.GetRecordSetHeader();

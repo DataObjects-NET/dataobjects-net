@@ -1849,7 +1849,7 @@ namespace Xtensive.Sql
       return new SqlFreeTextTable(dataTable, freeText, columnNames, topN);
     }
 
-    public static SqlFreeTextTable FreeTextTable(DataTable dataTable, SqlExpression freeText, IList<string> columnNames, IList<string> targetColumNames, SqlLiteral topN)
+    public static SqlFreeTextTable FreeTextTable(DataTable dataTable, SqlExpression freeText, IList<string> columnNames, IList<string> targetColumNames, SqlExpression topN)
     {
       ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
       ArgumentValidator.EnsureArgumentNotNull(freeText, "freeText");
@@ -1861,11 +1861,26 @@ namespace Xtensive.Sql
     public static SqlContainsTable ContainsTable(DataTable dataTable, SqlExpression searchText, IList<string> columnNames)
     {
       ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
-      ArgumentValidator.EnsureArgumentNotNull(searchText, "freeText");
+      ArgumentValidator.EnsureArgumentNotNull(searchText, "searchText");
       return new SqlContainsTable(dataTable, searchText, columnNames);
     }
 
     public static SqlContainsTable ContainsTable(DataTable dataTable, SqlExpression searchText, IList<string> columnNames, IList<string> targetColumnNames)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
+      ArgumentValidator.EnsureArgumentNotNull(searchText, "searchText");
+      ArgumentValidator.EnsureArgumentNotNull(columnNames, "columnNames");
+      return new SqlContainsTable(dataTable, searchText, columnNames, targetColumnNames);
+    }
+
+    public static SqlContainsTable ContainsTable(DataTable dataTable, SqlExpression searchText, IList<string> columnNames, SqlExpression topN)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
+      ArgumentValidator.EnsureArgumentNotNull(searchText, "searchText");
+      return new SqlContainsTable(dataTable, searchText, columnNames);
+    }
+
+    public static SqlContainsTable ContainsTable(DataTable dataTable, SqlExpression searchText, IList<string> columnNames, IList<string> targetColumnNames, SqlExpression topN)
     {
       ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");
       ArgumentValidator.EnsureArgumentNotNull(searchText, "searchText");
