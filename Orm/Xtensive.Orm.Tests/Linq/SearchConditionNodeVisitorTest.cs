@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Test001()
     {
-      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.Term("abc");
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.SimpleTerm("abc");
       string expectedTranslation = "abc";
       CompileAndTest(sc, expectedTranslation);
     }
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Tests.Linq
     [ExpectedException(typeof (ArgumentException))]
     public void Test002()
     {
-      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.Term("");
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.SimpleTerm("");
       string expectedTranslation = "dummy";
       CompileAndTest(sc, expectedTranslation);
     }
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Tests.Linq
     [ExpectedException(typeof (ArgumentException))]
     public void Test003()
     {
-      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.Term(" ");
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.SimpleTerm(" ");
       string expectedTranslation = "dummy".Trim();
       CompileAndTest(sc, expectedTranslation);
     }
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Tests.Linq
     [ExpectedException(typeof (ArgumentNullException))]
     public void Test004()
     {
-      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.Term(null);
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.SimpleTerm(null);
       string expectedTranslation = "dummy";
       CompileAndTest(sc, expectedTranslation);
     }
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Test005()
     {
-      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.Term(" abc ");
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.SimpleTerm(" abc ");
       string expectedTranslation = "abc";
       CompileAndTest(sc, expectedTranslation);
     }
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Test006()
     {
-      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.Term("Once upon a time");
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.SimpleTerm("Once upon a time");
       string expectedTranslation = "\"Once upon a time\"";
       CompileAndTest(sc, expectedTranslation);
     }
@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Test007()
     {
-      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.Prefix("dis");
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.PrefixTerm("dis");
       string expectedTranslation = "\"dis*\"";
       CompileAndTest(sc, expectedTranslation);
     }
@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Tests.Linq
     [ExpectedException(typeof (ArgumentException))]
     public void Test008()
     {
-      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.Prefix("");
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.PrefixTerm("");
       string expectedTranslation = "dummy";
       CompileAndTest(sc, expectedTranslation);
     }
@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Tests.Linq
     [ExpectedException(typeof (ArgumentException))]
     public void Test009()
     {
-      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.Prefix(" ");
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.PrefixTerm(" ");
       string expectedTranslation = "dummy".Trim();
       CompileAndTest(sc, expectedTranslation);
     }
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Tests.Linq
     [ExpectedException(typeof (ArgumentNullException))]
     public void Test010()
     {
-      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.Prefix(null);
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.PrefixTerm(null);
       string expectedTranslation = "dummy";
       CompileAndTest(sc, expectedTranslation);
     }
@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Test011()
     {
-      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.Prefix(" dis ");
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.PrefixTerm(" dis ");
       string expectedTranslation = "\"dis*\"";
       CompileAndTest(sc, expectedTranslation);
     }
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Test012()
     {
-      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.Prefix("kill all humans");
+      Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.PrefixTerm("kill all humans");
       string expectedTranslation = "\"kill all humans*\"";
       CompileAndTest(sc, expectedTranslation);
     }

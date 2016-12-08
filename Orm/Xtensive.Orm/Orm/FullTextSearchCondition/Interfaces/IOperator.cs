@@ -8,9 +8,9 @@ namespace Xtensive.Orm.FullTextSearchCondition.Interfaces
   {
     IOperand Source { get; }
 
-    IProximityOperand Term(string term);
+    IProximityOperand SimpleTerm(string term);
 
-    IProximityOperand Prefix(string prefix);
+    IProximityOperand PrefixTerm(string prefix);
 
     IGenerationTerm GenerationTerm(GenerationType generationType, ICollection<string> terms);
 

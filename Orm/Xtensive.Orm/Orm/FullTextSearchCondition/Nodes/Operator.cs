@@ -12,12 +12,12 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
 
     public SearchConditionNodeType NodeType { get; private set; }
 
-    public IProximityOperand Term(string term)
+    public IProximityOperand SimpleTerm(string term)
     {
       return SearchConditionNodeFactory.CreateSimpleTerm(this, term);
     }
 
-    public IProximityOperand Prefix(string prefix)
+    public IProximityOperand PrefixTerm(string prefix)
     {
       return SearchConditionNodeFactory.CreatePrefixTerm(this, prefix);
     }
