@@ -7,7 +7,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
   /// </summary>
   public sealed class ConditionEndpoint : Operator
   {
-    public override void AcceptVisitor(ISearchConditionNodeVisitor visitor)
+    protected override void AcceptVisitorInternal(ISearchConditionNodeVisitor visitor)
     {
       visitor.Visit(this);
     }

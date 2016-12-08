@@ -10,7 +10,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
   {
     public IList<IProximityOperand> Terms { get; private set; }
 
-    public override void AcceptVisitor(ISearchConditionNodeVisitor visitor)
+    protected override void AcceptVisitorInternal(ISearchConditionNodeVisitor visitor)
     {
       visitor.Visit(this);
     }

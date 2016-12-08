@@ -25,7 +25,12 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
       return SearchConditionNodeFactory.CreateAndNot(this);
     }
 
-    public abstract void AcceptVisitor(ISearchConditionNodeVisitor visitor);
+    public void AcceptVisitor(ISearchConditionNodeVisitor visitor)
+    {
+      AcceptVisitorInternal(visitor);
+    }
+
+    protected abstract void AcceptVisitorInternal(ISearchConditionNodeVisitor visitor);
 
     internal Operand(SearchConditionNodeType nodeType, IOperator sourceOperator)
     {

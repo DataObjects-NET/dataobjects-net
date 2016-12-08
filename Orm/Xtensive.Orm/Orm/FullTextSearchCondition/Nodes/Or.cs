@@ -4,7 +4,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
 {
   public sealed class Or : Operator
   {
-    public override void AcceptVisitor(ISearchConditionNodeVisitor visitor)
+    protected override void AcceptVisitorInternal(ISearchConditionNodeVisitor visitor)
     {
       visitor.Visit(this);
     }

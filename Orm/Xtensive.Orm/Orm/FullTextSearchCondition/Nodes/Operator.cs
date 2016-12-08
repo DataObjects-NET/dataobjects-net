@@ -61,7 +61,12 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
       return SearchConditionNodeFactory.CreateWeightedTerm(this, constructionFlow.WeightedOperands);
     }
 
-    public abstract void AcceptVisitor(ISearchConditionNodeVisitor visitor);
+    public void AcceptVisitor(ISearchConditionNodeVisitor visitor)
+    {
+      AcceptVisitorInternal(visitor);
+    }
+
+    protected abstract void AcceptVisitorInternal(ISearchConditionNodeVisitor visitor);
 
     internal Operator(SearchConditionNodeType nodeType, IOperand sourceOperand)
     {
