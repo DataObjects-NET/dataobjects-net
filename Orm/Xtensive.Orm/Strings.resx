@@ -3364,4 +3364,22 @@ Error: {1}</value>
   <data name="ExReferenceRegistrationErrorReferenceAdditionIsAlreadyRegistered" xml:space="preserve">
     <value>Reference registration error: Reference addition is already registered.</value>
   </data>
+  <data name="ExCollectionShouldContainAtLeastXElements" xml:space="preserve">
+    <value>Collection should contain at least {0} elements.</value>
+  </data>
+  <data name="TypeXIsNotSupportedYNode" xml:space="preserve">
+    <value>Type '{0}' is not supported '{1}' node.</value>
+  </data>
+  <data name="ExTermWeightValueMustBeBetweenXAndY" xml:space="preserve">
+    <value>Term weight value must be between {0} and {1}</value>
+  </data>
+  <data name="ExCurrentProviderDoesNotSupportContainsTableFunctionality" xml:space="preserve">
+    <value>Current provider does not support ContainsTable functionality.</value>
+  </data>
+  <data name="ExArgumentCannotBeWhiteSpacesOnlyString" xml:space="preserve">
+    <value>Argument cannot be white spaces only string.</value>
+  </data>
+  <data name="ExCollectionCannotContainAnyNeitherNullOrEmptyStringValues" xml:space="preserve">
+    <value>Collection cannot contain any neither null or empty string values.</value>
+  </data>
 </root>
