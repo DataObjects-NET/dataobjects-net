@@ -11,6 +11,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.FullTextSearchCondition.Interfaces;
+using Xtensive.Orm.FullTextSearchCondition.Nodes;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
 using Xtensive.Reflection;
@@ -27,8 +29,8 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo FreeTextStringTopNByRank;
       public static readonly MethodInfo FreeTextExpression;
       public static readonly MethodInfo FreeTextExpressionTopNByRank;
-      public static readonly MethodInfo ContainsTableString;
-      public static readonly MethodInfo ContainsTableExpression;
+      public static readonly MethodInfo ContainsTableFunc;
+      public static readonly MethodInfo ContainsTableFuncTopNByRank;
       public static readonly MethodInfo SingleKey;
       public static readonly MethodInfo SingleArray;
       public static readonly MethodInfo SingleOrDefaultKey;
@@ -52,10 +54,10 @@ namespace Xtensive.Orm.Linq
         var containsTableMethods = typeof (Orm.Query).GetMethods()
           .Where(m => m.Name=="ContainsTable")
           .Select(m => new {Method = m, ParameterTypes = m.GetParameterTypes()}).ToArray();
-        ContainsTableString = containsTableMethods
-          .Single(g => g.ParameterTypes.Length==2 && g.ParameterTypes[0]==typeof (string) && g.ParameterTypes[1]==typeof (IList<string>)).Method;
-        ContainsTableExpression = containsTableMethods
-          .Single(g => g.ParameterTypes.Length==2 && g.ParameterTypes[0]==typeof (Expression<Func<string>>) && g.ParameterTypes[1]==typeof (IList<string>)).Method;
+        ContainsTableFunc = containsTableMethods
+          .Single(g => g.ParameterTypes.Length==1 && g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>)).Method;
+        ContainsTableFuncTopNByRank = containsTableMethods
+          .Single(g => g.ParameterTypes.Length==2 && g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>) && g.ParameterTypes[1]==typeof (int)).Method;
 
         var singleMethods = typeof (Orm.Query).GetMethods().Where(m => m.Name=="Single" && m.IsGenericMethod);
         SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (Orm.Key));
@@ -75,10 +77,8 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo FreeTextStringTopNByRank;
       public static readonly MethodInfo FreeTextExpression;
       public static readonly MethodInfo FreeTextExpressionTopNByRank;
-      public static readonly MethodInfo ContainsTableString;
-      public static readonly MethodInfo ContainsTableStringWithColumns;
-      public static readonly MethodInfo ContainsTableExpression;
-      public static readonly MethodInfo ContainsTableExpressionWithColumns;
+      public static readonly MethodInfo ContainsTableFunc;
+      public static readonly MethodInfo ContainsTableFuncTopNByRank;
       public static readonly MethodInfo SingleKey;
       public static readonly MethodInfo SingleArray;
       public static readonly MethodInfo SingleOrDefaultKey;
@@ -103,14 +103,10 @@ namespace Xtensive.Orm.Linq
         var containsTableMethods = typeof (Orm.QueryEndpoint).GetMethods()
           .Where(m => m.Name=="ContainsTable")
           .Select(m=> new {Method = m, ParameterTypes = m.GetParameterTypes()}).ToArray();
-        ContainsTableString = containsTableMethods
-          .Single(g => g.ParameterTypes.Length==1 && g.ParameterTypes[0]==typeof (string)).Method;
-        ContainsTableStringWithColumns = containsTableMethods
-          .Single(g => g.ParameterTypes.Length==2 && g.ParameterTypes[0]==typeof (string) && g.ParameterTypes[1]==typeof(IList<string>)).Method;
-        ContainsTableExpression = containsTableMethods
-          .Single(g => g.ParameterTypes.Length==1 && g.ParameterTypes[0]==typeof (Expression<Func<string>>)).Method;
-        ContainsTableExpressionWithColumns = containsTableMethods
-          .Single(g => g.ParameterTypes.Length==2 && g.ParameterTypes[0]==typeof (Expression<Func<string>>) && g.ParameterTypes[1]==typeof(IList<string>)).Method;
+        ContainsTableFunc = containsTableMethods
+          .Single(g => g.ParameterTypes.Length==1 && g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>)).Method;
+        ContainsTableFuncTopNByRank = containsTableMethods
+          .Single(g => g.ParameterTypes.Length==2 && g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>) && g.ParameterTypes[1]==typeof (int)).Method;
 
         var singleMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name=="Single" && m.IsGenericMethod);
         SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(Orm.Key));
