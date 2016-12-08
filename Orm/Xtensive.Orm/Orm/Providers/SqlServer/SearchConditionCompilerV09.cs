@@ -135,6 +135,8 @@ namespace Xtensive.Orm.Providers.SqlServer
       if (conditionEndpoint==null)
         throw new InvalidOperationException(string.Format(Strings.TypeXIsNotSupportedYNode, node.GetType(), node.NodeType));
 
+      if (node.Source != null)
+        node.Source.AcceptVisitor(this);
       builder.Append(" AND ");
     }
 
@@ -144,6 +146,8 @@ namespace Xtensive.Orm.Providers.SqlServer
       if (conditionEndpoint==null)
         throw new InvalidOperationException(string.Format(Strings.TypeXIsNotSupportedYNode, node.GetType(), node.NodeType));
 
+      if (node.Source != null)
+        node.Source.AcceptVisitor(this);
       builder.Append(" AND NOT ");
     }
 
@@ -153,6 +157,8 @@ namespace Xtensive.Orm.Providers.SqlServer
       if (conditionEndpoint==null)
         throw new InvalidOperationException(string.Format(Strings.TypeXIsNotSupportedYNode, node.GetType(), node.NodeType));
 
+      if (node.Source != null)
+        node.Source.AcceptVisitor(this);
       builder.Append(" OR ");
     }
 
