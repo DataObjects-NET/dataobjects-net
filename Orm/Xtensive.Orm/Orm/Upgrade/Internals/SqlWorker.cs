@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
@@ -38,9 +39,11 @@ namespace Xtensive.Orm.Upgrade
       var mapping = new MetadataMapping(services.StorageDriver, services.NameBuilder);
       var set = new MetadataSet();
       foreach (var task in services.MappingResolver.GetMetadataTasks()) {
-        if (result.Schema!=null && !result.Schema.Catalogs[task.Catalog].Schemas[task.Schema].Tables
-          .Any(t => t.Name.In("Metadata.Assembly", "Metadata.Extension", "Metadata.Type")))
-          continue;
+        if (result.Schema!=null) {
+          var tables = result.Schema.Catalogs[task.Catalog].Schemas[task.Schema].Tables;
+          if (tables[mapping.Assembly]==null && tables[mapping.Type]==null && tables[mapping.Extension]==null)
+            continue;
+        } 
         try {
           new MetadataExtractor(mapping, task, executor).Extract(set);
         }
