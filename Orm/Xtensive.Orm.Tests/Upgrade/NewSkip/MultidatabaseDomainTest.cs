@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (User).Assembly, typeof (User).Namespace);
       configuration.Types.Register(typeof (Laptop).Assembly, typeof (Laptop).Namespace);
-      configuration.DefaultSchema = "DO-Tests-1";
+      configuration.DefaultDatabase = "DO-Tests-1";
       configuration.DefaultSchema = "Model1";
       configuration.ForeignKeyMode = GetForeignKeyMode();
       configuration.MappingRules.Map(typeof (User).Assembly, typeof (User).Namespace).ToDatabase("DO-Tests-1");
