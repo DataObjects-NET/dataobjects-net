@@ -38,7 +38,8 @@ namespace Xtensive.Orm.Upgrade
       var mapping = new MetadataMapping(services.StorageDriver, services.NameBuilder);
       var set = new MetadataSet();
       foreach (var task in services.MappingResolver.GetMetadataTasks()) {
-        if (result.Schema!=null && !result.Schema.Catalogs[task.Catalog].Schemas[task.Schema].Tables.Any())
+        if (result.Schema!=null && !result.Schema.Catalogs[task.Catalog].Schemas[task.Schema].Tables
+          .Any(t => t.Name.In("Metadata.Assembly", "Metadata.Extension", "Metadata.Type")))
           continue;
         try {
           new MetadataExtractor(mapping, task, executor).Extract(set);
