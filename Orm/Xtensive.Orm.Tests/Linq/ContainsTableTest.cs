@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
 
@@ -9,6 +11,18 @@ namespace Xtensive.Orm.Tests.Linq
 {
   public class ContainsTableTest : NorthwindDOModelTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.SingleKeyRankTableFullText);
+    }
+
+    protected override Domain BuildDomain(Xtensive.Orm.Configuration.DomainConfiguration configuration)
+    {
+      var domain = base.BuildDomain(configuration);
+      Thread.Sleep(TimeSpan.FromSeconds(6));
+      return domain;
+    }
+
     [Test]
     public void SearchByTypeWithoutFulltextIndexTest()
     {
