@@ -5,7 +5,6 @@
 // Created:    2016.02.09
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
@@ -62,8 +61,6 @@ namespace Xtensive.Orm.Tests.Upgrade
   [TestFixture]
   public abstract class BuildOnEmptySchemaBase
   {
-    private const string ErrorInTestFixtureSetup = "Error in TestFixtureSetUp:\r\n{0}";
-
     [Test]
     public void PerformTest()
     {
@@ -97,18 +94,11 @@ namespace Xtensive.Orm.Tests.Upgrade
     protected abstract void EnsureDomainWorksCorrectly(Domain domain);
 
     [TestFixtureSetUp]
-    protected virtual void TestFixtureSetUp() {
-      try {
-        ClearSchema();
-      }
-      catch (IgnoreException) {
-        throw;
-      }
-      catch (Exception e) {
-        Debug.WriteLine(ErrorInTestFixtureSetup, e);
-        throw;
-      }
+    protected void TestFixtureSetUp() {
+      CheckRequirements();
     }
+
+    protected virtual void CheckRequirements(){}
 
     protected Domain RebuildDomain(DomainConfiguration configuration)
     {
@@ -141,7 +131,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     private void ClearSchema()
     {
       using (Domain.Build(BuildInitialConfiguration())) {}
-    }  
+    }
 
     internal class CleanupUpgradeHandler : UpgradeHandler
     {
@@ -205,10 +195,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
-    protected override void TestFixtureSetUp()
+    protected override void CheckRequirements()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multischema);
-      base.TestFixtureSetUp();
     }
 
     public override void RegisterTypes(DomainConfiguration configuration)
@@ -258,10 +247,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
-    protected override void TestFixtureSetUp()
+    protected override void CheckRequirements()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
-      base.TestFixtureSetUp();
     }
 
     public override void RegisterTypes(DomainConfiguration configuration)
