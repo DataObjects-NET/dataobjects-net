@@ -10,6 +10,7 @@ using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Tests.Upgrade.BuildOnEmptySchemaModel.CleanUpUpgrader;
 using Xtensive.Orm.Tests.Upgrade.BuildOnEmptySchemaModel.TestModel;
 using Xtensive.Orm.Tests.Upgrade.BuildOnEmptySchemaModel.TestModel2;
 using Xtensive.Orm.Upgrade;
@@ -52,6 +53,23 @@ namespace Xtensive.Orm.Tests.Upgrade.BuildOnEmptySchemaModel
 
       [Field]
       public string Name { get; private set; }
+    }
+  }
+
+  namespace CleanUpUpgrader
+  {
+    public class CleanupUpgradeHandler : UpgradeHandler
+    {
+      public override bool CanUpgradeFrom(string oldVersion)
+      {
+        return true;
+      }
+
+      public override void OnComplete(Domain domain)
+      {
+        var cleanUpWorker = SqlWorker.Create(this.UpgradeContext.Services, SqlWorkerTask.DropSchema);
+        cleanUpWorker.Invoke();
+      }
     }
   }
 }
@@ -135,19 +153,6 @@ namespace Xtensive.Orm.Tests.Upgrade
     private void ClearSchema()
     {
       using (Domain.Build(BuildInitialConfiguration())) {}
-    }
-
-    internal class CleanupUpgradeHandler : UpgradeHandler
-    {
-      public override bool CanUpgradeFrom(string oldVersion) {
-        return true;
-      }
-
-      public override void OnComplete(Domain domain)
-      {
-        var cleanUpWorker = SqlWorker.Create(this.UpgradeContext.Services, SqlWorkerTask.DropSchema);
-        cleanUpWorker.Invoke();
-      }
     }
   }
 
