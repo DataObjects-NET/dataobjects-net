@@ -89,7 +89,11 @@ namespace Xtensive.Orm.Tests.Upgrade
       Assert.DoesNotThrow(() => RebuildDomain(configuration));
     }
 
-    public abstract void RegisterTypes(DomainConfiguration configuration);
+    protected virtual void RegisterTypes(DomainConfiguration configuration)
+    {
+      configuration.Types.Register(typeof (Symbol));
+      configuration.Types.Register(typeof (Symbol2));
+    }
 
     protected abstract void EnsureDomainWorksCorrectly(Domain domain);
 
@@ -149,11 +153,6 @@ namespace Xtensive.Orm.Tests.Upgrade
 
   public sealed class SimpleTest : BuildOnEmptySchemaBase
   {
-    public override void RegisterTypes(DomainConfiguration configuration)
-    {
-      configuration.Types.Register(typeof (Symbol));
-    }
-
     protected override void EnsureDomainWorksCorrectly(Domain domain)
     {
       using (domain) {
@@ -200,12 +199,6 @@ namespace Xtensive.Orm.Tests.Upgrade
       Require.AllFeaturesSupported(ProviderFeatures.Multischema);
     }
 
-    public override void RegisterTypes(DomainConfiguration configuration)
-    {
-      configuration.Types.Register(typeof (Symbol));
-      configuration.Types.Register(typeof (Symbol2));
-    }
-
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
@@ -250,12 +243,6 @@ namespace Xtensive.Orm.Tests.Upgrade
     protected override void CheckRequirements()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
-    }
-
-    public override void RegisterTypes(DomainConfiguration configuration)
-    {
-      configuration.Types.Register(typeof (Symbol));
-      configuration.Types.Register(typeof (Symbol2));
     }
 
     protected override DomainConfiguration BuildConfiguration()
