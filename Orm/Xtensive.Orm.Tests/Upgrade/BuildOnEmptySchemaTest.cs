@@ -107,20 +107,11 @@ namespace Xtensive.Orm.Tests.Upgrade
       Assert.DoesNotThrow(() => RebuildDomain(configuration));
     }
 
-    protected virtual void RegisterTypes(DomainConfiguration configuration)
-    {
-      configuration.Types.Register(typeof (Symbol));
-      configuration.Types.Register(typeof (Symbol2));
-    }
-
-    protected abstract void EnsureDomainWorksCorrectly(Domain domain);
-
     [TestFixtureSetUp]
-    protected void TestFixtureSetUp() {
+    protected void TestFixtureSetUp()
+    {
       CheckRequirements();
     }
-
-    protected virtual void CheckRequirements(){}
 
     protected Domain RebuildDomain(DomainConfiguration configuration)
     {
@@ -134,6 +125,16 @@ namespace Xtensive.Orm.Tests.Upgrade
         throw;
       }
     }
+
+    protected abstract void EnsureDomainWorksCorrectly(Domain domain);
+
+    protected virtual void RegisterTypes(DomainConfiguration configuration)
+    {
+      configuration.Types.Register(typeof (Symbol));
+      configuration.Types.Register(typeof (Symbol2));
+    }
+
+    protected virtual void CheckRequirements(){}
 
     protected virtual DomainConfiguration BuildConfiguration()
     {
