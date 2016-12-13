@@ -4,9 +4,11 @@
 // Created by: Alexey Kulakov
 // Created:    2016.02.23
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Internals.Interfaces;
 using Xtensive.Sql.Model;
@@ -15,49 +17,47 @@ namespace Xtensive.Orm.Upgrade.Internals
 {
   internal sealed class NodeExtractedModelBuilder : ISchemaExtractionResultBuilder
   {
-    private const char NameElementSeparator = ':';
-
     private readonly MappingResolver mappingResolver;
     private readonly StorageNode defaultStorageNode;
+    private readonly NodeConfiguration buildingNodeConfiguration;
 
     public SchemaExtractionResult Run()
     {
       var result = new SchemaExtractionResult();
       CopyCatalogs(result.Catalogs);
-      ValidateAndFixResult(result.Catalogs);
       return result;
     }
 
     private void CopyCatalogs(NodeCollection<Catalog> catalogs)
     {
       var cloner = new CatalogCloner();
-      GetCatalogs().Select(catalog => cloner.Clone(catalog, mappingResolver)).ForEach(catalogs.Add);
-    }
-
-    private void ValidateAndFixResult(NodeCollection<Catalog> catalogs)
-    {
-      foreach (var group in mappingResolver.GetSchemaTasks().GroupBy(t => t.Catalog)) {
-        var catalog = catalogs[group.Key];
-        if (catalog==null) {
-          catalog = new Catalog(group.Key);
-          catalogs.Add(catalog);
-        }
-        foreach (var sqlExtractionTask in group) {
-          if(catalog.Schemas[sqlExtractionTask.Schema]!=null)
-            continue;
-          catalog.CreateSchema(sqlExtractionTask.Schema);
-        }
+      var defaultNodeCatalogs = GetDefaultNodeCatalogs();
+      var currentCatalogNodes = GetCurrentExtratableCatalogs();
+      if (currentCatalogNodes.Count==1) {
+        catalogs.Add(cloner.Clone(defaultNodeCatalogs[0], mappingResolver, currentCatalogNodes[0]));
+      }
+      else {
+        defaultNodeCatalogs
+          .Select(
+              catalog => cloner.Clone(catalog, mappingResolver, buildingNodeConfiguration.DatabaseMapping.Apply(catalog.Name)))
+          .ForEach(catalogs.Add);
       }
     }
 
-    private IEnumerable<Catalog> GetCatalogs()
+    private IList<string> GetCurrentExtratableCatalogs()
     {
-      return defaultStorageNode.Mapping.GetAllSNodes().Select(node => node.Schema.Catalog).Distinct();
+      return mappingResolver.GetSchemaTasks().GroupBy(t => t.Catalog).Select(t=>t.Key).ToList();
     }
 
-    internal NodeExtractedModelBuilder(UpgradeServiceAccessor services, StorageNode defaultNode)
+    private IList<Catalog> GetDefaultNodeCatalogs()
+    {
+      return defaultStorageNode.Mapping.GetAllSNodes().Select(node => node.Schema.Catalog).Distinct().ToList();
+    }
+
+    internal NodeExtractedModelBuilder(UpgradeServiceAccessor services, StorageNode defaultNode, NodeConfiguration buildingNodeConfiguration)
     {
       mappingResolver = services.MappingResolver;
+      this.buildingNodeConfiguration = buildingNodeConfiguration;
       defaultStorageNode = defaultNode;
     }
   }

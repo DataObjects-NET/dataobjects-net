@@ -18,40 +18,34 @@ namespace Xtensive.Orm.Upgrade.Internals
   {
     private const char NameElementSeparator = ':';
 
-    public Catalog Clone(Catalog source, MappingResolver mappingResolver)
+    public Catalog Clone(Catalog source, MappingResolver mappingResolver, string newCatalogName)
     {
-      string newCatalogName;
-      Dictionary<string, string> schemaMap;
-      CreateSchemaMappings(source, mappingResolver, out schemaMap, out newCatalogName);
-
       var newCatalog = new Catalog(newCatalogName);
-      if (source.DbName!=source.Name)
-        newCatalog.DbName = source.DbName;
 
+      var schemaMap = CloneSchemas(newCatalog, source, mappingResolver);
       ClonePartitionFuctionsAndSchemas(newCatalog, source);
       CloneSchemas(newCatalog, source, schemaMap);
       return newCatalog;
     }
 
-    private void CreateSchemaMappings(Catalog catalog, MappingResolver mappingResolver, out Dictionary<string, string> schemaMap, out string catalogName)
+    private Dictionary<string, string> CloneSchemas(Catalog newCatalog, Catalog sourceCatalog, MappingResolver mappingResolver)
     {
-      schemaMap = new Dictionary<string, string>();
-      catalogName = string.Empty;
-      foreach (var schema in catalog.Schemas) {
-        var name = mappingResolver.GetNodeName(catalog.Name, schema.Name, "Dummy");
-        var names = name.Split(NameElementSeparator);
+      var schemaMap = new Dictionary<string, string>();
+      foreach (var schema in sourceCatalog.Schemas) {
+        var complexName = mappingResolver.GetNodeName(newCatalog.Name, schema.Name, "Dummy");
+        var names = complexName.Split(NameElementSeparator);
         var schemaName = schema.Name;
-        if (names.Length==3) {
-          catalogName = names[0];
-          schemaName = names[1];
-        }
-        else if (names.Length==2) {
-          schemaName = names[0];
+        switch (names.Length) {
+          case 3:
+            schemaName = names[1];
+            break;
+          case 2:
+            schemaName = names[0];
+            break;
         }
         schemaMap.Add(schema.Name, schemaName);
       }
-      if (catalogName.IsNullOrEmpty())
-        catalogName = catalog.Name;
+      return schemaMap;
     }
 
     private void ClonePartitionFuctionsAndSchemas(Catalog newCatalog, Catalog source)
