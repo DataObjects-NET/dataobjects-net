@@ -337,6 +337,13 @@ namespace Xtensive.Orm.Tests.ObjectModel.NorthwindDO
     {
       get { return FirstName + " " + LastName; }
     }
+
+    public int? GetAge()
+    {
+      if (BirthDate.HasValue)
+        return DateTime.Now.Year - BirthDate.Value.Year;
+      return default(int?);
+    }
   }
 
   [Serializable]
