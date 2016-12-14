@@ -61,14 +61,15 @@ namespace Xtensive.Orm.Providers.SqlServer
       var table = Mapping[index.ReflectedType];
       var columns = provider.Header.Columns.Select(column => column.Name).ToList();
 
-      if (provider.TopN == null) {
-        fromTable = SqlDml.ContainsTable(table, criteriaBinding.ParameterReference, columns);
+      var targetColumnNames = provider.TargetColumns.Select(c => c.Name).ToArray();
+      if (provider.TopN==null) {
+        fromTable = SqlDml.ContainsTable(table, criteriaBinding.ParameterReference, columns, targetColumnNames);
         bindings = new[] { criteriaBinding };
       }
       else {
         var intTypeMapping = Driver.GetTypeMapping(typeof(int));
         var topNBinding = new QueryParameterBinding(intTypeMapping, () => provider.TopN.Invoke(), QueryParameterBindingType.Regular);
-        fromTable = SqlDml.ContainsTable(table, criteriaBinding.ParameterReference, columns, topNBinding.ParameterReference);
+        fromTable = SqlDml.ContainsTable(table, criteriaBinding.ParameterReference, columns, targetColumnNames, topNBinding.ParameterReference);
         bindings = new[] { criteriaBinding, topNBinding };
       }
       var fromTableRef = SqlDml.QueryRef(fromTable);
