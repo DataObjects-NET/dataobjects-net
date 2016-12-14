@@ -5,13 +5,14 @@
 // Created:    2016.02.09
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Upgrade.BuildOnEmptySchemaModel.CleanUpUpgrader;
 using Xtensive.Orm.Tests.Upgrade.BuildOnEmptySchemaModel.TestModel;
+using Xtensive.Orm.Tests.Upgrade.BuildOnEmptySchemaModel.TestModel2;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;
 
@@ -42,6 +43,19 @@ namespace Xtensive.Orm.Tests.Upgrade.BuildOnEmptySchemaModel
     }
   }
 
+  namespace TestModel2
+  {
+    [HierarchyRoot]
+    public class Symbol2 : Entity
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+
+      [Field]
+      public string Name { get; private set; }
+    }
+  }
+
   namespace CleanUpUpgrader
   {
     public class CleanupUpgradeHandler : UpgradeHandler
@@ -63,14 +77,113 @@ namespace Xtensive.Orm.Tests.Upgrade.BuildOnEmptySchemaModel
 namespace Xtensive.Orm.Tests.Upgrade
 {
   [TestFixture]
-  public sealed class BuildOnEmptySchemaTest
+  public abstract class BuildOnEmptySchemaBase
   {
-    private const string ErrorInTestFixtureSetup = "Error in TestFixtureSetUp:\r\n{0}";
+    [Test]
+    public void PerformTest()
+    {
+      var configuration = BuildConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Perform;
+      Domain domain = null;
+      Assert.DoesNotThrow(() => domain = RebuildDomain(configuration));
+      EnsureDomainWorksCorrectly(domain);
+    }
 
     [Test]
-    public void MainTest()
+    public void RecreateTest()
     {
-      using (var domain = BuildDomain(BuildConfiguration())) {
+      var configuration = BuildConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      Domain domain = null;
+      Assert.DoesNotThrow(() => domain = RebuildDomain(configuration));
+      EnsureDomainWorksCorrectly(domain);
+    }
+
+    [Test]
+    public void SkipTest()
+    {
+      var configuration = BuildConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Skip;
+      Assert.DoesNotThrow(() => RebuildDomain(configuration));
+    }
+
+    [TestFixtureSetUp]
+    protected void TestFixtureSetUp()
+    {
+      CheckRequirements();
+    }
+
+    protected Domain RebuildDomain(DomainConfiguration configuration)
+    {
+      try {
+        ClearSchema();
+        return Domain.Build(configuration);
+      }
+      catch (Exception e) {
+        TestLog.Error(GetType().GetFullName());
+        TestLog.Error(e);
+        throw;
+      }
+    }
+
+    protected abstract void EnsureDomainWorksCorrectly(Domain domain);
+
+    protected virtual void RegisterTypes(DomainConfiguration configuration)
+    {
+      configuration.Types.Register(typeof (Symbol));
+      configuration.Types.Register(typeof (Symbol2));
+    }
+
+    protected virtual void CheckRequirements(){}
+
+    protected virtual DomainConfiguration BuildConfiguration()
+    {
+      var configuration = DomainConfigurationFactory.Create();
+      RegisterTypes(configuration);
+      return configuration;
+    }
+
+    protected virtual DomainConfiguration BuildInitialConfiguration()
+    {
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.Types.Register(typeof (CleanupUpgradeHandler));
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      return configuration;
+    }
+
+    private void ClearSchema()
+    {
+      using (Domain.Build(BuildInitialConfiguration())) {}
+    }
+  }
+
+  public sealed class SimpleTest : BuildOnEmptySchemaBase
+  {
+    protected override void EnsureDomainWorksCorrectly(Domain domain)
+    {
+      using (domain) {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          foreach (var intValue in Enumerable.Range(1000, 10)) {
+            Symbol.Intern(session, intValue.ToString());
+          }
+          transaction.Complete();
+        }
+      
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var symbols = session.Query.All<Symbol>().ToArray();
+          Assert.That(symbols.Length, Is.EqualTo(10));
+        }
+      }
+    }
+  }
+
+  public sealed class MultischemaTest : BuildOnEmptySchemaBase
+  {
+    protected override void EnsureDomainWorksCorrectly(Domain domain)
+    {
+      using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           foreach (var intValue in Enumerable.Range(1000, 10)) {
@@ -87,54 +200,76 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
-    [TestFixtureSetUp]
-    public void TestFixtureSetUp()
+    protected override void CheckRequirements()
     {
-      try {
-        ClearSchema();
-      }
-      catch (IgnoreException) {
-        throw;
-      }
-      catch (Exception e)
-      {
-        Debug.WriteLine(ErrorInTestFixtureSetup, e);
-        throw;
+      Require.AllFeaturesSupported(ProviderFeatures.Multischema);
+    }
+
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      var configuration = base.BuildConfiguration();
+      configuration.DefaultSchema = "Model1";
+      configuration.MappingRules.Map(typeof (Symbol).Namespace).ToSchema("Model1");
+      configuration.MappingRules.Map(typeof (Symbol2).Namespace).ToSchema("Model2");
+      return configuration;
+    }
+
+    protected override DomainConfiguration BuildInitialConfiguration()
+    {
+      var configuration = base.BuildInitialConfiguration();
+      configuration.DefaultSchema = "Model1";
+      configuration.MappingRules.Map(typeof (Symbol).Namespace).ToSchema("Model1");
+      configuration.MappingRules.Map(typeof (Symbol2).Namespace).ToSchema("Model2");
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      return configuration;
+    }
+  }
+
+  public sealed class MultiDatabaseTest : BuildOnEmptySchemaBase
+  {
+    protected override void EnsureDomainWorksCorrectly(Domain domain)
+    {
+      using (domain) {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          foreach (var intValue in Enumerable.Range(1000, 10)) {
+            Symbol.Intern(session, intValue.ToString());
+          }
+          transaction.Complete();
+        }
+
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var symbols = session.Query.All<Symbol>().ToArray();
+          Assert.That(symbols.Length, Is.EqualTo(10));
+        }
       }
     }
 
-    private void ClearSchema()
+    protected override void CheckRequirements()
     {
-      using (var domain = BuildDomain(BuildInitialConfiguration())) {}
+      Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
     }
 
-    protected Domain BuildDomain(DomainConfiguration configuration)
+    protected override DomainConfiguration BuildConfiguration()
     {
-      try {
-        return Domain.Build(configuration);
-      }
-      catch (Exception e)
-      {
-        TestLog.Error(GetType().GetFullName());
-        TestLog.Error(e);
-        throw;
-      }
+      var configuration = base.BuildConfiguration();
+      configuration.DefaultDatabase = "DO-Tests";
+      configuration.DefaultSchema = "Model1";
+      configuration.MappingRules.Map(typeof (Symbol).Namespace).ToDatabase("DO-Tests");
+      configuration.MappingRules.Map(typeof (Symbol2).Namespace).ToDatabase("DO-Tests-1");
+      return configuration;
     }
 
-    private DomainConfiguration BuildInitialConfiguration()
+    protected override DomainConfiguration BuildInitialConfiguration()
     {
-      var configruation = DomainConfigurationFactory.Create();
-      configruation.Types.Register(typeof (CleanupUpgradeHandler));
-      configruation.UpgradeMode = DomainUpgradeMode.Recreate;
-      return configruation;
-    }
-
-    private DomainConfiguration BuildConfiguration()
-    {
-      var configruation = DomainConfigurationFactory.Create();
-      configruation.Types.Register(typeof(Symbol));
-      configruation.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      return configruation;
+      var configuration = base.BuildInitialConfiguration();
+      configuration.DefaultDatabase = "DO-Tests";
+      configuration.DefaultSchema = "Model1";
+      configuration.MappingRules.Map(typeof (Symbol).Namespace).ToDatabase("DO-Tests");
+      configuration.MappingRules.Map(typeof (Symbol2).Namespace).ToDatabase("DO-Tests-1");
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      return configuration;
     }
   }
 }
