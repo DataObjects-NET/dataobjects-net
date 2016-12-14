@@ -326,6 +326,7 @@
     <Compile Include="Issues\StrangeLockingExceptionTest.cs" />
     <Compile Include="Issues\StructureFieldRemoveTest.cs" />
     <Compile Include="Linq\ContainsOverKeysCollectionTest.cs" />
+    <Compile Include="Linq\ContainsTableTest.cs" />
     <Compile Include="Linq\ConvariantQueriesTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\BaseTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeBaseTest.cs" />
@@ -353,6 +354,8 @@
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\OrderByTest.cs" />
     <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\WhereTest.cs" />
     <Compile Include="Linq\DoubleAggregateToStructTest.cs" />
+    <Compile Include="Linq\FullTextColumnsDeclarationTest.cs" />
+    <Compile Include="Linq\SearchConditionNodeVisitorTest.cs" />
     <Compile Include="Model\FullText\DynamicallyDefinedFieldsAndIndexesTest.cs" />
     <Compile Include="Model\FullText\IndexOnStructureFieldNamingTest.cs" />
     <Compile Include="Model\FullText\IndexOnStructureFieldTest.cs" />

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Tuples;
@@ -21,21 +22,34 @@ namespace Xtensive.Orm.Rse.Providers
 
     public bool FullFeatured { get; private set; }
 
-    public Func<IList<string>> TargetColumnNames { get; private set; }
+    public Func<int> TopN { get; private set; }
+
+    public ReadOnlyList<FullTextColumnInfo> TargetColumns { get; private set; } 
 
     protected override RecordSetHeader BuildHeader()
     {
       return indexHeader;
     }
 
-    public ContainsTableProvider(FullTextIndexInfo index, Func<string> searchCriteria, string rankColumnName,
-      bool fullFeatured, Func<IList<string>> targetColumnNames = null)
+    public ContainsTableProvider(FullTextIndexInfo index, Func<string> searchCriteria, string rankColumnName, bool fullFeatured)
+      : this(index, searchCriteria, rankColumnName, new List<ColumnInfo>(), null, fullFeatured)
+    {
+    }
+
+    public ContainsTableProvider(FullTextIndexInfo index, Func<string> searchCriteria, string rankColumnName, IList<ColumnInfo> targetColumns, bool fullFeatured)
+      : this(index, searchCriteria, rankColumnName, targetColumns, null, fullFeatured)
+    {
+      
+    }
+
+    public ContainsTableProvider(FullTextIndexInfo index, Func<string> searchCriteria, string rankColumnName, IList<ColumnInfo> targetColumns, Func<int> topNByRank, bool fullFeatured)
       : base(ProviderType.ContainsTable)
     {
       SearchCriteria = searchCriteria;
       FullFeatured = fullFeatured;
       PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);
-      TargetColumnNames = targetColumnNames;
+      TargetColumns = new ReadOnlyList<FullTextColumnInfo>(targetColumns.Select(tc=>index.Columns.First(c=>c.Column==tc)).ToList());
+      TopN = topNByRank;
       if (FullFeatured) {
         var primaryIndexRecordsetHeader =
           index.PrimaryIndex.ReflectedType.Indexes.PrimaryIndex.GetRecordSetHeader();

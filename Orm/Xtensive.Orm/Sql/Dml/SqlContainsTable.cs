@@ -6,7 +6,7 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Dml
 {
-    [Serializable]
+  [Serializable]
   public class SqlContainsTable: SqlTable, ISqlQueryExpression
   {
     public SqlTableRef TargetTable { get; private set; }
@@ -14,6 +14,8 @@ namespace Xtensive.Sql.Dml
     public SqlTableColumnCollection TargetColumns { get; private set; }
 
     public SqlExpression SearchCondition { get; private set; }
+
+    public SqlExpression TopNByRank { get; private set; }
 
     internal override object Clone(SqlNodeCloneContext context)
     {
@@ -63,16 +65,28 @@ namespace Xtensive.Sql.Dml
 
     // Constructors
 
-    internal SqlContainsTable(DataTable dataTable, SqlExpression searchCondition, IEnumerable<string> columnNames)
-      : this(dataTable, searchCondition, columnNames, ArrayUtils<string>.EmptyArray)
+
+    internal SqlContainsTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columnNames)
+      : this(dataTable, freeText, columnNames, ArrayUtils<string>.EmptyArray, null)
     {
     }
 
-    internal SqlContainsTable(DataTable dataTable, SqlExpression searchCondition, IEnumerable<string> columnNames, ICollection<string> targetColumnNames)
+    internal SqlContainsTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columnNames, ICollection<string> targetColumnNames)
+      : this(dataTable, freeText, columnNames, targetColumnNames, null)
+    {
+    }
+
+    internal SqlContainsTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columNames, SqlExpression topN)
+      : this(dataTable, freeText, columNames, ArrayUtils<string>.EmptyArray, topN)
+    {
+    }
+
+    internal SqlContainsTable(DataTable dataTable, SqlExpression searchCondition, IEnumerable<string> columnNames, ICollection<string> targetColumnNames, SqlExpression topNByRank)
       : base(string.Empty)
     {
       TargetTable = SqlDml.TableRef(dataTable);
       SearchCondition = searchCondition;
+      TopNByRank = topNByRank;
       var targetColumns = new List<SqlTableColumn>();
       if (targetColumnNames.Count == 0)
         targetColumns.Add(Asterisk);
