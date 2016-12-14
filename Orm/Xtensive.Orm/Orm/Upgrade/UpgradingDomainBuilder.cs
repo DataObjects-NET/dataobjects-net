@@ -382,7 +382,7 @@ namespace Xtensive.Orm.Upgrade
             }
           }
           else {
-            var builder = ExtractedModelBuilderFactory.GetBuilder(context.Services, domain.StorageNodeManager.GetNode(WellKnown.DefaultNodeId));
+            var builder = ExtractedModelBuilderFactory.GetBuilder(context.Services, domain.StorageNodeManager.GetNode(WellKnown.DefaultNodeId), context.NodeConfiguration);
             context.ExtractedSqlModelCache = builder.Run();
           }
           OnSchemaReady();
