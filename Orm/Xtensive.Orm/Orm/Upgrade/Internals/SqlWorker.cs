@@ -37,13 +37,19 @@ namespace Xtensive.Orm.Upgrade
     {
       var mapping = new MetadataMapping(services.StorageDriver, services.NameBuilder);
       var set = new MetadataSet();
-      foreach (var task in services.MappingResolver.GetMetadataTasks())
+      foreach (var task in services.MappingResolver.GetMetadataTasks()) {
+        if (result.Schema!=null) {
+          var tables = result.Schema.Catalogs[task.Catalog].Schemas[task.Schema].Tables;
+          if (tables[mapping.Assembly]==null && tables[mapping.Type]==null && tables[mapping.Extension]==null)
+            continue;
+        } 
         try {
           new MetadataExtractor(mapping, task, executor).Extract(set);
         }
         catch (Exception exception) {
           UpgradeLog.Warning(Strings.LogFailedToExtractMetadataFromXYZ, task.Catalog, task.Schema, exception);
         }
+      }
       result.Metadata = set;
     }
 
