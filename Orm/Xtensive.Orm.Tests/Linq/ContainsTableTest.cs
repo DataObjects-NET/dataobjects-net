@@ -1,4 +1,10 @@
-﻿using System;
+﻿// Copyright (C) 2003-2016 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2016.12.09
+
+using System;
 using System.Linq;
 using System.Threading;
 using NUnit.Framework;
@@ -113,6 +119,5 @@ namespace Xtensive.Orm.Tests.Linq
       topTwoRanks = actualRanks.OrderBy(r => r).Take(2).ToList();
       Assert.That(limitedResults.All(r => topTwoRanks.Contains(r)), Is.True);
     }
-
   }
 }

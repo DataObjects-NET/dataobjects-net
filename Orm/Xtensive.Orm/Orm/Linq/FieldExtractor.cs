@@ -1,10 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Copyright (C) 2003-2016 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2016.12.14
+
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
