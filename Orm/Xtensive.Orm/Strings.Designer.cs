@@ -2412,6 +2412,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Field access expression &apos;{0}&apos;  does not access to &apos;{1}&apos; type members..
+        /// </summary>
+        internal static string ExFieldAccessExpressionXDoesNotAccessToYTypeMembers {
+            get {
+                return ResourceManager.GetString("ExFieldAccessExpressionXDoesNotAccessToYTypeMembers", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Field belongs to a different type..
         /// </summary>
         internal static string ExFieldBelongsToADifferentType {
@@ -7720,6 +7729,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is not suitable field for full-text search.
+        /// </summary>
+        internal static string ExXIsNotSuitableFieldFoFullTextSearch {
+            get {
+                return ResourceManager.GetString("ExXIsNotSuitableFieldFoFullTextSearch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; is not supported.
         /// </summary>
         internal static string ExXIsNotSupported {
@@ -7842,6 +7860,15 @@ namespace Xtensive {
         internal static string FieldXDoesNotExistInTableForY {
             get {
                 return ResourceManager.GetString("FieldXDoesNotExistInTableForY", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Field &apos;{0}&apos; is complex and cannot be used for search..
+        /// </summary>
+        internal static string FieldXIsComplexAndCannotBeUsedForSearch {
+            get {
+                return ResourceManager.GetString("FieldXIsComplexAndCannotBeUsedForSearch", resourceCulture);
             }
         }
         

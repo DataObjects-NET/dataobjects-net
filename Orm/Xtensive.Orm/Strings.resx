@@ -3382,4 +3382,13 @@ Error: {1}</value>
   <data name="ExCollectionCannotContainAnyNeitherNullOrEmptyStringValues" xml:space="preserve">
     <value>Collection cannot contain any neither null or empty string values.</value>
   </data>
+  <data name="FieldXIsComplexAndCannotBeUsedForSearch" xml:space="preserve">
+    <value>Field '{0}' is complex and cannot be used for search.</value>
+  </data>
+  <data name="ExXIsNotSuitableFieldFoFullTextSearch" xml:space="preserve">
+    <value>'{0}' is not suitable field for full-text search</value>
+  </data>
+  <data name="ExFieldAccessExpressionXDoesNotAccessToYTypeMembers" xml:space="preserve">
+    <value>Field access expression '{0}'  does not access to '{1}' type members.</value>
+  </data>
 </root>

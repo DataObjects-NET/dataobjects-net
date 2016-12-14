@@ -377,6 +377,7 @@
     <Compile Include="Orm\Internals\ReferenceFieldsChangesRegistry.cs" />
     <Compile Include="Orm\Internals\EntitySetChangeRegistry.cs" />
     <Compile Include="Orm\Internals\RemapContext.cs" />
+    <Compile Include="Orm\Linq\FieldExtractor.cs" />
     <Compile Include="Orm\Linq\LocalCollectionKeyTypeExtractor.cs" />
     <Compile Include="Orm\Logging\BaseLog.cs" />
     <Compile Include="Orm\Logging\IndentManager.cs" />
