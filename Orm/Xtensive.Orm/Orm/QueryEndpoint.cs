@@ -153,97 +153,97 @@ namespace Xtensive.Orm
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 
-
     /// <summary>
-    /// Performs full-text query for the text specified in contains table form.
+    /// Performs full-text query for the specified search condition.
     /// </summary>
     /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
-    /// <param name="searchCriteria">The search criteria in contains table form.</param>
-    /// <returns>An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
-    /// allowing to continue building the query.</returns>
-    //public IQueryable<FullTextMatch<T>> ContainsTable<T>(string searchCriteria)
-    //  where T : Entity
-    //{
-    //  ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-    //  var method = WellKnownMembers.Query.ContainsTableString.MakeGenericMethod(typeof(T));
-    //  var expression = Expression.Call(method, Expression.Constant(searchCriteria), Expression.Constant(new List<string>()));
-    //  return Provider.CreateQuery<FullTextMatch<T>>(expression);
-    //}
-
-    ///// <summary>
-    ///// Performs full-text query for the text specified in contains table form.
-    ///// </summary>
-    ///// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
-    ///// <param name="searchCriteria">The search criteria in contains table form.</param>
-    ///// <param name="targetColumnNames">The columns of full-text index the query should search over.</param>
-    ///// <returns>
-    ///// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
-    ///// allowing to continue building the query.
-    ///// </returns>
-    //public IQueryable<FullTextMatch<T>> ContainsTable<T>(string searchCriteria, IList<string> targetColumnNames)
-    //  where T : Entity
-    //{
-    //  ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-    //  var method = WellKnownMembers.Query.ContainsTableString.MakeGenericMethod(typeof(T));
-    //  var expression = Expression.Call(method, Expression.Constant(searchCriteria), Expression.Constant(targetColumnNames));
-    //  return Provider.CreateQuery<FullTextMatch<T>>(expression);
-    //}
-
-    ///// <summary>
-    ///// Performs full-text query for the text specified in contains table form.
-    ///// </summary>
-    ///// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
-    ///// <param name="searchCriteria">The search criteria in contains table form.</param>
-    ///// <returns>
-    ///// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
-    ///// allowing to continue building the query.
-    ///// </returns>
-    //public IQueryable<FullTextMatch<T>> ContainsTable<T>(Expression<Func<string>> searchCriteria)
-    //  where T : Entity
-    //{
-    //  ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-    //  var method = WellKnownMembers.Query.ContainsTableExpression.MakeGenericMethod(typeof (T));
-    //  var expression = Expression.Call(null, method, new []{searchCriteria});
-    //  return Provider.CreateQuery<FullTextMatch<T>>(expression);
-    //}
-
-    ///// <summary>
-    ///// Performs full-text query for the text specified in contains table form.
-    ///// </summary>
-    ///// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
-    ///// <param name="searchCriteria">The search criteria in contains table form.</param>
-    ///// <param name="targetColumnNames">The columns of full-text index the query should search over.</param>
-    ///// <returns>
-    ///// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
-    ///// allowing to continue building the query.
-    ///// </returns>
-    //public IQueryable<FullTextMatch<T>> ContainsTable<T>(Expression<Func<string>> searchCriteria, IList<string> targetColumnNames)
-    //  where T : Entity
-    //{
-    //  ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-    //  var method = WellKnownMembers.Query.ContainsTableExpression.MakeGenericMethod(typeof(T));
-    //  var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetColumnNames));
-    //  return Provider.CreateQuery<FullTextMatch<T>>(expression);
-    //}
-
-    public IQueryable<FullTextMatch<T>> ContainsTable<T>([NotNull]Expression<Func<ConditionEndpoint, IOperand>> searchCriteria)
+    /// <param name="searchCriteria">Search condition.</param>
+    /// <returns>
+    /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.
+    /// </returns>
+    public IQueryable<FullTextMatch<T>> ContainsTable<T>([NotNull] Expression<Func<ConditionEndpoint, IOperand>> searchCriteria)
       where T: Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      var method = WellKnownMembers.Query.ContainsTableFunc.MakeGenericMethod(typeof (T));
+      var method = WellKnownMembers.Query.ContainsTableExpr.MakeGenericMethod(typeof (T));
       var expression = Expression.Call(null, method, searchCriteria);
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 
-    public IQueryable<FullTextMatch<T>> ContainsTable<T>([NotNull]Expression<Func<ConditionEndpoint, IOperand>> searchCriteria, int topNByRank)
+    /// <summary>
+    /// Performs full-text query for the specified search condition.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">Search condition.</param>
+    /// <param name="targetFields">Fields which are included in full-text index to search over.</param>
+    /// <returns>
+    /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.
+    /// </returns>
+    public IQueryable<FullTextMatch<T>> ContainsTable<T>(
+      [NotNull] Expression<Func<ConditionEndpoint, IOperand>> searchCriteria,
+      [NotNull] Expression<Func<T, object>>[] targetFields)
+      where T : Entity
+    {
+      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      ArgumentValidator.EnsureArgumentNotNull(targetFields, "targetFields");
+      var method = WellKnownMembers.Query.ContainsTableExprWithColumns.MakeGenericMethod(typeof(T));
+      var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetFields));
+      return Provider.CreateQuery<FullTextMatch<T>>(expression);
+    }
+
+    /// <summary>
+    /// Performs full-text query for the specified search condition.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">Search condition.</param>
+    /// <param name="topNByRank">
+    /// Specifies how many highest ranked matches (in descending order) result set should be returned.
+    /// Result set may contain less number of items than specified by the parameter.
+    /// </param>
+    /// <returns>
+    /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.
+    /// </returns>
+    public IQueryable<FullTextMatch<T>> ContainsTable<T>([NotNull] Expression<Func<ConditionEndpoint, IOperand>> searchCriteria, int topNByRank)
       where T : Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
-      var method = WellKnownMembers.Query.ContainsTableFuncTopNByRank.MakeGenericMethod(typeof(T));
+      var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.MakeGenericMethod(typeof(T));
       var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
+
+    /// <summary>
+    /// Performs full-text query for the specified search condition.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">Search condition.</param>
+    /// <param name="targetFields">Fields which are included in full-text index to search over.</param>
+    /// <param name="topNByRank">
+    /// Specifies how many highest ranked matches (in descending order) result set should be returned.
+    /// Result set may contain less number of items than specified by the parameter.
+    /// </param>
+    /// <returns>
+    /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.
+    /// </returns>
+    public IQueryable<FullTextMatch<T>> ContainsTable<T>(
+      [NotNull] Expression<Func<ConditionEndpoint, IOperand>> searchCriteria,
+      [NotNull] Expression<Func<T, object>>[] targetFields,
+      int topNByRank)
+      where T : Entity
+    {
+      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      ArgumentValidator.EnsureArgumentNotNull(targetFields, "targetFields");
+      ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
+      var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.MakeGenericMethod(typeof(T));
+      var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetFields), Expression.Constant(topNByRank));
+      return Provider.CreateQuery<FullTextMatch<T>>(expression);
+    }
+
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
