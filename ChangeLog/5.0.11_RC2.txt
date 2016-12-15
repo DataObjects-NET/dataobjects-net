@@ -2,3 +2,4 @@
 [main] Added support for ContainsTable queries for SQL Server providers
 [main] Optimized memory usage for storage nodes which are build in Skip mode
 [main] Full-text indexes are now allowed for fields of structures
+[postgresql] Fixed extraction of columns associated with DateTimeOffset fields
