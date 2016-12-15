@@ -1,1 +1,2 @@
 [main] Fixed build in Perform/PerformSafely modes when there is no Metadata tables in database/schema
+[main] Added support for ContainsTable queries for SQL Server providers
