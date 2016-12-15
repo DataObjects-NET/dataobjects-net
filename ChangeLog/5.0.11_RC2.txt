@@ -4,4 +4,5 @@
 [main] Full-text indexes are now allowed for fields of structures
 [main] Added highest ranked matches limitation support for freetext queries
 [main] ReferenceFinder now excludes references which were locally removed
+[main] Fixes certains scenarios when changes do not clear on after persist
 [postgresql] Fixed extraction of columns associated with DateTimeOffset fields
