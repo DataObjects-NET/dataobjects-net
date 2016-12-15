@@ -1,0 +1,1 @@
+[main] Fixed build in Perform/PerformSafely modes when there is no Metadata tables in database/schema
