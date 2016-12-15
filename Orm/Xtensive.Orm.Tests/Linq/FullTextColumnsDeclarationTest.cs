@@ -12,6 +12,11 @@ namespace Xtensive.Orm.Tests.Linq
 {
   public class FullTextColumnsDeclarationTest : NorthwindDOModelTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+    }
+
     [Test]
     public void CorrectDirectFulltextFieldTest()
     {
@@ -79,6 +84,21 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var columns = MakeUpColumns<Product>(t => t.Category.Description);
       RunQuery(columns);
+    }
+
+    [Test]
+    public void EmptyColumnsArrayTest()
+    {
+      var columns = new Expression<Func<Category, object>>[0];
+      Session.Query.ContainsTable<Category>(e => e.SimpleTerm("abc"), columns).Run();
+    }
+
+    [Test]
+    [ExpectedException(typeof (ArgumentNullException))]
+    public void NullColumnsArray()
+    {
+      Expression<Func<Category, object>>[] columns = null;
+      Session.Query.ContainsTable<Category>(e => e.SimpleTerm("abc"), columns).Run();
     }
 
     private void RunQuery<T>(Expression<Func<T, object>>[] columns)
