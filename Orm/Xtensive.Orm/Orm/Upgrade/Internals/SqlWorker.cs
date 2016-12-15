@@ -39,7 +39,11 @@ namespace Xtensive.Orm.Upgrade
       var set = new MetadataSet();
       foreach (var task in services.MappingResolver.GetMetadataTasks()) {
         if (result.Schema!=null) {
-          var tables = result.Schema.Catalogs[task.Catalog].Schemas[task.Schema].Tables;
+          PairedNodeCollection<Schema, Table> tables;
+          if (services.MappingResolver is SimpleMappingResolver)
+            tables = result.Schema.Catalogs.Single().Schemas[task.Schema].Tables ?? result.Schema.Catalogs.Single().Schemas.Single().Tables;
+          else
+            tables = result.Schema.Catalogs[task.Catalog].Schemas[task.Schema].Tables;
           if (tables[mapping.Assembly]==null && tables[mapping.Type]==null && tables[mapping.Extension]==null)
             continue;
         } 
