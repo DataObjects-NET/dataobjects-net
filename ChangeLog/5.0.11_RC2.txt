@@ -3,4 +3,5 @@
 [main] Optimized memory usage for storage nodes which are build in Skip mode
 [main] Full-text indexes are now allowed for fields of structures
 [main] Added highest ranked matches limitation support for freetext queries
+[main] ReferenceFinder now excludes references which were locally removed
 [postgresql] Fixed extraction of columns associated with DateTimeOffset fields
