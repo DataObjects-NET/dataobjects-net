@@ -370,6 +370,18 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
+    public void FreeTextTopNByRankTest()
+    {
+      SqlSelect select = SqlDml.Select();
+      var table = Catalog.Schemas["Person"].Tables["Address"];
+      select.From = SqlDml.QueryRef( SqlDml.FreeTextTable(table,
+        "How can I make my own beers",
+        EnumerableUtils.One(table.Columns[0].Name).ToList(),
+        (SqlLiteral)5));
+      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+    }
+
+    [Test]
     public void FreeTextCreateTest()
     {
       var table = Catalog.Schemas["Person"].Tables["Address"];

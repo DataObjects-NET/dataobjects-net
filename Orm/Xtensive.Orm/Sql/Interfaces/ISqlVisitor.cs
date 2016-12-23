@@ -30,6 +30,7 @@ namespace Xtensive.Sql
     void Visit(SqlCollate node);
     void Visit(SqlColumnRef node);
     void Visit(SqlConcat node);
+    void Visit(SqlContainsTable node);
     void Visit(SqlContinue node);
     void Visit(SqlContainer node);
     void Visit(SqlCommand node);

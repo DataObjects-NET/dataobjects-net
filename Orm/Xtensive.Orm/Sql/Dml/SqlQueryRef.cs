@@ -79,10 +79,15 @@ namespace Xtensive.Sql.Dml
         }
 
         var freeTextTable = queryExpression as SqlFreeTextTable;
-        if (freeTextTable!=null)
+        if (freeTextTable!=null )
           foreach (var originalColumn in freeTextTable.Columns)
             queryColumns.Add(SqlDml.TableColumn(this, originalColumn.Name));
-        
+
+        var containsTable = queryExpression as SqlContainsTable;
+        if (containsTable!=null )
+          foreach (var originalColumn in containsTable.Columns)
+            queryColumns.Add(SqlDml.TableColumn(this, originalColumn.Name));
+
         break;
       }
       columns = new SqlTableColumnCollection(queryColumns);

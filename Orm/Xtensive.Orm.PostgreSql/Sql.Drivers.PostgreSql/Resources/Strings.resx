@@ -129,4 +129,7 @@
   <data name="ExSqlMatchValueMustBeAnSqlRowInstance" xml:space="preserve">
     <value>SqlMatch.Value must be an SqlRow instance.</value>
   </data>
+  <data name="ExTheTypeOfGivenParameterCannotBeTreatedAsOffsetForDateTimeOffsetConstruction" xml:space="preserve">
+    <value>The type of given parameter cannot be treated as offset for DateTimeOffset construction.</value>
+  </data>
 </root>
