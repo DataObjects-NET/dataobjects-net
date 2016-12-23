@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       var modelDef = context.ModelDef;
       var model = context.Model;
-      var indexLookup = modelDef.FullTextIndexes.ToLookup(fi => model.Types[fi.Type.UnderlyingType].Hierarchy);
+      var indexLookup = modelDef.FullTextIndexes.Where(index => !index.Type.IsStructure).ToLookup(fi => model.Types[fi.Type.UnderlyingType].Hierarchy);
       foreach (var hierarchyIndexes in indexLookup) {
         var root = hierarchyIndexes.Key.Root;
         switch(hierarchyIndexes.Key.InheritanceSchema) {

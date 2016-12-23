@@ -67,6 +67,12 @@ namespace Xtensive.Orm.Rse.Transformation
       return provider;
     }
 
+    protected override Provider VisitContainsTable(ContainsTableProvider provider)
+    {
+      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
+      return provider;
+    }
+
     protected override Provider VisitIndex(IndexProvider provider)
     {
       mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();

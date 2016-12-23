@@ -4,9 +4,11 @@
 // Created by: Alexey Kulakov
 // Created:    2016.02.23
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Internals.Interfaces;
 using Xtensive.Sql.Model;
@@ -15,77 +17,48 @@ namespace Xtensive.Orm.Upgrade.Internals
 {
   internal sealed class NodeExtractedModelBuilder : ISchemaExtractionResultBuilder
   {
-    private const char NameElementSeparator = ':';
-
     private readonly MappingResolver mappingResolver;
     private readonly StorageNode defaultStorageNode;
-    private readonly SchemaExtractionResult targetResult;
+    private readonly NodeConfiguration buildingNodeConfiguration;
 
     public SchemaExtractionResult Run()
     {
-      CopyCatalogs();
-      RenameCatalogsAndSchemas();
-      ValidateAndFixResult();
-      return targetResult;
+      var result = new SchemaExtractionResult();
+      CopyCatalogs(result.Catalogs);
+      return result;
     }
 
-    private void CopyCatalogs()
+    private void CopyCatalogs(NodeCollection<Catalog> catalogs)
     {
-      foreach (var catalog in GetCatalogs()) {
-        var clonedCatalog = Cloner.Clone(catalog);
-        targetResult.Catalogs.Add(clonedCatalog);
+      var cloner = new CatalogCloner();
+      var defaultNodeCatalogs = GetDefaultNodeCatalogs();
+      var currentCatalogNodes = GetCurrentExtratableCatalogs();
+      if (currentCatalogNodes.Count==1) {
+        catalogs.Add(cloner.Clone(defaultNodeCatalogs[0], mappingResolver, currentCatalogNodes[0]));
+      }
+      else {
+        defaultNodeCatalogs
+          .Select(
+              catalog => cloner.Clone(catalog, mappingResolver, buildingNodeConfiguration.DatabaseMapping.Apply(catalog.Name)))
+          .ForEach(catalogs.Add);
       }
     }
 
-    private void RenameCatalogsAndSchemas()
+    private IList<string> GetCurrentExtratableCatalogs()
     {
-      foreach (var catalog in targetResult.Catalogs) {
-        string catalogName = catalog.Name;
-        foreach (var schema in catalog.Schemas) {
-          var name = mappingResolver.GetNodeName(catalog.Name, schema.Name, "Dummy");
-          var names = name.Split(NameElementSeparator);
-          var schemaName = schema.Name;
-          if (names.Length==3) {
-            catalogName = names[0];
-            schemaName = names[1];
-          }
-          else if (names.Length==2) {
-            schemaName = names[0];
-          }
-          schema.Name = schemaName;
-        }
-        catalog.Name = catalogName;
-      }
+      return mappingResolver.GetSchemaTasks().GroupBy(t => t.Catalog).Select(t=>t.Key).ToList();
     }
 
-    private void ValidateAndFixResult()
+    private IList<Catalog> GetDefaultNodeCatalogs()
     {
-      //sometimes there might be empty schemas or catalogs
-      //here we handle it
-      foreach (var group in mappingResolver.GetSchemaTasks().GroupBy(t => t.Catalog)) {
-        var catalog = targetResult.Catalogs[group.Key];
-        if (catalog==null) {
-          catalog = new Catalog(group.Key);
-          targetResult.Catalogs.Add(catalog);
-        }
-        foreach (var sqlExtractionTask in group) {
-          if(catalog.Schemas[sqlExtractionTask.Schema]!=null)
-            continue;
-          catalog.CreateSchema(sqlExtractionTask.Schema);
-        }
-      }
+      return defaultStorageNode.Mapping.GetAllSNodes().Select(node => node.Schema.Catalog).Distinct().ToList();
     }
 
-    private IEnumerable<Catalog> GetCatalogs()
-    {
-      return defaultStorageNode.Mapping.GetAllSNodes().Select(node => node.Schema.Catalog).Distinct();
-    }
-
-    internal NodeExtractedModelBuilder(UpgradeServiceAccessor services, StorageNode defaultNode)
+    internal NodeExtractedModelBuilder(UpgradeServiceAccessor services, StorageNode defaultNode, NodeConfiguration buildingNodeConfiguration)
     {
       mappingResolver = services.MappingResolver;
+      this.buildingNodeConfiguration = buildingNodeConfiguration;
       defaultStorageNode = defaultNode;
-      targetResult = new SchemaExtractionResult();
     }
   }
 }

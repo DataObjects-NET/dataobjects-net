@@ -63,6 +63,11 @@ namespace Xtensive.Orm.Providers
       return (IMemberCompilerProvider<T>) memberCompilerProviders[typeof (T)];
     }
 
+    internal SearchConditionCompiler GetSearchConditionCompiler()
+    {
+      return CreateSearchConditionVisitor();
+    }
+
     #region Customization members
 
     /// <summary>
@@ -130,6 +135,11 @@ namespace Xtensive.Orm.Providers
         typeof (VbDateAndTimeCompilers),
         typeof (EnumCompilers),
       };
+    }
+
+    protected virtual SearchConditionCompiler CreateSearchConditionVisitor()
+    {
+      return new NullSearchConditionCompiler();
     }
 
     #endregion

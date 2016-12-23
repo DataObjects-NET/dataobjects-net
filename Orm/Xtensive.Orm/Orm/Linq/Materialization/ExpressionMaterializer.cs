@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     #region Visitor methods overrsides
 
-    protected override Expression VisitFreeTextExpression(FullTextExpression expression)
+    protected override Expression VisitFullTextExpression(FullTextExpression expression)
     {
       var rankMaterializer = Visit(expression.RankExpression);
       var entityMaterializer = Visit(expression.EntityExpression);
