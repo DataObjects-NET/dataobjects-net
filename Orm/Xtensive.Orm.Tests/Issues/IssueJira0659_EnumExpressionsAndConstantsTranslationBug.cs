@@ -91,6 +91,16 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0659_GroupByConditionalExpressionWi
     public int? NullableInt { get; set; }
   }
 
+  [HierarchyRoot]
+  public class EntityWithDecimal : Entity
+  {
+    [Field, Key]
+    public Guid Id { get; set; }
+
+    [Field]
+    public decimal Sum { get; set; }
+  }
+
   public enum Gender
   {
     None = 0,
@@ -968,7 +978,40 @@ namespace Xtensive.Orm.Tests.Issues
       };
       RunTestInSession(testAction);
     }
-    
+
+    [Test]
+    public void MathRoundTest()
+    {
+      Action<Session> testAction = (session) => {
+        //OK
+        Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().Select(e => (Math.Truncate(Math.Round(e.Sum, 2) * 100) / 100)).ToArray());
+        //session.Query.All<EntityWithDecimal>().Select(e => (Math.Truncate(Math.Round(e.Sum, 2) * 100) / 100)).ToArray();
+
+        //OK
+        Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().Where(e => (Math.Truncate(Math.Round(e.Sum, 2) * 100) / 100) > 1).ToArray());
+
+        //OK
+        Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().OrderBy(e => Math.Truncate(Math.Round(e.Sum, 2) * 100) / 100).ToArray());
+
+        //OK
+        Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().Sum(e => Math.Truncate(Math.Round(e.Sum, 2) * 100) / 100));
+
+        //OK
+        Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().Select(e => (Math.Truncate(Math.Round(e.Sum, 2, MidpointRounding.AwayFromZero) * 100) / 100)).ToArray());
+
+        //OK
+        //Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().Where(e => (Math.Truncate(Math.Round(e.Sum, 2, MidpointRounding.AwayFromZero) * 100) / 100) > 1).ToArray());
+        session.Query.All<EntityWithDecimal>().Where(e => (Math.Truncate(Math.Round(e.Sum, 2, MidpointRounding.AwayFromZero) * 100) / 100) > 1).ToArray();
+
+        //FAIL
+        Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().OrderBy(e => Math.Truncate(Math.Round(e.Sum, 2, MidpointRounding.AwayFromZero) * 100) / 100).ToArray());
+
+        //FAIL
+        Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().Sum(e => Math.Truncate(Math.Round(e.Sum, 2, MidpointRounding.AwayFromZero) * 100) / 100));
+      };
+      RunTestInSession(testAction);
+    }
+
     private void RunTestInSession(Action<Session> testBody)
     {
       using (var session = Domain.OpenSession())
