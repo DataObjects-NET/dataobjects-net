@@ -1067,7 +1067,7 @@ namespace Xtensive.Orm.Linq
     private CalculatedColumnDescriptor CreateCalculatedColumnDescriptor(LambdaExpression expression)
     {
       var columnType = expression.Body.Type;
-      var body = expression.Body;
+      var body = EnumRewriter.Rewrite(expression.Body);
       if (columnType!=typeof (object))
         body = Expression.Convert(body, typeof (object));
       var calculator = (Expression<Func<Tuple, object>>) FastExpression.Lambda(body, expression.Parameters);
