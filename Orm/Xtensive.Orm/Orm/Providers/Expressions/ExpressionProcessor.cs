@@ -238,6 +238,16 @@ namespace Xtensive.Orm.Providers
       if (expression.Method!=null)
         return CompileMember(expression.Method, null, left, right);
 
+      //handle wrapped enums
+      SqlContainer container = left as SqlContainer;
+      if (container != null)
+        if (container.Value.GetType().IsEnum)
+          left = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
+      container = right as SqlContainer;
+      if (container != null)
+        if (container.Value.GetType().IsEnum)
+          right = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
+
       switch (expression.NodeType) {
       case ExpressionType.Add:
       case ExpressionType.AddChecked:
@@ -249,15 +259,6 @@ namespace Xtensive.Orm.Providers
       case ExpressionType.AndAlso:
         return SqlDml.And(left, right);
       case ExpressionType.Coalesce:
-        //handle wrapped enums
-        SqlContainer container = left as SqlContainer;
-        if (container!=null)
-          if (container.Value.GetType().IsEnum)
-            left = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
-        container = right as SqlContainer;
-        if (container!=null)
-          if (container.Value.GetType().IsEnum)
-            right = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
         SqlExpression coalesce = SqlDml.Coalesce(left, right);
         if (isBooleanFixRequired)
           coalesce = booleanExpressionConverter.IntToBoolean(coalesce);
