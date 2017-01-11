@@ -193,10 +193,6 @@ namespace Xtensive.Orm.Linq
         left = Visit(binaryExpression.Left);
         right = Visit(binaryExpression.Right);
       }
-      if (left.Type.StripNullable().IsEnum)
-        left = ConvertEnum(left);
-      if (right.Type.StripNullable().IsEnum)
-        right = ConvertEnum(right);
       var resultBinaryExpression = Expression.MakeBinary(binaryExpression.NodeType,
         left,
         right,
@@ -1071,10 +1067,10 @@ namespace Xtensive.Orm.Linq
     private CalculatedColumnDescriptor CreateCalculatedColumnDescriptor(LambdaExpression expression)
     {
       var columnType = expression.Body.Type;
-      var newBody = EnumRewriter.Rewrite(expression.Body);
+      var body = EnumRewriter.Rewrite(expression.Body);
       if (columnType!=typeof (object))
-        newBody = Expression.Convert(newBody, typeof (object));
-      var calculator = (Expression<Func<Tuple, object>>) FastExpression.Lambda(newBody, expression.Parameters);
+        body = Expression.Convert(body, typeof (object));
+      var calculator = (Expression<Func<Tuple, object>>) FastExpression.Lambda(body, expression.Parameters);
       return new CalculatedColumnDescriptor(context.GetNextColumnAlias(), columnType, calculator);
     }
 

@@ -47,11 +47,21 @@ namespace Xtensive.Orm.Providers
     public static SqlExpression NullableGetValueOrDefault(MemberInfo memberInfo, SqlExpression _this, SqlExpression _default)
     {
       var context = ExpressionTranslationContext.Current;
+      var @this = _this;
+      var @default = _default;
+      SqlContainer container = @this as SqlContainer;
+      if (container != null)
+        if (container.Value.GetType().IsEnum)
+          @this = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
+      container = @default as SqlContainer;
+      if (container != null)
+        if (container.Value.GetType().IsEnum)
+          @default = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
       if (!IsBooleanSpecialCase(context, memberInfo))
-        return SqlDml.Coalesce(_this, _default);
+        return SqlDml.Coalesce(@this, @default);
       return context.BooleanExpressionConverter.IntToBoolean(SqlDml.Coalesce(
-        context.BooleanExpressionConverter.BooleanToInt(_this),
-        context.BooleanExpressionConverter.BooleanToInt(_default)));
+        context.BooleanExpressionConverter.BooleanToInt(@this),
+        context.BooleanExpressionConverter.BooleanToInt(@default)));
     }
 
     private static bool IsBooleanSpecialCase(ExpressionTranslationContext context, MemberInfo member)
