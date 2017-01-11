@@ -249,6 +249,15 @@ namespace Xtensive.Orm.Providers
       case ExpressionType.AndAlso:
         return SqlDml.And(left, right);
       case ExpressionType.Coalesce:
+        //handle wrapped enums
+        SqlContainer container = left as SqlContainer;
+        if (container!=null)
+          if (container.Value.GetType().IsEnum)
+            left = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
+        container = right as SqlContainer;
+        if (container!=null)
+          if (container.Value.GetType().IsEnum)
+            right = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
         SqlExpression coalesce = SqlDml.Coalesce(left, right);
         if (isBooleanFixRequired)
           coalesce = booleanExpressionConverter.IntToBoolean(coalesce);
@@ -298,6 +307,14 @@ namespace Xtensive.Orm.Providers
       var check = Visit(expression.Test);
       var ifTrue = Visit(expression.IfTrue);
       var ifFalse = Visit(expression.IfFalse);
+      SqlContainer container = ifTrue as SqlContainer;
+      if (container != null)
+        if (container.Value.GetType().IsEnum)
+          ifTrue = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
+      container = ifFalse as SqlContainer;
+      if (container != null)
+        if (container.Value.GetType().IsEnum)
+          ifFalse = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
       var boolCheck = fixBooleanExpressions
         ? booleanExpressionConverter.BooleanToInt(check)
         : check;
@@ -332,8 +349,6 @@ namespace Xtensive.Orm.Providers
         var literal = SqlDml.Literal((bool) expression.Value);
         return booleanExpressionConverter.IntToBoolean(literal);
       }
-      if (type.IsEnum)
-        return SqlDml.LiteralOrContainer(Convert.ChangeType(expression.Value, type.GetEnumUnderlyingType()));
       return SqlDml.LiteralOrContainer(expression.Value);
     }
 
