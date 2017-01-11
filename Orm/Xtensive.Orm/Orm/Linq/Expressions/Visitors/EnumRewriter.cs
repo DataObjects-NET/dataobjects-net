@@ -22,19 +22,6 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       return ConvertEnumConstant(c);
     }
 
-    protected override Expression VisitNewArray(NewArrayExpression na)
-    {
-      var initializers = VisitExpressionList(na.Expressions);
-      if (initializers==na.Expressions)
-        return na;
-      var currentType = na.Type.GetElementType();
-      if (currentType.IsEnum)
-        currentType = Enum.GetUnderlyingType(currentType);
-      if (na.NodeType==ExpressionType.NewArrayInit)
-        return Expression.NewArrayInit(currentType, initializers);
-      return Expression.NewArrayBounds(currentType, initializers);
-    }
-
     private Expression ConvertEnum(Expression expression)
     {
       if (expression.Type.StripNullable().IsEnum) {
