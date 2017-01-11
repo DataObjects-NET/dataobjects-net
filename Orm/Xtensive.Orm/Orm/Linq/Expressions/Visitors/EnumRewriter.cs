@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
     protected override Expression VisitConstant(ConstantExpression c)
     {
-      return ConvertEnum(c);
+      return ConvertEnumConstant(c);
     }
 
     protected override Expression VisitNewArray(NewArrayExpression na)
@@ -44,6 +44,19 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         return Expression.Convert(expression, underlyingType);
       }
       return expression;
+    }
+
+    private Expression ConvertEnumConstant(ConstantExpression c)
+    {
+      if (c.Type.StripNullable().IsEnum) {
+        var underlyingType = Enum.GetUnderlyingType(c.Type.StripNullable());
+        if (c.Type.IsNullable())
+          underlyingType = typeof (Nullable<>).MakeGenericType(underlyingType);
+        var underlyingTypeValue = Convert.ChangeType(c.Value, underlyingType);
+        var constantExpression = Expression.Constant(underlyingTypeValue);
+        return Expression.Convert(constantExpression, c.Type);
+      }
+      return c;
     }
 
     private EnumRewriter()

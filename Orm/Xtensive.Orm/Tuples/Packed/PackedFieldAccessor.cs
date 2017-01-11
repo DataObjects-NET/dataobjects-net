@@ -44,6 +44,13 @@ namespace Xtensive.Tuples.Packed
       var getter = (isNullable ? NullableGetter : Getter) as GetValueDelegate<T>;
       if (getter!=null)
         return getter.Invoke(tuple, descriptor, out fieldState);
+      var targetType = typeof (T);
+
+      //Dirty hack of nullable enum reading
+      if (isNullable)
+        targetType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+      if (targetType.IsEnum)
+        return (T) Enum.ToObject(targetType, GetUntypedValue(tuple, descriptor, out fieldState));
       return (T) GetUntypedValue(tuple, descriptor, out fieldState);
     }
 

@@ -238,6 +238,16 @@ namespace Xtensive.Orm.Providers
       if (expression.Method!=null)
         return CompileMember(expression.Method, null, left, right);
 
+      //handle wrapped enums
+      SqlContainer container = left as SqlContainer;
+      if (container != null)
+        if (container.Value.GetType().IsEnum)
+          left = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
+      container = right as SqlContainer;
+      if (container != null)
+        if (container.Value.GetType().IsEnum)
+          right = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
+
       switch (expression.NodeType) {
       case ExpressionType.Add:
       case ExpressionType.AddChecked:
@@ -298,6 +308,14 @@ namespace Xtensive.Orm.Providers
       var check = Visit(expression.Test);
       var ifTrue = Visit(expression.IfTrue);
       var ifFalse = Visit(expression.IfFalse);
+      SqlContainer container = ifTrue as SqlContainer;
+      if (container != null)
+        if (container.Value.GetType().IsEnum)
+          ifTrue = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
+      container = ifFalse as SqlContainer;
+      if (container != null)
+        if (container.Value.GetType().IsEnum)
+          ifFalse = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
       var boolCheck = fixBooleanExpressions
         ? booleanExpressionConverter.BooleanToInt(check)
         : check;
