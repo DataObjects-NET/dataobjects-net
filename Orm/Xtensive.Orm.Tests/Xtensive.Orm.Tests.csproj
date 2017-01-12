@@ -266,6 +266,7 @@
     <Compile Include="Issues\IssueJira0619_InvalidExpressionInOrderBy.cs" />
     <Compile Include="Issues\IssueJira0630_IncorrectColumnOrderOfPKIndexOfInterfaceTypes.cs" />
     <Compile Include="Issues\IssueJira0637_EntitySetFullOfNullsOnEnumeration.cs" />
+    <Compile Include="Issues\IssueJira0641_IndexFilterExpressionTranslationBug.cs" />
     <Compile Include="Issues\IssueJira0643_OracleDateTimeOffsetExtractionBug.cs" />
     <Compile Include="Issues\IssueJira0647_StoredDomainModelMappingsUpdateBug.cs" />
     <Compile Include="Issues\IssueJira0656_RemapRestoresRemovedReferences.cs" />
