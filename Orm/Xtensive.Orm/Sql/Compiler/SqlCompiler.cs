@@ -346,6 +346,11 @@ namespace Xtensive.Sql.Compiler
       context.Output.AppendText(translator.Translate(context, node, ColumnSection.Entry));
     }
 
+    public virtual void Visit(SqlContainsTable node)
+    {
+        throw SqlHelper.NotSupported(Strings.FullTextQueries);
+    }
+
     public virtual void Visit(SqlNative node)
     {
       context.Output.AppendText(translator.Translate(context, node));

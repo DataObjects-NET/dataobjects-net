@@ -52,7 +52,7 @@
       <HintPath>..\..\Lib\Unity\Microsoft.Practices.Unity.ServiceLocatorAdapter.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
-    <Reference Include="Npgsql, Version=2.0.12.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL" />
+    <Reference Include="Npgsql, Version=2.2.0.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL" />
     <Reference Include="nunit.framework, Version=2.5.4.10098, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Lib\NUnit\nunit.framework.dll</HintPath>
@@ -80,9 +80,11 @@
     <Compile Include="DomainConfigurationFactoryTest.cs" />
     <Compile Include="Interfaces\DoubleIndexedInterfaceTest.cs" />
     <Compile Include="Interfaces\InterfaceImplementationTest.cs" />
+    <Compile Include="Issues\IssueJira0674_ReferenceFinderBug.cs" />
     <Compile Include="Issues\BatchingCommandProcessorFrenzy.cs" />
     <Compile Include="Issues\IssueJira0570_InOperationDoesNotCreateTemporaryTable.cs" />
     <Compile Include="Issues\ClientProfileEntitySetTest.cs" />
+    <Compile Include="Issues\IssueJira0675_EntityChangeRegistryDoesntClear.cs" />
     <Compile Include="Issues\IssueJira0636_SessionCacheTest.cs" />
     <Compile Include="Issues\IssueJira0556_ArithmeticExceptionWhenSubstractionOfDates.cs" />
     <Compile Include="Issues\CustomCompilerException.cs" />
@@ -265,9 +267,11 @@
     <Compile Include="Issues\IssueJira0619_InvalidExpressionInOrderBy.cs" />
     <Compile Include="Issues\IssueJira0630_IncorrectColumnOrderOfPKIndexOfInterfaceTypes.cs" />
     <Compile Include="Issues\IssueJira0637_EntitySetFullOfNullsOnEnumeration.cs" />
+    <Compile Include="Issues\IssueJira0641_IndexFilterExpressionTranslationBug.cs" />
     <Compile Include="Issues\IssueJira0643_OracleDateTimeOffsetExtractionBug.cs" />
     <Compile Include="Issues\IssueJira0647_StoredDomainModelMappingsUpdateBug.cs" />
     <Compile Include="Issues\IssueJira0656_RemapRestoresRemovedReferences.cs" />
+    <Compile Include="Issues\IssueJira0659_EnumExpressionsAndConstantsTranslationBug.cs" />
     <Compile Include="Issues\IssueJira_0530_LowSpeedDecimalMaterializationCouseSqlDecimalInternalException.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
@@ -313,6 +317,7 @@
     <Compile Include="Issues\LocalCollectionsTest.cs" />
     <Compile Include="Issues\IssueJira0537_DropDefaultConstraintBugTest.cs" />
     <Compile Include="Issues\IssueJira0627_PocoClassPropertyRenitialization.cs" />
+    <Compile Include="Upgrade\NodeBasedExtractedModelBuilderTest.cs" />
     <Compile Include="Issues\NotEqualsForNullableColumnTest.cs" />
     <Compile Include="Issues\IssueJira0541_IncorrectMappingNameInSingleTable.cs" />
     <Compile Include="Issues\IssueJira0546_IncorrectCachingOfQueries.cs" />
@@ -324,23 +329,39 @@
     <Compile Include="Issues\StrangeLockingExceptionTest.cs" />
     <Compile Include="Issues\StructureFieldRemoveTest.cs" />
     <Compile Include="Linq\ContainsOverKeysCollectionTest.cs" />
+    <Compile Include="Linq\ContainsTableTest.cs" />
     <Compile Include="Linq\ConvariantQueriesTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\BaseDateTimeAndDateTimeOffsetTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeCompareTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetCompareTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetOperationsTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetExtractTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOperationsTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeToIsoTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DistinctTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeExtractTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\GroupByTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\JoinTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\MinMaxTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\OrderByTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\SkipTakeTest.cs" />
-    <Compile Include="Linq\DateTimeAndDateTimeOffset\WhereTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\BaseTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeBaseTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\DistinctTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\JoinTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\MinMaxTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\GroupByTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\ComparisonTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffsetBaseTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\ComparisonTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\DateTimeOffsetConstructorTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\OperationsTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\PartsExtractionTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\OperationsTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\DateTimeToIsoTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\DistinctTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\OrderByTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\PartsExtractionTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\GroupByTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\WhereTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\JoinTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\MinMaxTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\JoinResult{T}.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\Model.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTimeOffset\OrderByTest.cs" />
+    <Compile Include="Linq\DateTimeAndDateTimeOffset\DateTime\WhereTest.cs" />
     <Compile Include="Linq\DoubleAggregateToStructTest.cs" />
+    <Compile Include="Linq\FullTextColumnsDeclarationTest.cs" />
+    <Compile Include="Linq\SearchConditionNodeVisitorTest.cs" />
+    <Compile Include="Model\FullText\DynamicallyDefinedFieldsAndIndexesTest.cs" />
+    <Compile Include="Model\FullText\IndexOnStructureFieldNamingTest.cs" />
+    <Compile Include="Model\FullText\IndexOnStructureFieldTest.cs" />
     <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\NonPairedReferencesFromEntitiesTest.cs" />
     <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\NonPairedReferencesFromStructures.cs" />
     <Compile Include="Storage\ReferentialIntegrity\ClientProfileLike\PairedReferencesFromEntitiesTest.cs" />
@@ -452,6 +473,7 @@
     <Compile Include="Storage\ValidateEntityVersionsOnPersistTest.cs" />
     <Compile Include="Upgrade\BuildOnEmptySchemaTest.cs" />
     <Compile Include="Upgrade\CustomTypeIdMap\CustomTypeIdMap.cs" />
+    <Compile Include="Upgrade\DateTimeOffsetUpgradeTest.cs" />
     <Compile Include="Upgrade\DisableAutoResolveNamespaceConflictsTest.cs" />
     <Compile Include="Storage\ValidationConstraintsOnGenericTypeTest.cs" />
     <Compile Include="Storage\ValidationContextClientProfileTest.cs" />
@@ -462,6 +484,28 @@
     <Compile Include="Upgrade\EntitySetUpgrade\Upgrader.cs" />
     <Compile Include="Upgrade\EntitySetUpgrade\UpgradeTest.cs" />
     <Compile Include="Upgrade\FullText\FullTextDataTypeColumnUpgradeTest.cs" />
+    <Compile Include="Upgrade\HugeModelUpgrade\MappedTypesNodesTest.cs" />
+    <Compile Include="Upgrade\HugeModelUpgrade\Measure.cs" />
+    <Compile Include="Upgrade\HugeModelUpgrade\Models\ModelWithMappedTypes.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ModelWithMappedTypes.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Upgrade\HugeModelUpgrade\PerformanceResultContainer.cs" />
+    <Compile Include="Upgrade\HugeModelUpgrade\Models\RegularModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>RegularModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Upgrade\HugeModelUpgrade\DatabasePerNodeTest.cs" />
+    <Compile Include="Upgrade\HugeModelUpgrade\SchemaPerNodeTest.cs" />
+    <Compile Include="Upgrade\HugeModelUpgrade\TwoDatabasesPerNodeTest.cs" />
+    <Compile Include="Upgrade\HugeModelUpgrade\Models\TwoPartsModel.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>TwoPartsModel.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Upgrade\HugeModelUpgrade\UpgradePerformanceCounter.cs" />
     <Compile Include="Upgrade\NewSkip\Model.cs" />
     <Compile Include="Upgrade\NewSkip\MultidatabaseDomainTest.cs" />
     <Compile Include="Upgrade\NewSkip\MultischemaDomainTest.cs" />
@@ -469,6 +513,7 @@
     <Compile Include="Upgrade\NewSkip\SingleDatabaseNodeTest.cs" />
     <Compile Include="Upgrade\NewSkip\SingleSchemaNodeBuildingTest.cs" />
     <Compile Include="Upgrade\NewSkip\SkipBuildingTestBase.cs" />
+    <Compile Include="Upgrade\TwoSchemasPerNode.cs" />
     <Compile Include="Upgrade\TypeIdPreserveTest.cs" />
     <Compile Include="Upgrade\ExtractSuperClassTest.cs" />
     <Compile Include="Upgrade\KeyGeneratorTableCleanUpTest.cs" />
@@ -849,7 +894,20 @@
     <Content Include="Northwind.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Upgrade\HugeModelUpgrade\Models\ModelWithMappedTypes.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ModelWithMappedTypes.cs</LastGenOutput>
+    </Content>
+    <Content Include="Upgrade\HugeModelUpgrade\Models\RegularModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>RegularModel.cs</LastGenOutput>
+    </Content>
+    <Content Include="Upgrade\HugeModelUpgrade\Models\TwoPartsModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>TwoPartsModel.cs</LastGenOutput>
+    </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
 </Project>

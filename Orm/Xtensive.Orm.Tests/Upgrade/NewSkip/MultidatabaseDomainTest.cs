@@ -36,12 +36,6 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
       }
     }
 
-    [Test]
-    public void CatalogComparisonTest()
-    {
-
-    }
-
     protected abstract ForeignKeyMode GetForeignKeyMode();
 
     protected override void CheckRequirements()
@@ -62,13 +56,13 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(User).Assembly, typeof(User).Namespace);
-      configuration.Types.Register(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
-      configuration.DefaultSchema = "DO-Tests-1";
+      configuration.Types.Register(typeof (User).Assembly, typeof (User).Namespace);
+      configuration.Types.Register(typeof (Laptop).Assembly, typeof (Laptop).Namespace);
+      configuration.DefaultDatabase = "DO-Tests-1";
       configuration.DefaultSchema = "Model1";
       configuration.ForeignKeyMode = GetForeignKeyMode();
-      configuration.MappingRules.Map(typeof(User).Assembly, typeof(User).Namespace).ToDatabase("DO-Tests-1");
-      configuration.MappingRules.Map(typeof(Laptop).Assembly, typeof(Laptop).Namespace).ToSchema("DO-Tests-1");
+      configuration.MappingRules.Map(typeof (User).Assembly, typeof (User).Namespace).ToDatabase("DO-Tests-1");
+      configuration.MappingRules.Map(typeof (Laptop).Assembly, typeof (Laptop).Namespace).ToDatabase("DO-Tests-2");
       return configuration;
     }
 
@@ -411,7 +405,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
     }
   }
 
-  public sealed class MultidatabaseDomainWithoutForeignKeysTest : MultischemaDomainTest
+  public sealed class MultidatabaseDomainWithoutForeignKeysTest : MultidatabaseDomainTest
   {
     protected override ForeignKeyMode GetForeignKeyMode()
     {
@@ -419,7 +413,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
     }
   }
 
-  public sealed class MultidatabaseDomainHierarchyForeignKeysTest : MultischemaDomainTest
+  public sealed class MultidatabaseDomainHierarchyForeignKeysTest : MultidatabaseDomainTest
   {
     protected override ForeignKeyMode GetForeignKeyMode()
     {
@@ -427,7 +421,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
     }
   }
 
-  public sealed class MultidatabaseDomainReferenceForeignKeysTest : MultischemaDomainTest
+  public sealed class MultidatabaseDomainReferenceForeignKeysTest : MultidatabaseDomainTest
   {
     protected override ForeignKeyMode GetForeignKeyMode()
     {
@@ -435,7 +429,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
     }
   }
 
-  public sealed class MultidatabaseDomainAllForeignKeysTest : MultischemaDomainTest
+  public sealed class MultidatabaseDomainAllForeignKeysTest : MultidatabaseDomainTest
   {
     protected override ForeignKeyMode GetForeignKeyMode()
     {

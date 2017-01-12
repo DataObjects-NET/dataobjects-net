@@ -452,8 +452,14 @@ namespace Xtensive.Orm.Providers
       if (items == null)
         throw new NotSupportedException(Strings.ExTranslationOfInContainsIsNotSupportedInThisCase);
       var expressions = new List<SqlExpression>();
-      foreach (var item in items)
-        expressions.Add(SqlDml.Literal(item));
+      foreach (var item in items) {
+        object literal = null;
+        if (item.GetType().StripNullable().IsEnum)
+          literal = Convert.ChangeType(item, Enum.GetUnderlyingType(item.GetType()));
+        else
+          literal = item;
+        expressions.Add(SqlDml.Literal(literal));
+      }
       return SqlDml.In(value, SqlDml.Row(expressions));
     }
 

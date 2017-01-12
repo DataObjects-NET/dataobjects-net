@@ -5,6 +5,7 @@
 // Created:    2016.02.23
 
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade.Internals.Interfaces;
 using Xtensive.Orm.Upgrade.Model;
 
@@ -20,12 +21,13 @@ namespace Xtensive.Orm.Upgrade.Internals
       return new DomainExtractedModelBuilder(services, model);
     }
 
-    public static ISchemaExtractionResultBuilder GetBuilder(UpgradeServiceAccessor services, StorageNode defaultNode)
+    public static ISchemaExtractionResultBuilder GetBuilder(UpgradeServiceAccessor services, StorageNode defaultNode, NodeConfiguration buildingNodeConfiguration)
     {
       ArgumentValidator.EnsureArgumentNotNull(services, "services");
       ArgumentValidator.EnsureArgumentNotNull(defaultNode, "defaultNode");
+      ArgumentValidator.EnsureArgumentNotNull(buildingNodeConfiguration, "buildingNodeConfiguration");
 
-      return new NodeExtractedModelBuilder(services, defaultNode);
+      return new NodeExtractedModelBuilder(services, defaultNode, buildingNodeConfiguration);
     }
   }
 }
