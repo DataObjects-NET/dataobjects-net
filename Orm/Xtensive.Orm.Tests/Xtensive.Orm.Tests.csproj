@@ -82,6 +82,7 @@
     <Compile Include="Interfaces\InterfaceImplementationTest.cs" />
     <Compile Include="Issues\IssueJira0674_ReferenceFinderBug.cs" />
     <Compile Include="Issues\BatchingCommandProcessorFrenzy.cs" />
+    <Compile Include="Issues\IssueJira0570_InOperationDoesNotCreateTemporaryTable.cs" />
     <Compile Include="Issues\ClientProfileEntitySetTest.cs" />
     <Compile Include="Issues\IssueJira0675_EntityChangeRegistryDoesntClear.cs" />
     <Compile Include="Issues\IssueJira0636_SessionCacheTest.cs" />
