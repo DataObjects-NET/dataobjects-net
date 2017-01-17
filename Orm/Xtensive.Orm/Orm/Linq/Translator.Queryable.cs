@@ -697,14 +697,20 @@ namespace Xtensive.Orm.Linq
         return new Pair<ProjectionExpression, int>(sourceProjection, aggregatedColumnIndex);
       }
 
-      List<int> columnList;
+      List<int> columnList = null;
       sourceProjection = VisitSequence(source);
       if (aggregateParameter==null) {
-        if (!sourceProjection.ItemProjector.IsPrimitive)
-          throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
-        columnList = sourceProjection.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+        if (sourceProjection.ItemProjector.IsPrimitive)
+          columnList = sourceProjection.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+        else {
+          var lambdaType = sourceProjection.ItemProjector.Item.Type;
+          EnsureAggregateIsPossible(lambdaType, aggregateType, visitedExpression);
+          var paramExpression = Expression.Parameter(lambdaType, "arg");
+          aggregateParameter = Expression.Lambda(paramExpression, paramExpression);
+        }
       }
-      else {
+
+      if (aggregateParameter!=null) {
         using (context.Bindings.Add(aggregateParameter.Parameters[0], sourceProjection))
         using (state.CreateScope()) {
           state.CalculateExpressions = true;
@@ -721,6 +727,26 @@ namespace Xtensive.Orm.Linq
 
       aggregatedColumnIndex = columnList[0];
       return new Pair<ProjectionExpression, int>(sourceProjection, aggregatedColumnIndex);
+    }
+
+    private static void EnsureAggregateIsPossible(Type type, AggregateType aggregateType, Expression visitedExpression)
+    {
+      switch (aggregateType) {
+      case AggregateType.Count:
+        return;
+      case AggregateType.Avg:
+      case AggregateType.Sum:
+        if (!type.IsNumericType())
+          throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
+        return;
+      case AggregateType.Min:
+      case AggregateType.Max:
+        if (type.IsNullable())
+          type = Nullable.GetUnderlyingType(type);
+        if (!typeof (IComparable).IsAssignableFrom(type))
+          throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
+        return;
+      }
     }
 
     private static AggregateType ExtractAggregateType(MethodCallExpression aggregateCall)
