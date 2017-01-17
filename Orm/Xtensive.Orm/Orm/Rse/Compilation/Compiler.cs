@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
-using Xtensive.Collections;
-
 using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Rse.Compilation
@@ -137,6 +134,9 @@ namespace Xtensive.Orm.Rse.Compilation
           break;
         case ProviderType.FreeText:
           result = VisitFreeText((FreeTextProvider) cp);
+          break;
+        case ProviderType.ContainsTable:
+          result = VisitContainsTable((ContainsTableProvider) cp);
           break;
         case ProviderType.Void:
           throw new NotSupportedException(Strings.ExProcessingOfVoidProviderIsNotSupported);
@@ -304,6 +304,12 @@ namespace Xtensive.Orm.Rse.Compilation
     /// </summary>
     /// <param name="provider">FreeText provider.</param>
     protected abstract TResult VisitFreeText(FreeTextProvider provider);
+
+    /// <summary>
+    /// Compiles <see cref="FreeTextProvider"/>.
+    /// </summary>
+    /// <param name="provider">ContainsTable provider.</param>
+    protected abstract TResult VisitContainsTable(ContainsTableProvider provider);
 
     /// <summary>
     /// Initializes this instance just before first VisitXxx() is called.

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Configuration;
@@ -250,8 +251,30 @@ namespace Xtensive.Orm.Building.Builders
           type.Hierarchy.TypeDiscriminatorMap.Field = fieldInfo.Fields.First();
       }
 
-      if (fieldInfo.IsStructure)
+      if (fieldInfo.IsStructure) {
         BuildNestedFields(null, fieldInfo, context.Model.Types[fieldInfo.ValueType].Fields);
+        var structureFullTextIndex = context.ModelDef.FullTextIndexes.TryGetValue(fieldInfo.ValueType);
+        if (structureFullTextIndex!=null) {
+          var hierarchyTypeInfo = context.Model.Types[fieldInfo.DeclaringType.UnderlyingType];
+          var structureTypeInfo = context.Model.Types[fieldInfo.ValueType];
+          var currentIndex = context.ModelDef.FullTextIndexes.TryGetValue(hierarchyTypeInfo.UnderlyingType);
+          if (currentIndex==null) {
+            currentIndex = new FullTextIndexDef(context.ModelDef.Types.TryGetValue(type.UnderlyingType));
+            context.ModelDef.FullTextIndexes.Add(currentIndex);
+          }
+          currentIndex.Fields.AddRange(structureFullTextIndex.Fields
+            .Select(f => new {
+              fieldInfo.DeclaringType.StructureFieldMapping[new Pair<FieldInfo>(fieldInfo, structureTypeInfo.Fields[f.Name])].Name,
+              f.IsAnalyzed,
+              f.Configuration,
+              f.TypeFieldName
+            })
+            .Select(g => new FullTextFieldDef(g.Name, g.IsAnalyzed) {
+              Configuration = g.Configuration,
+              TypeFieldName = g.TypeFieldName
+            }));
+        }
+      }
 
       if (fieldInfo.IsPrimitive) {
         fieldInfo.DefaultValue = fieldDef.DefaultValue;
@@ -260,7 +283,6 @@ namespace Xtensive.Orm.Building.Builders
         if (fieldDef.IsTypeDiscriminator)
           type.Hierarchy.TypeDiscriminatorMap.Field = fieldInfo;
       }
-
       return fieldInfo;
     }
 

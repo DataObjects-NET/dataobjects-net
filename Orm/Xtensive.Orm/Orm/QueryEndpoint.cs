@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using JetBrains.Annotations;
 using Xtensive.Core;
+using Xtensive.Orm.FullTextSearchCondition.Interfaces;
+using Xtensive.Orm.FullTextSearchCondition.Nodes;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Linq;
@@ -92,6 +94,27 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
+    /// Performs full-text query for the text specified in free text form. 
+    /// Limits the result by top number of elements, sorted by rank in descending order.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">The search criteria in free text form.</param>
+    /// <param name="topNByRank">Top number of elements to be returned.</param>
+    /// <returns>
+    /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.
+    /// </returns>
+    public IQueryable<FullTextMatch<T>> FreeText<T>(string searchCriteria, int topNByRank) 
+      where T : Entity
+    {
+      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
+      var method = WellKnownMembers.Query.FreeTextStringTopNByRank.MakeGenericMethod(typeof (T));
+      var expression = Expression.Call(method, Expression.Constant(searchCriteria), Expression.Constant(topNByRank));
+      return Provider.CreateQuery<FullTextMatch<T>>(expression);
+    }
+
+    /// <summary>
     /// Performs full-text query for the text specified in free text form.
     /// </summary>
     /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
@@ -106,6 +129,118 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       var method = WellKnownMembers.Query.FreeTextExpression.MakeGenericMethod(typeof(T));
       var expression = Expression.Call(null, method, new[] { searchCriteria });
+      return Provider.CreateQuery<FullTextMatch<T>>(expression);
+    }
+
+    /// <summary>
+    /// Performs full-text query for the text specified in free text form.
+    /// Limits the result by top number of elements, sorted by rank in descending order.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">The search criteria in free text form.</param>
+    /// <param name="topNByRank">Top number of elements to be returned.</param>
+    /// <returns>
+    /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.
+    /// </returns>
+    public IQueryable<FullTextMatch<T>> FreeText<T>(Expression<Func<string>> searchCriteria, int topNByRank)
+      where T : Entity
+    {
+      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
+      var method = WellKnownMembers.Query.FreeTextExpressionTopNByRank.MakeGenericMethod(typeof (T));
+      var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(topNByRank));
+      return Provider.CreateQuery<FullTextMatch<T>>(expression);
+    }
+
+    /// <summary>
+    /// Performs full-text query for the specified search condition.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">Search condition.</param>
+    /// <returns>
+    /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.
+    /// </returns>
+    public IQueryable<FullTextMatch<T>> ContainsTable<T>([NotNull] Expression<Func<ConditionEndpoint, IOperand>> searchCriteria)
+      where T: Entity
+    {
+      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      var method = WellKnownMembers.Query.ContainsTableExpr.MakeGenericMethod(typeof (T));
+      var expression = Expression.Call(null, method, searchCriteria);
+      return Provider.CreateQuery<FullTextMatch<T>>(expression);
+    }
+
+    /// <summary>
+    /// Performs full-text query for the specified search condition.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">Search condition.</param>
+    /// <param name="targetFields">Fields which are included in full-text index to search over.</param>
+    /// <returns>
+    /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.
+    /// </returns>
+    public IQueryable<FullTextMatch<T>> ContainsTable<T>(
+      [NotNull] Expression<Func<ConditionEndpoint, IOperand>> searchCriteria,
+      [NotNull] Expression<Func<T, object>>[] targetFields)
+      where T : Entity
+    {
+      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      ArgumentValidator.EnsureArgumentNotNull(targetFields, "targetFields");
+      var method = WellKnownMembers.Query.ContainsTableExprWithColumns.MakeGenericMethod(typeof(T));
+      var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetFields));
+      return Provider.CreateQuery<FullTextMatch<T>>(expression);
+    }
+
+    /// <summary>
+    /// Performs full-text query for the specified search condition.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">Search condition.</param>
+    /// <param name="topNByRank">
+    /// Specifies how many highest ranked matches (in descending order) result set should be returned.
+    /// Result set may contain less number of items than specified by the parameter.
+    /// </param>
+    /// <returns>
+    /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.
+    /// </returns>
+    public IQueryable<FullTextMatch<T>> ContainsTable<T>([NotNull] Expression<Func<ConditionEndpoint, IOperand>> searchCriteria, int topNByRank)
+      where T : Entity
+    {
+      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
+      var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.MakeGenericMethod(typeof(T));
+      var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(topNByRank));
+      return Provider.CreateQuery<FullTextMatch<T>>(expression);
+    }
+
+    /// <summary>
+    /// Performs full-text query for the specified search condition.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity to query full-text index of.</typeparam>
+    /// <param name="searchCriteria">Search condition.</param>
+    /// <param name="targetFields">Fields which are included in full-text index to search over.</param>
+    /// <param name="topNByRank">
+    /// Specifies how many highest ranked matches (in descending order) result set should be returned.
+    /// Result set may contain less number of items than specified by the parameter.
+    /// </param>
+    /// <returns>
+    /// An <see cref="IQueryable{T}"/> of <see cref="FullTextMatch{T}"/>
+    /// allowing to continue building the query.
+    /// </returns>
+    public IQueryable<FullTextMatch<T>> ContainsTable<T>(
+      [NotNull] Expression<Func<ConditionEndpoint, IOperand>> searchCriteria,
+      [NotNull] Expression<Func<T, object>>[] targetFields,
+      int topNByRank)
+      where T : Entity
+    {
+      ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
+      ArgumentValidator.EnsureArgumentNotNull(targetFields, "targetFields");
+      ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
+      var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.MakeGenericMethod(typeof(T));
+      var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetFields), Expression.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 

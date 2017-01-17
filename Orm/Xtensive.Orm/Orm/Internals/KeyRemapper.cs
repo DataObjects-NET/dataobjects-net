@@ -68,11 +68,12 @@ namespace Xtensive.Orm.Internals
       var entity = Session.Query.SingleOrDefault(info.FieldOwner);
       if (entity==null)
         return;
-      var fieldAccessor = info.Field.DeclaringType.Accessors.GetFieldAccessor(info.Field);
-      var untypedValue = fieldAccessor.GetUntypedValue(entity);
-      var unremapedKey = (untypedValue!=null) ? ((Entity) untypedValue).Key: null;
-      var value = context.TryRemapKey(unremapedKey);
-      entity.SetReferenceKey(info.Field, value);
+      var referencedEntity = (Entity) entity.GetFieldValue(info.Field);
+      if (referencedEntity==null)
+        return;
+      var referencedKey = referencedEntity.Key;
+      var realKey = context.TryRemapKey(referencedKey);
+      entity.SetReferenceKey(info.Field, realKey);
     }
 
     public KeyRemapper(Session session)

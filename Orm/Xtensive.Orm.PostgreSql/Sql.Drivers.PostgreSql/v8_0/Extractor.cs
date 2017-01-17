@@ -873,8 +873,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         GetPrecisionAndScale(typmod, out precision, out scale);
         return new SqlValueType(typeInfo.Type, precision, scale);
       }
-
-      return typmod!=-1
+      
+      if (typeInfo.Type==SqlType.DateTimeOffset)
+        return new SqlValueType(typeInfo.Type);
+      return typmod!=-1 
         ? new SqlValueType(typeInfo.Type, typmod - 4)
         : new SqlValueType(typeInfo.Type);
     }
