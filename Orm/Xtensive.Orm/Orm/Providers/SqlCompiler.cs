@@ -28,6 +28,8 @@ namespace Xtensive.Orm.Providers
     private readonly bool temporaryTablesSupported;
     private readonly HashSet<Column> rootColumns = new HashSet<Column>();
 
+    private bool anyIncludesOverTemporaryTable;
+
     /// <summary>
     /// Gets model mapping.
     /// </summary>

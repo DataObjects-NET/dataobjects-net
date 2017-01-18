@@ -19,10 +19,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
   {
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
-      var domainHandler = DomainHandler;
       var rankColumnName = provider.Header.Columns.Last().Name;
-
-      var stringTypeMapping = Driver.GetTypeMapping(typeof (string));
+      var stringTypeMapping = Driver.GetTypeMapping(typeof(string));
       var binding = new QueryParameterBinding(stringTypeMapping,
         provider.SearchCriteria.Invoke, QueryParameterBindingType.Regular);
 
@@ -37,6 +35,10 @@ namespace Xtensive.Orm.Providers.PostgreSql
         select.Columns.Add(fromTableRef.Columns[column.Name] ?? column);
       select.Columns.Add(SqlDml.Cast(fromTableRef.Columns[rankColumnName], SqlType.Double), rankColumnName);
       select.From = fromTableRef;
+      if (provider.TopN!=null) {
+        select.Limit = provider.TopN.Invoke();
+        select.OrderBy.Add(select.Columns[rankColumnName], false);  
+      }
       return CreateProvider(select, binding, provider);
     }
 

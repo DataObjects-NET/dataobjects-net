@@ -5,6 +5,7 @@
 // Created:    2009.02.27
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -696,14 +697,20 @@ namespace Xtensive.Orm.Linq
         return new Pair<ProjectionExpression, int>(sourceProjection, aggregatedColumnIndex);
       }
 
-      List<int> columnList;
+      List<int> columnList = null;
       sourceProjection = VisitSequence(source);
       if (aggregateParameter==null) {
-        if (!sourceProjection.ItemProjector.IsPrimitive)
-          throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
-        columnList = sourceProjection.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+        if (sourceProjection.ItemProjector.IsPrimitive)
+          columnList = sourceProjection.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+        else {
+          var lambdaType = sourceProjection.ItemProjector.Item.Type;
+          EnsureAggregateIsPossible(lambdaType, aggregateType, visitedExpression);
+          var paramExpression = Expression.Parameter(lambdaType, "arg");
+          aggregateParameter = Expression.Lambda(paramExpression, paramExpression);
+        }
       }
-      else {
+
+      if (aggregateParameter!=null) {
         using (context.Bindings.Add(aggregateParameter.Parameters[0], sourceProjection))
         using (state.CreateScope()) {
           state.CalculateExpressions = true;
@@ -720,6 +727,26 @@ namespace Xtensive.Orm.Linq
 
       aggregatedColumnIndex = columnList[0];
       return new Pair<ProjectionExpression, int>(sourceProjection, aggregatedColumnIndex);
+    }
+
+    private static void EnsureAggregateIsPossible(Type type, AggregateType aggregateType, Expression visitedExpression)
+    {
+      switch (aggregateType) {
+      case AggregateType.Count:
+        return;
+      case AggregateType.Avg:
+      case AggregateType.Sum:
+        if (!type.IsNumericType())
+          throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
+        return;
+      case AggregateType.Min:
+      case AggregateType.Max:
+        if (type.IsNullable())
+          type = Nullable.GetUnderlyingType(type);
+        if (!typeof (IComparable).IsAssignableFrom(type))
+          throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
+        return;
+      }
     }
 
     private static AggregateType ExtractAggregateType(MethodCallExpression aggregateCall)
@@ -1234,8 +1261,31 @@ namespace Xtensive.Orm.Linq
 
         var outerResult = context.Bindings[outerParameter];
         var columnIndex = outerResult.ItemProjector.DataSource.Header.Length;
+        var algorithm = state.IncludeAlgorithm;
+        if (state.IncludeAlgorithm==IncludeAlgorithm.Auto) {
+          // try to detect count of elements
+          // and determine actual include algorithm
+          // Further this will help to decide on query optimization more accurately.
+          // If we are failed here, real type of algorithm
+          // will be detected in SqlIncludeProvider.OnBeforeEnumerate() anyway.
+          try {
+            var evaluatedSource = ExpressionEvaluator.Evaluate(source).Value;
+            var collection = evaluatedSource as ICollection;
+            int? count = null;
+            if (collection!=null)
+              count = collection.Count;
+            algorithm = count.HasValue 
+              ? (count.Value > WellKnown.MaxNumberOfConditions)
+                ? IncludeAlgorithm.TemporaryTable
+                : IncludeAlgorithm.ComplexCondition
+              : state.IncludeAlgorithm;
+          }
+          catch {
+            algorithm = state.IncludeAlgorithm;
+          }
+        }
         var newDataSource = outerResult.ItemProjector.DataSource
-          .Include(state.IncludeAlgorithm, true, rawProvider.Source, context.GetNextAlias(), filteredColumns);
+          .Include(algorithm, true, rawProvider.Source, context.GetNextAlias(), filteredColumns);
 
         var newItemProjector = outerResult.ItemProjector.Remap(newDataSource, 0);
         var newOuterResult = new ProjectionExpression(

@@ -34,6 +34,10 @@
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Npgsql, Version=2.0.12.0, Culture=neutral, PublicKeyToken=5d8b90d52f46fda7, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Npgsql\Net40\Npgsql.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -51,6 +55,7 @@
     <Compile Include="CompilerTest.cs" />
     <Compile Include="Firebird\CompilerTest.cs" />
     <Compile Include="MySQL\CompilerTest.cs" />
+    <Compile Include="PostgreSql\DateTimeOffsetTest.cs" />
     <Compile Include="PostgreSql\NpgsqlTypeConstructorTest.cs" />
     <Compile Include="Sqlite\DateTimeIntervalTest.cs" />
     <Compile Include="Sqlite\DateTimeOffsetTest.cs" />

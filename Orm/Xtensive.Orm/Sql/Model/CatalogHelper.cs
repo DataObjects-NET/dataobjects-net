@@ -4,10 +4,12 @@
 // Created by: Alexey Kulakov
 // Created:    2015.09.03
 
+using System;
 using System.Linq;
 
 namespace Xtensive.Sql.Model
 {
+  [Obsolete]
   public class CatalogHelper
   {
     public static void MoveSchemaNodes(Catalog catalog, string sourceSchemaName, string targetSchemaName)
@@ -17,7 +19,7 @@ namespace Xtensive.Sql.Model
 
       ChangeSchemaOfNodeCollection(sourceSchema.Sequences, targetSchema);
       ChangeSchemaOfNodeCollection(sourceSchema.Tables, targetSchema);
-      //ChangeSchemaOfNodeCollection(sourceSchema.Views, targetSchema);
+      ChangeSchemaOfNodeCollection(sourceSchema.Views, targetSchema);
       ChangeSchemaOfNodeCollection(sourceSchema.Collations, targetSchema);
     }
 

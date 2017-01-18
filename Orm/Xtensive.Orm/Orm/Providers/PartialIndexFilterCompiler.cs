@@ -23,6 +23,7 @@ namespace Xtensive.Orm.Providers
         .Select((name, i) => SqlDml.ColumnRef(table.Columns[i], name))
         .Cast<SqlExpression>()
         .ToList();
+
       var processor = new ExpressionProcessor(index.Filter.Expression, handlers, null, columns);
       var fragment = SqlDml.Fragment(processor.Translate());
       var result = handlers.StorageDriver.Compile(fragment).GetCommandText();

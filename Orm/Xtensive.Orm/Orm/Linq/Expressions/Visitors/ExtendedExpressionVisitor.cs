@@ -50,13 +50,13 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       case ExtendedExpressionType.Constructor:
         return VisitConstructorExpression((ConstructorExpression) expression);
       case ExtendedExpressionType.FullText:
-        return VisitFreeTextExpression((FullTextExpression) expression);
+        return VisitFullTextExpression((FullTextExpression) expression);
       default:
         return base.VisitUnknown(expression);
       }
     }
 
-    protected virtual Expression VisitFreeTextExpression(FullTextExpression expression)
+    protected virtual Expression VisitFullTextExpression(FullTextExpression expression)
     {
       return expression;
     }

@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.NorthwindDO
   [Serializable]
   public class Address : Structure
   {
-    [Field(Length = 60)]
+    [Field(Length = 60), FullText("English")]
     public string StreetAddress { get; set; }
 
     [Field(Length = 15)]
@@ -336,6 +336,13 @@ namespace Xtensive.Orm.Tests.ObjectModel.NorthwindDO
     public string FullName
     {
       get { return FirstName + " " + LastName; }
+    }
+
+    public int? GetAge()
+    {
+      if (BirthDate.HasValue)
+        return DateTime.Now.Year - BirthDate.Value.Year;
+      return default(int?);
     }
   }
 

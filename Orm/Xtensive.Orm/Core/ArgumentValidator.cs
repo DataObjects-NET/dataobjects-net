@@ -70,6 +70,22 @@ namespace Xtensive.Core
       }
     }
 
+    public static void EnsureArgumentNotNullOrEmptyOrWhiteSpace(string value, [InvokerParameterName] string parameterName)
+    {
+      if (value==null) {
+        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
+        throw new ArgumentNullException(parameterName);
+      }
+      if (value.Length==0) {
+        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
+        throw new ArgumentException(Strings.ExArgumentCannotBeEmptyString, parameterName);
+      }
+      if (value.Trim().Length==0) {
+        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
+        throw new ArgumentException(Strings.ExArgumentCannotBeWhiteSpacesOnlyString, parameterName);
+      }
+    }
+
     /// <summary>
     /// Ensures argument (<paramref name="value"/>) is not <see langword="null"/> 
     /// and of <typeparamref name="T"/> type.

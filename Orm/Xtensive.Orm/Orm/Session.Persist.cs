@@ -130,8 +130,10 @@ namespace Xtensive.Orm
               RemapEntityKeys(remapper.Remap(itemsToPersist));
             }
             ApplyEntitySetsChanges();
+            var persistIsSuccessfull = false;
             try {
               Handler.Persist(itemsToPersist, reason == PersistReason.Query);
+              persistIsSuccessfull = true;
             }
             catch(Exception) {
               persistingIsFailed = true;
@@ -140,7 +142,7 @@ namespace Xtensive.Orm
               throw;
             }
             finally {
-              if (!Configuration.Supports(SessionOptions.NonTransactionalReads) || !persistingIsFailed) {
+              if (persistIsSuccessfull || !Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
                 foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
                   item.PersistenceState = PersistenceState.Synchronized;
                 foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified))
@@ -148,8 +150,7 @@ namespace Xtensive.Orm
                 foreach (var item in itemsToPersist.GetItems(PersistenceState.Removed))
                   item.Update(null);
 
-                if (performPinning)
-                {
+                if (performPinning) {
                   EntityChangeRegistry = pinner.PinnedItems;
                   pinner.Reset();
                 }
@@ -158,7 +159,6 @@ namespace Xtensive.Orm
                 EntitySetChangeRegistry.Clear();
                 NonPairedReferencesRegistry.Clear();
               }
-              
               OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
             }
           }
