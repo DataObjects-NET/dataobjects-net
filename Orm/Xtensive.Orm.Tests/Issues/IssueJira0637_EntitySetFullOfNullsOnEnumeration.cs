@@ -79,12 +79,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var table = session.Query.All<Table>().First();
         session.Remove(table.Legs);
-        int itterations = 0;
         foreach (var leg in table.Legs.AsEnumerable()) {
-          itterations++;
           Assert.That(leg, Is.Not.Null);
+          Assert.That(leg.IsRemoved, Is.True);
         }
-        Assert.That(itterations, Is.EqualTo(0));
       }
     }
 
@@ -95,12 +93,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var table = session.Query.All<Table>().First();
         session.Remove(table.Legs);
-        int itterations = 0;
         foreach (var leg in table.Legs.ToList()) {
-          itterations++;
           Assert.That(leg, Is.Not.Null);
+          Assert.That(leg.IsRemoved, Is.True);
         }
-        Assert.That(itterations, Is.EqualTo(0));
       }
     }
 
@@ -111,12 +107,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var table = session.Query.All<Table>().First();
         session.Remove(table.Legs);
-        int itterations = 0;
         foreach (var leg in table.Legs.ToArray()) {
-          itterations++;
           Assert.That(leg, Is.Not.Null);
+          Assert.That(leg.IsRemoved, Is.True);
         }
-        Assert.That(itterations, Is.EqualTo(0));
       }
     }
 
@@ -127,27 +121,26 @@ namespace Xtensive.Orm.Tests.Issues
         var referencing = new ReferencingEntity() { Text = "A" };
         var count = referencing.TestBs.Count;
         Assert.That(count, Is.EqualTo(0));
-        var TestB = new TestB(session) { Text = "B", TestA = referencing };
-        // 1 - OK
+        var testB = new TestB(session) { Text = "B", TestA = referencing };
+
         count = referencing.TestBs.Count;
         var list = new List<object>();
         foreach (var item in referencing.TestBs)
           list.Add(item);
-        // 1 - OK
+
         count = list.Count;
         Assert.That(count, Is.EqualTo(1));
-        // 1 - OK
+
         count = referencing.TestBs.Count;
         Assert.That(count, Is.EqualTo(1));
         var list1 = referencing.TestBs.ToList();
-        // 0 - broken!
+        
         count = list1.Count;
         Assert.That(count, Is.EqualTo(1));
-        // 0 - broken!
+
         count = referencing.TestBs.Count;
         Assert.That(count, Is.EqualTo(1));
       }
-
     }
 
     protected override void PopulateData()

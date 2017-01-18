@@ -160,11 +160,7 @@ namespace Xtensive.Orm
     int ICollection<TItem>.Count
     {
       [DebuggerStepThrough]
-      get {
-        State.TotalItemCount = null;
-        Prefetch();
-        return checked ((int) Count);
-      }
+      get { return checked ((int) Count); }
     }
 
     /// <inheritdoc/>

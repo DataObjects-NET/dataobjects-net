@@ -75,8 +75,15 @@ namespace Xtensive.Orm
       Prefetch();
       foreach (var key in State) {
         var entity = Session.Query.SingleOrDefault(key);
-        if (entity!=null)
-          yield return entity;
+        if (entity==null) {
+          if (!key.IsTemporary(Session.Domain)) {
+            Session.RemoveOrCreateRemovedEntity(key.TypeReference.Type.UnderlyingType, key);
+            EntityState entityState;
+            if (Session.LookupStateInCache(key, out entityState))
+              entity = entityState.Entity;
+          }
+        }
+        yield return entity;
       }
     }
 
