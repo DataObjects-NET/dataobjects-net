@@ -6954,6 +6954,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to get TableColumn instance from index..
+        /// </summary>
+        internal static string ExUnableToGetTableColumnInstanceFromIndex {
+            get {
+                return ResourceManager.GetString("ExUnableToGetTableColumnInstanceFromIndex", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to get type of provider by name &apos;{0}&apos;..
         /// </summary>
         internal static string ExUnableToGetTypeOfProviderByNameX {
@@ -7275,6 +7284,15 @@ namespace Xtensive {
         internal static string ExUnderlyingStorageProviderDoesNotSupportSQL {
             get {
                 return ResourceManager.GetString("ExUnderlyingStorageProviderDoesNotSupportSQL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unexpected type of parameter..
+        /// </summary>
+        internal static string ExUnexpectedTypeOfParameter {
+            get {
+                return ResourceManager.GetString("ExUnexpectedTypeOfParameter", resourceCulture);
             }
         }
         

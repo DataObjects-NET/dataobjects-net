@@ -3391,4 +3391,10 @@ Error: {1}</value>
   <data name="ExFieldAccessExpressionXDoesNotAccessToYTypeMembers" xml:space="preserve">
     <value>Field access expression '{0}'  does not access to '{1}' type members.</value>
   </data>
+    <data name="ExUnexpectedTypeOfParameter" xml:space="preserve">
+    <value>Unexpected type of parameter.</value>
+  </data>
+    <data name="ExUnableToGetTableColumnInstanceFromIndex" xml:space="preserve">
+    <value>Unable to get TableColumn instance from index.</value>
+  </data>
 </root>

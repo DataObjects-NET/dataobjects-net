@@ -57,9 +57,8 @@ namespace Xtensive.Orm.Upgrade.Internals
         pfMap.Add(partitionFunction, newFunction);
       }
 
-      foreach (var partitionSchema in source.PartitionSchemas) {
+      foreach (var partitionSchema in source.PartitionSchemas)
         newCatalog.CreatePartitionSchema(partitionSchema.Name, pfMap[partitionSchema.PartitionFunction], partitionSchema.Filegroups.ToArray());
-      }
     }
 
     private void CloneSchemas(Catalog newCatalog, Catalog source, Dictionary<string, string> schemaMap)
@@ -81,162 +80,161 @@ namespace Xtensive.Orm.Upgrade.Internals
       }
     }
 
-    private void CloneAssertions(Schema newSchema, Schema oldSchema)
+    private void CloneAssertions(Schema newSchema, Schema sourceSchema)
     {
-      foreach (var assertion in oldSchema.Assertions) {
+      foreach (var assertion in sourceSchema.Assertions) {
         var newAssertion = newSchema.CreateAssertion(assertion.Name, (SqlExpression)assertion.Condition.Clone(), assertion.IsDeferrable, assertion.IsInitiallyDeferred);
         CopyDbName(newAssertion, assertion);
       }
     }
 
-    private void CloneCharacterSets(Schema newSchema, Schema oldSchema)
+    private void CloneCharacterSets(Schema newSchema, Schema sourceSchema)
     {
-      foreach (var characterSet in oldSchema.CharacterSets) {
+      foreach (var characterSet in sourceSchema.CharacterSets) {
         var newCharacterSet = newSchema.CreateCharacterSet(characterSet.Name);
         CopyDbName(newCharacterSet, characterSet);
       }
     }
 
-    private void CloneCollations(Schema newSchema, Schema oldSchema, Dictionary<Collation, Collation> collationsMap)
+    private void CloneCollations(Schema newSchema, Schema sourceSchema, Dictionary<Collation, Collation> collationsMap)
     {
-      foreach (var collation in oldSchema.Collations)
-      {
+      foreach (var collation in sourceSchema.Collations) {
         var newCollation = newSchema.CreateCollation(collation.Name);
         collationsMap.Add(collation, newCollation);
       }
     }
 
-    private void CloneDomains(Schema newSchema, Schema oldSchema, Dictionary<Collation, Collation> collationsMap)
+    private void CloneDomains(Schema newSchema, Schema sourceSchema, Dictionary<Collation, Collation> collationsMap)
     {
-      foreach (var domain in oldSchema.Domains) {
-        var newDomain = newSchema.CreateDomain(domain.Name, domain.DataType);
-        CopyDbName(newDomain, domain);
-        newDomain.Collation = collationsMap[domain.Collation];
-        newDomain.DefaultValue = (SqlExpression) domain.DefaultValue.Clone();
-        foreach (var domainConstraint in domain.DomainConstraints) {
+      foreach (var sourceDomain in sourceSchema.Domains) {
+        var newDomain = newSchema.CreateDomain(sourceDomain.Name, sourceDomain.DataType);
+        CopyDbName(newDomain, sourceDomain);
+        newDomain.Collation = collationsMap[sourceDomain.Collation];
+        newDomain.DefaultValue = (SqlExpression) sourceDomain.DefaultValue.Clone();
+        foreach (var domainConstraint in sourceDomain.DomainConstraints) {
           var newConstraint = newDomain.CreateConstraint(domainConstraint.Name, (SqlExpression) domainConstraint.Condition.Clone());
           CopyDbName(newConstraint, domainConstraint);
         }
       }
     }
 
-    private void CloneSequences(Schema newSchema, Schema oldSchema)
+    private void CloneSequences(Schema newSchema, Schema sourceSchema)
     {
-      foreach (var sequence in oldSchema.Sequences) {
-        var newSequence = newSchema.CreateSequence(sequence.Name);
-        CopyDbName(newSequence, sequence);
-        newSequence.SequenceDescriptor = (SequenceDescriptor) sequence.SequenceDescriptor.Clone();
+      foreach (var sourceSequence in sourceSchema.Sequences) {
+        var newSequence = newSchema.CreateSequence(sourceSequence.Name);
+        CopyDbName(newSequence, sourceSequence);
+        newSequence.SequenceDescriptor = (SequenceDescriptor) sourceSequence.SequenceDescriptor.Clone();
       }
     }
 
-    private void CloneTables(Schema newSchema, Schema oldSchema, Dictionary<Collation, Collation> collationsMap)
+    private void CloneTables(Schema newSchema, Schema sourceSchema, Dictionary<Collation, Collation> collationsMap)
     {
-      foreach (var table in oldSchema.Tables) {
-        var newTable = newSchema.CreateTable(table.Name);
-        CopyDbName(newTable, table);
-        newTable.Filegroup = table.Filegroup;
+      foreach (var sourceTable in sourceSchema.Tables) {
+        var newTable = newSchema.CreateTable(sourceTable.Name);
+        CopyDbName(newTable, sourceTable);
+        newTable.Filegroup = sourceTable.Filegroup;
 
-        CloneTableColumns(newTable, table, collationsMap);
-        ClonePartitionDescriptor(newTable, table);
-        CloneTableConstraints(newTable, table);
-        CloneIndexes(newTable, table);
+        CloneTableColumns(newTable, sourceTable, collationsMap);
+        ClonePartitionDescriptor(newTable, sourceTable);
+        CloneTableConstraints(newTable, sourceTable);
+        CloneIndexes(newTable, sourceTable);
       }
     }
 
-    private void CloneTranslations(Schema newSchema, Schema oldSchema)
+    private void CloneTranslations(Schema newSchema, Schema sourceSchema)
     {
-      foreach (var translation in oldSchema.Translations) {
+      foreach (var translation in sourceSchema.Translations) {
         var newTranslation = newSchema.CreateTranslation(translation.Name);
         CopyDbName(newTranslation, translation);
       }
     }
 
-    private void CloneViews(Schema newSchema, Schema oldSchema)
+    private void CloneViews(Schema newSchema, Schema sourceSchema)
     {
-      foreach (var view in oldSchema.Views) {
-        var newView = newSchema.CreateView(view.Name);
-        CopyDbName(newView, view);
-        newView.CheckOptions = view.CheckOptions;
-        newView.Definition = (SqlNative) view.Definition.Clone();
-        CloneViewColumns(newView, view);
-        CloneIndexes(newView, view);
+      foreach (var sourceView in sourceSchema.Views) {
+        var newView = newSchema.CreateView(sourceView.Name);
+        CopyDbName(newView, sourceView);
+        newView.CheckOptions = sourceView.CheckOptions;
+        newView.Definition = (SqlNative) sourceView.Definition.Clone();
+        CloneViewColumns(newView, sourceView);
+        CloneIndexes(newView, sourceView);
       }
     }
 
-    private void CloneViewColumns(View newView, View oldView)
+    private void CloneViewColumns(View newView, View sourceView)
     {
-      foreach (var viewColumn in oldView.ViewColumns) {
-        var newColumn = newView.CreateColumn(viewColumn.Name);
-        CopyDbName(newColumn, viewColumn);
+      foreach (var sourceViewColumn in sourceView.ViewColumns) {
+        var newColumn = newView.CreateColumn(sourceViewColumn.Name);
+        CopyDbName(newColumn, sourceViewColumn);
       }
     }
 
-    private void CloneTableColumns(Table newTable, Table oldTable, Dictionary<Collation, Collation> collationsMap)
+    private void CloneTableColumns(Table newTable, Table sourceTable, Dictionary<Collation, Collation> collationsMap)
     {
-      foreach (var tableColumn in oldTable.TableColumns) {
-        var newColumn = newTable.CreateColumn(tableColumn.Name, tableColumn.DataType);
-        CopyDbName(newColumn, tableColumn);
+      foreach (var sourceTableColumn in sourceTable.TableColumns) {
+        var newColumn = newTable.CreateColumn(sourceTableColumn.Name, sourceTableColumn.DataType);
+        CopyDbName(newColumn, sourceTableColumn);
 
-        if (tableColumn.DefaultValue!=null)
-          newColumn.DefaultValue = (SqlExpression) tableColumn.DefaultValue.Clone();
+        if (sourceTableColumn.DefaultValue!=null)
+          newColumn.DefaultValue = (SqlExpression) sourceTableColumn.DefaultValue.Clone();
 
         var schema = newTable.Schema;
-        if (tableColumn.Collation!=null) {
+        if (sourceTableColumn.Collation!=null) {
           Collation collation;
-          if (collationsMap.TryGetValue(tableColumn.Collation, out collation))
+          if (collationsMap.TryGetValue(sourceTableColumn.Collation, out collation))
             newColumn.Collation = collation;
           else {
-            newColumn.Collation = schema.CreateCollation(tableColumn.Collation.Name);
-            collationsMap.Add(tableColumn.Collation, newColumn.Collation);
+            newColumn.Collation = schema.CreateCollation(sourceTableColumn.Collation.Name);
+            collationsMap.Add(sourceTableColumn.Collation, newColumn.Collation);
           }
         }
-        if (tableColumn.Domain!=null)
-          newColumn.Domain = schema.Domains[tableColumn.Domain.Name];
-        if (tableColumn.Expression!=null)
-          newColumn.Expression = (SqlExpression) tableColumn.Expression.Clone();
-        newColumn.IsNullable = tableColumn.IsNullable;
-        newColumn.IsPersisted = tableColumn.IsPersisted;
-        if (tableColumn.SequenceDescriptor!=null)
-          newColumn.SequenceDescriptor = (SequenceDescriptor) tableColumn.SequenceDescriptor.Clone();
+        if (sourceTableColumn.Domain!=null)
+          newColumn.Domain = schema.Domains[sourceTableColumn.Domain.Name];
+        if (sourceTableColumn.Expression!=null)
+          newColumn.Expression = (SqlExpression) sourceTableColumn.Expression.Clone();
+        newColumn.IsNullable = sourceTableColumn.IsNullable;
+        newColumn.IsPersisted = sourceTableColumn.IsPersisted;
+        if (sourceTableColumn.SequenceDescriptor!=null)
+          newColumn.SequenceDescriptor = (SequenceDescriptor) sourceTableColumn.SequenceDescriptor.Clone();
       }
     }
 
-    private void CloneTableConstraints(Table newTable, Table oldTable)
+    private void CloneTableConstraints(Table newTable, Table sourceTable)
     {
-      foreach (var tableConstraint in oldTable.TableConstraints)
+      foreach (var tableConstraint in sourceTable.TableConstraints)
         CloneTableConstraint(newTable, tableConstraint);
     }
 
-    private void CloneForeignKeys(Schema newSchema, Schema oldSchema)
+    private void CloneForeignKeys(Schema newSchema, Schema sourceSchema)
     {
-      foreach (var table in oldSchema.Tables) {
+      foreach (var table in sourceSchema.Tables) {
         var newTable = newSchema.Tables[table.Name];
-        foreach (var foreignKey in table.TableConstraints.OfType<ForeignKey>()) {
-          var fk = newTable.CreateForeignKey(foreignKey.Name);
-          CopyDbName(fk, foreignKey);
-          fk.Columns.AddRange(foreignKey.Columns.Select(el => newTable.TableColumns[el.Name]));
-          fk.MatchType = foreignKey.MatchType;
-          fk.OnDelete = foreignKey.OnDelete;
-          fk.OnUpdate = foreignKey.OnUpdate;
-          var referencedTable = fk.ReferencedTable = newSchema.Tables[foreignKey.ReferencedTable.Name];
-          fk.ReferencedColumns.AddRange(foreignKey.ReferencedColumns.Select(el => referencedTable.TableColumns[el.Name]));
+        foreach (var sourceForeignKey in table.TableConstraints.OfType<ForeignKey>()) {
+          var newForeignKey = newTable.CreateForeignKey(sourceForeignKey.Name);
+          CopyDbName(newForeignKey, sourceForeignKey);
+          newForeignKey.Columns.AddRange(sourceForeignKey.Columns.Select(el => newTable.TableColumns[el.Name]));
+          newForeignKey.MatchType = sourceForeignKey.MatchType;
+          newForeignKey.OnDelete = sourceForeignKey.OnDelete;
+          newForeignKey.OnUpdate = sourceForeignKey.OnUpdate;
+          var referencedTable = newForeignKey.ReferencedTable = newSchema.Tables[sourceForeignKey.ReferencedTable.Name];
+          newForeignKey.ReferencedColumns.AddRange(sourceForeignKey.ReferencedColumns.Select(el => referencedTable.TableColumns[el.Name]));
         }
       }
     }
 
-    private void CloneIndexes(DataTable newTable, DataTable oldTable)
+    private void CloneIndexes(DataTable newTable, DataTable sourceTable)
     {
-      foreach (var index in oldTable.Indexes)
+      foreach (var index in sourceTable.Indexes)
         CloneIndex(newTable, index);
     }
 
-    private void CloneIndex(DataTable newTable, Index oldIndex)
+    private void CloneIndex(DataTable newTable, Index sourceIndex)
     {
-      var ftIndex = oldIndex as FullTextIndex;
+      var ftIndex = sourceIndex as FullTextIndex;
       if (ftIndex!=null) {
         var ft = newTable.CreateFullTextIndex(ftIndex.Name);
         CopyDbName(ft, ftIndex);
-        foreach (var tableColumn in GetKeyColumns(newTable, oldIndex))
+        foreach (var tableColumn in GetKeyColumns(newTable, sourceIndex))
           ft.CreateIndexColumn(tableColumn);
 
         ft.NonkeyColumns.AddRange(GetNonKeyColumns(newTable, ft));
@@ -249,14 +247,14 @@ namespace Xtensive.Orm.Upgrade.Internals
         ft.UnderlyingUniqueIndex = ftIndex.UnderlyingUniqueIndex;
         if (ftIndex.Where!=null)
           ft.Where = (SqlExpression) ftIndex.Where.Clone();
-        ClonePartitionDescriptor(ft, oldIndex);
+        ClonePartitionDescriptor(ft, sourceIndex);
         return;
       }
-      var spatialIndex = oldIndex as SpatialIndex;
+      var spatialIndex = sourceIndex as SpatialIndex;
       if (spatialIndex!=null) {
         var spatial = newTable.CreateSpatialIndex(spatialIndex.Name);
         CopyDbName(spatial, spatialIndex);
-        foreach (var tableColumn in GetKeyColumns(newTable, oldIndex))
+        foreach (var tableColumn in GetKeyColumns(newTable, sourceIndex))
           spatial.CreateIndexColumn(tableColumn);
 
         spatial.NonkeyColumns.AddRange(GetNonKeyColumns(newTable, spatial));
@@ -266,74 +264,76 @@ namespace Xtensive.Orm.Upgrade.Internals
         spatial.IsClustered = spatialIndex.IsClustered;
         spatial.IsUnique = spatialIndex.IsUnique;
         if (spatialIndex.Where!=null)
-          spatial.Where = (SqlExpression) ftIndex.Where.Clone();
-        ClonePartitionDescriptor(spatialIndex, oldIndex);
+          spatial.Where = (SqlExpression) spatialIndex.Where.Clone();
+        ClonePartitionDescriptor(spatialIndex, sourceIndex);
         return;
       }
-      var index = newTable.CreateIndex(oldIndex.Name);
-      CopyDbName(index, oldIndex);
-      foreach (var tableColumn in GetKeyColumns(newTable, index))
+      var index = newTable.CreateIndex(sourceIndex.Name);
+      CopyDbName(index, sourceIndex);
+      foreach (var tableColumn in GetKeyColumns(newTable, sourceIndex))
         index.CreateIndexColumn(tableColumn);
 
-      index.Filegroup = oldIndex.Filegroup;
-      index.FillFactor = oldIndex.FillFactor;
-      index.IsUnique = oldIndex.IsUnique;
-      index.IsClustered = oldIndex.IsClustered;
-      if (oldIndex.Where!=null)
-        index.Where = (SqlExpression) oldIndex.Where.Clone();
-      index.NonkeyColumns.AddRange(GetNonKeyColumns(newTable, index));
-      index.IsBitmap = oldIndex.IsBitmap;
-      ClonePartitionDescriptor(index, oldIndex);
+      index.Filegroup = sourceIndex.Filegroup;
+      index.FillFactor = sourceIndex.FillFactor;
+      index.IsUnique = sourceIndex.IsUnique;
+      index.IsClustered = sourceIndex.IsClustered;
+      if (sourceIndex.Where!=null)
+        index.Where = (SqlExpression) sourceIndex.Where.Clone();
+      index.NonkeyColumns.AddRange(GetNonKeyColumns(newTable, sourceIndex));
+      index.IsBitmap = sourceIndex.IsBitmap;
+      ClonePartitionDescriptor(index, sourceIndex);
     }
 
-    private DataTableColumn[] GetKeyColumns(DataTable newTable, Index index)
+    private DataTableColumn[] GetKeyColumns(DataTable newTable, Index sourceIndex)
     {
       var table = newTable as Table;
       if (table!=null)
-        return index.Columns.Select(el => table.TableColumns[el.Column.Name]).Cast<DataTableColumn>().ToArray();
+        return sourceIndex.Columns.Select(el => table.TableColumns[el.Column.Name]).Cast<DataTableColumn>().ToArray();
 
       var view = newTable as View;
       if (view!=null)
-        return index.Columns.Select(el => view.ViewColumns[el.Column.Name]).Cast<DataTableColumn>().ToArray();
+        return sourceIndex.Columns.Select(el => view.ViewColumns[el.Column.Name]).Cast<DataTableColumn>().ToArray();
 
-      throw new ArgumentOutOfRangeException("newTable", "Unexpected type of parameter.");
+      throw new ArgumentOutOfRangeException("newTable", Strings.ExUnexpectedTypeOfParameter);
     }
 
-    private DataTableColumn[] GetNonKeyColumns(DataTable newTable, Index index)
+    private DataTableColumn[] GetNonKeyColumns(DataTable newTable, Index sourceIndex)
     {
       var table = newTable as Table;
-      if (table!=null) {
-        return index.NonkeyColumns.Select(el => table.TableColumns[el.Name]).Cast<DataTableColumn>().ToArray();
-      }
+      if (table!=null) 
+        return sourceIndex.NonkeyColumns.Select(el => table.TableColumns[el.Name]).Cast<DataTableColumn>().ToArray();
+
       var view = newTable as View;
-      if (view!=null) {
-        return index.NonkeyColumns.Select(el => view.ViewColumns[el.Name]).Cast<DataTableColumn>().ToArray();
-      }
-      throw new ArgumentOutOfRangeException("newTable", "Unexpected type of parameter.");
+      if (view!=null) 
+        return sourceIndex.NonkeyColumns.Select(el => view.ViewColumns[el.Name]).Cast<DataTableColumn>().ToArray();
+
+      throw new ArgumentOutOfRangeException("newTable", Strings.ExUnexpectedTypeOfParameter);
     }
 
-    private void CloneTableConstraint(Table newTable, TableConstraint constraint)
+    private void CloneTableConstraint(Table newTable, TableConstraint sourceConstraint)
     {
-      var checkConstraint = constraint as CheckConstraint;
+      var checkConstraint = sourceConstraint as CheckConstraint;
       if (checkConstraint!=null) {
         var c = newTable.CreateCheckConstraint(checkConstraint.Name, (SqlExpression) checkConstraint.Condition.Clone());
         CopyDbName(c, checkConstraint);
         return;
       }
-      var defaultConstraint = constraint as DefaultConstraint;
+
+      var defaultConstraint = sourceConstraint as DefaultConstraint;
       if (defaultConstraint!=null) {
         var c = newTable.CreateDefaultConstraint(defaultConstraint.Name, newTable.TableColumns[defaultConstraint.Column.Name]);
         c.NameIsStale = defaultConstraint.NameIsStale;
         CopyDbName(c, defaultConstraint);
       }
 
-      var foreignKey = constraint as ForeignKey;
+      //foreign keys are handled by special method
+      var foreignKey = sourceConstraint as ForeignKey;
       if (foreignKey!=null)
         return;
 
-      var uniqueConstraint = constraint as UniqueConstraint;
+      var uniqueConstraint = sourceConstraint as UniqueConstraint;
       if (uniqueConstraint!=null) {
-        var primaryKey = constraint as PrimaryKey;
+        var primaryKey = sourceConstraint as PrimaryKey;
         if (primaryKey!=null) {
           var columns = primaryKey.Columns.Select(c => newTable.TableColumns[c.Name]).ToArray();
           var pk =newTable.CreatePrimaryKey(primaryKey.Name, columns);
@@ -346,7 +346,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         }
         return;
       }
-      throw new ArgumentOutOfRangeException("constraint", "Unextected type of constraint.");
+      throw new ArgumentOutOfRangeException("sourceConstraint", Strings.ExUnexpectedTypeOfParameter);
     }
 
     private void ClonePartitionDescriptor(IPartitionable newObject, IPartitionable oldObject)
@@ -384,23 +384,23 @@ namespace Xtensive.Orm.Upgrade.Internals
         CopyDbName(oldPartition, newPartition);
         return;
       }
-      throw new ArgumentOutOfRangeException("oldPartition", "Unextected type of partition.");
+      throw new ArgumentOutOfRangeException("oldPartition", Strings.ExUnexpectedTypeOfParameter);
     }
 
     private TableColumn GetPartitionColumn(IPartitionable newObject, PartitionDescriptor oldPartitionDescriptor)
     {
       var table = newObject as Table;
-      if (table!=null) {
+      if (table!=null)
         return table.TableColumns[oldPartitionDescriptor.Column.Name];
-      }
+
       var index = newObject as Index;
       if (index!=null) {
         var tableColumn = index.Columns[oldPartitionDescriptor.Column.Name].Column as TableColumn;
         if (tableColumn!=null)
           return tableColumn;
-        throw new InvalidOperationException("Unable to get TableColumn instance from index.");
+        throw new InvalidOperationException(Strings.ExUnableToGetTableColumnInstanceFromIndex);
       }
-      throw new ArgumentOutOfRangeException("newObject", "Unexpected type of argument.");
+      throw new ArgumentOutOfRangeException("newObject", Strings.ExUnexpectedTypeOfParameter);
     }
 
     private void CopyDbName(Node newNode, Node sourceNode)
