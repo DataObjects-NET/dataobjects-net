@@ -5,6 +5,7 @@
 // Created:    2016.07.26
 
 using System.Linq;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0637_EntitySetFullOfNullsOnEnumerationModel;
@@ -37,6 +38,34 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0637_EntitySetFullOfNullsOnEnumerat
     [Association(PairTo = "Legs", OnOwnerRemove = OnRemoveAction.None, OnTargetRemove = OnRemoveAction.None)]
     public Table Table { get; set; }
   }
+
+  [HierarchyRoot]
+  public class ReferencingEntity : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public string Text { get; set; }
+
+    [Field, Association(PairTo = "TestA", OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear)]
+    public EntitySet<TestB> TestBs { get; private set; }
+  }
+
+  [HierarchyRoot]
+  public class TestB : Entity
+  {
+    public TestB(Session session) : base(session) { }
+
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public string Text { get; set; }
+
+    [Field]
+    public ReferencingEntity TestA { get; set; }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Issues
@@ -50,12 +79,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var table = session.Query.All<Table>().First();
         session.Remove(table.Legs);
-        int itterations = 0;
         foreach (var leg in table.Legs.AsEnumerable()) {
-          itterations++;
           Assert.That(leg, Is.Not.Null);
+          Assert.That(leg.IsRemoved, Is.True);
         }
-        Assert.That(itterations, Is.EqualTo(0));
       }
     }
 
@@ -66,12 +93,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var table = session.Query.All<Table>().First();
         session.Remove(table.Legs);
-        int itterations = 0;
         foreach (var leg in table.Legs.ToList()) {
-          itterations++;
           Assert.That(leg, Is.Not.Null);
+          Assert.That(leg.IsRemoved, Is.True);
         }
-        Assert.That(itterations, Is.EqualTo(0));
       }
     }
 
@@ -82,12 +107,39 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var table = session.Query.All<Table>().First();
         session.Remove(table.Legs);
-        int itterations = 0;
         foreach (var leg in table.Legs.ToArray()) {
-          itterations++;
           Assert.That(leg, Is.Not.Null);
+          Assert.That(leg.IsRemoved, Is.True);
         }
-        Assert.That(itterations, Is.EqualTo(0));
+      }
+    }
+
+    [Test]
+    public void UnsavedChangesTest()
+    {
+      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation))) {
+        var referencing = new ReferencingEntity() { Text = "A" };
+        var count = referencing.TestBs.Count;
+        Assert.That(count, Is.EqualTo(0));
+        var testB = new TestB(session) { Text = "B", TestA = referencing };
+
+        count = referencing.TestBs.Count;
+        var list = new List<object>();
+        foreach (var item in referencing.TestBs)
+          list.Add(item);
+
+        count = list.Count;
+        Assert.That(count, Is.EqualTo(1));
+
+        count = referencing.TestBs.Count;
+        Assert.That(count, Is.EqualTo(1));
+        var list1 = referencing.TestBs.ToList();
+        
+        count = list1.Count;
+        Assert.That(count, Is.EqualTo(1));
+
+        count = referencing.TestBs.Count;
+        Assert.That(count, Is.EqualTo(1));
       }
     }
 
