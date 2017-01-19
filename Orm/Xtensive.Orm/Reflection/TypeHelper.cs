@@ -1018,9 +1018,7 @@ namespace Xtensive.Reflection
     public static bool IsNumericType(this Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      var nonNullableType = type;
-      if (type.IsNullable())
-        nonNullableType = Nullable.GetUnderlyingType(type);
+      var nonNullableType = type.StripNullable();
       if (nonNullableType.IsEnum)
         return false;
 
