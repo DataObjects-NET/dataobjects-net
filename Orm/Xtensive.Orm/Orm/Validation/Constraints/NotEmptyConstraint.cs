@@ -32,6 +32,7 @@ namespace Xtensive.Orm.Validation
     {
       return new NotEmptyConstraint {
         IsImmediate = IsImmediate,
+        SkipOnTransactionComitting = SkipOnTransactionComitting
       };
     }
   }
