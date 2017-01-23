@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Validation
     {
       return new EmailConstraint {
         IsImmediate = IsImmediate,
-        SkipOnTransactionComitting = SkipOnTransactionComitting
+        SkipOnTransactionCommit = SkipOnTransactionCommit
       };
     }
   }

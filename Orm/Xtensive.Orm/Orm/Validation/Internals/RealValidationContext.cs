@@ -124,7 +124,7 @@ namespace Xtensive.Orm.Validation
           continue;
         var value = target.GetFieldValue(field);
         foreach (var validator in field.Validators) {
-          if (validationReason.HasValue && validationReason.Value==ValidationReason.Commit && validator.SkipOnTransactionComitting)
+          if (validationReason.HasValue && validationReason.Value==ValidationReason.Commit && validator.SkipOnTransactionCommit)
             continue;
           var result = validator.Validate(target, value);
           if (result.IsError)

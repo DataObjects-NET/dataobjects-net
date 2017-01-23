@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Validation
     {
       return new RegexConstraint(Pattern, Options) {
         IsImmediate = IsImmediate,
-        SkipOnTransactionComitting = SkipOnTransactionComitting
+        SkipOnTransactionCommit = SkipOnTransactionCommit
       };
     }
 

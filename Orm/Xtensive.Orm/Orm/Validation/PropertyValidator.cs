@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Validation
     /// <summary>
     /// Gets or sets value indicating if current validator should be skipped on a transaction commiting.
     /// </summary>
-    public bool SkipOnTransactionComitting
+    public bool SkipOnTransactionCommit
     {
       get { return skipOnTransactionCommiting; }
       set

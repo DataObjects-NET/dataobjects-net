@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Validation
     {
       return new NotNullConstraint {
         IsImmediate = IsImmediate,
-        SkipOnTransactionComitting = SkipOnTransactionComitting
+        SkipOnTransactionCommit = SkipOnTransactionCommit
       };
     }
   }

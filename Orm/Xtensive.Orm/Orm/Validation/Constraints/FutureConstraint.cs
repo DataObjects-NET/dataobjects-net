@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Validation
     {
       return new FutureConstraint {
         IsImmediate = IsImmediate,
-        SkipOnTransactionComitting = SkipOnTransactionComitting
+        SkipOnTransactionCommit = SkipOnTransactionCommit
       };
     }
   }

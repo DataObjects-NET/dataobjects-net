@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Validation
     /// Gets value indicating whether validator should be skipped on transaction commiting validation.
     /// Immediate validators execute not only before field value changes but on committig transaction.
     /// </summary>
-    bool SkipOnTransactionComitting { get;}
+    bool SkipOnTransactionCommit { get; }
 
     /// <summary>
     /// Configures this instance.

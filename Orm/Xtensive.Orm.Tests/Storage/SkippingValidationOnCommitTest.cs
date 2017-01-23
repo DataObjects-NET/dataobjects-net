@@ -1633,7 +1633,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class EmailTestEntity : BaseEntity
     {
       [Field]
-      [EmailConstraint(IsImmediate = true, SkipOnTransactionComitting = true)]
+      [EmailConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
       public string EmailField { get; set; }
     }
 
@@ -1641,7 +1641,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class FutureTestEntity : BaseEntity
     {
       [Field]
-      [FutureConstraint(IsImmediate = true, SkipOnTransactionComitting = true)]
+      [FutureConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
       public DateTime DateField { get; set; }
     }
 
@@ -1649,7 +1649,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class LenghtTestEntity : BaseEntity
     {
       [Field]
-      [LengthConstraint(IsImmediate = true, SkipOnTransactionComitting = true, Min = 16)]
+      [LengthConstraint(IsImmediate = true, SkipOnTransactionCommit = true, Min = 16)]
       public string StringField { get; set; }
     }
 
@@ -1657,7 +1657,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class NotEmptyTestEntity : BaseEntity
     {
       [Field]
-      [NotEmptyConstraint(IsImmediate = true, SkipOnTransactionComitting = true)]
+      [NotEmptyConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
       public string StringField { get; set; }
     }
 
@@ -1665,7 +1665,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class NotNullTestEntity : BaseEntity
     {
       [Field]
-      [NotNullConstraint(IsImmediate = true, SkipOnTransactionComitting = true)]
+      [NotNullConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
       public string StringField { get; set; }
     }
 
@@ -1673,7 +1673,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class NotNullOrEmptyTestEntity : BaseEntity
     {
       [Field]
-      [NotNullOrEmptyConstraint(IsImmediate = true, SkipOnTransactionComitting = true)]
+      [NotNullOrEmptyConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
       public string StringField { get; set; }
     }
 
@@ -1681,7 +1681,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class PastTestEntity : BaseEntity
     {
       [Field]
-      [PastConstraint(IsImmediate = true, SkipOnTransactionComitting = true)]
+      [PastConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
       public DateTime DateField { get; set; }
     }
 
@@ -1689,7 +1689,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class RangeTestEntity : BaseEntity
     {
       [Field]
-      [RangeConstraint(IsImmediate = true, SkipOnTransactionComitting = true, Min = 10, Max = 20)]
+      [RangeConstraint(IsImmediate = true, SkipOnTransactionCommit = true, Min = 10, Max = 20)]
       public long LongField { get; set; }
     }
 
@@ -1697,7 +1697,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class RegexTestEntity : BaseEntity
     {
       [Field]
-      [RegexConstraint("\b[A-Z][A-Z0-9]+\b", IsImmediate = true, SkipOnTransactionComitting = true)]
+      [RegexConstraint("\b[A-Z][A-Z0-9]+\b", IsImmediate = true, SkipOnTransactionCommit = true)]
       public string StringField { get; set; }
     }
   }
@@ -1801,7 +1801,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class EmailTestEntity : BaseEntity
     {
       [Field]
-      [EmailConstraint(IsImmediate = false, SkipOnTransactionComitting = true)]
+      [EmailConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
       public string EmailField { get; set; }
     }
 
@@ -1809,7 +1809,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class FutureTestEntity : BaseEntity
     {
       [Field]
-      [FutureConstraint(IsImmediate = false, SkipOnTransactionComitting = true)]
+      [FutureConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
       public DateTime DateField { get; set; }
     }
 
@@ -1817,7 +1817,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class LenghtTestEntity : BaseEntity
     {
       [Field]
-      [LengthConstraint(IsImmediate = false, SkipOnTransactionComitting = true, Min = 16)]
+      [LengthConstraint(IsImmediate = false, SkipOnTransactionCommit = true, Min = 16)]
       public string StringField { get; set; }
     }
 
@@ -1825,7 +1825,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class NotEmptyTestEntity : BaseEntity
     {
       [Field]
-      [NotEmptyConstraint(IsImmediate = false, SkipOnTransactionComitting = true)]
+      [NotEmptyConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
       public string StringField { get; set; }
     }
 
@@ -1833,7 +1833,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class NotNullTestEntity : BaseEntity
     {
       [Field]
-      [NotNullConstraint(IsImmediate = false, SkipOnTransactionComitting = true)]
+      [NotNullConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
       public string StringField { get; set; }
     }
 
@@ -1841,7 +1841,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class NotNullOrEmptyTestEntity : BaseEntity
     {
       [Field]
-      [NotNullOrEmptyConstraint(IsImmediate = false, SkipOnTransactionComitting = true)]
+      [NotNullOrEmptyConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
       public string StringField { get; set; }
     }
 
@@ -1849,7 +1849,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class PastTestEntity : BaseEntity
     {
       [Field]
-      [PastConstraint(IsImmediate = false, SkipOnTransactionComitting = true)]
+      [PastConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
       public DateTime DateField { get; set; }
     }
 
@@ -1857,7 +1857,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class RangeTestEntity : BaseEntity
     {
       [Field]
-      [RangeConstraint(IsImmediate = false, SkipOnTransactionComitting = true, Min = 10, Max = 20)]
+      [RangeConstraint(IsImmediate = false, SkipOnTransactionCommit = true, Min = 10, Max = 20)]
       public long LongField { get; set; }
     }
 
@@ -1865,7 +1865,7 @@ namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
     public class RegexTestEntity : BaseEntity
     {
       [Field]
-      [RegexConstraint("\b[A-Z][A-Z0-9]+\b", IsImmediate = false, SkipOnTransactionComitting = true)]
+      [RegexConstraint("\b[A-Z][A-Z0-9]+\b", IsImmediate = false, SkipOnTransactionCommit = true)]
       public string StringField { get; set; }
     }
   }
