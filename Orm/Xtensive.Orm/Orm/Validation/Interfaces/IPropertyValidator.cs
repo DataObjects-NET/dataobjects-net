@@ -20,8 +20,7 @@ namespace Xtensive.Orm.Validation
     bool IsImmediate { get; set; }
 
     /// <summary>
-    /// Gets value indicating whether validator should be skipped on transaction commiting validation.
-    /// Immediate validators execute not only before field value changes but on committig transaction.
+    /// Gets value indicating whether validator should be skipped on transaction commit validation.
     /// </summary>
     bool SkipOnTransactionCommit { get; }
 
