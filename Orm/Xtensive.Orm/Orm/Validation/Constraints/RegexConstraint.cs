@@ -56,7 +56,10 @@ namespace Xtensive.Orm.Validation
 
     public override IPropertyValidator CreateNew()
     {
-      return new RegexConstraint(Pattern, Options) {IsImmediate = IsImmediate};
+      return new RegexConstraint(Pattern, Options) {
+        IsImmediate = IsImmediate,
+        SkipOnTransactionCommit = SkipOnTransactionCommit
+      };
     }
 
     // Constructors

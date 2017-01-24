@@ -63,7 +63,8 @@ namespace Xtensive.Orm.Validation
       return new LengthConstraint {
         IsImmediate = IsImmediate,
         Min = Min,
-        Max = Max
+        Max = Max,
+        SkipOnTransactionCommit = SkipOnTransactionCommit
       };
     }
 

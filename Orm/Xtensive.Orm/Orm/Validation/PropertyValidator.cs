@@ -16,6 +16,7 @@ namespace Xtensive.Orm.Validation
   public abstract class PropertyValidator : Attribute, IPropertyValidator
   {
     private bool isImmediate;
+    private bool skipOnTransactionCommiting;
 
     /// <summary>
     /// Gets or sets value indicating if current validator is immediate.
@@ -29,6 +30,21 @@ namespace Xtensive.Orm.Validation
           throw Exceptions.AlreadyInitialized(null);
 
         isImmediate = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets value indicating if current validator should be skipped on a transaction commit.
+    /// </summary>
+    public bool SkipOnTransactionCommit
+    {
+      get { return skipOnTransactionCommiting; }
+      set
+      {
+        if (Domain!=null)
+          throw Exceptions.AlreadyInitialized(null);
+
+        skipOnTransactionCommiting = value;
       }
     }
 

@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Validation
 
     public override void Validate(ValidationReason reason)
     {
-      var errors = ValidateAndGetErrors();
+      var errors = ValidateAndGetErrors(reason);
       if (errors.Count > 0)
         throw new ValidationFailedException(GetErrorMessage(reason)) {ValidationErrors = errors};
     }
@@ -76,8 +76,13 @@ namespace Xtensive.Orm.Validation
 
     public override IList<EntityErrorInfo> ValidateAndGetErrors()
     {
+      return ValidateAndGetErrors(null);
+    }
+
+    private IList<EntityErrorInfo> ValidateAndGetErrors(ValidationReason? reason)
+    {
       var errors = new List<EntityErrorInfo>();
-      GetValidationErrors(errors);
+      GetValidationErrors(errors, reason);
       return errors.Count==0 ? EmptyEntityErrorCollection : errors.AsReadOnly();
     }
 
@@ -91,7 +96,7 @@ namespace Xtensive.Orm.Validation
       entitiesToValidate[target] = previousStatus;
     }
 
-    private void GetValidationErrors(List<EntityErrorInfo> output)
+    private void GetValidationErrors(List<EntityErrorInfo> output, ValidationReason? validationReason = null)
     {
       if (entitiesToValidate==null)
         return;
@@ -102,7 +107,7 @@ namespace Xtensive.Orm.Validation
 
       foreach (var entity in entitiesToProcess.Keys)
         if (entity.CanBeValidated) {
-          GetValidationErrors(entity, currentEntityErrors);
+          GetValidationErrors(entity, currentEntityErrors, validationReason);
           if (currentEntityErrors.Count > 0) {
             var errorInfo = new EntityErrorInfo(entity, currentEntityErrors.AsReadOnly());
             RegisterForValidation(entity, errorInfo);
@@ -112,13 +117,15 @@ namespace Xtensive.Orm.Validation
         }
     }
 
-    private void GetValidationErrors(Entity target, List<ValidationResult> output)
+    private void GetValidationErrors(Entity target, List<ValidationResult> output, ValidationReason? validationReason=null)
     {
       foreach (var field in target.TypeInfo.Fields) {
         if (!field.HasValidators)
           continue;
         var value = target.GetFieldValue(field);
         foreach (var validator in field.Validators) {
+          if (validationReason.HasValue && validationReason.Value==ValidationReason.Commit && validator.SkipOnTransactionCommit)
+            continue;
           var result = validator.Validate(target, value);
           if (result.IsError)
             output.Add(result);

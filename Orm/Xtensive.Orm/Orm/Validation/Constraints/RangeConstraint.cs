@@ -110,6 +110,7 @@ namespace Xtensive.Orm.Validation
         IsImmediate = IsImmediate,
         Min = Min,
         Max = Max,
+        SkipOnTransactionCommit = SkipOnTransactionCommit
       };
     }
   }

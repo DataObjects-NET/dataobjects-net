@@ -20,6 +20,11 @@ namespace Xtensive.Orm.Validation
     bool IsImmediate { get; set; }
 
     /// <summary>
+    /// Gets value indicating whether validator should be skipped on transaction commit validation.
+    /// </summary>
+    bool SkipOnTransactionCommit { get; }
+
+    /// <summary>
     /// Configures this instance.
     /// </summary>
     /// <param name="domain">A domain this validator is bound to.</param>

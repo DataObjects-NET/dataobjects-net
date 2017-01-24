@@ -33,6 +33,7 @@ namespace Xtensive.Orm.Validation
     {
       return new NotNullOrEmptyConstraint {
         IsImmediate = IsImmediate,
+        SkipOnTransactionCommit = SkipOnTransactionCommit
       };
     }
   }
