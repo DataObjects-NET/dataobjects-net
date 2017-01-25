@@ -1,0 +1,6 @@
+[main] Constraints can be skipped on transaction commit
+[main] Operations like EntitySet<T>.ToList() no longer lead to incorrect EntitySet<T>.Count value
+[main] IN() operation now creates temporary tables when it supposes to
+[main] Fixed translations of aggregates like IQueriable<T>.Sum() when selector parameter can be ommited
+[main] Enum contstants in IndexAttribute.Filter expression are translated correctly now
+[main] Fixed certain scenarios when enum constants caused query translation error
