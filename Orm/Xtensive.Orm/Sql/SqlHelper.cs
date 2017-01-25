@@ -138,6 +138,7 @@ namespace Xtensive.Sql
     /// </summary>
     /// <param name="value">The value to round.</param>
     /// <returns>Result of rounding.</returns>
+    [Obsolete("Use method overload.")]
     public static SqlExpression BankersRound(SqlExpression value)
     {
       var mainPart = 2 * SqlDml.Floor((value + 0.5) / 2);
@@ -154,6 +155,7 @@ namespace Xtensive.Sql
     /// <param name="value">The value to round.</param>
     /// <param name="digits">The digits.</param>
     /// <returns>Result of rounding.</returns>
+    [Obsolete("Use method overload")]
     public static SqlExpression BankersRound(SqlExpression value, SqlExpression digits)
     {
       var scale = SqlDml.Power(10, digits);
@@ -165,6 +167,7 @@ namespace Xtensive.Sql
     /// </summary>
     /// <param name="value">The value to round.</param>
     /// <returns>Result of rounding.</returns>
+    [Obsolete("Use method overload.")]
     public static SqlExpression RegularRound(SqlExpression value)
     {
       var result = SqlDml.Case();
@@ -180,6 +183,7 @@ namespace Xtensive.Sql
     /// <param name="argument">The value to round.</param>
     /// <param name="digits">The digits.</param>
     /// <returns>Result of rounding.</returns>
+    [Obsolete("Use method overload.")]
     public static SqlExpression RegularRound(SqlExpression argument, SqlExpression digits)
     {
       var scale = SqlDml.Power(10, digits);
