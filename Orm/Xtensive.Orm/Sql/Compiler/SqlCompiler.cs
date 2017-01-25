@@ -1138,22 +1138,21 @@ namespace Xtensive.Sql.Compiler
     public virtual void Visit(SqlRound node)
     {
       SqlExpression result;
+      var shouldCastToDecimal = node.Type==TypeCode.Decimal;
       switch (node.Mode) {
       case MidpointRounding.ToEven:
         result = node.Length.IsNullReference()
-          ? SqlHelper.BankersRound(node.Argument)
-          : SqlHelper.BankersRound(node.Argument, node.Length);
+          ? SqlHelper.BankersRound(node.Argument, shouldCastToDecimal)
+          : SqlHelper.BankersRound(node.Argument, node.Length, shouldCastToDecimal);
         break;
       case MidpointRounding.AwayFromZero:
         result = node.Length.IsNullReference()
-          ? SqlHelper.RegularRound(node.Argument)
-          : SqlHelper.RegularRound(node.Argument, node.Length);
+          ? SqlHelper.RegularRound(node.Argument, shouldCastToDecimal)
+          : SqlHelper.RegularRound(node.Argument, node.Length, shouldCastToDecimal);
         break;
       default:
         throw new ArgumentOutOfRangeException();
       }
-      if (node.Type==TypeCode.Decimal)
-        result = SqlDml.Cast(result, decimalType);
       result.AcceptVisitor(this);
     }
 
@@ -1175,6 +1174,7 @@ namespace Xtensive.Sql.Compiler
         VisitSelectLimitOffset(node);
         VisitSelectLock(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
+        
       }
     }
 
