@@ -19,14 +19,15 @@ $items = Get-ChildItem -Path $inputDir -Filter *.txt |
            Select-Object -Property @{Name = "FileName"; Expression = {$_.BaseName}},
                                    @{Name = "File"; Expression = {$_}},
                                    @{Name = "ReleaseVersion"; Expression= {($_.BaseName -split "_", 2)[0] -as [Version]}},
-                                   @{Name ="ReleaseName"; Expression= {($_.BaseName -split "_", 2)[1]}} |
+                                   @{Name ="ReleaseName"; Expression= {($_.BaseName -split "_", 2)[1] }},
+                                   @{Name ="FixedReleaseName"; Expression = {($_.BaseName -split "_", 2)[1] -replace "Z_Final", "Final"}} |
            Sort-Object -Property @{Expression="ReleaseVersion";Descending=$true}, @{Expression="ReleaseName";Descending=$true}
 
 #compose ChangeLog and ReleaseInfo files
 Foreach ($complexObject in $items) {
   #on first itteration create ReleaseNotes
   if (-not(Test-Path $releaseNotesFile)) { Add-Content $releaseNotesFile (Get-Content $complexObject.File.FullName) }
-  Add-Content $changeLogFile ("Changes in {0}" -f $complexObject.FileName)
+  Add-Content $changeLogFile ("Changes in {0} {1}" -f $complexObject.ReleaseVersion, $complexObject.FixedReleaseName)
   Add-Content $changeLogFile ""
   Add-Content $changeLogFile ( Get-Content $complexObject.File.FullName)
   Add-Content $changeLogFile ""
