@@ -138,7 +138,6 @@ namespace Xtensive.Sql
     /// </summary>
     /// <param name="value">The value to round.</param>
     /// <returns>Result of rounding.</returns>
-    [Obsolete("Use method overload.")]
     public static SqlExpression BankersRound(SqlExpression value)
     {
       var mainPart = 2 * SqlDml.Floor((value + 0.5) / 2);
@@ -155,7 +154,6 @@ namespace Xtensive.Sql
     /// <param name="value">The value to round.</param>
     /// <param name="digits">The digits.</param>
     /// <returns>Result of rounding.</returns>
-    [Obsolete("Use method overload")]
     public static SqlExpression BankersRound(SqlExpression value, SqlExpression digits)
     {
       var scale = SqlDml.Power(10, digits);
@@ -163,42 +161,10 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Performs banker's rounding on the speicified argument.
-    /// </summary>
-    /// <param name="value">The value to round.</param>
-    /// <param name="shouldCastToDecimal">Specifies whether result should be cast to <see cref="SqlType.Decimal">decimal</see>.</param>
-    /// <returns></returns>
-    public static SqlExpression BankersRound(SqlExpression value, bool shouldCastToDecimal)
-    {
-      var mainPart = 2 * SqlDml.Floor((value + 0.5) / 2);
-      var extraPart = SqlDml.Case();
-      extraPart.Add(value - mainPart > 0.5, 1);
-      extraPart.Else = 0;
-      if (shouldCastToDecimal)
-        return SqlDml.Cast(mainPart + extraPart, SqlType.Decimal);
-      return mainPart + extraPart;
-    }
-
-    /// <summary>
-    /// Performs banker's rounding on the speicified argument
-    /// to a specified number of fractional digits.
-    /// </summary>
-    /// <param name="value">The value to round.</param>
-    /// <param name="digits">The digits.</param>
-    /// <param name="shouldCastToDecimal">Specifies whether result should be cast to <see cref="SqlType.Decimal">decimal</see>.</param>
-    /// <returns></returns>
-    public static SqlExpression BankersRound(SqlExpression value, SqlExpression digits, bool shouldCastToDecimal)
-    {
-      var scale = SqlDml.Power(10, digits);
-      return BankersRound(value * scale, shouldCastToDecimal) / scale;
-    }
-
-    /// <summary>
     /// Performs "rounding as tought in school" on the specified argument.
     /// </summary>
     /// <param name="value">The value to round.</param>
     /// <returns>Result of rounding.</returns>
-    [Obsolete("Use method overload.")]
     public static SqlExpression RegularRound(SqlExpression value)
     {
       var result = SqlDml.Case();
@@ -214,41 +180,10 @@ namespace Xtensive.Sql
     /// <param name="argument">The value to round.</param>
     /// <param name="digits">The digits.</param>
     /// <returns>Result of rounding.</returns>
-    [Obsolete("Use method overload.")]
     public static SqlExpression RegularRound(SqlExpression argument, SqlExpression digits)
     {
       var scale = SqlDml.Power(10, digits);
       return RegularRound(argument * scale) / scale;
-    }
-
-    /// <summary>
-    /// Performs "rounding as tought in school" on the specified argument.
-    /// </summary>
-    /// <param name="value">The value to round.</param>
-    /// <param name="shouldCastToDecimal">Specifies whether result should be cast to <see cref="SqlType.Decimal">decimal</see>.</param>
-    /// <returns>Result of rounding.</returns>
-    public static SqlExpression RegularRound(SqlExpression value, bool shouldCastToDecimal)
-    {
-      var result = SqlDml.Case();
-      result.Add(value > 0, SqlDml.Truncate(value + 0.5));
-      result.Else = SqlDml.Truncate(value - 0.5);
-      if (shouldCastToDecimal)
-        return SqlDml.Cast(result, SqlType.Decimal);
-      return result;
-    }
-
-    /// <summary>
-    /// Performs "rounding as tought in school" on the specified argument
-    /// to a specified number of fractional digits.
-    /// </summary>
-    /// <param name="argument">The value to round.</param>
-    /// <param name="digits">The digits.</param>
-    /// <param name="shouldCastToDecimal">Specifies whether result should be cast to <see cref="SqlType.Decimal">decimal</see>.</param>
-    /// <returns>Result of rounding.</returns>
-    public static SqlExpression RegularRound(SqlExpression argument, SqlExpression digits, bool shouldCastToDecimal)
-    {
-      var scale = SqlDml.Power(10, digits);
-      return RegularRound(argument * scale, shouldCastToDecimal) / scale;
     }
 
     public static string GuidToString(Guid guid)
