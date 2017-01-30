@@ -164,6 +164,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         2.0185m, 2.0521m, 2.1075m,
         -1.0131m, -1.0584m, -1.1022m,
         -2.0196m, -2.0537m, -2.1063m,
+
+        274486.3m, 274486.5m, 274486.6m,
+        -274486.3m, -274486.5m, -274486.6m,
+        72244.3m, 72244.5m, 72244.6m,
+        -72244.3m, -72244.5m, -72244.6m
       };
 
       foreach (var value in testValues)
