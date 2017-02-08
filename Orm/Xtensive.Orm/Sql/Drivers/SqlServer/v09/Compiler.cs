@@ -250,6 +250,27 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
     }
 
+    public override void Visit(SqlRound node)
+    {
+      SqlExpression result;
+      var shouldCastToDecimal = node.Type==TypeCode.Decimal;
+      switch (node.Mode) {
+      case MidpointRounding.ToEven:
+        result = node.Length.IsNullReference()
+          ? BankersRound(node.Argument, shouldCastToDecimal)
+          : BankersRound(node.Argument, node.Length, shouldCastToDecimal);
+        break;
+      case MidpointRounding.AwayFromZero:
+        result = node.Length.IsNullReference()
+          ? RegularRound(node.Argument, shouldCastToDecimal)
+          : RegularRound(node.Argument, node.Length, shouldCastToDecimal);
+        break;
+      default:
+        throw new ArgumentOutOfRangeException();
+      }
+      result.AcceptVisitor(this);
+    }
+
     protected virtual SqlExpression DateTimeTruncate(SqlExpression date)
     {
       return DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(date,
@@ -421,6 +442,30 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     protected static SqlUserFunctionCall DateTimeToStringIso(SqlExpression dateTime)
     {
       return SqlDml.FunctionCall("CONVERT", SqlDml.Native("NVARCHAR(19)"), dateTime, SqlDml.Native("126"));
+    }
+
+    private static SqlExpression BankersRound(SqlExpression value, bool shouldCastToDecimal)
+    {
+      var res = SqlHelper.BankersRound(value);
+      return shouldCastToDecimal ? SqlDml.Cast(res, SqlType.Decimal) : res;
+    }
+
+    private static SqlExpression BankersRound(SqlExpression value, SqlExpression digits, bool shouldCastToDecimal)
+    {
+      var scale = SqlDml.Power(10, digits);
+      return BankersRound(value * scale, shouldCastToDecimal) / scale;
+    }
+
+    private static SqlExpression RegularRound(SqlExpression value, bool shouldCastToDecimal)
+    {
+      var res = SqlHelper.RegularRound(value);
+      return shouldCastToDecimal ? SqlDml.Cast(res, SqlType.Decimal) : res;
+    }
+
+    private static SqlExpression RegularRound(SqlExpression value, SqlExpression digits, bool shouldCastToDecimal)
+    {
+      var scale = SqlDml.Power(10, digits);
+      return RegularRound(value * scale, shouldCastToDecimal) / scale;
     }
 
     #endregion

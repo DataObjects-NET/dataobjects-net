@@ -7,7 +7,6 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.DbTypeSupportModel;
@@ -19,8 +18,119 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
   {
     private const double DoubleDelta = 0.00000001d;
     private const decimal DecimalDelta = 0.000000000001m;
-
     private DisposableSet disposableSet;
+
+    [Test]
+    public void TruncateTest()
+    {
+      Query.All<X>().Select(x => new { Decimal = x.FDecimal, DecimalTruncate = Math.Truncate(x.FDecimal) })
+        .GroupBy(x => x.DecimalTruncate)
+        .ForEach(i => i.ForEach(x => AreEqual(Math.Truncate(x.Decimal), x.DecimalTruncate)));
+
+      Query.All<X>().Select(x => new { Double = x.FDouble, DoubleTruncate = Math.Truncate(x.FDouble) })
+        .GroupBy(x => x.DoubleTruncate)
+        .ForEach(i => i.ForEach(x => AreEqual(Math.Truncate(x.Double), x.DoubleTruncate)));
+    }
+
+    [Test]
+    public void CeilTest()
+    {
+      Query.All<X>()
+        .Select(x => new { Decimal = x.FDecimal, DecimalCeiling = Math.Ceiling(x.FDecimal) })
+        .GroupBy(x => x.DecimalCeiling)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Ceiling(i.Decimal), x.Key)));
+
+      Query.All<X>()
+        .Select(x => new { Double = x.FDouble, DoubleCeiling = Math.Ceiling(x.FDouble) })
+        .GroupBy(x => x.DoubleCeiling)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Ceiling(i.Double), x.Key)));
+    }
+
+    [Test]
+    public void FloorTest()
+    {
+      Query.All<X>()
+        .Select(x => new { Decimal = x.FDecimal, DecimalFloor = Math.Floor(x.FDecimal) })
+        .GroupBy(x => x.DecimalFloor)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Floor(i.Decimal), x.Key)));
+
+      Query.All<X>()
+        .Select(x => new { Double = x.FDouble, DoubleFloor = Math.Floor(x.FDouble) })
+        .GroupBy(x => x.DoubleFloor)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Floor(i.Double), x.Key)));
+    }
+
+    [Test]
+    public void RoundDefaultTest()
+    {
+      Query.All<X>()
+        .Select(x => new { Decimal = x.FDecimal, DecimalRound = Math.Round(x.FDecimal) })
+        .GroupBy(x => x.DecimalRound)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Decimal), x.Key)));
+
+      Query.All<X>()
+        .Select(x => new { Decimal = x.FDecimal, DecimalRound = Math.Round(x.FDecimal, 1) })
+        .GroupBy(x => x.DecimalRound)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Decimal, 1), x.Key)));
+
+      Query.All<X>()
+        .Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble) })
+        .GroupBy(x => x.DoubleRound)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Double), x.Key)));
+      
+      Query.All<X>()
+        .Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, 1) })
+        .GroupBy(x => x.DoubleRound)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Double, 1), x.Key)));
+    }
+
+    [Test]
+    public void RoundToEvenTest()
+    {
+      Query.All<X>()
+        .Select(x => new { Decimal = x.FDecimal, DecimalRound = Math.Round(x.FDecimal, MidpointRounding.ToEven) })
+        .GroupBy(x => x.DecimalRound)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Decimal, MidpointRounding.ToEven), x.Key)));
+
+      Query.All<X>()
+        .Select(x => new { Decimal = x.FDecimal, DecimalRound = Math.Round(x.FDecimal, 1, MidpointRounding.ToEven) })
+        .GroupBy(x => x.DecimalRound)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Decimal, 1, MidpointRounding.ToEven), x.Key)));
+
+      Query.All<X>()
+        .Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, MidpointRounding.ToEven) })
+        .GroupBy(x => x.DoubleRound)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Double, MidpointRounding.ToEven), x.Key)));
+
+      Query.All<X>()
+        .Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, 1, MidpointRounding.ToEven) })
+        .GroupBy(x => x.DoubleRound)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Double, 1, MidpointRounding.ToEven), x.Key)));
+    }
+
+    [Test]
+    public void RoundAwayFromZeroTest()
+    {
+      Query.All<X>()
+        .Select(x => new { Decimal = x.FDecimal, DecimalRound = Math.Round(x.FDecimal, MidpointRounding.AwayFromZero) })
+        .GroupBy(x => x.DecimalRound)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Decimal, MidpointRounding.AwayFromZero), x.Key)));
+
+      Query.All<X>()
+        .Select(x => new { Decimal = x.FDecimal, DecimalRound = Math.Round(x.FDecimal, 1, MidpointRounding.AwayFromZero) })
+        .GroupBy(x => x.DecimalRound)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Decimal, 1, MidpointRounding.AwayFromZero), x.Key)));
+
+      Query.All<X>()
+        .Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, MidpointRounding.AwayFromZero) })
+        .GroupBy(x => x.DoubleRound)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Double, MidpointRounding.AwayFromZero), x.Key)));
+
+      Query.All<X>()
+        .Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, 1, MidpointRounding.AwayFromZero) })
+        .GroupBy(x => x.DoubleRound)
+        .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Double, 1, MidpointRounding.AwayFromZero), x.Key)));
+    }
 
     public override void TestFixtureSetUp()
     {
@@ -44,10 +154,25 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         1.01m, 1.05m, 1.10m,
         2.01m, 2.05m, 2.10m,
         -1.01m, -1.05m, -1.10m,
-        -2.01m, -2.05m, -2.10m
+        -2.01m, -2.05m, -2.10m,
+
+        0.1343m, 0.1524m, 0.1648m,
+        0.2324m, 0.2514m, 0.2659m,
+        -.1341m, -.1537m, -.1682m,
+        -.2332m, -.2541m, -.2612m,
+        1.0101m, 1.05752m, 1.10365m,
+        2.0185m, 2.0521m, 2.1075m,
+        -1.0131m, -1.0584m, -1.1022m,
+        -2.0196m, -2.0537m, -2.1063m,
+
+        274486.3m, 274486.5m, 274486.6m,
+        -274486.3m, -274486.5m, -274486.6m,
+        72244.3m, 72244.5m, 72244.6m,
+        -72244.3m, -72244.5m, -72244.6m
       };
+
       foreach (var value in testValues)
-        new X {FDouble = (double) value, FDecimal = value};
+        new X { FDouble = (double)value, FDecimal = value };
     }
 
     public override void TestFixtureTearDown()
@@ -61,93 +186,6 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (X).Assembly, typeof (X).Namespace);
       return configuration;
-    }
-
-    [Test]
-    public void TruncCeilFloorTest()
-    {
-      var results = Session.Demand().Query.All<X>()
-        .Select(x => new {
-          Double = x.FDouble,
-          DoubleTrunc = Math.Truncate(x.FDouble),
-          DoubleCeil = Math.Ceiling(x.FDouble),
-          DoubleFloor = Math.Floor(x.FDouble),
-          Decimal = x.FDecimal,
-          DecimalTrunc = Math.Truncate(x.FDecimal),
-          DecimalCeil = Math.Ceiling(x.FDecimal),
-          DecimalFloor = Math.Floor(x.FDecimal),
-        });
-      foreach (var result in results) {
-        AreEqual(Math.Truncate(result.Double), result.DoubleTrunc);
-        AreEqual(Math.Ceiling(result.Double), result.DoubleCeil);
-        AreEqual(Math.Floor(result.Double), result.DoubleFloor);
-        AreEqual(Math.Truncate(result.Decimal), result.DecimalTrunc);
-        AreEqual(Math.Ceiling(result.Decimal), result.DecimalCeil);
-        AreEqual(Math.Floor(result.Decimal), result.DecimalFloor);
-      }
-    }
-
-    [Test]
-    public void RoundDefaultTest()
-    {
-      var results = Session.Demand().Query.All<X>()
-        .Select(x => new {
-          Double = x.FDouble,
-          DoubleRound = Math.Round(x.FDouble),
-          DoubleRound1 = Math.Round(x.FDouble, 1),
-          Decimal = x.FDecimal,
-          DecimalRound = Math.Round(x.FDecimal),
-          DecimalRound1 = Math.Round(x.FDecimal, 1),
-        });
-
-      foreach (var result in results) {
-        AreEqual(Math.Round(result.Double), result.DoubleRound);
-        AreEqual(Math.Round(result.Double, 1), result.DoubleRound1);
-        AreEqual(Math.Round(result.Decimal), result.DecimalRound);
-        AreEqual(Math.Round(result.Decimal, 1), result.DecimalRound1);
-      }
-    }
-
-    [Test]
-    public void RoundToEvenTest()
-    {
-      var results = Session.Demand().Query.All<X>()
-        .Select(x => new {
-          Double = x.FDouble,
-          DoubleRound = Math.Round(x.FDouble, MidpointRounding.ToEven),
-          DoubleRound1 = Math.Round(x.FDouble, 1, MidpointRounding.ToEven),
-          Decimal = x.FDecimal,
-          DecimalRound = Math.Round(x.FDecimal, MidpointRounding.ToEven),
-          DecimalRound1 = Math.Round(x.FDecimal, 1, MidpointRounding.ToEven),
-        });
-
-      foreach (var result in results) {
-        AreEqual(Math.Round(result.Double, MidpointRounding.ToEven), result.DoubleRound);
-        AreEqual(Math.Round(result.Double, 1, MidpointRounding.ToEven), result.DoubleRound1);
-        AreEqual(Math.Round(result.Decimal, MidpointRounding.ToEven), result.DecimalRound);
-        AreEqual(Math.Round(result.Decimal, 1, MidpointRounding.ToEven), result.DecimalRound1);
-      }
-    }
-
-    [Test]
-    public void RoundAwayFromZeroTest()
-    {
-      var results = Session.Demand().Query.All<X>()
-        .Select(x => new {
-          Double = x.FDouble,
-          DoubleRound = Math.Round(x.FDouble, MidpointRounding.AwayFromZero),
-          DoubleRound1 = Math.Round(x.FDouble, 1, MidpointRounding.AwayFromZero),
-          Decimal = x.FDecimal,
-          DecimalRound = Math.Round(x.FDecimal, MidpointRounding.AwayFromZero),
-          DecimalRound1 = Math.Round(x.FDecimal, 1, MidpointRounding.AwayFromZero),
-        });
-
-      foreach (var result in results) {
-        AreEqual(Math.Round(result.Double, MidpointRounding.AwayFromZero), result.DoubleRound);
-        AreEqual(Math.Round(result.Double, 1, MidpointRounding.AwayFromZero), result.DoubleRound1);
-        AreEqual(Math.Round(result.Decimal, MidpointRounding.AwayFromZero), result.DecimalRound);
-        AreEqual(Math.Round(result.Decimal, 1, MidpointRounding.AwayFromZero), result.DecimalRound1);
-      }
     }
 
     private static void AreEqual(decimal expected, decimal actual)
