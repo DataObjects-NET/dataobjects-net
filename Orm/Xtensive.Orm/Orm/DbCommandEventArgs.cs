@@ -18,13 +18,16 @@ namespace Xtensive.Orm
     /// </summary>
     public DbCommand Command { get; private set; }
 
+    public Exception Exception { get; private set; }
+
     /// <summary>
     /// Initializes a new instance of this class.
     /// <param name="command">Executed command.</param>
     /// </summary>
-    public DbCommandEventArgs(DbCommand command)
+    public DbCommandEventArgs(DbCommand command, Exception exception=null)
     {
       Command = command;
+      Exception = exception;
     }
   }
 }
