@@ -72,8 +72,15 @@ namespace Xtensive.Orm.Linq
       TResult result;
       if (cachingScope != null && !cachingScope.Execute)
         result = default(TResult);
-      else
-        result = query.Execute(session, new ParameterContext());
+      else {
+        try {
+          result = query.Execute(session, new ParameterContext());
+        }
+        catch (Exception exception) {
+          session.Events.NotifyQueryExecuted(expression, exception);
+          throw;
+        }
+      }
       session.Events.NotifyQueryExecuted(expression);
       return result;
     }
