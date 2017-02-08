@@ -515,6 +515,7 @@
     <Compile Include="Upgrade\NewSkip\SingleDatabaseNodeTest.cs" />
     <Compile Include="Upgrade\NewSkip\SingleSchemaNodeBuildingTest.cs" />
     <Compile Include="Upgrade\NewSkip\SkipBuildingTestBase.cs" />
+    <Compile Include="Storage\FailedQueryAndDbCommandNotificationsTest.cs" />
     <Compile Include="Upgrade\TwoSchemasPerNode.cs" />
     <Compile Include="Upgrade\TypeIdPreserveTest.cs" />
     <Compile Include="Upgrade\ExtractSuperClassTest.cs" />
