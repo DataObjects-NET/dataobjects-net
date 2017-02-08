@@ -6,6 +6,7 @@
 
 using System;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.TransactionsTestModel;
 
@@ -18,7 +19,39 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (Hexagon).Assembly, typeof (Hexagon).Namespace);
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
+    }
+
+    [Test]
+    public void CRUDTest()
+    {
+      var commandsExecuted = 0;
+      using (var session = Domain.OpenSession()) {
+        session.Events.DbCommandExecuted += (sender, args) => {
+          commandsExecuted++;
+        };
+
+        using (var transcation = session.OpenTransaction()) {
+          for (int i = 0; i < 10; i++) { new Hexagon() { Kwanza = i }; }
+          transcation.Complete();
+        }
+        Assert.IsTrue(commandsExecuted==1);
+        commandsExecuted = 0;
+
+        using (var transaction = session.OpenTransaction()) {
+          session.Query.All<Hexagon>().ForEach(hex => hex.IncreaseKwanza());
+          transaction.Complete();
+        }
+        Assert.IsTrue(commandsExecuted==2);
+        commandsExecuted = 0;
+
+        using (var transaction = session.OpenTransaction()) {
+          session.Remove(session.Query.All<Hexagon>());
+          transaction.Complete();
+        }
+        Assert.IsTrue(commandsExecuted==3);
+      }
     }
 
     [Test]
