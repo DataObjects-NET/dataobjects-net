@@ -59,6 +59,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void InvalidDbCommandTest()
     {
+      Exception commandExecutedException = null;
       using (var session = Domain.OpenSession()) {
         session.Events.DbCommandExecuted += (sender, args) => {
           var exception = args.Exception;
@@ -66,7 +67,13 @@ namespace Xtensive.Orm.Tests.Storage
         };
         using (session.OpenTransaction()) {
           new TestModel {SomeStringField = "wat", SomeDateTimeField = DateTime.Now, UniqueValue = 1};
-          Assert.Throws<StorageException>(() => session.SaveChanges());
+          try {
+            session.SaveChanges();
+          } 
+          catch (Exception ex) {
+            commandExecutedException = ex;
+          }
+          Assert.NotNull(commandExecutedException);
         }
       }
     }
