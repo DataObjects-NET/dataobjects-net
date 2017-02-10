@@ -36,7 +36,7 @@ namespace Xtensive.Sql.Model
     /// </summary>
     public virtual string DbName
     {
-      get { return string.IsNullOrEmpty(dbName) ? Name : dbName; }
+      get { return string.IsNullOrEmpty(dbName) ? name : dbName; }
       set
       {
         this.EnsureNotLocked();

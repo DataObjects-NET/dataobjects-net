@@ -14,6 +14,35 @@ namespace Xtensive.Sql.Model
   public abstract class CatalogNode : Node, IPairedNode<Catalog>
   {
     private Catalog catalog;
+    private bool isNamesReadingDenied = false;
+
+    public override string Name
+    {
+      get {
+        if (!isNamesReadingDenied)
+          return base.Name;
+        throw new InvalidOperationException(Strings.ExNameValueReadingOrSettingIsDenied);
+      }
+      set {
+        if (!isNamesReadingDenied)
+          base.Name = value;
+        throw new InvalidOperationException(Strings.ExNameValueReadingOrSettingIsDenied);
+      }
+    }
+
+    public override string DbName
+    {
+      get {
+        if (!isNamesReadingDenied)
+          return base.DbName;
+        throw new InvalidOperationException(Strings.ExDbNameValueReadingOrSettingIsDenied);
+      }
+      set {
+        if (!isNamesReadingDenied)
+          base.DbName = value;
+        throw new InvalidOperationException(Strings.ExDbNameValueReadingOrSettingIsDenied);
+      }
+    }
 
     /// <summary>
     /// Gets or sets the <see cref="Catalog"/> this instance belongs to.
@@ -50,6 +79,21 @@ namespace Xtensive.Sql.Model
 
     #endregion
 
+    internal void MakeNamesUnreadable()
+    {
+      isNamesReadingDenied = true;
+    }
+
+    internal string GetNameInternal()
+    {
+      return base.Name;
+    }
+
+    internal string GetDbNameInternal()
+    {
+      return base.DbName;
+    }
+
     #region Constructors
 
     /// <summary>
@@ -57,7 +101,8 @@ namespace Xtensive.Sql.Model
     /// </summary>
     /// <param name="catalog">The catalog.</param>
     /// <param name="name">The name.</param>
-    protected CatalogNode(Catalog catalog, string name) : base(name)
+    protected CatalogNode(Catalog catalog, string name)
+      : base(name)
     {
       ArgumentValidator.EnsureArgumentNotNull(catalog, "catalog");
       Catalog = catalog;
