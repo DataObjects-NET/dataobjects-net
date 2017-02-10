@@ -136,7 +136,7 @@ namespace Xtensive.Orm.Tests.Storage
             session.Query.All<TestEntity>().ForEach(te => te.SomeIntField++);
             transaction.Complete();
           }
-          Assert.That(commandsExecuted, Is.EqualTo(GetExpectedNumberOfBatches(batchSize,Statement.Update)));
+          Assert.That(commandsExecuted, Is.EqualTo(GetExpectedNumberOfBatches(batchSize, Statement.Update)));
           commandsExecuted = 0;
 
           using (var transaction = session.OpenTransaction()) {
