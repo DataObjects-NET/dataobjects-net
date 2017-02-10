@@ -115,6 +115,7 @@ namespace Xtensive.Orm.Tests.Storage
 
     private void RunTest(int batchSize)
     {
+      RebuildDomain();
       var commandsExecuted = 0;
       EventHandler<DbCommandEventArgs> commandExectued = (sender, args) => {
         commandsExecuted++;
