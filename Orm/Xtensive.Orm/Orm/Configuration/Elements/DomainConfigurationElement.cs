@@ -47,6 +47,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string IgnoreRulesElementName = "ignoreRules";
     private const string MultidatabaseKeysElementName = "multidatabaseKeys";
     private const string OptionsElementName = "options";
+    private const string ShareStorageSchemaOverNodesElementName = "shareStorageSchemaOverNodes";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -355,6 +356,13 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[OptionsElementName] = value; }
     }
 
+    [ConfigurationProperty(ShareStorageSchemaOverNodesElementName, DefaultValue = false)]
+    public bool ShareStorageSchemaOverNodes
+    {
+      get { return (bool) this[ShareStorageSchemaOverNodesElementName]; }
+      set { this[ShareStorageSchemaOverNodesElementName] = value; }
+    }
+
     /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="DomainConfiguration"/> object.
@@ -384,7 +392,8 @@ namespace Xtensive.Orm.Configuration.Elements
         Collation = Collation,
         NativeLibraryCacheFolder = NativeLibraryCacheFolder,
         ConnectionInitializationSql = ConnectionInitializationSql,
-        MultidatabaseKeys = MultidatabaseKeys
+        MultidatabaseKeys = MultidatabaseKeys,
+        ShareStorageSchemaOverNodes = ShareStorageSchemaOverNodes
       };
 
       foreach (var element in Types)

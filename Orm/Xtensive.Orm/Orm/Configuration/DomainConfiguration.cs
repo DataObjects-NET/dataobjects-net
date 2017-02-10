@@ -67,9 +67,15 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Default <see cref="MultidatabaseKeys"/> value:
-    /// <see langword="true" />.
+    /// <see langword="false" />.
     /// </summary>
     public const bool DefaultMultidatabaseKeys = false;
+
+    /// <summary>
+    /// Default <see cref="ShareStorageSchemaOverNodes"/> value:
+    /// <see langword="false"/>
+    /// </summary>
+    public const bool DefaultShareStorageSchemaOverNodes = false;
 
     #endregion
 
@@ -96,12 +102,15 @@ namespace Xtensive.Orm.Configuration
     private bool buildInParallel = DefaultBuildInParallel;
     private bool allowCyclicDatabaseDependencies;
     private bool multidatabaseKeys = DefaultMultidatabaseKeys;
+    private bool shareStorageSchemaOverNodes = DefaultShareStorageSchemaOverNodes;
     private DomainOptions options = DomainOptions.Default;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseConfigurationCollection databases = new DatabaseConfigurationCollection();
     private KeyGeneratorConfigurationCollection keyGenerators = new KeyGeneratorConfigurationCollection();
     private IgnoreRuleCollection ignoreRules = new IgnoreRuleCollection();
+
+    
 
     private bool? isMultidatabase;
     private bool? isMultischema;
@@ -542,6 +551,15 @@ namespace Xtensive.Orm.Configuration
       }
     }
 
+    public bool ShareStorageSchemaOverNodes
+    {
+      get { return shareStorageSchemaOverNodes; }
+      set {
+        this.EnsureNotLocked();
+        shareStorageSchemaOverNodes = value;
+      }
+    }
+
     /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
     /// </summary>
@@ -551,6 +569,8 @@ namespace Xtensive.Orm.Configuration
     /// Gets a value indicating whether this configuration is multi-schema.
     /// </summary>
     public bool IsMultischema { get { return isMultischema ?? GetIsMultischema(); } }
+
+    
 
     private bool GetIsMultidatabase()
     {
@@ -662,6 +682,7 @@ namespace Xtensive.Orm.Configuration
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
       keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();
       ignoreRules = (IgnoreRuleCollection) configuration.IgnoreRules.Clone();
+      shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
     }
 
     /// <summary>
