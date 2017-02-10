@@ -37,22 +37,23 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void InvalidQueryTest()
     {
-      using(var session = Domain.OpenSession()){
-        session.Events.QueryExecuted += (sender, args) => {
-          var exception = args.Exception;
-          Assert.IsNotNull(exception);
-        };
+      EventHandler<QueryEventArgs> invalidQueryHandler = (sender, args) => { Assert.IsNotNull(args.Exception); };
+      using(var session = Domain.OpenSession()) {
+        session.Events.QueryExecuted += invalidQueryHandler;
         Assert.Throws<InvalidOperationException>(() => session.Query.All<TestModel>().Single(m => m.SomeStringField=="lol"));
+        session.Events.QueryExecuted -= invalidQueryHandler;
       }
     }
 
     [Test]
     public void ValidQueryTest()
     {
+      EventHandler<QueryEventArgs> validQueryHandler = (sender, args) => { Assert.IsNull(args.Exception); };
       using (var session = Domain.OpenSession()) {
-        session.Events.QueryExecuted += (sender, args) => { Assert.IsNull(args.Exception);};
+        session.Events.QueryExecuted += validQueryHandler;
         using (session.OpenTransaction()) 
           Assert.DoesNotThrow(() => session.Query.All<TestModel>().Single(m => m.SomeStringField=="string1"));
+        session.Events.QueryExecuted -= validQueryHandler;
       }
     }
 
@@ -60,11 +61,9 @@ namespace Xtensive.Orm.Tests.Storage
     public void InvalidDbCommandTest()
     {
       Exception commandExecutedException = null;
+      EventHandler<DbCommandEventArgs> invalidDbCommandHandler = (sender, args) => { Assert.IsNotNull(args.Exception); };
       using (var session = Domain.OpenSession()) {
-        session.Events.DbCommandExecuted += (sender, args) => {
-          var exception = args.Exception;
-          Assert.IsNotNull(exception);
-        };
+        session.Events.DbCommandExecuted += invalidDbCommandHandler;
         using (session.OpenTransaction()) {
           new TestModel {SomeStringField = "wat", SomeDateTimeField = DateTime.Now, UniqueValue = 1};
           try {
@@ -75,19 +74,22 @@ namespace Xtensive.Orm.Tests.Storage
           }
           Assert.NotNull(commandExecutedException);
         }
+        session.Events.DbCommandExecuted -= invalidDbCommandHandler;
       }
     }
 
     [Test]
     public void ValidDbCommandTest()
     {
+      EventHandler<DbCommandEventArgs> validDbCommandHandler = (sender, args) => { Assert.IsNull(args.Exception); };
       using (var session = Domain.OpenSession()) {
-        session.Events.DbCommandExecuted += (sender, args) => {Assert.IsNull(args.Exception); };
+        session.Events.DbCommandExecuted += validDbCommandHandler;
         using (session.OpenTransaction()) {
           new TestModel { SomeStringField = "wat", SomeDateTimeField = DateTime.Now, UniqueValue = 3 };
           new TestModel { SomeStringField = "dat", SomeDateTimeField = DateTime.Now, UniqueValue = 4 };
           session.SaveChanges();
         }
+        session.Events.DbCommandExecuted -= validDbCommandHandler;
       }
     }
 
