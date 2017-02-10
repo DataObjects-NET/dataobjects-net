@@ -8,6 +8,7 @@ using System;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.BatchingTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.BatchingTestModel
@@ -69,6 +70,11 @@ namespace Xtensive.Orm.Tests.Storage
     public void BatchSizeNegativeTest()
     {
       RunTest(-666); // Heil, satan ]:->
+    }
+
+    protected override void CheckRequirements()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.Batches);
     }
 
     private int GetExpectedNumberOfBatches(int batchSize, int additionalBatches)
