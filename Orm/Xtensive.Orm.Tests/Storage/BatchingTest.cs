@@ -30,9 +30,6 @@ namespace Xtensive.Orm.Tests.Storage
   public class BatchingTest : AutoBuildTest
   {
     private const int TotalEntities = 10;
-    private const int ExpectedAdditionalInsertBatches = 0;
-    private const int ExpectedAdditionlUpadteBatches = 1;
-    private const int ExpectedAdditionalDeletebatches = 1;
 
     [Test]
     public void BatchSize0Test()
@@ -77,8 +74,9 @@ namespace Xtensive.Orm.Tests.Storage
       return configuration;
     }
 
-    private int GetExpectedNumberOfBatches(int batchSize, int additionalBatches)
+    private int GetExpectedNumberOfBatches(int batchSize, Statement statement)
     {
+      var additionalBatches = GetExpectedAdditionalBatches(statement);
       if (batchSize <= 1)
         return TotalEntities + additionalBatches;
       if (batchSize >= TotalEntities)
@@ -87,6 +85,32 @@ namespace Xtensive.Orm.Tests.Storage
       var result = Math.DivRem(TotalEntities, batchSize, out remaining);
       result = remaining!=0 ? result + 1 : result;
       return result + additionalBatches;
+    }
+
+    private int GetExpectedAdditionalBatches(Statement statement)
+    {
+      var expectedAdditionalInsertBatches = 1;
+      var expectedAdditionlUpadteBatches = 1;
+      var expectedAdditionalDeletebatches = 1;
+
+      if (Domain.StorageProviderInfo.ProviderName=="mysql")
+        expectedAdditionalInsertBatches = 0;
+      switch (statement) {
+        case Statement.Insert:
+          return expectedAdditionalInsertBatches;
+        case Statement.Update:
+          return expectedAdditionlUpadteBatches;
+        case Statement.Delete:
+          return expectedAdditionalDeletebatches;
+      }
+      throw new InvalidOperationException("Such statement is not defined.");
+    }
+
+    private enum Statement
+    {
+      Insert,
+      Update,
+      Delete
     }
 
     private void RunTest(int batchSize)
@@ -104,21 +128,21 @@ namespace Xtensive.Orm.Tests.Storage
             }
             transcation.Complete();
           }
-          Assert.That(commandsExecuted, Is.EqualTo(GetExpectedNumberOfBatches(batchSize, ExpectedAdditionalInsertBatches)));
+          Assert.That(commandsExecuted, Is.EqualTo(GetExpectedNumberOfBatches(batchSize, Statement.Insert)));
           commandsExecuted = 0;
 
           using (var transaction = session.OpenTransaction()) {
             session.Query.All<TestEntity>().ForEach(te => te.SomeIntField++);
             transaction.Complete();
           }
-          Assert.That(commandsExecuted, Is.EqualTo(GetExpectedNumberOfBatches(batchSize, ExpectedAdditionlUpadteBatches)));
+          Assert.That(commandsExecuted, Is.EqualTo(GetExpectedNumberOfBatches(batchSize,Statement.Update)));
           commandsExecuted = 0;
 
           using (var transaction = session.OpenTransaction()) {
             session.Query.All<TestEntity>().ForEach(te => te.Remove());
             transaction.Complete();
           }
-          Assert.That(commandsExecuted, Is.EqualTo(GetExpectedNumberOfBatches(batchSize, ExpectedAdditionalDeletebatches)));
+          Assert.That(commandsExecuted, Is.EqualTo(GetExpectedNumberOfBatches(batchSize, Statement.Delete)));
           session.Events.DbCommandExecuted -= commandExectued;
         }
         catch (Exception) {
