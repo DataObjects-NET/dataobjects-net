@@ -34,14 +34,6 @@ namespace Xtensive.Orm.Tests.Storage
     private const int ExpectedAdditionlUpadteBatches = 1;
     private const int ExpectedAdditionalDeletebatches = 1;
 
-    protected override DomainConfiguration BuildConfiguration()
-    {
-      var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (TestEntity).Assembly, typeof (TestEntity).Namespace);
-      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      return configuration;
-    }
-
     [Test]
     public void BatchSize0Test()
     {
@@ -75,6 +67,14 @@ namespace Xtensive.Orm.Tests.Storage
     protected override void CheckRequirements()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Batches);
+    }
+
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      var configuration = base.BuildConfiguration();
+      configuration.Types.Register(typeof(TestEntity).Assembly, typeof(TestEntity).Namespace);
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      return configuration;
     }
 
     private int GetExpectedNumberOfBatches(int batchSize, int additionalBatches)
