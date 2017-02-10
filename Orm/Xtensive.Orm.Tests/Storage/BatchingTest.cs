@@ -8,50 +8,37 @@ using System;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Storage.TransactionsTestModel;
+using Xtensive.Orm.Tests.Storage.BatchingTestModel;
+
+namespace Xtensive.Orm.Tests.Storage.BatchingTestModel
+{
+  [HierarchyRoot]
+  public class TestEntity : Entity
+  {
+    [Key, Field]
+    public long Id { get; set; }
+
+    [Field]
+    public int SomeIntField { get; set; }
+  }
+}
 
 namespace Xtensive.Orm.Tests.Storage
 {
   [Serializable]
   public class BatchingTest : AutoBuildTest
   {
+    private const int TotalEntities = 10;
+    private const int ExpectedAdditionalInsertBatches = 0;
+    private const int ExpectedAdditionlUpadteBatches = 1;
+    private const int ExpectedAdditionalDeletebatches = 1;
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Hexagon).Assembly, typeof (Hexagon).Namespace);
+      configuration.Types.Register(typeof (TestEntity).Assembly, typeof (TestEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
-    }
-
-    [Test]
-    public void CRUDTest()
-    {
-      var commandsExecuted = 0;
-      using (var session = Domain.OpenSession()) {
-        session.Events.DbCommandExecuted += (sender, args) => {
-          commandsExecuted++;
-        };
-
-        using (var transcation = session.OpenTransaction()) {
-          for (int i = 0; i < 10; i++) { new Hexagon() { Kwanza = i }; }
-          transcation.Complete();
-        }
-        Assert.IsTrue(commandsExecuted==1);
-        commandsExecuted = 0;
-
-        using (var transaction = session.OpenTransaction()) {
-          session.Query.All<Hexagon>().ForEach(hex => hex.IncreaseKwanza());
-          transaction.Complete();
-        }
-        Assert.IsTrue(commandsExecuted==2);
-        commandsExecuted = 0;
-
-        using (var transaction = session.OpenTransaction()) {
-          session.Remove(session.Query.All<Hexagon>());
-          transaction.Complete();
-        }
-        Assert.IsTrue(commandsExecuted==3);
-      }
     }
 
     [Test]
@@ -84,25 +71,53 @@ namespace Xtensive.Orm.Tests.Storage
       RunTest(-666); // Heil, satan ]:->
     }
 
+    private int GetExpectedNumberOfBatches(int batchSize, int additionalBatches)
+    {
+      if (batchSize <= 1)
+        return TotalEntities + additionalBatches;
+      if (batchSize >= TotalEntities)
+        return 1 + additionalBatches;
+      int remaining;
+      var result = Math.DivRem(TotalEntities, batchSize, out remaining);
+      result = remaining!=0 ? result + 1 : result;
+      return result + additionalBatches;
+    }
 
     private void RunTest(int batchSize)
     {
+      var commandsExecuted = 0;
+      EventHandler<DbCommandEventArgs> commandExectued = (sender, args) => {
+        commandsExecuted++;
+      };
       using (var session = Domain.OpenSession(new SessionConfiguration {BatchSize = batchSize, Options = SessionOptions.ServerProfile | SessionOptions.AutoActivation})) {
-        Key key;
-        using (var transactionScope = session.OpenTransaction()) {
-          var hexagon = new Hexagon();
-          key = hexagon.Key;
-          transactionScope.Complete();
+        session.Events.DbCommandExecuted += commandExectued;
+        try {
+          using (var transcation = session.OpenTransaction()) {
+            for (int i = 0; i < TotalEntities; i++) {
+              new TestEntity {SomeIntField = i};
+            }
+            transcation.Complete();
+          }
+          Assert.That(commandsExecuted, Is.EqualTo(GetExpectedNumberOfBatches(batchSize, ExpectedAdditionalInsertBatches)));
+          commandsExecuted = 0;
+
+          using (var transaction = session.OpenTransaction()) {
+            session.Query.All<TestEntity>().ForEach(te => te.SomeIntField++);
+            transaction.Complete();
+          }
+          Assert.That(commandsExecuted, Is.EqualTo(GetExpectedNumberOfBatches(batchSize, ExpectedAdditionlUpadteBatches)));
+          commandsExecuted = 0;
+
+          using (var transaction = session.OpenTransaction()) {
+            session.Query.All<TestEntity>().ForEach(te => te.Remove());
+            transaction.Complete();
+          }
+          Assert.That(commandsExecuted, Is.EqualTo(GetExpectedNumberOfBatches(batchSize, ExpectedAdditionalDeletebatches)));
+          session.Events.DbCommandExecuted -= commandExectued;
         }
-        using (var transactionScope = session.OpenTransaction()) {
-          var hexagon = session.Query.Single<Hexagon>(key);
-          hexagon.IncreaseKwanza();
-          transactionScope.Complete();
-        }
-        using (var transactionScope = session.OpenTransaction()) {
-          var hexagon = session.Query.Single<Hexagon>(key);
-          hexagon.Remove();
-          transactionScope.Complete();
+        catch (Exception) {
+          session.Events.DbCommandExecuted -= commandExectued;
+          throw;
         }
       }      
     }
