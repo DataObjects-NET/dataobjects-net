@@ -43,19 +43,19 @@ namespace Xtensive.Orm.Providers
           provider, sourceColumns, out tableDescriptor);
         resultExpression = SqlDml.Variant(extraBinding,
           complexConditionExpression, temporaryTableExpression);
-        anyIncludesOverTemporaryTable = true;
+        anyTemporaryTablesRequired = true;
         break;
       case IncludeAlgorithm.ComplexCondition:
         resultExpression = CreateIncludeViaComplexConditionExpression(
           provider, BuildRowFilterParameterAccessor(filterDataSource, false),
           sourceColumns, out extraBinding);
-        if (!anyIncludesOverTemporaryTable)
+        if (!anyTemporaryTablesRequired)
           requestOptions |= QueryRequestOptions.AllowOptimization;
         break;
       case IncludeAlgorithm.TemporaryTable:
         resultExpression = CreateIncludeViaTemporaryTableExpression(
           provider, sourceColumns, out tableDescriptor);
-        anyIncludesOverTemporaryTable = true;
+        anyTemporaryTablesRequired = true;
         break;
       default:
         throw new ArgumentOutOfRangeException("provider.Algorithm");
