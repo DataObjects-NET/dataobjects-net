@@ -15,6 +15,13 @@ namespace Xtensive.Orm.Upgrade
     public Dictionary<string, string> LockedTables { get; set; } 
     public NodeCollection<Catalog> Catalogs { get; set; }
 
+    public SchemaExtractionResult MakeNamesUnreadable()
+    {
+      foreach (var catalog in Catalogs)
+        catalog.MakeNamesUnreadable();
+      return this;
+    }
+
     public SchemaExtractionResult()
     {
       LockedTables = new Dictionary<string, string>();
