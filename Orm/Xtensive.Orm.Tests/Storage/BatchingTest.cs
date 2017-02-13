@@ -5,6 +5,7 @@
 // Created:    2010.02.18
 
 using System;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -21,6 +22,9 @@ namespace Xtensive.Orm.Tests.Storage.BatchingTestModel
 
     [Field]
     public int SomeIntField { get; set; }
+
+    [Field]
+    public int BatchSize { get; set; }
   }
 }
 
@@ -74,83 +78,69 @@ namespace Xtensive.Orm.Tests.Storage
       return configuration;
     }
 
-    private int GetExpectedNumberOfBatches(int batchSize, Statement statement)
+    private int GetExpectedNumberOfBatches(int batchSize)
     {
-      var additionalBatches = GetExpectedAdditionalBatches(statement);
-      if (batchSize <= 1)
-        return TotalEntities + additionalBatches;
-      if (batchSize >= TotalEntities)
-        return 1 + additionalBatches;
-      int remaining;
-      var result = Math.DivRem(TotalEntities, batchSize, out remaining);
-      result = remaining!=0 ? result + 1 : result;
-      return result + additionalBatches;
-    }
-
-    private int GetExpectedAdditionalBatches(Statement statement)
-    {
-      var expectedAdditionalInsertBatches = 1;
-      var expectedAdditionlUpadteBatches = 1;
-      var expectedAdditionalDeletebatches = 1;
-
-      if (Domain.StorageProviderInfo.ProviderName=="mysql")
-        expectedAdditionalInsertBatches = 0;
-      switch (statement) {
-        case Statement.Insert:
-          return expectedAdditionalInsertBatches;
-        case Statement.Update:
-          return expectedAdditionlUpadteBatches;
-        case Statement.Delete:
-          return expectedAdditionalDeletebatches;
-      }
-      throw new InvalidOperationException("Such statement is not defined.");
-    }
-
-    private enum Statement
-    {
-      Insert,
-      Update,
-      Delete
+      var size = (batchSize < 1) ? 1 : batchSize;
+      return (int)Math.Ceiling((decimal)TotalEntities / size);
     }
 
     private void RunTest(int batchSize)
     {
-      RebuildDomain();
-      var commandsExecuted = 0;
-      EventHandler<DbCommandEventArgs> commandExectued = (sender, args) => {
-        commandsExecuted++;
-      };
+      var expectedNumberOfBatches = GetExpectedNumberOfBatches(batchSize);
       using (var session = Domain.OpenSession(new SessionConfiguration {BatchSize = batchSize, Options = SessionOptions.ServerProfile | SessionOptions.AutoActivation})) {
-        session.Events.DbCommandExecuted += commandExectued;
-        try {
-          using (var transcation = session.OpenTransaction()) {
-            for (int i = 0; i < TotalEntities; i++) {
-              new TestEntity {SomeIntField = i};
-            }
-            transcation.Complete();
+        var commandCapturer = new CommandCapturer();
+        using (var transcation = session.OpenTransaction()) {
+          for (int i = 0; i < TotalEntities; i++) {
+            new TestEntity {SomeIntField = i, BatchSize = batchSize};
           }
-          Assert.That(commandsExecuted, Is.EqualTo(GetExpectedNumberOfBatches(batchSize, Statement.Insert)));
-          commandsExecuted = 0;
-
-          using (var transaction = session.OpenTransaction()) {
-            session.Query.All<TestEntity>().ForEach(te => te.SomeIntField++);
-            transaction.Complete();
+          using (commandCapturer.Monitor()) {
+            session.SaveChanges();
+            Assert.That(commandCapturer.CountCommands, Is.EqualTo(expectedNumberOfBatches));
           }
-          Assert.That(commandsExecuted, Is.EqualTo(GetExpectedNumberOfBatches(batchSize, Statement.Update)));
-          commandsExecuted = 0;
-
-          using (var transaction = session.OpenTransaction()) {
-            session.Query.All<TestEntity>().ForEach(te => te.Remove());
-            transaction.Complete();
-          }
-          Assert.That(commandsExecuted, Is.EqualTo(GetExpectedNumberOfBatches(batchSize, Statement.Delete)));
-          session.Events.DbCommandExecuted -= commandExectued;
+          transcation.Complete();
         }
-        catch (Exception) {
-          session.Events.DbCommandExecuted -= commandExectued;
-          throw;
+        using (session.OpenTransaction()) {
+          session.Query.All<TestEntity>().Where(e => e.BatchSize==batchSize).ForEach(te => te.SomeIntField++);
+          using (commandCapturer.Monitor()) {
+            session.SaveChanges();
+            Assert.That(commandCapturer.CountCommands, Is.EqualTo(expectedNumberOfBatches));
+          }
         }
-      }      
+        using (session.OpenTransaction()) {
+          session.Query.All<TestEntity>().Where(e => e.BatchSize==batchSize).ForEach(te => te.Remove());
+          using (commandCapturer.Monitor()) {
+            session.SaveChanges();
+            Assert.That(commandCapturer.CountCommands, Is.EqualTo(expectedNumberOfBatches));
+          }
+        }
+      }
+    }
+
+    protected class CommandCapturer
+    {
+      private readonly Session session;
+
+      public int CountCommands { get; private set; }
+
+      public IDisposable Monitor()
+      {
+        EventHandler<DbCommandEventArgs> handler = (sender, args) => { CountCommands++; };
+        session.Events.DbCommandExecuted += handler;
+        return new Disposable(b => {
+          session.Events.DbCommandExecuted -= handler;
+          CountCommands = 0;
+        });
+      }
+
+      public CommandCapturer(Session session=null)
+      {
+        if (session!=null)
+          this.session = session;
+        else if (Session.Current!=null)
+          this.session = Session.Current;
+        else
+          throw new InvalidOperationException("There is no session in the current scope. And it is not passed as a parameter.");
+      }
     }
   }
 }
