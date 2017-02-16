@@ -206,8 +206,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         QueryFeatures.ExplicitJoinOrder |
         QueryFeatures.ScalarSubquery |
         QueryFeatures.SelfReferencingRowRemovalIsError |
-        QueryFeatures.StrictJoinSyntax;
-
+        QueryFeatures.StrictJoinSyntax |
+        QueryFeatures.Batches;
       return queryInfo;
     }
 
