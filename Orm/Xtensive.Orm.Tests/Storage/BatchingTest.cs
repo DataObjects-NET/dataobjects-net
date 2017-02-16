@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Tests.Storage
     private void RunTest(int batchSize)
     {
       var expectedNumberOfBatches = GetExpectedNumberOfBatches(batchSize);
-      var commandCapturer = new CommandCapturer();
+      var commandCapturer = new CommandCounter();
       using (var session = Domain.OpenSession(new SessionConfiguration {BatchSize = batchSize, Options = SessionOptions.ServerProfile | SessionOptions.AutoActivation})) {
         using (var transcation = session.OpenTransaction()) {
           for (int i = 0; i < TotalEntities; i++) {
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    protected class CommandCapturer
+    protected class CommandCounter
     {
       public int CountedCommands { get; private set; }
 
