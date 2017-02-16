@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    protected class CommandCounter
+    public class CommandCounter
     {
       public int CountedCommands { get; private set; }
 
