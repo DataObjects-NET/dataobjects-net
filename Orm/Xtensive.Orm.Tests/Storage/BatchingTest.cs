@@ -87,34 +87,34 @@ namespace Xtensive.Orm.Tests.Storage
     private void RunTest(int batchSize)
     {
       var expectedNumberOfBatches = GetExpectedNumberOfBatches(batchSize);
-      var commandCapturer = new CommandCounter();
+      var counter = new CommandCounter();
       using (var session = Domain.OpenSession(new SessionConfiguration {BatchSize = batchSize, Options = SessionOptions.ServerProfile | SessionOptions.AutoActivation})) {
         using (var transcation = session.OpenTransaction()) {
           for (int i = 0; i < TotalEntities; i++) {
             new TestEntity {SomeIntField = i, BatchSize = batchSize};
           }
-          using (commandCapturer.Attach(session)) {
+          using (counter.Attach(session)) {
             session.SaveChanges();
           }
-          Assert.That(commandCapturer.CountedCommands, Is.EqualTo(expectedNumberOfBatches));
-          commandCapturer.Reset();
+          Assert.That(counter.CountedCommands, Is.EqualTo(expectedNumberOfBatches));
+          counter.Reset();
           transcation.Complete();
         }
         using (session.OpenTransaction()) {
           session.Query.All<TestEntity>().Where(e => e.BatchSize==batchSize).ForEach(te => te.SomeIntField++);
-          using (commandCapturer.Attach(session)) {
+          using (counter.Attach(session)) {
             session.SaveChanges();
           }
-          Assert.That(commandCapturer.CountedCommands, Is.EqualTo(expectedNumberOfBatches));
-          commandCapturer.Reset();
+          Assert.That(counter.CountedCommands, Is.EqualTo(expectedNumberOfBatches));
+          counter.Reset();
         }
         using (session.OpenTransaction()) {
           session.Query.All<TestEntity>().Where(e => e.BatchSize==batchSize).ForEach(te => te.Remove());
-          using (commandCapturer.Attach(session)) {
+          using (counter.Attach(session)) {
             session.SaveChanges();
           }
-          Assert.That(commandCapturer.CountedCommands, Is.EqualTo(expectedNumberOfBatches));
-          commandCapturer.Reset();
+          Assert.That(counter.CountedCommands, Is.EqualTo(expectedNumberOfBatches));
+          counter.Reset();
         }
       }
     }
