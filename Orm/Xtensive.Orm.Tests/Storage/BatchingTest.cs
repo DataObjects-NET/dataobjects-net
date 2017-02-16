@@ -87,59 +87,59 @@ namespace Xtensive.Orm.Tests.Storage
     private void RunTest(int batchSize)
     {
       var expectedNumberOfBatches = GetExpectedNumberOfBatches(batchSize);
+      var commandCapturer = new CommandCapturer();
       using (var session = Domain.OpenSession(new SessionConfiguration {BatchSize = batchSize, Options = SessionOptions.ServerProfile | SessionOptions.AutoActivation})) {
-        var commandCapturer = new CommandCapturer();
         using (var transcation = session.OpenTransaction()) {
           for (int i = 0; i < TotalEntities; i++) {
             new TestEntity {SomeIntField = i, BatchSize = batchSize};
           }
-          using (commandCapturer.Monitor()) {
+          using (commandCapturer.Attach(session)) {
             session.SaveChanges();
-            Assert.That(commandCapturer.CountCommands, Is.EqualTo(expectedNumberOfBatches));
           }
+          Assert.That(commandCapturer.CountCommands, Is.EqualTo(expectedNumberOfBatches));
+          commandCapturer.Reset();
           transcation.Complete();
         }
         using (session.OpenTransaction()) {
           session.Query.All<TestEntity>().Where(e => e.BatchSize==batchSize).ForEach(te => te.SomeIntField++);
-          using (commandCapturer.Monitor()) {
+          using (commandCapturer.Attach(session)) {
             session.SaveChanges();
-            Assert.That(commandCapturer.CountCommands, Is.EqualTo(expectedNumberOfBatches));
           }
+          Assert.That(commandCapturer.CountCommands, Is.EqualTo(expectedNumberOfBatches));
+          commandCapturer.Reset();
         }
         using (session.OpenTransaction()) {
           session.Query.All<TestEntity>().Where(e => e.BatchSize==batchSize).ForEach(te => te.Remove());
-          using (commandCapturer.Monitor()) {
+          using (commandCapturer.Attach(session)) {
             session.SaveChanges();
-            Assert.That(commandCapturer.CountCommands, Is.EqualTo(expectedNumberOfBatches));
           }
+          Assert.That(commandCapturer.CountCommands, Is.EqualTo(expectedNumberOfBatches));
+          commandCapturer.Reset();
         }
       }
     }
 
     protected class CommandCapturer
     {
-      private readonly Session session;
-
       public int CountCommands { get; private set; }
 
-      public IDisposable Monitor()
+      public IDisposable Attach(Session session)
       {
-        EventHandler<DbCommandEventArgs> handler = (sender, args) => { CountCommands++; };
-        session.Events.DbCommandExecuted += handler;
-        return new Disposable(b => {
-          session.Events.DbCommandExecuted -= handler;
-          CountCommands = 0;
-        });
+        session.Events.DbCommandExecuted += DbCommandExecutedHandler;
+        return new Disposable(
+          (disposing) => {
+            session.Events.DbCommandExecuted -= DbCommandExecutedHandler;
+          });
       }
 
-      public CommandCapturer(Session session=null)
+      public void Reset()
       {
-        if (session!=null)
-          this.session = session;
-        else if (Session.Current!=null)
-          this.session = Session.Current;
-        else
-          throw new InvalidOperationException("There is no session in the current scope. And it is not passed as a parameter.");
+        CountCommands = 0;
+      }
+
+      private void DbCommandExecutedHandler(object sender, DbCommandEventArgs e)
+      {
+        CountCommands++;
       }
     }
   }
