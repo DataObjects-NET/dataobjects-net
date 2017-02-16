@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Storage
           using (commandCapturer.Attach(session)) {
             session.SaveChanges();
           }
-          Assert.That(commandCapturer.CountCommands, Is.EqualTo(expectedNumberOfBatches));
+          Assert.That(commandCapturer.CountedCommands, Is.EqualTo(expectedNumberOfBatches));
           commandCapturer.Reset();
           transcation.Complete();
         }
@@ -105,7 +105,7 @@ namespace Xtensive.Orm.Tests.Storage
           using (commandCapturer.Attach(session)) {
             session.SaveChanges();
           }
-          Assert.That(commandCapturer.CountCommands, Is.EqualTo(expectedNumberOfBatches));
+          Assert.That(commandCapturer.CountedCommands, Is.EqualTo(expectedNumberOfBatches));
           commandCapturer.Reset();
         }
         using (session.OpenTransaction()) {
@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Tests.Storage
           using (commandCapturer.Attach(session)) {
             session.SaveChanges();
           }
-          Assert.That(commandCapturer.CountCommands, Is.EqualTo(expectedNumberOfBatches));
+          Assert.That(commandCapturer.CountedCommands, Is.EqualTo(expectedNumberOfBatches));
           commandCapturer.Reset();
         }
       }
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Tests.Storage
 
     protected class CommandCapturer
     {
-      public int CountCommands { get; private set; }
+      public int CountedCommands { get; private set; }
 
       public IDisposable Attach(Session session)
       {
@@ -134,12 +134,12 @@ namespace Xtensive.Orm.Tests.Storage
 
       public void Reset()
       {
-        CountCommands = 0;
+        CountedCommands = 0;
       }
 
       private void DbCommandExecutedHandler(object sender, DbCommandEventArgs e)
       {
-        CountCommands++;
+        CountedCommands++;
       }
     }
   }
