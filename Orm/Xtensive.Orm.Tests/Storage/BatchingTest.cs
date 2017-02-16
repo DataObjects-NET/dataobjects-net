@@ -26,6 +26,30 @@ namespace Xtensive.Orm.Tests.Storage.BatchingTestModel
     [Field]
     public int BatchSize { get; set; }
   }
+
+  public class CommandCounter
+  {
+    public int CountedCommands { get; private set; }
+
+    public IDisposable Attach(Session session)
+    {
+      session.Events.DbCommandExecuted += DbCommandExecutedHandler;
+      return new Disposable(
+        (disposing) => {
+          session.Events.DbCommandExecuted -= DbCommandExecutedHandler;
+        });
+    }
+
+    public void Reset()
+    {
+      CountedCommands = 0;
+    }
+
+    private void DbCommandExecutedHandler(object sender, DbCommandEventArgs e)
+    {
+      CountedCommands++;
+    }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Storage
@@ -116,30 +140,6 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.That(counter.CountedCommands, Is.EqualTo(expectedNumberOfBatches));
           counter.Reset();
         }
-      }
-    }
-
-    public class CommandCounter
-    {
-      public int CountedCommands { get; private set; }
-
-      public IDisposable Attach(Session session)
-      {
-        session.Events.DbCommandExecuted += DbCommandExecutedHandler;
-        return new Disposable(
-          (disposing) => {
-            session.Events.DbCommandExecuted -= DbCommandExecutedHandler;
-          });
-      }
-
-      public void Reset()
-      {
-        CountedCommands = 0;
-      }
-
-      private void DbCommandExecutedHandler(object sender, DbCommandEventArgs e)
-      {
-        CountedCommands++;
       }
     }
   }
