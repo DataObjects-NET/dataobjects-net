@@ -37,10 +37,14 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void InvalidQueryTest()
     {
-      EventHandler<QueryEventArgs> invalidQueryHandler = (sender, args) => { Assert.IsNotNull(args.Exception); };
-      using(var session = Domain.OpenSession()) {
+      Exception thrownException = null;
+      EventHandler<QueryEventArgs> invalidQueryHandler = (sender, args) => {thrownException = args.Exception;};
+      using (var session = Domain.OpenSession()) {
         session.Events.QueryExecuted += invalidQueryHandler;
-        Assert.Throws<InvalidOperationException>(() => session.Query.All<TestModel>().Single(m => m.SomeStringField=="lol"));
+        using (session.OpenTransaction())
+          Assert.Throws<InvalidOperationException>(() => session.Query.All<TestModel>().Single(m => m.SomeStringField=="lol"));
+        Assert.IsNotNull(thrownException);
+        Assert.AreSame(typeof(InvalidOperationException), thrownException.GetType());
         session.Events.QueryExecuted -= invalidQueryHandler;
       }
     }
@@ -61,18 +65,15 @@ namespace Xtensive.Orm.Tests.Storage
     public void InvalidDbCommandTest()
     {
       Exception commandExecutedException = null;
-      EventHandler<DbCommandEventArgs> invalidDbCommandHandler = (sender, args) => { Assert.IsNotNull(args.Exception); };
+      EventHandler<DbCommandEventArgs> invalidDbCommandHandler = (sender, args) => { commandExecutedException = args.Exception; };
       using (var session = Domain.OpenSession()) {
         session.Events.DbCommandExecuted += invalidDbCommandHandler;
         using (session.OpenTransaction()) {
-          new TestModel {SomeStringField = "wat", SomeDateTimeField = DateTime.Now, UniqueValue = 1};
-          try {
-            session.SaveChanges();
-          } 
-          catch (Exception ex) {
-            commandExecutedException = ex;
-          }
+          new TestModel { SomeStringField = "wat", SomeDateTimeField = DateTime.Now, UniqueValue = 1 };
+          var expectedException = GetUniqueConstraintViolationExceptionType();
+          Assert.Throws(expectedException, () => session.SaveChanges());
           Assert.NotNull(commandExecutedException);
+          Assert.AreEqual(expectedException, commandExecutedException.GetType());
         }
         session.Events.DbCommandExecuted -= invalidDbCommandHandler;
       }
@@ -108,6 +109,19 @@ namespace Xtensive.Orm.Tests.Storage
       configuration.Types.Register(typeof (TestModel).Assembly, typeof (TestModel).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
+    }
+
+    private Type GetUniqueConstraintViolationExceptionType()
+    {
+      var providerName = ProviderInfo.ProviderName;
+      switch (providerName) {
+        case WellKnown.Provider.MySql:
+        case WellKnown.Provider.Sqlite:
+        case WellKnown.Provider.Firebird:
+          return typeof (StorageException);
+        default:
+        return typeof (UniqueConstraintViolationException);
+      }
     }
   }
 }
