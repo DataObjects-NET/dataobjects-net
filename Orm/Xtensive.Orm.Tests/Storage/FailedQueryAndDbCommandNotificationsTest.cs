@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (session.OpenTransaction()) {
           new TestModel { SomeStringField = "wat", SomeDateTimeField = DateTime.Now, UniqueValue = 3 };
           new TestModel { SomeStringField = "dat", SomeDateTimeField = DateTime.Now, UniqueValue = 4 };
-          session.SaveChanges();
+          Assert.DoesNotThrow(() => session.SaveChanges());
         }
         session.Events.DbCommandExecuted -= validDbCommandHandler;
       }
