@@ -8,9 +8,9 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Storage.NotifyExceptionOnExecutionTestModel;
+using Xtensive.Orm.Tests.Storage.FailedQueryAndDbCommandNotificationsTestModel;
 
-namespace Xtensive.Orm.Tests.Storage.NotifyExceptionOnExecutionTestModel
+namespace Xtensive.Orm.Tests.Storage.FailedQueryAndDbCommandNotificationsTestModel
 {
   [HierarchyRoot]
   [Index("UniqueValue", Unique = true)]
