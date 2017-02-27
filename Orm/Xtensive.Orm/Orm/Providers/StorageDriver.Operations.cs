@@ -220,9 +220,10 @@ namespace Xtensive.Orm.Providers
         result = action.Invoke(command);
       }
       catch (Exception exception) {
+        var wrapped = ExceptionBuilder.BuildException(exception, command.ToHumanReadableString());
         if (session!=null)
-          session.Events.NotifyDbCommandExecuted(command, exception);
-        throw ExceptionBuilder.BuildException(exception, command.ToHumanReadableString());
+          session.Events.NotifyDbCommandExecuted(command, wrapped);
+        throw wrapped;
       }
 
       if (session!=null)
