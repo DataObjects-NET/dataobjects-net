@@ -12,13 +12,15 @@ namespace Xtensive.Orm.Upgrade
 {
   internal sealed class SchemaExtractionResult
   {
-    public Dictionary<string, string> LockedTables { get; set; } 
-    public NodeCollection<Catalog> Catalogs { get; set; }
+    public Dictionary<string, string> LockedTables { get; private set; } 
+    public NodeCollection<Catalog> Catalogs { get; private set; }
+    public bool IsShared { get; private set; }
 
-    public SchemaExtractionResult MakeNamesUnreadable()
+    public SchemaExtractionResult MakeShared()
     {
       foreach (var catalog in Catalogs)
         catalog.MakeNamesUnreadable();
+      IsShared = true;
       return this;
     }
 
