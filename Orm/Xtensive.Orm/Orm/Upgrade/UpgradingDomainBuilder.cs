@@ -375,22 +375,16 @@ namespace Xtensive.Orm.Upgrade
             //because storage target model exactly the same.
             targetSchema = GetTargetModel(domain);
             context.TargetStorageModel = targetSchema;
-            context.ExtractedSqlModelCache = ExtractedModelBuilderFactory.GetBuilder(context.Services, context.TargetStorageModel).Run();
             if (UpgradeLog.IsLogged(LogLevel.Info)) {
               UpgradeLog.Info(Strings.LogTargetSchema);
               targetSchema.Dump();
             }
           }
-          else {
-            var builder = ExtractedModelBuilderFactory.GetBuilder(context.Services, domain.StorageNodeManager.GetNode(WellKnown.DefaultNodeId), context.NodeConfiguration);
-            context.ExtractedSqlModelCache = builder.Run();
-          }
+          var builder = ExtractedModelBuilderFactory.GetBuilder(context);
+          context.ExtractedSqlModelCache = builder.Run();
           OnSchemaReady();
           return; // Skipping comparison completely
         }
-        
-        //targetSchema = GetTargetModel(domain);
-        //context.TargetStorageModel = targetSchema;
 
         var extractedSchema = extractor.GetSchema();
 

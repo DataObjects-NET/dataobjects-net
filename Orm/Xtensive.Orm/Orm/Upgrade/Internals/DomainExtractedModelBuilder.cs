@@ -30,6 +30,7 @@ namespace Xtensive.Orm.Upgrade.Internals
     private readonly MappingResolver mappingResolver;
     private readonly ProviderInfo provider;
     private readonly StorageDriver driver;
+    private readonly bool makeSharedFinally;
 
     private readonly SchemaExtractionResult targetResult;
 
@@ -38,6 +39,8 @@ namespace Xtensive.Orm.Upgrade.Internals
       BuildCatalogsAndSchemas();
       BuildTables();
       BuildSequences();
+      if (makeSharedFinally)
+        return targetResult.MakeShared();
       return targetResult;
     }
 
@@ -269,12 +272,15 @@ namespace Xtensive.Orm.Upgrade.Internals
       }
     }
 
-    internal DomainExtractedModelBuilder(UpgradeServiceAccessor services, StorageModel model)
+    internal DomainExtractedModelBuilder(UpgradeServiceAccessor services, StorageModel model, bool makeSharedFinally)
     {
+      ArgumentValidator.EnsureArgumentNotNull(services, "services");
+      ArgumentValidator.EnsureArgumentNotNull(model, "model");
       this.model = model;
       this.mappingResolver = services.MappingResolver;
       this.provider = services.ProviderInfo;
       this.driver = services.StorageDriver;
+      this.makeSharedFinally = makeSharedFinally;
 
       this.targetResult = new SchemaExtractionResult();
 
