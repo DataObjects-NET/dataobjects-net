@@ -164,16 +164,6 @@ namespace Xtensive.Sql.Model
       this.PartitionSchemas.ForEach(ps => ps.MakeNamesUnreadable());
     }
 
-    internal string GetNameInternal()
-    {
-      return base.Name;
-    }
-
-    internal string GetDbNameInternal()
-    {
-      return base.DbName;
-    }
-
     // Constructors
 
     public Catalog(string name) : base(name)

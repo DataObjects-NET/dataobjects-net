@@ -44,6 +44,16 @@ namespace Xtensive.Sql.Model
       }
     }
 
+    internal string GetNameInternal()
+    {
+      return name;
+    }
+
+    internal string GetDbNameInternal()
+    {
+      return string.IsNullOrEmpty(dbName) ? name : dbName;;
+    }
+
     #region Constructors
 
     /// <summary>

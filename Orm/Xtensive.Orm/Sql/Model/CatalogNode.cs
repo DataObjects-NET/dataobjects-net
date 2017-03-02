@@ -84,16 +84,6 @@ namespace Xtensive.Sql.Model
       isNamesReadingDenied = true;
     }
 
-    internal string GetNameInternal()
-    {
-      return base.Name;
-    }
-
-    internal string GetDbNameInternal()
-    {
-      return base.DbName;
-    }
-
     #region Constructors
 
     /// <summary>
