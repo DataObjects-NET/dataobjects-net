@@ -519,6 +519,7 @@
     <Compile Include="Upgrade\SchemaSharing\MakingSchemaExtractionResultSharedTest.cs" />
     <Compile Include="Upgrade\SchemaSharing\MappingResolverTest.cs" />
     <Compile Include="Upgrade\SchemaSharing\Model.cs" />
+    <Compile Include="Upgrade\SchemaSharing\StorageNodeBuildingTest.cs" />
     <Compile Include="Upgrade\TwoSchemasPerNode.cs" />
     <Compile Include="Upgrade\TypeIdPreserveTest.cs" />
     <Compile Include="Upgrade\ExtractSuperClassTest.cs" />
