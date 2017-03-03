@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Providers
     public override string GetNodeName(SchemaNode node)
     {
       var schema = node.Schema;
-      return FormatNodeName(schema.Catalog.Name, schema.Name, node.Name);
+      return FormatNodeName(schema.Catalog.GetNameInternal(), schema.GetNameInternal(), node.Name);
     }
 
     public override MappingResolveResult Resolve(SchemaExtractionResult model, string nodeName)

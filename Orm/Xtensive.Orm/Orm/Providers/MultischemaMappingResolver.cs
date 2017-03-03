@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Providers
 
     public override string GetNodeName(SchemaNode node)
     {
-      return FormatNodeName(node.Schema.Name, node.Name);
+      return FormatNodeName(node.Schema.GetNameInternal(), node.Name);
     }
 
     public override MappingResolveResult Resolve(SchemaExtractionResult model, string nodeName)
