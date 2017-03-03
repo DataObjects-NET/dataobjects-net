@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
@@ -15,7 +16,7 @@ namespace Xtensive.Orm.Building.Builders
 {
   internal static class ModelMappingBuilder
   {
-    public static ModelMapping Build(HandlerAccessor handlers, SchemaExtractionResult sqlModel, MappingResolver resolver, bool isLegacy)
+    public static ModelMapping Build(HandlerAccessor handlers, SchemaExtractionResult sqlModel, MappingResolver resolver, NodeConfiguration nodeConfiguration, bool isLegacy)
     {
       var domainModel = handlers.Domain.Model;
       var configuration = handlers.Domain.Configuration;
@@ -65,9 +66,14 @@ namespace Xtensive.Orm.Building.Builders
       // Fill information for TemporaryTableManager
 
       var defaultSchema = resolver.ResolveSchema(sqlModel, configuration.DefaultDatabase, configuration.DefaultSchema);
-
-      mapping.TemporaryTableDatabase = defaultSchema.Catalog.Name;
-      mapping.TemporaryTableSchema = defaultSchema.Name;
+      if (configuration.ShareStorageSchemaOverNodes) {
+        mapping.TemporaryTableDatabase = nodeConfiguration.GetActualNameFor(defaultSchema.Catalog);
+        mapping.TemporaryTableSchema = nodeConfiguration.GetActualNameFor(defaultSchema);
+      }
+      else {
+        mapping.TemporaryTableDatabase = defaultSchema.Catalog.GetNameInternal();
+        mapping.TemporaryTableSchema = defaultSchema.GetNameInternal();
+      }
 
       if (providerInfo.Supports(ProviderFeatures.Collations))
         if (!string.IsNullOrEmpty(configuration.Collation)) {
