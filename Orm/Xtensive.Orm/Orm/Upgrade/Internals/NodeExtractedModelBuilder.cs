@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     private IList<Catalog> GetDefaultNodeCatalogs()
     {
-      return defaultStorageNode.Mapping.GetAllSNodes().Select(node => node.Schema.Catalog).Distinct().ToList();
+      return defaultStorageNode.Mapping.GetAllSchemaNodes().Select(node => node.Schema.Catalog).Distinct().ToList();
     }
 
     internal NodeExtractedModelBuilder(UpgradeServiceAccessor services, StorageNode defaultNode, NodeConfiguration buildingNodeConfiguration, bool defaultNodeIsUnreadable)

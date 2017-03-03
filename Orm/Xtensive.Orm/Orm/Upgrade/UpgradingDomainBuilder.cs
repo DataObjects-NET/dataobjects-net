@@ -334,7 +334,7 @@ namespace Xtensive.Orm.Upgrade
       if (context.Stage==UpgradeStage.Final) {
         var schemaExtractionResult = new SchemaExtractionResult();
         var defaultNode = context.ParentDomain.StorageNodeManager.GetNode(WellKnown.DefaultNodeId);
-        defaultNode.Mapping.GetAllSNodes()
+        defaultNode.Mapping.GetAllSchemaNodes()
           .Select(node => node.Schema.Catalog)
           .Distinct()
           .ForEach(schemaExtractionResult.Catalogs.Add);
