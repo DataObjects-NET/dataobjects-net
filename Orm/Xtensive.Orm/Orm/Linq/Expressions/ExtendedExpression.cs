@@ -5,23 +5,32 @@
 // Created:    2009.05.06
 
 using System;
-using System.Diagnostics;
 using System.Linq.Expressions;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
   internal abstract class ExtendedExpression : Expression
   {
+    private Type type;
+
     public ExtendedExpressionType ExtendedType { get; private set; }
 
+    public override ExpressionType NodeType
+    {
+      get { return (ExpressionType) ExtendedType; }
+    }
+
+    public override Type Type
+    {
+      get { return type; }
+    }
 
     // Constructors
 
     protected ExtendedExpression(ExtendedExpressionType expressionType, Type type)
-#pragma warning disable 612,618
-      : base((ExpressionType) expressionType, type)
-#pragma warning restore 612,618
+      : base()
     {
+      this.type = type;
       ExtendedType = expressionType;
     }
   }
