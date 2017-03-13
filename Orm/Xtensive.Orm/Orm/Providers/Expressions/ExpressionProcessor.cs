@@ -117,12 +117,12 @@ namespace Xtensive.Orm.Providers
     {
       var operand = Visit(expression.Operand);
 
-      if (expression.Method != null)
+      if (expression.Method!=null)
         return CompileMember(expression.Method, null, operand);
 
       switch (expression.NodeType) {
         case ExpressionType.ArrayLength:
-          if (expression.Operand.Type != typeof(byte[]))
+          if (expression.Operand.Type!=typeof(byte[]))
             throw new NotSupportedException(string.Format(Strings.ExTypeXIsNotSupported, expression.Operand.Type));
           return SqlDml.Cast(SqlDml.BinaryLength(operand), driver.MapValueType(typeof (int)));
         case ExpressionType.Negate:
@@ -240,13 +240,11 @@ namespace Xtensive.Orm.Providers
 
       //handle wrapped enums
       SqlContainer container = left as SqlContainer;
-      if (container != null)
-        if (container.Value.GetType().IsEnum)
-          left = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
+      if (container!=null)
+        left = TryUnwrapEnum(container);
       container = right as SqlContainer;
-      if (container != null)
-        if (container.Value.GetType().IsEnum)
-          right = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
+      if (container!=null)
+        right = TryUnwrapEnum(container);
 
       switch (expression.NodeType) {
       case ExpressionType.Add:
@@ -309,13 +307,11 @@ namespace Xtensive.Orm.Providers
       var ifTrue = Visit(expression.IfTrue);
       var ifFalse = Visit(expression.IfFalse);
       SqlContainer container = ifTrue as SqlContainer;
-      if (container != null)
-        if (container.Value.GetType().IsEnum)
-          ifTrue = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
+      if (container!=null)
+        ifTrue = TryUnwrapEnum(container);
       container = ifFalse as SqlContainer;
-      if (container != null)
-        if (container.Value.GetType().IsEnum)
-          ifFalse = SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(container.Value.GetType())));
+      if (container!=null)
+        ifFalse = TryUnwrapEnum(container);
       var boolCheck = fixBooleanExpressions
         ? booleanExpressionConverter.BooleanToInt(check)
         : check;
@@ -405,7 +401,11 @@ namespace Xtensive.Orm.Providers
         var p = l.Parameters[i];
         sourceMapping[p] = sourceColumns[i];
       }
-      return Visit(l.Body);
+      var body = Visit(l.Body);
+      var sqlContainer = body as SqlContainer;
+      if (sqlContainer!=null)
+        return TryUnwrapEnum(sqlContainer);
+      return body;
     }
 
     protected override SqlExpression VisitNew(NewExpression n)
@@ -434,6 +434,14 @@ namespace Xtensive.Orm.Providers
     protected override SqlExpression VisitListInit(ListInitExpression li)
     {
       throw new NotSupportedException();
+    }
+
+    private SqlExpression TryUnwrapEnum(SqlContainer container)
+    {
+      var valueType = container.Value.GetType();
+      if (valueType.IsEnum)
+        return SqlDml.Literal(Convert.ChangeType(container.Value, Enum.GetUnderlyingType(valueType)));
+      return container;
     }
 
 
