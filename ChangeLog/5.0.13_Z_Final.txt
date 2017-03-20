@@ -1,0 +1,3 @@
+[main] Fixed rare situation when all LinQ queries might be corrupted untill application restart
+[main] Fixed case when contatination of two queries with Enum constants might cause error on translation
+[mysql] Added support for SQL batches
