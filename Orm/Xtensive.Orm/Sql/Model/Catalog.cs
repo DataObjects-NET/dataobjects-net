@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Model
@@ -162,6 +163,32 @@ namespace Xtensive.Sql.Model
       this.Schemas.ForEach(s => s.MakeNamesUnreadable());
       this.PartitionFunctions.ForEach(pf => pf.MakeNamesUnreadable());
       this.PartitionSchemas.ForEach(ps => ps.MakeNamesUnreadable());
+    }
+
+    internal string GetActualName(IDictionary<string, string> databaseMap)
+    {
+      if (!isNamesReadingDenied)
+        return Name;
+      if (databaseMap==null)
+        throw new InvalidOperationException("Unable to calculate real name for catalog");
+      var name = GetNameInternal();
+      string actualName;
+      if (databaseMap.TryGetValue(name, out actualName))
+        return actualName;
+      return name;
+    }
+
+    internal string GetActualDbName(IDictionary<string, string> databaseMap)
+    {
+      if (!isNamesReadingDenied)
+        return DbName;
+      if (databaseMap==null)
+        throw new InvalidOperationException("Unable to calculate real name for catalog");
+      var name = GetDbNameInternal();
+      string actualName;
+      if (databaseMap.TryGetValue(name, out actualName))
+        return actualName;
+      return name;
     }
 
     // Constructors
