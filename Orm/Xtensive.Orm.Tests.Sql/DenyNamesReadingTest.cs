@@ -1,39 +1,38 @@
-﻿using System;
+﻿// Copyright (C) 2017 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2017.03.24
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Sql;
+using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql
 {
   public class DenyNamesReadingTest : SqlTest
   {
-    
-    protected override void TestFixtureSetUp()
-    {
-      base.TestFixtureSetUp();
-      CreateTablesForTest();
-    }
-
-    protected override void TestFixtureTearDown()
-    {
-      RemoveCreatedTables();
-      base.TestFixtureTearDown();
-    }
+    private const string TableName = "DenyNamesReadingTest";
+    private const string CatalogName = "DO-Tests";
+    private const string SchemaName = "dbo";
+    private const string DummySchemaName = "DummySchema";
+    private const string DummyDatabaseName = "DummyDatabase";
 
     [Test]
-    public void MainTest()
+    public void ReadingNamesTest()
     {
-      var defaultSchema = ExtractDefaultSchema();
+      var defaultSchema = GetSchema();
       Catalog catalog = null;
-      Assert.DoesNotThrow(()=> catalog = defaultSchema.Catalog);
+      Assert.DoesNotThrow(() => catalog = defaultSchema.Catalog);
       Table table = null;
-      Assert.DoesNotThrow(()=> table = defaultSchema.Tables["DenyNamesReadingTest"]);
+      Assert.DoesNotThrow(() => table = defaultSchema.Tables[TableName]);
 
-      Assert.DoesNotThrow(()=> { var catalogName = catalog.Name; });
-      Assert.DoesNotThrow(()=> { var catalogDbName = catalog.DbName; });
+      Assert.DoesNotThrow(() => { var catalogName = catalog.Name; });
+      Assert.DoesNotThrow(() => { var catalogDbName = catalog.DbName; });
 
       Assert.DoesNotThrow(() => { var catalogName = catalog.GetNameInternal(); });
       Assert.DoesNotThrow(() => { var catalogDbName = catalog.GetDbNameInternal(); });
@@ -63,32 +62,287 @@ namespace Xtensive.Orm.Tests.Sql
 
       Assert.DoesNotThrow(() => { var schemaName = table.Name; });
       Assert.DoesNotThrow(() => { var schemaName = table.DbName; });
-
     }
 
-    private void CreateTablesForTest()
+    [Test]
+    public void TableCreationTest()
     {
-      var defaultSchema = ExtractDefaultSchema();
-      if (defaultSchema.Tables["DenyNamesReadingTest"]!=null)
-        return;
-      var table = defaultSchema.CreateTable("DenyNamesReadingTest");
+      var defaultSchema = GetSchema();
+
+      var table = defaultSchema.CreateTable(string.Format("Crt1_{0}", TableName));
+      var column = table.CreateColumn("Id", new SqlValueType(SqlType.Int32));
+      table.CreatePrimaryKey("PK_Crt_DenyNamesReadingTest", column);
+      column = table.CreateColumn("CreationDate", new SqlValueType(SqlType.DateTime));
+      var createTableQuery = SqlDdl.Create(table);
+
+      TestQueryNamesReadable(createTableQuery, defaultSchema);
+    }
+
+    [Test]
+    public void TableCreationUnreadableNamesTest()
+    {
+      var defaultSchema = GetSchema();
+      defaultSchema.Catalog.MakeNamesUnreadable();
+
+      var table = defaultSchema.CreateTable(string.Format("Crt1_{0}", TableName));
+      var column = table.CreateColumn("Id", new SqlValueType(SqlType.Int32));
+      table.CreatePrimaryKey("PK_Crt_DenyNamesReadingTest", column);
+      column = table.CreateColumn("CreationDate", new SqlValueType(SqlType.DateTime));
+      var createTableQuery = SqlDdl.Create(table);
+
+      TestQueryNamesUnreadable(createTableQuery, defaultSchema);
+    }
+
+    [Test]
+    public void TableAlterTest()
+    {
+      var defaultSchema = GetSchema();
+
+      var table = defaultSchema.Tables[TableName];
+      var column = table.CreateColumn("Text", new SqlValueType(SqlType.VarChar, 255));
+      column.IsNullable = true;
+      var alterTableQuery = SqlDdl.Alter(table, SqlDdl.AddColumn(column));
+
+      TestQueryNamesReadable(alterTableQuery, defaultSchema);
+    }
+
+    [Test]
+    public void TableAlterUnreadableNamesTest()
+    {
+      var defaultSchema = GetSchema();
+      defaultSchema.Catalog.MakeNamesUnreadable();
+
+      var table = defaultSchema.Tables[TableName];
+      var column = table.CreateColumn("Text", new SqlValueType(SqlType.VarChar, 255));
+      column.IsNullable = true;
+      var alterTableQuery = SqlDdl.Alter(table, SqlDdl.AddColumn(column));
+
+      TestQueryNamesUnreadable(alterTableQuery, defaultSchema);
+    }
+
+    [Test]
+    public void TableDeletionTest()
+    {
+      var defaultSchema = GetSchema();
+
+      var table = defaultSchema.Tables[TableName];
+      var dropTableQuery = SqlDdl.Drop(table);
+      
+      TestQueryNamesReadable(dropTableQuery, defaultSchema);
+    }
+
+    [Test]
+    public void TableDeletionUnreadableNamesTest()
+    {
+      var defaultSchema = GetSchema();
+      defaultSchema.Catalog.MakeNamesUnreadable();
+
+      var table = defaultSchema.Tables[TableName];
+      var dropTableQuery = SqlDdl.Drop(table);
+
+      TestQueryNamesUnreadable(dropTableQuery, defaultSchema);
+    }
+
+    [Test]
+    public void RowInsertionTest()
+    {
+      var defaultSchema = GetSchema();
+
+      var tableRef = SqlDml.TableRef(defaultSchema.Tables[TableName]);
+      var insertQuery = SqlDml.Insert(tableRef);
+      insertQuery.Values.Add(tableRef["Id"], 1);
+      insertQuery.Values.Add(tableRef["CreationDate"], DateTime.UtcNow);
+
+      TestQueryNamesReadable(insertQuery, defaultSchema);
+    }
+
+    [Test]
+    public void RowInsertionUnreadableNamesTest()
+    {
+      var defaultSchema = GetSchema();
+      defaultSchema.Catalog.MakeNamesUnreadable();
+
+      var tableRef = SqlDml.TableRef(defaultSchema.Tables[TableName]);
+      var insertQuery = SqlDml.Insert(tableRef);
+      insertQuery.Values.Add(tableRef["Id"], 1);
+      insertQuery.Values.Add(tableRef["CreationDate"], DateTime.UtcNow);
+
+      TestQueryNamesUnreadable(insertQuery, defaultSchema);
+    }
+
+    [Test]
+    public void RowUpdateTest()
+    {
+      var defaultSchema = GetSchema();
+
+      var tableRef = SqlDml.TableRef(defaultSchema.Tables[TableName]);
+      var updateQuery = SqlDml.Update(tableRef);
+      updateQuery.Values.Add(tableRef["CreationDate"], DateTime.UtcNow);
+      updateQuery.Where = tableRef["Id"]==1;
+
+      TestQueryNamesReadable(updateQuery, defaultSchema);
+    }
+
+    [Test]
+    public void RowUpdateUnreadableNamesTest()
+    {
+      var defaultSchema = GetSchema();
+      defaultSchema.Catalog.MakeNamesUnreadable();
+
+      var tableRef = SqlDml.TableRef(defaultSchema.Tables[TableName]);
+      var updateQuery = SqlDml.Update(tableRef);
+      updateQuery.Values.Add(tableRef["CreationDate"], DateTime.UtcNow);
+      updateQuery.Where = tableRef["Id"]==1;
+
+      TestQueryNamesUnreadable(updateQuery, defaultSchema);
+    }
+
+    [Test]
+    public void RowDeletionTest()
+    {
+      var defaultSchema = GetSchema();
+
+      var tableRef = SqlDml.TableRef(defaultSchema.Tables[TableName]);
+      var deleteQuery = SqlDml.Delete(tableRef);
+      deleteQuery.Where = tableRef["Id"]==1;
+
+      TestQueryNamesReadable(deleteQuery, defaultSchema);
+    }
+
+    [Test]
+    public void RowDeletionUnreadableNamesTest()
+    {
+      var defaultSchema = GetSchema();
+      defaultSchema.Catalog.MakeNamesUnreadable();
+
+      var tableRef = SqlDml.TableRef(defaultSchema.Tables[TableName]);
+      var deleteQuery = SqlDml.Delete(tableRef);
+      deleteQuery.Where = tableRef["Id"]==1;
+
+      TestQueryNamesUnreadable(deleteQuery, defaultSchema);
+    }
+
+    [Test]
+    public void RowSelectionTest()
+    {
+      var defaultSchema = GetSchema();
+
+      var tableRef = SqlDml.TableRef(defaultSchema.Tables[TableName]);
+      var selectQuery = SqlDml.Select(tableRef);
+      selectQuery.Where = tableRef["CreationDate"] < DateTime.UtcNow;
+
+      TestQueryNamesReadable(selectQuery, defaultSchema);
+    }
+
+    [Test]
+    public void RowSelectionUnreadableNamesTest()
+    {
+      var defaultSchema = GetSchema();
+      defaultSchema.Catalog.MakeNamesUnreadable();
+
+      var tableRef = SqlDml.TableRef(defaultSchema.Tables[TableName]);
+      var selectQuery = SqlDml.Select(tableRef);
+      selectQuery.Where = tableRef["CreationDate"] < DateTime.UtcNow;
+
+      TestQueryNamesUnreadable(selectQuery, defaultSchema);
+    }
+
+    private void TestQueryNamesReadable(ISqlCompileUnit query, Schema defaultSchema)
+    {
+      string queryText = string.Empty;
+      Assert.DoesNotThrow(() => queryText = Driver.Compile(query).GetCommandText());
+      Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.True);
+      Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
+
+      if (MultidatabaseSupported()) {
+        var compilerConfiguration = new SqlCompilerConfiguration(new Dictionary<string, string>(), new Dictionary<string, string>()) {DatabaseQualifiedObjects = true};
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
+        Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.True);
+        Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.True);
+
+        var schemaMap = new Dictionary<string, string>() {{defaultSchema.GetDbNameInternal(), DummySchemaName}};
+        var databaseMap = new Dictionary<string, string>() {{defaultSchema.Catalog.GetDbNameInternal(), DummyDatabaseName}};
+        compilerConfiguration = new SqlCompilerConfiguration(databaseMap, schemaMap) {DatabaseQualifiedObjects = true};
+
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
+        Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.True);
+        Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.True);
+        Assert.That(queryText.Contains(DummyDatabaseName), Is.False);
+        Assert.That(queryText.Contains(DummySchemaName), Is.False);
+      }
+      else {
+        var compilerConfiguration = new SqlCompilerConfiguration(new Dictionary<string, string>(), new Dictionary<string, string>()) {DatabaseQualifiedObjects = false};
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
+        Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.True);
+        Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
+
+        var schemaMap = new Dictionary<string, string>() {{defaultSchema.GetDbNameInternal(), DummySchemaName}};
+        var databaseMap = new Dictionary<string, string>() {{defaultSchema.Catalog.GetDbNameInternal(), DummyDatabaseName}};
+        compilerConfiguration = new SqlCompilerConfiguration(databaseMap, schemaMap) {DatabaseQualifiedObjects = false};
+
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
+        Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.True);
+        Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
+        Assert.That(queryText.Contains(DummyDatabaseName), Is.False);
+        Assert.That(queryText.Contains(DummySchemaName), Is.False);
+      }
+    }
+
+    private void TestQueryNamesUnreadable(ISqlCompileUnit query, Schema defaultSchema)
+    {
+      string queryText = string.Empty;
+      Assert.Throws<InvalidOperationException>(() => queryText = Driver.Compile(query).GetCommandText());
+
+      if (MultidatabaseSupported()) {
+        var compilerConfiguration = new SqlCompilerConfiguration(new Dictionary<string, string>(), new Dictionary<string, string>()) {DatabaseQualifiedObjects = true};
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
+        Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.True);
+        Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.True);
+
+        var schemaMap = new Dictionary<string, string>() {{defaultSchema.GetDbNameInternal(), DummySchemaName}};
+        var databaseMap = new Dictionary<string, string>() {{defaultSchema.Catalog.GetDbNameInternal(), DummyDatabaseName}};
+        compilerConfiguration = new SqlCompilerConfiguration(databaseMap, schemaMap) {DatabaseQualifiedObjects = true};
+
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
+        Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.False);
+        Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
+        Assert.That(queryText.Contains(DummyDatabaseName), Is.True);
+        Assert.That(queryText.Contains(DummySchemaName), Is.True);
+      }
+      else {
+        var compilerConfiguration = new SqlCompilerConfiguration(new Dictionary<string, string>(), new Dictionary<string, string>()) {DatabaseQualifiedObjects = false};
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
+        Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.True);
+        Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
+
+        var schemaMap = new Dictionary<string, string>() {{defaultSchema.GetDbNameInternal(), DummySchemaName}};
+        var databaseMap = new Dictionary<string, string>() {{defaultSchema.Catalog.GetDbNameInternal(), DummyDatabaseName}};
+        compilerConfiguration = new SqlCompilerConfiguration(databaseMap, schemaMap) {DatabaseQualifiedObjects = false};
+
+        Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
+        Assert.That(queryText.Contains(defaultSchema.GetDbNameInternal()), Is.False);
+        Assert.That(queryText.Contains(defaultSchema.Catalog.GetDbNameInternal()), Is.False);
+        Assert.That(queryText.Contains(DummyDatabaseName), Is.False);
+        Assert.That(queryText.Contains(DummySchemaName), Is.True);
+      }
+    }
+
+    private Schema GetSchema()
+    {
+      var catalog = new Catalog(CatalogName);
+      var schema = catalog.CreateSchema(SchemaName);
+
+      var defaultSchema = catalog.DefaultSchema = schema;
+      var table = defaultSchema.CreateTable(TableName);
       var column = table.CreateColumn("Id", new SqlValueType(SqlType.Int32));
       table.CreatePrimaryKey("PK_DenyNamesReadingTest", column);
       column = table.CreateColumn("CreationDate", new SqlValueType(SqlType.DateTime));
-      var createTableQuery = SqlDdl.Create(table);
-      using (var command = Connection.CreateCommand(createTableQuery)) {
-        command.ExecuteNonQuery();
-      }
+      return defaultSchema;
     }
 
-    private void RemoveCreatedTables()
+    private bool MultidatabaseSupported()
     {
-      var defaultSchema = ExtractDefaultSchema();
-      var tableToRemove = defaultSchema.Tables["DenyNamesReadingTest"];
-      var dropTableQuery = SqlDdl.Drop(tableToRemove);
-      using (var command = Connection.CreateCommand(dropTableQuery)) {
-        command.ExecuteNonQuery();
-      }
+      return Driver.ServerInfo.Query.Features.HasFlag(QueryFeatures.MultidatabaseQueries);
     }
   }
 }
