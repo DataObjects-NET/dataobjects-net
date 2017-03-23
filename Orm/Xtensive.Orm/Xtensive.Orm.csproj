@@ -1353,6 +1353,7 @@
     <Compile Include="Sql\Compiler\SqlCompilerNamingScope.cs" />
     <Compile Include="Sql\Compiler\SqlCompilerOutputScope.cs" />
     <Compile Include="Sql\Compiler\SqlDelimiterType.cs" />
+    <Compile Include="Sql\Compiler\SqlNodeActualizer.cs" />
     <Compile Include="Sql\Compiler\SqlNodeSections.cs" />
     <Compile Include="Sql\Compiler\SqlParameterNameProvider.cs" />
     <Compile Include="Sql\Compiler\SqlPostCompilerConfiguration.cs" />

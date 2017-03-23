@@ -26,6 +26,8 @@ namespace Xtensive.Sql.Compiler
 
     public bool IsEmpty { get { return Output.IsEmpty; } }
 
+    public SqlNodeActualizer SqlNodeActualizer { get; private set; }
+
     public SqlNode[] GetTraversalPath()
     {
       if (traversalPath == null)
@@ -145,6 +147,7 @@ namespace Xtensive.Sql.Compiler
       traversalStack = new Stack<SqlNode>();
       traversalTable = new HashSet<SqlNode>();
       Output = new ContainerNode();
+      SqlNodeActualizer = new SqlNodeActualizer(configuration.DatabaseMapping, configuration.SchemaMapping);
     }
   }
 }
