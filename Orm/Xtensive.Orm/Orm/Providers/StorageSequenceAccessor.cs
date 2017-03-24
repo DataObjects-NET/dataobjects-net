@@ -31,10 +31,8 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public Segment<long> NextBulk(SequenceInfo sequenceInfo, Session session)
     {
-      var generatorNode = GetGeneratorNode(sequenceInfo, session.StorageNode);
       var executionFromUpgrade = UpgradeContext.GetCurrent(session.Domain.UpgradeContextCookie)!=null;
-
-      var query = queryBuilder.BuildNextValueQuery(generatorNode, sequenceInfo.Increment, executionFromUpgrade);
+      var query = GetSequenceQuery(sequenceInfo, session, executionFromUpgrade);
 
       long hiValue = Execute(query, session);
       if (executionFromUpgrade && !hasAISettingsInMemory)
@@ -45,7 +43,6 @@ namespace Xtensive.Orm.Providers
 
       return new Segment<long>(current + 1, increment);
     }
-
 
     /// <inheritdoc/>
     public void CleanUp(IEnumerable<SequenceInfo> sequences, Session session)
@@ -95,6 +92,15 @@ namespace Xtensive.Orm.Providers
         hasSequences ? Strings.ExSequenceXIsNotFoundInStorage : Strings.ExTableXIsNotFound,
         sequenceInfo.MappingName);
       throw new InvalidOperationException(message);
+    }
+
+    private SequenceQuery GetSequenceQuery(SequenceInfo sequenceInfo, Session session, bool executionFromUpgrade)
+    {
+      var generatorNode = GetGeneratorNode(sequenceInfo, session.StorageNode);
+
+      if (domain.Configuration.ShareStorageSchemaOverNodes)
+        return queryBuilder.BuildNextValueQuery(generatorNode, session.StorageNode.Configuration, sequenceInfo.Increment, executionFromUpgrade);
+      return queryBuilder.BuildNextValueQuery(generatorNode, sequenceInfo.Increment, executionFromUpgrade);
     }
 
     // Constructors
