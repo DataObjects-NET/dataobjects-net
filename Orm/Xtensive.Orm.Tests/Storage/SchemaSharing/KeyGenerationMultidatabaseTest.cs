@@ -21,6 +21,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing
     public override void TestFixtureSetUp()
     {
       CheckRequirements();
+      PopulateData();
     }
 
     protected override void CheckRequirements()
@@ -35,7 +36,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing
     }
 
     [Test]
-    public void MainTest1()
+    public void MainTest()
     {
       using (var referenceDomain = BuildDomain(BuildConfiguration().UseRecreate())) {
         referenceDomain.StorageNodeManager.AddNode(BuildAdditionalNodeConfiguration().UseRecreate());
