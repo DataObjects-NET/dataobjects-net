@@ -120,6 +120,8 @@ namespace Xtensive.Orm.Providers
 
     private string Compile(ISqlCompileUnit statement)
     {
+      if (session==null)
+        return driver.Compile(statement).GetCommandText();
       var upgradeContext = UpgradeContext.GetCurrent(session.Domain.UpgradeContextCookie);
       if (upgradeContext!=null)
         return driver.Compile(statement, upgradeContext.NodeConfiguration).GetCommandText();
