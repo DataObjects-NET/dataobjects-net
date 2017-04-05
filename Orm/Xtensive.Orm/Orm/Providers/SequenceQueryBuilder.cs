@@ -69,9 +69,14 @@ namespace Xtensive.Orm.Providers
 
     public string BuildCleanUpQuery(SchemaNode generatorNode)
     {
-      var table = (Table) generatorNode;
+      return BuildCleanUpQuery(generatorNode, null);
+    }
+
+    public string BuildCleanUpQuery(SchemaNode generatorNode, NodeConfiguration nodeConfiguration)
+    {
+      var table = (Table)generatorNode;
       var delete = SqlDml.Delete(SqlDml.TableRef(table));
-      return driver.Compile(delete).GetCommandText();
+      return Compile(delete, nodeConfiguration).GetCommandText();
     }
 
 
