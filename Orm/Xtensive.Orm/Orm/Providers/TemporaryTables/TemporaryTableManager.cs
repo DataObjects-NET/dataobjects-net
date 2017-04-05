@@ -8,8 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-
+using Xtensive.Orm.Configuration;
 using Xtensive.Sql;
+using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using Xtensive.Tuples;
 
@@ -25,6 +26,9 @@ namespace Xtensive.Orm.Providers
 
     private TemporaryTableBackEnd backEnd;
 
+    /// <summary>
+    /// Gets value indicating whether temporary tables are supported.
+    /// </summary>
     public bool Supported { get { return backEnd!=null; } }
 
     /// <summary>
@@ -34,9 +38,10 @@ namespace Xtensive.Orm.Providers
     /// <param name="name">The name of the temporary table.</param>
     /// <param name="source">The source.</param>
     /// <returns>Built descriptor.</returns>
+    [Obsolete("Use actual method with storage node parameter")]
     public TemporaryTableDescriptor BuildDescriptor(ModelMapping modelMapping, string name, TupleDescriptor source)
     {
-      return BuildDescriptor(modelMapping, name, source, null);
+      return BuildDescriptor(modelMapping, null, name, source, null);
     }
 
     /// <summary>
@@ -47,10 +52,37 @@ namespace Xtensive.Orm.Providers
     /// <param name="source">The source.</param>
     /// <param name="fieldNames">The names of field in temporary table.</param>
     /// <returns>Built descriptor.</returns>
+    [Obsolete("Use actual method with storage node parameter")]
     public TemporaryTableDescriptor BuildDescriptor(ModelMapping modelMapping, string name, TupleDescriptor source, string[] fieldNames)
     {
-      if (!Supported)
-        throw new NotSupportedException(Strings.ExTemporaryTablesAreNotSupportedByCurrentStorage);
+      return BuildDescriptor(modelMapping, null, name, source, fieldNames);
+    }
+
+    /// <summary>
+    /// Builds the descriptor of a temporary table.
+    /// </summary>
+    /// <param name="modelMapping">Model mapping.</param>
+    /// <param name="nodeConfiguration">Storage node configuration.</param>
+    /// <param name="name">The name of the temporary table.</param>
+    /// <param name="source">The source.</param>
+    /// <returns>Built descriptor.</returns>
+    public TemporaryTableDescriptor BuildDescriptor(ModelMapping modelMapping, NodeConfiguration nodeConfiguration, string name, TupleDescriptor source)
+    {
+      return BuildDescriptor(modelMapping, nodeConfiguration, name, source, null);
+    }
+
+    /// <summary>
+    /// Builds the descriptor of a temporary table.
+    /// </summary>
+    /// <param name="modelMapping">Model mapping.</param>
+    /// <param name="nodeConfiguration">Storage node configuration.</param>
+    /// <param name="name">The name of the temporary table.</param>
+    /// <param name="source">The source.</param>
+    /// <param name="fieldNames">The names of field in temporary table.</param>
+    /// <returns>Built descriptor.</returns>
+    public TemporaryTableDescriptor BuildDescriptor(ModelMapping modelMapping, NodeConfiguration nodeConfiguration, string name, TupleDescriptor source, string[] fieldNames)
+    {
+      EnsureTemporaryTablesSupported();
 
       var hasColumns = source.Count > 0;
 
@@ -59,69 +91,43 @@ namespace Xtensive.Orm.Providers
 
       var catalog = new Catalog(modelMapping.TemporaryTableDatabase);
       var schema = catalog.CreateSchema(modelMapping.TemporaryTableSchema);
-      var collation = modelMapping.TemporaryTableCollation!=null
+      var collation = modelMapping.TemporaryTableCollation != null
         ? new Collation(schema, modelMapping.TemporaryTableCollation)
         : null;
 
-      if (fieldNames==null) {
-        fieldNames = Enumerable.Range(0, source.Count)
-          .Select(i => string.Format(ColumnNamePattern, i))
-          .ToArray();
-      }
+      if (fieldNames==null)
+        fieldNames = BuildFieldNames(source);
 
-      // table
-      var tableName = Handlers.NameBuilder.ApplyNamingRules(string.Format(TableNamePattern, name));
-      var table = backEnd.CreateTemporaryTable(schema, tableName);
       var typeMappings = source
         .Select(driver.GetTypeMapping)
         .ToArray();
 
-      if (hasColumns) {
-        var fieldIndex = 0;
-        foreach (var mapping in typeMappings) {
-          var column = table.CreateColumn(fieldNames[fieldIndex], mapping.MapType());
-          column.IsNullable = true;
-          // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
-          if (mapping.Type==typeof (string))
-            column.Collation = collation;
-          fieldIndex++;
-        }
-      }
-      else
-        table.CreateColumn("dummy", new SqlValueType(SqlType.Int32));
+      // table
+      var table = CreateTemporaryTable(schema, name, source, typeMappings, fieldNames, collation);
+      var tableRef = SqlDml.TableRef(table);
 
       // select statement
-      var tableRef = SqlDml.TableRef(table);
-      var queryStatement = SqlDml.Select(tableRef);
-      if (hasColumns) {
-        foreach (var column in tableRef.Columns)
-          queryStatement.Columns.Add(column);
-      }
+      var queryStatement = MakeUpSelectQuery(tableRef, hasColumns);
 
       // insert statement
-      var insertStatement = SqlDml.Insert(tableRef);
       var storeRequestBindings = new List<PersistParameterBinding>();
-      if (hasColumns) {
-        var fieldIndex = 0;
-        foreach (var column in tableRef.Columns) {
-          TypeMapping typeMapping = typeMappings[fieldIndex];
-          var binding = new PersistParameterBinding(typeMapping, fieldIndex);
-          insertStatement.Values[column] = binding.ParameterReference;
-          storeRequestBindings.Add(binding);
-          fieldIndex++;
-        }
-      }
-      else
-        insertStatement.Values[tableRef.Columns[0]] = SqlDml.Literal(0);
-
+      var insertStatement = MakeUpInsertQuery(tableRef, typeMappings, storeRequestBindings, hasColumns);
       var result = new TemporaryTableDescriptor(name) {
         TupleDescriptor = source,
-        CreateStatement = driver.Compile(SqlDdl.Create(table)).GetCommandText(),
-        DropStatement = driver.Compile(SqlDdl.Drop(table)).GetCommandText(),
-        StoreRequest = new PersistRequest(Handlers.StorageDriver, insertStatement, storeRequestBindings),
-        ClearRequest = new PersistRequest(Handlers.StorageDriver, SqlDml.Delete(tableRef), null),
         QueryStatement = queryStatement
       };
+      if (nodeConfiguration!=null) {
+        result.CreateStatement = driver.Compile(SqlDdl.Create(table), nodeConfiguration).GetCommandText();
+        result.DropStatement = driver.Compile(SqlDdl.Drop(table), nodeConfiguration).GetCommandText();
+        result.StoreRequest = new PersistRequest(Handlers.StorageDriver, insertStatement, storeRequestBindings, nodeConfiguration);
+        result.ClearRequest = new PersistRequest(Handlers.StorageDriver, SqlDml.Delete(tableRef), null, nodeConfiguration);
+      }
+      else {
+        result.CreateStatement = driver.Compile(SqlDdl.Create(table)).GetCommandText();
+        result.DropStatement = driver.Compile(SqlDdl.Drop(table)).GetCommandText();
+        result.StoreRequest = new PersistRequest(Handlers.StorageDriver, insertStatement, storeRequestBindings);
+        result.ClearRequest = new PersistRequest(Handlers.StorageDriver, SqlDml.Delete(tableRef), null);
+      }
 
       result.StoreRequest.Prepare();
       result.ClearRequest.Prepare();
@@ -172,6 +178,69 @@ namespace Xtensive.Orm.Providers
         session.Extensions.Set(registry);
       }
       return registry;
+    }
+
+    private void EnsureTemporaryTablesSupported()
+    {
+      if (!Supported)
+        throw new NotSupportedException(Strings.ExTemporaryTablesAreNotSupportedByCurrentStorage);
+    }
+
+    private string[] BuildFieldNames(TupleDescriptor source)
+    {
+      return Enumerable.Range(0, source.Count)
+          .Select(i => string.Format(ColumnNamePattern, i))
+          .ToArray();
+    }
+
+    private Table CreateTemporaryTable(Schema schema, string name, TupleDescriptor source, TypeMapping[] typeMappings, string[]fieldNames, Collation collation)
+    {
+      var tableName = Handlers.NameBuilder.ApplyNamingRules(string.Format(TableNamePattern, name));
+      var table = backEnd.CreateTemporaryTable(schema, tableName);
+
+      if (source.Count > 0) {
+        var fieldIndex = 0;
+        foreach (var mapping in typeMappings) {
+          var column = table.CreateColumn(fieldNames[fieldIndex], mapping.MapType());
+          column.IsNullable = true;
+          // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
+          if (mapping.Type==typeof(string))
+            column.Collation = collation;
+          fieldIndex++;
+        }
+      }
+      else
+        table.CreateColumn("dummy", new SqlValueType(SqlType.Int32));
+
+      return table;
+    }
+
+    private SqlSelect MakeUpSelectQuery(SqlTableRef temporaryTable, bool hasColumns)
+    {
+      var queryStatement = SqlDml.Select(temporaryTable);
+      if (hasColumns) {
+        foreach (var column in temporaryTable.Columns)
+          queryStatement.Columns.Add(column);
+      }
+      return queryStatement;
+    }
+
+    private SqlInsert MakeUpInsertQuery(SqlTableRef temporaryTable, TypeMapping[] typeMappings, List<PersistParameterBinding> storeRequestBindings, bool hasColumns)
+    {
+      var insertStatement = SqlDml.Insert(temporaryTable);
+      if (hasColumns) {
+        var fieldIndex = 0;
+        foreach (var column in temporaryTable.Columns) {
+          TypeMapping typeMapping = typeMappings[fieldIndex];
+          var binding = new PersistParameterBinding(typeMapping, fieldIndex);
+          insertStatement.Values[column] = binding.ParameterReference;
+          storeRequestBindings.Add(binding);
+          fieldIndex++;
+        }
+      }
+      else
+        insertStatement.Values[temporaryTable.Columns[0]] = SqlDml.Literal(0);
+      return insertStatement;
     }
 
     /// <inheritdoc/>
