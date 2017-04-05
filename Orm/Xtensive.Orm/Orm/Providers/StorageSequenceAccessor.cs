@@ -49,8 +49,12 @@ namespace Xtensive.Orm.Providers
     {
       if (hasSequences)
         return;
-
-      var statements = sequences.Select(s => queryBuilder.BuildCleanUpQuery(GetGeneratorNode(s, session.StorageNode)));
+      Func<SequenceInfo, string> selector;
+      if (domain.Configuration.ShareStorageSchemaOverNodes)
+        selector = s => queryBuilder.BuildCleanUpQuery(GetGeneratorNode(s, session.StorageNode), session.StorageNode.Configuration);
+      else
+        selector = s => queryBuilder.BuildCleanUpQuery(GetGeneratorNode(s, session.StorageNode));
+      var statements = sequences.Select(selector);
       session.Services.Demand<ISqlExecutor>().ExecuteMany(statements);
     }
 
@@ -98,8 +102,9 @@ namespace Xtensive.Orm.Providers
     {
       var generatorNode = GetGeneratorNode(sequenceInfo, session.StorageNode);
 
-      if (domain.Configuration.ShareStorageSchemaOverNodes)
+      if (domain.Configuration.ShareStorageSchemaOverNodes) {
         return queryBuilder.BuildNextValueQuery(generatorNode, session.StorageNode.Configuration, sequenceInfo.Increment, executionFromUpgrade);
+      }
       return queryBuilder.BuildNextValueQuery(generatorNode, sequenceInfo.Increment, executionFromUpgrade);
     }
 
