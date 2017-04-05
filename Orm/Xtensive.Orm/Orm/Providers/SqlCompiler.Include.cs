@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Providers
       AddInlinableColumn(provider, calculatedColumn, resultQuery, resultExpression);
       if (extraBinding!=null)
         bindings = bindings.Concat(EnumerableUtils.One(extraBinding));
-      var request = new QueryRequest(Driver, resultQuery, bindings, provider.Header.TupleDescriptor, requestOptions);
+      var request = CreateQueryRequest(Driver, resultQuery, bindings, provider.Header.TupleDescriptor, requestOptions);
       return new SqlIncludeProvider(Handlers, request, tableDescriptor, filterDataSource, provider, source);
     }
 

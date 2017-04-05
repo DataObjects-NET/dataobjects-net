@@ -7,6 +7,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
+using Xtensive.Modelling.Comparison;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Providers
@@ -20,6 +22,8 @@ namespace Xtensive.Orm.Providers
 
     public ModelMapping Mapping { get; private set; }
 
+    public NodeConfiguration NodeConfiguration { get; private set; }
+
     public TypeInfo Type { get; private set; }
 
     public ReadOnlyList<IndexInfo> AffectedIndexes { get; private set;}
@@ -32,11 +36,12 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    public PersistRequestBuilderContext(PersistRequestBuilderTask task, ModelMapping mapping)
+    public PersistRequestBuilderContext(PersistRequestBuilderTask task, ModelMapping mapping, NodeConfiguration nodeConfiguration)
     {
       Task = task;
       Type = task.Type;
       Mapping = mapping;
+      NodeConfiguration = nodeConfiguration;
 
       var affectedIndexes = Type.AffectedIndexes.Where(index => index.IsPrimary).ToList();
       affectedIndexes.Sort((left, right) => {

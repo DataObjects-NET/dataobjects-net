@@ -15,6 +15,7 @@ using Xtensive.Orm.Rse.Transformation;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
+using Xtensive.Tuples;
 
 namespace Xtensive.Orm.Providers
 {
@@ -54,8 +55,8 @@ namespace Xtensive.Orm.Providers
 
       if (statement.Columns.Count < origin.Header.TupleDescriptor.Count)
         tupleDescriptor = origin.Header.TupleDescriptor.Head(statement.Columns.Count);
-      
-      var request = new QueryRequest(Driver, statement, parameterBindings, tupleDescriptor, options);
+
+      var request = CreateQueryRequest(Driver, statement, parameterBindings, tupleDescriptor, options);
 
       return new SqlProvider(Handlers, request, origin, sources);
     }
@@ -147,6 +148,14 @@ namespace Xtensive.Orm.Providers
       return providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions)
         ? originalExpression
         : booleanExpressionConverter.BooleanToInt(originalExpression);
+    }
+
+    protected QueryRequest CreateQueryRequest(StorageDriver driver, SqlSelect statement, IEnumerable<QueryParameterBinding> parameterBindings,
+      TupleDescriptor tupleDescriptor, QueryRequestOptions options)
+    {
+      if (Handlers.Domain.Configuration.ShareStorageSchemaOverNodes)
+        return new QueryRequest(driver, statement, parameterBindings, tupleDescriptor, options, NodeConfiguration);
+      return new QueryRequest(driver, statement, parameterBindings, tupleDescriptor, options);
     }
 
     private static bool IsCalculatedColumn(SqlColumn column)
