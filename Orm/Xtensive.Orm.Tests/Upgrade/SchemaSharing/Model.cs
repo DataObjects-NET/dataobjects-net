@@ -70,4 +70,14 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.Model
     [Field]
     public string Symbol { get; set; }
   }
+
+  [HierarchyRoot]
+  public class TypeForUgrade : Entity
+  {
+    [Field, Key]
+    public int Id { get; set; }
+
+    [Field]
+    public string Text { get; set; }
+  }
 }

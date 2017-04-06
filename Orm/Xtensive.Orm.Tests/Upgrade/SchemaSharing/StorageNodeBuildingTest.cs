@@ -13,7 +13,6 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Upgrade.SchemaSharing.Model;
 using Xtensive.Orm.Upgrade;
 
-
 namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
 {
   public class StorageSchemaCapturer
@@ -99,27 +98,52 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
     }
 
     [Test]
-    public void PerformSafelyWithoutSharingTest()
+    public void PerformSafelyWithoutChangesWithoutSharingTest()
     {
-      RunTest(DomainUpgradeMode.PerformSafely, false);
+      RunTest(DomainUpgradeMode.PerformSafely, false, false);
     }
 
     [Test]
-    public void PerformSafelyWithSharingTest()
+    public void PerformSafelyWithoutChangesWithSharingTest()
     {
-      RunTest(DomainUpgradeMode.PerformSafely, true);
+      RunTest(DomainUpgradeMode.PerformSafely, true, false);
+
     }
 
     [Test]
-    public void PerformWithountSharingTest()
+    public void PerformSafelyWithChangesWithoutSharing()
     {
-      RunTest(DomainUpgradeMode.Perform, false);
+      RunTest(DomainUpgradeMode.PerformSafely, false, true);
     }
 
     [Test]
-    public void PerformWithSharingTest()
+    public void PerformSafelyWithChangesWithSharing()
     {
-      RunTest(DomainUpgradeMode.Perform, true);
+      RunTest(DomainUpgradeMode.PerformSafely, true, true);
+    }
+
+    [Test]
+    public void PerformWithoutChangesWithoutSharingTest()
+    {
+      RunTest(DomainUpgradeMode.Perform, false, false);
+    }
+
+    [Test]
+    public void PerformWithoutChangesWithSharingTest()
+    {
+      RunTest(DomainUpgradeMode.Perform, true, false);
+    }
+
+    [Test]
+    public void PerformWithChangesWithSharingTest()
+    {
+      RunTest(DomainUpgradeMode.Perform, true, true);
+    }
+
+    [Test]
+    public void PerformWithChangesWithoutSharingTest()
+    {
+      RunTest(DomainUpgradeMode.Perform, false, true);
     }
 
     [Test]
@@ -170,7 +194,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
       RunTest(DomainUpgradeMode.LegacyValidate, true);
     }
 
-    private void RunTest(DomainUpgradeMode upgradeMode, bool shareStorageSchemaOverNodes)
+    private void RunTest(DomainUpgradeMode upgradeMode, bool shareStorageSchemaOverNodes, bool withModelChanges = false)
     {
       if (upgradeMode==DomainUpgradeMode.Recreate) {
         RunRecreateTest(shareStorageSchemaOverNodes);
@@ -198,11 +222,13 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
       configuration.UpgradeMode = upgradeMode;
       configuration.ShareStorageSchemaOverNodes = shareStorageSchemaOverNodes;
       configuration.Types.Register(typeof (Upgrader));
+      if ((upgradeMode==DomainUpgradeMode.Perform || upgradeMode==DomainUpgradeMode.PerformSafely) && withModelChanges)
+        configuration.Types.Register(typeof (TypeForUgrade)); // that gives us schema cache reset
       if (isMultinode)
         configuration.DefaultSchema = nodeToSchemaMap[MainNodeId];
 
       using (var domain = BuildDomain(configuration)) {
-        ValidateMappings(domain);
+        ValidateMappings(domain, false);
         ValidateData(domain, MainNodeId);
 
         if (isMultinode) {
@@ -211,7 +237,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           nodeConfiguration.SchemaMapping.Add(nodeToSchemaMap[MainNodeId], nodeToSchemaMap[AdditionalNodeId]);
           domain.StorageNodeManager.AddNode(nodeConfiguration);
 
-          ValidateMappings(domain);
+          ValidateMappings(domain, true);
           ValidateData(domain, AdditionalNodeId);
         }
       }
@@ -229,7 +255,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
         configuration.DefaultSchema = nodeToSchemaMap[MainNodeId];
 
       using (var domain = BuildDomain(configuration)) {
-        ValidateMappings(domain);
+        ValidateMappings(domain, false);
         PopulateData(domain, MainNodeId);
         ValidateData(domain, MainNodeId);
 
@@ -239,7 +265,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           nodeConfiguration.SchemaMapping.Add(nodeToSchemaMap[MainNodeId], nodeToSchemaMap[AdditionalNodeId]);
           domain.StorageNodeManager.AddNode(nodeConfiguration);
 
-          ValidateMappings(domain);
+          ValidateMappings(domain, true);
           if (shareStorageSchemaOverNodes)
             ValidateNodesShareSchema(domain);
           PopulateData(domain, AdditionalNodeId);
@@ -271,12 +297,12 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
       }
     }
 
-    private void ValidateMappings(Domain domain)
+    private void ValidateMappings(Domain domain, bool isAdditionalNode)
     {
       var capturer = domain.Extensions.Get<StorageSchemaCapturer>();
       ValidateFinalMappings(domain, capturer.GetMappingForStage(UpgradeStage.Final));
       if (domain.Configuration.UpgradeMode.IsMultistage())
-        ValidateUpgradingMapping(domain, capturer.GetMappingForStage(UpgradeStage.Upgrading));
+        ValidateUpgradingMapping(domain, capturer.GetMappingForStage(UpgradeStage.Upgrading), isAdditionalNode);
     }
 
     private void ValidateNodesShareSchema(Domain domain)
@@ -337,17 +363,31 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
       }
     }
 
-    private void ValidateUpgradingMapping(Domain domain, ModelMapping mapping)
+    private void ValidateUpgradingMapping(Domain domain, ModelMapping mapping, bool isAdditionalNode)
     {
       foreach (var schemaNode in mapping.GetAllSchemaNodes()) {
         Assert.DoesNotThrow(() => { var schema = schemaNode.Schema; });
         Assert.DoesNotThrow(() => { var catalog = schemaNode.Schema.Catalog; });
         Assert.DoesNotThrow(() => { var name = schemaNode.Name; });
         Assert.DoesNotThrow(() => { var dbName = schemaNode.DbName; });
-        Assert.DoesNotThrow(() => { var schemaName = schemaNode.Schema.Name; });
-        Assert.DoesNotThrow(() => { var schemaDbName = schemaNode.Schema.DbName; });
-        Assert.DoesNotThrow(() => { var catalogName = schemaNode.Schema.Catalog.Name; });
-        Assert.DoesNotThrow(() => { var catalogDbName = schemaNode.Schema.Catalog.DbName; });
+        if (!domain.Configuration.ShareStorageSchemaOverNodes) {
+          Assert.DoesNotThrow(() => { var schemaName = schemaNode.Schema.Name; });
+          Assert.DoesNotThrow(() => { var schemaDbName = schemaNode.Schema.DbName; });
+          Assert.DoesNotThrow(() => { var catalogName = schemaNode.Schema.Catalog.Name; });
+          Assert.DoesNotThrow(() => { var catalogDbName = schemaNode.Schema.Catalog.DbName; });
+        }
+        else if (isAdditionalNode) {
+          Assert.DoesNotThrow(() => { var schemaName = schemaNode.Schema.Name; });
+          Assert.DoesNotThrow(() => { var schemaDbName = schemaNode.Schema.DbName; });
+          Assert.DoesNotThrow(() => { var catalogName = schemaNode.Schema.Catalog.Name; });
+          Assert.DoesNotThrow(() => { var catalogDbName = schemaNode.Schema.Catalog.DbName; });
+        }
+        else {
+          Assert.Throws<InvalidOperationException>(() => { var schemaName = schemaNode.Schema.Name; });
+          Assert.Throws<InvalidOperationException>(() => { var schemaDbName = schemaNode.Schema.DbName; });
+          Assert.Throws<InvalidOperationException>(() => { var catalogName = schemaNode.Schema.Catalog.Name; });
+          Assert.Throws<InvalidOperationException>(() => { var catalogDbName = schemaNode.Schema.Catalog.DbName; });
+        }
       }
     }
 
@@ -361,7 +401,10 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Product).Assembly, typeof (Product).Namespace);
+      configuration.Types.Register(typeof (Product));
+      configuration.Types.Register(typeof (Currency));
+      configuration.Types.Register(typeof (PriceList));
+      configuration.Types.Register(typeof (PriceListItem));
       return configuration;
     }
   }
