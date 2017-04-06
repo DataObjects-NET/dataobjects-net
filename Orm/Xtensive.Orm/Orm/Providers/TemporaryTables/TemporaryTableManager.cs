@@ -38,10 +38,9 @@ namespace Xtensive.Orm.Providers
     /// <param name="name">The name of the temporary table.</param>
     /// <param name="source">The source.</param>
     /// <returns>Built descriptor.</returns>
-    [Obsolete("Use actual method with storage node parameter")]
     public TemporaryTableDescriptor BuildDescriptor(ModelMapping modelMapping, string name, TupleDescriptor source)
     {
-      return BuildDescriptor(modelMapping, null, name, source, null);
+      return BuildDescriptor(modelMapping, name, source, null);
     }
 
     /// <summary>
@@ -52,35 +51,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="source">The source.</param>
     /// <param name="fieldNames">The names of field in temporary table.</param>
     /// <returns>Built descriptor.</returns>
-    [Obsolete("Use actual method with storage node parameter")]
     public TemporaryTableDescriptor BuildDescriptor(ModelMapping modelMapping, string name, TupleDescriptor source, string[] fieldNames)
-    {
-      return BuildDescriptor(modelMapping, null, name, source, fieldNames);
-    }
-
-    /// <summary>
-    /// Builds the descriptor of a temporary table.
-    /// </summary>
-    /// <param name="modelMapping">Model mapping.</param>
-    /// <param name="nodeConfiguration">Storage node configuration.</param>
-    /// <param name="name">The name of the temporary table.</param>
-    /// <param name="source">The source.</param>
-    /// <returns>Built descriptor.</returns>
-    public TemporaryTableDescriptor BuildDescriptor(ModelMapping modelMapping, NodeConfiguration nodeConfiguration, string name, TupleDescriptor source)
-    {
-      return BuildDescriptor(modelMapping, nodeConfiguration, name, source, null);
-    }
-
-    /// <summary>
-    /// Builds the descriptor of a temporary table.
-    /// </summary>
-    /// <param name="modelMapping">Model mapping.</param>
-    /// <param name="nodeConfiguration">Storage node configuration.</param>
-    /// <param name="name">The name of the temporary table.</param>
-    /// <param name="source">The source.</param>
-    /// <param name="fieldNames">The names of field in temporary table.</param>
-    /// <returns>Built descriptor.</returns>
-    public TemporaryTableDescriptor BuildDescriptor(ModelMapping modelMapping, NodeConfiguration nodeConfiguration, string name, TupleDescriptor source, string[] fieldNames)
     {
       EnsureTemporaryTablesSupported();
 
@@ -95,7 +66,7 @@ namespace Xtensive.Orm.Providers
         ? new Collation(schema, modelMapping.TemporaryTableCollation)
         : null;
 
-      if (fieldNames==null)
+      if (fieldNames == null)
         fieldNames = BuildFieldNames(source);
 
       var typeMappings = source
@@ -114,20 +85,12 @@ namespace Xtensive.Orm.Providers
       var insertStatement = MakeUpInsertQuery(tableRef, typeMappings, storeRequestBindings, hasColumns);
       var result = new TemporaryTableDescriptor(name) {
         TupleDescriptor = source,
-        QueryStatement = queryStatement
+        QueryStatement = queryStatement,
+        CreateStatement = driver.Compile(SqlDdl.Create(table)).GetCommandText(),
+        DropStatement = driver.Compile(SqlDdl.Drop(table)).GetCommandText(),
+        StoreRequest = new PersistRequest(Handlers.StorageDriver, insertStatement, storeRequestBindings),
+        ClearRequest = new PersistRequest(Handlers.StorageDriver, SqlDml.Delete(tableRef), null)
       };
-      if (nodeConfiguration!=null) {
-        result.CreateStatement = driver.Compile(SqlDdl.Create(table), nodeConfiguration).GetCommandText();
-        result.DropStatement = driver.Compile(SqlDdl.Drop(table), nodeConfiguration).GetCommandText();
-        result.StoreRequest = new PersistRequest(Handlers.StorageDriver, insertStatement, storeRequestBindings, nodeConfiguration);
-        result.ClearRequest = new PersistRequest(Handlers.StorageDriver, SqlDml.Delete(tableRef), null, nodeConfiguration);
-      }
-      else {
-        result.CreateStatement = driver.Compile(SqlDdl.Create(table)).GetCommandText();
-        result.DropStatement = driver.Compile(SqlDdl.Drop(table)).GetCommandText();
-        result.StoreRequest = new PersistRequest(Handlers.StorageDriver, insertStatement, storeRequestBindings);
-        result.ClearRequest = new PersistRequest(Handlers.StorageDriver, SqlDml.Delete(tableRef), null);
-      }
 
       result.StoreRequest.Prepare();
       result.ClearRequest.Prepare();

@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Providers
       var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
       var filteredColumns = provider.FilteredColumns.Select(index => sourceColumns[index]).ToList();
       tableDescriptor = DomainHandler.TemporaryTableManager
-        .BuildDescriptor(Mapping, NodeConfiguration, Guid.NewGuid().ToString(), filterTupleDescriptor);
+        .BuildDescriptor(Mapping, Guid.NewGuid().ToString(), filterTupleDescriptor);
       var filterQuery = tableDescriptor.QueryStatement.ShallowClone();
       var tableRef = filterQuery.From;
       for (int i = 0; i < filterTupleDescriptor.Count; i++)
