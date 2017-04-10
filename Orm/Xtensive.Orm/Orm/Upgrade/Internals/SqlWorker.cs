@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Upgrade
       if ((task & SqlWorkerTask.ExtractSchema) > 0)
         result.Schema = ExtractSchema(services, executor);
       if ((task & (SqlWorkerTask.ExtractMetadataTypes | SqlWorkerTask.ExtractMetadataAssemblies | SqlWorkerTask.ExtractMetadataExtension)) > 0)
-        ExtractMetadata(services, executor, result, task);    
+        ExtractMetadata(services, executor, result, task);
 
       return result;
     }

@@ -150,8 +150,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void Test19()
     {
       ValidateWorkerResult(
-        SqlWorkerTask.ExtractSchema 
-        | SqlWorkerTask.ExtractMetadataTypes 
+        SqlWorkerTask.ExtractSchema
+        | SqlWorkerTask.ExtractMetadataTypes
         | SqlWorkerTask.ExtractMetadataExtension);
     }
 
@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void Test21()
     {
       ValidateWorkerResult(
-        SqlWorkerTask.ExtractSchema 
+        SqlWorkerTask.ExtractSchema
         | SqlWorkerTask.ExtractMetadataAssemblies
         | SqlWorkerTask.ExtractMetadataExtension);
     }
@@ -186,8 +186,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void Test23()
     {
       ValidateWorkerResult(
-        SqlWorkerTask.DropSchema 
-        | SqlWorkerTask.ExtractSchema 
+        SqlWorkerTask.DropSchema
+        | SqlWorkerTask.ExtractSchema
         | SqlWorkerTask.ExtractMetadataExtension);
     }
 
@@ -240,9 +240,9 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void Test29()
     {
       ValidateWorkerResult(
-        SqlWorkerTask.DropSchema 
-        | SqlWorkerTask.ExtractSchema 
-        | SqlWorkerTask.ExtractMetadataTypes 
+        SqlWorkerTask.DropSchema
+        | SqlWorkerTask.ExtractSchema
+        | SqlWorkerTask.ExtractMetadataTypes
         | SqlWorkerTask.ExtractMetadataExtension);
     }
 
@@ -260,8 +260,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void Test31()
     {
       ValidateWorkerResult(
-        SqlWorkerTask.DropSchema 
-        | SqlWorkerTask.ExtractSchema 
+        SqlWorkerTask.DropSchema
+        | SqlWorkerTask.ExtractSchema
         | SqlWorkerTask.ExtractMetadataAssemblies
         | SqlWorkerTask.ExtractMetadataExtension);
     }
@@ -295,7 +295,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     private void ValidateMetadata(SqlWorkerTask task, SqlWorkerResult result, bool isSchemaDropped)
     {
       var error = string.Format(ErrorMessage, task);
-      if (!IsMetdataMemberExtracted(task)) 
+      if (!IsMetdataMemberExtracted(task))
         Assert.IsNull(result.Metadata);
       else {
         Assert.That(result.Metadata.Types.Any(), Is.EqualTo(!isSchemaDropped && task.HasFlag(SqlWorkerTask.ExtractMetadataTypes)), error);
@@ -307,8 +307,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     private bool IsMetdataMemberExtracted(SqlWorkerTask task)
     {
       return (task & (
-        SqlWorkerTask.ExtractMetadataTypes | 
-        SqlWorkerTask.ExtractMetadataAssemblies | 
+        SqlWorkerTask.ExtractMetadataTypes |
+        SqlWorkerTask.ExtractMetadataAssemblies |
         SqlWorkerTask.ExtractMetadataExtension)) > 0;
     }
 
@@ -323,8 +323,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     private Schema ExtractCurrentSchema()
     {
       var connection = accessor.Connection;
-      return connection.ConnectionInfo.Provider=="sqlserverce" ? 
-        accessor.StorageDriver.Extract(connection, new[] {new SqlExtractionTask("", "default")}).Catalogs.First().DefaultSchema : 
+      return connection.ConnectionInfo.Provider==WellKnown.Provider.SqlServerCe ?
+        accessor.StorageDriver.Extract(connection, new[] {new SqlExtractionTask("", "default")}).Catalogs.First().DefaultSchema :
         accessor.Connection.Driver.ExtractDefaultSchema(connection);
     }
 
@@ -428,7 +428,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var driverFactory = (SqlDriverFactory) Activator.CreateInstance(descriptor.DriverFactory);
       var storageDriver = StorageDriver.Create(driverFactory, configuration);
       var nameBuilder = new NameBuilder(configuration, storageDriver.ProviderInfo);
-      var handlerFactory = (HandlerFactory)Activator.CreateInstance(descriptor.HandlerFactory);
+      var handlerFactory = (HandlerFactory) Activator.CreateInstance(descriptor.HandlerFactory);
 
       var accessor = new UpgradeServiceAccessor {
         Configuration = configuration,
