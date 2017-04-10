@@ -300,6 +300,7 @@ namespace Xtensive.Orm.Upgrade
     private StorageNode BuildStorageNode(Domain domain, SchemaExtractor extractor)
     {
       var schemaExtractionResult = GetRealExtractionResult(extractor.GetSqlSchema());
+      context.ExtractedSqlModelCache = schemaExtractionResult;
 
       var modelMapping = ModelMappingBuilder.Build(
         domain.Handlers, schemaExtractionResult,
