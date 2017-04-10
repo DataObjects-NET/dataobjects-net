@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
     {
       var @default = new NodeConfiguration(WellKnown.DefaultNodeId) {UpgradeMode = upgradeMode};
       var additional = new NodeConfiguration("Additional") {UpgradeMode = upgradeMode};
-      additional.DatabaseMapping.Add("DO-Tests-1", "DO-Tests-2");
+      additional.DatabaseMapping.Add("DO-Tests-1", "DO-Tests-3");
       additional.DatabaseMapping.Add("DO-Tests-2", "DO-Tests-4");
       additional.SchemaMapping.Add("Model1", "Model2");
       additional.SchemaMapping.Add("Model3", "Model4");

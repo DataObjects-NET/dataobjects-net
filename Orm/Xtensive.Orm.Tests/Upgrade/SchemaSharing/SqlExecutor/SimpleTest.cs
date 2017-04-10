@@ -112,6 +112,12 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor
     {
       var configuration = GetDomainConfiguration();
       configuration.Types.Register(typeof (model.CustomUpgradeHandler));
+      if (upgradeMode==DomainUpgradeMode.Perform || upgradeMode==DomainUpgradeMode.PerformSafely) {
+        configuration.Types.Register(typeof (model.Part1.NewTestEntity1));
+        configuration.Types.Register(typeof (model.Part2.NewTestEntity2));
+        configuration.Types.Register(typeof (model.Part3.NewTestEntity3));
+        configuration.Types.Register(typeof (model.Part4.NewTestEntity4));
+      }
       configuration.UpgradeMode = upgradeMode;
       configuration.ShareStorageSchemaOverNodes = true;
 

@@ -24,12 +24,32 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
       [Field]
       public string Text { get; set; }
     }
+
+    [HierarchyRoot]
+    public class NewTestEntity1 : Entity
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+
+      [Field]
+      public string Text { get; set; }
+    }
   }
 
   namespace Part2
   {
     [HierarchyRoot]
     public class TestEntity2 : Entity
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+
+      [Field]
+      public string Text { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class NewTestEntity2 : Entity
     {
       [Field, Key]
       public int Id { get; private set; }
@@ -50,12 +70,32 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
       [Field]
       public string Text { get; set; }
     }
+
+    [HierarchyRoot]
+    public class NewTestEntity3 : Entity
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+
+      [Field]
+      public string Text { get; set; }
+    }
   }
 
   namespace Part4
   {
     [HierarchyRoot]
     public class TestEntity4 : Entity
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+
+      [Field]
+      public string Text { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class NewTestEntity4 : Entity
     {
       [Field, Key]
       public int Id { get; private set; }
@@ -75,46 +115,91 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
     public override void OnSchemaReady()
     {
       base.OnSchemaReady();
+
+      //there is no selected storage node yet
       var session = Session.Current;
       var sqlExecutor = session.Services.Get<ISqlExecutor>();
 
-      ExtractedSchemaBasedQueryTest(sqlExecutor, session);
+      if (UpgradeContext.NodeConfiguration.UpgradeMode.IsMultistage()) {
+        if (UpgradeContext.Stage==UpgradeStage.Upgrading)
+          ValidateSchemaBasedQueriesWork(sqlExecutor, ResolveNormalCatalogName, ResolveNormalSchemaName);
+        else
+          ValidateSchemaBasedQueriesWork(sqlExecutor, ResolveNormalCatalogName, ResolveNormalSchemaName);
+      }
+      else {
+        if (UpgradeContext.NodeConfiguration.UpgradeMode==DomainUpgradeMode.LegacySkip ||
+            UpgradeContext.NodeConfiguration.UpgradeMode==DomainUpgradeMode.Skip) {
+          ValidateSchemaBasedQueriesWork(sqlExecutor, ResolveSharedCatalogName, ResolveSharedSchemaName);
+        }
+        else
+          ValidateSchemaBasedQueriesWork(sqlExecutor, ResolveNormalCatalogName, ResolveNormalSchemaName);
+      }
+
     }
 
     public override void OnBeforeExecuteActions(UpgradeActionSequence actions)
     {
       base.OnBeforeExecuteActions(actions);
+
+      //there is no selected storage node yet
       var session = Session.Current;
       var sqlExecutor = session.Services.Get<ISqlExecutor>();
 
-      ExtractedSchemaBasedQueryTest(sqlExecutor, session);
+      if (UpgradeContext.NodeConfiguration.UpgradeMode.IsMultistage()) {
+        if (UpgradeContext.Stage==UpgradeStage.Upgrading)
+          ValidateSchemaBasedQueriesWork(sqlExecutor, ResolveNormalCatalogName, ResolveNormalSchemaName);
+        else
+          ValidateSchemaBasedQueriesWork(sqlExecutor, ResolveNormalCatalogName, ResolveNormalSchemaName);
+      }
+      else {
+        if (UpgradeContext.NodeConfiguration.UpgradeMode==DomainUpgradeMode.LegacySkip ||
+            UpgradeContext.NodeConfiguration.UpgradeMode==DomainUpgradeMode.Skip) {
+          ValidateSchemaBasedQueriesWork(sqlExecutor, ResolveSharedCatalogName, ResolveSharedSchemaName);
+        }
+        else
+          ValidateSchemaBasedQueriesWork(sqlExecutor, ResolveNormalCatalogName, ResolveNormalSchemaName);
+      }
     }
 
     public override void OnUpgrade()
     {
       base.OnUpgrade();
+
       // we have a storageNode so we have an access to tables;
       var session = Session.Current;
       var sqlExecutor = session.Services.Get<ISqlExecutor>();
 
-      ExtractedSchemaBasedQueryTest(sqlExecutor, session);
-
-      NodeBasedQueryTest(sqlExecutor, session);
+      ValidateSchemaBasedQueriesWork(sqlExecutor, ResolveNormalCatalogName, ResolveNormalSchemaName);
+      ValidateNodeBasedQueriesWork(sqlExecutor, session);
     }
 
     public override void OnStage()
     {
       base.OnStage();
+
       //we have a storage node so we have an access to tables
       var session = Session.Current;
       var sqlExecutor = session.Services.Get<ISqlExecutor>();
 
-      ExtractedSchemaBasedQueryTest(sqlExecutor, session);
+      if (UpgradeContext.NodeConfiguration.UpgradeMode.IsMultistage()) {
+        if (UpgradeContext.Stage==UpgradeStage.Upgrading)
+          ValidateSchemaBasedQueriesWork(sqlExecutor, ResolveNormalCatalogName, ResolveNormalSchemaName);
+        else
+          ValidateSchemaBasedQueriesWork(sqlExecutor, ResolveSharedCatalogName, ResolveSharedSchemaName);
+      }
+      else {
+        if (UpgradeContext.NodeConfiguration.UpgradeMode==DomainUpgradeMode.LegacySkip ||
+            UpgradeContext.NodeConfiguration.UpgradeMode==DomainUpgradeMode.Skip) {
+          ValidateSchemaBasedQueriesWork(sqlExecutor, ResolveSharedCatalogName, ResolveSharedSchemaName);
+        }
+        else
+          ValidateSchemaBasedQueriesWork(sqlExecutor, ResolveSharedCatalogName, ResolveSharedSchemaName);
+      }
 
-      NodeBasedQueryTest(sqlExecutor, session);
+      ValidateNodeBasedQueriesWork(sqlExecutor, session);
     }
 
-    private void NodeBasedQueryTest(ISqlExecutor sqlExecutor, Session session)
+    private void ValidateNodeBasedQueriesWork(ISqlExecutor sqlExecutor, Session session)
     {
       var typeinfo = session.Domain.Model.Types[typeof (Part1.TestEntity1)];
       var testEntity1 = session.StorageNode.Mapping[typeinfo];
@@ -153,17 +238,15 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
       Assert.That(text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
     }
 
-    private void ExtractedSchemaBasedQueryTest(ISqlExecutor sqlExecutor, Session session)
+    private void ValidateSchemaBasedQueriesWork(ISqlExecutor sqlExecutor, Func<string, string> catalogNameResolver, Func<string, string> schemaNameResolver)
     {
-      var context = UpgradeContext;
-
       var storageSchema = GetStorageSchema();
       var databaseMap = GetDatabaseMap();
       var schemaMap = GetSchemaMap();
 
       var type = typeof (Part1.TestEntity1);
-      var catalogName = context.NodeConfiguration.DatabaseMapping.Apply(databaseMap[type]);
-      var schemaName = context.NodeConfiguration.SchemaMapping.Apply(schemaMap[type]);
+      var catalogName = catalogNameResolver(databaseMap[type]);
+      var schemaName = schemaNameResolver(schemaMap[type]);
       var testEntity1 = storageSchema.Catalogs[catalogName].Schemas[schemaName].Tables["TestEntity1"];
       var tableRef = SqlDml.TableRef(testEntity1);
       var select = SqlDml.Select(tableRef);
@@ -173,8 +256,8 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
       Assert.That(text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
 
       type = typeof (Part2.TestEntity2);
-      catalogName = context.NodeConfiguration.DatabaseMapping.Apply(databaseMap[type]);
-      schemaName = context.NodeConfiguration.SchemaMapping.Apply(schemaMap[type]);
+      catalogName = catalogNameResolver(databaseMap[type]);
+      schemaName = schemaNameResolver(schemaMap[type]);
       var testEntity2 = storageSchema.Catalogs[catalogName].Schemas[schemaName].Tables["TestEntity2"];
       tableRef = SqlDml.TableRef(testEntity2);
       select = SqlDml.Select(tableRef);
@@ -184,8 +267,8 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
       Assert.That(text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
 
       type = typeof (Part3.TestEntity3);
-      catalogName = context.NodeConfiguration.DatabaseMapping.Apply(databaseMap[type]);
-      schemaName = context.NodeConfiguration.SchemaMapping.Apply(schemaMap[type]);
+      catalogName = catalogNameResolver(databaseMap[type]);
+      schemaName = schemaNameResolver(schemaMap[type]);
       var testEntity3 = storageSchema.Catalogs[catalogName].Schemas[schemaName].Tables["TestEntity3"];
       tableRef = SqlDml.TableRef(testEntity3);
       select = SqlDml.Select(tableRef);
@@ -194,9 +277,9 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
       text = sqlExecutor.ExecuteScalar(select);
       Assert.That(text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
 
-      type = typeof (Part3.TestEntity3);
-      catalogName = context.NodeConfiguration.DatabaseMapping.Apply(databaseMap[type]);
-      schemaName = context.NodeConfiguration.SchemaMapping.Apply(schemaMap[type]);
+      type = typeof (Part4.TestEntity4);
+      catalogName = catalogNameResolver(databaseMap[type]);
+      schemaName = schemaNameResolver(schemaMap[type]);
       var testEntity4 = storageSchema.Catalogs[catalogName].Schemas[schemaName].Tables["TestEntity4"];
       tableRef = SqlDml.TableRef(testEntity4);
       select = SqlDml.Select(tableRef);
@@ -204,6 +287,26 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
 
       text = sqlExecutor.ExecuteScalar(select);
       Assert.That(text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
+    }
+
+    private string ResolveSharedCatalogName(string baseName)
+    {
+      return baseName;
+    }
+
+    private string ResolveNormalCatalogName(string baseName)
+    {
+      return UpgradeContext.NodeConfiguration.DatabaseMapping.Apply(baseName);
+    }
+
+    private string ResolveSharedSchemaName(string baseName)
+    {
+      return baseName;
+    }
+
+    private string ResolveNormalSchemaName(string baseName)
+    {
+      return UpgradeContext.NodeConfiguration.SchemaMapping.Apply(baseName);
     }
 
     private SchemaExtractionResult GetStorageSchema()
