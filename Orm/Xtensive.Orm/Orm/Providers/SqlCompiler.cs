@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Providers
     private readonly bool temporaryTablesSupported;
     private readonly HashSet<Column> rootColumns = new HashSet<Column>();
 
-    private bool anyIncludesOverTemporaryTable;
+    private bool anyTemporaryTablesRequired;
 
     /// <summary>
     /// Gets model mapping.
@@ -365,6 +365,7 @@ namespace Xtensive.Orm.Providers
       var descriptor = DomainHandler.TemporaryTableManager
         .BuildDescriptor(Mapping, provider.Name, provider.Header.TupleDescriptor, columnNames);
       var request = CreateQueryRequest(Driver, descriptor.QueryStatement, null, descriptor.TupleDescriptor, QueryRequestOptions.Empty);
+      anyTemporaryTablesRequired = true;
       return new SqlStoreProvider(Handlers, request, descriptor, provider, source);
     }
     

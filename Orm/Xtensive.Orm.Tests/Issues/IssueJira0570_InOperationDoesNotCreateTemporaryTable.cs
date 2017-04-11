@@ -6,10 +6,12 @@
 
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0570_InOperationDoesNotCreateTemporaryTableModel;
+using Xtensive.Orm.Tests.Storage;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0570_InOperationDoesNotCreateTemporaryTableModel
 {
@@ -56,8 +58,31 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0570_InOperationDoesNotCreateTempor
   {
     [Field, Key]
     public int Id { get; set; }
-
   }
+
+  [HierarchyRoot]
+  public class Job : Entity
+  {
+    [Field, Key]
+    public int Id { get; set; }
+
+    [Field]
+    public BusinessUnit BusinessUnit { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class BusinessUnit : Entity
+  {
+    [Field, Key]
+    public int Id { get; set; }
+
+    [Field]
+    public bool Active { get; set; }
+
+    [Field]
+    public string QuickbooksClass { get; set; }
+  }
+
 
   public enum InvoiceStatus
   {
@@ -337,7 +362,77 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.DoesNotThrow(paymentsQuery.Run);
       }
     }
-    
+
+    [Test]
+    public void StoreThenIncludeTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var businessUnitIds = session.Query.All<BusinessUnit>().Select(bu=>bu.Id).ToList();
+
+        var bounds = new Tuple<DateTime, DateTime, string>[26];
+        for (int i = 0; i < bounds.Length; i++) {
+          bounds[i] = new Tuple<DateTime, DateTime, string>(DateTime.UtcNow, DateTime.UtcNow, "");
+        }
+        var list = session.Query.All<Job>()
+          .Select(job => new {BusinessUnitId = job.BusinessUnit.Id, Month = bounds.FirstOrDefault().Item3})
+          .Where(job => job.BusinessUnitId.In(businessUnitIds))
+          .ToList();
+      }
+    }
+
+    [Test]
+    public void IncludeThenStoreTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var businessUnitIds = session.Query.All<BusinessUnit>().Select(bu => bu.Id).ToList();
+
+        var bounds = new Tuple<DateTime, DateTime, string>[26];
+        for (int i = 0; i < bounds.Length; i++) {
+          bounds[i] = new Tuple<DateTime, DateTime, string>(DateTime.UtcNow, DateTime.UtcNow, "");
+        }
+        var list = session.Query.All<Job>()
+          .Where(job => job.BusinessUnit.Id.In(businessUnitIds))
+          .Select(job => new { BusinessUnitId = job.BusinessUnit.Id, Month = bounds.FirstOrDefault().Item3 })
+        .ToList();
+      }
+    }
+
+    [Test]
+    public void IncludeWithoutStoreTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var businessUnitIds = session.Query.All<BusinessUnit>().Select(bu => bu.Id).ToList();
+
+        var bounds = new Tuple<DateTime, DateTime, string>[26];
+        for (int i = 0; i < bounds.Length; i++) {
+          bounds[i] = new Tuple<DateTime, DateTime, string>(DateTime.UtcNow, DateTime.UtcNow, "");
+        }
+        var list = session.Query.All<Job>()
+          .Where(job => job.BusinessUnit.Id.In(businessUnitIds))
+          .ToList();
+      }
+    }
+
+    [Test]
+    public void StoreWithoutIncludeTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var businessUnitIds = session.Query.All<BusinessUnit>().Select(bu => bu.Id).ToList();
+
+        var bounds = new Tuple<DateTime, DateTime, string>[26];
+        for (int i = 0; i < bounds.Length; i++) {
+          bounds[i] = new Tuple<DateTime, DateTime, string>(DateTime.UtcNow, DateTime.UtcNow, "");
+        }
+        var list = session.Query.All<Job>()
+          .Select(job => new { BusinessUnitId = job.BusinessUnit.Id, Month = bounds.FirstOrDefault().Item3 })
+          .ToList();
+      }
+    }
+
     protected override void PopulateData()
     {
       PopulateEnums();
@@ -347,6 +442,8 @@ namespace Xtensive.Orm.Tests.Issues
         PopulateCustomers();
         PopulateInvoices();
         PopulatePayments();
+        PopulateBusinessUnits();
+        PopulateJobs();
         transaction.Complete();
       }
     }
@@ -402,7 +499,34 @@ namespace Xtensive.Orm.Tests.Issues
         };
       }
     }
-    
+
+    private void PopulateBusinessUnits()
+    {
+      new BusinessUnit() {
+        Active = true,
+        QuickbooksClass = ""
+      };
+
+      new BusinessUnit() {
+        Active = true,
+        QuickbooksClass = ""
+      };
+
+      new BusinessUnit() {
+        Active = true,
+        QuickbooksClass = ""
+      };
+    }
+
+    private void PopulateJobs()
+    {
+      foreach (var bu in Query.All<BusinessUnit>()) {
+        new Job() {
+          BusinessUnit = bu
+        };
+      }
+    }
+
     private PaymentStatus GetStatus(InvoiceStatus invoiceStatus)
     {
       switch (invoiceStatus) {
