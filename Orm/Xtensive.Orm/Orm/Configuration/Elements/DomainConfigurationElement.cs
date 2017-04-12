@@ -328,6 +328,9 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[ConnectionInitializationSqlElementName] = value; }
     }
 
+    /// <summary>
+    /// <see cref="DomainConfiguration.IgnoreRules" copy="true"/>
+    /// </summary>
     [ConfigurationProperty(IgnoreRulesElementName, IsDefaultCollection = false)]
     [ConfigurationCollection(typeof (ConfigurationCollection<IgnoreRuleElement>), AddItemName = "rule")]
     public ConfigurationCollection<IgnoreRuleElement> IgnoreRules
@@ -356,6 +359,9 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[OptionsElementName] = value; }
     }
 
+    /// <summary>
+    /// <see cref="DomainConfiguration.ShareStorageSchemaOverNodes" copy="true"/>
+    /// </summary>
     [ConfigurationProperty(ShareStorageSchemaOverNodesElementName, DefaultValue = false)]
     public bool ShareStorageSchemaOverNodes
     {

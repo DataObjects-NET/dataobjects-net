@@ -7,7 +7,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
-using Xtensive.Modelling.Comparison;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 

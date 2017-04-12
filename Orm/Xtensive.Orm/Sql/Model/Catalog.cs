@@ -21,6 +21,7 @@ namespace Xtensive.Sql.Model
     private PairedNodeCollection<Catalog, PartitionFunction> partitionFunctions;
     private PairedNodeCollection<Catalog, PartitionSchema> partitionSchemas;
 
+    /// <inheritdoc />
     public override string Name
     {
       get {
@@ -35,6 +36,7 @@ namespace Xtensive.Sql.Model
       }
     }
 
+    /// <inheritdoc />
     public override string DbName
     {
       get {

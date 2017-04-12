@@ -102,9 +102,8 @@ namespace Xtensive.Orm.Providers
     {
       var generatorNode = GetGeneratorNode(sequenceInfo, session.StorageNode);
 
-      if (domain.Configuration.ShareStorageSchemaOverNodes) {
+      if (domain.Configuration.ShareStorageSchemaOverNodes)
         return queryBuilder.BuildNextValueQuery(generatorNode, session.StorageNode.Configuration, sequenceInfo.Increment, executionFromUpgrade);
-      }
       return queryBuilder.BuildNextValueQuery(generatorNode, sequenceInfo.Increment, executionFromUpgrade);
     }
 

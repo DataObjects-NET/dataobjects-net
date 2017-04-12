@@ -42,7 +42,9 @@ namespace Xtensive.Orm.Providers
     {
       if (compiledStatement!=null && accessor!=null)
         return;
-      compiledStatement = (NodeConfiguration!=null)? driver.Compile(Statement, NodeConfiguration) : driver.Compile(Statement);
+      compiledStatement = (NodeConfiguration!=null)
+        ? driver.Compile(Statement, NodeConfiguration)
+        : driver.Compile(Statement);
       accessor = driver.GetDataReaderAccessor(TupleDescriptor);
       Statement = null;
     }

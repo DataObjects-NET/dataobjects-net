@@ -551,6 +551,14 @@ namespace Xtensive.Orm.Configuration
       }
     }
 
+    /// <summary>
+    /// Enables sharing of catalog (or catalogs) of default node over additional nodes.
+    /// Such sharing leads to overall decrease in nodes memory consumption.
+    /// <para>NOTICE! When this option is set to <see langword="true"/> 
+    /// real names of catalogs or schemas of certain <see cref="StorageNode"/> will be calculated on query translation
+    /// according to <see cref="NodeConfiguration.DatabaseMapping"/> and <see cref="NodeConfiguration.SchemaMapping"/> of the Storage Node.
+    /// </para>
+    /// </summary>
     public bool ShareStorageSchemaOverNodes
     {
       get { return shareStorageSchemaOverNodes; }

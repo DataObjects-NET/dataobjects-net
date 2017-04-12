@@ -17,6 +17,7 @@ namespace Xtensive.Sql.Model
     private Catalog catalog;
     private bool isNamesReadingDenied = false;
 
+    /// <inheritdoc />
     public override string Name
     {
       get {
@@ -31,6 +32,7 @@ namespace Xtensive.Sql.Model
       }
     }
 
+    /// <inheritdoc />
     public override string DbName
     {
       get {
