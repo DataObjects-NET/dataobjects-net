@@ -323,8 +323,10 @@
     <Compile Include="Storage\SchemaSharing\EntityManipulation\Model.cs" />
     <Compile Include="Storage\SchemaSharing\EntityManipulation\MultidatabaseEntityManipulationTest.cs" />
     <Compile Include="Storage\SchemaSharing\EntityManipulation\MultischemaEntityManipulationTest.cs" />
-    <Compile Include="Storage\SchemaSharing\KeyGenerationMultidatabaseTest.cs" />
-    <Compile Include="Storage\SchemaSharing\KeyGenerationMultischemaTest.cs" />
+    <Compile Include="Storage\SchemaSharing\KeyGenerator\MultidatabaseTest.cs" />
+    <Compile Include="Storage\SchemaSharing\KeyGenerator\MultischemaTest.cs" />
+    <Compile Include="Storage\SchemaSharing\KeyGenerator\Model.cs" />
+    <Compile Include="Storage\SchemaSharing\KeyGenerator\SimpleTest.cs" />
     <Compile Include="Storage\SkippingValidationOnCommitTest.cs" />
     <Compile Include="Upgrade\NodeBasedExtractedModelBuilderTest.cs" />
     <Compile Include="Issues\NotEqualsForNullableColumnTest.cs" />
