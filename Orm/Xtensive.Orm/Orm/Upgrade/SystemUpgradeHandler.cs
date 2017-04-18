@@ -110,15 +110,15 @@ namespace Xtensive.Orm.Upgrade
       var resolver = UpgradeContext.Services.MappingResolver;
       var metadataSchema = UpgradeContext.Configuration.DefaultSchema;
       var sqlModel = UpgradeContext.ExtractedSqlModelCache;
-      var isActualSqlNodes = !UpgradeContext.Configuration.ShareStorageSchemaOverNodes;
+      var namesShouldBeActualized = UpgradeContext.Configuration.ShareStorageSchemaOverNodes && UpgradeContext.Services.ProviderInfo.Supports(ProviderFeatures.Multischema);
       var nodeConfiguration = UpgradeContext.NodeConfiguration;
 
       foreach (var group in groups) {
         var metadataDatabase = group.Key;
         var metadata = group.Value;
         var schema = resolver.ResolveSchema(sqlModel, metadataDatabase, metadataSchema);
-        var task = (isActualSqlNodes)
-          ? new SqlExtractionTask(schema.Catalog.Name, schema.Name)
+        var task = (!namesShouldBeActualized)
+          ? new SqlExtractionTask(schema.Catalog.GetNameInternal(), schema.GetNameInternal())
           : new SqlExtractionTask(nodeConfiguration.GetActualNameFor(schema.Catalog), nodeConfiguration.GetActualNameFor(schema));
         var writer = new MetadataWriter(driver, mapping, task, executor);
         writer.Write(metadata);

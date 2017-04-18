@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Building.Builders
       // Fill information for TemporaryTableManager
 
       var defaultSchema = resolver.ResolveSchema(sqlModel, configuration.DefaultDatabase, configuration.DefaultSchema);
-      if (configuration.ShareStorageSchemaOverNodes) {
+      if (configuration.ShareStorageSchemaOverNodes && handlers.ProviderInfo.Supports(ProviderFeatures.Multischema)) {
         mapping.TemporaryTableDatabase = nodeConfiguration.GetActualNameFor(defaultSchema.Catalog);
         mapping.TemporaryTableSchema = nodeConfiguration.GetActualNameFor(defaultSchema);
       }
