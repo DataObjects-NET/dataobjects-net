@@ -3,28 +3,24 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Tests.ObjectModel.Interfaces.Alphabet;
 using model = Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator.Model;
 
 namespace Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator
 {
   public class SimpleTest : AutoBuildTest
   {
-    private Dictionary<NodeConfiguration, int> skipStepsPerNode = new Dictionary<NodeConfiguration, int>();
-
     [TestFixtureSetUp]
     public void TestFixureSetUp()
     {
       CheckRequirements();
-      FillInSkipParameters(skipStepsPerNode);
     }
 
     [Test]
     public void MainTest()
     {
       using (var referenceDomain = BuildDomain(BuildConfiguration().UseRecreate())) {
-
-        foreach (var node in skipStepsPerNode.Keys.Where(n => n.NodeId!=WellKnown.DefaultNodeId))
+        var skipParametersPerNode = GetSkipParameters(DomainUpgradeMode.Recreate);
+        foreach (var node in skipParametersPerNode.Keys.Where(n => n.NodeId!=WellKnown.DefaultNodeId))
           referenceDomain.StorageNodeManager.AddNode(node.UseRecreate());//node is in recreate;
 
         var sequenceAccessor = referenceDomain.Services.Get<IStorageSequenceAccessor>();
@@ -32,7 +28,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator
         var intSequence = referenceDomain.Model.Types[typeof (model.Part1.TestEntity1)].Hierarchy.Key.Sequence;
         var longSequence = referenceDomain.Model.Types[typeof (model.Part1.TestEntity2)].Hierarchy.Key.Sequence;
 
-        foreach (var node in skipStepsPerNode) {
+        foreach (var node in skipParametersPerNode) {
           using (var session = referenceDomain.OpenSession()) {
             session.SelectStorageNode(node.Key.NodeId);
             var skipCount = node.Value;
@@ -45,7 +41,8 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator
       }
 
       using (var testDomain = BuildDomain(BuildConfiguration().UsePerformSafely().MakeNodesShareSchema())) {
-        foreach (var node in skipStepsPerNode.Keys.Where(n => n.NodeId!=WellKnown.DefaultNodeId))
+        var skipParametersPerNode = GetSkipParameters(DomainUpgradeMode.PerformSafely);
+        foreach (var node in skipParametersPerNode.Keys.Where(n => n.NodeId!=WellKnown.DefaultNodeId))
           testDomain.StorageNodeManager.AddNode(node.UsePerformSafely());
 
         var sequenceAccessor = testDomain.Services.Get<IStorageSequenceAccessor>();
@@ -53,7 +50,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator
         var intSequence = testDomain.Model.Types[typeof (model.Part1.TestEntity1)].Hierarchy.Key.Sequence;
         var longSequence = testDomain.Model.Types[typeof (model.Part1.TestEntity2)].Hierarchy.Key.Sequence;
 
-        foreach (var node in skipStepsPerNode) {
+        foreach (var node in skipParametersPerNode) {
           using (var session = testDomain.OpenSession()) {
             session.SelectStorageNode(node.Key.NodeId);
             var expectedIntOffset = node.Value * 128 + 1;
@@ -82,9 +79,11 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator
       return configuration;
     }
 
-    protected virtual void FillInSkipParameters(Dictionary<NodeConfiguration, int> dictionary)
+    protected virtual Dictionary<NodeConfiguration, int> GetSkipParameters(DomainUpgradeMode upgradeMode)
     {
-      dictionary.Add(new NodeConfiguration(WellKnown.DefaultNodeId), 3);
+      var dictionary = new Dictionary<NodeConfiguration, int>();
+      dictionary.Add(new NodeConfiguration(WellKnown.DefaultNodeId){UpgradeMode = upgradeMode}, 3);
+      return dictionary;
     }
   }
 }

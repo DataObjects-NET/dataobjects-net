@@ -35,11 +35,11 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator
       return configuration;
     }
 
-    protected override void FillInSkipParameters(Dictionary<NodeConfiguration, int> dictionary)
+    protected override Dictionary<NodeConfiguration, int> GetSkipParameters(DomainUpgradeMode upgradeMode)
     {
-      base.FillInSkipParameters(dictionary);
+      var dictionary = base.GetSkipParameters(upgradeMode);
       var additionalNode = new NodeConfiguration(AdditionalNodeId);
-      additionalNode.UpgradeMode = DomainUpgradeMode.Recreate;
+      additionalNode.UpgradeMode = upgradeMode;
 
       additionalNode.DatabaseMapping.Add("DO-Tests-1", "DO-Tests-3");
       additionalNode.DatabaseMapping.Add("DO-Tests-2", "DO-Tests-4");
@@ -48,6 +48,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator
       additionalNode.SchemaMapping.Add("Model2", "Model4");
 
       dictionary.Add(additionalNode, 7);
+      return dictionary;
     }
   }
 }

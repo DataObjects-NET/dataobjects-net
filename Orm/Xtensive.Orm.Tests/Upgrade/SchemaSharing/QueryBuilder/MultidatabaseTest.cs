@@ -14,6 +14,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
   {
     protected override void CheckRequirements()
     {
+      base.CheckRequirements();
       Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
     }
 

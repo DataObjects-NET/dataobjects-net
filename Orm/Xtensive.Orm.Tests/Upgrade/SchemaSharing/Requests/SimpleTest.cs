@@ -14,6 +14,12 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.Requests
 {
   public class SimpleTest
   {
+    [TestFixtureSetUp]
+    public void TestFixtureSetUp()
+    {
+      CheckRequirements();
+    }
+
     protected virtual void CheckRequirements()
     {
     }

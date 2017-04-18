@@ -170,22 +170,22 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate.Model
     public override void OnPrepare()
     {
       initialTypes = new List<Type>();
-      initialTypes.Add(typeof(Part1.TestEntity1));
-      initialTypes.Add(typeof(Part2.TestEntity2));
-      initialTypes.Add(typeof(Part3.TestEntity3));
-      initialTypes.Add(typeof(Part4.TestEntity4));
+      initialTypes.Add(typeof (Part1.TestEntity1));
+      initialTypes.Add(typeof (Part2.TestEntity2));
+      initialTypes.Add(typeof (Part3.TestEntity3));
+      initialTypes.Add(typeof (Part4.TestEntity4));
 
       recycledTypes = new List<Type>();
-      recycledTypes.Add(typeof(Part1.RecycledTestEntity1));
-      recycledTypes.Add(typeof(Part2.RecycledTestEntity2));
-      recycledTypes.Add(typeof(Part3.RecycledTestEntity3));
-      recycledTypes.Add(typeof(Part4.RecycledTestEntity4));
+      recycledTypes.Add(typeof (Part1.RecycledTestEntity1));
+      recycledTypes.Add(typeof (Part2.RecycledTestEntity2));
+      recycledTypes.Add(typeof (Part3.RecycledTestEntity3));
+      recycledTypes.Add(typeof (Part4.RecycledTestEntity4));
 
       newTypes = new List<Type>();
-      newTypes.Add(typeof(Part1.NewTestEntity1));
-      newTypes.Add(typeof(Part2.NewTestEntity2));
-      newTypes.Add(typeof(Part3.NewTestEntity3));
-      newTypes.Add(typeof(Part4.NewTestEntity4));
+      newTypes.Add(typeof (Part1.NewTestEntity1));
+      newTypes.Add(typeof (Part2.NewTestEntity2));
+      newTypes.Add(typeof (Part3.NewTestEntity3));
+      newTypes.Add(typeof (Part4.NewTestEntity4));
 
       internalStage = Stage.Initial;
     }
@@ -197,9 +197,8 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate.Model
       var metadataTasks = UpgradeContext.Services.MappingResolver.GetMetadataTasks();
       var executor = new Providers.SqlExecutor(UpgradeContext.Services.StorageDriver, UpgradeContext.Services.Connection);
       var metadataSet = new MetadataSet();
-      var isRecreate = UpgradeContext.NodeConfiguration.UpgradeMode == DomainUpgradeMode.Recreate;
-      foreach (var sqlExtractionTask in metadataTasks)
-      {
+      var isRecreate = UpgradeContext.NodeConfiguration.UpgradeMode==DomainUpgradeMode.Recreate;
+      foreach (var sqlExtractionTask in metadataTasks) {
         var extractor = new MetadataExtractor(metadataMapping, sqlExtractionTask, executor);
         if (!isRecreate)
           extractor.Extract(metadataSet);
@@ -208,7 +207,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate.Model
       ValidateMetadataTables(metadataSet, internalStage, isRecreate);
       ValidateUserTables(metadataSet, internalStage, isRecreate);
 
-      if (UpgradeContext.Stage == UpgradeStage.Upgrading)
+      if (UpgradeContext.Stage==UpgradeStage.Upgrading)
         internalStage = Stage.AfterUpgrading;
       else
         internalStage = Stage.Final;
@@ -224,10 +223,9 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate.Model
       var metadataTasks = UpgradeContext.Services.MappingResolver.GetMetadataTasks();
       var executor = new Providers.SqlExecutor(UpgradeContext.Services.StorageDriver, UpgradeContext.Services.Connection);
       var metadataSet = new MetadataSet();
-      var isRecreate = UpgradeContext.NodeConfiguration.UpgradeMode == DomainUpgradeMode.Recreate;
+      var isRecreate = UpgradeContext.NodeConfiguration.UpgradeMode==DomainUpgradeMode.Recreate;
 
-      foreach (var sqlExtractionTask in metadataTasks)
-      {
+      foreach (var sqlExtractionTask in metadataTasks) {
         var extractor = new MetadataExtractor(metadataMapping, sqlExtractionTask, executor);
         extractor.Extract(metadataSet);
       }
@@ -238,19 +236,17 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate.Model
 
     private void ValidateMetadataTables(MetadataSet metadataSet, Stage stage, bool isRecreate)
     {
-      if (stage == Stage.Initial && isRecreate)
-      {
+      if (stage==Stage.Initial && isRecreate) {
         Assert.That(metadataSet.Assemblies.Count, Is.EqualTo(0));
         Assert.That(metadataSet.Extensions.Count, Is.EqualTo(0));
         Assert.That(metadataSet.Types.Count, Is.EqualTo(0));
       }
-      else
-      {
-        Assert.That(metadataSet.Assemblies.Any(a => a.Name == "Xtensive.Orm"), Is.True);
+      else {
+        Assert.That(metadataSet.Assemblies.Any(a => a.Name=="Xtensive.Orm"), Is.True);
 
-        Assert.That(metadataSet.Types.Any(t => t.Name == "Xtensive.Orm.Metadata.Assembly"), Is.True);
-        Assert.That(metadataSet.Types.Any(t => t.Name == "Xtensive.Orm.Metadata.Extension"), Is.True);
-        Assert.That(metadataSet.Types.Any(t => t.Name == "Xtensive.Orm.Metadata.Type"), Is.True);
+        Assert.That(metadataSet.Types.Any(t => t.Name=="Xtensive.Orm.Metadata.Assembly"), Is.True);
+        Assert.That(metadataSet.Types.Any(t => t.Name=="Xtensive.Orm.Metadata.Extension"), Is.True);
+        Assert.That(metadataSet.Types.Any(t => t.Name=="Xtensive.Orm.Metadata.Type"), Is.True);
         if (!UpgradeContext.Configuration.IsMultidatabase)
           Assert.That(metadataSet.Extensions.Count, Is.EqualTo(1));
         else
@@ -260,23 +256,23 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate.Model
 
     private void ValidateUserTables(MetadataSet metadataSet, Stage stage, bool isRecreate)
     {
-      var initialTypesAreAvailable = stage != Stage.Initial || !isRecreate;
-      var recycledAreAvailable = stage == Stage.AfterUpgrading;
-      var newTypesAvailable = stage != Stage.Initial;
+      var initialTypesAreAvailable = stage!=Stage.Initial || !isRecreate;
+      var recycledAreAvailable = stage==Stage.AfterUpgrading;
+      var newTypesAvailable = stage!=Stage.Initial;
 
-      if (stage == Stage.Initial && isRecreate)
-        Assert.That(metadataSet.Assemblies.Any(a => a.Name == "Xtensive.Orm.Tests"), Is.False);
+      if (stage==Stage.Initial && isRecreate)
+        Assert.That(metadataSet.Assemblies.Any(a => a.Name=="Xtensive.Orm.Tests"), Is.False);
       else
-        Assert.That(metadataSet.Assemblies.Any(a => a.Name == "Xtensive.Orm.Tests"), Is.True);
+        Assert.That(metadataSet.Assemblies.Any(a => a.Name=="Xtensive.Orm.Tests"), Is.True);
 
       foreach (var initialType in initialTypes)
-        Assert.That(metadataSet.Types.Any(t => t.Name == initialType.FullName), Is.EqualTo(initialTypesAreAvailable));
+        Assert.That(metadataSet.Types.Any(t => t.Name==initialType.FullName), Is.EqualTo(initialTypesAreAvailable));
 
       foreach (var recycledType in recycledTypes)
-        Assert.That(metadataSet.Types.Any(t => t.Name == recycledType.FullName), Is.EqualTo(recycledAreAvailable));
+        Assert.That(metadataSet.Types.Any(t => t.Name==recycledType.FullName), Is.EqualTo(recycledAreAvailable));
 
       foreach (var newType in newTypes)
-        Assert.That(metadataSet.Types.Any(t => t.Name == newType.FullName), Is.EqualTo(newTypesAvailable));
+        Assert.That(metadataSet.Types.Any(t => t.Name==newType.FullName), Is.EqualTo(newTypesAvailable));
     }
   }
 }

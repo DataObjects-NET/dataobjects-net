@@ -115,18 +115,18 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           extractionResult = new SchemaExtractionResult(driver.Extract(connection, mappingResolver.GetSchemaTasks()));
         }
         var fullName = mappingResolver.GetNodeName("dummy", "dummy", "Table1");
-        Assert.That(fullName, Is.EqualTo("Table1"));
+        Assert.That(fullName.ToLower(), Is.EqualTo("Table1".ToLower()));
 
         fullName = mappingResolver.GetNodeName(extractionResult.Catalogs.First().DefaultSchema.Tables["TestEntity1"]);
-        Assert.That(fullName, Is.EqualTo("TestEntity1"));
+        Assert.That(fullName.ToLower(), Is.EqualTo("TestEntity1".ToLower()));
 
         var typeInfo = domain.Model.Types[typeof (model.Part1.TestEntity1)];
         fullName = mappingResolver.GetNodeName(typeInfo);
-        Assert.That(fullName, Is.EqualTo("TestEntity1"));
+        Assert.That(fullName.ToLower(), Is.EqualTo("TestEntity1".ToLower()));
 
         var sequence = typeInfo.Hierarchy.Key.Sequence;
         fullName = mappingResolver.GetNodeName(sequence);
-        Assert.That(fullName, Is.EqualTo(sequence.MappingName));
+        Assert.That(fullName.ToLower(), Is.EqualTo(sequence.MappingName.ToLower()));
 
         var schema = mappingResolver.ResolveSchema(extractionResult, defaultSchemaInfo.Database, defaultSchemaInfo.Schema);
         Assert.That(schema, Is.EqualTo(extractionResult.Catalogs.First().DefaultSchema));

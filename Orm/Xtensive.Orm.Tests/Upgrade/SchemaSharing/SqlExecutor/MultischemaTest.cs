@@ -15,6 +15,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor
   {
     protected override void CheckRequirements()
     {
+      base.CheckRequirements();
       Require.AllFeaturesSupported(ProviderFeatures.Multischema);
     }
 

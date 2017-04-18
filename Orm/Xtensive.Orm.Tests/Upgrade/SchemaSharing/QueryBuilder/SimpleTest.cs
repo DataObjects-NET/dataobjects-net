@@ -20,6 +20,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
       CheckRequirements();
     }
 
+    protected virtual void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+    }
+
     [Test]
     public void PerformSafelyTest()
     {
@@ -60,10 +65,6 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
     {
       BuildInitialDomain();
       BuildTestDomain(DomainUpgradeMode.LegacyValidate);
-    }
-
-    protected virtual void CheckRequirements()
-    {
     }
 
     protected virtual DomainConfiguration GetDomainConfiguration()

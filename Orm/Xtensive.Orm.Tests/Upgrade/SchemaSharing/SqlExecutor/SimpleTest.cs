@@ -4,6 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2017.03.28
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -18,6 +19,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor
     public void TestFixtureSetup()
     {
       CheckRequirements();
+    }
+
+    protected virtual void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
     }
 
     [Test]
@@ -60,10 +66,6 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor
     {
       BuildInitialDomain();
       BuildTestDomain(DomainUpgradeMode.LegacyValidate);
-    }
-
-    protected virtual void CheckRequirements()
-    {
     }
 
     protected virtual DomainConfiguration GetDomainConfiguration()
@@ -120,7 +122,6 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor
       }
       configuration.UpgradeMode = upgradeMode;
       configuration.ShareStorageSchemaOverNodes = true;
-
       using (var domain = Domain.Build(configuration)) {
         foreach (var nodeConfiguration in GetNodes(upgradeMode).Where(n => n.NodeId!=WellKnown.DefaultNodeId))
           domain.StorageNodeManager.AddNode(nodeConfiguration);

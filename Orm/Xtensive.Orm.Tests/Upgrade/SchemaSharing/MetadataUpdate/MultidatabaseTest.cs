@@ -6,12 +6,19 @@
 
 using System.Collections.Generic;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using model = Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate.Model;
 
 namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate
 {
   public class MultidatabaseTest : SimpleTest
   {
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
+    }
+
     protected override void ApplyCustomSettingsToInitialConfiguration(DomainConfiguration domainConfiguration)
     {
       base.ApplyCustomSettingsToInitialConfiguration(domainConfiguration);

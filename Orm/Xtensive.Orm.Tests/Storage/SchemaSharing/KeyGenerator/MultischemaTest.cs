@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Tests.ObjectModel.Interfaces.Alphabet;
 using model = Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator.Model;
 
 namespace Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator
@@ -34,15 +35,16 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator
       return configuration;
     }
 
-    protected override void FillInSkipParameters(Dictionary<NodeConfiguration, int> dictionary)
+    protected override Dictionary<NodeConfiguration, int> GetSkipParameters(DomainUpgradeMode upgradeMode)
     {
-      base.FillInSkipParameters(dictionary);
+      var dictionary = base.GetSkipParameters(upgradeMode);
 
       var additionalNode = new NodeConfiguration(AdditionalNodeId);
-      additionalNode.UpgradeMode = DomainUpgradeMode.Recreate;
+      additionalNode.UpgradeMode = upgradeMode;
       additionalNode.SchemaMapping.Add("Model1", "Model3");
       additionalNode.SchemaMapping.Add("Model2", "Model4");
       dictionary.Add(additionalNode, 7);
+      return dictionary;
     }
   }
 }

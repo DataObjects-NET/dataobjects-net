@@ -284,13 +284,13 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           connection.Open();
 
           var productTable = schema.Tables["Product"];
-          var hiddenNameColumn = productTable.CreateColumn("HiddenName", new SqlValueType(SqlType.VarChar, 255));
+          var hiddenNameColumn = productTable.CreateColumn("HiddenName", GetTypeForString(255));
           hiddenNameColumn.IsNullable = true;
           using (var command = connection.CreateCommand(driver.Compile(SqlDdl.Alter(productTable, SqlDdl.AddColumn(hiddenNameColumn))).GetCommandText()))
             command.ExecuteNonQuery();
 
           var priceListTable = schema.Tables["PriceList"];
-          var hiddenCommentColumn = priceListTable.CreateColumn("HiddenComment", new SqlValueType(SqlType.VarChar, 255));
+          var hiddenCommentColumn = priceListTable.CreateColumn("HiddenComment", GetTypeForString(255));
           hiddenCommentColumn.IsNullable = true;
           using (var command = connection.CreateCommand(driver.Compile(SqlDdl.Alter(priceListTable, SqlDdl.AddColumn(hiddenCommentColumn))).GetCommandText()))
             command.ExecuteNonQuery();
@@ -299,7 +299,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           var prefixColumnTemplate = "NotInDomain{0}";
           var columns = new[] {"Column1", "Column2", "Column3"};
           foreach (var column in columns) {
-            var prefixColumn = currencyTable.CreateColumn(string.Format(prefixColumnTemplate, column), new SqlValueType(SqlType.VarChar, 255));
+            var prefixColumn = currencyTable.CreateColumn(string.Format(prefixColumnTemplate, column), GetTypeForString(255));
             prefixColumn.IsNullable = true;
             using (var command = connection.CreateCommand(driver.Compile(SqlDdl.Alter(currencyTable, SqlDdl.AddColumn(prefixColumn))).GetCommandText()))
               command.ExecuteNonQuery();
@@ -308,7 +308,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           var ignoredTable = schema.CreateTable("HiddenTable");
           var idColumn = ignoredTable.CreateColumn("Id", new SqlValueType(SqlType.Int64));
           idColumn.IsNullable = false;
-          var name = ignoredTable.CreateColumn("Name", new SqlValueType(SqlType.VarChar, 255));
+          var name = ignoredTable.CreateColumn("Name", GetTypeForString(255));
           name.IsNullable = false;
           var pk = ignoredTable.CreatePrimaryKey("PK_HiddenTable", idColumn);
 
@@ -318,7 +318,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           var notInDomainTable1 = schema.CreateTable("NotInDomain1");
           idColumn = notInDomainTable1.CreateColumn("Id", new SqlValueType(SqlType.Int64));
           idColumn.IsNullable = false;
-          name = notInDomainTable1.CreateColumn("Name", new SqlValueType(SqlType.VarChar, 255));
+          name = notInDomainTable1.CreateColumn("Name", GetTypeForString(255));
           name.IsNullable = false;
           pk = notInDomainTable1.CreatePrimaryKey("PK_NotInDomain1", idColumn);
 
@@ -328,7 +328,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           var notInDomainTable2 = schema.CreateTable("NotInDomain2");
           idColumn = notInDomainTable2.CreateColumn("Id", new SqlValueType(SqlType.Int64));
           idColumn.IsNullable = false;
-          name = notInDomainTable2.CreateColumn("Name", new SqlValueType(SqlType.VarChar, 255));
+          name = notInDomainTable2.CreateColumn("Name", GetTypeForString(255));
           name.IsNullable = false;
           pk = notInDomainTable2.CreatePrimaryKey("PK_NotInDomain2", idColumn);
 
@@ -338,7 +338,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           var notInDomainTable3 = schema.CreateTable("NotInDomain3");
           idColumn = notInDomainTable3.CreateColumn("Id", new SqlValueType(SqlType.Int64));
           idColumn.IsNullable = false;
-          name = notInDomainTable3.CreateColumn("Name", new SqlValueType(SqlType.VarChar, 255));
+          name = notInDomainTable3.CreateColumn("Name", GetTypeForString(255));
           name.IsNullable = false;
           pk = notInDomainTable3.CreatePrimaryKey("PK_NotInDomain3", idColumn);
 
@@ -477,8 +477,8 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           selectWhere.Where = @ref["HiddenName"]==SqlDml.Literal("Hidden name");
           using (var expectedCountCommand = connection.CreateCommand(selectAll))
           using (var actualCountCommand = connection.CreateCommand(selectWhere)) {
-            var expectedCount = (long) expectedCountCommand.ExecuteScalar();
-            var actualCount = (long) actualCountCommand.ExecuteScalar();
+            var expectedCount = Convert.ToInt64(expectedCountCommand.ExecuteScalar());
+            var actualCount = Convert.ToInt64(actualCountCommand.ExecuteScalar());
 
             Assert.That(actualCount, Is.EqualTo(expectedCount));
           }
@@ -493,8 +493,8 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           selectWhere.Where = @ref["HiddenComment"]==SqlDml.Literal("Some hidden comment");
           using (var expectedCountCommand = connection.CreateCommand(selectAll))
           using (var actualCountCommand = connection.CreateCommand(selectWhere)) {
-            var expectedCount = (long) expectedCountCommand.ExecuteScalar();
-            var actualCount = (long) actualCountCommand.ExecuteScalar();
+            var expectedCount = Convert.ToInt64(expectedCountCommand.ExecuteScalar());
+            var actualCount = Convert.ToInt64(actualCountCommand.ExecuteScalar());
 
             Assert.That(actualCount, Is.EqualTo(expectedCount));
           }
@@ -510,8 +510,8 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
 
           using (var expectedCountCommand = connection.CreateCommand(selectAll))
           using (var actualCountCommand = connection.CreateCommand(selectWhere)) {
-            var expectedCount = (long) expectedCountCommand.ExecuteScalar();
-            var actualCount = (long) actualCountCommand.ExecuteScalar();
+            var expectedCount = Convert.ToInt64(expectedCountCommand.ExecuteScalar());
+            var actualCount = Convert.ToInt64(actualCountCommand.ExecuteScalar());
 
             Assert.That(actualCount, Is.EqualTo(expectedCount));
           }
@@ -531,6 +531,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
       collection.IgnoreColumn("HiddenName").WhenTable("Product");
 
       return collection;
+    }
+
+    private SqlValueType GetTypeForString(int? length)
+    {
+      return driver.TypeMappings.Mappings[typeof (string)].MapType(length, null, null);
     }
 
     private Dictionary<string, string> BuildNodeToSchemaMap()

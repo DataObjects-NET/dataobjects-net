@@ -10,12 +10,20 @@ using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using model = Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate.Model;
 
-
-
 namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate
 {
   public class SimpleTest
   {
+    [TestFixtureSetUp]
+    public void TestFixtureSetup()
+    {
+      CheckRequirements();
+    }
+
+    protected virtual void CheckRequirements()
+    {
+    }
+
     [Test]
     public void PerformTest()
     {
