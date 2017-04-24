@@ -7,13 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
-using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.Storage.NewClientProfileTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.NewClientProfileTestModel
@@ -25,7 +22,7 @@ namespace Xtensive.Orm.Tests.Storage.NewClientProfileTestModel
     [Key, Field]
     public int Id { get; private set; }
 
-    [Field]
+    [Field(Length = 150)]
     public string Name { get; set; }
 
     [Field]
