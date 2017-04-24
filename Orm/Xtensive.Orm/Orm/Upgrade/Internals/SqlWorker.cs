@@ -40,13 +40,15 @@ namespace Xtensive.Orm.Upgrade
       foreach (var task in services.MappingResolver.GetMetadataTasks()) {
         if (result.Schema!=null) {
           PairedNodeCollection<Schema, Table> tables;
-          if (services.MappingResolver is SimpleMappingResolver)
-            tables = result.Schema.Catalogs.Single().Schemas[task.Schema].Tables ?? result.Schema.Catalogs.Single().Schemas.Single().Tables;
+          if (services.MappingResolver is SimpleMappingResolver) {
+            var schema = result.Schema.Catalogs.Single().Schemas[task.Schema] ?? result.Schema.Catalogs.Single().Schemas.Single();
+            tables = schema.Tables;
+          }
           else
             tables = result.Schema.Catalogs[task.Catalog].Schemas[task.Schema].Tables;
           if (tables[mapping.Assembly]==null && tables[mapping.Type]==null && tables[mapping.Extension]==null)
             continue;
-        } 
+        }
         try {
           new MetadataExtractor(mapping, task, executor).Extract(set);
         }

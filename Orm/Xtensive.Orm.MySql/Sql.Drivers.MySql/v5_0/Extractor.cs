@@ -333,14 +333,18 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       int precision = row.IsDBNull(precisionIndex) ? DefaultPrecision : ReadInt(row, precisionIndex);
       int scale = row.IsDBNull(scaleIndex) ? DefaultScale : ReadInt(row, scaleIndex);
 
-      if (typeName=="NUMBER" || typeName=="NUMERIC" || typeName=="DOUBLE" || typeName=="REAL" || typeName=="DECIMAL") {
+      var decimalAssignedNames = new List<string>(){"DECIMAL", "NUMERIC", "NUMBER"};
+      var doubleAssignedNames = new List<string>(){"DOUBLE", "REAL"};
+
+      if (decimalAssignedNames.Contains(typeName))
         return new SqlValueType(SqlType.Decimal, precision, scale);
-      }
+
+      if(doubleAssignedNames.Contains(typeName))
+        return new SqlValueType(SqlType.Double);
 
       if (columnName=="TINYINT(1)") {
         return new SqlValueType(SqlType.Boolean);
       }
-
 
       if (typeName.StartsWith("TINYINT")) {
         // ignoring "day precision" and "second precision"
