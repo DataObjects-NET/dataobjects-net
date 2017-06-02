@@ -273,6 +273,7 @@
     <Compile Include="Issues\IssueJira0656_RemapRestoresRemovedReferences.cs" />
     <Compile Include="Issues\IssueJira0593_AggregateForSingleColumnTest.cs" />
     <Compile Include="Issues\IssueJira0659_EnumExpressionsAndConstantsTranslationBug.cs" />
+    <Compile Include="Issues\IssueJira0702_QueryingWithoutOpenedTransaction.cs" />
     <Compile Include="Issues\IssueJira_0530_LowSpeedDecimalMaterializationCouseSqlDecimalInternalException.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
