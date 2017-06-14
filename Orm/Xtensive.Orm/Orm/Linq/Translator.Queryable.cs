@@ -1261,31 +1261,8 @@ namespace Xtensive.Orm.Linq
 
         var outerResult = context.Bindings[outerParameter];
         var columnIndex = outerResult.ItemProjector.DataSource.Header.Length;
-        var algorithm = state.IncludeAlgorithm;
-        if (state.IncludeAlgorithm==IncludeAlgorithm.Auto) {
-          // try to detect count of elements
-          // and determine actual include algorithm
-          // Further this will help to decide on query optimization more accurately.
-          // If we are failed here, real type of algorithm
-          // will be detected in SqlIncludeProvider.OnBeforeEnumerate() anyway.
-          try {
-            var evaluatedSource = ExpressionEvaluator.Evaluate(source).Value;
-            var collection = evaluatedSource as ICollection;
-            int? count = null;
-            if (collection!=null)
-              count = collection.Count;
-            algorithm = count.HasValue 
-              ? (count.Value > WellKnown.MaxNumberOfConditions)
-                ? IncludeAlgorithm.TemporaryTable
-                : IncludeAlgorithm.ComplexCondition
-              : state.IncludeAlgorithm;
-          }
-          catch {
-            algorithm = state.IncludeAlgorithm;
-          }
-        }
         var newDataSource = outerResult.ItemProjector.DataSource
-          .Include(algorithm, true, rawProvider.Source, context.GetNextAlias(), filteredColumns);
+          .Include(state.IncludeAlgorithm, true, rawProvider.Source, context.GetNextAlias(), filteredColumns);
 
         var newItemProjector = outerResult.ItemProjector.Remap(newDataSource, 0);
         var newOuterResult = new ProjectionExpression(
