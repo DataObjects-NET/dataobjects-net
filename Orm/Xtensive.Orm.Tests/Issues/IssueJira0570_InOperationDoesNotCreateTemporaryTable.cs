@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.IssueJira0570_InOperationDoesNotCreateTemporaryTableModel;
 using Xtensive.Orm.Tests.Storage;
 
@@ -367,6 +368,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void StoreThenIncludeTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var businessUnitIds = session.Query.All<BusinessUnit>().Select(bu=>bu.Id).ToList();
@@ -385,6 +387,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void IncludeThenStoreTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var businessUnitIds = session.Query.All<BusinessUnit>().Select(bu => bu.Id).ToList();
@@ -403,6 +406,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void IncludeWithoutStoreTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var businessUnitIds = session.Query.All<BusinessUnit>().Select(bu => bu.Id).ToList();
