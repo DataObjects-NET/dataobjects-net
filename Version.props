@@ -2,8 +2,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 <PropertyGroup>
-  <Version>5.0.14</Version>
-  <Modifier>Final</Modifier>
+  <Version>5.0.15</Version>
+  <Modifier>Nightly</Modifier>
   <BuildNumberBase>9700</BuildNumberBase>
 </PropertyGroup>
 
