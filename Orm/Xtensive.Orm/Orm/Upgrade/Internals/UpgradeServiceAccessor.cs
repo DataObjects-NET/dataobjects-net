@@ -31,6 +31,7 @@ namespace Xtensive.Orm.Upgrade
     private ReadOnlyList<IModule> modules;
     private ReadOnlyList<IUpgradeHandler> orderedUpgradeHandlers;
     private ReadOnlyDictionary<Assembly, IUpgradeHandler> upgradeHandlers;
+    private IFulltextCatalogResolver catalogResolver;
 
     public DomainConfiguration Configuration
     {
@@ -121,6 +122,16 @@ namespace Xtensive.Orm.Upgrade
       {
         this.EnsureNotLocked();
         upgradeHandlers = value;
+      }
+    }
+
+    public IFulltextCatalogResolver FulltextCatalogResolver
+    {
+      get { return catalogResolver; }
+      set
+      {
+        this.EnsureNotLocked();
+        catalogResolver = value;
       }
     }
 

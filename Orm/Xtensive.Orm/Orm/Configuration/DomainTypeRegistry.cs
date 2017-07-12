@@ -26,6 +26,7 @@ namespace Xtensive.Orm.Configuration
     private readonly static Type iModuleType = typeof (IModule);
     private readonly static Type iUpgradeHandlerType = typeof (IUpgradeHandler);
     private readonly static Type keyGeneratorType = typeof (KeyGenerator);
+    private static readonly Type ifulltextCatalogResolverType = typeof (IFulltextCatalogResolver);
 
     /// <summary>
     /// Gets all the registered persistent types.
@@ -91,6 +92,14 @@ namespace Xtensive.Orm.Configuration
       }
     }
 
+    /// <summary>
+    /// Gets all the registered catalog resolvers of full-text indexes.
+    /// </summary>
+    public IEnumerable<Type> FullTextCatalogResolvers
+    {
+      get { return this.Where(IsFullTextCatalogResolver); }
+    }
+
     #region IsXxx method group
 
     /// <summary>
@@ -109,7 +118,8 @@ namespace Xtensive.Orm.Configuration
         IsModule(type) ||
         IsUpgradeHandler(type) ||
         IsKeyGenerator(type) ||
-        IsCompilerContainer(type);
+        IsCompilerContainer(type) ||
+        IsFullTextCatalogResolver(type);
     }
 
     /// <summary>
@@ -211,6 +221,21 @@ namespace Xtensive.Orm.Configuration
     public static bool IsCompilerContainer(Type type)
     {
       return type.IsDefined(typeof (CompilerContainerAttribute), false);
+    }
+
+    /// <summary>
+    /// Determines whether a <paramref name="type"/>
+    /// is the catalog resolver of full-text indexes.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <returns>Check result.</returns>
+    public static bool IsFullTextCatalogResolver(Type type)
+    {
+      if (type.IsAbstract)
+        return false;
+      if (ifulltextCatalogResolverType.IsAssignableFrom(type) && ifulltextCatalogResolverType!=type)
+        return true;
+      return false;
     }
 
     #endregion

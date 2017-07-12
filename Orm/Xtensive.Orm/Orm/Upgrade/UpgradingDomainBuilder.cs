@@ -215,13 +215,16 @@ namespace Xtensive.Orm.Upgrade
         .Select(type => new ServiceRegistration(typeof (IModule), type, false));
       var handlers = configuration.Types.UpgradeHandlers
         .Select(type => new ServiceRegistration(typeof (IUpgradeHandler), type, false));
+      var ftCatalogResolvers = configuration.Types.FullTextCatalogResolvers
+        .Select(type => new ServiceRegistration(typeof (IFulltextCatalogResolver), type, false));
 
-      var registrations = standardRegistrations.Concat(modules).Concat(handlers);
+      var registrations = standardRegistrations.Concat(modules).Concat(handlers).Concat(ftCatalogResolvers);
       var serviceContainer = new ServiceContainer(registrations);
       serviceAccessor.RegisterResource(serviceContainer);
 
       BuildModules(serviceAccessor, serviceContainer);
       BuildUpgradeHandlers(serviceAccessor, serviceContainer);
+      BuildFullTextCatalogResolver(serviceAccessor, serviceContainer);
     }
 
     private static void BuildModules(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
@@ -275,6 +278,26 @@ namespace Xtensive.Orm.Upgrade
         new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers);
       serviceAccessor.OrderedUpgradeHandlers = 
         new ReadOnlyList<IUpgradeHandler>(sortedHandlers.ToList());
+    }
+
+    private static void BuildFullTextCatalogResolver(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
+    {
+      //Getting user resolvers
+      var candidates = from r in serviceContainer.GetAll<IFulltextCatalogResolver>()
+        let assembly = r.GetType().Assembly
+        where r.IsEnabled && assembly!=typeof (IFulltextCatalogResolver).Assembly
+        select r;
+
+      var userResolversCount = candidates.Count();
+      if (userResolversCount > 1)
+        throw new DomainBuilderException(string.Format(Strings.ExMoreThanOneEnabledXIsProvided, typeof (IFulltextCatalogResolver).GetShortName()));
+
+      var resolver = (userResolversCount==0)
+        ? new FullTextCatalogResolver()
+        : candidates.First();
+
+      //storing sesolver
+      serviceAccessor.FulltextCatalogResolver = resolver;
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
