@@ -409,6 +409,8 @@
     <Compile Include="Orm\Internals\StorageNodeRegistry.cs" />
     <Compile Include="Orm\Providers\SimpleMappingResolver.cs" />
     <Compile Include="Orm\StateLifetimeToken.cs" />
+    <Compile Include="Orm\Upgrade\FullTextCatalogResolver.cs" />
+    <Compile Include="Orm\Upgrade\Interfaces\IFulltextCatalogResolver.cs" />
     <Compile Include="Orm\Upgrade\Internals\CatalogCloner.cs" />
     <Compile Include="Orm\Upgrade\Internals\Extensions\DomainModelExtensions.cs" />
     <Compile Include="Orm\Upgrade\Internals\ExtractedModelBuilderFactory.cs" />
