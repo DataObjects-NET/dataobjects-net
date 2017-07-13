@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Upgrade
   /// <summary>
   /// A resolver responsible for name of full-text catalog.
   /// </summary>
-  public interface IFulltextCatalogResolver
+  public interface IFullTextCatalogResolver
   {
     /// <summary>
     /// Determines whether resolver is enabled.

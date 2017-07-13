@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly ITypeIdProvider typeIdProvider;
     private readonly DomainConfiguration configuration;
     private readonly PartialIndexFilterCompiler compiler;
-    private readonly IFulltextCatalogResolver fulltextCatalogResolver;
+    private readonly IFullTextCatalogResolver fulltextCatalogResolver;
 
     private StorageModel targetModel;
     private TableInfo currentTable;
@@ -612,7 +612,7 @@ namespace Xtensive.Orm.Upgrade
       ITypeIdProvider typeIdProvider,
       PartialIndexFilterCompiler compiler,
       MappingResolver resolver,
-      IFulltextCatalogResolver fulltextCatalogResolver,
+      IFullTextCatalogResolver fulltextCatalogResolver,
       bool isUpgradingStage)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");

@@ -11,9 +11,9 @@ using Xtensive.Orm.Upgrade.Model;
 namespace Xtensive.Orm.Upgrade
 {
   /// <summary>
-  /// Default <see cref="IFulltextCatalogResolver"/> implementation.
+  /// Default <see cref="IFullTextCatalogResolver"/> implementation.
   /// </summary>
-  public class FullTextCatalogResolver : IFulltextCatalogResolver
+  public class FullTextCatalogResolver : IFullTextCatalogResolver
   {
     private const char NamePartsDelimeter = ':';
 

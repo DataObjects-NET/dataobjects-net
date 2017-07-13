@@ -216,7 +216,7 @@ namespace Xtensive.Orm.Upgrade
       var handlers = configuration.Types.UpgradeHandlers
         .Select(type => new ServiceRegistration(typeof (IUpgradeHandler), type, false));
       var ftCatalogResolvers = configuration.Types.FullTextCatalogResolvers
-        .Select(type => new ServiceRegistration(typeof (IFulltextCatalogResolver), type, false));
+        .Select(type => new ServiceRegistration(typeof (IFullTextCatalogResolver), type, false));
 
       var registrations = standardRegistrations.Concat(modules).Concat(handlers).Concat(ftCatalogResolvers);
       var serviceContainer = new ServiceContainer(registrations);
@@ -283,14 +283,14 @@ namespace Xtensive.Orm.Upgrade
     private static void BuildFullTextCatalogResolver(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
     {
       //Getting user resolvers
-      var candidates = from r in serviceContainer.GetAll<IFulltextCatalogResolver>()
+      var candidates = from r in serviceContainer.GetAll<IFullTextCatalogResolver>()
         let assembly = r.GetType().Assembly
-        where r.IsEnabled && assembly!=typeof (IFulltextCatalogResolver).Assembly
+        where r.IsEnabled && assembly!=typeof (IFullTextCatalogResolver).Assembly
         select r;
 
       var userResolversCount = candidates.Count();
       if (userResolversCount > 1)
-        throw new DomainBuilderException(string.Format(Strings.ExMoreThanOneEnabledXIsProvided, typeof (IFulltextCatalogResolver).GetShortName()));
+        throw new DomainBuilderException(string.Format(Strings.ExMoreThanOneEnabledXIsProvided, typeof (IFullTextCatalogResolver).GetShortName()));
 
       var resolver = (userResolversCount==0)
         ? new FullTextCatalogResolver()
