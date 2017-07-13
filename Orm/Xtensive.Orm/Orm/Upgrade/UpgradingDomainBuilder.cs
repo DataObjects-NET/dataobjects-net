@@ -563,7 +563,9 @@ namespace Xtensive.Orm.Upgrade
     private StorageModel GetTargetModel(Domain domain, Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping, Dictionary<string, StoredTypeInfo> currentTypes, StorageModel extractedModel)
     {
       var indexFilterCompiler = context.Services.IndexFilterCompiler;
-      var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, indexFilterCompiler, context.Services.MappingResolver, context.Stage==UpgradeStage.Upgrading) {
+      var fullTextCatalogResolver = context.Services.FulltextCatalogResolver;
+      var mappingResolver = context.Services.MappingResolver;
+      var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, indexFilterCompiler, mappingResolver, fullTextCatalogResolver, context.Stage==UpgradeStage.Upgrading) {
         BuildForeignKeys = context.Configuration.Supports(ForeignKeyMode.Reference),
         BuildHierarchyForeignKeys = context.Configuration.Supports(ForeignKeyMode.Hierarchy),
         FieldMapping = fieldMapping,
