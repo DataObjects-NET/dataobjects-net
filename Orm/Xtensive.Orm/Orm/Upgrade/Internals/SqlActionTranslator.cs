@@ -675,7 +675,7 @@ namespace Xtensive.Orm.Upgrade
       var table = FindTable(fullTextIndexInfo.Parent);
       var ftIndex = table.CreateFullTextIndex(fullTextIndexInfo.Name);
       ftIndex.UnderlyingUniqueIndex = fullTextIndexInfo.Parent.PrimaryIndex.EscapedName;
-      ftIndex.FullTextCatalog = "Default";
+      ftIndex.FullTextCatalog = fullTextIndexInfo.FullTextCatalog;
       foreach (var column in fullTextIndexInfo.Columns) {
         var tableColumn = FindColumn(table, column.Value.Name);
         var ftColumn = ftIndex.CreateIndexColumn(tableColumn);
