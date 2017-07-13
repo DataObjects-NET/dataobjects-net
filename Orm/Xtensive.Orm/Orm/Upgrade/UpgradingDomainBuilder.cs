@@ -172,7 +172,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       CreateConnection(services);
-      defaultSchemaInfo = services.StorageDriver.GetDefaultSchema(services.Connection);
+      context.DefaultSchemaInfo = defaultSchemaInfo = services.StorageDriver.GetDefaultSchema(services.Connection);
       services.MappingResolver = MappingResolver.Create(configuration, context.NodeConfiguration, defaultSchemaInfo);
       BuildExternalServices(services, configuration);
       services.Lock();
