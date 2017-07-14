@@ -11,9 +11,9 @@ using Xtensive.Orm.Upgrade.Model;
 namespace Xtensive.Orm.Upgrade
 {
   /// <summary>
-  /// Default <see cref="IFullTextCatalogResolver"/> implementation.
+  /// Default <see cref="IFullTextCatalogNameBuilder"/> implementation.
   /// </summary>
-  public class FullTextCatalogResolver : IFullTextCatalogResolver
+  public class FullTextCatalogNameBuilder : IFullTextCatalogNameBuilder
   {
     private const char NamePartsDelimeter = ':';
 
@@ -31,13 +31,21 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc />
-    public string Resolve(Orm.Model.TypeInfo typeInfo, TableInfo tableInfo)
+    public string Build(Orm.Model.TypeInfo typeInfo, TableInfo tableInfo)
     {
       var nameParts = GetNameParts(tableInfo.Name);
-      return Resolve(typeInfo, nameParts[0], nameParts[1], nameParts[2]);
+      return Build(typeInfo, nameParts[0], nameParts[1], nameParts[2]);
     }
 
-    protected virtual string Resolve(Orm.Model.TypeInfo typeInfo, string databaseName, string schemaName, string typeName)
+    /// <summary>
+    /// Builds the name name of the catalog for index of table with specified name, schema and database.
+    /// </summary>
+    /// <param name="typeInfo"><see cref="Orm.Model.TypeInfo">The type</see> from domain model.</param>
+    /// <param name="databaseName">The name of database.</param>
+    /// <param name="schemaName">The name of schema.</param>
+    /// <param name="tableName">The name of table.</param>
+    /// <returns></returns>
+    protected virtual string Build(Orm.Model.TypeInfo typeInfo, string databaseName, string schemaName, string tableName)
     {
       return null;
     }
@@ -64,7 +72,7 @@ namespace Xtensive.Orm.Upgrade
       return new[] { databaseName, schemaName, tableName };
     }
 
-    public FullTextCatalogResolver()
+    public FullTextCatalogNameBuilder()
     {
       var context = UpgradeContext.Demand();
       DomainConfiguration = context.Configuration;

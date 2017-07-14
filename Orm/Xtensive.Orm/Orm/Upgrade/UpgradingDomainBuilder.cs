@@ -216,7 +216,7 @@ namespace Xtensive.Orm.Upgrade
       var handlers = configuration.Types.UpgradeHandlers
         .Select(type => new ServiceRegistration(typeof (IUpgradeHandler), type, false));
       var ftCatalogResolvers = configuration.Types.FullTextCatalogResolvers
-        .Select(type => new ServiceRegistration(typeof (IFullTextCatalogResolver), type, false));
+        .Select(type => new ServiceRegistration(typeof (IFullTextCatalogNameBuilder), type, false));
 
       var registrations = standardRegistrations.Concat(modules).Concat(handlers).Concat(ftCatalogResolvers);
       var serviceContainer = new ServiceContainer(registrations);
@@ -283,21 +283,21 @@ namespace Xtensive.Orm.Upgrade
     private static void BuildFullTextCatalogResolver(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
     {
       //Getting user resolvers
-      var candidates = from r in serviceContainer.GetAll<IFullTextCatalogResolver>()
+      var candidates = from r in serviceContainer.GetAll<IFullTextCatalogNameBuilder>()
         let assembly = r.GetType().Assembly
-        where r.IsEnabled && assembly!=typeof (IFullTextCatalogResolver).Assembly
+        where r.IsEnabled && assembly!=typeof (IFullTextCatalogNameBuilder).Assembly
         select r;
 
       var userResolversCount = candidates.Count();
       if (userResolversCount > 1)
-        throw new DomainBuilderException(string.Format(Strings.ExMoreThanOneEnabledXIsProvided, typeof (IFullTextCatalogResolver).GetShortName()));
+        throw new DomainBuilderException(string.Format(Strings.ExMoreThanOneEnabledXIsProvided, typeof (IFullTextCatalogNameBuilder).GetShortName()));
 
       var resolver = (userResolversCount==0)
-        ? new FullTextCatalogResolver()
+        ? new FullTextCatalogNameBuilder()
         : candidates.First();
 
       //storing sesolver
-      serviceAccessor.FulltextCatalogResolver = resolver;
+      serviceAccessor.FulltextCatalogNameBuilder = resolver;
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
@@ -563,7 +563,7 @@ namespace Xtensive.Orm.Upgrade
     private StorageModel GetTargetModel(Domain domain, Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping, Dictionary<string, StoredTypeInfo> currentTypes, StorageModel extractedModel)
     {
       var indexFilterCompiler = context.Services.IndexFilterCompiler;
-      var fullTextCatalogResolver = context.Services.FulltextCatalogResolver;
+      var fullTextCatalogResolver = context.Services.FulltextCatalogNameBuilder;
       var mappingResolver = context.Services.MappingResolver;
       var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, indexFilterCompiler, mappingResolver, fullTextCatalogResolver, context.Stage==UpgradeStage.Upgrading) {
         BuildForeignKeys = context.Configuration.Supports(ForeignKeyMode.Reference),

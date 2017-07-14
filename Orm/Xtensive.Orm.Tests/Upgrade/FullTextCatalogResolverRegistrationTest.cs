@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextCatalogResolverRegistrationTestMode
 
   public class ResolverCatcher : UpgradeHandler
   {
-    private IFulltextCatalogResolver resolver;
+    private IFullTextCatalogNameBuilder nameBuilder;
 
     public override bool CanUpgradeFrom(string oldVersion)
     {
@@ -31,23 +31,23 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextCatalogResolverRegistrationTestMode
 
     public override void OnPrepare()
     {
-      resolver = UpgradeContext.Services.FulltextCatalogResolver;
+      nameBuilder = UpgradeContext.Services.FulltextCatalogNameBuilder;
     }
 
     public override void OnComplete(Domain domain)
     {
-      domain.Extensions.Set(resolver);
+      domain.Extensions.Set(nameBuilder);
     }
   }
 
-  public class EnabledCustomResolver1 : FullTextCatalogResolver
+  public class EnabledCustomResolver1 : FullTextCatalogNameBuilder
   {
     public override bool IsEnabled
     {
       get { return true; }
     }
   }
-  public class EnabledCustomResolver2 : FullTextCatalogResolver
+  public class EnabledCustomResolver2 : FullTextCatalogNameBuilder
   {
     public override bool IsEnabled
     {
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextCatalogResolverRegistrationTestMode
     }
   }
 
-  public class DisabledCustomResolver1 : FullTextCatalogResolver
+  public class DisabledCustomResolver1 : FullTextCatalogNameBuilder
   {
     public override bool IsEnabled
     {
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextCatalogResolverRegistrationTestMode
     }
   }
 
-  public class DisabledCustomResolver2 : FullTextCatalogResolver
+  public class DisabledCustomResolver2 : FullTextCatalogNameBuilder
   {
     public override bool IsEnabled
     {
@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void NoUserImplementationsTest()
     {
-      RunTest(Enumerable.Empty<Type>().ToArray(), typeof(FullTextCatalogResolver));
+      RunTest(Enumerable.Empty<Type>().ToArray(), typeof(FullTextCatalogNameBuilder));
     }
 
     [Test]
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         typeof (DisabledCustomResolver2)
       };
 
-      RunTest(resolvers, typeof(FullTextCatalogResolver));
+      RunTest(resolvers, typeof(FullTextCatalogNameBuilder));
     }
 
     [Test]
@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     private void RunTest(Type[] resolvers, Type expectedResolverType)
     {
       using(var domain = Domain.Build(BuildConfiguration(resolvers))) {
-        var resolver = domain.Extensions.Get<IFulltextCatalogResolver>();
+        var resolver = domain.Extensions.Get<IFullTextCatalogNameBuilder>();
         Assert.That(resolver, Is.InstanceOf(expectedResolverType));
       }
     }

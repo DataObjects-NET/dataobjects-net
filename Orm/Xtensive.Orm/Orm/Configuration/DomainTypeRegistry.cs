@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Configuration
     private readonly static Type iModuleType = typeof (IModule);
     private readonly static Type iUpgradeHandlerType = typeof (IUpgradeHandler);
     private readonly static Type keyGeneratorType = typeof (KeyGenerator);
-    private static readonly Type ifulltextCatalogResolverType = typeof (IFullTextCatalogResolver);
+    private static readonly Type ifulltextCatalogResolverType = typeof (IFullTextCatalogNameBuilder);
 
     /// <summary>
     /// Gets all the registered persistent types.

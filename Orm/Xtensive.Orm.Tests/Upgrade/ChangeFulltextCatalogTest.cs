@@ -23,14 +23,14 @@ namespace Xtensive.Orm.Tests.Upgrade.ChangeFulltextCatalogTestModel
     public string Text { get; set; }
   }
 
-  public class CustomFullTextCatalogResolver : FullTextCatalogResolver
+  public class CustomFullTextCatalogNameBuilder : FullTextCatalogNameBuilder
   {
     public override bool IsEnabled
     {
       get { return true; }
     }
 
-    protected override string Resolve(TypeInfo typeInfo, string databaseName, string schemaName, string typeName)
+    protected override string Build(TypeInfo typeInfo, string databaseName, string schemaName, string tableName)
     {
       return string.Format("{0}_{1}", databaseName, schemaName);
     }
@@ -203,7 +203,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = DomainConfigurationFactory.Create();
       configuration.Types.Register(typeof (TestEntity));
       if (withCustomResolver)
-        configuration.Types.Register(typeof (CustomFullTextCatalogResolver));
+        configuration.Types.Register(typeof (CustomFullTextCatalogNameBuilder));
 
       configuration.UpgradeMode = upgradeMode;
       return configuration;

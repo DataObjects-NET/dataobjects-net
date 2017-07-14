@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly ITypeIdProvider typeIdProvider;
     private readonly DomainConfiguration configuration;
     private readonly PartialIndexFilterCompiler compiler;
-    private readonly IFullTextCatalogResolver fulltextCatalogResolver;
+    private readonly IFullTextCatalogNameBuilder fulltextCatalogNameBuilder;
 
     private StorageModel targetModel;
     private TableInfo currentTable;
@@ -283,7 +283,7 @@ namespace Xtensive.Orm.Upgrade
       }
       
       ftIndex.FullTextCatalog = 
-        fulltextCatalogResolver.Resolve(fullTextIndex.PrimaryIndex.ReflectedType, table);
+        fulltextCatalogNameBuilder.Build(fullTextIndex.PrimaryIndex.ReflectedType, table);
       return ftIndex;
     }
 
@@ -612,7 +612,7 @@ namespace Xtensive.Orm.Upgrade
       ITypeIdProvider typeIdProvider,
       PartialIndexFilterCompiler compiler,
       MappingResolver resolver,
-      IFullTextCatalogResolver fulltextCatalogResolver,
+      IFullTextCatalogNameBuilder fulltextCatalogNameBuilder,
       bool isUpgradingStage)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
@@ -625,7 +625,7 @@ namespace Xtensive.Orm.Upgrade
       this.typeIdProvider = typeIdProvider;
       this.resolver = resolver;
       this.isUpgradingStage = isUpgradingStage;
-      this.fulltextCatalogResolver = fulltextCatalogResolver;
+      this.fulltextCatalogNameBuilder = fulltextCatalogNameBuilder;
 
       sourceModel = handlers.Domain.Model;
       configuration = handlers.Domain.Configuration;

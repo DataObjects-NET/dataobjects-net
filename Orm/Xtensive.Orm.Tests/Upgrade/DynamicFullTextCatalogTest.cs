@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Tests.Upgrade.DynamicFulltextCatalogTestModel
     public string Text { get; set; }
   }
 
-  public class CustomFullTextCatalogResolver : FullTextCatalogResolver
+  public class CustomFullTextCatalogNameBuilder : FullTextCatalogNameBuilder
   {
     private const string CatalogNameTemplate = "{catalog}_{schema}";
 
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Tests.Upgrade.DynamicFulltextCatalogTestModel
       get { return true; }
     }
 
-    protected override string Resolve(TypeInfo typeInfo, string databaseName, string schemaName, string typeName)
+    protected override string Build(TypeInfo typeInfo, string databaseName, string schemaName, string tableName)
     {
       return CatalogNameTemplate.Replace("{catalog}", databaseName).Replace("{schema}", schemaName);
     }
@@ -176,7 +176,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = DomainConfigurationFactory.Create();
       configuration.Types.Register(typeof(TestEntity));
       configuration.Types.Register(typeof(CustomUpgradeHandler));
-      configuration.Types.Register(typeof(CustomFullTextCatalogResolver));
+      configuration.Types.Register(typeof(CustomFullTextCatalogNameBuilder));
 
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
@@ -197,7 +197,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = DomainConfigurationFactory.Create();
       configuration.Types.Register(typeof(TestEntity));
       configuration.Types.Register(typeof(CustomUpgradeHandler));
-      configuration.Types.Register(typeof(CustomFullTextCatalogResolver));
+      configuration.Types.Register(typeof(CustomFullTextCatalogNameBuilder));
       configuration.ConnectionInitializationSql = "USE [DO-Tests-1]";
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
@@ -225,7 +225,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.Types.Register(model1Type);
       configuration.Types.Register(model2Type);
       configuration.Types.Register(typeof(CustomUpgradeHandler));
-      configuration.Types.Register(typeof(CustomFullTextCatalogResolver));
+      configuration.Types.Register(typeof(CustomFullTextCatalogNameBuilder));
 
       configuration.DefaultSchema = "dbo";
 
@@ -279,7 +279,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuragtion.Types.Register(db2Model2SchemaType);
 
       configuragtion.Types.Register(typeof (CustomUpgradeHandler));
-      configuragtion.Types.Register(typeof (CustomFullTextCatalogResolver));
+      configuragtion.Types.Register(typeof (CustomFullTextCatalogNameBuilder));
 
       configuragtion.DefaultDatabase = "DO-Tests";
       configuragtion.DefaultSchema = "dbo";
@@ -343,7 +343,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof (TestEntity));
       configuration.Types.Register(typeof (CustomUpgradeHandler));
-      configuration.Types.Register(typeof (CustomFullTextCatalogResolver));
+      configuration.Types.Register(typeof (CustomFullTextCatalogNameBuilder));
 
       configuration.DefaultSchema = "dbo";
 
@@ -393,7 +393,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof(TestEntity));
       configuration.Types.Register(typeof(CustomUpgradeHandler));
-      configuration.Types.Register(typeof(CustomFullTextCatalogResolver));
+      configuration.Types.Register(typeof(CustomFullTextCatalogNameBuilder));
 
       configuration.DefaultSchema = "dbo";
       configuration.DefaultDatabase = "DO-Tests";
@@ -446,7 +446,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof (TestEntity));
       configuration.Types.Register(typeof (CustomUpgradeHandler));
-      configuration.Types.Register(typeof (CustomFullTextCatalogResolver));
+      configuration.Types.Register(typeof (CustomFullTextCatalogNameBuilder));
 
       configuration.DefaultSchema = "dbo";
 

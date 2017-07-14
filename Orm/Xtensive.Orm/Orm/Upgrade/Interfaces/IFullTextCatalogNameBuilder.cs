@@ -11,21 +11,21 @@ using Xtensive.Orm.Upgrade.Model;
 namespace Xtensive.Orm.Upgrade
 {
   /// <summary>
-  /// A resolver responsible for name of full-text catalog.
+  /// A name builder responsible for the name of the catalog of every full-text index.
   /// </summary>
-  public interface IFullTextCatalogResolver
+  public interface IFullTextCatalogNameBuilder
   {
     /// <summary>
-    /// Determines whether resolver is enabled.
+    /// Determines whether builder is enabled.
     /// </summary>
     bool IsEnabled { get; }
 
     /// <summary>
-    /// Resolves full-text catalog name.
+    /// Builds full-text catalog name.
     /// </summary>
     /// <param name="typeInfo"><see cref="TypeInfo">Domain model type.</see></param>
     /// <param name="fulltextTable">Table with full-text index.</param>
     /// <returns></returns>
-    string Resolve(TypeInfo typeInfo, TableInfo fulltextTable);
+    string Build(TypeInfo typeInfo, TableInfo fulltextTable);
   }
 }
