@@ -676,6 +676,8 @@ namespace Xtensive.Orm.Upgrade
       var ftIndex = table.CreateFullTextIndex(fullTextIndexInfo.Name);
       ftIndex.UnderlyingUniqueIndex = fullTextIndexInfo.Parent.PrimaryIndex.EscapedName;
       ftIndex.FullTextCatalog = fullTextIndexInfo.FullTextCatalog;
+      ftIndex.ChangeTrackingMode = ConvertFullTextChangeTrackingMode(fullTextIndexInfo.ChangeTrackingMode);
+
       foreach (var column in fullTextIndexInfo.Columns) {
         var tableColumn = FindColumn(table, column.Value.Name);
         var ftColumn = ftIndex.CreateIndexColumn(tableColumn);
@@ -1102,6 +1104,22 @@ namespace Xtensive.Orm.Upgrade
         return ReferentialAction.SetNull;
       default:
         return ReferentialAction.Restrict;
+      }
+    }
+
+    private static ChangeTrackingMode ConvertFullTextChangeTrackingMode(FullTextChangeTrackingMode toConvert)
+    {
+      switch (toConvert) {
+      case FullTextChangeTrackingMode.Auto:
+        return ChangeTrackingMode.Auto;
+      case FullTextChangeTrackingMode.Manual:
+        return ChangeTrackingMode.Manual;
+      case FullTextChangeTrackingMode.Off:
+        return ChangeTrackingMode.Off;
+      case FullTextChangeTrackingMode.OffWithNoPopulation:
+        return ChangeTrackingMode.OffWithNoPopulation;
+      default:
+        return ChangeTrackingMode.Default;
       }
     }
 

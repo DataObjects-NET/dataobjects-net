@@ -346,9 +346,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var ftIndex = index as FullTextIndex;
       if (ftIndex==null)
         return baseSectionTranslation;
-      if (ftIndex.FullTextCatalog==null)
-        return baseSectionTranslation;
-      return baseSectionTranslation + " ON " + QuoteIdentifier(ftIndex.FullTextCatalog);
+      if (ftIndex.FullTextCatalog!=null)
+        baseSectionTranslation = baseSectionTranslation + " ON " + QuoteIdentifier(ftIndex.FullTextCatalog);
+      return baseSectionTranslation + " WITH CHANGE_TRACKING " + TranslateChangeTrackingMode(ftIndex.ChangeTrackingMode);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlRenameColumn action)
@@ -563,6 +563,22 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     public override string Translate(Collation collation)
     {
       return collation.DbName;
+    }
+
+    protected virtual string TranslateChangeTrackingMode(ChangeTrackingMode mode)
+    {
+      switch (mode) {
+      case ChangeTrackingMode.Auto:
+        return "AUTO";
+      case ChangeTrackingMode.Manual:
+        return "MANUAL";
+      case ChangeTrackingMode.Off:
+        return "OFF";
+      case ChangeTrackingMode.OffWithNoPopulation:
+        return "OFF, NO POPULATION";
+      default:
+        return "AUTO";
+      }
     }
 
 

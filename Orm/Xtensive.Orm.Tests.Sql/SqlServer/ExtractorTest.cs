@@ -8,6 +8,7 @@
 
 using NUnit.Framework;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
 
@@ -99,6 +100,46 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       ExecuteNonQuery(drop);
       ExecuteNonQuery(create);
       ExtractDefaultSchema();
+    }
+
+    [Test]
+    public void ExtractFulltextChangeTrackingTest()
+    {
+      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2005);
+      var createTable = @"CREATE TABLE [FullTextTestTable]
+                            (
+                              [Id] int not null,
+                              [Auto] nvarchar(MAX),
+                              [Manual] nvarchar(MAX),
+                              [Off] nvarchar(MAX),
+                              [OffNoPopulation] nvarchar(MAX),
+                              CONSTRAINT PK_FullTextTestTable PRIMARY KEY (Id)
+                            );";
+      var dropTable = @"IF OBJECT_ID('dbo.FullTextTestTable', 'U') IS NOT NULL 
+                          DROP TABLE dbo.FullTextTestTable;";
+
+      var createAutoTrackingIndex = "CREATE FULLTEXT INDEX ON [dbo].[FullTextTestTable] ([Auto] LANGUAGE 1033) KEY INDEX PK_FullTextTestTable WITH CHANGE_TRACKING AUTO;";
+      var createManualTrackingIndex = "CREATE FULLTEXT INDEX ON [dbo].[FullTextTestTable] ([Manual] LANGUAGE 1033) KEY INDEX PK_FullTextTestTable WITH CHANGE_TRACKING MANUAL;";
+      var createOffTrackingIndex = "CREATE FULLTEXT INDEX ON [dbo].[FullTextTestTable] ([Off] LANGUAGE 1033) KEY INDEX PK_FullTextTestTable WITH CHANGE_TRACKING OFF;";
+      var createOffNoPopulationIndex = "CREATE FULLTEXT INDEX ON [dbo].[FullTextTestTable] ([OffNoPopulation] LANGUAGE 1033) KEY INDEX PK_FullTextTestTable WITH CHANGE_TRACKING OFF, NO POPULATION;";
+
+      var cases = new Pair<string, ChangeTrackingMode>[4];
+      cases[0] = new Pair<string, ChangeTrackingMode>(createAutoTrackingIndex, ChangeTrackingMode.Auto);
+      cases[1] = new Pair<string, ChangeTrackingMode>(createManualTrackingIndex , ChangeTrackingMode.Manual);
+      cases[2] = new Pair<string, ChangeTrackingMode>(createOffTrackingIndex, ChangeTrackingMode.Off);
+      cases[3] = new Pair<string, ChangeTrackingMode>(createOffNoPopulationIndex, ChangeTrackingMode.OffWithNoPopulation);
+
+      foreach (var @case in cases) {
+        ExecuteNonQuery(dropTable);
+        ExecuteNonQuery(createTable);
+        ExecuteNonQuery(@case.First);
+        var schema = ExtractDefaultSchema();
+        var table = schema.Tables["FullTextTestTable"];
+        var ftIndex = table.Indexes.OfType<FullTextIndex>().FirstOrDefault();
+        Assert.That(ftIndex, Is.Not.Null);
+        Assert.That(ftIndex.ChangeTrackingMode, Is.EqualTo(@case.Second));
+      }
+      ExecuteNonQuery(dropTable);
     }
 
     private void CreateDomain()

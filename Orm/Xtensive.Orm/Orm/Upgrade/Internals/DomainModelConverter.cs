@@ -284,6 +284,7 @@ namespace Xtensive.Orm.Upgrade
       
       ftIndex.FullTextCatalog = 
         fulltextCatalogNameBuilder.Build(fullTextIndex.PrimaryIndex.ReflectedType, table);
+      ftIndex.ChangeTrackingMode = configuration.FullTextChangeTrackingMode;
       return ftIndex;
     }
 

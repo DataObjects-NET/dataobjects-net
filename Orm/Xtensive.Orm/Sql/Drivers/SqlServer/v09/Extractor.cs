@@ -536,7 +536,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     fic.column_id,
     fic.type_column_id,
     fl.name,
-    i.name
+    i.name,
+    fi.change_tracking_state,
+    fi.crawl_start_date
   FROM {CATALOG}.sys.tables t
   INNER JOIN {CATALOG}.sys.fulltext_index_columns AS fic
     ON t.object_id = fic.object_id 
@@ -571,6 +573,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
               ? null
               : reader.GetString(3);
             index.UnderlyingUniqueIndex = reader.GetString(8);
+            index.ChangeTrackingMode = GetChangeTrackingMode(reader.GetString(9), reader.IsDBNull(10));
           }
           var column = index.CreateIndexColumn(table.GetColumn(reader.GetInt32(5)));
           column.TypeColumn = (reader.IsDBNull(6)) ? null : table.GetColumn(reader.GetInt32(6));
@@ -596,6 +599,19 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           return ReferentialAction.SetNull;
       }
       return ReferentialAction.SetDefault;
+    }
+
+    private static ChangeTrackingMode GetChangeTrackingMode(string mode, bool isPopulationOff)
+    {
+      switch (mode) {
+        case "A":
+          return ChangeTrackingMode.Auto;
+        case "M":
+          return ChangeTrackingMode.Manual;
+        case "O":
+          return (isPopulationOff) ? ChangeTrackingMode.OffWithNoPopulation : ChangeTrackingMode.Off;
+      }
+      return ChangeTrackingMode.Default;
     }
 
     // Do not touch this!!! The author is Denis Krjuchkov
