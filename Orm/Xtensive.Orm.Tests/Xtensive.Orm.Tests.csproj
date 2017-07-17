@@ -321,8 +321,8 @@
     <Compile Include="Issues\IssueJira0627_PocoClassPropertyRenitialization.cs" />
     <Compile Include="Storage\SkippingValidationOnCommitTest.cs" />
     <Compile Include="Upgrade\ChangeFulltextCatalogTest.cs" />
-    <Compile Include="Upgrade\DynamicFullTextCatalogTest.cs" />
-    <Compile Include="Upgrade\FullTextCatalogResolverRegistrationTest.cs" />
+    <Compile Include="Upgrade\FullText\DynamicFullTextCatalogTest.cs" />
+    <Compile Include="Upgrade\FullText\FullTextCatalogNameBuilderRegistrationTest.cs" />
     <Compile Include="Upgrade\FullText\ChangeTrackingModeComparisonTest.cs" />
     <Compile Include="Upgrade\FullText\ConvertionToStorageModelTest.cs" />
     <Compile Include="Upgrade\NodeBasedExtractedModelBuilderTest.cs" />
