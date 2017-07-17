@@ -1,15 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Copyright (C) 2017 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2017.07.12
+
+using System;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Upgrade.FullTextCatalogResolverRegistrationTestModel;
+using Xtensive.Orm.Tests.Upgrade.FullTextCatalogNameBuilderRegistrationTestModel;
 using Xtensive.Orm.Upgrade;
 
-namespace Xtensive.Orm.Tests.Upgrade.FullTextCatalogResolverRegistrationTestModel
+namespace Xtensive.Orm.Tests.Upgrade.FullTextCatalogNameBuilderRegistrationTestModel
 {
   public class TestEntity : Entity
   {
@@ -40,14 +43,14 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextCatalogResolverRegistrationTestMode
     }
   }
 
-  public class EnabledCustomResolver1 : FullTextCatalogNameBuilder
+  public class EnabledCustomBuilder1 : FullTextCatalogNameBuilder
   {
     public override bool IsEnabled
     {
       get { return true; }
     }
   }
-  public class EnabledCustomResolver2 : FullTextCatalogNameBuilder
+  public class EnabledCustomBuilder2 : FullTextCatalogNameBuilder
   {
     public override bool IsEnabled
     {
@@ -55,7 +58,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextCatalogResolverRegistrationTestMode
     }
   }
 
-  public class DisabledCustomResolver1 : FullTextCatalogNameBuilder
+  public class DisabledCustomBuilder1 : FullTextCatalogNameBuilder
   {
     public override bool IsEnabled
     {
@@ -63,7 +66,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextCatalogResolverRegistrationTestMode
     }
   }
 
-  public class DisabledCustomResolver2 : FullTextCatalogNameBuilder
+  public class DisabledCustomBuilder2 : FullTextCatalogNameBuilder
   {
     public override bool IsEnabled
     {
@@ -74,20 +77,20 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextCatalogResolverRegistrationTestMode
 
 namespace Xtensive.Orm.Tests.Upgrade
 {
-  public class FullTextCatalogResolverRegistrationTest
+  public class FullTextCatalogNameBuilderRegistrationTest
   {
     [Test]
     public void NoUserImplementationsTest()
     {
-      RunTest(Enumerable.Empty<Type>().ToArray(), typeof(FullTextCatalogNameBuilder));
+      RunTest(Enumerable.Empty<Type>().ToArray(), typeof (FullTextCatalogNameBuilder));
     }
 
     [Test]
     public void NoEnabledUserImplementationsTest()
     {
       var resolvers = new[] {
-        typeof (DisabledCustomResolver1),
-        typeof (DisabledCustomResolver2)
+        typeof (DisabledCustomBuilder1),
+        typeof (DisabledCustomBuilder2)
       };
 
       RunTest(resolvers, typeof(FullTextCatalogNameBuilder));
@@ -97,12 +100,12 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void SingleEnabledUserImplementationTest()
     {
       var resolvers = new[] {
-        typeof (DisabledCustomResolver1),
-        typeof (DisabledCustomResolver2),
-        typeof (EnabledCustomResolver1)
+        typeof (DisabledCustomBuilder1),
+        typeof (DisabledCustomBuilder2),
+        typeof (EnabledCustomBuilder1)
       };
 
-      RunTest(resolvers, typeof(EnabledCustomResolver1));
+      RunTest(resolvers, typeof(EnabledCustomBuilder1));
     }
 
     [Test]
@@ -110,10 +113,10 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void MultipleEnabledUserImplementationsTest()
     {
       var resolvers = new[] {
-        typeof (DisabledCustomResolver1),
-        typeof (DisabledCustomResolver2),
-        typeof (EnabledCustomResolver1),
-        typeof (EnabledCustomResolver2),
+        typeof (DisabledCustomBuilder1),
+        typeof (DisabledCustomBuilder2),
+        typeof (EnabledCustomBuilder1),
+        typeof (EnabledCustomBuilder2),
       };
 
       RunTest(resolvers, null);
@@ -130,8 +133,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     private DomainConfiguration BuildConfiguration(Type[] resolvers)
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(TestEntity));
-      configuration.Types.Register(typeof(ResolverCatcher));
+      configuration.Types.Register(typeof (TestEntity));
+      configuration.Types.Register(typeof (ResolverCatcher));
       resolvers.ForEach(r => configuration.Types.Register(r));
 
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;

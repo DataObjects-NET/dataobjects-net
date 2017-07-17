@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Configuration
     private readonly static Type iModuleType = typeof (IModule);
     private readonly static Type iUpgradeHandlerType = typeof (IUpgradeHandler);
     private readonly static Type keyGeneratorType = typeof (KeyGenerator);
-    private static readonly Type ifulltextCatalogResolverType = typeof (IFullTextCatalogNameBuilder);
+    private static readonly Type ifulltextCatalogNameBuilder = typeof (IFullTextCatalogNameBuilder);
 
     /// <summary>
     /// Gets all the registered persistent types.
@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public IEnumerable<Type> FullTextCatalogResolvers
     {
-      get { return this.Where(IsFullTextCatalogResolver); }
+      get { return this.Where(IsFullTextCatalogNameBuilder); }
     }
 
     #region IsXxx method group
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Configuration
         IsUpgradeHandler(type) ||
         IsKeyGenerator(type) ||
         IsCompilerContainer(type) ||
-        IsFullTextCatalogResolver(type);
+        IsFullTextCatalogNameBuilder(type);
     }
 
     /// <summary>
@@ -229,11 +229,11 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     /// <param name="type">The type to check.</param>
     /// <returns>Check result.</returns>
-    public static bool IsFullTextCatalogResolver(Type type)
+    public static bool IsFullTextCatalogNameBuilder(Type type)
     {
       if (type.IsAbstract)
         return false;
-      if (ifulltextCatalogResolverType.IsAssignableFrom(type) && ifulltextCatalogResolverType!=type)
+      if (ifulltextCatalogNameBuilder.IsAssignableFrom(type) && ifulltextCatalogNameBuilder!=type)
         return true;
       return false;
     }

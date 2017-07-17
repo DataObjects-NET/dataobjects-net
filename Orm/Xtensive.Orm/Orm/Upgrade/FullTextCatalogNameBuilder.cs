@@ -31,9 +31,9 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc />
-    public string Build(Orm.Model.TypeInfo typeInfo, TableInfo tableInfo)
+    public string Build(Orm.Model.TypeInfo typeInfo, TableInfo indexedTable)
     {
-      var nameParts = GetNameParts(tableInfo.Name);
+      var nameParts = GetNameParts(indexedTable.Name);
       return Build(typeInfo, nameParts[0], nameParts[1], nameParts[2]);
     }
 

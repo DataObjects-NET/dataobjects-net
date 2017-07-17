@@ -24,8 +24,8 @@ namespace Xtensive.Orm.Upgrade
     /// Builds full-text catalog name.
     /// </summary>
     /// <param name="typeInfo"><see cref="TypeInfo">Domain model type.</see></param>
-    /// <param name="fulltextTable">Table with full-text index.</param>
+    /// <param name="indexedTable">Table with full-text index.</param>
     /// <returns></returns>
-    string Build(TypeInfo typeInfo, TableInfo fulltextTable);
+    string Build(TypeInfo typeInfo, TableInfo indexedTable);
   }
 }

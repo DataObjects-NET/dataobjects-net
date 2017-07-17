@@ -1,8 +1,11 @@
-﻿
+﻿// Copyright (C) 2017 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2017.07.17
+
 using System.Linq;
-using System.Windows.Forms.VisualStyles;
 using NUnit.Framework;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Upgrade.Model;

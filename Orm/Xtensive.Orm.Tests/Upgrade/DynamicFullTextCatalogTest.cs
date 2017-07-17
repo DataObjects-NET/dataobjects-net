@@ -1,4 +1,9 @@
-﻿
+﻿// Copyright (C) 2017 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2017.07.12
+
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
@@ -156,8 +161,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void NoResolverTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(TestEntity));
-      configuration.Types.Register(typeof(CustomUpgradeHandler));
+      configuration.Types.Register(typeof (TestEntity));
+      configuration.Types.Register(typeof (CustomUpgradeHandler));
 
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
@@ -174,9 +179,9 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void SingleSchemaTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(TestEntity));
-      configuration.Types.Register(typeof(CustomUpgradeHandler));
-      configuration.Types.Register(typeof(CustomFullTextCatalogNameBuilder));
+      configuration.Types.Register(typeof (TestEntity));
+      configuration.Types.Register(typeof (CustomUpgradeHandler));
+      configuration.Types.Register(typeof (CustomFullTextCatalogNameBuilder));
 
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
@@ -195,9 +200,9 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       Require.ProviderIs(StorageProvider.SqlServer);
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof(TestEntity));
-      configuration.Types.Register(typeof(CustomUpgradeHandler));
-      configuration.Types.Register(typeof(CustomFullTextCatalogNameBuilder));
+      configuration.Types.Register(typeof (TestEntity));
+      configuration.Types.Register(typeof (CustomUpgradeHandler));
+      configuration.Types.Register(typeof (CustomFullTextCatalogNameBuilder));
       configuration.ConnectionInitializationSql = "USE [DO-Tests-1]";
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
@@ -216,16 +221,16 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multischema);
 
-      var defaultSchemaType = typeof(Database1.Default.TestEntity1);
-      var model1Type = typeof(Database1.Model1.TestEntity2);
-      var model2Type = typeof(Database1.Model2.TestEntity3);
+      var defaultSchemaType = typeof (Database1.Default.TestEntity1);
+      var model1Type = typeof (Database1.Model1.TestEntity2);
+      var model2Type = typeof (Database1.Model2.TestEntity3);
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.Types.Register(defaultSchemaType);
       configuration.Types.Register(model1Type);
       configuration.Types.Register(model2Type);
-      configuration.Types.Register(typeof(CustomUpgradeHandler));
-      configuration.Types.Register(typeof(CustomFullTextCatalogNameBuilder));
+      configuration.Types.Register(typeof (CustomUpgradeHandler));
+      configuration.Types.Register(typeof (CustomFullTextCatalogNameBuilder));
 
       configuration.DefaultSchema = "dbo";
 
@@ -391,9 +396,9 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof(TestEntity));
-      configuration.Types.Register(typeof(CustomUpgradeHandler));
-      configuration.Types.Register(typeof(CustomFullTextCatalogNameBuilder));
+      configuration.Types.Register(typeof (TestEntity));
+      configuration.Types.Register(typeof (CustomUpgradeHandler));
+      configuration.Types.Register(typeof (CustomFullTextCatalogNameBuilder));
 
       configuration.DefaultSchema = "dbo";
       configuration.DefaultDatabase = "DO-Tests";

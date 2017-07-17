@@ -1,4 +1,10 @@
-﻿using NUnit.Framework;
+﻿// Copyright (C) 2017 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2017.07.17
+
+using NUnit.Framework;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Upgrade.FullText.Model.Version2;
 
