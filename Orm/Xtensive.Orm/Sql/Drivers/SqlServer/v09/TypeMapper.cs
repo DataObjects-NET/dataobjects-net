@@ -17,6 +17,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   {
     private static readonly SqlDecimal MinDecimal = new SqlDecimal(decimal.MinValue);
     private static readonly SqlDecimal MaxDecimal = new SqlDecimal(decimal.MaxValue);
+    private static readonly int NVarCharLength = 4000;
+    private static readonly int NVarCharMaxLength = int.MaxValue;
 
     private ValueRange<DateTime> dateTimeRange;
 
@@ -49,6 +51,17 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       if (value!=null)
         value = ValueRangeValidator.Correct((DateTime) value, dateTimeRange);
       base.BindDateTime(parameter, value);
+    }
+
+    public override void BindString(DbParameter parameter, object value)
+    {
+      base.BindString(parameter, value);
+      var stringValue = value as string;
+      if (stringValue==null)
+        return;
+      parameter.Size = stringValue.Length <= NVarCharLength
+        ? NVarCharLength
+        : NVarCharMaxLength;
     }
 
     public override SqlValueType MapSByte(int? length, int? precision, int? scale)
