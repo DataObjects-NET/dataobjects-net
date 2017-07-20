@@ -107,7 +107,10 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
         Assert.That(ftIndex.FullTextCatalog, Is.Null);
         Assert.That(ftIndex.ChangeTrackingMode, Is.EqualTo(FullTextChangeTrackingMode.Default));
         Assert.That(ftIndex.Columns.Count, Is.EqualTo(1));
-        Assert.That(ftIndex.Columns.Any(c => c.Configuration=="English" && c.TypeColumnName=="DataType"));
+        if (domain.StorageProviderInfo.Supports(ProviderFeatures.FullTextColumnDataTypeSpecification))
+          Assert.That(ftIndex.Columns.Any(c => c.Configuration=="English" && c.TypeColumnName=="DataType"));
+        else
+          Assert.That(ftIndex.Columns.Any(c => c.Configuration=="English" && c.TypeColumnName==null));
       }
     }
 

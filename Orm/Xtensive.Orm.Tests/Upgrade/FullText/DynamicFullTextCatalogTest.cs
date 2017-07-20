@@ -191,7 +191,9 @@ namespace Xtensive.Orm.Tests.Upgrade
         var ftIndex = table.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests_dbo"));
+        var database = domain.StorageProviderInfo.DefaultDatabase;
+        var schema = domain.StorageProviderInfo.DefaultSchema;
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo(string.Format("{0}_{1}", database, schema)));
       }
     }
 
@@ -241,24 +243,26 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
       using (var domain = Domain.Build(configuration)) {
+        var database = domain.StorageProviderInfo.DefaultDatabase;
+
         var targetModel = domain.Extensions.Get<StorageModel>();
         var defaultSchemaTable = targetModel.Tables["dbo:TestEntity1"];
         var ftIndex = defaultSchemaTable.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests_dbo"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo(string.Format("{0}_dbo", database)));
 
         var model1SchemaTable = targetModel.Tables["Model1:TestEntity2"];
         ftIndex = model1SchemaTable.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests_Model1"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo(string.Format("{0}_Model1", database)));
 
         var model2SchemaTable = targetModel.Tables["Model2:TestEntity3"];
         ftIndex = model2SchemaTable.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests_Model2"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo(string.Format("{0}_Model2", database)));
       }
     }
 
@@ -344,6 +348,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void MultinodeTest1()
     {
+      Require.ProviderIs(StorageProvider.SqlServer);
+
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof (TestEntity));
@@ -394,6 +400,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void MultinodeTest2()
     {
+      Require.ProviderIs(StorageProvider.SqlServer);
+
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof (TestEntity));
@@ -447,6 +455,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void MultinodeTest3()
     {
+      Require.ProviderIs(StorageProvider.SqlServer);
+
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof (TestEntity));
