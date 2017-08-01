@@ -4179,6 +4179,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to More than one enabled {0} is provided..
+        /// </summary>
+        internal static string ExMoreThanOneEnabledXIsProvided {
+            get {
+                return ResourceManager.GetString("ExMoreThanOneEnabledXIsProvided", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to More than one enabled {0} is provided for assembly &apos;{1}&apos;..
         /// </summary>
         internal static string ExMoreThanOneEnabledXIsProvidedForAssemblyY {
