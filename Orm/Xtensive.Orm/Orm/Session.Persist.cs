@@ -11,6 +11,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
+using Xtensive.Orm.Validation;
 using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Orm
@@ -112,7 +113,8 @@ namespace Xtensive.Orm
         persistingIsFailed = false;
         SystemEvents.NotifyPersisting();
         Events.NotifyPersisting();
-
+        if (reason==PersistReason.Commit)
+          ValidationContext.Validate(ValidationReason.Commit);
         try {
           using (this.OpenSystemLogicOnlyRegion()) {
             DemandTransaction();

@@ -154,7 +154,6 @@ namespace Xtensive.Orm
       Events.NotifyTransactionPrecommitting(transaction);
 
       Persist(PersistReason.Commit);
-      ValidationContext.Validate(ValidationReason.Commit);
 
       SystemEvents.NotifyTransactionCommitting(transaction);
       Events.NotifyTransactionCommitting(transaction);
