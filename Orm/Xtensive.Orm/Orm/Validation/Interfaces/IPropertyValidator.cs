@@ -25,6 +25,11 @@ namespace Xtensive.Orm.Validation
     bool SkipOnTransactionCommit { get; }
 
     /// <summary>
+    /// Gets value indicating whether validator should be skipped if field value was not changed.
+    /// </summary>
+    bool ValidateOnlyIfModified { get; }
+
+    /// <summary>
     /// Configures this instance.
     /// </summary>
     /// <param name="domain">A domain this validator is bound to.</param>

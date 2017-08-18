@@ -34,8 +34,9 @@ namespace Xtensive.Orm.Validation
     {
       if (!field.HasImmediateValidators)
         return;
+      var isChanged = target.GetFieldAccessor(field).AreSameValues(target.GetFieldValue(field), value);
 
-      foreach (var validator in field.Validators.Where(v => v.IsImmediate)) {
+      foreach (var validator in field.Validators.Where(v => v.IsImmediate && (!isChanged && v.ValidateOnlyIfModified))) {
         var result = validator.Validate(target, value);
         if (result.IsError)
           throw new ArgumentException(result.ErrorMessage, "value");
@@ -117,13 +118,30 @@ namespace Xtensive.Orm.Validation
         }
     }
 
-    private void GetValidationErrors(Entity target, List<ValidationResult> output, ValidationReason? validationReason=null)
+    private void GetValidationErrors(Entity target, List<ValidationResult> output, ValidationReason? validationReason = null)
     {
       foreach (var field in target.TypeInfo.Fields) {
         if (!field.HasValidators)
           continue;
         var value = target.GetFieldValue(field);
         foreach (var validator in field.Validators) {
+          if (validationReason==ValidationReason.Commit) {
+            var temp = true;
+          }
+          if (validator.ValidateOnlyIfModified) {
+            if (validator.SkipOnTransactionCommit){
+              if (!IsFieldChanged(target, field))
+                continue;
+              }
+              else {
+                if (validationReason==null || validationReason==ValidationReason.UserRequest)
+                  continue;
+                if (validationReason==ValidationReason.Commit)
+                  if (!IsFieldChanged(target, field))
+                    continue;
+              }
+          }
+
           if (validationReason.HasValue && validationReason.Value==ValidationReason.Commit && validator.SkipOnTransactionCommit)
             continue;
           var result = validator.Validate(target, value);
@@ -137,6 +155,14 @@ namespace Xtensive.Orm.Validation
         if (result.IsError)
           output.Add(result);
       }
+    }
+
+    private bool IsFieldChanged(Entity target, FieldInfo field)
+    {
+      var difTuple = target.State.DifferentialTuple;
+      if (difTuple==null)
+        return false;
+      return difTuple.IsChanged(field.MappingInfo.Offset);
     }
 
     private string GetErrorMessage(ValidationReason reason)
