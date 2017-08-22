@@ -712,6 +712,113 @@ namespace Xtensive.Orm.Tests.Storage
       PoppulateData();
     }
 
+    #region General
+
+    [Test]
+    public void PostPersistValidationTest()
+    {
+      var configuration = BuildConfiguration(typeof (model1.LengthTestEntity));
+      configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
+      BuildDomain(configuration);
+
+      Assert.Throws<ValidationFailedException>(() => {
+        using (var session = domain.OpenSession()) {
+          using (var transaction = session.OpenTransaction()) {
+            var entity = session.Query.All<model1.LengthTestEntity>().Single();
+            entity.ValidatedField = "";
+            entity.ValidatedIfChangedField = "";
+            session.SaveChanges();
+            transaction.Complete();
+          }
+        }
+      });
+
+      Assert.DoesNotThrow(() => {
+        using (var session = domain.OpenSession()) {
+          using (var transaction = session.OpenTransaction()) {
+            var entity = session.Query.All<model1.LengthTestEntity>().Single();
+            entity.ValidatedField = "valid";
+            entity.ValidatedIfChangedField = "valid";
+            session.SaveChanges();
+            transaction.Complete();
+          }
+        }
+      });
+    }
+
+    [Test]
+    public void NewEntityValidationTest()
+    {
+      var configuarion = BuildConfiguration(typeof(model1.LengthTestEntity));
+      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
+      BuildDomain(configuarion);
+
+      Assert.Throws<ValidationFailedException>(() => {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = new model1.LengthTestEntity() {
+            ValidatedField = string.Empty, ValidatedIfChangedField = string.Empty
+          };
+          transaction.Complete();
+        }
+      });
+
+      Assert.Throws<ValidationFailedException>(() => {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = new model1.LengthTestEntity()  {
+            ValidatedField = string.Empty,
+            ValidatedIfChangedField = string.Empty
+          };
+          session.Validate();
+        }
+      });
+
+      Assert.Throws<ValidationFailedException>(() => {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = new model1.LengthTestEntity() {
+            ValidatedField = string.Empty,
+            ValidatedIfChangedField = string.Empty
+          };
+          entity.Validate();
+        }
+      });
+
+      Assert.DoesNotThrow(() => {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = new model1.LengthTestEntity() {
+            ValidatedField = "valid",
+            ValidatedIfChangedField = "valid"
+          };
+          transaction.Complete();
+        }
+      });
+
+      Assert.DoesNotThrow(() => {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = new model1.LengthTestEntity()  {
+            ValidatedField = "valid",
+            ValidatedIfChangedField = "valid"
+          };
+          session.Validate();
+        }
+      });
+
+      Assert.DoesNotThrow(() => {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = new model1.LengthTestEntity() {
+            ValidatedField = "valid",
+            ValidatedIfChangedField = "valid"
+          };
+          entity.Validate();
+        }
+      });
+    }
+
     [Test]
     public void UnchangedEntityTest()
     {
@@ -727,7 +834,17 @@ namespace Xtensive.Orm.Tests.Storage
           transaction.Complete();
         }
       });
+
+      Assert.DoesNotThrow(() => {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model1.LengthTestEntity>().Single();
+          entityToChange.ValidatedField = entityToChange.ValidatedField;
+          session.Validate();
+        }
+      });
     }
+    #endregion
 
     #region ValidateIfChanged
     [Test]
