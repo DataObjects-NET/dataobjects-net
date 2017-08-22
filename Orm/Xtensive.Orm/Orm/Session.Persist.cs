@@ -113,8 +113,6 @@ namespace Xtensive.Orm
         persistingIsFailed = false;
         SystemEvents.NotifyPersisting();
         Events.NotifyPersisting();
-        if (reason==PersistReason.Commit)
-          ValidationContext.Validate(ValidationReason.Commit);
         try {
           using (this.OpenSystemLogicOnlyRegion()) {
             DemandTransaction();
