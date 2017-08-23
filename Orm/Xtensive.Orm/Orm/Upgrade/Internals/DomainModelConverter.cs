@@ -40,6 +40,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly ITypeIdProvider typeIdProvider;
     private readonly DomainConfiguration configuration;
     private readonly PartialIndexFilterCompiler compiler;
+    private readonly IFullTextCatalogNameBuilder fulltextCatalogNameBuilder;
 
     private StorageModel targetModel;
     private TableInfo currentTable;
@@ -280,6 +281,10 @@ namespace Xtensive.Orm.Upgrade
           UpgradeLog.Warning(Strings.LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX, fullTextColumn.Column.Name);
         new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
       }
+      
+      ftIndex.FullTextCatalog = 
+        fulltextCatalogNameBuilder.Build(fullTextIndex.PrimaryIndex.ReflectedType, table);
+      ftIndex.ChangeTrackingMode = configuration.FullTextChangeTrackingMode;
       return ftIndex;
     }
 
@@ -607,7 +612,9 @@ namespace Xtensive.Orm.Upgrade
       HandlerAccessor handlers,
       ITypeIdProvider typeIdProvider,
       PartialIndexFilterCompiler compiler,
-      MappingResolver resolver, bool isUpgradingStage)
+      MappingResolver resolver,
+      IFullTextCatalogNameBuilder fulltextCatalogNameBuilder,
+      bool isUpgradingStage)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
       ArgumentValidator.EnsureArgumentNotNull(typeIdProvider, "typeIdProvider");
@@ -619,6 +626,7 @@ namespace Xtensive.Orm.Upgrade
       this.typeIdProvider = typeIdProvider;
       this.resolver = resolver;
       this.isUpgradingStage = isUpgradingStage;
+      this.fulltextCatalogNameBuilder = fulltextCatalogNameBuilder;
 
       sourceModel = handlers.Domain.Model;
       configuration = handlers.Domain.Configuration;

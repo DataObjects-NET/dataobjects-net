@@ -5,11 +5,13 @@
 // Created:    2016.08.24
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.IssueJira0570_InOperationDoesNotCreateTemporaryTableModel;
 using Xtensive.Orm.Tests.Storage;
 
@@ -366,6 +368,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void StoreThenIncludeTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var businessUnitIds = session.Query.All<BusinessUnit>().Select(bu=>bu.Id).ToList();
@@ -384,6 +387,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void IncludeThenStoreTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var businessUnitIds = session.Query.All<BusinessUnit>().Select(bu => bu.Id).ToList();
@@ -402,6 +406,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void IncludeWithoutStoreTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var businessUnitIds = session.Query.All<BusinessUnit>().Select(bu => bu.Id).ToList();
@@ -433,6 +438,37 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+    [Test]
+    public void DelayedQueryExecutionTest()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+      var parametersCountLimit = 2100;
+
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var customers = new int[customerIds.Length];
+        customerIds.CopyTo(customers, 0);
+
+        var invoiceStatuses = new InvoiceStatus[queryableInvoiceStatuses.Length];
+        queryableInvoiceStatuses.CopyTo(invoiceStatuses, 0);
+
+        var paymentStatuses = new PaymentStatus[queryablePaymentStatuses.Length];
+        queryablePaymentStatuses.CopyTo(paymentStatuses, 0);
+
+        var currentParametersCount = 0;
+        var delayedQueries = new List<IEnumerable<Customer>>();
+
+        while (currentParametersCount < parametersCountLimit) {
+          var customersDelayed = session.Query.ExecuteDelayed(q => q.All<Customer>().Where(c => c.Id.In(customers)));
+          delayedQueries.Add(customersDelayed);
+          currentParametersCount += customers.Length;
+        }
+
+        delayedQueries.First().Run();
+        transaction.Complete();
+      }
+    }
+    
     protected override void PopulateData()
     {
       PopulateEnums();
@@ -468,8 +504,8 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void PopulateCustomers()
     {
-      customerIds = new int[5];
-      for (int i = 0; i < 5; i++)
+      customerIds = new int[160];
+      for (int i = 0; i < 160; i++)
         customerIds[i] = new Customer().Id;
     }
 

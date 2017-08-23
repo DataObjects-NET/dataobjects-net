@@ -48,6 +48,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string MultidatabaseKeysElementName = "multidatabaseKeys";
     private const string OptionsElementName = "options";
     private const string ShareStorageSchemaOverNodesElementName = "shareStorageSchemaOverNodes";
+    private const string FullTextChangeTrackingModeElementName = "fullTextChangeTrackingMode";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -184,6 +185,16 @@ namespace Xtensive.Orm.Configuration.Elements
     {
       get { return (string) this[ForeignKeyModeElementName]; }
       set { this[ForeignKeyModeElementName] = value; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.FullTextChangeTrackingMode" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(FullTextChangeTrackingModeElementName, DefaultValue = "Default")]
+    public string FullTextChangeTrackingMode
+    {
+      get { return (string) this[FullTextChangeTrackingModeElementName]; }
+      set { this[FullTextChangeTrackingModeElementName] = value; }
     }
 
     /// <summary>
@@ -399,7 +410,8 @@ namespace Xtensive.Orm.Configuration.Elements
         NativeLibraryCacheFolder = NativeLibraryCacheFolder,
         ConnectionInitializationSql = ConnectionInitializationSql,
         MultidatabaseKeys = MultidatabaseKeys,
-        ShareStorageSchemaOverNodes = ShareStorageSchemaOverNodes
+        ShareStorageSchemaOverNodes = ShareStorageSchemaOverNodes,
+        FullTextChangeTrackingMode = ParseEnum<FullTextChangeTrackingMode>(FullTextChangeTrackingMode)
       };
 
       foreach (var element in Types)

@@ -172,7 +172,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       CreateConnection(services);
-      defaultSchemaInfo = services.StorageDriver.GetDefaultSchema(services.Connection);
+      context.DefaultSchemaInfo = defaultSchemaInfo = services.StorageDriver.GetDefaultSchema(services.Connection);
       services.MappingResolver = MappingResolver.Create(configuration, context.NodeConfiguration, defaultSchemaInfo);
       BuildExternalServices(services, configuration);
       services.Lock();
@@ -215,13 +215,16 @@ namespace Xtensive.Orm.Upgrade
         .Select(type => new ServiceRegistration(typeof (IModule), type, false));
       var handlers = configuration.Types.UpgradeHandlers
         .Select(type => new ServiceRegistration(typeof (IUpgradeHandler), type, false));
+      var ftCatalogResolvers = configuration.Types.FullTextCatalogResolvers
+        .Select(type => new ServiceRegistration(typeof (IFullTextCatalogNameBuilder), type, false));
 
-      var registrations = standardRegistrations.Concat(modules).Concat(handlers);
+      var registrations = standardRegistrations.Concat(modules).Concat(handlers).Concat(ftCatalogResolvers);
       var serviceContainer = new ServiceContainer(registrations);
       serviceAccessor.RegisterResource(serviceContainer);
 
       BuildModules(serviceAccessor, serviceContainer);
       BuildUpgradeHandlers(serviceAccessor, serviceContainer);
+      BuildFullTextCatalogResolver(serviceAccessor, serviceContainer);
     }
 
     private static void BuildModules(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
@@ -275,6 +278,26 @@ namespace Xtensive.Orm.Upgrade
         new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers);
       serviceAccessor.OrderedUpgradeHandlers = 
         new ReadOnlyList<IUpgradeHandler>(sortedHandlers.ToList());
+    }
+
+    private static void BuildFullTextCatalogResolver(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
+    {
+      //Getting user resolvers
+      var candidates = from r in serviceContainer.GetAll<IFullTextCatalogNameBuilder>()
+        let assembly = r.GetType().Assembly
+        where r.IsEnabled && assembly!=typeof (IFullTextCatalogNameBuilder).Assembly
+        select r;
+
+      var userResolversCount = candidates.Count();
+      if (userResolversCount > 1)
+        throw new DomainBuilderException(string.Format(Strings.ExMoreThanOneEnabledXIsProvided, typeof (IFullTextCatalogNameBuilder).GetShortName()));
+
+      var resolver = (userResolversCount==0)
+        ? new FullTextCatalogNameBuilder()
+        : candidates.First();
+
+      //storing sesolver
+      serviceAccessor.FulltextCatalogNameBuilder = resolver;
     }
 
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
@@ -564,7 +587,9 @@ namespace Xtensive.Orm.Upgrade
     private StorageModel GetTargetModel(Domain domain, Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping, Dictionary<string, StoredTypeInfo> currentTypes, StorageModel extractedModel)
     {
       var indexFilterCompiler = context.Services.IndexFilterCompiler;
-      var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, indexFilterCompiler, context.Services.MappingResolver, context.Stage==UpgradeStage.Upgrading) {
+      var fullTextCatalogResolver = context.Services.FulltextCatalogNameBuilder;
+      var mappingResolver = context.Services.MappingResolver;
+      var converter = new DomainModelConverter(domain.Handlers, context.TypeIdProvider, indexFilterCompiler, mappingResolver, fullTextCatalogResolver, context.Stage==UpgradeStage.Upgrading) {
         BuildForeignKeys = context.Configuration.Supports(ForeignKeyMode.Reference),
         BuildHierarchyForeignKeys = context.Configuration.Supports(ForeignKeyMode.Hierarchy),
         FieldMapping = fieldMapping,

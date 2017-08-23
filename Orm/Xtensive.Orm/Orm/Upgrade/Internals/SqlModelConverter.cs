@@ -159,7 +159,8 @@ namespace Xtensive.Orm.Upgrade
         ? string.Format("FT_{0}", index.DataTable.Name)
         : index.Name;
       var ftIndex = new StorageFullTextIndexInfo(tableInfo, name) {
-        FullTextCatalog = index.FullTextCatalog
+        FullTextCatalog = index.FullTextCatalog,
+        ChangeTrackingMode = ConvertChangeTrackingMode(index.ChangeTrackingMode)
       };
       foreach (var column in index.Columns) {
         var columnInfo = tableInfo.Columns[column.Column.Name];
@@ -291,6 +292,27 @@ namespace Xtensive.Orm.Upgrade
         return ReferentialAction.Default;
       default:
         return ReferentialAction.Default;
+      }
+    }
+
+    /// <summary>
+    /// Converts the <see cref="Xtensive.Sql.Model.ChangeTrackingMode"/> to <see cref="Xtensive.Orm.FullTextChangeTrackingMode"/>.
+    /// </summary>
+    /// <param name="toConvert">The mode to convert.</param>
+    /// <returns>Converted mode.</returns>
+    private FullTextChangeTrackingMode ConvertChangeTrackingMode(ChangeTrackingMode toConvert)
+    {
+      switch (toConvert) {
+      case ChangeTrackingMode.Auto:
+        return FullTextChangeTrackingMode.Auto;
+      case ChangeTrackingMode.Manual:
+        return FullTextChangeTrackingMode.Manual;
+      case ChangeTrackingMode.Off:
+        return FullTextChangeTrackingMode.Off;
+      case ChangeTrackingMode.OffWithNoPopulation:
+        return FullTextChangeTrackingMode.OffWithNoPopulation;
+      default:
+        return FullTextChangeTrackingMode.Default;
       }
     }
 

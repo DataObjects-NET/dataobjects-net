@@ -96,6 +96,7 @@ namespace Xtensive.Orm.Configuration
     private SessionConfigurationCollection sessions = new SessionConfigurationCollection();
     private DomainUpgradeMode upgradeMode = DomainUpgradeMode.Default;
     private ForeignKeyMode foreignKeyMode = ForeignKeyMode.Default;
+    private FullTextChangeTrackingMode fullTextChangeTrackingMode = FullTextChangeTrackingMode.Default;
     private Type serviceContainerType;
     private bool includeSqlInExceptions = DefaultIncludeSqlInExceptions;
     private string forcedServerVersion = string.Empty;
@@ -309,6 +310,20 @@ namespace Xtensive.Orm.Configuration
       {
         this.EnsureNotLocked();
         foreignKeyMode = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating change tracking mode of full-text indexes.
+    /// The property may have no effect for certain storages where there is no support for such option.
+    /// </summary>
+    public FullTextChangeTrackingMode FullTextChangeTrackingMode
+    {
+      get { return fullTextChangeTrackingMode; }
+      set
+      {
+        this.EnsureNotLocked();
+        fullTextChangeTrackingMode = value;
       }
     }
 
