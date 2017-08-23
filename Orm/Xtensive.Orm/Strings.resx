@@ -3399,6 +3399,7 @@ Error: {1}</value>
   </data>
   <data name="ExMoreThanOneEnabledXIsProvided" xml:space="preserve">
     <value>More than one enabled {0} is provided.</value>
+  </data>
   <data name="ExNameValueReadingOrSettingIsDenied" xml:space="preserve">
     <value>Name value reading or setting is denied.</value>
   </data>
