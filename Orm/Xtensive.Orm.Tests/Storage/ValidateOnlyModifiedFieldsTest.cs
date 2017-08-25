@@ -110,7 +110,6 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedField { get; set; }
     }
 
-
     [HierarchyRoot]
     public class RangeConstraintTestEntity : Entity
     {
@@ -124,7 +123,6 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public int ValidatedField { get; set; }
     }
 
-
     [HierarchyRoot]
     public class RegExConstraintTestEntity : Entity
     {
@@ -137,10 +135,102 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       [Field]
       public string ValidatedField { get; set; }
     }
+
+    [HierarchyRoot]
+    public class IncludedStructure : Entity
+    {
+      [Key, Field]
+      public long Id { get; set; }
+
+      [Field]
+      public Structure1 StructureField { get; set; }
+    }
+
+    public class Structure1 : Structure
+    {
+      [Field]
+      public string ValidatedIfChangedField { get; set; }
+
+      [Field]
+      public Structure2 EnclosedStructureField { get; set; }
+    }
+
+    public class Structure2 : Structure
+    {
+      [Field]
+      public string ValidatedIfChangedField2 { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class StructureTestEntity : Entity
+    {
+      [Field, Key]
+      public long Id { get; set; }
+
+      [Field]
+      public TestStructure StructureField { get; set; }
+    }
+
+    public class TestStructure : Structure
+    {
+      [Field]
+      public string ValidatedIfChangedField { get; set; }
+
+      [Field]
+      public string ValidatedField { get; set; }
+    }
   }
 
   namespace ValidateIfChanged
   {
+    [HierarchyRoot]
+    public class IncludedStructure : Entity
+    {
+      [Key, Field]
+      public long Id { get; set; }
+
+      [Field]
+      public Structure1 StructureField { get; set; }
+    }
+
+    public class Structure1 : Structure
+    {
+      [Field]
+      [LengthConstraint(Max = 10, Min = 5, ValidateOnlyIfModified = true)]
+      public string ValidatedIfChangedField { get; set; }
+
+      [Field]
+      public Structure2 EnclosedStructureField { get; set; }
+    }
+
+    public class Structure2 : Structure
+    {
+      [Field]
+      [LengthConstraint(Max = 10, Min = 5, ValidateOnlyIfModified = true)]
+      public string ValidatedIfChangedField2 { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class StructureTestEntity : Entity
+    {
+      [Field, Key]
+      public long Id { get; set; }
+
+      [Field]
+      public TestStructure StructureField { get; set; }
+    }
+
+    public class TestStructure : Structure
+    {
+      [Field]
+      [LengthConstraint(Max = 10, Min = 5, ValidateOnlyIfModified = true)]
+      public string ValidatedIfChangedField { get; set; }
+
+      [Field]
+      [LengthConstraint(Max = 10, Min = 5)]
+      public string ValidatedField { get; set; }
+    }
+
     [HierarchyRoot]
     public class LengthTestEntity : Entity
     {
@@ -283,6 +373,54 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
   namespace ValidateIfChanged_SkipOnTransactionCommit
   {
     [HierarchyRoot]
+    public class IncludedStructure : Entity
+    {
+      [Key, Field]
+      public long Id { get; set; }
+
+      [Field]
+      public Structure1 StructureField { get; set; }
+    }
+
+    public class Structure1 : Structure
+    {
+      [Field]
+      [LengthConstraint(Max = 10, Min = 5, ValidateOnlyIfModified = true, SkipOnTransactionCommit = true)]
+      public string ValidatedIfChangedField { get; set; }
+
+      [Field]
+      public Structure2 EnclosedStructureField { get; set; }
+    }
+
+    public class Structure2 : Structure
+    {
+      [Field]
+      [LengthConstraint(Max = 10, Min = 5, ValidateOnlyIfModified = true, SkipOnTransactionCommit = true)]
+      public string ValidatedIfChangedField2 { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class StructureTestEntity : Entity
+    {
+      [Field, Key]
+      public long Id { get; set; }
+
+      [Field]
+      public TestStructure StructureField { get; set; }
+    }
+
+    public class TestStructure : Orm.Structure
+    {
+      [Field]
+      [LengthConstraint(Max = 10, Min = 5, ValidateOnlyIfModified = true, SkipOnTransactionCommit = true)]
+      public string ValidatedIfChangedField { get; set; }
+
+      [Field]
+      [LengthConstraint(Max = 10, Min = 5, SkipOnTransactionCommit = true)]
+      public string ValidatedField { get; set; }
+    }
+
+    [HierarchyRoot]
     public class LengthTestEntity : Entity
     {
       [Key, Field]
@@ -293,7 +431,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [LengthConstraint(Max = 20, Min = 2)]
+      [LengthConstraint(Max = 20, Min = 2, SkipOnTransactionCommit = true)]
       public string ValidatedField { get; set; }
     }
 
@@ -308,7 +446,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [NotEmptyConstraint]
+      [NotEmptyConstraint(SkipOnTransactionCommit = true)]
       public string ValidatedField { get; set; }
     }
 
@@ -323,7 +461,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [NotNullConstraint]
+      [NotNullConstraint(SkipOnTransactionCommit = true)]
       public string ValidatedField { get; set; }
     }
 
@@ -338,7 +476,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [NotNullOrEmptyConstraint]
+      [NotNullOrEmptyConstraint(SkipOnTransactionCommit = true)]
       public string ValidatedField { get; set; }
     }
 
@@ -353,7 +491,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public DateTime ValidatedIfChangedField { get; set; }
 
       [Field]
-      [PastConstraint]
+      [PastConstraint(SkipOnTransactionCommit = true)]
       public DateTime ValidatedField { get; set; }
     }
 
@@ -368,7 +506,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public DateTime ValidatedIfChangedField { get; set; }
 
       [Field]
-      [FutureConstraint]
+      [FutureConstraint(SkipOnTransactionCommit = true)]
       public DateTime ValidatedField { get; set; }
     }
 
@@ -383,7 +521,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [EmailConstraint]
+      [EmailConstraint(SkipOnTransactionCommit = true)]
       public string ValidatedField { get; set; }
     }
 
@@ -399,7 +537,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public int ValidatedIfChangedField { get; set; }
 
       [Field]
-      [RangeConstraint(Max = 10, Min = 5)]
+      [RangeConstraint(Max = 10, Min = 5, SkipOnTransactionCommit = true)]
       public int ValidatedField { get; set; }
     }
 
@@ -415,13 +553,62 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [RegexConstraint("[a-zA-Z]+")]
+      [RegexConstraint("[a-zA-Z]+", SkipOnTransactionCommit = true)]
       public string ValidatedField { get; set; }
     }
   }
 
   namespace ValidateIfChanged_IsImmediate
   {
+    [HierarchyRoot]
+    public class IncludedStructure : Entity
+    {
+      [Key, Field]
+      public long Id { get; set; }
+
+      [Field]
+      public Structure1 StructureField { get; set; }
+    }
+
+    public class Structure1 : Structure
+    {
+      [Field]
+      [NotNullConstraint(ValidateOnlyIfModified = true, IsImmediate = true)]
+      public string ValidatedIfChangedField { get; set; }
+
+      [Field]
+      public Structure2 EnclosedStructureField { get; set; }
+    }
+
+    public class Structure2 : Structure
+    {
+      [Field]
+      [NotNullConstraint(ValidateOnlyIfModified = true, IsImmediate = true)]
+      public string ValidatedIfChangedField2 { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class StructureTestEntity : Entity
+    {
+      [Field, Key]
+      public long Id { get; set; }
+
+      [Field]
+      [NotNullConstraint(ValidateOnlyIfModified = true, IsImmediate = true)]
+      public TestStructure StructureField { get; set; }
+    }
+
+    public class TestStructure : Orm.Structure
+    {
+      [Field]
+      [LengthConstraint(Max = 10, Min = 5, ValidateOnlyIfModified = true, IsImmediate = true)]
+      public string ValidatedIfChangedField { get; set; }
+
+      [Field]
+      [LengthConstraint(Max = 10, Min = 5, IsImmediate = true)]
+      public string ValidatedField { get; set; }
+    }
+
     [HierarchyRoot]
     public class LengthTestEntity : Entity
     {
@@ -433,7 +620,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [LengthConstraint(Max = 20, Min = 2)]
+      [LengthConstraint(Max = 20, Min = 2, IsImmediate = true)]
       public string ValidatedField { get; set; }
     }
 
@@ -448,7 +635,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [NotEmptyConstraint]
+      [NotEmptyConstraint(IsImmediate = true)]
       public string ValidatedField { get; set; }
     }
 
@@ -463,7 +650,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [NotNullConstraint]
+      [NotNullConstraint(IsImmediate = true)]
       public string ValidatedField { get; set; }
     }
 
@@ -478,7 +665,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [NotNullOrEmptyConstraint]
+      [NotNullOrEmptyConstraint(IsImmediate = true)]
       public string ValidatedField { get; set; }
     }
 
@@ -493,7 +680,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public DateTime ValidatedIfChangedField { get; set; }
 
       [Field]
-      [PastConstraint]
+      [PastConstraint(IsImmediate = true)]
       public DateTime ValidatedField { get; set; }
     }
 
@@ -508,7 +695,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public DateTime ValidatedIfChangedField { get; set; }
 
       [Field]
-      [FutureConstraint]
+      [FutureConstraint(IsImmediate = true)]
       public DateTime ValidatedField { get; set; }
     }
 
@@ -523,7 +710,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [EmailConstraint]
+      [EmailConstraint(IsImmediate = true)]
       public string ValidatedField { get; set; }
     }
 
@@ -539,7 +726,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public int ValidatedIfChangedField { get; set; }
 
       [Field]
-      [RangeConstraint(Max = 10, Min = 5)]
+      [RangeConstraint(Max = 10, Min = 5, IsImmediate = true)]
       public int ValidatedField { get; set; }
     }
 
@@ -555,13 +742,62 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [RegexConstraint("[a-zA-Z]+")]
+      [RegexConstraint("[a-zA-Z]+", IsImmediate = true)]
       public string ValidatedField { get; set; }
     }
   }
 
   namespace ValidateIfChanged_IsImmediate_SkipOnTransactionCommit
   {
+    [HierarchyRoot]
+    public class IncludedStructure : Entity
+    {
+      [Key, Field]
+      public long Id { get; set; }
+
+      [Field]
+      public Structure1 StructureField { get; set; }
+    }
+
+    public class Structure1 : Structure
+    {
+      [Field]
+      [NotNullConstraint(ValidateOnlyIfModified = true, SkipOnTransactionCommit = true, IsImmediate = true)]
+      public string ValidatedIfChangedField { get; set; }
+
+      [Field]
+      public Structure2 EnclosedStructureField { get; set; }
+    }
+
+    public class Structure2 : Structure
+    {
+      [Field]
+      [NotNullConstraint(ValidateOnlyIfModified = true, SkipOnTransactionCommit = true, IsImmediate = true)]
+      public string ValidatedIfChangedField2 { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class StructureTestEntity : Entity
+    {
+      [Field, Key]
+      public long Id { get; set; }
+
+      [Field]
+      [NotNullConstraint(ValidateOnlyIfModified = true, SkipOnTransactionCommit = true, IsImmediate = true)]
+      public TestStructure StructureField { get; set; }
+    }
+
+    public class TestStructure : Orm.Structure
+    {
+      [Field]
+      [LengthConstraint(Max = 10, Min = 5, ValidateOnlyIfModified = true, SkipOnTransactionCommit = true, IsImmediate = true)]
+      public string ValidatedIfChangedField { get; set; }
+
+      [Field]
+      [LengthConstraint(Max = 10, Min = 5, SkipOnTransactionCommit = true, IsImmediate = true)]
+      public string ValidatedField { get; set; }
+    }
+
     [HierarchyRoot]
     public class LengthTestEntity : Entity
     {
@@ -573,7 +809,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [LengthConstraint(Max = 20, Min = 2)]
+      [LengthConstraint(Max = 20, Min = 2, IsImmediate = true, SkipOnTransactionCommit = true)]
       public string ValidatedField { get; set; }
     }
 
@@ -588,7 +824,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [NotEmptyConstraint]
+      [NotEmptyConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
       public string ValidatedField { get; set; }
     }
 
@@ -603,7 +839,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [NotNullConstraint]
+      [NotNullConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
       public string ValidatedField { get; set; }
     }
 
@@ -618,7 +854,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [NotNullOrEmptyConstraint]
+      [NotNullOrEmptyConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
       public string ValidatedField { get; set; }
     }
 
@@ -633,7 +869,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public DateTime ValidatedIfChangedField { get; set; }
 
       [Field]
-      [PastConstraint]
+      [PastConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
       public DateTime ValidatedField { get; set; }
     }
 
@@ -648,7 +884,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public DateTime ValidatedIfChangedField { get; set; }
 
       [Field]
-      [FutureConstraint]
+      [FutureConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
       public DateTime ValidatedField { get; set; }
     }
 
@@ -663,7 +899,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [EmailConstraint]
+      [EmailConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
       public string ValidatedField { get; set; }
     }
 
@@ -678,7 +914,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public int ValidatedIfChangedField { get; set; }
 
       [Field]
-      [RangeConstraint(Max = 10, Min = 5)]
+      [RangeConstraint(Max = 10, Min = 5, IsImmediate = true, SkipOnTransactionCommit = true)]
       public int ValidatedField { get; set; }
     }
 
@@ -693,7 +929,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedIfChangedField { get; set; }
 
       [Field]
-      [RegexConstraint("[a-zA-Z]+")]
+      [RegexConstraint("[a-zA-Z]+", IsImmediate = true, SkipOnTransactionCommit = true)]
       public string ValidatedField { get; set; }
     }
   }
@@ -749,7 +985,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NewEntityValidationTest()
     {
-      var configuarion = BuildConfiguration(typeof(model1.LengthTestEntity));
+      var configuarion = BuildConfiguration(typeof (model1.LengthTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -757,7 +993,8 @@ namespace Xtensive.Orm.Tests.Storage
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entity = new model1.LengthTestEntity() {
-            ValidatedField = string.Empty, ValidatedIfChangedField = string.Empty
+            ValidatedField = string.Empty, 
+            ValidatedIfChangedField = string.Empty
           };
           transaction.Complete();
         }
@@ -766,7 +1003,7 @@ namespace Xtensive.Orm.Tests.Storage
       Assert.Throws<ValidationFailedException>(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
-          var entity = new model1.LengthTestEntity()  {
+          var entity = new model1.LengthTestEntity() {
             ValidatedField = string.Empty,
             ValidatedIfChangedField = string.Empty
           };
@@ -822,7 +1059,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void UnchangedEntityTest()
     {
-      var configuarion = BuildConfiguration(typeof(model1.LengthTestEntity));
+      var configuarion = BuildConfiguration(typeof (model1.LengthTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -847,6 +1084,7 @@ namespace Xtensive.Orm.Tests.Storage
     #endregion
 
     #region ValidateIfChanged
+
     [Test]
     public void LengthConstraintTest1()
     {
@@ -858,14 +1096,16 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.LengthTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = "";
-        Assert.DoesNotThrow(() => { session.Validate(); });
+        Assert.Throws<ValidationFailedException>(() => {
+          session.Validate();
+        });
       }
 
       using (var session = domain.OpenSession()) 
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.LengthTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = "";
-        Assert.DoesNotThrow(() => {
+        Assert.Throws<ValidationFailedException>(() => {
           entityToChange.Validate();
         });
       }
@@ -876,7 +1116,7 @@ namespace Xtensive.Orm.Tests.Storage
         entityToChange.ValidatedIfChangedField = "";
         var errors = session.ValidateAndGetErrors();
         var temp = errors;
-        Assert.That(errors.Count, Is.EqualTo(0));
+        Assert.That(errors.Count, Is.EqualTo(1));
       }
 
       Assert.Throws<ValidationFailedException>(() => {
@@ -909,14 +1149,14 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.NotEmptyTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = string.Empty;
-        Assert.DoesNotThrow(() => session.Validate());
+        Assert.Throws<ValidationFailedException>(() => session.Validate());
       }
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.NotEmptyTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = string.Empty;
-        Assert.DoesNotThrow(() => entityToChange.Validate());
+        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
       }
 
       using (var session = domain.OpenSession())
@@ -924,7 +1164,7 @@ namespace Xtensive.Orm.Tests.Storage
         var entityToChange = session.Query.All<model1.NotEmptyTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = string.Empty;
         var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(0));
+        Assert.That(errors.Count, Is.EqualTo(1));
       }
 
       Assert.Throws<ValidationFailedException>(() => {
@@ -957,14 +1197,14 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.NotNullTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = null;
-        Assert.DoesNotThrow(() => session.Validate());
+        Assert.Throws<ValidationFailedException>(() => session.Validate());
       }
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.NotNullTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = null;
-        Assert.DoesNotThrow(() => entityToChange.Validate());
+        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
       }
 
       using (var session = domain.OpenSession())
@@ -972,7 +1212,7 @@ namespace Xtensive.Orm.Tests.Storage
         var entityToChange = session.Query.All<model1.NotNullTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = null;
         var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(0));
+        Assert.That(errors.Count, Is.EqualTo(1));
       }
 
       Assert.Throws<ValidationFailedException>(() => {
@@ -1005,14 +1245,14 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.NotNullOrEmptyTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = null;
-        Assert.DoesNotThrow(() => session.Validate());
+        Assert.Throws<ValidationFailedException>(() => session.Validate());
       }
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.NotNullOrEmptyTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = null;
-        Assert.DoesNotThrow(() => entityToChange.Validate());
+        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
       }
 
       using (var session = domain.OpenSession())
@@ -1020,7 +1260,7 @@ namespace Xtensive.Orm.Tests.Storage
         var entityToChange = session.Query.All<model1.NotNullOrEmptyTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = null;
         var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(0));
+        Assert.That(errors.Count, Is.EqualTo(1));
       }
 
       Assert.Throws<ValidationFailedException>(() => {
@@ -1053,14 +1293,14 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.PastConstraintTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
-        Assert.DoesNotThrow(() => session.Validate());
+        Assert.Throws<ValidationFailedException>(() => session.Validate());
       }
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.PastConstraintTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
-        Assert.DoesNotThrow(() => entityToChange.Validate());
+        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
       }
 
       using (var session = domain.OpenSession())
@@ -1068,7 +1308,7 @@ namespace Xtensive.Orm.Tests.Storage
         var entityToChange = session.Query.All<model1.PastConstraintTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1);
         var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(0));
+        Assert.That(errors.Count, Is.EqualTo(1));
       }
 
       Assert.Throws<ValidationFailedException>(() => {
@@ -1101,14 +1341,14 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.FutureConstraintTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
-        Assert.DoesNotThrow(() => session.Validate());
+        Assert.Throws<ValidationFailedException>(() => session.Validate());
       }
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.FutureConstraintTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
-        Assert.DoesNotThrow(() => entityToChange.Validate());
+        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
       }
 
       using (var session = domain.OpenSession())
@@ -1116,7 +1356,7 @@ namespace Xtensive.Orm.Tests.Storage
         var entityToChange = session.Query.All<model1.FutureConstraintTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1);
         var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(0));
+        Assert.That(errors.Count, Is.EqualTo(1));
       }
 
       Assert.Throws<ValidationFailedException>(() => {
@@ -1149,14 +1389,14 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.EmailConstraintTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = "lol";
-        Assert.DoesNotThrow(() => session.Validate());
+        Assert.Throws<ValidationFailedException>(() => session.Validate());
       }
 
       using (var session = domain.OpenSession()) 
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.EmailConstraintTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = "lol";
-        Assert.DoesNotThrow(() => entityToChange.Validate());
+        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
       }
 
       using (var session = domain.OpenSession())
@@ -1164,7 +1404,7 @@ namespace Xtensive.Orm.Tests.Storage
         var entityToChange = session.Query.All<model1.EmailConstraintTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = "lol";
         var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(0));
+        Assert.That(errors.Count, Is.EqualTo(1));
       }
 
       Assert.Throws<ValidationFailedException>(() => {
@@ -1197,14 +1437,14 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.RangeConstraintTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = 12;
-        Assert.DoesNotThrow(() => session.Validate());
+        Assert.Throws<ValidationFailedException>(() => session.Validate());
       }
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.RangeConstraintTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = 12;
-        Assert.DoesNotThrow(() => entityToChange.Validate());
+        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
       }
 
       using (var session = domain.OpenSession())
@@ -1212,7 +1452,7 @@ namespace Xtensive.Orm.Tests.Storage
         var entityToChange = session.Query.All<model1.RangeConstraintTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = 12;
         var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(0));
+        Assert.That(errors.Count, Is.EqualTo(1));
       }
 
       Assert.Throws<ValidationFailedException>(() => {
@@ -1245,14 +1485,14 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.RegExConstraintTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = "***";
-        Assert.DoesNotThrow(() => session.Validate());
+        Assert.Throws<ValidationFailedException>(() => session.Validate());
       }
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model1.RegExConstraintTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = "***";
-        Assert.DoesNotThrow(() => entityToChange.Validate());
+        Assert.Throws<ValidationFailedException>(() => entityToChange.Validate());
       }
 
       using (var session = domain.OpenSession())
@@ -1260,7 +1500,7 @@ namespace Xtensive.Orm.Tests.Storage
         var entityToChange = session.Query.All<model1.RegExConstraintTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = "***";
         var errors = session.ValidateAndGetErrors();
-        Assert.That(errors.Count, Is.EqualTo(0));
+        Assert.That(errors.Count, Is.EqualTo(1));
       }
 
       Assert.Throws<ValidationFailedException>(() => {
@@ -1281,7 +1521,6 @@ namespace Xtensive.Orm.Tests.Storage
         }
       });
     }
-    
     #endregion
 
     #region ValidateIfChanged_SkipOnTransactionCommit
@@ -1312,7 +1551,6 @@ namespace Xtensive.Orm.Tests.Storage
         var entityToChange = session.Query.All<model2.LengthTestEntity>().Single();
         entityToChange.ValidatedIfChangedField = "";
         var errors = session.ValidateAndGetErrors();
-        var temp = errors;
         Assert.That(errors.Count, Is.EqualTo(1));
       }
 
@@ -1325,7 +1563,7 @@ namespace Xtensive.Orm.Tests.Storage
         }
       });
 
-      Assert.Throws<ValidationFailedException>(() => {
+      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.LengthTestEntity>().Single();
@@ -1338,7 +1576,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotEmptyConstraintTest2()
     {
-      var configuarion = BuildConfiguration(typeof(model2.NotEmptyTestEntity));
+      var configuarion = BuildConfiguration(typeof (model2.NotEmptyTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1373,7 +1611,7 @@ namespace Xtensive.Orm.Tests.Storage
         }
       });
 
-      Assert.Throws<ValidationFailedException>(() => {
+      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.NotEmptyTestEntity>().Single();
@@ -1421,7 +1659,7 @@ namespace Xtensive.Orm.Tests.Storage
         }
       });
 
-      Assert.Throws<ValidationFailedException>(() => {
+      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.NotNullTestEntity>().Single();
@@ -1434,7 +1672,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullOrEmptyConstraintTest2()
     {
-      var configuarion = BuildConfiguration(typeof(model2.NotNullOrEmptyTestEntity));
+      var configuarion = BuildConfiguration(typeof (model2.NotNullOrEmptyTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1469,7 +1707,7 @@ namespace Xtensive.Orm.Tests.Storage
         }
       });
 
-      Assert.Throws<ValidationFailedException>(() => {
+      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.NotNullOrEmptyTestEntity>().Single();
@@ -1482,7 +1720,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void PastConstraintTest2()
     {
-      var configuarion = BuildConfiguration(typeof(model2.PastConstraintTestEntity));
+      var configuarion = BuildConfiguration(typeof (model2.PastConstraintTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1517,7 +1755,7 @@ namespace Xtensive.Orm.Tests.Storage
         }
       });
 
-      Assert.Throws<ValidationFailedException>(() => {
+      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.PastConstraintTestEntity>().Single();
@@ -1565,7 +1803,7 @@ namespace Xtensive.Orm.Tests.Storage
         }
       });
 
-      Assert.Throws<ValidationFailedException>(() => {
+      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.FutureConstraintTestEntity>().Single();
@@ -1578,7 +1816,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EmailConstraintTest2()
     {
-      var configuarion = BuildConfiguration(typeof(model2.EmailConstraintTestEntity));
+      var configuarion = BuildConfiguration(typeof (model2.EmailConstraintTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1613,7 +1851,7 @@ namespace Xtensive.Orm.Tests.Storage
         }
       });
 
-      Assert.Throws<ValidationFailedException>(() => {
+      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.EmailConstraintTestEntity>().Single();
@@ -1626,7 +1864,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RangeConstraintTest2()
     {
-      var configuarion = BuildConfiguration(typeof(model2.RangeConstraintTestEntity));
+      var configuarion = BuildConfiguration(typeof (model2.RangeConstraintTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1661,7 +1899,7 @@ namespace Xtensive.Orm.Tests.Storage
         }
       });
 
-      Assert.Throws<ValidationFailedException>(() => {
+      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.RangeConstraintTestEntity>().Single();
@@ -1674,7 +1912,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RegExConstraintTest2()
     {
-      var configuarion = BuildConfiguration(typeof(model2.RegExConstraintTestEntity));
+      var configuarion = BuildConfiguration(typeof (model2.RegExConstraintTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1709,7 +1947,7 @@ namespace Xtensive.Orm.Tests.Storage
         }
       });
 
-      Assert.Throws<ValidationFailedException>(() => {
+      Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var entityToChange = session.Query.All<model2.RegExConstraintTestEntity>().Single();
@@ -1757,7 +1995,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullConstraintTest3()
     {
-      var configuarion = BuildConfiguration(typeof(model3.NotNullTestEntity));
+      var configuarion = BuildConfiguration(typeof (model3.NotNullTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1773,7 +2011,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullOrEmptyConstraintTest3()
     {
-      var configuarion = BuildConfiguration(typeof(model3.NotNullOrEmptyTestEntity));
+      var configuarion = BuildConfiguration(typeof (model3.NotNullOrEmptyTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1789,7 +2027,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void PastConstraintTest3()
     {
-      var configuarion = BuildConfiguration(typeof(model3.PastConstraintTestEntity));
+      var configuarion = BuildConfiguration(typeof (model3.PastConstraintTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1805,7 +2043,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void FutureConstraintTest3()
     {
-      var configuarion = BuildConfiguration(typeof(model3.FutureConstraintTestEntity));
+      var configuarion = BuildConfiguration(typeof (model3.FutureConstraintTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1821,7 +2059,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EmailConstraintTest3()
     {
-      var configuarion = BuildConfiguration(typeof(model3.EmailConstraintTestEntity));
+      var configuarion = BuildConfiguration(typeof (model3.EmailConstraintTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1837,7 +2075,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RangeConstraintTest3()
     {
-      var configuarion = BuildConfiguration(typeof(model3.RangeConstraintTestEntity));
+      var configuarion = BuildConfiguration(typeof (model3.RangeConstraintTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1853,7 +2091,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RegExConstraintTest3()
     {
-      var configuarion = BuildConfiguration(typeof(model3.RegExConstraintTestEntity));
+      var configuarion = BuildConfiguration(typeof (model3.RegExConstraintTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1872,7 +2110,7 @@ namespace Xtensive.Orm.Tests.Storage
 
     [Test]
     public void LengthConstraintTest4() {
-      var configuarion = BuildConfiguration(typeof(model4.LengthTestEntity));
+      var configuarion = BuildConfiguration(typeof (model4.LengthTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1888,7 +2126,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotEmptyConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof(model4.NotEmptyTestEntity));
+      var configuarion = BuildConfiguration(typeof (model4.NotEmptyTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1904,7 +2142,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof(model4.NotNullTestEntity));
+      var configuarion = BuildConfiguration(typeof (model4.NotNullTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1920,7 +2158,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullOrEmptyConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof(model4.NotNullOrEmptyTestEntity));
+      var configuarion = BuildConfiguration(typeof (model4.NotNullOrEmptyTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1936,7 +2174,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void PastConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof(model4.PastConstraintTestEntity));
+      var configuarion = BuildConfiguration(typeof (model4.PastConstraintTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1952,7 +2190,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void FutureConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof(model4.FutureConstraintTestEntity));
+      var configuarion = BuildConfiguration(typeof (model4.FutureConstraintTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1968,7 +2206,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EmailConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof(model4.EmailConstraintTestEntity));
+      var configuarion = BuildConfiguration(typeof (model4.EmailConstraintTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -1984,7 +2222,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RangeConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof(model4.RangeConstraintTestEntity));
+      var configuarion = BuildConfiguration(typeof (model4.RangeConstraintTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -2000,7 +2238,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RegExConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof(model4.RegExConstraintTestEntity));
+      var configuarion = BuildConfiguration(typeof (model4.RegExConstraintTestEntity));
       configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
       BuildDomain(configuarion);
 
@@ -2013,6 +2251,197 @@ namespace Xtensive.Orm.Tests.Storage
       });
     }
 
+    #endregion
+
+    #region Structure
+
+    [Test]
+    public void StructureTest1()
+    {
+      var configuarion = BuildConfiguration(typeof (model1.TestStructure));
+      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
+      BuildDomain(configuarion);
+
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction())  {
+        var entityToChange = session.Query.All<model1.StructureTestEntity>().Single();
+        entityToChange.StructureField.ValidatedIfChangedField = "lol";
+        Assert.Throws<ValidationFailedException>(() => { session.Validate(); });
+      }
+
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entityToChange = session.Query.All<model1.StructureTestEntity>().Single();
+        entityToChange.StructureField.ValidatedIfChangedField = "lol";
+        Assert.Throws<ValidationFailedException>(() => {
+          entityToChange.Validate();
+        });
+      }
+
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entityToChange = session.Query.All<model1.StructureTestEntity>().Single();
+        entityToChange.StructureField.ValidatedIfChangedField = "lol";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
+
+      Assert.Throws<ValidationFailedException>(() => {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model1.StructureTestEntity>().Single();
+          entityToChange.StructureField.ValidatedIfChangedField = "lol";
+          transaction.Complete();
+        }
+      });
+
+      Assert.Throws<ValidationFailedException>(() => {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model1.StructureTestEntity>().Single();
+          entityToChange.StructureField.ValidatedField = "lol";
+          transaction.Complete();
+        }
+      });
+    }
+
+    [Test]
+    public void StructureTest2()
+    {
+      var configuarion = BuildConfiguration(typeof (model2.StructureTestEntity));
+      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
+      BuildDomain(configuarion);
+
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entityToChange = session.Query.All<model2.StructureTestEntity>().Single();
+        entityToChange.StructureField.ValidatedIfChangedField = "lol";
+        Assert.Throws<ValidationFailedException>(() => {
+          session.Validate();
+        });
+      }
+
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entityToChange = session.Query.All<model2.StructureTestEntity>().Single();
+        entityToChange.StructureField.ValidatedIfChangedField = "lol";
+        Assert.Throws<ValidationFailedException>(() => {
+          entityToChange.Validate();
+        });
+      }
+
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entityToChange = session.Query.All<model2.StructureTestEntity>().Single();
+        entityToChange.StructureField.ValidatedIfChangedField = "lol";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
+
+      Assert.DoesNotThrow(() => {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entityToChange = session.Query.All<model2.StructureTestEntity>().Single();
+          entityToChange.StructureField.ValidatedIfChangedField = "lol";
+          transaction.Complete();
+        }
+      });
+
+      Assert.DoesNotThrow(() => {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction())  {
+          var entityToChange = session.Query.All<model2.StructureTestEntity>().Single();
+          entityToChange.StructureField.ValidatedField = "lol";
+          transaction.Complete();
+        }
+      });
+    }
+
+    [Test]
+    public void StructureTest3()
+    {
+      var configuarion = BuildConfiguration(typeof (model3.StructureTestEntity));
+      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
+      BuildDomain(configuarion);
+
+      Assert.Throws<ArgumentException>(() => {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction())  {
+          var entityToChange = session.Query.All<model3.StructureTestEntity>().Single();
+          entityToChange.StructureField.ValidatedIfChangedField = "***";
+        }
+      });
+    }
+
+    [Test]
+    public void StructureTest4()
+    {
+      var configuarion = BuildConfiguration(typeof (model4.StructureTestEntity));
+      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
+      BuildDomain(configuarion);
+
+      Assert.Throws<ArgumentException>(() => {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction())  {
+          var entityToChange = session.Query.All<model4.StructureTestEntity>().Single();
+          entityToChange.StructureField.ValidatedIfChangedField = "***";
+        }
+      });
+    }
+
+    [Test]
+    public void UnchangedStructureTest()
+    {
+      var configuarion = BuildConfiguration(typeof (model4.StructureTestEntity));
+      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
+      BuildDomain(configuarion);
+
+      Assert.DoesNotThrow(() => {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction())  {
+          var entityToChange = session.Query.All<model4.StructureTestEntity>().Single();
+          entityToChange.StructureField.ValidatedIfChangedField = entityToChange.StructureField.ValidatedIfChangedField;
+          transaction.Complete();
+        }
+      });
+    }
+
+    [Test]
+    public void IncludedStructureTest()
+    {
+      var configuration = BuildConfiguration(typeof (model1.IncludedStructure));
+      configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
+      BuildDomain(configuration);
+
+      Assert.Throws<ValidationFailedException>(() => {
+        using (var session = domain.OpenSession()) 
+        using (var transaction = session.OpenTransaction())  {
+          var entity = session.Query.All<model1.IncludedStructure>().Single();
+          entity.StructureField.ValidatedIfChangedField = "";
+          session.Validate();
+        }
+      });
+
+      Assert.Throws<ValidationFailedException>(() => {
+        using (var session = domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<model1.IncludedStructure>().Single();
+          entity.StructureField.EnclosedStructureField.ValidatedIfChangedField2 = "";
+          session.Validate();
+        }
+      });
+
+      Assert.DoesNotThrow(() => {
+        using (var session = domain.OpenSession()) {
+          using (var transaction = session.OpenTransaction()) {
+            var entity = session.Query.All<model1.IncludedStructure>().Single();
+            entity.StructureField.ValidatedIfChangedField = entity.StructureField.ValidatedIfChangedField;
+            entity.StructureField.EnclosedStructureField.ValidatedIfChangedField2 = entity.StructureField.EnclosedStructureField.ValidatedIfChangedField2;
+            transaction.Complete();
+          }
+        }
+      });
+    }
     #endregion
 
     private void PoppulateData()
@@ -2029,6 +2458,20 @@ namespace Xtensive.Orm.Tests.Storage
         new constraintFreeModel.EmailConstraintTestEntity() { ValidatedIfChangedField = "julian1990@mail.ru", ValidatedField = "julian1990@mail.ru" };
         new constraintFreeModel.RangeConstraintTestEntity() { ValidatedIfChangedField = 6, ValidatedField = 6 };
         new constraintFreeModel.RegExConstraintTestEntity() { ValidatedIfChangedField = "abc", ValidatedField = "abc" };
+        new constraintFreeModel.IncludedStructure() {
+          StructureField = new constraintFreeModel.Structure1() {
+            ValidatedIfChangedField = "valid",
+            EnclosedStructureField = new constraintFreeModel.Structure2() {
+              ValidatedIfChangedField2 = "valid"
+            }
+          }
+        };
+        new constraintFreeModel.StructureTestEntity() {
+          StructureField = new constraintFreeModel.TestStructure() {
+            ValidatedField = "valid",
+            ValidatedIfChangedField = "valid"
+          }
+        };
         transaction.Complete();
       }
     }
@@ -2040,7 +2483,7 @@ namespace Xtensive.Orm.Tests.Storage
 
     private void BuildInitialDomain()
     {
-      var config = BuildConfiguration(typeof(constraintFreeModel.LengthTestEntity));
+      var config = BuildConfiguration(typeof (constraintFreeModel.LengthTestEntity));
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       BuildDomain(config);
     }
