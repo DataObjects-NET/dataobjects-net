@@ -30,5 +30,7 @@ namespace Xtensive.Orm.Validation
     public abstract void ValidateSetAttempt(Entity target, FieldInfo field, object value);
 
     public abstract void RegisterForValidation(Entity target);
+
+    public abstract void RegisterForValidation(Entity target, FieldInfo field);
   }
 }

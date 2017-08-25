@@ -7,18 +7,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Core;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Validation
 {
   internal sealed class RealValidationContext : ValidationContext
   {
-    private Dictionary<Entity, Pair<IEnumerable<Pair<bool, FieldInfo>>, EntityErrorInfo>> entitiesToValidate;
+    private Dictionary<Entity, EntityErrorInfo> entitiesToValidate;
+    private Dictionary<Entity, HashSet<FieldInfo>> changedFields;
 
     public override void Reset()
     {
       entitiesToValidate = null;
+      changedFields = null;
     }
 
     public override void Validate(Entity target)
@@ -50,6 +51,26 @@ namespace Xtensive.Orm.Validation
       RegisterForValidation(target, null);
     }
 
+    public override void RegisterForValidation(Entity target, FieldInfo field)
+    {
+      if (field.IsStructure)
+        foreach (var structField in field.Fields)
+          RegisterForValidation(target, structField);
+
+
+      RegisterForValidation(target, (EntityErrorInfo)null);
+
+      HashSet<FieldInfo> fieldSet;
+      if (changedFields==null) {
+        fieldSet = new HashSet<FieldInfo>();
+        changedFields = new Dictionary<Entity, HashSet<FieldInfo>> {{target, fieldSet}};
+      }
+      else if (!changedFields.TryGetValue(target, out fieldSet))
+        changedFields[target] = fieldSet = new HashSet<FieldInfo>();
+
+      fieldSet.Add(field); 
+    }
+
     public override void Validate(ValidationReason reason)
     {
       var errors = ValidateAndGetErrors(reason);
@@ -60,7 +81,7 @@ namespace Xtensive.Orm.Validation
     public override IList<ValidationResult> ValidateAndGetErrors(Entity target)
     {
       var result = new List<ValidationResult>();
-      GetValidationErrors(target, entitiesToValidate[target], result);
+      GetValidationErrors(target, result);
       if (result.Count==0)
         return EmptyValidationResultCollection;
       var lockedResult = result.AsReadOnly();
@@ -71,9 +92,9 @@ namespace Xtensive.Orm.Validation
 
     public override IList<ValidationResult> ValidateOnceAndGetErrors(Entity target)
     {
-      Pair<IEnumerable<Pair<bool, FieldInfo>>, EntityErrorInfo> fieldValidationData;
-      if (entitiesToValidate != null && entitiesToValidate.TryGetValue(target, out fieldValidationData))
-        return fieldValidationData.Second.Errors;
+      EntityErrorInfo errorInfo;
+      if (entitiesToValidate != null && entitiesToValidate.TryGetValue(target, out errorInfo) && errorInfo!=null)
+        return errorInfo.Errors;
 
       return ValidateAndGetErrors(target);
     }
@@ -96,11 +117,9 @@ namespace Xtensive.Orm.Validation
         return;
 
       if (entitiesToValidate==null)
-        entitiesToValidate = new Dictionary<Entity, Pair<IEnumerable<Pair<bool, FieldInfo>>, EntityErrorInfo>>();
+        entitiesToValidate = new Dictionary<Entity, EntityErrorInfo>();
 
-      var fieldPermanenceMap = target.TypeInfo.Fields.Select(field => new Pair<bool, FieldInfo>(IsFieldChanged(target, field), field)).ToList();
-
-      entitiesToValidate[target] = new Pair<IEnumerable<Pair<bool, FieldInfo>>, EntityErrorInfo>(fieldPermanenceMap, previousStatus);
+      entitiesToValidate[target] = previousStatus;
     }
 
     private void GetValidationErrors(List<EntityErrorInfo> output, ValidationReason? validationReason = null)
@@ -114,7 +133,7 @@ namespace Xtensive.Orm.Validation
 
       foreach (var entity in entitiesToProcess.Keys)
         if (entity.CanBeValidated) {
-          GetValidationErrors(entity, entitiesToProcess[entity], currentEntityErrors, validationReason);
+          GetValidationErrors(entity, currentEntityErrors, validationReason);
           if (currentEntityErrors.Count > 0) {
             var errorInfo = new EntityErrorInfo(entity, currentEntityErrors.AsReadOnly());
             RegisterForValidation(entity, errorInfo);
@@ -124,24 +143,19 @@ namespace Xtensive.Orm.Validation
         }
     }
 
-    private void GetValidationErrors(Entity target, Pair<IEnumerable<Pair<bool, FieldInfo>>, EntityErrorInfo> fieldValidationData, List<ValidationResult> output, ValidationReason? validationReason = null)
+    private void GetValidationErrors(Entity target, List<ValidationResult> output, ValidationReason? validationReason = null)
     {
-      foreach (var fieldPermanencePair in fieldValidationData.First) {
-        if (!fieldPermanencePair.Second.HasValidators)
-          continue;
-
-        var value = target.GetFieldValue(fieldPermanencePair.Second);
-        foreach (var validator in fieldPermanencePair.Second.Validators) {
+      foreach (var field in target.TypeInfo.Fields) {
+        var value = target.GetFieldValue(field);
+        foreach (var validator in field.Validators) {
           if (validator.ValidateOnlyIfModified) {
             if (validator.SkipOnTransactionCommit) {
-              if (!fieldPermanencePair.First)
+              if (!changedFields[target].Contains(field))
                 continue;
             }
             else {
-              if (validationReason==null || validationReason==ValidationReason.UserRequest)
-                continue;
               if (validationReason==ValidationReason.Commit)
-                if (!fieldPermanencePair.First)
+                if (!changedFields[target].Contains(field))
                   continue;
             }
           }
@@ -159,14 +173,6 @@ namespace Xtensive.Orm.Validation
         if (result.IsError)
           output.Add(result);
       }
-    }
-
-    private bool IsFieldChanged(Entity target, FieldInfo field)
-    {
-      var difTuple = target.State.DifferentialTuple;
-      if (difTuple==null)
-        return false;
-      return difTuple.IsChanged(field.MappingInfo.Offset);
     }
 
     private string GetErrorMessage(ValidationReason reason)

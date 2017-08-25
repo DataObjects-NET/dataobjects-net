@@ -726,7 +726,7 @@ namespace Xtensive.Orm
           return;
 
         if (CanBeValidated)
-          Session.ValidationContext.RegisterForValidation(this);
+          Session.ValidationContext.RegisterForValidation(this, field);
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
         if (subscriptionInfo.Second!=null)
