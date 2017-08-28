@@ -941,21 +941,13 @@ namespace Xtensive.Orm.Tests.Storage
   {
     private Domain domain;
 
-    [SetUp]
-    public void TestSetup()
-    {
-      BuildInitialDomain();
-      PoppulateData();
-    }
-
     #region General
 
     [Test]
     public void PostPersistValidationTest()
     {
-      var configuration = BuildConfiguration(typeof (model1.LengthTestEntity));
-      configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuration);
+      PrepareDomain<model1.LengthTestEntity>(() => 
+        new model1.LengthTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       Assert.Throws<ValidationFailedException>(() => {
         using (var session = domain.OpenSession()) {
@@ -985,9 +977,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NewEntityValidationTest()
     {
-      var configuarion = BuildConfiguration(typeof (model1.LengthTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model1.LengthTestEntity>(() =>
+        new model1.LengthTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       Assert.Throws<ValidationFailedException>(() => {
         using (var session = domain.OpenSession())
@@ -1059,9 +1050,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void UnchangedEntityTest()
     {
-      var configuarion = BuildConfiguration(typeof (model1.LengthTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model1.LengthTestEntity>(() =>
+        new model1.LengthTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
@@ -1088,9 +1078,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void LengthConstraintTest1()
     {
-      var configuarion = BuildConfiguration(typeof (model1.LengthTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model1.LengthTestEntity>(() =>
+        new model1.LengthTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       using (var session = domain.OpenSession()) 
       using (var transaction = session.OpenTransaction()) {
@@ -1141,9 +1130,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotEmptyConstraintTest1()
     {
-      var configuarion = BuildConfiguration(typeof (model1.NotEmptyTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model1.NotEmptyTestEntity>(() =>
+        new model1.NotEmptyTestEntity() {  ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -1189,9 +1177,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullConstraintTest1()
     {
-      var configuarion = BuildConfiguration(typeof (model1.NotNullTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model1.NotNullTestEntity>(() => 
+        new model1.NotNullTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -1237,9 +1224,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullOrEmptyConstraintTest1()
     {
-      var configuarion = BuildConfiguration(typeof (model1.NotNullOrEmptyTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model1.NotNullOrEmptyTestEntity>(() => 
+        new model1.NotNullOrEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       using (var session = domain.OpenSession()) 
       using (var transaction = session.OpenTransaction()) {
@@ -1285,9 +1271,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void PastConstraintTest1()
     {
-      var configuarion = BuildConfiguration(typeof (model1.PastConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model1.PastConstraintTestEntity>(() => 
+        new model1.PastConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1), ValidatedField = DateTime.Now - TimeSpan.FromHours(1) });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -1333,9 +1318,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void FutureConstraintTest1()
     {
-      var configuarion = BuildConfiguration(typeof (model1.FutureConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model1.FutureConstraintTestEntity>(() => 
+        new model1.FutureConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1), ValidatedField = DateTime.Now + TimeSpan.FromHours(1) });
 
       using (var session = domain.OpenSession()) 
       using (var transaction = session.OpenTransaction()) {
@@ -1381,9 +1365,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EmailConstraintTest1()
     {
-      var configuarion = BuildConfiguration(typeof (model1.EmailConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model1.EmailConstraintTestEntity>(() => 
+        new model1.EmailConstraintTestEntity() { ValidatedIfChangedField = "julian1990@mail.ru", ValidatedField = "julian1990@mail.ru" });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -1429,9 +1412,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RangeConstraintTest1()
     {
-      var configuarion = BuildConfiguration(typeof (model1.RangeConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model1.RangeConstraintTestEntity>(() => 
+        new model1.RangeConstraintTestEntity() { ValidatedIfChangedField = 6, ValidatedField = 6 });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -1477,9 +1459,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RegExConstraintTest1()
     {
-      var configuarion = BuildConfiguration(typeof (model1.RegExConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model1.RegExConstraintTestEntity>(() => 
+        new model1.RegExConstraintTestEntity() { ValidatedIfChangedField = "abc", ValidatedField = "abc" });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -1528,9 +1509,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void LengthConstraintTest2()
     {
-      var configuarion = BuildConfiguration(typeof (model2.LengthTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model2.LengthTestEntity>(() => 
+        new model2.LengthTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -1576,9 +1556,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotEmptyConstraintTest2()
     {
-      var configuarion = BuildConfiguration(typeof (model2.NotEmptyTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model2.NotEmptyTestEntity>(() => 
+        new model2.NotEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -1624,9 +1603,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullConstraintTest2()
     {
-      var configuarion = BuildConfiguration(typeof (model2.NotNullTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model2.NotNullTestEntity>(() => 
+        new model2.NotNullTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -1672,9 +1650,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullOrEmptyConstraintTest2()
     {
-      var configuarion = BuildConfiguration(typeof (model2.NotNullOrEmptyTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model2.NotNullOrEmptyTestEntity>(() => 
+        new model2.NotNullOrEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -1720,9 +1697,9 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void PastConstraintTest2()
     {
-      var configuarion = BuildConfiguration(typeof (model2.PastConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model2.PastConstraintTestEntity>(() => 
+        new model2.PastConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1), ValidatedField = DateTime.Now - TimeSpan.FromHours(1) });
+
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -1768,9 +1745,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void FutureConstraintTest2()
     {
-      var configuarion = BuildConfiguration(typeof (model2.FutureConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model2.FutureConstraintTestEntity>(() => 
+        new model2.FutureConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1), ValidatedField = DateTime.Now + TimeSpan.FromHours(1) });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -1816,9 +1792,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EmailConstraintTest2()
     {
-      var configuarion = BuildConfiguration(typeof (model2.EmailConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model2.EmailConstraintTestEntity>(() => 
+        new model2.EmailConstraintTestEntity() { ValidatedIfChangedField = "julian1990@mail.ru", ValidatedField = "julian1990@mail.ru" });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -1864,9 +1839,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RangeConstraintTest2()
     {
-      var configuarion = BuildConfiguration(typeof (model2.RangeConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model2.RangeConstraintTestEntity>(() =>
+        new model2.RangeConstraintTestEntity() { ValidatedIfChangedField = 6, ValidatedField = 6 });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -1912,9 +1886,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RegExConstraintTest2()
     {
-      var configuarion = BuildConfiguration(typeof (model2.RegExConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model2.RegExConstraintTestEntity>(() => 
+        new model2.RegExConstraintTestEntity() { ValidatedIfChangedField = "abc", ValidatedField = "abc" });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -1963,10 +1936,9 @@ namespace Xtensive.Orm.Tests.Storage
 
     [Test]
     public void LengthConstraintTest3() {
-      var configuarion = BuildConfiguration(typeof (model3.LengthTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
-
+      PrepareDomain<model3.LengthTestEntity>(() => 
+        new model3.LengthTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
+     
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
@@ -1979,9 +1951,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotEmptyConstraintTest3()
     {
-      var configuarion = BuildConfiguration(typeof (model3.NotEmptyTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model3.NotEmptyTestEntity>(() =>
+        new model3.NotEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -1995,9 +1966,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullConstraintTest3()
     {
-      var configuarion = BuildConfiguration(typeof (model3.NotNullTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model3.NotNullTestEntity>(() => 
+        new model3.NotNullTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2011,9 +1981,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullOrEmptyConstraintTest3()
     {
-      var configuarion = BuildConfiguration(typeof (model3.NotNullOrEmptyTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model3.NotNullOrEmptyTestEntity>(() =>
+        new model3.NotNullOrEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2027,9 +1996,9 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void PastConstraintTest3()
     {
-      var configuarion = BuildConfiguration(typeof (model3.PastConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model3.PastConstraintTestEntity>(() =>
+        new model3.PastConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1), ValidatedField = DateTime.Now - TimeSpan.FromHours(1) });
+
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2043,9 +2012,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void FutureConstraintTest3()
     {
-      var configuarion = BuildConfiguration(typeof (model3.FutureConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model3.FutureConstraintTestEntity>(() => 
+        new model3.FutureConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1), ValidatedField = DateTime.Now + TimeSpan.FromHours(1) });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2059,9 +2027,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EmailConstraintTest3()
     {
-      var configuarion = BuildConfiguration(typeof (model3.EmailConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model3.EmailConstraintTestEntity>(() =>
+        new model3.EmailConstraintTestEntity() { ValidatedIfChangedField = "julian1990@mail.ru", ValidatedField = "julian1990@mail.ru" });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2075,9 +2042,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RangeConstraintTest3()
     {
-      var configuarion = BuildConfiguration(typeof (model3.RangeConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model3.RangeConstraintTestEntity>(() =>
+        new model3.RangeConstraintTestEntity() { ValidatedIfChangedField = 6, ValidatedField = 6 });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2091,9 +2057,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RegExConstraintTest3()
     {
-      var configuarion = BuildConfiguration(typeof (model3.RegExConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model3.RegExConstraintTestEntity>(() => 
+        new model3.RegExConstraintTestEntity() { ValidatedIfChangedField = "abc", ValidatedField = "abc" });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2110,9 +2075,8 @@ namespace Xtensive.Orm.Tests.Storage
 
     [Test]
     public void LengthConstraintTest4() {
-      var configuarion = BuildConfiguration(typeof (model4.LengthTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model4.LengthTestEntity>(() => 
+        new model4.LengthTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2126,9 +2090,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotEmptyConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof (model4.NotEmptyTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model4.NotEmptyTestEntity>(() =>
+        new model4.NotEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2142,9 +2105,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof (model4.NotNullTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model4.NotNullTestEntity>(() => 
+        new model4.NotNullTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2158,9 +2120,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullOrEmptyConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof (model4.NotNullOrEmptyTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model4.NotNullOrEmptyTestEntity>(() => 
+        new model4.NotNullOrEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2174,9 +2135,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void PastConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof (model4.PastConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model4.PastConstraintTestEntity>(() =>
+        new model4.PastConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1), ValidatedField = DateTime.Now - TimeSpan.FromHours(1) });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2190,9 +2150,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void FutureConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof (model4.FutureConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model4.FutureConstraintTestEntity>(() =>
+        new model4.FutureConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1), ValidatedField = DateTime.Now + TimeSpan.FromHours(1) });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2206,9 +2165,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EmailConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof (model4.EmailConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model4.EmailConstraintTestEntity>(() =>
+        new model4.EmailConstraintTestEntity() { ValidatedIfChangedField = "julian1990@mail.ru", ValidatedField = "julian1990@mail.ru" });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2222,9 +2180,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RangeConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof (model4.RangeConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model4.RangeConstraintTestEntity>(() =>
+        new model4.RangeConstraintTestEntity() { ValidatedIfChangedField = 6, ValidatedField = 6 });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2238,9 +2195,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RegExConstraintTest4()
     {
-      var configuarion = BuildConfiguration(typeof (model4.RegExConstraintTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model4.RegExConstraintTestEntity>(() =>
+        new model4.RegExConstraintTestEntity() { ValidatedIfChangedField = "abc", ValidatedField = "abc" });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2258,9 +2214,12 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void StructureTest1()
     {
-      var configuarion = BuildConfiguration(typeof (model1.TestStructure));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model1.StructureTestEntity>(() => new model1.StructureTestEntity() {
+        StructureField = new model1.TestStructure() {
+          ValidatedField = "valid",
+          ValidatedIfChangedField = "valid"
+        }
+      });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction())  {
@@ -2308,9 +2267,12 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void StructureTest2()
     {
-      var configuarion = BuildConfiguration(typeof (model2.StructureTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model2.StructureTestEntity>(() => new model2.StructureTestEntity() {
+        StructureField = new model2.TestStructure() {
+          ValidatedField = "valid",
+          ValidatedIfChangedField = "valid"
+        }
+      });
 
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
@@ -2360,9 +2322,12 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void StructureTest3()
     {
-      var configuarion = BuildConfiguration(typeof (model3.StructureTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model3.StructureTestEntity>(() => new model3.StructureTestEntity() {
+        StructureField = new model3.TestStructure() {
+          ValidatedField = "valid",
+          ValidatedIfChangedField = "valid"
+        }
+      });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2376,9 +2341,12 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void StructureTest4()
     {
-      var configuarion = BuildConfiguration(typeof (model4.StructureTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model4.StructureTestEntity>(() => new model4.StructureTestEntity() {
+        StructureField = new model4.TestStructure() {
+          ValidatedField = "valid",
+          ValidatedIfChangedField = "valid"
+        }
+      });
 
       Assert.Throws<ArgumentException>(() => {
         using (var session = domain.OpenSession())
@@ -2392,9 +2360,12 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void UnchangedStructureTest()
     {
-      var configuarion = BuildConfiguration(typeof (model4.StructureTestEntity));
-      configuarion.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuarion);
+      PrepareDomain<model4.StructureTestEntity>(() => new model4.StructureTestEntity() {
+        StructureField = new model4.TestStructure() {
+          ValidatedField = "valid",
+          ValidatedIfChangedField = "valid"
+        }
+      });
 
       Assert.DoesNotThrow(() => {
         using (var session = domain.OpenSession())
@@ -2409,9 +2380,14 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void IncludedStructureTest()
     {
-      var configuration = BuildConfiguration(typeof (model1.IncludedStructure));
-      configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      BuildDomain(configuration);
+      PrepareDomain<model1.IncludedStructure>(() => new model1.IncludedStructure() {
+        StructureField = new model1.Structure1() {
+          ValidatedIfChangedField = "valid",
+          EnclosedStructureField = new model1.Structure2() {
+            ValidatedIfChangedField2 = "valid"
+          }
+        }
+      });
 
       Assert.Throws<ValidationFailedException>(() => {
         using (var session = domain.OpenSession()) 
@@ -2444,54 +2420,32 @@ namespace Xtensive.Orm.Tests.Storage
     }
     #endregion
 
-    private void PoppulateData()
+    private void PrepareDomain<T>(Func<Entity> entity ) where T : Entity
     {
-      using (var session = domain.OpenSession())
-      using (session.Activate())
+      BuildDomain(typeof(T));
+      PoppualateData(entity);
+    }
+
+    private void PoppualateData(Func<Entity> entity)
+    {
+      using (var session = domain.OpenSession()) 
       using (var transaction = session.OpenTransaction()) {
-        new constraintFreeModel.LengthTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" };
-        new constraintFreeModel.NotEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" };
-        new constraintFreeModel.NotNullTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" };
-        new constraintFreeModel.NotNullOrEmptyTestEntity() { ValidatedIfChangedField = "Some string", ValidatedField = "Some string" };
-        new constraintFreeModel.PastConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1), ValidatedField = DateTime.Now - TimeSpan.FromHours(1) };
-        new constraintFreeModel.FutureConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now + TimeSpan.FromHours(1), ValidatedField = DateTime.Now + TimeSpan.FromHours(1) };
-        new constraintFreeModel.EmailConstraintTestEntity() { ValidatedIfChangedField = "julian1990@mail.ru", ValidatedField = "julian1990@mail.ru" };
-        new constraintFreeModel.RangeConstraintTestEntity() { ValidatedIfChangedField = 6, ValidatedField = 6 };
-        new constraintFreeModel.RegExConstraintTestEntity() { ValidatedIfChangedField = "abc", ValidatedField = "abc" };
-        new constraintFreeModel.IncludedStructure() {
-          StructureField = new constraintFreeModel.Structure1() {
-            ValidatedIfChangedField = "valid",
-            EnclosedStructureField = new constraintFreeModel.Structure2() {
-              ValidatedIfChangedField2 = "valid"
-            }
-          }
-        };
-        new constraintFreeModel.StructureTestEntity() {
-          StructureField = new constraintFreeModel.TestStructure() {
-            ValidatedField = "valid",
-            ValidatedIfChangedField = "valid"
-          }
-        };
+        entity.Invoke();
         transaction.Complete();
       }
     }
 
-    private void BuildDomain(DomainConfiguration configuration)
+    private void BuildDomain(Type type)
     {
-      domain = Domain.Build(configuration);
-    }
-
-    private void BuildInitialDomain()
-    {
-      var config = BuildConfiguration(typeof (constraintFreeModel.LengthTestEntity));
-      config.UpgradeMode = DomainUpgradeMode.Recreate;
-      BuildDomain(config);
+      var config = BuildConfiguration(type);
+      domain = Domain.Build(config);
     }
 
     private DomainConfiguration BuildConfiguration(Type type)
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(type.Assembly, type.Namespace);
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      configuration.Types.Register(type);
       return configuration;
     }
   }
