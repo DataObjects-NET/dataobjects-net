@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Validation
   {
     private bool isImmediate;
     private bool skipOnTransactionCommiting;
-    private bool validateOnlyIfModified;
 
     /// <summary>
     /// Gets or sets value indicating if current validator is immediate.
@@ -37,11 +36,7 @@ namespace Xtensive.Orm.Validation
     /// <summary>
     /// Gets or sets value indicating wheteher validation should continue only if field value has changed.
     /// </summary>
-    public bool ValidateOnlyIfModified
-    {
-      get { return validateOnlyIfModified; }
-      set { validateOnlyIfModified = value; }
-    }
+    public bool ValidateOnlyIfModified { get; set; }
 
     /// <summary>
     /// Gets or sets value indicating if current validator should be skipped on a transaction commit.
