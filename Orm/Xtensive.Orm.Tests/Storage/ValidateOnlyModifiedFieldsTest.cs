@@ -171,7 +171,6 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedField { get; set; }
     }
 
-
     [HierarchyRoot]
     public class RangeConstraintTestEntity : Entity
     {
@@ -202,7 +201,6 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       [RegexConstraint("[a-zA-Z]+")]
       public string ValidatedField { get; set; }
     }
-  
   }
 
   namespace ValidateIfChanged_SkipOnTransactionCommit
@@ -376,7 +374,6 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public int ValidatedField { get; set; }
     }
 
-
     [HierarchyRoot]
     public class RegExConstraintTestEntity : Entity
     {
@@ -549,7 +546,6 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public string ValidatedField { get; set; }
     }
 
-
     [HierarchyRoot]
     public class RangeConstraintTestEntity : Entity
     {
@@ -564,7 +560,6 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       [RangeConstraint(Max = 10, Min = 5, IsImmediate = true)]
       public int ValidatedField { get; set; }
     }
-
 
     [HierarchyRoot]
     public class RegExConstraintTestEntity : Entity
@@ -1535,7 +1530,6 @@ namespace Xtensive.Orm.Tests.Storage
       PrepareDomain<model2.PastConstraintTestEntity>(() => 
         new model2.PastConstraintTestEntity() { ValidatedIfChangedField = DateTime.Now - TimeSpan.FromHours(1), ValidatedField = DateTime.Now - TimeSpan.FromHours(1) });
 
-
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var entityToChange = session.Query.All<model2.PastConstraintTestEntity>().Single();
@@ -2255,9 +2249,9 @@ namespace Xtensive.Orm.Tests.Storage
     }
     #endregion
 
-    private void PrepareDomain<T>(Func<Entity> entity ) where T : Entity
+    private void PrepareDomain<T>(Func<Entity> entity) where T : Entity
     {
-      BuildDomain(typeof(T));
+      BuildDomain(typeof (T));
       PoppualateData(entity);
     }
 
