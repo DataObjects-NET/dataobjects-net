@@ -37,7 +37,9 @@ namespace Xtensive.Orm.Validation
       if (!field.HasImmediateValidators)
         return;
 
-      var isChanged = target.GetFieldAccessor(field).AreSameValues(target.GetFieldValue(field), value);
+      var fieldAccessor = target.GetFieldAccessor(field);
+      var oldValue = fieldAccessor.GetUntypedValue(target);
+      var isChanged = fieldAccessor.AreSameValues(oldValue, value);
 
       foreach (var validator in field.Validators.Where(v => v.IsImmediate && ((!isChanged && v.ValidateOnlyIfModified) || (!v.ValidateOnlyIfModified)))) {
         var result = validator.Validate(target, value);
@@ -93,7 +95,7 @@ namespace Xtensive.Orm.Validation
     public override IList<ValidationResult> ValidateOnceAndGetErrors(Entity target)
     {
       EntityErrorInfo errorInfo;
-      if (entitiesToValidate != null && entitiesToValidate.TryGetValue(target, out errorInfo) && errorInfo!=null)
+      if (entitiesToValidate!=null && entitiesToValidate.TryGetValue(target, out errorInfo) && errorInfo!=null)
         return errorInfo.Errors;
 
       return ValidateAndGetErrors(target);
@@ -148,20 +150,15 @@ namespace Xtensive.Orm.Validation
       foreach (var field in target.TypeInfo.Fields) {
         var value = target.GetFieldValue(field);
         foreach (var validator in field.Validators) {
-          if (validator.ValidateOnlyIfModified) {
-            if (validator.SkipOnTransactionCommit) {
-              if (!changedFields[target].Contains(field))
-                continue;
-            }
-            else {
-              if (validationReason==ValidationReason.Commit)
-                if (!changedFields[target].Contains(field))
-                  continue;
-            }
-          }
-
           if (validationReason.HasValue && validationReason.Value==ValidationReason.Commit && validator.SkipOnTransactionCommit)
             continue;
+          if (validator.ValidateOnlyIfModified) {
+            HashSet<FieldInfo> fieldSet;
+            if (!changedFields.TryGetValue(target, out fieldSet))
+              continue;
+            if(!fieldSet.Contains(field))
+              continue;
+          }
           var result = validator.Validate(target, value);
           if (result.IsError)
             output.Add(result);

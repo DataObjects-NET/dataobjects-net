@@ -9,12 +9,12 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Validation;
-using model1 = Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model.ValidateIfChanged;
-using model2 = Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model.ValidateIfChanged_SkipOnTransactionCommit;
-using model3 = Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model.ValidateIfChanged_IsImmediate;
-using model4 = Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model.ValidateIfChanged_IsImmediate_SkipOnTransactionCommit;
+using model1 = Xtensive.Orm.Tests.Storage.ValidateOnlyModifiedFieldsTestModel.ValidateIfChanged;
+using model2 = Xtensive.Orm.Tests.Storage.ValidateOnlyModifiedFieldsTestModel.ValidateIfChanged_SkipOnTransactionCommit;
+using model3 = Xtensive.Orm.Tests.Storage.ValidateOnlyModifiedFieldsTestModel.ValidateIfChanged_IsImmediate;
+using model4 = Xtensive.Orm.Tests.Storage.ValidateOnlyModifiedFieldsTestModel.ValidateIfChanged_IsImmediate_SkipOnTransactionCommit;
 
-namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
+namespace Xtensive.Orm.Tests.Storage.ValidateOnlyModifiedFieldsTestModel
 {
   namespace ValidateIfChanged
   {
@@ -242,7 +242,7 @@ namespace Xtensive.Orm.Tests.Storage.SkipValidationOnCommitTest2Model
       public TestStructure StructureField { get; set; }
     }
 
-    public class TestStructure : Orm.Structure
+    public class TestStructure : Structure
     {
       [Field]
       [LengthConstraint(Max = 10, Min = 5, ValidateOnlyIfModified = true, SkipOnTransactionCommit = true)]
