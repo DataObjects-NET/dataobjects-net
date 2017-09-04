@@ -14,10 +14,12 @@ namespace Xtensive.Orm.Validation
   internal sealed class RealValidationContext : ValidationContext
   {
     private Dictionary<Entity, EntityErrorInfo> entitiesToValidate;
+    private Dictionary<Entity, HashSet<FieldInfo>> changedFields;
 
     public override void Reset()
     {
       entitiesToValidate = null;
+      changedFields = null;
     }
 
     public override void Validate(Entity target)
@@ -35,7 +37,11 @@ namespace Xtensive.Orm.Validation
       if (!field.HasImmediateValidators)
         return;
 
-      foreach (var validator in field.Validators.Where(v => v.IsImmediate)) {
+      var fieldAccessor = target.GetFieldAccessor(field);
+      var oldValue = fieldAccessor.GetUntypedValue(target);
+      var isChanged = fieldAccessor.AreSameValues(oldValue, value);
+
+      foreach (var validator in field.Validators.Where(v => v.IsImmediate && ((!isChanged && v.ValidateOnlyIfModified) || (!v.ValidateOnlyIfModified)))) {
         var result = validator.Validate(target, value);
         if (result.IsError)
           throw new ArgumentException(result.ErrorMessage, "value");
@@ -45,6 +51,26 @@ namespace Xtensive.Orm.Validation
     public override void RegisterForValidation(Entity target)
     {
       RegisterForValidation(target, null);
+    }
+
+    public override void RegisterForValidation(Entity target, FieldInfo field)
+    {
+      if (field.IsStructure)
+        foreach (var structField in field.Fields)
+          RegisterForValidation(target, structField);
+
+
+      RegisterForValidation(target, (EntityErrorInfo)null);
+
+      HashSet<FieldInfo> fieldSet;
+      if (changedFields==null) {
+        fieldSet = new HashSet<FieldInfo>();
+        changedFields = new Dictionary<Entity, HashSet<FieldInfo>> {{target, fieldSet}};
+      }
+      else if (!changedFields.TryGetValue(target, out fieldSet))
+        changedFields[target] = fieldSet = new HashSet<FieldInfo>();
+
+      fieldSet.Add(field); 
     }
 
     public override void Validate(ValidationReason reason)
@@ -71,6 +97,7 @@ namespace Xtensive.Orm.Validation
       EntityErrorInfo errorInfo;
       if (entitiesToValidate!=null && entitiesToValidate.TryGetValue(target, out errorInfo) && errorInfo!=null)
         return errorInfo.Errors;
+
       return ValidateAndGetErrors(target);
     }
 
@@ -93,6 +120,7 @@ namespace Xtensive.Orm.Validation
 
       if (entitiesToValidate==null)
         entitiesToValidate = new Dictionary<Entity, EntityErrorInfo>();
+
       entitiesToValidate[target] = previousStatus;
     }
 
@@ -117,15 +145,20 @@ namespace Xtensive.Orm.Validation
         }
     }
 
-    private void GetValidationErrors(Entity target, List<ValidationResult> output, ValidationReason? validationReason=null)
+    private void GetValidationErrors(Entity target, List<ValidationResult> output, ValidationReason? validationReason = null)
     {
       foreach (var field in target.TypeInfo.Fields) {
-        if (!field.HasValidators)
-          continue;
         var value = target.GetFieldValue(field);
         foreach (var validator in field.Validators) {
           if (validationReason.HasValue && validationReason.Value==ValidationReason.Commit && validator.SkipOnTransactionCommit)
             continue;
+          if (validator.ValidateOnlyIfModified) {
+            HashSet<FieldInfo> fieldSet;
+            if (!changedFields.TryGetValue(target, out fieldSet))
+              continue;
+            if(!fieldSet.Contains(field))
+              continue;
+          }
           var result = validator.Validate(target, value);
           if (result.IsError)
             output.Add(result);
