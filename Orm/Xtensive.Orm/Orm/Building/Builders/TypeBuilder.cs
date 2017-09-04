@@ -339,7 +339,7 @@ namespace Xtensive.Orm.Building.Builders
         if (target.IsStructure && clone.IsEntity && !IsAuxiliaryType(clone.ReflectedType)) {
           var origin = context.Model.Associations
             .Find(context.Model.Types[field.ValueType], true)
-            .FirstOrDefault(a => a.OwnerField==field);
+            .FirstOrDefault(a => a.OwnerField.Equals(field));
           if (origin!=null && !clone.IsInherited) {
             AssociationBuilder.BuildAssociation(context, origin, clone);
             context.DiscardedAssociations.Add(origin);
