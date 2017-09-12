@@ -292,7 +292,7 @@ namespace Xtensive.Orm
     {
       var dTuple = DifferentialTuple;
       if (dTuple!=null)
-        dTuple.RestoreDifference();
+        dTuple.DropBackedUpDifference();
     }
 
     #region Equality members
