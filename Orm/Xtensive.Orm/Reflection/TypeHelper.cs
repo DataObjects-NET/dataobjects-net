@@ -401,7 +401,11 @@ namespace Xtensive.Reflection
             accessorIL.Emit(OpCodes.Ret);
           }
         }
+#if NETSTANDARD
+        return typeBuilder.CreateTypeInfo();
+#else
         return typeBuilder.CreateType();
+#endif
       }
     }
 
@@ -413,6 +417,13 @@ namespace Xtensive.Reflection
         if (moduleBuilder!=null)
           return;
         var assemblyName = new AssemblyName("Xtensive.TypeHelper.GeneratedTypes");
+#if NETSTANDARD
+          assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+          var tmp = assemblyBuilder.DefineDynamicModule(assemblyName.Name);
+          Thread.MemoryBarrier();
+          moduleBuilder = tmp;
+
+#else
         assemblyBuilder =
           AppDomain.CurrentDomain.DefineDynamicAssembly(
             assemblyName,
@@ -420,6 +431,7 @@ namespace Xtensive.Reflection
         var tmp = assemblyBuilder.DefineDynamicModule(assemblyName.Name, assemblyName + ".dll");
         Thread.MemoryBarrier();
         moduleBuilder = tmp;
+#endif
       }
     }
 
@@ -774,7 +786,7 @@ namespace Xtensive.Reflection
       }
       return result;
     }
-
+#if !NETSTANDARD
     /// <summary>
     /// Gets the <see cref="CodeTypeReference"/> to the specified <paramref name="type"/>.
     /// </summary>
@@ -818,6 +830,7 @@ namespace Xtensive.Reflection
         typeReference.BaseType = type.FullName ?? type.Namespace + "." + type.Name;
       return typeReference;
     }
+#endif
 
     /// <summary>
     /// Indicates whether <paramref name="type"/> is a <see cref="Nullable{T}"/> type.
@@ -1040,7 +1053,7 @@ namespace Xtensive.Reflection
       }
     }
 
-    #region Private \ internal methods
+#region Private \ internal methods
 
     /// <summary>
     /// Gets information about field in closure.
@@ -1073,6 +1086,6 @@ namespace Xtensive.Reflection
         return string.Format("{0}`{1}", typeName, argumentCount);
     }
 
-    #endregion
+#endregion
   }
 }
