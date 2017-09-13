@@ -6,6 +6,7 @@
 
 namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
+#if !NETSTANDARD
   internal sealed class GeographyMapper : SqlServerTypeMapper
   {
     private const string GeographyTypeName =
@@ -19,4 +20,5 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     {
     }
   }
+#endif
 }

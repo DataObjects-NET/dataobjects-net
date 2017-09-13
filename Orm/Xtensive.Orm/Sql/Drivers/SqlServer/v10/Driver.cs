@@ -40,15 +40,19 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
     {
       base.RegisterCustomMappings(builder);
+#if !NETSTANDARD
       builder.Add(new GeometryMapper());
       builder.Add(new GeographyMapper());
+#endif
     }
 
     protected override void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
     {
       base.RegisterCustomReverseMappings(builder);
+#if !NETSTANDARD
       builder.AddReverse(CustomSqlType.Geometry, Type.GetType("Microsoft.SqlServer.Types.SqlGeometry, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"));
       builder.AddReverse(CustomSqlType.Geography, Type.GetType("Microsoft.SqlServer.Types.SqlGeography, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"));
+#endif
     }
 
     // Constructors
