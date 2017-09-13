@@ -15,6 +15,9 @@ using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Providers;
 using Xtensive.Reflection;
 using Xtensive.Sql;
+#if NETSTANDARD
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
+#endif
 
 namespace Xtensive.Orm.Upgrade
 {
