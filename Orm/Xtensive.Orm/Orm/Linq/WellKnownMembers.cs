@@ -17,6 +17,9 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
+#if NETSTANDARD
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
+#endif
 
 namespace Xtensive.Orm.Linq
 {

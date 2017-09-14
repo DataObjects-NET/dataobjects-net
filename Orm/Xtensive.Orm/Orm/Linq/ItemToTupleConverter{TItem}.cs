@@ -19,6 +19,9 @@ using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Model;
 
 using FieldInfo=System.Reflection.FieldInfo;
+#if NETSTANDARD
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
+#endif
 
 namespace Xtensive.Orm.Linq
 {
