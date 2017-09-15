@@ -391,8 +391,6 @@ namespace Xtensive.Orm.Building.Builders
       column.IsPrimaryKey = field.IsPrimaryKey;
       column.IsNullable = field.IsNullable;
       column.IsSystem = field.IsSystem;
-      column.DefaultValue = field.DefaultValue;
-      column.DefaultSqlExpression = field.DefaultSqlExpression;
 
       return column;
     }
