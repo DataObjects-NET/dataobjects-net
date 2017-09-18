@@ -290,7 +290,7 @@ namespace Xtensive.Orm
 
     internal void DropBackedUpDifference()
     {
-      var dTuple = DifferentialTuple;
+      var dTuple = State as DifferentialTuple;
       if (dTuple!=null)
         dTuple.DropBackedUpDifference();
     }
