@@ -391,6 +391,17 @@ namespace Xtensive.Orm.Building.Builders
       column.IsPrimaryKey = field.IsPrimaryKey;
       column.IsNullable = field.IsNullable;
       column.IsSystem = field.IsSystem;
+      column.DefaultSqlExpression = field.DefaultSqlExpression;
+
+      object defaultValue = null;
+      if (field.IsEnum) {
+        var underlyingType = Enum.GetUnderlyingType(field.ValueType);
+        if (field.DefaultValue!=null)
+          defaultValue = Convert.ChangeType(field.DefaultValue, underlyingType);
+      }
+      else 
+        defaultValue = field.DefaultValue;
+      column.DefaultValue = defaultValue;
 
       return column;
     }
