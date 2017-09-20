@@ -28,7 +28,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0712_IncorrectDefaultEnumValueTrans
     }
 
     public class EntDerived : TestEntity
-    {}
+    {
+    }
   }
 
   namespace SingleTable
@@ -47,7 +48,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0712_IncorrectDefaultEnumValueTrans
     }
 
     public class EntDerived : TestEntity
-    {}
+    {
+    }
   }
 
   namespace ClassTable
@@ -66,7 +68,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0712_IncorrectDefaultEnumValueTrans
     }
 
     public class EntDerived : TestEntity
-    {}
+    {
+    }
   }
 
   public enum OneTwo
