@@ -395,7 +395,7 @@ namespace Xtensive.Orm.Building.Builders
 
       object defaultValue = null;
       if (field.IsEnum) {
-        var underlyingType = Enum.GetUnderlyingType(field.ValueType);
+        var underlyingType = Enum.GetUnderlyingType(field.ValueType.StripNullable());
         if (field.DefaultValue!=null)
           defaultValue = Convert.ChangeType(field.DefaultValue, underlyingType);
       }
