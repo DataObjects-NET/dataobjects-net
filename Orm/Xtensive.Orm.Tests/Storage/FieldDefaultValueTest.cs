@@ -19,6 +19,7 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
   {
     public const string GuidKeyValue = "b4fa0c56-be9a-4bd0-a50f-17c4c6b4af91";
     public const string GuidDefaultValue = "6C539ECE-E02A-42C1-B6D3-BEC03A0A25EA";
+    public const OneTwo EnumKeyValue = OneTwo.Two;
   }
 
   #region Various enums
@@ -63,6 +64,12 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     Min = ulong.MinValue, Default = 0, Max = long.MaxValue
   }
 
+  public enum OneTwo
+  {
+    One = 1,
+    Two = 2,
+  }
+
   #endregion
 
   [HierarchyRoot]
@@ -73,6 +80,20 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
 
     public XRef(Guid key)
       : base(key)
+    {}
+  }
+
+  [HierarchyRoot]
+  public class EnumKeyEntity : Entity
+  {
+    [Key, Field]
+    public OneTwo Id { get; private set; }
+
+    [Field]
+    public OneTwo OneTwoField { get; set; }
+
+    public EnumKeyEntity(OneTwo id)
+      : base(id)
     {}
   }
 
@@ -241,6 +262,8 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = CodeRegistry.GuidKeyValue)]
     public XRef Ref { get; set; }
 
+    [Field(DefaultValue = CodeRegistry.EnumKeyValue)]
+    public EnumKeyEntity EnumKeyEntityRef { get; set; }
   }
 }
 
@@ -264,6 +287,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (var t = Session.Current.OpenTransaction()) {
           // To be sure that the reference field (X.Ref) would have meaning
           new XRef(new Guid(CodeRegistry.GuidKeyValue));
+          new EnumKeyEntity(CodeRegistry.EnumKeyValue);
           key = new X().Key;
           t.Complete();
         }
@@ -322,6 +346,7 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(long.MaxValue, x.FNULong);
           Assert.AreEqual(ushort.MaxValue, x.FNUShort);
           Assert.IsNotNull(x.Ref);
+          Assert.IsNotNull(x.EnumKeyEntityRef);
 
           t.Complete();
         }
