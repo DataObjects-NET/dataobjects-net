@@ -18,26 +18,10 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
   [TestFixture]
   public class ExtractorTest : SqlTest
   {
-    private string defaultTableName = "EntityWithIndexes";
-    private string secondaryTableName = "EntityWithIndexesAux";
-    private string clusteredPkName = "PK_Clustered_Index";
-    private string nonClusteredPkName = "PK_SomePK";
-    private string clusteredIndexName = "IX_Clustered_Index";
-    private string nonClusteredIndexName = "IX_Non_Clustered_Index";
-    private string nonClusteredColumnStore = "IX_Columnstore";
-    private string clusteredColumnStore = "IX_Non_Clustered_columnstore";
-    private string spatialIndexName = "IX_Spatial_Index";
-    private string xmlIndexName = "IX_XML_Index";
 
     protected override void CheckRequirements()
     {
       Require.ProviderIs(StorageProvider.SqlServer);
-    }
-
-    public override void SetUp()
-    {
-      DropTableIfExists(defaultTableName);
-      DropTableIfExists(secondaryTableName);
     }
 
     [Test]
@@ -49,26 +33,45 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void ExtractIndexTypesTest1()
     {
-      CreateTable(defaultTableName, new[] {
-        "[id][int] NOT NULL",  
-        "[IntField1] [int] NOT NULL", 
-        "[XmlField] [xml]",
-        "[GeometryField] [geometry]"
-      });
+      #region Preparation
 
-      CreatePrimaryKey(defaultTableName, clusteredPkName, "id", true);
-      CreatePrimaryXmlIndex(xmlIndexName, defaultTableName, "XmlField");
-      CreateIndex(nonClusteredIndexName, defaultTableName, "IntField1", false);
-      CreateSpatialIndex(spatialIndexName, defaultTableName, "GeometryField");
+      var createScript = @"
+        CREATE TABLE [Table1] (
+          Id int NOT NULL,
+          IntField1 int NOT NULL,
+          XmlField [xml],
+          CONSTRAINT [PK_Table1] PRIMARY KEY CLUSTERED (Id));
+
+        CREATE PRIMARY XML INDEX [IX_XML_Table1_XmlField] ON [Table1] (XmlField);
+        CREATE NONCLUSTERED INDEX [IX_Table1_IntField1] ON [Table1] (IntField1);";
+
+      var dropScript = "IF OBJECT_ID('Table1') IS NOT NULL DROP TABLE [Table1]";
+
+      ExecuteNonQuery(dropScript);
+      ExecuteNonQuery(createScript);
+
+      #endregion
+
+      //CreateTable(defaultTableName, new[] {
+      //  "[id][int] NOT NULL",  
+      //  "[IntField1] [int] NOT NULL", 
+      //  "[XmlField] [xml]",
+      //  "[GeometryField] [geometry]"
+      //});
+
+      //CreatePrimaryKey(defaultTableName, clusteredPkName, "id", true);
+      //CreatePrimaryXmlIndex(xmlIndexName, defaultTableName, "XmlField");
+      //CreateIndex(nonClusteredIndexName, defaultTableName, "IntField1", false);
+      //CreateSpatialIndex(spatialIndexName, defaultTableName, "GeometryField");
 
       Schema schema = null;
       Assert.DoesNotThrow(() => { schema = ExtractCatalog().DefaultSchema; });
 
-      var table = schema.Tables[defaultTableName];
+      var table = schema.Tables["Table1"];
       var tableIndexes = table.Indexes;
-      Assert.IsTrue(table.Indexes.Count==2);
+      Assert.IsTrue(table.Indexes.Count==1);
 
-      var nonClusteredIndex = tableIndexes[nonClusteredIndexName];
+      var nonClusteredIndex = tableIndexes["IX_Table1_IntField1"];
       Assert.IsNotNull(nonClusteredIndex);
       Assert.IsFalse(nonClusteredIndex.IsClustered);
       Assert.IsFalse(nonClusteredIndex.IsSpatial);
@@ -76,7 +79,58 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       Assert.IsFalse(nonClusteredIndex.IsBitmap);
       Assert.IsFalse(nonClusteredIndex.IsFullText);
 
-      var spatialIndex = tableIndexes[spatialIndexName];
+      var tableConstratins = table.TableConstraints;
+      Assert.IsTrue(table.TableConstraints.Count==1);
+
+      var clusteredPk = tableConstratins["PK_Table1"] as PrimaryKey;
+      Assert.IsNotNull(clusteredPk);
+      Assert.IsTrue(clusteredPk.IsClustered);
+    }
+
+    [Test]
+    public void ExtractIndexTypesTest2()
+    {
+      Require.ProviderVersionAtLeast(new Version(10, 0));
+
+      #region Preparation
+
+      var createScript = @"
+        CREATE TABLE [Table1] (
+          Id int NOT NULL,
+          IntField1 int NOT NULL,
+          XmlField xml,
+          GeometryField [geometry],
+          CONSTRAINT [PK_Table1] PRIMARY KEY CLUSTERED (Id));
+
+        CREATE PRIMARY XML INDEX [IX_XML_Table1_XmlField] ON [Table1] (XmlField);
+        CREATE NONCLUSTERED INDEX [IX_Table1_IntField1] ON [Table1] (IntField1);
+        CREATE SPATIAL INDEX [IXS_Table1_GeometryField] ON [Table1] (GeometryField) WITH (BOUNDING_BOX = ( 0, 0, 500, 200 ));";
+
+      var dropScript = @"IF OBJECT_ID('Table1') IS NOT NULL DROP TABLE [Table1]";
+
+      ExecuteNonQuery(dropScript);
+      ExecuteNonQuery(createScript);
+
+      #endregion
+
+      Schema schema = null;
+      Assert.DoesNotThrow(() => { schema = ExtractCatalog().DefaultSchema; });
+
+      Assert.That(schema, Is.Not.Null);
+
+      var table = schema.Tables["Table1"];
+      var tableIndexes = table.Indexes;
+      Assert.IsTrue(table.Indexes.Count==2);
+
+      var nonClusteredIndex = tableIndexes["IX_Table1_IntField1"];
+      Assert.IsNotNull(nonClusteredIndex);
+      Assert.IsFalse(nonClusteredIndex.IsClustered);
+      Assert.IsFalse(nonClusteredIndex.IsSpatial);
+      Assert.IsFalse(nonClusteredIndex.IsFullText);
+      Assert.IsFalse(nonClusteredIndex.IsBitmap);
+      Assert.IsFalse(nonClusteredIndex.IsFullText);
+
+      var spatialIndex = tableIndexes["IXS_Table1_GeometryField"];
       Assert.IsNotNull(spatialIndex);
       Assert.IsTrue(spatialIndex.IsSpatial);
       Assert.IsFalse(spatialIndex.IsClustered);
@@ -87,148 +141,235 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var tableConstratins = table.TableConstraints;
       Assert.IsTrue(table.TableConstraints.Count==1);
 
-      var clusteredPk = tableConstratins[clusteredPkName] as PrimaryKey;
+      var clusteredPk = tableConstratins["PK_Table1"] as PrimaryKey;
       Assert.IsNotNull(clusteredPk);
       Assert.IsTrue(clusteredPk.IsClustered);
     }
 
-    [Test]
-    public void ExtractIndexTypesTest2()
-    {
-      CreateTable(secondaryTableName, new [] {
-        "[Id] uniqueidentifier NOT NULL",
-        "[A] integer NOT NULL",
-        "[B] integer NOT NULL",
-        "[C] integer NOT NULL",
-      });
-
-      CreatePrimaryKey(secondaryTableName, nonClusteredPkName+"_aux", "Id", false);
-      CreateIndex(nonClusteredIndexName + "_aux", secondaryTableName, "A", false);
-      CreateColumnStoreIndex(nonClusteredColumnStore + "_aux", secondaryTableName, "C", false);
-
-      CreateTable(defaultTableName, new [] {
-        "[id] [int] NOT NULL",
-        "[IntField1] [int] NOT NULL", 
-        "[IntField2] [int] NOT NULL",
-        "[IntField3] [int] NOT NULL",
-        "[IntField4] [int] NOT NULL",
-        "[IntField5] [int] NOT NULL",
-      });
-
-      CreateColumnStoreIndex(nonClusteredColumnStore, defaultTableName, "IntField5", false);
-      CreateIndex(nonClusteredIndexName, defaultTableName, "IntField2", false);
-      CreatePrimaryKey(defaultTableName, nonClusteredPkName, "id", false);
-
-      CreateIndex(clusteredIndexName+"_aux", secondaryTableName, "B", true);
-
-      Schema schema = null;
-      Assert.DoesNotThrow(() => { schema = ExtractCatalog().DefaultSchema; });
-
-      var table = schema.Tables[defaultTableName];
-      var indexes = table.Indexes;
-      Assert.IsTrue(indexes.Count==1);
-
-      var nonClusteredIndex = indexes[nonClusteredIndexName];
-      Assert.IsNotNull(nonClusteredIndex);
-      Assert.IsFalse(nonClusteredIndex.IsClustered);
-      Assert.IsFalse(nonClusteredIndex.IsSpatial);
-      Assert.IsFalse(nonClusteredIndex.IsBitmap);
-      Assert.IsFalse(nonClusteredIndex.IsFullText);
-
-      var tableConstratins = table.TableConstraints;
-      Assert.IsTrue(tableConstratins.Count==1);
-
-      var nonClusteredPk = tableConstratins[nonClusteredPkName] as PrimaryKey;
-      Assert.IsNotNull(nonClusteredPk);
-      Assert.IsFalse(nonClusteredPk.IsClustered);
-
-      var table2 = schema.Tables[secondaryTableName];
-      var table2Indexes  = table2.Indexes;
-      Assert.IsTrue(table2Indexes.Count==2);
-
-      var table2NonClusteredIndex = table2Indexes[nonClusteredIndexName + "_aux"];
-      Assert.IsNotNull(table2NonClusteredIndex);
-      Assert.IsFalse(table2NonClusteredIndex.IsClustered);
-      Assert.IsFalse(table2NonClusteredIndex.IsSpatial);
-      Assert.IsFalse(table2NonClusteredIndex.IsBitmap);
-      Assert.IsFalse(table2NonClusteredIndex.IsFullText);
-
-      var table2ClusteredIndex = table2Indexes[clusteredIndexName + "_aux"];
-      Assert.IsNotNull(table2ClusteredIndex);
-      Assert.IsTrue(table2ClusteredIndex.IsClustered);
-      Assert.IsFalse(table2ClusteredIndex.IsSpatial);
-      Assert.IsFalse(table2ClusteredIndex.IsBitmap);
-      Assert.IsFalse(table2ClusteredIndex.IsFullText);
-
-      var table2Constratins = table2.TableConstraints;
-      Assert.IsTrue(table2Constratins.Count==1);
-      var table2NonClusteredPk = table2Constratins[nonClusteredPkName + "_aux"] as PrimaryKey;
-      Assert.IsNotNull(table2NonClusteredPk);
-      Assert.IsFalse(table2NonClusteredPk.IsClustered);
-    }
 
     [Test]
     public void ExtractIndexTypesTest3()
     {
-      Require.ProviderVersionAtLeast(new Version(12, 0));
+      Require.ProviderVersionAtLeast(new Version(11, 0));
 
-      CreateTable(secondaryTableName, new[] {
-        "[Id] uniqueidentifier NOT NULL",
-        "[A] integer NOT NULL",
-      });
-      CreatePrimaryKey(secondaryTableName, nonClusteredPkName+"_aux", "Id", false);
-      CreateIndex(clusteredColumnStore + "_aux", secondaryTableName, "A", false);
+      #region Preparation
 
-      CreateTable(defaultTableName, new[] {
-        "[id] [int] NOT NULL",
-        "[IntField1] [int] NOT NULL", 
-        "[IntField2] [int] NOT NULL",
-        "[IntField3] [int] NOT NULL",
-        "[IntField4] [int] NOT NULL"
-      });
+      var createScript = @"
+        CREATE TABLE Table1 (
+          [Id] uniqueidentifier NOT NULL,
+          [A] integer NOT NULL,
+          [B] integer NOT NULL,
+          [C] integer NOT NULL,
+          CONSTRAINT [PK_Table1] PRIMARY KEY NONCLUSTERED (Id));
 
-      CreatePrimaryKey(defaultTableName, nonClusteredPkName, "id", false);
-      CreateIndex(nonClusteredIndexName, defaultTableName, "IntField1", false);
-      CreateColumnStoreIndex(clusteredColumnStore, defaultTableName, "IntField2", true);
+        CREATE NONCLUSTERED INDEX [IX_Table1_A] ON [Table1] (A);
+        CREATE NONCLUSTERED COLUMNSTORE INDEX [IXCS_Table1_C] ON [Table1] (C);
+
+        CREATE TABLE Table2 (
+          [id] integer NOT NULL,
+          [IntField1] integer NOT NULL,
+          [IntField2] integer NOT NULL,
+          [IntField3] integer NOT NULL,
+          [IntField4] integer NOT NULL,
+          [IntField5] integer NOT NULL);
+
+        CREATE NONCLUSTERED COLUMNSTORE INDEX [IXCS_Table2_IntField5] ON [Table2] (IntField5);
+        CREATE NONCLUSTERED INDEX [IX_Table2_IntField2] ON [Table2] (IntField2);
+        ALTER TABLE [Table2] ADD CONSTRAINT [PK_Table2] PRIMARY KEY NONCLUSTERED ([Id]);
+
+        CREATE CLUSTERED INDEX [IX_Table1_B] ON [Table1] (B);";
+
+      var dropScript = @"
+        IF OBJECT_ID('Table1') IS NOT NULL DROP TABLE [Table1];
+        IF OBJECT_ID('Table2') IS NOT NULL DROP TABLE [Table2];";
+
+      ExecuteNonQuery(dropScript);
+      ExecuteNonQuery(createScript);
+
+      #endregion
 
       Schema schema = null;
       Assert.DoesNotThrow(() => { schema = ExtractCatalog().DefaultSchema; });
 
-      var table = schema.Tables[defaultTableName];
-      var indexes = table.Indexes;
+      var table1 = schema.Tables["Table1"];
+      var table1Indexes  = table1.Indexes;
+      Assert.IsTrue(table1Indexes.Count==2);
+
+      var table1NonClusteredIndex = table1Indexes["IX_Table1_A"];
+      Assert.IsNotNull(table1NonClusteredIndex);
+      Assert.IsFalse(table1NonClusteredIndex.IsClustered);
+      Assert.IsFalse(table1NonClusteredIndex.IsSpatial);
+      Assert.IsFalse(table1NonClusteredIndex.IsBitmap);
+      Assert.IsFalse(table1NonClusteredIndex.IsFullText);
+
+      var table1ClusteredIndex = table1Indexes["IX_Table1_B"];
+      Assert.IsNotNull(table1ClusteredIndex);
+      Assert.IsTrue(table1ClusteredIndex.IsClustered);
+      Assert.IsFalse(table1ClusteredIndex.IsSpatial);
+      Assert.IsFalse(table1ClusteredIndex.IsBitmap);
+      Assert.IsFalse(table1ClusteredIndex.IsFullText);
+
+      var table1Constratins = table1.TableConstraints;
+      Assert.IsTrue(table1Constratins.Count==1);
+      var table1NonClusteredPk = table1Constratins["PK_Table1"] as PrimaryKey;
+      Assert.IsNotNull(table1NonClusteredPk);
+      Assert.IsFalse(table1NonClusteredPk.IsClustered);
+
+
+      var table2 = schema.Tables["Table2"];
+      var indexes = table2.Indexes;
       Assert.IsTrue(indexes.Count==1);
 
-      var nonClusteredIndex = indexes[nonClusteredIndexName];
+      var nonClusteredIndex = indexes["IX_Table2_IntField2"];
       Assert.IsNotNull(nonClusteredIndex);
       Assert.IsFalse(nonClusteredIndex.IsClustered);
       Assert.IsFalse(nonClusteredIndex.IsSpatial);
       Assert.IsFalse(nonClusteredIndex.IsBitmap);
       Assert.IsFalse(nonClusteredIndex.IsFullText);
 
-      var tableConstratins = table.TableConstraints;
-      Assert.IsTrue(tableConstratins.Count==1);
+      var table2Constraints = table2.TableConstraints;
+      Assert.IsTrue(table2Constraints.Count==1);
 
-      var nonClusteredPk = tableConstratins[nonClusteredPkName] as PrimaryKey;
+      var nonClusteredPk = table2Constraints["PK_Table2"] as PrimaryKey;
       Assert.IsNotNull(nonClusteredPk);
       Assert.IsFalse(nonClusteredPk.IsClustered);
+    }
 
-      var table2 = schema.Tables[secondaryTableName];
-      var table2Indexes = table2.Indexes;
+    [Test]
+    public void ExtractIndexTypesTest4()
+    {
+      Require.ProviderVersionAtLeast(new Version(12, 0));
+
+      #region Preparation
+
+      var createScript = @"
+        CREATE TABLE [Table1] (
+          [Id] uniqueidentifier NOT NULL,
+          [A] integer NOT NULL,
+          CONSTRAINT [PK_Table1] PRIMARY KEY NONCLUSTERED (Id));
+
+        CREATE NONCLUSTERED INDEX [IX_Table1_A] ON [Table1] (A);
+
+        CREATE TABLE [Table2] (
+          [Id] integer NOT NULL,
+          [IntField1] integer NOT NULL,
+          [IntField2] integer NOT NULL,
+          [IntField3] integer NOT NULL,
+          [IntField4] integer NOT NULL);
+
+        CREATE CLUSTERED COLUMNSTORE INDEX [IXSC_Table2_IntField1] ON [Table2];";
+
+      var dropScript = @"
+        IF OBJECT_ID('Table1') IS NOT NULL DROP TABLE [Table1];
+        IF OBJECT_ID('Table2') IS NOT NULL DROP TABLE [Table2];";
+
+      ExecuteNonQuery(dropScript);
+      ExecuteNonQuery(createScript);
+
+      #endregion
+
+      Schema schema = null;
+      Assert.DoesNotThrow(() => { schema = ExtractCatalog().DefaultSchema; });
+
+      var table1 = schema.Tables["Table1"];
+      var table1Indexes = table1.Indexes;
+      Assert.IsTrue(table1Indexes.Count==1);
+
+      var table1NonClusteredIndex = table1Indexes["IX_Table1_A"];
+      Assert.IsNotNull(table1NonClusteredIndex);
+      Assert.IsFalse(table1NonClusteredIndex.IsClustered);
+      Assert.IsFalse(table1NonClusteredIndex.IsSpatial);
+      Assert.IsFalse(table1NonClusteredIndex.IsBitmap);
+      Assert.IsFalse(table1NonClusteredIndex.IsFullText);
+
+      var table1Constratins = table1.TableConstraints;
+      Assert.IsTrue(table1Constratins.Count==1);
+
+      var table1NonClusteredPk = table1Constratins["PK_Table1"] as PrimaryKey;
+      Assert.IsNotNull(table1NonClusteredPk);
+      Assert.IsFalse(table1NonClusteredPk.IsClustered);
+
+      var table2 = schema.Tables["Table2"];
+      var indexes = table2.Indexes;
+      Assert.IsTrue(indexes.Count==0);
+
+      var tableConstratins = table2.TableConstraints;
+      Assert.IsTrue(tableConstratins.Count==0);
+    }
+
+    [Test]
+    public void ExtractIndexTypesTest5()
+    {
+      Require.ProviderVersionAtLeast(new Version(13, 0));
+
+      #region Preparation
+
+      var createScript = @"
+        CREATE TABLE [Table1] (
+          [Id] uniqueidentifier NOT NULL,
+          [A] integer NOT NULL,
+          CONSTRAINT [PK_Table1] PRIMARY KEY NONCLUSTERED (Id));
+
+        CREATE NONCLUSTERED INDEX [IX_Table1_A] ON [Table1] (A);
+
+        CREATE TABLE [Table2] (
+          [Id] integer NOT NULL,
+          [IntField1] integer NOT NULL,
+          [IntField2] integer NOT NULL,
+          [IntField3] integer NOT NULL,
+          [IntField4] integer NOT NULL,
+          CONSTRAINT [PK_Table2] PRIMARY KEY NONCLUSTERED (Id));
+
+        CREATE NONCLUSTERED INDEX [IX_Table2_IntField1] ON [Table2] (IntField2);
+        CREATE CLUSTERED COLUMNSTORE INDEX [IXSC_Table2_IntField1] ON [Table2];";
+
+      var dropScript = @"
+        IF OBJECT_ID('Table1') IS NOT NULL DROP TABLE [Table1];
+        IF OBJECT_ID('Table2') IS NOT NULL DROP TABLE [Table2];";
+
+      ExecuteNonQuery(dropScript);
+      ExecuteNonQuery(createScript);
+
+      #endregion
+
+      Schema schema = null;
+      Assert.DoesNotThrow(() => { schema = ExtractCatalog().DefaultSchema; });
+
+      var table1 = schema.Tables["Table1"];
+      var table1Indexes = table1.Indexes;
+      Assert.IsTrue(table1Indexes.Count==1);
+
+      var table1NonClusteredIndex = table1Indexes["IX_Table1_A"];
+      Assert.IsNotNull(table1NonClusteredIndex);
+      Assert.IsFalse(table1NonClusteredIndex.IsClustered);
+      Assert.IsFalse(table1NonClusteredIndex.IsSpatial);
+      Assert.IsFalse(table1NonClusteredIndex.IsBitmap);
+      Assert.IsFalse(table1NonClusteredIndex.IsFullText);
+
+      var table1Constratins = table1.TableConstraints;
+      Assert.IsTrue(table1Constratins.Count==1);
+
+      var table1NonClusteredPk = table1Constratins["PK_Table1"] as PrimaryKey;
+      Assert.IsNotNull(table1NonClusteredPk);
+      Assert.IsFalse(table1NonClusteredPk.IsClustered);
+
+      var table2 = schema.Tables["Table2"];
+      var indexes = table2.Indexes;
       Assert.IsTrue(indexes.Count==1);
 
-      var table2NonClusteredIndex = table2Indexes[clusteredColumnStore + "_aux"];
-      Assert.IsNotNull(table2NonClusteredIndex);
-      Assert.IsFalse(table2NonClusteredIndex.IsClustered);
-      Assert.IsFalse(table2NonClusteredIndex.IsSpatial);
-      Assert.IsFalse(table2NonClusteredIndex.IsBitmap);
-      Assert.IsFalse(table2NonClusteredIndex.IsFullText);
+      var nonClusteredIndex = indexes["IX_Table2_IntField1"];
+      Assert.IsNotNull(nonClusteredIndex);
+      Assert.IsFalse(nonClusteredIndex.IsClustered);
+      Assert.IsFalse(nonClusteredIndex.IsSpatial);
+      Assert.IsFalse(nonClusteredIndex.IsBitmap);
+      Assert.IsFalse(nonClusteredIndex.IsFullText);
 
-      var table2Constratins = table2.TableConstraints;
-      Assert.IsTrue(table2Constratins.Count==1);
+      var tableConstratins = table2.TableConstraints;
+      Assert.IsTrue(tableConstratins.Count==1);
 
-      var table2NonClusteredPk = tableConstratins[nonClusteredPkName] as PrimaryKey;
-      Assert.IsNotNull(table2NonClusteredPk);
-      Assert.IsFalse(table2NonClusteredPk.IsClustered);
+      var nonClusteredPk = tableConstratins["PK_Table2"] as PrimaryKey;
+      Assert.IsNotNull(nonClusteredPk);
+      Assert.IsFalse(nonClusteredPk.IsClustered);
     }
 
     [Test]
@@ -364,49 +505,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       ExecuteNonQuery(commandText);
     }
 
-    private void CreateTable(string tableName, string[] columns)
-    {
-      var createTableTemplate = @"CREATE TABLE [{0}] ({1})";
-      ExecuteNonQuery(string.Format(createTableTemplate, tableName, string.Join(", ", columns)));
-    }
-
-    private void DropTableIfExists(string tableName)
-    {
-      var dropTableTemplate = "if object_id('[{0}]') is not null drop table [{0}]";
-      ExecuteNonQuery(string.Format(dropTableTemplate, tableName));
-    }
-
-    private void CreateIndex(string indexName, string tableName, string columnName, bool isClustered)
-    {
-      var createClusteredIndexTemplate = @"CREATE {0} INDEX [{1}] ON [{2}] ([{3}]);";
-      ExecuteNonQuery(string.Format(createClusteredIndexTemplate, isClustered ? "CLUSTERED" : "NONCLUSTERED", indexName, tableName, columnName));
-    }
-
-    private void CreatePrimaryXmlIndex(string indexName, string tableName, string columnName)
-    {
-      var createPrimaryXmlIndexTemplate = @"CREATE PRIMARY XML INDEX [{0}] ON [{1}] ([{2}]);";
-      ExecuteNonQuery(string.Format(createPrimaryXmlIndexTemplate, indexName, tableName, columnName));
-    }
-
-    private void CreateSpatialIndex(string indexName, string tableName, string columnName)
-    {
-      var createSpatialIdnexTamplate = @"CREATE SPATIAL INDEX [{0}] ON [{1}] ([{2}]) WITH (BOUNDING_BOX = ( 0, 0, 500, 200 ))";
-      ExecuteNonQuery(string.Format(createSpatialIdnexTamplate, indexName, tableName, columnName));
-    }
-
-    private void CreatePrimaryKey(string tableName, string pkName, string columnName, bool isClustered)
-    {
-      var createPrimaryKeyTemplate = @"ALTER TABLE [{0}] ADD CONSTRAINT [{1}] PRIMARY KEY {2} ([{3}])";
-      ExecuteNonQuery(string.Format(createPrimaryKeyTemplate, tableName, pkName, isClustered ? "CLUSTERED" : "NONCLUSTERED", columnName));
-    }
-
-    private void CreateColumnStoreIndex(string indexName, string tableName, string columnName, bool isClustered)
-    {
-      var createColumnStoreIndex = "CREATE {0} COLUMNSTORE INDEX [{1}] ON [{2}]";
-
-      ExecuteNonQuery(isClustered ? string.Format(createColumnStoreIndex, "CLUSTERED", indexName, tableName)
-        : string.Format(createColumnStoreIndex + " ([{3}]);", "NONCLUSTERED", indexName, tableName, columnName));
-    }
 #endregion
   }
 }
