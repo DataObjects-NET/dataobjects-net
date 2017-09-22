@@ -7,6 +7,7 @@
 // TODO: Refactor stupid MSSqlExtractorTests.cs and put all stuff here
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using System.Linq;
 using Xtensive.Core;
@@ -18,6 +19,19 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
   [TestFixture]
   public class ExtractorTest : SqlTest
   {
+    private List<string> dropOperations = new List<string>();
+
+    protected override void TestFixtureTearDown()
+    {
+      foreach (var dropOperation in dropOperations) {
+        try {
+          ExecuteNonQuery(dropOperation);
+        }
+        catch (Exception exception) {
+          Console.Write("Operation '{0}' wasn't performed correctly", dropOperation);
+        }
+      }
+    }
 
     protected override void CheckRequirements()
     {
@@ -47,22 +61,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var dropScript = "IF OBJECT_ID('Table1') IS NOT NULL DROP TABLE [Table1]";
 
+      RegisterDropForLater(dropScript);
       ExecuteNonQuery(dropScript);
       ExecuteNonQuery(createScript);
 
       #endregion
-
-      //CreateTable(defaultTableName, new[] {
-      //  "[id][int] NOT NULL",  
-      //  "[IntField1] [int] NOT NULL", 
-      //  "[XmlField] [xml]",
-      //  "[GeometryField] [geometry]"
-      //});
-
-      //CreatePrimaryKey(defaultTableName, clusteredPkName, "id", true);
-      //CreatePrimaryXmlIndex(xmlIndexName, defaultTableName, "XmlField");
-      //CreateIndex(nonClusteredIndexName, defaultTableName, "IntField1", false);
-      //CreateSpatialIndex(spatialIndexName, defaultTableName, "GeometryField");
 
       Schema schema = null;
       Assert.DoesNotThrow(() => { schema = ExtractCatalog().DefaultSchema; });
@@ -108,6 +111,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var dropScript = @"IF OBJECT_ID('Table1') IS NOT NULL DROP TABLE [Table1]";
 
+      RegisterDropForLater(dropScript);
       ExecuteNonQuery(dropScript);
       ExecuteNonQuery(createScript);
 
@@ -146,7 +150,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       Assert.IsTrue(clusteredPk.IsClustered);
     }
 
-
     [Test]
     public void ExtractIndexTypesTest3()
     {
@@ -183,6 +186,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         IF OBJECT_ID('Table1') IS NOT NULL DROP TABLE [Table1];
         IF OBJECT_ID('Table2') IS NOT NULL DROP TABLE [Table2];";
 
+      RegisterDropForLater(dropScript);
       ExecuteNonQuery(dropScript);
       ExecuteNonQuery(createScript);
 
@@ -263,6 +267,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         IF OBJECT_ID('Table1') IS NOT NULL DROP TABLE [Table1];
         IF OBJECT_ID('Table2') IS NOT NULL DROP TABLE [Table2];";
 
+      RegisterDropForLater(dropScript);
       ExecuteNonQuery(dropScript);
       ExecuteNonQuery(createScript);
 
@@ -327,6 +332,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         IF OBJECT_ID('Table1') IS NOT NULL DROP TABLE [Table1];
         IF OBJECT_ID('Table2') IS NOT NULL DROP TABLE [Table2];";
 
+      RegisterDropForLater(dropScript);
       ExecuteNonQuery(dropScript);
       ExecuteNonQuery(createScript);
 
@@ -503,6 +509,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         return;
       var commandText = Driver.Compile(SqlDdl.Drop(domain)).GetCommandText();
       ExecuteNonQuery(commandText);
+    }
+
+    private void RegisterDropForLater(string dropScript)
+    {
+      dropOperations.Add(dropScript);
     }
 
 #endregion
