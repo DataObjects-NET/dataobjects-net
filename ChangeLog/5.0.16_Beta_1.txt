@@ -1,5 +1,5 @@
 [main] Added constraint option allowing to skip the constraint if the field isn't changed
 [main] DifferentialTuple.Merge() operation no longer cause StackOverflow exception
 [main] Fixed certain cases of foreign key absence for reference fields of structures
-[main] Fixed translation of enum value as default value of field
+[main] Fixed translation of enum value as default field value
 [sqlserver] Fixed extraction of information about indexes from database
