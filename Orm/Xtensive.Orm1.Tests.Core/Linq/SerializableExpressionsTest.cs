@@ -8,7 +8,9 @@ using System;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+#if !NETCOREAPP
 using System.Runtime.Serialization.Formatters.Soap;
+#endif
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Linq;
@@ -19,6 +21,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
   [TestFixture]
   public class SerializableExpressionsTest : ExpressionTestBase
   {
+#if !NETCOREAPP
     [Test]
     public void ConvertTest()
     {
@@ -111,5 +114,6 @@ namespace Xtensive.Orm.Tests.Core.Linq
     }
 
     #endregion
+#endif
   }
 }
