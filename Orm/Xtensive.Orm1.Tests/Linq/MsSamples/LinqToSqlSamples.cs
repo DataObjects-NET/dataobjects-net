@@ -1655,8 +1655,6 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
       QueryDumper.Dump(prods);
     }
 
-
-    [ExpectedException(typeof (QueryTranslationException))]
     [Category("Inheritance")]
     [Test(Description = "Simple")]
     [Description("This sample returns all contacts where the city is London.")]
@@ -1664,28 +1662,28 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       var cons = from c in Session.Query.All<BusinessContact>()
       select c;
+      Assert.Throws<QueryTranslationException>(() => {
+        foreach (var con in cons) {
+          Console.WriteLine("Company name: {0}", con.CompanyName);
+          Console.WriteLine("Phone: {0}", con.Phone);
+          Console.WriteLine("This is a {0}", con.GetType());
+          Console.WriteLine();
+        }
+      });
 
-      foreach (var con in cons) {
-        Console.WriteLine("Company name: {0}", con.CompanyName);
-        Console.WriteLine("Phone: {0}", con.Phone);
-        Console.WriteLine("This is a {0}", con.GetType());
-        Console.WriteLine();
-      }
     }
 
     [Category("Inheritance")]
     [Test(Description = "OfType")]
     [Description("This sample uses OfType to return all customer contacts.")]
-    [ExpectedException(typeof (QueryTranslationException))]
     public void DLinq136()
     {
       var cons = from c in Session.Query.All<Person>().OfType<Customer>()
       select c;
 
-      QueryDumper.Dump(cons);
+     Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(cons)) ;
     }
 
-    [ExpectedException(typeof (QueryTranslationException))]
     [Category("Inheritance")]
     [Test(Description = "IS")]
     [Description("This sample uses IS to return all shipper contacts.")]
@@ -1695,10 +1693,9 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
       where c is Customer
       select c;
 
-      QueryDumper.Dump(cons);
+     Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(cons));
     }
 
-    [ExpectedException(typeof (QueryTranslationException))]
     [Category("Inheritance")]
     [Test(Description = "AS")]
     [Description("This sample uses AS to return FullContact or null.")]
@@ -1707,10 +1704,9 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
       var cons = from c in Session.Query.All<Person>()
       select c as BusinessContact;
 
-      QueryDumper.Dump(cons);
+      Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(cons));
     }
 
-    [ExpectedException(typeof (QueryTranslationException))]
     [Category("Inheritance")]
     [Test(Description = "Cast")]
     [Description("This sample uses a cast to retrieve customer contacts who work in 'Around the Horn'.")]
@@ -1720,7 +1716,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
       where c is Customer && ((Customer) c).CompanyName=="Around the Horn"
       select c;
 
-      QueryDumper.Dump(cons);
+      Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(cons));
     }
   }
 }

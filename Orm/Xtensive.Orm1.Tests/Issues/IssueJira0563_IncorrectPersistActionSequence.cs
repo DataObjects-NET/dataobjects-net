@@ -2357,7 +2357,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    [ExpectedException(typeof (CheckConstraintViolationException))]
     public void Model06Test()
     {
       Require.ProviderIsNot(StorageProvider.MySql);
@@ -2373,20 +2372,21 @@ namespace Xtensive.Orm.Tests.Issues
           tx.Complete();
         }
 
-        using (var session = domain.OpenSession())
-        using (session.Activate())
-        using (var tx = session.OpenTransaction()) {
-          var customer = session.Query.All<model6.Customer>().First();
-          var location = new model6.Location();
-          var job = new model6.Job(session, customer, location);
-          new model6.Invoice(session, job);
-          tx.Complete();
-        }
+        Assert.Throws<CheckConstraintViolationException>(() => {
+          using (var session = domain.OpenSession())
+          using (session.Activate())
+          using (var tx = session.OpenTransaction()) {
+            var customer = session.Query.All<model6.Customer>().First();
+            var location = new model6.Location();
+            var job = new model6.Job(session, customer, location);
+            new model6.Invoice(session, job);
+            tx.Complete();
+          }
+        });
       }
     }
 
     [Test]
-    [ExpectedException(typeof (StorageException))]
     public void Model06TestForMySql()
     {
       Require.ProviderIs(StorageProvider.MySql | StorageProvider.SqlServerCe);
@@ -2401,15 +2401,17 @@ namespace Xtensive.Orm.Tests.Issues
           tx.Complete();
         }
 
-        using (var session = domain.OpenSession())
-        using (session.Activate())
-        using (var tx = session.OpenTransaction()) {
-          var customer = session.Query.All<model6.Customer>().First();
-          var location = new model6.Location();
-          var job = new model6.Job(session, customer, location);
-          new model6.Invoice(session, job);
-          tx.Complete();
-        }
+        Assert.Throws<StorageException>(() => {
+          using (var session = domain.OpenSession())
+          using (session.Activate())
+          using (var tx = session.OpenTransaction()) {
+            var customer = session.Query.All<model6.Customer>().First();
+            var location = new model6.Location();
+            var job = new model6.Job(session, customer, location);
+            new model6.Invoice(session, job);
+            tx.Complete();
+          }
+        });
       }
     }
 
@@ -2571,7 +2573,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    [ExpectedException(typeof (CheckConstraintViolationException))]
     public void Model13Test()
     {
       Require.ProviderIsNot(StorageProvider.MySql);
@@ -2587,20 +2588,21 @@ namespace Xtensive.Orm.Tests.Issues
           tx.Complete();
         }
 
-        using (var session = domain.OpenSession())
-        using (session.Activate())
-        using (var tx = session.OpenTransaction()) {
-          var customer = session.Query.All<model13.Customer>().First();
-          var location = new model13.Location();
-          var job = new model13.Job(session, customer, location);
-          new model13.Invoice(session, job);
-          tx.Complete();
-        }
+        Assert.Throws<CheckConstraintViolationException>(() => {
+          using (var session = domain.OpenSession())
+          using (session.Activate())
+          using (var tx = session.OpenTransaction()) {
+            var customer = session.Query.All<model13.Customer>().First();
+            var location = new model13.Location();
+            var job = new model13.Job(session, customer, location);
+            new model13.Invoice(session, job);
+            tx.Complete();
+          }
+        });
       }
     }
 
     [Test]
-    [ExpectedException(typeof (StorageException))]
     public void Model13TestForMySql()
     {
       Require.ProviderIs(StorageProvider.MySql | StorageProvider.SqlServerCe);
@@ -2615,20 +2617,21 @@ namespace Xtensive.Orm.Tests.Issues
           tx.Complete();
         }
 
-        using (var session = domain.OpenSession())
-        using (session.Activate())
-        using (var tx = session.OpenTransaction()) {
-          var customer = session.Query.All<model13.Customer>().First();
-          var location = new model13.Location();
-          var job = new model13.Job(session, customer, location);
-          new model13.Invoice(session, job);
-          tx.Complete();
-        }
+        Assert.Throws<StorageException>(() => {
+          using (var session = domain.OpenSession())
+          using (session.Activate())
+          using (var tx = session.OpenTransaction()) {
+            var customer = session.Query.All<model13.Customer>().First();
+            var location = new model13.Location();
+            var job = new model13.Job(session, customer, location);
+            new model13.Invoice(session, job);
+            tx.Complete();
+          }
+        });
       }
     }
 
     [Test]
-    [ExpectedException(typeof (CheckConstraintViolationException))]
     public void Model14Test()
     {
       Require.ProviderIsNot(StorageProvider.MySql);
@@ -2644,20 +2647,21 @@ namespace Xtensive.Orm.Tests.Issues
           tx.Complete();
         }
 
-        using (var session = domain.OpenSession())
-        using (session.Activate())
-        using (var tx = session.OpenTransaction()) {
-          var customer = session.Query.All<model14.Customer>().First();
-          var location = new model14.Location();
-          var job = new model14.Job(session, customer, location);
-          new model14.Invoice(session, job);
-          tx.Complete();
-        }
+        Assert.Throws<CheckConstraintViolationException>(() => {
+          using (var session = domain.OpenSession())
+          using (session.Activate())
+          using (var tx = session.OpenTransaction()) {
+            var customer = session.Query.All<model14.Customer>().First();
+            var location = new model14.Location();
+            var job = new model14.Job(session, customer, location);
+            new model14.Invoice(session, job);
+            tx.Complete();
+          }
+        });
       }
     }
 
     [Test]
-    [ExpectedException(typeof (StorageException))]
     public void Model14TestForMySql()
     {
       Require.ProviderIs(StorageProvider.MySql | StorageProvider.SqlServerCe);
@@ -2673,20 +2677,21 @@ namespace Xtensive.Orm.Tests.Issues
           tx.Complete();
         }
 
-        using (var session = domain.OpenSession())
-        using (session.Activate())
-        using (var tx = session.OpenTransaction()) {
-          var customer = session.Query.All<model14.Customer>().First();
-          var location = new model14.Location();
-          var job = new model14.Job(session, customer, location);
-          new model14.Invoice(session, job);
-          tx.Complete();
-        }
+        Assert.Throws<StorageException>(() => {
+          using (var session = domain.OpenSession())
+          using (session.Activate())
+          using (var tx = session.OpenTransaction()) {
+            var customer = session.Query.All<model14.Customer>().First();
+            var location = new model14.Location();
+            var job = new model14.Job(session, customer, location);
+            new model14.Invoice(session, job);
+            tx.Complete();
+          }
+        });
       }
     }
 
     [Test]
-    [ExpectedException(typeof (CheckConstraintViolationException))]
     public void Model15Test()
     {
       Require.ProviderIsNot(StorageProvider.MySql);
@@ -2694,27 +2699,28 @@ namespace Xtensive.Orm.Tests.Issues
       var configuration = BuildConfiguration();
       configuration.Types.Register(typeof (model15.A).Assembly, typeof (model15.A).Namespace);
 
-      using (var domain = Domain.Build(configuration)) {
-        using (var session = domain.OpenSession())
-        using (session.Activate())
-        using (var transaction = session.OpenTransaction()) {
-          var a = new model15.A();
-          var b = new model15.B();
-          a.B = b;
-          var c = new model15.C();
-          b.C = c;
-          var d = new model15.D();
-          d.A = a;
-          c.D = d;
-          var nnnn = new model15.NNNN() { NNN = new model15.NNN() { NN = new model15.NN { A = a } } };
-          a.NN = nnnn.NNN.NN;
-          transaction.Complete();
+      Assert.Throws<CheckConstraintViolationException>(() => {
+        using (var domain = Domain.Build(configuration)) {
+          using (var session = domain.OpenSession())
+          using (session.Activate())
+          using (var transaction = session.OpenTransaction()) {
+            var a = new model15.A();
+            var b = new model15.B();
+            a.B = b;
+            var c = new model15.C();
+            b.C = c;
+            var d = new model15.D();
+            d.A = a;
+            c.D = d;
+            var nnnn = new model15.NNNN() { NNN = new model15.NNN() { NN = new model15.NN { A = a } } };
+            a.NN = nnnn.NNN.NN;
+            transaction.Complete();
+          }
         }
-      }
+      });
     }
 
     [Test]
-    [ExpectedException(typeof (StorageException))]
     public void Model15TestForMySQl()
     {
       Require.ProviderIs(StorageProvider.MySql | StorageProvider.SqlServerCe);
@@ -2722,23 +2728,25 @@ namespace Xtensive.Orm.Tests.Issues
       var configuration = BuildConfiguration();
       configuration.Types.Register(typeof (model15.A).Assembly, typeof (model15.A).Namespace);
 
-      using (var domain = Domain.Build(configuration)) {
-        using (var session = domain.OpenSession())
-        using (session.Activate())
-        using (var transaction = session.OpenTransaction()) {
-          var a = new model15.A();
-          var b = new model15.B();
-          a.B = b;
-          var c = new model15.C();
-          b.C = c;
-          var d = new model15.D();
-          d.A = a;
-          c.D = d;
-          var nnnn = new model15.NNNN() { NNN = new model15.NNN() { NN = new model15.NN { A = a } } };
-          a.NN = nnnn.NNN.NN;
-          transaction.Complete();
+      Assert.Throws<StorageException>(() => {
+        using (var domain = Domain.Build(configuration)) {
+          using (var session = domain.OpenSession())
+          using (session.Activate())
+          using (var transaction = session.OpenTransaction()) {
+            var a = new model15.A();
+            var b = new model15.B();
+            a.B = b;
+            var c = new model15.C();
+            b.C = c;
+            var d = new model15.D();
+            d.A = a;
+            c.D = d;
+            var nnnn = new model15.NNNN() { NNN = new model15.NNN() { NN = new model15.NN { A = a } } };
+            a.NN = nnnn.NNN.NN;
+            transaction.Complete();
+          }
         }
-      }
+      });
     }
 
     [Test]

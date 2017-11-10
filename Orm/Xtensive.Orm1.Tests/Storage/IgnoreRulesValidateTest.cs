@@ -382,36 +382,38 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    [ExpectedException(typeof (SchemaSynchronizationException))]
     public void DropTableWithIgnoredColumnTest()
     {
       ClearMultidatabaseAndMultischemaFlags();
-      var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
-      initialDomain.Dispose();
-      Catalog catalog = GetCatalog();
-      var schema = catalog.DefaultSchema.Name;
-      CreateColumn(catalog, schema, "MyEntity2", "SimpleIgnoredColumn", new SqlValueType(SqlType.VarChar, 25));
-      IgnoreRuleCollection ignoreRuleCollection = new IgnoreRuleCollection();
-      ignoreRuleCollection.IgnoreColumn("SimpleIgnoredColumn").WhenTable("MyEntity2");
-      var performDomain = BuildDomain(DomainUpgradeMode.Perform, typeof (Model4.MyEntity1), ignoreRuleCollection);
-      performDomain.Dispose();
+      Assert.Throws<SchemaSynchronizationException>( () => {
+        var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof(Model3.MyEntity1));
+        initialDomain.Dispose();
+        Catalog catalog = GetCatalog();
+        var schema = catalog.DefaultSchema.Name;
+        CreateColumn(catalog, schema, "MyEntity2", "SimpleIgnoredColumn", new SqlValueType(SqlType.VarChar, 25));
+        IgnoreRuleCollection ignoreRuleCollection = new IgnoreRuleCollection();
+        ignoreRuleCollection.IgnoreColumn("SimpleIgnoredColumn").WhenTable("MyEntity2");
+        var performDomain = BuildDomain(DomainUpgradeMode.Perform, typeof(Model4.MyEntity1), ignoreRuleCollection);
+        performDomain.Dispose();
+      });
     }
 
     [Test]
-    [ExpectedException(typeof (SchemaSynchronizationException))]
     public void DropReferencedTableTest()
     {
       ClearMultidatabaseAndMultischemaFlags();
-      var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof (Model3.MyEntity1));
-      initialDomain.Dispose();
-      Catalog catalog = GetCatalog();
-      var schema = catalog.DefaultSchema.Name;
-      CreateColumn(catalog, schema, "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64));
-      CreateForeignKey(catalog, schema, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity1_MyEntity1ID");
-      var ignoreRuleCollection = new IgnoreRuleCollection();
-      ignoreRuleCollection.IgnoreColumn("ReferencedIgnoredColumn").WhenTable("MyEntity2").WhenSchema(schema);
-      var performDomain = BuildDomain(DomainUpgradeMode.Perform, typeof (Model4.MyEntity1), ignoreRuleCollection);
-      performDomain.Dispose();
+      Assert.Throws<SchemaSynchronizationException>(() => {
+        var initialDomain = BuildDomain(DomainUpgradeMode.Recreate, typeof(Model3.MyEntity1));
+        initialDomain.Dispose();
+        Catalog catalog = GetCatalog();
+        var schema = catalog.DefaultSchema.Name;
+        CreateColumn(catalog, schema, "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64));
+        CreateForeignKey(catalog, schema, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity1_MyEntity1ID");
+        var ignoreRuleCollection = new IgnoreRuleCollection();
+        ignoreRuleCollection.IgnoreColumn("ReferencedIgnoredColumn").WhenTable("MyEntity2").WhenSchema(schema);
+        var performDomain = BuildDomain(DomainUpgradeMode.Perform, typeof(Model4.MyEntity1), ignoreRuleCollection);
+        performDomain.Dispose();
+      });
     }
 
     [Test]

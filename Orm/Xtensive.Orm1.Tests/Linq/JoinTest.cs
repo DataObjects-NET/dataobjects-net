@@ -22,14 +22,15 @@ namespace Xtensive.Orm.Tests.Linq
   public class JoinTest : NorthwindDOModelTest
   {
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void JoinWrongKeysTest()
     {
       var result = 
         from c in Session.Query.All<Category>()
         join p in Session.Query.All<Product>() on c.Key equals p.Key // Wrong join
         select p;
-      var list = result.ToList();
+      Assert.Throws<QueryTranslationException>(() => {
+        var list = result.ToList();
+      });
     }
 
     [Test]
@@ -327,7 +328,6 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (QueryTranslationException))]
     public void DefaultIfEmptyTest()
     {
       var categories = Session.Query.All<Category>();
@@ -338,9 +338,12 @@ namespace Xtensive.Orm.Tests.Linq
         category => category,
         product => product.Category,
         (c, pGroup) => pGroup.DefaultIfEmpty());
-      var list = result.ToList();
-      Assert.AreEqual(categoryCount, list.Count);
-      QueryDumper.Dump(result, true);
+      Assert.Throws<QueryTranslationException>(() => {
+        var list = result.ToList();
+        Assert.AreEqual(categoryCount, list.Count);
+        QueryDumper.Dump(result, true);
+      });
+
     }
 
     [Test]

@@ -42,7 +42,6 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void Length3Test()
     {
       var customers = Session.Query.All<Customer>()
@@ -52,7 +51,7 @@ namespace Xtensive.Orm.Tests.Linq
             .Select(order => order.ShipName)
             .SingleOrDefault()
             .Length > 0);
-      QueryDumper.Dump(customers);
+      Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(customers));
     }
 
     [Test]

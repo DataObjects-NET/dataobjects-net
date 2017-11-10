@@ -53,30 +53,27 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test002()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.SimpleTerm("");
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test003()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.SimpleTerm(" ");
       string expectedTranslation = "dummy".Trim();
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test004()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.SimpleTerm(null);
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
@@ -104,30 +101,27 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test008()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.PrefixTerm("");
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test009()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.PrefixTerm(" ");
       string expectedTranslation = "dummy".Trim();
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test010()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.PrefixTerm(null);
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
@@ -155,48 +149,43 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test014()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenerationTerm(GenerationType.Inflectional, new string[0]);
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test015()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenerationTerm(GenerationType.Inflectional, null);
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test016()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenerationTerm(GenerationType.Inflectional, new[] { "abc", "" });
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test017()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenerationTerm(GenerationType.Inflectional, new[] { "abc", null });
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test018()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenerationTerm(GenerationType.Inflectional, new[] { "abc", "      " });
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
@@ -240,138 +229,123 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test024()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(f => f.SimpleTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test025()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(f => f.PrefixTerm("abc"));
       string expectedTranslation = "";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test026()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(f => f.SimpleTerm("").NearSimpleTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test027()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(f => f.SimpleTerm("abc").NearSimpleTerm(""));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test028()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(f => f.SimpleTerm(null).NearSimpleTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test029()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(f => f.SimpleTerm("abc").NearSimpleTerm(null));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test030()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(f => f.SimpleTerm("    ").NearSimpleTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test031()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(f => f.SimpleTerm("abc").NearSimpleTerm("   "));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test032()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(f => f.PrefixTerm("").NearPrefixTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test033()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(f => f.PrefixTerm("abc").NearPrefixTerm(""));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test034()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(f => f.PrefixTerm(null).NearPrefixTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test035()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(f => f.PrefixTerm("abc").NearPrefixTerm(null));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test036()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(f => f.PrefixTerm("").NearPrefixTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test037()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(f => f.PrefixTerm("    ").NearPrefixTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test038()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(f => f.PrefixTerm("abc").NearPrefixTerm("    "));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
@@ -415,130 +389,116 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test044()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(f => f.SimpleTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test045()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(f => f.PrefixTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test046()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(f => f.SimpleTerm("").NearSimpleTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test047()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(f => f.SimpleTerm("abc").NearSimpleTerm(""));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test048()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(f => f.SimpleTerm("   ").NearSimpleTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test049()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(f => f.SimpleTerm("abc").NearSimpleTerm("   "));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Test050()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(f => f.SimpleTerm(null).NearSimpleTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Test051()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(f => f.SimpleTerm("abc").NearSimpleTerm(null));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test052()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(f => f.PrefixTerm("abc").NearPrefixTerm(""));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test053()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(f => f.PrefixTerm("").NearPrefixTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test054()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(f => f.PrefixTerm("abc").NearPrefixTerm("   "));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() =>CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test055()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(f => f.PrefixTerm("   ").NearPrefixTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Test056()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(f => f.PrefixTerm("abc").NearPrefixTerm(null));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Test057()
     {
       Require.ProviderVersionAtLeast(new Version(11,0));
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(f => f.PrefixTerm(null).NearPrefixTerm("abc"));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
@@ -587,12 +547,11 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentOutOfRangeException))]
     public void Test063()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(f => f.SimpleTerm("abc").NearSimpleTerm("def"), -1);
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentOutOfRangeException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
@@ -668,7 +627,6 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test072()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -677,11 +635,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("ghi")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test073()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -690,11 +647,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("ghi")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test074()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -703,11 +659,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test075()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -716,11 +671,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("ghi")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test076()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -729,11 +683,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("ghi")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test077()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -742,11 +695,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("   ")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test078()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -755,11 +707,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("ghi")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test079()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -768,11 +719,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("ghi")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test080()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -781,11 +731,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm(null)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test081()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -794,11 +743,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("ghi", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test082()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -807,11 +755,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("ghi", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test083()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -820,11 +767,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test084()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -833,11 +779,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("ghi", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test085()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -846,11 +791,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("ghi", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentException))]
     public void Test086()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -859,11 +803,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("   ", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+     Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test087()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -872,11 +815,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("ghi", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test088()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -885,11 +827,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm("ghi", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test089()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -898,13 +839,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndSimpleTerm(null, 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
-
-
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test090()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -913,12 +851,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("ghi")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
-
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test091()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -927,11 +863,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("ghi")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test092()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -940,11 +875,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test093()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -953,11 +887,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("ghi")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test094()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -966,11 +899,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("ghi")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test095()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -979,11 +911,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("   ")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Test096()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -992,11 +923,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("ghi")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Test097()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -1005,11 +935,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("ghi")
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Test098()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -1018,11 +947,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm(null)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test099()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -1031,11 +959,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("ghi", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test100()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -1044,11 +971,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("ghi", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test101()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -1057,11 +983,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test102()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -1070,11 +995,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("ghi", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() =>CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test103()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -1083,11 +1007,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("ghi", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test104()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -1096,11 +1019,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("   ", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Test105()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -1109,11 +1031,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("ghi", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Test106()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -1122,11 +1043,10 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm("ghi", 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Test107()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
@@ -1135,107 +1055,97 @@ namespace Xtensive.Orm.Tests.Linq
           .AndPrefixTerm(null, 0.1f)
         );
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test108()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.GenerationTerm(GenerationType.Thesaurus, null));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test109()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.GenerationTerm(GenerationType.Thesaurus, new []{"abc", "def", null}));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test110()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.GenerationTerm(GenerationType.Thesaurus, new string[0]));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test111()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.GenerationTerm(GenerationType.Thesaurus, new []{"abc", "def", ""}));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test112()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.GenerationTerm(GenerationType.Thesaurus, new []{"abc", "def", "   "}));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Test113()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.GenerationTerm(GenerationType.Thesaurus, null, 0.1f));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test114()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.GenerationTerm(GenerationType.Thesaurus, new[] { "abc", "def", null }, 0.1f));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test115()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.GenerationTerm(GenerationType.Thesaurus, new string[0], 0.1f));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test116()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.GenerationTerm(GenerationType.Thesaurus, new[] { "abc", "def", "" }, 0.1f));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test117()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.GenerationTerm(GenerationType.Thesaurus, new[] { "abc", "def", "   " }, 0.1f));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
@@ -1293,146 +1203,130 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test124()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.ProximityTerm(g=>g.SimpleTerm("abc")));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test125()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.ProximityTerm(g => g.PrefixTerm("abc")));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Test126()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.ProximityTerm(g => g.SimpleTerm("abc").NearSimpleTerm(null)));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Test127()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.ProximityTerm(g => g.SimpleTerm(null).NearSimpleTerm("abc")));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test128()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.ProximityTerm(g => g.SimpleTerm("abc").NearSimpleTerm("")));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test129()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.ProximityTerm(g => g.SimpleTerm("").NearSimpleTerm("abc")));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test130()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.ProximityTerm(g => g.SimpleTerm("abc").NearSimpleTerm("   ")));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test131()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.ProximityTerm(g => g.SimpleTerm("   ").NearSimpleTerm("abc")));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test132()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.ProximityTerm(g => g.PrefixTerm("abc").NearPrefixTerm("")));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test133()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.ProximityTerm(g => g.PrefixTerm("").NearPrefixTerm("abc")));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test134()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.ProximityTerm(g => g.PrefixTerm("abc").NearPrefixTerm("   ")));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test135()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.ProximityTerm(g => g.PrefixTerm("   ").NearPrefixTerm("abc")));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Test136()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.ProximityTerm(g => g.PrefixTerm("abc").NearPrefixTerm(null)));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void Test137()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(
         f => f.ProximityTerm(g => g.PrefixTerm(null).NearPrefixTerm("abc")));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
-
-
 
     [Test]
     public void Test138()
@@ -1454,30 +1348,27 @@ namespace Xtensive.Orm.Tests.Linq
 
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test140()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(f => f.SimpleTerm("abc", -2.0f));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test141()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(f => f.SimpleTerm("abc", -1.0f));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentException))]
     public void Test142()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(f => f.SimpleTerm("abc", -0.001f));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
@@ -1529,12 +1420,11 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException (typeof (ArgumentException))]
     public void Test149()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(f => f.SimpleTerm("abc", 1.001f));
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
@@ -1610,51 +1500,46 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test156()
     {
       Require.ProviderVersionAtLeast(new Version(11, 0));
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(null);
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test157()
     {
       Require.ProviderVersionAtLeast(new Version(11, 0));
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(null, 5);
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test158()
     {
       Require.ProviderVersionAtLeast(new Version(11, 0));
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.CustomProximityTerm(null, 5, true);
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test159()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.GenericProximityTerm(null);
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void Test160()
     {
       Expression<Func<ConditionEndpoint, IOperand>> sc = e => e.WeightedTerm(null);
       string expectedTranslation = "dummy";
-      CompileAndTest(sc, expectedTranslation);
+      Assert.Throws<ArgumentNullException>(() => CompileAndTest(sc, expectedTranslation));
     }
 
     [Test]

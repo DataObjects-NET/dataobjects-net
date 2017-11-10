@@ -471,25 +471,23 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    [ExpectedException(typeof(DomainBuilderException))]
     public void HasManualVersionTest()
     {
       var config = DomainConfigurationFactory.Create();
       config.Types.Register(typeof(Base));
       config.Types.Register(typeof(VersionBehavior.Model.Version));
       config.Types.Register(typeof(HasManualVersion));
-      Domain.Build(config);
+      Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
     }
 
     [Test]
-    [ExpectedException(typeof(DomainBuilderException))]
     public void HasAutoVersionTest()
     {
       var config = DomainConfigurationFactory.Create();
       config.Types.Register(typeof(Base));
       config.Types.Register(typeof(VersionBehavior.Model.Version));
       config.Types.Register(typeof(HasAutoVersion));
-      Domain.Build(config);
+      Assert.Throws<DomainBuilderException>(() => Domain.Build(config));
     }
   }
 }

@@ -542,13 +542,12 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (QueryTranslationException))]
     public void GroupBySelectManyKeyTest()
     {
       var result = Session.Query.All<Customer>()
         .GroupBy(c => c.Address.City)
         .SelectMany(g => g.Key);
-      QueryDumper.Dump(result);
+      Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(result));
     }
 
     [Test]

@@ -21,13 +21,14 @@ namespace Xtensive.Orm.Tests.Linq
   public class SkipTakeElementAtTest : NorthwindDOModelTest
   {
     [Test]
-    [ExpectedException(typeof (QueryTranslationException))]
     public void ReuseTake1Test()
     {
-      var result1 = TakeCustomersIncorrect(1).Count();
-      Assert.AreEqual(1, result1);
-      var result2 = TakeCustomersIncorrect(2).Count();
-      Assert.AreEqual(2, result2);
+      Assert.Throws<QueryTranslationException>(() => {
+        var result1 = TakeCustomersIncorrect(1).Count();
+        Assert.AreEqual(1, result1);
+        var result2 = TakeCustomersIncorrect(2).Count();
+        Assert.AreEqual(2, result2);
+      });
     }
 
     [Test]
@@ -97,14 +98,15 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (QueryTranslationException))]
     public void ReuseSkipTest()
     {
-      var totalCount = Session.Query.All<Customer>().Count();
-      var result1 = SkipCustomersIncorrect(1).Count();
-      Assert.AreEqual(totalCount - 1, result1);
-      var result2 = SkipCustomersIncorrect(2).Count();
-      Assert.AreEqual(totalCount - 2, result2);
+      Assert.Throws<QueryTranslationException>(() => {
+        var totalCount = Session.Query.All<Customer>().Count();
+        var result1 = SkipCustomersIncorrect(1).Count();
+        Assert.AreEqual(totalCount - 1, result1);
+        var result2 = SkipCustomersIncorrect(2).Count();
+        Assert.AreEqual(totalCount - 2, result2);
+      });
     }
 
     [Test]
@@ -119,13 +121,14 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (QueryTranslationException))]
     public void ReuseElementAtTest()
     {
-      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
-      Assert.IsTrue(customers.Count > 0);
-      for (int i = 0; i < customers.Count; i++)
-        Assert.AreEqual(customers[i], ElementAtIncorrect(i));
+      Assert.Throws<QueryTranslationException>(() => {
+        var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+        Assert.IsTrue(customers.Count > 0);
+        for (int i = 0; i < customers.Count; i++)
+          Assert.AreEqual(customers[i], ElementAtIncorrect(i));
+      });
     }
 
     [Test]
@@ -163,17 +166,18 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (QueryTranslationException))]
     public void ReuseElementAtOrDefault2Test()
     {
-      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
-      Assert.IsTrue(customers.Count > 0);
-      for (int i = -100; i < customers.Count + 100; i++) {
-        if (i < 0 || i >= customers.Count)
-          Assert.IsNull(ElementAtOrDefaultIncorrect(i));
-        else
-          Assert.AreEqual(customers[i], ElementAtOrDefaultIncorrect(i));
-      }
+      Assert.Throws<QueryTranslationException>(() => {
+        var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+        Assert.IsTrue(customers.Count > 0);
+        for (int i = -100; i < customers.Count + 100; i++) {
+          if (i < 0 || i >= customers.Count)
+            Assert.IsNull(ElementAtOrDefaultIncorrect(i));
+          else
+            Assert.AreEqual(customers[i], ElementAtOrDefaultIncorrect(i));
+        }
+      });
     }
 
     [Test]

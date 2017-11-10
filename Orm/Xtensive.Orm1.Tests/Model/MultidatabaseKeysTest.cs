@@ -177,7 +177,6 @@ namespace Xtensive.Orm.Tests.Model
     }
 
     [Test]
-    [ExpectedException(typeof (DomainBuilderException))]
     public void SameSeedValueInDifferentKeyGeneratorsTest()
     {
       var configuration = DomainConfiguration.Load("AppConfigTest", "MultidatabaseKeysTestDomain1");
@@ -185,7 +184,7 @@ namespace Xtensive.Orm.Tests.Model
       configuration.Types.Register(typeof (Database1.Base1MyEntity).Assembly, typeof (Database1.Base1MyEntity).Namespace);
       configuration.Types.Register(typeof (Database2.Base2MyEntity).Assembly, typeof (Database2.Base2MyEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      BuildDomain(configuration);
+      Assert.Throws<DomainBuilderException>(() => BuildDomain(configuration));
     }
 
     [Test]

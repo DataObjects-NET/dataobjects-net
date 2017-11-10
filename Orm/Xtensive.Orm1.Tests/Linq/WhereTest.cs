@@ -1292,11 +1292,10 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     }
 
     [Test]
-    [ExpectedException(typeof (QueryTranslationException))]
     public void NonPersistentFieldTest()
     {
       var result = from e in Session.Query.All<Employee>() where e.FullName!=null select e;
-      result.ToList();
+      Assert.Throws<QueryTranslationException>(() => result.ToList());
     }
 
     [Test]

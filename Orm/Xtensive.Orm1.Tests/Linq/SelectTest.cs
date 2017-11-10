@@ -112,23 +112,25 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (QueryTranslationException))]
     public void IndexerError1Test()
     {
-      var result = Session.Query
-        .All<Customer>()
-        .Select(customer => customer["Ph1one"])
-        .ToList();
+      Assert.Throws<QueryTranslationException>(() => {
+        var result = Session.Query
+          .All<Customer>()
+          .Select(customer => customer["Ph1one"])
+          .ToList();
+      });
     }
 
     [Test]
-    [ExpectedException(typeof (QueryTranslationException))]
     public void IndexerError2Test()
     {
-      var result = Session.Query
-        .All<Order>()
-        .Where(order => order["Freight"]==order["Id"])
-        .ToList();
+      Assert.Throws<QueryTranslationException>(() => {
+        var result = Session.Query
+          .All<Order>()
+          .Where(order => order["Freight"] == order["Id"])
+          .ToList();
+      });
     }
 
 
@@ -233,10 +235,9 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (QueryTranslationException))]
     public void OutOfHierarchy()
     {
-      Assert.Greater(Session.Query.All<Person>().Count(), 0);
+     Assert.Throws<QueryTranslationException>( () => { Assert.Greater(Session.Query.All<Person>().Count(), 0); });
     }
 
     [Test]
@@ -696,11 +697,10 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (QueryTranslationException))]
     public void NonPersistentFieldTest()
     {
       var result = from e in Session.Query.All<Employee>() select e.FullName;
-      result.ToList();
+      Assert.Throws<QueryTranslationException>(() => result.ToList());
     }
 
     [Test]
@@ -982,10 +982,11 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void ExternalMethodWithIncorrectParamsCall()
     {
-      var query = Session.Query.All<Customer>().Select(c => GetCustomers(c.Orders.Count()).Single(c2 => c2==c)).ToList();
+      Assert.Throws<QueryTranslationException>(() => {
+        var query = Session.Query.All<Customer>().Select(c => GetCustomers(c.Orders.Count()).Single(c2 => c2==c)).ToList();
+      });
     }
 
     public IQueryable<Customer> GetCustomers()

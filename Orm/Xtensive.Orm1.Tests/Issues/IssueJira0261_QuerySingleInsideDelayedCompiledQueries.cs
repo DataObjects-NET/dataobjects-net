@@ -48,7 +48,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
     
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
     public void QuerySingle()
     {
       using (var session = Domain.OpenSession())
@@ -56,9 +55,10 @@ namespace Xtensive.Orm.Tests.Issues
 
         var expected = new Exception(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
 
-        var result = session.Query.ExecuteDelayed(query => query.SingleOrDefault<TestEntity>(instanceKey));
-
-        Assert.That(result.Value.FirstName, Is.EqualTo("Jeremy"));
+        Assert.Throws<NotSupportedException>(() => {
+          var result = session.Query.ExecuteDelayed(query => query.SingleOrDefault<TestEntity>(instanceKey));
+          Assert.That(result.Value.FirstName, Is.EqualTo("Jeremy"));
+        });
       }
     }
   }

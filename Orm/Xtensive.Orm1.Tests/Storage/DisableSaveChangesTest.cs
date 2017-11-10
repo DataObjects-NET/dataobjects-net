@@ -114,20 +114,21 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidOperationException))]
     public void DisableAllCommitTest()
     {
-      using (var session = Domain.OpenSession())
-      using (var t = session.OpenTransaction()) {
-        var victim = new Victim();
-        var count = session.Query.All<Victim>().Count();
-        session.DisableSaveChanges();
+      Assert.Throws<InvalidOperationException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var t = session.OpenTransaction()) {
+          var victim = new Victim();
+          var count = session.Query.All<Victim>().Count();
+          session.DisableSaveChanges();
 
-        var anotherVictim = new Victim();
-        var newCount = session.Query.All<Victim>().Count();
-        Assert.AreEqual(count, newCount);
-        t.Complete();
-      }
+          var anotherVictim = new Victim();
+          var newCount = session.Query.All<Victim>().Count();
+          Assert.AreEqual(count, newCount);
+          t.Complete();
+        }
+      });
     }
     
     [Test]

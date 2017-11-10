@@ -24,25 +24,27 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
+
     public void CachedQueryTest()
     {
-      for (char c = 'A'; c <= 'Z'; c++) {
-        string firstChar = c.ToString();
-        var builtQuery = GetQuery(Session.Query, firstChar);
-        var query = builtQuery
-          .Select(customer => customer.ContactName);
-        var cachedQuery = Session.Query
-          .Execute(qe => GetQuery(Session.Query, firstChar).Select(customer => customer.ContactName));
-        var fullQuery = Session.Query.All<Customer>()
-          .Where(cn => cn.CompanyName.StartsWith(firstChar))
-          .Select(customer => customer.ContactName);
-        Assert.IsTrue(query.ToList().SequenceEqual(fullQuery.ToList()));
-        var cachedQueryList = cachedQuery.ToList();
-        var fullQueryList = fullQuery.ToList();
-        var condition = cachedQueryList.SequenceEqual(fullQueryList);
-        Assert.IsTrue(condition);
-      }
+      Assert.Throws<QueryTranslationException>(() => {
+        for (char c = 'A'; c <= 'Z'; c++) {
+          string firstChar = c.ToString();
+          var builtQuery = GetQuery(Session.Query, firstChar);
+          var query = builtQuery
+            .Select(customer => customer.ContactName);
+          var cachedQuery = Session.Query
+            .Execute(qe => GetQuery(Session.Query, firstChar).Select(customer => customer.ContactName));
+          var fullQuery = Session.Query.All<Customer>()
+            .Where(cn => cn.CompanyName.StartsWith(firstChar))
+            .Select(customer => customer.ContactName);
+          Assert.IsTrue(query.ToList().SequenceEqual(fullQuery.ToList()));
+          var cachedQueryList = cachedQuery.ToList();
+          var fullQueryList = fullQuery.ToList();
+          var condition = cachedQueryList.SequenceEqual(fullQueryList);
+          Assert.IsTrue(condition);
+        }
+      });
     }
 
 

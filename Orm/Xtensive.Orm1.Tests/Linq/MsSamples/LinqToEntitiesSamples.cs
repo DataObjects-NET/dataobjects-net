@@ -1079,8 +1079,6 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
 
     // Modified according to DO model.
-
-    [ExpectedException(typeof (QueryTranslationException))]
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "Complex Hierarchy - Simple")]
     [Description("Select all contacts and show the type of each.")]
@@ -1089,16 +1087,17 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
       var query = Session.Query.All<Person>().Select(c => c);
 
       // we need AsEnumerable to force execution, as GetType is not defined in store
-      var query2 = query
-        .ToList()
-        .Select(c => new {type = c.GetType().ToString()});
+      Assert.Throws<QueryTranslationException>(() => {
+        var query2 = query
+          .ToList()
+          .Select(c => new { type = c.GetType().ToString() });
 
-      QueryDumper.Dump(query2);
+        QueryDumper.Dump(query2);
+      });
+
     }
 
     // Modified according to DO model.
-
-    [ExpectedException(typeof (QueryTranslationException))]
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "Complex Hierarchy - OfType 1")]
     [Description("Select all Shipper contacts.")]
@@ -1106,12 +1105,10 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       var query = Session.Query.All<Person>().OfType<Customer>().Select(c => c);
 
-      QueryDumper.Dump(query);
+      Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(query));
     }
 
     // Modified according to DO model.
-
-    [ExpectedException(typeof (QueryTranslationException))]
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "Complex Hierarchy - OfType 2")]
     [Description("Select all Full contacts, which includes suppliers, customers, and employees.")]
@@ -1119,7 +1116,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       var query = Session.Query.All<Person>().OfType<BusinessContact>().Select(c => c);
 
-      QueryDumper.Dump(query);
+      Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(query));
     }
 
     /* not enabled for Feb CTP
