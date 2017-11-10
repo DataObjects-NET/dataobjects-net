@@ -49,7 +49,11 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public class MemoryProviderTest
   {
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void TestFixtureSetUp()
     {
       Require.ProviderIs(StorageProvider.Sqlite, "Only sqlite supports memory data source");

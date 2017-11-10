@@ -291,7 +291,11 @@ namespace Xtensive.Orm.Tests.Storage
   {
     private Domain domain;
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void TestFixtureSetUp()
     {
       Require.AllFeaturesSupported(ProviderFeatures.PartialIndexes);

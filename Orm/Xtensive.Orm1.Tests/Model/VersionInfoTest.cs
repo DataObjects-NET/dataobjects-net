@@ -134,7 +134,11 @@ namespace Xtensive.Orm.Tests.Model
   [TestFixture]
   public class VersionInfoTest
   {
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void TestFixtureSetUp()
     {
       Require.ProviderIs(StorageProvider.SqlServer);

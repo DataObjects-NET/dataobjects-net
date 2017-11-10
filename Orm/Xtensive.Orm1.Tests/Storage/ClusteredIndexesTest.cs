@@ -247,7 +247,11 @@ namespace Xtensive.Orm.Tests.Storage
     private HashSet<Type> domainTypes;
     private InheritanceSchema? inheritanceSchema;
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void TestFixtureSetUp()
     {
       Require.AllFeaturesSupported(ProviderFeatures.ClusteredIndexes);

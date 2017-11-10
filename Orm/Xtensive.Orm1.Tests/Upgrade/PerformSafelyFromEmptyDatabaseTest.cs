@@ -13,7 +13,11 @@ namespace Xtensive.Orm.Tests.Upgrade
   [TestFixture]
   public class PerformSafelyFromEmptyDatabaseTest
   {
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void TestFixtureSetUp()
     {
       Require.ProviderIs(StorageProvider.SqlServer, "Server-specific SQL is used");

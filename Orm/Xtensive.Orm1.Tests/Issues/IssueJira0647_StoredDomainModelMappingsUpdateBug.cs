@@ -385,7 +385,11 @@ namespace Xtensive.Orm.Tests.Issues
     private ClientNodeConfiguration beta;
     private ClientNodeConfiguration main;
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void TestFixtureSetUp()
     {
       Require.ProviderIs(StorageProvider.SqlServer);

@@ -37,8 +37,11 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     protected virtual void PopulateData()
     {
     }
-
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void TestFixtureSetUp()
     {
       CheckRequirements();
@@ -47,8 +50,11 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       PopulateNodes();
       PopulateData();
     }
-
+#if NETCOREAPP
+    [OneTimeTearDown]
+#else
     [TestFixtureTearDown]
+#endif
     public void TestFixtureTearDown()
     {
       if (Domain!=null)

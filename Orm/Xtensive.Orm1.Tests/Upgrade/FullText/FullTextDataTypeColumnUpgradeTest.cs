@@ -226,7 +226,11 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
 	[TestFixture]
 	public class FullTextDataTypeColumnUpgradeTest
 	{
-		[TestFixtureSetUp]
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
+    [TestFixtureSetUp]
+#endif
 		public void TestFixtureSetUp()
 		{
 			CheckRequirements();

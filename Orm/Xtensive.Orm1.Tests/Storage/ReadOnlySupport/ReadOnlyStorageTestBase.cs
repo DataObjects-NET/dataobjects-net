@@ -103,7 +103,11 @@ namespace Xtensive.Orm.Tests.Storage.ReadOnlySupport
       }
     }
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void TestFixtureSetUp()
     {
       try {

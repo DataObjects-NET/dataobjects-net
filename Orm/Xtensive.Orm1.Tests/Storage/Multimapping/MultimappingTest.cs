@@ -12,13 +12,21 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
   [TestFixture]
   public abstract class MultimappingTest
   {
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public virtual void TestFixtureSetUp()
     {
       CheckRequirements();
     }
 
+#if NETCOREAPP
+    [OneTimeTearDown]
+#else
     [TestFixtureTearDown]
+#endif
     public virtual void TestFixtureTearDown()
     {
     }

@@ -453,9 +453,12 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
 
     private DomainConfiguration configurationForLaterValidation;
     private DomainConfiguration configurationForImmediateValidation;
-    
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void Setup()
     {
       configurationForLaterValidation = DomainConfigurationFactory.Create();

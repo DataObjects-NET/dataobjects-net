@@ -93,7 +93,11 @@ namespace Xtensive.Orm.Tests.Upgrade
       TestWithChanges(DomainUpgradeMode.Perform, false);
     }
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void FixtureSetUp()
     {
       Require.AnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);

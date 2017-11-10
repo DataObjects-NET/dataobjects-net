@@ -60,7 +60,11 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   public class IssueJira0430_PartialIndexOnBoolOrEnumFields
   {
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void TestFixtureSetUp()
     {
       Require.AllFeaturesSupported(ProviderFeatures.PartialIndexes);

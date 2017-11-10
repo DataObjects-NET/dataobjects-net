@@ -39,7 +39,11 @@ namespace Xtensive.Orm.Tests.Linq
     private Key supplierLekaKey;
     private Key categoryFirstKey;
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();

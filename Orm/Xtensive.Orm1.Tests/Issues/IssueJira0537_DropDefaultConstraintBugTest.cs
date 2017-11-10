@@ -301,7 +301,11 @@ namespace Xtensive.Orm.Tests.Issues
       BuildSingleDomain(Database1Name);
     }
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public override void TestFixtureSetUp()
     {
       InitializeConnectionStrings();

@@ -72,7 +72,11 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
   [TestFixture]
   public class ConvertionToStorageModelTest
   {
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void TestFixtureSetUp()
     {
       Require.AllFeaturesSupported(ProviderFeatures.FullText);

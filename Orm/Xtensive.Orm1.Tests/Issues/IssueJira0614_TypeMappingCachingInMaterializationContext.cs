@@ -470,7 +470,11 @@ namespace Xtensive.Orm.Tests.Issues
       return configuration;
     }
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void TestFixtureSetUp()
     {
       try {
@@ -485,7 +489,11 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+#if NETCOREAPP
+    [OneTimeTearDown]
+#else
     [TestFixtureTearDown]
+#endif
     public void TestFixtureTearDown()
     {
     }

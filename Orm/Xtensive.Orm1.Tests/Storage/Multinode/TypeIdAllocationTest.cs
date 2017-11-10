@@ -76,7 +76,11 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       MainTest(domain);
     }
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void TestFixtureSetup()
     {
       CheckRequirements();

@@ -107,7 +107,11 @@ namespace Xtensive.Orm.Tests.Upgrade
       Assert.DoesNotThrow(() => RebuildDomain(configuration));
     }
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     protected void TestFixtureSetUp()
     {
       CheckRequirements();
