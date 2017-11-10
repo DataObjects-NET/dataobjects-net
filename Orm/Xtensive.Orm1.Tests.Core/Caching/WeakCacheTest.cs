@@ -31,10 +31,9 @@ namespace Xtensive.Orm.Tests.Core.Caching
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void ConstructorDenyTest()
     {
-      var cache = new WeakCache<string, TestClass>(false, null);
+      Assert.Throws<ArgumentNullException>(() => { var cache = new WeakCache<string, TestClass>(false, null); });
     }
 
     [Test]
@@ -63,27 +62,24 @@ namespace Xtensive.Orm.Tests.Core.Caching
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void AddDenyTest()
     {
       var cache = new WeakCache<string, TestClass>(false, value => value.Text);
-      cache.Add(null);
+      Assert.Throws<ArgumentNullException>(() => cache.Add(null));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void RemoveDenyTest()
     {
       var cache = new WeakCache<string, TestClass>(false, value => value.Text);
-      cache.Remove((TestClass)null);
+      Assert.Throws<ArgumentNullException>(() => cache.Remove((TestClass) null));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void RemoveDenyTest1()
     {
       var cache = new WeakCache<string, TestClass>(false, value => value.Text);
-      cache.Remove((TestClass)null);
+      Assert.Throws<ArgumentNullException>(() => cache.Remove((TestClass)null));
     }
 
     [Test]

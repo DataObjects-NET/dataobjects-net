@@ -28,58 +28,62 @@ namespace Xtensive.Orm.Tests.Core.Collections
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
     public void Test_Add()
     {
-      innerList.Clear();
-      try {
-        readOnlyList.Add("element");
-      }
-      finally {
-        Assert.IsTrue(readOnlyList.Count == 0);
-      }
+      Assert.Throws<NotSupportedException>(() => {
+        innerList.Clear();
+        try {
+          readOnlyList.Add("element");
+        }
+        finally {
+          Assert.IsTrue(readOnlyList.Count == 0);
+        }
+      });
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
     public void Test_Remove()
     {
-      innerList.Clear();
-      innerList.Add("element");
-      try {
-        readOnlyList.Remove("element");
-      }
-      finally {
-        Assert.IsTrue(readOnlyList.Count == 1);
-      }
+      Assert.Throws<NotSupportedException>(() => {
+        innerList.Clear();
+        innerList.Add("element");
+        try {
+          readOnlyList.Remove("element");
+        }
+        finally {
+          Assert.IsTrue(readOnlyList.Count == 1);
+        }
+      });
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
     public void Test_RemoveAt()
     {
-      innerList.Clear();
-      innerList.Add("element");
-      try {
-        readOnlyList.RemoveAt(0);
-      }
-      finally {
-        Assert.IsTrue(readOnlyList.Count == 1);
-      }
+      Assert.Throws<NotSupportedException>(() => {
+        innerList.Clear();
+        innerList.Add("element");
+        try {
+          readOnlyList.RemoveAt(0);
+        }
+        finally {
+          Assert.IsTrue(readOnlyList.Count == 1);
+        }
+      });
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
     public void Test_Clear()
     {
-      innerList.Clear();
-      innerList.Add("element");
-      try {
-        readOnlyList.Clear();
-      }
-      finally {
-        Assert.IsTrue(readOnlyList.Count == 1);
-      }
+      Assert.Throws<NotSupportedException>(() => {
+        innerList.Clear();
+        innerList.Add("element");
+        try {
+          readOnlyList.Clear();
+        }
+        finally {
+          Assert.IsTrue(readOnlyList.Count == 1);
+        }
+      });
     }
 
     [Test]

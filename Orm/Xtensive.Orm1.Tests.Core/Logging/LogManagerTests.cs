@@ -44,21 +44,23 @@ namespace Xtensive.Orm.Tests.Core.Logging
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidOperationException))]
     public void TryGetLogBeforeInitialization()
     {
-      LogManager manager = new LogManager();
-      manager.GetLog("FileLog");
-      manager.Initialize();
+      Assert.Throws<InvalidOperationException>(() => {
+        LogManager manager = new LogManager();
+        manager.GetLog("FileLog");
+        manager.Initialize();
+      });
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidOperationException))]
     public void LogManagerAutoInitializationBeforeInitializationTest()
     {
-      LogManager manager = new LogManager();
-      manager.AutoInitialize();
-      manager.Initialize();
+      Assert.Throws<InvalidOperationException>(() => {
+        LogManager manager = new LogManager();
+        manager.AutoInitialize();
+        manager.Initialize();
+      });
     }
 
     [Test]

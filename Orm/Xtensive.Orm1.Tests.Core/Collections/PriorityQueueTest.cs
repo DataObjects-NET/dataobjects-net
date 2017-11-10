@@ -61,15 +61,16 @@ namespace Xtensive.Orm.Tests.Core.Collections
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidOperationException))]
     public void RemoveTest()
     {
       PriorityQueue<string, string> pq = new PriorityQueue<string, string>();
       string item = "item";
-      pq.Enqueue("1", "s1");
-      pq.Enqueue(item, "s2");
-      pq.Enqueue("3", "s3");
-      pq.Remove("fff");
+      Assert.Throws<InvalidOperationException>(() => {
+        pq.Enqueue("1", "s1");
+        pq.Enqueue(item, "s2");
+        pq.Enqueue("3", "s3");
+        pq.Remove("fff");
+      });
     }
 
     [Test]

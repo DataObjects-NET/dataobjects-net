@@ -25,30 +25,33 @@ namespace Xtensive.Orm.Tests.Core.Collections
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
     public void Test_Add()
     {
-      int count = readOnlySet.Count;
-      try {
-        readOnlySet.Add("Element");
-      }
-      finally {
-        Assert.AreEqual(count, readOnlySet.Count);
-      }
+      Assert.Throws<NotSupportedException>(() => {
+        int count = readOnlySet.Count;
+        try {
+          readOnlySet.Add("Element");
+        }
+        finally {
+          Assert.AreEqual(count, readOnlySet.Count);
+        }
+      });
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
     public void Test_Remove()
     {
-      set.Add("Element");
-      int count = readOnlySet.Count;
-      try {
-        readOnlySet.Remove("Element");
-      }
-      finally {
-        Assert.AreEqual(count, readOnlySet.Count);
-      }
+      Assert.Throws<NotSupportedException>(() => {
+        set.Add("Element");
+        int count = readOnlySet.Count;
+        try {
+          readOnlySet.Remove("Element");
+        }
+        finally {
+          Assert.AreEqual(count, readOnlySet.Count);
+        }
+      });
+
     }
     
     [Test]

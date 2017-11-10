@@ -71,17 +71,15 @@ namespace Xtensive.Orm.Tests.Core.Caching
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void ConstructorDenyTest()
     {
-      var cache = new InfiniteCache<string, TestClass>(null);
+      Assert.Throws<ArgumentNullException>(() => { var cache = new InfiniteCache<string, TestClass>(null); });
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentOutOfRangeException))]
     public void ConstructorDenyTest2()
     {
-      var cache = new InfiniteCache<string, TestClass>(-1, i=> i.Text);
+      Assert.Throws<ArgumentOutOfRangeException>(() => { var cache = new InfiniteCache<string, TestClass>(-1, i => i.Text); });
     }
 
     [Test]
@@ -116,27 +114,24 @@ namespace Xtensive.Orm.Tests.Core.Caching
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void AddDenyTest()
     {
       var cache = new InfiniteCache<string, TestItem>(value => value.Key);
-      cache.Add(null);
+      Assert.Throws<ArgumentNullException>(() => cache.Add(null));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void RemoveDenyTest()
     {
       var cache = new InfiniteCache<string, TestItem>(value => value.Key);
-      cache.Remove((TestItem)null);
+      Assert.Throws<ArgumentNullException>(() => cache.Remove((TestItem)null));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void RemoveDenyTest1()
     {
       var cache = new InfiniteCache<string, TestItem>(value => value.Key);
-      cache.Remove((TestItem)null);
+      Assert.Throws<ArgumentNullException>(() => cache.Remove((TestItem)null));
     }
 
     [Test]

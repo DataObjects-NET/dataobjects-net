@@ -113,14 +113,15 @@ namespace Xtensive.Orm.Tests.Core.Caching
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentOutOfRangeException))]
     public void ConstructorDenyTest()
     {
-      var cache =
-        new LruCache<string, TestClass, TestClass>(
-          -1,
-          value => value.Text
+      Assert.Throws<ArgumentOutOfRangeException>(() => {
+        var cache =
+          new LruCache<string, TestClass, TestClass>(
+            -1,
+            value => value.Text
           );
+      });
     }
 
     [Test]
@@ -147,51 +148,45 @@ namespace Xtensive.Orm.Tests.Core.Caching
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void AddDenyTest1()
     {
       var cache = new LruCache<string, TestClass, TestClass>(
         100,
         value => value.Text);
-      cache.Add(null);
+      Assert.Throws<ArgumentNullException>(() => cache.Add(null));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void AddDenyTest3()
     {
       var cache =
         new LruCache<string, BadTestClass, BadTestClass>(
           100,
           value => value.Identifier);
-
-      cache.Add(new BadTestClass());
+      Assert.Throws<ArgumentNullException>(() => cache.Add(new BadTestClass()));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void RemoveDenyTest1()
     {
       var cache =
         new LruCache<string, TestClass, TestClass>(
           100,
           value => value.Text);
-      cache.Remove(null);
+      Assert.Throws<ArgumentNullException>(() => cache.Remove(null));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void RemoveDenyTest2()
     {
       var cache =
         new LruCache<string, TestClass, TestClass>(
           100,
           value => value.Text);
-      cache.RemoveKey(null);
+      Assert.Throws<ArgumentNullException>(() => cache.RemoveKey(null));
     }
 
     [Test]
-    [ExpectedException(typeof(ArgumentNullException))]
     public void RemoveDenyTest3()
     {
       var cache =
@@ -199,7 +194,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
           100,
           value => value.Identifier);
       BadTestClass test1 = new BadTestClass();
-      cache.Remove(test1);
+      Assert.Throws<ArgumentNullException>(() => cache.Remove(test1));
     }
     
     [Test]
