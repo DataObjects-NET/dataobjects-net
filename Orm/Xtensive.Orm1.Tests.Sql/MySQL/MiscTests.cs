@@ -268,7 +268,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    [Ignore]
+    [Ignore("")]
     public void IntersectTest() //TODO: Relook into the keyword for INTERSECT
     {
       SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
@@ -288,7 +288,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    [Ignore]
+    [Ignore("")]
     public void IntersectAllTest()//TODO: Relook into the keyword for INTERSECT ALL
     {
       SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
@@ -308,7 +308,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    [Ignore]
+    [Ignore("")]
     public void ExceptTest()
     {
       SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["Address"]));
@@ -328,7 +328,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    [Ignore]
+    [Ignore("")]
     public void ExceptAllTest()
     {
       SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["Address"]));
@@ -348,7 +348,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    [Ignore]
+    [Ignore("")]
     public void FreeTextTest()
     {
       SqlSelect select = SqlDml.Select();
@@ -359,7 +359,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    [Ignore]
+    [Ignore("")]
     public void FreeTextCreateTest()
     {
       //var table = Catalog.Schemas["Person"].Tables["Address"];

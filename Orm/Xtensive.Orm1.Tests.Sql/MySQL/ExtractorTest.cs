@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
         [Test]
         //[ExpectedException(typeof(NotSupportedException))]
-        [Ignore]
+        [Ignore("")]
         public void TestForUnsupportedSETDatatypes()
         {
             this.DropBadTables();
@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
         [Test]
         //[ExpectedException(typeof(NotSupportedException))]
-        [Ignore]
+        [Ignore("")]
         public void TestForUnsupportedENUMDatatypes()
         {
             this.DropBadTables();
@@ -162,7 +162,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
         [Test]
         //[ExpectedException(typeof(NotSupportedException))]
-        [Ignore]
+        [Ignore("")]
         public void TestForUnsupportedBITDatatypes()
         {
             this.DropBadTables();

@@ -1458,7 +1458,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
-    [Ignore]
+    [Ignore("")]
     public void Test071()
     {
       string nativeSql = "SELECT LastName FROM Person.Contact "
