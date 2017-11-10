@@ -24,7 +24,11 @@ namespace Xtensive.Orm.Tests.Sql
     protected SqlConnection Connection { get; private set; }
     protected SqlDriver Driver { get; private set; }
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void RealTestFixtureSetUp()
     {
       CheckRequirements();
@@ -38,7 +42,11 @@ namespace Xtensive.Orm.Tests.Sql
       }
     }
 
+#if NETCOREAPP
+    [OneTimeTearDown]
+#else
     [TestFixtureTearDown]
+#endif
     public void RealTestFixtureTearDown()
     {
       TestFixtureTearDown();

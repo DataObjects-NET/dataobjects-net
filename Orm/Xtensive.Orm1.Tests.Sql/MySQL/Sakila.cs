@@ -27,7 +27,11 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
     public Catalog Catalog { get; protected set; }
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public virtual void SetUp()
     {
       CheckRequirements();
@@ -40,7 +44,11 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       InsertTestData();
     }
 
+#if NETCOREAPP
+    [OneTimeTearDown]
+#else
     [TestFixtureTearDown]
+#endif
     public virtual void TearDown()
     {
       if (Catalog!=null)

@@ -16,7 +16,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
   [TestFixture]
   public class ErrorMessageParserTest
   {
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     protected virtual void SetUp()
     {
       CheckRequirements();

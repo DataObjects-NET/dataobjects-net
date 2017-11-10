@@ -86,7 +86,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       Require.ProviderIs(StorageProvider.SqlServer);
     }
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public virtual void SetUp()
     {
       CheckRequirements();

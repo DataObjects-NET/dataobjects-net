@@ -84,7 +84,11 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       Require.ProviderIs(StorageProvider.Sqlite);
     }
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public virtual void SetUp()
     {
       CheckRequirements();

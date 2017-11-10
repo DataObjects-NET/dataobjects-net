@@ -16,7 +16,11 @@ namespace Xtensive.Orm.Tests.Sql
     private Table table1;
     private Table table2;
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void SetUp()
     {
       var catalog = new Catalog("test");
