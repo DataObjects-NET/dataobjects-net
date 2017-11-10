@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
       }
     }
 
-    [Test, Ignore]
+    [Test, Ignore("")]
     public void SynchronizationTest()
     {
       globalCollection = new IntegerCollection();
