@@ -69,7 +69,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var nativeParameter = (NpgsqlParameter) parameter;
       nativeParameter.NpgsqlDbType = NpgsqlDbType.Interval;
       nativeParameter.Value = value!=null
+#if NETCOREAPP
+        ? (object) new NpgsqlTimeSpan((TimeSpan) value)
+#else
         ? (object) new NpgsqlInterval((TimeSpan) value)
+#endif
         : DBNull.Value;
     }
 
@@ -85,7 +89,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var nativeParameter = (NpgsqlParameter) parameter;
       nativeParameter.NpgsqlDbType = NpgsqlDbType.TimestampTZ;
       nativeParameter.NpgsqlValue = value!=null
+
+#if NETCOREAPP
+        //todo: probably wrong (check) http://www.npgsql.org/doc/types/basic.html
+        ? (object)(DateTimeOffset)value
+#else
         ? (object)(NpgsqlTimeStampTZ) (DateTimeOffset) value
+#endif
         : (object)DBNull.Value;
     }
 
@@ -145,7 +155,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override object ReadDateTimeOffset(DbDataReader reader, int index)
     {
       var nativeReader = (NpgsqlDataReader) reader;
+      //todo: probably wrong (check) http://www.npgsql.org/doc/types/basic.html
+#if NETCOREAPP
+      return (DateTimeOffset) (DateTime) nativeReader.GetTimeStamp(index);
+#else
       return (DateTimeOffset) nativeReader.GetTimeStampTZ(index);
+#endif
     }
 
     // Constructors
