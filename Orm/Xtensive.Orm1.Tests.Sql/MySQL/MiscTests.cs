@@ -129,15 +129,14 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    [ExpectedException(typeof (SqlCompilerException))]
     public void CircularReferencesTest()
     {
       SqlSelect select = SqlDml.Select();
       SqlBinary b = SqlDml.Literal(1) + 2;
       SqlBinary rb = b + 3;
       rb.Left.ReplaceWith(rb);
-      select.Where = rb>1;
-      Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
+      select.Where = rb > 1;
+      Assert.Throws<SqlCompilerException>(() => { Console.WriteLine(SqlDriver.Compile(select).GetCommandText()); });
     }
 
     [Test]

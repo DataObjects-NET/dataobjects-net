@@ -3830,7 +3830,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
-    [ExpectedException(typeof(System.Data.SqlClient.SqlException))]
     public void Test203()
     {
       string nativeSql = "INSERT INTO Person.Contact "
@@ -3839,7 +3838,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       SqlTableRef unitMeasure = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
       SqlInsert insert = SqlDml.Insert(unitMeasure);
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, insert));
+      Assert.Throws<System.Data.SqlClient.SqlException>(() => Assert.IsTrue(CompareExecuteNonQuery(nativeSql, insert)));
     }
 
     [Test]

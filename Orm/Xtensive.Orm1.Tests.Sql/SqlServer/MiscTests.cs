@@ -141,7 +141,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
-    [ExpectedException(typeof (SqlCompilerException))]
     public void CircularReferencesTest()
     {
       SqlSelect select = SqlDml.Select();
@@ -149,7 +148,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       SqlBinary rb = b + 3;
       rb.Left.ReplaceWith(rb);
       select.Where = rb > 1;
-      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+     Assert.Throws<SqlCompilerException>(() => Console.WriteLine(sqlDriver.Compile(select).GetCommandText()));
     }
 
     [Test]
