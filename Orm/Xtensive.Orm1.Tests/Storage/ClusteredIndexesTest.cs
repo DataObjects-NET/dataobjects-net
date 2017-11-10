@@ -374,7 +374,11 @@ namespace Xtensive.Orm.Tests.Storage
     private void InitializeTest(InheritanceSchema? schema, IEnumerable<Type> types)
     {
       inheritanceSchema = schema;
+#if NETCOREAPP
+      domainTypes = EnumerableExtensions.ToHashSet(types);
+#else
       domainTypes = types.ToHashSet();
+#endif
     }
 
     private void RunFailureTest(Type badType)
