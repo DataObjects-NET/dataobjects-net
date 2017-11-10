@@ -149,7 +149,7 @@ namespace Xtensive.Orm.Tests.Model
     }
 
     [Test]
-    [Ignore]
+    [Ignore("")]
     [Obsolete]
     public void RootOnlyVersionTest()
     {

@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Storage.ReadOnlySupport
 {
-  [Ignore]
+  [Ignore("")]
   public class PostgreSqlReadOnlyTest : ReadOnlyStorageTestBase
   {
 
