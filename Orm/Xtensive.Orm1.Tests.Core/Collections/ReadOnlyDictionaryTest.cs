@@ -21,7 +21,11 @@ namespace Xtensive.Orm.Tests.Core.Collections
     private Dictionary<int, string> innerDictionary;
     private IDictionary<int, string> readOnlyDictionary;
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void Init()
     {
       this.innerDictionary = new Dictionary<int, string>();

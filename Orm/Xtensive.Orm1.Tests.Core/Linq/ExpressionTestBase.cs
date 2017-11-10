@@ -46,7 +46,11 @@ namespace Xtensive.Orm.Tests.Core.Linq
 
     #endregion
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public virtual void TestFixtureSetUp()
     {
       Expressions = new LambdaExpression[]

@@ -35,7 +35,11 @@ namespace Xtensive.Orm.Tests.Core.Modelling
     private Table t1;
     private Table t2;
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void Setup()
     {
       srv = new Server("srv");

@@ -19,7 +19,11 @@ namespace Xtensive.Orm.Tests.Core.Logging
   {
     private LoggingConfiguration configuration;
 
+#if NETCOREAPP
+    [OneTimeSetUp]
+#else
     [TestFixtureSetUp]
+#endif
     public void Setup()
     {
       configuration = LoggingConfiguration.Load("LoggingConfiguration");
