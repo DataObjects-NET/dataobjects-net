@@ -31,7 +31,11 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     /// </summary>
     public void PopulateValueColumns()
     {
+#if NETCOREAPP
+      var keySet = EnumerableExtensions.ToHashSet(KeyColumns.Select(kc => kc.Value));
+#else
       var keySet = KeyColumns.Select(kc => kc.Value).ToHashSet();
+#endif
       foreach (var column in Parent.Columns.Where(c => !keySet.Contains(c)))
         new ValueColumnRef(this, column);
     }
