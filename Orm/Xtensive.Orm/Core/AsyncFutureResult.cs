@@ -6,6 +6,10 @@
 
 using System;
 using Xtensive.Orm.Logging;
+#if NETSTANDARD
+using System.Threading.Tasks;
+#endif
+
 
 namespace Xtensive.Core
 {
@@ -14,6 +18,10 @@ namespace Xtensive.Core
     private readonly BaseLog logger;
     private Func<T> worker;
     private IAsyncResult asyncResult;
+#if NETSTANDARD
+    private Task<T> asyncTask;
+#endif
+
 
     public override bool IsAvailable
     {
@@ -25,11 +33,19 @@ namespace Xtensive.Core
       if (!IsAvailable)
         throw new InvalidOperationException(Strings.ExResultIsNotAvailable);
 
-      var localWorker = worker;
-      var localAsyncResult = asyncResult;
-      asyncResult = null;
-      worker = null;
-      return localWorker.EndInvoke(localAsyncResult);
+#if NETSTANDARD
+        asyncTask.Wait();
+        var localResult = asyncTask.Result;
+        asyncResult = null;
+        worker = null;
+        return localResult;
+#else
+        var localWorker = worker;
+        var localAsyncResult = asyncResult;
+        asyncResult = null;
+        worker = null;
+        return localWorker.EndInvoke(localAsyncResult);
+#endif
     }
 
     public override void Dispose()
@@ -54,8 +70,11 @@ namespace Xtensive.Core
 
       this.worker = worker;
       this.logger = logger;
-
+#if NETSTANDARD
+      asyncTask = Task.Run(worker);
+#else
       asyncResult = worker.BeginInvoke(null, null);
+#endif
     }
   }
 }
