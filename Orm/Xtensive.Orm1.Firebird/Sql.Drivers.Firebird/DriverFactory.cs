@@ -36,7 +36,11 @@ namespace Xtensive.Sql.Drivers.Firebird
         var dataSource = new FbConnectionStringBuilder(connectionString).DataSource;
         var defaultSchema = GetDefaultSchema(connection);
         var coreServerInfo = new CoreServerInfo {
+#if NETCOREAPP
+          ServerVersion = new Version(connection.ServerVersion.Substring(4, connection.ServerVersion.IndexOf(" ", StringComparison.InvariantCultureIgnoreCase) - 4)),
+#else
           ServerVersion = connection.ServerVersionNumber,
+#endif
           ConnectionString = connectionString,
           MultipleActiveResultSets = true,
           DatabaseName = defaultSchema.Database,
