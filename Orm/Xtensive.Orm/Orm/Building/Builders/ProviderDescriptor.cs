@@ -53,7 +53,11 @@ namespace Xtensive.Orm.Building.Builders
 
     private static Assembly GetProviderAssembly(string providerName)
     {
+#if NETSTANDARD
+      const string assemblyFormat = "Xtensive.Orm1.{0}";
+#else
       const string assemblyFormat = "Xtensive.Orm.{0}";
+#endif
 
       switch (providerName) {
       case WellKnown.Provider.SqlServer:
