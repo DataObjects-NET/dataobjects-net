@@ -12,6 +12,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
+using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
 
 namespace Xtensive.Modelling.Comparison
@@ -133,7 +134,12 @@ namespace Xtensive.Modelling.Comparison
         throw new ArgumentOutOfRangeException("hints.SourceModel");
       if (Hints.TargetModel!=TargetModel)
         throw new ArgumentOutOfRangeException("hints.TargetModel");
-      CurrentModel = Cloner.Clone(SourceModel);
+
+#if NETSTANDARD
+   CurrentModel = (IModel)SourceModel.Clone(new StorageModel(), SourceModel.Name);   
+#else
+   CurrentModel = Cloner.Clone<StorageModel>(SourceModel);
+#endif
       Difference = difference;
       var previous = current;
       current = this;
