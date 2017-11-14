@@ -131,8 +131,8 @@ namespace Xtensive.Orm.Providers
         typeof (NumericCompilers),
         typeof (DecimalCompilers),
         typeof (GuidCompilers),
-        typeof (VbStringsCompilers),
-        typeof (VbDateAndTimeCompilers),
+        //typeof (VbStringsCompilers),
+        //typeof (VbDateAndTimeCompilers),
         typeof (EnumCompilers),
       };
     }
