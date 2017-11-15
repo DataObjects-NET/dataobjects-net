@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Weaver
 
     static WellKnown()
     {
-      OrmAssemblyFullName = GetFullAssemblyName("Xtensive.Orm");
+      OrmAssemblyFullName = GetFullAssemblyName("Xtensive.Orm1");
       TasksAssemblyFullName = GetFullAssemblyName("WeaverTasks");
       XtensivePublicKeyToken = new ReadOnlyCollection<byte>(WeavingHelper.ParsePublicKeyToken(ThisAssembly.PublicKeyToken));
     }

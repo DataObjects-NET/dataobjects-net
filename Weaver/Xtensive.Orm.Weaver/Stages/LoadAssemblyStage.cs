@@ -45,6 +45,10 @@ namespace Xtensive.Orm.Weaver.Stages
         readerParameters.ReadSymbols = true;
         readerParameters.SymbolReaderProvider = new PdbReaderProvider();
         readerParameters.SymbolStream = debugSymbolsStream;
+
+        //todo:some changes which should be investigated more closely
+        readerParameters.ReadWrite = true;
+        readerParameters.InMemory = true;
       }
 
       using (debugSymbolsStream) {
