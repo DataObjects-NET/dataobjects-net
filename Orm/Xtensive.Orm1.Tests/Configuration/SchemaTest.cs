@@ -18,7 +18,11 @@ namespace Xtensive.Orm.Tests.Configuration
   [TestFixture]
   public class SchemaTest
   {
-    private const string originalConfigFileName = "Xtensive.Orm.Tests.dll.config";
+#if NETCOREAPP
+     private const string originalConfigFileName = "Xtensive.Orm1.Tests.dll.config";
+#else
+     private const string originalConfigFileName = "Xtensive.Orm.Tests.dll.config";
+#endif
     private const string xsdFileName = "Xtensive.Orm.xsd";
     private const string xsdInLowerCaseFileName = "Test.xsd";
     private const string configFileName = "Test.config";
