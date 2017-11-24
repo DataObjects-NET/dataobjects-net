@@ -138,7 +138,7 @@ namespace Xtensive.Modelling.Comparison
 #if NETSTANDARD
    CurrentModel = (IModel)SourceModel.Clone(new StorageModel(), SourceModel.Name);   
 #else
-   CurrentModel = Cloner.Clone<StorageModel>(SourceModel);
+   CurrentModel = Cloner.Clone(SourceModel);
 #endif
       Difference = difference;
       var previous = current;
