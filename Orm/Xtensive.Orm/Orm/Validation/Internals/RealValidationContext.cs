@@ -153,6 +153,8 @@ namespace Xtensive.Orm.Validation
           if (validationReason.HasValue && validationReason.Value==ValidationReason.Commit && validator.SkipOnTransactionCommit)
             continue;
           if (validator.ValidateOnlyIfModified) {
+            if(changedFields==null)
+              continue;
             HashSet<FieldInfo> fieldSet;
             if (!changedFields.TryGetValue(target, out fieldSet))
               continue;
