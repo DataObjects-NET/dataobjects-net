@@ -3397,4 +3397,7 @@ Error: {1}</value>
     <data name="ExUnableToGetTableColumnInstanceFromIndex" xml:space="preserve">
     <value>Unable to get TableColumn instance from index.</value>
   </data>
+  <data name="ExMoreThanOneEnabledXIsProvided" xml:space="preserve">
+    <value>More than one enabled {0} is provided.</value>
+  </data>
 </root>

@@ -34,6 +34,11 @@ namespace Xtensive.Orm.Validation
     }
 
     /// <summary>
+    /// Gets or sets value indicating wheteher validation should continue only if field value has changed.
+    /// </summary>
+    public bool ValidateOnlyIfModified { get; set; }
+
+    /// <summary>
     /// Gets or sets value indicating if current validator should be skipped on a transaction commit.
     /// </summary>
     public bool SkipOnTransactionCommit

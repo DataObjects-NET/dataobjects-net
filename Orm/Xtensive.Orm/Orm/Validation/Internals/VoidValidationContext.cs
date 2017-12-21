@@ -45,5 +45,9 @@ namespace Xtensive.Orm.Validation
     public override void RegisterForValidation(Entity target)
     {
     }
+
+    public override void RegisterForValidation(Entity target, FieldInfo field)
+    {
+    }
   }
 }

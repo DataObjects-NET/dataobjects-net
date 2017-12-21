@@ -339,7 +339,7 @@ namespace Xtensive.Orm.Building.Builders
         if (target.IsStructure && clone.IsEntity && !IsAuxiliaryType(clone.ReflectedType)) {
           var origin = context.Model.Associations
             .Find(context.Model.Types[field.ValueType], true)
-            .FirstOrDefault(a => a.OwnerField==field);
+            .FirstOrDefault(a => a.OwnerField.Equals(field));
           if (origin!=null && !clone.IsInherited) {
             AssociationBuilder.BuildAssociation(context, origin, clone);
             context.DiscardedAssociations.Add(origin);
@@ -391,8 +391,17 @@ namespace Xtensive.Orm.Building.Builders
       column.IsPrimaryKey = field.IsPrimaryKey;
       column.IsNullable = field.IsNullable;
       column.IsSystem = field.IsSystem;
-      column.DefaultValue = field.DefaultValue;
       column.DefaultSqlExpression = field.DefaultSqlExpression;
+
+      object defaultValue = null;
+      if (field.IsEnum) {
+        var underlyingType = Enum.GetUnderlyingType(field.ValueType.StripNullable());
+        if (field.DefaultValue!=null)
+          defaultValue = Convert.ChangeType(field.DefaultValue, underlyingType);
+      }
+      else 
+        defaultValue = field.DefaultValue;
+      column.DefaultValue = defaultValue;
 
       return column;
     }

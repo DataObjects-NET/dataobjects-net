@@ -25,8 +25,17 @@ namespace Xtensive.Orm.Upgrade.Model
     [Property(Priority = -1000)]
     public FullTextColumnRefCollection Columns { get; private set; }
 
+    /// <summary>
+    /// Gets name of full-text catalog.
+    /// </summary>
     [Property(Priority = -2000)]
     public string FullTextCatalog { get; set; }
+
+    /// <summary>
+    /// Gets mode of change tracking for the index.
+    /// </summary>
+    [Property(Priority = -3000, IgnoreInComparison = true)]
+    public FullTextChangeTrackingMode ChangeTrackingMode { get; set; }
 
     /// <inheritdoc/>
     protected override Nesting CreateNesting()
@@ -40,6 +49,7 @@ namespace Xtensive.Orm.Upgrade.Model
       base.Initialize();
       if (Columns == null)
         Columns = new FullTextColumnRefCollection(this);
+      ChangeTrackingMode = FullTextChangeTrackingMode.Default;
     }
 
     /// <exception cref="ValidationException"></exception>

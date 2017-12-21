@@ -338,6 +338,7 @@
     <Compile Include="Orm\Configuration\LoggingConfiguration.cs" />
     <Compile Include="Orm\Configuration\NameMappingCollection.cs" />
     <Compile Include="Orm\Configuration\NodeConfiguration.cs" />
+    <Compile Include="Orm\FullTextChangeTrackingMode.cs" />
     <Compile Include="Orm\FullTextSearchCondition\GenerationType.cs" />
     <Compile Include="Orm\FullTextSearchCondition\Interfaces\IComplexTerm.cs" />
     <Compile Include="Orm\FullTextSearchCondition\Nodes\And.cs" />
@@ -409,6 +410,8 @@
     <Compile Include="Orm\Internals\StorageNodeRegistry.cs" />
     <Compile Include="Orm\Providers\SimpleMappingResolver.cs" />
     <Compile Include="Orm\StateLifetimeToken.cs" />
+    <Compile Include="Orm\Upgrade\FullTextCatalogNameBuilder.cs" />
+    <Compile Include="Orm\Upgrade\Interfaces\IFullTextCatalogNameBuilder.cs" />
     <Compile Include="Orm\Upgrade\Internals\CatalogCloner.cs" />
     <Compile Include="Orm\Upgrade\Internals\Extensions\DomainModelExtensions.cs" />
     <Compile Include="Orm\Upgrade\Internals\ExtractedModelBuilderFactory.cs" />
@@ -1577,6 +1580,7 @@
     <Compile Include="Sql\Model\Catalog.cs" />
     <Compile Include="Sql\Model\CatalogHelper.cs" />
     <Compile Include="Sql\Model\CatalogNode.cs" />
+    <Compile Include="Sql\Model\ChangeTrackingMode.cs" />
     <Compile Include="Sql\Model\CharacterSet.cs" />
     <Compile Include="Sql\Model\CheckOptions.cs" />
     <Compile Include="Sql\Model\Collation.cs" />

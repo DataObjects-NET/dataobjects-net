@@ -17,6 +17,7 @@ namespace Xtensive.Sql.Model
   {
     private string fullTextCatalog;
     private string underlyingUniqueIndex;
+    private ChangeTrackingMode changeTrackingMode;
 
     /// <inheritdoc/>
     public override bool IsFullText { get { return true; } }
@@ -31,6 +32,19 @@ namespace Xtensive.Sql.Model
       {
         this.EnsureNotLocked();
         fullTextCatalog = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets the mode of change tracking.
+    /// </summary>
+    public ChangeTrackingMode ChangeTrackingMode
+    {
+      get { return changeTrackingMode; }
+      set
+      {
+        this.EnsureNotLocked();
+        changeTrackingMode = value;
       }
     }
 
@@ -63,6 +77,7 @@ namespace Xtensive.Sql.Model
     internal FullTextIndex(DataTable dataTable, string name)
       : base(dataTable, name)
     {
+      changeTrackingMode = ChangeTrackingMode.Auto;
     }
   }
 }

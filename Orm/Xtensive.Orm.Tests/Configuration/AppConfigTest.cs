@@ -191,11 +191,6 @@ namespace Xtensive.Orm.Tests.Configuration
       ValidateConnectionString(sessionConnectionString, configuration.Sessions.Default.ConnectionInfo);
     }
 
-    private void ValidateConnectionString(string expected, ConnectionInfo actual)
-    {
-      Assert.That(actual, Is.Not.Null);
-      Assert.That(actual.ConnectionString, Is.EqualTo(expected));
-    }
 
     [Test]
     public void DefaultConfigurationTest()
@@ -205,6 +200,55 @@ namespace Xtensive.Orm.Tests.Configuration
       ValidateDomainConfiguration(expectedDomainConfiguration, actualDomainConfiguration);
       ValidateNamingCovention(expectedDomainConfiguration.NamingConvention, actualDomainConfiguration.NamingConvention);
       ValidateSessionConfiguration(new SessionConfiguration(), actualDomainConfiguration.Sessions.Default);
+    }
+
+
+    [Test]
+    public void IgnoreRuleConfigTest()
+    {
+      var configuration = DomainConfiguration.Load("AppConfigTest", "IgnoreRuleConfigTest");
+      ValidateIgnoringConfiguration(configuration);
+      var clone = configuration.Clone();
+      ValidateIgnoringConfiguration(clone);
+
+      var good = configuration.Clone();
+      good.IgnoreRules.Clear();
+      good.IgnoreRules.IgnoreTable("ignored-table").WhenDatabase("Other-DO40-Test").WhenSchema("dbo");
+      good.IgnoreRules.IgnoreColumn("ignored-column");
+      good.Lock();
+    }
+
+    [Test]
+    public void LoggingConfigurationTest()
+    {
+      var configuration = LoggingConfiguration.Load("AppConfigTest");
+      ValidateLoggingConfiguration(configuration);
+    }
+
+    [Test]
+    public void FullTextChangeTrackingTest()
+    {
+      var configuration = DomainConfiguration.Load("AppConfigTest", "ChangeTrackingTest1");
+      Assert.That(configuration.FullTextChangeTrackingMode, Is.EqualTo(FullTextChangeTrackingMode.Off));
+
+      configuration = DomainConfiguration.Load("AppConfigTest", "ChangeTrackingTest2");
+      Assert.That(configuration.FullTextChangeTrackingMode, Is.EqualTo(FullTextChangeTrackingMode.Auto));
+
+      configuration = DomainConfiguration.Load("AppConfigTest", "ChangeTrackingTest3");
+      Assert.That(configuration.FullTextChangeTrackingMode, Is.EqualTo(FullTextChangeTrackingMode.Manual));
+
+      configuration = DomainConfiguration.Load("AppConfigTest", "ChangeTrackingTest4");
+      Assert.That(configuration.FullTextChangeTrackingMode, Is.EqualTo(FullTextChangeTrackingMode.OffWithNoPopulation));
+
+      configuration = DomainConfiguration.Load("AppConfigTest", "ChangeTrackingTest5");
+      Assert.That(configuration.FullTextChangeTrackingMode, Is.EqualTo(FullTextChangeTrackingMode.Default));
+    }
+
+
+    private void ValidateConnectionString(string expected, ConnectionInfo actual)
+    {
+      Assert.That(actual, Is.Not.Null);
+      Assert.That(actual.ConnectionString, Is.EqualTo(expected));
     }
 
     private void ValidateSessionConfiguration(SessionConfiguration expected, SessionConfiguration actual)
@@ -252,21 +296,6 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(actual.NamingRules, Is.EqualTo(expected.NamingRules));
     }
 
-    [Test]
-    public void IgnoreRuleConfigTest()
-    {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "IgnoreRuleConfigTest");
-      ValidateIgnoringConfiguration(configuration);
-      var clone = configuration.Clone();
-      ValidateIgnoringConfiguration(clone);
-
-      var good = configuration.Clone();
-      good.IgnoreRules.Clear();
-      good.IgnoreRules.IgnoreTable("ignored-table").WhenDatabase("Other-DO40-Test").WhenSchema("dbo");
-      good.IgnoreRules.IgnoreColumn("ignored-column");
-      good.Lock();
-    }
-
     private void ValidateIgnoringConfiguration(DomainConfiguration configuration)
     {
       Assert.That(configuration.DefaultDatabase, Is.EqualTo("main"));
@@ -287,13 +316,6 @@ namespace Xtensive.Orm.Tests.Configuration
       configuration.Lock();
     }
 
-    [Test]
-    public void LoggingConfigurationTest()
-    {
-      var configuration = LoggingConfiguration.Load("AppConfigTest");
-      ValidateLoggingConfiguration(configuration);
-    }
-    
     private void ValidateLoggingConfiguration(LoggingConfiguration configuration)
     {
       Assert.AreEqual(string.IsNullOrEmpty(configuration.Provider), true);
