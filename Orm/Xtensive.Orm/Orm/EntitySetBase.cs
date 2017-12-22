@@ -504,6 +504,9 @@ namespace Xtensive.Orm
 
     internal bool Add(Entity item, SyncContext syncContext, RemovalContext removalContext)
     {
+      if (!State.ModificationsAllowed)
+        throw new InvalidOperationException("Can not add a new EntitySet member during iteration.");
+
       if (Contains(item))
         return false;
 
@@ -573,6 +576,9 @@ namespace Xtensive.Orm
 
     internal bool Remove(Entity item, SyncContext syncContext, RemovalContext removalContext)
     {
+      if (!State.ModificationsAllowed)
+        throw new InvalidOperationException("Can not remove a member of EntitySet during iteration.");
+
       if (!Contains(item))
         return false;
 
@@ -664,8 +670,10 @@ namespace Xtensive.Orm
     /// </summary>
     public void Clear()
     {
-      EnsureOwnerIsNotRemoved();
+      if (!State.ModificationsAllowed)
+        throw new InvalidOperationException("Can not clear EntitySet during its iteration.");
 
+      EnsureOwnerIsNotRemoved();
       try {
         var operations = Session.Operations;
         using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
