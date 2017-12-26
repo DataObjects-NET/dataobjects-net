@@ -20,42 +20,45 @@ namespace Xtensive.Orm.Upgrade
   {
     private readonly MetadataMapping mapping;
     private readonly ISqlExecutor executor;
-    private readonly SqlExtractionTask task;
 
-    public void Extract(MetadataSet output)
+    public void ExtractTypes(MetadataSet output, SqlExtractionTask task)
     {
-      // Make sure we fill output only when all records has been read.
-
-      var assemblies = new List<AssemblyMetadata>();
       var types = new List<TypeMetadata>();
-      var extensions = new List<ExtensionMetadata>();
-
-      ExtractAssemblies(assemblies);
-      ExtractTypes(types);
-      ExtractExtensions(extensions);
-
-      output.Assemblies.AddRange(assemblies);
+      ExtractTypes(types, task);
       output.Types.AddRange(types);
+    }
+
+    public void ExtractAssemblies(MetadataSet output, SqlExtractionTask task)
+    {
+      var assemblies = new List<AssemblyMetadata>();
+      ExtractAssemblies(assemblies, task);
+      output.Assemblies.AddRange(assemblies);
+    }
+
+    public void ExctractExtensions(MetadataSet output, SqlExtractionTask task)
+    {
+      var extensions = new List<ExtensionMetadata>();
+      ExtractExtensions(extensions, task);
       output.Extensions.AddRange(extensions);
     }
 
     #region Private / internal methods
 
-    private void ExtractAssemblies(ICollection<AssemblyMetadata> output)
+    private void ExtractAssemblies(ICollection<AssemblyMetadata> output, SqlExtractionTask task)
     {
-      var query = CreateQuery(mapping.Assembly, mapping.AssemblyName, mapping.AssemblyVersion);
+      var query = CreateQuery(mapping.Assembly, task, mapping.AssemblyName, mapping.AssemblyVersion);
       ExecuteQuery(output, query, ParseAssembly);
     }
 
-    private void ExtractTypes(ICollection<TypeMetadata> output)
+    private void ExtractTypes(ICollection<TypeMetadata> output, SqlExtractionTask task)
     {
-      var query = CreateQuery(mapping.Type, mapping.TypeId, mapping.TypeName);
+      var query = CreateQuery(mapping.Type, task, mapping.TypeId, mapping.TypeName);
       ExecuteQuery(output, query, ParseType);
     }
 
-    private void ExtractExtensions(ICollection<ExtensionMetadata> output)
+    private void ExtractExtensions(ICollection<ExtensionMetadata> output, SqlExtractionTask task)
     {
-      var query = CreateQuery(mapping.Extension, mapping.ExtensionName, mapping.ExtensionText);
+      var query = CreateQuery(mapping.Extension, task, mapping.ExtensionName, mapping.ExtensionText);
       ExecuteQuery(output, query, ParseExtension);
     }
 
@@ -89,7 +92,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
  
-    private SqlSelect CreateQuery(string tableName, params string[] columnNames)
+    private SqlSelect CreateQuery(string tableName, SqlExtractionTask task, params string[] columnNames)
     {
       var catalog = new Catalog(task.Catalog);
       var schema = catalog.CreateSchema(task.Schema);
@@ -119,14 +122,12 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public MetadataExtractor(MetadataMapping mapping, SqlExtractionTask task, ISqlExecutor executor)
+    public MetadataExtractor(MetadataMapping mapping, ISqlExecutor executor)
     {
       ArgumentValidator.EnsureArgumentNotNull(mapping, "mapping");
-      ArgumentValidator.EnsureArgumentNotNull(task, "task");
       ArgumentValidator.EnsureArgumentNotNull(executor, "executor");
 
       this.mapping = mapping;
-      this.task = task;
       this.executor = executor;
     }
   }

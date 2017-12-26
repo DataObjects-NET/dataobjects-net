@@ -324,6 +324,7 @@
     <Compile Include="Issues\IssueJira0627_PocoClassPropertyRenitialization.cs" />
     <Compile Include="Storage\SkippingValidationOnCommitTest.cs" />
     <Compile Include="Storage\ValidateOnlyModifiedFieldsTest.cs" />
+    <Compile Include="Upgrade\DomainUpgradeModeExtensionsTest.cs" />
     <Compile Include="Upgrade\ChangeFulltextCatalogTest.cs" />
     <Compile Include="Upgrade\FullText\DynamicFullTextCatalogTest.cs" />
     <Compile Include="Upgrade\FullText\FullTextCatalogNameBuilderRegistrationTest.cs" />
@@ -525,6 +526,7 @@
     <Compile Include="Upgrade\NewSkip\SingleDatabaseNodeTest.cs" />
     <Compile Include="Upgrade\NewSkip\SingleSchemaNodeBuildingTest.cs" />
     <Compile Include="Upgrade\NewSkip\SkipBuildingTestBase.cs" />
+    <Compile Include="Upgrade\SqlWorkerTest.cs" />
     <Compile Include="Upgrade\TwoSchemasPerNode.cs" />
     <Compile Include="Upgrade\TypeIdPreserveTest.cs" />
     <Compile Include="Upgrade\ExtractSuperClassTest.cs" />
