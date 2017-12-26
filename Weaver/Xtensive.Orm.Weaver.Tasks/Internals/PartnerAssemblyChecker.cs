@@ -41,9 +41,9 @@ namespace Xtensive.Orm.Weaver
         partnerAssemblies.Add(items[0], WeavingHelper.ParsePublicKeyToken(items[1]));
       }
 
-      foreach (var assemblyNameTemplate in PartnerAssemblies.GetAssemblies()) {
+      foreach (var assemblyNameTemplate in PartnerAssemblies.GetAssemblyNameTemplates()) {
         var items = assemblyNameTemplate.Split();
-        partnerAssemblies.Add(items[0], WeavingHelper.ParsePublicKeyToken(items[1]));
+        partnerAssemblyTemplate.Add(items[0], WeavingHelper.ParsePublicKeyToken(items[1]));
       }
     }
   }
