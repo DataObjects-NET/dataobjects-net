@@ -1,0 +1,1 @@
+[main] Decreased amout of metadata extracted for Domains or Storage nodes building in DomainUpgradeMode.Skip
