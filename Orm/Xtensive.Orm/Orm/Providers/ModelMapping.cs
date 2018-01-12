@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Providers
       sequenceMap[sequenceInfo] = sequence;
     }
 
-    internal IList<SchemaNode> GetAllSNodes()
+    internal IList<SchemaNode> GetAllSchemaNodes()
     {
       return tableMap.Values.Union(sequenceMap.Values).ToList();
     }

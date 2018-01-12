@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Upgrade
           if (task.HasFlag(SqlWorkerTask.ExtractMetadataTypes))
             metadataExtractor.ExtractTypes(set, metadataTask);
           if (task.HasFlag(SqlWorkerTask.ExtractMetadataExtension))
-            metadataExtractor.ExctractExtensions(set, metadataTask);
+            metadataExtractor.ExtractExtensions(set, metadataTask);
         }
         catch (Exception exception) {
           UpgradeLog.Warning(Strings.LogFailedToExtractMetadataFromXYZ, metadataTask.Catalog, metadataTask.Schema, exception);

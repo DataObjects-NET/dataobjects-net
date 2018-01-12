@@ -200,7 +200,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       TemporaryTable tmp = node as TemporaryTable;
       //temporary tables need no schema qualifier
       if (tmp==null && node.Schema!=null) {
-        return QuoteIdentifier(new[] {node.Schema.Name, node.Name});
+        if (context==null)// extractor for some reason uses this method without context
+          return QuoteIdentifier(new[] {node.Schema.Name, node.Name});
+        return QuoteIdentifier(new[] {context.SqlNodeActualizer.Actualize(node.Schema), node.Name});
+
       }
       return QuoteIdentifier(new[] {node.Name});
     }
@@ -261,7 +264,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override string Translate(SqlCompilerContext context, SqlDropIndex node)
     {
-      return "DROP INDEX " + QuoteIdentifier(node.Index.DataTable.Schema.Name, node.Index.Name);
+      string indexName;
+      if (context==null)
+        indexName = QuoteIdentifier(node.Index.DataTable.Schema.Name, node.Index.Name);
+      else
+        indexName = QuoteIdentifier(context.SqlNodeActualizer.Actualize(node.Index.DataTable.Schema), node.Index.Name);
+      return "DROP INDEX " + indexName;
     }
 
     public override string Translate(SqlCompilerContext context, SqlBreak node)

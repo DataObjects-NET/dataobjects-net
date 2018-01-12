@@ -9,6 +9,7 @@ using System.Data.Common;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.IoC;
+using Xtensive.Orm.Upgrade;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
@@ -119,7 +120,12 @@ namespace Xtensive.Orm.Providers
 
     private string Compile(ISqlCompileUnit statement)
     {
-      return driver.Compile(statement).GetCommandText();
+      if (session==null)
+        return driver.Compile(statement).GetCommandText();
+      var upgradeContext = UpgradeContext.GetCurrent(session.Domain.UpgradeContextCookie);
+      if (upgradeContext!=null)
+        return driver.Compile(statement, upgradeContext.NodeConfiguration).GetCommandText();
+      return driver.Compile(statement, session.StorageNode.Configuration).GetCommandText();
     }
 
     private CommandWithDataReader ExecuteReader(DbCommand command)

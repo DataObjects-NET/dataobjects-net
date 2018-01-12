@@ -4,7 +4,6 @@
 // Created by: Alexey Kulakov
 // Created:    2016.02.23
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
@@ -20,11 +19,17 @@ namespace Xtensive.Orm.Upgrade.Internals
     private readonly MappingResolver mappingResolver;
     private readonly StorageNode defaultStorageNode;
     private readonly NodeConfiguration buildingNodeConfiguration;
+    private readonly bool buildAsCopy;
 
     public SchemaExtractionResult Run()
     {
       var result = new SchemaExtractionResult();
-      CopyCatalogs(result.Catalogs);
+      if (buildAsCopy)
+        CopyCatalogs(result.Catalogs);
+      else {
+        GetDefaultNodeCatalogs().ForEach(result.Catalogs.Add);
+        result.MakeShared();
+      }
       return result;
     }
 
@@ -51,14 +56,19 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     private IList<Catalog> GetDefaultNodeCatalogs()
     {
-      return defaultStorageNode.Mapping.GetAllSNodes().Select(node => node.Schema.Catalog).Distinct().ToList();
+      return defaultStorageNode.Mapping.GetAllSchemaNodes().Select(node => node.Schema.Catalog).Distinct().ToList();
     }
 
-    internal NodeExtractedModelBuilder(UpgradeServiceAccessor services, StorageNode defaultNode, NodeConfiguration buildingNodeConfiguration)
+    internal NodeExtractedModelBuilder(UpgradeServiceAccessor services, StorageNode defaultNode, NodeConfiguration buildingNodeConfiguration, bool defaultNodeIsUnreadable)
     {
+      ArgumentValidator.EnsureArgumentNotNull(services, "services");
+      ArgumentValidator.EnsureArgumentNotNull(defaultNode, "defaultNode");
+      ArgumentValidator.EnsureArgumentNotNull(buildingNodeConfiguration, "buildingNodeConfiguration");
+
       mappingResolver = services.MappingResolver;
       this.buildingNodeConfiguration = buildingNodeConfiguration;
       defaultStorageNode = defaultNode;
+      buildAsCopy = !defaultNodeIsUnreadable;
     }
   }
 }

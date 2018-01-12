@@ -4,6 +4,10 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.15
 
+using System.Collections.Generic;
+using JetBrains.Annotations;
+using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Compiler
@@ -26,12 +30,39 @@ namespace Xtensive.Sql.Compiler
     public bool DatabaseQualifiedObjects { get; set; }
 
     /// <summary>
+    /// Gets database mapping.
+    /// </summary>
+    public IDictionary<string, string> SchemaMapping { get; private set; }
+
+    /// <summary>
+    /// Gets database mapping.
+    /// </summary>
+    public IDictionary<string, string> DatabaseMapping { get; private set; }
+
+    /// <summary>
     /// Clones this instance.
     /// </summary>
     /// <returns>Clone of this instance.</returns>
     public SqlCompilerConfiguration Clone()
     {
-      return (SqlCompilerConfiguration) MemberwiseClone();
+      return new SqlCompilerConfiguration {
+        ParameterNamePrefix = ParameterNamePrefix,
+        DatabaseQualifiedObjects = DatabaseQualifiedObjects,
+      };
+    }
+
+    public SqlCompilerConfiguration()
+    {
+      SchemaMapping = null;
+      DatabaseMapping = null;
+    }
+
+    public SqlCompilerConfiguration([NotNull]IDictionary<string, string> databaseMapping, [NotNull]IDictionary<string, string> schemaMapping)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(databaseMapping, "databaseMapping");
+      ArgumentValidator.EnsureArgumentNotNull(schemaMapping, "schemaMapping");
+      DatabaseMapping = new ReadOnlyDictionary<string, string>(databaseMapping);
+      SchemaMapping = new ReadOnlyDictionary<string, string>(schemaMapping);
     }
   }
 }

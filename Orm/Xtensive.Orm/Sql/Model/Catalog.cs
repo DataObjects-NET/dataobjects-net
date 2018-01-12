@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Model
@@ -13,10 +14,42 @@ namespace Xtensive.Sql.Model
   [Serializable]
   public class Catalog : Node
   {
+    private bool isNamesReadingDenied = false;
+
     private Schema defaultSchema;
     private PairedNodeCollection<Catalog, Schema> schemas;
     private PairedNodeCollection<Catalog, PartitionFunction> partitionFunctions;
     private PairedNodeCollection<Catalog, PartitionSchema> partitionSchemas;
+
+    /// <inheritdoc />
+    public override string Name
+    {
+      get {
+        if (!isNamesReadingDenied)
+          return base.Name;
+        throw new InvalidOperationException(Strings.ExNameValueReadingOrSettingIsDenied);
+      }
+      set {
+        if (!isNamesReadingDenied)
+          base.Name = value;
+        throw new InvalidOperationException(Strings.ExNameValueReadingOrSettingIsDenied);
+      }
+    }
+
+    /// <inheritdoc />
+    public override string DbName
+    {
+      get {
+        if (!isNamesReadingDenied)
+          return base.DbName;
+        throw new InvalidOperationException(Strings.ExDbNameValueReadingOrSettingIsDenied);
+      }
+      set {
+        if (!isNamesReadingDenied)
+          base.DbName = value;
+        throw new InvalidOperationException(Strings.ExDbNameValueReadingOrSettingIsDenied);
+      }
+    }
 
     /// <summary>
     /// Creates a schema.
@@ -125,6 +158,40 @@ namespace Xtensive.Sql.Model
     }
 
     #endregion
+
+    internal void MakeNamesUnreadable()
+    {
+      isNamesReadingDenied = true;
+      this.Schemas.ForEach(s => s.MakeNamesUnreadable());
+      this.PartitionFunctions.ForEach(pf => pf.MakeNamesUnreadable());
+      this.PartitionSchemas.ForEach(ps => ps.MakeNamesUnreadable());
+    }
+
+    internal string GetActualName(IDictionary<string, string> databaseMap)
+    {
+      if (!isNamesReadingDenied)
+        return Name;
+      if (databaseMap==null)
+        throw new InvalidOperationException("Unable to calculate real name for catalog");
+      var name = GetNameInternal();
+      string actualName;
+      if (databaseMap.TryGetValue(name, out actualName))
+        return actualName;
+      return name;
+    }
+
+    internal string GetActualDbName(IDictionary<string, string> databaseMap)
+    {
+      if (!isNamesReadingDenied)
+        return DbName;
+      if (databaseMap==null)
+        throw new InvalidOperationException("Unable to calculate real name for catalog");
+      var name = GetDbNameInternal();
+      string actualName;
+      if (databaseMap.TryGetValue(name, out actualName))
+        return actualName;
+      return name;
+    }
 
     // Constructors
 
