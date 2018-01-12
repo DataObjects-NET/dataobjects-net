@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Upgrade
       output.Assemblies.AddRange(assemblies);
     }
 
-    public void ExctractExtensions(MetadataSet output, SqlExtractionTask task)
+    public void ExtractExtensions(MetadataSet output, SqlExtractionTask task)
     {
       var extensions = new List<ExtensionMetadata>();
       ExtractExtensions(extensions, task);

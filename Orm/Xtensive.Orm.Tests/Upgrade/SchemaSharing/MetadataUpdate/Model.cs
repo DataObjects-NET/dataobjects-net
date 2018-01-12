@@ -198,10 +198,13 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate.Model
       var executor = new Providers.SqlExecutor(UpgradeContext.Services.StorageDriver, UpgradeContext.Services.Connection);
       var metadataSet = new MetadataSet();
       var isRecreate = UpgradeContext.NodeConfiguration.UpgradeMode==DomainUpgradeMode.Recreate;
+      var extractor = new MetadataExtractor(metadataMapping, executor);
       foreach (var sqlExtractionTask in metadataTasks) {
-        var extractor = new MetadataExtractor(metadataMapping, sqlExtractionTask, executor);
-        if (!isRecreate)
-          extractor.Extract(metadataSet);
+        if (!isRecreate) {
+          extractor.ExtractAssemblies(metadataSet, sqlExtractionTask);
+          extractor.ExtractTypes(metadataSet, sqlExtractionTask);
+          extractor.ExtractExtensions(metadataSet, sqlExtractionTask);
+        }
       }
 
       ValidateMetadataTables(metadataSet, internalStage, isRecreate);
@@ -224,10 +227,12 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate.Model
       var executor = new Providers.SqlExecutor(UpgradeContext.Services.StorageDriver, UpgradeContext.Services.Connection);
       var metadataSet = new MetadataSet();
       var isRecreate = UpgradeContext.NodeConfiguration.UpgradeMode==DomainUpgradeMode.Recreate;
+      var extractor = new MetadataExtractor(metadataMapping, executor);
 
       foreach (var sqlExtractionTask in metadataTasks) {
-        var extractor = new MetadataExtractor(metadataMapping, sqlExtractionTask, executor);
-        extractor.Extract(metadataSet);
+        extractor.ExtractAssemblies(metadataSet, sqlExtractionTask);
+        extractor.ExtractTypes(metadataSet, sqlExtractionTask);
+        extractor.ExtractExtensions(metadataSet, sqlExtractionTask);
       }
 
       ValidateMetadataTables(metadataSet, internalStage, isRecreate);
