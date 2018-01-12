@@ -210,6 +210,7 @@ namespace Xtensive.Orm
       }
     }
 
+
     /// <summary>
     /// Updates the entity state to the most current one.
     /// </summary>
@@ -285,6 +286,13 @@ namespace Xtensive.Orm
         else
           Tuple = tuple;
       }
+    }
+
+    internal void DropBackedUpDifference()
+    {
+      var dTuple = State as DifferentialTuple;
+      if (dTuple!=null)
+        dTuple.DropBackedUpDifference();
     }
 
     #region Equality members

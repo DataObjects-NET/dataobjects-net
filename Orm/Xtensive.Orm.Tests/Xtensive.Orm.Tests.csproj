@@ -80,6 +80,7 @@
     <Compile Include="DomainConfigurationFactoryTest.cs" />
     <Compile Include="Interfaces\DoubleIndexedInterfaceTest.cs" />
     <Compile Include="Interfaces\InterfaceImplementationTest.cs" />
+    <Compile Include="Issues\IssueJira0712_IncorrectDefaultEnumValueTranslation.cs" />
     <Compile Include="Issues\IssueJira0674_ReferenceFinderBug.cs" />
     <Compile Include="Issues\BatchingCommandProcessorFrenzy.cs" />
     <Compile Include="Issues\IssueJira0570_InOperationDoesNotCreateTemporaryTable.cs" />
@@ -274,6 +275,8 @@
     <Compile Include="Issues\IssueJira0593_AggregateForSingleColumnTest.cs" />
     <Compile Include="Issues\IssueJira0659_EnumExpressionsAndConstantsTranslationBug.cs" />
     <Compile Include="Issues\IssueJira0702_QueryingWithoutOpenedTransaction.cs" />
+    <Compile Include="Issues\IssueJira0708_StackOverflowOnDifferetialTupleMerge.cs" />
+    <Compile Include="Issues\IssueJira0710_IndirectStructureChildFKAbsence.cs" />
     <Compile Include="Issues\IssueJira_0530_LowSpeedDecimalMaterializationCouseSqlDecimalInternalException.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
@@ -329,6 +332,8 @@
     <Compile Include="Storage\SchemaSharing\KeyGenerator\Model.cs" />
     <Compile Include="Storage\SchemaSharing\KeyGenerator\SimpleTest.cs" />
     <Compile Include="Storage\SkippingValidationOnCommitTest.cs" />
+    <Compile Include="Storage\ValidateOnlyModifiedFieldsTest.cs" />
+    <Compile Include="Upgrade\DomainUpgradeModeExtensionsTest.cs" />
     <Compile Include="Upgrade\ChangeFulltextCatalogTest.cs" />
     <Compile Include="Upgrade\FullText\DynamicFullTextCatalogTest.cs" />
     <Compile Include="Upgrade\FullText\FullTextCatalogNameBuilderRegistrationTest.cs" />
@@ -530,6 +535,7 @@
     <Compile Include="Upgrade\NewSkip\SingleDatabaseNodeTest.cs" />
     <Compile Include="Upgrade\NewSkip\SingleSchemaNodeBuildingTest.cs" />
     <Compile Include="Upgrade\NewSkip\SkipBuildingTestBase.cs" />
+    <Compile Include="Upgrade\SqlWorkerTest.cs" />
     <Compile Include="Upgrade\SchemaSharing\IgnoreRulesTest.cs" />
     <Compile Include="Upgrade\SchemaSharing\MakingSchemaExtractionResultSharedTest.cs" />
     <Compile Include="Upgrade\SchemaSharing\MappingResolverTest.cs" />
