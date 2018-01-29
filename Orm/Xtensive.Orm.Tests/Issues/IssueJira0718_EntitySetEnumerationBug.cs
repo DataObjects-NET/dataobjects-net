@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0718_EntitySetEnumerationBugModel
   {
     [Field]
     [Association(OnOwnerRemove = OnRemoveAction.Cascade, OnTargetRemove = OnRemoveAction.Clear, PairTo = "SomeOtherEntity")]
-    public EntitySet<SomeOtherEntitySet> Items { get; set; } 
+    public EntitySet<SomeOtherEntitySet> Items { get; set; }
   }
 
   [HierarchyRoot]
@@ -72,585 +72,1035 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0718_EntitySetEnumerationBugModel
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  public class IssueJira0718_EntitySetEnumerationBug : AutoBuildTest
+  public sealed class IssueJira0718_EntitySetEnumeration : AutoBuildTest
   {
-    private readonly int defaultCustomerOrderItemsCount = 5;
-    private readonly List<SessionOptions> profiles = new List<SessionOptions>() {
-      SessionOptions.ServerProfile,
-      SessionOptions.ClientProfile
-    };
+    private const int DefaultCustomerOrderItemsCount = 5;
 
-    [Test]
-    public void Test01() 
+    private readonly SessionConfiguration clientProfile = new SessionConfiguration(SessionOptions.ClientProfile);
+    private readonly SessionConfiguration serverProfile = new SessionConfiguration(SessionOptions.ServerProfile);
+
+    [SetUp]
+    public void SetUp()
     {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile)))
-        using (session.Activate())
-        using (var transaction = session.OpenTransaction()) {
-          var customerOrder = CreateCustomerOrderWithItems(session);
+      ClearTables();
+    }
 
-          Assert.DoesNotThrow(() => {
+    [Test(Description = "Persist on enumeration")]
+    public void ServerProfileTest01()
+    {
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = CreateCustomerOrderWithItems(session);
+
+        Assert.DoesNotThrow(
+          () => {
             foreach (var orderItem in customerOrder.Items)
               session.SaveChanges();
           });
-        }
       }
     }
 
-    [Test]
-    public void Test02()
+    [Test(Description = "Add item to entity set after enumeration")]
+    public void ServerProfileTest02()
     {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile)))
-        using (session.Activate()) {
-          using (var transaction = session.OpenTransaction()) {
-            var customerOrder = CreateCustomerOrderWithItems(session);
-            var customerOrderItems = customerOrder.Items;
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
 
-            Assert.DoesNotThrow(() => {
+          Assert.DoesNotThrow(
+            () => {
               foreach (var orderItem in customerOrderItems)
                 session.SaveChanges();
 
               customerOrderItems.Add(new CustomerOrderItem(customerOrder));
               PersistIfClientProfile(session);
             });
-            transaction.Complete();
-          }
-
-          using (var transaction = session.OpenTransaction())
-            Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, defaultCustomerOrderItemsCount + 1);
+          transaction.Complete();
         }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount + 1);
       }
     }
 
-    [Test]
-    public void Test03()
+    [Test(Description = "Add item to entity set after")]
+    public void ServerProfileTest03()
     {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile)))
-        using (session.Activate()) {
-          using (var transaction = session.OpenTransaction()) {
-            var customerOrder = CreateCustomerOrderWithItems(session);
-            var customerOrderItems = customerOrder.Items;
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
 
-            Assert.DoesNotThrow(() => {
+          Assert.DoesNotThrow(
+            () => {
               foreach (var orderItem in customerOrderItems)
                 session.SaveChanges();
 
               new CustomerOrderItem(customerOrder);
               PersistIfClientProfile(session);
             });
-            transaction.Complete();
-          }
-
-          using (var transaction = session.OpenTransaction())
-            Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, defaultCustomerOrderItemsCount + 1);
+          transaction.Complete();
         }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount + 1);
       }
     }
 
-    [Test]
-    public void Test04()
+    [Test(Description = "Implicit remove entity after enumeration")]
+    public void ServerProfileTest04()
     {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile)))
-        using (session.Activate()) {
-          using (var transaction = session.OpenTransaction()) {
-            var customerOrder = CreateCustomerOrderWithItems(session);
-            var customerOrderItems = customerOrder.Items;
-            var customerOrderItem = customerOrderItems.First();
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
+          var customerOrderItem = customerOrderItems.First();
 
-            Assert.DoesNotThrow(() => {
+          Assert.DoesNotThrow(
+            () => {
               foreach (var orderItem in customerOrderItems)
                 session.SaveChanges();
 
               customerOrderItems.Remove(customerOrderItem);
               PersistIfClientProfile(session);
             });
-            transaction.Complete();
-          }
-
-          using (var transaction = session.OpenTransaction()) 
-            Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, defaultCustomerOrderItemsCount - 1);
+          transaction.Complete();
         }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount - 1);
       }
     }
 
-    [Test]
-    public void Test05()
+    [Test(Description = "Explicit remove entity after enumeration")]
+    public void ServerProfileTest05()
     {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile)))
-        using (session.Activate()) {
-          using (var transaction = session.OpenTransaction()) {
-            var customerOrder = CreateCustomerOrderWithItems(session);
-            var customerOrderItems = customerOrder.Items;
-            var customerOrderItem = customerOrderItems.First();
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
+          var customerOrderItem = customerOrderItems.First();
 
-            Assert.DoesNotThrow(() => {
+          Assert.DoesNotThrow(
+            () => {
               foreach (var orderItem in customerOrderItems)
                 session.SaveChanges();
 
               customerOrderItem.Remove();
               PersistIfClientProfile(session);
             });
-            transaction.Complete();
-          }
-
-          using (var transaction = session.OpenTransaction())
-            Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, defaultCustomerOrderItemsCount - 1);
+          transaction.Complete();
         }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount - 1);
       }
     }
 
-    [Test]
-    public void Test06()
+    [Test(Description = "Explicit remove enitity from entity set")]
+    public void ServerProfileTest06()
     {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile)))
-        using (session.Activate()) {
-          using (var transaction = session.OpenTransaction()) {
-            var customerOrder = CreateCustomerOrderWithItems(session);
-            var customerOrderItems = customerOrder.Items;
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
 
-            Assert.DoesNotThrow(() => {
+          Assert.DoesNotThrow(
+            () => {
               foreach (var orderItem in customerOrderItems)
                 new SomeOtherEntity();
 
               PersistIfClientProfile(session);
             });
-            transaction.Complete();
-          }
-
-          using (var transaction = session.OpenTransaction())
-            Assert.AreEqual(session.Query.All<SomeOtherEntity>().Count(), defaultCustomerOrderItemsCount);
+          transaction.Complete();
         }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.AreEqual(session.Query.All<SomeOtherEntity>().Count(), DefaultCustomerOrderItemsCount);
       }
     }
 
-    [Test]
-    public void Test07()
+    [Test(Description = "Add entity in another entity set")]
+    public void ServerProfileTest07()
     {
-      foreach (var profile in profiles){
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile)))
-        using (session.Activate()) {
-          using (var transaction = session.OpenTransaction()) {
-            var customerOrder = CreateCustomerOrderWithItems(session);
-            var customerOrderItems = customerOrder.Items;
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
 
-            var someOtherEntity = new SomeOtherEntity();
-            Assert.DoesNotThrow(() => {
-              foreach (var orderItem in customerOrderItems) 
-                 new SomeOtherEntitySet(someOtherEntity);
-              
+          var someOtherEntity = new SomeOtherEntity();
+          Assert.DoesNotThrow(
+            () => {
+              foreach (var orderItem in customerOrderItems)
+                new SomeOtherEntitySet(someOtherEntity);
+
               PersistIfClientProfile(session);
             });
-            transaction.Complete();
-          }
-
-          using (var transaction = session.OpenTransaction())
-            Assert.AreEqual(session.Query.All<SomeOtherEntity>().Single().Items.Count(), defaultCustomerOrderItemsCount);
+          transaction.Complete();
         }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.AreEqual(session.Query.All<SomeOtherEntity>().Single().Items.Count(), DefaultCustomerOrderItemsCount);
       }
     }
 
-
-    [Test]
-    public void Test08()
+    [Test(Description = "Remove entities from enother entity set")]
+    public void ServerProfileTest08()
     {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile)))
-        using (session.Activate()) {
-          using (var transaction = session.OpenTransaction()) {
-            var customerOrder = CreateCustomerOrderWithItems(session);
-            var customerOrderItems = customerOrder.Items;
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
 
-            var someOtherEntity = new SomeOtherEntity();
-            session.SaveChanges();
+          var someOtherEntity = new SomeOtherEntity();
+          session.SaveChanges();
 
-            Assert.DoesNotThrow(() =>{
+          Assert.DoesNotThrow(
+            () => {
               foreach (var orderItem in customerOrderItems) {
                 var fetchedSomeOtherEntity = session.Query.All<SomeOtherEntity>().SingleOrDefault();
-                  if (fetchedSomeOtherEntity!=null && !fetchedSomeOtherEntity.IsRemoved)
-                    fetchedSomeOtherEntity.Remove();
+                if (fetchedSomeOtherEntity!=null && !fetchedSomeOtherEntity.IsRemoved)
+                  fetchedSomeOtherEntity.Remove();
               }
 
               PersistIfClientProfile(session);
             });
-            transaction.Complete();
-          }
-
-          using (var transaction = session.OpenTransaction())
-            Assert.IsFalse(session.Query.All<SomeOtherEntity>().Any());
+          transaction.Complete();
         }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.IsFalse(session.Query.All<SomeOtherEntity>().Any());
       }
     }
 
-
-    [Test]
-    public void Test09()
+    [Test(Description = "Remove another entity entity set items")]
+    public void ServerProfileTest09()
     {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile)))
-        using (session.Activate()) {
-          using (var transaction = session.OpenTransaction()) {
-            var customerOrder = CreateCustomerOrderWithItems(session);
-            var customerOrderItems = customerOrder.Items;
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
 
-            var someOtherEntity = new SomeOtherEntity();
-            var someOtherEntitySet = new SomeOtherEntitySet(someOtherEntity);
-            session.SaveChanges();
+          var someOtherEntity = new SomeOtherEntity();
+          var someOtherEntitySet = new SomeOtherEntitySet(someOtherEntity);
+          session.SaveChanges();
 
-            Assert.DoesNotThrow(() => {
+          Assert.DoesNotThrow(
+            () => {
               var someOtherEntitySetItems = session.Query.All<SomeOtherEntity>().Single().Items;
               foreach (var orderItem in customerOrderItems)
                 session.Remove(someOtherEntitySetItems);
-                
+
               PersistIfClientProfile(session);
             });
-            transaction.Complete();
-          }
-
-          using (var transaction = session.OpenTransaction())
-            Assert.IsFalse(session.Query.All<SomeOtherEntity>().Single().Items.Any());
+          transaction.Complete();
         }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.IsFalse(session.Query.All<SomeOtherEntity>().Single().Items.Any());
       }
     }
 
-    [Test]
-    public void Test10(){
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile)))
-        using (session.Activate()) {
-          using (var transaction = session.OpenTransaction()) {
-            var customerOrder = CreateCustomerOrderWithItems(session);
-            var customerOrderItems = customerOrder.Items;
+    [Test(Description = "Enumeration inside enumeration")]
+    public void ServerProfileTest10()
+    {
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
 
-            Assert.DoesNotThrow(() =>{
+          Assert.DoesNotThrow(
+            () => {
               foreach (var item in customerOrderItems)
-                foreach (var item2 in customerOrderItems)
-                  session.SaveChanges();
+              foreach (var item2 in customerOrderItems)
+                session.SaveChanges();
 
               PersistIfClientProfile(session);
             });
-            transaction.Complete();
-          }
+          transaction.Complete();
         }
       }
     }
 
-    [Test]
-    public void Test11()
+    [Test(Description = "Explicit add and persist during entity set enumeration")]
+    public void ServerProfileTest11()
     {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile)))
-        using (session.Activate()) {
-          using (var transaction = session.OpenTransaction()) {
-            var customerOrder = CreateCustomerOrderWithItems(session);
-            var customerOrderItems = customerOrder.Items;
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = CreateCustomerOrderWithItems(session);
+        var customerOrderItems = customerOrder.Items;
 
-            Assert.Throws<InvalidOperationException>(() => {
-              foreach (var item in customerOrderItems) 
-                foreach (var item2 in customerOrderItems) 
-                  new CustomerOrderItem(customerOrder);
-                  session.SaveChanges();
-                
-              PersistIfClientProfile(session);
-            });
-            transaction.Complete();
-          }
-        }
-      }
-    }
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var item in customerOrderItems)
+            foreach (var item2 in customerOrderItems)
+              new CustomerOrderItem(customerOrder);
 
-
-    [Test]
-    public void Test12()
-    {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile))) {
-          using (session.Activate()) {
-            using (var transaction = session.OpenTransaction()) {
-              var customerOrder = CreateCustomerOrderWithItems(session);
-              var customerOrderItems = customerOrder.Items;
-              PersistIfClientProfile(session);
-
-              Assert.Throws<InvalidOperationException>(() => {
-                foreach (var orderItem in customerOrderItems)
-                  new CustomerOrderItem(customerOrder);
-              });
-            }
-          }
-        }
-      }
-    }
-
-    [Test]
-    public void Test13()
-    {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile))) {
-          using (session.Activate()) {
-            using (var transaction = session.OpenTransaction()) {
-              var customerOrder = CreateCustomerOrderWithItems(session);
-              var customerOrderItems = customerOrder.Items;
-              PersistIfClientProfile(session);
-
-              Assert.Throws<InvalidOperationException>(() => {
-                foreach (var orderItem in customerOrderItems) {
-                  session.SaveChanges();
-                  new CustomerOrderItem(customerOrder);
-                }
-              });
-            }
-          }
-        }
-      }
-    }
-
-    [Test]
-    public void Test14()
-    {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile))) {
-          using (session.Activate()) {
-            using (var transaction = session.OpenTransaction()) {
-              var customerOrder = CreateCustomerOrderWithItems(session);
-              var customerOrderItems = customerOrder.Items;
-              PersistIfClientProfile(session);
-
-              Assert.Throws<InvalidOperationException>(() => {
-                foreach (var orderItem in customerOrderItems)
-                  orderItem.Remove();
-
-              });
-            }
-          }
-        }
-      }
-    }
-
-    [Test]
-    public void Test15()
-    {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile))) {
-          using (session.Activate()) {
-            using (var transaction = session.OpenTransaction()) {
-              var customerOrder = CreateCustomerOrderWithItems(session);
-              var customerOrderItems = customerOrder.Items;
-              PersistIfClientProfile(session);
-
-              Assert.Throws<InvalidOperationException>(() => {
-                foreach (var orderItem in customerOrderItems) {
-                  session.SaveChanges();
-                  orderItem.Remove();
-                }
-              });
-            }
-          }
-        }
-      }
-    }
-
-    [Test]
-    public void Test16()
-    {
-      var expectedProductName = "GTX 1080 ti";
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile))) {
-          using (session.Activate()) {
-            using (var transaction = session.OpenTransaction()) {
-              var customerOrder = CreateCustomerOrderWithItems(session);
-              var customerOrderItems = customerOrder.Items;
-              PersistIfClientProfile(session);
-
-              Assert.DoesNotThrow(() => {
-                foreach (var orderItem in customerOrderItems){
-                  orderItem.Product = expectedProductName;
-                  session.SaveChanges();
-                }
-              });
-              transaction.Complete();
-            }
-
-            using (var transaction = session.OpenTransaction()) {
-              var customerOrder = session.Query.All<CustomerOrder>().Single();
-              Assert.IsTrue(customerOrder.Items.All( i => i.Product==expectedProductName));
-            }
-          }
-        }
-      }
-    }
-
-    [Test]
-    public void Test17() {
-      var expectedProductName = "GTX 1080 ti";
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile))) {
-          using (session.Activate()) {
-            using (var transaction = session.OpenTransaction()) {
-              var customerOrder = CreateCustomerOrderWithItems(session);
-              var customerOrderItems = customerOrder.Items;
-              PersistIfClientProfile(session);
-
-              Assert.DoesNotThrow(() => {
-                foreach (var orderItem in customerOrderItems) {
-                  session.SaveChanges();
-                  orderItem.Product = expectedProductName;
-                }
-              });
-              transaction.Complete();
-            }
-
-            using (var transaction = session.OpenTransaction()) {
-              var customerOrder = session.Query.All<CustomerOrder>().Single();
-              Assert.IsTrue(customerOrder.Items.All(i => i.Product==expectedProductName));
-            }
-          }
-        }
-      }
-    }
-
-    [Test]
-    public void Test18()
-    {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile))) {
-          using (session.Activate()) {
-            using (var transaction = session.OpenTransaction()) {
-              var customerOrder = new CustomerOrder();
-              var customerOrderItem = new CustomerOrderItem(customerOrder);
-
-              Assert.Throws<InvalidOperationException>(() => {
-                foreach (var orderItem in customerOrder.Items) {
-                  session.SaveChanges();
-                  customerOrder.Remove();
-                }
-              });
-            }
-          }
-        }
-      }
-    }
-
-    [Test]
-    public void Test19()
-    {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile))) {
-          using (session.Activate()) {
-            using (var transaction = session.OpenTransaction()) {
-              var customerOrder = new CustomerOrder();
-              var customerOrderItem = new CustomerOrderItem(customerOrder);
-
-              Assert.Throws<InvalidOperationException>(() => {
-                foreach (var orderItem in customerOrder.Items)
-                  customerOrder.Remove();
-              });
-              transaction.Complete();
-            }
-          }
-        }
-      }
-    }
-
-    [Test]
-    public void Test20()
-    {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile))) {
-          using (session.Activate()) {
-            using (var transaction = session.OpenTransaction()) {
-              var customerOrder = new CustomerOrder();
-              var customerOrderItem = new CustomerOrderItem(customerOrder);
-              PersistIfClientProfile(session);
-
-              Assert.Throws<InvalidOperationException>(() => {
-                foreach (var orderItem in customerOrder.Items)
-                  customerOrder.Items.Remove(customerOrderItem);
-              });
-            }
-          }
-        }
-      }
-    }
-
-    [Test]
-    public void Test21()
-    {
-      RemoveTestableTypes();
-      using (var session = Domain.OpenSession()) {
-        using (session.Activate()) {
-          using (var transaction = session.OpenTransaction()) {
-            var customerOrder = new CustomerOrder();
-            var customerOrderItem = new CustomerOrderItem(customerOrder);
-
-            Assert.Throws<InvalidOperationException>(() => {
-              foreach (var orderItem in customerOrder.Items) {
-                customerOrder.Items.Add(new CustomerOrderItem(customerOrder));
-              }
-            });
-          }
-        }
-      }
-    }
-
-    [Test]
-    public void Test22()
-    {
-      foreach (var profile in profiles) {
-        RemoveTestableTypes();
-        using (var session = Domain.OpenSession(new SessionConfiguration(profile))) {
-          using (session.Activate())
-          using (var transaction = session.OpenTransaction()) {
-            var customerOrder = new CustomerOrder();
-            var customerOrderItem = new CustomerOrderItem(customerOrder);
+            session.SaveChanges();
 
             PersistIfClientProfile(session);
-            Assert.Throws<InvalidOperationException>(() => {
-              foreach (var order in customerOrder.Items) {
-                customerOrder.Items.Clear();
-              }
-            });
+          });
+        transaction.Complete();
+      }
+    }
+
+    [Test(Description = "Explicit add item to entity set")]
+    public void ServerProfileTest12()
+    {
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = CreateCustomerOrderWithItems(session);
+        var customerOrderItems = customerOrder.Items;
+        PersistIfClientProfile(session);
+
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var orderItem in customerOrderItems)
+              new CustomerOrderItem(customerOrder);
+          });
+      }
+    }
+
+    [Test(Description = "Explicit persist and add item to entity set")]
+    public void ServerProfileTest13()
+    {
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = CreateCustomerOrderWithItems(session);
+        var customerOrderItems = customerOrder.Items;
+        PersistIfClientProfile(session);
+
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var orderItem in customerOrderItems) {
+              session.SaveChanges();
+              new CustomerOrderItem(customerOrder);
+            }
+          });
+      }
+    }
+
+    [Test(Description = "Implicitly remove entity from entityset during enumeration")]
+    public void ServerProfileTest14()
+    {
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = CreateCustomerOrderWithItems(session);
+        var customerOrderItems = customerOrder.Items;
+        PersistIfClientProfile(session);
+
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var orderItem in customerOrderItems)
+              orderItem.Remove();
+          });
+      }
+    }
+
+    [Test(Description = "Explicit persist and implicit remove from entity set")]
+    public void ServerProfileTest15()
+    {
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = CreateCustomerOrderWithItems(session);
+        var customerOrderItems = customerOrder.Items;
+        PersistIfClientProfile(session);
+
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var orderItem in customerOrderItems) {
+              session.SaveChanges();
+              orderItem.Remove();
+            }
+          });
+      }
+    }
+
+    [Test(Description = "Explicit persist and change of entity in entity set")]
+    public void ServerProfileTest16()
+    {
+      var expectedProductName = "GTX 1080 ti";
+
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (session.Activate()) {
+          using (var transaction = session.OpenTransaction()) {
+            var customerOrder = CreateCustomerOrderWithItems(session);
+            var customerOrderItems = customerOrder.Items;
+            PersistIfClientProfile(session);
+
+            Assert.DoesNotThrow(
+              () => {
+                foreach (var orderItem in customerOrderItems) {
+                  orderItem.Product = expectedProductName;
+                  session.SaveChanges();
+                }
+              });
+            transaction.Complete();
+          }
+
+          using (var transaction = session.OpenTransaction()) {
+            var customerOrder = session.Query.All<CustomerOrder>().Single();
+            Assert.IsTrue(customerOrder.Items.All(i => i.Product==expectedProductName));
           }
         }
       }
     }
 
-    protected override DomainConfiguration BuildConfiguration() {
+    [Test(Description = "Explicit persist and change of entity in entity set")]
+    public void ServerProfileTest17()
+    {
+      var expectedProductName = "GTX 1080 ti";
+
+      ClearTables();
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (session.Activate()) {
+          using (var transaction = session.OpenTransaction()) {
+            var customerOrder = CreateCustomerOrderWithItems(session);
+            var customerOrderItems = customerOrder.Items;
+            PersistIfClientProfile(session);
+
+            Assert.DoesNotThrow(
+              () => {
+                foreach (var orderItem in customerOrderItems) {
+                  session.SaveChanges();
+                  orderItem.Product = expectedProductName;
+                }
+              });
+            transaction.Complete();
+          }
+
+          using (var transaction = session.OpenTransaction()) {
+            var customerOrder = session.Query.All<CustomerOrder>().Single();
+            Assert.IsTrue(customerOrder.Items.All(i => i.Product==expectedProductName));
+          }
+        }
+      }
+    }
+
+    [Test(Description = "Emplicit persist and remove entity")]
+    public void ServerProfileTest18()
+    {
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = CreateCustomerOrderWithItems(session);
+        var customerOrderItem = new CustomerOrderItem(customerOrder);
+
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var orderItem in customerOrder.Items) {
+              session.SaveChanges();
+              customerOrder.Remove();
+            }
+          });
+      }
+    }
+
+    [Test(Description = "Implicitly remove entity from entity set")]
+    public void ServerProfileTest19()
+    {
+      using (var session = Domain.OpenSession(serverProfile)) {
+        using (session.Activate()) {
+          using (var transaction = session.OpenTransaction()) {
+            var customerOrder = CreateCustomerOrderWithItems(session);
+
+            Assert.Throws<InvalidOperationException>(
+              () => {
+                foreach (var orderItem in customerOrder.Items)
+                  customerOrder.Remove();
+              });
+            transaction.Complete();
+          }
+        }
+      }
+    }
+
+    [Test(Description = "Explicitly remove entity during enumeration")]
+    public void ServerProfileTest20()
+    {
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = new CustomerOrder();
+        var customerOrderItem = new CustomerOrderItem(customerOrder);
+        PersistIfClientProfile(session);
+
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var orderItem in customerOrder.Items)
+              customerOrder.Items.Remove(customerOrderItem);
+          });
+      }
+    }
+
+    [Test(Description = "Explicitly add items during enum")]
+    public void ServerProfileTest21()
+    {
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = new CustomerOrder();
+        var customerOrderItem = new CustomerOrderItem(customerOrder);
+
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var orderItem in customerOrder.Items) {
+              customerOrder.Items.Add(new CustomerOrderItem(customerOrder));
+            }
+          });
+      }
+    }
+
+    [Test(Description = "Clears items during transaction")]
+    public void ServerProfileTest22()
+    {
+      using (var session = Domain.OpenSession(serverProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = new CustomerOrder();
+        new CustomerOrderItem(customerOrder);
+        new CustomerOrderItem(customerOrder);
+
+        PersistIfClientProfile(session);
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var order in customerOrder.Items) {
+              customerOrder.Items.Clear();
+            }
+          });
+      }
+    }
+
+    [Test(Description = "Persist on enumeration")]
+    public void ClientProfileTest01()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = CreateCustomerOrderWithItems(session);
+
+        Assert.DoesNotThrow(
+          () => {
+            foreach (var orderItem in customerOrder.Items)
+              session.SaveChanges();
+          });
+      }
+    }
+
+    [Test(Description = "Add item to entity set after enumeration")]
+    public void ClientProfileTest02()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
+
+          Assert.DoesNotThrow(
+            () => {
+              foreach (var orderItem in customerOrderItems)
+                session.SaveChanges();
+
+              customerOrderItems.Add(new CustomerOrderItem(customerOrder));
+              PersistIfClientProfile(session);
+            });
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount + 1);
+      }
+    }
+
+    [Test(Description = "Add item to entity set after")]
+    public void ClientProfileTest03()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
+
+          Assert.DoesNotThrow(
+            () => {
+              foreach (var orderItem in customerOrderItems)
+                session.SaveChanges();
+
+              new CustomerOrderItem(customerOrder);
+              PersistIfClientProfile(session);
+            });
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount + 1);
+      }
+    }
+
+    [Test(Description = "Implicit remove entity after enumeration")]
+    public void ClientProfileTest04()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
+          var customerOrderItem = customerOrderItems.First();
+
+          Assert.DoesNotThrow(
+            () => {
+              foreach (var orderItem in customerOrderItems)
+                session.SaveChanges();
+
+              customerOrderItems.Remove(customerOrderItem);
+              PersistIfClientProfile(session);
+            });
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount - 1);
+      }
+    }
+
+    [Test(Description = "")]
+    public void ClientProfileTest05()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
+          var customerOrderItem = customerOrderItems.First();
+
+          Assert.DoesNotThrow(
+            () => {
+              foreach (var orderItem in customerOrderItems)
+                session.SaveChanges();
+
+              customerOrderItem.Remove();
+              PersistIfClientProfile(session);
+            });
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.AreEqual(session.Query.All<CustomerOrder>().First().Items.Count, DefaultCustomerOrderItemsCount - 1);
+      }
+    }
+
+    [Test(Description = "Explicit remove enitity from entity set")]
+    public void ClientProfileTest06()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
+
+          Assert.DoesNotThrow(
+            () => {
+              foreach (var orderItem in customerOrderItems)
+                new SomeOtherEntity();
+
+              PersistIfClientProfile(session);
+            });
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.AreEqual(session.Query.All<SomeOtherEntity>().Count(), DefaultCustomerOrderItemsCount);
+      }
+    }
+
+    [Test(Description = "Add entity in another entity set")]
+    public void ClientProfileTest07()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
+
+          var someOtherEntity = new SomeOtherEntity();
+          Assert.DoesNotThrow(
+            () => {
+              foreach (var orderItem in customerOrderItems)
+                new SomeOtherEntitySet(someOtherEntity);
+
+              PersistIfClientProfile(session);
+            });
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.AreEqual(session.Query.All<SomeOtherEntity>().Single().Items.Count(), DefaultCustomerOrderItemsCount);
+      }
+    }
+
+    [Test(Description = "Remove entities from enother entity set")]
+    public void ClientProfileTest08()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
+
+          var someOtherEntity = new SomeOtherEntity();
+          session.SaveChanges();
+
+          Assert.DoesNotThrow(
+            () => {
+              foreach (var orderItem in customerOrderItems) {
+                var fetchedSomeOtherEntity = session.Query.All<SomeOtherEntity>().SingleOrDefault();
+                if (fetchedSomeOtherEntity!=null && !fetchedSomeOtherEntity.IsRemoved)
+                  fetchedSomeOtherEntity.Remove();
+              }
+
+              PersistIfClientProfile(session);
+            });
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.IsFalse(session.Query.All<SomeOtherEntity>().Any());
+      }
+    }
+
+    [Test(Description = "Remove another entity entity set items")]
+    public void ClientProfileTest09()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
+
+          var someOtherEntity = new SomeOtherEntity();
+          var someOtherEntitySet = new SomeOtherEntitySet(someOtherEntity);
+          session.SaveChanges();
+
+          Assert.DoesNotThrow(
+            () => {
+              var someOtherEntitySetItems = session.Query.All<SomeOtherEntity>().Single().Items;
+              foreach (var orderItem in customerOrderItems)
+                session.Remove(someOtherEntitySetItems);
+
+              PersistIfClientProfile(session);
+            });
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction())
+          Assert.IsFalse(session.Query.All<SomeOtherEntity>().Single().Items.Any());
+      }
+    }
+
+    [Test(Description = "Enumeration inside enumeration")]
+    public void ClientProfileTest10()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
+
+          Assert.DoesNotThrow(
+            () => {
+              foreach (var item in customerOrderItems)
+              foreach (var item2 in customerOrderItems)
+                session.SaveChanges();
+
+              PersistIfClientProfile(session);
+            });
+          transaction.Complete();
+        }
+      }
+    }
+
+    [Test(Description = "Explicit add and persist during entity set enumeration")]
+    public void ClientProfileTest11()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
+
+          Assert.Throws<InvalidOperationException>(
+            () => {
+              foreach (var item in customerOrderItems)
+              foreach (var item2 in customerOrderItems)
+                new CustomerOrderItem(customerOrder);
+              session.SaveChanges();
+
+              PersistIfClientProfile(session);
+            });
+          transaction.Complete();
+        }
+      }
+    }
+
+    [Test(Description = "Explicit add item to entity set")]
+    public void ClientProfileTest12()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = CreateCustomerOrderWithItems(session);
+        var customerOrderItems = customerOrder.Items;
+        PersistIfClientProfile(session);
+
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var orderItem in customerOrderItems)
+              new CustomerOrderItem(customerOrder);
+          });
+      }
+    }
+
+    [Test(Description = "Explicit persist and add item to entity set")]
+    public void ClientProfileTest13()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = CreateCustomerOrderWithItems(session);
+        var customerOrderItems = customerOrder.Items;
+        PersistIfClientProfile(session);
+
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var orderItem in customerOrderItems) {
+              session.SaveChanges();
+              new CustomerOrderItem(customerOrder);
+            }
+          });
+      }
+    }
+
+    [Test(Description = "Implicitly remove entity from entityset during enumeration")]
+    public void ClientProfileTest14()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
+          PersistIfClientProfile(session);
+
+          Assert.Throws<InvalidOperationException>(
+            () => {
+              foreach (var orderItem in customerOrderItems)
+                orderItem.Remove();
+            });
+        }
+      }
+    }
+
+    [Test(Description = "Explicit persist and implicit remove from entity set")]
+    public void ClientProfileTest15()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = CreateCustomerOrderWithItems(session);
+        var customerOrderItems = customerOrder.Items;
+        PersistIfClientProfile(session);
+
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var orderItem in customerOrderItems) {
+              session.SaveChanges();
+              orderItem.Remove();
+            }
+          });
+      }
+    }
+
+    [Test(Description = "Explicit persist and change of entity in entity set")]
+    public void ClientProfileTest16()
+    {
+      var expectedProductName = "GTX 1080 ti";
+
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
+          PersistIfClientProfile(session);
+
+          Assert.DoesNotThrow(
+            () => {
+              foreach (var orderItem in customerOrderItems) {
+                orderItem.Product = expectedProductName;
+                session.SaveChanges();
+              }
+            });
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = session.Query.All<CustomerOrder>().Single();
+          Assert.IsTrue(customerOrder.Items.All(i => i.Product==expectedProductName));
+        }
+      }
+    }
+
+    [Test(Description = "Explicit persist and change of entity in entity set")]
+    public void ClientProfileTest17()
+    {
+      var expectedProductName = "GTX 1080 ti";
+
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate()) {
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = CreateCustomerOrderWithItems(session);
+          var customerOrderItems = customerOrder.Items;
+          PersistIfClientProfile(session);
+
+          Assert.DoesNotThrow(
+            () => {
+              foreach (var orderItem in customerOrderItems) {
+                session.SaveChanges();
+                orderItem.Product = expectedProductName;
+              }
+            });
+          transaction.Complete();
+        }
+
+        using (var transaction = session.OpenTransaction()) {
+          var customerOrder = session.Query.All<CustomerOrder>().Single();
+          Assert.IsTrue(customerOrder.Items.All(i => i.Product==expectedProductName));
+        }
+      }
+    }
+
+    [Test(Description = "Emplicit persist and remove entity")]
+    public void ClientProfileTest18()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = CreateCustomerOrderWithItems(session);
+
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var orderItem in customerOrder.Items) {
+              session.SaveChanges();
+              customerOrder.Remove();
+            }
+          });
+      }
+    }
+
+    [Test(Description = "Implicitly remove entity from entity set")]
+    public void ClientProfileTest19()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = new CustomerOrder();
+        var customerOrderItem = new CustomerOrderItem(customerOrder);
+
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var orderItem in customerOrder.Items)
+              customerOrder.Remove();
+          });
+        transaction.Complete();
+      }
+    }
+
+    [Test(Description = "Explicitly remove entity during enumeration")]
+    public void ClientProfileTest20()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var items = new List<CustomerOrderItem>();
+        var customerOrder = CreateCustomerOrderWithItems(session, ref items);
+        var itemToRemove = items[0];
+
+        PersistIfClientProfile(session);
+
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var orderItem in customerOrder.Items)
+              customerOrder.Items.Remove(itemToRemove);
+          });
+      }
+    }
+
+    [Test(Description = "Explicitly add items during enum")]
+    public void ClientProfileTest21()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = new CustomerOrder();
+        var customerOrderItem = new CustomerOrderItem(customerOrder);
+
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var orderItem in customerOrder.Items) {
+              customerOrder.Items.Add(new CustomerOrderItem(customerOrder));
+            }
+          });
+      }
+    }
+
+    [Test(Description = "Clears items during transaction")]
+    public void ClientProfileTest22()
+    {
+      using (var session = Domain.OpenSession(clientProfile))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction()) {
+        var customerOrder = new CustomerOrder();
+        new CustomerOrderItem(customerOrder);
+        new CustomerOrderItem(customerOrder);
+
+        PersistIfClientProfile(session);
+        Assert.Throws<InvalidOperationException>(
+          () => {
+            foreach (var order in customerOrder.Items) {
+              customerOrder.Items.Clear();
+            }
+          });
+      }
+    }
+
+    protected override DomainConfiguration BuildConfiguration()
+    {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (CustomerOrderItem).Assembly, typeof (CustomerOrderItem).Namespace);
+      config.Types.Register(typeof(CustomerOrderItem).Assembly, typeof(CustomerOrderItem).Namespace);
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
     }
 
-    private void RemoveTestableTypes()
+    private void ClearTables()
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var customerOrders = session.Query.All<CustomerOrder>();
-        var someOtherEntities = session.Query.All<SomeOtherEntity>();
+        var customerOrders = session.Query.All<CustomerOrder>().ToArray();
+        var someOtherEntities = session.Query.All<SomeOtherEntity>().ToArray();
 
         if (customerOrders.Any())
           session.Remove(customerOrders);
@@ -662,9 +1112,15 @@ namespace Xtensive.Orm.Tests.Issues
 
     private CustomerOrder CreateCustomerOrderWithItems(Session session)
     {
+      List<CustomerOrderItem> list = new List<CustomerOrderItem>();
+      return CreateCustomerOrderWithItems(session, ref list);
+    }
+
+    private CustomerOrder CreateCustomerOrderWithItems(Session session, ref List<CustomerOrderItem> items)
+    {
       var customerOrder = new CustomerOrder();
-      for (var i = 0; i < defaultCustomerOrderItemsCount; i++)
-        new CustomerOrderItem(customerOrder);
+      for (var i = 0; i < DefaultCustomerOrderItemsCount; i++)
+        items.Add(new CustomerOrderItem(customerOrder));
 
       PersistIfClientProfile(session);
       return customerOrder;
@@ -672,7 +1128,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void PersistIfClientProfile(Session sesssion)
     {
-      if (Session.Current.Configuration.Options.HasFlag(SessionOptions.NonTransactionalEntityStates))
+      if (Session.Current.Configuration.Options.HasFlag(SessionOptions.ClientProfile))
         sesssion.SaveChanges();
     }
   }
