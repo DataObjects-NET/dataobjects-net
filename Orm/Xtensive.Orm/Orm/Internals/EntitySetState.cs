@@ -8,8 +8,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Xtensive.Caching;
-using Xtensive.Orm.Configuration;
 using KeyCache = Xtensive.Caching.ICache<Xtensive.Orm.Key, Xtensive.Orm.Key>;
 
 namespace Xtensive.Orm.Internals
@@ -37,29 +37,19 @@ namespace Xtensive.Orm.Internals
       }
     }
 
-    private readonly IDictionary<Key, Key> addedKeys;
-    private readonly IDictionary<Key, Key> removedKeys;
     private readonly EntitySetBase owner;
 
-    private readonly bool keepFetchedKeysActual;
-
-    private bool canModify = true;
     private bool isLoaded;
     private long? totalItemCount;
+    private int version;
+    private IDictionary<Key, Key> addedKeys;
+    private IDictionary<Key, Key> removedKeys;
 
     private BackupedState previousState;
 
     public KeyCache FetchedKeys {
       get { return State; }
       set { State = value; }
-    }
-
-    /// <summary>
-    /// Indicates whether entity set collection modification is currently available.
-    /// </summary>
-    public bool ModificationsAllowed
-    {
-      get { return canModify; }
     }
 
     /// <summary>
@@ -78,13 +68,7 @@ namespace Xtensive.Orm.Internals
     /// <summary>
     /// Gets the number of cached items.
     /// </summary>
-    public long CachedItemCount {
-      get {
-        if (keepFetchedKeysActual)
-          return FetchedItemsCount;
-        return FetchedItemsCount - RemovedItemsCount + AddedItemsCount;
-      }
-    }
+    public long CachedItemCount { get { return FetchedItemsCount - RemovedItemsCount + AddedItemsCount; } }
 
     /// <summary>
     /// Gets the number of fetched keys.
@@ -162,9 +146,6 @@ namespace Xtensive.Orm.Internals
     /// <returns>Check result.</returns>
     public bool Contains(Key key)
     {
-      if (keepFetchedKeysActual)
-        return FetchedKeys.Contains(key);
-
       if (removedKeys.ContainsKey(key))
         return false;
       if (addedKeys.ContainsKey(key))
@@ -189,19 +170,13 @@ namespace Xtensive.Orm.Internals
     /// <param name="key">The key to add.</param>
     public void Add(Key key)
     {
-      if (!canModify)
-        throw new InvalidOperationException("Adding new keys is not allowed during collection iteration.");
-
       if (removedKeys.ContainsKey(key))
         removedKeys.Remove(key);
       else
         addedKeys[key] = key;
-
-      if (keepFetchedKeysActual)
-        FetchedKeys.Add(key);
-
       if (TotalItemCount!=null)
         TotalItemCount++;
+      unchecked { Interlocked.Add(ref version, 1); }
       Rebind();
     }
 
@@ -211,19 +186,13 @@ namespace Xtensive.Orm.Internals
     /// <param name="key">The key to remove.</param>
     public void Remove(Key key)
     {
-      if (!canModify)
-        throw new InvalidOperationException("Key removal is not allowed during collection iteration.");
-
       if (addedKeys.ContainsKey(key))
         addedKeys.Remove(key);
       else
         removedKeys[key] = key;
-
-      if (keepFetchedKeysActual)
-        FetchedKeys.Remove(key);
-
       if (TotalItemCount!=null)
         TotalItemCount--;
+      unchecked { Interlocked.Add(ref version, 1); }
       Rebind();
     }
 
@@ -235,16 +204,11 @@ namespace Xtensive.Orm.Internals
       if (HasChanges) {
         EnsureFetchedKeysIsNotNull();
         BackupState();
-        if (keepFetchedKeysActual) {
-          DropDifference();
-        }
-        else {
-          foreach (var removedKey in removedKeys)
-            FetchedKeys.RemoveKey(removedKey.Value);
-          foreach (var addedKey in addedKeys)
-            FetchedKeys.Add(addedKey.Value);
-          DropDifference();
-        }
+        foreach (var removedKey in removedKeys)
+          FetchedKeys.RemoveKey(removedKey.Value);
+        foreach (var addedKey in addedKeys)
+          FetchedKeys.Add(addedKey.Value);
+        InitializeDifferenceCollections();
         Rebind();
         return true;
       }
@@ -256,14 +220,8 @@ namespace Xtensive.Orm.Internals
     /// </summary>
     public void CancelChanges()
     {
-      if (!keepFetchedKeysActual)
-        DropDifference();
-      else {
-        foreach (var addedKey in addedKeys)
-          FetchedKeys.RemoveKey(addedKey.Value);
-        foreach (var removedKey in removedKeys)
-          FetchedKeys.Add(removedKey.Value);
-      }
+      InitializeDifferenceCollections();
+      unchecked { Interlocked.Add(ref version, 1); }
       Rebind();
     }
 
@@ -272,14 +230,22 @@ namespace Xtensive.Orm.Internals
       if (previousState!=null) {
         TotalItemCount = previousState.TotalItemCount;
         IsLoaded = previousState.IsLoaded;
+        var fetchedKeys = FetchedKeys;
+
+        InitializeFetchedKeys();
+        InitializeDifferenceCollections();
+
+        foreach (var fetchedKey in fetchedKeys)
+          FetchedKeys.Add(fetchedKey);
+
         foreach (var addedKey in previousState.AddedKeys) {
-          if (FetchedKeys.ContainsKey(addedKey))
-            FetchedKeys.RemoveKey(addedKey);
+          if (fetchedKeys.ContainsKey(addedKey))
+            FetchedKeys.Remove(addedKey);
           addedKeys.Add(addedKey, addedKey);
         }
         foreach (var removedKey in previousState.RemovedKeys) {
           if (!FetchedKeys.ContainsKey(removedKey))
-            Register(removedKey);
+            FetchedKeys.Add(removedKey);
           removedKeys.Add(removedKey, removedKey);
         }
       }
@@ -287,20 +253,17 @@ namespace Xtensive.Orm.Internals
 
     internal void RemapKeys(KeyMapping mapping)
     {
-      if (keepFetchedKeysActual) {
-        var oldKeys = FetchedKeys.ToList();
-        foreach (var oldKey in oldKeys) {
-          var newKey = mapping.TryRemapKey(oldKey);
-          FetchedKeys.Remove(oldKey);
-          FetchedKeys.Add(newKey);
-        }
-        return;
-      }
-      var oldAddedKeys = addedKeys.ToList();
-      foreach (var addedKey in oldAddedKeys) {
-        var newKey = mapping.TryRemapKey(addedKey.Key);
-        addedKeys.Remove(addedKey);
+      var oldAddedKeys = addedKeys;
+      var oldRemovedKeys = removedKeys;
+      InitializeDifferenceCollections();
+
+      foreach (var oldAddedKey in oldAddedKeys) {
+        var newKey = mapping.TryRemapKey(oldAddedKey.Key);
         addedKeys.Add(newKey, newKey);
+      }
+      foreach (var oldRemovedKey in oldRemovedKeys) {
+        var newKey = mapping.TryRemapKey(oldRemovedKey.Key);
+        removedKeys.Add(newKey, newKey);
       }
     }
 
@@ -320,7 +283,7 @@ namespace Xtensive.Orm.Internals
     /// <inheritdoc/>
     protected override void Refresh()
     {
-      InitializeFetchedKeysAndClearChanges();
+      InitializeFetchedKeys();
     }
 
     #region GetEnumerator<...> methods
@@ -328,10 +291,18 @@ namespace Xtensive.Orm.Internals
     /// <inheritdoc/>
     public IEnumerator<Key> GetEnumerator()
     {
-      return keepFetchedKeysActual ? 
-        FetchedKeys.GetEnumerator() :
-        new SwitchingEnumerator(
-          FetchedKeys.Where(el => !removedKeys.ContainsKey(el)).Concat(addedKeys.Values).ToArray(), b => { canModify = b; }, !ModificationsAllowed);
+      var versionSnapshot = version;
+      foreach (var fetchedKey in FetchedKeys) {
+        if (versionSnapshot!=version)
+          throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
+        if (!removedKeys.ContainsKey(fetchedKey))
+          yield return fetchedKey;
+      }
+      foreach (var addedKey in addedKeys) {
+        if (versionSnapshot!=version)
+          throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
+        yield return addedKey.Value;
+      }
     }
 
     /// <inheritdoc/>
@@ -341,12 +312,6 @@ namespace Xtensive.Orm.Internals
     }
 
     #endregion
-
-    private void DropDifference()
-    {
-      addedKeys.Clear();
-      removedKeys.Clear();
-    }
 
     private void EnsureFetchedKeysIsNotNull()
     {
@@ -359,64 +324,21 @@ namespace Xtensive.Orm.Internals
       previousState = new BackupedState(this);
     }
 
-    private void InitializeFetchedKeysAndClearChanges()
-    {
-      InitializeFetchedKeys();
-      CancelChanges();
-    }
+    //private void InitializeFetchedKeysAndClearChanges()
+    //{
+    //  InitializeFetchedKeys();
+    //  InitializeDifferenceCollections();
+    //}
 
     private void InitializeFetchedKeys()
     {
       FetchedKeys = new LruCache<Key, Key>(WellKnown.EntitySetCacheSize, cachedKey => cachedKey);
     }
 
-    private class SwitchingEnumerator : IEnumerator<Key>
+    private void InitializeDifferenceCollections()
     {
-      private Key[] cachedKeys;
-      private int currentIndex = -1;
-      private readonly Action<bool> onEnumerationBeginAndEndSwitchAction;
-      private readonly bool skipOnEndAction;
-
-      public void Dispose()
-      {
-        cachedKeys = null;
-        if (!skipOnEndAction)
-          onEnumerationBeginAndEndSwitchAction.Invoke(true);
-      }
-
-      public bool MoveNext()
-      {
-        if (currentIndex==cachedKeys.Length - 1) {
-          Reset();
-          return false;
-        }
-        currentIndex++;
-        return true;
-      }
-
-      public void Reset()
-      {
-        currentIndex = -1;
-      }
-
-      public Key Current
-      {
-        get { return cachedKeys[currentIndex]; }
-      }
-
-      object IEnumerator.Current
-      {
-        get { return Current; }
-      }
-
-      public SwitchingEnumerator(Key[] cachedKeys, Action<bool> onEnumerationBeginAndEndSwitchAction, bool skipOnEndAction)
-      {
-        this.cachedKeys = cachedKeys;
-        this.onEnumerationBeginAndEndSwitchAction = onEnumerationBeginAndEndSwitchAction;
-        this.skipOnEndAction = skipOnEndAction;
-        if (!skipOnEndAction)
-          onEnumerationBeginAndEndSwitchAction.Invoke(false);
-      }
+      addedKeys = new Dictionary<Key, Key>();
+      removedKeys = new Dictionary<Key, Key>();
     }
 
     // Constructors
@@ -425,10 +347,9 @@ namespace Xtensive.Orm.Internals
       : base(entitySet.Session)
     {
       InitializeFetchedKeys();
+      InitializeDifferenceCollections();
       owner = entitySet;
-      addedKeys = new Dictionary<Key, Key>();
-      removedKeys = new Dictionary<Key, Key>();
-      keepFetchedKeysActual = !entitySet.Session.Configuration.Options.HasFlag(SessionOptions.NonTransactionalEntityStates);
+      version = int.MinValue;
     }
   }
 }
