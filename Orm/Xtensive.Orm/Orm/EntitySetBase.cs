@@ -665,7 +665,6 @@ namespace Xtensive.Orm
     public void Clear()
     {
       EnsureOwnerIsNotRemoved();
-
       try {
         var operations = Session.Operations;
         using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {

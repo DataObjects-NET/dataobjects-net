@@ -4,9 +4,11 @@
 // Created by: Dmitri Maximov
 // Created:    2008.10.14
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Xtensive.Caching;
 using KeyCache = Xtensive.Caching.ICache<Xtensive.Orm.Key, Xtensive.Orm.Key>;
 
@@ -35,11 +37,13 @@ namespace Xtensive.Orm.Internals
       }
     }
 
-    private readonly IDictionary<Key, Key> addedKeys;
-    private readonly IDictionary<Key, Key> removedKeys;
     private readonly EntitySetBase owner;
+
     private bool isLoaded;
     private long? totalItemCount;
+    private int version;
+    private IDictionary<Key, Key> addedKeys;
+    private IDictionary<Key, Key> removedKeys;
 
     private BackupedState previousState;
 
@@ -172,6 +176,7 @@ namespace Xtensive.Orm.Internals
         addedKeys[key] = key;
       if (TotalItemCount!=null)
         TotalItemCount++;
+      unchecked { Interlocked.Add(ref version, 1); }
       Rebind();
     }
 
@@ -187,6 +192,7 @@ namespace Xtensive.Orm.Internals
         removedKeys[key] = key;
       if (TotalItemCount!=null)
         TotalItemCount--;
+      unchecked { Interlocked.Add(ref version, 1); }
       Rebind();
     }
 
@@ -202,7 +208,8 @@ namespace Xtensive.Orm.Internals
           FetchedKeys.RemoveKey(removedKey.Value);
         foreach (var addedKey in addedKeys)
           FetchedKeys.Add(addedKey.Value);
-        CancelChanges();
+        InitializeDifferenceCollections();
+        Rebind();
         return true;
       }
       return false;
@@ -213,8 +220,8 @@ namespace Xtensive.Orm.Internals
     /// </summary>
     public void CancelChanges()
     {
-      addedKeys.Clear();
-      removedKeys.Clear();
+      InitializeDifferenceCollections();
+      unchecked { Interlocked.Add(ref version, 1); }
       Rebind();
     }
 
@@ -223,27 +230,40 @@ namespace Xtensive.Orm.Internals
       if (previousState!=null) {
         TotalItemCount = previousState.TotalItemCount;
         IsLoaded = previousState.IsLoaded;
+        var fetchedKeys = FetchedKeys;
+
+        InitializeFetchedKeys();
+        InitializeDifferenceCollections();
+
+        foreach (var fetchedKey in fetchedKeys)
+          FetchedKeys.Add(fetchedKey);
+
         foreach (var addedKey in previousState.AddedKeys) {
-          if (FetchedKeys.ContainsKey(addedKey))
-            FetchedKeys.RemoveKey(addedKey);
+          if (fetchedKeys.ContainsKey(addedKey))
+            FetchedKeys.Remove(addedKey);
           addedKeys.Add(addedKey, addedKey);
         }
         foreach (var removedKey in previousState.RemovedKeys) {
           if (!FetchedKeys.ContainsKey(removedKey))
-            Register(removedKey);
+            FetchedKeys.Add(removedKey);
           removedKeys.Add(removedKey, removedKey);
         }
-        
       }
     }
 
     internal void RemapKeys(KeyMapping mapping)
     {
-      var oldAddedKeys = addedKeys.ToList();
-      foreach (var addedKey in oldAddedKeys) {
-        var newKey = mapping.TryRemapKey(addedKey.Key);
-        addedKeys.Remove(addedKey);
+      var oldAddedKeys = addedKeys;
+      var oldRemovedKeys = removedKeys;
+      InitializeDifferenceCollections();
+
+      foreach (var oldAddedKey in oldAddedKeys) {
+        var newKey = mapping.TryRemapKey(oldAddedKey.Key);
         addedKeys.Add(newKey, newKey);
+      }
+      foreach (var oldRemovedKey in oldRemovedKeys) {
+        var newKey = mapping.TryRemapKey(oldRemovedKey.Key);
+        removedKeys.Add(newKey, newKey);
       }
     }
 
@@ -263,7 +283,7 @@ namespace Xtensive.Orm.Internals
     /// <inheritdoc/>
     protected override void Refresh()
     {
-      InitializeFetchedKeysAndClearChanges();
+      InitializeFetchedKeys();
     }
 
     #region GetEnumerator<...> methods
@@ -271,7 +291,18 @@ namespace Xtensive.Orm.Internals
     /// <inheritdoc/>
     public IEnumerator<Key> GetEnumerator()
     {
-      return FetchedKeys.Where(el => !removedKeys.ContainsKey(el)).Concat(addedKeys.Values).GetEnumerator();
+      var versionSnapshot = version;
+      foreach (var fetchedKey in FetchedKeys) {
+        if (versionSnapshot!=version)
+          throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
+        if (!removedKeys.ContainsKey(fetchedKey))
+          yield return fetchedKey;
+      }
+      foreach (var addedKey in addedKeys) {
+        if (versionSnapshot!=version)
+          throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
+        yield return addedKey.Value;
+      }
     }
 
     /// <inheritdoc/>
@@ -293,15 +324,21 @@ namespace Xtensive.Orm.Internals
       previousState = new BackupedState(this);
     }
 
-    private void InitializeFetchedKeysAndClearChanges()
-    {
-      InitializeFetchedKeys();
-      CancelChanges();
-    }
+    //private void InitializeFetchedKeysAndClearChanges()
+    //{
+    //  InitializeFetchedKeys();
+    //  InitializeDifferenceCollections();
+    //}
 
     private void InitializeFetchedKeys()
     {
       FetchedKeys = new LruCache<Key, Key>(WellKnown.EntitySetCacheSize, cachedKey => cachedKey);
+    }
+
+    private void InitializeDifferenceCollections()
+    {
+      addedKeys = new Dictionary<Key, Key>();
+      removedKeys = new Dictionary<Key, Key>();
     }
 
     // Constructors
@@ -310,9 +347,9 @@ namespace Xtensive.Orm.Internals
       : base(entitySet.Session)
     {
       InitializeFetchedKeys();
+      InitializeDifferenceCollections();
       owner = entitySet;
-      addedKeys = new Dictionary<Key, Key>();
-      removedKeys = new Dictionary<Key, Key>();
+      version = int.MinValue;
     }
   }
 }
