@@ -5,6 +5,7 @@
 // Created:    2017.03.01
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
@@ -13,6 +14,7 @@ using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
 
@@ -360,11 +362,13 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     private void PrepareAssemblyTable(Schema schema, MetadataMapping mapping)
     {
+      var columnsTypeMap = GetColumnsTypeMap(typeof(Xtensive.Orm.Metadata.Assembly));
+
       var table = schema.CreateTable(mapping.Assembly);
       var create = SqlDdl.Create(table);
 
-      table.CreateColumn(mapping.AssemblyName, new SqlValueType(SqlType.VarCharMax));
-      table.CreateColumn(mapping.AssemblyVersion, new SqlValueType(SqlType.VarCharMax));
+      table.CreateColumn(mapping.AssemblyName, columnsTypeMap[mapping.AssemblyName]);
+      table.CreateColumn(mapping.AssemblyVersion, columnsTypeMap[mapping.AssemblyVersion]);
       Execute(create);
 
       var tableRef = SqlDml.TableRef(table);
@@ -376,10 +380,12 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     private void PreapareTypeTable(Schema schema, MetadataMapping mapping)
     {
+      var columnsTypeMap = GetColumnsTypeMap(typeof(Xtensive.Orm.Metadata.Type));
+
       var table = schema.CreateTable(mapping.Type);
       var create = SqlDdl.Create(table);
-      table.CreateColumn(mapping.TypeId, new SqlValueType(SqlType.Int32));
-      table.CreateColumn(mapping.TypeName, new SqlValueType(SqlType.VarCharMax));
+      table.CreateColumn(mapping.TypeId, columnsTypeMap[mapping.TypeId]);
+      table.CreateColumn(mapping.TypeName, columnsTypeMap[mapping.TypeName]);
       Execute(create);
 
       var tableRef = SqlDml.TableRef(table);
@@ -391,10 +397,12 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     private void PrepareExtensionTable(Schema schema, MetadataMapping mapping)
     {
+      var columnsTypeMap = GetColumnsTypeMap(typeof(Xtensive.Orm.Metadata.Extension));
+
       var table = schema.CreateTable(mapping.Extension);
       var create = SqlDdl.Create(table);
-      table.CreateColumn(mapping.ExtensionName, new SqlValueType(SqlType.VarCharMax));
-      table.CreateColumn(mapping.ExtensionText, new SqlValueType(SqlType.VarCharMax));
+      table.CreateColumn(mapping.ExtensionName, columnsTypeMap[mapping.ExtensionName]);
+      table.CreateColumn(mapping.ExtensionText, columnsTypeMap[mapping.ExtensionText]);
       Execute(create);
 
       var tableRef = SqlDml.TableRef(table);
@@ -418,6 +426,24 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       using (var command = accessor.Connection.CreateCommand(statement))
         command.ExecuteNonQuery();
+    }
+
+    private IDictionary<string, SqlValueType> GetColumnsTypeMap(Type metadataTableType)
+    {
+      var map = new Dictionary<string, SqlValueType>();
+      var storageDriver = accessor.StorageDriver;
+
+      var fields = metadataTableType.GetProperties()
+        .Select(p => new {PropertyInfo = p, FieldAttribute = p.GetAttribute<FieldAttribute>()})
+        .Where(i => i.FieldAttribute!=null);
+
+      foreach (var field in fields) {
+        var property = field.PropertyInfo;
+        var attribute = field.FieldAttribute;
+        var sqlType = storageDriver.MapValueType(property.PropertyType, attribute.length, attribute.precision, attribute.scale);
+        map.Add(property.Name, sqlType);
+      }
+      return map;
     }
 
     private void CreateAccessor()
