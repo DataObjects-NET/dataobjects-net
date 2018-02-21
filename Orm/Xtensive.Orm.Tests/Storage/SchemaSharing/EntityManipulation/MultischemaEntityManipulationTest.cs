@@ -13,6 +13,11 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
 {
   public class MultischemaEntityManipulationTest : SimpleEntityManipulationTest
   {
+    protected override NodeConfigurationType NodeConfiguration
+    {
+      get { return NodeConfigurationType.MultischemaNodes; }
+    }
+
     protected override void CheckRequirements()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multischema);

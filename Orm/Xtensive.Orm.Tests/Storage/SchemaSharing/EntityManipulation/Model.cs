@@ -16,6 +16,12 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation.Model
 
       [Field]
       public string Text { get; set; }
+
+      [Field]
+      public string DatabaseName { get; set; }
+
+      [Field]
+      public string SchemaName { get; set; }
     }
   }
 
@@ -29,6 +35,12 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation.Model
 
       [Field]
       public string Text { get; set; }
+
+      [Field]
+      public string DatabaseName { get; set; }
+
+      [Field]
+      public string SchemaName { get; set; }
     }
   }
 
@@ -42,6 +54,12 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation.Model
 
       [Field]
       public string Text { get; set; }
+
+      [Field]
+      public string DatabaseName { get; set; }
+
+      [Field]
+      public string SchemaName { get; set; }
     }
   }
 
@@ -55,6 +73,25 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation.Model
 
       [Field]
       public string Text { get; set; }
+
+      [Field]
+      public string DatabaseName { get; set; }
+
+      [Field]
+      public string SchemaName { get; set; }
     }
+  }
+
+  public class TestEntityDTO
+  {
+    public int Id { get; set; }
+
+    public int TypeId { get; set; }
+
+    public string Text { get; set; }
+
+    public string DatabaseName { get; set; }
+
+    public string SchemaName { get; set; }
   }
 }

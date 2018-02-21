@@ -13,6 +13,11 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
 {
   public class MultidatabaseEntityManipulationTest : SimpleEntityManipulationTest
   {
+    protected override NodeConfigurationType NodeConfiguration
+    {
+      get { return NodeConfigurationType.MultidatabaseNodes; }
+    }
+
     protected override void CheckRequirements()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
