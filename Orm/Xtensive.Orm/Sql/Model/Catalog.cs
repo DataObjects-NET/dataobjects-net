@@ -167,28 +167,29 @@ namespace Xtensive.Sql.Model
       this.PartitionSchemas.ForEach(ps => ps.MakeNamesUnreadable());
     }
 
-    internal string GetActualName(IDictionary<string, string> databaseMap)
+    internal string GetActualName(IDictionary<string, string> catalogNameMap)
     {
       if (!isNamesReadingDenied)
         return Name;
-      if (databaseMap==null)
-        throw new InvalidOperationException("Unable to calculate real name for catalog");
+      if (catalogNameMap==null)
+        throw new ArgumentNullException("catalogNameMap");
+
       var name = GetNameInternal();
       string actualName;
-      if (databaseMap.TryGetValue(name, out actualName))
+      if (catalogNameMap.TryGetValue(name, out actualName))
         return actualName;
       return name;
     }
 
-    internal string GetActualDbName(IDictionary<string, string> databaseMap)
+    internal string GetActualDbName(IDictionary<string, string> catalogNameMap)
     {
       if (!isNamesReadingDenied)
         return DbName;
-      if (databaseMap==null)
+      if (catalogNameMap==null)
         throw new InvalidOperationException("Unable to calculate real name for catalog");
       var name = GetDbNameInternal();
       string actualName;
-      if (databaseMap.TryGetValue(name, out actualName))
+      if (catalogNameMap.TryGetValue(name, out actualName))
         return actualName;
       return name;
     }

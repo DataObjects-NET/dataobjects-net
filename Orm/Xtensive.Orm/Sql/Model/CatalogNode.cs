@@ -87,29 +87,30 @@ namespace Xtensive.Sql.Model
       isNamesReadingDenied = true;
     }
 
-    internal string GetActualName(IDictionary<string, string> databaseMap)
+    internal string GetActualName(IDictionary<string, string> nodeNameMap)
     {
       if (!isNamesReadingDenied)
         return Name;
-      if (databaseMap == null)
-        throw new InvalidOperationException("Unable to calculate real name for catalog");
+      if (nodeNameMap==null)
+        throw new ArgumentNullException("nodeNameMap");
 
       var name = GetNameInternal();
       string actualName;
-      if (databaseMap.TryGetValue(name, out actualName))
+      if (nodeNameMap.TryGetValue(name, out actualName))
         return actualName;
       return name;
     }
 
-    internal string GetActualDbName(IDictionary<string, string> databaseMap)
+    internal string GetActualDbName(IDictionary<string, string> nodeNameMap)
     {
       if (!isNamesReadingDenied)
         return DbName;
-      if (databaseMap==null)
-        throw new InvalidOperationException("Unable to calculate real name for catalog");
+      if (nodeNameMap==null)
+        throw new ArgumentNullException("nodeNameMap");
+
       var name = GetDbNameInternal();
       string actualName;
-      if (databaseMap.TryGetValue(name, out actualName))
+      if (nodeNameMap.TryGetValue(name, out actualName))
         return actualName;
       return name;
     }
