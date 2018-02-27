@@ -306,7 +306,7 @@ namespace Xtensive.Orm.Tests.Sql
       string queryText = string.Empty;
 
       if (MultidatabaseSupported()) {
-        Assert.Throws<InvalidOperationException>(() => queryText = Driver.Compile(query).GetCommandText());
+        Assert.Throws<ArgumentNullException>(() => queryText = Driver.Compile(query).GetCommandText());
 
         var compilerConfiguration = new SqlCompilerConfiguration(new Dictionary<string, string>(), new Dictionary<string, string>()) {DatabaseQualifiedObjects = true};
         Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
@@ -324,7 +324,7 @@ namespace Xtensive.Orm.Tests.Sql
         Assert.That(queryText.Contains(DummySchemaName), Is.True);
       }
       if (MultischemaSupported()) {
-        Assert.Throws<InvalidOperationException>(() => queryText = Driver.Compile(query).GetCommandText());
+        Assert.Throws<ArgumentNullException>(() => queryText = Driver.Compile(query).GetCommandText());
 
         var compilerConfiguration = new SqlCompilerConfiguration(new Dictionary<string, string>(), new Dictionary<string, string>()) { DatabaseQualifiedObjects = false };
         Assert.DoesNotThrow(() => queryText = Driver.Compile(query, compilerConfiguration).GetCommandText());
