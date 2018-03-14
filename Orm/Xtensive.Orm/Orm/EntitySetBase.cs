@@ -926,15 +926,6 @@ namespace Xtensive.Orm
       target.OnValidate();
     }
 
-    private bool ShouldSkipOwnerVersionChange()
-    {
-      var targetTypeInfo = Session.Domain.Model.Types[Field.ItemType];
-      var association = Field.GetAssociation(targetTypeInfo);
-      if (association.Multiplicity!=Multiplicity.ManyToOne && association.Multiplicity!=Multiplicity.OneToMany)
-        return true;
-      return !Session.Domain.Configuration.VersioningConvention.DenyEntitySetOwnerVersionChange;
-    }
-
     #endregion
 
 
@@ -975,8 +966,6 @@ namespace Xtensive.Orm
     {
       this.owner = owner;
       Field = field;
-      skipOwnerVersionChange = ShouldSkipOwnerVersionChange();
-
       State = new EntitySetState(this);
       var association = Field.Associations.Last();
       if (association.AuxiliaryType!=null && association.IsMaster) {
@@ -989,9 +978,9 @@ namespace Xtensive.Orm
       }
 
       if (association.Multiplicity!=Multiplicity.ManyToOne && association.Multiplicity!=Multiplicity.OneToMany)
-        skipOwnerVersionChange = true;
+        skipOwnerVersionChange = false;
       else 
-        skipOwnerVersionChange = !Session.Domain.Configuration.VersioningConvention.DenyEntitySetOwnerVersionChange;
+        skipOwnerVersionChange = Session.Domain.Configuration.VersioningConvention.DenyEntitySetOwnerVersionChange;
       Initialize(typeof (EntitySetBase));
     }
 
