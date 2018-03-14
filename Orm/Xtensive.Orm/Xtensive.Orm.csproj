@@ -334,11 +334,14 @@
     <Compile Include="Orm\Configuration\DomainOptions.cs" />
     <Compile Include="Orm\Configuration\Elements\LogElement.cs" />
     <Compile Include="Orm\Configuration\Elements\LoggingElement.cs" />
+    <Compile Include="Orm\Configuration\Elements\VersioningConventionElement.cs" />
     <Compile Include="Orm\Configuration\Internals\NodeConfigurationExtensions.cs" />
     <Compile Include="Orm\Configuration\LogConfiguration.cs" />
     <Compile Include="Orm\Configuration\LoggingConfiguration.cs" />
     <Compile Include="Orm\Configuration\NameMappingCollection.cs" />
     <Compile Include="Orm\Configuration\NodeConfiguration.cs" />
+    <Compile Include="Orm\Configuration\VersioningConvention.cs" />
+    <Compile Include="Orm\Configuration\EntityVersioningPolicy.cs" />
     <Compile Include="Orm\FullTextChangeTrackingMode.cs" />
     <Compile Include="Orm\FullTextSearchCondition\GenerationType.cs" />
     <Compile Include="Orm\FullTextSearchCondition\Interfaces\IComplexTerm.cs" />

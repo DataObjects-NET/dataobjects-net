@@ -12,6 +12,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
@@ -44,6 +45,8 @@ namespace Xtensive.Orm
     private readonly Entity owner;
     private readonly CombineTransform auxilaryTypeKeyTransform;
     private bool isInitialized;
+    private bool skipOwnerVersionChange;
+
 
     /// <summary>
     /// Gets the owner of this instance.
@@ -553,7 +556,8 @@ namespace Xtensive.Orm
           // removalContext is unused here, since Add is never 
           // invoked in reference cleanup process directly
 
-          Owner.UpdateVersionInfo(Owner, Field);
+          if (!skipOwnerVersionChange)
+            Owner.UpdateVersionInfo(Owner, Field);
           SystemAdd(item, index);
           SystemAddCompleted(item, null);
           scope.Complete();
@@ -625,7 +629,8 @@ namespace Xtensive.Orm
               try {
                 try {
                   index = GetItemIndex(State, itemKey); // Necessary, since index can be already changed 
-                  Owner.UpdateVersionInfo(Owner, Field);
+                  if (!skipOwnerVersionChange)
+                    Owner.UpdateVersionInfo(Owner, Field);
                   SystemRemove(item, index);
                   SystemRemoveCompleted(item, null);
                   scope.Complete();
@@ -642,7 +647,8 @@ namespace Xtensive.Orm
             return true;
           }
 
-          Owner.UpdateVersionInfo(Owner, Field);
+          if (!skipOwnerVersionChange)
+            Owner.UpdateVersionInfo(Owner, Field);
           SystemRemove(item, index);
           SystemRemoveCompleted(item, null);
           scope.Complete();
@@ -920,6 +926,15 @@ namespace Xtensive.Orm
       target.OnValidate();
     }
 
+    private bool ShouldSkipOwnerVersionChange()
+    {
+      var targetTypeInfo = Session.Domain.Model.Types[Field.ItemType];
+      var association = Field.GetAssociation(targetTypeInfo);
+      if (association.Multiplicity!=Multiplicity.ManyToOne && association.Multiplicity!=Multiplicity.OneToMany)
+        return true;
+      return !Session.Domain.Configuration.VersioningConvention.DenyEntitySetOwnerVersionChange;
+    }
+
     #endregion
 
 
@@ -960,6 +975,8 @@ namespace Xtensive.Orm
     {
       this.owner = owner;
       Field = field;
+      skipOwnerVersionChange = ShouldSkipOwnerVersionChange();
+
       State = new EntitySetState(this);
       var association = Field.Associations.Last();
       if (association.AuxiliaryType!=null && association.IsMaster) {
@@ -970,6 +987,11 @@ namespace Xtensive.Orm
           owner.TypeInfo.Key.TupleDescriptor,
           itemType.Key.TupleDescriptor);
       }
+
+      if (association.Multiplicity!=Multiplicity.ManyToOne && association.Multiplicity!=Multiplicity.OneToMany)
+        skipOwnerVersionChange = true;
+      else 
+        skipOwnerVersionChange = !Session.Domain.Configuration.VersioningConvention.DenyEntitySetOwnerVersionChange;
       Initialize(typeof (EntitySetBase));
     }
 

@@ -49,6 +49,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string OptionsElementName = "options";
     private const string ShareStorageSchemaOverNodesElementName = "shareStorageSchemaOverNodes";
     private const string FullTextChangeTrackingModeElementName = "fullTextChangeTrackingMode";
+    private const string VersioningConventionElementName = "versioningConvention";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -381,6 +382,16 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
+    /// <see cref="DomainConfiguration.NamingConvention" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(VersioningConventionElementName)]
+    public VersioningConventionElement VersioningConvention
+    {
+      get { return (VersioningConventionElement) this[VersioningConventionElementName]; }
+      set { this[VersioningConventionElementName] = value; }
+    }
+
+    /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
     /// i.e. to a <see cref="DomainConfiguration"/> object.
     /// </summary>
@@ -411,7 +422,8 @@ namespace Xtensive.Orm.Configuration.Elements
         ConnectionInitializationSql = ConnectionInitializationSql,
         MultidatabaseKeys = MultidatabaseKeys,
         ShareStorageSchemaOverNodes = ShareStorageSchemaOverNodes,
-        FullTextChangeTrackingMode = ParseEnum<FullTextChangeTrackingMode>(FullTextChangeTrackingMode)
+        FullTextChangeTrackingMode = ParseEnum<FullTextChangeTrackingMode>(FullTextChangeTrackingMode),
+        VersioningConvention = VersioningConvention.ToNative()
       };
 
       foreach (var element in Types)
