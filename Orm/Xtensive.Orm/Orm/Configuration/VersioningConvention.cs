@@ -47,7 +47,6 @@ namespace Xtensive.Orm.Configuration
     /// <inheritdoc/>
     public object Clone()
     {
-      this.EnsureNotLocked();
       var result = new VersioningConvention();
       result.EntityVersioningPolicy = entityVersioningPolicy;
       result.DenyEntitySetOwnerVersionChange = denyEntitySetOwnerVersionChange;
