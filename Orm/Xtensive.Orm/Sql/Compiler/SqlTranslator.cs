@@ -1549,10 +1549,11 @@ namespace Xtensive.Sql.Compiler
 
       var dbQualified = node.Schema.Catalog!=null
         && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
+      var actualizer = context.SqlNodeActualizer;
 
       return dbQualified
-        ? QuoteIdentifier(node.Schema.Catalog.DbName, node.Schema.DbName, node.DbName)
-        : QuoteIdentifier(node.Schema.DbName, node.DbName);
+        ? QuoteIdentifier(actualizer.Actualize(node.Schema.Catalog), actualizer.Actualize(node.Schema), node.GetDbNameInternal())
+        : QuoteIdentifier(actualizer.Actualize(node.Schema), node.DbName);
     }
 
     public virtual string Translate(Collation collation)

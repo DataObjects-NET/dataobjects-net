@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Xtensive.Core;
-
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Orm.Rse.Providers;
 
@@ -67,6 +67,8 @@ namespace Xtensive.Orm.Providers
     public override ICompletableScope BeginEnumeration()
     {
       var tx = Session.OpenAutoTransaction();
+      if (!Session.Configuration.Supports(SessionOptions.NonTransactionalReads))
+        Session.DemandTransaction();
       if (MaterializationContext!=null && MaterializationContext.MaterializationQueue!=null)
         return new EnumerationFinalizer(MaterializationContext.MaterializationQueue, tx);
       return tx;

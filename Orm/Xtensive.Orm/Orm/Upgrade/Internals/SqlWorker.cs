@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
@@ -28,33 +29,62 @@ namespace Xtensive.Orm.Upgrade
         DropSchema(services, executor);
       if ((task & SqlWorkerTask.ExtractSchema) > 0)
         result.Schema = ExtractSchema(services, executor);
-      if ((task & SqlWorkerTask.ExtractMetadata) > 0)
-        ExtractMetadata(services, executor, result);
+      if ((task & (SqlWorkerTask.ExtractMetadataTypes | SqlWorkerTask.ExtractMetadataAssemblies | SqlWorkerTask.ExtractMetadataExtension)) > 0)
+        ExtractMetadata(services, executor, result, task);
+
       return result;
     }
 
-    private static void ExtractMetadata(UpgradeServiceAccessor services, ISqlExecutor executor, SqlWorkerResult result)
+    private static void ExtractMetadata(UpgradeServiceAccessor services, SqlExecutor executor, SqlWorkerResult result, SqlWorkerTask task)
     {
-      var mapping = new MetadataMapping(services.StorageDriver, services.NameBuilder);
       var set = new MetadataSet();
-      foreach (var task in services.MappingResolver.GetMetadataTasks()) {
-        if (result.Schema!=null) {
-          PairedNodeCollection<Schema, Table> tables;
-          if (services.MappingResolver is SimpleMappingResolver)
-            tables = result.Schema.Catalogs.Single().Schemas[task.Schema].Tables ?? result.Schema.Catalogs.Single().Schemas.Single().Tables;
-          else
-            tables = result.Schema.Catalogs[task.Catalog].Schemas[task.Schema].Tables;
-          if (tables[mapping.Assembly]==null && tables[mapping.Type]==null && tables[mapping.Extension]==null)
-            continue;
-        } 
+      var mapping = new MetadataMapping(services.StorageDriver, services.NameBuilder);
+      var metadataExtractor = new MetadataExtractor(mapping, executor);
+      foreach (var metadataTask in services.MappingResolver.GetMetadataTasks()
+        .Where(metadataTask => !ShouldSkipMetadataExtraction(mapping, result, metadataTask))) {
         try {
-          new MetadataExtractor(mapping, task, executor).Extract(set);
+          if (task.HasFlag(SqlWorkerTask.ExtractMetadataAssemblies))
+            metadataExtractor.ExtractAssemblies(set, metadataTask);
+          if (task.HasFlag(SqlWorkerTask.ExtractMetadataTypes))
+            metadataExtractor.ExtractTypes(set, metadataTask);
+          if (task.HasFlag(SqlWorkerTask.ExtractMetadataExtension))
+            metadataExtractor.ExtractExtensions(set, metadataTask);
         }
         catch (Exception exception) {
-          UpgradeLog.Warning(Strings.LogFailedToExtractMetadataFromXYZ, task.Catalog, task.Schema, exception);
+          UpgradeLog.Warning(Strings.LogFailedToExtractMetadataFromXYZ, metadataTask.Catalog, metadataTask.Schema, exception);
         }
       }
       result.Metadata = set;
+    }
+
+    private static bool ShouldSkipMetadataExtraction(MetadataMapping mapping, SqlWorkerResult result, SqlExtractionTask task)
+    {
+      if (result.Schema==null)
+        return false;
+
+      var tables = GetSchemaTables(result, task);
+      return tables[mapping.Assembly]==null && tables[mapping.Type]==null && tables[mapping.Extension]==null;
+    }
+
+    private static PairedNodeCollection<Schema, Table> GetSchemaTables(SqlWorkerResult result, SqlExtractionTask task)
+    {
+      var catalog = GetCatalog(result, task.Catalog);
+      var schema = GetSchema(catalog, task.Schema);
+      return schema.Tables;
+    }
+
+    private static Catalog GetCatalog(SqlWorkerResult result, string catalogName)
+    {
+      if (catalogName.IsNullOrEmpty())
+        return result.Schema.Catalogs.Single(c => c.Name==catalogName);
+      return result.Schema.Catalogs[catalogName];
+    }
+
+    private static Schema GetSchema(Catalog catalog, string schemaName)
+    {
+      if (schemaName.IsNullOrEmpty())
+        return catalog.Schemas.Single(s => s.Name==schemaName);
+      return catalog.Schemas[schemaName];
     }
 
     private static SchemaExtractionResult ExtractSchema(UpgradeServiceAccessor services, ISqlExecutor executor)

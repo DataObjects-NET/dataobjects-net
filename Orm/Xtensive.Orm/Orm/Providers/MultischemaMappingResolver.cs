@@ -21,6 +21,7 @@ namespace Xtensive.Orm.Providers
     private readonly List<SqlExtractionTask> extractionTasks;
     private readonly SqlExtractionTask metadataTask;
     private readonly NameMappingCollection schemaMapping;
+    private readonly NameMappingCollection reversedSchemaMapping;
 
     public override string GetNodeName(string mappingDatabase, string mappingSchema, string mappingName)
     {
@@ -31,13 +32,15 @@ namespace Xtensive.Orm.Providers
 
     public override string GetNodeName(SchemaNode node)
     {
-      return FormatNodeName(node.Schema.Name, node.Name);
+      return FormatNodeName(node.Schema.GetNameInternal(), node.Name);
     }
 
     public override MappingResolveResult Resolve(SchemaExtractionResult model, string nodeName)
     {
       var names = nodeName.Split(NameElementSeparator);
-      var schema = model.Catalogs.Single().Schemas[names[0]];
+      var schema = (model.IsShared)
+        ? model.Catalogs.Single().Schemas[reversedSchemaMapping.Apply(names[0])]
+        : model.Catalogs.Single().Schemas[names[0]];
       var name = names[1];
       if (schema==null)
         throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveSchemaForNodeXPleaseVerifyThatThisSchemaExists, nodeName));
@@ -75,6 +78,11 @@ namespace Xtensive.Orm.Providers
         .Distinct()
         .Select(s => new SqlExtractionTask(defaultSchemaInfo.Database, schemaMapping.Apply(s)))
         .ToList();
+
+      reversedSchemaMapping = new NameMappingCollection();
+      foreach (var mapping in schemaMapping) {
+        reversedSchemaMapping.Add(mapping.Value, mapping.Key);
+      }
 
       metadataTask = new SqlExtractionTask(defaultSchemaInfo.Database, schemaMapping.Apply(defaultSchema));
     }

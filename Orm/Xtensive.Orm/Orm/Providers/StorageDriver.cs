@@ -7,12 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Logging;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
@@ -66,6 +64,17 @@ namespace Xtensive.Orm.Providers
       var options = new SqlCompilerConfiguration {
         DatabaseQualifiedObjects = configuration.IsMultidatabase
       };
+      return underlyingDriver.Compile(statement, options);
+    }
+
+    public SqlCompilationResult Compile(ISqlCompileUnit statement, NodeConfiguration nodeConfiguration)
+    {
+      SqlCompilerConfiguration options;
+      if (configuration.ShareStorageSchemaOverNodes)
+        options = new SqlCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping());
+      else
+        options = new SqlCompilerConfiguration();
+      options.DatabaseQualifiedObjects = configuration.IsMultidatabase;
       return underlyingDriver.Compile(statement, options);
     }
 

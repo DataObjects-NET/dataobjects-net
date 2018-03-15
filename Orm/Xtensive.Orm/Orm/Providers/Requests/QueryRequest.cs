@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using Xtensive.Tuples;
@@ -30,6 +31,8 @@ namespace Xtensive.Orm.Providers
     public TupleDescriptor TupleDescriptor { get; private set; }
     public QueryRequestOptions Options { get; private set; }
 
+    public NodeConfiguration NodeConfiguration { get; private set; }
+
     public bool CheckOptions(QueryRequestOptions requiredOptions)
     {
       return (Options & requiredOptions)==requiredOptions;
@@ -39,7 +42,9 @@ namespace Xtensive.Orm.Providers
     {
       if (compiledStatement!=null && accessor!=null)
         return;
-      compiledStatement = driver.Compile(Statement);
+      compiledStatement = (NodeConfiguration!=null)
+        ? driver.Compile(Statement, NodeConfiguration)
+        : driver.Compile(Statement);
       accessor = driver.GetDataReaderAccessor(TupleDescriptor);
       Statement = null;
     }
@@ -73,6 +78,22 @@ namespace Xtensive.Orm.Providers
       ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);
       TupleDescriptor = tupleDescriptor;
       Options = options;
+    }
+
+    public QueryRequest(
+      StorageDriver driver, SqlSelect statement, IEnumerable<QueryParameterBinding> parameterBindings,
+      TupleDescriptor tupleDescriptor, QueryRequestOptions options, NodeConfiguration nodeConfiguration)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(driver, "driver");
+      ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
+      ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
+
+      this.driver = driver;
+      Statement = statement;
+      ParameterBindings = ParameterBinding.NormalizeBindings(parameterBindings);
+      TupleDescriptor = tupleDescriptor;
+      Options = options;
+      NodeConfiguration = nodeConfiguration;
     }
   }
 }

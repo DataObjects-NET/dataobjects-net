@@ -18,6 +18,7 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Model;
+using Xtensive.Sql.Info;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -210,6 +211,8 @@ namespace Xtensive.Orm.Upgrade
 
     internal bool TypesMovementsAutoDetection { get; set; }
 
+    internal DefaultSchemaInfo DefaultSchemaInfo { get; set; }
+
     internal static UpgradeContext GetCurrent(object cookie)
     {
       var current = Current;
@@ -250,7 +253,7 @@ namespace Xtensive.Orm.Upgrade
 
       UpgradeMode = configuration.UpgradeMode;
       Configuration = configuration;
-      NodeConfiguration = new NodeConfiguration(WellKnown.DefaultNodeId);
+      NodeConfiguration = new NodeConfiguration(WellKnown.DefaultNodeId){UpgradeMode = configuration.UpgradeMode};
       NodeConfiguration.Lock();
       Cookie = new object();
       TypesMovementsAutoDetection = true;

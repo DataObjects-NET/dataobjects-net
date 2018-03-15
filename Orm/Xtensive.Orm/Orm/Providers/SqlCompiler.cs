@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Compilation;
@@ -28,7 +29,7 @@ namespace Xtensive.Orm.Providers
     private readonly bool temporaryTablesSupported;
     private readonly HashSet<Column> rootColumns = new HashSet<Column>();
 
-    private bool anyIncludesOverTemporaryTable;
+    private bool anyTemporaryTablesRequired;
 
     /// <summary>
     /// Gets model mapping.
@@ -59,6 +60,11 @@ namespace Xtensive.Orm.Providers
     /// Gets collection of outer references.
     /// </summary>
     protected BindingCollection<ApplyParameter, Pair<SqlProvider, bool>> OuterReferences { get; private set; }
+
+    /// <summary>
+    /// Gets node configuration on which query is compilling.
+    /// </summary>
+    protected NodeConfiguration NodeConfiguration { get; private set; }
 
     /// <inheritdoc/>
     protected override SqlProvider VisitAlias(AliasProvider provider)
@@ -358,7 +364,8 @@ namespace Xtensive.Orm.Providers
       var columnNames = provider.Header.Columns.Select(column => column.Name).ToArray();
       var descriptor = DomainHandler.TemporaryTableManager
         .BuildDescriptor(Mapping, provider.Name, provider.Header.TupleDescriptor, columnNames);
-      var request = new QueryRequest(Driver, descriptor.QueryStatement, null, descriptor.TupleDescriptor, QueryRequestOptions.Empty);
+      var request = CreateQueryRequest(Driver, descriptor.QueryStatement, null, descriptor.TupleDescriptor, QueryRequestOptions.Empty);
+      anyTemporaryTablesRequired = true;
       return new SqlStoreProvider(Handlers, request, descriptor, provider, source);
     }
     
@@ -517,6 +524,7 @@ namespace Xtensive.Orm.Providers
       OuterReferences = new BindingCollection<ApplyParameter, Pair<SqlProvider, bool>>();
       Mapping = configuration.StorageNode.Mapping;
       TypeIdRegistry = configuration.StorageNode.TypeIdRegistry;
+      NodeConfiguration = configuration.StorageNode.Configuration;
 
       providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;

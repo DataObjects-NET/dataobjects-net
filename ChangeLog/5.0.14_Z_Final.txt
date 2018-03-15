@@ -1,0 +1,3 @@
+[main] Returned expected behavior of delayed queries which was changed in 5.0.11 by bug fix for IN operation.
+[main] Fixed bug when Server profile sesions allowed to query database without transaction.
+[mysql] Corrected column types' extraction.

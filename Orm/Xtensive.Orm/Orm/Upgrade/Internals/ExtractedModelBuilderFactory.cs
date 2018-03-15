@@ -5,29 +5,22 @@
 // Created:    2016.02.23
 
 using Xtensive.Core;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade.Internals.Interfaces;
-using Xtensive.Orm.Upgrade.Model;
 
 namespace Xtensive.Orm.Upgrade.Internals
 {
   internal static class ExtractedModelBuilderFactory
   {
-    public static ISchemaExtractionResultBuilder GetBuilder(UpgradeServiceAccessor services, StorageModel model)
+    public static ISchemaExtractionResultBuilder GetBuilder(UpgradeContext context)
     {
-      ArgumentValidator.EnsureArgumentNotNull(model, "model");
-      ArgumentValidator.EnsureArgumentNotNull(services, "services");
-
-      return new DomainExtractedModelBuilder(services, model);
-    }
-
-    public static ISchemaExtractionResultBuilder GetBuilder(UpgradeServiceAccessor services, StorageNode defaultNode, NodeConfiguration buildingNodeConfiguration)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(services, "services");
-      ArgumentValidator.EnsureArgumentNotNull(defaultNode, "defaultNode");
-      ArgumentValidator.EnsureArgumentNotNull(buildingNodeConfiguration, "buildingNodeConfiguration");
-
-      return new NodeExtractedModelBuilder(services, defaultNode, buildingNodeConfiguration);
+      ArgumentValidator.EnsureArgumentNotNull(context, "context");
+      if (context.ParentDomain==null) {
+        var makeShared = context.Configuration.ShareStorageSchemaOverNodes;
+        return new DomainExtractedModelBuilder(context.Services, context.TargetStorageModel, makeShared);
+      }
+      var schemaIsShared = context.Configuration.ShareStorageSchemaOverNodes;
+      var defaultStorageNode = context.ParentDomain.StorageNodeManager.GetNode(WellKnown.DefaultNodeId);
+      return new NodeExtractedModelBuilder(context.Services, defaultStorageNode, context.NodeConfiguration, schemaIsShared);
     }
   }
 }

@@ -284,7 +284,10 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public override string Translate(SqlCompilerContext context, SqlDropIndex node)
     {
-      return string.Format("DROP INDEX {0}.{1}", node.Index.DataTable.Schema.Name, QuoteIdentifier(node.Index.DbName));
+      var dropIndexTemplate = "DROP INDEX {0}.{1}";
+      if (context==null)
+        return string.Format(dropIndexTemplate, node.Index.DataTable.Schema.Name, QuoteIdentifier(node.Index.DbName));
+      return string.Format(dropIndexTemplate, context.SqlNodeActualizer.Actualize(node.Index.DataTable.Schema), QuoteIdentifier(node.Index.DbName));
     }
 
     /// <inheritdoc/>

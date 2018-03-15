@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Upgrade;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 
@@ -59,7 +60,10 @@ namespace Xtensive.Orm.Services
     public SqlCompilationResult CompileQuery(ISqlCompileUnit query)
     {
       ArgumentValidator.EnsureArgumentNotNull(query, "query");
-      return driver.Compile(query);
+      var upgradeContext = UpgradeContext.GetCurrent(Session.Domain.UpgradeContextCookie);
+      if (upgradeContext!=null)
+        return driver.Compile(query, upgradeContext.NodeConfiguration);
+      return driver.Compile(query, Session.StorageNode.Configuration);
     }
 
     /// <summary>

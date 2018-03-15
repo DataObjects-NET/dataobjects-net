@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Model
 
     public class Hierarchy : Structure
     {
-      [Field(Indexed = true)]
+      [Field(Indexed = true, Length = 300)]
       public string Name { get; set; }
     }
 

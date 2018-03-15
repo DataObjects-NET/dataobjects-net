@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
 
@@ -16,11 +17,13 @@ namespace Xtensive.Orm.Tests.Core.Testing
   {
     private class RandomManagerInvoker
     {
+      [MethodImpl(MethodImplOptions.NoInlining)]
       public virtual Random CreateRandom1(SeedVariatorType variatorType)
       {
         return RandomManager.CreateRandom(variatorType);
       }
 
+      [MethodImpl(MethodImplOptions.NoInlining)]
       public virtual Random CreateRandom2(SeedVariatorType variatorType)
       {
         return RandomManager.CreateRandom(variatorType);
@@ -29,11 +32,13 @@ namespace Xtensive.Orm.Tests.Core.Testing
 
     private class RandomManagerInvoker2: RandomManagerInvoker
     {
+      [MethodImpl(MethodImplOptions.NoInlining)]
       public override Random CreateRandom1(SeedVariatorType variatorType)
       {
         return RandomManager.CreateRandom(variatorType);
       }
 
+      [MethodImpl(MethodImplOptions.NoInlining)]
       public override Random CreateRandom2(SeedVariatorType variatorType)
       {
         return RandomManager.CreateRandom(variatorType);

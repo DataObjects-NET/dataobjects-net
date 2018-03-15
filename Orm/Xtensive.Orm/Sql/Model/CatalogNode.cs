@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Model
@@ -14,6 +15,37 @@ namespace Xtensive.Sql.Model
   public abstract class CatalogNode : Node, IPairedNode<Catalog>
   {
     private Catalog catalog;
+    private bool isNamesReadingDenied = false;
+
+    /// <inheritdoc />
+    public override string Name
+    {
+      get {
+        if (!isNamesReadingDenied)
+          return base.Name;
+        throw new InvalidOperationException(Strings.ExNameValueReadingOrSettingIsDenied);
+      }
+      set {
+        if (!isNamesReadingDenied)
+          base.Name = value;
+        throw new InvalidOperationException(Strings.ExNameValueReadingOrSettingIsDenied);
+      }
+    }
+
+    /// <inheritdoc />
+    public override string DbName
+    {
+      get {
+        if (!isNamesReadingDenied)
+          return base.DbName;
+        throw new InvalidOperationException(Strings.ExDbNameValueReadingOrSettingIsDenied);
+      }
+      set {
+        if (!isNamesReadingDenied)
+          base.DbName = value;
+        throw new InvalidOperationException(Strings.ExDbNameValueReadingOrSettingIsDenied);
+      }
+    }
 
     /// <summary>
     /// Gets or sets the <see cref="Catalog"/> this instance belongs to.
@@ -50,6 +82,39 @@ namespace Xtensive.Sql.Model
 
     #endregion
 
+    internal void MakeNamesUnreadable()
+    {
+      isNamesReadingDenied = true;
+    }
+
+    internal string GetActualName(IDictionary<string, string> nodeNameMap)
+    {
+      if (!isNamesReadingDenied)
+        return Name;
+      if (nodeNameMap==null)
+        throw new ArgumentNullException("nodeNameMap");
+
+      var name = GetNameInternal();
+      string actualName;
+      if (nodeNameMap.TryGetValue(name, out actualName))
+        return actualName;
+      return name;
+    }
+
+    internal string GetActualDbName(IDictionary<string, string> nodeNameMap)
+    {
+      if (!isNamesReadingDenied)
+        return DbName;
+      if (nodeNameMap==null)
+        throw new ArgumentNullException("nodeNameMap");
+
+      var name = GetDbNameInternal();
+      string actualName;
+      if (nodeNameMap.TryGetValue(name, out actualName))
+        return actualName;
+      return name;
+    }
+
     #region Constructors
 
     /// <summary>
@@ -57,7 +122,8 @@ namespace Xtensive.Sql.Model
     /// </summary>
     /// <param name="catalog">The catalog.</param>
     /// <param name="name">The name.</param>
-    protected CatalogNode(Catalog catalog, string name) : base(name)
+    protected CatalogNode(Catalog catalog, string name)
+      : base(name)
     {
       ArgumentValidator.EnsureArgumentNotNull(catalog, "catalog");
       Catalog = catalog;

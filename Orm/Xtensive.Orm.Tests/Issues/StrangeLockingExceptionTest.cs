@@ -108,10 +108,10 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test3()
     {
-      using (var sessionA = Domain.OpenSession(new SessionConfiguration(SessionOptions.ServerProfile))) {
+      using (var sessionA = Domain.OpenSession(new SessionConfiguration(SessionOptions.ServerProfile | SessionOptions.NonTransactionalReads))) {
         sessionA.Query.All<TestA>().Count();
         sessionA.Query.All<TestB>().Count();
-        using (var sessionB = Domain.OpenSession(new SessionConfiguration(SessionOptions.ServerProfile))) {
+        using (var sessionB = Domain.OpenSession(new SessionConfiguration(SessionOptions.ServerProfile | SessionOptions.NonTransactionalReads))) {
           sessionB.Query.All<TestA>().Count();
           sessionB.Query.All<TestB>().Count();
         }

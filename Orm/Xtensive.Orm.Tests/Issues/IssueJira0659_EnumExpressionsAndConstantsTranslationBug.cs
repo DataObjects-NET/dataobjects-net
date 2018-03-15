@@ -983,31 +983,26 @@ namespace Xtensive.Orm.Tests.Issues
     public void MathRoundTest()
     {
       Action<Session> testAction = (session) => {
-        //OK
         Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().Select(e => (Math.Truncate(Math.Round(e.Sum, 2) * 100) / 100)).ToArray());
-        //session.Query.All<EntityWithDecimal>().Select(e => (Math.Truncate(Math.Round(e.Sum, 2) * 100) / 100)).ToArray();
-
-        //OK
         Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().Where(e => (Math.Truncate(Math.Round(e.Sum, 2) * 100) / 100) > 1).ToArray());
-
-        //OK
         Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().OrderBy(e => Math.Truncate(Math.Round(e.Sum, 2) * 100) / 100).ToArray());
-
-        //OK
         Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().Sum(e => Math.Truncate(Math.Round(e.Sum, 2) * 100) / 100));
-
-        //OK
         Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().Select(e => (Math.Truncate(Math.Round(e.Sum, 2, MidpointRounding.AwayFromZero) * 100) / 100)).ToArray());
-
-        //OK
-        //Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().Where(e => (Math.Truncate(Math.Round(e.Sum, 2, MidpointRounding.AwayFromZero) * 100) / 100) > 1).ToArray());
-        session.Query.All<EntityWithDecimal>().Where(e => (Math.Truncate(Math.Round(e.Sum, 2, MidpointRounding.AwayFromZero) * 100) / 100) > 1).ToArray();
-
-        //FAIL
+        Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().Where(e => (Math.Truncate(Math.Round(e.Sum, 2, MidpointRounding.AwayFromZero) * 100) / 100) > 1).ToArray());
         Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().OrderBy(e => Math.Truncate(Math.Round(e.Sum, 2, MidpointRounding.AwayFromZero) * 100) / 100).ToArray());
-
-        //FAIL
         Assert.DoesNotThrow(() => session.Query.All<EntityWithDecimal>().Sum(e => Math.Truncate(Math.Round(e.Sum, 2, MidpointRounding.AwayFromZero) * 100) / 100));
+      };
+      RunTestInSession(testAction);
+    }
+
+    [Test]
+    public void ConcatinationTest()
+    {
+      Action<Session> testAction = session => {
+        Assert.DoesNotThrow(
+          () => session.Query.All<EntityWithGender>().Select(q=> new {q.Id, Gender = Gender.Female})
+            .Concat(session.Query.All<EntityWithGender>().Select(q=> new {q.Id, Gender = Gender.Male}))
+            .FirstOrDefault());
       };
       RunTestInSession(testAction);
     }

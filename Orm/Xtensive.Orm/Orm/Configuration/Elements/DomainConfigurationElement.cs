@@ -47,6 +47,8 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string IgnoreRulesElementName = "ignoreRules";
     private const string MultidatabaseKeysElementName = "multidatabaseKeys";
     private const string OptionsElementName = "options";
+    private const string ShareStorageSchemaOverNodesElementName = "shareStorageSchemaOverNodes";
+    private const string FullTextChangeTrackingModeElementName = "fullTextChangeTrackingMode";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -183,6 +185,16 @@ namespace Xtensive.Orm.Configuration.Elements
     {
       get { return (string) this[ForeignKeyModeElementName]; }
       set { this[ForeignKeyModeElementName] = value; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.FullTextChangeTrackingMode" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(FullTextChangeTrackingModeElementName, DefaultValue = "Default")]
+    public string FullTextChangeTrackingMode
+    {
+      get { return (string) this[FullTextChangeTrackingModeElementName]; }
+      set { this[FullTextChangeTrackingModeElementName] = value; }
     }
 
     /// <summary>
@@ -327,6 +339,9 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[ConnectionInitializationSqlElementName] = value; }
     }
 
+    /// <summary>
+    /// <see cref="DomainConfiguration.IgnoreRules" copy="true"/>
+    /// </summary>
     [ConfigurationProperty(IgnoreRulesElementName, IsDefaultCollection = false)]
     [ConfigurationCollection(typeof (ConfigurationCollection<IgnoreRuleElement>), AddItemName = "rule")]
     public ConfigurationCollection<IgnoreRuleElement> IgnoreRules
@@ -353,6 +368,16 @@ namespace Xtensive.Orm.Configuration.Elements
     {
       get { return (string) this[OptionsElementName]; }
       set { this[OptionsElementName] = value; }
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.ShareStorageSchemaOverNodes" copy="true"/>
+    /// </summary>
+    [ConfigurationProperty(ShareStorageSchemaOverNodesElementName, DefaultValue = false)]
+    public bool ShareStorageSchemaOverNodes
+    {
+      get { return (bool) this[ShareStorageSchemaOverNodesElementName]; }
+      set { this[ShareStorageSchemaOverNodesElementName] = value; }
     }
 
     /// <summary>
@@ -384,7 +409,9 @@ namespace Xtensive.Orm.Configuration.Elements
         Collation = Collation,
         NativeLibraryCacheFolder = NativeLibraryCacheFolder,
         ConnectionInitializationSql = ConnectionInitializationSql,
-        MultidatabaseKeys = MultidatabaseKeys
+        MultidatabaseKeys = MultidatabaseKeys,
+        ShareStorageSchemaOverNodes = ShareStorageSchemaOverNodes,
+        FullTextChangeTrackingMode = ParseEnum<FullTextChangeTrackingMode>(FullTextChangeTrackingMode)
       };
 
       foreach (var element in Types)

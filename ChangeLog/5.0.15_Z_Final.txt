@@ -1,0 +1,2 @@
+[sqlserver] Added change tracking settings for full-text indexes
+[sqlserver] Added API for specifying catalog name for full-text indexes

@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CompilerTest.cs" />
+    <Compile Include="DenyNamesReadingTest.cs" />
     <Compile Include="Firebird\CompilerTest.cs" />
     <Compile Include="MySQL\CompilerTest.cs" />
     <Compile Include="PostgreSql\DateTimeOffsetTest.cs" />

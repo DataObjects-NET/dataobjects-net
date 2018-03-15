@@ -337,6 +337,20 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return TranslateExecSpRename(context, node.Table, Translate(context, node.Table), node.NewName, null);
     }
 
+    public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
+    {
+      var baseSectionTranslation = base.Translate(context, node, section);
+      if (section!=CreateIndexSection.Exit)
+        return baseSectionTranslation;
+      var index = node.Index;
+      var ftIndex = index as FullTextIndex;
+      if (ftIndex==null)
+        return baseSectionTranslation;
+      if (ftIndex.FullTextCatalog!=null)
+        baseSectionTranslation = baseSectionTranslation + " ON " + QuoteIdentifier(ftIndex.FullTextCatalog);
+      return baseSectionTranslation + " WITH CHANGE_TRACKING " + TranslateChangeTrackingMode(ftIndex.ChangeTrackingMode);
+    }
+
     public virtual string Translate(SqlCompilerContext context, SqlRenameColumn action)
     {
       var table = action.Column.Table;
@@ -549,6 +563,22 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     public override string Translate(Collation collation)
     {
       return collation.DbName;
+    }
+
+    protected virtual string TranslateChangeTrackingMode(ChangeTrackingMode mode)
+    {
+      switch (mode) {
+      case ChangeTrackingMode.Auto:
+        return "AUTO";
+      case ChangeTrackingMode.Manual:
+        return "MANUAL";
+      case ChangeTrackingMode.Off:
+        return "OFF";
+      case ChangeTrackingMode.OffWithNoPopulation:
+        return "OFF, NO POPULATION";
+      default:
+        return "AUTO";
+      }
     }
 
 

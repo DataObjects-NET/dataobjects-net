@@ -34,15 +34,15 @@ namespace Xtensive.Sql.Model
     public override void Add(TNode item)
     {
       base.Add(item);
-      if (!string.IsNullOrEmpty(item.Name))
-        nameIndex.Add(item.Name, item);
+      if (!string.IsNullOrEmpty(item.GetNameInternal()))
+        nameIndex.Add(item.GetNameInternal(), item);
     }
 
     public override bool Remove(TNode item)
     {
       bool result = base.Remove(item);
       if (result)
-        nameIndex.Remove(item.Name);
+        nameIndex.Remove(item.GetNameInternal());
       return result;
     }
 

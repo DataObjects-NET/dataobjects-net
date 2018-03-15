@@ -369,6 +369,12 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
+    public override string Translate(SqlCompilerContext context, SqlInsert node, InsertSection section)
+    {
+      if (section==InsertSection.DefaultValues)
+        return "() VALUES ()";
+      return base.Translate(context, node, section);
+    }
 
     public override string Translate(SqlCompilerContext context, SqlBreak node)
     {
