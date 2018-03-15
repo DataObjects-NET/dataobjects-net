@@ -244,10 +244,10 @@ namespace Xtensive.Orm
         DbCommandExecuting(this, new DbCommandEventArgs(command));
     }
 
-    internal void NotifyDbCommandExecuted(DbCommand command)
+    internal void NotifyDbCommandExecuted(DbCommand command, Exception exception=null)
     {
       if (DbCommandExecuted!=null)
-        DbCommandExecuted(this, new DbCommandEventArgs(command));
+        DbCommandExecuted(this, new DbCommandEventArgs(command, exception));
     }
 
     internal Expression NotifyQueryExecuting(Expression expression)
@@ -259,10 +259,10 @@ namespace Xtensive.Orm
       return args.Expression;
     }
 
-    internal void NotifyQueryExecuted(Expression expression)
+    internal void NotifyQueryExecuted(Expression expression, Exception exception=null)
     {
       if (QueryExecuted!=null)
-        QueryExecuted(this, new QueryEventArgs(expression));
+        QueryExecuted(this, new QueryEventArgs(expression, exception));
     }
 
     internal void NotifyDisposing()
