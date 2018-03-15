@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.Throws<InvalidOperationException>(() => session.Query.All<TestModel>().Single(m => m.SomeStringField=="lol"));
         session.Events.QueryExecuted -= invalidQueryHandler;
         Assert.IsNotNull(thrownException);
-        Assert.AreSame(typeof(InvalidOperationException), thrownException.GetType());
+        Assert.AreSame(typeof (InvalidOperationException), thrownException.GetType());
       }
     }
 
