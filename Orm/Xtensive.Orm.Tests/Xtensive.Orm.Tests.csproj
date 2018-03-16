@@ -335,6 +335,9 @@
     <Compile Include="Storage\SchemaSharing\KeyGenerator\SimpleTest.cs" />
     <Compile Include="Storage\SkippingValidationOnCommitTest.cs" />
     <Compile Include="Storage\ValidateOnlyModifiedFieldsTest.cs" />
+    <Compile Include="Storage\Versioning\EntityVersioningPolicyTest.cs" />
+    <Compile Include="Storage\Versioning\Model.cs" />
+    <Compile Include="Storage\Versioning\EntitySetOnwerVersionChangeTest.cs" />
     <Compile Include="Upgrade\DomainUpgradeModeExtensionsTest.cs" />
     <Compile Include="Upgrade\ChangeFulltextCatalogTest.cs" />
     <Compile Include="Upgrade\FullText\DynamicFullTextCatalogTest.cs" />

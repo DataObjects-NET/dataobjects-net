@@ -77,6 +77,11 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public const bool DefaultShareStorageSchemaOverNodes = false;
 
+    /// <summary>
+    /// Default <see cref="VersioningPolicy"/> value;
+    /// </summary>
+    public const EntityVersioningPolicy DefaultVersioningPolicy = EntityVersioningPolicy.Default;
+
     #endregion
 
     private static bool sectionNameIsDefined;
@@ -110,8 +115,7 @@ namespace Xtensive.Orm.Configuration
     private DatabaseConfigurationCollection databases = new DatabaseConfigurationCollection();
     private KeyGeneratorConfigurationCollection keyGenerators = new KeyGeneratorConfigurationCollection();
     private IgnoreRuleCollection ignoreRules = new IgnoreRuleCollection();
-
-    
+    private VersioningConvention versioningConvention = new VersioningConvention();
 
     private bool? isMultidatabase;
     private bool? isMultischema;
@@ -584,6 +588,18 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets versioning convention.
+    /// </summary>
+    public VersioningConvention VersioningConvention
+    {
+      get { return versioningConvention; }
+      set {
+        this.EnsureNotLocked();
+        versioningConvention = value;
+      }
+    }
+
+    /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
     /// </summary>
     public bool IsMultidatabase { get { return isMultidatabase ?? GetIsMultidatabase(); } }
@@ -592,8 +608,6 @@ namespace Xtensive.Orm.Configuration
     /// Gets a value indicating whether this configuration is multi-schema.
     /// </summary>
     public bool IsMultischema { get { return isMultischema ?? GetIsMultischema(); } }
-
-    
 
     private bool GetIsMultidatabase()
     {
@@ -629,6 +643,7 @@ namespace Xtensive.Orm.Configuration
       mappingRules.Lock(true);
       keyGenerators.Lock(true);
       ignoreRules.Lock(true);
+      versioningConvention.Lock(true);
 
       base.Lock(recursive);
 
@@ -706,6 +721,7 @@ namespace Xtensive.Orm.Configuration
       keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();
       ignoreRules = (IgnoreRuleCollection) configuration.IgnoreRules.Clone();
       shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
+      versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
     }
 
     /// <summary>

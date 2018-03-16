@@ -244,6 +244,28 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(configuration.FullTextChangeTrackingMode, Is.EqualTo(FullTextChangeTrackingMode.Default));
     }
 
+    [Test]
+    public void VersioningConventionTest()
+    {
+      var configuration = DomainConfiguration.Load("AppConfigTest", "VersioningConventionTest1");
+      Assert.That(configuration.VersioningConvention.EntityVersioningPolicy, Is.EqualTo(EntityVersioningPolicy.Default));
+      Assert.That(configuration.VersioningConvention.DenyEntitySetOwnerVersionChange, Is.EqualTo(false));
+
+      configuration = DomainConfiguration.Load("AppConfigTest", "VersioningConventionTest2");
+      Assert.That(configuration.VersioningConvention.EntityVersioningPolicy, Is.EqualTo(EntityVersioningPolicy.Default));
+
+      configuration = DomainConfiguration.Load("AppConfigTest", "VersioningConventionTest3");
+      Assert.That(configuration.VersioningConvention.EntityVersioningPolicy, Is.EqualTo(EntityVersioningPolicy.Optimistic));
+
+      configuration = DomainConfiguration.Load("AppConfigTest", "VersioningConventionTest4");
+      Assert.That(configuration.VersioningConvention.EntityVersioningPolicy, Is.EqualTo(EntityVersioningPolicy.Pessimistic));
+
+      configuration = DomainConfiguration.Load("AppConfigTest", "VersioningConventionTest5");
+      Assert.That(configuration.VersioningConvention.DenyEntitySetOwnerVersionChange, Is.EqualTo(true));
+
+      configuration = DomainConfiguration.Load("AppConfigTest", "VersioningConventionTest6");
+      Assert.That(configuration.VersioningConvention.DenyEntitySetOwnerVersionChange, Is.EqualTo(false));
+    }
 
     private void ValidateConnectionString(string expected, ConnectionInfo actual)
     {
