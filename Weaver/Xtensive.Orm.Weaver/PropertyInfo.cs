@@ -13,11 +13,32 @@ namespace Xtensive.Orm.Weaver
 {
   public sealed class PropertyInfo
   {
+    private readonly string signatureName;
+
+    /// <summary>
+    /// The type where the property is declared
+    /// </summary>
     public TypeInfo DeclaringType { get; private set; }
 
+    /// <summary>
+    /// Underlying property definition
+    /// </summary>
     public PropertyDefinition Definition { get; private set; }
 
+    /// <summary>
+    /// Gets short property name. This name is not unique and should not be used as a key of property
+    /// </summary>
     public string Name { get { return Definition.Name; } }
+
+    /// <summary>
+    /// Gets full name of the property. This name is completely unique even over hierarchy.
+    /// </summary>
+    public string FullName { get { return Definition.FullName; } }
+
+    /// <summary>
+    /// Gets string representation of property signature and includes property return type of the property, its name and the types of its parameters.
+    /// </summary>
+    public string PropertySignatureName { get { return signatureName; } }
 
     public bool IsInstance { get { return Definition.HasThis; } }
 
@@ -93,6 +114,7 @@ namespace Xtensive.Orm.Weaver
       DeclaringType = declaringType;
       Definition = definition;
       ImplementedProperties = new List<PropertyInfo>();
+      signatureName = WeavingHelper.GetPropertySignatureName(definition);
     }
   }
 }

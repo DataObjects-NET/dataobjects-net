@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -13,6 +15,9 @@ namespace Xtensive.Orm.Weaver
 {
   public static class WeavingHelper
   {
+    private const string GetterPrefix = "get_";
+    private const string SetterPrefix = "set_";
+
     public static readonly StringComparer AssemblyNameComparer = StringComparer.OrdinalIgnoreCase;
     public static readonly StringComparer TypeNameComparer = StringComparer.Ordinal;
 
@@ -28,13 +33,80 @@ namespace Xtensive.Orm.Weaver
 
     public static string GetPropertyName(string accessorName)
     {
-      const string getterPrefix = "get_";
-      const string setterPrefix = "set_";
-      if (accessorName.StartsWith(getterPrefix))
-        return accessorName.Substring(getterPrefix.Length);
-      if (accessorName.StartsWith(setterPrefix))
-        return accessorName.Substring(setterPrefix.Length);
+      if (accessorName.StartsWith(GetterPrefix))
+        return accessorName.Substring(GetterPrefix.Length);
+      if (accessorName.StartsWith(SetterPrefix))
+        return accessorName.Substring(SetterPrefix.Length);
       throw new InvalidOperationException(String.Format("Invalid or unsupported accessor name '{0}'", accessorName));
+    }
+
+    public static string GetPropertySignatureName(PropertyDefinition definition)
+    {
+      StringBuilder stringBuilder = new StringBuilder();
+      stringBuilder.Append(definition.PropertyType.FullName);
+      stringBuilder.Append(' ');
+      stringBuilder.Append(definition.Name);
+      stringBuilder.Append('(');
+      if (definition.HasParameters) {
+        var parameters = definition.Parameters;
+        for (int index = 0; index < parameters.Count; ++index) {
+          if (index > 0)
+            stringBuilder.Append(',');
+          stringBuilder.Append(parameters[index].ParameterType.FullName);
+        }
+      }
+      stringBuilder.Append(')');
+      return stringBuilder.ToString();
+    }
+
+    public static string GetPropertySignatureName(MethodReference accessor)
+    {
+      if (accessor == null)
+        throw new ArgumentNullException("accessor");
+
+      if (accessor.Name.StartsWith(GetterPrefix))
+      {
+        var stringBuilder = new StringBuilder();
+        var propertyType = accessor.ReturnType;
+        var propertyName = accessor.Name.Substring(GetterPrefix.Length);
+
+        stringBuilder.Append(propertyType.FullName);
+        stringBuilder.Append(" ");
+        stringBuilder.Append(propertyName);
+        stringBuilder.Append("(");
+        bool insertDelimiter = false;
+        foreach (var parameterDefinition in accessor.Parameters) {
+          if (insertDelimiter)
+            stringBuilder.Append(',');
+          else
+            insertDelimiter = true;
+          stringBuilder.Append(parameterDefinition.ParameterType.FullName);
+        }
+        stringBuilder.Append(")");
+        return stringBuilder.ToString();
+      }
+      if (accessor.Name.StartsWith(SetterPrefix)) {
+        var stringBuilder = new StringBuilder();
+        var parametersCount = accessor.Parameters.Count;
+        var propertyType = accessor.Parameters[parametersCount - 1];
+        var propertyName = accessor.Name.Substring(SetterPrefix.Length);
+
+        stringBuilder.Append(propertyType.ParameterType.FullName);
+        stringBuilder.Append(" ");
+        stringBuilder.Append(propertyName);
+        stringBuilder.Append("(");
+        bool insertDelimiter = false;
+        foreach (var parameterDefinition in accessor.Parameters.Take(parametersCount - 1)) {
+          if (insertDelimiter)
+            stringBuilder.Append(',');
+          else
+            insertDelimiter = true;
+          stringBuilder.Append(parameterDefinition.ParameterType.FullName);
+        }
+        stringBuilder.Append(")");
+        return stringBuilder.ToString();
+      }
+      throw new InvalidOperationException(String.Format("Invalid or unsupported accessor name '{0}'", accessor.Name));
     }
 
     public static void MarkAsCompilerGenerated(ProcessorContext context, ICustomAttributeProvider target)

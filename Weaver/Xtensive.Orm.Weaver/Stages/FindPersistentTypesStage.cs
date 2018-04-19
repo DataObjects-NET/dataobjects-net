@@ -128,13 +128,13 @@ namespace Xtensive.Orm.Weaver.Stages
         propertyInfo.IsAutomatic = autoPropertyChecker.Invoke(type.Definition, property);
         propertyInfo.IsPersistent = propertyInfo.IsInstance && property.HasAttribute(WellKnown.FieldAttribute);
         propertyInfo.IsKey = propertyInfo.IsPersistent && property.HasAttribute(WellKnown.KeyAttribute);
-        type.Properties.Add(property.Name, propertyInfo);
+        type.Properties.Add(propertyInfo.PropertySignatureName, propertyInfo);
       }
 
       var baseType = type.BaseType;
       if (baseType!=null)
         foreach (var property in type.Properties.Values) {
-          var baseProperty = baseType.FindProperty(property.Name);
+          var baseProperty = baseType.FindProperty(property.PropertySignatureName);
           if (baseProperty==null)
             continue;
           property.BaseProperty = baseProperty;
@@ -160,8 +160,8 @@ namespace Xtensive.Orm.Weaver.Stages
         if (implementedAccessor==null)
           continue;
         var interfaceType = GetType(new TypeIdentity(implementedAccessor.DeclaringType.StripGenericParameters()));
-        var implementedPropertyName = WeavingHelper.GetPropertyName(implementedAccessor.Name);
-        var implementedProperty = interfaceType.FindProperty(implementedPropertyName);
+        var implementedPropertySignature = WeavingHelper.GetPropertySignatureName(implementedAccessor);
+        var implementedProperty = interfaceType.FindProperty(implementedPropertySignature);
         if (implementedProperty==null)
           continue;
         property.ImplementedProperties.Add(implementedProperty);
@@ -175,7 +175,7 @@ namespace Xtensive.Orm.Weaver.Stages
       // Try associate remaining properties
       foreach (var property in propertiesToImplement) {
         PropertyInfo implementor;
-        if (type.Properties.TryGetValue(property.Name, out implementor)) {
+        if (type.Properties.TryGetValue(property.PropertySignatureName, out implementor)) {
           implementor.ImplementedProperties.Add(property);
           InheritPersistence(implementor, property);
         }
