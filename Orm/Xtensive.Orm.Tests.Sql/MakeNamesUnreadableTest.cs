@@ -14,7 +14,7 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql
 {
-  public class DenyNamesReadingTest : SqlTest
+  public class MakeNamesUnreadableTest : SqlTest
   {
     private const string TableName = "DenyNamesReadingTest";
     private const string CatalogName = "DO-Tests";
@@ -62,6 +62,64 @@ namespace Xtensive.Orm.Tests.Sql
 
       Assert.DoesNotThrow(() => { var schemaName = table.Name; });
       Assert.DoesNotThrow(() => { var schemaName = table.DbName; });
+    }
+
+    [Test]
+    public void ChangingNamesTest()
+    {
+      var defaultSchema = GetSchema();
+      Catalog catalog = null;
+
+      Assert.DoesNotThrow(() => catalog = defaultSchema.Catalog);
+      Table table = null;
+      Assert.DoesNotThrow(() => table = defaultSchema.Tables[TableName]);
+
+      Assert.DoesNotThrow(() => { var catalogName = catalog.Name; });
+      Assert.DoesNotThrow(() => { var catalogDbName = catalog.DbName; });
+
+      Assert.DoesNotThrow(() => { var catalogName = catalog.GetNameInternal(); });
+      Assert.DoesNotThrow(() => { var catalogDbName = catalog.GetDbNameInternal(); });
+
+      var oldCatalogName = catalog.Name;
+      var oldCatalogDbName = catalog.DbName;
+
+      var newCatalogName = oldCatalogName + "New";
+      var newCatalogDbName = oldCatalogDbName + "New";
+
+      Assert.DoesNotThrow(() => catalog.Name = newCatalogName);
+      Assert.DoesNotThrow(()=> catalog.DbName = newCatalogDbName);
+
+      catalog.Name = oldCatalogName;
+      catalog.DbName = oldCatalogDbName;
+
+      Assert.DoesNotThrow(() => { var schemaName = defaultSchema.Name; });
+      Assert.DoesNotThrow(() => { var schemaName = defaultSchema.DbName; });
+
+      Assert.DoesNotThrow(() => { var schemaName = defaultSchema.GetNameInternal(); });
+      Assert.DoesNotThrow(() => { var schemaName = defaultSchema.GetDbNameInternal(); });
+
+      var oldSchemaName = defaultSchema.Name;
+      var oldSchemaDbName = defaultSchema.DbName;
+
+      var newSchemaName = oldSchemaName + "New";
+      var newSchemaDbName = oldSchemaDbName + "New";
+
+      Assert.DoesNotThrow(() => defaultSchema.Name = newSchemaName);
+      Assert.DoesNotThrow(() => defaultSchema.DbName = newSchemaDbName);
+
+      defaultSchema.Name = oldSchemaName;
+      defaultSchema.DbName = oldSchemaDbName;
+
+      Assert.DoesNotThrow(() => { var schemaName = table.Name; });
+      Assert.DoesNotThrow(() => { var schemaName = table.DbName; });
+
+      catalog.MakeNamesUnreadable();
+
+      Assert.Throws<InvalidOperationException>(() => catalog.Name = newCatalogName);
+      Assert.Throws<InvalidOperationException>(() => catalog.DbName = newCatalogDbName);
+
+      Assert.Throws<InvalidOperationException>(()=> defaultSchema.Name = newSchemaName);
+      Assert.Throws<InvalidOperationException>(()=> defaultSchema.DbName = newSchemaDbName);
     }
 
     [Test]
