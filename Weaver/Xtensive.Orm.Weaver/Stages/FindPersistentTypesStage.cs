@@ -123,18 +123,19 @@ namespace Xtensive.Orm.Weaver.Stages
     {
       foreach (var property in type.Definition.Properties) {
         var propertyInfo = new PropertyInfo(type, property);
-        if (propertyInfo.AnyAccessor==null)
+        // only indexers has parameters and we skip them
+        if (propertyInfo.AnyAccessor==null || property.HasParameters)
           continue;
         propertyInfo.IsAutomatic = autoPropertyChecker.Invoke(type.Definition, property);
         propertyInfo.IsPersistent = propertyInfo.IsInstance && property.HasAttribute(WellKnown.FieldAttribute);
         propertyInfo.IsKey = propertyInfo.IsPersistent && property.HasAttribute(WellKnown.KeyAttribute);
-        type.Properties.Add(propertyInfo.PropertySignatureName, propertyInfo);
+        type.Properties.Add(propertyInfo.Name, propertyInfo);
       }
 
       var baseType = type.BaseType;
       if (baseType!=null)
         foreach (var property in type.Properties.Values) {
-          var baseProperty = baseType.FindProperty(property.PropertySignatureName);
+          var baseProperty = baseType.FindProperty(property.Name);
           if (baseProperty==null)
             continue;
           property.BaseProperty = baseProperty;
@@ -160,8 +161,8 @@ namespace Xtensive.Orm.Weaver.Stages
         if (implementedAccessor==null)
           continue;
         var interfaceType = GetType(new TypeIdentity(implementedAccessor.DeclaringType.StripGenericParameters()));
-        var implementedPropertySignature = WeavingHelper.GetPropertySignatureName(implementedAccessor);
-        var implementedProperty = interfaceType.FindProperty(implementedPropertySignature);
+        var implementedPropertyName = WeavingHelper.GetPropertyName(implementedAccessor.Name);
+        var implementedProperty = interfaceType.FindProperty(implementedPropertyName);
         if (implementedProperty==null)
           continue;
         property.ImplementedProperties.Add(implementedProperty);
@@ -175,7 +176,7 @@ namespace Xtensive.Orm.Weaver.Stages
       // Try associate remaining properties
       foreach (var property in propertiesToImplement) {
         PropertyInfo implementor;
-        if (type.Properties.TryGetValue(property.PropertySignatureName, out implementor)) {
+        if (type.Properties.TryGetValue(property.Name, out implementor)) {
           implementor.ImplementedProperties.Add(property);
           InheritPersistence(implementor, property);
         }
