@@ -128,9 +128,9 @@ namespace Xtensive.Orm.Tests.Sql
       var defaultSchema = GetSchema();
 
       var table = defaultSchema.CreateTable(string.Format("Crt1_{0}", TableName));
-      var column = table.CreateColumn("Id", new SqlValueType(SqlType.Int32));
+      var column = table.CreateColumn("Id", GetServerTypeFor(typeof (int)));
       table.CreatePrimaryKey("PK_Crt_DenyNamesReadingTest", column);
-      column = table.CreateColumn("CreationDate", new SqlValueType(SqlType.DateTime));
+      column = table.CreateColumn("CreationDate", GetServerTypeFor(typeof (DateTime)));
       var createTableQuery = SqlDdl.Create(table);
 
       TestQueryNamesReadable(createTableQuery, defaultSchema);
@@ -143,9 +143,9 @@ namespace Xtensive.Orm.Tests.Sql
       defaultSchema.Catalog.MakeNamesUnreadable();
 
       var table = defaultSchema.CreateTable(string.Format("Crt1_{0}", TableName));
-      var column = table.CreateColumn("Id", new SqlValueType(SqlType.Int32));
+      var column = table.CreateColumn("Id", GetServerTypeFor(typeof (int)));
       table.CreatePrimaryKey("PK_Crt_DenyNamesReadingTest", column);
-      column = table.CreateColumn("CreationDate", new SqlValueType(SqlType.DateTime));
+      column = table.CreateColumn("CreationDate", GetServerTypeFor(typeof (DateTime)));
       var createTableQuery = SqlDdl.Create(table);
 
       TestQueryNamesUnreadable(createTableQuery, defaultSchema);
@@ -157,7 +157,7 @@ namespace Xtensive.Orm.Tests.Sql
       var defaultSchema = GetSchema();
 
       var table = defaultSchema.Tables[TableName];
-      var column = table.CreateColumn("Text", GetServerTypeForString());
+      var column = table.CreateColumn("Text", GetServerTypeFor(typeof (string), 255));
       column.IsNullable = true;
       var alterTableQuery = SqlDdl.Alter(table, SqlDdl.AddColumn(column));
 
@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Tests.Sql
       defaultSchema.Catalog.MakeNamesUnreadable();
 
       var table = defaultSchema.Tables[TableName];
-      var column = table.CreateColumn("Text", GetServerTypeForString());
+      var column = table.CreateColumn("Text", GetServerTypeFor(typeof (string), 255));
       column.IsNullable = true;
       var alterTableQuery = SqlDdl.Alter(table, SqlDdl.AddColumn(column));
 
@@ -426,15 +426,25 @@ namespace Xtensive.Orm.Tests.Sql
 
       var defaultSchema = catalog.DefaultSchema = schema;
       var table = defaultSchema.CreateTable(TableName);
-      var column = table.CreateColumn("Id", new SqlValueType(SqlType.Int32));
+      var column = table.CreateColumn("Id", GetServerTypeFor(typeof (int)));
       table.CreatePrimaryKey("PK_DenyNamesReadingTest", column);
-      column = table.CreateColumn("CreationDate", new SqlValueType(SqlType.DateTime));
+      column = table.CreateColumn("CreationDate", GetServerTypeFor(typeof (DateTime)));
       return defaultSchema;
     }
 
-    private SqlValueType GetServerTypeForString()
+    private SqlValueType GetServerTypeFor(Type type)
     {
-      return Driver.TypeMappings.Mappings[typeof (string)].MapType(255, null, null);
+      return Driver.TypeMappings.Mappings[type].MapType(255, null, null);
+    }
+
+    private SqlValueType GetServerTypeFor(Type type, int length)
+    {
+      return Driver.TypeMappings.Mappings[type].MapType(length, null, null);
+    }
+
+    private SqlValueType GetServerTypeFor(Type type, int length, int precision, int scale)
+    {
+      return Driver.TypeMappings.Mappings[type].MapType(length, precision, scale);
     }
 
     private bool MultidatabaseSupported()
