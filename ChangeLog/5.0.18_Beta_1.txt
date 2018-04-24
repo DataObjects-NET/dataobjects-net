@@ -1,0 +1,3 @@
+[main] Added versioning policy allowing to set up certain rules for entity version increasing
+[main] Fixed problems with setting Catalog.Name, Catalog.DbName, CatalogNode.Name and CatalogNode.DbName properties
+[weaver] Fixed cases when multiple indexers within type broke weaving process
