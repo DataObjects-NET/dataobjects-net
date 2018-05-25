@@ -806,7 +806,7 @@ namespace Xtensive.Orm.Linq
       var tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
       var filterBody = comparisonInfos.Aggregate(
         (Expression)null, 
-        (current, comparisonInfo) => MakeBinaryExpression(
+        (current, comparisonInfo) => MakeBooleanExpression(
           current, 
           tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex), 
           Expression.MakeMemberAccess(Expression.Constant(applyParameter), WellKnownMembers.ApplyParameterValue)

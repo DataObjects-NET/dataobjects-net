@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Linq
         MemberExpression memberExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.TypeId);
         Expression boolExpression = null;
         foreach (int typeId in typeIds)
-          boolExpression = MakeBinaryExpression(
+          boolExpression = MakeBooleanExpression(
             boolExpression,
             memberExpression,
             Expression.Constant(typeId),
@@ -1467,12 +1467,26 @@ namespace Xtensive.Orm.Linq
       context.RebindApplyParameter(oldDataSource, newDataSource);
     }
 
-    private static Expression MakeBinaryExpression(Expression previous, Expression left, Expression right,
+    private static Expression MakeBooleanExpression(Expression previous, Expression left, Expression right,
       ExpressionType operationType, ExpressionType concatenationExpression)
     {
-      var binaryExpression = operationType==ExpressionType.Equal
-        ? Expression.Equal(left, right)
-        : Expression.NotEqual(left, right);
+      BinaryExpression binaryExpression;
+      switch (operationType) {
+        case ExpressionType.Equal:
+          binaryExpression = Expression.Equal(left, right);
+          break;
+        case ExpressionType.NotEqual:
+          binaryExpression = Expression.NotEqual(left, right);
+          break;
+        case ExpressionType.OrElse:
+          binaryExpression = Expression.OrElse(left, right);
+          break;
+        case ExpressionType.AndAlso:
+          binaryExpression = Expression.AndAlso(left, right);
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("operationType");
+      }
 
       if (previous==null)
         return binaryExpression;
