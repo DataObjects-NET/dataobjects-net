@@ -17,4 +17,16 @@ namespace Xtensive.Orm.Weaver.Stages
       return ActionResult.Success;
     }
   }
+
+  internal sealed class RegisterNetStandardAssembliesStage : ProcessorStage
+  {
+    public override ActionResult Execute(ProcessorContext context)
+    {
+      foreach (var assembly in NetStandardAssemblyList.Get()) {
+        var items = assembly.Split();
+        context.AssemblyChecker.RegisterFrameworkAssembly(items[0], items[1]);
+      }
+      return ActionResult.Success;
+    }
+  }
 }
