@@ -36,6 +36,7 @@ namespace Xtensive.Orm.Weaver.Stages
         ReadingMode = ReadingMode.Deferred,
         AssemblyResolver = context.AssemblyResolver,
         MetadataResolver = context.MetadataResolver,
+        InMemory = true
       };
 
       Stream debugSymbolsStream = null;
