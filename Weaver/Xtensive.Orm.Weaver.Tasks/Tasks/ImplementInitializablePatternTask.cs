@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       var variables = constructor.Body.Variables;
       var instructions = constructor.Body.Instructions;
       var variableIndex = variables.Count;
-      variables.Add(new VariableDefinition("~Xtensive.Orm.InitError", exceptionType));
+      variables.Add(new VariableDefinition(exceptionType));
       il.Emit(OpCodes.Stloc, variableIndex);
       var start = instructions[instructions.Count - 1];
       il.Emit(OpCodes.Ldarg_0);

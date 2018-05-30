@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Weaver.Stages
         var expectPersistentProperties = kind==PersistentTypeKind.Entity || kind==PersistentTypeKind.Structure;
         if (expectPersistentProperties)
           foreach (var @interface in type.Interfaces)
-            result.Interfaces.Add(InspectType(context, @interface));
+            result.Interfaces.Add(InspectType(context, @interface.InterfaceType));
         processedTypes.Add(identity, result);
         if (expectPersistentProperties)
           InspectProperties(context, result);
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Weaver.Stages
         var isPersistent = false;
         var interfaces = new List<TypeInfo>();
         foreach (var @interface in type.Interfaces) {
-          var current = InspectType(context, @interface);
+          var current = InspectType(context, @interface.InterfaceType);
           interfaces.Add(current);
           if (current.Kind==PersistentTypeKind.EntityInterface)
             isPersistent = true;
