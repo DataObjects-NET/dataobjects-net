@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Weaver.Tasks
     {
       var reference = new MethodReference(WellKnown.Constructor, voidType, targetType.BaseType) {HasThis = true};
       DefineParameters(reference);
-      return context.TargetModule.Import(reference);
+      return context.TargetModule.ImportReference(reference);
     }
 
     private void DefineParameters(MethodDefinition method)

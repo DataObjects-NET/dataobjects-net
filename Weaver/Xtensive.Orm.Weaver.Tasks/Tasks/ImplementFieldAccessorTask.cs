@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       if (!registry.TryGetValue(identity, out result)) {
         var accessor = new GenericInstanceMethod(definition);
         accessor.GenericArguments.Add(property.PropertyType);
-        result = context.TargetModule.Import(accessor);
+        result = context.TargetModule.ImportReference(accessor);
         registry.Add(identity, result);
       }
       return result;

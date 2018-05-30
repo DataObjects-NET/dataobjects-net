@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Weaver.Stages
     public override ActionResult Execute(ProcessorContext context)
     {
       var registry = context.References;
-      var mscorlibAssembly = context.TargetModule.TypeSystem.Corlib;
+      var mscorlibAssembly = context.TargetModule.TypeSystem.CoreLibrary;
 
       AssemblyNameReference ormAssembly;
       if (!TryGetOrmAssembly(context, out ormAssembly)) {
@@ -60,14 +60,14 @@ namespace Xtensive.Orm.Weaver.Stages
       persistentGetter.ReturnType = getterType;
       persistentGetter.Parameters.Add(new ParameterDefinition(stringType));
       persistentGetter.GenericParameters.Add(getterType);
-      registry.PersistentGetterDefinition = context.TargetModule.Import(persistentGetter);
+      registry.PersistentGetterDefinition = context.TargetModule.ImportReference(persistentGetter);
 
       var persistentSetter = new MethodReference("SetFieldValue", voidType, persistentType) {HasThis = true};
       var setterType = new GenericParameter("!!T", persistentSetter);
       persistentSetter.Parameters.Add(new ParameterDefinition(stringType));
       persistentSetter.Parameters.Add(new ParameterDefinition(setterType));
       persistentSetter.GenericParameters.Add(setterType);
-      registry.PersistentSetterDefinition = context.TargetModule.Import(persistentSetter);
+      registry.PersistentSetterDefinition = context.TargetModule.ImportReference(persistentSetter);
 
       registry.ProcessedByWeaverAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.ProcessedByWeaverAttribute);
       registry.EntityTypeAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.EntityTypeAttribute);
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Weaver.Stages
       var splitName = SplitTypeName(fullName);
       var targetModule = context.TargetModule;
       var reference = new TypeReference(splitName.Item1, splitName.Item2, targetModule, assembly, isValueType);
-      return targetModule.Import(reference);
+      return targetModule.ImportReference(reference);
     }
 
     private MethodReference ImportConstructor(ProcessorContext context, IMetadataScope assembly, string fullName, params TypeReference[] parameterTypes)
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Weaver.Stages
       var constructorReference = new MethodReference(WellKnown.Constructor, targetModule.TypeSystem.Void, typeReference) {HasThis = true};
       foreach (var type in parameterTypes)
         constructorReference.Parameters.Add(new ParameterDefinition(type));
-      return targetModule.Import(constructorReference);
+      return targetModule.ImportReference(constructorReference);
     }
 
     private MethodReference ImportMethod(ProcessorContext context, TypeReference declaringType, string methodName,
@@ -105,7 +105,7 @@ namespace Xtensive.Orm.Weaver.Stages
       var methodReference = new MethodReference(methodName,returnType, declaringType) {HasThis = hasThis};
       foreach (var parameterType in parameterTypes)
         methodReference.Parameters.Add(new ParameterDefinition(parameterType));
-      return targetModule.Import(methodReference);
+      return targetModule.ImportReference(methodReference);
     }
 
     private bool TryGetOrmAssembly(ProcessorContext context, out AssemblyNameReference assemblyNameReference)
