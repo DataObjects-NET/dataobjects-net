@@ -6,7 +6,6 @@
 
 using System.IO;
 using Mono.Cecil;
-using Mono.Cecil.Pdb;
 
 namespace Xtensive.Orm.Weaver.Stages
 {
@@ -22,10 +21,8 @@ namespace Xtensive.Orm.Weaver.Stages
         return ActionResult.Failure;
       }
 
-      var debugSymbolsFile = string.Empty;
-
       if (configuration.ProcessDebugSymbols) {
-        debugSymbolsFile = FileHelper.GetDebugSymbolsFile(inputFile);
+        var debugSymbolsFile = FileHelper.GetDebugSymbolsFile(inputFile);
         if (!File.Exists(debugSymbolsFile)) {
           configuration.ProcessDebugSymbols = false;
           context.Logger.Write(MessageCode.WarningDebugSymbolsFileIsNotFound, debugSymbolsFile);
@@ -36,21 +33,14 @@ namespace Xtensive.Orm.Weaver.Stages
         ReadingMode = ReadingMode.Deferred,
         AssemblyResolver = context.AssemblyResolver,
         MetadataResolver = context.MetadataResolver,
-        InMemory = true
+        InMemory = true,
+        // will be used DefaultSymbolReaderProvider
+        // it can identify pdb file by module
+        // so there is no need to open stream and set SymbolReaderProvider
+        ReadSymbols = configuration.ProcessDebugSymbols
       };
 
-      Stream debugSymbolsStream = null;
-
-      if (configuration.ProcessDebugSymbols) {
-        debugSymbolsStream = File.OpenRead(debugSymbolsFile);
-        readerParameters.ReadSymbols = true;
-        readerParameters.SymbolReaderProvider = new PdbReaderProvider();
-        readerParameters.SymbolStream = debugSymbolsStream;
-      }
-
-      using (debugSymbolsStream) {
-        context.TargetModule = ModuleDefinition.ReadModule(inputFile, readerParameters);
-      }
+      context.TargetModule = ModuleDefinition.ReadModule(inputFile, readerParameters);
 
       return ActionResult.Success;
     }
