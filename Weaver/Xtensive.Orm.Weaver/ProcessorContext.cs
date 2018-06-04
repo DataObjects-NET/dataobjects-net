@@ -42,6 +42,8 @@ namespace Xtensive.Orm.Weaver
 
     public void Dispose()
     {
+      AssemblyResolver.Dispose();
+      TargetModule.Dispose();
     }
 
     public ProcessorContext()

@@ -69,6 +69,7 @@
     <Compile Include="ActionResult.cs" />
     <Compile Include="Application\ConsoleMessageWriter.cs" />
     <Compile Include="Application\ExitCode.cs" />
+    <Compile Include="NetStandardAssemblyList.cs" />
     <Compile Include="ProcessorStageAttribute.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="AssemblyChecker.cs" />
@@ -80,6 +81,7 @@
     <Compile Include="PropertyInfo.cs" />
     <Compile Include="Stages\ExecuteWeavingTasksStage.cs" />
     <Compile Include="Stages\ExternalAssemblyStage.cs" />
+    <Compile Include="Stages\RegisterNetStandardAssembliesStage.cs" />
     <Compile Include="TypeInfo.cs" />
     <Compile Include="ProcessorConfiguration.cs" />
     <Compile Include="ProcessorMessage.cs" />
