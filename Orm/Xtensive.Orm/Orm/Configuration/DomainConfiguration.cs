@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Configuration
     public const bool DefaultShareStorageSchemaOverNodes = false;
 
     /// <summary>
-    /// Default <see cref="VersioningPolicy"/> value;
+    /// Default <see cref="EntityVersioningPolicy"/> value;
     /// </summary>
     public const EntityVersioningPolicy DefaultVersioningPolicy = EntityVersioningPolicy.Default;
 

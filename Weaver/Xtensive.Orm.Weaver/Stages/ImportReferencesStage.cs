@@ -15,10 +15,10 @@ namespace Xtensive.Orm.Weaver.Stages
     public override ActionResult Execute(ProcessorContext context)
     {
       var registry = context.References;
-      var mscorlibAssembly = context.TargetModule.TypeSystem.Corlib;
+      var mscorlibAssembly = context.TargetModule.TypeSystem.CoreLibrary;
 
-      var ormAssembly = FindReference(context, WellKnown.OrmAssemblyFullName);
-      if (ormAssembly==null) {
+      AssemblyNameReference ormAssembly;
+      if (!TryGetOrmAssembly(context, out ormAssembly)) {
         context.SkipProcessing = true;
         return ActionResult.Success;
       }
@@ -60,14 +60,14 @@ namespace Xtensive.Orm.Weaver.Stages
       persistentGetter.ReturnType = getterType;
       persistentGetter.Parameters.Add(new ParameterDefinition(stringType));
       persistentGetter.GenericParameters.Add(getterType);
-      registry.PersistentGetterDefinition = context.TargetModule.Import(persistentGetter);
+      registry.PersistentGetterDefinition = context.TargetModule.ImportReference(persistentGetter);
 
       var persistentSetter = new MethodReference("SetFieldValue", voidType, persistentType) {HasThis = true};
       var setterType = new GenericParameter("!!T", persistentSetter);
       persistentSetter.Parameters.Add(new ParameterDefinition(stringType));
       persistentSetter.Parameters.Add(new ParameterDefinition(setterType));
       persistentSetter.GenericParameters.Add(setterType);
-      registry.PersistentSetterDefinition = context.TargetModule.Import(persistentSetter);
+      registry.PersistentSetterDefinition = context.TargetModule.ImportReference(persistentSetter);
 
       registry.ProcessedByWeaverAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.ProcessedByWeaverAttribute);
       registry.EntityTypeAttributeConstructor = ImportConstructor(context, ormAssembly, WellKnown.EntityTypeAttribute);
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Weaver.Stages
       var splitName = SplitTypeName(fullName);
       var targetModule = context.TargetModule;
       var reference = new TypeReference(splitName.Item1, splitName.Item2, targetModule, assembly, isValueType);
-      return targetModule.Import(reference);
+      return targetModule.ImportReference(reference);
     }
 
     private MethodReference ImportConstructor(ProcessorContext context, IMetadataScope assembly, string fullName, params TypeReference[] parameterTypes)
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Weaver.Stages
       var constructorReference = new MethodReference(WellKnown.Constructor, targetModule.TypeSystem.Void, typeReference) {HasThis = true};
       foreach (var type in parameterTypes)
         constructorReference.Parameters.Add(new ParameterDefinition(type));
-      return targetModule.Import(constructorReference);
+      return targetModule.ImportReference(constructorReference);
     }
 
     private MethodReference ImportMethod(ProcessorContext context, TypeReference declaringType, string methodName,
@@ -105,15 +105,35 @@ namespace Xtensive.Orm.Weaver.Stages
       var methodReference = new MethodReference(methodName,returnType, declaringType) {HasThis = hasThis};
       foreach (var parameterType in parameterTypes)
         methodReference.Parameters.Add(new ParameterDefinition(parameterType));
-      return targetModule.Import(methodReference);
+      return targetModule.ImportReference(methodReference);
     }
 
-    private AssemblyNameReference FindReference(ProcessorContext context, string assemblyName)
+    private bool TryGetOrmAssembly(ProcessorContext context, out AssemblyNameReference assemblyNameReference)
     {
+      // check for direct reference
       var comparer = WeavingHelper.AssemblyNameComparer;
-      var reference = context.TargetModule.AssemblyReferences
-        .FirstOrDefault(r => comparer.Equals(r.FullName, assemblyName));
-      return reference;
+      assemblyNameReference = context.TargetModule.AssemblyReferences
+        .FirstOrDefault(r => comparer.Equals(r.FullName, WellKnown.OrmAssemblyFullName));
+
+      if (assemblyNameReference!=null)
+        return true;
+
+      // check whether project had reference to Xtensive.Orm assembly.
+      if (!context.Configuration.ReferencedAssemblies.Reverse().Any(ra => ra.EndsWith(WellKnown.OrmAssemblyShortName + ".dll", StringComparison.InvariantCultureIgnoreCase)))
+        return false;
+
+      // if target module has't got reference to the assembly and there was reference to the assembly in project
+      // then probably some of target module referenses references the assembly.
+      // So try to get it
+      assemblyNameReference = context.TargetModule.AssemblyReferences
+        .Select(r => context.AssemblyResolver.Resolve(r))
+        .SelectMany(r => r.Modules)
+        .SelectMany(m => m.AssemblyReferences)
+        .FirstOrDefault(ar => comparer.Equals(ar.FullName, WellKnown.OrmAssemblyFullName));
+
+      if (assemblyNameReference!=null)
+        return true;
+      return false;
     }
 
     private static Tuple<string, string> SplitTypeName(string fullName)

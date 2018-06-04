@@ -7,7 +7,7 @@
 using System.IO;
 using System.Reflection;
 using Mono.Cecil;
-using Mono.Cecil.Pdb;
+using Mono.Cecil.Cil;
 
 namespace Xtensive.Orm.Weaver.Stages
 {
@@ -39,9 +39,8 @@ namespace Xtensive.Orm.Weaver.Stages
 
       var strongNameKey = configuration.StrongNameKey;
       if (!string.IsNullOrEmpty(strongNameKey)) {
-        if (File.Exists(strongNameKey)) {
+        if (File.Exists(strongNameKey))
           writerParameters.StrongNameKeyPair = LoadStrongNameKey(strongNameKey);
-        }
         else {
           context.Logger.Write(MessageCode.ErrorStrongNameKeyIsNotFound);
           return ActionResult.Failure;
@@ -50,7 +49,7 @@ namespace Xtensive.Orm.Weaver.Stages
 
       if (configuration.ProcessDebugSymbols) {
         writerParameters.WriteSymbols = true;
-        writerParameters.SymbolWriterProvider = new PdbWriterProvider();
+        writerParameters.SymbolWriterProvider = new DefaultSymbolWriterProvider();
       }
 
       context.TargetModule.Write(outputFile, writerParameters);

@@ -100,5 +100,10 @@ namespace Xtensive.Orm.Weaver
       }
       this.defaultAssemblyResolver = new DefaultAssemblyResolver();
     }
+
+    public void Dispose()
+    {
+      defaultAssemblyResolver.Dispose();
+    }
   }
 }

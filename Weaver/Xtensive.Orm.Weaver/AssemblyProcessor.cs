@@ -56,6 +56,7 @@ namespace Xtensive.Orm.Weaver
         new LoadAssemblyStage(),
         new ImportReferencesStage(),
         new RegisterFrameworkAssembliesStage(),
+        new RegisterNetStandardAssembliesStage(),
         new FindPersistentTypesStage(),
         new ExternalAssemblyStage(WellKnown.TasksAssemblyFullName),
         new WriteStatusStage(),

@@ -265,17 +265,18 @@ namespace Xtensive.Orm
     {
       using (new ParameterContext().Activate()) {
         keyParameter.Value = Key.Value;
-        var domain = Session.Domain;
         object key = new Triplet<TypeInfo, LockMode, LockBehavior>(TypeInfo, lockMode, lockBehavior);
+
         Func<object, object> generator = tripletObj => {
           var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
           IndexInfo index = triplet.First.Indexes.PrimaryIndex;
           var query = index.GetQuery()
-            .Seek(keyParameter.Value)
+            .Seek(() => keyParameter.Value)
             .Lock(() => triplet.Second, () => triplet.Third)
             .Select();
           return Session.Compile(query);
         };
+
         var source = (ExecutableProvider) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
         var recordSet = source.GetRecordSet(Session);
         recordSet.FirstOrDefault();
