@@ -542,7 +542,7 @@ namespace Xtensive.Orm.Tests.Issues.GroupByNullableFieldTestModel
     [Field]
     public string Comment { get; set; }
 
-    [Field(Nullable = false)]
+    [Field]
     public Battery Battery { get; set; }
 
     [Field]
