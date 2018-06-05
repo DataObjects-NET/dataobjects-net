@@ -16,7 +16,7 @@ using Xtensive.Orm.Tests.Issues.GroupByNullableFieldTestModel;
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  public sealed class NullGroupHasNoElementsTest : AutoBuildTest
+  public sealed class IssueJira0728_NullGroupHasNoElementsTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
