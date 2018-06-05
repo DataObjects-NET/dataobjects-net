@@ -1,5 +1,6 @@
 [main] Fixed certain cases when grouping by an Entity field caused wrong results
 [main] Persisting of changes to database while EntitySet enumeration doesn't break enumeration
+[main] Fixed initialization of fields of non-persistent types within queries
 [main] Entity.Lock() locks correct raws in database
 [weaver] Fixed processing of projects with implicit usage of Xtensive.Orm assembly
 [weaver] Fixed certain problems with handling of references to .Net Standard assemblies
