@@ -1,0 +1,6 @@
+[main] Fixed certain cases when grouping by an Entity field caused wrong results
+[main] Persisting of changes to database while EntitySet enumeration doesn't break enumeration
+[main] Entity.Lock() locks correct raws in database
+[weaver] Fixed processing of projects with implicit usage of Xtensive.Orm assembly
+[weaver] Fixed certain problems with handling of references to .Net Standard assemblies
+[weaver] Fixed processing of PDB files of .Net Core and .Net Standard format projects for full framework
