@@ -22,6 +22,8 @@ namespace Xtensive.Orm.Weaver
 
     public bool SkipProcessing { get; set; }
 
+    public bool TranformationPerformed { get; set; }
+
     public IList<WeavingTask> WeavingTasks { get; set; }
 
     public ModuleDefinition TargetModule { get; set; }

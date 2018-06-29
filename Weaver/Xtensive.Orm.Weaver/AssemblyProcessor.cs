@@ -53,6 +53,7 @@ namespace Xtensive.Orm.Weaver
     private IEnumerable<ProcessorStage> GetStages()
     {
       return new ProcessorStage[] {
+        new TransformAssemblyStage(),
         new LoadAssemblyStage(),
         new ImportReferencesStage(),
         new RegisterFrameworkAssembliesStage(),

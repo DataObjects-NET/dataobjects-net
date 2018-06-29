@@ -32,10 +32,12 @@ namespace Xtensive.Orm.Weaver.Stages
         return ActionResult.Success;
       }
 
-      if (context.Configuration.MakeBackup && outputIsInput)
+      if (!context.TranformationPerformed && context.Configuration.MakeBackup && outputIsInput)
         FileHelper.CopyWithPdb(context, inputFile, FileHelper.GetBackupFile(inputFile));
 
-      var writerParameters = new WriterParameters();
+      var writerParameters = new WriterParameters {
+        WriteSymbols = configuration.ProcessDebugSymbols
+      };
 
       var strongNameKey = configuration.StrongNameKey;
       if (!string.IsNullOrEmpty(strongNameKey)) {
@@ -45,11 +47,6 @@ namespace Xtensive.Orm.Weaver.Stages
           context.Logger.Write(MessageCode.ErrorStrongNameKeyIsNotFound);
           return ActionResult.Failure;
         }
-      }
-
-      if (configuration.ProcessDebugSymbols) {
-        writerParameters.WriteSymbols = true;
-        writerParameters.SymbolWriterProvider = new DefaultSymbolWriterProvider();
       }
 
       context.TargetModule.Write(outputFile, writerParameters);

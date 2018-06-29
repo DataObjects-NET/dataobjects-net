@@ -82,6 +82,7 @@
     <Compile Include="Stages\ExecuteWeavingTasksStage.cs" />
     <Compile Include="Stages\ExternalAssemblyStage.cs" />
     <Compile Include="Stages\RegisterNetStandardAssembliesStage.cs" />
+    <Compile Include="Stages\TransformAssemblyStage.cs" />
     <Compile Include="TypeInfo.cs" />
     <Compile Include="ProcessorConfiguration.cs" />
     <Compile Include="ProcessorMessage.cs" />
