@@ -39,6 +39,8 @@ namespace Xtensive.Orm.Upgrade.Internals
     private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping;
     private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> reverseFieldMapping;
 
+    private List<StoredTypeInfo> suspiciousTypes;
+
     public UpgradeHintsProcessingResult Process(IEnumerable<UpgradeHint> inputHints)
     {
       ArgumentValidator.EnsureArgumentNotNull(inputHints, "inputHints");
@@ -48,7 +50,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       ProcessConnectorTypes();
       ProcessFieldMovements();
 
-      return new UpgradeHintsProcessingResult(hints, typeMapping, reverseTypeMapping, fieldMapping, reverseFieldMapping, currentTypes);
+      return new UpgradeHintsProcessingResult(hints, typeMapping, reverseTypeMapping, fieldMapping, reverseFieldMapping, currentTypes, suspiciousTypes);
     }
 
     #region General steps
@@ -204,7 +206,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       var removeLookup = removeTypeHints.ToDictionary(hint => hint.Type);
 
       // Types that are neither mapped nor removed.
-      var suspiciousTypes = new List<StoredTypeInfo>();
+      var suspects = new List<StoredTypeInfo>();
 
       // Mapping types
       foreach (var oldType in oldModelTypes) {
@@ -220,12 +222,14 @@ namespace Xtensive.Orm.Upgrade.Internals
           MapType(oldType, newType);
         else
           //todo:// movements detection should be implemented by other processor
-          if (autoDetectTypesMovements)
-            suspiciousTypes.Add(oldType);
+          //if (autoDetectTypesMovements)
+            suspects.Add(oldType);
       }
 
-      if (suspiciousTypes.Count == 0)
+      if (suspects.Count==0 || !autoDetectTypesMovements) {
+        suspiciousTypes = suspects;
         return;
+      }
 
       // Now we'll lookup by using DO type name instead of CLR type name
       // By default DO type name is a CLR type name without namespace
@@ -235,10 +239,12 @@ namespace Xtensive.Orm.Upgrade.Internals
 
       newModelTypes = newModelTypes.Values.ToDictionary(t => t.Name);
 
-      foreach (var oldType in suspiciousTypes) {
+      foreach (var oldType in suspects) {
         var newType = newModelTypes.GetValueOrDefault(oldType.Name);
-        if (newType != null && !reverseTypeMapping.ContainsKey(newType))
+        if (newType!=null && !reverseTypeMapping.ContainsKey(newType))
           MapType(oldType, newType);
+        else
+          suspiciousTypes.Add(oldType);
       }
     }
 
@@ -552,6 +558,8 @@ namespace Xtensive.Orm.Upgrade.Internals
 
       this.autoDetectTypesMovements = autoDetectTypesMovements;
       hints = new NativeTypeClassifier<UpgradeHint>(true);
+
+      suspiciousTypes = new List<StoredTypeInfo>();
     }
   }
 }

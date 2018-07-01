@@ -3406,4 +3406,7 @@ Error: {1}</value>
   <data name="ExDbNameValueReadingOrSettingIsDenied" xml:space="preserve">
     <value>DbName value reading or setting is denied.</value>
   </data>
+  <data name="ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet" xml:space="preserve">
+    <value>Extracted and target schemas are equal but there are changes in type identifiers set.</value>
+  </data>
 </root>

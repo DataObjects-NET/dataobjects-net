@@ -2401,6 +2401,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Extracted and target schemas are equal but there are changes in type identifiers set..
+        /// </summary>
+        internal static string ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet {
+            get {
+                return ResourceManager.GetString("ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Extracted schema is not compatible with the target schema. Details:
         ///{0}.
         /// </summary>

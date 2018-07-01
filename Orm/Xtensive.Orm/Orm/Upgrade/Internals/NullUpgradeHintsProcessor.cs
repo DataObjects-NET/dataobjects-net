@@ -24,7 +24,9 @@ namespace Xtensive.Orm.Upgrade.Internals
       var fieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
       var reverseFieldMapping = new Dictionary<StoredFieldInfo, StoredFieldInfo>();
       var currentModelTypes = currentDomainModel.Types.ToDictionary(t => t.UnderlyingType);
-      return new UpgradeHintsProcessingResult(hints, typeMapping, reverseTypeMapping, fieldMapping, reverseFieldMapping, currentModelTypes);
+      var suspiciousTypes = new List<StoredTypeInfo>();
+
+      return new UpgradeHintsProcessingResult(hints, typeMapping, reverseTypeMapping, fieldMapping, reverseFieldMapping, currentModelTypes, suspiciousTypes);
     }
 
     public NullUpgradeHintsProcessor(StoredDomainModel currentDomainModel)
