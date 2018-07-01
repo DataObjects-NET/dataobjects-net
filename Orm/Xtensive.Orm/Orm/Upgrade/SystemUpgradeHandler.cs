@@ -39,12 +39,19 @@ namespace Xtensive.Orm.Upgrade
     {
       base.OnBeforeStage();
 
-      if (UpgradeContext.Stage!=UpgradeStage.Upgrading)
-        return;
+      var upgradeMode = UpgradeContext.UpgradeMode;
 
-      CheckAssemblies();
-      SaveExtractedTypeMap();
-      ParseStoredDomainModel();
+      if (UpgradeContext.Stage==UpgradeStage.Upgrading) {
+        CheckAssemblies();
+        SaveExtractedTypeMap();
+        ParseStoredDomainModel();
+        return;
+      }
+
+      if (UpgradeContext.UpgradeMode==DomainUpgradeMode.Validate) {
+        SaveExtractedTypeMap();
+        ParseStoredDomainModel();
+      }
     }
 
     /// <inheritdoc/>

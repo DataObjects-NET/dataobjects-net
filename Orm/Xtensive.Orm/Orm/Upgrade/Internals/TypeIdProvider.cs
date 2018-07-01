@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Upgrade
         return TypeInfo.NoTypeId;
       var typeName = type.GetFullName();
       int typeId = TypeInfo.NoTypeId;
-      if (context.Stage==UpgradeStage.Upgrading) {
+      if (context.Stage==UpgradeStage.Upgrading || context.UpgradeMode==DomainUpgradeMode.Validate) {
         var mapping = context.UpgradedTypesMapping;
         if (mapping!=null) {
           string oldTypeName;
