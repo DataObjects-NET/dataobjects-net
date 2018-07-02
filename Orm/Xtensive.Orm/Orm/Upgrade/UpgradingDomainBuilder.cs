@@ -475,7 +475,7 @@ namespace Xtensive.Orm.Upgrade
             if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || 
                 result.HasColumnTypeChanges)
               throw new SchemaSynchronizationException(result);
-            if (hintProcessingResult.SuspiciousTypes.Any() && !hintProcessingResult.AreAllTypesMapped())
+            if (!hintProcessingResult.AreAllTypesMapped() && hintProcessingResult.SuspiciousTypes.Any())
               throw new SchemaSynchronizationException(Strings.ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet);
             break;
           case SchemaUpgradeMode.ValidateCompatible:
