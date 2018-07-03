@@ -119,6 +119,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void TestForProblem()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var q = Query.All<Employee>()
@@ -145,6 +146,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void FlatStructureTest()
     {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe);
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var q = Query.All<Employee>()
