@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Weaver.Stages
     {
       foreach (var assembly in NetStandardAssemblyList.Get()) {
         var items = assembly.Split();
-        context.AssemblyChecker.RegisterFrameworkAssembly(items[0], items[1]);
+        context.AssemblyChecker.RegisterNetStandardAssembly(items[0], items[1]);
       }
       return ActionResult.Success;
     }
