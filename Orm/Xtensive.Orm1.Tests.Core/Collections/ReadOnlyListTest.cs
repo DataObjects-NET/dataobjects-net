@@ -18,11 +18,8 @@ namespace Xtensive.Orm.Tests.Core.Collections
   {
     private IList<string> innerList;
     private IList<string> readOnlyList;
-#if NETCOREAPP
+
     [OneTimeSetUp]
-#else
-    [TestFixtureSetUp]
-#endif
     public void Init()
     {
       List<string> localInnerSet = new List<string>();

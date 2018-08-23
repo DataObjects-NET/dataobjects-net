@@ -19,11 +19,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
     private List<string> innerCol;
     private ReadOnlyCollection<string> readOnlyCollection;
 
-#if NETCOREAPP
     [OneTimeSetUp]
-#else
-    [TestFixtureSetUp]
-#endif
     public void Init()
     {
       innerCol = new List<string>();

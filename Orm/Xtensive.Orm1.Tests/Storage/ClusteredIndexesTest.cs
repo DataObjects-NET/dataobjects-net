@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using NUnit.Framework;
-using Xtensive.Core;
+//using Xtensive.Core;
 using Xtensive.Orm.Tests;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Configuration;
@@ -247,11 +247,7 @@ namespace Xtensive.Orm.Tests.Storage
     private HashSet<Type> domainTypes;
     private InheritanceSchema? inheritanceSchema;
 
-#if NETCOREAPP
     [OneTimeSetUp]
-#else
-    [TestFixtureSetUp]
-#endif
     public void TestFixtureSetUp()
     {
       Require.AllFeaturesSupported(ProviderFeatures.ClusteredIndexes);
@@ -378,11 +374,8 @@ namespace Xtensive.Orm.Tests.Storage
     private void InitializeTest(InheritanceSchema? schema, IEnumerable<Type> types)
     {
       inheritanceSchema = schema;
-#if NETCOREAPP
-      domainTypes = EnumerableExtensions.ToHashSet(types);
-#else
+
       domainTypes = types.ToHashSet();
-#endif
     }
 
     private void RunFailureTest(Type badType)

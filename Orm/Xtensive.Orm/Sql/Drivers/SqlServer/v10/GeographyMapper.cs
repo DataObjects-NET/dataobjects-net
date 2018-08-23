@@ -6,19 +6,19 @@
 
 namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
-#if !NETSTANDARD
-  internal sealed class GeographyMapper : SqlServerTypeMapper
-  {
-    private const string GeographyTypeName =
-      "Microsoft.SqlServer.Types.SqlGeography, " +
-      "Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91";
+  // As long as there is no support for SqlGeography it should be commented
 
-    // Constructors
+  //internal sealed class GeographyMapper : SqlServerTypeMapper
+  //{
+  //  private const string GeographyTypeName =
+  //    "Microsoft.SqlServer.Types.SqlGeography, " +
+  //    "Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91";
 
-    public GeographyMapper()
-      : base(GeographyTypeName, "geography", CustomSqlType.Geography)
-    {
-    }
-  }
-#endif
+  //  // Constructors
+
+  //  public GeographyMapper()
+  //    : base(GeographyTypeName, "geography", CustomSqlType.Geography)
+  //  {
+  //  }
+  //}
 }

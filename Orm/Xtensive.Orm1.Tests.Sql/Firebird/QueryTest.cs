@@ -1,7 +1,7 @@
 using System;
 using NUnit.Framework;
 
-namespace Xtensive.Sql.Tests.Firebird
+namespace Xtensive.Orm.Tests.Sql.Firebird
 {
   [TestFixture, Explicit]
   public class QueryTest : SqlTest

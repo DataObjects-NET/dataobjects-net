@@ -15,9 +15,7 @@ using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;
 using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
 using TypeAttributes = Xtensive.Orm.Model.TypeAttributes;
-#if NETSTANDARD
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
-#endif
 
 
 namespace Xtensive.Orm.Building.Builders

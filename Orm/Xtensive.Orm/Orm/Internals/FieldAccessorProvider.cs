@@ -11,9 +11,7 @@ using Xtensive.Orm.Internals.FieldAccessors;
 using Xtensive.Orm.Model;
 using System.Linq;
 using FieldInfo=Xtensive.Orm.Model.FieldInfo;
-#if NETSTANDARD
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
-#endif
 
 namespace Xtensive.Orm.Internals
 {

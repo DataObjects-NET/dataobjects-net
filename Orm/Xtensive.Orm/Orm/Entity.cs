@@ -30,9 +30,7 @@ using Xtensive.Tuples.Transform;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 using OperationType = Xtensive.Orm.Operations.OperationType;
 using Tuple = Xtensive.Tuples.Tuple;
-#if NETSTANDARD
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
-#endif
 
 namespace Xtensive.Orm
 {

@@ -30,11 +30,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       return config;
     }
 
-#if NETCOREAPP
     [OneTimeSetUp]
-#else
-    [TestFixtureSetUp]
-#endif
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();

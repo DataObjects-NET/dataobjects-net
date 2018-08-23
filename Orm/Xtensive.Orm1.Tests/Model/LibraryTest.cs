@@ -19,9 +19,7 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Tests.Model.LibraryModel;
 using FieldAttributes=Xtensive.Orm.Model.FieldAttributes;
-#if NETCOREAPP
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
-#endif
 
 namespace Xtensive.Orm.Tests.Model.LibraryModel
 {

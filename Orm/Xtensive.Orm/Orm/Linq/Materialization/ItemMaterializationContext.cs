@@ -5,9 +5,7 @@ using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Tuples.Transform;
 using Tuple = Xtensive.Tuples.Tuple;
-#if NETSTANDARD
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
-#endif
 
 namespace Xtensive.Orm.Linq.Materialization
 {

@@ -19,11 +19,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3
   {
     private Domain domain;
 
-#if NETCOREAPP
     [OneTimeSetUp]
-#else
-    [TestFixtureSetUp]
-#endif
     public void TestSetUp()
     {
       Require.ProviderIs(StorageProvider.SqlServer);

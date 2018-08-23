@@ -6,6 +6,7 @@
 
 using System;
 using System.Data.Common;
+using System.Text.RegularExpressions;
 using FirebirdSql.Data.FirebirdClient;
 using Xtensive.Core;
 using Xtensive.Orm;
@@ -27,6 +28,8 @@ namespace Xtensive.Sql.Drivers.Firebird
     private const string DatabaseAndSchemaQuery =
       "select mon$database_name, '" + Constants.DefaultSchemaName + "' from mon$database";
 
+    private const string ServerVersionParser = @"/(\d+\.)(\d+\.)(\d+\.)(\d+)/g";
+
     /// <inheritdoc/>
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
@@ -36,11 +39,7 @@ namespace Xtensive.Sql.Drivers.Firebird
         var dataSource = new FbConnectionStringBuilder(connectionString).DataSource;
         var defaultSchema = GetDefaultSchema(connection);
         var coreServerInfo = new CoreServerInfo {
-#if NETCOREAPP
-          ServerVersion = new Version(connection.ServerVersion.Substring(4, connection.ServerVersion.IndexOf(" ", StringComparison.InvariantCultureIgnoreCase) - 4)),
-#else
-          ServerVersion = connection.ServerVersionNumber,
-#endif
+          ServerVersion = GetVersionFromServerVersionString(connection.ServerVersion),
           ConnectionString = connectionString,
           MultipleActiveResultSets = true,
           DatabaseName = defaultSchema.Database,
@@ -49,8 +48,6 @@ namespace Xtensive.Sql.Drivers.Firebird
         
         if (Int32.Parse(coreServerInfo.ServerVersion.Major.ToString() + coreServerInfo.ServerVersion.Minor.ToString()) < 25)
           throw new NotSupportedException(Strings.ExFirebirdBelow25IsNotSupported);
-        //if (coreServerInfo.ServerVersion.Major == 2 && coreServerInfo.ServerVersion.Minor == 1)
-        //    return new v2_1.Driver(coreServerInfo);
         if (coreServerInfo.ServerVersion.Major==2 && coreServerInfo.ServerVersion.Minor==5)
           return new v2_5.Driver(coreServerInfo);
         return null;
@@ -95,6 +92,15 @@ namespace Xtensive.Sql.Drivers.Firebird
     protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction)
     {
       return SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
+    }
+
+    private Version GetVersionFromServerVersionString(string serverVersionString)
+    {
+      var matcher = new Regex(ServerVersionParser);
+      var match = matcher.Match(serverVersionString);
+      if (!match.Success)
+        throw new InvalidOperationException("Unable to parse server version");
+      return new Version(match.Value);
     }
   }
 }

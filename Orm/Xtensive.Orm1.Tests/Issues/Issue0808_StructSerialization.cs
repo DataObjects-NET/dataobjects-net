@@ -13,41 +13,31 @@ namespace Xtensive.Orm.Tests.Issues
     public int Id;
   }
 
-[TestFixture]
-public class Issue0808_StructSerialization
-{
-  [Test]
-  public void MainTest()
+  [TestFixture]
+  public class Issue0808_StructSerialization
   {
-    var t = typeof (UnifiedCustomerID);
-    Expression<Func<int, UnifiedCustomerID>> ex = a => new UnifiedCustomerID {Id = 2};
-    var serializableExpression = ex.ToSerializableExpression();
-    var memoryStream = new MemoryStream();
+    [Test]
+    public void MainTest()
+    {
+      var t = typeof(UnifiedCustomerID);
+      Expression<Func<int, UnifiedCustomerID>> ex = a => new UnifiedCustomerID { Id = 2 };
+      var serializableExpression = ex.ToSerializableExpression();
+      var memoryStream = new MemoryStream();
 
-#if NETCOREAPP
-      var serializer = new DataContractSerializer(typeof (SerializableLambdaExpression), new [] {
-      typeof (SerializableExpression),
-      typeof (SerializableMemberInitExpression),
-      typeof (SerializableMemberAssignment),
-      typeof (SerializableConstantExpression)
-    });
+      var serializer = new DataContractSerializer(typeof(SerializableLambdaExpression), new[] {
+        typeof (SerializableExpression),
+        typeof (SerializableMemberInitExpression),
+        typeof (SerializableMemberAssignment),
+        typeof (SerializableConstantExpression)
+      });
 
-    serializer.WriteObject(memoryStream, serializableExpression);
-#else
-    var serializer = new NetDataContractSerializer();
-    serializer.Serialize(memoryStream, serializableExpression);
-#endif
+      serializer.WriteObject(memoryStream, serializableExpression);
 
-    memoryStream.Position = 0;
+      memoryStream.Position = 0;
 
-#if NETCOREAPP
-    var deserializedExpression = (SerializableLambdaExpression)serializer.ReadObject(memoryStream);
-#else
-    var deserializedExpression = (SerializableExpression) serializer.Deserialize(memoryStream);
-#endif
+      var deserializedExpression = (SerializableLambdaExpression) serializer.ReadObject(memoryStream);
 
-    var ex2 = deserializedExpression.ToExpression();
+      var ex2 = deserializedExpression.ToExpression();
+    }
   }
-}
-
 }

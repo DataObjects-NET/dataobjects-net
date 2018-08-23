@@ -160,11 +160,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
     #region Setup and TearDown
 
-#if NETCOREAPP
     [OneTimeSetUp]
-#else
-    [TestFixtureSetUp]
-#endif
     public override void SetUp()
     {
       base.SetUp();

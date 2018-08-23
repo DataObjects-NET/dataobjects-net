@@ -8,9 +8,7 @@ using System;
 using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
-#if !NETCOREAPP
-using System.Runtime.Serialization.Formatters.Soap;
-#endif
+using System.Runtime.Serialization.Formatters;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Linq;
@@ -21,7 +19,6 @@ namespace Xtensive.Orm.Tests.Core.Linq
   [TestFixture]
   public class SerializableExpressionsTest : ExpressionTestBase
   {
-#if !NETCOREAPP
     [Test]
     public void ConvertTest()
     {
@@ -42,23 +39,39 @@ namespace Xtensive.Orm.Tests.Core.Linq
     [Test]
     public void NetDataContractSerializeTest()
     {
-      RunSerializeTest(new NetDataContractSerializer());
+      RunSerializeTest(new DataContractSerializer(typeof (SerializableExpression)));
     }
 
-    [Test]
-    public void SoapSerializeTest()
+    // There is no such formatter in .Net Core
+    //[Test]
+    //public void SoapSerializeTest()
+    //{
+    //  RunSerializeTest(new SoapFormatter());
+    //}
+
+    private void RunSerializeTest(XmlObjectSerializer serializer)
     {
-      RunSerializeTest(new SoapFormatter());
+      var stream = new MemoryStream();
+      foreach (var expression in Expressions) {
+        Console.WriteLine(expression.ToString(true));
+        serializer.WriteObject(stream, expression.ToSerializableExpression());
+        stream.Seek(0, SeekOrigin.Begin);
+        var serialized = (SerializableExpression) serializer.ReadObject(stream);
+        stream.SetLength(0);
+        Assert.AreEqual(expression.ToExpressionTree(), serialized.ToExpression().ToExpressionTree());
+        Console.WriteLine("OK");
+      }
     }
 
     private void RunSerializeTest(IFormatter serializer)
     {
       var stream = new MemoryStream();
-      foreach (var expression in Expressions) {
+      foreach (var expression in Expressions)
+      {
         Console.WriteLine(expression.ToString(true));
         serializer.Serialize(stream, expression.ToSerializableExpression());
         stream.Seek(0, SeekOrigin.Begin);
-        var serialized = (SerializableExpression) serializer.Deserialize(stream);
+        var serialized = (SerializableExpression)serializer.Deserialize(stream);
         stream.SetLength(0);
         Assert.AreEqual(expression.ToExpressionTree(), serialized.ToExpression().ToExpressionTree());
         Console.WriteLine("OK");
@@ -75,11 +88,11 @@ namespace Xtensive.Orm.Tests.Core.Linq
     [Explicit]
     public void SerializeBenchmarkTest()
     {
-      RunSerializeBenchmark(new NetDataContractSerializer(), true);
-      RunSerializeBenchmark(new NetDataContractSerializer(), false);
+      RunSerializeBenchmark(new DataContractSerializer(typeof (SerializableExpression)), true);
+      RunSerializeBenchmark(new DataContractSerializer(typeof(SerializableExpression)), false);
     }
 
-    private void RunSerializeBenchmark(IFormatter serializer, bool warmUp)
+    private void RunSerializeBenchmark(XmlObjectSerializer serializer, bool warmUp)
     {
       int operationCount = warmUp ? warmUpOperationCount : actualOperationCount;
       var stream = new MemoryStream();
@@ -91,10 +104,10 @@ namespace Xtensive.Orm.Tests.Core.Linq
             operation++;
             if (operation > operationCount)
               break;
-            serializer.Serialize(stream, expression.ToSerializableExpression());
+            serializer.WriteObject(stream, expression.ToSerializableExpression());
             length += stream.Position;
             stream.Seek(0, SeekOrigin.Begin);
-            var serialized = (SerializableExpression)serializer.Deserialize(stream);
+            var serialized = (SerializableExpression)serializer.ReadObject(stream);
             stream.SetLength(0);
           }
         }
@@ -114,6 +127,5 @@ namespace Xtensive.Orm.Tests.Core.Linq
     }
 
     #endregion
-#endif
   }
 }

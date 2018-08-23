@@ -21,11 +21,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
   {
     private Domain domain;
 
-#if NETCOREAPP
     [OneTimeSetUp]
-#else
-    [TestFixtureSetUp]
-#endif
     public void TestSetUp()
     {
       Require.AllFeaturesSupported(ProviderFeatures.FullText);

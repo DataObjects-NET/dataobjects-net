@@ -16,9 +16,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.Prefetch.Model;
 using FieldInfo=Xtensive.Orm.Model.FieldInfo;
-#if NETCOREAPP
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
-#endif
 
 namespace Xtensive.Orm.Tests.Storage.Prefetch
 {
@@ -54,11 +52,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       return config;
     }
 
-#if NETCOREAPP
     [OneTimeSetUp]
-#else
-    [TestFixtureSetUp]
-#endif
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();

@@ -37,23 +37,23 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       return new ServerInfoProvider(this);
     }
 
-    protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
-    {
-      base.RegisterCustomMappings(builder);
-#if !NETSTANDARD
-      builder.Add(new GeometryMapper());
-      builder.Add(new GeographyMapper());
-#endif
-    }
+    // As far as SqlGeometry and SqlGeography have no support in .Net Standard
+    // these two methods are useless
 
-    protected override void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
-    {
-      base.RegisterCustomReverseMappings(builder);
-#if !NETSTANDARD
-      builder.AddReverse(CustomSqlType.Geometry, Type.GetType("Microsoft.SqlServer.Types.SqlGeometry, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"));
-      builder.AddReverse(CustomSqlType.Geography, Type.GetType("Microsoft.SqlServer.Types.SqlGeography, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"));
-#endif
-    }
+    //protected override void RegisterCustomMappings(TypeMappingRegistryBuilder builder)
+    //{
+    //  base.RegisterCustomMappings(builder);
+    //  builder.Add(new GeometryMapper());
+    //  builder.Add(new GeographyMapper());
+    //}
+
+    //protected override void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
+    //{
+    //  base.RegisterCustomReverseMappings(builder);
+
+    //  builder.AddReverse(CustomSqlType.Geometry, Type.GetType("Microsoft.SqlServer.Types.SqlGeometry, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"));
+    //  builder.AddReverse(CustomSqlType.Geography, Type.GetType("Microsoft.SqlServer.Types.SqlGeography, Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91"));
+    //}
 
     // Constructors
 

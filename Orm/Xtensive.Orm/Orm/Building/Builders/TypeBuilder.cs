@@ -19,9 +19,7 @@ using Xtensive.Reflection;
 using Xtensive.Tuples;
 using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
-#if NETSTANDARD
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
-#endif
 
 namespace Xtensive.Orm.Building.Builders
 {

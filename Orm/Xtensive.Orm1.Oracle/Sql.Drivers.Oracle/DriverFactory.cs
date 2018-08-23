@@ -7,7 +7,7 @@
 using System;
 using System.Data.Common;
 using System.Linq;
-using Oracle.DataAccess.Client;
+using Oracle.ManagedDataAccess.Client;
 using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Sql.Info;

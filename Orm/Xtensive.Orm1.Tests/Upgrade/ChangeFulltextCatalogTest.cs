@@ -44,11 +44,7 @@ namespace Xtensive.Orm.Tests.Upgrade
   [TestFixture]
   public class ChangeFulltextCatalogTest
   {
-#if NETCOREAPP
     [OneTimeSetUp]
-#else
-    [TestFixtureSetUp]
-#endif
     public void TestFixtureSetUp()
     {
       Require.ProviderIs(StorageProvider.SqlServer);

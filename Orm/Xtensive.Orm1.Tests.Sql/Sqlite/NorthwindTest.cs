@@ -89,11 +89,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 
     #region Setup and TearDown
 
-#if NETCOREAPP
     [OneTimeSetUp]
-#else
-    [TestFixtureSetUp]
-#endif
     public override void SetUp()
     {
       base.SetUp();
@@ -125,11 +121,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       Console.WriteLine(stopWatch.Elapsed);
     }
 
-#if NETCOREAPP
     [OneTimeTearDown]
-#else
-    [TestFixtureTearDown]
-#endif
     public void TearDown()
     {
       try {

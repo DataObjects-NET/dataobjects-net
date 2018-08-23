@@ -6,19 +6,19 @@
 
 namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
-#if !NETSTANDARD
-  internal sealed class GeometryMapper : SqlServerTypeMapper
-  {
-    private const string GeometryTypeName =
-      "Microsoft.SqlServer.Types.SqlGeometry, " +
-      "Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91";
+  // As long as there is no support for SqlGeometry it should be commented
 
-    // Constructors
+  //internal sealed class GeometryMapper : SqlServerTypeMapper
+  //{
+  //  private const string GeometryTypeName =
+  //    "Microsoft.SqlServer.Types.SqlGeometry, " +
+  //    "Microsoft.SqlServer.Types, Version=10.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91";
 
-    public GeometryMapper()
-      : base(GeometryTypeName, "geometry", CustomSqlType.Geometry)
-    {
-    }
-  }
-#endif
+  //  // Constructors
+
+  //  public GeometryMapper()
+  //    : base(GeometryTypeName, "geometry", CustomSqlType.Geometry)
+  //  {
+  //  }
+  //}
 }

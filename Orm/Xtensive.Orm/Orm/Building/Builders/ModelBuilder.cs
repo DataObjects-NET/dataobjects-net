@@ -18,9 +18,7 @@ using Xtensive.Reflection;
 using Xtensive.Sorting;
 using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
 using TypeHelper = Xtensive.Reflection.TypeHelper;
-#if NETSTANDARD
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
-#endif
 
 namespace Xtensive.Orm.Building.Builders
 {

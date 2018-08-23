@@ -29,9 +29,6 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
 
       var sqlParameter = (SqlParameter) parameter;
-#if !NETSTANDARD
-      sqlParameter.UdtTypeName = udtType;
-#endif
       sqlParameter.Value = value;
     }
 

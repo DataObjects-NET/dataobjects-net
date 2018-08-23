@@ -333,11 +333,8 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         Console.WriteLine(command.CommandText);
         using (var reader = (NpgsqlDataReader) command.ExecuteReader()) {
           reader.Read();
-#if NETCOREAPP
-          Assert.That((DateTimeOffset)(DateTime)reader.GetTimeStamp(0), Is.EqualTo(expectedValue));
-#else
-          Assert.That((DateTimeOffset) reader.GetTimeStampTZ(0), Is.EqualTo(expectedValue))
-#endif
+          //Assert.That((DateTimeOffset)(DateTime)reader.GetTimeStamp(0), Is.EqualTo(expectedValue));
+          Assert.That((DateTimeOffset)reader.GetProviderSpecificValue(0), Is.EqualTo(expectedValue));
         }
       } 
     }

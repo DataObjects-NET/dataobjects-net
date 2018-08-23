@@ -20,11 +20,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug2
   {
     private Domain domain;
 
-#if NETCOREAPP
     [OneTimeSetUp]
-#else
-    [TestFixtureSetUp]
-#endif
     public void TestSetUp()
     {
       Require.AllFeaturesSupported(ProviderFeatures.UpdateFrom);

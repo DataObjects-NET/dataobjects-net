@@ -29,13 +29,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       if (nativeException.Message.ToUpperInvariant().Contains("COMMANDTIMEOUT"))
         return SqlExceptionType.OperationTimeout;
 
-#if NETCOREAPP
+#if NETSTANDARD
       if (nativeException.ErrorCode!=5)
 #else
       if (nativeException.Code.Length!=5)
 #endif
         return SqlExceptionType.Unknown;
-#if NETCOREAPP
+#if NETSTANDARD
       var errorCode = nativeException.ErrorCode.ToString();
 #else
       var errorCode = nativeException.Code.ToUpperInvariant();

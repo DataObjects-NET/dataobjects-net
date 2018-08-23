@@ -20,11 +20,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     private DbCommand sqlCommand;
     private SqlDriver sqlDriver;
 
-#if NETCOREAPP
     [OneTimeSetUp]
-#else
-    [TestFixtureSetUp]
-#endif
     public override void SetUp()
     {
       base.SetUp();
@@ -39,11 +35,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         Console.WriteLine(e);
       }
     }
-#if NETCOREAPP
+
     [OneTimeTearDown]
-#else
-    [TestFixtureTearDown]
-#endif
     public void TearDown()
     {
       try {

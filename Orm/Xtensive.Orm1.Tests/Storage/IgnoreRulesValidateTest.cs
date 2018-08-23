@@ -237,11 +237,8 @@ namespace Xtensive.Orm.Tests.Storage
     private bool isMultidatabaseTest;
     private bool isMultischemaTest;
 
-#if NETCOREAPP
+
     [OneTimeSetUp]
-#else
-    [TestFixtureSetUp]
-#endif
     public void Setup()
     {
       sqlDriver = TestSqlDriver.Create(GetConnectionInfo());

@@ -20,9 +20,7 @@ using Xtensive.Orm.Services;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm;
 using Xtensive.Orm.Model;
-#if NETSTANDARD
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
-#endif
 
 namespace Xtensive.Orm
 {

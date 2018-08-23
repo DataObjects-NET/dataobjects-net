@@ -401,11 +401,7 @@ namespace Xtensive.Reflection
             accessorIL.Emit(OpCodes.Ret);
           }
         }
-#if NETSTANDARD
-        return typeBuilder.CreateTypeInfo();
-#else
-        return typeBuilder.CreateType();
-#endif
+        return typeBuilder.CreateTypeInfo().AsType();
       }
     }
 
@@ -417,21 +413,10 @@ namespace Xtensive.Reflection
         if (moduleBuilder!=null)
           return;
         var assemblyName = new AssemblyName("Xtensive.TypeHelper.GeneratedTypes");
-#if NETSTANDARD
-          assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
-          var tmp = assemblyBuilder.DefineDynamicModule(assemblyName.Name);
-          Thread.MemoryBarrier();
-          moduleBuilder = tmp;
-
-#else
-        assemblyBuilder =
-          AppDomain.CurrentDomain.DefineDynamicAssembly(
-            assemblyName,
-            AssemblyBuilderAccess.RunAndSave);
-        var tmp = assemblyBuilder.DefineDynamicModule(assemblyName.Name, assemblyName + ".dll");
+        assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+        var tmp = assemblyBuilder.DefineDynamicModule(assemblyName.Name);
         Thread.MemoryBarrier();
         moduleBuilder = tmp;
-#endif
       }
     }
 
@@ -751,10 +736,11 @@ namespace Xtensive.Reflection
       if (arrayBracketPosition > 0)
         result = result.Substring(0, arrayBracketPosition);
       var arguments = type.GetGenericArguments();
-      if (arguments==null)
+      if (arguments == null)
         arguments = ArrayUtils<Type>.EmptyArray;
-      if (arguments.Length > 0) {
-        if (type.DeclaringType!=null)
+      if (arguments.Length > 0)
+      {
+        if (type.DeclaringType != null)
           arguments = arguments
             .Skip(type.DeclaringType.GetGenericArguments().Length)
             .ToArray();
@@ -762,7 +748,8 @@ namespace Xtensive.Reflection
         sb.Append(TrimGenericSuffix(result));
         sb.Append("<");
         string comma = "";
-        foreach (Type argument in arguments) {
+        foreach (Type argument in arguments)
+        {
           sb.Append(comma);
           if (!type.IsGenericTypeDefinition)
             sb.Append(GetShortNameBase(argument));
@@ -771,10 +758,12 @@ namespace Xtensive.Reflection
         sb.Append(">");
         result = sb.ToString();
       }
-      if (type.IsArray) {
+      if (type.IsArray)
+      {
         var sb = new StringBuilder(result);
         Type elementType = type;
-        while (elementType.IsArray) {
+        while (elementType.IsArray)
+        {
           sb.Append("[");
           int commaCount = elementType.GetArrayRank() - 1;
           for (int i = 0; i < commaCount; i++)
@@ -786,51 +775,6 @@ namespace Xtensive.Reflection
       }
       return result;
     }
-#if !NETSTANDARD
-    /// <summary>
-    /// Gets the <see cref="CodeTypeReference"/> to the specified <paramref name="type"/>.
-    /// </summary>
-    /// <param name="type">A referenced <see cref="Type"/>.</param>
-    /// <returns><see cref="CodeTypeReference"/> to given type.</returns>
-    public static CodeTypeReference GetCodeTypeReference(this Type type)
-    {
-      Dictionary<Type, CodeTypeReference> dcrProcessedTypes = new Dictionary<Type, CodeTypeReference>();
-      return InnerGetCodeTypeReference(type, dcrProcessedTypes);
-    }
-
-    private static CodeTypeReference InnerGetCodeTypeReference(Type type,
-      Dictionary<Type, CodeTypeReference> dcrProcessedTypes)
-    {
-      CodeTypeReference typeReference;
-      if (dcrProcessedTypes.ContainsKey(type))
-        return dcrProcessedTypes[type];
-      else
-        dcrProcessedTypes[type] = typeReference = new CodeTypeReference();
-
-      if (typeof (Array).IsAssignableFrom(type)) {
-        Type elementType = type.GetElementType();
-        if (elementType==null)
-          typeReference.BaseType = typeof (Array).FullName;
-        else {
-          typeReference.ArrayElementType = InnerGetCodeTypeReference(type.GetElementType(), dcrProcessedTypes);
-          typeReference.ArrayRank = type.GetArrayRank();
-        }
-      }
-      else if (type.IsGenericParameter)
-        typeReference.BaseType = type.Name;
-      else if (type.IsGenericType || type.ContainsGenericParameters) {
-        typeReference.BaseType = type.FullName!=null && !type.IsGenericType
-          ? type.FullName
-          : type.Namespace + "." + type.Name;
-        Type[] typeArguments = type.GetGenericArguments();
-        for (int index = 0, count = typeArguments.Length; index < count; index++)
-          typeReference.TypeArguments.Add(InnerGetCodeTypeReference(typeArguments[index], dcrProcessedTypes));
-      }
-      else
-        typeReference.BaseType = type.FullName ?? type.Namespace + "." + type.Name;
-      return typeReference;
-    }
-#endif
 
     /// <summary>
     /// Indicates whether <paramref name="type"/> is a <see cref="Nullable{T}"/> type.

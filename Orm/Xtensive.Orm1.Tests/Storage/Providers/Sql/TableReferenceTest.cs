@@ -15,9 +15,7 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.Providers.Sql.TableReferenceTestModel;
-#if NETCOREAPP
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
-#endif
 
 
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql.TableReferenceTestModel

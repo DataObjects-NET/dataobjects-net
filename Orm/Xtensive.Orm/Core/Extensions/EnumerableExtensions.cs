@@ -126,6 +126,7 @@ namespace Xtensive.Core
     /// <param name="source">The sequence to convert.</param>
     /// <returns>A new <see cref="HashSet{T}"/> instance containing 
     /// all the unique items from the <paramref name="source"/> sequence.</returns>
+    [Obsolete("Use System.Linq.Enumerable.ToHashSet<T>() instead")]
     public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");

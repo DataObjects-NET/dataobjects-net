@@ -7,7 +7,7 @@
 using System;
 using System.Data.Common;
 using System.Diagnostics;
-using Oracle.DataAccess.Client;
+using Oracle.ManagedDataAccess.Client;
 
 namespace Xtensive.Sql.Drivers.Oracle.v10
 {

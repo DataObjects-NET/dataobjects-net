@@ -135,11 +135,7 @@ namespace Xtensive.Modelling.Comparison
       if (Hints.TargetModel!=TargetModel)
         throw new ArgumentOutOfRangeException("hints.TargetModel");
 
-#if NETSTANDARD
-   CurrentModel = (IModel)SourceModel.Clone(new StorageModel(), SourceModel.Name);   
-#else
-   CurrentModel = Cloner.Clone(SourceModel);
-#endif
+      CurrentModel = Cloner.Clone(SourceModel);
       Difference = difference;
       var previous = current;
       current = this;

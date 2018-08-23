@@ -16,11 +16,8 @@ namespace Xtensive.Orm.Tests.Core.Collections
   {
     private ISet<string> set;
     private ReadOnlySet<string> readOnlySet;
-#if NETCOREAPP
+
     [OneTimeSetUp]
-#else
-    [TestFixtureSetUp]
-#endif
     public void Init()
     {
       set = new SetSlim<string>();

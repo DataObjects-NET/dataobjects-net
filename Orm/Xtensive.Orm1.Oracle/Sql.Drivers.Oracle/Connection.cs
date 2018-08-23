@@ -4,7 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.11
 
-using Oracle.DataAccess.Client;
+using Oracle.ManagedDataAccess.Client;
 using System.Data;
 using System.Data.Common;
 using Xtensive.Orm;

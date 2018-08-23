@@ -17,9 +17,7 @@ using Xtensive.Orm.Model;
 
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
-#if NETSTANDARD
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
-#endif
 
 namespace Xtensive.Orm.Building.Builders
 {

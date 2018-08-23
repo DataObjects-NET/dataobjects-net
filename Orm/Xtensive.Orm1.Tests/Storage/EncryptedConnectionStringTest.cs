@@ -16,13 +16,8 @@ namespace Xtensive.Orm.Tests.Storage
     public void MainTest()
     {
       var config = DomainConfiguration.Load("encrypted");
-#if NETCOREAPP
       Assert.That(config.ConnectionInfo.ConnectionString, Is.Not.Null.And.Not.Empty);
       Assert.That(config.ConnectionInfo.Provider, Is.Not.Null.And.Not.Empty);
-#else
-      Assert.IsNotNullOrEmpty(config.ConnectionInfo.ConnectionString);
-      Assert.IsNotNullOrEmpty(config.ConnectionInfo.Provider);
-#endif
     }
   }
 }

@@ -1300,12 +1300,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model1.Document>(key);
@@ -1316,7 +1316,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -1328,7 +1328,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model1.Document>(key);
@@ -1339,7 +1339,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model1.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -1367,12 +1367,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model2.Document>(key);
@@ -1383,7 +1383,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -1395,7 +1395,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model2.Document>(key);
@@ -1406,7 +1406,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model2.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -1434,12 +1434,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model3.Document>(key);
@@ -1450,7 +1450,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -1462,7 +1462,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model3.Document>(key);
@@ -1473,7 +1473,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model3.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -1501,12 +1501,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model4.Document>(key);
@@ -1517,7 +1517,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -1529,7 +1529,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model4.Document>(key);
@@ -1540,7 +1540,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model4.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -1568,12 +1568,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model5.Document>(key);
@@ -1584,7 +1584,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -1596,7 +1596,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model5.Document>(key);
@@ -1607,7 +1607,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model5.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -1635,12 +1635,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model6.Document>(key);
@@ -1651,7 +1651,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -1663,7 +1663,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model6.Document>(key);
@@ -1674,7 +1674,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model6.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -1682,147 +1682,20 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
     }
-
     [Test]
     public void CombinedTest07()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (Model7.Item).Assembly, typeof (Model7.Item).Namespace);
-      Assert.Throws<DomainBuilderException>(() => {
-        var domain = Domain.Build(config);
-        var key = (Key)null;
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = new Model7.Document();
-          key = document.Key;
-          new Model7.Item() { Document = document };
-          new Model7.Item() { Document = document };
-          new Model7.Item() { Document = document };
-          new Model7.Item() { Document = document };
-          new Model7.Item() { Document = document };
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model7.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-
-          var some = document.Items.First();
-          some.Document = null;
-          itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model7.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-
-          document.Remove();
-          var items = session.Query.All<Model7.Item>().ToList();
-          Assert.AreEqual(1, items.Count);
-
-          t.Complete();
-        }
-      });
+      config.Types.Register(typeof(Model7.Item).Assembly, typeof(Model7.Item).Namespace);
+      Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
-
     [Test]
     public void CombinedTest08()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (Model8.Item).Assembly, typeof (Model8.Item).Namespace);
-      Assert.Throws<DomainBuilderException>(() => {
-        var domain = Domain.Build(config);
-        var key = (Key)null;
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = new Model8.Document();
-          key = document.Key;
-          new Model8.Item() { Document = document };
-          new Model8.Item() { Document = document };
-          new Model8.Item() { Document = document };
-          new Model8.Item() { Document = document };
-          new Model8.Item() { Document = document };
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model8.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-
-          var some = document.Items.First();
-          some.Document = null;
-          itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model8.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-
-          document.Remove();
-          var items = session.Query.All<Model8.Item>().ToList();
-          Assert.AreEqual(1, items.Count);
-
-          t.Complete();
-        }
-      });
+      config.Types.Register(typeof(Model8.Item).Assembly, typeof(Model8.Item).Namespace);
+      Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
-
     [Test]
     public void CombinedTest09()
     {
@@ -1843,12 +1716,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model9.Document>(key);
@@ -1859,7 +1732,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -1871,7 +1744,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model9.Document>(key);
@@ -1882,7 +1755,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model9.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -1910,12 +1783,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model10.Document>(key);
@@ -1926,7 +1799,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -1938,7 +1811,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model10.Document>(key);
@@ -1949,7 +1822,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model10.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -1957,147 +1830,20 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
     }
-
     [Test]
     public void CombinedTest11()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (Model11.Item).Assembly, typeof (Model11.Item).Namespace);
-      Assert.Throws<DomainBuilderException>(() => {
-        var domain = Domain.Build(config);
-        var key = (Key)null;
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = new Model11.Document();
-          key = document.Key;
-          new Model11.Item() { Document = document };
-          new Model11.Item() { Document = document };
-          new Model11.Item() { Document = document };
-          new Model11.Item() { Document = document };
-          new Model11.Item() { Document = document };
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model11.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-
-          var some = document.Items.First();
-          some.Document = null;
-          itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model11.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-
-          document.Remove();
-          var items = session.Query.All<Model11.Item>().ToList();
-          Assert.AreEqual(1, items.Count);
-
-          t.Complete();
-        }
-      });
+      config.Types.Register(typeof(Model11.Item).Assembly, typeof(Model11.Item).Namespace);
+      Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
-
     [Test]
     public void CombinedTest12()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (Model12.Item).Assembly, typeof (Model12.Item).Namespace);
-      Assert.Throws<DomainBuilderException>(() => {
-        var domain = Domain.Build(config);
-        var key = (Key)null;
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = new Model12.Document();
-          key = document.Key;
-          new Model12.Item() { Document = document };
-          new Model12.Item() { Document = document };
-          new Model12.Item() { Document = document };
-          new Model12.Item() { Document = document };
-          new Model12.Item() { Document = document };
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model12.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-
-          var some = document.Items.First();
-          some.Document = null;
-          itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model12.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-
-          document.Remove();
-          var items = session.Query.All<Model12.Item>().ToList();
-          Assert.AreEqual(1, items.Count);
-
-          t.Complete();
-        }
-      });
+      config.Types.Register(typeof(Model12.Item).Assembly, typeof(Model12.Item).Namespace);
+      Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
-
     [Test]
     public void CombinedTest13()
     {
@@ -2118,12 +1864,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model13.Document>(key);
@@ -2134,7 +1880,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -2146,7 +1892,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model13.Document>(key);
@@ -2157,7 +1903,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model13.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -2165,77 +1911,13 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
     }
-
     [Test]
     public void CombinedTest14()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (Model14.Item).Assembly, typeof (Model14.Item).Namespace);
-      Assert.Throws<DomainBuilderException>(() => {
-        var domain = Domain.Build(config);
-        var key = (Key)null;
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = new Model14.Document();
-          key = document.Key;
-          new Model14.Item() { Document = document };
-          new Model14.Item() { Document = document };
-          new Model14.Item() { Document = document };
-          new Model14.Item() { Document = document };
-          new Model14.Item() { Document = document };
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model14.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-
-          var some = document.Items.First();
-          some.Document = null;
-          itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model14.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-
-          document.Remove();
-          var items = session.Query.All<Model14.Item>().ToList();
-          Assert.AreEqual(1, items.Count);
-
-          t.Complete();
-        }
-      });
+      config.Types.Register(typeof(Model14.Item).Assembly, typeof(Model14.Item).Namespace);
+      Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
-
     [Test]
     public void CombinedTest15()
     {
@@ -2256,12 +1938,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model15.Document>(key);
@@ -2272,7 +1954,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -2284,7 +1966,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model15.Document>(key);
@@ -2295,7 +1977,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model15.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -2323,12 +2005,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model16.Document>(key);
@@ -2339,7 +2021,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -2351,7 +2033,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model16.Document>(key);
@@ -2362,7 +2044,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model16.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -2390,12 +2072,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model17.Document>(key);
@@ -2406,7 +2088,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -2418,7 +2100,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model17.Document>(key);
@@ -2429,7 +2111,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model17.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -2437,216 +2119,27 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
     }
-
     [Test]
     public void CombinedTest18()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (Model18.Item).Assembly, typeof (Model18.Item).Namespace);
-      Assert.Throws<DomainBuilderException>(() => {
-        var domain = Domain.Build(config);
-        var key = (Key)null;
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = new Model18.Document();
-          key = document.Key;
-          new Model18.Item() { Document = document };
-          new Model18.Item() { Document = document };
-          new Model18.Item() { Document = document };
-          new Model18.Item() { Document = document };
-          new Model18.Item() { Document = document };
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model18.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-
-          var some = document.Items.First();
-          some.Document = null;
-          itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model18.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-
-          document.Remove();
-          var items = session.Query.All<Model18.Item>().ToList();
-          Assert.AreEqual(1, items.Count);
-
-          t.Complete();
-        }
-      });
+      config.Types.Register(typeof(Model18.Item).Assembly, typeof(Model18.Item).Namespace);
+      Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
-
     [Test]
     public void CombinedTest19()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (Model19.Item).Assembly, typeof (Model19.Item).Namespace);
-      Assert.Throws<DomainBuilderException>(() => {
-        var domain = Domain.Build(config);
-        var key = (Key)null;
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = new Model19.Document();
-          key = document.Key;
-          new Model19.Item() { Document = document };
-          new Model19.Item() { Document = document };
-          new Model19.Item() { Document = document };
-          new Model19.Item() { Document = document };
-          new Model19.Item() { Document = document };
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model19.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-
-          var some = document.Items.First();
-          some.Document = null;
-          itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model19.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-
-          document.Remove();
-          var items = session.Query.All<Model19.Item>().ToList();
-          Assert.AreEqual(1, items.Count);
-          t.Complete();
-        }
-      });
+      config.Types.Register(typeof(Model19.Item).Assembly, typeof(Model19.Item).Namespace);
+      Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
-
     [Test]
     public void CombinedTest20()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (Model20.Item).Assembly, typeof (Model20.Item).Namespace);
-      Assert.Throws<DomainBuilderException>(() => {
-        var domain = Domain.Build(config);
-        var key = (Key)null;
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = new Model20.Document();
-          key = document.Key;
-          new Model20.Item() { Document = document };
-          new Model20.Item() { Document = document };
-          new Model20.Item() { Document = document };
-          new Model20.Item() { Document = document };
-          new Model20.Item() { Document = document };
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model20.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-
-          var some = document.Items.First();
-          some.Document = null;
-          itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model20.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-
-          document.Remove();
-          var items = session.Query.All<Model20.Item>().ToList();
-          Assert.AreEqual(1, items.Count);
-
-          t.Complete();
-        }
-      });
+      config.Types.Register(typeof(Model20.Item).Assembly, typeof(Model20.Item).Namespace);
+      Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
-
     [Test]
     public void CombinedTest21()
     {
@@ -2667,12 +2160,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model21.Document>(key);
@@ -2683,7 +2176,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -2695,7 +2188,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model21.Document>(key);
@@ -2706,7 +2199,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model21.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -2734,12 +2227,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model22.Document>(key);
@@ -2750,7 +2243,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -2762,7 +2255,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model22.Document>(key);
@@ -2773,7 +2266,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model22.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -2781,147 +2274,20 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
     }
-
     [Test]
     public void CombinedTest23()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (Model23.Item).Assembly, typeof (Model23.Item).Namespace);
-      Assert.Throws<DomainBuilderException>(() => {
-        var domain = Domain.Build(config);
-        var key = (Key)null;
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = new Model23.Document();
-          key = document.Key;
-          new Model23.Item() { Document = document };
-          new Model23.Item() { Document = document };
-          new Model23.Item() { Document = document };
-          new Model23.Item() { Document = document };
-          new Model23.Item() { Document = document };
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model23.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-
-          var some = document.Items.First();
-          some.Document = null;
-          itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model23.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-
-          document.Remove();
-          var items = session.Query.All<Model23.Item>().ToList();
-          Assert.AreEqual(1, items.Count);
-
-          t.Complete();
-        }
-      });
+      config.Types.Register(typeof(Model23.Item).Assembly, typeof(Model23.Item).Namespace);
+      Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
-
     [Test]
     public void CombinedTest24()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (Model24.Item).Assembly, typeof (Model24.Item).Namespace);
-      Assert.Throws<DomainBuilderException>(() => {
-        var domain = Domain.Build(config);
-        var key = (Key)null;
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = new Model24.Document();
-          key = document.Key;
-          new Model24.Item() { Document = document };
-          new Model24.Item() { Document = document };
-          new Model24.Item() { Document = document };
-          new Model24.Item() { Document = document };
-          new Model24.Item() { Document = document };
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model24.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-
-          var some = document.Items.First();
-          some.Document = null;
-          itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model24.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-
-          document.Remove();
-          var items = session.Query.All<Model24.Item>().ToList();
-          Assert.AreEqual(1, items.Count);
-
-          t.Complete();
-        }
-      });
+      config.Types.Register(typeof(Model24.Item).Assembly, typeof(Model24.Item).Namespace);
+      Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
-
     [Test]
     public void CombinedTest25()
     {
@@ -2942,12 +2308,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model25.Document>(key);
@@ -2958,7 +2324,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -2970,7 +2336,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model25.Document>(key);
@@ -2981,7 +2347,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model25.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -2989,77 +2355,13 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
     }
-
     [Test]
     public void CombinedTest26()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (Model26.Item).Assembly, typeof (Model26.Item).Namespace);
-      Assert.Throws<DomainBuilderException>(() => {
-        var domain = Domain.Build(config);
-        var key = (Key)null;
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = new Model26.Document();
-          key = document.Key;
-          new Model26.Item() { Document = document };
-          new Model26.Item() { Document = document };
-          new Model26.Item() { Document = document };
-          new Model26.Item() { Document = document };
-          new Model26.Item() { Document = document };
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model26.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-
-          var some = document.Items.First();
-          some.Document = null;
-          itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model26.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-
-          document.Remove();
-          var items = session.Query.All<Model26.Item>().ToList();
-          Assert.AreEqual(1, items.Count);
-
-          t.Complete();
-        }
-      });
+      config.Types.Register(typeof(Model26.Item).Assembly, typeof(Model26.Item).Namespace);
+      Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
-
     [Test]
     public void CombinedTest27()
     {
@@ -3080,12 +2382,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model27.Document>(key);
@@ -3096,7 +2398,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -3108,7 +2410,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model27.Document>(key);
@@ -3119,7 +2421,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model27.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -3147,12 +2449,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model28.Document>(key);
@@ -3163,7 +2465,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -3175,7 +2477,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model28.Document>(key);
@@ -3186,7 +2488,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model28.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -3214,12 +2516,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model29.Document>(key);
@@ -3230,7 +2532,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -3242,7 +2544,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model29.Document>(key);
@@ -3253,7 +2555,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model29.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -3261,77 +2563,13 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
     }
-
     [Test]
     public void CombinedTest30()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (Model30.Item).Assembly, typeof (Model30.Item).Namespace);
-      Assert.Throws<DomainBuilderException>(() => {
-        var domain = Domain.Build(config);
-        var key = (Key)null;
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = new Model30.Document();
-          key = document.Key;
-          new Model30.Item() { Document = document };
-          new Model30.Item() { Document = document };
-          new Model30.Item() { Document = document };
-          new Model30.Item() { Document = document };
-          new Model30.Item() { Document = document };
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model30.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-
-          var some = document.Items.First();
-          some.Document = null;
-          itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model30.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-
-          document.Remove();
-          var items = session.Query.All<Model30.Item>().ToList();
-          Assert.AreEqual(1, items.Count);
-
-          t.Complete();
-        }
-      });
+      config.Types.Register(typeof(Model30.Item).Assembly, typeof(Model30.Item).Namespace);
+      Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
-
     [Test]
     public void CombinedTest31()
     {
@@ -3352,12 +2590,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model31.Document>(key);
@@ -3368,7 +2606,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -3380,7 +2618,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model31.Document>(key);
@@ -3391,7 +2629,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model31.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -3399,77 +2637,13 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
     }
-
     [Test]
     public void CombinedTest32()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (Model32.Item).Assembly, typeof (Model32.Item).Namespace);
-      Assert.Throws<DomainBuilderException>(() => {
-        var domain = Domain.Build(config);
-        var key = (Key)null;
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = new Model32.Document();
-          key = document.Key;
-          new Model32.Item() { Document = document };
-          new Model32.Item() { Document = document };
-          new Model32.Item() { Document = document };
-          new Model32.Item() { Document = document };
-          new Model32.Item() { Document = document };
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model32.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-
-          var some = document.Items.First();
-          some.Document = null;
-          itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model32.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-
-          document.Remove();
-          var items = session.Query.All<Model32.Item>().ToList();
-          Assert.AreEqual(1, items.Count);
-
-          t.Complete();
-        }
-      });
+      config.Types.Register(typeof(Model32.Item).Assembly, typeof(Model32.Item).Namespace);
+      Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
-
     [Test]
     public void CombinedTest33()
     {
@@ -3490,12 +2664,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model33.Document>(key);
@@ -3506,7 +2680,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -3518,7 +2692,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model33.Document>(key);
@@ -3529,7 +2703,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model33.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -3557,12 +2731,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model34.Document>(key);
@@ -3573,7 +2747,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -3585,7 +2759,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model34.Document>(key);
@@ -3596,7 +2770,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model34.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -3624,12 +2798,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model35.Document>(key);
@@ -3640,7 +2814,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -3652,7 +2826,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model35.Document>(key);
@@ -3663,7 +2837,7 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model35.Item>().ToList();
         Assert.AreEqual(1, items.Count);
@@ -3671,75 +2845,12 @@ namespace Xtensive.Orm.Tests.Model.InterfaceAssociation
         t.Complete();
       }
     }
-
     [Test]
     public void CombinedTest36()
     {
       var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (Model36.Item).Assembly, typeof (Model36.Item).Namespace);
-      Assert.Throws<DomainBuilderException>(() => {
-        var domain = Domain.Build(config);
-        var key = (Key)null;
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = new Model36.Document();
-          key = document.Key;
-          new Model36.Item() { Document = document };
-          new Model36.Item() { Document = document };
-          new Model36.Item() { Document = document };
-          new Model36.Item() { Document = document };
-          new Model36.Item() { Document = document };
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model36.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(5, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(5, itemCount);
-
-          var some = document.Items.First();
-          some.Document = null;
-          itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-          t.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var t = session.OpenTransaction()) {
-          var document = session.Query.Single<Model36.Document>(key);
-          var itemCount = 0;
-          Assert.AreEqual(4, document.Items.Count);
-          foreach (var item in document.Items) {
-            Assert.IsNotNull(item);
-            itemCount++;
-          }
-          Assert.AreEqual(4, itemCount);
-
-          document.Remove();
-          var items = session.Query.All<Model36.Item>().ToList();
-          Assert.AreEqual(1, items.Count);
-
-          t.Complete();
-        }
-      });
+      config.Types.Register(typeof(Model36.Item).Assembly, typeof(Model36.Item).Namespace);
+      Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
     }
   }
 }
