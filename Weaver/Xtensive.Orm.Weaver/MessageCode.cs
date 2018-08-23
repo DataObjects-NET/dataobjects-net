@@ -11,16 +11,18 @@ namespace Xtensive.Orm.Weaver
     Unknown = 0,
 
     ErrorInternal = 1,
-    ErrorInputFileIsNotFound,
-    ErrorStrongNameKeyIsNotFound,
-    ErrorUnableToLocateOrmAssembly,
-    ErrorUnableToFindReferencedAssembly,
-    ErrorUnableToRemoveBackingField,
-    ErrorEntityLimitIsExceeded,
-    ErrorLicenseIsInvalid,
-    ErrorSubscriptionExpired,
+    ErrorInputFileIsNotFound = 2 ,
+    ErrorStrongNameKeyIsNotFound = 3,
+    ErrorUnableToLocateOrmAssembly = 4,
+    ErrorUnableToFindReferencedAssembly = 5,
+    ErrorUnableToRemoveBackingField = 6,
+    ErrorEntityLimitIsExceeded = 7,
+    ErrorLicenseIsInvalid = 8,
+    ErrorSubscriptionExpired = 9,
+    ErrorPersistentPropertiesWereNotProcessed = 10,
 
     WarningDebugSymbolsFileIsNotFound = 1000,
-    WarningReferencedAssemblyFileIsNotFound,
+    WarningReferencedAssemblyFileIsNotFound = 1001,
+    WarningPersistentPropertyHasNoSetterOrGetter =1002,
   }
 }

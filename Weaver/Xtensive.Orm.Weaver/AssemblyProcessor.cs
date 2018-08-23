@@ -23,26 +23,27 @@ namespace Xtensive.Orm.Weaver
     {
       var logger = new MessageLogger(messageWriter);
       var referencedAssemblies = configuration.ReferencedAssemblies ?? Enumerable.Empty<string>();
+      var assemblyResolver = new AssemblyResolver(referencedAssemblies, logger);
 
-      var context = new ProcessorContext();
-      using (var assemblyResolver = new AssemblyResolver(referencedAssemblies, logger)) {
-        context.Configuration = configuration;
-        context.ApplicationDirectory = Path.GetDirectoryName(GetType().Assembly.Location);
-        context.Logger = logger;
-        context.Language = WeavingHelper.ParseLanguage(configuration.ProjectType);
-        context.AssemblyResolver = assemblyResolver;
-        context.MetadataResolver = new MetadataResolver(assemblyResolver);
-        context.InputFile = FileHelper.ExpandPath(configuration.InputFile);
-        context.OutputFile = FileHelper.ExpandPath(configuration.OutputFile);
-        if (string.IsNullOrEmpty(context.OutputFile))
-          context.OutputFile = context.InputFile;
+      var context = new ProcessorContext {
+        Configuration = configuration,
+        ApplicationDirectory = Path.GetDirectoryName(GetType().Assembly.Location),
+        Logger = logger,
+        Language = WeavingHelper.ParseLanguage(configuration.ProjectType),
+        AssemblyResolver = assemblyResolver,
+        MetadataResolver = new MetadataResolver(assemblyResolver),
+      };
 
-        using (context) {
-          foreach (var stage in GetStages()) {
-            var stageResult = ExecuteStage(context, stage);
-            if (stageResult!=ActionResult.Success)
-              return stageResult;
-          }
+      context.InputFile = FileHelper.ExpandPath(configuration.InputFile);
+      context.OutputFile = FileHelper.ExpandPath(configuration.OutputFile);
+      if (string.IsNullOrEmpty(context.OutputFile))
+        context.OutputFile = context.InputFile;
+
+      using (context) {
+        foreach (var stage in GetStages()) {
+          var stageResult = ExecuteStage(context, stage);
+          if (stageResult!=ActionResult.Success)
+            return stageResult;
         }
       }
 
@@ -52,9 +53,11 @@ namespace Xtensive.Orm.Weaver
     private IEnumerable<ProcessorStage> GetStages()
     {
       return new ProcessorStage[] {
+        new TransformAssemblyStage(),
         new LoadAssemblyStage(),
         new ImportReferencesStage(),
         new RegisterFrameworkAssembliesStage(),
+        new RegisterNetStandardAssembliesStage(),
         new FindPersistentTypesStage(),
         new ExternalAssemblyStage(WellKnown.TasksAssemblyFullName),
         new WriteStatusStage(),

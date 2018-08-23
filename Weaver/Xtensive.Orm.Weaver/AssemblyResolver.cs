@@ -103,6 +103,7 @@ namespace Xtensive.Orm.Weaver
 
     public void Dispose()
     {
+      defaultAssemblyResolver.Dispose();
     }
   }
 }

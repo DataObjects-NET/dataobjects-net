@@ -12,6 +12,8 @@ namespace Xtensive.Orm.Weaver.Stages
 {
   internal sealed class ModifyPersistentTypesStage : ProcessorStage
   {
+    private IPersistentPropertyChecker propertyChecker;
+
     private TypeReference[][] entityFactorySignatures;
     private TypeReference[][] structureFactorySignatures;
     private TypeReference[][] entitySetFactorySignatures;
@@ -36,6 +38,10 @@ namespace Xtensive.Orm.Weaver.Stages
         new[] {references.Entity, references.FieldInfo},
       };
 
+      propertyChecker = (context.Language==SourceLanguage.CSharp) 
+        ? (IPersistentPropertyChecker) new CsPropertyChecker() 
+        : new VbPropertyChecker();
+
       foreach (var type in context.PersistentTypes)
         switch (type.Kind) {
         case PersistentTypeKind.Entity:
@@ -51,6 +57,11 @@ namespace Xtensive.Orm.Weaver.Stages
           ProcessStructure(context, type);
           break;
         }
+
+      if (propertyChecker.HasSkippedProperties) {
+        context.Logger.Write(MessageCode.ErrorPersistentPropertiesWereNotProcessed);
+        return ActionResult.Failure;
+      }
 
       return ActionResult.Success;
     }
@@ -98,7 +109,10 @@ namespace Xtensive.Orm.Weaver.Stages
 
     private void ProcessFields(ProcessorContext context, TypeInfo type)
     {
-      foreach (var property in type.Properties.Values.Where(p => p.IsPersistent && p.IsAutomatic)) {
+      foreach (var property in type.Properties.Values.Where(p => p.IsPersistent)) {
+        if (!propertyChecker.ShouldProcess(property, context))
+          continue;
+
         var typeDefinition = type.Definition;
         var propertyDefinition = property.Definition;
         var persistentName = property.PersistentName ?? property.Name;

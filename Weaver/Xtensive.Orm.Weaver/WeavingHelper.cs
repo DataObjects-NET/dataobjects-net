@@ -30,6 +30,7 @@ namespace Xtensive.Orm.Weaver
     {
       const string getterPrefix = "get_";
       const string setterPrefix = "set_";
+
       if (accessorName.StartsWith(getterPrefix))
         return accessorName.Substring(getterPrefix.Length);
       if (accessorName.StartsWith(setterPrefix))

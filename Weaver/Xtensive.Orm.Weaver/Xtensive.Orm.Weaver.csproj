@@ -50,12 +50,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Mono.Cecil, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Mono.Cecil">
       <HintPath>..\..\Lib\Mono.Cecil\Mono.Cecil.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cecil.Pdb, Version=0.9.6.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Mono.Cecil.Pdb">
       <HintPath>..\..\Lib\Mono.Cecil\Mono.Cecil.Pdb.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -71,6 +69,7 @@
     <Compile Include="ActionResult.cs" />
     <Compile Include="Application\ConsoleMessageWriter.cs" />
     <Compile Include="Application\ExitCode.cs" />
+    <Compile Include="NetStandardAssemblyList.cs" />
     <Compile Include="ProcessorStageAttribute.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="AssemblyChecker.cs" />
@@ -82,6 +81,8 @@
     <Compile Include="PropertyInfo.cs" />
     <Compile Include="Stages\ExecuteWeavingTasksStage.cs" />
     <Compile Include="Stages\ExternalAssemblyStage.cs" />
+    <Compile Include="Stages\RegisterNetStandardAssembliesStage.cs" />
+    <Compile Include="Stages\TransformAssemblyStage.cs" />
     <Compile Include="TypeInfo.cs" />
     <Compile Include="ProcessorConfiguration.cs" />
     <Compile Include="ProcessorMessage.cs" />

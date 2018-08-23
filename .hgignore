@@ -45,3 +45,4 @@ Lib/DotNetReactor/*.nrcfg
 _Build
 _Work
 Secure
+.vs

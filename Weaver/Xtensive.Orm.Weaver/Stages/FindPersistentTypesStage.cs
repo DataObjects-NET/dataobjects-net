@@ -39,11 +39,6 @@ namespace Xtensive.Orm.Weaver.Stages
     private TypeInfo InspectDefinedType(ProcessorContext context, TypeIdentity identity, TypeDefinition type)
     {
       if (type.IsClass) {
-        if (type.BaseType==null) {
-          var res = new TypeInfo(type, PersistentTypeKind.None);
-          processedTypes.Add(identity, res);
-          return res;
-        }
         var baseType = InspectType(context, type.BaseType);
         var kind = baseType.Kind;
         var result = new TypeInfo(type, kind, baseType);
@@ -96,7 +91,7 @@ namespace Xtensive.Orm.Weaver.Stages
         // because ModuleReference contains only name of Module.
         throw new InvalidOperationException("Unable to inspect ModuleReference");
       }
-      if (context.AssemblyChecker.IsFrameworkAssembly(reference)) {
+      if (context.AssemblyChecker.IsFrameworkAssembly(reference) || context.AssemblyChecker.IsNetStandardAssembly(reference)) {
         var result = new TypeInfo(type, PersistentTypeKind.None);
         processedTypes.Add(identity, result);
         return result;
@@ -128,12 +123,13 @@ namespace Xtensive.Orm.Weaver.Stages
     {
       foreach (var property in type.Definition.Properties) {
         var propertyInfo = new PropertyInfo(type, property);
-        if (propertyInfo.AnyAccessor==null)
+        // only indexers has parameters and we skip them
+        if (propertyInfo.AnyAccessor==null || property.HasParameters)
           continue;
         propertyInfo.IsAutomatic = autoPropertyChecker.Invoke(type.Definition, property);
         propertyInfo.IsPersistent = propertyInfo.IsInstance && property.HasAttribute(WellKnown.FieldAttribute);
         propertyInfo.IsKey = propertyInfo.IsPersistent && property.HasAttribute(WellKnown.KeyAttribute);
-        type.Properties.Add(property.Name, propertyInfo);
+        type.Properties.Add(propertyInfo.Name, propertyInfo);
       }
 
       var baseType = type.BaseType;

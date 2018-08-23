@@ -97,9 +97,12 @@ namespace Xtensive.Orm.Weaver
       RegisterMessage(MessageCode.ErrorLicenseIsInvalid, "DataObjects.Net license is invalid.");
       RegisterMessage(MessageCode.ErrorSubscriptionExpired,
         "Your subscription expired and is not valid for this release of DataObjects.Net.");
+      RegisterMessage(MessageCode.ErrorPersistentPropertiesWereNotProcessed, "Some of perstistent properties were not processed. Check warnings for details.");
+
 
       RegisterMessage(MessageCode.WarningDebugSymbolsFileIsNotFound, "Debug symbols file is not found");
       RegisterMessage(MessageCode.WarningReferencedAssemblyFileIsNotFound, "Referenced assembly file is not found");
+      RegisterMessage(MessageCode.WarningPersistentPropertyHasNoSetterOrGetter, "Persistent property was skipped due to it has no setter or getter");
     }
   }
 }
