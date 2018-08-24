@@ -5,7 +5,7 @@
 // Created:    2009.07.17
 
 using System;
-using Oracle.DataAccess.Client;
+using Oracle.ManagedDataAccess.Client;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Drivers.Oracle

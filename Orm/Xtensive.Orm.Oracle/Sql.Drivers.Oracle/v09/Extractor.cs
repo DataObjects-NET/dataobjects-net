@@ -10,7 +10,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
-using Oracle.DataAccess.Client;
+using Oracle.ManagedDataAccess.Client;
 using Xtensive.Core;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Drivers.Oracle.Resources;
