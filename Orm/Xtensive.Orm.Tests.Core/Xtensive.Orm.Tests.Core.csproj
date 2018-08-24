@@ -34,8 +34,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Xtensive.Orm1.Tests.Framework\Xtensive.Orm1.Tests.Framework.csproj" />
-    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm1.csproj" />
+    <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj" />
+    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
 
   <ItemGroup>

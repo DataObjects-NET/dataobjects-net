@@ -33,7 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
-  <ItemGroup>
+    <ItemGroup>
     <!-- <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" /> -->
     <PackageReference Include="Npgsql" Version="3.2.5" />
     <PackageReference Include="NUnit" Version="3.8.1" />
@@ -44,6 +44,11 @@
     <PackageReference Include="System.Spatial" Version="5.8.3" />
     <PackageReference Include="System.Dynamic.Runtime" Version="4.3.0.0" />
     <!-- <PackageReference Include="Microsoft.CSharp" Version="4.4.0" />-->
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj" />
+    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -817,11 +822,6 @@
     <Compile Include="_Manual\Validation\Person.cs" />
     <Compile Include="_Manual\Validation\PhoneNumberConstraint.cs" />
     <Compile Include="_Manual\Validation\TestFixture.cs" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\Xtensive.Orm1.Tests.Framework\Xtensive.Orm1.Tests.Framework.csproj" />
-    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm1.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Model\InterfaceAssociationsModelGenerator.tt">

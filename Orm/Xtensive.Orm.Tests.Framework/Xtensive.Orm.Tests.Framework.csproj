@@ -17,7 +17,7 @@
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0' AND '$(Configuration)' == 'Debug'">
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -25,12 +25,16 @@
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0' AND '$(Configuration)' == 'Release'">
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\_BuildCore\Binaries\Release\Lib\</OutputPath>
     <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
+  </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <!--<PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />-->
@@ -109,9 +113,6 @@
     </None>
     <None Include="DO-Tests.sql" />
     <None Include="Orm.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm1.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Orm.config">

@@ -39,7 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm1.csproj" />
+    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Xtensive.Orm\Properties\Visibility.cs">
