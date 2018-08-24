@@ -1,60 +1,47 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Net40-Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{F2CE47F7-8170-4FC4-B619-D32E6398D4F9}</ProjectGuid>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultItems>false</EnableDefaultItems>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Xtensive.Orm.Tests</RootNamespace>
+    <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.Tests.Framework</AssemblyName>
-    <FileAlignment>512</FileAlignment>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <WarningLevel>2</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Debug|AnyCPU' ">
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0' AND '$(Configuration)' == 'Debug'">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net40\</OutputPath>
+    <OutputPath>..\..\_BuildCore\Binaries\Debug\Lib\</OutputPath>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>2</WarningLevel>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Release|AnyCPU' ">
+
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0' AND '$(Configuration)' == 'Release'">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net40\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>2</WarningLevel>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <OutputPath>..\..\_BuildCore\Binaries\Release\Lib\</OutputPath>
+    <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="nunit.framework, Version=2.5.4.10098, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\NUnit\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Data.SqlServerCe, Version=3.5.1.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-    </Reference>
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Security" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Web" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.XML" />
-    <Reference Include="WindowsBase" />
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+    <!--<PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />-->
+    <PackageReference Include="NUnit" Version="3.8.1" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0" />
   </ItemGroup>
+
   <ItemGroup>
+    <Compile Include="..\..\_BuildCore\ProductInfo\ProductInfo.cs">
+      <Link>Properties\ProductInfo.cs</Link>
+    </Compile>
     <Compile Include="AssertEx.cs" />
     <Compile Include="AutoBuildTest.cs" />
     <Compile Include="DebugInfo.cs" />
@@ -62,6 +49,8 @@
     <Compile Include="DomainModelExtensions.cs" />
     <Compile Include="Dynamic.cs" />
     <Compile Include="HighResolutionTime.cs" />
+    <Compile Include="IndexInfoExtensions.cs" />
+    <Compile Include="InheritanceSchemaModifier.cs" />
     <Compile Include="InstanceGenerationUtils.cs" />
     <Compile Include="InstanceGeneratorProvider.cs" />
     <Compile Include="Interfaces\IInstanceGenerator.cs" />
@@ -93,71 +82,41 @@
     <Compile Include="Internals\UInt64InstanceGenerator.cs" />
     <Compile Include="Measurement.cs" />
     <Compile Include="MeasurementOptions.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomManager.cs" />
+    <Compile Include="Require.cs" />
     <Compile Include="RuntimeInfo.cs" />
     <Compile Include="SeedVariatorType.cs" />
-    <Compile Include="StorageProviderInfo.cs" />
-    <Compile Include="TestConfiguration.cs" />
-    <Compile Include="IndexInfoExtensions.cs" />
-    <Compile Include="InheritanceSchemaModifier.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Require.cs" />
     <Compile Include="StorageProvider.cs" />
+    <Compile Include="StorageProviderInfo.cs" />
     <Compile Include="StorageProviderVersion.cs" />
     <Compile Include="StorageTestHelper.cs" />
+    <Compile Include="TestConfiguration.cs" />
     <Compile Include="TestHelper.cs" />
     <Compile Include="TestInfo.cs" />
     <Compile Include="TestSqlDriver.cs" />
     <Compile Include="TypeIdBehavior.cs" />
     <Compile Include="TypeIdModifier.cs" />
-    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
-      <Link>Properties\ProductInfo.cs</Link>
-    </Compile>
     <Compile Include="WrappingInstanceGenerator{T,TBase1,TBase2, TBase3}.cs" />
     <Compile Include="WrappingInstanceGenerator{T,TBase1,TBase2}.cs" />
     <Compile Include="WrappingInstanceGenerator{T,TBase}.cs" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="Orm.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Include="DO-Tests-Plus.sql" />
+    <None Include="DO-Tests.sdf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="DO-Tests.sql" />
+    <None Include="Orm.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Xtensive.Orm.Firebird\Xtensive.Orm.Firebird.csproj">
-      <Project>{86D95846-57DD-4032-A2B2-3423D1C71CDD}</Project>
-      <Name>Xtensive.Orm.Firebird</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xtensive.Orm.MySql\Xtensive.Orm.MySql.csproj">
-      <Project>{73CB316C-E468-4FA1-AF7C-2AA499395DDA}</Project>
-      <Name>Xtensive.Orm.MySql</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xtensive.Orm.Oracle\Xtensive.Orm.Oracle.csproj">
-      <Project>{EDF3607D-6036-4F1D-B043-CBC6968081E3}</Project>
-      <Name>Xtensive.Orm.Oracle</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xtensive.Orm.PostgreSql\Xtensive.Orm.PostgreSql.csproj">
-      <Project>{1362BC41-A755-4888-BC31-17DC9D16068B}</Project>
-      <Name>Xtensive.Orm.PostgreSql</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xtensive.Orm.Sqlite\Xtensive.Orm.Sqlite.csproj">
-      <Project>{F23EF4D3-B75F-4A68-90A3-2440D7B1816B}</Project>
-      <Name>Xtensive.Orm.Sqlite</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xtensive.Orm.SqlServerCe\Xtensive.Orm.SqlServerCe.csproj">
-      <Project>{B1D74FC1-C742-4F3A-A46C-8C7F6A1DC61C}</Project>
-      <Name>Xtensive.Orm.SqlServerCe</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj">
-      <Project>{628737E8-3581-4793-99C8-9A4D2D83FEA0}</Project>
-      <Name>Xtensive.Orm</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm1.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="DO-Tests-Plus.sql" />
-    <Content Include="DO-Tests.sdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <None Update="Orm.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
+

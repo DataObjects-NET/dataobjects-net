@@ -22,8 +22,8 @@ namespace Xtensive.Orm.Tests
 
     protected ProviderInfo ProviderInfo { get; set; }
     protected Domain Domain { get; set; }
-    
-    [TestFixtureSetUp]
+
+    [OneTimeSetUp]
     public virtual void TestFixtureSetUp()
     {
       try {
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tests
       }
     }
 
-    [TestFixtureTearDown]
+    [OneTimeTearDown]
     public virtual void TestFixtureTearDown()
     {
       disposables.DisposeSafely(true);
