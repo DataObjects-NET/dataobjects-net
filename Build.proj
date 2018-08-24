@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build" ToolsVersion="15.0">
 
 <PropertyGroup>
   <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
@@ -22,17 +22,14 @@
 </PropertyGroup>
 
 <ItemGroup>
-  <!-- ProductInfo -->
-  <ProductInfo Include="ProductInfo\ProductInfo.proj" />
+  <!-- ProductInfo (works) -->
+  <ProductInfo Include="ProductInfoCore\ProductInfo.proj" />
+  
   <!-- Binaries -->
-  <BinariesNet40 Include="BuildBinaries.proj">
-    <Properties>Framework=Net40;Configuration=$(Configuration)</Properties>
-  </BinariesNet40>
-  <!--  
-  <BinariesNet45 Include="BuildBinaries.proj">
-    <Properties>Framework=Net45;Configuration=$(Configuration)</Properties>
-  </BinariesNet45>
-  -->
+  <BinariesNetStandard Include="BuildBinariesCore.proj">
+    <Properties>Configuration=$(Configuration)</Properties>
+  </BinariesNetStandard>
+  
   <!-- Distribution -->
   <Distributions Include="Dist\Zip.Binaries.proj" Condition="'$(EnableBinariesZip)'=='true'">
     <Properties>Configuration=$(Configuration)</Properties>
@@ -61,22 +58,16 @@
 <!-- DataObjects.Net.targets -->
 <Target Name="CopyTargetsFile">
   <Copy SourceFiles="MSBuild\DataObjects.Net.targets"
-        DestinationFolder="_Build\Binaries\$(Configuration)"
+        DestinationFolder="_BuildCore\Binaries\$(Configuration)"
         SkipUnchangedFiles="true" />
 </Target>
 
 <!-- Binaries -->
 <Target Name="BuildBinaries" DependsOnTargets="BuildProductInfo">
-  <MSBuild Projects="@(BinariesNet40)" Targets="Build" />
-  <!--
-  <MSBuild Projects="@(BinariesNet45)" Targets="Build" />
-  -->
+  <MSBuild Projects="@(BinariesNetStandard)" Targets="Build" />
 </Target>
 <Target Name="CleanBinaries">
-  <MSBuild Projects="@(BinariesNet40)" Targets="Clean" />
-  <!--
-  <MSBuild Projects="@(BinariesNet45)" Targets="Clean" />
-  -->
+  <MSBuild Projects="@(BinariesNetStandard)" Targets="Clean" />
   <RemoveDir Directories="_Build\Binaries\$(Configuration)" />
 </Target>
 
