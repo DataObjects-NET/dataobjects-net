@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Tests.Core.Comparison
   [TestFixture]
   public class StringComparisonTest
   {
-    [Ignore]
+    [Ignore("")]
     [Test]
     public void StringCompare()
     {

@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Core.Logging
   {
     private LoggingConfiguration configuration;
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void Setup()
     {
       configuration = LoggingConfiguration.Load("LoggingConfiguration");

@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
     private Dictionary<int, string> innerDictionary;
     private IDictionary<int, string> readOnlyDictionary;
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void Init()
     {
       this.innerDictionary = new Dictionary<int, string>();
@@ -29,29 +29,31 @@ namespace Xtensive.Orm.Tests.Core.Collections
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
     public void Test_Set()
     {
-      this.innerDictionary[1] = "value";
-      try {
-        this.readOnlyDictionary[1] = "newValue";
-      }
-      finally {
-        Assert.IsTrue((string)readOnlyDictionary[1] == "value");
-      }
+      Assert.Throws<NotSupportedException>(() => {
+        this.innerDictionary[1] = "value";
+        try {
+          this.readOnlyDictionary[1] = "newValue";
+        }
+        finally {
+          Assert.IsTrue((string)readOnlyDictionary[1] == "value");
+        }
+      });
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
     public void Test_Clear()
     {
-      this.innerDictionary[1] = "value";
-      try {
-        this.readOnlyDictionary.Clear();
-      }
-      finally {
-        Assert.IsTrue((string)readOnlyDictionary[1] == "value");
-      }
+      Assert.Throws<NotSupportedException>(() => {
+        this.innerDictionary[1] = "value";
+        try {
+          this.readOnlyDictionary.Clear();
+        }
+        finally {
+          Assert.IsTrue((string)readOnlyDictionary[1] == "value");
+        }
+      });
     }
 
     [Test]

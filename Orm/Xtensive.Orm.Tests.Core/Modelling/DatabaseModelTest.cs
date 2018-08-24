@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling
     private Table t1;
     private Table t2;
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void Setup()
     {
       srv = new Server("srv");

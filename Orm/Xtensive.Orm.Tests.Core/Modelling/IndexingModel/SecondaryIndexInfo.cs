@@ -77,11 +77,10 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
         }
 
         // Included columns
-        var fullKeySet = 
-          KeyColumns
-            .Select(cr => cr.Value)
-            .Concat(PrimaryKeyColumns.Select(cr => cr.Value))
-            .ToHashSet();
+        var fullKeySet = EnumerableExtensions.ToHashSet(KeyColumns
+          .Select(cr => cr.Value)
+          .Concat(PrimaryKeyColumns.Select(cr => cr.Value)));
+
         foreach (var columnRef in IncludedColumns) {
           if (fullKeySet.Contains(columnRef.Value))
             ea.Execute(() => {

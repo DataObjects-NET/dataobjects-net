@@ -1,95 +1,88 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Net40-Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{C837D048-38D8-4B17-A23C-EBB4D355CB7A}</ProjectGuid>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultItems>false</EnableDefaultItems>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp2.0</TargetFrameworks>
+    <RuntimeFrameworkVersion>2.0.3</RuntimeFrameworkVersion>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Xtensive.Orm.Tests.Core</RootNamespace>
+    <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.Tests.Core</AssemblyName>
-    <FileAlignment>512</FileAlignment>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <WarningLevel>2</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+
+  <PropertyGroup Label="Debug" Condition="'$(Configuration)'=='Debug'">
     <Optimize>false</Optimize>
-    <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net40\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>2</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\_BuildCore\Binaries\Debug\Lib\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NETCOREAPP</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Release|AnyCPU' ">
+
+  <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
+    <Optimize>false</Optimize>
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net40\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>2</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <OutputPath>..\..\_BuildCore\Binaries\Release\Lib\</OutputPath>
+    <DefineConstants>TRACE;NETCOREAPP</DefineConstants>
   </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=2.5.4.10098, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Lib\NUnit\nunit.framework.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Runtime.Serialization.Formatters.Soap" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
+    <ProjectReference Include="..\Xtensive.Orm1.Tests.Framework\Xtensive.Orm1.Tests.Framework.csproj" />
+    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm1.csproj" />
   </ItemGroup>
+
   <ItemGroup>
+    <!--<PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />-->
+    <PackageReference Include="NUnit" Version="3.8.1" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.8.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\_BuildCore\ProductInfo\ProductInfo.cs">
+      <Link>Properties\ProductInfo.cs</Link>
+    </Compile>
     <Compile Include="ArgumentValidatorTest.cs" />
     <Compile Include="Arithmetics\AritmeticsTest.cs" />
+    <Compile Include="Caching\CachePerformanceTest.cs" />
     <Compile Include="Caching\InfiniteCacheTest.cs" />
     <Compile Include="Caching\LruCacheTest.cs" />
+    <Compile Include="Caching\WeakCacheTest.cs" />
+    <Compile Include="Caching\WeakestCacheTest.cs" />
     <Compile Include="Collections\ChainedBufferTest.cs" />
     <Compile Include="Collections\CollectionBaseTest.cs" />
+    <Compile Include="Collections\DirectionCollectionTest.cs" />
     <Compile Include="Collections\EnumerableExtensionsTest.cs" />
     <Compile Include="Collections\ExtensionCollectionTest.cs" />
-    <Compile Include="Caching\CachePerformanceTest.cs" />
+    <Compile Include="Collections\FlagCollectionTest.cs" />
     <Compile Include="Collections\LinkedListTest.cs" />
     <Compile Include="Collections\NativeTypeClassifierTest.cs" />
-    <Compile Include="Collections\ThreadSafeDictionaryTest.cs" />
-    <Compile Include="Collections\DirectionCollectionTest.cs" />
-    <Compile Include="Caching\WeakestCacheTest.cs" />
-    <Compile Include="Collections\FlagCollectionTest.cs" />
+    <Compile Include="Collections\PriorityQueueTest.cs" />
+    <Compile Include="Collections\ReadOnlyCollectionTest.cs" />
+    <Compile Include="Collections\ReadOnlyDictionaryTest.cs" />
+    <Compile Include="Collections\ReadOnlyListTest.cs" />
+    <Compile Include="Collections\ReadOnlySetTest.cs" />
     <Compile Include="Collections\SetTestA.cs" />
-    <Compile Include="Logging\InternalLogProviderTests.cs" />
-    <Compile Include="Logging\LogManagerTests.cs" />
-    <Compile Include="Logging\WriteToLogInstanceTests.cs" />
-    <Compile Include="Logging\WriteToLogTests.cs" />
-    <Compile Include="UrlInfoTest.cs" />
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Collections\SetTestB.cs" />
     <Compile Include="Collections\SetTests.cs" />
-    <Compile Include="Caching\WeakCacheTest.cs" />
+    <Compile Include="Collections\ThreadSafeDictionaryTest.cs" />
+    <Compile Include="Collections\TopologicalSorterTest.cs" />
     <Compile Include="Comparison\ComparerProviderTestModel.cs" />
     <Compile Include="Comparison\ComparerProviderTests.cs" />
     <Compile Include="Comparison\EqualityComparerProviderTests.cs" />
     <Compile Include="Comparison\StringComparisonTest.cs" />
     <Compile Include="Conversion\ConverterProviderTest.cs" />
-    <Compile Include="Conversion\Internals\ConverterTestBase.cs" />
+    <Compile Include="Conversion\ConverterTest.cs" />
     <Compile Include="Conversion\Internals\BooleanConverterTest.cs" />
     <Compile Include="Conversion\Internals\ByteConverterTest.cs" />
     <Compile Include="Conversion\Internals\CharConverterTest.cs" />
-    <Compile Include="Conversion\Internals\TestConverterProvider.cs" />
+    <Compile Include="Conversion\Internals\ConverterTestBase.cs" />
     <Compile Include="Conversion\Internals\DateTimeConverterTest.cs" />
     <Compile Include="Conversion\Internals\DecimalConverterTest.cs" />
     <Compile Include="Conversion\Internals\DoubleConverterTest.cs" />
@@ -101,46 +94,44 @@
     <Compile Include="Conversion\Internals\SingleConverterTest.cs" />
     <Compile Include="Conversion\Internals\StringAdvancedConverter.cs" />
     <Compile Include="Conversion\Internals\StringConverterTest.cs" />
+    <Compile Include="Conversion\Internals\TestConverterProvider.cs" />
     <Compile Include="Conversion\Internals\TimeSpanConverterTest.cs" />
     <Compile Include="Conversion\Internals\UInt16ConverterTest.cs" />
     <Compile Include="Conversion\Internals\UInt32converterTest.cs" />
     <Compile Include="Conversion\Internals\UInt64ConverterTest.cs" />
+    <Compile Include="Diagnostics\DebugInfoTest.cs" />
     <Compile Include="Diagnostics\LogMessageTest.cs" />
+    <Compile Include="Diagnostics\MeasurementTest.cs" />
     <Compile Include="Diagnostics\RuntimeInfoTest.cs" />
-    <Compile Include="Collections\PriorityQueueTest.cs" />
-    <Compile Include="Collections\ReadOnlyCollectionTest.cs" />
-    <Compile Include="Collections\ReadOnlyDictionaryTest.cs" />
-    <Compile Include="Collections\ReadOnlyListTest.cs" />
-    <Compile Include="Collections\ReadOnlySetTest.cs" />
-    <Compile Include="Conversion\ConverterTest.cs" />
     <Compile Include="DotNetFramework\AllocationTest.cs" />
+    <Compile Include="DotNetFramework\CallTest.cs" />
     <Compile Include="DotNetFramework\CastTest.cs" />
+    <Compile Include="DotNetFramework\CloningTest.cs" />
     <Compile Include="DotNetFramework\ConstraintsTest.cs" />
+    <Compile Include="DotNetFramework\CoreFeaturesTest.cs" />
     <Compile Include="DotNetFramework\FieldTypeTest.cs" />
+    <Compile Include="DotNetFramework\GenericFeaturesTest.cs" />
     <Compile Include="DotNetFramework\InterfaceTest.cs" />
+    <Compile Include="DotNetFramework\MemoryAccessTypeTest.cs" />
     <Compile Include="DotNetFramework\NewTupleLogicTest.cs" />
+    <Compile Include="DotNetFramework\PointersTest.cs" />
     <Compile Include="DotNetFramework\StaticMethodTest.cs" />
     <Compile Include="DotNetFramework\SwitchVsArrayTest.cs" />
-    <Compile Include="DotNetFramework\ValidationTest.cs" />
     <Compile Include="DotNetFramework\ThreadingTest.cs" />
-    <Compile Include="DotNetFramework\CoreFeaturesTest.cs" />
-    <Compile Include="DotNetFramework\MemoryAccessTypeTest.cs" />
-    <Compile Include="DotNetFramework\GenericFeaturesTest.cs" />
-    <Compile Include="DotNetFramework\CloningTest.cs" />
-    <Compile Include="DotNetFramework\CallTest.cs" />
-    <Compile Include="DotNetFramework\PointersTest.cs" />
-    <Compile Include="Collections\TopologicalSorterTest.cs" />
+    <Compile Include="DotNetFramework\ValidationTest.cs" />
     <Compile Include="Helpers\StringExtensionsTest.cs" />
     <Compile Include="Helpers\TopologicalSorterTest.cs" />
     <Compile Include="IoC\MainTest.cs" />
-    <Compile Include="Diagnostics\DebugInfoTest.cs" />
     <Compile Include="Linq\CachingExpressionCompilerTest.cs" />
     <Compile Include="Linq\ConstantExtractorTest.cs" />
     <Compile Include="Linq\ExpressionTestBase.cs" />
     <Compile Include="Linq\ExpressionTreeTest.cs" />
     <Compile Include="Linq\ExpressionWriterTest.cs" />
     <Compile Include="Linq\SerializableExpressionsTest.cs" />
-    <Compile Include="Diagnostics\MeasurementTest.cs" />
+    <Compile Include="Logging\InternalLogProviderTests.cs" />
+    <Compile Include="Logging\LogManagerTests.cs" />
+    <Compile Include="Logging\WriteToLogInstanceTests.cs" />
+    <Compile Include="Logging\WriteToLogTests.cs" />
     <Compile Include="Modelling\DatabaseModelTest.cs" />
     <Compile Include="Modelling\DatabaseModel\Database.cs" />
     <Compile Include="Modelling\DatabaseModel\DatabaseCollection.cs" />
@@ -190,8 +181,8 @@
     <Compile Include="Modelling\IndexingModel\Ref.cs" />
     <Compile Include="Modelling\IndexingModel\ReferentialAction.cs" />
     <Compile Include="Modelling\IndexingModel\Resources\Strings.Designer.cs">
-      <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="Modelling\IndexingModel\SecondaryIndexInfo.cs" />
@@ -211,34 +202,29 @@
     <Compile Include="Reflection\TypeHelperTest.cs" />
     <Compile Include="Reflection\TypeHelperTestModel.cs" />
     <Compile Include="Resources\TestResources.Designer.cs">
-      <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
       <DependentUpon>TestResources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Tuples\TupleSerializationTest.cs" />
     <Compile Include="Testing\AssertExTest.cs" />
     <Compile Include="Testing\InstanceGeneratorTest.cs" />
     <Compile Include="Testing\RandomManagerTest.cs" />
+    <Compile Include="Tuples\DifferentialTupleTest.cs" />
+    <Compile Include="Tuples\DummyTuple.cs" />
     <Compile Include="Tuples\FlagsTest.cs" />
     <Compile Include="Tuples\LongTupleTest.cs" />
     <Compile Include="Tuples\Transform\CutInTransformTest.cs" />
     <Compile Include="Tuples\Transform\MapTransformTest.cs" />
     <Compile Include="Tuples\Transform\MergeTransformTest.cs" />
-    <Compile Include="Tuples\Transform\SegmentTransformTest.cs" />
     <Compile Include="Tuples\Transform\ReadOnlyTransformTest.cs" />
-    <Compile Include="Tuples\TupleBehaviorTestBase.cs" />
-    <Compile Include="Tuples\DifferentialTupleTest.cs" />
-    <Compile Include="Tuples\TupleComparerTest.cs" />
-    <Compile Include="Tuples\DummyTuple.cs" />
+    <Compile Include="Tuples\Transform\SegmentTransformTest.cs" />
     <Compile Include="Tuples\TupleBehaviorTest.cs" />
+    <Compile Include="Tuples\TupleBehaviorTestBase.cs" />
+    <Compile Include="Tuples\TupleComparerTest.cs" />
     <Compile Include="Tuples\TupleDescriptorTest.cs" />
     <Compile Include="Tuples\TuplePerformanceTest.cs" />
-    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
-      <Link>Properties\ProductInfo.cs</Link>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{B4F97281-0DBD-4835-9ED8-7DFB966E87FF}" />
+    <Compile Include="Tuples\TupleSerializationTest.cs" />
+    <Compile Include="UrlInfoTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Modelling\IndexingModel\Resources\Strings.resx">
@@ -251,14 +237,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj">
-      <Project>{F2CE47F7-8170-4FC4-B619-D32E6398D4F9}</Project>
-      <Name>Xtensive.Orm.Tests.Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj">
-      <Project>{628737E8-3581-4793-99C8-9A4D2D83FEA0}</Project>
-      <Name>Xtensive.Orm</Name>
-    </ProjectReference>
+    <None Include="App.config" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Core.Collections
     private List<string> innerCol;
     private ReadOnlyCollection<string> readOnlyCollection;
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void Init()
     {
       innerCol = new List<string>();
@@ -27,36 +27,37 @@ namespace Xtensive.Orm.Tests.Core.Collections
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
     public void ReadOnlyCollection_Add()
     {
-      readOnlyCollection.Add("Add");
+      Assert.Throws<NotSupportedException>(() => readOnlyCollection.Add("Add"));
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
     public void ReadOnlyCollection_Remove()
     {
-      innerCol.Add("Remove");
-      try {
-        readOnlyCollection.Remove("Remove");
-      }
-      finally {
-        innerCol.Clear();
-      }
+      Assert.Throws<NotSupportedException>(() => {
+        innerCol.Add("Remove");
+        try {
+          readOnlyCollection.Remove("Remove");
+        }
+        finally {
+          innerCol.Clear();
+        }
+      });
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
     public void ReadOnlyCollection_Clear()
     {
-      innerCol.Add("Clear");
-      try {
-        readOnlyCollection.Clear();
-      }
-      finally {
-        innerCol.Clear();
-      }
+      Assert.Throws<NotSupportedException>(() => {
+        innerCol.Add("Clear");
+        try {
+          readOnlyCollection.Clear();
+        }
+        finally {
+          innerCol.Clear();
+        }
+      });
     }
 
     [Test]
