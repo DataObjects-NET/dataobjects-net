@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
     #region Setup and TearDown
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public override void SetUp()
     {
       base.SetUp();
@@ -125,15 +125,14 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    [ExpectedException(typeof (SqlCompilerException))]
     public void CircularReferencesTest()
     {
       SqlSelect select = SqlDml.Select();
       SqlBinary b = SqlDml.Literal(1) + 2;
       SqlBinary rb = b + 3;
       rb.Left.ReplaceWith(rb);
-      select.Where = rb>1;
-      Console.WriteLine(SqlDriver.Compile(select).GetCommandText());
+      select.Where = rb > 1;
+      Assert.Throws<SqlCompilerException>(() => { Console.WriteLine(SqlDriver.Compile(select).GetCommandText()); });
     }
 
     [Test]
@@ -268,7 +267,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    [Ignore]
+    [Ignore("")]
     public void IntersectTest() //TODO: Relook into the keyword for INTERSECT
     {
       SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
@@ -288,7 +287,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    [Ignore]
+    [Ignore("")]
     public void IntersectAllTest()//TODO: Relook into the keyword for INTERSECT ALL
     {
       SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["address"]));
@@ -308,7 +307,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    [Ignore]
+    [Ignore("")]
     public void ExceptTest()
     {
       SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["Address"]));
@@ -328,7 +327,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    [Ignore]
+    [Ignore("")]
     public void ExceptAllTest()
     {
       SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.DefaultSchema.Tables["Address"]));
@@ -348,7 +347,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    [Ignore]
+    [Ignore("")]
     public void FreeTextTest()
     {
       SqlSelect select = SqlDml.Select();
@@ -359,7 +358,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    [Ignore]
+    [Ignore("")]
     public void FreeTextCreateTest()
     {
       //var table = Catalog.Schemas["Person"].Tables["Address"];

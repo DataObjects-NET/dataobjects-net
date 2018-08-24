@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Tests.Sql
     private Table table1;
     private Table table2;
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void SetUp()
     {
       var catalog = new Catalog("test");

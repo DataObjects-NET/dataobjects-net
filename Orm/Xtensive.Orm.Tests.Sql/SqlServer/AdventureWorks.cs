@@ -86,13 +86,12 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       Require.ProviderIs(StorageProvider.SqlServer);
     }
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public virtual void SetUp()
     {
       CheckRequirements();
       var driver = TestSqlDriver.Create(Url);
-      using (var connection = driver.CreateConnection())
-      {
+      using (var connection = driver.CreateConnection()) {
         connection.Open();
         Catalog = driver.ExtractCatalog(connection);
         connection.Close();

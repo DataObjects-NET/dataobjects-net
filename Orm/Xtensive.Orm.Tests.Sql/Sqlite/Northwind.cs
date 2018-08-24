@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       Require.ProviderIs(StorageProvider.Sqlite);
     }
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public virtual void SetUp()
     {
       CheckRequirements();

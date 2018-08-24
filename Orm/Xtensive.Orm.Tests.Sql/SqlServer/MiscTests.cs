@@ -23,8 +23,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     private SqlConnection sqlConnection;
     private DbCommand sqlCommand;
     private SqlDriver sqlDriver;
-    
-    [TestFixtureSetUp]
+
+    [OneTimeSetUp]
     public override void SetUp()
     {
       base.SetUp();
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       sqlCommand = sqlConnection.CreateCommand();
     }
 
-    [TestFixtureTearDown]
+    [OneTimeTearDown]
     public void TearDown()
     {
       try {
@@ -133,7 +133,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
-    [ExpectedException(typeof (SqlCompilerException))]
     public void CircularReferencesTest()
     {
       SqlSelect select = SqlDml.Select();
@@ -141,7 +140,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       SqlBinary rb = b + 3;
       rb.Left.ReplaceWith(rb);
       select.Where = rb > 1;
-      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+     Assert.Throws<SqlCompilerException>(() => Console.WriteLine(sqlDriver.Compile(select).GetCommandText()));
     }
 
     [Test]

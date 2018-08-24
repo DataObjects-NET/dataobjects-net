@@ -5,7 +5,6 @@
 // Created:    2009.07.29
 
 using System;
-using System.Data.SqlServerCe;
 using NUnit.Framework;
 using Xtensive.Sql.Model;
 

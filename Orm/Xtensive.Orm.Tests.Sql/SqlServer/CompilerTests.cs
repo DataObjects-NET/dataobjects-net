@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     private DbCommand sqlCommand;
     private SqlDriver sqlDriver;
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public override void SetUp()
     {
       base.SetUp();
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       }
     }
 
-    [TestFixtureTearDown]
+    [OneTimeTearDown]
     public void TearDown()
     {
       try {
@@ -49,31 +49,27 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
-    [ExpectedException(typeof(SqlCompilerException))]
     public void TableIsNotSetTest1()
     {
       SqlDelete delete = SqlDml.Delete();
-      sqlDriver.Compile(delete);
+      Assert.Throws<SqlCompilerException>(() => sqlDriver.Compile(delete));
     }
 
     [Test]
-    [ExpectedException(typeof(SqlCompilerException))]
     public void TableIsNotSetTest2()
     {
       SqlInsert insert = SqlDml.Insert();
-      sqlDriver.Compile(insert);
+      Assert.Throws<SqlCompilerException>(() => sqlDriver.Compile(insert));
     }
 
     [Test]
-    [ExpectedException(typeof(SqlCompilerException))]
     public void TableIsNotSetTest3()
     {
       SqlUpdate update = SqlDml.Update();
-      sqlDriver.Compile(update);
+      Assert.Throws<SqlCompilerException>(() => sqlDriver.Compile(update));
     }
 
     [Test]
-    [ExpectedException(typeof(SqlCompilerException))]
     public void UnboundColumnsTest()
     {
       SqlTableRef t = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
@@ -87,7 +83,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       update.Values[t2[0]] = SqlDml.Null;
       update.Where = t[0]>2;
 
-      sqlDriver.Compile(update);
+      Assert.Throws<SqlCompilerException>(() => sqlDriver.Compile(update));
     }
 
     [Test]

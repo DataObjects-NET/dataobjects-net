@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tests.Sql
     protected SqlConnection Connection { get; private set; }
     protected SqlDriver Driver { get; private set; }
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void RealTestFixtureSetUp()
     {
       CheckRequirements();
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Sql
       }
     }
 
-    [TestFixtureTearDown]
+    [OneTimeTearDown]
     public void RealTestFixtureTearDown()
     {
       TestFixtureTearDown();

@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 
     #region Setup and TearDown
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public override void SetUp()
     {
       base.SetUp();
@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       Console.WriteLine(stopWatch.Elapsed);
     }
 
-    [TestFixtureTearDown]
+    [OneTimeTearDown]
     public void TearDown()
     {
       try {
@@ -230,7 +230,6 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    [ExpectedException(typeof (SqlCompilerException))]
     public void CircularReferencesTest()
     {
       SqlSelect select = SqlDml.Select();
@@ -238,16 +237,15 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       SqlBinary rb = b + 3;
       rb.Left.ReplaceWith(rb);
       select.Where = rb > 1;
-      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+      Assert.Throws<SqlCompilerException>(() => Console.WriteLine(sqlDriver.Compile(select).GetCommandText()));
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
     public void PositionTest()
     {
       SqlSelect select = SqlDml.Select();
       select.Columns.Add(SqlDml.Multiply(SqlDml.Position("b", "abc"), 4));
-      Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
+      Assert.Throws<NotSupportedException>(() => Console.WriteLine(sqlDriver.Compile(select).GetCommandText()));
     }
 
     [Test]

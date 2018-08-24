@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
     #region Setup and TearDown
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public override void SetUp()
     {
       base.SetUp();
@@ -991,7 +991,6 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
     }
 
     [Test]
-    [ExpectedException(typeof(NotSupportedException))]
     public void Test201()
     {
       string nativeSql = "SELECT a.f FROM ((SELECT 1 as f UNION SELECT 2) EXCEPT (SELECT 3 UNION SELECT 4)) a";
@@ -1009,7 +1008,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
       select = SqlDml.Select(qr);
       select.Columns.Add(qr["f"]);
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
+      Assert.Throws<NotSupportedException>(() => Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select)));
     }
 
     [Test]

@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       Require.ProviderIs(StorageProvider.PostgreSql);
     }
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public virtual void FixtureSetup()
     {
       CheckRequirements();
@@ -911,7 +911,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       #endregion
     }
 
-    [TestFixtureTearDown]
+    [OneTimeTearDown]
     public virtual void FixtureTearDown()
     {
       if (Connection!=null) {

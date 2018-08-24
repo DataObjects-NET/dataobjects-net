@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
     #region Setup and TearDown
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public override void SetUp()
     {
       CheckRequirements();

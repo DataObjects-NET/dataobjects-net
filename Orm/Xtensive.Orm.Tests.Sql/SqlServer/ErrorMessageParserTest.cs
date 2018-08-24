@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
   [TestFixture]
   public class ErrorMessageParserTest
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     protected virtual void SetUp()
     {
       CheckRequirements();

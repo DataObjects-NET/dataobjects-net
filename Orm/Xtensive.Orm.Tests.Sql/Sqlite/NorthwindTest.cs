@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 
     #region Setup and TearDown
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public override void SetUp()
     {
       base.SetUp();
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       Console.WriteLine(stopWatch.Elapsed);
     }
 
-    [TestFixtureTearDown]
+    [OneTimeTearDown]
     public void TearDown()
     {
       try {
@@ -900,11 +900,10 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
     public void Test152()
     {
       SqlDropSchema drop = SqlDdl.Drop(Catalog.Schemas["main"]);
-      Console.Write(Compile(drop));
+      Assert.Throws<NotSupportedException>(() => Console.Write(Compile(drop)));
     }
 
     [Test]
@@ -930,32 +929,29 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
     public void Test156()
     {
       SqlAlterTable alter = SqlDdl.Alter(Catalog.Schemas["main"].Tables["customers"], SqlDdl.DropColumn(Catalog.Schemas["main"].Tables["customers"].TableColumns["CompanyName"]));
 
-      Console.Write(Compile(alter));
+      Assert.Throws<NotSupportedException>(() => Console.Write(Compile(alter)));
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
     public void Test157()
     {
       var renameColumn = SqlDdl.Rename(Catalog.Schemas["main"].Tables["customers"].TableColumns["ContactTitle"], "ContactTitle1");
 
-      Console.Write(Compile(renameColumn));
+      Assert.Throws<NotSupportedException>(() => Console.Write(Compile(renameColumn)));
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
     public void Test158()
     {
       var t = Catalog.Schemas["main"].Tables["customers"];
       Xtensive.Sql.Model.UniqueConstraint uc = t.CreateUniqueConstraint("newUniqueConstraint", t.TableColumns["Phone"]);
       SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(uc));
 
-      Console.Write(Compile(stmt));
+      Assert.Throws<NotSupportedException>(() => Console.Write(Compile(stmt)));
     }
 
     [Test]
@@ -989,7 +985,6 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 
     [Test]
     [Ignore("Not yet prepared for tests")]
-    [ExpectedException(typeof (NotSupportedException))]
     public void Test201()
     {
       string nativeSql = "SELECT a.f FROM ((SELECT 1 as f UNION SELECT 2) EXCEPT (SELECT 3 UNION SELECT 4)) a";
@@ -1007,18 +1002,17 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       select = SqlDml.Select(qr);
       select.Columns.Add(qr["f"]);
 
-      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
+     Assert.Throws<NotSupportedException>(() => Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select)));
     }
 
     [Test]
-    [ExpectedException(typeof (NotSupportedException))]
     public void Test165()
     {
       var t = Catalog.Schemas["main"].Tables["SomeWierdTableName"];
       var uc = t.CreatePrimaryKey(string.Empty, t.TableColumns["Field02"]);
       SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(uc));
 
-      Console.Write(Compile(stmt));
+      Assert.Throws<NotSupportedException>(() => Console.Write(Compile(stmt)));
     }
   }
 }
