@@ -1,60 +1,54 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Net40-Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{1362BC41-A755-4888-BC31-17DC9D16068B}</ProjectGuid>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultItems>false</EnableDefaultItems>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.PostgreSql</AssemblyName>
-    <FileAlignment>512</FileAlignment>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <WarningLevel>2</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
+
+  <PropertyGroup Label="Debug" Condition="'$(Configuration)'=='Debug'">
     <Optimize>false</Optimize>
-    <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net40\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\Net40\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>2</WarningLevel>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\_BuildCore\Binaries\Debug\Lib\</OutputPath>
+    <DocumentationFile>..\..\_BuildCore\Binaries\Debug\Lib\$(TargetFramework)\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Release|AnyCPU' ">
+
+  <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
+    <Optimize>false</Optimize>
     <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net40\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net40\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>2</WarningLevel>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <OutputPath>..\..\_BuildCore\Binaries\Release\Lib\</OutputPath>
+    <DocumentationFile>..\..\_BuildCore\Binaries\Release\Lib\$(TargetFramework)\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
+    <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
   </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.configuration" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Transactions" />
-    <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
-    <Reference Include="Npgsql">
-      <HintPath>..\..\Lib\Npgsql\Net40\Npgsql.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Security">
-      <HintPath>..\..\Lib\Npgsql\Net40\Mono.Security.dll</HintPath>
-    </Reference>
+    <PackageReference Include="Npgsql" Version="3.2.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm1.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Xtensive.Orm\Properties\Visibility.cs">
       <Link>Properties\Visibility.cs</Link>
     </Compile>
+    <Compile Include="..\..\_BuildCore\ProductInfo\ProductInfo.cs">
+      <Link>Properties\ProductInfo.cs</Link>
+    </Compile>
+    <Compile Include="Orm.Providers.PostgreSql\DomainHandler.cs" />
+    <Compile Include="Orm.Providers.PostgreSql\HandlerFactory.cs" />
     <Compile Include="Orm.Providers.PostgreSql\NpgsqlBoxCompilers.cs" />
     <Compile Include="Orm.Providers.PostgreSql\NpgsqlCircleCompilers.cs" />
     <Compile Include="Orm.Providers.PostgreSql\NpgsqlLSegCompilers.cs" />
@@ -63,11 +57,18 @@
     <Compile Include="Orm.Providers.PostgreSql\NpgsqlPolygonCompilers.cs" />
     <Compile Include="Orm.Providers.PostgreSql\PostgresqlSqlDml.cs" />
     <Compile Include="Orm.Providers.PostgreSql\PostgresqlSqlFunctionType.cs" />
+    <Compile Include="Orm.Providers.PostgreSql\SqlCompiler.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\Connection.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\Driver.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\DriverFactory.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\PostgreSqlTypeMapper.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\RelOptions.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\Resources\Strings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
     <Compile Include="Sql.Drivers.PostgreSql\v8_0\BoxMapper.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\v8_0\CircleMapper.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\v8_0\Compiler.cs" />
@@ -111,32 +112,11 @@
     <Compile Include="Sql.Drivers.PostgreSql\v9_0\ServerInfoProvider.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\v9_0\Translator.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\v9_0\TypeMapper.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Sql.Drivers.PostgreSql\Resources\Strings.resx">
-      <SubType>Designer</SubType>
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Orm.Providers.PostgreSql\DomainHandler.cs" />
-    <Compile Include="Orm.Providers.PostgreSql\HandlerFactory.cs" />
-    <Compile Include="Orm.Providers.PostgreSql\SqlCompiler.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Sql.Drivers.PostgreSql\Resources\Strings.Designer.cs">
-      <DependentUpon>Strings.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-    </Compile>
-    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
-      <Link>Properties\ProductInfo.cs</Link>
-    </Compile>
   </ItemGroup>
-  <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj">
-      <Project>{628737E8-3581-4793-99C8-9A4D2D83FEA0}</Project>
-      <Name>Xtensive.Orm</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

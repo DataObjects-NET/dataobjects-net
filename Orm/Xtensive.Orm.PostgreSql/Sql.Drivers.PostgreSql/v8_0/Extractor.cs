@@ -38,9 +38,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private class ExpressionIndexInfo
     {
       public Index Index { get; set; }
-      public string Columns { get; set; }
+      public short [] Columns { get; set; }
 
-      public ExpressionIndexInfo(Index index, string columns)
+      public ExpressionIndexInfo(Index index, short [] columns)
       {
         Index = index;
         Columns = columns;
@@ -580,7 +580,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             var indexName = dataReader["relname"].ToString();
             var isUnique = dataReader.GetBoolean(dataReader.GetOrdinal("indisunique"));
             var isClustered = dataReader.GetBoolean(dataReader.GetOrdinal("indisclustered"));
-            var indexKey = dataReader["indkey"].ToString();
+            var indexKey = (short[])dataReader["indkey"];
+
             var tablespaceName =(dataReader["spcname"]!=DBNull.Value) ? dataReader["spcname"].ToString() : (string)null;
             var filterExpression = (dataReader["indpredtext"]!=DBNull.Value) ? dataReader["indpredtext"].ToString() : string.Empty;
 
@@ -612,27 +613,28 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
                 index.Where = SqlDml.Native(filterExpression);
 
               // Expression-based index
-              if (dataReader["indexprs"]!=DBNull.Value) {
-                expressionIndexeMap[indexIdentifier] = new ExpressionIndexInfo(index, indexKey);
-                int columnNumber = dataReader.GetInt16(dataReader.GetOrdinal("indnatts"));
-                if (columnNumber > maxColumnNumber)
-                  maxColumnNumber = columnNumber;
-              }
-              else {
-                //index columns
-                var indexKeyColumns = indexKey.Split(' ');
-                for (int j = 0; j < indexKeyColumns.Length; j++) {
-                  int colIndex = Int32.Parse(indexKeyColumns[j]);
-                  if (colIndex > 0)
-                    index.CreateIndexColumn(tableColumns[tableIdentifier][colIndex], true);
-                  else {
-                    int z = 7;
-                    //column index is 0
-                    //this means that this index column is an expression
-                    //which is not possible with SqlDom tables
+                try {
+                //todo: dataReader should return DbNull instead of exception on empty read, cause must be investigated
+                  var some = dataReader["indexprs"];
+                  //index columns
+                  for (int j = 0; j < indexKey.Length; j++) {
+                    int colIndex = indexKey[j];
+                    if (colIndex > 0)
+                      index.CreateIndexColumn(tableColumns[tableIdentifier][colIndex], true);
+                    else {
+                      int z = 7;
+                      //column index is 0
+                      //this means that this index column is an expression
+                      //which is not possible with SqlDom tables
+                    }
                   }
                 }
-              }
+                catch (NotSupportedException ex) {
+                  expressionIndexeMap[indexIdentifier] = new ExpressionIndexInfo(index, indexKey);
+                  int columnNumber = dataReader.GetInt16(dataReader.GetOrdinal("indnatts"));
+                  if (columnNumber > maxColumnNumber)
+                    maxColumnNumber = columnNumber;
+                }
               ReadSpecialIndexProperties(dataReader, index);
             }
           }
@@ -651,9 +653,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           using (var dataReader = command.ExecuteReader()) {
             while (dataReader.Read()) {
               var exprIndexInfo = expressionIndexeMap[Convert.ToInt64(dataReader[1])];
-              var indexKeyColumns = exprIndexInfo.Columns.Split(' ');
-              for (int j = 0; j < indexKeyColumns.Length; j++) {
-                int colIndex = Int32.Parse(indexKeyColumns[j]);
+              for (int j = 0; j < exprIndexInfo.Columns.Length; j++) {
+                int colIndex = exprIndexInfo.Columns[j];
                 if (colIndex > 0)
                   exprIndexInfo.Index.CreateIndexColumn(tableColumns[Convert.ToInt64(dataReader[0])][colIndex], true);
                 else
