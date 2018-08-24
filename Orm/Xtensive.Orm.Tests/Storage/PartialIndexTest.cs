@@ -291,7 +291,7 @@ namespace Xtensive.Orm.Tests.Storage
   {
     private Domain domain;
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
       Require.AllFeaturesSupported(ProviderFeatures.PartialIndexes);

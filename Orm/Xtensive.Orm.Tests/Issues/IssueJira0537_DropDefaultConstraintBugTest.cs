@@ -292,7 +292,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     protected override void  CheckRequirements()
     {
- 	    Require.ProviderIs(StorageProvider.SqlServer);
+      Require.ProviderIs(StorageProvider.SqlServer);
       Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
     }
 
@@ -301,7 +301,7 @@ namespace Xtensive.Orm.Tests.Issues
       BuildSingleDomain(Database1Name);
     }
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public override void TestFixtureSetUp()
     {
       InitializeConnectionStrings();

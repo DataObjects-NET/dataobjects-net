@@ -12,13 +12,13 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
   [TestFixture]
   public abstract class MultimappingTest
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public virtual void TestFixtureSetUp()
     {
       CheckRequirements();
     }
 
-    [TestFixtureTearDown]
+    [OneTimeTearDown]
     public virtual void TestFixtureTearDown()
     {
     }

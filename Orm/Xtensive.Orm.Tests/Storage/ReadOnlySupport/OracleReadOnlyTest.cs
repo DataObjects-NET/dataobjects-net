@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace Xtensive.Orm.Tests.Storage.ReadOnlySupport
 {
-  [Ignore]
+  [Ignore("")]
   public class OracleReadOnlyTest : ReadOnlyStorageTestBase
   {
     protected override void CheckRequirements()

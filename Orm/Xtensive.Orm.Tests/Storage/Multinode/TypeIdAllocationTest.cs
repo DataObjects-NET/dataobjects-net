@@ -76,7 +76,8 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       MainTest(domain);
     }
 
-    [TestFixtureSetUp]
+
+    [OneTimeSetUp]
     public void TestFixtureSetup()
     {
       CheckRequirements();

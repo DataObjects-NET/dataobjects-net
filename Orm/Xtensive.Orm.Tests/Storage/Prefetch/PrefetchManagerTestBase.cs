@@ -16,6 +16,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.Prefetch.Model;
 using FieldInfo=Xtensive.Orm.Model.FieldInfo;
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Tests.Storage.Prefetch
 {
@@ -51,7 +52,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       return config;
     }
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();

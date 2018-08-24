@@ -87,15 +87,18 @@ count++;
 for(int i = 1; i <= count; i++){
 #>
     [Test]
-<#
-if (shouldFail.Contains(i))	{
-#>
-    [ExpectedException(typeof(DomainBuilderException))]
-<#}#>
     public void CombinedTest<#=string.Format("{0:00}",i)#>()
     {
       var config = DomainConfigurationFactory.Create();
       config.Types.Register(typeof(Model<#=i#>.Item).Assembly, typeof(Model<#=i#>.Item).Namespace);
+<#
+if (shouldFail.Contains(i))	{
+#>
+      Assert.Throws<DomainBuilderException>(()=>Domain.Build(config));
+<#
+}
+else{
+#>
       var domain = Domain.Build(config);
       var key = (Key)null;
       using (var session = domain.OpenSession())
@@ -111,12 +114,12 @@ if (shouldFail.Contains(i))	{
         Assert.AreEqual(5, document.Items.Count);
         foreach (var item in document.Items) {
           Assert.IsNotNull(item);
-	      itemCount++;
+          itemCount++;
         }
         Assert.AreEqual(5, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model<#=i#>.Document>(key);
@@ -127,7 +130,7 @@ if (shouldFail.Contains(i))	{
           itemCount++;
         }
         Assert.AreEqual(5, itemCount);
-		
+
         var some = document.Items.First();
         some.Document = null;
         itemCount = 0;
@@ -139,7 +142,7 @@ if (shouldFail.Contains(i))	{
         Assert.AreEqual(4, itemCount);
         t.Complete();
       }
-	  
+
       using (var session = domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var document = session.Query.Single<Model<#=i#>.Document>(key);
@@ -150,13 +153,14 @@ if (shouldFail.Contains(i))	{
           itemCount++;
         }
         Assert.AreEqual(4, itemCount);
-        
+
         document.Remove();
         var items = session.Query.All<Model<#=i#>.Item>().ToList();
         Assert.AreEqual(1, items.Count);
         
         t.Complete();
       }
+<#}#>
     }
 <#}#>
   }

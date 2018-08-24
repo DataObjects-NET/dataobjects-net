@@ -47,13 +47,12 @@ namespace Xtensive.Orm.Tests.Storage.IoC
 
           var query = session.Query.All<FakeClass>().Where(f => f.Id > 0);
           string result = fs.ToSqlString(query);
-
-          Assert.IsNotNullOrEmpty(result);
+          Assert.That(result, Is.Not.Null.And.Not.Empty);
           Console.WriteLine(result);
 
           result = fs.ToString(query);
 
-          Assert.IsNotNullOrEmpty(result);
+          Assert.That(result, Is.Not.Null.And.Not.Empty);
           Console.WriteLine(result);
           // Rollback
         }

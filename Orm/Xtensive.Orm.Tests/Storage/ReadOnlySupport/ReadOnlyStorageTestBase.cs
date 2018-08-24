@@ -103,7 +103,7 @@ namespace Xtensive.Orm.Tests.Storage.ReadOnlySupport
       }
     }
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
       try {

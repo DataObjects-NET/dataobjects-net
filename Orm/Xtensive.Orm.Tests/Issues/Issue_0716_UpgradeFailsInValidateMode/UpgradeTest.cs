@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
   {
     private Domain domain;
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestSetUp()
     {
       Require.AllFeaturesSupported(ProviderFeatures.FullText);

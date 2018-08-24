@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Tests.Upgrade
   [TestFixture]
   public class KeyGeneratorTableCleanUpTestTest
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
       Require.ProviderIs(StorageProvider.SqlServer, "Uses native SQL");

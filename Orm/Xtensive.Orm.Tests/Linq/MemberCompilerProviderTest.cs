@@ -174,12 +174,11 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(InvalidOperationException))]
     public void ConflictReportErrorTest()
     {
       var provider = MemberCompilerProviderFactory.Create<string>();
       provider.RegisterCompilers(typeof(ConflictCompiler1));
-      provider.RegisterCompilers(typeof(ConflictCompiler2), ConflictHandlingMethod.ReportError);
+      Assert.Throws<InvalidOperationException>(() => provider.RegisterCompilers(typeof(ConflictCompiler2), ConflictHandlingMethod.ReportError));
     }
 
     [Test]

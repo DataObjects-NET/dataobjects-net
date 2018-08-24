@@ -55,28 +55,32 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    [Test, ExpectedException(typeof (ValidationFailedException))]
+    [Test]
     public void Failure1Test()
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var entity = new GenericEntity<long>();
-        entity.Name = entity.Id.ToString();
-        entity.Value = -1;
-        session.Validate();
-        tx.Complete();
-      }
+      Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          var entity = new GenericEntity<long>();
+          entity.Name = entity.Id.ToString();
+          entity.Value = -1;
+          session.Validate();
+          tx.Complete();
+        }
+      });
     }
 
-    [Test, ExpectedException(typeof (ValidationFailedException))]
+    [Test]
     public void Failure2Test()
     {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var entity = new GenericEntity<long>();
-        session.Validate();
-        tx.Complete();
-      }
+      Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          var entity = new GenericEntity<long>();
+          session.Validate();
+          tx.Complete();
+        }
+      });
     }
   }
 }

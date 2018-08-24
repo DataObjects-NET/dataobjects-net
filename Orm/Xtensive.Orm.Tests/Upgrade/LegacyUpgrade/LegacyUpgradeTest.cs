@@ -169,7 +169,7 @@ namespace Xtensive.Orm.Tests.Upgrade.LegacyUpgrade
 
     #endregion
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
       Require.ProviderIs(StorageProvider.SqlServer);

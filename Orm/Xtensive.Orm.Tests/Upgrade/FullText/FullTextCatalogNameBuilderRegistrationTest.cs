@@ -109,7 +109,6 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
-    [ExpectedException(typeof (DomainBuilderException))]
     public void MultipleEnabledUserImplementationsTest()
     {
       var resolvers = new[] {
@@ -119,7 +118,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         typeof (EnabledCustomBuilder2),
       };
 
-      RunTest(resolvers, null);
+      Assert.Throws<DomainBuilderException>(() => RunTest(resolvers, null));
     }
 
     private void RunTest(Type[] resolvers, Type expectedResolverType)

@@ -264,7 +264,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetup()
     {
       Require.ProviderIs(StorageProvider.SqlServer);

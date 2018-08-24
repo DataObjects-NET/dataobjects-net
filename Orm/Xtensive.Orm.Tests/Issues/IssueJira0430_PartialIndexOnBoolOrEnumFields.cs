@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   public class IssueJira0430_PartialIndexOnBoolOrEnumFields
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
       Require.AllFeaturesSupported(ProviderFeatures.PartialIndexes);

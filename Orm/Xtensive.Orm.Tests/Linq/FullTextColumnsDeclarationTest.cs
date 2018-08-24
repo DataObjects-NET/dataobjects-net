@@ -39,51 +39,45 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (QueryTranslationException))]
     public void StructureNonFulltextFieldTest()
     {
       var columns = MakeUpColumns<Employee>(t => t.Address.Region);
-      RunQuery(columns);
+      Assert.Throws<QueryTranslationException>(() => RunQuery(columns));
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void NonPersistentFieldTest()
     {
       var columns = MakeUpColumns<Employee>(t => t.FullName);
-      RunQuery(columns);
+      Assert.Throws<QueryTranslationException>(() => RunQuery(columns));
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void NonPersistentStructureFieldTest()
     {
       var columns = MakeUpColumns<Employee>(t => t.Address.JustAProperty);
-      RunQuery(columns);
+      Assert.Throws<QueryTranslationException>(() => RunQuery(columns));
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void EntitySetFieldTest()
     {
       var columns = MakeUpColumns<Employee>(t => t.Orders);
-      RunQuery(columns);
+      Assert.Throws<QueryTranslationException>(() => RunQuery(columns));
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void MethodAsColumnTest()
     {
       var columns = MakeUpColumns<Employee>(t => t.GetAge());
-      RunQuery(columns);
+      Assert.Throws<QueryTranslationException>(() => RunQuery(columns));
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void ReferencedEntityFieldTest()
     {
       var columns = MakeUpColumns<Product>(t => t.Category.Description);
-      RunQuery(columns);
+      Assert.Throws<QueryTranslationException>(() => RunQuery(columns));
     }
 
     [Test]
@@ -94,11 +88,10 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (ArgumentNullException))]
     public void NullColumnsArray()
     {
       Expression<Func<Category, object>>[] columns = null;
-      Session.Query.ContainsTable<Category>(e => e.SimpleTerm("abc"), columns).Run();
+      Assert.Throws<ArgumentNullException>(() => Session.Query.ContainsTable<Category>(e => e.SimpleTerm("abc"), columns).Run());
     }
 
     private void RunQuery<T>(Expression<Func<T, object>>[] columns)

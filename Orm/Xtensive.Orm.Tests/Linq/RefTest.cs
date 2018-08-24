@@ -13,7 +13,7 @@ using System.Linq;
 namespace Xtensive.Orm.Tests.Linq
 {
   [TestFixture]
-  [Ignore]
+  [Ignore("")]
   public class RefTest : NorthwindDOModelTest
   {
     private class X

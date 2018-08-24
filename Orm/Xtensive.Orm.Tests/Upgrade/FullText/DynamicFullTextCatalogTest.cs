@@ -151,7 +151,7 @@ namespace Xtensive.Orm.Tests.Upgrade
   [TestFixture]
   public class DynamicFullTextCatalogTest
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
       Require.AllFeaturesSupported(ProviderFeatures.FullText);

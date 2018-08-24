@@ -470,7 +470,7 @@ namespace Xtensive.Orm.Tests.Issues
       return configuration;
     }
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
       try {
@@ -485,7 +485,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    [TestFixtureTearDown]
+    [OneTimeTearDown]
     public void TestFixtureTearDown()
     {
     }

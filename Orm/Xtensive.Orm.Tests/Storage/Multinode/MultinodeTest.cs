@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     {
     }
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
       CheckRequirements();
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       PopulateData();
     }
 
-    [TestFixtureTearDown]
+    [OneTimeTearDown]
     public void TestFixtureTearDown()
     {
       if (Domain!=null)

@@ -243,16 +243,17 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void Poco1Test()
     {
-      var pocos = Session.Query.All<Customer>()
-        .Select(customer => new Poco<string>(){Value = customer.Id})
-        .ToList();
-      var query = Session.Query.All<Customer>().Join(pocos, customer => customer.Id, poco => poco.Value, (customer, poco) => poco);
-      var expected = Session.Query.All<Customer>().AsEnumerable().Join(pocos, customer => customer.Id, poco => poco.Value, (customer, poco) => poco);
-      Assert.AreEqual(0, expected.Except(query).Count());
-      QueryDumper.Dump(query);
+      Assert.Throws<QueryTranslationException>(() => {
+        var pocos = Session.Query.All<Customer>()
+          .Select(customer => new Poco<string>() { Value = customer.Id })
+          .ToList();
+        var query = Session.Query.All<Customer>().Join(pocos, customer => customer.Id, poco => poco.Value, (customer, poco) => poco);
+        var expected = Session.Query.All<Customer>().AsEnumerable().Join(pocos, customer => customer.Id, poco => poco.Value, (customer, poco) => poco);
+        Assert.AreEqual(0, expected.Except(query).Count());
+        QueryDumper.Dump(query);
+      });
     }
 
     [Test]
@@ -334,12 +335,11 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void TypeLoop1Test()
     {
       var nodes = new Node[10];
-      var query = Session.Query.All<Order>().Join(nodes, order => order.Customer.Address.City, node=>node.Name, (order,node)=> new{order, node});
-      QueryDumper.Dump(query);
+      var query = Session.Query.All<Order>().Join(nodes, order => order.Customer.Address.City, node => node.Name, (order, node) => new { order, node });
+      Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(query));
     }
 
     [Test]
@@ -374,14 +374,15 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void KeyTest()
     {
-      var keys = Session.Query.All<Order>().Take(10).Select(order => order.Key).ToList();
-      var query = Session.Query.All<Order>().Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
-      QueryDumper.Dump(query);
-      var expectedQuery = Session.Query.All<Order>().AsEnumerable().Join(keys, order => order.Key, key => key, (order, key) => new {order, key});
-      Assert.AreEqual(0, expectedQuery.Except(query).Count());
+      Assert.Throws<QueryTranslationException>( () => {
+        var keys = Session.Query.All<Order>().Take(10).Select(order => order.Key).ToList();
+        var query = Session.Query.All<Order>().Join(keys, order => order.Key, key => key, (order, key) => new { order, key });
+        QueryDumper.Dump(query);
+        var expectedQuery = Session.Query.All<Order>().AsEnumerable().Join(keys, order => order.Key, key => key, (order, key) => new { order, key });
+        Assert.AreEqual(0, expectedQuery.Except(query).Count());
+      });
     }
 
     [Test]
@@ -760,13 +761,14 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void ClosureCacheTest()
     {
-      var localItems = GetLocalItems(100);
-      var queryable = Session.Query.Store(localItems);
-      var result = Session.Query.Execute(qe => qe.All<Order>().Where(order => order.Freight > queryable.Max(poco=>poco.Value1)));
-      QueryDumper.Dump(result);
+      Assert.Throws<QueryTranslationException>( () => {
+        var localItems = GetLocalItems(100);
+        var queryable = Session.Query.Store(localItems);
+        var result = Session.Query.Execute(qe => qe.All<Order>().Where(order => order.Freight > queryable.Max(poco => poco.Value1)));
+        QueryDumper.Dump(result);
+      });
     }
 
     [Test]

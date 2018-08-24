@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Assert.DoesNotThrow(() => RebuildDomain(configuration));
     }
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     protected void TestFixtureSetUp()
     {
       CheckRequirements();

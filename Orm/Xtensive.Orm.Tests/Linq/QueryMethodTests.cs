@@ -25,12 +25,11 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void SingleSubqueryNonGenericTest()
     {
-      var query = Session.Query.All<Customer>().Where(c => c==Session.Query.Single(Session.Query.All<Customer>().FirstOrDefault().Key));
-      var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c==Session.Query.Single(Session.Query.All<Customer>().FirstOrDefault().Key));
-      Assert.AreEqual(0, expected.Except(query).Count());
+      var query = Session.Query.All<Customer>().Where(c => c == Session.Query.Single(Session.Query.All<Customer>().FirstOrDefault().Key));
+      var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c == Session.Query.Single(Session.Query.All<Customer>().FirstOrDefault().Key));
+      Assert.Throws<QueryTranslationException>(() => Assert.AreEqual(0, expected.Except(query).Count()));
     }
 
     [Test]
@@ -43,12 +42,11 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void SingleSubqueryTupleTest()
     {
-      var query = Session.Query.All<Customer>().Where(c => c==Session.Query.Single<Customer>(Session.Query.All<Customer>().FirstOrDefault().Id));
-      var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c==Session.Query.Single<Customer>(Session.Query.All<Customer>().FirstOrDefault().Id));
-      Assert.AreEqual(0, expected.Except(query).Count());
+      var query = Session.Query.All<Customer>().Where(c => c == Session.Query.Single<Customer>(Session.Query.All<Customer>().FirstOrDefault().Id));
+      var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c == Session.Query.Single<Customer>(Session.Query.All<Customer>().FirstOrDefault().Id));
+      Assert.Throws<QueryTranslationException>(() => Assert.AreEqual(0, expected.Except(query).Count()));
     }
 
     [Test]
@@ -61,12 +59,11 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void SingleOrDefaultSubqueryNonGenericTest()
     {
       var query = Session.Query.All<Customer>().Where(c => c==Session.Query.SingleOrDefault(Session.Query.All<Customer>().FirstOrDefault().Key));
       var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c==Session.Query.SingleOrDefault(Session.Query.All<Customer>().FirstOrDefault().Key));
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.Throws<QueryTranslationException>(() => Assert.AreEqual(0, expected.Except(query).Count()));
     }
 
     [Test]
@@ -79,12 +76,11 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void SingleOrDefaultSubqueryTupleTest()
     {
       var query = Session.Query.All<Customer>().Where(c => c==Session.Query.SingleOrDefault<Customer>(Session.Query.All<Customer>().FirstOrDefault().Id));
       var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => c==Session.Query.SingleOrDefault<Customer>(Session.Query.All<Customer>().FirstOrDefault().Id));
-      Assert.AreEqual(0, expected.Except(query).Count());
+      Assert.Throws<QueryTranslationException>(() => Assert.AreEqual(0, expected.Except(query).Count()));
     }
 
     [Test]

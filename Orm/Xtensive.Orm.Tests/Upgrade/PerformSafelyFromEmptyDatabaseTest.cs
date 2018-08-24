@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Tests.Upgrade
   [TestFixture]
   public class PerformSafelyFromEmptyDatabaseTest
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
       Require.ProviderIs(StorageProvider.SqlServer, "Server-specific SQL is used");

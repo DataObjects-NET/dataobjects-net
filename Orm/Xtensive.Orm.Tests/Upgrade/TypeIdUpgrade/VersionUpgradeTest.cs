@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade
   [TestFixture]
   public class VersionUpgradeTest
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
       Require.ProviderIs(StorageProvider.SqlServer);

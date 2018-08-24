@@ -385,7 +385,7 @@ namespace Xtensive.Orm.Tests.Issues
     private ClientNodeConfiguration beta;
     private ClientNodeConfiguration main;
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
       Require.ProviderIs(StorageProvider.SqlServer);

@@ -30,13 +30,14 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof (QueryTranslationException))]
     public void ReuseFreeText1Test()
     {
-      var result1 = TakeMatchesIncorrect("Dessert candy and coffee seafood").Count();
-      Assert.AreEqual(3, result1);
-      var result2 = TakeMatchesIncorrect("1212erddfr324324rwefrtb43543543").Count();
-      Assert.AreEqual(0, result2);
+      Assert.Throws<QueryTranslationException>(() => {
+        var result1 = TakeMatchesIncorrect("Dessert candy and coffee seafood").Count();
+        Assert.AreEqual(3, result1);
+        var result2 = TakeMatchesIncorrect("1212erddfr324324rwefrtb43543543").Count();
+        Assert.AreEqual(0, result2);
+      });
     }
 
     [Test]

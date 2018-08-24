@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tests.Linq
     private Key supplierLekaKey;
     private Key categoryFirstKey;
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
@@ -1292,11 +1292,10 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     }
 
     [Test]
-    [ExpectedException(typeof (QueryTranslationException))]
     public void NonPersistentFieldTest()
     {
       var result = from e in Session.Query.All<Employee>() where e.FullName!=null select e;
-      result.ToList();
+      Assert.Throws<QueryTranslationException>(() => result.ToList());
     }
 
     [Test]

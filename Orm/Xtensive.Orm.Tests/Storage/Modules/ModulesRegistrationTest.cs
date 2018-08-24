@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Tests.Storage.Modules
   [Explicit("Requires specific file path.")]
   public sealed class ModulesRegistrationTest
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
       Require.ProviderIs(StorageProvider.SqlServer);

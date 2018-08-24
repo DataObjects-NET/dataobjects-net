@@ -453,9 +453,8 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
 
     private DomainConfiguration configurationForLaterValidation;
     private DomainConfiguration configurationForImmediateValidation;
-    
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void Setup()
     {
       configurationForLaterValidation = DomainConfigurationFactory.Create();
@@ -465,7 +464,7 @@ namespace Xtensive.Orm.Tests.Storage.AnotherValidation
       configurationForImmediateValidation = DomainConfigurationFactory.Create();
       configurationForImmediateValidation.UpgradeMode = DomainUpgradeMode.Perform;
       configurationForImmediateValidation.Types.Register(typeof (model2.Customer).Assembly, typeof (model2.Customer).Namespace);
-      
+
       FillData();
     }
 

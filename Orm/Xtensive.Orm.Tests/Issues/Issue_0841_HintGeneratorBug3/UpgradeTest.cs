@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3
   {
     private Domain domain;
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestSetUp()
     {
       Require.ProviderIs(StorageProvider.SqlServer);

@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Tests.Model
   [TestFixture]
   public class VersionInfoTest
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
       Require.ProviderIs(StorageProvider.SqlServer);
@@ -149,7 +149,7 @@ namespace Xtensive.Orm.Tests.Model
     }
 
     [Test]
-    [Ignore]
+    [Ignore("")]
     [Obsolete]
     public void RootOnlyVersionTest()
     {

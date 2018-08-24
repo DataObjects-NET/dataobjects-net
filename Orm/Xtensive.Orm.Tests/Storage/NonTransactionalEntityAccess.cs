@@ -40,12 +40,14 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    [Test, ExpectedException(typeof (InvalidOperationException))]
+    [Test]
     public void InvalidOperationTest()
     {
-      using (var session = Domain.OpenSession()) {
-        new Hexagon();
-      }
+      Assert.Throws<InvalidOperationException>(() => {
+        using (var session = Domain.OpenSession()) {
+          new Hexagon();
+        }
+      });
     }
   }
 }

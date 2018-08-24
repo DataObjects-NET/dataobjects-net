@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0202_OnRemoveActionOverriding_Model
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  [Ignore]
+  [Ignore("")]
   public class IssueJira0202_OnRemoveActionOverriding : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()

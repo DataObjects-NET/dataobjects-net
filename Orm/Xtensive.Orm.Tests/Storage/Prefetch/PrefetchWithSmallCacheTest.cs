@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       return config;
     }
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();

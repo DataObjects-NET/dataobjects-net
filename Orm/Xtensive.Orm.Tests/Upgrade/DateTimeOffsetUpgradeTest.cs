@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       TestWithChanges(DomainUpgradeMode.Perform, false);
     }
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void FixtureSetUp()
     {
       Require.AnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);

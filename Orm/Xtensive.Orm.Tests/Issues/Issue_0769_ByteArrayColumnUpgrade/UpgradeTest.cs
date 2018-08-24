@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
   {
     private Domain domain;
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestSetUp()
     {
       Require.ProviderIsNot(StorageProvider.Firebird);

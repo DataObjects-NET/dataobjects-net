@@ -55,61 +55,64 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void IsIntermediateTest()
     {
-      Session.Query.All<Product>()
-        .Where(p => p is IntermediateProduct)
-        .Select(product => (IntermediateProduct) product)
-        .Count();
+      Assert.Throws<QueryTranslationException>( () => {
+        Session.Query.All<Product>()
+          .Where(p => p is IntermediateProduct)
+          .Select(product => (IntermediateProduct)product)
+          .Count();
+      });
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void IsCountTest()
     {
-      int productCount = Session.Query.All<Product>().Count();
-      int intermediateProductCount = Session.Query.All<IntermediateProduct>().Count();
-      int discontinuedProductCount = Session.Query.All<DiscontinuedProduct>().Count();
-      int activeProductCount = Session.Query.All<ActiveProduct>().Count();
+      Assert.Throws<QueryTranslationException>(
+        () => {
+          int productCount = Session.Query.All<Product>().Count();
+          int intermediateProductCount = Session.Query.All<IntermediateProduct>().Count();
+          int discontinuedProductCount = Session.Query.All<DiscontinuedProduct>().Count();
+          int activeProductCount = Session.Query.All<ActiveProduct>().Count();
 
-      Assert.Greater(productCount, 0);
-      Assert.Greater(intermediateProductCount, 0);
-      Assert.Greater(discontinuedProductCount, 0);
-      Assert.Greater(activeProductCount, 0);
+          Assert.Greater(productCount, 0);
+          Assert.Greater(intermediateProductCount, 0);
+          Assert.Greater(discontinuedProductCount, 0);
+          Assert.Greater(activeProductCount, 0);
 
-      Assert.AreEqual(
-        productCount,
-        intermediateProductCount);
+          Assert.AreEqual(
+            productCount,
+            intermediateProductCount);
 
-      Assert.AreEqual(
-        intermediateProductCount,
-        Session.Query.All<Product>()
-          .Where(p => p is IntermediateProduct)
-          .Select(product => (IntermediateProduct) product)
-          .Count());
+          Assert.AreEqual(
+            intermediateProductCount,
+            Session.Query.All<Product>()
+              .Where(p => p is IntermediateProduct)
+              .Select(product => (IntermediateProduct) product)
+              .Count());
 
-      Assert.AreEqual(
-        discontinuedProductCount,
-        Session.Query.All<Product>()
-          .Where(p => p is DiscontinuedProduct)
-          .Select(product => (DiscontinuedProduct) product)
-          .Count());
+          Assert.AreEqual(
+            discontinuedProductCount,
+            Session.Query.All<Product>()
+              .Where(p => p is DiscontinuedProduct)
+              .Select(product => (DiscontinuedProduct) product)
+              .Count());
 
-      Assert.AreEqual(
-        activeProductCount,
-        Session.Query.All<Product>()
-          .Where(p => p is ActiveProduct)
-          .Select(product => (ActiveProduct) product)
-          .Count());
+          Assert.AreEqual(
+            activeProductCount,
+            Session.Query.All<Product>()
+              .Where(p => p is ActiveProduct)
+              .Select(product => (ActiveProduct) product)
+              .Count());
 
 #pragma warning disable 183
-      Assert.AreEqual(
-        productCount,
-        Session.Query.All<Product>()
-          .Where(p => p is Product)
-          .Count());
+          Assert.AreEqual(
+            productCount,
+            Session.Query.All<Product>()
+              .Where(p => p is Product)
+              .Count());
 #pragma warning restore 183
+        });
     }
 
     [Test]
@@ -227,25 +230,23 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void IsGetParentFieldTest()
     {
       var result = Session.Query.All<Product>()
         .Where(p => p is DiscontinuedProduct)
         .Select(x => (DiscontinuedProduct) x)
         .Select(dp => dp.ProductName);
-      QueryDumper.Dump(result);
+      Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(result));
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void IsGetChildFieldTest()
     {
       var result = Session.Query.All<Product>()
         .Where(p => p is DiscontinuedProduct)
         .Select(x => (DiscontinuedProduct) x)
         .Select(dp => dp.QuantityPerUnit);
-      QueryDumper.Dump(result);
+      Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(result));
     }
 
     [Test]
@@ -294,7 +295,6 @@ namespace Xtensive.Orm.Tests.Linq
 
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void ComplexIsCastTest()
     {
       var result = Session.Query.All<Product>()
@@ -318,7 +318,8 @@ namespace Xtensive.Orm.Tests.Linq
               ? "NULL"
               : x.DiscontinuedProduct.QuantityPerUnit
           });
-      QueryDumper.Dump(result);
+
+      Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(result));
     }
 
     [Test]

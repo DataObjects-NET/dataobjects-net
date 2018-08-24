@@ -72,7 +72,6 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void ItemEquals1Test()
     {
       using (var session = Domain.OpenSession()) {
@@ -80,7 +79,7 @@ namespace Xtensive.Orm.Tests.Issues
           var item1 = new Item();
           var item2 = new Item();
           var result = session.Query.All<Item>().Where(item => Item.Equals((object)item, (object)item1));
-          QueryDumper.Dump(result);
+          Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(result));
           // Rollback
         }
       }

@@ -19,7 +19,6 @@ namespace Xtensive.Orm.Tests.Linq
   public class AggregateTest : NorthwindDOModelTest
   {
     [Test]
-    [ExpectedException(typeof(QueryTranslationException))]
     public void EntitySetWithGroupingAggregateTest()
     {
       var query =
@@ -27,7 +26,7 @@ namespace Xtensive.Orm.Tests.Linq
           .GroupBy(customer => customer.Address.City)
           .Select(grouping => grouping.Max(g => g.Orders));
 
-      QueryDumper.Dump(query);
+      Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(query));
     }
 
     [Test]
