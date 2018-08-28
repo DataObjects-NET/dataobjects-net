@@ -1830,7 +1830,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\_BuildCore\ProductInfo\ProductInfo.cs">
+    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
       <Link>Properties\ProductInfo.cs</Link>
     </Compile>
   </ItemGroup>

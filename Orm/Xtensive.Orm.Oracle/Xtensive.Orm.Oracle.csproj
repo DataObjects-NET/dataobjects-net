@@ -45,7 +45,7 @@
     <Compile Include="..\Xtensive.Orm\Properties\Visibility.cs">
       <Link>Properties\Visibility.cs</Link>
     </Compile>
-    <Compile Include="..\..\_BuildCore\ProductInfo\ProductInfo.cs">
+    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
       <Link>Properties\ProductInfo.cs</Link>
     </Compile>
     <Compile Include="Orm.Providers.Oracle\DomainHandler.cs" />
