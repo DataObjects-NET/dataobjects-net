@@ -101,5 +101,5 @@
     <None Include="Prefetch\Prefetch.sql" />
     <None Include="Structures\Diagrams.pptx" />
   </ItemGroup>
-  <!--<Import Project="..\..\MSBuildCore\DataObjects.Net.InternalBuild.targets" />-->
+  <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
 </Project>

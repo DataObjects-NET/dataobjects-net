@@ -896,5 +896,5 @@
       <DependentUpon>TwoPartsModel.tt</DependentUpon>
     </Compile>
   </ItemGroup>
-  <!--<Import Project="..\..\MSBuildCore\DataObjects.Net.InternalBuild.targets" />-->
+  <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
 </Project>

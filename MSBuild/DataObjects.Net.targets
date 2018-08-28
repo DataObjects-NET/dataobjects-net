@@ -17,6 +17,7 @@
 </PropertyGroup>
 
 <Target Name="XtensiveOrmBuild"
+        AfterTargets="Compile"
         Inputs="@(IntermediateAssembly -> '%(FullPath)')"
         Outputs="@(IntermediateAssembly -> '%(FullPath).weaver-stamp')"
         DependsOnTargets="ResolveAssemblyReferences;_CopyFilesMarkedCopyLocal;$(XtensiveOrmBuildDependsOn)"
