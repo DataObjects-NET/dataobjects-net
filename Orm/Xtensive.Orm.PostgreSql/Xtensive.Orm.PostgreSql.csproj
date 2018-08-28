@@ -20,16 +20,16 @@
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\_BuildCore\Binaries\Debug\Lib\</OutputPath>
-    <DocumentationFile>..\..\_BuildCore\Binaries\Debug\Lib\$(TargetFramework)\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
+    <OutputPath>..\..\_Build\Binaries\Debug\Lib\</OutputPath>
+    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\$(TargetFramework)\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
     <DefineConstants>TRACE;DEBUG;NETSTANDARD</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
     <Optimize>false</Optimize>
     <DebugType>pdbonly</DebugType>
-    <OutputPath>..\..\_BuildCore\Binaries\Release\Lib\</OutputPath>
-    <DocumentationFile>..\..\_BuildCore\Binaries\Release\Lib\$(TargetFramework)\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
+    <OutputPath>..\..\_Build\Binaries\Release\Lib\</OutputPath>
+    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\$(TargetFramework)\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
     <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
   </PropertyGroup>
 

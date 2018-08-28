@@ -21,14 +21,14 @@
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\_BuildCore\Binaries\Debug\Lib\</OutputPath>
+    <OutputPath>..\..\_Build\Binaries\Debug\Lib\</OutputPath>
     <DefineConstants>TRACE;DEBUG;NETCOREAPP</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
     <Optimize>false</Optimize>
     <DebugType>pdbonly</DebugType>
-    <OutputPath>..\..\_BuildCore\Binaries\Release\Lib\</OutputPath>
+    <OutputPath>..\..\_Build\Binaries\Release\Lib\</OutputPath>
     <DefineConstants>TRACE;NETCOREAPP</DefineConstants>
   </PropertyGroup>
 

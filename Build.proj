@@ -23,10 +23,10 @@
 
 <ItemGroup>
   <!-- ProductInfo (works) -->
-  <ProductInfo Include="ProductInfoCore\ProductInfo.proj" />
+  <ProductInfo Include="ProductInfo\ProductInfo.proj" />
   
   <!-- Binaries -->
-  <BinariesNetStandard Include="BuildBinariesCore.proj">
+  <BinariesNetStandard Include="BuildBinaries.proj">
     <Properties>Configuration=$(Configuration)</Properties>
   </BinariesNetStandard>
   
@@ -58,7 +58,7 @@
 <!-- DataObjects.Net.targets -->
 <Target Name="CopyTargetsFile">
   <Copy SourceFiles="MSBuild\DataObjects.Net.targets"
-        DestinationFolder="_BuildCore\Binaries\$(Configuration)"
+        DestinationFolder="_Build\Binaries\$(Configuration)"
         SkipUnchangedFiles="true" />
 </Target>
 
