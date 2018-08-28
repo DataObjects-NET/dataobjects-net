@@ -7,7 +7,9 @@
 </PropertyGroup>
 
 <PropertyGroup Condition="'$(EnableAllDist)'=='true'">
+  <!--
   <EnableBinariesZip>true</EnableBinariesZip>
+  -->
   <EnableSourcesZip>true</EnableSourcesZip>
   <EnableDebugSymbolsZip>true</EnableDebugSymbolsZip>
 </PropertyGroup>
