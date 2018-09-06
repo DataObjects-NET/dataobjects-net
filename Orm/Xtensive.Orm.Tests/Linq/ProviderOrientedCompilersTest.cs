@@ -67,10 +67,11 @@ namespace Xtensive.Orm.Tests.Linq
         var query = session.Query.All<TestEntity>().Where(x => CustomCompilerStringExtensions.GetThirdChar(x.Text) == 'l');
         Assert.IsNull(CompilerContainerInfo.Current);
 
-        Assert.IsNotEmpty(query.ToArray());
+        Assert.AreNotEqual(query.Count(), 0);
         Assert.IsNull(CompilerContainerInfo.Current);
-        //transaction.Complete();
       }
     }
+
+
   }
 }

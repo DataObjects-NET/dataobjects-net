@@ -28,9 +28,14 @@ namespace Xtensive.Orm.Providers
       const string percent = "%";
       const string ground = "_";
       const string escape = "^";
+      const string leftSquareBracket = "[";
+      const string rightSquareBracket = "]";
+
       const string escapeEscape = "^^";
       const string escapeGround = "^_";
       const string escapePercent = "^%";
+      const string escapeLeftSquareBracket = "^[";
+      const string escapeRightSquareBracket = "^]";
 
       var stringPattern = patternExpression as SqlLiteral<string>;
       var charPattern = patternExpression as SqlLiteral<char>;
@@ -38,6 +43,12 @@ namespace Xtensive.Orm.Providers
         SqlExpression result = SqlDml.Replace(patternExpression, SqlDml.Literal(escape), SqlDml.Literal(escapeEscape));
         result = SqlDml.Replace(result, SqlDml.Literal(ground), SqlDml.Literal(escapeGround));
         result = SqlDml.Replace(result, SqlDml.Literal(percent), SqlDml.Literal(escapePercent));
+
+        if (CompilerContainerInfo.Current.ProviderInfo.ProviderName==WellKnown.Provider.SqlServer) {
+          result = SqlDml.Replace(result, SqlDml.Literal(leftSquareBracket), SqlDml.Literal(escapeLeftSquareBracket));
+          result = SqlDml.Replace(result, SqlDml.Literal(rightSquareBracket), SqlDml.Literal(escapeRightSquareBracket));
+        }
+
         if (percentAtStart)
           result = SqlDml.Concat(SqlDml.Literal(percent), result);
         if (percentAtEnd)
@@ -54,6 +65,12 @@ namespace Xtensive.Orm.Providers
         .Replace(escape, escapeEscape)
         .Replace(percent, escapePercent)
         .Replace(ground, escapeGround);
+
+      if (CompilerContainerInfo.Current.ProviderInfo.ProviderName==WellKnown.Provider.SqlServer) {
+        escapedPattern.Replace(leftSquareBracket, escapeLeftSquareBracket);
+        escapedPattern.Replace(rightSquareBracket, escapeRightSquareBracket);
+      }
+
       bool escaped = escapedPattern.Length > originalPattern.Length;
       if (percentAtStart)
         escapedPattern.Insert(0, percent);

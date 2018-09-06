@@ -4,8 +4,12 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.07.13
 
+using System;
 using NUnit.Framework;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Runtime.InteropServices;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.DbTypeSupportModel;
@@ -53,6 +57,8 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         "__",
         "^QQ",
         "PQ^",
+        "ololo[ololo",
+        "ololo]ololo",
         // other test values
         "     ",
       };
@@ -145,69 +151,29 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void StartsWithTest()
     {
-      var result = Session.Demand().Query.All<X>().Select(x => new {
-        x.Id,
-        String = x.FString,
-        StartsWithA = x.FString.StartsWith("A"),
-        StartsWithPercent = x.FString.StartsWith("%"),
-        StartsWithGround = x.FString.StartsWith("_"),
-        StartsWithPrecentGround = x.FString.StartsWith("%_"),
-        StartsWithGroundPercent = x.FString.StartsWith("_%"),
-        StartsWithEscape = x.FString.StartsWith("^"),
-      }).ToList();
-      foreach (var x in result) {
-        Assert.AreEqual(ConvertString(x.String).StartsWith("A"), x.StartsWithA);
-        Assert.AreEqual(ConvertString(x.String).StartsWith("%"), x.StartsWithPercent);
-        Assert.AreEqual(ConvertString(x.String).StartsWith("_"), x.StartsWithGround);
-        Assert.AreEqual(ConvertString(x.String).StartsWith("%_"), x.StartsWithPrecentGround);
-        Assert.AreEqual(ConvertString(x.String).StartsWith("_%"), x.StartsWithGroundPercent);
-        Assert.AreEqual(ConvertString(x.String).StartsWith("^"), x.StartsWithEscape);
-      }
+      GenericLikeTest(param => x => x.FString.StartsWith(param));
     }
 
     [Test]
     public void EndsWithTest()
     {
-      var result = Session.Demand().Query.All<X>().Select(x => new {
-        x.Id,
-        String = x.FString,
-        EndsWithA = x.FString.EndsWith("A"),
-        EndsWithPercent = x.FString.EndsWith("%"),
-        EndsWithGround = x.FString.EndsWith("_"),
-        EndsWithPrecentGround = x.FString.EndsWith("%_"),
-        EndsWithGroundPercent = x.FString.EndsWith("_%"),
-        EndsWithEscape = x.FString.EndsWith("^"),
-      }).ToList();
-      foreach (var x in result) {
-        Assert.AreEqual(ConvertString(x.String).EndsWith("A"), x.EndsWithA);
-        Assert.AreEqual(ConvertString(x.String).EndsWith("%"), x.EndsWithPercent);
-        Assert.AreEqual(ConvertString(x.String).EndsWith("_"), x.EndsWithGround);
-        Assert.AreEqual(ConvertString(x.String).EndsWith("%_"), x.EndsWithPrecentGround);
-        Assert.AreEqual(ConvertString(x.String).EndsWith("_%"), x.EndsWithGroundPercent);
-        Assert.AreEqual(ConvertString(x.String).EndsWith("^"), x.EndsWithEscape);
-      }
+      GenericLikeTest(param => x => x.FString.EndsWith(param));
     }
 
     [Test]
     public void ContainsTest()
     {
-      var result = Session.Demand().Query.All<X>().Select(x => new {
-        x.Id,
-        String = x.FString,
-        ContainsA = x.FString.Contains("A"),
-        ContainsPercent = x.FString.Contains("%"),
-        ContainsGround = x.FString.Contains("_"),
-        ContainsPrecentGround = x.FString.Contains("%_"),
-        ContainsGroundPercent = x.FString.Contains("_%"),
-        ContainsEscape = x.FString.Contains("^"),
-      }).ToList();
-      foreach (var x in result) {
-        Assert.AreEqual(ConvertString(x.String).Contains("A"), x.ContainsA);
-        Assert.AreEqual(ConvertString(x.String).Contains("%"), x.ContainsPercent);
-        Assert.AreEqual(ConvertString(x.String).Contains("_"), x.ContainsGround);
-        Assert.AreEqual(ConvertString(x.String).Contains("%_"), x.ContainsPrecentGround);
-        Assert.AreEqual(ConvertString(x.String).Contains("_%"), x.ContainsGroundPercent);
-        Assert.AreEqual(ConvertString(x.String).Contains("^"), x.ContainsEscape);
+      GenericLikeTest(param => x => x.FString.Contains(param));
+    }
+
+    private void GenericLikeTest(Func<string, Expression<Func<X, bool>>> selector)
+    {
+      var paramStrings = new[] {"A", "%", "_", "%_", "_%", "^", "[", "]"};
+      var testStrings = Session.Demand().Query.All<X>().ToArray();
+      foreach (var testString in paramStrings) {
+        var sample = testStrings.AsQueryable().Where(selector(testString)).Select(x => x.FString).ToArray();
+        var result = Session.Demand().Query.All<X>().Where(selector(testString)).Select(x => x.FString).ToArray();
+        Assert.IsTrue(sample.SequenceEqual(result), "String: " + testString);
       }
     }
 
