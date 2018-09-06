@@ -400,6 +400,8 @@
     <Compile Include="Orm\Logging\Internals\NullLog.cs" />
     <Compile Include="Orm\Model\Stored\Internals\TypeMappingUpdater.cs" />
     <Compile Include="Orm\Model\TypeIdRegistry.cs" />
+    <Compile Include="Orm\Providers\Expressions\CompilerContainerInfo.cs" />
+    <Compile Include="Orm\Providers\Expressions\CompilerContainerInfoScope.cs" />
     <Compile Include="Orm\Providers\NullSearchConditionCompiler.cs" />
     <Compile Include="Orm\Providers\SearchConditionCompiler.cs" />
     <Compile Include="Orm\Providers\SqlServer\SearchConditionCompilerV09.cs" />
