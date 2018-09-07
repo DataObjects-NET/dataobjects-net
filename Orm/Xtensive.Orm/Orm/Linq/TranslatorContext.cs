@@ -131,6 +131,8 @@ namespace Xtensive.Orm.Linq
       Domain = session.Domain;
       RseCompilerConfiguration = rseCompilerConfiguration;
 
+      query = ClosureAccessRewriter.Rewrite(query);
+
       // Applying query preprocessors
       query = Domain.Handler.QueryPreprocessors
         .Aggregate(query, (current, preprocessor) => ApplyPreprocessor(preprocessor, session, current));
