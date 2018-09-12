@@ -34,7 +34,8 @@ namespace Xtensive.Orm.Tests.Sql
     {
       if (useConnectionInfo)
         storage += "cs";
-      var domainConnectionInfo = DomainConfiguration.Load(storage).ConnectionInfo;
+      var configuration = typeof(TestConnectionInfoProvider).Assembly.GetAssemblyConfiguration();
+      var domainConnectionInfo = DomainConfiguration.Load(configuration,storage).ConnectionInfo;
       var customConnectionInfo = TestConfiguration.Instance.GetConnectionInfo(storage);
       return customConnectionInfo ?? domainConnectionInfo;
     }

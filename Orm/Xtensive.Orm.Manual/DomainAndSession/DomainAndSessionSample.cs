@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Manual.DomainAndSession
   #endregion
 
   [TestFixture]
-  public class DomainAndSessionSample
+  public class DomainAndSessionSample : HasConfigurationAccessTest
   {
     #region Connection URL examples
     
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Manual.DomainAndSession
       #region Connection string in App.config sample
 
       // Creating new Domain configuration
-      var config = DomainConfiguration.Load("mssql2005cs");
+      var config = LoadDomainConfiguration("mssql2005cs");
       // Registering all types in the specified assembly and namespace
       config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
       // And finally building the domain

@@ -12,7 +12,7 @@ using Xtensive.Orm.Configuration;
 namespace Xtensive.Orm.Tests.Issues
 {
   [TestFixture]
-  public class Issue0689_WeirdExceptionWhenMissingConnectionInfo
+  public class Issue0689_WeirdExceptionWhenMissingConnectionInfo : HasConfigurationAccessTest
   {
     [Test]
     public void MissingConnectionInfoInCodeTest()
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       Require.ProviderIs(StorageProvider.SqlServer);
       // Default behavior was changed
-      var config = DomainConfiguration.Load("AppConfigTest", "DomainWithWrongConnectionInfo");
+      var config = LoadDomainConfiguration("AppConfigTest", "DomainWithWrongConnectionInfo");
       Assert.That(config.ConnectionInfo.Provider, Is.EqualTo(WellKnown.Provider.SqlServer));
     }
   }

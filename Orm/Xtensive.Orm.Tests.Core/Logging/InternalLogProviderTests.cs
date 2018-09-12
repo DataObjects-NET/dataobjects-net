@@ -11,7 +11,7 @@ using Xtensive.Orm.Logging;
 namespace Xtensive.Orm.Tests.Core.Logging
 {
   [TestFixture]
-  public class InternalLogProviderTests
+  public class InternalLogProviderTests : HasConfigurationAccessTest
   {
     [Test]
     public void DefaultInitializationTest()
@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tests.Core.Logging
     [Test]
     public void ParameterizedInitializationTest()
     {
-      var configuration = LoggingConfiguration.Load("LoggingConfiguration");
+      var configuration = LoadLoggingConfiguration("LoggingConfiguration");
       var logProvider = new InternalLogProvider(configuration.Logs);
       var logger = logProvider.GetLog("Trash");
 

@@ -15,14 +15,14 @@ using Xtensive.Orm.Logging;
 namespace Xtensive.Orm.Tests.Core.Logging
 {
   [TestFixture]
-  public class WriteToLogInstanceTests
+  public class WriteToLogInstanceTests: HasConfigurationAccessTest
   {
     private LoggingConfiguration configuration;
 
     [OneTimeSetUp]
     public void Setup()
     {
-      configuration = LoggingConfiguration.Load("LoggingConfiguration");
+      configuration = LoadLoggingConfiguration("LoggingConfiguration");
     }
 
     [Test]

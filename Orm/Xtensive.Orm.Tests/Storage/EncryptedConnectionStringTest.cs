@@ -10,12 +10,12 @@ using Xtensive.Orm.Configuration;
 namespace Xtensive.Orm.Tests.Storage
 {
   [TestFixture]
-  public class EncryptedConnectionStringTest
+  public class EncryptedConnectionStringTest : HasConfigurationAccessTest
   {
     [Test, Explicit]
     public void MainTest()
     {
-      var config = DomainConfiguration.Load("encrypted");
+      var config = LoadDomainConfiguration("encrypted");
       Assert.That(config.ConnectionInfo.ConnectionString, Is.Not.Null.And.Not.Empty);
       Assert.That(config.ConnectionInfo.Provider, Is.Not.Null.And.Not.Empty);
     }

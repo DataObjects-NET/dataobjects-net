@@ -12,12 +12,12 @@ using Xtensive.Orm.Metadata;
 namespace Xtensive.Orm.Tests.Storage.Providers.Sql
 {
   [TestFixture]
-  public class CustomConnectionInfoTest 
+  public class CustomConnectionInfoTest : HasConfigurationAccessTest
   {
     [Test]
     public void CombinedTest()
     {
-      var domainConfiguration = DomainConfiguration.Load("AppConfigTest", "DomainWithCustomConnectionInfo");
+      var domainConfiguration = LoadDomainConfiguration("AppConfigTest", "DomainWithCustomConnectionInfo");
       var session = domainConfiguration.Sessions["constr"];
       Assert.IsNotNull(session.ConnectionInfo);
       Assert.IsNotNull(session.ConnectionInfo.ConnectionString);

@@ -46,12 +46,14 @@
     <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
       <Link>Properties\ProductInfo.cs</Link>
     </Compile>
+    <Compile Include="AssemblyExtensions.cs" />
     <Compile Include="AssertEx.cs" />
     <Compile Include="AutoBuildTest.cs" />
     <Compile Include="DebugInfo.cs" />
     <Compile Include="DomainConfigurationFactory.cs" />
     <Compile Include="DomainModelExtensions.cs" />
     <Compile Include="Dynamic.cs" />
+    <Compile Include="HasConfigurationAccessTest.cs" />
     <Compile Include="HighResolutionTime.cs" />
     <Compile Include="IndexInfoExtensions.cs" />
     <Compile Include="InheritanceSchemaModifier.cs" />
@@ -107,6 +109,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="DO-Tests-Plus.sql" />
     <None Include="DO-Tests.sdf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>

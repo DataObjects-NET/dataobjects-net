@@ -30,12 +30,12 @@ namespace Xtensive.Orm.Tests.Configuration.UserDefinedMappings
 namespace Xtensive.Orm.Tests.Configuration
 {
   [TestFixture]
-  public class AppConfigTest
+  public class AppConfigTest : HasConfigurationAccessTest
   {
     [Test]
     public void CustomMemberCompilerProvidersTest()
     {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "TestDomain3");
+      var configuration = LoadDomainConfiguration("AppConfigTest", "TestDomain3");
       configuration.Lock();
       Assert.AreEqual(1, configuration.Types.CompilerContainers.Count());
     }
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void TestDomain2()
     {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "TestDomain1");
+      var configuration = LoadDomainConfiguration("AppConfigTest", "TestDomain1");
       Assert.IsNotNull(configuration);
     }
 
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Tests.Configuration
     public void TestWrongSection()
     {
       AssertEx.ThrowsInvalidOperationException(() => {
-        var configuration = DomainConfiguration.Load("AppConfigTest1", "TestDomain1");
+        var configuration = LoadDomainConfiguration("AppConfigTest1", "TestDomain1");
       });
     }
 
@@ -59,14 +59,14 @@ namespace Xtensive.Orm.Tests.Configuration
     public void TestWrongDomain()
     {
       AssertEx.ThrowsInvalidOperationException(() => {
-        var configuration = DomainConfiguration.Load("AppConfigTest", "TestDomain0");
+        var configuration = LoadDomainConfiguration("AppConfigTest", "TestDomain0");
       });
     }
 
     [Test]
     public void BatchSizeTest()
     {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "TestDomain4");
+      var configuration = LoadDomainConfiguration("AppConfigTest", "TestDomain4");
       var defaultSession = configuration.Sessions[WellKnown.Sessions.Default];
       Assert.IsNotNull(defaultSession);
       Assert.AreEqual(10, defaultSession.BatchSize);
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void EntityChangeRegistrySizeTest()
     {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "DomainWithCustomChangeRegistrySize");
+      var configuration = LoadDomainConfiguration("AppConfigTest", "DomainWithCustomChangeRegistrySize");
       var defaultSession = configuration.Sessions[WellKnown.Sessions.Default];
       Assert.AreEqual(1000, defaultSession.EntityChangeRegistrySize);
       Assert.AreEqual(1000, defaultSession.Clone().EntityChangeRegistrySize);
@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void SchemaSyncExceptionFormatTest()
     {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "DomainWithBriefSchemaSyncExceptions");
+      var configuration = LoadDomainConfiguration("AppConfigTest", "DomainWithBriefSchemaSyncExceptions");
       Assert.That(configuration.SchemaSyncExceptionFormat, Is.EqualTo(SchemaSyncExceptionFormat.Brief));
       var clone = configuration.Clone();
       Assert.That(clone.SchemaSyncExceptionFormat, Is.EqualTo(SchemaSyncExceptionFormat.Brief));
@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Configuration
     public void NativeLibraryCacheFolderTest()
     {
       const string expected = @".\Native";
-      var configuration = DomainConfiguration.Load("AppConfigTest", "DomainWithCustomNativeLibraryCacheFolder");
+      var configuration = LoadDomainConfiguration("AppConfigTest", "DomainWithCustomNativeLibraryCacheFolder");
       Assert.That(configuration.NativeLibraryCacheFolder, Is.EqualTo(expected));
       var clone = configuration.Clone();
       Assert.That(clone.NativeLibraryCacheFolder, Is.EqualTo(expected));
@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Tests.Configuration
     public void ConnectionInitializationSqlTest()
     {
       const string expected = @"use [OtherDb]";
-      var configuration = DomainConfiguration.Load("AppConfigTest", "DomainWithInitSql");
+      var configuration = DomainConfiguration.Load(Configuration, "AppConfigTest", "DomainWithInitSql");
       Assert.That(configuration.ConnectionInitializationSql, Is.EqualTo(expected));
       var clone = configuration.Clone();
       Assert.That(clone.ConnectionInitializationSql, Is.EqualTo(expected));
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void AdvancedMappingTest()
     {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "AdvancedMappingTest");
+      var configuration = LoadDomainConfiguration("AppConfigTest", "AdvancedMappingTest");
       ValidateAdvancedMappingConfiguration(configuration);
       var clone = configuration.Clone();
       ValidateAdvancedMappingConfiguration(clone);
@@ -184,9 +184,9 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void ReferencedConnectionStringTest()
     {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "DomainWithReferencedConnectionStrings");
-      var domainConnectionString = ConfigurationManager.ConnectionStrings["DomainConnectionString"].ConnectionString;
-      var sessionConnectionString = ConfigurationManager.ConnectionStrings["SessionConnectionString"].ConnectionString;
+      var configuration = LoadDomainConfiguration("AppConfigTest", "DomainWithReferencedConnectionStrings");
+      var domainConnectionString = Configuration.ConnectionStrings.ConnectionStrings["DomainConnectionString"].ConnectionString;
+      var sessionConnectionString = Configuration.ConnectionStrings.ConnectionStrings["SessionConnectionString"].ConnectionString;
       ValidateConnectionString(domainConnectionString, configuration.ConnectionInfo);
       ValidateConnectionString(sessionConnectionString, configuration.Sessions.Default.ConnectionInfo);
     }
@@ -195,7 +195,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void DefaultConfigurationTest()
     {
-      var actualDomainConfiguration = DomainConfiguration.Load("AppConfigTest", "DomainWithoutConfiguration");
+      var actualDomainConfiguration = LoadDomainConfiguration("AppConfigTest", "DomainWithoutConfiguration");
       var expectedDomainConfiguration = new DomainConfiguration();
       ValidateDomainConfiguration(expectedDomainConfiguration, actualDomainConfiguration);
       ValidateNamingCovention(expectedDomainConfiguration.NamingConvention, actualDomainConfiguration.NamingConvention);
@@ -206,7 +206,7 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void IgnoreRuleConfigTest()
     {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "IgnoreRuleConfigTest");
+      var configuration = LoadDomainConfiguration("AppConfigTest", "IgnoreRuleConfigTest");
       ValidateIgnoringConfiguration(configuration);
       var clone = configuration.Clone();
       ValidateIgnoringConfiguration(clone);
@@ -221,26 +221,26 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void LoggingConfigurationTest()
     {
-      var configuration = LoggingConfiguration.Load("AppConfigTest");
+      var configuration = LoadLoggingConfiguration("AppConfigTest");
       ValidateLoggingConfiguration(configuration);
     }
 
     [Test]
     public void FullTextChangeTrackingTest()
     {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "ChangeTrackingTest1");
+      var configuration = LoadDomainConfiguration("AppConfigTest", "ChangeTrackingTest1");
       Assert.That(configuration.FullTextChangeTrackingMode, Is.EqualTo(FullTextChangeTrackingMode.Off));
 
-      configuration = DomainConfiguration.Load("AppConfigTest", "ChangeTrackingTest2");
+      configuration = LoadDomainConfiguration("AppConfigTest", "ChangeTrackingTest2");
       Assert.That(configuration.FullTextChangeTrackingMode, Is.EqualTo(FullTextChangeTrackingMode.Auto));
 
-      configuration = DomainConfiguration.Load("AppConfigTest", "ChangeTrackingTest3");
+      configuration = LoadDomainConfiguration("AppConfigTest", "ChangeTrackingTest3");
       Assert.That(configuration.FullTextChangeTrackingMode, Is.EqualTo(FullTextChangeTrackingMode.Manual));
 
-      configuration = DomainConfiguration.Load("AppConfigTest", "ChangeTrackingTest4");
+      configuration = LoadDomainConfiguration("AppConfigTest", "ChangeTrackingTest4");
       Assert.That(configuration.FullTextChangeTrackingMode, Is.EqualTo(FullTextChangeTrackingMode.OffWithNoPopulation));
 
-      configuration = DomainConfiguration.Load("AppConfigTest", "ChangeTrackingTest5");
+      configuration = LoadDomainConfiguration("AppConfigTest", "ChangeTrackingTest5");
       Assert.That(configuration.FullTextChangeTrackingMode, Is.EqualTo(FullTextChangeTrackingMode.Default));
     }
 

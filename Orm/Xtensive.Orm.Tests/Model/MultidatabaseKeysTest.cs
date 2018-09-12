@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Tests.Model
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "MultidatabaseKeysTestDomain");
+      var configuration = LoadDomainConfiguration("AppConfigTest", "MultidatabaseKeysTestDomain");
       configuration.ConnectionInfo = DomainConfigurationFactory.Create().ConnectionInfo;
       configuration.Types.Register(typeof (Database1.Base1MyEntity).Assembly, typeof (Database1.Base1MyEntity).Namespace);
       configuration.Types.Register(typeof (Database2.Base2MyEntity).Assembly, typeof (Database2.Base2MyEntity).Namespace);
@@ -179,7 +179,7 @@ namespace Xtensive.Orm.Tests.Model
     [Test]
     public void SameSeedValueInDifferentKeyGeneratorsTest()
     {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "MultidatabaseKeysTestDomain1");
+      var configuration = LoadDomainConfiguration("AppConfigTest", "MultidatabaseKeysTestDomain1");
       configuration.ConnectionInfo = DomainConfigurationFactory.Create().ConnectionInfo;
       configuration.Types.Register(typeof (Database1.Base1MyEntity).Assembly, typeof (Database1.Base1MyEntity).Namespace);
       configuration.Types.Register(typeof (Database2.Base2MyEntity).Assembly, typeof (Database2.Base2MyEntity).Namespace);

@@ -13,13 +13,13 @@ using Xtensive.Orm.Logging;
 namespace Xtensive.Orm.Tests.Core.Logging
 {
   [TestFixture]
-  public class LogManagerTests
+  public class LogManagerTests : HasConfigurationAccessTest
   {
     [Test]
     public void LogManagerInitializationFromConfigLogs()
     {
       LogManager manager = new LogManager();
-      manager.Initialize();
+      manager.Initialize(Configuration);
     }
 
     [Test]
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Core.Logging
       Assert.Throws<InvalidOperationException>(() => {
         LogManager manager = new LogManager();
         manager.GetLog("FileLog");
-        manager.Initialize();
+        manager.Initialize(Configuration);
       });
     }
 
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Tests.Core.Logging
       Assert.Throws<InvalidOperationException>(() => {
         LogManager manager = new LogManager();
         manager.AutoInitialize();
-        manager.Initialize();
+        manager.Initialize(Configuration);
       });
     }
 
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Core.Logging
     public void LogManagerAutoInitializationAfterInitializationTest()
     {
       LogManager manager = new LogManager();
-      manager.Initialize();
+      manager.Initialize(Configuration);
       manager.AutoInitialize();
     }
   }

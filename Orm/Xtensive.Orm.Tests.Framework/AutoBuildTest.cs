@@ -15,7 +15,7 @@ using Xtensive.Orm.Providers;
 namespace Xtensive.Orm.Tests
 {
   [TestFixture]
-  public abstract class AutoBuildTest
+  public abstract class AutoBuildTest : HasConfigurationAccessTest
   {
     private const string ErrorInTestFixtureSetup = "Error in TestFixtureSetUp:\r\n{0}";
     private DisposableSet disposables;
