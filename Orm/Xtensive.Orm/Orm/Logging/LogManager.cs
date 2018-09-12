@@ -29,10 +29,10 @@ namespace Xtensive.Orm.Logging
     /// <summary>
     /// Initialaze manager by creation logs from default section of configuration file.
     /// </summary>
-    public void Initialize()
+    public void Initialize(System.Configuration.Configuration configuration)
     {
-      var configuration = LoggingConfiguration.Load();
-      Initialize(configuration);
+      var loggingConfiguration = LoggingConfiguration.Load(configuration);
+      Initialize(loggingConfiguration);
     }
     
     /// <summary>
@@ -78,10 +78,11 @@ namespace Xtensive.Orm.Logging
 
     internal void AutoInitialize()
     {
-      var configuration =
-        ConfigurationManager.GetSection(WellKnown.DefaultConfigurationSection)!=null
-          ? LoggingConfiguration.Load()
-          : new LoggingConfiguration();
+      //var configuration =
+      //  ConfigurationManager.GetSection(WellKnown.DefaultConfigurationSection)!=null
+      //    ? LoggingConfiguration.Load()
+      //    : new LoggingConfiguration();
+      var configuration = new LoggingConfiguration();
       lock (syncObj) {
         if (provider==null) {
           Initialize(configuration);

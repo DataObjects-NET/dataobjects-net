@@ -700,9 +700,9 @@ namespace Xtensive.Orm.Configuration
     /// <exception cref="InvalidOperationException">Section <see cref="SectionName"/>
     /// is not found in application configuration file, or there is no configuration for
     /// the <see cref="Domain"/> with specified <paramref name="name"/>.</exception>
-    public static DomainConfiguration Load(string name)
+    public static DomainConfiguration Load(System.Configuration.Configuration configuration, string name)
     {
-      return Load(SectionName, name);
+      return Load(configuration, SectionName, name);
     }
 
     /// <summary>
@@ -718,9 +718,9 @@ namespace Xtensive.Orm.Configuration
     /// <exception cref="InvalidOperationException">Section <paramref name="sectionName"/>
     /// is not found in application configuration file, or there is no configuration for
     /// the <see cref="Domain"/> with specified <paramref name="name"/>.</exception>
-    public static DomainConfiguration Load(string sectionName, string name)
+    public static DomainConfiguration Load(System.Configuration.Configuration configuration, string sectionName, string name)
     {
-      var section = (ConfigurationSection) ConfigurationManager.GetSection(sectionName);
+      var section = (ConfigurationSection) configuration.GetSection(sectionName);
       if (section==null)
         throw new InvalidOperationException(string.Format(
           Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));

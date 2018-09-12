@@ -31,9 +31,9 @@ namespace Xtensive.Orm.Configuration
     /// Loads logging configuration from the default configuration section.
     /// </summary>
     /// <returns>Loaded configuration.</returns>
-    public static LoggingConfiguration Load()
+    public static LoggingConfiguration Load(System.Configuration.Configuration configuration)
     {
-      return Load(WellKnown.DefaultConfigurationSection);
+      return Load(configuration, WellKnown.DefaultConfigurationSection);
     }
 
     /// <summary>
@@ -41,14 +41,16 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     /// <param name="sectionName">Name of configuration section.</param>
     /// <returns>Loaded configuration.</returns>
-    public static LoggingConfiguration Load(string sectionName)
+    public static LoggingConfiguration Load(System.Configuration.Configuration configuration, string sectionName)
     {
+      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(sectionName, "sectionName");
-      var section = (ConfigurationSection) ConfigurationManager.GetSection(sectionName);
+
+      var section = (ConfigurationSection) configuration.GetSection(sectionName);
       if (section==null)
         throw new InvalidOperationException(string.Format(Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));
-      var configuration = section.Logging.ToNative();
-      return configuration;
+      var loggingConfiguration = section.Logging.ToNative();
+      return loggingConfiguration;
     }
 
     /// <summary>
