@@ -14,12 +14,11 @@ namespace Xtensive.Core
   internal sealed class AsyncFutureResult<T> : FutureResult<T>
   {
     private readonly BaseLog logger;
-    private Func<T> worker;
-    private IAsyncResult asyncResult;
+    private Task<T> task;
 
     public override bool IsAvailable
     {
-      get { return worker!=null; }
+      get { return task!=null; }
     }
 
     public override T Get()
@@ -27,11 +26,9 @@ namespace Xtensive.Core
       if (!IsAvailable)
         throw new InvalidOperationException(Strings.ExResultIsNotAvailable);
 
-      var localWorker = worker;
-      var localAsyncResult = asyncResult;
-      asyncResult = null;
-      worker = null;
-      return localWorker.EndInvoke(localAsyncResult);
+      var localtTask = task;
+      task = null;
+      return localtTask.Result;
     }
 
     public override void Dispose()
@@ -54,10 +51,9 @@ namespace Xtensive.Core
     {
       ArgumentValidator.EnsureArgumentNotNull(worker, "worker");
 
-      this.worker = worker;
       this.logger = logger;
 
-      asyncResult = worker.BeginInvoke(null, null);
+      task = Task.Run(worker);
     }
   }
 }
