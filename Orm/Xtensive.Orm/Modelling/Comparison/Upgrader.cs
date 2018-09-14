@@ -135,7 +135,7 @@ namespace Xtensive.Modelling.Comparison
       if (Hints.TargetModel!=TargetModel)
         throw new ArgumentOutOfRangeException("hints.TargetModel");
 
-      CurrentModel = Cloner.Clone(SourceModel);
+      CurrentModel = (IModel)SourceModel.Clone(null, SourceModel.Name);
       Difference = difference;
       var previous = current;
       current = this;
