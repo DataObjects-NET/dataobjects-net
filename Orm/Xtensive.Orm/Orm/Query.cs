@@ -278,6 +278,8 @@ namespace Xtensive.Orm
       return Session.Demand().Query.SingleOrDefault<T>(keyValues);
     }
 
+    #region Execute
+
     /// <summary>
     /// Finds compiled query in cache by specified <paramref name="query"/> delegate
     /// (in fact, by its <see cref="MethodInfo"/> instance)
@@ -305,6 +307,38 @@ namespace Xtensive.Orm
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
     public static IEnumerable<TElement> Execute<TElement>(object key, Func<IQueryable<TElement>> query)
+    {
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteCompiled(WrapQuery(query));
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by specified <paramref name="query"/> delegate
+    /// (in fact, by its <see cref="MethodInfo"/> instance)
+    /// and executes it, if found;
+    /// otherwise executes the <paramref name="query"/> delegate
+    /// and caches the compilation result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Query result.</returns>
+    public static IEnumerable<TElement> Execute<TElement>(Func<IOrderedQueryable<TElement>> query)
+    {
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteCompiled(WrapQuery(query));
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and executes it, if found;
+    /// otherwise executes the <paramref name="query"/> delegate
+    /// and caches the compilation result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Query result.</returns>
+    public static IEnumerable<TElement> Execute<TElement>(object key, Func<IOrderedQueryable<TElement>> query)
     {
       var endpoint = Session.Demand().Query;
       return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteCompiled(WrapQuery(query));
@@ -341,6 +375,10 @@ namespace Xtensive.Orm
       var endpoint = Session.Demand().Query;
       return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteCompiled(WrapQuery(query));
     }
+
+    #endregion
+
+    #region Future methods
 
     /// <summary>
     /// Creates future scalar query and registers it for the later execution.
@@ -434,6 +472,8 @@ namespace Xtensive.Orm
       var endpoint = Session.Demand().Query;
       return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteDelayed(WrapQuery(query));
     }
+
+    #endregion
 
     private static Func<QueryEndpoint, TResult> WrapQuery<TResult>(Func<TResult> query)
     {

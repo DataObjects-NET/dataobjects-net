@@ -32,6 +32,12 @@ namespace Xtensive.Orm.Internals
       return parameterizedQuery.Execute(session, CreateParameterContext(parameterizedQuery));
     }
 
+    public IEnumerable<TElement> ExecuteCompiled<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      var parameterizedQuery = GetSequenceQuery(query);
+      return parameterizedQuery.Execute(session, CreateParameterContext(parameterizedQuery));
+    }
+
     public TResult ExecuteCompiled<TResult>(Func<QueryEndpoint, TResult> query)
     {
       var parameterizedQuery = GetCachedQuery<TResult>();

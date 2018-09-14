@@ -75,6 +75,8 @@ namespace Xtensive.Orm
       return provider.CreateQuery(BuildRootExpression(elementType));
     }
 
+    #region Full-text related
+
     /// <summary>
     /// Performs full-text query for the text specified in free text form.
     /// </summary>
@@ -244,6 +246,7 @@ namespace Xtensive.Orm
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
 
+    #endregion
 
     /// <summary>
     /// Resolves (gets) the <see cref="Entity"/> by the specified <paramref name="key"/>
@@ -398,6 +401,8 @@ namespace Xtensive.Orm
       return new PrefetchFacade<T>(session, keys.Select(selector));
     }
 
+    #region Execute methods
+
     /// <summary>
     /// Finds compiled query in cache by provided <paramref name="query"/> delegate
     /// (in fact, by its <see cref="MethodInfo"/> instance)
@@ -435,6 +440,36 @@ namespace Xtensive.Orm
     /// otherwise executes the <paramref name="query"/> delegate
     /// and caches the result.
     /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Query result.</returns>
+    public IEnumerable<TElement> Execute<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiled(query);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and executes them if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Query result.</returns>
+    public IEnumerable<TElement> Execute<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="query"/> delegate
+    /// (in fact, by its <see cref="MethodInfo"/> instance)
+    /// and executes them if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
@@ -457,6 +492,10 @@ namespace Xtensive.Orm
     {
       return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query);
     }
+
+#endregion
+
+    #region Delayed Queries
 
     /// <summary>
     /// Creates future scalar query and registers it for the later execution.
@@ -511,7 +550,7 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
     }
@@ -540,10 +579,12 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint,IQueryable<TElement>> query)
+    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
     {
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
     }
+
+    #endregion
 
     /// <summary>
     /// Stores specified <paramref name="source"/> in the database
