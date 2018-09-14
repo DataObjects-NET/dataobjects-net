@@ -823,6 +823,12 @@
     <Compile Include="_Manual\Validation\PhoneNumberConstraint.cs" />
     <Compile Include="_Manual\Validation\TestFixture.cs" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Northwind.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <None Update="Model\InterfaceAssociationsModelGenerator.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
