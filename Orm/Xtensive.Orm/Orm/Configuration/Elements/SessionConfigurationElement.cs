@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Configuration.Elements
       // We are going easy way and substituting a fake provider.
       // SQL SessionHandler is aware of this and always uses correct provider.
 
-      var connectionInfo = ConnectionInfoParser.GetConnectionInfo(ConnectionUrl, "_dummy_", ConnectionString);
+      var connectionInfo = ConnectionInfoParser.GetConnectionInfo(CurrentConfiguration, ConnectionUrl, "_dummy_", ConnectionString);
 
       var result = new SessionConfiguration(Name) {
         UserName = UserName,

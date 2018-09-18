@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Configuration
 {
   internal static class ConnectionInfoParser
   {
-    public static ConnectionInfo GetConnectionInfo(string connectionUrl, string provider, string connectionString)
+    public static ConnectionInfo GetConnectionInfo(System.Configuration.Configuration configuration,string connectionUrl, string provider, string connectionString)
     {
       bool connectionUrlSpecified = !string.IsNullOrEmpty(connectionUrl);
       bool connectionStringSpecified = !string.IsNullOrEmpty(connectionString) && !string.IsNullOrEmpty(provider);
@@ -24,14 +24,14 @@ namespace Xtensive.Orm.Configuration
         return new ConnectionInfo(connectionUrl);
 
       if (connectionStringSpecified)
-        return new ConnectionInfo(provider, ExpandConnectionString(connectionString));
+        return new ConnectionInfo(provider, ExpandConnectionString(configuration, connectionString));
 
       // Neither connection string, nor connection url specified.
       // Leave connection information undefined.
       return null;
     }
 
-    private static string ExpandConnectionString(string connectionString)
+    private static string ExpandConnectionString(System.Configuration.Configuration configuration, string connectionString)
     {
       const string prefix = "#";
 
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Configuration
 
       string connectionStringName = connectionString.Substring(prefix.Length);
 
-      var connectionStringSetting =  ConfigurationManager.ConnectionStrings[connectionStringName];
+      var connectionStringSetting = configuration.ConnectionStrings.ConnectionStrings[connectionStringName];
       if (connectionStringSetting==null)
         throw new InvalidOperationException(string.Format(Strings.ExConnectionStringWithNameXIsNotFound, connectionStringName));
 

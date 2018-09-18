@@ -375,7 +375,7 @@ namespace Xtensive.Orm.Configuration.Elements
     {
       var config = new DomainConfiguration {
         Name = Name,
-        ConnectionInfo = ConnectionInfoParser.GetConnectionInfo(ConnectionUrl, Provider, ConnectionString),
+        ConnectionInfo = ConnectionInfoParser.GetConnectionInfo(CurrentConfiguration, ConnectionUrl, Provider, ConnectionString),
         NamingConvention = NamingConvention.ToNative(),
         KeyCacheSize = KeyCacheSize,
         KeyGeneratorCacheSize = KeyGeneratorCacheSize,
