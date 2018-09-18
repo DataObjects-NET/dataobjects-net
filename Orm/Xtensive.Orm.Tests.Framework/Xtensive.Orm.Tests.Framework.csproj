@@ -38,7 +38,7 @@
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <!--<PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />-->
-    <PackageReference Include="NUnit" Version="3.8.1" />
+    <PackageReference Include="NUnit" Version="3.9.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.4.0" />
   </ItemGroup>
 
@@ -116,6 +116,10 @@
     </None>
     <None Include="DO-Tests.sql" />
     <None Include="Orm.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.8.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Orm.config">
