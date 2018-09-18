@@ -52,6 +52,7 @@ namespace Xtensive.Orm.Tests.Storage
         tx.Complete();
       }
 
+      //this behavior is not supported by netcore2.0 
       using (var ts = new SystemTransactionScope()) {
         using (var session = Domain.OpenSession())
         using (var tx = session.OpenTransaction()) {
