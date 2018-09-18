@@ -152,7 +152,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       const int containersCount = 100;
       const int itemCount = 100;
-      using (var session = Domain.OpenSession(clientProfileConfiguration)) {
+      using (var session = Domain.OpenSession(clientProfileConfiguration))
+      using (session.Activate()) {
         using (var t = session.OpenTransaction()) {
           for (int i = 0; i < containersCount; i++) {
             var c = new Container { Package1 = new Package(), Package2 = new Package() };
@@ -188,7 +189,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       const int containersCount = 100;
       const int itemCount = 100;
-      using (var session = Domain.OpenSession(clientProfileConfiguration)) {
+      using (var session = Domain.OpenSession(clientProfileConfiguration))
+      using (session.Activate()) {
         for (int i = 0; i < containersCount; i++) {
           var c = new Container { Package1 = new Package(), Package2 = new Package() };
           for (int j = 0; j < itemCount; j++) {
