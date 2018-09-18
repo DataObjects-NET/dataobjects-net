@@ -1008,7 +1008,7 @@ namespace Xtensive.Reflection
     internal static MemberInfo TryGetFieldInfoFromClosure(this Type closureType, Type typeOfField)
     {
       return closureType.IsClosure()
-        ? closureType.GetFields().FirstOrDefault(property => property.FieldType == typeOfField)
+        ? closureType.GetFields().FirstOrDefault(field => field.FieldType==typeOfField)
         : null;
     }
 

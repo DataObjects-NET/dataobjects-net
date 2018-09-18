@@ -136,14 +136,28 @@ namespace Xtensive.Orm.Internals
             if (expression.Type==closureType)
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           }
-          else
-            if (expression.Type==closureType.DeclaringType) {
-              var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
-              if (memberInfo!=null)
-                return Expression.MakeMemberAccess(
-                  Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
-                  memberInfo);
+          else if (expression.Type == closureType.DeclaringType) {
+            var valueAccessor = Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType),
+              valueMemberInfo);
+            var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
+            if (memberInfo != null) {
+              //queryParameter.Value.actualValue
+              var closureAcccessor = Expression.MakeMemberAccess(valueAccessor, memberInfo);
+              return closureAcccessor;
             }
+
+            else
+            {
+              var some = closureType.GetFields()
+                .Where(f => f.FieldType.IsClosure())
+                .Select(f => new {ParentField = f, ClosureField = f.FieldType.TryGetFieldInfoFromClosure(expression.Type)})
+                .FirstOrDefault(f=>f.ClosureField!=null);
+              if (some.ClosureField==null)
+                return null;
+              return Expression.MakeMemberAccess(Expression.MakeMemberAccess(valueAccessor, some.ParentField),
+                some.ClosureField);
+            }
+          }
         }
         return null;
       });
