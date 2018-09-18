@@ -70,11 +70,12 @@ namespace Xtensive.Orm.Tests
         if (isRunningOnBuildServer==0) {
           int newIsRunningOnBuildServer = -1;
           Process p = Process.GetCurrentProcess();
-          string exeName = Path.GetFileName(p.StartInfo.FileName);
+          var fileName = p.MainModule.FileName;
+          string exeName = Path.GetFileName(fileName);
           if (buildServerLaunchers.ContainsKey(exeName))
             newIsRunningOnBuildServer = 1;
           else {
-            foreach (DictionaryEntry e in p.StartInfo.EnvironmentVariables) {
+            foreach (DictionaryEntry e in Environment.GetEnvironmentVariables()) {
               if (buildServerEnvironmentVariables.ContainsKey(e.Key as string)) {
                 newIsRunningOnBuildServer = 1;
                 break;
