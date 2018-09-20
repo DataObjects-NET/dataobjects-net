@@ -14,9 +14,15 @@ using Xtensive.Orm.Logging;
 namespace Xtensive.Orm.Tests.Core.Logging
 {
   [TestFixture]
-  public class WriteToLogTests
+  public class WriteToLogTests : HasConfigurationAccessTest
   {
     private const string filePath = "Log.txt";
+
+    [OneTimeSetUp]
+    public void SetUp()
+    {
+      LogManager.Default.Initialize(Configuration);
+    }
 
     [Test]
     public void OrmLogTest()
