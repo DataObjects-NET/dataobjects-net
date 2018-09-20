@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Caching;
 using Xtensive.Conversion;
@@ -220,6 +221,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
     }
 
     private static bool canFinish = true;
+
     [Test]
     public void SynchronizationTest()
     {
@@ -228,31 +230,30 @@ namespace Xtensive.Orm.Tests.Core.Caching
           1000,
           value => value.Text);
 
-      
-      var addThreads = new Thread[10];
-      var removeThreads = new Thread[10];
-      for (int i = 0; i < 10; i++)
-      {
-        addThreads[i] = new Thread(AddItem);
-        removeThreads[i] = new Thread(RemoveItem);
-      }
+      using (new ThreadPoolThreadsIncreaser(20, 20)) {
+        var addThreads = new Task[10];
+        var removeThreads = new Task[10];
+        var cancellationTokenSource = new CancellationTokenSource();
 
-      try {
-        for (int i = 0; i < 10; i++) {
-          addThreads[i].Start();
+        for (int i = 0; i < 10; i++)         {
+          addThreads[i] = new Task(() => AddItem(cancellationTokenSource.Token), cancellationTokenSource.Token);
+          removeThreads[i] = new Task(() => RemoveItem(cancellationTokenSource.Token), cancellationTokenSource.Token);
         }
-        Thread.Sleep(10);
 
-        for (int i = 0; i < 10; i++) {
-          removeThreads[i].Start();
+        try {
+          for (int i = 0; i < 10; i++) {
+            addThreads[i].Start();
+          }
+          Thread.Sleep(10);
+
+          for (int i = 0; i < 10; i++) {
+            removeThreads[i].Start();
+          }
+          Thread.Sleep(200);
         }
-        Thread.Sleep(200);
-      }
-      finally {
-        canFinish = true;
-        for (int i = 0; i < 10; i++) {
-          removeThreads[i].Abort();
-          addThreads[i].Abort();
+        finally {
+          cancellationTokenSource.Cancel();
+          Thread.Sleep(20);
         }
       }
 
@@ -260,27 +261,75 @@ namespace Xtensive.Orm.Tests.Core.Caching
       globalCache = null;
     }
 
-    private void AddItem()
+    private void AddItem(CancellationToken cancellationToken)
     {
       int count = random.Next(100000);
-      while (!canFinish)
-      {
+      int counter = 0;
+      bool whileCondition = (counter++) < 10 || !cancellationToken.IsCancellationRequested;
+      while (!cancellationToken.IsCancellationRequested) {
         globalCache.Add(new TestClass("item " + count));
         count++;
       }
+      cancellationToken.ThrowIfCancellationRequested();
     }
 
-    private void RemoveItem()
+    private void RemoveItem(CancellationToken cancellationToken)
     {
-      while (!canFinish) {
+      int counter = 0;
+      while (!cancellationToken.IsCancellationRequested) {
         TestClass test = null;
-        foreach (TestClass testClass in globalCache)
-        {
+        foreach (TestClass testClass in globalCache) {
           test = testClass;
           break;
         }
-        if (test != null)
+        if (test!=null)
           globalCache.Remove(test);
+      }
+      cancellationToken.ThrowIfCancellationRequested();
+    }
+
+    private class ThreadPoolThreadsIncreaser : Disposable
+    {
+      private int previousWorkingThreadsCount;
+      private int previousIOThreadsCount;
+
+      private static Func<int> A;
+      private static Func<int> B;
+
+      private void Increase(int workingThreadsCount, int ioThreadsCount)
+      {
+        int minWorkingThreads;
+        int minIOTheads;
+        ThreadPool.GetMinThreads(out minWorkingThreads, out minIOTheads);
+        previousWorkingThreadsCount = minWorkingThreads;
+        previousIOThreadsCount = minIOTheads;
+
+        ThreadPool.SetMinThreads(workingThreadsCount, ioThreadsCount);
+      }
+
+      private static void Decrease(bool disposing, Func<int> workingThreadsCountAcccessor, Func<int> ioThreadsCountAcccessor)
+      {
+        ThreadPool.SetMinThreads(workingThreadsCountAcccessor(), ioThreadsCountAcccessor());
+      }
+      
+      private int Aa()
+      {
+        return previousWorkingThreadsCount;
+      }
+
+      private int Bb()
+      {
+        return previousIOThreadsCount;
+      }
+
+      
+
+      public ThreadPoolThreadsIncreaser(int workingThreadsCount, int ioThreadsCount)
+        : base((disposing)=>Decrease(disposing, A, B))
+      {
+        Increase(workingThreadsCount, ioThreadsCount);
+        A = Aa;
+        B = Bb;
       }
     }
   }
