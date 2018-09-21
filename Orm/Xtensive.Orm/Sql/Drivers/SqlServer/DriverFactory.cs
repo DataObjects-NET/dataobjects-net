@@ -131,7 +131,13 @@ namespace Xtensive.Sql.Drivers.SqlServer
           return new v09.Driver(coreServerInfo, parser);
         if (version.Major==10)
           return new v10.Driver(coreServerInfo, parser);
-        return new v11.Driver(coreServerInfo, parser);
+        if (version.Major==11)
+          return new v11.Driver(coreServerInfo, parser);
+        if (version.Major==12)
+          return new v12.Driver(coreServerInfo, parser);
+        if (version.Major==13)
+          return new v13.Driver(coreServerInfo, parser);
+        return new v13.Driver(coreServerInfo, parser);
       }
     }
 
