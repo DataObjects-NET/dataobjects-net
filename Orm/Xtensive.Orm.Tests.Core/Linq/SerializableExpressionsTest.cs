@@ -6,6 +6,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Formatters;
@@ -13,12 +14,39 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Linq.SerializableExpressions;
+using System.Collections.Generic;
 
 namespace Xtensive.Orm.Tests.Core.Linq
 {
   [TestFixture]
   public class SerializableExpressionsTest : ExpressionTestBase
   {
+    public IEnumerable<Type> SerializableExpressionTypes
+    {
+      get {
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableBinaryExpression);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableConditionalExpression);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableConstantExpression);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableElementInit);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableExpression);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableInvocationExpression);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableLambdaExpression);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableListInitExpression);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableMemberAssignment);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableMemberBinding);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableMemberExpression);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableMemberInitExpression);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableMemberListBinding);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableMemberMemberBinding);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableMethodCallExpression);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableNewArrayExpression);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableNewExpression);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableParameterExpression);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableTypeBinaryExpression);
+        yield return typeof(Xtensive.Linq.SerializableExpressions.SerializableUnaryExpression);
+      }
+    }
+
     [Test]
     public void ConvertTest()
     {
@@ -39,15 +67,12 @@ namespace Xtensive.Orm.Tests.Core.Linq
     [Test]
     public void NetDataContractSerializeTest()
     {
-      RunSerializeTest(new DataContractSerializer(typeof (SerializableExpression)));
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings();
+      settings.KnownTypes = list;
+      settings.PreserveObjectReferences = true;
+      RunSerializeTest(new DataContractSerializer(typeof(SerializableExpression), settings));
     }
-
-    // There is no such formatter in .Net Core
-    //[Test]
-    //public void SoapSerializeTest()
-    //{
-    //  RunSerializeTest(new SoapFormatter());
-    //}
 
     private void RunSerializeTest(XmlObjectSerializer serializer)
     {
@@ -66,8 +91,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
     private void RunSerializeTest(IFormatter serializer)
     {
       var stream = new MemoryStream();
-      foreach (var expression in Expressions)
-      {
+      foreach (var expression in Expressions) {
         Console.WriteLine(expression.ToString(true));
         serializer.Serialize(stream, expression.ToSerializableExpression());
         stream.Seek(0, SeekOrigin.Begin);
@@ -88,8 +112,13 @@ namespace Xtensive.Orm.Tests.Core.Linq
     [Explicit]
     public void SerializeBenchmarkTest()
     {
-      RunSerializeBenchmark(new DataContractSerializer(typeof (SerializableExpression)), true);
-      RunSerializeBenchmark(new DataContractSerializer(typeof(SerializableExpression)), false);
+      var list = SerializableExpressionTypes.ToList();
+      var settings = new DataContractSerializerSettings();
+      settings.KnownTypes = list;
+      settings.PreserveObjectReferences = true;
+
+      RunSerializeBenchmark(new DataContractSerializer(typeof (SerializableExpression), settings), true);
+      RunSerializeBenchmark(new DataContractSerializer(typeof (SerializableExpression), settings), false);
     }
 
     private void RunSerializeBenchmark(XmlObjectSerializer serializer, bool warmUp)
