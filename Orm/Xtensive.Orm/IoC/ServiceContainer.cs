@@ -14,6 +14,7 @@ using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.IoC.Configuration;
 using AttributeSearchOptions = Xtensive.Reflection.AttributeSearchOptions;
+using AppConfiguration = System.Configuration.Configuration;
 using ConfigurationSection=Xtensive.IoC.Configuration.ConfigurationSection;
 
 namespace Xtensive.IoC
@@ -31,17 +32,7 @@ namespace Xtensive.IoC
     private readonly Dictionary<ServiceRegistration, Pair<ConstructorInfo,ParameterInfo[]>> constructorCache = 
       new Dictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>>();
     private readonly HashSet<Type> creating = new HashSet<Type>();
-    private static readonly object _lock = new object();
-    private static IServiceContainer @default;
-
-    public static IServiceContainer Default {
-      get {
-        if (@default==null) lock (_lock) if (@default==null) {
-          @default = Create();
-        }
-        return @default;
-      }
-    }
+    private readonly object _lock = new object();
 
     #region Protected virtual methods (to override)
 
@@ -235,9 +226,9 @@ namespace Xtensive.IoC
     /// Creates <see cref="IServiceContainer"/> by default configuration.
     /// </summary>
     /// <returns><see cref="IServiceContainer"/> for the default configuration.</returns>
-    public static IServiceContainer Create()
+    public static IServiceContainer Create(AppConfiguration configuration)
     {
-      return Create((string) null);
+      return Create(configuration, (string) null);
     }
 
     /// <summary>
@@ -245,9 +236,9 @@ namespace Xtensive.IoC
     /// </summary>
     /// <param name="name">The name of container configuration to create container for.</param>
     /// <returns><see cref="IServiceContainer"/> for the specified named configuration.</returns>
-    public static IServiceContainer Create(string name)
+    public static IServiceContainer Create(AppConfiguration configuration, string name)
     {
-      return Create(name, null);
+      return Create(configuration, name, null);
     }
 
     /// <summary>
@@ -256,11 +247,11 @@ namespace Xtensive.IoC
     /// <param name="name">The name of container configuration to create container for.</param>
     /// <param name="parent">The parent container.</param>
     /// <returns><see cref="IServiceContainer"/> for the specified named configuration.</returns>
-    public static IServiceContainer Create(string name, IServiceContainer parent)
+    public static IServiceContainer Create(AppConfiguration configuration, string name, IServiceContainer parent)
     {
-      var configuration = (ConfigurationSection) ConfigurationManager.GetSection(
+      var serviceSection = (ConfigurationSection) configuration.GetSection(
         ConfigurationSection.DefaultSectionName);
-      return Create(configuration, name, parent);
+      return Create(serviceSection, name, parent);
     }
 
     /// <summary>
@@ -291,6 +282,7 @@ namespace Xtensive.IoC
         name = string.Empty;
 
       ContainerElement configuration = section==null ? null : section.Containers[name];
+
       if (configuration==null)
         configuration = new ContainerElement();
 

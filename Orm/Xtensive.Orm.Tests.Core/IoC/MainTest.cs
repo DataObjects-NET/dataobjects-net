@@ -74,23 +74,24 @@ namespace Xtensive.Orm.Tests.Core.IoC
   }
 
   [TestFixture]
-  public class MainTest
+  public class MainTest : HasConfigurationAccessTest
   {
     [Test]
-    public void DefaultContainerTest()
+    public void DefaultSectionContainerTest() 
     {
-      var ps = ServiceContainer.Default.Get<IPrintService>();
+      var defaultSectionContainer = ServiceContainer.Create(Configuration);
+      var ps = defaultSectionContainer.Get<IPrintService>();
       Assert.IsNotNull(ps);
 
-      var services = new List<IPrintService>(ServiceContainer.Default.GetAll<IPrintService>());
+      var services = new List<IPrintService>(defaultSectionContainer.GetAll<IPrintService>());
       Assert.AreEqual(1, services.Count);
 
-      var singleton1 = ServiceContainer.Default.Get<IPrintService>("Console");
-      var singleton2 = ServiceContainer.Default.Get<IPrintService>("Console");
+      var singleton1 = defaultSectionContainer.Get<IPrintService>("Console");
+      var singleton2 = defaultSectionContainer.Get<IPrintService>("Console");
       Assert.AreSame(singleton1, singleton2);
 
-      var instance1 = ServiceContainer.Default.Get<IPrintService>("AutoDebug");
-      var instance2 = ServiceContainer.Default.Get<IPrintService>("AutoDebug");
+      var instance1 = defaultSectionContainer.Get<IPrintService>("AutoDebug");
+      var instance2 = defaultSectionContainer.Get<IPrintService>("AutoDebug");
       Assert.AreNotSame(instance1, instance2);
     }
 
@@ -98,7 +99,7 @@ namespace Xtensive.Orm.Tests.Core.IoC
     public void CustomContainerTest()
     {
       var config = (Xtensive.IoC.Configuration.ConfigurationSection) ConfigurationManager.GetSection("Xtensive.IoC");
-      var container = ServiceContainer.Create("second");
+      var container = ServiceContainer.Create(Configuration, "second");
 
       var ps = container.Get<IPrintService>();
       Assert.IsNotNull(ps);
@@ -116,8 +117,10 @@ namespace Xtensive.Orm.Tests.Core.IoC
     [Test]
     public void SelfConsumerTest()
     {
+      var container = ServiceContainer.Create(Configuration);
+
       AssertEx.Throws<ActivationException>(() => {
-        var s = ServiceContainer.Default.Get<ISelfConsumer>();
+        var s = container.Get<ISelfConsumer>();
       });
     }
   }
