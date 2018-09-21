@@ -12,6 +12,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using Xtensive.Core;
+using Xtensive.Linq.SerializableExpressions.Internals;
 using Xtensive.Reflection;
 
 using Xtensive.Tuples.Packed;
@@ -28,12 +29,21 @@ namespace Xtensive.Tuples
     private static readonly TupleDescriptor EmptyDescriptor = new TupleDescriptor(new Type[0]);
     private static readonly Dictionary<Type, TupleDescriptor> SingleFieldDescriptors = new Dictionary<Type, TupleDescriptor>();
 
+    private string[] fieldTypeNames;
+    [NonSerialized]
+    private Type[] fieldTypes;
+
     internal readonly int FieldCount;
     internal readonly int ValuesLength;
     internal readonly int ObjectsLength;
 
-    internal readonly Type[] FieldTypes;
     internal readonly PackedFieldDescriptor[] FieldDescriptors;
+
+
+    internal Type[] FieldTypes
+    {
+      get { return fieldTypes; }
+    }
 
     /// <summary>
     /// Gets the empty tuple descriptor.
@@ -262,9 +272,20 @@ namespace Xtensive.Tuples
       return string.Format(Strings.TupleDescriptorFormat, sb);
     }
 
+    [OnSerializing]
+    private void OnSerializing(StreamingContext context)
+    {
+      fieldTypeNames = new string[FieldTypes.Length];
+      for (var i = 0; i < fieldTypeNames.Length; i++)
+        fieldTypeNames[i] = FieldTypes[i].ToSerializableForm();
+    }
+
     [OnDeserialized]
     private void OnDeserialized(StreamingContext context)
     {
+      fieldTypes = new Type[fieldTypeNames.Length];
+      for (int i = 0; i < fieldTypeNames.Length; i++)
+        FieldTypes[i] = fieldTypeNames[i].GetTypeFromSerializableForm();
       for (int i = 0; i < FieldCount; i++)
         PackedFieldAccessorFactory.ProvideAccessor(FieldTypes[i], FieldDescriptors[i]);
     }
@@ -462,7 +483,7 @@ namespace Xtensive.Tuples
       ArgumentValidator.EnsureArgumentNotNull(fieldTypes, "fieldTypes");
 
       FieldCount = fieldTypes.Count;
-      FieldTypes = new Type[FieldCount];
+      this.fieldTypes = new Type[FieldCount];
       FieldDescriptors = new PackedFieldDescriptor[FieldCount];
 
       const int longBits = 64;
