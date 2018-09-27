@@ -171,7 +171,6 @@ namespace Xtensive.Orm.Upgrade
         services.NameBuilder = handlers.NameBuilder;
       }
 
-      context.ProviderInfo = services.StorageDriver.ProviderInfo;
       CreateConnection(services);
       context.DefaultSchemaInfo = defaultSchemaInfo = services.StorageDriver.GetDefaultSchema(services.Connection);
       services.MappingResolver = MappingResolver.Create(configuration, context.NodeConfiguration, defaultSchemaInfo);

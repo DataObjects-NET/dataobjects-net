@@ -192,9 +192,9 @@ namespace Xtensive.Orm.Upgrade
     public Dictionary<string, string> UpgradedTypesMapping { get; internal set; }
 
     /// <summary>
-    /// Gets domain's ProviderInfo
+    /// Gets information about current provider.
     /// </summary>
-    public ProviderInfo ProviderInfo { get; internal set; }
+    public ProviderInfo ProviderInfo { get { return Services.ProviderInfo; } }
 
     #region Private / internal members
 
