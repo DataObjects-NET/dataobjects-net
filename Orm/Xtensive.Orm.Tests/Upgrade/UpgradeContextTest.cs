@@ -1,10 +1,13 @@
-﻿using System;
-using System.CodeDom;
+﻿// Copyright (C) 2018 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2018.09.27
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Web.Hosting;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
@@ -143,7 +146,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeContextTestModel
 
     private bool SkipGathering()
     {
-      // we don't need final stage in case of multistage upgrade. If we have access on first stage we will have it on the second as well
+      // we don't need final stage in case of multistage upgrade. If we have access on first stage we will have it on the second one as well
       return UpgradeContext.UpgradeMode.IsMultistage() && UpgradeContext.Stage==UpgradeStage.Final;
     }
   }
@@ -268,8 +271,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(typeof(TestEntity));
-      configuration.Types.Register(typeof(CustomUpgrader));
+      configuration.Types.Register(typeof (TestEntity));
+      configuration.Types.Register(typeof (CustomUpgrader));
       configuration.DefaultSchema = "dbo";
 
       return Domain.Build(configuration);
