@@ -67,5 +67,16 @@ namespace Xtensive.Orm.Tests.Core.Helpers
       Assert.AreEqual("Another string with error.".Like("another string with err%."), false);
       Assert.AreEqual("aRRRRa%".Like("a%a%%", '%'), true);
     }
+
+    [Test]
+    public void TrimRoundBracketsSymetricallyTest()
+    {
+      Assert.That("(abc)".StripRoundBrackets(), Is.EqualTo("abc"));
+      Assert.That("abc".StripRoundBrackets(), Is.EqualTo("abc"));
+      Assert.That("((((Convert(abc)))))".StripRoundBrackets(), Is.EqualTo("Convert(abc)"));
+      Assert.That("(Convert(abc))".StripRoundBrackets(), Is.EqualTo("Convert(abc)"));
+      Assert.That("((((abc))".StripRoundBrackets(), Is.EqualTo("((abc"));
+      Assert.That("((abc))))".StripRoundBrackets(), Is.EqualTo("abc))"));
+    }
   }
 }

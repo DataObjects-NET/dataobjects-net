@@ -419,5 +419,22 @@ namespace Xtensive.Core
         });
       return Regex.IsMatch(value, regexPattern);
     }
+
+    /// <summary>
+    /// Strips '(' and ')' symetrically.
+    /// </summary>
+    /// <param name="value">A string to strip round brackets.</param>
+    /// <returns>Stripped string.</returns>
+    public static string StripRoundBrackets(this string value)
+    {
+      var start = 0;
+      var end = value.Length - 1;
+      var actualLenght = value.Length;
+      for (start = 0; value[start++] == '(' && value[end--] == ')'; actualLenght -= 2) { }
+
+      return start == 1
+        ? value
+        : value.Substring(start - 1, actualLenght);
+    }
   }
 }
