@@ -13,6 +13,7 @@ using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.IoC;
+using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
@@ -69,15 +70,16 @@ namespace Xtensive.Orm.Tests.Model
 
     protected void TestInvoker(DomainConfiguration domainConfiguration, Action<Domain> domainValidationAction, Action<DomainModelDef> domainDefsValidationAction)
     {
+      domainConfiguration.Types.Register(typeof (ModelDefCapturer));
+
       var upgradeContext = new UpgradeContext(domainConfiguration);
 
       if (shouldBuildRealDomain)
-        using (var domain = Domain.Build(domainConfiguration))
-        {
+        using (var domain = Domain.Build(domainConfiguration)) {
           var modelDef = domain.Extensions.Get<DomainModelDef>();
-          if (domainDefsValidationAction != null && modelDef != null)
+          if (domainDefsValidationAction!=null && modelDef!=null)
             domainDefsValidationAction.Invoke(modelDef);
-          if (domainValidationAction != null)
+          if (domainValidationAction!=null)
             domainValidationAction.Invoke(domain);
         }
       else {
@@ -86,9 +88,9 @@ namespace Xtensive.Orm.Tests.Model
           BuildServices(upgradeContext);
           var domain = CreateDomainBuilder(upgradeContext).Invoke();
           var modelDef = domain.Extensions.Get<DomainModelDef>();
-          if (domainDefsValidationAction != null && modelDef != null)
+          if (domainDefsValidationAction!=null && modelDef!=null)
             domainDefsValidationAction.Invoke(modelDef);
-          if (domainValidationAction != null)
+          if (domainValidationAction!=null)
             domainValidationAction.Invoke(domain);
         }
       }
@@ -211,6 +213,21 @@ namespace Xtensive.Orm.Tests.Model
         new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers);
       serviceAccessor.OrderedUpgradeHandlers =
         new ReadOnlyList<IUpgradeHandler>(sortedHandlers.ToList());
+    }
+
+    public sealed class ModelDefCapturer: IModule
+    {
+      private DomainModelDef modelDef;
+
+      public void OnBuilt(Domain domain)
+      {
+      }
+
+      public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
+      {
+        var domain = context.Domain;
+        domain.Extensions.Set(model);
+      }
     }
   }
 }
