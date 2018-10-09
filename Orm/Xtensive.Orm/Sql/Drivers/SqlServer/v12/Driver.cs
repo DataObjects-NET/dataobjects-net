@@ -31,8 +31,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v12
       return new Extractor(this);
     }
 
-    public Driver(CoreServerInfo coreServerInfo, ErrorMessageParser messageParser)
-      : base(coreServerInfo, messageParser)
+    public Driver(CoreServerInfo coreServerInfo, ErrorMessageParser messageParser, bool checkConnectionIsAlive)
+      : base(coreServerInfo, messageParser, checkConnectionIsAlive)
     {
     }
   }
