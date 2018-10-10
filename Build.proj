@@ -33,9 +33,11 @@
   </BinariesNetStandard>
   
   <!-- Distribution -->
+  <!--
   <Distributions Include="Dist\Zip.Binaries.proj" Condition="'$(EnableBinariesZip)'=='true'">
     <Properties>Configuration=$(Configuration)</Properties>
   </Distributions>
+  -->
   <Distributions Include="Dist\Zip.Sources.proj" Condition="'$(EnableSourcesZip)'=='true'">
     <Properties>Configuration=$(Configuration)</Properties>
   </Distributions>
