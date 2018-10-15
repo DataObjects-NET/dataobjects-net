@@ -80,7 +80,7 @@ namespace Xtensive.Orm
         var entity = Session.Query.SingleOrDefault(key);
         if (entity==null) {
           if (!key.IsTemporary(Session.Domain)) {
-            Session.RemoveOrCreateRemovedEntity(key.TypeReference.Type.UnderlyingType, key);
+            Session.RemoveOrCreateRemovedEntity(key.TypeReference.Type.UnderlyingType, key, EntityRemoveReason.User);
             EntityState entityState;
             if (Session.LookupStateInCache(key, out entityState))
               entity = entityState.Entity;
@@ -570,12 +570,12 @@ namespace Xtensive.Orm
       }
     }
 
-    internal bool Remove(Entity item)
+    internal bool Remove(Entity item, EntityRemoveReason reason)
     {
-      return Remove(item, null, null);
+      return Remove(item, null, null, reason);
     }
 
-    internal bool Remove(Entity item, SyncContext syncContext, RemovalContext removalContext)
+    internal bool Remove(Entity item, SyncContext syncContext, RemovalContext removalContext, EntityRemoveReason reason)
     {
       if (!Contains(item))
         return false;
@@ -607,7 +607,7 @@ namespace Xtensive.Orm
                 TypeReferenceAccuracy.ExactType,
                 combinedTuple);
 
-              Session.RemoveOrCreateRemovedEntity(auxiliaryType.UnderlyingType, combinedKey);
+              Session.RemoveOrCreateRemovedEntity(auxiliaryType.UnderlyingType, combinedKey, reason);
             }
 
             var state = State;

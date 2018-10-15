@@ -247,7 +247,7 @@ namespace Xtensive.Orm
     /// <seealso cref="IsRemoved"/>
     public void Remove()
     {
-      Session.RemovalProcessor.Remove(EnumerableUtils.One(this));
+      RemoveInternal(EntityRemoveReason.User);
     }
 
     /// <summary>
@@ -257,7 +257,7 @@ namespace Xtensive.Orm
     /// </summary>
     public void RemoveLater()
     {
-      Session.RemovalProcessor.EnqueueForRemoval(EnumerableUtils.One(this));
+      RemoveLaterInternal(EntityRemoveReason.User);
     }
 
     /// <inheritdoc/>
@@ -478,6 +478,16 @@ namespace Xtensive.Orm
       }
 
       return changed;
+    }
+
+    internal void RemoveLaterInternal(EntityRemoveReason reason)
+    {
+      Session.RemovalProcessor.EnqueueForRemovalInternal(EnumerableUtils.One(this), reason);
+    }
+
+    internal void RemoveInternal(EntityRemoveReason reason)
+    {
+      Session.RemovalProcessor.RemoveInternal(EnumerableUtils.One(this), reason);
     }
 
     internal void SystemBeforeRemove(EntityRemoveReason reason)

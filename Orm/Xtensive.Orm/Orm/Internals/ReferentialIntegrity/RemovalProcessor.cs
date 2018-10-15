@@ -39,13 +39,23 @@ namespace Xtensive.Orm.ReferentialIntegrity
 
     public void EnqueueForRemoval(IEnumerable<Entity> entities)
     {
-      if (Context != null)
-        Context.Enqueue(entities);
-      else
-        Remove(entities);
+      EnqueueForRemovalInternal(entities, EntityRemoveReason.User);
     }
 
     public void Remove(IEnumerable<Entity> entities)
+    {
+      RemoveInternal(entities, EntityRemoveReason.User);
+    }
+
+    internal void EnqueueForRemovalInternal(IEnumerable<Entity> entities, EntityRemoveReason reason)
+    {
+      if (Context != null)
+        Context.Enqueue(entities, reason);
+      else
+        RemoveInternal(entities, reason);
+    }
+
+    internal void RemoveInternal(IEnumerable<Entity> entities, EntityRemoveReason reason)
     {
       ArgumentValidator.EnsureArgumentNotNull(entities, "entities");
       entities = entities.ToList();
@@ -68,14 +78,13 @@ namespace Xtensive.Orm.ReferentialIntegrity
             operations.RegisterOperation(
               new EntitiesRemoveOperation(entities.Select(e => e.Key)));
 
-          Context.Enqueue(entities);
+          Context.Enqueue(entities, reason);
 
           bool isOperationStarted = false;
           while (!Context.QueueIsEmpty) {
             var entitiesForProcessing = Context.GatherEntitiesForProcessing();
             foreach (var entity in entitiesForProcessing) {
-              var reason = entities.Contains(entity) ? EntityRemoveReason.User : EntityRemoveReason.Association;
-              entity.SystemBeforeRemove(reason);
+              entity.SystemBeforeRemove(Context.GetRemoveReason(entity));
             }
 
             if (!isOperationStarted) {
