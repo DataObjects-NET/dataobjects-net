@@ -482,12 +482,12 @@ namespace Xtensive.Orm
 
     internal void RemoveLaterInternal(EntityRemoveReason reason)
     {
-      Session.RemovalProcessor.EnqueueForRemovalInternal(EnumerableUtils.One(this), reason);
+      Session.RemovalProcessor.EnqueueForRemoval(EnumerableUtils.One(this), reason);
     }
 
     internal void RemoveInternal(EntityRemoveReason reason)
     {
-      Session.RemovalProcessor.RemoveInternal(EnumerableUtils.One(this), reason);
+      Session.RemovalProcessor.Remove(EnumerableUtils.One(this), reason);
     }
 
     internal void SystemBeforeRemove(EntityRemoveReason reason)

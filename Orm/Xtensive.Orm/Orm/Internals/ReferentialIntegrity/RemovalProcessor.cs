@@ -37,25 +37,15 @@ namespace Xtensive.Orm.ReferentialIntegrity
     
     public RemovalContext Context { get; set; }
 
-    public void EnqueueForRemoval(IEnumerable<Entity> entities)
+    public void EnqueueForRemoval(IEnumerable<Entity> entities, EntityRemoveReason reason)
     {
-      EnqueueForRemovalInternal(entities, EntityRemoveReason.User);
-    }
-
-    public void Remove(IEnumerable<Entity> entities)
-    {
-      RemoveInternal(entities, EntityRemoveReason.User);
-    }
-
-    internal void EnqueueForRemovalInternal(IEnumerable<Entity> entities, EntityRemoveReason reason)
-    {
-      if (Context != null)
+      if (Context!=null)
         Context.Enqueue(entities, reason);
       else
-        RemoveInternal(entities, reason);
+        Remove(entities, reason);
     }
 
-    internal void RemoveInternal(IEnumerable<Entity> entities, EntityRemoveReason reason)
+    public void Remove(IEnumerable<Entity> entities, EntityRemoveReason reason)
     {
       ArgumentValidator.EnsureArgumentNotNull(entities, "entities");
       entities = entities.ToList();

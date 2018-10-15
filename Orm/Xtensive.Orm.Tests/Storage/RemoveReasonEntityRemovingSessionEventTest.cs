@@ -5,6 +5,7 @@ using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Internals;
 
 namespace Xtensive.Orm.Tests.Storage
 {
@@ -19,7 +20,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public void UserAssociationTest()
+    public void UserAssociationTestOwner()
     {
       var entities = EntityRemovingAction(
         (d, s, t) => new EntityTest2() {Value = new EntityTest1()}.Remove(),
@@ -34,7 +35,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public void UserAssociationEntitySetTest()
+    public void UserAssociationEntitySetTestOwner()
     {
       var entities = EntityRemovingAction(
         (d, s, t) => {
@@ -44,6 +45,8 @@ namespace Xtensive.Orm.Tests.Storage
         },
         (s, e) => {
           if (e.Entity is EntityTest1)
+            Assert.That(e.Reason, Is.EqualTo(EntityRemoveReason.Association));
+          if (e.Entity is EntitySetItem<EntityTest3, EntityTest1>)
             Assert.That(e.Reason, Is.EqualTo(EntityRemoveReason.Association));
           if (e.Entity is EntityTest3)
             Assert.That(e.Reason, Is.EqualTo(EntityRemoveReason.User));
@@ -66,7 +69,7 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public void PairedAssociationTest()
+    public void PairedAssociationTestOwner()
     {
       var entities = EntityRemovingAction(
         (d, s, t) => {
@@ -81,6 +84,26 @@ namespace Xtensive.Orm.Tests.Storage
 
         });
       Assert.That(entities.Select(x => x.GetType()).Distinct().Count(), Is.EqualTo(2));
+    }
+
+    [Test]
+    public void ManyToManyAssociationTestOwner()
+    {
+      var entities = EntityRemovingAction(
+        (d, s, t) => {
+          var entity = new EntityTest7();
+          entity.Value.Add(new EntityTest8());
+          entity.Value.First().Remove();
+        },
+        (s, e) => {
+          if (e.Entity is EntityTest7)
+            Assert.That(e.Reason, Is.EqualTo(EntityRemoveReason.Association));
+          if (e.Entity is EntitySetItem<EntityTest7, EntityTest8>)
+            Assert.That(e.Reason, Is.EqualTo(EntityRemoveReason.Association));
+          if (e.Entity is EntityTest8)
+            Assert.That(e.Reason, Is.EqualTo(EntityRemoveReason.User));
+        });
+      Assert.That(entities.Select(x => x.GetType()).Distinct().Count(), Is.EqualTo(3));
     }
 
     private Entity[] EntityRemovingAction(
@@ -176,6 +199,27 @@ namespace Xtensive.Orm.Tests.Storage
       [Field]
       [Association(OnOwnerRemove = OnRemoveAction.Cascade, PairTo = "Value")]
       public EntityTest5 Value { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class EntityTest7 : Entity
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+
+      [Field]
+      public EntitySet<EntityTest8> Value { get; set; }
+    }
+
+    [HierarchyRoot]
+    public class EntityTest8 : Entity
+    {
+      [Field, Key]
+      public int Id { get; private set; }
+
+      [Field]
+      [Association(OnOwnerRemove = OnRemoveAction.Cascade, PairTo = "Value")]
+      public EntitySet<EntityTest7> Value { get; set; }
     }
   }
 }
