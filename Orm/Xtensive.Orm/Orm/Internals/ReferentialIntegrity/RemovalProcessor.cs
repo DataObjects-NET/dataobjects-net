@@ -48,6 +48,8 @@ namespace Xtensive.Orm.ReferentialIntegrity
     public void Remove(IEnumerable<Entity> entities)
     {
       ArgumentValidator.EnsureArgumentNotNull(entities, "entities");
+      entities = entities.ToList();
+
       bool isEmpty = true;
       foreach (var entity in entities) {
         isEmpty = false;
@@ -71,8 +73,11 @@ namespace Xtensive.Orm.ReferentialIntegrity
           bool isOperationStarted = false;
           while (!Context.QueueIsEmpty) {
             var entitiesForProcessing = Context.GatherEntitiesForProcessing();
-            foreach (var entity in entitiesForProcessing)
-              entity.SystemBeforeRemove();
+            foreach (var entity in entitiesForProcessing) {
+              var reason = entities.Contains(entity) ? EntityRemoveReason.User : EntityRemoveReason.Association;
+              entity.SystemBeforeRemove(reason);
+            }
+
             if (!isOperationStarted) {
               isOperationStarted = true;
               operations.NotifyOperationStarting();

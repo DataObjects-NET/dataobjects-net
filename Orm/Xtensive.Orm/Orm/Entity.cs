@@ -480,13 +480,13 @@ namespace Xtensive.Orm
       return changed;
     }
 
-    internal void SystemBeforeRemove()
+    internal void SystemBeforeRemove(EntityRemoveReason reason)
     {
       OrmLog.Debug(Strings.LogSessionXRemovingKeyY, Session, Key);
 
-      Session.SystemEvents.NotifyEntityRemoving(this);
+      Session.SystemEvents.NotifyEntityRemoving(this, reason);
       using (Session.Operations.EnableSystemOperationRegistration()) {
-        Session.Events.NotifyEntityRemoving(this);
+        Session.Events.NotifyEntityRemoving(this, reason);
 
         if (Session.IsSystemLogicOnly)
           return;
