@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Operations
     {
       var session = context.Session;
       var item = session.Query.Single(context.TryRemapKey(ItemKey));
-      GetEntitySet(context).Remove(item, this.reason);
+      GetEntitySet(context).Remove(item, reason);
     }
 
     /// <inheritdoc/>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -161,16 +162,40 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public void EntitySetTestAccessorTest()
+    public void EntitySetItemsRemoveTest()
     {
-      var entities = EntityRemovingAction(
-        session => {
-          var entity = new EntityTest3();
-          entity.Items.Add(new EntityTest1());
-          entity.Items.Remove(entity.Items.First());
-        },
-        (s, e) => Assert.That(e.Reason, Is.EqualTo(EntityRemoveReason.User)));
+      Action<Session> action = session => {
+        var entity = new EntityTest3();
+        entity.Items.Add(new EntityTest1());
+        entity.Items.Remove(entity.Items.First());
+      };
+
+      var entities = EntityRemovingAction(action, (s, e) => Assert.That(e.Reason, Is.EqualTo(EntityRemoveReason.User)));
       Assert.That(entities.Select(x => x.GetType()).Distinct().Count(), Is.EqualTo(1));
+    }
+
+    [Test]
+    public void RemoveLaterTest()
+    {
+      EntityRemovingAction(
+        session => new EntityTest1().RemoveLater(),
+        (s, e) => Assert.That(e.Reason, Is.EqualTo(EntityRemoveReason.User)));
+    }
+
+    [Test]
+    public void SessionRemoveTest()
+    {
+      EntityRemovingAction(
+        session => session.Remove(new[] {new EntityTest1()}),
+        (s, e) => Assert.That(e.Reason, Is.EqualTo(EntityRemoveReason.User)));
+    }
+
+    [Test]
+    public void SessionRemoveLaterTest()
+    {
+      EntityRemovingAction(
+        session => session.Remove(new[] { new EntityTest1() }),
+        (s, e) => Assert.That(e.Reason, Is.EqualTo(EntityRemoveReason.User)));
     }
 
     private Entity[] EntityRemovingAction(
