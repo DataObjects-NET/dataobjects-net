@@ -16,6 +16,8 @@ namespace Xtensive.Orm.Operations
   [Serializable]
   public class EntitySetItemRemoveOperation : EntitySetItemOperation
   {
+    private readonly EntityRemoveReason reason;
+
     /// <inheritdoc/>
     public override string Title {
       get { return "Remove item from entity set"; }
@@ -26,23 +28,24 @@ namespace Xtensive.Orm.Operations
     {
       var session = context.Session;
       var item = session.Query.Single(context.TryRemapKey(ItemKey));
-      GetEntitySet(context).Remove(item);
+      GetEntitySet(context).Remove(item, this.reason);
     }
 
     /// <inheritdoc/>
     protected override Operation CloneSelf(Operation clone)
     {
       if (clone==null)
-        clone = new EntitySetItemRemoveOperation(Key, Field, ItemKey);
+        clone = new EntitySetItemRemoveOperation(Key, Field, ItemKey, reason);
       return clone;
     }
     
     // Constructors
 
     /// <inheritdoc/>
-    public EntitySetItemRemoveOperation(Key key, FieldInfo field, Key itemKey)
+    public EntitySetItemRemoveOperation(Key key, FieldInfo field, Key itemKey, EntityRemoveReason reason)
       : base(key, field, itemKey)
     {
+      this.reason = reason;
     }
 
     /// <inheritdoc/>

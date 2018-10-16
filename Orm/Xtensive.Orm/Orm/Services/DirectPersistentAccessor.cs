@@ -229,18 +229,14 @@ namespace Xtensive.Orm.Services
     /// <param name="target">The entity to remove.</param>
     public void Remove(Entity target)
     {
-      RemoveInternal(target, EntityRemoveReason.User);
+      using (Session.OpenSystemLogicOnlyRegion())
+      {
+        ArgumentValidator.EnsureArgumentNotNull(target, "target");
+        target.RemoveInternal(EntityRemoveReason.User);
+      }
     }
 
     #endregion
-
-    internal void RemoveInternal(Entity target, EntityRemoveReason reason)
-    {
-      using (Session.OpenSystemLogicOnlyRegion()) {
-        ArgumentValidator.EnsureArgumentNotNull(target, "target");
-        target.RemoveInternal(reason);
-      }
-    }
 
     #region Protected members
 

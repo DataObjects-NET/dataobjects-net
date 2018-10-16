@@ -17,6 +17,11 @@ namespace Xtensive.Orm
   public enum EntityRemoveReason
   {
     /// <summary>
+    /// Remove caused by other reasons
+    /// </summary>
+    Other = 0,
+
+    /// <summary>
     /// Remove caused by user code
     /// </summary>
     User = 1,

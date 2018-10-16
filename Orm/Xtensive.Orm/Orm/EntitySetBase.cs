@@ -80,7 +80,7 @@ namespace Xtensive.Orm
         var entity = Session.Query.SingleOrDefault(key);
         if (entity==null) {
           if (!key.IsTemporary(Session.Domain)) {
-            Session.RemoveOrCreateRemovedEntity(key.TypeReference.Type.UnderlyingType, key, EntityRemoveReason.User);
+            Session.RemoveOrCreateRemovedEntity(key.TypeReference.Type.UnderlyingType, key, EntityRemoveReason.Other);
             EntityState entityState;
             if (Session.LookupStateInCache(key, out entityState))
               entity = entityState.Entity;
@@ -586,7 +586,7 @@ namespace Xtensive.Orm
         try {
           var itemKey = item.Key;
           if (operations.CanRegisterOperation)
-            operations.RegisterOperation(new EntitySetItemRemoveOperation(Owner.Key, Field, itemKey));
+            operations.RegisterOperation(new EntitySetItemRemoveOperation(Owner.Key, Field, itemKey, reason));
 
           SystemBeforeRemove(item);
 
@@ -682,7 +682,7 @@ namespace Xtensive.Orm
           operations.NotifyOperationStarting();
 
           foreach (var entity in Entities.ToList())
-            Remove(entity);
+            Remove((Entity)entity, EntityRemoveReason.User);
 
           SystemClear();
           SystemClearCompleted(null);
@@ -698,11 +698,6 @@ namespace Xtensive.Orm
     internal bool Add(IEntity item)
     {
       return Add((Entity) item);
-    }
-
-    internal bool Remove(IEntity item)
-    {
-      return Remove((Entity) item);
     }
 
     internal bool Contains(IEntity item)
@@ -722,7 +717,7 @@ namespace Xtensive.Orm
         Add(item);
     }
 
-    internal void IntersectWith<TElement>(IEnumerable<TElement> other)
+    internal void IntersectWith<TElement>(IEnumerable<TElement> other, EntityRemoveReason reason)
       where TElement : IEntity
     {
       EnsureOwnerIsNotRemoved();
@@ -731,7 +726,7 @@ namespace Xtensive.Orm
       var otherEntities = other.Cast<IEntity>().ToHashSet();
       foreach (var item in Entities.ToList())
         if (!otherEntities.Contains(item))
-          Remove(item);
+          Remove((Entity)item, reason);
     }
 
     internal void UnionWith<TElement>(IEnumerable<TElement> other)
@@ -744,7 +739,7 @@ namespace Xtensive.Orm
         Add(item);
     }
 
-    internal void ExceptWith<TElement>(IEnumerable<TElement> other)
+    internal void ExceptWith<TElement>(IEnumerable<TElement> other, EntityRemoveReason reason)
       where TElement : IEntity
     {
       EnsureOwnerIsNotRemoved();
@@ -753,7 +748,7 @@ namespace Xtensive.Orm
         return;
       }
       foreach (var item in other)
-        Remove(item);
+        Remove((Entity)(IEntity)item, reason);
     }
 
     #endregion
