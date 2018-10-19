@@ -3,7 +3,7 @@
          DefaultTargets="Verify">
 
 <PropertyGroup>
-  <Framework Condition="'$(Framework)'==''">Net40</Framework>
+  <Framework Condition="'$(Framework)'==''">netcoreapp2.0</Framework>
   <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
   <LibPath>_Build\Binaries\$(Configuration)\Lib\$(Framework)\</LibPath>
   <ToolsPath>$(registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.1\WinSDK-NetFx40Tools@InstallationFolder)</ToolsPath>
