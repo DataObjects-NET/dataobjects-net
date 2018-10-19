@@ -12,8 +12,6 @@
 
 <ItemGroup>
   <Assemblies Include="$(LibPath)Xtensive.Orm.Tests.dll" />
-  <Assemblies Include="$(LibPath)Xtensive.Orm.Tests.VB.dll" />
-  <Assemblies Include="$(LibPath)Xtensive.Orm.Tests.FSharp.dll" />
 </ItemGroup>
 
 <Target Name="Verify" Inputs="@(Assemblies)" Outputs="%(Identity).Fake">
