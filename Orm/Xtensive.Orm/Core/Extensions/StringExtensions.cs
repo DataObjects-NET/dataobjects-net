@@ -401,7 +401,7 @@ namespace Xtensive.Core
       var escChar = new string(escapeCharacter, 1);
       if (regExSpecialChars.Contains(escapeCharacter))
         escChar = @"\" + escChar;
-      var pattern = escChar + @"[%_]|[%_]|[^%" + escapeCharacter + "_]+";
+      var pattern = escChar + escChar + "|" + escChar + @"[%_]|[%_]|[^%" + escapeCharacter + "_]+";
 
       string regexPattern = Regex.Replace(sqlLikePattern,
         pattern,
@@ -417,7 +417,7 @@ namespace Xtensive.Core
           }
           return Regex.Escape(match.Value);
         });
-      return Regex.IsMatch(value, regexPattern);
+      return Regex.IsMatch(value, "^" + regexPattern + "$");
     }
 
     /// <summary>
