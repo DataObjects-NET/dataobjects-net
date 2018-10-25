@@ -1,1 +1,0 @@
-[main] Domain building in Skip mode no longer extracts database/schema structure at all.

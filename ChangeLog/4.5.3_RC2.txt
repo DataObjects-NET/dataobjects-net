@@ -1,3 +1,0 @@
-[main] Validation now works in ClientProfile
-[main] Fixed various errors with certian EntitySet usage scenarios in ClientProfile
-[main] Fixed "Scope can't be disposed" error under certain query enumeration scenarios

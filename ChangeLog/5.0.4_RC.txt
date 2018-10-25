@@ -1,8 +1,0 @@
-[main] Fixed incorrect building of indexes in some cases
-[main] Fixed mapping of Structure type fields
-[main] Added unique identifier of session
-[main] Fixed referential integrity in Client profile sessions
-[mysql] Key generators no longer drop their states after restart of server
-[mysql] Limitation of affected rows in Update and Delete operations
-[firebird] Limitation of affected rows in Update and Delete operations
-[sqlserver] Limitation of affected rows in Update and Delete operations

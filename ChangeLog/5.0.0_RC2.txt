@@ -1,4 +1,0 @@
-[main] Fixed handling of qeries with multiple IN operations in some scenarios
-[main] Fixed handling of query to EntitySet<T> which associates with field of Structure
-[main] Added map of type identifiers UpgradeContext.UserDefinedTypeMap
-[sqlserver] Fixed translation of OnUpdate and OnDelete actions for foreign keys

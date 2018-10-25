@@ -1,7 +1,0 @@
-[main] Cross-hierarchical persistent type movements are unsafe actions now
-[main] Added Support for Domain building on read-only database in UpgradeMode.Skip mode
-[main] Fixed incorrect translation of persistent interface queries occured in some scenairous
-[main] Fixed certain cases of storage node metadata corruption
-[sqlite] Added Support for DateTimeOffset fields and basic operations with them
-[oracle] Corrected extraction of DateTimeOffset columns
-[weaver] Fixed pdb-files handling created by Roslyn

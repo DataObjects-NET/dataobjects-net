@@ -1,2 +1,0 @@
-[main] Fixed bug when implicit Store operation didn't create temporary table
-[sqlserver] Fixed certain cases of incorrect rounding of decimals

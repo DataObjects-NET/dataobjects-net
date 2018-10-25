@@ -1,0 +1,479 @@
+Changes in 5.0.17 Final
+
+
+Changes in 5.0.17 Beta_2
+
+[main] Add sharing of one Sql Model across Storage Nodes
+
+Changes in 5.0.17 Beta_1
+
+[main] Decreased amout of metadata extracted for Domains or Storage nodes building in DomainUpgradeMode.Skip
+
+Changes in 5.0.16 Final
+
+[main] Fixed error which might appear on constraints validation
+
+Changes in 5.0.16 Beta_1
+
+[main] Added constraint option allowing to skip the constraint if the field isn't changed
+[main] DifferentialTuple.Merge() operation no longer cause StackOverflow exception
+[main] Fixed certain cases of foreign key absence for reference fields of structures
+[main] Fixed translation of enum value as default field value
+[sqlserver] Fixed extraction of information about indexes from database
+
+Changes in 5.0.15 Final
+
+[sqlserver] Added change tracking settings for full-text indexes
+[sqlserver] Added API for specifying catalog name for full-text indexes
+
+Changes in 5.0.14 Final
+
+[main] Returned expected behavior of delayed queries which was changed in 5.0.11 by bug fix for IN operation.
+[main] Fixed bug when Server profile sesions allowed to query database without transaction.
+[mysql] Corrected column types' extraction.
+
+Changes in 5.0.13 Final
+
+[main] Fixed rare situation when all LinQ queries might be corrupted untill application restart
+[main] Fixed case when contatination of two queries with Enum constants might cause error on translation
+[mysql] Added support for SQL batches
+
+Changes in 5.0.12 Final
+
+[main] Fixed bug when implicit Store operation didn't create temporary table
+[sqlserver] Fixed certain cases of incorrect rounding of decimals
+
+Changes in 5.0.11 Final
+
+[main] Constraints can be skipped on transaction commit
+[main] Operations like EntitySet<T>.ToList() no longer lead to incorrect EntitySet<T>.Count value
+[main] IN() operation now creates temporary tables when it supposes to
+[main] Fixed translations of aggregates like IQueriable<T>.Sum() when selector parameter can be ommited
+[main] Enum contstants in IndexAttribute.Filter expression are translated correctly now
+[main] Fixed certain scenarios when enum constants caused query translation error
+
+Changes in 5.0.11 RC2
+
+[main] Fixed build in Perform/PerformSafely modes when there is no Metadata tables in database/schema
+[main] Added support for CONTAINSTABLE queries for SQL Server providers
+[main] Optimized memory usage for storage nodes which are build in Skip mode
+[main] Full-text indexes are now allowed for fields of structures
+[main] Added highest ranked matches limitation support for freetext queries
+[main] ReferenceFinder now excludes references which were locally removed
+[main] Fixes certains scenarios when changes do not clear on after persist
+[postgresql] Fixed extraction of columns associated with DateTimeOffset fields
+
+Changes in 5.0.11 RC
+
+[main] Full-text indexes no longer cause domain building error in DomainUpgradeMode.Skip mode
+[main] Fixed temporary keys remap which showed up in previous version
+[postgresql] Updated version of client library
+[postgresql] Added support for DateTimeOffset
+
+Changes in 5.0.10 Final
+
+[main] Remap of temporary to real keys, no longer restore nulled references to an Entity
+[main] Fixed certain cases of session cache returning null for a valid key
+[main] Fixed certain cases when EntitySet could return nulls instead of removed Entities on enumeration
+
+Changes in 5.0.10 RC
+
+[main] Cross-hierarchical persistent type movements are unsafe actions now
+[main] Added Support for Domain building on read-only database in UpgradeMode.Skip mode
+[main] Fixed incorrect translation of persistent interface queries occured in some scenairous
+[main] Fixed certain cases of storage node metadata corruption
+[sqlite] Added Support for DateTimeOffset fields and basic operations with them
+[oracle] Corrected extraction of DateTimeOffset columns
+[weaver] Fixed pdb-files handling created by Roslyn
+
+Changes in 5.0.9 Final
+
+[main] Domain building in Skip mode no longer extracts database/schema structure at all.
+
+Changes in 5.0.8 Final
+
+[main] Fixed translation of EnumerableExtensions.IsNullOrEmpty()
+[main] Fixed Domain building on empty database/schema
+[main] Fixed incorrect translation of POCO costructors in some cases
+
+Changes in 5.0.7 Final
+
+[main] Fixed skipping of senseless column recreations which introduced in 5.0.7 RC2
+[main] Fixed certain cases of incorrect constructor usage of POCO classes in queries
+
+Changes in 5.0.7 RC2
+
+[main] Fixed translation of In operation in some cases
+[main] FieldAttribute.NullableOnUpgrade no longer lead to senseless column copying
+[main] Fixed multiple usage of same column in Set operations
+[main] Correct visitation of closure subqueries
+[main] Fixed Ordering by column of object type in certain scenarios
+[main] Fixed materialization error which appeared in 5.0.7-RC
+[main] Fixed incorrect mappings of type identifiers for storage nodes
+[main] Fixed IQueryable<T>.Any() translation in certain scenarios
+[sqlserver] Corrent extraction of schema indexes
+
+Changes in 5.0.7 RC
+
+[main] Fixed mapping of type identifiers for storage nodes
+[main] Weaver no longer fails building under Visual Studio 2015
+[main] Improved storage node building in UpgradeMode.Skip mode
+
+Changes in 5.0.6 Final
+
+[main] Fixed various cases of using Inner Join instead of Left Join
+[main] Fixed comparison of Anonymous types with null value
+[main] Fixed columns optimization for queries with ternary operator
+[main] Fixed Key comparison
+
+Changes in 5.0.5 Final
+
+[sqlserver] Improved reading decimals
+[sqlserver] Fixed reading decimal values which beyond the .Net decimal limits
+
+Changes in 5.0.4 Final
+
+[main] Fixed incorrect rollback of transaction in some scenarios
+[main] Speeded up building of domain in UpgradeMode.Skip mode
+
+Changes in 5.0.4 RC
+
+[main] Fixed incorrect building of indexes in some cases
+[main] Fixed mapping of Structure type fields
+[main] Added unique identifier of session
+[main] Fixed referential integrity in Client profile sessions
+[mysql] Key generators no longer drop their states after restart of server
+[mysql] Limitation of affected rows in Update and Delete operations
+[firebird] Limitation of affected rows in Update and Delete operations
+[sqlserver] Limitation of affected rows in Update and Delete operations
+
+Changes in 5.0.3 Final
+
+[main] Fixed remap of temporary keys
+[main] No longer referenced entities remove correctly in client profile session
+[main] Fixed weaving of implementations of types from third-party libraries
+[main] Enitites restores their states after persisting failed
+[main] Fixed incorrect sorting of insert operations in some cases
+[mysql] Fixed substraction of dates
+[sqlserver] Fixed substraction of dates
+[bulkoperations] Fixed inserts and updates of fields which definded in ancestor
+
+Changes in 5.0.2 Final
+
+[main] Association between Key fields is no longer creates additional index
+[main] Fixed behavior when DataObjects.Net puts type identifier to the wrong column
+[main] Fixed incorrect behavior of left join in some cases
+[main] Fixed clone creation of PhoneNumberConstraint validator
+[mysql] Fixed incorrect statement of multiple joins
+
+Changes in 5.0.0 Final
+
+[main] Delayed/Future queries are no longer cached closure variables values in some scenarios
+[main] Secondary indexes which includes inherited fields are no longer ignored in some scenarios
+
+Changes in 5.0.0 RC2
+
+[main] Fixed handling of qeries with multiple IN operations in some scenarios
+[main] Fixed handling of query to EntitySet<T> which associates with field of Structure
+[main] Added map of type identifiers UpgradeContext.UserDefinedTypeMap
+[sqlserver] Fixed translation of OnUpdate and OnDelete actions for foreign keys
+
+Changes in 5.0.0 RC
+
+[main] Fixed incorrect sequence of delete or insert queries under certain scenarios
+[main] Extended DelayedQuery API
+[main] Added support for using dynamically defined fields in LINQ
+
+Changes in 5.0.0 Beta_3
+
+[main] Fixed issue with concurrent writing to file log
+[main] Added FieldAttribute.DefaultSqlExpression property
+[main] Fixed issue with weaver command line length truncation
+[main] Added support for multi-node domains
+[main] Fully reworked client session profile
+[postgresql] Added support for geospatial types
+
+Changes in 5.0.0 Beta_2
+
+[main] Added support for VB.NET model assemblies
+[main] Optimized compilation performance
+[main] Fixed problem with automatic license activation
+[main] Improved logging provider API
+[main] Removed obsolete Transaction.OpenAuto() methods
+[main] Session closes connection when last transaction completes
+[main] Added session option NonTransactionalReads
+[main] Added support for Contains operation over keys collection
+[main] Added support for DateTimeOffset fields
+[main] Key.TypeInfo no longer relies on implicit session
+
+Changes in 5.0.0 Beta_1
+
+[main] New improved version of Xtensive.Tuples
+[main] Validation framework is heavily reworked
+[main] PostSharp is replaced with custom persistence weaver
+[main] Added String.Like extension method with support in LINQ translator
+[main] Persist is optimized to avoid sorting entities that do not have incoming/outgoing FK
+[main] Support for .NET 3.5 and Visual Studio 2008 is removed
+[main] Added support for DateTime.ToString("s") in LINQ
+[main] Added support for ignoring particular tables and/or columns during Domain.Build
+[main] Added support for defining recycled fields via external definitions
+[main] Object-to-object mapper is removed
+[main] Xtensive.Core and Xtensive.Aspects assemblies are removed
+[main] Added ReSharper annotations for public API
+[main] IEnumerable<IEntity>.Remove() extension method is marked as obsolete
+[main] Installer is no longer provided (use NuGet or binaries package instead)
+
+Changes in 4.6.8 Final
+
+[main] Fixed handling of qeries with multiple IN operations in some scenarios
+[main] Fixed handling of query to EntitySet<T> which associates with field of Structure
+[main] Added map of type identifiers UpgradeContext.UserDefinedTypeMap
+[sqlserver] Fixed translation of OnUpdate and OnDelete actions for foreign keys
+
+Changes in 4.6.7 Final
+
+[main] Added UpgradeHandler.TypesMovementsAutoDetection option
+[main] Fixed handling of bit operations for long type for many providers
+[main] Fixed handling of recycled and recycled nested types under some scenarios
+[main] Fixed handling of queries with muliple IN operations
+[main] Fixed mapping names of columns under some scenarios
+[sqlserver] Fixed dropping of default constraint under some scenarios
+
+Changes in 4.6.6 Final
+
+[main] Added DomainConfiguration.MultidatabaseKeys setting
+[main] Fixed incorrect EntitySet caching in ClientProfile
+[main] Fixed construction of inherited partial indexes
+[main] Fixed NRE when using partial indexes over abstract types
+[main] Fixed incorrect type id upgrade when type is moved to another namespace
+[oracle] Exclude many standard schemes during extraction
+
+Changes in 4.6.5 Final
+
+[main] Fixed version validation for entities without explicit version columns
+[main] Fixed version validation for decimal version fields
+[main] Optimized aggregate translation in complex scenarios
+[main] Fixed problem with access to nullable enum columns in final projection
+[main] Fixed problem with missing calculated columns in final projection
+[main] Fixed materialization of delayed queries with parameters in final projection
+[main] Implemented merging of duplicated query parameters
+[main] Improved handling of unique index conflicts during persist
+[main] Implemented query batching when ValidateEntityVersions option is enabled
+[sqlserver] Optimized queries that are executed during initialization
+[sqlserver] Added support for full text data type columns
+[sqlserver] Added ignoring of filetable objects during upgrade and schema validation
+[sqlserverce] Fixed translation of DateTime operations in LINQ
+[sqlite] Fixed translation of DateTime operations in LINQ
+[mysql] Fixed translation of DateTime operations in LINQ
+
+Changes in 4.6.4 Final
+
+[main] Fixed regression in Session.Query.ExecuteDelayed introduced in 4.6.4 RC
+[mysql] Fixed removal of self-referenced entities
+[sqlite] Fixed extraction of multi-column primary keys
+
+Changes in 4.6.4 RC
+
+[main] Added version validation on persist via SessionOptions.ValidateEntityVersions
+[main] Added DomainConfiguration.ConnectionInitializationSql option
+[main] Improved diagnostic messages for multimapping configurations when database/schema is not found
+[main] Fixed redundant delete queries when clearing key generator tables during upgrade
+[main] Fixed NRE in StorageMappingBuilder when persistent type does not have a namespace
+[main] Store partial index filter definitions in Metadata.Extension table instead of relying on information schema
+[main] Added support for Enum.HasFlags method in LINQ
+[main] Improved diagnostic message when non-LINQ method is called within Session.Query.ExecuteDelayed
+[sqlite] SQLite library is upgraded to version 1.0.87.0
+[sqlserver] Fixed incorrect SQL for table rename in non-default database
+[sqlite] Added support for :memory: data source
+
+Changes in 4.6.3 Final
+
+[main] Fixed incorrect column order in queries after certain schema upgrades
+[main] Added DomainConfiguration.NativeLibraryCacheFolder setting
+[main] Improved initialization time of TupleDescriptors
+
+Changes in 4.6.2 Final
+
+[main] Add DomainConfiguration.AllowCyclicDatabaseDependencies option
+
+Changes in 4.6.1 Final
+
+[main] Fix loading/storing of the domain model when multi-database mode is enabled
+[main] Fix assignment of MappingSchema/MappingDatabase for persistent interfaces
+[main] Improve exception message for missing default schema in domain configuration
+[main] Fix translation of predicates similar to (object) NullableBool == (object) null
+[main] Fix translation of Union() over boolean columns under certain conditions
+[main] Don't enforce implicit non-nullable/length constraints in inconsistent sessions
+[main] Import DataObjects.Net.targets conditionally when using NuGet package
+[main] Make UpgradeHandler.IsFieldAvailable virtual
+[sqlserver] Treat errors 3966 and 3971 as serialization failure
+
+Changes in 4.6.0 Final
+
+[main] Temporary limit maximal PostSharp version to 2.1.7.16
+
+Changes in 4.6.0 RC
+
+[main] Added NamingRules.RemoveDots and NamingRules.RemoveHyphens
+[main] Added Connection and Transaction properties to UpgradeContext
+[main] Added Session property to UpgradeContext
+[main] UpgradeStage.Initializing is marked obsolete
+[main] Added OnPrepare and OnComplete methods to UpgradeHandler which are executed before and after any upgrade
+[main] Added advanced version of domain builder module
+[main] Correctly clean up key generator tables if entities are created in OnUpgrade() method
+[main] Several methods that implicitly use Session are marked as obsolete
+
+Changes in 4.6.0 Beta_3
+
+[main] Added advanced version of LINQ query preprocessor
+[main] Fixed redundant query nesting under certain conditions
+[main] Fixed redundant subqueries under certain conditions
+[main] Improved formatting of SQL when chains of AND/OR operators are used
+[main] Key.Create(Session) method has been renamed to Key.Generate(Session)
+[main] Added Key.Create() overload that allows to specify TypeReferenceAccuracy
+[main] Added DirectSessionAccessor.GetChangedEntities() method
+[main] Perform upgrade in single transaction when possible
+[sqlite] Added support for using SQLite provider in 64-bit processes
+
+Changes in 4.6.0 Beta_2
+
+[main] Fixed incorrect processing of column rename for non-default database
+[main] ServiceContainerBase no longer has finalizer
+
+Changes in 4.6.0 Beta_1
+
+[main] Added support for mapping persistent types to multiple schemas and databases
+[main] Key generators API are heavily reworked
+[main] Added option to build Domain in parallel where possible
+[main] Reduced number of stages when performing upgrade
+[main] Removed many unused types from Xtensive.Core assembly
+[main] ConnectionInfo, UrlInfo and ICompletableScope types moved from Xtensive.Core to Xtensive.Orm (assembly & namespace)
+[sqlite] Added provider for SQLite database
+[sqlserver] Use sequences for key generators for SQL Server 2012
+[sqlserver] Use native paging operators for SQL Server 2012
+
+Changes in 4.5.8 Final
+
+[main] Fixed invalid key comparison under certain conditions
+[main] Fixed EntitySet caching invalid state within DisableSaveChanges() scope
+[main] Fixed overflow when storing large TimeSpan values
+[main] Fixed invalid default values for SessionConfiguration.DefaultIsolationLevel and SessionConfiguration.Options
+[main] Fixed support for referencing connection strings in SessionConfiguration
+[mysql] Fixed translation of bitwise operations
+[mysql] Fixed translation of DateTime.DayOfWeek and DateTime.DayOfYear
+
+Changes in 4.5.8 RC
+
+[main] Added QueryEndpoint.Items() method for querying EntitySets within compiled queries
+[main] Added support for DateTime.AddXxx() methods in LINQ translator
+[main] Added support for System.Linq.EnumerableQuery<T> in LINQ translator
+[main] Fixed incorrect column references in generated SQL for certain queries
+[main] Fixed querying for types with enum type discriminators
+[main] Fixed querying for types with enum key fields
+[main] Fixed locking of entity that could not be persisted at the moment for some reason
+[main] Fixed handling of temporary tables query with zero columns
+[main] Fixed translation of GroupJoin() with temporary tables
+[main] Fixed translation of Distinct() after Select()
+[main] Fixed translation of ThenBy() that implicitly adds joins
+[main] Fixed support for LINQ member compilers that return nullable values
+[main] Optimized translation of String.IsNullOrEmpty() method
+[main] Fixed translation of as with subquery operand
+[main] Fixed concurrent access issues with NameBuilder.GetHash method
+[main] Fixed incorrect result of FirstOrDefault/SingleOrDefault in certain subqueries
+[main] Reduced number of casts in generated SQL when accessing enum fields
+[main] Automatically handle namespace-only renames during upgrade
+[main] PostSharp is upgraded to version 2.1.7.30
+[postgresql] Npgsql is upgraded to version 2.0.12.1
+[mysql] MySQL library is upgraded to version 6.7.4
+[firebird] Firebird library is upgraded to version 3.0.2.1
+[sqlserver] Fixed reading of large SqlDecimal values
+
+Changes in 4.5.7 Final
+
+[main] Fixed translation of GroupBy() over columns with same name
+[main] Improved diagnostic message when more than one upgrade handler is provided
+[main] Fixed error after changing case of a persistent field
+[main] Wrap exceptions occured within user code with TargetInvocationException
+[main] Fixed handling of validation aspects on generic types
+[main] Fixed translation of In/Contains over field obtained with `as` operator
+[main] Fixed translation of In/Contains over arbitrary expressions
+[main] Fixed projection to DTO with inheritance
+[main] Fixed translation of DateTime properties access on certain expressions
+[main] Fixed accessing of IGrouping.Key in subqueries
+[sqlserver] Fixed implementation of "truncate" operation on DateTime expressions
+
+Changes in 4.5.6 Final
+
+[main] Fix translation of predicates similar to (object) NullableBool == (object) null
+[main] Fix translation of Union() over boolean columns under certain conditions
+[main] Don't enforce implicit non-nullable/length constraints in inconsistent sessions
+[main] Import DataObjects.Net.targets conditionally when using NuGet package
+[main] Make UpgradeHandler.IsFieldAvailable virtual
+[sqlserver] Treat errors 3966 and 3971 as serialization failure
+
+Changes in 4.5.5 Final
+
+[main] Temporary limit maximal PostSharp version to 2.1.7.16
+
+Changes in 4.5.5 RC
+
+[main] Omit redundant parentheses in generated SQL for chains of set operations
+[main] Correctly handle hierarchy split when doing upgrade
+[sqlserverce] Fixed translation of Contains/Any/All under certain scenarios
+[mysql] Correctly parse pre-release versions of MySQL (e.g. 5.5.25a)
+
+Changes in 4.5.4 Final
+
+[main] Added community edition
+
+Changes in 4.5.4 RC2
+
+[main] Exceptions on IoC container finalization (usually they appear because dependent objects are already finalized) are now suppressed
+[main] Fixed NullReferenceException in EnsureIsFetched method in SessionOptions.ReadRemovedObjects mode
+[main] Entity.IsMaterializing property wasn't handled properly
+[main] Transaction opening is fixed for SessionOptions.ClientProfile
+
+Changes in 4.5.4 RC
+
+[main] Fixed comparion of Key fields in interaces in LINQ queries under certain scenarios
+[main] Visual experience of License Manager has been improved
+[main] Fixed incorrect handling of RemoveFieldHint under certain scenarios
+[main] Fixed incorrect behavior in DisconnectedEntityState.UpdateOrigin method
+
+Changes in 4.5.3 Final
+
+[main] Fix NullReferenceException under certain validation scenarios
+[main] Fixed memory leak in Domain.Build() process
+
+Changes in 4.5.3 RC4
+
+[main] Fix POCO materialization when subqueries are used
+[main] Fix translation of multiple aggregate subqueries when calculated columns are used
+[main] Throw descriptive exception when RenameTypeHint has invalid old type name
+[sqlserver] Improve detection of serialization failure errors for SQL Server
+
+Changes in 4.5.3 RC3
+
+[main] RemoveFieldHint, ChangeFieldTypeHint are now correctly handled for Structure fields
+[main] Correctly skip full-text indexes if storage does not support them
+[main] Change log is included in distribution
+[mysql] Fixed index direction support for MySQL
+[mysql] Improved translation of DateTime.Date for MySQL
+[mysql] Fixed incorrect translation of Math.Truncate and Decimal.Truncate for MySQL
+[mysql] Fixed incorrect translation of String.IndexOf for MySQL
+[mysql] Fixed mapping of Single and Double types for MySQL
+[mysql] Fixed schema extraction with case-sensitive collation for MySQL
+[postgresql] Hex format for byte array literals is used for PostgreSQL 9.0 and later
+
+Changes in 4.5.3 RC2
+
+[main] Validation now works in ClientProfile
+[main] Fixed various errors with certian EntitySet usage scenarios in ClientProfile
+[main] Fixed "Scope can't be disposed" error under certain query enumeration scenarios
+
+Changes in 4.5.3 RC
+
+[main] Fixed index duplication under certain scenarios
+[main] Fixed error about duplicate index name under certain scenarios
+[main] Added SessionOptions.SuppressRollbackExceptions
+

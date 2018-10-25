@@ -1,3 +1,0 @@
-[main] Fixed mapping of type identifiers for storage nodes
-[main] Weaver no longer fails building under Visual Studio 2015
-[main] Improved storage node building in UpgradeMode.Skip mode

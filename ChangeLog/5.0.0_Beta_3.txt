@@ -1,6 +1,0 @@
-[main] Fixed issue with concurrent writing to file log
-[main] Added FieldAttribute.DefaultSqlExpression property
-[main] Fixed issue with weaver command line length truncation
-[main] Added support for multi-node domains
-[main] Fully reworked client session profile
-[postgresql] Added support for geospatial types

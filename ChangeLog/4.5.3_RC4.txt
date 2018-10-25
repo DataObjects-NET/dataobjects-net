@@ -1,4 +1,0 @@
-[main] Fix POCO materialization when subqueries are used
-[main] Fix translation of multiple aggregate subqueries when calculated columns are used
-[main] Throw descriptive exception when RenameTypeHint has invalid old type name
-[sqlserver] Improve detection of serialization failure errors for SQL Server

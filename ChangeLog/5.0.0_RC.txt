@@ -1,3 +1,0 @@
-[main] Fixed incorrect sequence of delete or insert queries under certain scenarios
-[main] Extended DelayedQuery API
-[main] Added support for using dynamically defined fields in LINQ

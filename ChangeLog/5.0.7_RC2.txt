@@ -1,9 +1,0 @@
-[main] Fixed translation of In operation in some cases
-[main] FieldAttribute.NullableOnUpgrade no longer lead to senseless column copying
-[main] Fixed multiple usage of same column in Set operations
-[main] Correct visitation of closure subqueries
-[main] Fixed Ordering by column of object type in certain scenarios
-[main] Fixed materialization error which appeared in 5.0.7-RC
-[main] Fixed incorrect mappings of type identifiers for storage nodes
-[main] Fixed IQueryable<T>.Any() translation in certain scenarios
-[sqlserver] Corrent extraction of schema indexes

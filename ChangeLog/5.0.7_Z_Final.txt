@@ -1,2 +1,0 @@
-[main] Fixed skipping of senseless column recreations which introduced in 5.0.7 RC2
-[main] Fixed certain cases of incorrect constructor usage of POCO classes in queries

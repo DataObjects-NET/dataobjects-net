@@ -1,2 +1,0 @@
-[main] Fix NullReferenceException under certain validation scenarios
-[main] Fixed memory leak in Domain.Build() process

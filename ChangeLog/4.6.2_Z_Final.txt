@@ -1,1 +1,0 @@
-[main] Add DomainConfiguration.AllowCyclicDatabaseDependencies option

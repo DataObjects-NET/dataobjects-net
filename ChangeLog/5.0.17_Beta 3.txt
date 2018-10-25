@@ -1,2 +1,0 @@
-[main] Fixed certain scenarios NullReferenceException on translation queries with In() or Contains() operations
-[main] Persist operation no longer breaks EntitySet's enumeration

@@ -1,3 +1,0 @@
-[main] Fixed incorrect column order in queries after certain schema upgrades
-[main] Added DomainConfiguration.NativeLibraryCacheFolder setting
-[main] Improved initialization time of TupleDescriptors

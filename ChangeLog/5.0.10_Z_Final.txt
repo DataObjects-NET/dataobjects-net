@@ -1,3 +1,0 @@
-[main] Remap of temporary to real keys, no longer restore nulled references to an Entity
-[main] Fixed certain cases of session cache returning null for a valid key
-[main] Fixed certain cases when EntitySet could return nulls instead of removed Entities on enumeration

@@ -1,8 +1,0 @@
-[main] Fixed build in Perform/PerformSafely modes when there is no Metadata tables in database/schema
-[main] Added support for CONTAINSTABLE queries for SQL Server providers
-[main] Optimized memory usage for storage nodes which are build in Skip mode
-[main] Full-text indexes are now allowed for fields of structures
-[main] Added highest ranked matches limitation support for freetext queries
-[main] ReferenceFinder now excludes references which were locally removed
-[main] Fixes certains scenarios when changes do not clear on after persist
-[postgresql] Fixed extraction of columns associated with DateTimeOffset fields

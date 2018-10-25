@@ -1,6 +1,0 @@
-[main] Fix translation of predicates similar to (object) NullableBool == (object) null
-[main] Fix translation of Union() over boolean columns under certain conditions
-[main] Don't enforce implicit non-nullable/length constraints in inconsistent sessions
-[main] Import DataObjects.Net.targets conditionally when using NuGet package
-[main] Make UpgradeHandler.IsFieldAvailable virtual
-[sqlserver] Treat errors 3966 and 3971 as serialization failure
