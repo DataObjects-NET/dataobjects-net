@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
   {
     private SqlDriver driver;
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
       driver = TestSqlDriver.Create(DomainConfigurationFactory.Create().ConnectionInfo);

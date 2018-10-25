@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
 {
   public class SimpleTest
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetup()
     {
       CheckRequirements();

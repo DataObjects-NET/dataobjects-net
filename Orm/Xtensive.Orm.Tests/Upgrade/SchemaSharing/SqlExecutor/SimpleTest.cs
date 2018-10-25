@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor
 {
   public class SimpleTest
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetup()
     {
       CheckRequirements();

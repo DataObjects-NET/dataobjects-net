@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.TemporaryTableManager
 {
   public class SimpleTest
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetup()
     {
       CheckRequirements();

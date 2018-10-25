@@ -10,6 +10,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Model.UselessTypeInTheMiddleTestModel;
 using model = Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation.Model;
 
 namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
@@ -31,7 +32,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
       get{return NodeConfigurationType.SingleSchemaNodes;}
     } 
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetup()
     {
       CheckRequirements();

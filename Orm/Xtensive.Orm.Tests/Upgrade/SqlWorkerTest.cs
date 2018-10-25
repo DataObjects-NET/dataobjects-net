@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     private UpgradeServiceAccessor accessor;
 
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetup()
     {
       CreateAccessor();

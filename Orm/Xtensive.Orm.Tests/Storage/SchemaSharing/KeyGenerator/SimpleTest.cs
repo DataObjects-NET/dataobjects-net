@@ -9,7 +9,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator
 {
   public class SimpleTest : AutoBuildTest
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixureSetUp()
     {
       CheckRequirements();

@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.Requests
 {
   public class SimpleTest
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
       CheckRequirements();

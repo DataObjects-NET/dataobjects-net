@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.MetadataUpdate
 {
   public class SimpleTest
   {
-    [TestFixtureSetUp]
+    [OneTimeSetUp]
     public void TestFixtureSetup()
     {
       CheckRequirements();

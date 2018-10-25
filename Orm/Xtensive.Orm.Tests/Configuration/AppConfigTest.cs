@@ -300,19 +300,19 @@ namespace Xtensive.Orm.Tests.Configuration
     [Test]
     public void ShareStorageSchemaOverNodesTest()
     {
-      var configuration = DomainConfiguration.Load("AppConfigTest", "SharedStorageSchemaNone");
+      var configuration = LoadDomainConfiguration("AppConfigTest", "SharedStorageSchemaNone");
       Assert.That(configuration.ShareStorageSchemaOverNodes, Is.False);
 
       var clone = configuration.Clone();
       Assert.That(clone.ShareStorageSchemaOverNodes, Is.EqualTo(configuration.ShareStorageSchemaOverNodes));
 
-      configuration = DomainConfiguration.Load("AppConfigTest", "SharedStorageSchemaOn");
+      configuration = LoadDomainConfiguration("AppConfigTest", "SharedStorageSchemaOn");
       Assert.That(configuration.ShareStorageSchemaOverNodes, Is.True);
 
       clone = configuration.Clone();
       Assert.That(clone.ShareStorageSchemaOverNodes, Is.EqualTo(configuration.ShareStorageSchemaOverNodes));
 
-      configuration = DomainConfiguration.Load("AppConfigTest", "SharedStorageSchemaOff");
+      configuration = LoadDomainConfiguration("AppConfigTest", "SharedStorageSchemaOff");
       Assert.That(configuration.ShareStorageSchemaOverNodes, Is.False);
 
       clone = configuration.Clone();
