@@ -67,9 +67,15 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Default <see cref="MultidatabaseKeys"/> value:
-    /// <see langword="true" />.
+    /// <see langword="false" />.
     /// </summary>
     public const bool DefaultMultidatabaseKeys = false;
+
+    /// <summary>
+    /// Default <see cref="ShareStorageSchemaOverNodes"/> value:
+    /// <see langword="false"/>
+    /// </summary>
+    public const bool DefaultShareStorageSchemaOverNodes = false;
 
     #endregion
 
@@ -97,12 +103,15 @@ namespace Xtensive.Orm.Configuration
     private bool buildInParallel = DefaultBuildInParallel;
     private bool allowCyclicDatabaseDependencies;
     private bool multidatabaseKeys = DefaultMultidatabaseKeys;
+    private bool shareStorageSchemaOverNodes = DefaultShareStorageSchemaOverNodes;
     private DomainOptions options = DomainOptions.Default;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseConfigurationCollection databases = new DatabaseConfigurationCollection();
     private KeyGeneratorConfigurationCollection keyGenerators = new KeyGeneratorConfigurationCollection();
     private IgnoreRuleCollection ignoreRules = new IgnoreRuleCollection();
+
+    
 
     private bool? isMultidatabase;
     private bool? isMultischema;
@@ -558,6 +567,23 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Enables sharing of catalog (or catalogs) of default node over additional nodes.
+    /// Such sharing leads to overall decrease in nodes memory consumption.
+    /// <para>NOTICE! When this option is set to <see langword="true"/> 
+    /// real names of catalogs or schemas of certain <see cref="StorageNode"/> will be calculated on query translation
+    /// according to <see cref="NodeConfiguration.DatabaseMapping"/> and <see cref="NodeConfiguration.SchemaMapping"/> of the Storage Node.
+    /// </para>
+    /// </summary>
+    public bool ShareStorageSchemaOverNodes
+    {
+      get { return shareStorageSchemaOverNodes; }
+      set {
+        this.EnsureNotLocked();
+        shareStorageSchemaOverNodes = value;
+      }
+    }
+
+    /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
     /// </summary>
     public bool IsMultidatabase { get { return isMultidatabase ?? GetIsMultidatabase(); } }
@@ -566,6 +592,8 @@ namespace Xtensive.Orm.Configuration
     /// Gets a value indicating whether this configuration is multi-schema.
     /// </summary>
     public bool IsMultischema { get { return isMultischema ?? GetIsMultischema(); } }
+
+    
 
     private bool GetIsMultidatabase()
     {
@@ -677,6 +705,7 @@ namespace Xtensive.Orm.Configuration
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
       keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();
       ignoreRules = (IgnoreRuleCollection) configuration.IgnoreRules.Clone();
+      shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
     }
 
     /// <summary>

@@ -11,6 +11,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
+using Xtensive.Orm.Validation;
 using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Orm
@@ -112,7 +113,6 @@ namespace Xtensive.Orm
         persistingIsFailed = false;
         SystemEvents.NotifyPersisting();
         Events.NotifyPersisting();
-
         try {
           using (this.OpenSystemLogicOnlyRegion()) {
             DemandTransaction();
@@ -143,6 +143,7 @@ namespace Xtensive.Orm
             }
             finally {
               if (persistIsSuccessfull || !Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
+                DropDifferenceBackup();
                 foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
                   item.PersistenceState = PersistenceState.Synchronized;
                 foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified))
@@ -275,6 +276,18 @@ namespace Xtensive.Orm
 
       foreach (var entityState in EntityChangeRegistry.GetItems(PersistenceState.Removed))
         entityState.RestoreDifference();
+    }
+
+    private void DropDifferenceBackup()
+    {
+      foreach (var entityState in EntityChangeRegistry.GetItems(PersistenceState.New))
+        entityState.DropBackedUpDifference();
+
+      foreach (var entityState in EntityChangeRegistry.GetItems(PersistenceState.Modified))
+        entityState.DropBackedUpDifference();
+
+      foreach (var entityState in EntityChangeRegistry.GetItems(PersistenceState.Removed))
+        entityState.DropBackedUpDifference();
     }
 
     private void ProcessChangesOfEntitySets(Action<EntitySetState> action)

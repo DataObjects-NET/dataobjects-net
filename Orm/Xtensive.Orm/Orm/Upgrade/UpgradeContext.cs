@@ -253,7 +253,7 @@ namespace Xtensive.Orm.Upgrade
 
       UpgradeMode = configuration.UpgradeMode;
       Configuration = configuration;
-      NodeConfiguration = new NodeConfiguration(WellKnown.DefaultNodeId);
+      NodeConfiguration = new NodeConfiguration(WellKnown.DefaultNodeId){UpgradeMode = configuration.UpgradeMode};
       NodeConfiguration.Lock();
       Cookie = new object();
       TypesMovementsAutoDetection = true;

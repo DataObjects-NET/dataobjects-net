@@ -261,7 +261,7 @@ namespace Xtensive.Orm
       if (!Session.IsSystemLogicOnly) {
         using (Session.Operations.EnableSystemOperationRegistration()) {
           if (CanBeValidated)
-            Session.ValidationContext.RegisterForValidation(Entity);
+            Session.ValidationContext.RegisterForValidation(Entity, field);
           var subscriptionInfo = GetSubscription(EntityEventBroker.SetFieldEventKey);
           if (subscriptionInfo.Second!=null)
             ((Action<Key, FieldInfo, FieldInfo, object, object>) subscriptionInfo.Second)

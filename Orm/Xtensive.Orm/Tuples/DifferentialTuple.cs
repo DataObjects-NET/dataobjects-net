@@ -108,6 +108,11 @@ namespace Xtensive.Tuples
         backupedDifference = (DifferentialTuple) this.Clone();
     }
 
+    protected internal void DropBackedUpDifference()
+    {
+      backupedDifference = null;
+    }
+
     /// <inheritdoc/>
     protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {

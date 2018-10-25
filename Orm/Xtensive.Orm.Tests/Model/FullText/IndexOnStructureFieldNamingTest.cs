@@ -97,10 +97,10 @@ namespace Xtensive.Orm.Tests.Model.FullTextIndexOnStructureFieldNamingTestModel
     [FieldMapping("AnotherStructureFieldMapping")]
     public string StringField { get; set; }
 
-    [Field, FullText("Russian")]
+    [Field, FullText("German")]
     public string StringField1 { get; set; }
 
-    [Field, FullText("Russian")]
+    [Field, FullText("German")]
     [FieldMapping("AnotherStructureFieldMapping1")]
     public string StringField2 { get; set; }
   }

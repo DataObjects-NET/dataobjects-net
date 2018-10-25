@@ -6,7 +6,9 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Sql;
+using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 
@@ -21,7 +23,7 @@ namespace Xtensive.Orm.Providers
     private readonly bool storesAutoIncrementSettingsInMemory;
     private readonly SequenceQueryCompartment compartment;
 
-    public SequenceQuery BuildNextValueQuery(SchemaNode generatorNode, long increment, bool forcedSameSessionExecution)
+    public SequenceQuery BuildNextValueQuery(SchemaNode generatorNode, NodeConfiguration nodeConfiguration, long increment, bool forcedSameSessionExecution)
     {
       var actualCompartment = forcedSameSessionExecution
         ? SequenceQueryCompartment.SameSession
@@ -35,31 +37,54 @@ namespace Xtensive.Orm.Providers
       var batch = sqlNext as SqlBatch;
       if (batch == null || hasBatches)
         // There are batches or there is single statement, so we can run this as a single request
-        return new SequenceQuery(driver.Compile(sqlNext).GetCommandText(), actualCompartment);
+        return new SequenceQuery(Compile(sqlNext, nodeConfiguration).GetCommandText(), actualCompartment);
 
       // No batches, so we must execute this manually
       if (!storesAutoIncrementSettingsInMemory)
         return new SequenceQuery(
-          driver.Compile((ISqlCompileUnit)batch[0]).GetCommandText(),
-          driver.Compile((ISqlCompileUnit)batch[1]).GetCommandText(),
+          Compile((ISqlCompileUnit)batch[0], nodeConfiguration).GetCommandText(),
+          Compile((ISqlCompileUnit)batch[1], nodeConfiguration).GetCommandText(),
           actualCompartment);
       return new SequenceQuery(
-          driver.Compile((ISqlCompileUnit)batch[0]).GetCommandText(),
-          driver.Compile((ISqlCompileUnit)batch[1]).GetCommandText(),
-          driver.Compile((ISqlCompileUnit)batch[2]).GetCommandText(),
+          Compile((ISqlCompileUnit)batch[0], nodeConfiguration).GetCommandText(),
+          Compile((ISqlCompileUnit)batch[1], nodeConfiguration).GetCommandText(),
+          Compile((ISqlCompileUnit)batch[2], nodeConfiguration).GetCommandText(),
           actualCompartment);
+    }
+
+    public SequenceQuery BuildNextValueQuery(SchemaNode generatorNode, NodeConfiguration nodeConfiguration, long increment)
+    {
+      return BuildNextValueQuery(generatorNode, nodeConfiguration, increment, false);
+    }
+
+    public SequenceQuery BuildNextValueQuery(SchemaNode generatorNode, long increment, bool forcedSameSessionExecution)
+    {
+      return BuildNextValueQuery(generatorNode, null, increment, forcedSameSessionExecution);
     }
 
     public SequenceQuery BuildNextValueQuery(SchemaNode generatorNode, long increment)
     {
-      return BuildNextValueQuery(generatorNode, increment, false);
+      return BuildNextValueQuery(generatorNode, null, increment);
     }
 
     public string BuildCleanUpQuery(SchemaNode generatorNode)
     {
-      var table = (Table) generatorNode;
+      return BuildCleanUpQuery(generatorNode, null);
+    }
+
+    public string BuildCleanUpQuery(SchemaNode generatorNode, NodeConfiguration nodeConfiguration)
+    {
+      var table = (Table)generatorNode;
       var delete = SqlDml.Delete(SqlDml.TableRef(table));
-      return driver.Compile(delete).GetCommandText();
+      return Compile(delete, nodeConfiguration).GetCommandText();
+    }
+
+
+    private SqlCompilationResult Compile(ISqlCompileUnit unit, NodeConfiguration nodeConfiguration)
+    {
+      if (nodeConfiguration!=null)
+        return driver.Compile(unit, nodeConfiguration);
+      return driver.Compile(unit);
     }
 
     private ISqlCompileUnit GetSequenceBasedNextImplementation(SchemaNode generatorNode, long increment)

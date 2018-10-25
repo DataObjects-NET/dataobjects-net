@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Issues
       [Field, Key(1)]
       public long LastEventId { get; private set; }
 
-      [Field]
+      [Field(Length = 300)]
       public string ApplicationName { get; set; }
 
       [Field]

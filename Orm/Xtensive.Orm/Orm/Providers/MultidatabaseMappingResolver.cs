@@ -24,6 +24,8 @@ namespace Xtensive.Orm.Providers
 
     private readonly NameMappingCollection databaseMapping;
     private readonly NameMappingCollection schemaMapping;
+    private readonly NameMappingCollection reversedDatabaseMapping;
+    private readonly NameMappingCollection reversedSchemaMapping;
 
     public override string GetNodeName(string mappingDatabase, string mappingSchema, string mappingName)
     {
@@ -47,16 +49,20 @@ namespace Xtensive.Orm.Providers
     public override string GetNodeName(SchemaNode node)
     {
       var schema = node.Schema;
-      return FormatNodeName(schema.Catalog.Name, schema.Name, node.Name);
+      return FormatNodeName(schema.Catalog.GetNameInternal(), schema.GetNameInternal(), node.Name);
     }
 
     public override MappingResolveResult Resolve(SchemaExtractionResult model, string nodeName)
     {
       var names = nodeName.Split(NameElementSeparator);
-      var catalog = model.Catalogs[names[0]];
+      var catalog = (model.IsShared) 
+        ? model.Catalogs[reversedDatabaseMapping.Apply(names[0])]
+        : model.Catalogs[names[0]];
       if (catalog==null)
         throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveDatabaseForNodeXPleaseVerifyThatThisDatabaseExists, nodeName));
-      var schema = catalog.Schemas[names[1]];
+      var schema = (model.IsShared)
+        ? catalog.Schemas[reversedSchemaMapping.Apply(names[1])]
+        : catalog.Schemas[names[1]];
       if (schema==null)
         throw new InvalidOperationException(string.Format(Strings.ExUnableToResolveSchemaForNodeXPleaseVerifyThatThisSchemaExists, nodeName));
       var name = names[2];
@@ -123,6 +129,14 @@ namespace Xtensive.Orm.Providers
         from schema in GetSchemasForDatabase(configuration, db)
         select new SqlExtractionTask(databaseMapping.Apply(db), schemaMapping.Apply(schema));
       extractionTasks = extractionTasksQuery.ToList();
+
+      reversedDatabaseMapping = new NameMappingCollection();
+      foreach (var mapping in databaseMapping)
+        reversedDatabaseMapping.Add(mapping.Value, mapping.Key);
+
+      reversedSchemaMapping = new NameMappingCollection();
+      foreach (var mapping in schemaMapping)
+        reversedSchemaMapping.Add(mapping.Value, mapping.Key);
 
       var metadataSchema = schemaMapping.Apply(defaultSchema);
       metadataTasks = extractionTasks.Where(t => t.Schema==metadataSchema).ToList();

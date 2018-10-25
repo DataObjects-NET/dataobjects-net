@@ -12,8 +12,11 @@ namespace Xtensive.Orm.Upgrade
   internal enum SqlWorkerTask
   {
     None = 0,
-    DropSchema = 0x1,
-    ExtractSchema = 0x2,
-    ExtractMetadata = 0x4,
+    DropSchema = 1 << 0,
+    ExtractSchema = 1 << 1,
+    ExtractMetadataTypes = 1 << 2,
+    ExtractMetadataAssemblies = 1 << 3,
+    ExtractMetadataExtension = 1 << 4,
+    ExtractMetadata = ExtractMetadataAssemblies | ExtractMetadataExtension | ExtractMetadataTypes
   }
 }

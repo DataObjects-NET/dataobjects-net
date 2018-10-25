@@ -1860,6 +1860,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to DbName value reading or setting is denied..
+        /// </summary>
+        internal static string ExDbNameValueReadingOrSettingIsDenied {
+            get {
+                return ResourceManager.GetString("ExDbNameValueReadingOrSettingIsDenied", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Deadlock was found..
         /// </summary>
         internal static string ExDeadlock {
@@ -4310,6 +4319,15 @@ namespace Xtensive {
         internal static string ExNameMustBeNotNullOrEmpty {
             get {
                 return ResourceManager.GetString("ExNameMustBeNotNullOrEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Name value reading or setting is denied..
+        /// </summary>
+        internal static string ExNameValueReadingOrSettingIsDenied {
+            get {
+                return ResourceManager.GetString("ExNameValueReadingOrSettingIsDenied", resourceCulture);
             }
         }
         

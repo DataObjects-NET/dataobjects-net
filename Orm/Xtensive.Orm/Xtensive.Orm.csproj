@@ -326,6 +326,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>InternalLogs.tt</DependentUpon>
     </Compile>
+    <Compile Include="Orm\Configuration\Internals\NodeConfigurationExtensions.cs" />
     <Compile Include="IoC\Attributes\ServiceAttribute.cs" />
     <Compile Include="IoC\Attributes\ServiceConstructorAttribute.cs" />
     <Compile Include="IoC\Configuration\ConfigurationSection.cs" />
@@ -1469,6 +1470,7 @@
     <Compile Include="Sql\Compiler\SqlCompilerNamingScope.cs" />
     <Compile Include="Sql\Compiler\SqlCompilerOutputScope.cs" />
     <Compile Include="Sql\Compiler\SqlDelimiterType.cs" />
+    <Compile Include="Sql\Compiler\SqlNodeActualizer.cs" />
     <Compile Include="Sql\Compiler\SqlNodeSections.cs" />
     <Compile Include="Sql\Compiler\SqlParameterNameProvider.cs" />
     <Compile Include="Sql\Compiler\SqlPostCompilerConfiguration.cs" />

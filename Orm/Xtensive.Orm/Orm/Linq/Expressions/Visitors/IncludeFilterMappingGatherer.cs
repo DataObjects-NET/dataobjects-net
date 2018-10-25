@@ -77,6 +77,8 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
       var target = m.Expression;
+      if (target==null)
+        return base.VisitMemberAccess(m);
       if (target.NodeType==ExpressionType.Constant && ((ConstantExpression) target).Value==filteredTuple)
         return calculatedColumnParameter;
       return base.VisitMemberAccess(m);

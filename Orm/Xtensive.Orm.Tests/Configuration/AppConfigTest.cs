@@ -296,24 +296,27 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(actual.NamingRules, Is.EqualTo(expected.NamingRules));
     }
 
-    private void ValidateIgnoringConfiguration(DomainConfiguration configuration)
+
+    [Test]
+    public void ShareStorageSchemaOverNodesTest()
     {
-      Assert.That(configuration.DefaultDatabase, Is.EqualTo("main"));
-      Assert.That(configuration.DefaultSchema, Is.EqualTo("dbo"));
-      Assert.That(configuration.IgnoreRules.Count, Is.EqualTo(11));
-      var rule = configuration.IgnoreRules[0];
-      Assert.That(rule.Database, Is.EqualTo("Other-DO40-Tests"));
-      var rule2 = configuration.IgnoreRules[2];
-      Assert.That(rule2.Schema, Is.EqualTo("some-schema3"));
-      Assert.That(rule2.Table, Is.EqualTo("table2"));
-      Assert.That(rule2.Column, Is.EqualTo("col3"));
-      var databases = configuration.Databases;
-      Assert.That(databases.Count, Is.EqualTo(2));
-      Assert.That(databases[0].Name, Is.EqualTo("main"));
-      Assert.That(databases[0].RealName, Is.EqualTo("DO40-Tests"));
-      Assert.That(databases[1].Name, Is.EqualTo("other"));
-      Assert.That(databases[1].RealName, Is.EqualTo("Other-DO40-Tests"));
-      configuration.Lock();
+      var configuration = DomainConfiguration.Load("AppConfigTest", "SharedStorageSchemaNone");
+      Assert.That(configuration.ShareStorageSchemaOverNodes, Is.False);
+
+      var clone = configuration.Clone();
+      Assert.That(clone.ShareStorageSchemaOverNodes, Is.EqualTo(configuration.ShareStorageSchemaOverNodes));
+
+      configuration = DomainConfiguration.Load("AppConfigTest", "SharedStorageSchemaOn");
+      Assert.That(configuration.ShareStorageSchemaOverNodes, Is.True);
+
+      clone = configuration.Clone();
+      Assert.That(clone.ShareStorageSchemaOverNodes, Is.EqualTo(configuration.ShareStorageSchemaOverNodes));
+
+      configuration = DomainConfiguration.Load("AppConfigTest", "SharedStorageSchemaOff");
+      Assert.That(configuration.ShareStorageSchemaOverNodes, Is.False);
+
+      clone = configuration.Clone();
+      Assert.That(clone.ShareStorageSchemaOverNodes, Is.EqualTo(configuration.ShareStorageSchemaOverNodes));
     }
 
     private void ValidateLoggingConfiguration(LoggingConfiguration configuration)
@@ -340,6 +343,26 @@ namespace Xtensive.Orm.Tests.Configuration
 
       Assert.That(configuration.Logs[6].Source, Is.EqualTo("Trash"));
       Assert.That(configuration.Logs[6].Target, Is.EqualTo("skjdhfjsdf sdfsdfksjdghj fgdfg"));
+    }
+
+    private void ValidateIgnoringConfiguration(DomainConfiguration configuration)
+    {
+      Assert.That(configuration.DefaultDatabase, Is.EqualTo("main"));
+      Assert.That(configuration.DefaultSchema, Is.EqualTo("dbo"));
+      Assert.That(configuration.IgnoreRules.Count, Is.EqualTo(11));
+      var rule = configuration.IgnoreRules[0];
+      Assert.That(rule.Database, Is.EqualTo("Other-DO40-Tests"));
+      var rule2 = configuration.IgnoreRules[2];
+      Assert.That(rule2.Schema, Is.EqualTo("some-schema3"));
+      Assert.That(rule2.Table, Is.EqualTo("table2"));
+      Assert.That(rule2.Column, Is.EqualTo("col3"));
+      var databases = configuration.Databases;
+      Assert.That(databases.Count, Is.EqualTo(2));
+      Assert.That(databases[0].Name, Is.EqualTo("main"));
+      Assert.That(databases[0].RealName, Is.EqualTo("DO40-Tests"));
+      Assert.That(databases[1].Name, Is.EqualTo("other"));
+      Assert.That(databases[1].RealName, Is.EqualTo("Other-DO40-Tests"));
+      configuration.Lock();
     }
   }
 }

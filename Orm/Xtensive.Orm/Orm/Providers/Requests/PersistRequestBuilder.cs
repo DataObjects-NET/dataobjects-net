@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -24,7 +25,7 @@ namespace Xtensive.Orm.Providers
 
     internal ICollection<PersistRequest> Build(StorageNode node, PersistRequestBuilderTask task)
     {
-      var context = new PersistRequestBuilderContext(task, node.Mapping);
+      var context = new PersistRequestBuilderContext(task, node.Mapping, node.Configuration);
       List<PersistRequest> result;
       switch (task.Kind) {
         case PersistRequestKind.Insert:
@@ -49,7 +50,7 @@ namespace Xtensive.Orm.Providers
           batch.Add(request.Statement);
           bindings.UnionWith(request.ParameterBindings);
         }
-        var batchRequest = new PersistRequest(driver, batch, bindings);
+        var batchRequest = CreatePersistRequest(batch, bindings, node.Configuration);
         batchRequest.Prepare();
         return new List<PersistRequest> {batchRequest}.AsReadOnly();
       }
@@ -78,7 +79,7 @@ namespace Xtensive.Orm.Providers
           }
         }
 
-        result.Add(new PersistRequest(driver, query, bindings));
+        result.Add(CreatePersistRequest(query, bindings, context.NodeConfiguration));
       }
       return result;
     }
@@ -117,7 +118,7 @@ namespace Xtensive.Orm.Providers
         query.Where = BuildKeyFilter(context, tableRef, bindings);
         if (requiresVersionValidation)
           query.Where &= BuildVersionFilter(context, tableRef, bindings);
-        result.Add(new PersistRequest(driver, query, bindings));
+        result.Add(CreatePersistRequest(query, bindings,context.NodeConfiguration));
       }
 
       return result;
@@ -134,7 +135,7 @@ namespace Xtensive.Orm.Providers
         query.Where = BuildKeyFilter(context, tableRef, bindings);
         if (context.Task.ValidateVersion)
           query.Where &= BuildVersionFilter(context, tableRef, bindings);
-        result.Add(new PersistRequest(driver, query, bindings));
+        result.Add(CreatePersistRequest(query, bindings, context.NodeConfiguration));
       }
       return result;
     }
@@ -180,6 +181,13 @@ namespace Xtensive.Orm.Providers
         currentBindings.Add(binding);
       }
       return result;
+    }
+
+    protected PersistRequest CreatePersistRequest(SqlStatement query, IEnumerable<PersistParameterBinding> bindings, NodeConfiguration nodeConfiguration)
+    {
+      if (Handlers.Domain.Configuration.ShareStorageSchemaOverNodes)
+        return new PersistRequest(driver, query, bindings, nodeConfiguration);
+      return new PersistRequest(driver, query, bindings);
     }
 
     private bool AddFakeVersionColumnUpdate(PersistRequestBuilderContext context, SqlUpdate update, SqlTableRef filteredTable)
