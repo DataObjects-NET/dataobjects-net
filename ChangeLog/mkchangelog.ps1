@@ -25,10 +25,17 @@ $items = Get-ChildItem -Path $inputDir -Filter *.txt |
 
 #compose ChangeLog and ReleaseInfo files
 Foreach ($complexObject in $items) {
-  #on first itteration create ReleaseNotes
-  if (-not(Test-Path $releaseNotesFile)) { Add-Content $releaseNotesFile (Get-Content $complexObject.File.FullName) }
-  Add-Content $changeLogFile ("Changes in {0} {1}" -f $complexObject.ReleaseVersion, $complexObject.FixedReleaseName)
-  Add-Content $changeLogFile ""
-  Add-Content $changeLogFile ( Get-Content $complexObject.File.FullName)
-  Add-Content $changeLogFile ""
+  $isInitial = $complexObject.FileName -eq "0.0.0"
+  if($isInitial){
+    Add-Content $changeLogFile ( Get-Content $complexObject.File.FullName)
+	Add-Content $changeLogFile ""
+  }
+  else{
+    #on first itteration create ReleaseNotes
+    if (-not(Test-Path $releaseNotesFile)) { Add-Content $releaseNotesFile (Get-Content $complexObject.File.FullName) }
+    Add-Content $changeLogFile ("Changes in {0} {1}" -f $complexObject.ReleaseVersion, $complexObject.FixedReleaseName)
+    Add-Content $changeLogFile ""
+    Add-Content $changeLogFile ( Get-Content $complexObject.File.FullName)
+    Add-Content $changeLogFile ""
+  }
 }
