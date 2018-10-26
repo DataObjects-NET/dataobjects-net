@@ -78,11 +78,10 @@ namespace Xtensive.Orm.Logging
 
     internal void AutoInitialize()
     {
-      //var configuration =
-      //  ConfigurationManager.GetSection(WellKnown.DefaultConfigurationSection)!=null
-      //    ? LoggingConfiguration.Load()
-      //    : new LoggingConfiguration();
-      var configuration = new LoggingConfiguration();
+      var configuration =
+        ConfigurationManager.GetSection(WellKnown.DefaultConfigurationSection)!=null
+          ? LoggingConfiguration.Load()
+          : new LoggingConfiguration();
       lock (syncObj) {
         if (provider==null) {
           Initialize(configuration);
