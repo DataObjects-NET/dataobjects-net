@@ -729,6 +729,45 @@ namespace Xtensive.Orm.Configuration
     /// <exception cref="InvalidOperationException">Section <see cref="SectionName"/>
     /// is not found in application configuration file, or there is no configuration for
     /// the <see cref="Domain"/> with specified <paramref name="name"/>.</exception>
+    public static DomainConfiguration Load(string name)
+    {
+      return Load(SectionName, name);
+    }
+
+    /// <summary>
+    /// Loads the <see cref="DomainConfiguration"/> for <see cref="Domain"/>
+    /// with the specified <paramref name="name"/>
+    /// from application configuration file (section with <paramref name="sectionName"/>).
+    /// </summary>
+    /// <param name="sectionName">Name of the section.</param>
+    /// <param name="name">Name of the <see cref="Domain"/>.</param>
+    /// <returns>
+    /// The <see cref="DomainConfiguration"/> for the specified domain.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">Section <paramref name="sectionName"/>
+    /// is not found in application configuration file, or there is no configuration for
+    /// the <see cref="Domain"/> with specified <paramref name="name"/>.</exception>
+    public static DomainConfiguration Load(string sectionName, string name)
+    {
+      var section = (ConfigurationSection)ConfigurationManager.GetSection(sectionName);
+      if (section == null)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));
+      return LoadConfigurationFromSection(section, name);
+    }
+
+    /// <summary>
+    /// Loads the <see cref="DomainConfiguration"/> for <see cref="Domain"/>
+    /// with the specified <paramref name="name"/>
+    /// from application configuration file (section with <see cref="SectionName"/>).
+    /// </summary>
+    /// <param name="name">Name of the <see cref="Domain"/>.</param>
+    /// <returns>
+    /// The <see cref="DomainConfiguration"/> for the specified domain.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">Section <see cref="SectionName"/>
+    /// is not found in application configuration file, or there is no configuration for
+    /// the <see cref="Domain"/> with specified <paramref name="name"/>.</exception>
     public static DomainConfiguration Load(System.Configuration.Configuration configuration, string name)
     {
       return Load(configuration, SectionName, name);
@@ -753,11 +792,7 @@ namespace Xtensive.Orm.Configuration
       if (section==null)
         throw new InvalidOperationException(string.Format(
           Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));
-      var domainElement = section.Domains[name];
-      if (domainElement==null)
-        throw new InvalidOperationException(string.Format(
-          Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
-      return domainElement.ToNative();
+      return LoadConfigurationFromSection(section, name);
     }
 
     internal bool Supports(DomainOptions optionsToCheck)
@@ -768,6 +803,16 @@ namespace Xtensive.Orm.Configuration
     internal bool Supports(ForeignKeyMode modeToCheck)
     {
       return (foreignKeyMode & modeToCheck)==modeToCheck;
+    }
+
+
+    private static DomainConfiguration LoadConfigurationFromSection(ConfigurationSection section, string name)
+    {
+      var domainElement = section.Domains[name];
+      if (domainElement==null)
+        throw new InvalidOperationException(string.Format(
+          Strings.ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile, name, sectionName));
+      return domainElement.ToNative();
     }
 
     // Constructors
