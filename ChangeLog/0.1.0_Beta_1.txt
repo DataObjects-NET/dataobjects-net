@@ -1,0 +1,3 @@
+[main] Added new overloads for loading DomainConfiguration and LoggingConfiguration
+[main] Added LogManager.Initialize(System.Configuration.Configuration)
+[sqlserver] No support for SqlGeometry and SqlGeography for now
