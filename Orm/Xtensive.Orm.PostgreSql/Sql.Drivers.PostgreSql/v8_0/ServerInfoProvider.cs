@@ -277,6 +277,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       info.MaxComparisonOperations = 1000000;
       info.MaxLength = 1000000;
       info.MaxNestedSubqueriesAmount = 100;
+      info.MaxQueryParameterCount = 34464;
       return info;
     }
 

@@ -61,6 +61,11 @@ namespace Xtensive.Orm.Providers
     public ReadOnlyHashSet<Type> SupportedTypes { get; private set; }
 
     /// <summary>
+    /// Gets max query parameter count.
+    /// </summary>
+    public int MaxQueryParameterCount { get; private set; }
+
+    /// <summary>
     /// Determines whether the specified features are supported.
     /// </summary>
     /// <param name="required">The required feature set.</param>
@@ -79,7 +84,8 @@ namespace Xtensive.Orm.Providers
       string constantPrimaryIndexName,
       string defaultDatabase,
       string defaultSchema, 
-      IEnumerable<Type> supportedTypes)
+      IEnumerable<Type> supportedTypes,
+      int maxQueryParameterCount)
     {
       ProviderName = providerName;
 
@@ -93,6 +99,7 @@ namespace Xtensive.Orm.Providers
       DefaultSchema = defaultSchema;
 
       SupportedTypes = new ReadOnlyHashSet<Type>(supportedTypes.ToHashSet());
+      MaxQueryParameterCount = maxQueryParameterCount;
     }
   }
 }

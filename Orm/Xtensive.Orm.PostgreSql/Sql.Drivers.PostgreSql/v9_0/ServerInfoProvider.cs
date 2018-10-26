@@ -16,5 +16,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
       : base(driver)
     {
     }
+
+    public override QueryInfo GetQueryInfo()
+    {
+      var queryInfo = base.GetQueryInfo();
+      queryInfo.MaxQueryParameterCount = 65535;
+      return queryInfo;
+    }
   }
 }

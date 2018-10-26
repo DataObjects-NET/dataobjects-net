@@ -194,6 +194,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       queryInfo.MaxComparisonOperations = 1000;
       queryInfo.MaxNestedSubqueriesAmount = 32; //TODO: Determine max nested sub queries and variables.
       queryInfo.ParameterPrefix = "?";
+      queryInfo.MaxQueryParameterCount = 65535;
       queryInfo.Features =
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |

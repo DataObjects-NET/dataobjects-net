@@ -173,6 +173,7 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
       queryInfo.MaxComparisonOperations = 1000;
       queryInfo.MaxNestedSubqueriesAmount = 32;
       queryInfo.ParameterPrefix = "@";
+      queryInfo.MaxQueryParameterCount = 0;
       queryInfo.Features =
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |

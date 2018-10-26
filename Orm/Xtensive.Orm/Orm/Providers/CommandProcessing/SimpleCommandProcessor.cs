@@ -36,6 +36,8 @@ namespace Xtensive.Orm.Providers
 
     void ISqlTaskProcessor.ProcessTask(SqlLoadTask task)
     {
+      if(MaxQueryParameterCount > 0)
+        CheckParameterCount(GetParameterCount(task));
       using (var command = Factory.CreateCommand()) {
         var part = Factory.CreateQueryPart(task);
         command.AddPart(part);
@@ -50,6 +52,8 @@ namespace Xtensive.Orm.Providers
 
     void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
     {
+      if (MaxQueryParameterCount > 0)
+        CheckParameterCount(GetParameterCount(task));
       var sequence = Factory.CreatePersistParts(task);
       foreach (var part in sequence) {
         using (var command = Factory.CreateCommand()) {
@@ -64,8 +68,8 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    public SimpleCommandProcessor(CommandFactory factory)
-      : base(factory)
+    public SimpleCommandProcessor(CommandFactory factory, int maxQueryParameterCount)
+      : base(factory, maxQueryParameterCount)
     {
     }
   }

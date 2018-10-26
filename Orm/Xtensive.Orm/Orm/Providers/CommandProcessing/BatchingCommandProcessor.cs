@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
+using System.Linq;
 using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -100,11 +102,21 @@ namespace Xtensive.Orm.Providers
       AllocateCommand();
 
       try {
-        while (numberOfTasks > 0 && tasks.Count > 0) {
-          numberOfTasks--;
+        for (var totalParameterCount = 0; numberOfTasks > 0 && tasks.Count > 0; numberOfTasks--) {
+          if (MaxQueryParameterCount > 0) {
+            var parameterCount = GetParameterCount(tasks.Peek());
+            if (totalParameterCount + parameterCount > MaxQueryParameterCount) {
+              if (totalParameterCount==0)
+                CheckParameterCount(parameterCount);
+              else break;
+            }
+            else totalParameterCount += parameterCount;
+          }
+
           var task = tasks.Dequeue();
           task.ProcessWith(this);
         }
+
         if (shouldReturnReader) {
           var part = Factory.CreateQueryPart(lastRequest);
           activeCommand.AddPart(part);
@@ -171,8 +183,8 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    public BatchingCommandProcessor(CommandFactory factory, int batchSize)
-      : base(factory)
+    public BatchingCommandProcessor(CommandFactory factory, int batchSize, int maxQueryParameterCount)
+      : base(factory, maxQueryParameterCount)
     {
       ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, "batchSize");
       this.batchSize = batchSize;

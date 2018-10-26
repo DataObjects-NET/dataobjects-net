@@ -4,7 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.20
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 
 using Tuple = Xtensive.Tuples.Tuple;
@@ -20,6 +22,11 @@ namespace Xtensive.Orm.Providers
     /// Factory of command parts.
     /// </summary>
     public CommandFactory Factory { get; private set; }
+
+    /// <summary>
+    /// Gets max query parameter count.
+    /// </summary>
+    public int MaxQueryParameterCount { get; private set; }
 
     /// <summary>
     /// Registers tasks for execution.
@@ -59,16 +66,41 @@ namespace Xtensive.Orm.Providers
       ExecuteTasks(false);
     }
 
+    protected int GetParameterCount(SqlTask task)
+    {
+      var sqlPersistTask = task as SqlPersistTask;
+      var sqlLoadTask = task as SqlLoadTask;
+      if (sqlPersistTask!=null) {
+        return sqlPersistTask.RequestSequence.Select(x => x.ParameterBindings.Count()).Sum();
+      }
+      else if (sqlLoadTask!=null) {
+        return sqlLoadTask.Request.ParameterBindings.Count();
+      }
+      else throw new NotSupportedException();
+    }
+
+    protected void CheckParameterCount(int parameterCount)
+    {
+      if (parameterCount > MaxQueryParameterCount)
+        throw new StorageException(
+          string.Format(
+            Strings.ExSqlQueryHasTooManyParametersServerSupportsMaximumOfXParameters,
+            MaxQueryParameterCount));
+    }
+
     // Constructors
 
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="factory">The factory.</param>
-    protected CommandProcessor(CommandFactory factory)
+    /// <param name="maxQueryParameterCount">The maximum parameter count per query.</param>
+    protected CommandProcessor(CommandFactory factory, int maxQueryParameterCount)
     {
       ArgumentValidator.EnsureArgumentNotNull(factory, "factory");
+      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(maxQueryParameterCount, 0, "maxQueryParameterCount");
       Factory = factory;
+      MaxQueryParameterCount = maxQueryParameterCount;
     }
   }
 }

@@ -17,6 +17,7 @@ namespace Xtensive.Sql.Info
     private int maxNestedQueriesAmount;
     private string parameterPrefix;
     private QueryFeatures features = QueryFeatures.None;
+    private int maxQueryParameterCount;
 
     /// <summary>
     /// Gets or sets the maximal length of a query text in characters.
@@ -81,6 +82,19 @@ namespace Xtensive.Sql.Info
       {
         this.EnsureNotLocked();
         features = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets max query parameter count.
+    /// </summary>
+    public int MaxQueryParameterCount
+    {
+      get { return maxQueryParameterCount; }
+      set
+      {
+        this.EnsureNotLocked();
+        maxQueryParameterCount = value;
       }
     }
   }

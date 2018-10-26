@@ -327,6 +327,12 @@
     <Compile Include="Issues\IssueJira0537_DropDefaultConstraintBugTest.cs" />
     <Compile Include="Issues\IssueJira0627_PocoClassPropertyRenitialization.cs" />
     <Compile Include="Issues\IssueJira0627_FieldInitializationTest.cs" />
+    <Compile Include="Storage\BatchingMaxQueryParemeters\BatchingMaxQueryParemetersTest.cs" />
+    <Compile Include="Storage\BatchingMaxQueryParemeters\BatchingMaxQueryParemetersTestEntities.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>BatchingMaxQueryParemetersTestEntities.tt</DependentUpon>
+    </Compile>
     <Compile Include="Storage\SchemaSharing\DomainConfigurationExtensions.cs" />
     <Compile Include="Storage\SchemaSharing\EntityManipulation\SimpleEntityManipulationTest.cs" />
     <Compile Include="Storage\SchemaSharing\EntityManipulation\Model.cs" />
@@ -951,6 +957,10 @@
   <ItemGroup>
     <Content Include="Northwind.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Storage\BatchingMaxQueryParemeters\BatchingMaxQueryParemetersTestEntities.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BatchingMaxQueryParemetersTestEntities.cs</LastGenOutput>
     </Content>
     <Content Include="Upgrade\HugeModelUpgrade\Models\ModelWithMappedTypes.tt">
       <Generator>TextTemplatingFileGenerator</Generator>

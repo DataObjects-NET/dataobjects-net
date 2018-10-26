@@ -5835,6 +5835,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The SQL query has too many parameters. The server supports a maximum of {0} parameters..
+        /// </summary>
+        internal static string ExSqlQueryHasTooManyParametersServerSupportsMaximumOfXParameters {
+            get {
+                return ResourceManager.GetString("ExSqlQueryHasTooManyParametersServerSupportsMaximumOfXParameters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to SQL Server below 2005 is not supported..
         /// </summary>
         internal static string ExSqlServerBelow2005IsNotSupported {
