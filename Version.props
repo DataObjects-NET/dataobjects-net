@@ -3,7 +3,7 @@
 
 <PropertyGroup>
   <Version>0.1.0</Version>
-  <Modifier>Final</Modifier>
+  <Modifier>Beta 1</Modifier>
   <BuildNumberBase>12000</BuildNumberBase>
 </PropertyGroup>
 
