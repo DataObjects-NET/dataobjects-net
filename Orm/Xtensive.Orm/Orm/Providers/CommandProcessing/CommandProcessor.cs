@@ -66,26 +66,26 @@ namespace Xtensive.Orm.Providers
       ExecuteTasks(false);
     }
 
-    protected int GetParameterCount(SqlTask task)
+    protected int GetAndValidateParameterCount(SqlTask task)
     {
       var sqlPersistTask = task as SqlPersistTask;
       var sqlLoadTask = task as SqlLoadTask;
+      var result = 0;
       if (sqlPersistTask!=null) {
-        return sqlPersistTask.RequestSequence.Select(x => x.ParameterBindings.Count()).Sum();
+        result = sqlPersistTask.RequestSequence.Select(x => x.ParameterBindings.Count()).Sum();
       }
       else if (sqlLoadTask!=null) {
-        return sqlLoadTask.Request.ParameterBindings.Count();
+        result = sqlLoadTask.Request.ParameterBindings.Count();
       }
       else throw new NotSupportedException();
-    }
 
-    protected void CheckParameterCount(int parameterCount)
-    {
-      if (parameterCount > MaxQueryParameterCount)
+      if (result > MaxQueryParameterCount)
         throw new StorageException(
           string.Format(
             Strings.ExSqlQueryHasTooManyParametersServerSupportsMaximumOfXParameters,
             MaxQueryParameterCount));
+
+      return result;
     }
 
     // Constructors

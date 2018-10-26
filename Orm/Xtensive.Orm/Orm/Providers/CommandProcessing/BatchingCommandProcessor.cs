@@ -104,13 +104,9 @@ namespace Xtensive.Orm.Providers
       try {
         for (var totalParameterCount = 0; numberOfTasks > 0 && tasks.Count > 0; numberOfTasks--) {
           if (MaxQueryParameterCount > 0) {
-            var parameterCount = GetParameterCount(tasks.Peek());
-            if (totalParameterCount + parameterCount > MaxQueryParameterCount) {
-              if (totalParameterCount==0)
-                CheckParameterCount(parameterCount);
-              else break;
-            }
-            else totalParameterCount += parameterCount;
+            totalParameterCount += GetAndValidateParameterCount(tasks.Peek());
+            if (totalParameterCount > MaxQueryParameterCount)
+              break;
           }
 
           var task = tasks.Dequeue();
