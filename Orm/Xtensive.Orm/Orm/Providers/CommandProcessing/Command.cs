@@ -28,6 +28,11 @@ namespace Xtensive.Orm.Providers
 
     public int Count { get { return statements.Count; } }
 
+    internal DbCommand UnderlyingCommand
+    {
+      get { return underlyingCommand; }
+    }
+
     public void AddPart(CommandPart part)
     {
       if (prepared)

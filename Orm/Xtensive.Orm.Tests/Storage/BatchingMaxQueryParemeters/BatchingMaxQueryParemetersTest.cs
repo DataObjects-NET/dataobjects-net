@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.BatchingMaxQueryParemeters.Model;
 
@@ -17,17 +18,33 @@ namespace Xtensive.Orm.Tests.Storage.BatchingMaxQueryParemeters
   public class BatchingMaxQueryParemetersTest : AutoBuildTest
   {
     [Test]
-    public void MainTest()
+    public void PersistTest()
     {
-      using (var domain = Domain.Build(this.BuildConfiguration()))
-      using (var session = domain.OpenSession(SessionType.Default))
+      using (var session = Domain.OpenSession(SessionType.Default))
       using (session.Activate())
-      using (var t = session.OpenTransaction()) {
-        for (var i = 0; i < 100; i++) {
-          new SimpleEntity(Guid.NewGuid());
+      using (var t = session.OpenTransaction())
+      {
+        for (var i = 0; i < 100; i++)
+        {
+          new SimpleEntity();
         }
 
         t.Complete();
+      }
+    }
+
+    [Test]
+    public void LoadTest()
+    {
+      using (var session = Domain.OpenSession(SessionType.Default))
+      using (session.Activate())
+      using (var t = session.OpenTransaction()) {
+        var queries = Enumerable.Range(0, 100).Select(
+          i => {
+            var range = Enumerable.Range(0, 317).ToArray();
+            return session.Query.ExecuteDelayed(query => query.All<SimpleEntity>().Where(x => x.Id.In(IncludeAlgorithm.ComplexCondition, range)));
+          }).ToArray();
+        session.ExecuteUserDefinedDelayedQueries(true);
       }
     }
 

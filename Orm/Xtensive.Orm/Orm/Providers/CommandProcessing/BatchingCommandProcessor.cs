@@ -22,22 +22,28 @@ namespace Xtensive.Orm.Providers
     private Command activeCommand;
     private List<SqlLoadTask> activeTasks;
 
-    void ISqlTaskProcessor.ProcessTask(SqlLoadTask task)
+    bool ISqlTaskProcessor.ProcessTask(SqlLoadTask task)
     {
       var part = Factory.CreateQueryPart(task, GetParameterPrefix());
+      if (!ValidateCommandParameterCount(activeCommand, part))
+        return false;
       activeCommand.AddPart(part);
       activeTasks.Add(task);
+      return true;
     }
 
-    void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
+    bool ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
     {
-      if (task.ValidateRowCount) {
-        ProcessUnbatchedTask(task);
-        return;
-      }
-      var sequence = Factory.CreatePersistParts(task, GetParameterPrefix());
+      if (task.ValidateRowCount)
+        return ProcessUnbatchedTask(task);
+
+      var sequence = Factory.CreatePersistParts(task, GetParameterPrefix()).ToArray();
+      if (!ValidateCommandParameterCount(activeCommand, sequence))
+        return false;
+
       foreach (var part in sequence)
         activeCommand.AddPart(part);
+      return true;
     }
 
     public override void ExecuteTasks(bool allowPartialExecution)
@@ -45,7 +51,7 @@ namespace Xtensive.Orm.Providers
       while (tasks.Count >= batchSize)
         ExecuteBatch(batchSize, null);
 
-      if (!allowPartialExecution)
+      while (!allowPartialExecution && tasks.Count > 0)
         ExecuteBatch(tasks.Count, null);
     }
 
@@ -61,10 +67,16 @@ namespace Xtensive.Orm.Providers
 
     public override IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest request)
     {
+      ArgumentValidator.EnsureArgumentNotNull(request, "request");
+
       while (tasks.Count >= batchSize)
         ExecuteBatch(batchSize, null);
 
-      return ExecuteBatch(tasks.Count, request).AsReaderOf(request);
+      for (;;) {
+        var result = ExecuteBatch(tasks.Count, request);
+        if (result!=null && tasks.Count==0)
+          return result.AsReaderOf(request);
+      }
     }
 
     #region Private / internal methods
@@ -94,29 +106,24 @@ namespace Xtensive.Orm.Providers
 
     private Command ExecuteBatch(int numberOfTasks, QueryRequest lastRequest)
     {
-      var shouldReturnReader = lastRequest!=null;
-
-      if (numberOfTasks==0 && !shouldReturnReader)
+      if (numberOfTasks==0 && lastRequest==null)
         return null;
 
       AllocateCommand();
 
+      var shouldReturnReader = false;
       try {
-        for (var totalParameterCount = 0; numberOfTasks > 0 && tasks.Count > 0; numberOfTasks--) {
-          if (MaxQueryParameterCount != int.MaxValue) {
-            totalParameterCount += GetAndValidateParameterCount(tasks.Peek());
-            if (totalParameterCount > MaxQueryParameterCount)
-              break;
-          }
+        for (; numberOfTasks > 0 && tasks.Count > 0 && tasks.Peek().ProcessWith(this); numberOfTasks--)
+          tasks.Dequeue();
 
-          var task = tasks.Dequeue();
-          task.ProcessWith(this);
-        }
-
-        if (shouldReturnReader) {
+        if (lastRequest!=null && tasks.Count==0) {
           var part = Factory.CreateQueryPart(lastRequest);
-          activeCommand.AddPart(part);
+          if (ValidateCommandParameterCount(activeCommand, part)) {
+            shouldReturnReader = true;
+            activeCommand.AddPart(part);
+          }
         }
+
         if (activeCommand.Count==0)
           return null;
         var hasQueryTasks = activeTasks.Count > 0;
@@ -124,6 +131,7 @@ namespace Xtensive.Orm.Providers
           activeCommand.ExecuteNonQuery();
           return null;
         }
+
         activeCommand.ExecuteReader();
         if (hasQueryTasks) {
           int currentQueryTask = 0;
@@ -137,6 +145,7 @@ namespace Xtensive.Orm.Providers
             currentQueryTask++;
           }
         }
+
         return shouldReturnReader ? activeCommand : null;
       }
       finally {
@@ -146,19 +155,23 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private void ProcessUnbatchedTask(SqlPersistTask task)
+    private bool ProcessUnbatchedTask(SqlPersistTask task)
     {
       if (activeCommand.Count > 0) {
         activeCommand.ExecuteNonQuery();
         ReleaseCommand();
         AllocateCommand();
       }
-      ExecuteUnbatchedTask(task);
+
+      return ExecuteUnbatchedTask(task);
     }
 
-    private void ExecuteUnbatchedTask(SqlPersistTask task)
+    private bool ExecuteUnbatchedTask(SqlPersistTask task)
     {
-      var sequence = Factory.CreatePersistParts(task);
+      var sequence = Factory.CreatePersistParts(task).ToArray();
+      if (!ValidateCommandParameterCount(null, sequence))
+        return false;
+
       foreach (var part in sequence) {
         using (var command = Factory.CreateCommand()) {
           command.AddPart(part);
@@ -168,6 +181,8 @@ namespace Xtensive.Orm.Providers
               Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
         }
       }
+
+      return true;
     }
 
     private string GetParameterPrefix()

@@ -5,6 +5,7 @@
 // Created:    2009.08.20
 
 using System.Collections.Generic;
+using System.Linq;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
@@ -29,17 +30,19 @@ namespace Xtensive.Orm.Providers
     {
       var command = Factory.CreateCommand();
       var part = Factory.CreateQueryPart(lastRequest);
+      ValidateCommandParameterCount(null, part);
       command.AddPart(part);
       command.ExecuteReader();
       return command.AsReaderOf(lastRequest);
     }
 
-    void ISqlTaskProcessor.ProcessTask(SqlLoadTask task)
+    bool ISqlTaskProcessor.ProcessTask(SqlLoadTask task)
     {
-      if (MaxQueryParameterCount > 0)
-        GetAndValidateParameterCount(task);
+      var part = Factory.CreateQueryPart(task);
+      if (!ValidateCommandParameterCount(null, part))
+        return false;
+
       using (var command = Factory.CreateCommand()) {
-        var part = Factory.CreateQueryPart(task);
         command.AddPart(part);
         command.ExecuteReader();
         var enumerator = command.AsReaderOf(task.Request);
@@ -47,14 +50,17 @@ namespace Xtensive.Orm.Providers
           while (enumerator.MoveNext())
             task.Output.Add(enumerator.Current);
         }
+
+        return true;
       }
     }
 
-    void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
+    bool ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
     {
-      if (MaxQueryParameterCount > 0)
-        GetAndValidateParameterCount(task);
-      var sequence = Factory.CreatePersistParts(task);
+      var sequence = Factory.CreatePersistParts(task).ToArray();
+      if (!ValidateCommandParameterCount(null, sequence))
+        return false;
+
       foreach (var part in sequence) {
         using (var command = Factory.CreateCommand()) {
           command.AddPart(part);
@@ -64,6 +70,8 @@ namespace Xtensive.Orm.Providers
               Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
         }
       }
+
+      return true;
     }
 
     // Constructors

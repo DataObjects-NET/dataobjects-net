@@ -12,14 +12,14 @@ namespace Xtensive.Orm.Tests.Storage.BatchingMaxQueryParemeters.Model
     [HierarchyRoot]
     public class SimpleEntity : Entity
     {
-      public SimpleEntity(Guid id) : base(id)
+      public SimpleEntity() : base()
       {
 
       }
 
       [Field]
       [Key]
-      public Guid Id { get; private set; }
+      public int Id { get; private set; }
 
       [Field]
       public int Value1 { get; set; }
