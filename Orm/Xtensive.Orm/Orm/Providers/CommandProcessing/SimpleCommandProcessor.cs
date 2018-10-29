@@ -36,11 +36,10 @@ namespace Xtensive.Orm.Providers
       return command.AsReaderOf(lastRequest);
     }
 
-    bool ISqlTaskProcessor.ProcessTask(SqlLoadTask task)
+    void ISqlTaskProcessor.ProcessTask(SqlLoadTask task)
     {
       var part = Factory.CreateQueryPart(task);
-      if (!ValidateCommandParameterCount(null, part))
-        return false;
+      ValidateCommandParameterCount(null, part);
 
       using (var command = Factory.CreateCommand()) {
         command.AddPart(part);
@@ -50,16 +49,13 @@ namespace Xtensive.Orm.Providers
           while (enumerator.MoveNext())
             task.Output.Add(enumerator.Current);
         }
-
-        return true;
       }
     }
 
-    bool ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
+    void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
     {
       var sequence = Factory.CreatePersistParts(task).ToArray();
-      if (!ValidateCommandParameterCount(null, sequence))
-        return false;
+      ValidateCommandParameterCount(null, sequence);
 
       foreach (var part in sequence) {
         using (var command = Factory.CreateCommand()) {
@@ -70,8 +66,6 @@ namespace Xtensive.Orm.Providers
               Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
         }
       }
-
-      return true;
     }
 
     // Constructors

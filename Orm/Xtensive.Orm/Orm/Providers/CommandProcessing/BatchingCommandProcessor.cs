@@ -21,29 +21,16 @@ namespace Xtensive.Orm.Providers
     private int reenterCount;
     private Command activeCommand;
     private List<SqlLoadTask> activeTasks;
+    private bool isFitParametersCountRestrictions;
 
-    bool ISqlTaskProcessor.ProcessTask(SqlLoadTask task)
+    void ISqlTaskProcessor.ProcessTask(SqlLoadTask task)
     {
-      var part = Factory.CreateQueryPart(task, GetParameterPrefix());
-      if (!ValidateCommandParameterCount(activeCommand, part))
-        return false;
-      activeCommand.AddPart(part);
-      activeTasks.Add(task);
-      return true;
+      isFitParametersCountRestrictions = ProcessTask(task);
     }
 
-    bool ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
+    void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
     {
-      if (task.ValidateRowCount)
-        return ProcessUnbatchedTask(task);
-
-      var sequence = Factory.CreatePersistParts(task, GetParameterPrefix()).ToArray();
-      if (!ValidateCommandParameterCount(activeCommand, sequence))
-        return false;
-
-      foreach (var part in sequence)
-        activeCommand.AddPart(part);
-      return true;
+      isFitParametersCountRestrictions = ProcessTask(task);
     }
 
     public override void ExecuteTasks(bool allowPartialExecution)
@@ -113,7 +100,7 @@ namespace Xtensive.Orm.Providers
 
       var shouldReturnReader = false;
       try {
-        for (; numberOfTasks > 0 && tasks.Count > 0 && tasks.Peek().ProcessWith(this); numberOfTasks--)
+        for (; numberOfTasks > 0 && tasks.Count > 0 && ProcessTask(tasks.Peek()); numberOfTasks--)
           tasks.Dequeue();
 
         if (lastRequest!=null && tasks.Count==0) {
@@ -188,6 +175,37 @@ namespace Xtensive.Orm.Providers
     private string GetParameterPrefix()
     {
       return string.Format("p{0}_", activeCommand.Count + 1);
+    }
+
+    private bool ProcessTask(SqlLoadTask task)
+    {
+      var part = Factory.CreateQueryPart(task, GetParameterPrefix());
+      if (!ValidateCommandParameterCount(activeCommand, part))
+        return false;
+      activeCommand.AddPart(part);
+      activeTasks.Add(task);
+      return true;
+    }
+
+    private bool ProcessTask(SqlPersistTask task)
+    {
+      if (task.ValidateRowCount)
+        return ProcessUnbatchedTask(task);
+
+      var sequence = Factory.CreatePersistParts(task, GetParameterPrefix()).ToArray();
+      if (!ValidateCommandParameterCount(activeCommand, sequence))
+        return false;
+
+      foreach (var part in sequence)
+        activeCommand.AddPart(part);
+      return true;
+    }
+
+    private bool ProcessTask(SqlTask task)
+    {
+      isFitParametersCountRestrictions = true;
+      task.ProcessWith(this);
+      return isFitParametersCountRestrictions;
     }
 
     #endregion

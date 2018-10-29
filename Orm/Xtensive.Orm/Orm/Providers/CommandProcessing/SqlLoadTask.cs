@@ -31,9 +31,9 @@ namespace Xtensive.Orm.Providers
     public readonly List<Tuple> Output;
 
     /// <inheritdoc/>
-    public override bool ProcessWith(ISqlTaskProcessor processor)
+    public override void ProcessWith(ISqlTaskProcessor processor)
     {
-      return processor.ProcessTask(this);
+      processor.ProcessTask(this);
     }
 
 
