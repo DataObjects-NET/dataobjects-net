@@ -341,6 +341,28 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(clone.ShareStorageSchemaOverNodes, Is.EqualTo(configuration.ShareStorageSchemaOverNodes));
     }
 
+    [Test]
+    public void EnsureConnectionIsAliveTest()
+    {
+      var configuration = DomainConfiguration.Load("AppConfigTest", "EnableConnectionIsAliveNone");
+      Assert.That(configuration.EnsureConnectionIsAlive, Is.True);
+
+      var clone = configuration.Clone();
+      Assert.That(clone.EnsureConnectionIsAlive, Is.EqualTo(configuration.EnsureConnectionIsAlive));
+
+      configuration = DomainConfiguration.Load("AppConfigTest", "EnableConnectionIsAliveTrue");
+      Assert.That(configuration.EnsureConnectionIsAlive, Is.True);
+
+      clone = configuration.Clone();
+      Assert.That(clone.EnsureConnectionIsAlive, Is.EqualTo(configuration.EnsureConnectionIsAlive));
+
+      configuration = DomainConfiguration.Load("AppConfigTest", "EnableConnectionIsAliveFalse");
+      Assert.That(configuration.EnsureConnectionIsAlive, Is.False);
+
+      clone = configuration.Clone();
+      Assert.That(clone.EnsureConnectionIsAlive, Is.EqualTo(configuration.EnsureConnectionIsAlive));
+    }
+
     private void ValidateLoggingConfiguration(LoggingConfiguration configuration)
     {
       Assert.AreEqual(string.IsNullOrEmpty(configuration.Provider), true);

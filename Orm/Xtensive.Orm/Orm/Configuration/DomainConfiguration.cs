@@ -78,6 +78,11 @@ namespace Xtensive.Orm.Configuration
     public const bool DefaultShareStorageSchemaOverNodes = false;
 
     /// <summary>
+    /// Default <see cref="EnsureConnectionIsAlive"/> value: <see langword="true" />
+    /// </summary>
+    public const bool DefaultEnsureConnectionIsAlive = true;
+
+    /// <summary>
     /// Default <see cref="EntityVersioningPolicy"/> value;
     /// </summary>
     public const EntityVersioningPolicy DefaultVersioningPolicy = EntityVersioningPolicy.Default;
@@ -109,6 +114,7 @@ namespace Xtensive.Orm.Configuration
     private bool allowCyclicDatabaseDependencies;
     private bool multidatabaseKeys = DefaultMultidatabaseKeys;
     private bool shareStorageSchemaOverNodes = DefaultShareStorageSchemaOverNodes;
+    private bool ensureConnectionIsAlive = DefaultEnsureConnectionIsAlive;
     private DomainOptions options = DomainOptions.Default;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
@@ -588,6 +594,19 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Enables extra check if connection is not broken on its opening.
+    /// </summary>
+    public bool EnsureConnectionIsAlive
+    {
+      get { return ensureConnectionIsAlive; }
+      set
+      {
+        this.EnsureNotLocked();
+        ensureConnectionIsAlive = value;
+      }
+    }
+
+    /// <summary>
     /// Gets or sets versioning convention.
     /// </summary>
     public VersioningConvention VersioningConvention
@@ -721,6 +740,7 @@ namespace Xtensive.Orm.Configuration
       keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();
       ignoreRules = (IgnoreRuleCollection) configuration.IgnoreRules.Clone();
       shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
+      ensureConnectionIsAlive = configuration.EnsureConnectionIsAlive;
       versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
     }
 
