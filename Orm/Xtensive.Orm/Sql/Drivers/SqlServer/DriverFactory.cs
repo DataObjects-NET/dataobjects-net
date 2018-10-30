@@ -24,6 +24,8 @@ namespace Xtensive.Sql.Drivers.SqlServer
   public class DriverFactory : SqlDriverFactory
   {
     private const string CheckConnectionQuery = "SELECT TOP(0) 0;";
+    private const string PoolingOffCommand = "pooling = false";
+
 
     private const string DatabaseAndSchemaQuery =
       "select db_name(), coalesce(default_schema_name, 'dbo') from sys.database_principals where name=user";
@@ -94,9 +96,10 @@ namespace Xtensive.Sql.Drivers.SqlServer
     /// <inheritdoc/>
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
-      using (var connection = CreateAndOpenConnection(connectionString, configuration)) {
-        SqlHelper.ExecuteInitializationSql(connection, configuration);
+      var isPooingOn = !IsPoolingOff(connectionString);
+      configuration.EnsureConnectionIsAlive = isPooingOn && configuration.EnsureConnectionIsAlive;
 
+      using (var connection = CreateAndOpenConnection(connectionString, configuration)) {
         string versionString;
         bool isAzure;
 
@@ -152,24 +155,32 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private SqlServerConnection CreateAndOpenConnection(string connectionString, SqlDriverConfiguration configuration)
     {
       var connection = new SqlServerConnection(connectionString);
-      if (!configuration.EnsureConnectionIsAlive)
+      if (!configuration.EnsureConnectionIsAlive) {
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
+        connection.Open();
         return connection;
-      EnsureConnectionIsAlive(ref connection);
+      }
+
+      var testQuery = (string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+        ? CheckConnectionQuery
+        : configuration.ConnectionInitializationSql;
+      connection.Open();
+      EnsureConnectionIsAlive(ref connection, testQuery);
       return connection;
     }
 
-    private void EnsureConnectionIsAlive(ref SqlServerConnection connection)
+    private void EnsureConnectionIsAlive(ref SqlServerConnection connection, string query)
     {
       try {
         using (var command = connection.CreateCommand()) {
-          command.CommandText = CheckConnectionQuery;
+          command.CommandText = query;
           command.ExecuteNonQuery();
         }
       }
       catch (Exception exception) {
         if (SqlHelper.ShouldRetryOn(exception)) {
           SqlLog.Warning(exception, Strings.LogGivenConnectionIsCorruptedTryingToRestoreTheConnection);
-          if (!TryReconnect(ref connection)) {
+          if (!TryReconnect(ref connection, query)) {
             SqlLog.Error(exception, Strings.LogConnectionRestoreFailed);
             throw;
           }
@@ -180,7 +191,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
     }
 
-    private static bool TryReconnect(ref SqlServerConnection connection)
+    private static bool TryReconnect(ref SqlServerConnection connection, string query)
     {
       try {
         var newConnection = new SqlServerConnection(connection.ConnectionString);
@@ -193,7 +204,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
         connection = newConnection;
         connection.Open();
         using (var command = connection.CreateCommand()) {
-          command.CommandText = CheckConnectionQuery;
+          command.CommandText = query;
           command.ExecuteNonQuery();
         }
         return true;
@@ -201,6 +212,13 @@ namespace Xtensive.Sql.Drivers.SqlServer
       catch (Exception) {
         return false;
       }
+    }
+
+    private static bool IsPoolingOff(string connectionString)
+    {
+      var lowerCaseString = connectionString.ToLower();
+      return lowerCaseString.Contains(PoolingOffCommand) ||
+             lowerCaseString.Contains(PoolingOffCommand.Replace(" ", ""));
     }
   }
 }

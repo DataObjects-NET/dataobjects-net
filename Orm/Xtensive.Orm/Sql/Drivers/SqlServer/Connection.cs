@@ -15,7 +15,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
 {
   internal class Connection : SqlConnection
   {
-    private const string CheckConnectionQuery = "SELECT TOP(0) 0;";
+    private const string DefaultCheckConnectionQuery = "SELECT TOP(0) 0;";
 
     private SqlServerConnection underlyingConnection;
     private SqlTransaction activeTransaction;
@@ -38,7 +38,22 @@ namespace Xtensive.Sql.Drivers.SqlServer
       base.Open();
       if (!checkConnectionIsAlive)
         return;
-      EnsureConnectionIsAlive();
+      EnsureConnectionIsAlive(DefaultCheckConnectionQuery);
+    }
+
+    public override void OpenAndInitialize(string initializationScript)
+    {
+      if (!checkConnectionIsAlive) {
+        base.OpenAndInitialize(initializationScript);
+        return;
+      }
+
+      var script = string.IsNullOrEmpty(initializationScript.Trim())
+        ? DefaultCheckConnectionQuery
+        : initializationScript;
+
+      base.Open();
+      EnsureConnectionIsAlive(script);
     }
 
     /// <inheritdoc/>
@@ -82,12 +97,12 @@ namespace Xtensive.Sql.Drivers.SqlServer
       activeTransaction = null;
     }
 
-    private void EnsureConnectionIsAlive()
+    private void EnsureConnectionIsAlive(string checkConnectionQuery)
     {
       try
       {
         using (var command = underlyingConnection.CreateCommand()) {
-          command.CommandText = CheckConnectionQuery;
+          command.CommandText = checkConnectionQuery;
           command.ExecuteNonQuery();
         }
       }
@@ -95,7 +110,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       {
         if (SqlHelper.ShouldRetryOn(exception)) {
           SqlLog.Warning(exception, Strings.LogGivenConnectionIsCorruptedTryingToRestoreTheConnection);
-          if (!TryReconnect(ref underlyingConnection)) {
+          if (!TryReconnect(ref underlyingConnection, checkConnectionQuery)) {
             SqlLog.Error(exception, Strings.LogConnectionRestoreFailed);
             throw;
           }
@@ -107,7 +122,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
     }
 
-    private static bool TryReconnect(ref SqlServerConnection connection)
+    private static bool TryReconnect(ref SqlServerConnection connection, string checkConnectionQuery)
     {
       try {
         var newConnection = new SqlServerConnection(connection.ConnectionString);
@@ -121,7 +136,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
         connection.Open();
 
         using (var command = connection.CreateCommand()) {
-          command.CommandText = CheckConnectionQuery;
+          command.CommandText = checkConnectionQuery;
           command.ExecuteNonQuery();
         }
         return true;
