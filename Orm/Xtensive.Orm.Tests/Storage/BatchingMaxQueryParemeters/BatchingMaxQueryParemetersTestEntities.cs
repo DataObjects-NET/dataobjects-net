@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Tests.Storage.BatchingMaxQueryParemeters.Model
     {
       [Field]
       [Key]
-      public Guid Id { get; private set; }
+      public int Id { get; private set; }
 
       [Field]
       public int Value1 { get; set; }
@@ -1816,10 +1816,5 @@ namespace Xtensive.Orm.Tests.Storage.BatchingMaxQueryParemeters.Model
       public int Value899 { get; set; }
       [Field]
       public int Value900 { get; set; }
-
-      public SimpleEntity(Guid id) : base(id)
-      {
-
-      }
     }
 }

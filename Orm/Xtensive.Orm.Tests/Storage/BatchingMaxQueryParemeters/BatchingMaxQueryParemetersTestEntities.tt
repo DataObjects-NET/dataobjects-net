@@ -20,20 +20,15 @@ namespace Xtensive.Orm.Tests.Storage.BatchingMaxQueryParemeters.Model
     {
       [Field]
       [Key]
-      public Guid Id { get; private set; }
+      public int Id { get; private set; }
 
 <#
 for(var i = 1; i <= 900; i++) {
 #>
       [Field]
       public int Value<#=i#> { get; set; }
-<#    
+<#
 }
 #>
-
-      public SimpleEntity(Guid id) : base(id)
-      {
-
-      }
     }
 }
