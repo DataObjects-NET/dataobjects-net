@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Providers
       if (MaxQueryParameterCount==int.MaxValue) return true;
       var commandParametersCount = command==null ? 0 : command.UnderlyingCommand.Parameters.Count;
       var partsParametersCount = parts.Sum(x => x.Parameters.Count);
-      if (commandParametersCount + partsParametersCount > MaxQueryParameterCount) {
+      if (commandParametersCount + partsParametersCount >= MaxQueryParameterCount) {
         if (commandParametersCount==0) {
           throw new StorageException(
             string.Format(
