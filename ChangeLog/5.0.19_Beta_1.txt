@@ -1,0 +1,1 @@
+[firebird] Fixed extraction of information about column types
