@@ -8199,6 +8199,24 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connection restore failed..
+        /// </summary>
+        internal static string LogConnectionRestoreFailed {
+            get {
+                return ResourceManager.GetString("LogConnectionRestoreFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection successfully restored..
+        /// </summary>
+        internal static string LogConnectionSuccessfullyRestored {
+            get {
+                return ResourceManager.GetString("LogConnectionSuccessfullyRestored", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Creating {0}.
         /// </summary>
         internal static string LogCreatingX {
@@ -8386,6 +8404,15 @@ namespace Xtensive {
         internal static string LogGenericAssociateIsUsedFor {
             get {
                 return ResourceManager.GetString("LogGenericAssociateIsUsedFor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Given connection is corrupted. Trying to restore the connection..
+        /// </summary>
+        internal static string LogGivenConnectionIsCorruptedTryingToRestoreTheConnection {
+            get {
+                return ResourceManager.GetString("LogGivenConnectionIsCorruptedTryingToRestoreTheConnection", resourceCulture);
             }
         }
         
