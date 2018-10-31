@@ -32,27 +32,8 @@ select   schema
         ,table_name
         ,ordinal_position
         ,column_name
-        ,case
-            when field_type = 7 then 'smallint'
-            when field_type = 7 and column_subtype = 1 then 'numeric'
-            when field_type = 7 and column_subtype = 2 then 'decimal'
-            when field_type = 8 then 'integer'
-            when field_type = 8 and column_subtype = 1 then 'numeric'
-            when field_type = 8 and column_subtype = 2 then 'decimal'
-            when field_type = 10 then 'float'
-            when field_type = 12 then 'date'
-            when field_type = 13 then 'time'
-            when field_type = 14 then 'char'
-            when field_type = 16 and column_subtype = 0 then 'bigint'
-            when field_type = 16 and column_subtype = 1 then 'numeric'
-            when field_type = 16 and column_subtype = 2 then 'decimal'
-            when field_type = 27 then 'double precision'
-            when field_type = 35 then 'timestamp'
-            when field_type = 37 then 'varchar'
-            when field_type = 261 and column_subtype = 0 then 'blob sub type 1'
-            when field_type = 261 and column_subtype = 1 then 'blob sub type 0'
-         end
-            data_type
+        ,field_type
+        ,column_subtype
         ,column_size
         ,numeric_precision
         ,-numeric_scale as numeric_scale
