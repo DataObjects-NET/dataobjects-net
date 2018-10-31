@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Providers
 
     void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
     {
-      var sequence = Factory.CreatePersistParts(task).ToArray();
+      var sequence = Factory.CreatePersistParts(task);
       ValidateCommandParameterCount(null, sequence);
 
       foreach (var part in sequence) {

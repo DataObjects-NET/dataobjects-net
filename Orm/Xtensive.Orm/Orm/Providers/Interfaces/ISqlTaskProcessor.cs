@@ -4,9 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.24
 
-using System;
-using System.Collections.Generic;
-
 namespace Xtensive.Orm.Providers
 {
   public interface ISqlTaskProcessor

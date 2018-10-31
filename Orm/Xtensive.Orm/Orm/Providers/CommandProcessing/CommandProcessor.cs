@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xtensive.Collections;
 using Xtensive.Core;
 
 using Tuple = Xtensive.Tuples.Tuple;
@@ -66,10 +67,15 @@ namespace Xtensive.Orm.Providers
       ExecuteTasks(false);
     }
 
-    protected bool ValidateCommandParameterCount(Command command, params CommandPart[] parts)
+    protected bool ValidateCommandParameterCount(Command command, CommandPart part)
+    {
+      return ValidateCommandParameterCount(command, EnumerableUtils.One(part));
+    }
+
+    protected bool ValidateCommandParameterCount(Command command, IEnumerable<CommandPart> parts)
     {
       if (MaxQueryParameterCount==int.MaxValue) return true;
-      var commandParametersCount = command==null ? 0 : command.UnderlyingCommand.Parameters.Count;
+      var commandParametersCount = command==null ? 0 : command.ParametersCount;
       var partsParametersCount = parts.Sum(x => x.Parameters.Count);
       if (commandParametersCount + partsParametersCount >= MaxQueryParameterCount) {
         if (commandParametersCount==0) {

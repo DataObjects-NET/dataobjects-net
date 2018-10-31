@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -155,7 +154,7 @@ namespace Xtensive.Orm.Providers
 
     private bool ExecuteUnbatchedTask(SqlPersistTask task)
     {
-      var sequence = Factory.CreatePersistParts(task).ToArray();
+      var sequence = Factory.CreatePersistParts(task);
       if (!ValidateCommandParameterCount(null, sequence))
         return false;
 
@@ -192,7 +191,7 @@ namespace Xtensive.Orm.Providers
       if (task.ValidateRowCount)
         return ProcessUnbatchedTask(task);
 
-      var sequence = Factory.CreatePersistParts(task, GetParameterPrefix()).ToArray();
+      var sequence = Factory.CreatePersistParts(task, GetParameterPrefix());
       if (!ValidateCommandParameterCount(activeCommand, sequence))
         return false;
 
