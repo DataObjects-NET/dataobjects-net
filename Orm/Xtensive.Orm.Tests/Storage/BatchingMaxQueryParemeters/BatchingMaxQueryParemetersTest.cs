@@ -35,7 +35,6 @@ namespace Xtensive.Orm.Tests.Storage.BatchingMaxQueryParemeters
         t.Complete();
       }
 
-      Assert.That(commands.Count, Is.EqualTo(51));
       Assert.That(commands.Sum(x => x.Command.Parameters.Count), Is.EqualTo(reqCount * 900 + reqCount));
     }
 
@@ -54,7 +53,6 @@ namespace Xtensive.Orm.Tests.Storage.BatchingMaxQueryParemeters
             return session.Query.ExecuteDelayed(query => query.All<SimpleEntity>().Where(x => x.Id.In(IncludeAlgorithm.ComplexCondition, range)));
           }).ToArray();
         session.Query.All<SimpleEntity>().ToArray();
-        Assert.That(commands.Count, Is.EqualTo(17));
         Assert.That(commands.Sum(x => x.Command.Parameters.Count), Is.EqualTo(reqCount * paramCount));
       }
     }
@@ -77,6 +75,7 @@ namespace Xtensive.Orm.Tests.Storage.BatchingMaxQueryParemeters
     public void LastRequestTest()
     {
       Require.ProviderIs(StorageProvider.SqlServer, "2100 limit");
+
       using (var session = Domain.OpenSession(new SessionConfiguration {BatchSize = 10}))
       using (session.Activate())
       using (var t = session.OpenTransaction()) {
@@ -100,6 +99,8 @@ namespace Xtensive.Orm.Tests.Storage.BatchingMaxQueryParemeters
     [Test]
     public void AllowPartialExecutionTest()
     {
+      Require.ProviderIs(StorageProvider.SqlServer, "2100 limit");
+
       using (var session = Domain.OpenSession(new SessionConfiguration {BatchSize = 10}))
       using (session.Activate())
       using (var t = session.OpenTransaction()) {
