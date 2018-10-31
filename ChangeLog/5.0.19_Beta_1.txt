@@ -1,1 +1,2 @@
+[main] Added connection check before actual usage
 [firebird] Fixed extraction of information about column types
