@@ -7,10 +7,10 @@
 using System;
 using Xtensive.Orm;
 
-namespace Xtensive.Orm.Tests.Storage.BatchingMaxQueryParemeters.Model
+namespace Xtensive.Orm.Tests.Storage.BatchingByParametersCount.Model
 {
     [HierarchyRoot]
-    public class SimpleEntity : Entity
+    public class ALotOfFieldsEntity : Entity
     {
       [Field]
       [Key]
