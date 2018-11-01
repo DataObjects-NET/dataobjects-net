@@ -12,11 +12,11 @@ using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Tests.Storage.BatchingByParametersCount.Model;
+using Xtensive.Orm.Tests.Storage.CommandParametersManagement.Model;
 
-namespace Xtensive.Orm.Tests.Storage.BatchingByParemetersCount
+namespace Xtensive.Orm.Tests.Storage.CommandParametersManagement
 {
-  public class BatchingByParametersTest : AutoBuildTest
+  public class CommandParametersManagementTest : AutoBuildTest
   {
     private readonly SessionConfiguration LimitedBatchSizeSessionConfiguration =
       new SessionConfiguration {BatchSize = 10};
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Storage.BatchingByParemetersCount
     [Test]
     public void ExceedParametersLimitByOneQuery()
     {
-      Require.ProviderIs(StorageProvider.SqlServer, "2100 limit");
+      RequireKnowsMaxParametersCount();
 
       using (var session = Domain.OpenSession(LimitedBatchSizeSessionConfiguration))
       using (session.Activate())
@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Tests.Storage.BatchingByParemetersCount
     [Test]
     public void MaxValidParamtersCountInSingleQuery()
     {
-      Require.ProviderIs(StorageProvider.SqlServer, "2100 limit");
+      RequireKnowsMaxParametersCount();
 
       using (var session = Domain.OpenSession(LimitedBatchSizeSessionConfiguration))
       using (session.Activate())
@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Tests.Storage.BatchingByParemetersCount
     [Test]
     public void LastRequestWithOtherQueriesInBatchTest()
     {
-      Require.ProviderIs(StorageProvider.SqlServer, "2100 limit");
+      Require.ProviderIs(StorageProvider.SqlServer);
 
       const int requestCount = 12,
                 parametersPerRequest = 699,
@@ -159,7 +159,7 @@ namespace Xtensive.Orm.Tests.Storage.BatchingByParemetersCount
     [Test]
     public void LastRequestInSeparateBatchTest()
     {
-      Require.ProviderIs(StorageProvider.SqlServer, "2100 limit");
+      Require.ProviderIs(StorageProvider.SqlServer);
 
       const int requestCount = 12,
                 parametersPerRequest = 699,
@@ -197,7 +197,7 @@ namespace Xtensive.Orm.Tests.Storage.BatchingByParemetersCount
     [Test]
     public void AllowPartialExecutionTest()
     {
-      Require.ProviderIs(StorageProvider.SqlServer, "2100 limit");
+      Require.ProviderIs(StorageProvider.SqlServer);
 
       using (var session = Domain.OpenSession(LimitedBatchSizeSessionConfiguration))
       using (session.Activate())
@@ -219,6 +219,12 @@ namespace Xtensive.Orm.Tests.Storage.BatchingByParemetersCount
         session.Handler.ExecuteQueryTasks(new QueryTask[0], false);
         Assert.That(commands.Count, Is.EqualTo(25));
       }
+    }
+
+    private void RequireKnowsMaxParametersCount()
+    {
+      if(ProviderInfo.MaxQueryParameterCount==int.MaxValue)
+        throw new IgnoreException("Provider has no limit for parameters or it is unknown.");
     }
 
     protected override DomainConfiguration BuildConfiguration()

@@ -7,7 +7,7 @@
 using System;
 using Xtensive.Orm;
 
-namespace Xtensive.Orm.Tests.Storage.BatchingByParametersCount.Model
+namespace Xtensive.Orm.Tests.Storage.CommandParametersManagement.Model
 {
     [HierarchyRoot]
     public class ALotOfFieldsEntity : Entity
