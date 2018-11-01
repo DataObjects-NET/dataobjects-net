@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -18,8 +19,15 @@ namespace Xtensive.Orm.Tests.Storage.CommandParametersManagement
 {
   public class CommandParametersManagementTest : AutoBuildTest
   {
-    private readonly SessionConfiguration LimitedBatchSizeSessionConfiguration =
-      new SessionConfiguration {BatchSize = 10};
+    private  readonly int aLotOfFieldsEntityFieldCount = typeof(ALotOfFieldsEntity)
+      .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Length;
+    private readonly int aLotOfFieldsEntityFieldVersionedCount = typeof(ALotOfFieldsEntityVersioned)
+      .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly).Length;
+
+    private SessionConfiguration GetLimitedBatchSizeSessionConfiguration(SessionOptions options = SessionOptions.Default)
+    {
+      return new SessionConfiguration { BatchSize = 10, Options = options };
+    }
 
     [Test]
     public void PersistTest()
@@ -28,7 +36,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandParametersManagement
       var commands = new List<DbCommandEventArgs>();
       int parametersCount = 0;
 
-      using (var session = Domain.OpenSession(LimitedBatchSizeSessionConfiguration))
+      using (var session = Domain.OpenSession(GetLimitedBatchSizeSessionConfiguration()))
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
         session.Events.DbCommandExecuted += (s, e) => {
@@ -40,7 +48,39 @@ namespace Xtensive.Orm.Tests.Storage.CommandParametersManagement
           new ALotOfFieldsEntity();
 
         Assert.DoesNotThrow(session.SaveChanges);
-        Assert.That(parametersCount, Is.EqualTo(requestCount * 900 + requestCount));
+        Assert.That(parametersCount, Is.EqualTo(requestCount * aLotOfFieldsEntityFieldCount + requestCount));
+        Assert.That(commands.All(c => c.Command.Parameters.Count < ProviderInfo.MaxQueryParameterCount), Is.True);
+      }
+    }
+
+    [Test]
+    public void PersistVersionedTest()
+    {
+      const int requestCount = 100;
+      var commands = new List<DbCommandEventArgs>();
+      int parametersCount = 0;
+
+      using (var session = Domain.OpenSession(GetLimitedBatchSizeSessionConfiguration(SessionOptions.ValidateEntityVersions)))
+      using (session.Activate())
+      using (var transaction = session.OpenTransaction())
+      {
+        session.Events.DbCommandExecuted += (s, e) => {
+          commands.Add(e);
+          parametersCount += e.Command.Parameters.Count;
+        };
+
+        for (var i = 0; i < requestCount; i++)
+          new ALotOfFieldsEntityVersioned();
+
+        Assert.DoesNotThrow(session.SaveChanges);
+
+        foreach (var entity in session.Query.All<ALotOfFieldsEntityVersioned>()) {
+          entity.VersionedField = 123;
+        }
+
+        Assert.DoesNotThrow(session.SaveChanges);
+        Assert.That(parametersCount, Is.EqualTo(requestCount * (aLotOfFieldsEntityFieldCount + aLotOfFieldsEntityFieldVersionedCount) 
+                                                + requestCount + requestCount * 3));
         Assert.That(commands.All(c => c.Command.Parameters.Count < ProviderInfo.MaxQueryParameterCount), Is.True);
       }
     }
@@ -51,7 +91,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandParametersManagement
       var commands = new List<DbCommandEventArgs>();
       const int requestCount = 100, parametersPerRequest = 317;
 
-      using (var session = Domain.OpenSession(LimitedBatchSizeSessionConfiguration))
+      using (var session = Domain.OpenSession(GetLimitedBatchSizeSessionConfiguration()))
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
         session.Events.DbCommandExecuted += (s, e) => commands.Add(e);
@@ -72,7 +112,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandParametersManagement
     {
       RequireKnowsMaxParametersCount();
 
-      using (var session = Domain.OpenSession(LimitedBatchSizeSessionConfiguration))
+      using (var session = Domain.OpenSession(GetLimitedBatchSizeSessionConfiguration()))
       using (session.Activate())
       using (var t = session.OpenTransaction()) {
         var range = Enumerable.Range(0, ProviderInfo.MaxQueryParameterCount).ToArray();
@@ -94,7 +134,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandParametersManagement
     {
       RequireKnowsMaxParametersCount();
 
-      using (var session = Domain.OpenSession(LimitedBatchSizeSessionConfiguration))
+      using (var session = Domain.OpenSession(GetLimitedBatchSizeSessionConfiguration()))
       using (session.Activate())
       using (var t = session.OpenTransaction()) {
         var range = Enumerable.Range(0, ProviderInfo.MaxQueryParameterCount - 1).ToArray();
@@ -131,7 +171,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandParametersManagement
       var expectedPrarmetersCount = requestCount * parametersPerRequest + lastRequestParametersCount;
       var expectedCommandCount = ((int) (expectedPrarmetersCount) / ProviderInfo.MaxQueryParameterCount);
 
-      using (var session = Domain.OpenSession(LimitedBatchSizeSessionConfiguration))
+      using (var session = Domain.OpenSession(GetLimitedBatchSizeSessionConfiguration()))
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
         var commands = new List<DbCommandEventArgs>();
@@ -168,7 +208,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandParametersManagement
       var expectedPrarmetersCount = requestCount * parametersPerRequest + lastRequestParametersCount;
       var expectedCommandCount = (requestCount / (ProviderInfo.MaxQueryParameterCount / parametersPerRequest) + 1);
 
-      using (var session = Domain.OpenSession(LimitedBatchSizeSessionConfiguration))
+      using (var session = Domain.OpenSession(GetLimitedBatchSizeSessionConfiguration()))
       using (session.Activate())
       using (var t = session.OpenTransaction()) {
         var commands = new List<DbCommandEventArgs>();
@@ -199,7 +239,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandParametersManagement
     {
       Require.ProviderIs(StorageProvider.SqlServer);
 
-      using (var session = Domain.OpenSession(LimitedBatchSizeSessionConfiguration))
+      using (var session = Domain.OpenSession(GetLimitedBatchSizeSessionConfiguration()))
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
         var commands = new List<DbCommandEventArgs>();
@@ -234,5 +274,15 @@ namespace Xtensive.Orm.Tests.Storage.CommandParametersManagement
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
     }
+  }
+}
+
+namespace Xtensive.Orm.Tests.Storage.CommandParametersManagement.Model
+{
+  public class ALotOfFieldsEntityVersioned: ALotOfFieldsEntity
+  {
+    [Field]
+    [Version(VersionMode.Auto)]
+    public int VersionedField { get; set; }
   }
 }

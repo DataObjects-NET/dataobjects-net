@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private bool ProcessUnbatchedTask(SqlPersistTask task)
+    private void ProcessUnbatchedTask(SqlPersistTask task)
     {
       if (activeCommand.Count > 0) {
         activeCommand.ExecuteNonQuery();
@@ -149,26 +149,24 @@ namespace Xtensive.Orm.Providers
         AllocateCommand();
       }
 
-      return ExecuteUnbatchedTask(task);
+      ExecuteUnbatchedTask(task);
     }
 
-    private bool ExecuteUnbatchedTask(SqlPersistTask task)
+    private void ExecuteUnbatchedTask(SqlPersistTask task)
     {
       var sequence = Factory.CreatePersistParts(task);
-      if (!ValidateCommandParameterCount(null, sequence))
-        return false;
-
       foreach (var part in sequence) {
+        ValidateCommandParameterCount(null, part);
         using (var command = Factory.CreateCommand()) {
           command.AddPart(part);
           var affectedRowsCount = command.ExecuteNonQuery();
           if (affectedRowsCount==0)
-            throw new VersionConflictException(string.Format(
-              Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
+            throw new VersionConflictException(
+              string.Format(
+                Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne,
+                task.EntityKey));
         }
       }
-
-      return true;
     }
 
     private string GetParameterPrefix()
@@ -188,8 +186,10 @@ namespace Xtensive.Orm.Providers
 
     private bool ProcessTask(SqlPersistTask task)
     {
-      if (task.ValidateRowCount)
-        return ProcessUnbatchedTask(task);
+      if (task.ValidateRowCount) {
+        ProcessUnbatchedTask(task);
+        return true;
+      }
 
       var sequence = Factory.CreatePersistParts(task, GetParameterPrefix());
       if (!ValidateCommandParameterCount(activeCommand, sequence))
