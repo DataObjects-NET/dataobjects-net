@@ -3409,7 +3409,7 @@ Error: {1}</value>
   <data name="ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet" xml:space="preserve">
     <value>Extracted and target schemas are equal but there are changes in type identifiers set.</value>
   </data>
-  <data name="ExSqlQueryHasTooManyParametersServerSupportsMaximumOfXParameters" xml:space="preserve">
+  <data name="ExQueryHasTooManyParametersMaxCountOfParametersIsX" xml:space="preserve">
     <value>The SQL query has too many parameters. The server supports a maximum of {0} parameters.</value>
   </data>
 </root>

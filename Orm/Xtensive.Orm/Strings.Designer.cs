@@ -5214,6 +5214,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The SQL query has too many parameters. The server supports a maximum of {0} parameters..
+        /// </summary>
+        internal static string ExQueryHasTooManyParametersMaxCountOfParametersIsX {
+            get {
+                return ResourceManager.GetString("ExQueryHasTooManyParametersMaxCountOfParametersIsX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Query task is not executed yet..
         /// </summary>
         internal static string ExQueryTaskIsNotExecutedYet {
@@ -5831,15 +5840,6 @@ namespace Xtensive {
         internal static string ExSqlContainerExpressionCanNotBeCompiled {
             get {
                 return ResourceManager.GetString("ExSqlContainerExpressionCanNotBeCompiled", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The SQL query has too many parameters. The server supports a maximum of {0} parameters..
-        /// </summary>
-        internal static string ExSqlQueryHasTooManyParametersServerSupportsMaximumOfXParameters {
-            get {
-                return ResourceManager.GetString("ExSqlQueryHasTooManyParametersServerSupportsMaximumOfXParameters", resourceCulture);
             }
         }
         
