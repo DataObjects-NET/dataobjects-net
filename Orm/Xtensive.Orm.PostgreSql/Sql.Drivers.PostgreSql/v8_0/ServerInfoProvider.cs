@@ -12,6 +12,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     // These two options are actually compile-time configurable.
     private const int MaxIdentifierLength = 63;
     private const int MaxIndexKeys = 32;
+    private const int DoNotKnow = int.MaxValue;
 
     private const int MaxTextLength = (int.MaxValue >> 1) - 1000;
     private const int MaxCharLength = 10485760;
@@ -277,7 +278,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       info.MaxComparisonOperations = 1000000;
       info.MaxLength = 1000000;
       info.MaxNestedSubqueriesAmount = 100;
-      info.MaxQueryParameterCount = 34464;
+      info.MaxQueryParameterCount = DoNotKnow;
       return info;
     }
 

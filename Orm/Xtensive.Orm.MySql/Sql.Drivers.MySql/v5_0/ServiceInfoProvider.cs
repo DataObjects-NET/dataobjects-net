@@ -12,6 +12,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
     private const int MaxIdentifierLength = 64;
+    private const int DoNotKnow = int.MaxValue;
 
     private readonly string databaseName;
     private readonly string defaultSchemaName;
@@ -194,7 +195,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       queryInfo.MaxComparisonOperations = 1000;
       queryInfo.MaxNestedSubqueriesAmount = 32; //TODO: Determine max nested sub queries and variables.
       queryInfo.ParameterPrefix = "?";
-      queryInfo.MaxQueryParameterCount = 65535;
+      queryInfo.MaxQueryParameterCount = DoNotKnow;
       queryInfo.Features =
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |
