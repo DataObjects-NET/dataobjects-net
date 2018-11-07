@@ -34,16 +34,23 @@ namespace Xtensive.Orm.Tests
     {
       if (useConnectionString)
         storage += "cs";
-      var configuration = DomainConfiguration.Load(storage);
-      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+
       var customConnectionInfo = TestConfiguration.Instance.GetConnectionInfo(storage);
+
+      var configuration = (!DomainConfiguration.DomainExists(storage) && customConnectionInfo!=null)
+        ? new DomainConfiguration {Name = storage}
+        : DomainConfiguration.Load(storage);
+
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       if (customConnectionInfo!=null)
         configuration.ConnectionInfo = customConnectionInfo;
       if (addSessionConfiguration) {
         var defaultConfiguration = new SessionConfiguration(
-          WellKnown.Sessions.Default, SessionOptions.ServerProfile | SessionOptions.AutoActivation);
+          WellKnown.Sessions.Default,
+          SessionOptions.ServerProfile | SessionOptions.AutoActivation);
         configuration.Sessions.Add(defaultConfiguration);
       }
+
       return configuration;
     }
   }
