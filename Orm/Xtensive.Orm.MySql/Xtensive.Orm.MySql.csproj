@@ -35,7 +35,6 @@
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
     <PackageReference Include="MySql.Data" Version="6.10.4" />
-    <PackageReference Include="System.Security.Permissions" Version="4.4.0" />
   </ItemGroup>
 
   <ItemGroup>
