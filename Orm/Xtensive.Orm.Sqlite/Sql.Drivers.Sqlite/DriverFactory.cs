@@ -36,7 +36,6 @@ namespace Xtensive.Sql.Drivers.Sqlite
     /// <inheritdoc/>
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
-      ProviderInitializer.Run(configuration.NativeLibraryCacheFolder);
       return DoCreateDriver(connectionString, configuration);
     }
 
