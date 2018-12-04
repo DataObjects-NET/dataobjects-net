@@ -63,7 +63,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     //  2   table_type
     private void ExtractTables()
     {
-      using (DbDataReader reader = ExecuteReader(GetExtractTablesQuery())) {
+      using (var command = Connection.CreateCommand(PerformReplacements(GetExtractTablesQuery())))
+      using (DbDataReader reader = command.ExecuteReader()) {
         while (reader.Read()) {
           var schemaName = reader.GetString(0);
           var schema = theCatalog.Schemas[schemaName];
@@ -90,7 +91,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     //   13    Extra
     private void ExtractTableColumns()
     {
-      using (DbDataReader reader = ExecuteReader(GetExtractTableColumnsQuery())) {
+      using (var command = Connection.CreateCommand(PerformReplacements(GetExtractTableColumnsQuery())))
+      using (DbDataReader reader = command.ExecuteReader()) {
         Table table = null;
         Schema schema = null;
         TableColumn column = null;
@@ -140,7 +142,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     //   2      view_definition
     private void ExtractViews()
     {
-      using (DbDataReader reader = ExecuteReader(GetExtractViewsQuery())) {
+      using (var command = Connection.CreateCommand(PerformReplacements(GetExtractViewsQuery())))
+      using (DbDataReader reader = command.ExecuteReader()) {
         while (reader.Read()) {
           Schema schema = theCatalog.Schemas[reader.GetString(0)];
           string view = reader.GetString(1);
@@ -161,7 +164,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     //   4      view_definition
     private void ExtractViewColumns()
     {
-      using (DbDataReader reader = ExecuteReader(GetExtractViewColumnsQuery())) {
+      using (var command = Connection.CreateCommand(PerformReplacements(GetExtractViewColumnsQuery())))
+      using (DbDataReader reader = command.ExecuteReader()) {
         int lastColumnId = int.MaxValue;
         View view = null;
         while (reader.Read()) {
@@ -189,7 +193,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     //  9       nullable
     private void ExtractIndexes()
     {
-      using (DbDataReader reader = ExecuteReader(GetExtractIndexesQuery())) {
+      using (var command = Connection.CreateCommand(PerformReplacements(GetExtractIndexesQuery())))
+      using (DbDataReader reader = command.ExecuteReader()) {
         int lastColumnPosition = int.MaxValue;
         Table table = null;
         Index index = null;
@@ -226,7 +231,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     //  8       referenced_column_name
     private void ExtractForeignKeys()
     {
-      using (DbDataReader reader = ExecuteReader(GetExtractForeignKeysQuery())) {
+      using (var command = Connection.CreateCommand(PerformReplacements(GetExtractForeignKeysQuery())))
+      using (DbDataReader reader = command.ExecuteReader()) {
         int lastColumnPosition = int.MaxValue;
         ForeignKey constraint = null;
         Table referencingTable = null;
@@ -261,7 +267,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     //  5       ordinal_position
     private void ExtractUniqueAndPrimaryKeyConstraints()
     {
-      using (DbDataReader reader = ExecuteReader(GetExtractUniqueAndPrimaryKeyConstraintsQuery())) {
+      using (var command = Connection.CreateCommand(PerformReplacements(GetExtractUniqueAndPrimaryKeyConstraintsQuery())))
+      using (DbDataReader reader = command.ExecuteReader()) {
         Table table = null;
         string constraintName = null;
         string constraintType = null;
@@ -518,17 +525,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       foreach (var registry in replacementsRegistry)
         query = query.Replace(registry.Key, registry.Value);
       return query;
-    }
-
-    protected override DbDataReader ExecuteReader(string commandText)
-    {
-      return base.ExecuteReader(PerformReplacements(commandText));
-    }
-
-    protected override DbDataReader ExecuteReader(ISqlCompileUnit statement)
-    {
-      string commandText = Connection.Driver.Compile(statement).GetCommandText();
-      return base.ExecuteReader(PerformReplacements(commandText));
     }
 
     // Constructors
