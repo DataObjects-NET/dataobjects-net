@@ -20,7 +20,6 @@
 
   <PropertyGroup Label="Debug" Condition="'$(Configuration)'=='Debug'">
     <Optimize>false</Optimize>
-    <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\..\_Build\Binaries\Debug\Lib\</OutputPath>
     <DefineConstants>TRACE;DEBUG;NETCOREAPP</DefineConstants>
