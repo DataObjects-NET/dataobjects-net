@@ -34,6 +34,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Xtensive.Orm.Firebird\Xtensive.Orm.Firebird.csproj" />
+    <ProjectReference Include="..\Xtensive.Orm.MySql\Xtensive.Orm.MySql.csproj" />
+    <ProjectReference Include="..\Xtensive.Orm.Oracle\Xtensive.Orm.Oracle.csproj" />
+    <ProjectReference Include="..\Xtensive.Orm.PostgreSql\Xtensive.Orm.PostgreSql.csproj" />
+    <ProjectReference Include="..\Xtensive.Orm.Sqlite\Xtensive.Orm.Sqlite.csproj" />
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
 
