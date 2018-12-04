@@ -28,7 +28,7 @@ namespace Xtensive.Sql.Drivers.Firebird
     private const string DatabaseAndSchemaQuery =
       "select mon$database_name, '" + Constants.DefaultSchemaName + "' from mon$database";
 
-    private const string ServerVersionParser = @"/(\d+\.)(\d+\.)(\d+\.)(\d+)/g";
+    private const string ServerVersionParser = @"\d{1,3}\.\d{1,3}(?:\.\d{1,6})+";
 
     /// <inheritdoc/>
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
