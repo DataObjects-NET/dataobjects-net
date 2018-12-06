@@ -94,7 +94,6 @@ namespace Xtensive.Orm.Tests.Issues
       {
         IHasProcess owner = new SalesUnitVersion();
         IQueryable<ProductUsage> q = null;
-        var aaa = Query.Execute(() => DateTime.Now);
         if (owner is IHasRecipe)
           q = SafeUnion(q, Query.All<RecipeProductUsage>().Where(u => u.Owner.ID == owner.ID));
         if (owner is IHasConsumable)
