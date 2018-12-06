@@ -103,7 +103,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void InsertTest(int insertCount)
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Insert", insertCount)) {
           using (var ts = session.OpenTransaction()) {
@@ -118,7 +119,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void FetchTest(int count)
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         long sum = (long) count*(count - 1)/2;
         using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
@@ -138,7 +140,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void PrefetchTest(int count)
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         //long sum = (long)count*(count-1)/2;
         var i = 0;
         using (var ts = session.OpenTransaction()) {
@@ -167,7 +170,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void MaterializeTest(int count)
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         int i = 0;
         using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
@@ -185,7 +189,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void MaterializeAnonymousTypeTest(int count)
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         int i = 0;
         using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
@@ -203,7 +208,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void MaterializeGetFieldTest(int count)
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         long sum = 0;
         int i = 0;
         using (var ts = session.OpenTransaction()) {
@@ -224,7 +230,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void ManualMaterializeTest(int count)
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         int i = 0;
         using (var ts = session.OpenTransaction()) {
           var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery();
@@ -249,7 +256,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void AccessToNonPairedEntitySetTest(int count)
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         int i = 0;
         using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
@@ -271,7 +279,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void AccessToPairedEntitySetTest(int count)
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         int i = 0;
         using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
@@ -294,7 +303,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
     private void CreateSimplestContainer(int insertCount)
     {
       int count = 0;
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         TestHelper.CollectGarbage();
         using (var ts = session.OpenTransaction()) {
           SimplestContainer owner = null;
@@ -327,7 +337,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void QueryTest(int count)
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Query", count)) {
@@ -346,7 +357,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void SameQueryExpressionTest(int count)
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         using (var ts = session.OpenTransaction()) {
           var id = 0;
           var query = session.Query.All<Simplest>().Where(o => o.Id == id);
@@ -366,7 +378,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void CachedQueryTest(int count)
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         using (var ts = session.OpenTransaction()) {
           var id = 0;
           TestHelper.CollectGarbage();
@@ -386,7 +399,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void RseQueryTest(int count)
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("RSE query", count)) {
@@ -409,7 +423,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void CachedRseQueryTest(int count)
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         using (var ts = session.OpenTransaction()) {
           TestHelper.CollectGarbage();
           var pKey = new Parameter<Tuple>();
@@ -432,7 +447,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void UpdateTest()
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Update", instanceCount)) {
           using (var ts = session.OpenTransaction()) {
@@ -447,7 +463,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void UpdateNoBatchingTest()
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Update (no batching)", instanceCount)) {
           using (var ts = session.OpenTransaction()) {
@@ -464,7 +481,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void SingleStatementLikeUpdateTest()
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Update (like DML query)", instanceCount)) {
           using (var ts = session.OpenTransaction()) {
@@ -482,7 +500,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
 
     private void RemoveTest()
     {
-      using (var session = Domain.OpenSession()) {
+      using (var session = Domain.OpenSession())
+      using (session.Activate()) {
         TestHelper.CollectGarbage();
         using (warmup ? null : new Measurement("Remove", instanceCount)) {
           using (var ts = session.OpenTransaction()) {

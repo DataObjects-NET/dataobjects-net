@@ -13,6 +13,11 @@ namespace Xtensive.Orm.Tests.Storage.Performance
   [Explicit]
   public class DoOracleCrudTest : DoCrudTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.Oracle);
+    }
+
     protected override DomainConfiguration CreateConfiguration()
     {
       return DomainConfigurationFactory.CreateForCrudTest("oracle11");

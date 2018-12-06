@@ -13,6 +13,11 @@ namespace Xtensive.Orm.Tests.Storage.Performance
   [Explicit]
   public class DoPostgreSqlCrudTest : DoCrudTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql);
+    }
+
     protected override DomainConfiguration CreateConfiguration()
     {
       return DomainConfigurationFactory.CreateForCrudTest("pgsql84");

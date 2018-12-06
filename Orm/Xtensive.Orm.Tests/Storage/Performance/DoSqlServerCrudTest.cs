@@ -13,6 +13,11 @@ namespace Xtensive.Orm.Tests.Storage.Performance
   [Explicit]
   public class DoSqlServerCrudTest : DoCrudTest
   {
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+    }
+
     protected override DomainConfiguration CreateConfiguration()
     {
       return DomainConfigurationFactory.CreateForCrudTest("mssql2005");
