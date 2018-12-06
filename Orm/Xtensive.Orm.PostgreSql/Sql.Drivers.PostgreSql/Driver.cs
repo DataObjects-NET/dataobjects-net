@@ -20,7 +20,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     [SecuritySafeCritical]
     public override SqlExceptionType GetExceptionType(Exception exception)
     {
-      var nativeException = exception as NpgsqlException;
+      var nativeException = exception as PostgresException;
       if (nativeException==null)
         return SqlExceptionType.Unknown;
 
@@ -29,17 +29,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       if (nativeException.Message.ToUpperInvariant().Contains("COMMANDTIMEOUT"))
         return SqlExceptionType.OperationTimeout;
 
-#if NETSTANDARD
-      if (nativeException.ErrorCode!=5)
-#else
-      if (nativeException.Code.Length!=5)
-#endif
+      if (nativeException.SqlState.Length!=5)
         return SqlExceptionType.Unknown;
-#if NETSTANDARD
-      var errorCode = nativeException.ErrorCode.ToString();
-#else
-      var errorCode = nativeException.Code.ToUpperInvariant();
-#endif
+
+      var errorCode = nativeException.SqlState.ToUpperInvariant();
       var errorCodeClass = errorCode.Substring(0, 2);
 
       // Error codes have been taken from
