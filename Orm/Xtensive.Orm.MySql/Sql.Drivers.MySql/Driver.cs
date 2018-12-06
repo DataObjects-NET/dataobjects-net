@@ -5,6 +5,7 @@
 // Created:    2011.02.25
 
 using System;
+using System.Runtime.CompilerServices;
 using MySql.Data.MySqlClient;
 using Xtensive.Sql.Info;
 
@@ -30,7 +31,26 @@ namespace Xtensive.Sql.Drivers.MySql
       //TODO: intepret some of the error codes (Malisa)
       //http://dev.mysql.com/doc/refman/5.0/en/error-handling.html
 
-      return SqlExceptionType.Unknown;
+      switch (errorCode) {
+        case 2002:
+        case 2003:
+          return SqlExceptionType.ConnectionError;
+        case 1149:
+          return SqlExceptionType.SyntaxError;
+        case 1169:
+          return SqlExceptionType.UniqueConstraintViolation;
+        case 1205:
+          return SqlExceptionType.OperationTimeout;
+        case 1213:
+          return SqlExceptionType.Deadlock;
+        case 1216:
+        case 1217:
+          return SqlExceptionType.ReferentialConstraintViolation;
+        case 1613:
+          return SqlExceptionType.OperationTimeout;
+        default:
+          return SqlExceptionType.Unknown;
+      }
     }
 
     // Constructors
