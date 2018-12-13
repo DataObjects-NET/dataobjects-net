@@ -97,8 +97,7 @@ namespace Xtensive.Orm.Tests.Core.IoC
 
     [Test]
     public void CustomContainerTest()
-    {
-      var config = (Xtensive.IoC.Configuration.ConfigurationSection) ConfigurationManager.GetSection("Xtensive.IoC");
+    { 
       var container = ServiceContainer.Create(Configuration, "second");
 
       var ps = container.Get<IPrintService>();

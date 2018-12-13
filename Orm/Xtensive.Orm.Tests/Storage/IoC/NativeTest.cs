@@ -19,8 +19,8 @@ namespace Xtensive.Orm.Tests.Storage.IoC
     public DomainServiceContainer(object configuration, IServiceContainer parent)
       : base(configuration, parent)
     {
-      var section = (ConfigurationSection) 
-        ConfigurationManager.GetSection("NativeTest");
+      var config = this.GetConfigurationForAssembly();
+      var section = (ConfigurationSection) config.GetSection("NativeTest");
       RealContainer = ServiceContainer.Create(section, "domain");
     }
   }
@@ -30,8 +30,8 @@ namespace Xtensive.Orm.Tests.Storage.IoC
     public SessionServiceContainer(object configuration, IServiceContainer parent)
       : base(configuration, parent)
     {
-      var section = (ConfigurationSection) 
-        ConfigurationManager.GetSection("NativeTest");
+      var config = this.GetConfigurationForAssembly();
+      var section = (ConfigurationSection) config.GetSection("NativeTest");
       RealContainer = ServiceContainer.Create(section, "session");
     }
   }

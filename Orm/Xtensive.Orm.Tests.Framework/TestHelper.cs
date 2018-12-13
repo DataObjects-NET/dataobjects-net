@@ -38,5 +38,15 @@ namespace Xtensive.Orm.Tests
         GC.WaitForPendingFinalizers();
       }
     }
+
+    public static System.Configuration.Configuration GetConfigurationForAssembly(this Type typeFromAssembly)
+    {
+      return typeFromAssembly.Assembly.GetAssemblyConfiguration();
+    }
+
+    public static System.Configuration.Configuration GetConfigurationForAssembly(this object instanceOfTypeFromAssembly)
+    {
+      return instanceOfTypeFromAssembly.GetType().Assembly.GetAssemblyConfiguration();
+    }
   }
 }
