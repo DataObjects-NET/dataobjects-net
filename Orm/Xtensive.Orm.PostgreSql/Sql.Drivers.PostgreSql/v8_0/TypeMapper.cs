@@ -126,6 +126,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return new SqlValueType(SqlType.Interval);
     }
 
+    public override SqlValueType MapDecimal(int? length, int? precision, int? scale)
+    {
+      //this is workaround for Npgsql library bug with reading numerics with scale more than 27
+      if (precision.HasValue)
+        return base.MapDecimal(length, precision, scale);
+      var sqlType = base.MapDecimal(length, precision, scale);
+      if (sqlType.Precision / 2==sqlType.Scale || sqlType.Scale > 28)
+        return ReduceDecimalScale(sqlType, 27);
+      return sqlType;
+    }
+
     public override object ReadByte(DbDataReader reader, int index)
     {
       return Convert.ToByte(reader[index]);
@@ -151,6 +162,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return (DateTimeOffset)nativeReader.GetTimeStampTZ(index);
     }
     */
+
+    protected virtual SqlValueType ReduceDecimalScale(SqlValueType sqlType, int newScale)
+    {
+      if (sqlType.Type!=SqlType.Decimal)
+        return sqlType;
+      if (!sqlType.Precision.HasValue)
+        return sqlType;
+      return new SqlValueType(sqlType.Type, sqlType.Precision.Value, newScale);
+    }
 
     // Constructors
 
