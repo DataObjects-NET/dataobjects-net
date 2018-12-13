@@ -46,10 +46,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       builder.Add(new PathMapper());
       builder.Add(new PolygonMapper());
       builder.Add(new CircleMapper());
+      /*
       builder.Add(typeof (DateTimeOffset),
         builder.Mapper.ReadDateTimeOffset,
         builder.Mapper.BindDateTimeOffset,
         builder.Mapper.MapDateTimeOffset);
+      */
     }
 
     protected override void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
@@ -60,7 +62,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       builder.AddReverse(CustomSqlType.Path, typeof (NpgsqlPath));
       builder.AddReverse(CustomSqlType.Polygon, typeof (NpgsqlPolygon));
       builder.AddReverse(CustomSqlType.Circle, typeof (NpgsqlCircle));
+      /*
       builder.AddReverse(SqlType.DateTimeOffset, typeof (DateTimeOffset));
+      */
     }
 
     // Constructors

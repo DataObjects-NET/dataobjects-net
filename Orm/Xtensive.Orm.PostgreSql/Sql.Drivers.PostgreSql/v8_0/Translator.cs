@@ -22,7 +22,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string FloatFormatString { get { return base.FloatFormatString + "'::float4'"; } }
     public override string DoubleFormatString { get { return base.DoubleFormatString + "'::float8'"; } }
 
+    /*
     public string DateTimeOffsetFormatString { get { return @"\'yyyyMMdd HHmmss.ffffff zzz\''::timestamp(6) with time zone'"; } }
+    */
 
 
     public override void Initialize()
@@ -299,8 +301,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         return TranslateByteArrayLiteral((byte[]) literalValue);
       if (literalType==typeof(Guid))
         return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
+      /*
       if(literalType==typeof(DateTimeOffset))
         return ((DateTimeOffset)literalValue).ToString(DateTimeOffsetFormatString);
+      */
 
       if (literalType==typeof (NpgsqlPoint)) {
         var point = (NpgsqlPoint) literalValue;
@@ -343,10 +347,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       bool isSecond = node.DateTimePart==SqlDateTimePart.Second
         || node.IntervalPart==SqlIntervalPart.Second
-        || node.DateTimeOffsetPart==SqlDateTimeOffsetPart.Second;
+        /*|| node.DateTimeOffsetPart==SqlDateTimeOffsetPart.Second*/;
       bool isMillisecond = node.DateTimePart==SqlDateTimePart.Millisecond
         || node.IntervalPart==SqlIntervalPart.Millisecond
-        || node.DateTimeOffsetPart==SqlDateTimeOffsetPart.Millisecond;
+        /*|| node.DateTimeOffsetPart==SqlDateTimeOffsetPart.Millisecond*/;
       if (!(isSecond || isMillisecond))
         return base.Translate(context, node, section);
       switch (section) {
@@ -783,6 +787,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return base.Translate(part);
     }
 
+    /*
     public override string Translate(SqlDateTimeOffsetPart part)
     {
       switch (part) {
@@ -802,6 +807,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       return base.Translate(part);
     }
+    */
 
     public override string Translate(SqlLockType lockType)
     {

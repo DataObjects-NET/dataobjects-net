@@ -36,17 +36,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         base.Visit(node.NodeType==SqlNodeType.In ? SqlDml.In(node.Left, row) : SqlDml.NotIn(node.Left, row));
       }
       else {
-        switch (node.NodeType) {
-          case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
-            (node.Left - node.Right).AcceptVisitor(this);
-            return;
-            case SqlNodeType.DateTimeOffsetMinusInterval:
-            (node.Left - node.Right).AcceptVisitor(this);
-            return;
-            case SqlNodeType.DateTimeOffsetPlusInterval:
-            (node.Left + node.Right).AcceptVisitor(this);
-            return;
-        }
+        //switch (node.NodeType) {
+        //  case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
+        //    (node.Left - node.Right).AcceptVisitor(this);
+        //    return;
+        //  case SqlNodeType.DateTimeOffsetMinusInterval:
+        //    (node.Left - node.Right).AcceptVisitor(this);
+        //    return;
+        //  case SqlNodeType.DateTimeOffsetPlusInterval:
+        //    (node.Left + node.Right).AcceptVisitor(this);
+        //    return;
+        //}
         base.Visit(node);
       }
     }
@@ -97,6 +97,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       case SqlFunctionType.DateTimeToStringIso:
         DateTimeToStringIso(node.Arguments[0]).AcceptVisitor(this);
         return;
+      /*
       case SqlFunctionType.DateTimeOffsetTimeOfDay:
         DateTimeOffsetTimeOfDay(node.Arguments[0]).AcceptVisitor(this);
         return;
@@ -112,6 +113,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       case SqlFunctionType.DateTimeToDateTimeOffset:
         SqlDml.Cast(node.Arguments[0], SqlType.DateTimeOffset).AcceptVisitor(this);
         return;
+        */
       }
       base.Visit(node);
     }
@@ -275,6 +277,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
               SqlDml.Native(")")))));
     }
 
+    /*
     public override void Visit(SqlExtract node)
     {   
       switch (node.DateTimeOffsetPart) {
@@ -297,7 +300,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
       base.Visit(node);
     }
+    */
 
+    /*
     protected SqlExpression DateTimeOffsetExtractDate(SqlExpression timestamp)
     {
       return SqlDml.FunctionCall("DATE", timestamp);
@@ -357,12 +362,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       return SqlDml.Cast(SqlDml.Concat(datetimeStringExpression, " ", offsetStringExpression), SqlType.DateTimeOffset);
     }
-
+    */
+    /*
     protected SqlExpression GetDateTimeAsStringExpression(SqlExpression dateTimeExpression)
     {
       return SqlDml.FunctionCall("To_Char", dateTimeExpression, "YYYY-MM-DD\"T\"HH24:MI:SS.MS");
     }
+    */
 
+    /*
     protected SqlExpression GetOffsetAsStringExpression(SqlExpression offsetInMinutes)
     {
       int hours = 0;
@@ -374,7 +382,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var intervalExpression = offsetInMinutes * OneMinuteInterval;
       return IntervalToIsoString(intervalExpression, true);
     }
+    */
 
+    /*
     private string ZoneStringFromParts(int hours, int minutes)
     {
       return string.Format("{0}{1:00}:{2:00}", hours < 0 ? "-" : "+", Math.Abs(hours), Math.Abs(minutes));
@@ -384,12 +394,16 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       return SqlDml.FunctionCall("TIMEZONE", zone, expression);
     }
+    */
 
+    /*
     private SqlExpression GetServerTimeZone()
     {
       return SqlDml.FunctionCall("CURRENT_SETTING", SqlDml.Literal("TIMEZONE"));
     }
+    */
 
+    /*
     private bool TryDivideOffsetIntoParts(SqlExpression offsetInMinutes, ref int hours , ref int minutes)
     {
       var offsetToDouble = offsetInMinutes as SqlLiteral<double>;
@@ -412,7 +426,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         return true;
       }
       return false;
-    }
+    }*/
 
     // Constructors
 

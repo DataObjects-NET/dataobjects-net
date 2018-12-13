@@ -28,8 +28,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       case TypeCode.DateTime:
         return true;
       }
-      if (type==typeof (DateTimeOffset))
-        return true;
+      //if (type==typeof (DateTimeOffset))
+      //  return true;
       if (type==typeof(Guid))
         return true;
       if (type==typeof(TimeSpan))
@@ -69,11 +69,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var nativeParameter = (NpgsqlParameter) parameter;
       nativeParameter.NpgsqlDbType = NpgsqlDbType.Interval;
       nativeParameter.Value = value!=null
-#if NETSTANDARD
         ? (object) new NpgsqlTimeSpan((TimeSpan) value)
-#else
-        ? (object) new NpgsqlInterval((TimeSpan) value)
-#endif
         : DBNull.Value;
     }
 
@@ -83,21 +79,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       parameter.Value = value==null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
 
+    /*
     [SecuritySafeCritical]
     public override void BindDateTimeOffset(DbParameter parameter, object value)
     {
       var nativeParameter = (NpgsqlParameter) parameter;
       nativeParameter.NpgsqlDbType = NpgsqlDbType.TimestampTZ;
       nativeParameter.NpgsqlValue = value!=null
-
-#if NETSTANDARD
-        //todo: probably wrong (check) http://www.npgsql.org/doc/types/basic.html
-        ? (object)(DateTimeOffset)value
-#else
         ? (object)(NpgsqlTimeStampTZ) (DateTimeOffset) value
-#endif
         : (object)DBNull.Value;
     }
+    */
 
     public override SqlValueType MapByte(int? length, int? precision, int? scale)
     {
@@ -151,17 +143,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return (TimeSpan) nativeReader.GetInterval(index);
     }
 
+    /*
     [SecuritySafeCritical]
     public override object ReadDateTimeOffset(DbDataReader reader, int index)
     {
-      var nativeReader = (NpgsqlDataReader) reader;
-      //todo: probably wrong (check) http://www.npgsql.org/doc/types/basic.html
-#if NETSTANDARD
-      return (DateTimeOffset) (DateTime) nativeReader.GetTimeStamp(index);
-#else
-      return (DateTimeOffset) nativeReader.GetTimeStampTZ(index);
-#endif
+      var nativeReader = (NpgsqlDataReader)reader;
+      return (DateTimeOffset)nativeReader.GetTimeStampTZ(index);
     }
+    */
 
     // Constructors
 
