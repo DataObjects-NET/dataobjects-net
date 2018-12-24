@@ -506,23 +506,6 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets or sets native library cache folder.
-    /// <remarks>
-    /// This folder is used to store native libraries required for certain providers
-    /// (currently only SQLite).
-    /// </remarks>
-    /// </summary>
-    public string NativeLibraryCacheFolder
-    {
-      get { return nativeLibraryCacheFolder; }
-      set
-      {
-        this.EnsureNotLocked();
-        nativeLibraryCacheFolder = value;
-      }
-    }
-
-    /// <summary>
     /// Gets or sets connection initialization SQL script.
     /// This script is executed for each created connection
     /// (including system connections) just after connection has been opened.
@@ -696,7 +679,6 @@ namespace Xtensive.Orm.Configuration
       buildInParallel = configuration.BuildInParallel;
       allowCyclicDatabaseDependencies = configuration.AllowCyclicDatabaseDependencies;
       collation = configuration.Collation;
-      nativeLibraryCacheFolder = configuration.NativeLibraryCacheFolder;
       connectionInitializationSql = configuration.ConnectionInitializationSql;
       schemaSyncExceptionFormat = configuration.SchemaSyncExceptionFormat;
       multidatabaseKeys = configuration.MultidatabaseKeys;

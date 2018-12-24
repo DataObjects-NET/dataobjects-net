@@ -96,16 +96,6 @@ namespace Xtensive.Orm.Tests.Configuration
     }
 
     [Test]
-    public void NativeLibraryCacheFolderTest()
-    {
-      const string expected = @".\Native";
-      var configuration = LoadDomainConfiguration("AppConfigTest", "DomainWithCustomNativeLibraryCacheFolder");
-      Assert.That(configuration.NativeLibraryCacheFolder, Is.EqualTo(expected));
-      var clone = configuration.Clone();
-      Assert.That(clone.NativeLibraryCacheFolder, Is.EqualTo(expected));
-    }
-
-    [Test]
     public void ConnectionInitializationSqlTest()
     {
       const string expected = @"use [OtherDb]";
@@ -281,7 +271,6 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(actual.IncludeSqlInExceptions, Is.EqualTo(expected.IncludeSqlInExceptions));
       Assert.That(actual.KeyCacheSize, Is.EqualTo(expected.KeyCacheSize));
       Assert.That(actual.KeyGeneratorCacheSize, Is.EqualTo(expected.KeyGeneratorCacheSize));
-      Assert.That(actual.NativeLibraryCacheFolder, Is.EqualTo(expected.NativeLibraryCacheFolder));
       Assert.That(actual.QueryCacheSize, Is.EqualTo(expected.QueryCacheSize));
       Assert.That(actual.RecordSetMappingCacheSize, Is.EqualTo(expected.RecordSetMappingCacheSize));
       Assert.That(actual.SchemaSyncExceptionFormat, Is.EqualTo(expected.SchemaSyncExceptionFormat));

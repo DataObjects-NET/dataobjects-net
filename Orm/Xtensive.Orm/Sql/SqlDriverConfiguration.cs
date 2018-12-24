@@ -17,11 +17,6 @@ namespace Xtensive.Sql
     public string ForcedServerVersion { get; set; }
 
     /// <summary>
-    /// Gets or sets native library cache folder.
-    /// </summary>
-    public string NativeLibraryCacheFolder { get; set; }
-
-    /// <summary>
     /// Gets or sets connection initialization SQL script.
     /// </summary>
     public string ConnectionInitializationSql { get; set; }
@@ -34,7 +29,6 @@ namespace Xtensive.Sql
     {
       return new SqlDriverConfiguration {
         ForcedServerVersion = ForcedServerVersion,
-        NativeLibraryCacheFolder = NativeLibraryCacheFolder,
         ConnectionInitializationSql = ConnectionInitializationSql,
       };
     }

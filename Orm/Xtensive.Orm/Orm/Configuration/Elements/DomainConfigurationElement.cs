@@ -42,7 +42,6 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string AllowCyclicDatabaseDependenciesElementName = "allowCyclicDatabaseDependencies";
     private const string ForcedServerVersionElementName = "forcedServerVersion";
     private const string SchemaSyncExceptionFormatElementName = "schemaSyncExceptionFormat";
-    private const string NativeLibraryCacheFolderElementName = "nativeLibraryCacheFolder";
     private const string ConnectionInitializationSqlElementName = "connectionInitializationSql";
     private const string IgnoreRulesElementName = "ignoreRules";
     private const string MultidatabaseKeysElementName = "multidatabaseKeys";
@@ -320,16 +319,6 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.NativeLibraryCacheFolder" copy="true" />
-    /// </summary>
-    [ConfigurationProperty(NativeLibraryCacheFolderElementName)]
-    public string NativeLibraryCacheFolder
-    {
-      get { return (string) this[NativeLibraryCacheFolderElementName]; }
-      set { this[NativeLibraryCacheFolderElementName] = value; }
-    }
-
-    /// <summary>
     /// <see cref="DomainConfiguration.ConnectionInitializationSql" copy="true" />
     /// </summary>
     [ConfigurationProperty(ConnectionInitializationSqlElementName)]
@@ -407,7 +396,6 @@ namespace Xtensive.Orm.Configuration.Elements
         AllowCyclicDatabaseDependencies = AllowCyclicDatabaseDependencies,
         ForcedServerVersion = ForcedServerVersion,
         Collation = Collation,
-        NativeLibraryCacheFolder = NativeLibraryCacheFolder,
         ConnectionInitializationSql = ConnectionInitializationSql,
         MultidatabaseKeys = MultidatabaseKeys,
         ShareStorageSchemaOverNodes = ShareStorageSchemaOverNodes,
