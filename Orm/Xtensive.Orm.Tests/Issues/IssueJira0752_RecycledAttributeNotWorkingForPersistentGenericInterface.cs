@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Modelling.Actions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
@@ -20,42 +21,39 @@ namespace Xtensive.Orm.Tests.Issues
   using IssuesIssueJira0752_RecycledAttributeNotWorkingForPersistentGenericInterfaceModels;
 
   [TestFixture]
-  public class IssueJira0752_RecycledAttributeNotWorkingForPersistentGenericInterface
+  public class IssueJira0752_RecycledAttributeNotWorkingForPersistentGenericInterface : AutoBuildTest
   {
     [Test]
     [TestCase(typeof (RecycledWithInterfaceEntity), true)]
     [TestCase(typeof (NonRecycledWithInterfaceEntity), false)]
     [TestCase(typeof (RecycledEntity), true)]
-    public void MainTest(Type type, bool isNull)
+    public void MainTest(Type type, bool isRecycled)
     {
-      using (var domain = Domain.Build(BuildConfiguration(type, typeof (ITestInterface<>)))) {
-        TypeInfo typeInfo;
-        domain.Model.Types.TryGetValue(type, out typeInfo);
-        var expectedTableName = (typeInfo==null ? null : typeInfo.MappingName) ?? type.Name;
+      TypeInfo typeInfo;
+      Domain.Model.Types.TryGetValue(type, out typeInfo);
+      var expectedTableName = (typeInfo==null ? null : typeInfo.MappingName) ?? type.Name;
+      var actionSequence = Domain.Extensions.Get<ActionSequence>();
+      var actions = actionSequence.Flatten().Where(x => x.Path.StartsWith("Tables/" + expectedTableName)).ToArray();
 
-        using (var session = domain.OpenSession())
-        using (var conn = ((SqlSessionHandler) session.Handler).Connection.UnderlyingConnection)
-        using (var cmd = conn.CreateCommand()) {
-          cmd.CommandText = "SELECT OBJECT_ID(@table, N'U');";
-          var parameter = cmd.CreateParameter();
-          parameter.ParameterName = "table";
-          parameter.Value = expectedTableName;
-          cmd.Parameters.Add(parameter);
-
-          var objectId = cmd.ExecuteScalar();
-
-          var expression = isNull ? Is.EqualTo(DBNull.Value) : Is.Not.EqualTo(DBNull.Value);
-          Assert.That(objectId, expression);
-        }
-      }
+      Assert.That(actions, isRecycled ? Is.Empty : Is.Not.Empty);
     }
 
-    private DomainConfiguration BuildConfiguration(params Type[] types)
+    protected override DomainConfiguration BuildConfiguration()
     {
-      var config = DomainConfigurationFactory.Create();
-      types.ForEach(x => config.Types.Register(x));
+      var config = base.BuildConfiguration();
+      config.Types.Register(typeof (RecycledEntity).Assembly, typeof (RecycledEntity).Namespace);
+      config.Types.Register(typeof (UpgradeCatcherHandler));
       config.UpgradeMode = DomainUpgradeMode.Recreate;
       return config;
+    }
+
+    private class UpgradeCatcherHandler : UpgradeHandler
+    {
+      public override void OnComplete(Domain domain)
+      {
+        domain.Extensions.Set(UpgradeContext.SchemaUpgradeActions);
+        base.OnComplete(domain);
+      }
     }
   }
 }
