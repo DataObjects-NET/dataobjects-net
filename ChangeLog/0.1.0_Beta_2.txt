@@ -1,0 +1,4 @@
+[main] Removed DomainConfiguration.NativeLibraryCacheFolder because SQLite no longer needs it.
+[mysql] Cerain error codes were handled in order to arrange them with certain type instead of Unknown
+[postgresql] DateTimeOffset is not supported as far as client library has no support for Zone part of TimeStampTZ
+[postgresql] Maximum scale of Decimals was reduced down to 27
