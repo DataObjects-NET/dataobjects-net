@@ -570,12 +570,12 @@ namespace Xtensive.Orm
       }
     }
 
-    internal bool Remove(Entity item, EntityRemoveReason reason)
+    internal bool Remove(Entity item)
     {
-      return Remove(item, null, null, reason);
+      return Remove(item, null, null);
     }
 
-    internal bool Remove(Entity item, SyncContext syncContext, RemovalContext removalContext, EntityRemoveReason reason)
+    internal bool Remove(Entity item, SyncContext syncContext, RemovalContext removalContext)
     {
       if (!Contains(item))
         return false;
@@ -586,7 +586,7 @@ namespace Xtensive.Orm
         try {
           var itemKey = item.Key;
           if (operations.CanRegisterOperation)
-            operations.RegisterOperation(new EntitySetItemRemoveOperation(Owner.Key, Field, itemKey, reason));
+            operations.RegisterOperation(new EntitySetItemRemoveOperation(Owner.Key, Field, itemKey));
 
           SystemBeforeRemove(item);
 
@@ -607,7 +607,7 @@ namespace Xtensive.Orm
                 TypeReferenceAccuracy.ExactType,
                 combinedTuple);
 
-              Session.RemoveOrCreateRemovedEntity(auxiliaryType.UnderlyingType, combinedKey, reason);
+              Session.RemoveOrCreateRemovedEntity(auxiliaryType.UnderlyingType, combinedKey, EntityRemoveReason.Association);
             }
 
             var state = State;
@@ -682,7 +682,7 @@ namespace Xtensive.Orm
           operations.NotifyOperationStarting();
 
           foreach (var entity in Entities.ToList())
-            Remove((Entity)entity, EntityRemoveReason.User);
+            Remove((Entity)entity);
 
           SystemClear();
           SystemClearCompleted(null);
@@ -717,7 +717,7 @@ namespace Xtensive.Orm
         Add(item);
     }
 
-    internal void IntersectWith<TElement>(IEnumerable<TElement> other, EntityRemoveReason reason)
+    internal void IntersectWith<TElement>(IEnumerable<TElement> other)
       where TElement : IEntity
     {
       EnsureOwnerIsNotRemoved();
@@ -726,7 +726,7 @@ namespace Xtensive.Orm
       var otherEntities = other.Cast<IEntity>().ToHashSet();
       foreach (var item in Entities.ToList())
         if (!otherEntities.Contains(item))
-          Remove((Entity)item, reason);
+          Remove((Entity)item);
     }
 
     internal void UnionWith<TElement>(IEnumerable<TElement> other)
@@ -739,7 +739,7 @@ namespace Xtensive.Orm
         Add(item);
     }
 
-    internal void ExceptWith<TElement>(IEnumerable<TElement> other, EntityRemoveReason reason)
+    internal void ExceptWith<TElement>(IEnumerable<TElement> other)
       where TElement : IEntity
     {
       EnsureOwnerIsNotRemoved();
@@ -748,7 +748,7 @@ namespace Xtensive.Orm
         return;
       }
       foreach (var item in other)
-        Remove((Entity)(IEntity)item, reason);
+        Remove((Entity)(IEntity)item);
     }
 
     #endregion

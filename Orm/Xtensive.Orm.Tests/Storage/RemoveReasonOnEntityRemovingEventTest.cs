@@ -299,7 +299,7 @@ namespace Xtensive.Orm.Tests.Storage
       };
 
       var affectedEntities = TestEntityRemove(removeAction, handler);
-      Assert.That(affectedEntities, Is.EqualTo(5));
+      Assert.That(affectedEntities, Is.EqualTo(1));
     }
 
     [Test]

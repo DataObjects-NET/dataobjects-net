@@ -101,7 +101,7 @@ namespace Xtensive.Orm
     /// </returns>
     public bool Remove(TItem item)
     {
-      return base.Remove((Entity)(IEntity)item, EntityRemoveReason.User);
+      return base.Remove((Entity)(IEntity)item);
     }
 
     /// <summary>
@@ -126,7 +126,7 @@ namespace Xtensive.Orm
       where TElement : TItem
     {
       ArgumentValidator.EnsureArgumentNotNull(other, "other");
-      base.IntersectWith(other, EntityRemoveReason.User);
+      base.IntersectWith(other);
     }
 
     /// <summary>
@@ -151,7 +151,7 @@ namespace Xtensive.Orm
       where TElement : TItem
     {
       ArgumentValidator.EnsureArgumentNotNull(other, "other");
-      base.ExceptWith(other, EntityRemoveReason.User);
+      base.ExceptWith(other);
     }
 
     #region ICollection<T> members

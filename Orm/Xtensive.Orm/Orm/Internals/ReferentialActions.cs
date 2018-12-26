@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Internals
 
     private static void OnRemoveReference(AssociationInfo association, IEntity owner, IEntity target, SyncContext syncContext, RemovalContext removalContext)
     {
-      ((EntitySetBase) ((Entity) owner).GetFieldValue(association.OwnerField)).Remove((Entity) target, syncContext, removalContext, EntityRemoveReason.Association);
+      ((EntitySetBase) ((Entity) owner).GetFieldValue(association.OwnerField)).Remove((Entity) target, syncContext, removalContext);
     }
 
     #endregion

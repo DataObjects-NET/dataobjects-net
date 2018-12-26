@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Services
     {
       using (Session.OpenSystemLogicOnlyRegion()) {
         ValidateArguments(target, item);
-        return target.Remove(item, EntityRemoveReason.User);
+        return target.Remove(item);
       }
     }
 

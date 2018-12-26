@@ -28,24 +28,23 @@ namespace Xtensive.Orm.Operations
     {
       var session = context.Session;
       var item = session.Query.Single(context.TryRemapKey(ItemKey));
-      GetEntitySet(context).Remove(item, reason);
+      GetEntitySet(context).Remove(item);
     }
 
     /// <inheritdoc/>
     protected override Operation CloneSelf(Operation clone)
     {
       if (clone==null)
-        clone = new EntitySetItemRemoveOperation(Key, Field, ItemKey, reason);
+        clone = new EntitySetItemRemoveOperation(Key, Field, ItemKey);
       return clone;
     }
     
     // Constructors
 
     /// <inheritdoc/>
-    public EntitySetItemRemoveOperation(Key key, FieldInfo field, Key itemKey, EntityRemoveReason reason)
+    public EntitySetItemRemoveOperation(Key key, FieldInfo field, Key itemKey)
       : base(key, field, itemKey)
     {
-      this.reason = reason;
     }
 
     /// <inheritdoc/>
