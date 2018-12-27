@@ -27,6 +27,11 @@ namespace Xtensive.Sql
     public string ConnectionInitializationSql { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating that connection should be checked before actual usage
+    /// </summary>
+    public bool EnsureConnectionIsAlive { get; set; }
+
+    /// <summary>
     /// Clones this instance.
     /// </summary>
     /// <returns>Clone of this instance.</returns>
@@ -36,6 +41,7 @@ namespace Xtensive.Sql
         ForcedServerVersion = ForcedServerVersion,
         NativeLibraryCacheFolder = NativeLibraryCacheFolder,
         ConnectionInitializationSql = ConnectionInitializationSql,
+        EnsureConnectionIsAlive = EnsureConnectionIsAlive
       };
     }
 

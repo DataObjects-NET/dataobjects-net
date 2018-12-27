@@ -151,6 +151,7 @@ namespace Xtensive.Orm.Providers
         ForcedServerVersion = configuration.ForcedServerVersion,
         NativeLibraryCacheFolder = configuration.NativeLibraryCacheFolder,
         ConnectionInitializationSql = configuration.ConnectionInitializationSql,
+        EnsureConnectionIsAlive = configuration.EnsureConnectionIsAlive,
       };
 
       var driver = driverFactory.GetDriver(configuration.ConnectionInfo, driverConfiguration);

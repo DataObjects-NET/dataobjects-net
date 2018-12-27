@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.11
 
+using System;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
@@ -14,8 +15,11 @@ namespace Xtensive.Sql.Drivers.SqlServer
 {
   internal class Connection : SqlConnection
   {
+    private const string DefaultCheckConnectionQuery = "SELECT TOP(0) 0;";
+
     private SqlServerConnection underlyingConnection;
     private SqlTransaction activeTransaction;
+    private bool checkConnectionIsAlive;
 
     /// <inheritdoc/>
     public override DbConnection UnderlyingConnection { get { return underlyingConnection; } }
@@ -27,6 +31,29 @@ namespace Xtensive.Sql.Drivers.SqlServer
     public override DbParameter CreateParameter()
     {
       return new SqlParameter();
+    }
+
+    public override void Open()
+    {
+      base.Open();
+      if (!checkConnectionIsAlive)
+        return;
+      EnsureConnectionIsAlive(DefaultCheckConnectionQuery);
+    }
+
+    public override void OpenAndInitialize(string initializationScript)
+    {
+      if (!checkConnectionIsAlive) {
+        base.OpenAndInitialize(initializationScript);
+        return;
+      }
+
+      var script = string.IsNullOrEmpty(initializationScript.Trim())
+        ? DefaultCheckConnectionQuery
+        : initializationScript;
+
+      base.Open();
+      EnsureConnectionIsAlive(script);
     }
 
     /// <inheritdoc/>
@@ -70,13 +97,64 @@ namespace Xtensive.Sql.Drivers.SqlServer
       activeTransaction = null;
     }
 
+    private void EnsureConnectionIsAlive(string checkConnectionQuery)
+    {
+      try
+      {
+        using (var command = underlyingConnection.CreateCommand()) {
+          command.CommandText = checkConnectionQuery;
+          command.ExecuteNonQuery();
+        }
+      }
+      catch (Exception exception)
+      {
+        if (SqlHelper.ShouldRetryOn(exception)) {
+          SqlLog.Warning(exception, Strings.LogGivenConnectionIsCorruptedTryingToRestoreTheConnection);
+          if (!TryReconnect(ref underlyingConnection, checkConnectionQuery)) {
+            SqlLog.Error(exception, Strings.LogConnectionRestoreFailed);
+            throw;
+          }
+
+          SqlLog.Info(Strings.LogConnectionSuccessfullyRestored);
+        }
+        else
+          throw;
+      }
+    }
+
+    private static bool TryReconnect(ref SqlServerConnection connection, string checkConnectionQuery)
+    {
+      try {
+        var newConnection = new SqlServerConnection(connection.ConnectionString);
+        try {
+          connection.Close();
+          connection.Dispose();
+        }
+        catch { }
+
+        connection = newConnection;
+        connection.Open();
+
+        using (var command = connection.CreateCommand()) {
+          command.CommandText = checkConnectionQuery;
+          command.ExecuteNonQuery();
+        }
+        return true;
+      }
+      catch (Exception)
+      {
+        return false;
+      }
+    }
+
 
     // Constructors
 
-    public Connection(SqlDriver driver)
+    public Connection(SqlDriver driver, bool checkConnection)
       : base(driver)
     {
       underlyingConnection = new SqlServerConnection();
+      checkConnectionIsAlive = checkConnection;
     }
   }
 }
