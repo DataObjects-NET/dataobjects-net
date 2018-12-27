@@ -101,7 +101,7 @@ namespace Xtensive.Orm
     /// </returns>
     public bool Remove(TItem item)
     {
-      return base.Remove((Entity)(IEntity)item);
+      return base.Remove(item);
     }
 
     /// <summary>

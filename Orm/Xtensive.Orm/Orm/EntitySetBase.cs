@@ -682,7 +682,7 @@ namespace Xtensive.Orm
           operations.NotifyOperationStarting();
 
           foreach (var entity in Entities.ToList())
-            Remove((Entity)entity);
+            Remove(entity);
 
           SystemClear();
           SystemClearCompleted(null);
@@ -700,10 +700,16 @@ namespace Xtensive.Orm
       return Add((Entity) item);
     }
 
+    internal bool Remove(IEntity item)
+    {
+      return Remove((Entity) item);
+    }
+
     internal bool Contains(IEntity item)
     {
       return Contains((Entity) item);
     }
+
 
     #endregion
 
@@ -726,7 +732,7 @@ namespace Xtensive.Orm
       var otherEntities = other.Cast<IEntity>().ToHashSet();
       foreach (var item in Entities.ToList())
         if (!otherEntities.Contains(item))
-          Remove((Entity)item);
+          Remove(item);
     }
 
     internal void UnionWith<TElement>(IEnumerable<TElement> other)
@@ -748,7 +754,7 @@ namespace Xtensive.Orm
         return;
       }
       foreach (var item in other)
-        Remove((Entity)(IEntity)item);
+        Remove(item);
     }
 
     #endregion
