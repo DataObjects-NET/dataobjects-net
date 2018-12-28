@@ -9,7 +9,7 @@ using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer.Azure
 {
-  internal class Driver : v10.Driver
+  internal class Driver : v13.Driver
   {
     protected override Model.Extractor CreateExtractor()
     {
