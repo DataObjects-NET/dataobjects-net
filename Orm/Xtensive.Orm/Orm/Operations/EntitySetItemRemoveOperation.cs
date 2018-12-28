@@ -16,6 +16,8 @@ namespace Xtensive.Orm.Operations
   [Serializable]
   public class EntitySetItemRemoveOperation : EntitySetItemOperation
   {
+    private readonly EntityRemoveReason reason;
+
     /// <inheritdoc/>
     public override string Title {
       get { return "Remove item from entity set"; }
