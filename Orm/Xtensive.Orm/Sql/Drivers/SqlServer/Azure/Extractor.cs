@@ -6,7 +6,7 @@
 
 namespace Xtensive.Sql.Drivers.SqlServer.Azure
 {
-  internal class Extractor : v10.Extractor
+  internal class Extractor : v12.Extractor
   {
     protected override void ExtractFulltextIndexes()
     {
