@@ -281,6 +281,7 @@
     <Compile Include="Issues\IssueJira0735_WrongTypeIdsInValidateMode.cs" />
     <Compile Include="Issues\IssueJira0723_ContainsOverLocalCollectionError.cs" />
     <Compile Include="Issues\IssueJira0728_NullGroupHasNoElementsTest.cs" />
+    <Compile Include="Issues\IssueJira0752_RecycledAttributeDontWorkForPersistentGenericInterface.cs" />
     <Compile Include="Issues\IssueJira_0530_LowSpeedDecimalMaterializationCouseSqlDecimalInternalException.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
