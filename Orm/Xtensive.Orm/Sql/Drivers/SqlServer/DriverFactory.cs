@@ -109,7 +109,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
           isAzure = IsAzure(connection);
         }
         else if (forcedServerVersion.Equals("azure", StringComparison.OrdinalIgnoreCase)) {
-          versionString = "10.0.0.0";
+          versionString = "12.0.0.0";
           isAzure = true;
         }
         else {
