@@ -18,9 +18,11 @@ using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Linq.Model;
 using Xtensive.Orm.Linq.Rewriters;
+using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
+using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq
@@ -223,29 +225,86 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="NotSupportedException">OfType supports only 'Entity' conversion.</exception>
     private ProjectionExpression VisitOfType(Expression source, Type targetType, Type sourceType)
     {
-      if (!typeof(IEntity).IsAssignableFrom(sourceType))
+      if (!typeof (IEntity).IsAssignableFrom(sourceType) || !context.Model.Types.Contains(sourceType))
+        throw new NotSupportedException(Strings.ExOfTypeSupportsOnlyEntityConversion);
+      if (!typeof(IEntity).IsAssignableFrom(targetType) || !context.Model.Types.Contains(targetType))
         throw new NotSupportedException(Strings.ExOfTypeSupportsOnlyEntityConversion);
 
       var visitedSource = VisitSequence(source);
-      if (targetType==sourceType)
+      if (sourceType==targetType)
         return visitedSource;
 
-      int offset = 0;
-      var recordSet = visitedSource.ItemProjector.DataSource;
+      var sourceTypeInfo = context.Model.Types[sourceType];
+      var targetTypeInfo = context.Model.Types[targetType];
 
-      if (sourceType.IsAssignableFrom(targetType)) {
-        var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
-        var joinedRs = joinedIndex.GetQuery().Alias(context.GetNextAlias());
-        offset = recordSet.Header.Columns.Count;
+      CompilableProvider recordSet;
+      if (targetType.IsAssignableFrom(sourceType)) {
+        recordSet = ConcatTypeQueriesByTypeColumns(EnumerableUtils.One(targetTypeInfo), targetTypeInfo);
+      }
+      else {
+        var sourceTypes = sourceTypeInfo.IsInterface
+          ? sourceTypeInfo.GetImplementors(true)
+          : EnumerableUtils.One(sourceTypeInfo);
+
+        var descendants = sourceTypes.SelectMany(x => EnumerableUtils.One(x).Concat(x.GetDescendants(true)))
+          .Where(x => targetType.IsAssignableFrom(x.UnderlyingType))
+          .Where(x => !x.IsInterface).Distinct().ToArray();
+
+        var baseDescendants = descendants.Where(
+          x => !descendants.Any(y => y!=x && y.UnderlyingType.IsAssignableFrom(x.UnderlyingType)));
+
+        recordSet = ConcatTypeQueriesByTypeColumns(baseDescendants, targetTypeInfo);
+      }
+
+      int offset;
+      if (recordSet==null) {
+        var fakeTargetType = EnumerableUtils.One(targetTypeInfo).Concat(targetTypeInfo.GetImplementors(true))
+          .Where(x => !x.IsInterface && targetType.IsAssignableFrom(x.UnderlyingType))
+          .Take(1);
+
+        offset = 0;
+        recordSet = ConcatTypeQueriesByTypeColumns(
+          fakeTargetType, 
+          targetTypeInfo, 
+          h => new RecordSetHeader(h.TupleDescriptor, h.Columns, h.ColumnGroups, TupleDescriptor.Empty, null) // Removing extra ordering
+          ).Take(0);
+      }
+      else {
         var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
         var keyPairs = keySegment
           .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
           .ToArray();
-        recordSet = recordSet.Join(joinedRs, keyPairs);
+        var dataSource = visitedSource.ItemProjector.DataSource;
+        var joinedRs = recordSet.Alias(context.GetNextAlias());
+        offset = dataSource.Header.Columns.Count;
+        recordSet = dataSource.Join(joinedRs, keyPairs);
       }
-      var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset, false);
+
+      var entityExpression = EntityExpression.Create(targetTypeInfo, offset, false);
       var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);
       return new ProjectionExpression(sourceType, itemProjectorExpression, visitedSource.TupleParameterBindings);
+    }
+
+    private CompilableProvider ConcatTypeQueriesByTypeColumns(
+      IEnumerable<TypeInfo> sourceTypeInfos, 
+      TypeInfo targetTypeInfo, 
+      Func<RecordSetHeader, RecordSetHeader> customHeader = null)
+    {
+      CompilableProvider targetRecordSet = null;
+      foreach (var type in sourceTypeInfos) {
+        var typeColumns = type.Indexes.PrimaryIndex.Columns.Select((column, index) => new {column, index}).ToArray();
+        var currentColumnIndexes = targetTypeInfo.Columns
+          .Select(x => typeColumns.Single(y => y.column.Name==x.Name).index)
+          .ToArray();
+
+        var header = type.Indexes.PrimaryIndex.GetRecordSetHeader();
+        if (customHeader!=null)
+          header = customHeader(header);
+        var currentRecordSet = type.Indexes.PrimaryIndex.GetQuery(header).Select(currentColumnIndexes);
+        targetRecordSet = targetRecordSet==null ? currentRecordSet : targetRecordSet.Concat(currentRecordSet);
+      }
+
+      return targetRecordSet;
     }
 
     /// <exception cref="InvalidCastException">Unable to cast item.</exception>

@@ -88,6 +88,11 @@ namespace Xtensive.Orm.Tests
       }
     }
 
+    protected SessionTransactionOpener OpenSessionTransaction()
+    {
+      return new SessionTransactionOpener(Domain);
+    }
+
     protected virtual Domain BuildDomain(DomainConfiguration configuration)
     {
       try {

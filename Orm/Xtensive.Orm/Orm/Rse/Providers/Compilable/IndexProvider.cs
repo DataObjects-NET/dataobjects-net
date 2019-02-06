@@ -40,10 +40,10 @@ namespace Xtensive.Orm.Rse.Providers
 
     // Constructors
 
-    public IndexProvider(IndexInfo index)
+    public IndexProvider(IndexInfo index, RecordSetHeader header = null)
       : base(ProviderType.Index)
     {
-      indexHeader = index.GetRecordSetHeader();
+      indexHeader = header ?? index.GetRecordSetHeader();
       Index = new IndexInfoRef(index);
       Initialize();
     }
