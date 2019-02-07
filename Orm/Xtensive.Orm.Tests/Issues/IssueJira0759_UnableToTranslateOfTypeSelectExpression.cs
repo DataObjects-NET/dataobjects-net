@@ -20,26 +20,20 @@ namespace Xtensive.Orm.Tests.Issues
 {
   using IssueJira0759_UnableToTranslateOfTypeSelectExpressionModels;
 
-  public class IssueJira0759_UnableToTranslateOfTypeSelectExpression
+  public class IssueJira0759_UnableToTranslateOfTypeSelectExpression : AutoBuildTest
   {
     [Test]
-    [TestCase(InheritanceSchema.ClassTable)]
-    [TestCase(InheritanceSchema.ConcreteTable)]
-    [TestCase(InheritanceSchema.SingleTable)]
-    public void Test1(InheritanceSchema schema)
+    public void Test1()
     {
-      using (var sto = OpenSessionTransaction(schema)) {
-        var result = sto.Query.All<TestEntity1>().OfType<ITestEntity2>().Select(x => x.Field2 + x.Field3).ToArray();
+      using (var sto = OpenSessionTransaction()) {
+        sto.Query.All<TestEntity1>().OfType<ITestEntity2>().Select(x => x.Field2 + x.Field3).ToArray();
       }
     }
 
     [Test]
-    [TestCase(InheritanceSchema.ClassTable)]
-    [TestCase(InheritanceSchema.ConcreteTable)]
-    [TestCase(InheritanceSchema.SingleTable)]
-    public void Test2(InheritanceSchema schema)
+    public void Test2()
     {
-      using (var sto = OpenSessionTransaction(schema)) {
+      using (var sto = OpenSessionTransaction()) {
         sto.Query.All<TestEntity>()
           .OfType<IWithStatus>()
           .Select(e => e.Status)
@@ -52,22 +46,9 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    private SessionTransactionOpener OpenSessionTransaction(InheritanceSchema schema = InheritanceSchema.ClassTable)
+    protected override void PopulateData()
     {
-      return OpenSessionTransaction((c, d) => d.Hierarchies.Where(x => !x.Root.IsSystem).ForEach(x => x.Schema = schema));
-    }
-
-    private SessionTransactionOpener OpenSessionTransaction(Action<BuildingContext, DomainModelDef> onDefinitionsBuiltAction)
-    {
-      TestModule.OnDefinitionsBuiltAction = onDefinitionsBuiltAction;
-      var domain = Domain.Build(BuildConfiguration());
-      PopulateData(domain);
-      return new SessionTransactionOpener(domain);
-    }
-
-    protected void PopulateData(Domain domain)
-    {
-      using (var s = domain.OpenSession())
+      using (var s = Domain.OpenSession())
       using (s.Activate())
       using (var t = s.OpenTransaction()) {
         new TestEntity3() {
@@ -90,27 +71,11 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    private DomainConfiguration BuildConfiguration()
+    protected override DomainConfiguration BuildConfiguration()
     {
-      var config = DomainConfigurationFactory.Create();
-      config.Types.Register(typeof (TestEntity1).Assembly, typeof (TestEntity1).Namespace);
-      config.Types.Register(typeof (TestModule));
+      var config = base.BuildConfiguration();
+      config.Types.Register(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
       return config;
-    }
-
-    public sealed class TestModule : IModule
-    {
-      public static Action<BuildingContext, DomainModelDef> OnDefinitionsBuiltAction { get; set; }
-
-      public void OnBuilt(Domain domain)
-      {
-      }
-
-      public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
-      {
-        if (OnDefinitionsBuiltAction!=null)
-          OnDefinitionsBuiltAction(context, model);
-      }
     }
   }
 }
