@@ -232,6 +232,29 @@ namespace Xtensive.Orm.Tests.Linq
       }
     }
 
+    [Test]
+    [TestCase(InheritanceSchema.ClassTable)]
+    [TestCase(InheritanceSchema.ConcreteTable)]
+    [TestCase(InheritanceSchema.SingleTable)]
+    public void Test13(InheritanceSchema schema)
+    {
+      using (var sto = OpenSessionTransaction(schema)) {
+        var source = sto.Query.All<TestEntity1>();
+
+        var result1A = source.ToArray().OfType<ITestEntity3a>().OfType<IBaseEntity>();
+        var result1B = source.OfType<ITestEntity3a>().OfType<IBaseEntity>();
+
+        var result2A = source.ToArray().OfType<ITestEntity2c>().OfType<IBaseEntity>();
+        var result2B = source.OfType<ITestEntity2c>().OfType<IBaseEntity>();
+
+        var resultA = result1A.Union(result2A).Select(x => x.Field1).ToArray();
+        var resultB = result1B.Union(result2B).Select(x => x.Field1).ToArray();
+
+        Assert.That(resultA, Is.Not.Empty);
+        Assert.That(resultA.SequenceEqual(resultB));
+      }
+    }
+
     private SessionTransactionOpener OpenSessionTransaction(InheritanceSchema schema = InheritanceSchema.ClassTable)
     {
       return OpenSessionTransaction((c, d) => d.Hierarchies.Where(x => !x.Root.IsSystem).ForEach(x => x.Schema = schema));

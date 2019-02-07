@@ -246,7 +246,7 @@ namespace Xtensive.Orm.Linq
           ? sourceTypeInfo.GetImplementors(true)
           : EnumerableUtils.One(sourceTypeInfo);
 
-        var descendants = sourceTypes.SelectMany(x => EnumerableUtils.One(x).Concat(x.GetDescendants(true)))
+        var descendants = sourceTypes.SelectMany(x => x.GetDescendants(true).AddOne(x))
           .Where(x => targetType.IsAssignableFrom(x.UnderlyingType))
           .Where(x => !x.IsInterface).Distinct().ToArray();
 
@@ -275,9 +275,9 @@ namespace Xtensive.Orm.Linq
           .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
           .ToArray();
         var dataSource = visitedSource.ItemProjector.DataSource;
-        var joinedRs = recordSet.Alias(context.GetNextAlias());
         offset = dataSource.Header.Columns.Count;
-        recordSet = dataSource.Join(joinedRs, keyPairs);
+        recordSet = recordSet.Alias(context.GetNextAlias());
+        recordSet = dataSource.Join(recordSet, keyPairs);
       }
 
       var entityExpression = EntityExpression.Create(targetTypeInfo, offset, false);

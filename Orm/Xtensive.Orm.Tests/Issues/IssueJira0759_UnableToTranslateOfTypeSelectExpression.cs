@@ -28,30 +28,41 @@ namespace Xtensive.Orm.Tests.Issues
     [TestCase(InheritanceSchema.SingleTable)]
     public void Test1(InheritanceSchema schema)
     {
-      using (OpenSessionTransaction(schema)) {
-        var result = Query.All<TestEntity1>().OfType<ITestEntity2>().Select(x => x.Field2 + x.Field3).ToArray();
+      using (var sto = OpenSessionTransaction(schema)) {
+        var result = sto.Query.All<TestEntity1>().OfType<ITestEntity2>().Select(x => x.Field2 + x.Field3).ToArray();
       }
     }
 
-    private IDisposable OpenSessionTransaction(InheritanceSchema schema = InheritanceSchema.ClassTable)
+    [Test]
+    [TestCase(InheritanceSchema.ClassTable)]
+    [TestCase(InheritanceSchema.ConcreteTable)]
+    [TestCase(InheritanceSchema.SingleTable)]
+    public void Test2(InheritanceSchema schema)
     {
-      return OpenSessionTransaction(
-        (c, d) => d.Hierarchies.Where(x => !x.Root.IsSystem).ForEach(x => x.Schema = schema));
+      using (var sto = OpenSessionTransaction(schema)) {
+        sto.Query.All<TestEntity>()
+          .OfType<IWithStatus>()
+          .Select(e => e.Status)
+          .Any(); // OK
+
+        sto.Query.All<TestEntity>()
+          .OfType<IWithStatus>()
+          .Select(e => e.Status)
+          .ToArray(); // Exception
+      }
     }
 
-    private IDisposable OpenSessionTransaction(Action<BuildingContext, DomainModelDef> onDefinitionsBuiltAction)
+    private SessionTransactionOpener OpenSessionTransaction(InheritanceSchema schema = InheritanceSchema.ClassTable)
+    {
+      return OpenSessionTransaction((c, d) => d.Hierarchies.Where(x => !x.Root.IsSystem).ForEach(x => x.Schema = schema));
+    }
+
+    private SessionTransactionOpener OpenSessionTransaction(Action<BuildingContext, DomainModelDef> onDefinitionsBuiltAction)
     {
       TestModule.OnDefinitionsBuiltAction = onDefinitionsBuiltAction;
-      var domain = Domain.Build(this.BuildConfiguration());
+      var domain = Domain.Build(BuildConfiguration());
       PopulateData(domain);
-      var session = domain.OpenSession();
-      var t = session.OpenTransaction();
-      return new Disposable(
-        x => {
-          t.Dispose();
-          session.Dispose();
-          domain.Dispose();
-        });
+      return new SessionTransactionOpener(domain);
     }
 
     protected void PopulateData(Domain domain)
@@ -71,6 +82,9 @@ namespace Xtensive.Orm.Tests.Issues
             Field3 = "String2",
             Field4 = 3.5,
           });
+
+        var status = new Status { Name = "test" };
+        new TestEntity { TestField = "Test", Status = status };
 
         t.Complete();
       }
@@ -136,5 +150,43 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0759_UnableToTranslateOfTypeSelectE
 
     [Field]
     public EntitySet<TestEntity2> Field5 { get; set; }
+  }
+
+
+
+
+  public interface IWithStatus : IEntity
+  {
+    [Field]
+    Status Status { get; set; }
+  }
+
+  [HierarchyRoot]
+  [Serializable]
+  public partial class Status : Entity
+  {
+    [Key]
+    [Field(Nullable = false)]
+    public Guid Id { get; private set; }
+
+    [Field]
+    public bool IsDeletable { get; set; }
+
+    [Field(Nullable = false)]
+    public string Name { get; set; }
+  }
+
+  [HierarchyRoot]
+  [Serializable]
+  public class TestEntity : Entity, IWithStatus
+  {
+    [Key]
+    [Field(Nullable = false)]
+    public Guid Id { get; private set; }
+
+    [Field]
+    public string TestField { get; set; }
+
+    public Status Status { get; set; }
   }
 }
