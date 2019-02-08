@@ -329,12 +329,8 @@
     <Compile Include="Issues\IssueJira0537_DropDefaultConstraintBugTest.cs" />
     <Compile Include="Issues\IssueJira0627_PocoClassPropertyRenitialization.cs" />
     <Compile Include="Issues\IssueJira0627_FieldInitializationTest.cs" />
-    <Compile Include="Linq\OfTypeTranslation\OfTypeTranslationTest.cs" />
-    <Compile Include="Linq\OfTypeTranslation\OfTypeTranslationModels.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>OfTypeTranslationModels.tt</DependentUpon>
-    </Compile>
+    <Compile Include="Linq\OfType\OfTypeTest.cs" />
+    <Compile Include="Linq\OfType\OfTypeTestModels.cs" />
     <Compile Include="Storage\RemoveReasonOnEntityRemovingEventTest.cs" />
     <Compile Include="Storage\SchemaSharing\DomainConfigurationExtensions.cs" />
     <Compile Include="Storage\SchemaSharing\EntityManipulation\SimpleEntityManipulationTest.cs" />
@@ -958,10 +954,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Linq\OfTypeTranslation\OfTypeTranslationModels.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>OfTypeTranslationModels.cs</LastGenOutput>
-    </Content>
     <Content Include="Northwind.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
