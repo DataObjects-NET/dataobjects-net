@@ -236,6 +236,19 @@ namespace Xtensive.Orm
       return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
     }
 
+    internal void CheckForSwitching()
+    {
+      var currentSession = SessionScope.CurrentSession; // Not Session.Current -
+      // to avoid possible comparison with Session provided by Session.Resolver.
+      if (currentSession == null)
+        return;
+      if (currentSession == this)
+        return;
+      if (currentSession.Transaction == null || (allowSwitching && currentSession.allowSwitching))
+        return;
+      throw new InvalidOperationException(string.Format(Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked, this, currentSession));
+    }
+
     private EnumerationContextOptions GetEnumerationContextOptions()
     {
       var options = EnumerationContextOptions.None;
