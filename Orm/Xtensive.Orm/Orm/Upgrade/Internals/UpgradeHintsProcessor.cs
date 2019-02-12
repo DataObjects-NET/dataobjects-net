@@ -268,11 +268,14 @@ namespace Xtensive.Orm.Upgrade.Internals
       var newFields = newType.Fields.ToDictionary(field => field.Name);
       foreach (var oldField in oldType.Fields) {
         var renameHint = renames.FirstOrDefault(hint => hint.OldFieldName==oldField.Name && hint.TargetType.GetFullName()==newType.UnderlyingType);
-        var newFieldName = renameHint!=null
-          ? renameHint.NewFieldName
-          : oldField.Name;
 
-        var newField = newFields.GetValueOrDefault(newFieldName);
+        //finding new field
+        var newField = (renameHint!=null)
+          ? newFields.GetValueOrDefault(renameHint.NewFieldName)
+          : (CheckPropertyNameWasOverriden(oldField))
+            ? newFields.GetValueOrDefault(oldField.Name) ?? newFields.GetValueOrDefault(oldField.PropertyName)
+            : newFields.GetValueOrDefault(oldField.Name);
+
         if (newField==null)
           continue;
 
@@ -294,7 +297,7 @@ namespace Xtensive.Orm.Upgrade.Internals
             : oldField.ValueType;
           var newValueType = currentTypes.GetValueOrDefault(newValueTypeName);
           var oldValueType = extractedTypes.GetValueOrDefault(oldValueTypeName);
-          if (newValueType!=null &&oldValueType!=null) {
+          if (newValueType!=null && oldValueType!=null) {
             // We deal with reference field
             var mappedOldValueType = typeMapping.GetValueOrDefault(oldValueType);
             if (mappedOldValueType==null)
@@ -520,6 +523,12 @@ namespace Xtensive.Orm.Upgrade.Internals
     {
       return string.Format("{0}<{1}>", genericDefinitionTypeName.Replace("<>", string.Empty),
         genericArgumentNames.ToCommaDelimitedString());
+    }
+
+    private static bool CheckPropertyNameWasOverriden(StoredFieldInfo fieldInfo)
+    {
+      //seems to be it was OverrideFieldNameAttribute been applied;
+      return StringComparer.InvariantCulture.Compare(fieldInfo.PropertyName, fieldInfo.OriginalName) != 0;
     }
     #endregion
 
