@@ -150,6 +150,7 @@ namespace Xtensive.Orm.Providers
       var driverConfiguration = new SqlDriverConfiguration {
         ForcedServerVersion = configuration.ForcedServerVersion,
         ConnectionInitializationSql = configuration.ConnectionInitializationSql,
+        EnsureConnectionIsAlive = configuration.EnsureConnectionIsAlive,
       };
 
       var driver = driverFactory.GetDriver(configuration.ConnectionInfo, driverConfiguration);

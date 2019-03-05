@@ -32,10 +32,8 @@ namespace Xtensive.Orm.Linq
       switch (e.NodeType) {
       case ExpressionType.Parameter:
         return VisitParameter((ParameterExpression) e);
-        break;
       case ExpressionType.MemberAccess:
         return VisitMemberAccess((MemberExpression) e);
-        break;
       default:
         throw UnsupportedTypeExpression(e);
       }

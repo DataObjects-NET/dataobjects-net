@@ -442,12 +442,13 @@ namespace Xtensive.Orm.Upgrade
         var extractedSchema = extractor.GetSchema();
 
         // Hints
-        //var hints = GetSchemaHints(extractedSchema, targetSchema);
-        var pair = BuildTargetModelAndHints(extractedSchema);
-        targetSchema = pair.First;
+        var triplet = BuildTargetModelAndHints(extractedSchema);
+        var hintProcessingResult = triplet.Third;
+        targetSchema = triplet.First;
         context.TargetStorageModel = targetSchema;
-        var hints = pair.Second;
-        if (UpgradeLog.IsLogged(LogLevel.Info)) {
+        var hints = triplet.Second;
+        if (UpgradeLog.IsLogged(LogLevel.Info))
+        {
           UpgradeLog.Info(Strings.LogExtractedSchema);
           extractedSchema.Dump();
           UpgradeLog.Info(Strings.LogTargetSchema);
@@ -473,6 +474,8 @@ namespace Xtensive.Orm.Upgrade
           case SchemaUpgradeMode.ValidateExact:
             if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || result.HasColumnTypeChanges)
               throw new SchemaSynchronizationException(result);
+            if (!hintProcessingResult.AreAllTypesMapped() && hintProcessingResult.SuspiciousTypes.Any())
+              throw new SchemaSynchronizationException(Strings.ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet);
             break;
           case SchemaUpgradeMode.ValidateCompatible:
             if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal
@@ -499,23 +502,19 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private Pair<StorageModel, HintSet> BuildTargetModelAndHints(StorageModel extractedSchema)
+    private Triplet<StorageModel, HintSet, UpgradeHintsProcessingResult> BuildTargetModelAndHints(StorageModel extractedSchema)
     {
       var handlers = Domain.Demand().Handlers;
       var currentDomainModel = GetStoredDomainModel(handlers.Domain.Model);
-      var oldModel = context.ExtractedDomainModel;
-      var hintProcessor = (context.Stage==UpgradeStage.Final || oldModel==null)
-        ? (IUpgradeHintsProcessor)new NullUpgradeHintsProcessor(currentDomainModel)
-        : (context.TypesMovementsAutoDetection)
-          ? (IUpgradeHintsProcessor)new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, true)
-          : (IUpgradeHintsProcessor)new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, false);
+      var hintProcessor = GetHintProcessor(currentDomainModel, extractedSchema, handlers);
       var processedInfo = hintProcessor.Process(context.Hints);
       var targetModel = GetTargetModel(handlers.Domain, processedInfo.ReverseFieldMapping, processedInfo.CurrentModelTypes, extractedSchema);
       context.SchemaHints = new HintSet(extractedSchema, targetModel);
-      if (context.Stage==UpgradeStage.Upgrading)
+      if (context.Stage == UpgradeStage.Upgrading)
         BuildSchemaHints(extractedSchema, processedInfo, currentDomainModel);
-      return new Pair<StorageModel, HintSet>(targetModel, context.SchemaHints);
+      return new Triplet<StorageModel, HintSet, UpgradeHintsProcessingResult>(targetModel, context.SchemaHints, processedInfo);
     }
+
 
     private void OnConfigureUpgradeDomain()
     {
@@ -597,6 +596,18 @@ namespace Xtensive.Orm.Upgrade
         StorageModel = extractedModel
       };
       return converter.Run();
+    }
+
+    private IUpgradeHintsProcessor GetHintProcessor(StoredDomainModel currentDomainModel, StorageModel extractedSchema, HandlerAccessor handlers)
+    {
+      var oldModel = context.ExtractedDomainModel;
+      var stage = context.Stage;
+
+      if (stage==UpgradeStage.Upgrading && oldModel!=null)
+        return new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, context.TypesMovementsAutoDetection);
+      if (context.UpgradeMode==DomainUpgradeMode.Validate && oldModel!=null)
+        return new UpgradeHintsProcessor(handlers, context.Services.MappingResolver, currentDomainModel, oldModel, extractedSchema, false);
+      return new NullUpgradeHintsProcessor(currentDomainModel);
     }
 
     private SchemaUpgradeMode GetUpgradeMode(UpgradeStage stage)

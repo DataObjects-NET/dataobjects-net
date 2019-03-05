@@ -77,6 +77,16 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public const bool DefaultShareStorageSchemaOverNodes = false;
 
+    /// <summary>
+    /// Default <see cref="EntityVersioningPolicy"/> value;
+    /// </summary>
+    public const EntityVersioningPolicy DefaultVersioningPolicy = EntityVersioningPolicy.Default;
+
+    /// <summary>
+    /// Default <see cref="EnsureConnectionIsAlive"/> value: <see langword="true" />.
+    /// </summary>
+    public const bool DefaultEnsureConnectionIsAlive = true;
+
     #endregion
 
     private static bool sectionNameIsDefined;
@@ -104,20 +114,19 @@ namespace Xtensive.Orm.Configuration
     private bool allowCyclicDatabaseDependencies;
     private bool multidatabaseKeys = DefaultMultidatabaseKeys;
     private bool shareStorageSchemaOverNodes = DefaultShareStorageSchemaOverNodes;
+    private bool ensureConnectionIsAlive = DefaultEnsureConnectionIsAlive;
     private DomainOptions options = DomainOptions.Default;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
     private MappingRuleCollection mappingRules = new MappingRuleCollection();
     private DatabaseConfigurationCollection databases = new DatabaseConfigurationCollection();
     private KeyGeneratorConfigurationCollection keyGenerators = new KeyGeneratorConfigurationCollection();
     private IgnoreRuleCollection ignoreRules = new IgnoreRuleCollection();
-
-    
+    private VersioningConvention versioningConvention = new VersioningConvention();
 
     private bool? isMultidatabase;
     private bool? isMultischema;
 
     private string collation = string.Empty;
-    private string nativeLibraryCacheFolder = string.Empty;
     private string connectionInitializationSql = string.Empty;
 
     /// <summary>
@@ -567,6 +576,31 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
+    /// Gets or sets versioning convention.
+    /// </summary>
+    public VersioningConvention VersioningConvention
+    {
+      get { return versioningConvention; }
+      set {
+        this.EnsureNotLocked();
+        versioningConvention = value;
+      }
+    }
+
+    /// <summary>
+    /// Enables extra check if connection is not broken on its opening.
+    /// </summary>
+    public bool EnsureConnectionIsAlive
+    {
+      get { return ensureConnectionIsAlive; }
+      set {
+        this.EnsureNotLocked();
+        ensureConnectionIsAlive = value;
+      }
+    }
+
+
+    /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
     /// </summary>
     public bool IsMultidatabase { get { return isMultidatabase ?? GetIsMultidatabase(); } }
@@ -612,6 +646,7 @@ namespace Xtensive.Orm.Configuration
       mappingRules.Lock(true);
       keyGenerators.Lock(true);
       ignoreRules.Lock(true);
+      versioningConvention.Lock(true);
 
       base.Lock(recursive);
 
@@ -682,12 +717,15 @@ namespace Xtensive.Orm.Configuration
       connectionInitializationSql = configuration.ConnectionInitializationSql;
       schemaSyncExceptionFormat = configuration.SchemaSyncExceptionFormat;
       multidatabaseKeys = configuration.MultidatabaseKeys;
+      ensureConnectionIsAlive = configuration.EnsureConnectionIsAlive;
       options = configuration.Options;
       databases = (DatabaseConfigurationCollection) configuration.Databases.Clone();
       mappingRules = (MappingRuleCollection) configuration.MappingRules.Clone();
       keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();
       ignoreRules = (IgnoreRuleCollection) configuration.IgnoreRules.Clone();
       shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
+      versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
+      
     }
 
     /// <summary>

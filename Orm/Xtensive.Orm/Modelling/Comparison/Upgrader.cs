@@ -7,12 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
-using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
 
 namespace Xtensive.Modelling.Comparison

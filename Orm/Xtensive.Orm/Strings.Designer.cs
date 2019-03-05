@@ -2399,6 +2399,16 @@ namespace Xtensive {
                 return ResourceManager.GetString("ExExpressionXIsNotASequence", resourceCulture);
             }
         }
+		
+		/// <summary>
+        ///   Looks up a localized string similar to Extracted and target schemas are equal but there are changes in type identifiers set..
+        /// </summary>
+        internal static string ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet {
+            get {
+                return ResourceManager.GetString("ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet", resourceCulture);
+            }
+        }
+
         
         /// <summary>
         ///   Looks up a localized string similar to Extracted schema is not compatible with the target schema. Details:
@@ -8188,6 +8198,25 @@ namespace Xtensive {
                 return ResourceManager.GetString("LogComparisonResultX", resourceCulture);
             }
         }
+		
+		/// <summary>
+        ///   Looks up a localized string similar to Connection restore failed..
+        /// </summary>
+        internal static string LogConnectionRestoreFailed {
+            get {
+                return ResourceManager.GetString("LogConnectionRestoreFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection successfully restored..
+        /// </summary>
+        internal static string LogConnectionSuccessfullyRestored {
+            get {
+                return ResourceManager.GetString("LogConnectionSuccessfullyRestored", resourceCulture);
+            }
+        }
+
         
         /// <summary>
         ///   Looks up a localized string similar to Creating {0}.
@@ -8377,6 +8406,15 @@ namespace Xtensive {
         internal static string LogGenericAssociateIsUsedFor {
             get {
                 return ResourceManager.GetString("LogGenericAssociateIsUsedFor", resourceCulture);
+            }
+        }
+		
+		/// <summary>
+        ///   Looks up a localized string similar to Given connection is corrupted. Trying to restore the connection..
+        /// </summary>
+        internal static string LogGivenConnectionIsCorruptedTryingToRestoreTheConnection {
+            get {
+                return ResourceManager.GetString("LogGivenConnectionIsCorruptedTryingToRestoreTheConnection", resourceCulture);
             }
         }
         

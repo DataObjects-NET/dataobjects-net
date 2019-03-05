@@ -3406,4 +3406,17 @@ Error: {1}</value>
   <data name="ExDbNameValueReadingOrSettingIsDenied" xml:space="preserve">
     <value>DbName value reading or setting is denied.</value>
   </data>
+  <data name="ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet" xml:space="preserve">
+    <value>Extracted and target schemas are equal but there are changes in type identifiers set.</value>
+  </data>
+  <data name="LogGivenConnectionIsCorruptedTryingToRestoreTheConnection" xml:space="preserve">
+    <value>Given connection is corrupted. Trying to restore the connection.</value>
+  </data>
+    <data name="LogConnectionRestoreFailed" xml:space="preserve">
+    <value>Connection restore failed.</value>
+  </data>
+    <data name="LogConnectionSuccessfullyRestored" xml:space="preserve">
+    <value>Connection successfully restored.</value>
+  </data>
+
 </root>

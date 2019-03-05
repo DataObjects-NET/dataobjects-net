@@ -308,6 +308,51 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(clone.ShareStorageSchemaOverNodes, Is.EqualTo(configuration.ShareStorageSchemaOverNodes));
     }
 
+    [Test]
+    public void VersioningConventionTest()
+    {
+      var configuration = LoadDomainConfiguration("AppConfigTest", "VersioningConventionTest1");
+      Assert.That(configuration.VersioningConvention.EntityVersioningPolicy, Is.EqualTo(EntityVersioningPolicy.Default));
+      Assert.That(configuration.VersioningConvention.DenyEntitySetOwnerVersionChange, Is.EqualTo(false));
+
+      configuration = LoadDomainConfiguration("AppConfigTest", "VersioningConventionTest2");
+      Assert.That(configuration.VersioningConvention.EntityVersioningPolicy, Is.EqualTo(EntityVersioningPolicy.Default));
+
+      configuration = LoadDomainConfiguration("AppConfigTest", "VersioningConventionTest3");
+      Assert.That(configuration.VersioningConvention.EntityVersioningPolicy, Is.EqualTo(EntityVersioningPolicy.Optimistic));
+
+      configuration = LoadDomainConfiguration("AppConfigTest", "VersioningConventionTest4");
+      Assert.That(configuration.VersioningConvention.EntityVersioningPolicy, Is.EqualTo(EntityVersioningPolicy.Pessimistic));
+
+      configuration = LoadDomainConfiguration("AppConfigTest", "VersioningConventionTest5");
+      Assert.That(configuration.VersioningConvention.DenyEntitySetOwnerVersionChange, Is.EqualTo(true));
+
+      configuration = LoadDomainConfiguration("AppConfigTest", "VersioningConventionTest6");
+      Assert.That(configuration.VersioningConvention.DenyEntitySetOwnerVersionChange, Is.EqualTo(false));
+    }
+
+    [Test]
+    public void EnsureConnectionIsAliveTest()
+    {
+      var configuration = LoadDomainConfiguration("AppConfigTest", "EnableConnectionIsAliveNone");
+      Assert.That(configuration.EnsureConnectionIsAlive, Is.True);
+
+      var clone = configuration.Clone();
+      Assert.That(clone.EnsureConnectionIsAlive, Is.EqualTo(configuration.EnsureConnectionIsAlive));
+
+      configuration = LoadDomainConfiguration("AppConfigTest", "EnableConnectionIsAliveTrue");
+      Assert.That(configuration.EnsureConnectionIsAlive, Is.True);
+
+      clone = configuration.Clone();
+      Assert.That(clone.EnsureConnectionIsAlive, Is.EqualTo(configuration.EnsureConnectionIsAlive));
+
+      configuration = LoadDomainConfiguration("AppConfigTest", "EnableConnectionIsAliveFalse");
+      Assert.That(configuration.EnsureConnectionIsAlive, Is.False);
+
+      clone = configuration.Clone();
+      Assert.That(clone.EnsureConnectionIsAlive, Is.EqualTo(configuration.EnsureConnectionIsAlive));
+    }
+
     private void ValidateLoggingConfiguration(LoggingConfiguration configuration)
     {
       Assert.AreEqual(string.IsNullOrEmpty(configuration.Provider), true);

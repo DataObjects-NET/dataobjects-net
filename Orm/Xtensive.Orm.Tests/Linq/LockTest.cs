@@ -5,11 +5,15 @@
 // Created:    2009.08.25
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Transactions;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
@@ -33,6 +37,55 @@ namespace Xtensive.Orm.Tests.Linq
         LockMode.Update, LockBehavior.ThrowIfLocked);
 //      Assert.AreEqual(typeof(StorageException), catchedException.GetType());
     }
+
+    [Test]
+    public void CachingTest()
+    {
+      List<int> productIds = new List<int>(32);
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        for (int i = 0; i < productIds.Capacity; i++)
+          productIds.Add(new ActiveProduct().Id);
+
+        transaction.Complete();
+      }
+
+      ConcurrentBag<Pair<int>> results = new ConcurrentBag<Pair<int>>();
+      var source = productIds.Select(p => new { PId = p, Bag = results });
+
+      Parallel.ForEach(
+        source,
+        new ParallelOptions { MaxDegreeOfParallelism = 4 },
+        (sourceItem, state, currentItteration) => {
+          using (var session = Domain.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
+            var productToLock = session.Query.All<ActiveProduct>().FirstOrDefault(p => p.Id==sourceItem.PId);
+
+            EventHandler<DbCommandEventArgs> handler = (sender, args) => {
+              sourceItem.Bag.Add(new Pair<int>(sourceItem.PId, (int)args.Command.Parameters[0].Value));
+            };
+            session.Events.DbCommandExecuting += handler;
+
+            if (productToLock!=null)
+              productToLock.Lock(LockMode.Update, LockBehavior.Wait);
+
+            session.Events.DbCommandExecuting -= handler;
+          }
+        });
+
+      try {
+        Assert.That(results.Count, Is.EqualTo(productIds.Capacity));
+        Assert.That(results.All(p => p.First==p.Second), Is.True);
+      }
+      finally {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          session.Remove(session.Query.All<ActiveProduct>().Where(p => p.Id.In(productIds)));
+          transaction.Complete();
+        }
+      }
+    }
+
 
     [Test]
     public void LockNewlyCreatedEntity()

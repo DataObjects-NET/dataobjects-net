@@ -57,13 +57,54 @@
     <Compile Include="DateTimeOffsetTest.cs" />
     <Compile Include="DriverFactoryTest.cs" />
     <Compile Include="ExceptionTypesTest.cs" />
+    <Compile Include="Firebird\CompilerTest.cs" />
+    <Compile Include="Firebird\DateTimeIntervalTest.cs" />
+    <Compile Include="Firebird\ExceptionTypesTest.cs" />
+    <Compile Include="Firebird\ExtractorTest.cs" />
+    <Compile Include="Firebird\IndexTest.cs" />
+    <Compile Include="Firebird\SavepointTest.cs" />
+    <Compile Include="Firebird\TestHelpers.cs" />
+    <Compile Include="Firebird\TypeMappingTest.cs" />
     <Compile Include="IndexTest.cs" />
+    <Compile Include="MakeNamesUnreadableTest.cs" />
+    <Compile Include="MySQL\CompilerTest.cs" />
+    <Compile Include="MySQL\DateTimeIntervalTests.cs" />
+    <Compile Include="MySQL\ExtractorTest.cs" />
+    <Compile Include="MySQL\MiscTests.cs" />
+    <Compile Include="MySQL\Sakila.cs" />
+    <Compile Include="MySQL\SakilaExtractorTest.cs" />
+    <Compile Include="MySQL\TypeMappingTests.cs" />
+    <Compile Include="Oracle\DateTimeIntervalTest.cs" />
+    <Compile Include="Oracle\DateTimeOffsetTest.cs" />
+    <Compile Include="Oracle\ExceptionTypesTest.cs" />
+    <Compile Include="Oracle\ExtractorTest.cs" />
+    <Compile Include="Oracle\SavepointsTest.cs" />
+    <Compile Include="Oracle\TypeMappingTest.cs" />
+    <Compile Include="Oracle\UberTest.cs" />
+    <Compile Include="PostgreSql\CatalogComparer.cs" />
+    <Compile Include="PostgreSql\DateTimeIntervalTest.cs" />
+    <Compile Include="PostgreSql\DateTimeOffsetTest.cs" />
+    <Compile Include="PostgreSql\ExceptionTypesTest.cs" />
+    <Compile Include="PostgreSql\ExtractorTest.cs" />
+    <Compile Include="PostgreSql\IndexTest.cs" />
+    <Compile Include="PostgreSql\NpgsqlTypeConstructorTest.cs" />
+    <Compile Include="PostgreSql\SavepointsTest.cs" />
+    <Compile Include="PostgreSql\SqlDomTests.cs" />
+    <Compile Include="PostgreSql\TypeMappingTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReplaceTests.cs" />
     <Compile Include="SavepointsTest.cs" />
+    <Compile Include="Sqlite\DateTimeIntervalTest.cs" />
+    <Compile Include="Sqlite\DateTimeOffsetTest.cs" />
+    <Compile Include="Sqlite\ExtractorTest.cs" />
+    <Compile Include="Sqlite\MiscTests.cs" />
+    <Compile Include="Sqlite\Northwind.cs" />
+    <Compile Include="Sqlite\NorthwindTest.cs" />
+    <Compile Include="Sqlite\TypeMappingTests.cs" />
     <Compile Include="SqlServer\AdventureWorks.cs" />
     <Compile Include="SqlServer\CompilerTest.cs" />
     <Compile Include="SqlServer\CompilerTests.cs" />
+    <Compile Include="SqlServer\ConnectionTest.cs" />
     <Compile Include="SqlServer\DateTimeIntervalTest.cs" />
     <Compile Include="SqlServer\DateTimeOffsetTest.cs" />
     <Compile Include="SqlServer\ErrorMessageParserTest.cs" />
@@ -85,5 +126,11 @@
     <None Include="..\Xtensive.Orm1.Tests.Framework\Orm.config">
       <Link>Orm.config</Link>
     </None>
+    <None Include="MySQL\SakilaDb\CreateTestUser.sql" />
+    <None Include="MySQL\SakilaDb\sakila-data.sql" />
+    <None Include="MySQL\SakilaDb\sakila-schema.sql" />
+    <None Include="Sqlite\history.sql" />
+    <None Include="Sqlite\Northwind.sl3" />
+    <None Include="Sqlite\Northwind.Sqlite3.sql" />
   </ItemGroup>
 </Project>

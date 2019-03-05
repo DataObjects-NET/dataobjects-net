@@ -70,6 +70,7 @@
     <Compile Include="Interfaces\InterfaceImplementationTest.cs" />
     <Compile Include="Interfaces\InterfaceTest.cs" />
     <Compile Include="Interfaces\KeyStructureConflictTest.cs" />
+    <Compile Include="Issues\IssueJira0627_FieldInitializationTest.cs" />
     <Compile Include="Issues\IssueJira0718_EntitySetEnumerationBug.cs" />
     <Compile Include="Issues\IssueJira0712_IncorrectDefaultEnumValueTranslation.cs" />
     <Compile Include="Interfaces\TypeIdModeConflictTest.cs" />
@@ -346,6 +347,8 @@
     <Compile Include="Issues\IssueJira0708_StackOverflowOnDifferetialTupleMerge.cs" />
     <Compile Include="Issues\IssueJira0710_IndirectStructureChildFKAbsence.cs" />
     <Compile Include="Issues\IssueJira0723_ContainsOverLocalCollectionError.cs" />
+    <Compile Include="Issues\IssueJira0728_NullGroupHasNoElementsTest.cs" />
+    <Compile Include="Issues\IssueJira0735_WrongTypeIdsInValidateMode.cs" />
     <Compile Include="Issues\IssueJira_0530_LowSpeedDecimalMaterializationCouseSqlDecimalInternalException.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
@@ -397,6 +400,9 @@
     <Compile Include="Storage\SchemaSharing\KeyGenerator\Model.cs" />
     <Compile Include="Storage\SchemaSharing\KeyGenerator\SimpleTest.cs" />
     <Compile Include="Storage\ValidateOnlyModifiedFieldsTest.cs" />
+    <Compile Include="Storage\Versioning\EntitySetOnwerVersionChangeTest.cs" />
+    <Compile Include="Storage\Versioning\EntityVersioningPolicyTest.cs" />
+    <Compile Include="Storage\Versioning\Model.cs" />
     <Compile Include="Upgrade\DomainUpgradeModeExtensionsTest.cs" />
     <Compile Include="Issues\NotEqualsForNullableColumnTest.cs" />
     <Compile Include="Issues\StrangeLockingExceptionTest.cs" />
@@ -855,6 +861,7 @@
     <Compile Include="Upgrade\UpgradeAndNamingRules\ModelVersion2.cs" />
     <Compile Include="Upgrade\UpgradeAndNamingRules\Upgrader.cs" />
     <Compile Include="Upgrade\UpgradeAndNamingRules\UpgradeTest.cs" />
+    <Compile Include="Upgrade\UpgradeContextTest.cs" />
     <Compile Include="Upgrade\UpgradeDateTimeOffsetTest.cs" />
     <Compile Include="Upgrade\Upgrader.cs" />
     <Compile Include="Upgrade\UpgradeTestTemplate.cs" />

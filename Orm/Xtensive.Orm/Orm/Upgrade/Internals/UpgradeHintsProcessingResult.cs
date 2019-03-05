@@ -5,6 +5,7 @@
 // Created:    2015.01.22
 
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Orm.Model.Stored;
 
@@ -24,12 +25,26 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     public Dictionary<string, StoredTypeInfo> CurrentModelTypes { get; private set; }
 
+    public List<StoredTypeInfo> SuspiciousTypes { get; set; }
+
+    public bool AreAllTypesMapped()
+    {
+      return CurrentModelTypes.Count == TypeMapping.Count && CurrentModelTypes.Count==ReverseTypeMapping.Count;
+    }
+
+    public Dictionary<string, string> GetUpgradedTypeMap()
+    {
+      return ReverseTypeMapping
+        .ToDictionary(item => item.Key.UnderlyingType, item => item.Value.UnderlyingType);
+    }
+
     public UpgradeHintsProcessingResult(NativeTypeClassifier<UpgradeHint> hints,
       Dictionary<StoredTypeInfo, StoredTypeInfo> typeMapping,
       Dictionary<StoredTypeInfo, StoredTypeInfo> reverseTypeMapping,
       Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping,
       Dictionary<StoredFieldInfo, StoredFieldInfo> reverseFieldMapping,
-      Dictionary<string, StoredTypeInfo> currentModelTypes)
+      Dictionary<string, StoredTypeInfo> currentModelTypes,
+      List<StoredTypeInfo> suspiciousTypes)
     {
       Hints = hints;
       TypeMapping = typeMapping;
@@ -37,6 +52,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       FieldMapping = fieldMapping;
       ReverseFieldMapping = reverseFieldMapping;
       CurrentModelTypes = currentModelTypes;
+      SuspiciousTypes = suspiciousTypes;
     }
   }
 }

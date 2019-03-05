@@ -96,9 +96,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
             table = schema.Tables[reader.GetString(1).Trim()];
           }
           var column = table.CreateColumn(reader.GetString(3));
-          column.DataType = CreateValueType(reader, 4, 6, 7, 8);
-          column.IsNullable = ReadBool(reader, 9);
-          var defaultValue = ReadStringOrNull(reader, 10);
+          column.DataType = CreateValueType(reader, 4, 5, 7, 8, 9);
+          column.IsNullable = ReadBool(reader, 10);
+          var defaultValue = ReadStringOrNull(reader, 11);
           if (!string.IsNullOrEmpty(defaultValue))
             column.DefaultValue = SqlDml.Native(defaultValue);
           lastColumnId = columnSeq;
@@ -277,10 +277,13 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     }
 
     private SqlValueType CreateValueType(IDataRecord row,
-      int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
+      int majorTypeIndex, int minorTypeIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
     {
-      string typeName = row[typeNameIndex].ToString().Trim().ToUpper();
-      if (typeName=="NUMERIC" || typeName=="DECIMAL") {
+      var majorType = row.GetInt16(majorTypeIndex);
+      var minorType = row.GetValue(minorTypeIndex)==DBNull.Value ? (short?)null : row.GetInt16(minorTypeIndex);
+      var typeName = GetTypeName(majorType, minorType).Trim();
+
+      if (typeName == "NUMERIC" || typeName == "DECIMAL") {
         int precision = Convert.ToInt32(row[precisionIndex]);
         int scale = Convert.ToInt32(row[scaleIndex]);
         return new SqlValueType(SqlType.Decimal, precision, scale);
@@ -289,7 +292,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         return new SqlValueType(SqlType.DateTime);
       if (typeName=="VARCHAR" || typeName=="CHAR") {
         int length = Convert.ToInt32(row[charLengthIndex]);
-        var sqlType = typeName.Length==4 ? SqlType.Char : SqlType.VarChar;
+        var sqlType = typeName.Length == 4 ? SqlType.Char : SqlType.VarChar;
         return new SqlValueType(sqlType, length);
       }
 
@@ -300,10 +303,11 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         return new SqlValueType(SqlType.VarBinaryMax);
 
       var typeInfo = Driver.ServerInfo.DataTypes[typeName];
-      return typeInfo!=null
+      return typeInfo != null
         ? new SqlValueType(typeInfo.Type)
         : new SqlValueType(typeName);
     }
+
 
     private static void CreateIndexBasedConstraint(
       Table table, string constraintName, string constraintType, List<TableColumn> columns)
@@ -364,6 +368,45 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         case "SET DEFAULT":
           foreignKey.OnDelete = ReferentialAction.SetDefault;
           return;
+      }
+    }
+
+    private static string GetTypeName(int majorTypeIndentifier, int? minorTypeIdentifier)
+    {
+      switch (majorTypeIndentifier) {
+        case 7:
+          return minorTypeIdentifier==2
+            ? "NUMERIC"
+            : minorTypeIdentifier==1
+              ? "DECIMAL"
+              : "SMALLINT";
+        case 8:
+          return minorTypeIdentifier==2
+            ? "NUMERIC"
+            : minorTypeIdentifier==1
+              ? "DECIMAL"
+              : "INTEGER";
+        case 10: return "FLOAT";
+        case 12: return "DATE";
+        case 13: return "TIME";
+        case 14: return "CHAR";
+        case 16:
+          return minorTypeIdentifier==2
+            ? "NUMERIC"
+            : minorTypeIdentifier==1
+              ? "DECIMAL"
+              : "BIGINT";
+        case 27: return "DOUBLE PRECISION";
+        case 35: return "TIMESTAMP";
+        case 37: return "VARCHAR";
+        case 261:
+          return minorTypeIdentifier==0
+            ? "BLOB SUB TYPE 1"
+            : minorTypeIdentifier==1
+              ? "BLOB SUB TYPE 0"
+              : String.Empty;
+        default:
+          return string.Empty;
       }
     }
 
