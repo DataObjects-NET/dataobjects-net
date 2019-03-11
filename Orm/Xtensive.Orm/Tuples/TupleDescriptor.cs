@@ -24,12 +24,15 @@ namespace Xtensive.Tuples
   /// Provides information about <see cref="Tuple"/> structure.
   /// </summary>
   [Serializable]
-  public sealed class TupleDescriptor : IEquatable<TupleDescriptor>, IList<Type>
+  public sealed class TupleDescriptor : IEquatable<TupleDescriptor>, IList<Type>, ISerializable
   {
+    [NonSerialized]
     private static readonly TupleDescriptor EmptyDescriptor = new TupleDescriptor(new Type[0]);
+    [NonSerialized]
     private static readonly Dictionary<Type, TupleDescriptor> SingleFieldDescriptors = new Dictionary<Type, TupleDescriptor>();
 
-    private string[] fieldTypeNames;
+    //private string[] fieldTypeNames;
+
     [NonSerialized]
     private Type[] fieldTypes;
 
@@ -37,9 +40,9 @@ namespace Xtensive.Tuples
     internal readonly int ValuesLength;
     internal readonly int ObjectsLength;
 
+    [NonSerialized]
     internal readonly PackedFieldDescriptor[] FieldDescriptors;
-
-
+    
     internal Type[] FieldTypes
     {
       get { return fieldTypes; }
@@ -260,6 +263,20 @@ namespace Xtensive.Tuples
 
     #endregion
 
+    public void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      info.AddValue("FieldCount", FieldCount);
+      info.AddValue("ValuesLength", ValuesLength);
+      info.AddValue("ObjectsLength", ObjectsLength);
+
+      var typeNames = new string[FieldTypes.Length];
+      for (var i = 0; i < typeNames.Length; i++)
+        typeNames[i] = FieldTypes[i].ToSerializableForm();
+
+      info.AddValue("FieldTypes", typeNames);
+      info.AddValue("FieldDescriptors", FieldDescriptors);
+    }
+
     /// <inheritdoc/>
     public override string ToString()
     {
@@ -272,23 +289,23 @@ namespace Xtensive.Tuples
       return string.Format(Strings.TupleDescriptorFormat, sb);
     }
 
-    [OnSerializing]
-    private void OnSerializing(StreamingContext context)
-    {
-      fieldTypeNames = new string[FieldTypes.Length];
-      for (var i = 0; i < fieldTypeNames.Length; i++)
-        fieldTypeNames[i] = FieldTypes[i].ToSerializableForm();
-    }
+    //[OnSerializing]
+    //private void OnSerializing(StreamingContext context)
+    //{
+    //  fieldTypeNames = new string[FieldTypes.Length];
+    //  for (var i = 0; i < fieldTypeNames.Length; i++)
+    //    fieldTypeNames[i] = FieldTypes[i].ToSerializableForm();
+    //}
 
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
-    {
-      fieldTypes = new Type[fieldTypeNames.Length];
-      for (int i = 0; i < fieldTypeNames.Length; i++)
-        FieldTypes[i] = fieldTypeNames[i].GetTypeFromSerializableForm();
-      for (int i = 0; i < FieldCount; i++)
-        PackedFieldAccessorFactory.ProvideAccessor(FieldTypes[i], FieldDescriptors[i]);
-    }
+    //[OnDeserialized]
+    //private void OnDeserialized(StreamingContext context)
+    //{
+    //  fieldTypes = new Type[fieldTypeNames.Length];
+    //  for (int i = 0; i < fieldTypeNames.Length; i++)
+    //    FieldTypes[i] = fieldTypeNames[i].GetTypeFromSerializableForm();
+    //  for (int i = 0; i < FieldCount; i++)
+    //    PackedFieldAccessorFactory.ProvideAccessor(FieldTypes[i], FieldDescriptors[i]);
+    //}
 
     private static TupleDescriptor CreateInternal(IList<Type> fieldTypes)
     {
@@ -554,6 +571,25 @@ namespace Xtensive.Tuples
       ValuesLength = valueIndex + Math.Min(1, valueBitOffset);
       ObjectsLength = objectIndex;
     }
+
+    public TupleDescriptor(SerializationInfo info, StreamingContext context)
+    {
+      FieldCount = info.GetInt32("FieldCount");
+      ValuesLength = info.GetInt32("ValuesLength");
+      ObjectsLength = info.GetInt32("ObjectsLength");
+
+
+      var typeNames = (string[]) info.GetValue("FieldTypes", typeof(string[]));
+      FieldDescriptors = (PackedFieldDescriptor[])info.GetValue("FieldDescriptors", typeof(PackedFieldDescriptor[]));
+
+      fieldTypes = new Type[typeNames.Length];
+      for (int i = 0; i < typeNames.Length; i++)
+        FieldTypes[i] = typeNames[i].GetTypeFromSerializableForm();
+      for (int i = 0; i < FieldCount; i++)
+        PackedFieldAccessorFactory.ProvideAccessor(FieldTypes[i], FieldDescriptors[i]);
+
+    }
+
 
     static TupleDescriptor()
     {

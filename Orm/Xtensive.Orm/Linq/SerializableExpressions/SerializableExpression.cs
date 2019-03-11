@@ -15,10 +15,8 @@ namespace Xtensive.Linq.SerializableExpressions
   /// A serializable representation of <see cref="Expression"/>.
   /// </summary>
   [Serializable]
-  public abstract class SerializableExpression
+  public abstract class SerializableExpression : ISerializable
   {
-    private string typeName;
-
     /// <summary>
     /// <see cref="Expression.NodeType"/>.
     /// </summary>
@@ -29,16 +27,20 @@ namespace Xtensive.Linq.SerializableExpressions
     [NonSerialized]
     public Type Type;
 
-    [OnSerializing]
-    private void OnSerializing(StreamingContext context)
+    public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      typeName = Type.ToSerializableForm();
+      info.AddValue("NodeType", NodeType.ToString());
+      info.AddValue("Type", Type.ToSerializableForm());
     }
 
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
+    protected SerializableExpression()
     {
-      Type = typeName.GetTypeFromSerializableForm();
+    }
+
+    protected SerializableExpression(SerializationInfo info, StreamingContext context)
+    {
+      NodeType = (ExpressionType) Enum.Parse(typeof (ExpressionType), info.GetString("NodeType"));
+      Type = info.GetString("Type").GetTypeFromSerializableForm();
     }
   }
 }

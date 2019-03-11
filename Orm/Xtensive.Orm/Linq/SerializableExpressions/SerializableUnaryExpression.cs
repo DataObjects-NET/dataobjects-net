@@ -18,7 +18,7 @@ namespace Xtensive.Linq.SerializableExpressions
   [Serializable]
   public sealed class SerializableUnaryExpression : SerializableExpression
   {
-    private string methodName;
+    //private string methodName;
 
     /// <summary>
     /// <see cref="UnaryExpression.Operand"/>
@@ -30,16 +30,22 @@ namespace Xtensive.Linq.SerializableExpressions
     [NonSerialized]
     public MethodInfo Method;
 
-    [OnSerializing]
-    private void OnSerializing(StreamingContext context)
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      methodName = Method.ToSerializableForm();
+      base.GetObjectData(info, context);
+      info.AddValue("Operand", Operand);
+      info.AddValue("Method", Method.ToSerializableForm());
     }
 
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
+    public SerializableUnaryExpression()
     {
-      Method = methodName.GetMethodFromSerializableForm();
+    }
+
+    public SerializableUnaryExpression(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      Operand = (SerializableExpression) info.GetValue("Operand", typeof (SerializableExpression));
+      Method = info.GetString("Method").GetMethodFromSerializableForm();
     }
   }
 }

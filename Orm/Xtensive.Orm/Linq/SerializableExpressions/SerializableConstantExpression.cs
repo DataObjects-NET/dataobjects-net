@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Runtime.Serialization;
 
 namespace Xtensive.Linq.SerializableExpressions
 {
@@ -19,5 +20,22 @@ namespace Xtensive.Linq.SerializableExpressions
     /// <see cref="ConstantExpression.Value"/>
     /// </summary>
     public object Value;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      base.GetObjectData(info, context);
+      info.AddValue("Value", Value);
+    }
+
+
+    public SerializableConstantExpression()
+    {
+    }
+
+    public SerializableConstantExpression(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      Value = info.GetValue("Value", typeof(object));
+    }
   }
 }

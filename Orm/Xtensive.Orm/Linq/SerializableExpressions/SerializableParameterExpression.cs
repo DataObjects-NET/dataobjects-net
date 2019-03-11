@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Runtime.Serialization;
 
 namespace Xtensive.Linq.SerializableExpressions
 {
@@ -19,5 +20,21 @@ namespace Xtensive.Linq.SerializableExpressions
     /// <see cref="ParameterExpression.Name"/>.
     /// </summary>
     public string Name;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      base.GetObjectData(info, context);
+      info.AddValue("Name", Name);
+    }
+
+    public SerializableParameterExpression()
+    {
+    }
+
+    public SerializableParameterExpression(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      Name = info.GetString("Name");
+    }
   }
 }

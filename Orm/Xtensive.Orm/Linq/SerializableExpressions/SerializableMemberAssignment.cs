@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Runtime.Serialization;
 
 namespace Xtensive.Linq.SerializableExpressions
 {
@@ -19,5 +20,21 @@ namespace Xtensive.Linq.SerializableExpressions
     /// <see cref="MemberAssignment.Expression"/>
     /// </summary>
     public SerializableExpression Expression;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      base.GetObjectData(info, context);
+      info.AddValue("Expression", Expression);
+    }
+
+    public SerializableMemberAssignment()
+    {
+    }
+
+    public SerializableMemberAssignment(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      Expression = (SerializableExpression) info.GetValue("Expression", typeof (SerializableExpression));
+    }
   }
 }

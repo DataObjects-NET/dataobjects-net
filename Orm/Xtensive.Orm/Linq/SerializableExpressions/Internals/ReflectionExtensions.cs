@@ -7,6 +7,8 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
+using Xtensive.Core;
 
 namespace Xtensive.Linq.SerializableExpressions.Internals
 {
@@ -91,6 +93,28 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
       var name = fullName[1];
       var newObj = Type.GetType(fullName[0]).GetConstructors().First(m => m.ToString() == name);
       return newObj;
+    }
+
+    public static void AddArray<T>(this SerializationInfo info, string key, T[] array)
+    {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(key, "key");
+      ArgumentValidator.EnsureArgumentNotNull(array, "array");
+
+      info.AddValue(string.Format("{0}Count", key), array.Length); 
+      for (int i = 0; i < array.Length; i++)
+        info.AddValue(string.Format("{0}_{1}", key, i), array[i]);
+    }
+
+    public static T[] GetArrayFromSerializableForm<T>(this SerializationInfo info, string key)
+    {
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(key, "key");
+
+      var count = info.GetInt32(string.Format("{0}Count", key));
+      var array = new T[count];
+      for (int i = 0; i < count; i++)
+        array[i] = (T) info.GetValue(string.Format("{0}_{1}", key, i), typeof (T));
+
+      return array;
     }
 
     private static string[] SplitString(string str)

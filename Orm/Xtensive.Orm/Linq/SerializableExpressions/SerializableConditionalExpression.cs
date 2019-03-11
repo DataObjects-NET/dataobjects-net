@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Runtime.Serialization;
 
 namespace Xtensive.Linq.SerializableExpressions
 {
@@ -27,5 +28,25 @@ namespace Xtensive.Linq.SerializableExpressions
     /// <see cref="ConditionalExpression.IfFalse"/>
     /// </summary>
     public SerializableExpression IfFalse;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      base.GetObjectData(info, context);
+      info.AddValue("Test", Test);
+      info.AddValue("IfTrue", IfTrue);
+      info.AddValue("IfFalse", IfFalse);
+    }
+
+    public SerializableConditionalExpression()
+    {
+    }
+
+    public SerializableConditionalExpression(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      Test = (SerializableExpression) info.GetValue("Test", typeof (SerializableExpression));
+      IfTrue = (SerializableExpression) info.GetValue("IfTrue", typeof (SerializableExpression));
+      IfFalse = (SerializableExpression) info.GetValue("IfFalse", typeof (SerializableExpression));
+    }
   }
 }

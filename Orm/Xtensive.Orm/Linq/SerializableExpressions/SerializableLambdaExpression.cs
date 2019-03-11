@@ -6,6 +6,8 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Runtime.Serialization;
+using Xtensive.Linq.SerializableExpressions.Internals;
 
 namespace Xtensive.Linq.SerializableExpressions
 {
@@ -24,5 +26,23 @@ namespace Xtensive.Linq.SerializableExpressions
     /// <see cref="LambdaExpression.Parameters"/>.
     /// </summary>
     public SerializableParameterExpression[] Parameters;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      base.GetObjectData(info, context);
+      info.AddValue("Body", Body);
+      info.AddArray("Parameters", Parameters);
+    }
+
+    public SerializableLambdaExpression()
+    {
+    }
+
+    public SerializableLambdaExpression(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      Body = (SerializableExpression) info.GetValue("Body", typeof (SerializableExpression));
+      Parameters = info.GetArrayFromSerializableForm<SerializableParameterExpression>("Parameters");
+    }
   }
 }

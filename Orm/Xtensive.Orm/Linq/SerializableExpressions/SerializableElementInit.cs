@@ -16,10 +16,8 @@ namespace Xtensive.Linq.SerializableExpressions
   /// A serializable representation of <see cref="ElementInit"/>.
   /// </summary>
   [Serializable]
-  public sealed class SerializableElementInit
+  public sealed class SerializableElementInit : ISerializable
   {
-    private string methodName;
-
     /// <summary>
     /// <see cref="ElementInit.AddMethod"/>
     /// </summary>
@@ -30,16 +28,21 @@ namespace Xtensive.Linq.SerializableExpressions
     /// </summary>
     public SerializableExpression[] Arguments;
 
-    [OnSerializing]
-    private void OnSerializing(StreamingContext context)
+    public void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      methodName = AddMethod.ToSerializableForm();
+      info.AddValue("AddMethod", AddMethod.ToSerializableForm());
+      info.AddArray("Arguments", Arguments);
     }
 
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
+
+    public SerializableElementInit()
     {
-      AddMethod = methodName.GetMethodFromSerializableForm();
+    }
+
+    public SerializableElementInit(SerializationInfo info, StreamingContext context)
+    {
+      AddMethod = info.GetString("AddMethod").GetMethodFromSerializableForm();
+      Arguments = info.GetArrayFromSerializableForm<SerializableExpression>("Arguments");
     }
   }
 }

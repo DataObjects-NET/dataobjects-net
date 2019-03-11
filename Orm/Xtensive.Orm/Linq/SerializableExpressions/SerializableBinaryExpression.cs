@@ -18,8 +18,6 @@ namespace Xtensive.Linq.SerializableExpressions
   [Serializable]
   public sealed class SerializableBinaryExpression : SerializableExpression
   {
-    private string methodName;
-
     /// <summary>
     /// <see cref="BinaryExpression.IsLiftedToNull"/>
     /// </summary>
@@ -38,16 +36,26 @@ namespace Xtensive.Linq.SerializableExpressions
     [NonSerialized]
     public MethodInfo Method;
 
-    [OnSerializing]
-    private void OnSerializing(StreamingContext context)
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      methodName = Method.ToSerializableForm();
+      base.GetObjectData(info, context);
+      info.AddValue("IsLiftedToNull", IsLiftedToNull);
+      info.AddValue("Left", Left);
+      info.AddValue("Right", Right);
+      info.AddValue("Method", Method.ToSerializableForm());
     }
 
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
+    public SerializableBinaryExpression()
     {
-      Method = methodName.GetMethodFromSerializableForm();
+    }
+
+    public SerializableBinaryExpression(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      IsLiftedToNull = info.GetBoolean("IsLiftedToNull");
+      Left = (SerializableExpression) info.GetValue("Left", typeof (SerializableExpression));
+      Right = (SerializableExpression) info.GetValue("Left", typeof (SerializableExpression));
+      Method = info.GetString("Method").GetMethodFromSerializableForm();
     }
   }
 }
