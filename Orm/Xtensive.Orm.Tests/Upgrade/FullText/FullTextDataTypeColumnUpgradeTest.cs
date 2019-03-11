@@ -7,6 +7,8 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core;
+using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using noFTModel = Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel1;
@@ -41,80 +43,87 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel1
 
 namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel2
 {
-  [HierarchyRoot]
-  public class Document : Entity
+  public class DefinitionCorrector : IModule
   {
-    [Field, Key]
-    public int Id { get; set; }
+    public void OnBuilt(Domain domain)
+    {
+    }
 
-    [Field, FullText("English")]
-    public string Title { get; set; }
-
-    [Field(Length = 8001)]
-    public byte[] DocumentBody { get; set; }
-
-    [Field(Length = 50)]
-    public string Extension { get; set; }
+    public void OnDefinitionsBuilt(Building.BuildingContext context, Building.Definitions.DomainModelDef model)
+    {
+      var documentDef = model.Types[typeof(noFTModel.Document)];
+      var ftIndexDef = new FullTextIndexDef(documentDef);
+      ftIndexDef.Fields.Add(new FullTextFieldDef("Title", false) { Configuration = "English" });
+      model.FullTextIndexes.Add(ftIndexDef);
+    }
   }
 }
 
 namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel3
 {
-  [HierarchyRoot]
-  public class Document : Entity
+  public class DefinitionCorrector : IModule
   {
-    [Field, Key]
-    public int Id { get; set; }
+    public void OnBuilt(Domain domain)
+    {
+    }
 
-    [Field]
-    public string Title { get; set; }
-
-    [Field(Length = 8001)]
-    [FullText("English", DataTypeField = "Extension")]
-    public byte[] DocumentBody { get; set; }
-
-    [Field(Length = 50)]
-    public string Extension { get; set; }
+    public void OnDefinitionsBuilt(Building.BuildingContext context, Building.Definitions.DomainModelDef model)
+    {
+      var documentDef = model.Types[typeof(noFTModel.Document)];
+      var ftIndexDef = new FullTextIndexDef(documentDef);
+      ftIndexDef.Fields.Add(new FullTextFieldDef("DocumentBody", false) { Configuration = "English", TypeFieldName = "Extension" });
+      model.FullTextIndexes.Add(ftIndexDef);
+    }
   }
 }
 
 namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel4
 {
-  [HierarchyRoot]
-  public class Document : Entity
+  public class DefinitionCorrector : IModule
   {
-    [Field, Key]
-    public int Id { get; set; }
+    public void OnBuilt(Domain domain)
+    {
+    }
 
-    [Field, FullText("English")]
-    public string Title { get; set; }
-
-    [Field(Length = 8001)]
-    [FullText("English", DataTypeField = "Extension")]
-    public byte[] DocumentBody { get; set; }
-
-    [Field(Length = 50)]
-    public string Extension { get; set; }
+    public void OnDefinitionsBuilt(Building.BuildingContext context, Building.Definitions.DomainModelDef model)
+    {
+      var documentDef = model.Types[typeof(noFTModel.Document)];
+      var ftIndexDef = new FullTextIndexDef(documentDef);
+      ftIndexDef.Fields.Add(new FullTextFieldDef("Title", false) { Configuration = "English" });
+      ftIndexDef.Fields.Add(new FullTextFieldDef("DocumentBody", false) { Configuration = "English", TypeFieldName = "Extension" });
+      model.FullTextIndexes.Add(ftIndexDef);
+    }
   }
 }
 
 namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel5
 {
-  [HierarchyRoot]
-  public class Document : Entity
+  public class DefinitionCorrector : IModule
   {
-    [Field, Key]
-    public int Id { get; set; }
+    public void OnBuilt(Domain domain)
+    {
+    }
 
-    [Field(Length = 8001)]
-    [FullText("English", DataTypeField = "Extension")]
-    public byte[] DocumentBody { get; set; }
+    public void OnDefinitionsBuilt(Building.BuildingContext context, Building.Definitions.DomainModelDef model)
+    {
+      var documentDef = model.Types[typeof(noFTModel.Document)];
+      var title = documentDef.Fields["Title"];
+      var documentBody = documentDef.Fields["DocumentBody"];
+      var titleIndex = documentDef.Fields.IndexOf(title);
+      var documentBodyIndex = documentDef.Fields.IndexOf(documentBody);
+      var oldFieldsMap = documentDef.Fields.ToArray();
+      documentDef.Fields.Clear();
+      oldFieldsMap[titleIndex] = documentBody;
+      oldFieldsMap[documentBodyIndex] = title;
+      foreach (var fieldDef in oldFieldsMap)
+        documentDef.Fields.Add(fieldDef);
 
-    [Field(Length = 50)]
-    public string Extension { get; set; }
+      var ftIndexDef = new FullTextIndexDef(documentDef);
 
-    [Field, FullText("English")]
-    public string Title { get; set; }
+      ftIndexDef.Fields.Add(new FullTextFieldDef("DocumentBody", false) { Configuration = "English", TypeFieldName = "Extension" });
+      ftIndexDef.Fields.Add(new FullTextFieldDef("Title", false) { Configuration = "English", });
+      model.FullTextIndexes.Add(ftIndexDef);
+    }
   }
 }
 
@@ -200,24 +209,22 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel9
 
 namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTestModel10
 {
-  [HierarchyRoot]
-  public class Document : Entity
+  public class DefinitionCorrector : IModule
   {
-    [Field, Key]
-    public int Id { get; set; }
+    public void OnBuilt(Domain domain)
+    {
+    }
 
-    [Field]
-    public string Title { get; set; }
+    public void OnDefinitionsBuilt(Building.BuildingContext context, Building.Definitions.DomainModelDef model)
+    {
+      var documentDef = model.Types[typeof(noFTModel.Document)];
+      var realExtensionField = documentDef.DefineField("RealExtension", typeof(string));
+      realExtensionField.Length = 50;
 
-    [Field(Length = 8001)]
-    [FullText("English", DataTypeField = "RealExtension")]
-    public byte[] DocumentBody { get; set; }
-
-    [Field(Length = 50)]
-    public string Extension { get; set; }
-
-    [Field(Length = 50)]
-    public string RealExtension { get; set; }
+      var ftIndexDef = new FullTextIndexDef(documentDef);
+      ftIndexDef.Fields.Add(new FullTextFieldDef("DocumentBody", false) { Configuration = "English", TypeFieldName = "RealExtension" });
+      model.FullTextIndexes.Add(ftIndexDef);
+    }
   }
 }
 
@@ -235,10 +242,11 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void RecreateModeNoFullTextIndexesTest()
     {
-      using (var domain = BuildDomain(DomainUpgradeMode.Recreate, typeof (noFTModel.Document))) {
+      using (var domain = BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document)))
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(0));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (noFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Null);
       }
     }
@@ -246,10 +254,11 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void RecreateModeOneSimpleFTIndexTest()
     {
-      using (var domain = BuildDomain(DomainUpgradeMode.Recreate, typeof (simpleFTModel.Document))) {
+      using (var domain = BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)))
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (simpleFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -263,10 +272,11 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void RecreateModeOneComplexFTIndexTest()
     {
-      using (var domain = BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document))) {
+      using (var domain = BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)))
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (complexFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -281,10 +291,11 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void RecreateModeSimplePlusComplexFTIndexesTest()
     {
-      using (var domain = BuildDomain(DomainUpgradeMode.Recreate, typeof (twoFTIndexesModel1.Document)))       {
+      using (var domain = BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(twoFTIndexesModel1.DefinitionCorrector)))
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (twoFTIndexesModel1.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(2));
@@ -304,10 +315,11 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void RecreateModeComplexPlusSimpleFTIndexesTest()
     {
-      using (var domain = BuildDomain(DomainUpgradeMode.Recreate, typeof (twoFTIndexesModel2.Document))) {
+      using (var domain = BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(twoFTIndexesModel2.DefinitionCorrector)))
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (twoFTIndexesModel2.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(2));
@@ -328,15 +340,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void ValidateModeNoFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (noFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Validate, typeof (noFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Validate, typeof(noFTModel.Document)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(0));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (noFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Null);
       }
     }
@@ -344,15 +357,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void ValidateModeSimpleFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (simpleFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Validate, typeof (simpleFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Validate, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (simpleFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -366,15 +380,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void ValidateModeComplexFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Validate, typeof (complexFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Validate, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)));
 
-      using (domain)       {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (complexFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -389,15 +404,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void ValidateModeSimplePlusComplexFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (twoFTIndexesModel1.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(twoFTIndexesModel1.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Validate, typeof (twoFTIndexesModel1.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Validate, typeof(noFTModel.Document), typeof(twoFTIndexesModel1.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (twoFTIndexesModel1.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(2));
@@ -417,15 +433,17 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void ValidateModeComplexPlusSimpleFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (twoFTIndexesModel2.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(twoFTIndexesModel2.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Validate, typeof (twoFTIndexesModel2.Document)));
+      //Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Validate, typeof (noFTModel.Document), typeof (twoFTIndexesModel2.DefinitionCorrector)));
+      domain = BuildDomain(DomainUpgradeMode.Validate, typeof(noFTModel.Document), typeof(twoFTIndexesModel2.DefinitionCorrector));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (twoFTIndexesModel2.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(2));
@@ -446,35 +464,34 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void ValidateModeRemoveSimpleFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (simpleFTModel.Document)).Dispose();
-      Assert.DoesNotThrow(() =>
-      {
-        BuildDomain(DomainUpgradeMode.Validate, typeof (noFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)).Dispose();
+      Assert.DoesNotThrow(() => {
+        BuildDomain(DomainUpgradeMode.Validate, typeof(noFTModel.Document)).Dispose();
       });
     }
 
     [Test]
     public void ValidateModeRemoveComplexFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document)).Dispose();
-      Assert.DoesNotThrow(() =>
-      {
-        BuildDomain(DomainUpgradeMode.Validate, typeof (noFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)).Dispose();
+      Assert.DoesNotThrow(() => {
+        BuildDomain(DomainUpgradeMode.Validate, typeof(noFTModel.Document)).Dispose();
       });
     }
 
     [Test]
     public void PerformModeNoFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (noFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof (noFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof(noFTModel.Document)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(0));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (noFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Null);
       }
     }
@@ -482,15 +499,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformModeAddSimpleFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (noFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof (simpleFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (simpleFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -504,15 +522,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformModeAddComplexFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (noFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof (complexFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (complexFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -527,15 +546,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformModeDropSimpleFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (simpleFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof (noFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof(noFTModel.Document)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(0));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (noFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Null);
       }
     }
@@ -543,15 +563,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformModeSimpleFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (simpleFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof (simpleFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (simpleFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -565,15 +586,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformModeRebuildSimpleFTIndexByComplexOneTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (simpleFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof (complexFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (complexFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -588,15 +610,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformModeDropComplexFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof (noFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof(noFTModel.Document)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(0));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (noFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Null);
       }
     }
@@ -604,15 +627,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformModeRebuildComplexFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof (simpleFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (simpleFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -626,15 +650,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformModeComplexFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof (complexFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (complexFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -649,15 +674,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformModeChangedTypeColumnOfFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof (newTypeColumnModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.Perform, typeof(noFTModel.Document), typeof(newTypeColumnModel.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (newTypeColumnModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -672,15 +698,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformSafelyModeNoFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (noFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof (noFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof(noFTModel.Document)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(0));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (noFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Null);
       }
     }
@@ -688,15 +715,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformSafelyModeAddSimpleFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (noFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof (simpleFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (simpleFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -710,15 +738,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformSafelyModeAddComplexFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (noFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof (complexFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (complexFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -733,15 +762,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformSafelyModeDropSimpleFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (simpleFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof (noFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof(noFTModel.Document)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(0));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (noFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Null);
       }
     }
@@ -749,15 +779,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformSafelyModeSimpleFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (simpleFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(noFTModel.Document)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof (simpleFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (simpleFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -771,15 +802,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformSafelyModeRebuildSimpleFTIndexByComplexOneTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (simpleFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof (complexFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (complexFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -794,15 +826,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformSafelyModeDropComplexFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof (noFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof(noFTModel.Document)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(0));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (noFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Null);
       }
     }
@@ -810,15 +843,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformSafelyModeRebuildComplexFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof (simpleFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (simpleFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -832,15 +866,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformSafelyModeComplexFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof (complexFTModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (complexFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -855,15 +890,16 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void PerformSafelyModeChangedTypeColumnOfFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)).Dispose();
 
       Domain domain = null;
-      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof (newTypeColumnModel.Document)));
+      Assert.DoesNotThrow(() => domain = BuildDomain(DomainUpgradeMode.PerformSafely, typeof(noFTModel.Document), typeof(newTypeColumnModel.DefinitionCorrector)));
 
-      using (domain) {
+      using (domain)
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (newTypeColumnModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -878,12 +914,13 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void SkipModeNoFullTextIndexesTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (noFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document)).Dispose();
 
-      using (var domain = BuildDomain(DomainUpgradeMode.Skip, typeof (noFTModel.Document))) {
+      using (var domain = BuildDomain(DomainUpgradeMode.Skip, typeof(noFTModel.Document)))
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(0));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (noFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Null);
       }
     }
@@ -891,12 +928,13 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void SkipModeOneSimpleFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (simpleFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)).Dispose();
 
-      using (var domain = BuildDomain(DomainUpgradeMode.Skip, typeof (simpleFTModel.Document))) {
+      using (var domain = BuildDomain(DomainUpgradeMode.Skip, typeof(noFTModel.Document), typeof(simpleFTModel.DefinitionCorrector)))
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (simpleFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -910,12 +948,13 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void SkipModeOneComplexFTIndexTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (complexFTModel.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)).Dispose();
 
-      using (var domain = BuildDomain(DomainUpgradeMode.Skip, typeof (complexFTModel.Document))) {
+      using (var domain = BuildDomain(DomainUpgradeMode.Skip, typeof(noFTModel.Document), typeof(complexFTModel.DefinitionCorrector)))
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (complexFTModel.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(1));
@@ -930,12 +969,13 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void SkipModeSimplePlusComplexFTIndexesTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (twoFTIndexesModel1.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(twoFTIndexesModel1.DefinitionCorrector)).Dispose();
 
-      using (var domain = BuildDomain(DomainUpgradeMode.Skip, typeof (twoFTIndexesModel1.Document))) {
+      using (var domain = BuildDomain(DomainUpgradeMode.Skip, typeof(noFTModel.Document), typeof(twoFTIndexesModel1.DefinitionCorrector)))
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (twoFTIndexesModel1.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(2));
@@ -955,12 +995,13 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     [Test]
     public void SkipModeComplexPlusSimpleFTIndexesTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate, typeof (twoFTIndexesModel2.Document)).Dispose();
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(noFTModel.Document), typeof(twoFTIndexesModel2.DefinitionCorrector)).Dispose();
 
-      using (var domain = BuildDomain(DomainUpgradeMode.Skip, typeof (twoFTIndexesModel2.Document))) {
+      using (var domain = BuildDomain(DomainUpgradeMode.Skip, typeof(noFTModel.Document), typeof(twoFTIndexesModel2.DefinitionCorrector)))
+      {
         Assert.That(domain.Model.FullTextIndexes.Count(), Is.EqualTo(1));
         TypeInfo typeInfo = null;
-        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof (twoFTIndexesModel2.Document)]);
+        Assert.DoesNotThrow(() => typeInfo = domain.Model.Types[typeof(noFTModel.Document)]);
         Assert.That(typeInfo.FullTextIndex, Is.Not.Null);
         var fullTextIndex = typeInfo.FullTextIndex;
         Assert.That(fullTextIndex.Columns.Count, Is.EqualTo(2));
@@ -982,35 +1023,37 @@ namespace Xtensive.Orm.Tests.Upgrade.FullTextDataTypeColumnUpgrageTest
     public void PrimaryIndexContainsTwoColumnsTest()
     {
       Assert.Throws<StorageException>(
-        () => BuildDomain(DomainUpgradeMode.Recreate, typeof (wrongModel1.Document)).Dispose());
+        () => BuildDomain(DomainUpgradeMode.Recreate, typeof(wrongModel1.Document)).Dispose());
     }
 
     [Test]
     public void WrongTypeOfFullTextColumnTest()
     {
       Assert.Throws<StorageException>(
-        () => BuildDomain(DomainUpgradeMode.Recreate, typeof (wrongModel2.Document)).Dispose());
+        () => BuildDomain(DomainUpgradeMode.Recreate, typeof(wrongModel2.Document)).Dispose());
     }
 
     [Test]
     public void WrongTypeOfTypeColumnTest()
     {
       Assert.Throws<StorageException>(
-        () => BuildDomain(DomainUpgradeMode.Recreate, typeof (wrongModel3.Document)).Dispose());
+        () => BuildDomain(DomainUpgradeMode.Recreate, typeof(wrongModel3.Document)).Dispose());
     }
 
     [Test]
     public void TypeColumnIsNotExistsInEntity()
     {
       Assert.Throws<DomainBuilderException>(
-        () => BuildDomain(DomainUpgradeMode.Recreate, typeof (wrongModel4.Document)).Dispose());
+        () => BuildDomain(DomainUpgradeMode.Recreate, typeof(wrongModel4.Document)).Dispose());
     }
 
-    private Domain BuildDomain(DomainUpgradeMode mode, Type type)
+    private Domain BuildDomain(DomainUpgradeMode mode, Type baseType, Type additionalType = null)
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = mode;
-      configuration.Types.Register(type);
+      configuration.Types.Register(baseType);
+      if (additionalType != null)
+        configuration.Types.Register(additionalType);
       return Domain.Build(configuration);
     }
 
