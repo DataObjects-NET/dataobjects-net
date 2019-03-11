@@ -5,6 +5,7 @@
 // Created:    2009.05.12
 
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -18,8 +19,6 @@ namespace Xtensive.Linq.SerializableExpressions
   [Serializable]
   public sealed class SerializableMemberExpression : SerializableExpression
   {
-    private string memberName;
-
     /// <summary>
     /// <see cref="MemberExpression.Expression"/>
     /// </summary>
@@ -30,16 +29,22 @@ namespace Xtensive.Linq.SerializableExpressions
     [NonSerialized]
     public MemberInfo Member;
 
-    [OnSerializing]
-    private void OnSerializing(StreamingContext context)
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      memberName = Member.ToSerializableForm();
+      base.GetObjectData(info, context);
+      info.AddValue("Expression", Expression);
+      info.AddValue("Member", Member.ToSerializableForm());
     }
 
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
+    public SerializableMemberExpression()
     {
-      Member = memberName.GetMemberFromSerializableForm();
+    }
+
+    public SerializableMemberExpression(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      Expression = (SerializableExpression) info.GetValue("Expression", typeof (SerializableExpression));
+      Member = info.GetString("Member").GetMemberFromSerializableForm();
     }
   }
 }

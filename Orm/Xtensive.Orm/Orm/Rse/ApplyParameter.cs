@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -19,16 +20,17 @@ namespace Xtensive.Orm.Rse
   /// </summary>
   [Serializable]
   [DebuggerDisplay("{Name}")]
-  public sealed class ApplyParameter
+  public sealed class ApplyParameter : ISerializable
   {
     [NonSerialized]
     private Parameter<Tuple> parameter;
+
 
     /// <summary>
     /// Gets the name of this parameter.
     /// </summary>
     /// <value>The name.</value>
-    public string Name {get; private set; }
+    public string Name { get; private set; }
 
     /// <summary>
     /// Gets the value.
@@ -39,6 +41,11 @@ namespace Xtensive.Orm.Rse
       get { return parameter.Value; }
       [DebuggerStepThrough]
       set { parameter.Value = value; }
+    }
+
+    public void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      info.AddValue("Name", Name);
     }
 
     /// <inheritdoc/>
@@ -68,12 +75,18 @@ namespace Xtensive.Orm.Rse
     {
     }
 
-    // Deserialization
-
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
+    public ApplyParameter(SerializationInfo info, StreamingContext context)
     {
+      Name = info.GetString("Name");
       parameter = new Parameter<Tuple>(Name);
     }
+
+    // Deserialization
+
+    //[OnDeserialized]
+    //private void OnDeserialized(StreamingContext context)
+    //{
+    //  parameter = new Parameter<Tuple>(Name);
+    //}
   }
 }

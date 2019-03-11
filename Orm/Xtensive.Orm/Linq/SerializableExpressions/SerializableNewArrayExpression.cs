@@ -6,6 +6,8 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Runtime.Serialization;
+using Xtensive.Linq.SerializableExpressions.Internals;
 
 namespace Xtensive.Linq.SerializableExpressions
 {
@@ -19,5 +21,21 @@ namespace Xtensive.Linq.SerializableExpressions
     /// <see cref="NewArrayExpression.Expressions"/>
     /// </summary>
     public SerializableExpression[] Expressions;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      base.GetObjectData(info, context);
+      info.AddArray("Expressions", Expressions);
+    }
+
+    public SerializableNewArrayExpression()
+    {
+    }
+
+    public SerializableNewArrayExpression(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      Expressions = info.GetArrayFromSerializableForm<SerializableExpression>("Expressions");
+    }
   }
 }

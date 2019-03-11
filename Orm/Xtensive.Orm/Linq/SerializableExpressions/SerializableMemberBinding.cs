@@ -16,10 +16,8 @@ namespace Xtensive.Linq.SerializableExpressions
   /// A serializable representation of <see cref="MemberBinding"/>
   /// </summary>
   [Serializable]
-  public abstract class SerializableMemberBinding
+  public abstract class SerializableMemberBinding : ISerializable
   {
-    private string memberName;
-
     /// <summary>
     /// <see cref="MemberBinding.BindingType"/>
     /// </summary>
@@ -30,16 +28,21 @@ namespace Xtensive.Linq.SerializableExpressions
     [NonSerialized]
     public MemberInfo Member;
 
-    [OnSerializing]
-    private void OnSerializing(StreamingContext context)
+    public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      memberName = Member.ToSerializableForm();
+      info.AddValue("Member", Member.ToSerializableForm());
+      info.AddValue("BindingType", BindingType.ToString());
     }
 
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
+
+    protected SerializableMemberBinding()
     {
-      Member = memberName.GetMemberFromSerializableForm();
+    }
+
+    protected SerializableMemberBinding(SerializationInfo info, StreamingContext context)
+    {
+      Member = info.GetString("Member").GetMemberFromSerializableForm();
+      BindingType = (MemberBindingType) Enum.Parse(typeof(MemberBindingType), info.GetString("BindingType")); 
     }
   }
 }

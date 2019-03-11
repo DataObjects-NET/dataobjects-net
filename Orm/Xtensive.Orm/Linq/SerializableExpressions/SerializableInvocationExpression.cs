@@ -6,6 +6,8 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Runtime.Serialization;
+using Xtensive.Linq.SerializableExpressions.Internals;
 
 namespace Xtensive.Linq.SerializableExpressions
 {
@@ -23,5 +25,23 @@ namespace Xtensive.Linq.SerializableExpressions
     /// <see cref="InvocationExpression.Arguments"/>
     /// </summary>
     public SerializableExpression[] Arguments;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      base.GetObjectData(info, context);
+      info.AddValue("Expression", Expression);
+      info.AddArray("Arguments", Arguments);
+    }
+
+    public SerializableInvocationExpression()
+    {
+    }
+
+    public SerializableInvocationExpression(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      Expression = (SerializableExpression) info.GetValue("Expression", typeof (SerializableExpression));
+      Arguments = info.GetArrayFromSerializableForm<SerializableExpression>("Arguments");
+    }
   }
 }

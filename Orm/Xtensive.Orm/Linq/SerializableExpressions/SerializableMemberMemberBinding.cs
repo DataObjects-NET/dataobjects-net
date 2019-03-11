@@ -6,6 +6,8 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Runtime.Serialization;
+using Xtensive.Linq.SerializableExpressions.Internals;
 
 namespace Xtensive.Linq.SerializableExpressions
 {
@@ -19,5 +21,21 @@ namespace Xtensive.Linq.SerializableExpressions
     /// <see cref="MemberMemberBinding.Bindings"/>
     /// </summary>
     public SerializableMemberBinding[] Bindings;
+
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      base.GetObjectData(info, context);
+      info.AddArray("Bindings", Bindings);
+    }
+
+    public SerializableMemberMemberBinding()
+    {
+    }
+
+    public SerializableMemberMemberBinding(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      Bindings = info.GetArrayFromSerializableForm<SerializableMemberBinding>("Bindings");
+    }
   }
 }

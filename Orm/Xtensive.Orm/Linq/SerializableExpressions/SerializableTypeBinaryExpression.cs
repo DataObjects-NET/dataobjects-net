@@ -18,8 +18,6 @@ namespace Xtensive.Linq.SerializableExpressions
   [Serializable]
   public sealed class SerializableTypeBinaryExpression : SerializableExpression
   {
-    private string typeOperandName;
-
     /// <summary>
     /// <see cref="TypeBinaryExpression.Expression"/>
     /// </summary>
@@ -30,16 +28,22 @@ namespace Xtensive.Linq.SerializableExpressions
     [NonSerialized]
     public Type TypeOperand;
 
-    [OnSerializing]
-    private void OnSerializing(StreamingContext context)
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      typeOperandName = TypeOperand.ToSerializableForm();
+      base.GetObjectData(info, context);
+      info.AddValue("Expression", Expression);
+      info.AddValue("TypeOperand", TypeOperand.ToSerializableForm());
     }
 
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
+    public SerializableTypeBinaryExpression()
     {
-      TypeOperand = typeOperandName.GetTypeFromSerializableForm();
+    }
+
+    public SerializableTypeBinaryExpression(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      Expression = (SerializableExpression) info.GetValue("Expression", typeof (SerializableExpression));
+      TypeOperand = info.GetString("TypeOperand").GetTypeFromSerializableForm();
     }
   }
 }

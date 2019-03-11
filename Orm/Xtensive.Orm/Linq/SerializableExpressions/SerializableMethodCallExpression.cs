@@ -18,8 +18,6 @@ namespace Xtensive.Linq.SerializableExpressions
   [Serializable]
   public sealed class SerializableMethodCallExpression : SerializableExpression
   {
-    private string methodName;
-
     /// <summary>
     /// <see cref="MethodCallExpression.Arguments"/>
     /// </summary>
@@ -35,16 +33,24 @@ namespace Xtensive.Linq.SerializableExpressions
     /// </summary>
     public SerializableExpression Object;
 
-    [OnSerializing]
-    private void OnSerializing(StreamingContext context)
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      methodName = Method.ToSerializableForm();
+      base.GetObjectData(info, context);
+      info.AddArray("Arguments", Arguments);
+      info.AddValue("Method", Method.ToSerializableForm());
+      info.AddValue("Object", Object);
     }
 
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
+    public SerializableMethodCallExpression()
     {
-      Method = methodName.GetMethodFromSerializableForm();
+    }
+
+    public SerializableMethodCallExpression(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      Arguments = info.GetArrayFromSerializableForm<SerializableExpression>("Arguments");
+      Method = info.GetString("Method").GetMethodFromSerializableForm();
+      Object = (SerializableExpression) info.GetValue("Object", typeof (SerializableExpression));
     }
   }
 }

@@ -19,9 +19,6 @@ namespace Xtensive.Linq.SerializableExpressions
   [Serializable]
   public sealed class SerializableNewExpression : SerializableExpression
   {
-    private string ctorName;
-    private string[] memberNames;
-
     /// <summary>
     /// <see cref="NewExpression.Arguments"/>
     /// </summary>
@@ -37,22 +34,30 @@ namespace Xtensive.Linq.SerializableExpressions
     [NonSerialized]
     public MemberInfo[] Members;
 
-    [OnSerializing]
-    private void OnSerializing(StreamingContext context)
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
     {
-      ctorName = Constructor.ToSerializableForm();
-      memberNames = Members
-        .Select(m => m.ToSerializableForm())
-        .ToArray();
+      base.GetObjectData(info, context);
+      info.AddArray("Arguments", Arguments);
+      info.AddValue("Ctor", Constructor.ToSerializableForm());
+      var memberNames = new string[Members.Length];
+      for (int i = 0; i < memberNames.Length; i++)
+        memberNames[i] = Members[i].ToSerializableForm();
+      info.AddArray("Members", memberNames);
     }
 
-    [OnDeserialized]
-    private void OnDeserialized(StreamingContext context)
+    public SerializableNewExpression()
     {
-      Constructor = ctorName.GetConstructorFromSerializableForm();
-      Members = memberNames
-        .Select(name => name.GetMemberFromSerializableForm())
-        .ToArray();
+    }
+
+    public SerializableNewExpression(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      Arguments = info.GetArrayFromSerializableForm<SerializableExpression>("Arguments");
+      Constructor = info.GetString("Ctor").GetConstructorFromSerializableForm();
+      var memberNames = info.GetArrayFromSerializableForm<string>("Members");
+      Members = new MemberInfo[memberNames.Length];
+      for (int i = 0; i < memberNames.Length; i++)
+        Members[i] = memberNames[i].GetMemberFromSerializableForm();
     }
   }
 }
