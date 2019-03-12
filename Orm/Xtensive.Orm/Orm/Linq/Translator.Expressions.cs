@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Linq
         MemberExpression memberExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.TypeId);
         Expression boolExpression = null;
         foreach (int typeId in typeIds)
-          boolExpression = MakeBinaryExpression(
+          boolExpression = MakeBooleanExpression(
             boolExpression,
             memberExpression,
             Expression.Constant(typeId),
@@ -1199,9 +1199,9 @@ namespace Xtensive.Orm.Linq
       var bindings = VisitBindingList(mi.Bindings).Cast<MemberAssignment>();
       var constructorExpression = (ConstructorExpression) VisitNew(mi.NewExpression);
       foreach (var binding in bindings) {
-        // I don't know why but binging.Member.ReflectedType is not equal to mi.NewExpression.Type
-        // So we have to handle it.
-        var member = TryGetActualMemberInfo(binding.Member, mi.NewExpression.Type);
+        var member = binding.Member.MemberType == MemberTypes.Property
+          ? TryGetActualPropertyInfo((PropertyInfo)binding.Member, mi.NewExpression.Type)
+          : binding.Member;
         constructorExpression.Bindings[member] = binding.Expression;
         constructorExpression.NativeBindings[member] = binding.Expression;
       }
@@ -1468,12 +1468,27 @@ namespace Xtensive.Orm.Linq
       context.RebindApplyParameter(oldDataSource, newDataSource);
     }
 
-    private static Expression MakeBinaryExpression(Expression previous, Expression left, Expression right,
+    private static Expression MakeBooleanExpression(Expression previous, Expression left, Expression right,
       ExpressionType operationType, ExpressionType concatenationExpression)
     {
-      var binaryExpression = operationType==ExpressionType.Equal
-        ? Expression.Equal(left, right)
-        : Expression.NotEqual(left, right);
+      BinaryExpression binaryExpression;
+      switch (operationType) {
+        case ExpressionType.Equal:
+          binaryExpression = Expression.Equal(left, right);
+          break;
+        case ExpressionType.NotEqual:
+          binaryExpression = Expression.NotEqual(left, right);
+          break;
+        case ExpressionType.OrElse:
+          binaryExpression = Expression.OrElse(left, right);
+          break;
+        case ExpressionType.AndAlso:
+          binaryExpression = Expression.AndAlso(left, right);
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("operationType");
+      }
+
 
       if (previous==null)
         return binaryExpression;
@@ -1545,25 +1560,16 @@ namespace Xtensive.Orm.Linq
       return current;
     }
 
-    private MemberInfo TryGetActualMemberInfo(MemberInfo memberInfo, Type initializingType)
+    private MemberInfo TryGetActualPropertyInfo(PropertyInfo propertyInfo, Type initializingType)
     {
-      if (!memberInfo.ReflectedType.IsAssignableFrom(initializingType))
-        return memberInfo;
+      //if property is an indexer
+      if (propertyInfo.GetIndexParameters().Length!=0)
+        return propertyInfo;
 
-      if (memberInfo.ReflectedType==initializingType)
-        return memberInfo;
-      switch (memberInfo.MemberType) {
-        case MemberTypes.Field: {
-          var inheritedField = initializingType.GetField(memberInfo.Name);
-          return inheritedField ?? memberInfo;
-        }
-        case MemberTypes.Property: {
-          var inheritedProperty = initializingType.GetProperty(memberInfo.Name);
-          return inheritedProperty ?? memberInfo;
-        }
-        default:
-          return memberInfo;
-      }
+      // the name of property is unique within type hierarchy
+      // so we can use it.
+      var actualPropertyInfo = initializingType.GetProperty(propertyInfo.Name);
+      return actualPropertyInfo ?? propertyInfo;
     }
 
     private IList<ColumnInfo> GetColumnsToSearch(ConstantExpression arrayOfColumns, Type elementType, TypeInfo domainType)

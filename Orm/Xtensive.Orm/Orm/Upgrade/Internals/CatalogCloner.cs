@@ -109,8 +109,10 @@ namespace Xtensive.Orm.Upgrade.Internals
       foreach (var sourceDomain in sourceSchema.Domains) {
         var newDomain = newSchema.CreateDomain(sourceDomain.Name, sourceDomain.DataType);
         CopyDbName(newDomain, sourceDomain);
-        newDomain.Collation = collationsMap[sourceDomain.Collation];
-        newDomain.DefaultValue = (SqlExpression) sourceDomain.DefaultValue.Clone();
+        if (sourceDomain.Collation!=null)
+          newDomain.Collation = collationsMap[sourceDomain.Collation];
+        if (sourceDomain.DefaultValue!=null)
+          newDomain.DefaultValue = (SqlExpression)sourceDomain.DefaultValue.Clone();
         foreach (var domainConstraint in sourceDomain.DomainConstraints) {
           var newConstraint = newDomain.CreateConstraint(domainConstraint.Name, (SqlExpression) domainConstraint.Condition.Clone());
           CopyDbName(newConstraint, domainConstraint);

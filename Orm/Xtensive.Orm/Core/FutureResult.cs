@@ -5,8 +5,6 @@
 // Created:    2012.03.15
 
 using System;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace Xtensive.Core
 {

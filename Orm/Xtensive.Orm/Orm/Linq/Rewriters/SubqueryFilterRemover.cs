@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2010.04.27
 
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
@@ -16,6 +17,9 @@ namespace Xtensive.Orm.Linq.Rewriters
     private class SubqueryFilterChecker : ExpressionVisitor
     {
       private readonly ApplyParameter filterParameter;
+      private readonly Stack<Expression> meaningfulLefts;
+      private readonly Stack<Expression> meaningfulRights;
+
       private bool @continue;
       private bool matchFound;
 
@@ -24,7 +28,7 @@ namespace Xtensive.Orm.Linq.Rewriters
         matchFound = false;
         @continue = true;
         Visit(expression);
-        return matchFound && @continue;
+        return matchFound && @continue && meaningfulLefts.Count==meaningfulRights.Count;
       }
 
       protected override Expression VisitConstant(ConstantExpression c)
@@ -39,14 +43,33 @@ namespace Xtensive.Orm.Linq.Rewriters
         if (b.NodeType==ExpressionType.Equal) {
           var leftAccess = b.Left.AsTupleAccess();
           var rightAccess = b.Right.AsTupleAccess();
-          @continue &= leftAccess!=null && rightAccess!=null;
-          if (@continue) {
+          var rightConstant = b.Right as ConstantExpression;
+
+          @continue &= (leftAccess!=null && rightAccess!=null) || (leftAccess!=null && rightConstant!=null);
+          if (@continue && rightConstant==null) {
             var leftIsParameterBound = leftAccess.Object.NodeType==ExpressionType.Parameter;
             var rightIsParameterBound = rightAccess.Object.NodeType==ExpressionType.Parameter;
             @continue = leftIsParameterBound!=rightIsParameterBound;
+            if (@continue) {
+              meaningfulLefts.Push(leftAccess.Object);
+              meaningfulRights.Push(rightAccess.Object);
+            }
+          }
+          else if (@continue && rightConstant!=null) {
+            var rightIsNullValue = rightConstant.Value==null;
+            if (!rightIsNullValue)
+              @continue = false;
+            else {
+              var leftIsParameter = leftAccess.Object.NodeType==ExpressionType.Parameter;
+              var onStackValue = (leftIsParameter) ? meaningfulLefts.Pop() : meaningfulRights.Pop();
+              @continue = onStackValue == leftAccess.Object;
+            }
+          }
+          else {
+            @continue = false;
           }
         }
-        else if (b.NodeType==ExpressionType.AndAlso) {
+        else if (b.NodeType==ExpressionType.AndAlso || b.NodeType==ExpressionType.OrElse) {
           @continue &= b.Left is BinaryExpression && b.Right is BinaryExpression;
         }
         else
@@ -56,6 +79,7 @@ namespace Xtensive.Orm.Linq.Rewriters
           Visit(b.Right);
         }
         return b;
+
       }
 
 
@@ -64,6 +88,8 @@ namespace Xtensive.Orm.Linq.Rewriters
       public SubqueryFilterChecker(ApplyParameter filterParameter)
       {
         this.filterParameter = filterParameter;
+        meaningfulLefts = new Stack<Expression>();
+        meaningfulRights = new Stack<Expression>();
       }
     }
 

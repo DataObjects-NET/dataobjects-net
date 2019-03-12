@@ -1,0 +1,12 @@
+[main] Added versioning policy allowing to set up certain rules for entity version increasing
+[main] Fixed problems with setting Catalog.Name, Catalog.DbName, CatalogNode.Name and CatalogNode.DbName properties
+[main] Fixed certain cases when grouping by an Entity field caused wrong results
+[main] Persisting of changes to database while EntitySet enumeration doesn't break enumeration
+[main] Fixed initialization of fields of non-persistent types within queries
+[main] Entity.Lock() locks correct raws in database
+[main] DomainUpgradeMode.Validate mode became stricter to avoid data corruption
+[firebird] Made column types extraction be culture-independant
+[sqlserver] Fixed extraction of default value of table columns
+[sqlserver] Improved default schema detection in driver factory
+[sqlserver] Updated Azure provider to Sql Server v12 provider
+[weaver] Project building fails when weaving ends up with an error

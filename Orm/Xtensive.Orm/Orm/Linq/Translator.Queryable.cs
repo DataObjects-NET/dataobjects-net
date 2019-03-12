@@ -776,46 +776,104 @@ namespace Xtensive.Orm.Linq
 
       ProjectionExpression groupingSourceProjection;
       context.Bindings.PermanentAdd(keySelector.Parameters[0], sequence);
-      using (state.CreateScope()) {
+      using (state.CreateScope())
+      {
         state.CalculateExpressions = true;
         state.GroupingKey = true;
-        var itemProjector = (ItemProjectorExpression) VisitLambda(keySelector);
+        var itemProjector = (ItemProjectorExpression)VisitLambda(keySelector);
         groupingSourceProjection = new ProjectionExpression(
-          typeof (IQueryable<>).MakeGenericType(keySelector.Body.Type),
+          typeof(IQueryable<>).MakeGenericType(keySelector.Body.Type),
           itemProjector,
           sequence.TupleParameterBindings);
       }
 
-      var keyColumns = groupingSourceProjection.ItemProjector.GetColumns(
-        ColumnExtractionModes.KeepSegment | 
-        ColumnExtractionModes.TreatEntityAsKey | 
-        ColumnExtractionModes.KeepTypeId).ToArray();
+      // this is new Object.There is no need to do ToArray
+      var keyFieldsRaw = groupingSourceProjection.ItemProjector.GetColumnsAndExpressions(
+        ColumnExtractionModes.KeepSegment |
+        ColumnExtractionModes.TreatEntityAsKey |
+        ColumnExtractionModes.KeepTypeId);
+
+      var keyColumnsList = new List<int>();
+      var nullableFields = new Dictionary<int, FieldExpression>();
+      keyFieldsRaw.ForEach(
+        (item) => {
+          keyColumnsList.Add(item.First);
+          var expressionField = item.Second as FieldExpression;
+          if (expressionField != null && expressionField.Field.IsNullable)
+            nullableFields.Add(item.First, expressionField);
+        });
+
+      var keyColumns = keyColumnsList.ToArray();
       var keyDataSource = groupingSourceProjection.ItemProjector.DataSource.Aggregate(keyColumns);
       var remappedKeyItemProjector = groupingSourceProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, keyColumns);
 
       var groupingProjector = new ItemProjectorExpression(remappedKeyItemProjector.Item, keyDataSource, context);
       var groupingProjection = new ProjectionExpression(groupingSourceProjection.Type, groupingProjector, sequence.TupleParameterBindings);
 
+      // subqueryIndex - values of array
+      // groupIndex    - indexes of values of array
       var comparisonInfos = keyColumns
         .Select((subqueryIndex, groupIndex) => new {
-          SubQueryIndex = subqueryIndex, 
-          GroupIndex = groupIndex, 
-          Type = keyDataSource.Header.Columns[groupIndex].Type.ToNullable() })
+          SubQueryIndex = subqueryIndex,
+          GroupIndex = groupIndex,
+          Type = keyDataSource.Header.Columns[groupIndex].Type.ToNullable()
+        })
         .ToList();
       var applyParameter = context.GetApplyParameter(groupingProjection);
-      var tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
-      var filterBody = comparisonInfos.Aggregate(
-        (Expression)null, 
-        (current, comparisonInfo) => MakeBinaryExpression(
-          current, 
-          tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex), 
-          Expression.MakeMemberAccess(Expression.Constant(applyParameter), WellKnownMembers.ApplyParameterValue)
-            .MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex), 
-          ExpressionType.Equal, 
-          ExpressionType.AndAlso));
+      var tupleParameter = Expression.Parameter(typeof(Tuple), "tuple");
+
+      Expression filterBody = (nullableFields.Count == 0)
+        ? comparisonInfos.Aggregate(
+            (Expression)null,
+            (current, comparisonInfo) =>
+              MakeBooleanExpression(
+                current,
+                tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
+                Expression.MakeMemberAccess(Expression.Constant(applyParameter), WellKnownMembers.ApplyParameterValue).MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex),
+                ExpressionType.Equal,
+                ExpressionType.AndAlso))
+        : comparisonInfos.Aggregate(
+            (Expression)null,
+            (current, comparisonInfo) => {
+              if (nullableFields.ContainsKey(comparisonInfo.SubQueryIndex))
+              {
+                var groupingSubqueryConnector = Expression.MakeMemberAccess(Expression.Constant(applyParameter), WellKnownMembers.ApplyParameterValue);
+                var left = MakeBooleanExpression(
+                  null,
+                  tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
+                  groupingSubqueryConnector.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex),
+                  ExpressionType.Equal,
+                  ExpressionType.AndAlso);
+
+                var right = MakeBooleanExpression(
+                  null,
+                  MakeBooleanExpression(
+                    null,
+                    tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
+                    Expression.Constant(null, comparisonInfo.Type),
+                    ExpressionType.Equal,
+                    ExpressionType.AndAlso),
+                  MakeBooleanExpression(
+                    null,
+                    groupingSubqueryConnector.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex),
+                    Expression.Constant(null, comparisonInfo.Type),
+                    ExpressionType.Equal,
+                    ExpressionType.AndAlso),
+                  ExpressionType.AndAlso,
+                  ExpressionType.AndAlso);
+                return MakeBooleanExpression(current, left, right, ExpressionType.OrElse, ExpressionType.AndAlso);
+              }
+              return MakeBooleanExpression(
+                current,
+                tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
+                Expression.MakeMemberAccess(Expression.Constant(applyParameter), WellKnownMembers.ApplyParameterValue).MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex),
+                ExpressionType.Equal,
+                ExpressionType.AndAlso);
+            });
+
       var filter = FastExpression.Lambda(filterBody, tupleParameter);
       var subqueryProjection = new ProjectionExpression(
-        sequence.Type, 
+        sequence.Type,
         new ItemProjectorExpression(
           sequence.ItemProjector.Item,
           groupingSourceProjection.ItemProjector.DataSource.Filter((Expression<Func<Tuple, bool>>)filter),
@@ -823,27 +881,27 @@ namespace Xtensive.Orm.Linq
         sequence.TupleParameterBindings,
         sequence.ResultType
         );
-//      var groupingParameter = Expression.Parameter(groupingProjection.ItemProjector.Item.Type, "groupingParameter");
-//      var applyParameter = context.GetApplyParameter(groupingProjection);
-//      using (context.Bindings.Add(groupingParameter, groupingProjection))
-//      using (state.CreateScope()) {
-//        state.Parameters = state.Parameters.AddOne(groupingParameter).ToArray();
-//        var lambda = FastExpression.Lambda(Expression.Equal(groupingParameter, keySelector.Body), keySelector.Parameters);
-//        subqueryProjection = VisitWhere(VisitSequence(source), lambda);
-//      }
+      //      var groupingParameter = Expression.Parameter(groupingProjection.ItemProjector.Item.Type, "groupingParameter");
+      //      var applyParameter = context.GetApplyParameter(groupingProjection);
+      //      using (context.Bindings.Add(groupingParameter, groupingProjection))
+      //      using (state.CreateScope()) {
+      //        state.Parameters = state.Parameters.AddOne(groupingParameter).ToArray();
+      //        var lambda = FastExpression.Lambda(Expression.Equal(groupingParameter, keySelector.Body), keySelector.Parameters);
+      //        subqueryProjection = VisitWhere(VisitSequence(source), lambda);
+      //      }
 
       var keyType = keySelector.Type.GetGenericArguments()[1];
-      var elementType = elementSelector==null
+      var elementType = elementSelector == null
         ? keySelector.Parameters[0].Type
         : elementSelector.Type.GetGenericArguments()[1];
-      var groupingType = typeof (IGrouping<,>).MakeGenericType(keyType, elementType);
+      var groupingType = typeof(IGrouping<,>).MakeGenericType(keyType, elementType);
 
       Type realGroupingType =
-        resultSelector!=null
+        resultSelector != null
           ? resultSelector.Parameters[1].Type
           : returnType.GetGenericArguments()[0];
 
-      if (elementSelector!=null)
+      if (elementSelector != null)
         subqueryProjection = VisitSelect(subqueryProjection, elementSelector);
 
       var selectManyInfo = new GroupingExpression.SelectManyGroupingInfo(sequence);
@@ -865,6 +923,7 @@ namespace Xtensive.Orm.Linq
       }
 
       return resultProjection;
+
     }
 
     private Expression VisitSort(Expression expression)

@@ -11,7 +11,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Security.Permissions;
 using Xtensive.Caching;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -70,6 +69,7 @@ namespace Xtensive.Orm
   {
     private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     private EntityState state;
+    private bool changeVersionOnSetAttempt;
 
     #region Internal properties
 
@@ -266,13 +266,12 @@ namespace Xtensive.Orm
     {
       using (new ParameterContext().Activate()) {
         keyParameter.Value = Key.Value;
-        var domain = Session.Domain;
         object key = new Triplet<TypeInfo, LockMode, LockBehavior>(TypeInfo, lockMode, lockBehavior);
         Func<object, object> generator = tripletObj => {
           var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
           IndexInfo index = triplet.First.Indexes.PrimaryIndex;
           var query = index.GetQuery()
-            .Seek(keyParameter.Value)
+            .Seek(() => keyParameter.Value)
             .Lock(() => triplet.Second, () => triplet.Third)
             .Select();
           return Session.Compile(query);
@@ -450,6 +449,11 @@ namespace Xtensive.Orm
         var referencedEntity = values[fieldInfo.MappingInfo.Offset] as Entity;
         Session.ReferenceFieldsChangesRegistry.Register(keyOfThisEntity, referencedEntity.Key, fieldInfo);
       }
+    }
+
+    private bool ShouldChangeOnSetAttempt()
+    {
+      return Session.Domain.Configuration.VersioningConvention.EntityVersioningPolicy == EntityVersioningPolicy.Pessimistic;
     }
 
     #endregion
@@ -660,7 +664,8 @@ namespace Xtensive.Orm
       if (field.IsPrimaryKey)
         throw new NotSupportedException(string.Format(Strings.ExUnableToSetKeyFieldXExplicitly, field.Name));
 
-      UpdateVersionInfo(this, field);
+      if (changeVersionOnSetAttempt)
+        UpdateVersionInfo(this, field);
 
       Session.SystemEvents.NotifyFieldValueSettingAttempt(this, field, value);
       using (Session.Operations.EnableSystemOperationRegistration()) {
@@ -680,6 +685,10 @@ namespace Xtensive.Orm
     internal override sealed void SystemBeforeSetValue(FieldInfo field, object value)
     {
       EnsureNotRemoved();
+
+      if (!changeVersionOnSetAttempt)
+        UpdateVersionInfo(this, field);
+
 
       Session.SystemEvents.NotifyFieldValueSetting(this, field, value);
       using (Session.Operations.EnableSystemOperationRegistration()) {
@@ -794,6 +803,7 @@ namespace Xtensive.Orm
       try {
         var key = Key.Generate(Session, GetType());
         State = Session.CreateEntityState(key, true);
+        changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
         SystemBeforeInitialize(false);
       }
       catch (Exception error) {
@@ -816,6 +826,7 @@ namespace Xtensive.Orm
       {
         var key = Key.Generate(Session, GetType());
         State = Session.CreateEntityState(key, true);
+        changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
         SystemBeforeInitialize(false);
       }
       catch (Exception error)
@@ -836,6 +847,7 @@ namespace Xtensive.Orm
         ArgumentValidator.EnsureArgumentNotNull(keyTuple, "keyTuple");
         var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, keyTuple);
         State = Session.CreateEntityState(key, true);
+        changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
         SystemBeforeInitialize(false);
         Initialize(GetType());
       }
@@ -868,6 +880,7 @@ namespace Xtensive.Orm
         ArgumentValidator.EnsureArgumentNotNull(values, "values");
         var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
+        changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
         RegisterKeyFieldsOfEntityTypeForRemap(key, values);
         var operations = Session.Operations;
         using (operations.BeginRegistration(OperationType.System)) {
@@ -919,6 +932,7 @@ namespace Xtensive.Orm
         ArgumentValidator.EnsureArgumentNotNull(values, "values");
         var key = Key.Create(Session.Domain, Session.StorageNodeId, GetTypeInfo(), TypeReferenceAccuracy.ExactType, values);
         State = Session.CreateEntityState(key, true);
+        changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
         RegisterKeyFieldsOfEntityTypeForRemap(key, values);
         var operations = Session.Operations;
         using (operations.BeginRegistration(OperationType.System)) {
@@ -957,6 +971,7 @@ namespace Xtensive.Orm
     {
       try {
         State = state;
+        changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
         IsMaterializing = true;
         SystemBeforeInitialize(true);
         InitializeOnMaterialize();
@@ -983,6 +998,7 @@ namespace Xtensive.Orm
     {
       try {
         State = state;
+        changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
         IsMaterializing = true;
         SystemBeforeInitialize(true);
         InitializeOnMaterialize();
@@ -1004,6 +1020,7 @@ namespace Xtensive.Orm
     protected Entity(SerializationInfo info, StreamingContext context)
     {
       using (Session.OpenSystemLogicOnlyRegion()) {
+        changeVersionOnSetAttempt = ShouldChangeOnSetAttempt();
         DeserializationContext.Demand().SetObjectData(this, info, context);
       }
     }

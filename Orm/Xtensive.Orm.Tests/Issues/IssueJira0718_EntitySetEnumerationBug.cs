@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0718_EntitySetEnumerationBugModel;
 
@@ -1086,6 +1087,33 @@ namespace Xtensive.Orm.Tests.Issues
           });
       }
     }
+
+    [Test]
+    public void FullyLoadedEntitySetEnumerationTest()
+    {
+      using (var s = Domain.OpenSession())
+      using (var tx = s.OpenTransaction()) {
+        var order = new CustomerOrder();
+        var orderItem1 = new CustomerOrderItem(order);
+
+        Assert.That(orderItem1.PersistenceState, Is.EqualTo(PersistenceState.New));
+        s.SaveChanges();
+
+        Assert.That(orderItem1.PersistenceState, Is.EqualTo(PersistenceState.Synchronized));
+        order.Items.Run();
+
+        var orderItem2 = new CustomerOrderItem(order);
+        Assert.That(orderItem2.PersistenceState, Is.EqualTo(PersistenceState.New));
+
+        Assert.DoesNotThrow(
+          () => {
+            foreach (var item in order.Items)
+              s.SaveChanges();
+          });
+      }
+    }
+
+
 
     protected override DomainConfiguration BuildConfiguration()
     {

@@ -2,9 +2,11 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
+using System;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm;
+using Xtensive.Orm.Building.Builders;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Tests.Sql
@@ -55,6 +57,45 @@ namespace Xtensive.Orm.Tests.Sql
     {
       TestProvider(provider, ConnectionString, Url);
     }
+
+    [Test]
+    [Explicit("Manual debugging needed. No way to make it automated test yet")]
+    public void SqlServerConnectionCheckTest()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+      var descriptor = ProviderDescriptor.Get(provider);
+      var factory = (SqlDriverFactory) Activator.CreateInstance(descriptor.DriverFactory);
+
+      var configuration = new SqlDriverConfiguration {EnsureConnectionIsAlive = false};
+      factory.GetDriver(new ConnectionInfo(Url), configuration);
+      Assert.That(configuration.EnsureConnectionIsAlive, Is.False);
+
+      configuration = configuration.Clone();
+      configuration.EnsureConnectionIsAlive = true;
+      factory.GetDriver(new ConnectionInfo(Url), configuration);
+      Assert.That(configuration.EnsureConnectionIsAlive, Is.True);
+
+      configuration = configuration.Clone();
+      configuration.EnsureConnectionIsAlive = true;
+      factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";pooling=false"), configuration);
+      Assert.That(configuration.EnsureConnectionIsAlive, Is.False);
+
+      configuration = configuration.Clone();
+      configuration.EnsureConnectionIsAlive = true;
+      factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";Pooling=False"), configuration);
+      Assert.That(configuration.EnsureConnectionIsAlive, Is.False);
+
+      configuration = configuration.Clone();
+      configuration.EnsureConnectionIsAlive = true;
+      factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";pooling = false"), configuration);
+      Assert.That(configuration.EnsureConnectionIsAlive, Is.False);
+
+      configuration = configuration.Clone();
+      configuration.EnsureConnectionIsAlive = true;
+      factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";Pooling = False"), configuration);
+      Assert.That(configuration.EnsureConnectionIsAlive, Is.False);
+    }
+
 
     private static void TestProvider(string providerName, string connectionString, string connectionUrl)
     {

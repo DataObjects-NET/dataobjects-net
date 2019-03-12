@@ -21,11 +21,11 @@ namespace Xtensive.Orm.Upgrade
     {
       var mainTypeIdMap = context.FullTypeMap;
       var additionalTypeIdMap = context.UserDefinedTypeMap;
-      if (mainTypeIdMap==null && additionalTypeIdMap.Count==0)
+      if (mainTypeIdMap == null && additionalTypeIdMap.Count==0)
         return TypeInfo.NoTypeId;
       var typeName = type.GetFullName();
       int typeId = TypeInfo.NoTypeId;
-      if (context.Stage==UpgradeStage.Upgrading) {
+      if (context.Stage==UpgradeStage.Upgrading || context.UpgradeMode==DomainUpgradeMode.Validate) {
         var mapping = context.UpgradedTypesMapping;
         if (mapping!=null) {
           string oldTypeName;
@@ -34,6 +34,7 @@ namespace Xtensive.Orm.Upgrade
         }
       }
       return FindTypeIdInBothMapSources(mainTypeIdMap, additionalTypeIdMap, typeName);
+
     }
 
     private int FindTypeIdInBothMapSources(IDictionary<string, int> mainSource, IDictionary<string, int> additionalSource, string typeName)

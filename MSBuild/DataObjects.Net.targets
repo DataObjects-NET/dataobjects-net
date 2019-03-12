@@ -45,7 +45,10 @@
   <Exec
     Command="$(XtensiveOrmWeaverCommandLine)"
     WorkingDirectory="$(MSBuildProjectDirectory)"
-    IgnoreExitCode="true" />
+    IgnoreExitCode="true" >
+	 <Output TaskParameter="ExitCode" PropertyName="ErrorCode"/>
+  </Exec>
+   <Error Condition="$(ErrorCode)!=0" Text="Weaving of persistent types ended up with an error."/>
 </Target>
 
 </Project>

@@ -1,5 +1,6 @@
 using System;
 using NUnit.Framework;
+using Xtensive.Sql;
 
 namespace Xtensive.Orm.Tests.Sql.Firebird
 {

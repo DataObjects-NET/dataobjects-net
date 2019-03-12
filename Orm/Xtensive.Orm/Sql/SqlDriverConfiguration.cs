@@ -22,6 +22,11 @@ namespace Xtensive.Sql
     public string ConnectionInitializationSql { get; set; }
 
     /// <summary>
+    /// Gets or sets a value indicating that connection should be checked before actual usage.
+    /// </summary>
+    public bool EnsureConnectionIsAlive { get; set; }
+
+    /// <summary>
     /// Clones this instance.
     /// </summary>
     /// <returns>Clone of this instance.</returns>
@@ -30,6 +35,7 @@ namespace Xtensive.Sql
       return new SqlDriverConfiguration {
         ForcedServerVersion = ForcedServerVersion,
         ConnectionInitializationSql = ConnectionInitializationSql,
+        EnsureConnectionIsAlive = EnsureConnectionIsAlive
       };
     }
 

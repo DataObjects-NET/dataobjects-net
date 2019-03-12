@@ -47,6 +47,11 @@ namespace Xtensive.Orm.Linq.Expressions
       return ColumnGatherer.GetColumns(Item, columnExtractionModes);
     }
 
+    public List<Pair<int, Expression>> GetColumnsAndExpressions(ColumnExtractionModes columnExtractionModes)
+    {
+      return ColumnGatherer.GetColumnsAndExpressions(Item, columnExtractionModes);
+    }
+
     public ItemProjectorExpression Remap(CompilableProvider dataSource, int offset)
     {
       if (offset==0)

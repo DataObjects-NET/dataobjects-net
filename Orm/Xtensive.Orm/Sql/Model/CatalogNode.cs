@@ -28,7 +28,8 @@ namespace Xtensive.Sql.Model
       set {
         if (!isNamesReadingDenied)
           base.Name = value;
-        throw new InvalidOperationException(Strings.ExNameValueReadingOrSettingIsDenied);
+        else
+          throw new InvalidOperationException(Strings.ExNameValueReadingOrSettingIsDenied);
       }
     }
 
@@ -43,7 +44,8 @@ namespace Xtensive.Sql.Model
       set {
         if (!isNamesReadingDenied)
           base.DbName = value;
-        throw new InvalidOperationException(Strings.ExDbNameValueReadingOrSettingIsDenied);
+        else
+          throw new InvalidOperationException(Strings.ExDbNameValueReadingOrSettingIsDenied);
       }
     }
 

@@ -204,8 +204,12 @@ namespace Xtensive.Orm.Internals
       if (HasChanges) {
         EnsureFetchedKeysIsNotNull();
         BackupState();
-        foreach (var removedKey in removedKeys)
-          FetchedKeys.RemoveKey(removedKey.Value);
+        var currentFetchedKeys = FetchedKeys;
+        InitializeFetchedKeys();
+
+        foreach (var currentFetchedKey in currentFetchedKeys)
+          if (!removedKeys.ContainsKey(currentFetchedKey))
+            FetchedKeys.Add(currentFetchedKey);
         foreach (var addedKey in addedKeys)
           FetchedKeys.Add(addedKey.Value);
         InitializeDifferenceCollections();
@@ -292,17 +296,21 @@ namespace Xtensive.Orm.Internals
     public IEnumerator<Key> GetEnumerator()
     {
       var versionSnapshot = version;
-      foreach (var fetchedKey in FetchedKeys) {
+      var fetchedKeysBeforePersist = FetchedKeys;
+      var addedKeysBeforePersist = addedKeys;
+      var removedKeysBeforePersist = removedKeys;
+      foreach (var fetchedKey in fetchedKeysBeforePersist) {
         if (versionSnapshot!=version)
           throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
-        if (!removedKeys.ContainsKey(fetchedKey))
+        if (!removedKeysBeforePersist.ContainsKey(fetchedKey))
           yield return fetchedKey;
       }
-      foreach (var addedKey in addedKeys) {
+      foreach (var addedKey in addedKeysBeforePersist) {
         if (versionSnapshot!=version)
           throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
         yield return addedKey.Value;
       }
+
     }
 
     /// <inheritdoc/>
