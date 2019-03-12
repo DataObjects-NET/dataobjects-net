@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Internals.FieldAccessors
     /// <inheritdoc/>
     public override bool AreSameValues(object oldValue, object newValue)
     {
-      //return ReferenceEquals(oldValue, newValue);
       return oldValue.Equals(newValue);
     }
     /// <inheritdoc/>
