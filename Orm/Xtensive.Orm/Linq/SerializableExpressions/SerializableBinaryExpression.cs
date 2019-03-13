@@ -54,7 +54,7 @@ namespace Xtensive.Linq.SerializableExpressions
     {
       IsLiftedToNull = info.GetBoolean("IsLiftedToNull");
       Left = (SerializableExpression) info.GetValue("Left", typeof (SerializableExpression));
-      Right = (SerializableExpression) info.GetValue("Left", typeof (SerializableExpression));
+      Right = (SerializableExpression) info.GetValue("Right", typeof (SerializableExpression));
       Method = info.GetString("Method").GetMethodFromSerializableForm();
     }
   }
