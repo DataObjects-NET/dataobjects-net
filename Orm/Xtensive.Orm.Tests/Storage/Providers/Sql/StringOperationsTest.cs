@@ -57,8 +57,12 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         "__",
         "^QQ",
         "PQ^",
+        "[ololoololo",
         "ololo[ololo",
+        "ololoololo[",
+        "]ololoololo",
         "ololo]ololo",
+        "ololoololo]",
         // other test values
         "     ",
       };
