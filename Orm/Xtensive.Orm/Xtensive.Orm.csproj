@@ -342,6 +342,8 @@
     <Compile Include="Orm\Configuration\NodeConfiguration.cs" />
     <Compile Include="Orm\Configuration\VersioningConvention.cs" />
     <Compile Include="Orm\Configuration\EntityVersioningPolicy.cs" />
+    <Compile Include="Orm\EntityRemoveReason.cs" />
+    <Compile Include="Orm\EntityRemovingEventArgs.cs" />
     <Compile Include="Orm\FullTextChangeTrackingMode.cs" />
     <Compile Include="Orm\FullTextSearchCondition\GenerationType.cs" />
     <Compile Include="Orm\FullTextSearchCondition\Interfaces\IComplexTerm.cs" />
@@ -1527,6 +1529,16 @@
     <Compile Include="Sql\Drivers\SqlServer\v11\Extractor.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v11\ServerInfoProvider.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v11\Translator.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v12\Compiler.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v12\Driver.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v12\Extractor.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v12\ServerInfoProvider.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v12\Translator.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v13\Compiler.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v13\Driver.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v13\Extractor.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v13\ServerInfoProvider.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\v13\Translator.cs" />
     <Compile Include="Sql\Info\ColumnFeatures.cs" />
     <Compile Include="Sql\Info\ColumnInfo.cs" />
     <Compile Include="Sql\Info\Constaints\AssertConstraintInfo.cs" />

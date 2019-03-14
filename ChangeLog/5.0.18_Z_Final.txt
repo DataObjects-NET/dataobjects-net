@@ -1,0 +1,1 @@
+[main] UpgradeContext.ProviderInfo property provides access to information about provider within upgrade handlers

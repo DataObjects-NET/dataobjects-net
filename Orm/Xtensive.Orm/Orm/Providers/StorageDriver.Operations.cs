@@ -57,17 +57,17 @@ namespace Xtensive.Orm.Providers
       if (isLoggingEnabled)
         SqlLog.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
 
+      var extension = connection.Extensions.Get<InitializationSqlExtension>();
+
       try {
-        connection.Open();
+        if (extension==null || string.IsNullOrEmpty(extension.Script))
+          connection.Open();
+        else
+          connection.OpenAndInitialize(extension.Script);
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
       }
-
-      var extension = connection.Extensions.Get<InitializationSqlExtension>();
-      if (extension!=null && !string.IsNullOrEmpty(extension.Script))
-        using (var command = connection.CreateCommand(extension.Script))
-          ExecuteNonQuery(session, command);
     }
 
     public void EnsureConnectionIsOpen(Session session, SqlConnection connection)

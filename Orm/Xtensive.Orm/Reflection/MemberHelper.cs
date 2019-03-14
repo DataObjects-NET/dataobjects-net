@@ -211,14 +211,19 @@ namespace Xtensive.Reflection
       var ei = member as EventInfo;
       if (mi!=null) {
         var type = mi.DeclaringType.UnderlyingSystemType;
+        var methodInfoType = mi.GetType();
+        var isRuntimeMethodInfo = methodInfoType.FullName==WellKnown.RuntimeMethodInfoName;
+
         foreach (var iType in type.GetInterfaces()) {
           var map = type.GetInterfaceMapFast(iType.UnderlyingSystemType);
           for (int i = 0; i < map.InterfaceMethods.Count; i++) {
             var tmi = map.TargetMethods[i];
             if (mi==tmi)
               return map.InterfaceMethods[i];
-            if (mi.GetType().FullName==WellKnown.RuntimeMethodInfoName && 
-                tmi.GetType().FullName==WellKnown.RuntimeMethodInfoName &&
+
+            var targetMethodInfoType = tmi.GetType();
+            if (isRuntimeMethodInfo &&
+                methodInfoType==targetMethodInfoType &&
                 mi.MethodHandle.Value==tmi.MethodHandle.Value)
                 return map.InterfaceMethods[i];
           }
