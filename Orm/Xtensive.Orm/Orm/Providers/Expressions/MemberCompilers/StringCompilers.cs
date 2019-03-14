@@ -22,20 +22,21 @@ namespace Xtensive.Orm.Providers
   [CompilerContainer(typeof(SqlExpression))]
   internal static class StringCompilers
   {
+    private const string leftSquareBracket = "[";
+    private const string rightSquareBracket = "]";
+    private const string escapeLeftSquareBracket = "^[";
+    private const string escapeRightSquareBracket = "^]";
+
     private static SqlExpression GenericLike(SqlExpression _this,
       SqlExpression patternExpression, bool percentAtStart, bool percentAtEnd)
     {
       const string percent = "%";
       const string ground = "_";
       const string escape = "^";
-      const string leftSquareBracket = "[";
-      const string rightSquareBracket = "]";
 
       const string escapeEscape = "^^";
       const string escapeGround = "^_";
       const string escapePercent = "^%";
-      const string escapeLeftSquareBracket = "^[";
-      const string escapeRightSquareBracket = "^]";
 
       var stringPattern = patternExpression as SqlLiteral<string>;
       var charPattern = patternExpression as SqlLiteral<char>;
@@ -44,10 +45,7 @@ namespace Xtensive.Orm.Providers
         result = SqlDml.Replace(result, SqlDml.Literal(ground), SqlDml.Literal(escapeGround));
         result = SqlDml.Replace(result, SqlDml.Literal(percent), SqlDml.Literal(escapePercent));
 
-        if (CompilerContainerInfo.Current.ProviderInfo.ProviderName==WellKnown.Provider.SqlServer) {
-          result = SqlDml.Replace(result, SqlDml.Literal(leftSquareBracket), SqlDml.Literal(escapeLeftSquareBracket));
-          result = SqlDml.Replace(result, SqlDml.Literal(rightSquareBracket), SqlDml.Literal(escapeRightSquareBracket));
-        }
+        result = TryReplaceExtraSymbols(result);
 
         if (percentAtStart)
           result = SqlDml.Concat(SqlDml.Literal(percent), result);
@@ -66,10 +64,7 @@ namespace Xtensive.Orm.Providers
         .Replace(percent, escapePercent)
         .Replace(ground, escapeGround);
 
-      if (CompilerContainerInfo.Current.ProviderInfo.ProviderName==WellKnown.Provider.SqlServer) {
-        escapedPattern.Replace(leftSquareBracket, escapeLeftSquareBracket);
-        escapedPattern.Replace(rightSquareBracket, escapeRightSquareBracket);
-      }
+      TryEscapeExtraSymbols(escapedPattern);
 
       bool escaped = escapedPattern.Length > originalPattern.Length;
       if (percentAtStart)
@@ -520,6 +515,29 @@ namespace Xtensive.Orm.Providers
       [Type(typeof (char))] SqlExpression escapeChar)
     {
       return SqlDml.Like(_this, pattern, escapeChar);
+    }
+
+    private static void TryEscapeExtraSymbols(StringBuilder builder)
+    {
+      var context = ExpressionTranslationContext.Current;
+      var provider = context.ProviderInfo.ProviderName;
+      if (provider!=WellKnown.Provider.SqlServer && provider!=WellKnown.Provider.SqlServerCe)
+        return;
+      builder.Replace(leftSquareBracket, escapeLeftSquareBracket);
+      builder.Replace(rightSquareBracket, escapeRightSquareBracket);
+    }
+
+    private static SqlExpression TryReplaceExtraSymbols(SqlExpression expression)
+    {
+      var context = ExpressionTranslationContext.Current;
+      var provider = context.ProviderInfo.ProviderName;
+      if (provider!=WellKnown.Provider.SqlServer && provider!=WellKnown.Provider.SqlServerCe)
+        return expression;
+
+      SqlExpression result = expression;
+      result = SqlDml.Replace(result, SqlDml.Literal(leftSquareBracket), SqlDml.Literal(escapeLeftSquareBracket));
+      result = SqlDml.Replace(result, SqlDml.Literal(rightSquareBracket), SqlDml.Literal(escapeRightSquareBracket));
+      return result;
     }
   }
 }
