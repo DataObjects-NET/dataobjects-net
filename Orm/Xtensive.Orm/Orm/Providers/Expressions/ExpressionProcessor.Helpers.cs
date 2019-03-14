@@ -183,8 +183,7 @@ namespace Xtensive.Orm.Providers
       var memberCompiler = memberCompilerProvider.GetCompiler(member);
       if (memberCompiler==null)
         throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, member.GetFullName(true)));
-      using (new CompilerContainerInfoScope(new CompilerContainerInfo(providerInfo)))
-        return memberCompiler.Invoke(instance, arguments);
+      return memberCompiler.Invoke(instance, arguments);
     }
 
     private static bool IsCharToIntConvert(Expression e)

@@ -327,7 +327,6 @@
     <Compile Include="Issues\IssueJira0537_DropDefaultConstraintBugTest.cs" />
     <Compile Include="Issues\IssueJira0627_PocoClassPropertyRenitialization.cs" />
     <Compile Include="Issues\IssueJira0627_FieldInitializationTest.cs" />
-    <Compile Include="Linq\ProviderOrientedCompilersTest.cs" />
     <Compile Include="Storage\SchemaSharing\DomainConfigurationExtensions.cs" />
     <Compile Include="Storage\SchemaSharing\EntityManipulation\SimpleEntityManipulationTest.cs" />
     <Compile Include="Storage\SchemaSharing\EntityManipulation\Model.cs" />
