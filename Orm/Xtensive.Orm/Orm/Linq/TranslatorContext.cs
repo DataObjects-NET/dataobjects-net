@@ -131,8 +131,6 @@ namespace Xtensive.Orm.Linq
       Domain = session.Domain;
       RseCompilerConfiguration = rseCompilerConfiguration;
 
-      query = ClosureAccessRewriter.Rewrite(query);
-
       // Applying query preprocessors
       query = Domain.Handler.QueryPreprocessors
         .Aggregate(query, (current, preprocessor) => ApplyPreprocessor(preprocessor, session, current));
@@ -140,8 +138,7 @@ namespace Xtensive.Orm.Linq
       // Built-in preprocessors
       query = AggregateOptimizer.Rewrite(query);
 
-      if (Domain.Handler.QueryPreprocessors.Any())
-        query = ClosureAccessRewriter.Rewrite(query);
+      query = ClosureAccessRewriter.Rewrite(query);
       query = EqualityRewriter.Rewrite(query);
       query = EntitySetAccessRewriter.Rewrite(query);
       query = SubqueryDefaultResultRewriter.Rewrite(query);
