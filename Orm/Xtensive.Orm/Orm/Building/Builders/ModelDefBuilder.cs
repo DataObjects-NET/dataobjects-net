@@ -326,6 +326,12 @@ namespace Xtensive.Orm.Building.Builders
     #endregion
 
     #region Helper members (to reduce cohesion)
+    internal bool IsTypeAvailable(Type type)
+    {
+      return context.BuilderConfiguration.ModelFilter.IsTypeAvailable(type)
+             && type != typeof(EntitySetItem<,>);
+    }
+
     private bool ShouldSkipFulltextIndex(TypeDef typeDef)
     {
       var hierarchy = context.ModelDef.FindHierarchy(typeDef);
@@ -341,12 +347,6 @@ namespace Xtensive.Orm.Building.Builders
       // Reverse them for correct processing (i.e. descendants override settings from base).
       Array.Reverse(attributes);
       return attributes;
-    }
-
-    private bool IsTypeAvailable(Type type)
-    {
-      return context.BuilderConfiguration.ModelFilter.IsTypeAvailable(type)
-        && type!=typeof (EntitySetItem<,>);
     }
 
     private bool IsFieldAvailable(PropertyInfo property)

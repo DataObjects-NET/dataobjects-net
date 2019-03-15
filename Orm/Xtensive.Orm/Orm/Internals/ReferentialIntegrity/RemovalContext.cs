@@ -20,6 +20,7 @@ namespace Xtensive.Orm.ReferentialIntegrity
     private readonly Dictionary<TypeInfo, HashSet<Entity>> queue = new Dictionary<TypeInfo, HashSet<Entity>>();
     private readonly RemovalContext parent;
     private readonly List<Action> finalizers = new List<Action>();
+    private readonly Dictionary<Entity, EntityRemoveReason> removeReasons = new Dictionary<Entity, EntityRemoveReason>();
 
     public bool QueueIsEmpty
     {
@@ -57,7 +58,7 @@ namespace Xtensive.Orm.ReferentialIntegrity
       return new List<Entity>(0);
     }
 
-    public void Enqueue(Entity entity)
+    public void Enqueue(Entity entity, EntityRemoveReason reason)
     {
       var type = entity.TypeInfo;
       if (types.Count > 0) {
@@ -73,9 +74,11 @@ namespace Xtensive.Orm.ReferentialIntegrity
         set = new HashSet<Entity> {entity};
         queue.Add(type, set);
       }
+
+      removeReasons[entity] = reason;
     }
 
-    public void Enqueue(IEnumerable<Entity> entities)
+    public void Enqueue(IEnumerable<Entity> entities, EntityRemoveReason reason)
     {
       foreach (var group in entities.GroupBy(e => e.TypeInfo)) {
         var type = group.Key;
@@ -85,6 +88,10 @@ namespace Xtensive.Orm.ReferentialIntegrity
         }
         else
           types.Enqueue(type);
+
+        foreach (var entity in group)
+          removeReasons[entity] = reason;
+
         HashSet<Entity> set;
         if (queue.TryGetValue(type, out set))
           foreach (var entity in group)
@@ -94,6 +101,11 @@ namespace Xtensive.Orm.ReferentialIntegrity
           queue.Add(type, set);
         }
       }
+    }
+
+    public EntityRemoveReason GetRemoveReason(Entity entity)
+    {
+      return removeReasons[entity];
     }
 
     public void EnqueueFinalizer(Action finalizer)
@@ -126,6 +138,7 @@ namespace Xtensive.Orm.ReferentialIntegrity
       processedEntities.Clear();
       types.Clear();
       queue.Clear();
+      removeReasons.Clear();
       processor.Context = parent;
     }
 

@@ -102,14 +102,14 @@ namespace Xtensive.Orm
       }
     }
 
-    internal void RemoveOrCreateRemovedEntity(Type type, Key key)
+    internal void RemoveOrCreateRemovedEntity(Type type, Key key, EntityRemoveReason reason)
     {
       // Checking for deleted entity with the same key
       var result = EntityStateCache[key, false];
       if (result!=null) {
         if (result.PersistenceState==PersistenceState.Removed)
           return;
-        result.Entity.RemoveLater();
+        result.Entity.RemoveLaterInternal(reason);
         return;
       }
 

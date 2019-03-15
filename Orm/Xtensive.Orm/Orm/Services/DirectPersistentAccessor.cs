@@ -229,9 +229,10 @@ namespace Xtensive.Orm.Services
     /// <param name="target">The entity to remove.</param>
     public void Remove(Entity target)
     {
-      using (Session.OpenSystemLogicOnlyRegion()) {
+      using (Session.OpenSystemLogicOnlyRegion())
+      {
         ArgumentValidator.EnsureArgumentNotNull(target, "target");
-        target.Remove();
+        target.RemoveInternal(EntityRemoveReason.User);
       }
     }
 

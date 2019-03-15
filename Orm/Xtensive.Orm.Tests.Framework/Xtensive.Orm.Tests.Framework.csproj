@@ -93,6 +93,7 @@
     <Compile Include="Internals\UInt64InstanceGenerator.cs" />
     <Compile Include="Measurement.cs" />
     <Compile Include="MeasurementOptions.cs" />
+    <Compile Include="ModelBuildingTest.cs" />
     <Compile Include="RandomManager.cs" />
     <Compile Include="RuntimeInfo.cs" />
     <Compile Include="SeedVariatorType.cs" />

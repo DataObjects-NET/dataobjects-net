@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using Xtensive.Core;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using DataTable = Xtensive.Sql.Model.DataTable;
@@ -202,7 +203,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     private void ExtractColumns()
     {
-      var trimChars = new[] {'(', ')'};
       string query = @"
   SELECT
     t.schema_id,
@@ -288,7 +288,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
             // Default constraint
             if (!reader.IsDBNull(11)) {
               table.CreateDefaultConstraint(reader.GetString(11), column);
-              column.DefaultValue = reader.GetString(12).Trim(trimChars);
+              column.DefaultValue = reader.GetString(12).StripRoundBrackets();
             }
 
             // Computed column

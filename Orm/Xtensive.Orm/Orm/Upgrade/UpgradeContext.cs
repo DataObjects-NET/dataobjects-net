@@ -189,7 +189,12 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets mapping between new and old persistent types.
     /// </summary>
-    public Dictionary<string, string> UpgradedTypesMapping { get; internal set; } 
+    public Dictionary<string, string> UpgradedTypesMapping { get; internal set; }
+
+    /// <summary>
+    /// Gets information about current provider.
+    /// </summary>
+    public ProviderInfo ProviderInfo { get { return Services.ProviderInfo; } }
 
     #region Private / internal members
 
