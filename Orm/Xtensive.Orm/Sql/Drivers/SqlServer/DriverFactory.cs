@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private const string PoolingOffCommand = "pooling = false";
 
 
-    private const string DatabaseAndSchemaQuery = "SELECT DB_NAME(), coalesce(SCHEMA_NAME(), 'dbo')"
+    private const string DatabaseAndSchemaQuery = "SELECT DB_NAME(), coalesce(SCHEMA_NAME(), 'dbo')";
 
     private const string MessagesQuery = @"Declare @MSGLANGID int; 
       Select @MSGLANGID = msglangid FROM [master].[sys].[syslanguages] lang
