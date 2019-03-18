@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Case4Test()
     {
-      var searchingWord = "name";
+      var searchingWord = "%name%";
       var positiveTestPhrases = new[] {
         "name is only what she knew about him",
         "his name was realy strage so it popped out",
@@ -96,6 +96,34 @@ namespace Xtensive.Orm.Tests.Issues
         "This is how we do",
         "There is no searching phrase in the phrase",
         string.Empty,
+      };
+
+      foreach (var positiveTestPhrase in positiveTestPhrases) {
+        Assert.That(positiveTestPhrase.Like(searchingWord), Is.True);
+        Assert.That(positiveTestPhrase.Like(searchingWord, '&'), Is.True);
+      }
+
+      foreach (var negativeTestPhrase in negativeTestPhrases) {
+        Assert.That(negativeTestPhrase.Like(searchingWord), Is.False);
+        Assert.That(negativeTestPhrase.Like(searchingWord, '&'), Is.False);
+      }
+    }
+
+    [Test]
+    public void Case5Test()
+    {
+      var searchingWord = "name";
+      var positiveTestPhrases = new[] {
+        "name",
+      };
+
+      var negativeTestPhrases = new[] {
+        "This is how we do",
+        "There is no searching phrase in the phrase",
+        string.Empty,
+        "name is only what she knew about him",
+        "his name was realy strage so it popped out",
+        "And he asked for her name",
       };
 
       foreach (var positiveTestPhrase in positiveTestPhrases) {
