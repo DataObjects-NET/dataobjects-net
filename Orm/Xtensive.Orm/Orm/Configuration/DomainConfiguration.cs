@@ -806,15 +806,6 @@ namespace Xtensive.Orm.Configuration
       return (foreignKeyMode & modeToCheck)==modeToCheck;
     }
 
-    internal static bool DomainExists(string name)
-    {
-      var section = (ConfigurationSection) ConfigurationManager.GetSection(sectionName);
-      if (section==null)
-        throw new InvalidOperationException(
-          string.Format(Strings.ExSectionIsNotFoundInApplicationConfigurationFile, sectionName));
-      return section.Domains[name]!=null;
-    }
-
     // Constructors
 
     /// <summary>
