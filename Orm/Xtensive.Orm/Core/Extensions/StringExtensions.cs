@@ -417,7 +417,8 @@ namespace Xtensive.Core
           }
           return Regex.Escape(match.Value);
         });
-      return Regex.IsMatch(value, "^" + regexPattern + "$");
+      var result = Regex.IsMatch(value, "^" + regexPattern + "$");
+      return result;
     }
 
     /// <summary>
