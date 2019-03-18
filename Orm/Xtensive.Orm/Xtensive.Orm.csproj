@@ -1507,6 +1507,7 @@
     <Compile Include="Sql\Drivers\SqlServer\Driver.cs" />
     <Compile Include="Sql\Drivers\SqlServer\DriverFactory.cs" />
     <Compile Include="Sql\Drivers\SqlServer\ErrorMessageParser.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\Internals\SqlDecimalUtils.cs" />
     <Compile Include="Sql\Drivers\SqlServer\SqlServerTypeMapper.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v09\ColumnResolver.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v09\Compiler.cs" />

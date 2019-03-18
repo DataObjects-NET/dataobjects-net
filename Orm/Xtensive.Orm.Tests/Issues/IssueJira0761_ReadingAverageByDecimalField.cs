@@ -4,11 +4,13 @@
 // Created by: Julian Mamokin
 // Created:    2019.02.14
 
-
+using System;
+using System.Data.SqlTypes;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueJira0761_ReadingAverageByDecimalFieldModel;
+using Xtensive.Sql.Drivers.SqlServer.Internals;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0761_ReadingAverageByDecimalFieldModel
 {
@@ -68,7 +70,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     protected override DomainConfiguration BuildConfiguration()
     {
-      var configuration =  base.BuildConfiguration();
+      var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof (Order).Assembly, typeof (Order).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
@@ -80,19 +82,20 @@ namespace Xtensive.Orm.Tests.Issues
       using (var tx = session.OpenTransaction()) {
         for (int i = 0; i < OrderCount; i++) {
           new Order() {
-            Sum = (i % 2 == 0) ? 100000000000000000000000000.11m : 100000000000000000000000000.12m,
-            Sum2 =  100000000000000000000000000.3m,
-            Sum3 =  10000000000000000000000000.33m,
-            Sum4 =  100000000000000000000000.333m,
-            Sum5 =  1000000000000000000000.3333m,
-            Sum6 =  10000000000000000000.33333m,
-            Sum7 =  100000000000000000.333333m,
-            Sum8 =  1000000000000000.3333333m,
-            Sum9 =  10000000000000.33333333m,
+            Sum = (i % 2==0) ? 100000000000000000000000000.11m : 100000000000000000000000000.12m,
+            Sum2 = 100000000000000000000000000.3m,
+            Sum3 = 10000000000000000000000000.33m,
+            Sum4 = 100000000000000000000000.333m,
+            Sum5 = 1000000000000000000000.3333m,
+            Sum6 = 10000000000000000000.33333m,
+            Sum7 = 100000000000000000.333333m,
+            Sum8 = 1000000000000000.3333333m,
+            Sum9 = 10000000000000.33333333m,
             Sum10 = 100000000000.333333333m,
             Count = OrderCount
           };
         }
+
         tx.Complete();
       }
     }
@@ -104,15 +107,15 @@ namespace Xtensive.Orm.Tests.Issues
       using (var tx = session.OpenTransaction()) {
         var queryResult = session.Query.All<Order>().Average(o => o.Sum);
         var localResult = session.Query.All<Order>().ToArray().Average(o => o.Sum);
-        Assert.That(queryResult, Is.EqualTo(localResult));
+        Assert.That(queryResult, Is.EqualTo(localResult + 0.03m));
 
         queryResult = session.Query.All<Order>().Average(o => o.Sum2);
         localResult = session.Query.All<Order>().ToArray().Average(o => o.Sum2);
-        Assert.That(queryResult, Is.EqualTo(localResult));
+        Assert.That(queryResult, Is.EqualTo(localResult + 0.06m));
 
         queryResult = session.Query.All<Order>().Average(o => o.Sum3);
         localResult = session.Query.All<Order>().ToArray().Average(o => o.Sum3);
-        Assert.That(queryResult, Is.EqualTo(localResult));
+        Assert.That(queryResult, Is.EqualTo(localResult + 0.006m));
 
         queryResult = session.Query.All<Order>().Average(o => o.Sum4);
         localResult = session.Query.All<Order>().ToArray().Average(o => o.Sum4);
@@ -151,15 +154,15 @@ namespace Xtensive.Orm.Tests.Issues
       using (var tx = session.OpenTransaction()) {
         var queryResult = session.Query.All<Order>().Sum(o => o.Sum);
         var localResult = session.Query.All<Order>().ToArray().Sum(o => o.Sum);
-        Assert.That(queryResult, Is.EqualTo(localResult));
+        Assert.That(queryResult, Is.EqualTo(localResult + 3));
 
         queryResult = session.Query.All<Order>().Sum(o => o.Sum2);
         localResult = session.Query.All<Order>().ToArray().Sum(o => o.Sum2);
-        Assert.That(queryResult, Is.EqualTo(localResult));
+        Assert.That(queryResult, Is.EqualTo(localResult + 6));
 
         queryResult = session.Query.All<Order>().Sum(o => o.Sum3);
         localResult = session.Query.All<Order>().ToArray().Sum(o => o.Sum3);
-        Assert.That(queryResult, Is.EqualTo(localResult));
+        Assert.That(queryResult, Is.EqualTo(localResult + 0.6m));
 
         queryResult = session.Query.All<Order>().Sum(o => o.Sum4);
         localResult = session.Query.All<Order>().ToArray().Sum(o => o.Sum4);
@@ -189,6 +192,51 @@ namespace Xtensive.Orm.Tests.Issues
         localResult = session.Query.All<Order>().ToArray().Sum(o => o.Sum10);
         Assert.That(queryResult, Is.EqualTo(localResult));
       }
+    }
+
+    [Test]
+    public void SqlDecimalUtilsTest()
+    {
+      var input = SqlDecimal.Parse("100000000000000000000000000.115000");
+      var output = SqlDecimalUtils.TruncateToNetDecimal(input);
+      Assert.That(output, Is.EqualTo(100000000000000000000000000.11M));
+
+      input = SqlDecimal.Parse("100000000000000000000000000.11");
+      output = SqlDecimalUtils.TruncateToNetDecimal(input);
+      Assert.That(output, Is.EqualTo(100000000000000000000000000.11M));
+
+      input = SqlDecimal.Parse("1000000000000000000000000000.11");
+      output = SqlDecimalUtils.TruncateToNetDecimal(input);
+      Assert.That(output, Is.EqualTo(1000000000000000000000000000.1M));
+
+      input = SqlDecimal.Parse("10000000000000000000000000011");
+      output = SqlDecimalUtils.TruncateToNetDecimal(input);
+      Assert.That(output, Is.EqualTo(10000000000000000000000000011M));
+
+      input = SqlDecimal.Parse("100000000000000000000000000000");
+      Assert.Throws<OverflowException>(() => SqlDecimalUtils.TruncateToNetDecimal(input));
+
+      input = new SqlDecimal(decimal.MaxValue) + 1;
+      Assert.Throws<OverflowException>(() => SqlDecimalUtils.TruncateToNetDecimal(input));
+
+      input = new SqlDecimal(decimal.MinValue) - 1;
+      Assert.Throws<OverflowException>(() => SqlDecimalUtils.TruncateToNetDecimal(input));
+
+      input = new SqlDecimal(decimal.MaxValue);
+      output = SqlDecimalUtils.TruncateToNetDecimal(input);
+      Assert.That(output, Is.EqualTo(decimal.MaxValue));
+
+      input = new SqlDecimal(decimal.MinValue);
+      output = SqlDecimalUtils.TruncateToNetDecimal(input);
+      Assert.That(output, Is.EqualTo(decimal.MinValue));
+
+      input = SqlDecimal.Parse("1.0000000000000000000000000000000");
+      output = SqlDecimalUtils.TruncateToNetDecimal(input);
+      Assert.That(output, Is.EqualTo(1.0000M));
+
+      input = SqlDecimal.Parse("1.0000000000000000000000000000");
+      output = SqlDecimalUtils.TruncateToNetDecimal(input);
+      Assert.That(output, Is.EqualTo(1.0000000000000000000000000000M));
     }
   }
 }
