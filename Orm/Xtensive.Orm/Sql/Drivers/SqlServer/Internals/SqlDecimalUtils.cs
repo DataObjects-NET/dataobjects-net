@@ -43,7 +43,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.Internals
           var dividerPow = maxZeroCount > 9 ? (byte) 9 : maxZeroCount;
           if (dividerPow > 5) {
             var divider = PowersOf10[dividerPow];
-            for (byte length = 4; realScale > 0; realScale -= dividerPow) {
+            for (byte length = 4; realScale >= dividerPow; realScale -= dividerPow) {
               if (DivHasRem(input, ref length, divider))
                 break;
 

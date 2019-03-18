@@ -253,5 +253,21 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(output, Is.EqualTo(dec));
       }
     }
+
+    [Test]
+    public static void SqlDecimalUtilsBigScaleTest()
+    {
+      var sourceSqlDecimal = SqlDecimal.Parse("9" + string.Join("", Enumerable.Repeat('0', 37)));
+      var sqlDecimals = Enumerable.Range(10, 29)
+        .Select(
+          x => new SqlDecimal(sourceSqlDecimal.Precision, (byte) x, sourceSqlDecimal.IsPositive, sourceSqlDecimal.Data))
+        .ToArray();
+
+      foreach (var sqlDecimal in sqlDecimals) {
+        var output = SqlDecimalUtils.TruncateToNetDecimal(sqlDecimal);
+        var dec = decimal.Parse(sqlDecimal.ToString());
+        Assert.That(output, Is.EqualTo(dec));
+      }
+    }
   }
 }
