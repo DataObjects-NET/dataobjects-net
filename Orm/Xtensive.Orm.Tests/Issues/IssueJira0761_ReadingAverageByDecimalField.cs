@@ -238,5 +238,20 @@ namespace Xtensive.Orm.Tests.Issues
       output = SqlDecimalUtils.TruncateToNetDecimal(input);
       Assert.That(output, Is.EqualTo(1.0000000000000000000000000000M));
     }
+
+    [Test]
+    public static void SqlDecimalUtilsDividerTest()
+    {
+      var scale = 37;
+      for (int i = 0; i < scale; i++) {
+        var chars = Enumerable.Repeat('0', scale).ToArray();
+        chars[i] ='1';
+        var str = "1." + new string(chars);
+        var input = SqlDecimal.Parse(str);
+        var output = SqlDecimalUtils.TruncateToNetDecimal(input);
+        var dec = decimal.Parse(str);
+        Assert.That(output, Is.EqualTo(dec));
+      }
+    }
   }
 }
