@@ -80,7 +80,7 @@ namespace Xtensive.Orm
         var entity = Session.Query.SingleOrDefault(key);
         if (entity==null) {
           if (!key.IsTemporary(Session.Domain)) {
-            Session.RemoveOrCreateRemovedEntity(key.TypeReference.Type.UnderlyingType, key);
+            Session.RemoveOrCreateRemovedEntity(key.TypeReference.Type.UnderlyingType, key, EntityRemoveReason.Other);
             EntityState entityState;
             if (Session.LookupStateInCache(key, out entityState))
               entity = entityState.Entity;
@@ -607,7 +607,7 @@ namespace Xtensive.Orm
                 TypeReferenceAccuracy.ExactType,
                 combinedTuple);
 
-              Session.RemoveOrCreateRemovedEntity(auxiliaryType.UnderlyingType, combinedKey);
+              Session.RemoveOrCreateRemovedEntity(auxiliaryType.UnderlyingType, combinedKey, EntityRemoveReason.Association);
             }
 
             var state = State;
@@ -709,6 +709,7 @@ namespace Xtensive.Orm
     {
       return Contains((Entity) item);
     }
+
 
     #endregion
 

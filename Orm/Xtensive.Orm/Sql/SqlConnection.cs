@@ -160,6 +160,17 @@ namespace Xtensive.Sql
       UnderlyingConnection.Open();
     }
 
+    public virtual void OpenAndInitialize(string initializationScript)
+    {
+      UnderlyingConnection.Open();
+      if (string.IsNullOrEmpty(initializationScript))
+        return;
+      using (var command = UnderlyingConnection.CreateCommand()) {
+        command.CommandText = initializationScript;
+        command.ExecuteNonQuery();
+      }
+    }
+
     /// <summary>
     /// Closes the connection.
     /// </summary>

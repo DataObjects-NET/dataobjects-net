@@ -1,0 +1,5 @@
+[main] Added connection check before actual usage
+[main] Automatic upgrade from table-based generators to sequence-based
+[main] Fixed issue when RecycledAttrubute declared on certain entities had no affect
+[firebird] Fixed extraction of information about column types
+[sqlserver] Azure provider uses sequences instead of tables for key generation

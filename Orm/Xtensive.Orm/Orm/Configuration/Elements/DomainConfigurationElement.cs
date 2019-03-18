@@ -50,6 +50,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string ShareStorageSchemaOverNodesElementName = "shareStorageSchemaOverNodes";
     private const string FullTextChangeTrackingModeElementName = "fullTextChangeTrackingMode";
     private const string VersioningConventionElementName = "versioningConvention";
+    private const string EnsureConnectionIsAliveElementName = "ensureConnectionIsAlive";
 
     /// <inheritdoc/>
     public override object Identifier { get { return Name; } }
@@ -381,6 +382,13 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[ShareStorageSchemaOverNodesElementName] = value; }
     }
 
+    [ConfigurationProperty(EnsureConnectionIsAliveElementName, DefaultValue = true)]
+    public bool EnsureConnectionIsAlive
+    {
+      get { return (bool) this[EnsureConnectionIsAliveElementName]; }
+      set { this[EnsureConnectionIsAliveElementName] = value; }
+    }
+
     /// <summary>
     /// <see cref="DomainConfiguration.NamingConvention" copy="true"/>
     /// </summary>
@@ -422,6 +430,7 @@ namespace Xtensive.Orm.Configuration.Elements
         ConnectionInitializationSql = ConnectionInitializationSql,
         MultidatabaseKeys = MultidatabaseKeys,
         ShareStorageSchemaOverNodes = ShareStorageSchemaOverNodes,
+        EnsureConnectionIsAlive = EnsureConnectionIsAlive,
         FullTextChangeTrackingMode = ParseEnum<FullTextChangeTrackingMode>(FullTextChangeTrackingMode),
         VersioningConvention = VersioningConvention.ToNative()
       };
