@@ -93,11 +93,11 @@ namespace Xtensive.Core
     /// </returns>
     public static bool LessThan(this string x, string y)
     {
-      if (x == y)
+      if (x==y)
         return false;
-      if (x == null)
+      if (x==null)
         return true;
-      if (y == null)
+      if (y==null)
         return false;
       return x.CompareTo(y) < 0;
     }
@@ -112,11 +112,11 @@ namespace Xtensive.Core
     /// </returns>
     public static bool LessThanOrEqual(this string x, string y)
     {
-      if (x == y)
+      if (x==y)
         return true;
-      if (x == null)
+      if (x==null)
         return true;
-      if (y == null)
+      if (y==null)
         return false;
       return x.CompareTo(y) <= 0;
     }
@@ -131,11 +131,11 @@ namespace Xtensive.Core
     /// </returns>
     public static bool GreaterThan(this string x, string y)
     {
-      if (x == y)
+      if (x==y)
         return false;
-      if (x == null)
+      if (x==null)
         return false;
-      if (y == null)
+      if (y==null)
         return true;
       return x.CompareTo(y) > 0;
     }
@@ -150,11 +150,11 @@ namespace Xtensive.Core
     /// </returns>
     public static bool GreaterThanOrEqual(this string x, string y)
     {
-      if (x == y)
+      if (x==y)
         return true;
-      if (x == null)
+      if (x==null)
         return false;
-      if (y == null)
+      if (y==null)
         return true;
       return x.CompareTo(y) >= 0;
     }
@@ -188,7 +188,7 @@ namespace Xtensive.Core
           needDelimiter = true;
         if (part==null)
           continue;
-        for (int i = 0; i<part.Length; i++) {
+        for (int i = 0; i < part.Length; i++) {
           char c = part[i];
           if (c==delimiter || c==escape)
             sb.Append(escape);
@@ -218,7 +218,7 @@ namespace Xtensive.Core
 
       var sb = new StringBuilder();
       bool previousCharIsEscape = false;
-      for (int i = 0; i<source.Length; i++) {
+      for (int i = 0; i < source.Length; i++) {
         char c = source[i];
         if (previousCharIsEscape) {
           sb.Append(c);
@@ -257,7 +257,7 @@ namespace Xtensive.Core
 
       var sb = new StringBuilder();
       bool previousCharIsEscape = false;
-      for (int i = 0; i<source.Length; i++) {
+      for (int i = 0; i < source.Length; i++) {
         char c = source[i];
         if (previousCharIsEscape) {
           sb.Append(c);
@@ -291,7 +291,7 @@ namespace Xtensive.Core
       foreach (var c in source) {
         var found = false;
         for (int i = 0; i < chars.Length && !found; i++)
-          found = chars[i] == c;
+          found = chars[i]==c;
         if (found)
           sb.Append(escape);
         sb.Append(c);
@@ -367,15 +367,13 @@ namespace Xtensive.Core
       string regexPattern = Regex.Replace(sqlLikePattern,
         @"[%_]|[^%_]+",
         match => {
-          if (match.Value=="%") {
+          if (match.Value=="%")
             return ".*";
-          }
-          if (match.Value=="_") {
+          if (match.Value=="_")
             return ".";
-          }
           return Regex.Escape(match.Value);
         });
-      return Regex.IsMatch(value, regexPattern);
+      return Regex.IsMatch(value, "^" + regexPattern + "$");
     }
 
     /// <summary>
@@ -395,7 +393,7 @@ namespace Xtensive.Core
 
       if(char.IsControl(escapeCharacter))
         throw new ArgumentException(Strings.ExControlCharacterUsedAsEscapeCharacter, "escapeCharacter");
-      if(escapeCharacter=='%' || escapeCharacter== '_')
+      if(escapeCharacter=='%' || escapeCharacter=='_')
         throw new ArgumentException(string.Format(Strings.ExSpecialCharacterXUsedAsEscapeCharacter, escapeCharacter), "escapeCharacter");
 
       var escChar = new string(escapeCharacter, 1);
@@ -406,15 +404,12 @@ namespace Xtensive.Core
       string regexPattern = Regex.Replace(sqlLikePattern,
         pattern,
         match => {
-          if (match.Value=="%") {
+          if (match.Value=="%")
             return ".*";
-          }
-          if (match.Value=="_") {
+          if (match.Value=="_")
             return ".";
-          }
-          if(match.Value.StartsWith(escapeCharacter.ToString())) {
+          if(match.Value.StartsWith(escapeCharacter.ToString()))
             return match.Value[1].ToString();
-          }
           return Regex.Escape(match.Value);
         });
       var result = Regex.IsMatch(value, "^" + regexPattern + "$");
@@ -431,9 +426,9 @@ namespace Xtensive.Core
       var start = 0;
       var end = value.Length - 1;
       var actualLenght = value.Length;
-      for (start = 0; value[start++] == '(' && value[end--] == ')'; actualLenght -= 2) { }
+      for (start = 0; value[start++]=='(' && value[end--]==')'; actualLenght -= 2) { }
 
-      return start == 1
+      return start==1
         ? value
         : value.Substring(start - 1, actualLenght);
     }
