@@ -59,6 +59,7 @@
     <Compile Include="Caching\LruCacheTest.cs" />
     <Compile Include="Collections\ChainedBufferTest.cs" />
     <Compile Include="Collections\CollectionBaseTest.cs" />
+    <Compile Include="Collections\CollectionUtilsTest.cs" />
     <Compile Include="Collections\EnumerableExtensionsTest.cs" />
     <Compile Include="Collections\ExtensionCollectionTest.cs" />
     <Compile Include="Caching\CachePerformanceTest.cs" />
