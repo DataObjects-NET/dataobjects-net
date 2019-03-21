@@ -7,6 +7,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 
 
@@ -154,6 +155,75 @@ namespace Xtensive.Core
       if (dictionary.TryGetValue(key, out value))
         return value;
       return default(TValue);
+    }
+
+    /// <summary>Projects each element of a sequence into a new form.</summary>
+    /// <param name="source">A collection of values to invoke a transform function on.</param>
+    /// <param name="selector">A transform function to apply to each element.</param>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+    /// <typeparam name="TResult">The type of the value returned by <paramref name="selector" />.</typeparam>
+    /// <returns>An <see cref="T:System.Array`1" /> whose elements are the result of invoking the transform function on each element of <paramref name="source" />.</returns>
+    /// <exception cref="T:System.ArgumentNullException">
+    /// <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.</exception>
+    public static TResult[] SelectToArray<TSource, TResult>(
+      this ICollection<TSource> source, Func<TSource, TResult> selector)
+    {
+      return source.Select(selector).ToArray(source.Count);
+    }
+
+    /// <summary>Projects each element of a sequence into a new form by incorporating the element's index.</summary>
+    /// <param name="source">A collection of values to invoke a transform function on.</param>
+    /// <param name="selector">A transform function to apply to each source element; the second parameter of the function represents the index of the source element.</param>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+    /// <typeparam name="TResult">The type of the value returned by <paramref name="selector" />.</typeparam>
+    /// <returns>An <see cref="T:System.Array`1" /> whose elements are the result of invoking the transform function on each element of <paramref name="source" />.</returns>
+    /// <exception cref="T:System.ArgumentNullException">
+    /// <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.</exception>
+    public static TResult[] SelectToArray<TSource, TResult>(
+      this ICollection<TSource> source, Func<TSource, int, TResult> selector)
+    {
+      return source.Select(selector).ToArray(source.Count);
+    }
+
+    /// <summary>Projects each element of a sequence into a new form.</summary>
+    /// <param name="source">A collection of values to invoke a transform function on.</param>
+    /// <param name="selector">A transform function to apply to each element.</param>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+    /// <typeparam name="TResult">The type of the value returned by <paramref name="selector" />.</typeparam>
+    /// <returns>An <see cref="T:System.Collections.Generic.List`1" /> whose elements are the result of invoking the transform function on each element of <paramref name="source" />.</returns>
+    /// <exception cref="T:System.ArgumentNullException">
+    /// <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.</exception>
+    public static List<TResult> SelectToList<TSource, TResult>(
+      this ICollection<TSource> source, Func<TSource, TResult> selector)
+    {
+      return source.Select(selector).ToList(source.Count);
+    }
+
+    /// <summary>Projects each element of a sequence into a new form by incorporating the element's index.</summary>
+    /// <param name="source">A collection of values to invoke a transform function on.</param>
+    /// <param name="selector">A transform function to apply to each source element; the second parameter of the function represents the index of the source element.</param>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+    /// <typeparam name="TResult">The type of the value returned by <paramref name="selector" />.</typeparam>
+    /// <returns>An <see cref="T:System.Collections.Generic.List`1" /> whose elements are the result of invoking the transform function on each element of <paramref name="source" />.</returns>
+    /// <exception cref="T:System.ArgumentNullException">
+    /// <paramref name="source" /> or <paramref name="selector" /> is <see langword="null" />.</exception>
+    public static List<TResult> SelectToList<TSource, TResult>(
+      this ICollection<TSource> source, Func<TSource, int, TResult> selector)
+    {
+      return source.Select(selector).ToList(source.Count);
+    }
+
+    /// <summary>Inverts the order of the elements in a list.</summary>
+    /// <param name="source">A list of values to reverse.</param>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+    /// <returns>A sequence whose elements correspond to those of the input sequence in reverse order.</returns>
+    /// <exception cref="T:System.ArgumentNullException">
+    /// <paramref name="source" /> is <see langword="null" />.</exception>
+    public static IEnumerable<TSource> ReverseList<TSource>(this IList<TSource> source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      for (var i = source.Count - 1; i >= 0; i--)
+        yield return source[i];
     }
   }
 }
