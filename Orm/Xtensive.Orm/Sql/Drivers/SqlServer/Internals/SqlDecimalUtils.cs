@@ -15,7 +15,18 @@ namespace Xtensive.Sql.Drivers.SqlServer.Internals
 {
   internal class SqlDecimalUtils
   {
-    private static readonly uint[] PowersOf10 = Enumerable.Range(0, 10).Select(x => (uint)Math.Pow(10, x)).ToArray();
+    private static readonly uint[] PowersOf10 = {
+      1,
+      10,
+      100,
+      1000,
+      10000,
+      100000,
+      1000000,
+      10000000,
+      100000000,
+      1000000000
+    };
 
     internal static unsafe decimal TruncateToNetDecimal(SqlDecimal sqlDecimal)
     {
