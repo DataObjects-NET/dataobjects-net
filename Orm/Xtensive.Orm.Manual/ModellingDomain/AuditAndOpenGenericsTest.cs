@@ -236,7 +236,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
       Domain = domain;
       domain.SessionOpen += (source, args) => {
         args.Session.Events.TransactionOpened += TransactionOpened;
-        args.Session.Events.TransactionCommitting += TransactionCommitting;
+        args.Session.Events.TransactionPrecommitting += TransactionPrecommitting;
         args.Session.Events.EntityCreated  += (sender, e) => EntityEvent(sender, e, true);
         args.Session.Events.EntityRemoveCompleted  += (sender, e) => EntityEvent(sender, e, false);
         args.Session.Events.EntityFieldValueSetCompleted += (sender, e) => EntityEvent(sender, e, false); 
@@ -257,7 +257,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
       session.Extensions.Set(info);
     }
 
-    private void TransactionCommitting(object sender, TransactionEventArgs e)
+    private void TransactionPrecommitting(object sender, TransactionEventArgs e)
     {
       var transaction = e.Transaction;
       if (transaction.IsNested)
@@ -415,7 +415,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
       foreach (var typeInfo in autoGenericInstances)
         Console.WriteLine("  {0}", typeInfo.UnderlyingType.GetShortName());
       Console.WriteLine();
-      Assert.AreEqual(6, autoGenericInstances.Count);
+      Assert.AreEqual(8, autoGenericInstances.Count);
     }
 
     private void DumpAuditLog()
