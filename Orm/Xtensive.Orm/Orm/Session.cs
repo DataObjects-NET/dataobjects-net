@@ -463,7 +463,7 @@ namespace Xtensive.Orm
       where T : IEntity
     {
       using (var tx = OpenAutoTransaction()) {
-        RemovalProcessor.Remove(entities.Cast<Entity>().ToList());
+        RemovalProcessor.Remove(entities.Cast<Entity>(), EntityRemoveReason.User);
         tx.Complete();
       }
     }

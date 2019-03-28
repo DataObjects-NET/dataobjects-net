@@ -27,8 +27,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private const string PoolingOffCommand = "pooling = false";
 
 
-    private const string DatabaseAndSchemaQuery =
-      "select db_name(), coalesce(default_schema_name, 'dbo') from sys.database_principals where name=user";
+    private const string DatabaseAndSchemaQuery = "SELECT DB_NAME(), coalesce(SCHEMA_NAME(), 'dbo')";
 
     private const string MessagesQuery = @"Declare @MSGLANGID int; 
       Select @MSGLANGID = msglangid FROM [master].[sys].[syslanguages] lang
@@ -109,7 +108,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
           isAzure = IsAzure(connection);
         }
         else if (forcedServerVersion.Equals("azure", StringComparison.OrdinalIgnoreCase)) {
-          versionString = "10.0.0.0";
+          versionString = "12.0.0.0";
           isAzure = true;
         }
         else {
