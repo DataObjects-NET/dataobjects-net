@@ -37,9 +37,18 @@ namespace Xtensive.Orm.Tests
       session.DisposeSafely();
     }
 
+    protected override void Dispose(bool disposing)
+    {
+      base.Dispose(disposing);
+      Session = null;
+      Transaction = null;
+    }
+
     internal TestSessionAccessor(Session session, TransactionScope transaction)
       : base(session, transaction, DisposeEverything)
     {
+      Session = session;
+      Transaction = transaction;
     }
   }
 }
