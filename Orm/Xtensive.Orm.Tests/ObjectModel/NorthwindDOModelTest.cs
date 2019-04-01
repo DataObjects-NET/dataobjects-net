@@ -20,6 +20,7 @@ namespace Xtensive.Orm.Tests.ObjectModel
   {
     private DisposableSet disposables;
     protected Session Session;
+    protected bool DoNotActivateSharedSession = false;
 
     private List<Customer> customers;
     private List<Order> orders;
@@ -71,7 +72,10 @@ namespace Xtensive.Orm.Tests.ObjectModel
     public virtual void SetUp()
     {
       disposables = new DisposableSet();
-      Session = Domain.OpenSession();
+      if (DoNotActivateSharedSession)
+        Session = Domain.OpenSession(new SessionConfiguration(SessionOptions.Default));
+      else
+        Session = Domain.OpenSession();
       disposables.Add(Session);
       disposables.Add(Session.OpenTransaction());
     }
