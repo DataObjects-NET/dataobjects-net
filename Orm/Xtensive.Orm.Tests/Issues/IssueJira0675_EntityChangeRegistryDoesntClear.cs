@@ -36,6 +36,22 @@ namespace Xtensive.Orm.Tests.Issues.CustomerBug1Model
     [Field]
     public int Value { get; set; }
   }
+
+  [HierarchyRoot]
+  public class Alert : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
+
+    [Field]
+    public string Data { get; set; }
+
+    public Alert(Session session)
+      : base(session)
+    {
+
+    }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Issues
@@ -49,6 +65,14 @@ namespace Xtensive.Orm.Tests.Issues
     {
       System.Threading.Tasks.Task task1 = System.Threading.Tasks.Task.Factory.StartNew(() => UpdateEntities(1));
       System.Threading.Tasks.Task task2 = System.Threading.Tasks.Task.Factory.StartNew(() => UpdateEntities(2));
+      System.Threading.Tasks.Task.WaitAll(task1, task2);
+    }
+
+    [Test]
+    public void TestTransactionIsUnsuableAfterDeadlock()
+    {
+      System.Threading.Tasks.Task task1 = System.Threading.Tasks.Task.Factory.StartNew(() => UpdateEntities1(1));
+      System.Threading.Tasks.Task task2 = System.Threading.Tasks.Task.Factory.StartNew(() => UpdateEntities1(2));
       System.Threading.Tasks.Task.WaitAll(task1, task2);
     }
 
@@ -242,12 +266,53 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+    private void UpdateEntities1(int instanceId)
+    {
+      for (int i = 0; i < MaxEntities; i++) {
+        using (Session session = Domain.OpenSession())
+        using (session.Activate()) {
+          int retryCount = 3;
+          for (int retry = 0; ; retry++) {
+
+            int initialValue = 0;
+
+            try {
+              initialValue = GetEntityValue1(session, i);
+              UpdateEntity1(session, i);
+              break;
+            }
+            catch (Exception ex) {
+              if (ex is DeadlockException ||
+                  ex is TransactionSerializationFailureException ||
+                  (ex is TargetInvocationException && (ex.InnerException is DeadlockException || ex.InnerException is TransactionSerializationFailureException)))
+              {
+                if (retry + 1 < retryCount) {
+                  Console.WriteLine("Deadlock detected : retrying transactional method for UpdateEntities({0}, {1})", instanceId, i);
+                  int currentValue = GetEntityValue(session, i);
+                  if (currentValue != initialValue) {
+                    Console.WriteLine("Deadlock detected : retrying transactional method for UpdateEntities({0}, {1})", instanceId, i);
+                  }
+                  continue;
+                }
+                else {
+                  Console.WriteLine("Deadlock detected on last try : giving up on UpdateEntities2({0})", i);
+                  throw;
+                }
+              }
+              else {
+                throw;
+              }
+            }
+          }
+        }
+      }
+    }
+
     private int GetEntityValue(Session session, int i)
     {
       int initialValue;
-      using (TransactionScope t = session.OpenTransaction())
-      {
-        TestEntity entity = Query.All<TestEntity>().Single(e => e.Index == i);
+      using (TransactionScope t = session.OpenTransaction()) {
+        TestEntity entity = Query.All<TestEntity>().Single(e => e.Index==i);
         initialValue = entity.Value;
         t.Complete();
       }
@@ -257,11 +322,80 @@ namespace Xtensive.Orm.Tests.Issues
     private void UpdateEntity(Session session, int i)
     {
       using (TransactionScope t = session.OpenTransaction()) {
-        TestEntity entity = Query.All<TestEntity>().Single(e => e.Index == i);
+        TestEntity entity = Query.All<TestEntity>().Single(e => e.Index==i);
         int initialValue = entity.Value;
         entity.Value++;
         t.Complete(); // rollback
       }
+    }
+
+    private static int GetEntityValue1(Session session, int i)
+    {
+      int initialValue = 0;
+      var deadlockDetected = false;
+      TransactionScope t = session.OpenTransaction();
+      try {
+        TestEntity entity = Query.All<TestEntity>().Single(e => e.Index==i);
+        initialValue = entity.Value;
+        session.SaveChanges();
+      }
+      catch (Exception ex)
+      {
+        if (ex is DeadlockException ||
+            ex is TransactionSerializationFailureException ||
+            (ex is TargetInvocationException && (ex.InnerException is DeadlockException || ex.InnerException is TransactionSerializationFailureException)))
+        {
+          Console.WriteLine("Deadlock detected : retrying transactional method for UpdateEntities({0}, {1})");
+          deadlockDetected = true;
+          new Alert(session);
+        }
+        else {
+          throw;
+        }
+      }
+
+      t.Complete();
+      if (deadlockDetected)
+        Assert.Throws<InvalidOperationException>(() => t.Dispose());
+      else
+      {
+        Assert.DoesNotThrow(()=> t.Dispose());
+      }
+      return initialValue;
+    }
+
+    private void UpdateEntity1(Session session, int i)
+    {
+      var deadlockDetected = false;
+
+      TransactionScope t = session.OpenTransaction();
+      try {
+        TestEntity entity = Query.All<TestEntity>().Single(e => e.Index==i);
+        int initialValue = entity.Value;
+        entity.Value++;
+        session.SaveChanges();
+      }
+      catch (Exception ex)
+      {
+        if (ex is DeadlockException ||
+            ex is TransactionSerializationFailureException ||
+            (ex is TargetInvocationException && (ex.InnerException is DeadlockException || ex.InnerException is TransactionSerializationFailureException)))
+        {
+          Console.WriteLine("Deadlock detected : retrying transactional method for UpdateEntities({0}, {1})");
+          deadlockDetected = true;
+          new Alert(session);
+        }
+        else
+        {
+          throw;
+        }
+      }
+
+      t.Complete();
+      if (deadlockDetected)
+        Assert.Throws<InvalidOperationException>(() => t.Dispose());
+      else
+        Assert.DoesNotThrow(() => t.Dispose());
     }
 
     protected override DomainConfiguration BuildConfiguration()
