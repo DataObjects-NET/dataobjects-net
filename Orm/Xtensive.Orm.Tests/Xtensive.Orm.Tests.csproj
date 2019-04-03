@@ -80,6 +80,7 @@
     <Compile Include="DomainConfigurationFactoryTest.cs" />
     <Compile Include="Interfaces\DoubleIndexedInterfaceTest.cs" />
     <Compile Include="Interfaces\InterfaceImplementationTest.cs" />
+    <Compile Include="Issues\IssueJira0746_LikeBehaviorDifferentOnClientSide.cs" />
     <Compile Include="Issues\IssueJira0718_EntitySetEnumerationBug.cs" />
     <Compile Include="Issues\IssueJira0712_IncorrectDefaultEnumValueTranslation.cs" />
     <Compile Include="Issues\IssueJira0674_ReferenceFinderBug.cs" />
