@@ -16,6 +16,12 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public sealed class TransactionModesTest : NorthwindDOModelTest
   {
+    public override void SetUp()
+    {
+      DoNotActivateSharedSession = true;
+      base.SetUp();
+    }
+
     protected override void CheckRequirements()
     {
       base.CheckRequirements();
@@ -33,12 +39,15 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsFalse(session.Handler.TransactionIsStarted);
         var product = session.Query.All<Product>().First();
         product.ReorderLevel++;
-        Session.Current.SaveChanges();
+        session.SaveChanges();
         Assert.IsTrue(session.Handler.TransactionIsStarted);
-        var dbTransaction = StorageTestHelper.GetNativeTransaction();
+        object dbTransaction;
+        using (session.Activate())
+          dbTransaction = StorageTestHelper.GetNativeTransaction();
         product.ReorderLevel++;
-        Session.Current.SaveChanges();
-        Assert.AreSame(dbTransaction, StorageTestHelper.GetNativeTransaction());
+        Session.SaveChanges();
+        using (session.Activate())
+          Assert.AreSame(dbTransaction, StorageTestHelper.GetNativeTransaction());
         product.ReorderLevel++;
         reorderLevel = product.ReorderLevel;
         productKey = product.Key;
