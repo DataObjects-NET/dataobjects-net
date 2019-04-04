@@ -1040,6 +1040,18 @@ namespace Xtensive.Reflection
       }
     }
 
+    /// <summary>
+    /// Gets the default value for <paramref name="type"/>.
+    /// </summary>
+    /// <param name="type">The <see cref="System.Type"/> to get default value.</param>
+    /// <returns>Returns the default value for <paramref name="type"/>.</returns>
+    public static object GetDefaultValue(this Type type)
+    {
+      return type.IsValueType && Nullable.GetUnderlyingType(type)==null
+        ? Activator.CreateInstance(type)
+        : null;
+    }
+
     #region Private \ internal methods
 
     /// <summary>

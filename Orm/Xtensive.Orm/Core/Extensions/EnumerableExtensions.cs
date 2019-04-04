@@ -133,10 +133,61 @@ namespace Xtensive.Core
     }
 
     /// <summary>
+    /// Creates an array from an <see cref="T:System.Collections.Generic.IEnumerable`1"/> of specified length.
+    /// </summary>
+    /// <typeparam name="TItem">The type of collection items.</typeparam>
+    /// <param name="source">Collection to convert.</param>
+    /// <param name="length">Length of the result array.</param>
+    /// <returns>An array containing all the items from the <paramref name="source"/>.</returns>
+    public static TItem[] ToArray<TItem>(this IEnumerable<TItem> source, int length)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(length, 0, "length");
+
+      var result = new TItem[length];
+      var collection = source as ICollection<TItem>;
+      if (collection!=null) {
+        if (collection.Count!=length)
+          throw new ArgumentOutOfRangeException("length");
+        collection.CopyTo(result, 0);
+      }
+      else {
+        var index = 0;
+        foreach (var value in source) {
+          if (index >= length)
+            throw new ArgumentOutOfRangeException("length");
+          result[index++] = value;
+        }
+
+        if (index!=length)
+          throw new ArgumentOutOfRangeException("length");
+      }
+
+      return result;
+    }
+
+    /// <summary>
+    /// Creates a <see cref="T:System.Collections.Generic.List`1" /> from an <see cref="T:System.Collections.Generic.IEnumerable`1"/> of specified capacity.
+    /// </summary>
+    /// <param name="source">The <see cref="T:System.Collections.Generic.IEnumerable`1" /> to create a <see cref="T:System.Collections.Generic.List`1" /> from.</param>
+    /// <param name="capacity">The number of elements that the new list can initially store.</param>
+    /// <typeparam name="TItem">The type of the elements of <paramref name="source" />.</typeparam>
+    /// <returns>A <see cref="T:System.Collections.Generic.List`1" /> that contains elements from the input sequence.</returns>
+    public static List<TItem> ToList<TItem>(this IEnumerable<TItem> source, int capacity)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(capacity, 0, "capacity");
+
+      var result = new List<TItem>(capacity);
+      result.AddRange(source);
+      return result;
+    }
+
+    /// <summary>
     /// Converts the sequence to the <see cref="ChainedBuffer{T}"/>.
     /// </summary>
     /// <typeparam name="T">The type of sequence item.</typeparam>
-    /// <param name="source">The sequence to convert</param>
+    /// <param name="source">The sequence to convert.</param>
     /// <returns>A new <see cref="ChainedBuffer{T}"/> instance containing 
     /// all the items from the <paramref name="source"/> sequence.</returns>
     public static ChainedBuffer<T> ToChainedBuffer<T>(this IEnumerable<T> source)
@@ -291,19 +342,31 @@ namespace Xtensive.Core
       return Enumerable.Range(segment.Offset, segment.Length);
     }
 
-    /// <summary>
-    /// Safely adds one value to sequence.
-    /// </summary>
-    /// <typeparam name="T">The type of enumerated items.</typeparam>
-    /// <param name="source">Source sequence.</param>
-    /// <param name="value">Value to add to sequence.</param>
-    /// <returns>New sequence with both <paramref name="source"/> and <paramref name="value"/> items inside without duplicates.</returns>
+    /// <summary>Safely adds a value to the end of the sequence.</summary>
+    /// <param name="source">A sequence of values.</param>
+    /// <param name="element">The value to append to <paramref name="source"/>.</param>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+    /// <returns>A new sequence that ends with <paramref name="element"/>.</returns>
     /// <remarks>If source sequence is null, it's equals to empty sequence. If value is null, it will not added to result sequence.</remarks>
-    public static IEnumerable<T> AddOne<T>(this IEnumerable<T> source, T value)
+    public static IEnumerable<TSource> AddOne<TSource>(this IEnumerable<TSource> source, TSource element)
     {
-      source = source ?? EnumerableUtils<T>.Empty;
-      if (!ReferenceEquals(value, null))
-        source = source.Concat(EnumerableUtils.One(value));
+      source = source ?? EnumerableUtils<TSource>.Empty;
+      if (!ReferenceEquals(element, null))
+        source = source.Concat(EnumerableUtils.One(element));
+      return source;
+    }
+
+    /// <summary>Safely adds a value to the beginning of the sequence.</summary>
+    /// <param name="source">A sequence of values.</param>
+    /// <param name="element">The value to prepend to <paramref name="source"/>.</param>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+    /// <returns>A new sequence that begins with <paramref name="element"/>.</returns>
+    /// <remarks>If source sequence is null, it's equals to empty sequence. If value is null, it will not added to result sequence.</remarks>
+    public static IEnumerable<TSource> Prepend<TSource>(this IEnumerable<TSource> source, TSource element)
+    {
+      source = source ?? EnumerableUtils<TSource>.Empty;
+      if (!ReferenceEquals(element, null))
+        source = EnumerableUtils.One(element).Concat(source);
       return source;
     }
 
@@ -492,6 +555,65 @@ namespace Xtensive.Core
             new Edge(left, right);
       var result = TopologicalSorter.Sort(graph);
       return result.HasLoops ? null : result.SortedNodes.Select(node => node.Value).ToList();
+    }
+
+    /// <summary>Sorts the elements of a sequence in ascending order by using a specified comparer.</summary>
+    /// <param name="source">A sequence of values to order.</param>
+    /// <param name="keySelector">A function to extract a key from an element.</param>
+    /// <param name="comparer">An <see cref="T:System.Comparison`1" /> to compare keys.</param>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+    /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector" />.</typeparam>
+    /// <returns>An <see cref="T:System.Linq.IOrderedEnumerable`1" /> whose elements are sorted according to a key.</returns>
+    /// <exception cref="T:System.ArgumentNullException">
+    /// <paramref name="source" /> or <paramref name="keySelector" /> is <see langword="null" />.</exception>
+    public static IOrderedEnumerable<TSource> OrderBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Comparison<TKey> comparer)
+    {
+      return source.OrderBy(keySelector, ComparisonComparer<TKey>.Create(comparer));
+    }
+
+    /// <summary>Sorts the elements of a sequence in descending order by using a specified comparer.</summary>
+    /// <param name="source">A sequence of values to order.</param>
+    /// <param name="keySelector">A function to extract a key from an element.</param>
+    /// <param name="comparer">An <see cref="T:System.Comparison`1" /> to compare keys.</param>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="source" />.</typeparam>
+    /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector" />.</typeparam>
+    /// <returns>An <see cref="T:System.Linq.IOrderedEnumerable`1" /> whose elements are sorted in descending order according to a key.</returns>
+    /// <exception cref="T:System.ArgumentNullException">
+    /// <paramref name="source" /> or <paramref name="keySelector" /> is <see langword="null" />.</exception>
+    public static IOrderedEnumerable<TSource> OrderByDescending<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Comparison<TKey> comparer)
+    {
+      return source.OrderByDescending(keySelector, ComparisonComparer<TKey>.Create(comparer));
+    }
+
+    /// <summary>
+    /// Returns all distinct elements of the given source, where "distinctness"
+    /// is determined via a projection and the specified comparer for the projected type.
+    /// </summary>
+    /// <remarks>
+    /// This operator uses deferred execution and streams the results, although
+    /// a set of already-seen keys is retained. If a key is seen multiple times,
+    /// only the first element with that key is returned.
+    /// </remarks>
+    /// <typeparam name="TSource">Type of the source sequence.</typeparam>
+    /// <typeparam name="TKey">Type of the projected element.</typeparam>
+    /// <param name="source">Source sequence.</param>
+    /// <param name="keySelector">Projection for determining "distinctness".</param>
+    /// <param name="comparer">The equality comparer to use to determine whether or not keys are equal.
+    /// If null, the default equality comparer for <c>TSource</c> is used.</param>
+    /// <returns>A sequence consisting of distinct elements from the source sequence,
+    /// comparing them by the specified key projection.</returns>
+    public static IEnumerable<TSource> DistinctBy<TSource, TKey>(
+      this IEnumerable<TSource> source,
+      Func<TSource, TKey> keySelector,
+      IEqualityComparer<TKey> comparer = null)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "values");
+      ArgumentValidator.EnsureArgumentNotNull(keySelector, "keySelector");
+      var knownKeys = new HashSet<TKey>(comparer);
+      foreach (var element in source) {
+        if (knownKeys.Add(keySelector(element)))
+          yield return element;
+      }
     }
   }
 }

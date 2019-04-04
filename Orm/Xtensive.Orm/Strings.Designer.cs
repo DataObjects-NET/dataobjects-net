@@ -431,6 +431,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Active transaction is no longer usable..
+        /// </summary>
+        internal static string ExActiveTransactionIsNoLongerUsable {
+            get {
+                return ResourceManager.GetString("ExActiveTransactionIsNoLongerUsable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Active Transaction is required for this operation. Use Session.OpenTransaction(...) to open it..
         /// </summary>
         internal static string ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt {
