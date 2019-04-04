@@ -527,8 +527,11 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     private static bool CheckPropertyNameWasOverriden(StoredFieldInfo fieldInfo)
     {
+      // if there is no real property then there is nothing to put OverrideFieldNameAttribute on
+      if (fieldInfo.PropertyName.IsNullOrEmpty())
+        return false;
       //seems to be it was OverrideFieldNameAttribute been applied;
-      return StringComparer.InvariantCulture.Compare(fieldInfo.PropertyName, fieldInfo.OriginalName) != 0;
+      return StringComparer.InvariantCulture.Compare(fieldInfo.PropertyName, fieldInfo.OriginalName)!=0;
     }
     #endregion
 
