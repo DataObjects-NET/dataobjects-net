@@ -792,15 +792,9 @@ namespace Xtensive.Orm.Linq
         ColumnExtractionModes.TreatEntityAsKey |
         ColumnExtractionModes.KeepTypeId);
 
-      var keyColumnsList = new List<int>();
-      var nullableFields = new Dictionary<int, FieldExpression>();
-      keyFieldsRaw.ForEach(
-        (item) => {
-          keyColumnsList.Add(item.First);
-          var expressionField = item.Second as FieldExpression;
-          if (expressionField!=null && expressionField.Field.IsNullable)
-            nullableFields.Add(item.First, expressionField);
-        });
+      var keyColumnsList = new List<int>(keyFieldsRaw.Count);
+
+      var nullableKeyColumns = GetNullableGroupingExpressions(keyFieldsRaw, keyColumnsList);
 
       var keyColumns = keyColumnsList.ToArray();
       var keyDataSource = groupingSourceProjection.ItemProjector.DataSource.Aggregate(keyColumns);
@@ -820,7 +814,7 @@ namespace Xtensive.Orm.Linq
       var applyParameter = context.GetApplyParameter(groupingProjection);
       var tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
 
-      Expression filterBody = (nullableFields.Count==0)
+      Expression filterBody = (nullableKeyColumns.Count==0)
         ? comparisonInfos.Aggregate(
             (Expression) null,
             (current, comparisonInfo) =>
@@ -833,7 +827,7 @@ namespace Xtensive.Orm.Linq
         : comparisonInfos.Aggregate(
             (Expression) null,
             (current, comparisonInfo) => {
-              if (nullableFields.ContainsKey(comparisonInfo.SubQueryIndex)) {
+              if (nullableKeyColumns.Contains(comparisonInfo.SubQueryIndex)) {
                 var groupingSubqueryConnector = Expression.MakeMemberAccess(Expression.Constant(applyParameter), WellKnownMembers.ApplyParameterValue);
                 var left = MakeBooleanExpression(
                   null,
@@ -1568,6 +1562,26 @@ namespace Xtensive.Orm.Linq
         var lambda = Expression.Lambda(Expression.Not(Expression.Call(containsMethod, setA, parameter)), parameter);
         return VisitAll(setB, lambda, isRoot);
       }
+    }
+
+    private static HashSet<int> GetNullableGroupingExpressions(List<Pair<int, Expression>> keyFieldsRaw, List<int> keyColumnsList)
+    {
+      var nullableFields = new HashSet<int>();
+
+      foreach (var pair in keyFieldsRaw) {
+        var index = pair.First;
+        var expression = pair.Second;
+        keyColumnsList.Add(index);
+
+        var expressionField = expression as FieldExpression;
+        if (expressionField!=null && expressionField.Field.IsNullable)
+          nullableFields.Add(index);
+        var entityExpression = expression as EntityExpression;
+        if (entityExpression!=null && entityExpression.IsNullable)
+          nullableFields.Add(index);
+      }
+
+      return nullableFields;
     }
   }
 }
