@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       Assert.That(output, Is.EqualTo(dec));
     }
 
-    [Test]
+    [Test, Explicit]
     [TestCaseSource("TestScaleShort")]
     public void SqlDecimalUtilsPerformanceTest(byte scale)
     {
