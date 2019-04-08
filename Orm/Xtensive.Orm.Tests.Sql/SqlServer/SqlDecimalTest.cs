@@ -19,9 +19,34 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 {
   public class SqlDecimalTest : SqlTest
   {
+    private object accessGuard = new object();
+    private byte[] scales;
+
+    private readonly SqlDecimal SourceDecimal = SqlDecimal.Parse("9" + string.Join("", Enumerable.Repeat('0', 37)));
+
     public byte[][] TestValuesParametersFast { get { return GetTestCases(true).ToArray(); } }
 
     public byte[][] TestValuesParametersFull { get { return GetTestCases(false).ToArray(); } }
+
+    public byte[] TestScalesFull
+    {
+      get {
+        if (scales!=null)
+          return scales;
+        lock (accessGuard) {
+          return scales = Enumerable.Range(0, 37).Select(i=> (byte)i).ToArray();
+        }
+      }
+    }
+
+    public byte[] TestScaleShort
+    {
+      get {
+        byte[] result = new byte[29];
+        Array.Copy(TestScalesFull, 10, result, 0, 29);
+        return result;
+      }
+    }
 
 
     [Test]
@@ -70,66 +95,56 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     }
 
     [Test]
-    public static void SqlDecimalUtilsDividerTest()
+    [TestCaseSource("TestScalesFull")]
+    public void SqlDecimalUtilsDividerTest(byte scale)
     {
-      var scale = 37;
-      for (int i = 0; i < scale; i++) {
-        var chars = Enumerable.Repeat('0', scale).ToArray();
-        chars[i] = '1';
-        var str = "1." + new string(chars);
-        var input = SqlDecimal.Parse(str);
-        var output = SqlDecimalUtils.TruncateToNetDecimal(input);
-        var dec = decimal.Parse(str);
-        Assert.That(output, Is.EqualTo(dec));
-      }
+      var chars = Enumerable.Repeat('0', 37).ToArray();
+      chars[scale] = '1';
+      var str = "1." + new string(chars);
+      var input = SqlDecimal.Parse(str);
+      var output = SqlDecimalUtils.TruncateToNetDecimal(input);
+      var dec = decimal.Parse(str);
+      Assert.That(output, Is.EqualTo(dec));
     }
 
     [Test]
-    public static void SqlDecimalUtilsBigScaleTest()
+    [TestCaseSource("TestScaleShort")]
+    public void SqlDecimalUtilsBigScaleTest(byte scale)
     {
-      var sourceSqlDecimal = SqlDecimal.Parse("9" + string.Join("", Enumerable.Repeat('0', 37)));
-      foreach (byte scale in Enumerable.Range(10, 29)) {
-        var sqlDecimal = new SqlDecimal(
-          sourceSqlDecimal.Precision,
-          scale,
-          sourceSqlDecimal.IsPositive,
-          sourceSqlDecimal.Data);
-        var output = SqlDecimalUtils.TruncateToNetDecimal(sqlDecimal);
-        var dec = decimal.Parse(sqlDecimal.ToString());
-        Assert.That(output, Is.EqualTo(dec));
-      }
+      var sourceValue = SourceDecimal;
+
+      var sqlDecimal = new SqlDecimal( sourceValue.Precision, scale, sourceValue.IsPositive, sourceValue.Data);
+      var output = SqlDecimalUtils.TruncateToNetDecimal(sqlDecimal);
+      var dec = decimal.Parse(sqlDecimal.ToString());
+      Assert.That(output, Is.EqualTo(dec));
     }
 
-    [Test, Explicit]
-    public static void SqlDecimalUtilsPerformanceTest()
+    [Test]
+    [TestCaseSource("TestScaleShort")]
+    public void SqlDecimalUtilsPerformanceTest(byte scale)
     {
-      var sourceSqlDecimal = SqlDecimal.Parse("9" + string.Join("", Enumerable.Repeat('0', 37)));
+      var sourceValue = SourceDecimal;
       var counter = new Stopwatch();
-      foreach (byte scale in Enumerable.Range(10, 29)) {
-        var sqlDecimal = new SqlDecimal(
-          sourceSqlDecimal.Precision,
-          scale,
-          sourceSqlDecimal.IsPositive,
-          sourceSqlDecimal.Data);
 
-        var list = new List<long>();
-        for (var i = 0; i < 100; i++) {
-          counter.Restart();
+      var sqlDecimal = new SqlDecimal(sourceValue.Precision, scale, sourceValue.IsPositive, sourceValue.Data);
 
-          for (var j = 0; j < 100000; j++)
-            SqlDecimalUtils.TruncateToNetDecimal(sqlDecimal);
+      var list = new List<long>();
+      for (var i = 0; i < 100; i++) {
+        counter.Restart();
 
-          counter.Stop();
-          list.Add(counter.ElapsedMilliseconds);
-        }
+        for (var j = 0; j < 100000; j++)
+          SqlDecimalUtils.TruncateToNetDecimal(sqlDecimal);
 
-        Console.WriteLine(
-          "Val:{0}  Scale:{1}  Min:{2}  Avg:{3}",
-          sqlDecimal,
-          sqlDecimal.Scale,
-          list.Min(),
-          list.Average());
+        counter.Stop();
+        list.Add(counter.ElapsedMilliseconds);
       }
+
+      Console.WriteLine(
+        "Val:{0}  Scale:{1}  Min:{2}  Avg:{3}",
+        sqlDecimal,
+        sqlDecimal.Scale,
+        list.Min(),
+        list.Average());
     }
 
     [Test]
