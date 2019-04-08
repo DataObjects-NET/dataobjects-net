@@ -969,6 +969,36 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
     }
+
+    [Test]
+    public void GroupJoinTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Battery>().AsEnumerable()
+          .GroupJoin(Query.All<Product>(),
+            battery => battery,
+            product => product.Battery,
+            (battery, products) => new {battery.Amps, Count = products.Count()})
+          .ToArray();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Battery>()
+            .GroupJoin(Query.All<Product>(),
+              battery => battery,
+              product => product.Battery,
+              (battery, products) => new {battery.Amps, Count = products.Count()})
+            .ToArray();
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Amps==e.Amps && i.Count==e.Count);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Count, Is.EqualTo(entry.Count));
+          }
+        }
+      }
+    }
   }
 }
 

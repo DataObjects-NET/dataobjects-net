@@ -792,11 +792,11 @@ namespace Xtensive.Orm.Linq
         ColumnExtractionModes.TreatEntityAsKey |
         ColumnExtractionModes.KeepTypeId);
 
-      var keyColumnsList = new List<int>(keyFieldsRaw.Count);
+      var nullableKeyColumns = (!state.SkipNullableColumnsDetectionInGroupBy)
+        ? GetNullableGroupingExpressions(keyFieldsRaw)
+        : ArrayUtils<int>.EmptyArray;
 
-      var nullableKeyColumns = GetNullableGroupingExpressions(keyFieldsRaw, keyColumnsList);
-
-      var keyColumns = keyColumnsList.ToArray();
+      var keyColumns = keyFieldsRaw.SelectToArray(pair=>pair.First);
       var keyDataSource = groupingSourceProjection.ItemProjector.DataSource.Aggregate(keyColumns);
       var remappedKeyItemProjector = groupingSourceProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, keyColumns);
 
@@ -1022,7 +1022,12 @@ namespace Xtensive.Orm.Linq
       var groupingType = typeof (IGrouping<,>).MakeGenericType(innerKey.Type, innerItemType);
       var enumerableType = typeof (IEnumerable<>).MakeGenericType(innerItemType);
       var groupingResultType = typeof (IQueryable<>).MakeGenericType(enumerableType);
-      var innerGrouping = VisitGroupBy(groupingResultType, visitedInnerSource, innerKey, null, null);
+
+      ProjectionExpression innerGrouping;
+      using (state.CreateScope()) {
+        state.SkipNullableColumnsDetectionInGroupBy = true;
+        innerGrouping = VisitGroupBy(groupingResultType, visitedInnerSource, innerKey, null, null);
+      }
 
       if (innerGrouping.ItemProjector.Item.IsGroupingExpression()
         && visitedInnerSource is ProjectionExpression
@@ -1564,14 +1569,13 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    private static HashSet<int> GetNullableGroupingExpressions(List<Pair<int, Expression>> keyFieldsRaw, List<int> keyColumnsList)
+    private static ICollection<int> GetNullableGroupingExpressions(List<Pair<int, Expression>> keyFieldsRaw)
     {
       var nullableFields = new HashSet<int>();
 
       foreach (var pair in keyFieldsRaw) {
         var index = pair.First;
         var expression = pair.Second;
-        keyColumnsList.Add(index);
 
         var expressionField = expression as FieldExpression;
         if (expressionField!=null && expressionField.Field.IsNullable)
