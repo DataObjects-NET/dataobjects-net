@@ -21,8 +21,8 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof(Battery));
-      configuration.Types.Register(typeof(Product));
+      configuration.Types.Register(typeof (Battery));
+      configuration.Types.Register(typeof (Product));
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
@@ -33,9 +33,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         List<Battery> batt = new List<Battery>() {
           null,
-          new Battery() {Amps = 5, Cell = 10, Volts = 10.4},
-          new Battery() {Amps = 8, Cell = 12, Volts = 12.4},
-          new Battery() {Amps = 2, Cell = 5, Volts = 3.7}
+          new Battery {Amps = 5, Cell = 10, Volts = 10.4},
+          new Battery {Amps = 8, Cell = 12, Volts = 12.4},
+          new Battery {Amps = 2, Cell = 5, Volts = 3.7}
         };
 
         for (int i = 0; i < 10; i++) {
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Issues
             CreationDate = DateTime.UtcNow.AddDays(-(i % 3)),
             Description = i % 3!=0 ? "Lap:" + i % 3 : null,
             Comment = i % 3!=0 ? "Comment:" + i % 3 : null,
-            Price = new Money() {CurrencyCode = 100 + i % 3, Value = (decimal) 12.3},
+            Price = new Money {CurrencyCode = 100 + i % 3, Value = (decimal) 12.3},
             Battery = batt[i % 3]
           };
         }
@@ -53,19 +53,19 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void GroupByPersistentField()
+    public void GroupByPersistentFieldTest()
     {
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
+        var expectedCounts = session.Query.All<Product>()
           .GroupBy(g => g.Battery)
           .AsEnumerable()
           .Select(g => new {Key = g.Key, Cnt = g.Count()})
           .ToList();
 
         using (logger.Attach()) {
-          var x = Query.All<Product>()
+          var x = session.Query.All<Product>()
             .GroupBy(g => g.Battery)
             .Select(g => new {g.Key, Cnt = g.Count()});
 
@@ -79,19 +79,75 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void GroupByStructureFieldTest()
+    public void GroupBySelectedPersistentTestTest()
     {
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
+        var expectedCounts = session.Query.All<Product>()
+          .Select(p => new {p.Battery})
+          .GroupBy(g => g.Battery)
+          .AsEnumerable()
+          .Select(g => new {g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
+            .Select(p => new {p.Battery})
+            .GroupBy(g => g.Battery)
+            .Select(g => new {g.Key, Cnt = g.Count()});
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key==e.Key);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupByStructureFieldTest1()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
           .GroupBy(g => g.Price)
           .AsEnumerable()
           .Select(g => new {g.Key, Cnt = g.Count()})
           .ToList();
 
         using (logger.Attach()) {
-          var x = Query.All<Product>()
+          var x = session.Query.All<Product>()
+            .GroupBy(g => g.Price)
+            .Select(g => new {g.Key, Cnt = g.Count()});
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key==e.Key);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupBySelectedStructureFieldTest1()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
+          .Select(p => new {p.Price})
+          .GroupBy(g => g.Price)
+          .AsEnumerable()
+          .Select(g => new {g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
+            .Select(p => new {p.Price})
             .GroupBy(g => g.Price)
             .Select(g => new {g.Key, Cnt = g.Count()});
 
@@ -110,19 +166,47 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
+        var expectedCounts = session.Query.All<Product>()
           .GroupBy(g => g.Price2)
           .AsEnumerable()
           .Select(g => new { g.Key, Cnt = g.Count() })
           .ToList();
 
         using (logger.Attach()) {
-          var x = Query.All<Product>()
+          var x = session.Query.All<Product>()
             .GroupBy(g => g.Price2)
-            .Select(g => new { g.Key, Cnt = g.Count() });
+            .Select(g => new {g.Key, Cnt = g.Count()});
 
           foreach (var e in x) {
-            var entry = expectedCounts.FirstOrDefault(i => i.Key == e.Key);
+            var entry = expectedCounts.FirstOrDefault(i => i.Key==e.Key);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupBySelectedStructureFieldTest2()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
+          .Select(p => new {p.Price2})
+          .GroupBy(g => g.Price2)
+          .AsEnumerable()
+          .Select(g => new {g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
+            .Select(p => new {p.Price2})
+            .GroupBy(g => g.Price2)
+            .Select(g => new {g.Key, Cnt = g.Count()});
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key==e.Key);
             Assert.That(entry, Is.Not.Null);
             Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
           }
@@ -136,15 +220,43 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
+        var expectedCounts = session.Query.All<Product>()
           .GroupBy(g => g.Price2.CurrencyCode)
           .AsEnumerable()
           .Select(g => new {g.Key, Cnt = g.Count()})
           .ToList();
 
         using (logger.Attach()) {
-          var x = Query.All<Product>()
+          var x = session.Query.All<Product>()
             .GroupBy(g => g.Price2.CurrencyCode)
+            .Select(g => new {g.Key, Cnt = g.Count()});
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key==e.Key);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupBySelectedStructureFieldTest3()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
+          .Select(p => new {p.Price2.CurrencyCode})
+          .GroupBy(g => g.CurrencyCode)
+          .AsEnumerable()
+          .Select(g => new {g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
+            .Select(p => new {p.Price2.CurrencyCode})
+            .GroupBy(g => g.CurrencyCode)
             .Select(g => new {g.Key, Cnt = g.Count()});
 
           foreach (var e in x) {
@@ -162,14 +274,14 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
+        var expectedCounts = session.Query.All<Product>()
           .GroupBy(g => new {A = g.Price2.Value, B = g.Price2.Value})
           .AsEnumerable()
           .Select(g => new {g.Key, Cnt = g.Count()})
           .ToList();
 
         using (logger.Attach()) {
-          var x = Query.All<Product>()
+          var x = session.Query.All<Product>()
             .GroupBy(g => new {A = g.Price2.Value, B = g.Price2.Value})
             .Select(g => new {g.Key, Cnt = g.Count()});
 
@@ -183,19 +295,75 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void GrouoByNonNullableFieldTest()
+    public void GroupBySelectedStructureFieldTest4()
     {
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
+        var expectedCounts = session.Query.All<Product>()
+          .Select(p => new {A = p.Price2.Value, B = p.Price2.Value})
+          .GroupBy(g => new {g.A, g.B})
+          .AsEnumerable()
+          .Select(g => new {g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
+            .Select(p => new {A = p.Price2.Value, B = p.Price2.Value})
+            .GroupBy(g => new {g.A, g.B})
+            .Select(g => new {g.Key, Cnt = g.Count()});
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key.A==e.Key.A && i.Key.B==e.Key.B);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupByNonNullableFieldTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
           .GroupBy(p => p.Name)
           .AsEnumerable()
           .Select(g => new {g.Key, Cnt = g.Count()})
           .ToList();
 
         using (logger.Attach()) {
-          var x = Query.All<Product>()
+          var x = session.Query.All<Product>()
+            .GroupBy(p => p.Name)
+            .Select(g => new {g.Key, Cnt = g.Count()});
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key==e.Key);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupBySelectedNonNullableFieldTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
+          .Select(p => new {p.Name})
+          .GroupBy(p => p.Name)
+          .AsEnumerable()
+          .Select(g => new {g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
+            .Select(p => new {p.Name})
             .GroupBy(p => p.Name)
             .Select(g => new {g.Key, Cnt = g.Count()});
 
@@ -214,18 +382,47 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
+        var expectedCounts = session.Query.All<Product>()
           .GroupBy(p => p.Description)
           .AsEnumerable()
           .Select(g => new {g.Key, Cnt = g.Count()})
           .ToList();
 
         using (logger.Attach()) {
-          var x = Query.All<Product>()
+          var x = session.Query.All<Product>()
             .GroupBy(p => p.Description)
             .Select(g => new {g.Key, Cnt = g.Count()});
 
           foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key==e.Key);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupBySelectedNullableFieldTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
+          .Select(p => new {p.Description})
+          .GroupBy(p => p.Description)
+          .AsEnumerable()
+          .Select(g => new {g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
+            .Select(p => new {p.Description})
+            .GroupBy(p => p.Description)
+            .Select(g => new {g.Key, Cnt = g.Count()});
+
+          foreach (var e in x)
+          {
             var entry = expectedCounts.FirstOrDefault(i => i.Key==e.Key);
             Assert.That(entry, Is.Not.Null);
             Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
@@ -240,14 +437,42 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
+        var expectedCounts = session.Query.All<Product>()
           .GroupBy(p => new {p.Description, p.Comment})
           .AsEnumerable()
           .Select(g => new {g.Key, Cnt = g.Count()})
           .ToList();
 
         using (logger.Attach()) {
-          var x = Query.All<Product>()
+          var x = session.Query.All<Product>()
+            .GroupBy(p => new {p.Description, p.Comment})
+            .Select(g => new {g.Key, Cnt = g.Count()});
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key.Description==e.Key.Description && i.Key.Comment==e.Key.Comment);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupBySelectedAnonymousTypeWithNullableFieldsTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
+          .Select(p => new {p.Description, p.Comment})
+          .GroupBy(p => new {p.Description, p.Comment})
+          .AsEnumerable()
+          .Select(g => new {g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
+            .Select(p => new {p.Description, p.Comment})
             .GroupBy(p => new {p.Description, p.Comment})
             .Select(g => new {g.Key, Cnt = g.Count()});
 
@@ -266,14 +491,42 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
+        var expectedCounts = session.Query.All<Product>()
           .GroupBy(p => new {p.Name, p.CreationDate})
           .AsEnumerable()
           .Select(g => new {g.Key, Cnt = g.Count()})
           .ToList();
 
         using (logger.Attach()) {
-          var x = Query.All<Product>()
+          var x = session.Query.All<Product>()
+            .GroupBy(p => new {p.Name, p.CreationDate})
+            .Select(g => new {g.Key, Cnt = g.Count()});
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key.Name==e.Key.Name && i.Key.CreationDate==e.Key.CreationDate);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupBySelectedAnonymousTypeWithNonNullableFieldsTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
+          .Select(p => new {p.Name, p.CreationDate})
+          .GroupBy(p => new {p.Name, p.CreationDate})
+          .AsEnumerable()
+          .Select(g => new {g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
+            .Select(p => new {p.Name, p.CreationDate})
             .GroupBy(p => new {p.Name, p.CreationDate})
             .Select(g => new {g.Key, Cnt = g.Count()});
 
@@ -293,15 +546,43 @@ namespace Xtensive.Orm.Tests.Issues
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
         var expectedCounts = Query.All<Product>()
-          .GroupBy(p => new { p.Name, p.Description })
+          .GroupBy(p => new {p.Name, p.Description})
           .AsEnumerable()
-          .Select(g => new { g.Key, Cnt = g.Count() })
+          .Select(g => new {g.Key, Cnt = g.Count()})
           .ToList();
 
         using (logger.Attach()) {
-          var x = Query.All<Product>()
-            .GroupBy(p => new { p.Name, p.Description })
-            .Select(g => new { g.Key, Cnt = g.Count() });
+          var x = session.Query.All<Product>()
+            .GroupBy(p => new {p.Name, p.Description})
+            .Select(g => new {g.Key, Cnt = g.Count()});
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key.Name==e.Key.Name && i.Key.Description==e.Key.Description);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupBySelectedAnonymousTypeWithMixedFieldsTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = Query.All<Product>()
+          .Select(p => new {p.Name, p.Description})
+          .GroupBy(p => new {p.Name, p.Description})
+          .AsEnumerable()
+          .Select(g => new {g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
+            .Select(p => new {p.Name, p.Description})
+            .GroupBy(p => new {p.Name, p.Description})
+            .Select(g => new {g.Key, Cnt = g.Count()});
 
           foreach (var e in x) {
             var entry = expectedCounts.FirstOrDefault(i => i.Key.Name==e.Key.Name && i.Key.Description==e.Key.Description);
@@ -318,16 +599,98 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
+        var expectedCounts = session.Query.All<Product>()
           .GroupBy(g => g.Battery.Id)
           .AsEnumerable()
           .Select(g => new {g.Key, Cnt = g.Count()})
           .ToList();
 
         using (logger.Attach()) {
-          var x = Query.All<Product>()
+          var x = session.Query.All<Product>()
             .GroupBy(g => g.Battery.Id)
             .Select(g => new {g.Key, Cnt = g.Count()});
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key==e.Key);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupBySelectedIdTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
+          .Select(g => new { BatteryId = g.Battery.Id})
+          .GroupBy(g => g.BatteryId)
+          .AsEnumerable()
+          .Select(g => new {g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
+            .Select(g => new {BatteryId = g.Battery.Id})
+            .GroupBy(g => g.BatteryId)
+            .Select(g => new {g.Key, Cnt = g.Count()});
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key==e.Key);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupByKeyTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
+          .GroupBy(g => g.Battery.Key)
+          .AsEnumerable()
+          .Select(g => new { g.Key, Cnt = g.Count() })
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
+            .GroupBy(g => g.Battery.Key)
+            .Select(g => new { g.Key, Cnt = g.Count() });
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key==e.Key);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupBySelectedKeyTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
+          .Select(g => new {g.Battery.Key})
+          .GroupBy(g => g.Key)
+          .AsEnumerable()
+          .Select(g => new {g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
+            .Select(g => new { g.Battery.Key })
+            .GroupBy(g => g.Key)
+            .Select(g => new { g.Key, Cnt = g.Count() });
 
           foreach (var e in x) {
             var entry = expectedCounts.FirstOrDefault(i => i.Key==e.Key);
@@ -344,18 +707,14 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
+        var expectedCounts = session.Query.All<Product>()
           .GroupBy(g => new {Battery = g.Battery})
           .AsEnumerable()
-          .Select(
-            g => new {
-              g.Key,
-              Cnt = g.Count()
-            })
+          .Select(g => new {g.Key, Cnt = g.Count()})
           .ToList();
 
         using (logger.Attach()) {
-          var x = Query.All<Product>()
+          var x = session.Query.All<Product>()
             .GroupBy(g => new {Battery = g.Battery})
             .Select(g => new {g.Key, Cnt = g.Count()});
 
@@ -374,14 +733,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
+        var expectedCounts = session.Query.All<Product>()
           .GroupBy(g => new {Battery = g.Battery, Description = g.Description})
           .AsEnumerable()
-          .Select(
-            g => new {
-              g.Key,
-              Cnt = g.Count()
-            })
+          .Select(g => new {g.Key, Cnt = g.Count()})
           .ToList();
 
         using (logger.Attach()) {
@@ -399,23 +754,47 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    public void GroupBySelectedAnonymousTypeWithPersistentAndNullableFieldsTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
+          .Select(p => new {Battery = p.Battery, Description = p.Description})
+          .GroupBy(g => new {Battery = g.Battery, Description = g.Description})
+          .AsEnumerable()
+          .Select(g => new {g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = Query.All<Product>()
+            .Select(p => new { Battery = p.Battery, Description = p.Description })
+            .GroupBy(g => new { Battery = g.Battery, Description = g.Description })
+            .Select(g => new { g.Key, Cnt = g.Count() });
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key.Battery==e.Key.Battery && i.Key.Description==e.Key.Description);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
     public void GroupByAnonymousTypeWithPersistentAndNonNullableFielsTest()
     {
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
+        var expectedCounts = session.Query.All<Product>()
           .GroupBy(g => new {Battery = g.Battery, Description = g.Name})
           .AsEnumerable()
-          .Select(
-            g => new {
-              g.Key,
-              Cnt = g.Count()
-            })
+          .Select(g => new {g.Key, Cnt = g.Count()})
           .ToList();
 
         using (logger.Attach()) {
-          var x = Query.All<Product>()
+          var x = session.Query.All<Product>()
             .GroupBy(g => new {Battery = g.Battery, Description = g.Name})
             .Select(g => new {g.Key, Cnt = g.Count()});
 
@@ -429,19 +808,48 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    public void GroupBySelectedAnonymousTypeWithPersistentAndNonNullableFielsTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
+          .Select(p => new {Battery = p.Battery, Description = p.Name})
+          .GroupBy(g => new {Battery = g.Battery, Description = g.Description})
+          .AsEnumerable()
+          .Select(g => new {g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
+            .Select(p => new {Battery = p.Battery, Description = p.Name})
+            .GroupBy(g => new {Battery = g.Battery, Description = g.Description})
+            .Select(g => new {g.Key, Cnt = g.Count()});
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i =>
+              i.Key.Battery == e.Key.Battery && i.Key.Description==e.Key.Description);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
     public void GroupByAnonymousTypeWithStructureFieldTest()
     {
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
+        var expectedCounts = session.Query.All<Product>()
           .GroupBy(g => new {g.Price})
           .AsEnumerable()
           .Select(g => new {Key = g.Key, Cnt = g.Count()})
           .ToList();
 
         using (logger.Attach()) {
-          var x = Query.All<Product>()
+          var x = session.Query.All<Product>()
             .GroupBy(g => new {g.Price})
             .Select(g => new {g.Key, Cnt = g.Count()});
 
@@ -460,7 +868,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
+        var expectedCounts = session.Query.All<Product>()
           .GroupBy(g => new {g.Price, g.Description})
           .AsEnumerable()
           .Select(g => new {Key = g.Key, Cnt = g.Count()})
@@ -481,19 +889,47 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void GroupByAnonymousTypeWithStructureAndNonNullableFieldsTest()
+    public void GroupBySelectedAnonymousTypeWithStructureAndNullableFieldsTest()
     {
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
-        var expectedCounts = Query.All<Product>()
-          .GroupBy(g => new {g.Price, g.Name})
+        var expectedCounts = session.Query.All<Product>()
+          .Select(p => new {p.Price, p.Description})
+          .GroupBy(g => new {g.Price, g.Description})
           .AsEnumerable()
           .Select(g => new {Key = g.Key, Cnt = g.Count()})
           .ToList();
 
         using (logger.Attach()) {
           var x = Query.All<Product>()
+            .Select(p => new {p.Price, p.Description})
+            .GroupBy(g => new {g.Price, g.Description})
+            .Select(g => new {g.Key, Cnt = g.Count()});
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key.Price==e.Key.Price && i.Key.Description==e.Key.Description);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupByAnonymousTypeWithStructureAndNonNullableFieldsTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
+          .GroupBy(g => new {g.Price, g.Name})
+          .AsEnumerable()
+          .Select(g => new {Key = g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
             .GroupBy(g => new {g.Price, g.Name})
             .Select(g => new {g.Key, Cnt = g.Count()});
 
@@ -501,6 +937,64 @@ namespace Xtensive.Orm.Tests.Issues
             var entry = expectedCounts.FirstOrDefault(i => i.Key.Price==e.Key.Price && i.Key.Name==e.Key.Name);
             Assert.That(entry, Is.Not.Null);
             Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupBySelectedAnonymousTypeWithStructureAndNonNullableFieldsTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Product>()
+          .Select(p => new {p.Price, p.Name})
+          .GroupBy(g => new {g.Price, g.Name})
+          .AsEnumerable()
+          .Select(g => new {Key = g.Key, Cnt = g.Count()})
+          .ToList();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Product>()
+            .Select(p => new {p.Price, p.Name})
+            .GroupBy(g => new {g.Price, g.Name})
+            .Select(g => new {g.Key, Cnt = g.Count()});
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Key.Price==e.Key.Price && i.Key.Name==e.Key.Name);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Cnt, Is.EqualTo(entry.Cnt));
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void GroupJoinTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var logger = new QueryLogger(session))
+      using (var transaction = session.OpenTransaction()) {
+        var expectedCounts = session.Query.All<Battery>().AsEnumerable()
+          .GroupJoin(Query.All<Product>(),
+            battery => battery,
+            product => product.Battery,
+            (battery, products) => new {battery.Amps, Count = products.Count()})
+          .ToArray();
+
+        using (logger.Attach()) {
+          var x = session.Query.All<Battery>()
+            .GroupJoin(Query.All<Product>(),
+              battery => battery,
+              product => product.Battery,
+              (battery, products) => new {battery.Amps, Count = products.Count()})
+            .ToArray();
+
+          foreach (var e in x) {
+            var entry = expectedCounts.FirstOrDefault(i => i.Amps==e.Amps && i.Count==e.Count);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(e.Count, Is.EqualTo(entry.Count));
           }
         }
       }
