@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
@@ -19,35 +20,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 {
   public class SqlDecimalTest : SqlTest
   {
-    private object accessGuard = new object();
-    private byte[] scales;
-
     private readonly SqlDecimal SourceDecimal = SqlDecimal.Parse("9" + string.Join("", Enumerable.Repeat('0', 37)));
+    private readonly byte[] TestScalesFull = Enumerable.Range(0, 37).Select(i=> (byte) i).ToArray();
+    private readonly byte[] TestScaleShort = Enumerable.Range(10, 29).Select(i => (byte)i).ToArray();
 
     public byte[][] TestValuesParametersFast { get { return GetTestCases(true).ToArray(); } }
 
     public byte[][] TestValuesParametersFull { get { return GetTestCases(false).ToArray(); } }
-
-    public byte[] TestScalesFull
-    {
-      get {
-        if (scales!=null)
-          return scales;
-        lock (accessGuard) {
-          return scales = Enumerable.Range(0, 37).Select(i=> (byte)i).ToArray();
-        }
-      }
-    }
-
-    public byte[] TestScaleShort
-    {
-      get {
-        byte[] result = new byte[29];
-        Array.Copy(TestScalesFull, 10, result, 0, 29);
-        return result;
-      }
-    }
-
 
     [Test]
     public void SqlDecimalUtilsTest()
@@ -103,7 +82,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var str = "1." + new string(chars);
       var input = SqlDecimal.Parse(str);
       var output = SqlDecimalUtils.TruncateToNetDecimal(input);
-      var dec = decimal.Parse(str);
+      var dec = decimal.Parse(str, CultureInfo.InvariantCulture);
       Assert.That(output, Is.EqualTo(dec));
     }
 
@@ -115,7 +94,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var sqlDecimal = new SqlDecimal( sourceValue.Precision, scale, sourceValue.IsPositive, sourceValue.Data);
       var output = SqlDecimalUtils.TruncateToNetDecimal(sqlDecimal);
-      var dec = decimal.Parse(sqlDecimal.ToString());
+      var dec = decimal.Parse(sqlDecimal.ToString(), CultureInfo.InvariantCulture);
       Assert.That(output, Is.EqualTo(dec));
     }
 
