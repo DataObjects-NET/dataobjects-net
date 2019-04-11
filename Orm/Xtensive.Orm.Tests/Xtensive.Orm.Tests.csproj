@@ -431,7 +431,7 @@
     <Compile Include="Model\RemoveDotsAndHypensTest.cs" />
     <Compile Include="Model\StructureWithCustomConstructorTest.cs" />
     <Compile Include="Storage\AbstractGenericsTest.cs" />
-    <Compile Include="Storage\BatchingWhenValidateEntityVersionsIsEnabledTest.cs" />
+    <Compile Include="Storage\BatchingOfVersionizedEntitiesTest.cs" />
     <Compile Include="Storage\AnotherValidationTest.cs" />
     <Compile Include="Storage\ByteFieldStorageTest.cs" />
     <Compile Include="Storage\CascadeRemoveTest.cs" />
