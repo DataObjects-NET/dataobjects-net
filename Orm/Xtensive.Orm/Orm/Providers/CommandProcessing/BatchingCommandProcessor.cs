@@ -99,8 +99,10 @@ namespace Xtensive.Orm.Providers
 
       var shouldReturnReader = false;
       try {
-        for (; numberOfTasks > 0 && tasks.Count > 0 && ProcessTask(tasks.Peek()); numberOfTasks--)
+        while (numberOfTasks > 0 && tasks.Count > 0 && ProcessTask(tasks.Peek())) {
           tasks.Dequeue();
+          numberOfTasks--;
+        }
 
         if (lastRequest!=null && tasks.Count==0) {
           var part = Factory.CreateQueryPart(lastRequest);
