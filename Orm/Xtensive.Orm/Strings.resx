@@ -3412,4 +3412,10 @@ Error: {1}</value>
   <data name="ExQueryHasTooManyParametersMaxCountOfParametersIsX" xml:space="preserve">
     <value>The SQL query has too many parameters. The server supports a maximum of {0} parameters.</value>
   </data>
+  <data name="ExUnableToChangeCommandItIsAlreadyPrepared" xml:space="preserve">
+    <value>Unable to change command: it is already prepared.</value>
+  </data>
+  <data name="ExUnableToPrepareCommandNoPartsRegistered" xml:space="preserve">
+    <value>Unable to prepare command: no parts registered</value>
+  </data>
 </root>
