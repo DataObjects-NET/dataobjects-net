@@ -19,6 +19,14 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public abstract class CommandProcessor
   {
+    protected enum ExecutionBehavior
+    {
+      AsOneCommand,
+      AsTwoCommands,
+      AsSeveralCommands,
+      TooLargeForAnyCommand,
+    }
+
     /// <summary>
     /// Factory of command parts.
     /// </summary>
@@ -67,26 +75,39 @@ namespace Xtensive.Orm.Providers
       ExecuteTasks(false);
     }
 
-    protected bool ValidateCommandParameterCount(Command command, CommandPart part)
+    protected bool ValidateCommandParameterCount(Command currentCommand, CommandPart partToAdd)
     {
-      return ValidateCommandParameterCount(command, EnumerableUtils.One(part));
+      var currentCount = (currentCommand != null) ? currentCommand.ParametersCount : 0;
+      var behavior = GetCommandExecutionBehavior(new[] {partToAdd}, currentCount);
+      if (behavior==ExecutionBehavior.AsOneCommand)
+        return true;
+      if (behavior== ExecutionBehavior.TooLargeForAnyCommand)
+        throw new ParametersLimitExceededException(currentCount + partToAdd.Parameters.Count, MaxQueryParameterCount);
+      return false;
     }
 
-    protected bool ValidateCommandParameterCount(Command command, IEnumerable<CommandPart> parts)
+    protected ExecutionBehavior GetCommandExecutionBehavior(ICollection<CommandPart> commandParts, int currentParametersCount)
     {
-      if (MaxQueryParameterCount==int.MaxValue) return true;
-      var commandParametersCount = command==null ? 0 : command.ParametersCount;
-      var partsParametersCount = parts.Sum(x => x.Parameters.Count);
-      if (commandParametersCount + partsParametersCount > MaxQueryParameterCount) {
-        if (commandParametersCount==0) {
-          throw new StorageException(
-            string.Format(
-              Strings.ExSqlQueryHasTooManyParametersServerSupportsMaximumOfXParameters,
-              MaxQueryParameterCount));
-        }
-        else return false;
+      if (MaxQueryParameterCount==int.MaxValue)
+        return ExecutionBehavior.AsOneCommand;
+
+      int max = 0;
+      int sum = 0;
+      foreach (var commandPart in commandParts) {
+        var count = commandPart.Parameters.Count;
+        if (count > max)
+          max = count;
+        sum += count;
       }
-      else return true;
+      if (max > MaxQueryParameterCount)
+        return ExecutionBehavior.TooLargeForAnyCommand;
+
+      if (sum + currentParametersCount < MaxQueryParameterCount)
+        return ExecutionBehavior.AsOneCommand;
+
+      if (sum < MaxQueryParameterCount)
+        return ExecutionBehavior.AsTwoCommands;
+      return ExecutionBehavior.AsSeveralCommands;
     }
 
     // Constructors

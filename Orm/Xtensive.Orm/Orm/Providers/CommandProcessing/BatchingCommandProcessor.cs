@@ -191,13 +191,17 @@ namespace Xtensive.Orm.Providers
         return true;
       }
 
-      var sequence = Factory.CreatePersistParts(task, GetParameterPrefix());
-      if (!ValidateCommandParameterCount(activeCommand, sequence))
-        return false;
+      var sequence = Factory.CreatePersistParts(task, GetParameterPrefix()).ToChainedBuffer();
+      var executionBehavior = GetCommandExecutionBehavior(sequence, activeCommand.ParametersCount);
+      if (executionBehavior==ExecutionBehavior.AsOneCommand) {
+        foreach (var part in sequence)
+          activeCommand.AddPart(part);
+        return true;
+      }
 
-      foreach (var part in sequence)
-        activeCommand.AddPart(part);
-      return true;
+      if (executionBehavior==ExecutionBehavior.AsTwoCommands)
+        return false;
+      throw new ParametersLimitExceededException(activeCommand.ParametersCount + sequence.Sum(x=>x.Parameters.Count), MaxQueryParameterCount);
     }
 
     private bool ProcessTask(SqlTask task)

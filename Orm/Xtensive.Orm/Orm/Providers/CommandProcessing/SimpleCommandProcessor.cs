@@ -55,10 +55,10 @@ namespace Xtensive.Orm.Providers
     void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
     {
       var sequence = Factory.CreatePersistParts(task);
-      ValidateCommandParameterCount(null, sequence);
-
       foreach (var part in sequence) {
         using (var command = Factory.CreateCommand()) {
+          ValidateCommandParameterCount(command, part);
+
           command.AddPart(part);
           var affectedRowsCount = command.ExecuteNonQuery();
           if (task.ValidateRowCount && affectedRowsCount==0)
