@@ -80,6 +80,7 @@
     <Compile Include="DomainConfigurationFactoryTest.cs" />
     <Compile Include="Interfaces\DoubleIndexedInterfaceTest.cs" />
     <Compile Include="Interfaces\InterfaceImplementationTest.cs" />
+    <Compile Include="Issues\IssueJira0746_LikeBehaviorDifferentOnClientSide.cs" />
     <Compile Include="Issues\IssueJira0718_EntitySetEnumerationBug.cs" />
     <Compile Include="Issues\IssueJira0712_IncorrectDefaultEnumValueTranslation.cs" />
     <Compile Include="Issues\IssueJira0674_ReferenceFinderBug.cs" />
@@ -282,6 +283,7 @@
     <Compile Include="Issues\IssueJira0723_ContainsOverLocalCollectionError.cs" />
     <Compile Include="Issues\IssueJira0728_NullGroupHasNoElementsTest.cs" />
     <Compile Include="Issues\IssueJira0752_RecycledAttributeDontWorkForPersistentGenericInterface.cs" />
+    <Compile Include="Issues\IssueJira0760_OverrideFieldNameAttributeRuinsFieldMappingOnUpgrade.cs" />
     <Compile Include="Issues\IssueJira0761_ReadingAverageByDecimalField.cs" />
     <Compile Include="Issues\IssueJira_0530_LowSpeedDecimalMaterializationCouseSqlDecimalInternalException.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />

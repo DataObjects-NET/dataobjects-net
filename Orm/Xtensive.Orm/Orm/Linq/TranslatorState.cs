@@ -44,6 +44,8 @@ namespace Xtensive.Orm.Linq
 
     public bool RequestCalculateExpressionsOnce { get; set; }
 
+    public bool SkipNullableColumnsDetectionInGroupBy { get; set; }
+
     public IDisposable CreateScope()
     {
       var currentState = translator.state;
@@ -95,6 +97,7 @@ namespace Xtensive.Orm.Linq
       RequestCalculateExpressions = currentState.RequestCalculateExpressions;
       TypeOfEntityStoredInKey = currentState.TypeOfEntityStoredInKey;
       ShouldOmmitConvertToObject = currentState.ShouldOmmitConvertToObject;
+      SkipNullableColumnsDetectionInGroupBy = currentState.SkipNullableColumnsDetectionInGroupBy;
     }
   }
 }

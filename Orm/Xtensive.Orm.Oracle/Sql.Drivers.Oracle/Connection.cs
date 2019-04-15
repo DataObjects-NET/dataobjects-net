@@ -53,7 +53,7 @@ namespace Xtensive.Sql.Drivers.Oracle
     /// <inheritdoc/>
     public override void BeginTransaction()
     {
- 	    EnsureTrasactionIsNotActive();
+      EnsureTrasactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction();
     }
 
@@ -75,7 +75,7 @@ namespace Xtensive.Sql.Drivers.Oracle
     public override void RollbackToSavepoint(string name)
     {
       EnsureTransactionIsActive();
- 	    activeTransaction.Rollback(name);
+      activeTransaction.Rollback(name);
     }
 
     /// <inheritdoc/>
