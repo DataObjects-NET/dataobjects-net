@@ -14,10 +14,11 @@ namespace Xtensive.Sql.Drivers.SqlServer
   internal abstract class Driver : SqlDriver
   {
     private readonly ErrorMessageParser errorMessageParser;
+    private readonly bool checkConnectionIsAlive;
 
     protected override SqlConnection DoCreateConnection()
     {
-      return new Connection(this);
+      return new Connection(this, checkConnectionIsAlive);
     }
 
     public override SqlExceptionType GetExceptionType(Exception exception)
@@ -107,10 +108,11 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
     // Constructors
 
-    protected Driver(CoreServerInfo coreServerInfo, ErrorMessageParser errorMessageParser)
+    protected Driver(CoreServerInfo coreServerInfo, ErrorMessageParser errorMessageParser, bool checkConnectionIsAlive)
       : base(coreServerInfo)
     {
       this.errorMessageParser = errorMessageParser;
+      this.checkConnectionIsAlive = checkConnectionIsAlive;
     }
   }
 }

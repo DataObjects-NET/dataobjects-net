@@ -431,6 +431,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Active transaction is no longer usable..
+        /// </summary>
+        internal static string ExActiveTransactionIsNoLongerUsable {
+            get {
+                return ResourceManager.GetString("ExActiveTransactionIsNoLongerUsable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Active Transaction is required for this operation. Use Session.OpenTransaction(...) to open it..
         /// </summary>
         internal static string ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt {
@@ -8226,6 +8235,24 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connection restore failed..
+        /// </summary>
+        internal static string LogConnectionRestoreFailed {
+            get {
+                return ResourceManager.GetString("LogConnectionRestoreFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection successfully restored..
+        /// </summary>
+        internal static string LogConnectionSuccessfullyRestored {
+            get {
+                return ResourceManager.GetString("LogConnectionSuccessfullyRestored", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Creating {0}.
         /// </summary>
         internal static string LogCreatingX {
@@ -8413,6 +8440,15 @@ namespace Xtensive {
         internal static string LogGenericAssociateIsUsedFor {
             get {
                 return ResourceManager.GetString("LogGenericAssociateIsUsedFor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Given connection is corrupted. Trying to restore the connection..
+        /// </summary>
+        internal static string LogGivenConnectionIsCorruptedTryingToRestoreTheConnection {
+            get {
+                return ResourceManager.GetString("LogGivenConnectionIsCorruptedTryingToRestoreTheConnection", resourceCulture);
             }
         }
         

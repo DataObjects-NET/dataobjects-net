@@ -61,7 +61,9 @@
     <Compile Include="Sqlite\DateTimeIntervalTest.cs" />
     <Compile Include="Sqlite\DateTimeOffsetTest.cs" />
     <Compile Include="SqlServer\CompilerTest.cs" />
+    <Compile Include="SqlServer\ConnectionTest.cs" />
     <Compile Include="SqlServer\DateTimeOffsetTest.cs" />
+    <Compile Include="SqlServer\SqlDecimalTest.cs" />
     <Compile Include="TestConnectionInfoProvider.cs" />
     <Compile Include="CloneTests.cs" />
     <Compile Include="CollectionTest.cs" />

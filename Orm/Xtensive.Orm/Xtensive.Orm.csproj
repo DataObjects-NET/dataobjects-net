@@ -85,6 +85,7 @@
     <Compile Include="Collections\CollectionBase.cs" />
     <Compile Include="Collections\CollectionBaseSlim.cs" />
     <Compile Include="Collections\CollectionChangeNotifierEventArgs.cs" />
+    <Compile Include="Collections\CollectionUtils.cs" />
     <Compile Include="Collections\Deque.cs" />
     <Compile Include="Collections\DifferentialDictionary.cs" />
     <Compile Include="Collections\DifferentialDictionaryDifference.cs" />
@@ -257,6 +258,7 @@
     <Compile Include="Core\AssociateProvider.cs" />
     <Compile Include="Core\AsyncFutureResult.cs" />
     <Compile Include="Core\Cloner.cs" />
+    <Compile Include="Collections\Internals\ComparisonComparer.cs" />
     <Compile Include="Core\ConfigurationCollection.cs" />
     <Compile Include="Core\ConfigurationCollectionElementBase.cs" />
     <Compile Include="Core\Context.cs" />
@@ -343,6 +345,8 @@
     <Compile Include="Orm\Configuration\VersioningConvention.cs" />
     <Compile Include="Orm\Configuration\EntityVersioningPolicy.cs" />
     <Compile Include="Orm\Exceptions\ParametersLimitExceededException.cs" />
+    <Compile Include="Orm\EntityRemoveReason.cs" />
+    <Compile Include="Orm\EntityRemovingEventArgs.cs" />
     <Compile Include="Orm\FullTextChangeTrackingMode.cs" />
     <Compile Include="Orm\FullTextSearchCondition\GenerationType.cs" />
     <Compile Include="Orm\FullTextSearchCondition\Interfaces\IComplexTerm.cs" />
@@ -1506,6 +1510,7 @@
     <Compile Include="Sql\Drivers\SqlServer\Driver.cs" />
     <Compile Include="Sql\Drivers\SqlServer\DriverFactory.cs" />
     <Compile Include="Sql\Drivers\SqlServer\ErrorMessageParser.cs" />
+    <Compile Include="Sql\Drivers\SqlServer\Internals\SqlDecimalUtils.cs" />
     <Compile Include="Sql\Drivers\SqlServer\SqlServerTypeMapper.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v09\ColumnResolver.cs" />
     <Compile Include="Sql\Drivers\SqlServer\v09\Compiler.cs" />

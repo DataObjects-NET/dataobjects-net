@@ -111,7 +111,8 @@ namespace Xtensive.Orm.Providers
       else {
         for (int i = 0; i < arguments.Length; i++) {
           var argument = arguments[i];
-          if (argument.IsSubclassOf(typeof (Persistent))) {
+
+          if (argument.IsSubclassOf(typeof (Persistent)) && context.ModelDefBuilder.IsTypeAvailable(argument)) {
             var argTypeDef = context.ModelDefBuilder.ProcessType(argument);
             names[i] = argTypeDef.Name;
           }

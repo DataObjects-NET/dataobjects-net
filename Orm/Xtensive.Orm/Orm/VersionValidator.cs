@@ -214,7 +214,7 @@ namespace Xtensive.Orm
       OnEntityChanging(e.Entity);
     }
 
-    private void OnEntityRemoving(object sender, EntityEventArgs e)
+    private void OnEntityRemoving(object sender, EntityRemovingEventArgs e)
     {
       OnEntityChanging(e.Entity);
     }

@@ -87,6 +87,7 @@ namespace Xtensive.Sql
       var command = CreateNativeCommand();
       if (commandTimeout!=null)
         command.CommandTimeout = commandTimeout.Value;
+      EnsureTransactionIsAlive();
       command.Transaction = ActiveTransaction;
       return command;
     }
@@ -158,6 +159,17 @@ namespace Xtensive.Sql
     public virtual void Open()
     {
       UnderlyingConnection.Open();
+    }
+
+    public virtual void OpenAndInitialize(string initializationScript)
+    {
+      UnderlyingConnection.Open();
+      if (string.IsNullOrEmpty(initializationScript))
+        return;
+      using (var command = UnderlyingConnection.CreateCommand()) {
+        command.CommandText = initializationScript;
+        command.ExecuteNonQuery();
+      }
     }
 
     /// <summary>
@@ -268,7 +280,7 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Ensures the transaction is active (i.e. <see cref="ActiveTransaction"/> is not <see langword="null"/>).
+    /// Ensures that there is an active transaction (i.e. <see cref="ActiveTransaction"/> is not <see langword="null"/>).
     /// </summary>
     protected void EnsureTransactionIsActive()
     {
@@ -277,7 +289,16 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Ensures the trasaction is not active (i.e. <see cref="ActiveTransaction"/> is <see langword="null"/>).
+    /// Ensures that existing active tranaction is alive (i.e both <see cref="ActiveTransaction"/> and <see cref="ActiveTransaction.Connection"/> are not <see langword="null"/>).
+    /// </summary>
+    protected void EnsureTransactionIsAlive()
+    {
+      if (ActiveTransaction!=null && ActiveTransaction.Connection==null)
+        throw new InvalidOperationException(Strings.ExActiveTransactionIsNoLongerUsable);
+    }
+
+    /// <summary>
+    /// Ensures that there is no actuve trasaction (i.e. <see cref="ActiveTransaction"/> is <see langword="null"/>).
     /// </summary>
     protected void EnsureTrasactionIsNotActive()
     {
