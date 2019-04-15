@@ -9,6 +9,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using Xtensive.Sql.Drivers.SqlServer.Internals;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v09
@@ -94,38 +95,15 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         if (sqlDecimal < MinDecimal)
           return decimal.MinValue;
       }
-      decimal result;
-      if (TryConvert(sqlDecimal, out result))
-        return result;
-      var reduced1 = ReducePrecision(sqlDecimal, 29);
-      if (TryConvert(reduced1, out result))
-        return result;
-      var reduced2 = ReducePrecision(sqlDecimal, 28);
-      return reduced2.Value;
+
+      var result = SqlDecimalUtils.TruncateToNetDecimal(sqlDecimal);
+      return result;
     }
 
     public override void Initialize()
     {
       base.Initialize();
       dateTimeRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
-    }
-
-    private bool TryConvert(SqlDecimal sqlDecimal, out decimal result)
-    {
-      var data = sqlDecimal.Data;
-      if (data[3]==0 && sqlDecimal.Scale <= 28) {
-        result = new decimal(data[0], data[1], data[2], !sqlDecimal.IsPositive, sqlDecimal.Scale);
-        return true;
-      }
-      result = decimal.Zero;
-      return false;
-    }
-
-    private SqlDecimal ReducePrecision(SqlDecimal d, int newPrecision)
-    {
-      var newScale = newPrecision - d.Precision + d.Scale;
-      var truncated = SqlDecimal.Truncate(d, newScale);
-      return SqlDecimal.ConvertToPrecScale(truncated, newPrecision, newScale);
     }
 
     private bool ShouldCompareValues(SqlDecimal valueFromDatabase)
