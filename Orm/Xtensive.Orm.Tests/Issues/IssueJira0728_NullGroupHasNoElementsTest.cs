@@ -12,6 +12,7 @@ using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.GroupByNullableFieldTestModel;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -55,6 +56,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void GroupByPersistentFieldTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
+
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
@@ -81,6 +84,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void GroupBySelectedPersistentTestTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
+
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
@@ -243,6 +248,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void GroupBySelectedStructureFieldTest3()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
+
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
@@ -297,6 +304,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void GroupBySelectedStructureFieldTest4()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
+
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
@@ -704,6 +713,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void GroupByAnonymousTypeWithPersistentFieldTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
+
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
@@ -730,6 +741,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void GroupByAnonymousTypeWithPersistentAndNullableFieldsTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
+
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
@@ -756,6 +769,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void GroupBySelectedAnonymousTypeWithPersistentAndNullableFieldsTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
+
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
@@ -784,6 +799,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void GroupByAnonymousTypeWithPersistentAndNonNullableFielsTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
+
       using (var session = Domain.OpenSession())
       using (var logger = new QueryLogger(session))
       using (var transaction = session.OpenTransaction()) {
