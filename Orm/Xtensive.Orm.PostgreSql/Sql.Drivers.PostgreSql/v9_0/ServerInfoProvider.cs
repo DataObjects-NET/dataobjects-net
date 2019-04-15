@@ -10,11 +10,20 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
 {
   internal class ServerInfoProvider : v8_4.ServerInfoProvider
   {
+    private const int DoNotKnow = int.MaxValue;
+
     // Constructors
 
     public ServerInfoProvider(SqlDriver driver)
       : base(driver)
     {
+    }
+
+    public override QueryInfo GetQueryInfo()
+    {
+      var queryInfo = base.GetQueryInfo();
+      queryInfo.MaxQueryParameterCount = DoNotKnow;
+      return queryInfo;
     }
   }
 }

@@ -332,6 +332,9 @@
     <Compile Include="Issues\IssueJira0627_PocoClassPropertyRenitialization.cs" />
     <Compile Include="Issues\IssueJira0627_FieldInitializationTest.cs" />
     <Compile Include="Storage\RemoveReasonOnEntityRemovingEventTest.cs" />
+    <Compile Include="Storage\CommandProcessing\BatchingCommandProcessorParametersManagement.cs" />
+    <Compile Include="Storage\CommandProcessing\ParametersManagementModel.cs" />
+    <Compile Include="Storage\CommandProcessing\SimpleCommandProcessorParametersManagement.cs" />
     <Compile Include="Storage\SchemaSharing\DomainConfigurationExtensions.cs" />
     <Compile Include="Storage\SchemaSharing\EntityManipulation\SimpleEntityManipulationTest.cs" />
     <Compile Include="Storage\SchemaSharing\EntityManipulation\Model.cs" />
@@ -430,7 +433,7 @@
     <Compile Include="Model\RemoveDotsAndHypensTest.cs" />
     <Compile Include="Model\StructureWithCustomConstructorTest.cs" />
     <Compile Include="Storage\AbstractGenericsTest.cs" />
-    <Compile Include="Storage\BatchingWhenValidateEntityVersionsIsEnabledTest.cs" />
+    <Compile Include="Storage\CommandProcessing\BatchingOfVersionizedEntitiesTest.cs" />
     <Compile Include="Storage\AnotherValidationTest.cs" />
     <Compile Include="Storage\ByteFieldStorageTest.cs" />
     <Compile Include="Storage\CascadeRemoveTest.cs" />
@@ -970,7 +973,10 @@
       <LastGenOutput>TwoPartsModel.cs</LastGenOutput>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Storage\CommandParametersManagement\" />
+    <Folder Include="Storage\Prefetch\Sql\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
 </Project>

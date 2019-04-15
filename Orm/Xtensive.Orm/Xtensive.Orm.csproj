@@ -344,6 +344,7 @@
     <Compile Include="Orm\Configuration\NodeConfiguration.cs" />
     <Compile Include="Orm\Configuration\VersioningConvention.cs" />
     <Compile Include="Orm\Configuration\EntityVersioningPolicy.cs" />
+    <Compile Include="Orm\Exceptions\ParametersLimitExceededException.cs" />
     <Compile Include="Orm\EntityRemoveReason.cs" />
     <Compile Include="Orm\EntityRemovingEventArgs.cs" />
     <Compile Include="Orm\FullTextChangeTrackingMode.cs" />

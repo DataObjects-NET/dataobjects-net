@@ -36,8 +36,8 @@ namespace Xtensive.Orm.Providers
         : new CommandFactory(driver, session, connection);
 
       var processor = useBatches
-        ? new BatchingCommandProcessor(factory, configuration.BatchSize)
-        : (CommandProcessor) new SimpleCommandProcessor(factory);
+        ? new BatchingCommandProcessor(factory, configuration.BatchSize, session.Domain.StorageProviderInfo.MaxQueryParameterCount)
+        : (CommandProcessor) new SimpleCommandProcessor(factory, session.Domain.StorageProviderInfo.MaxQueryParameterCount);
       return processor;
       
     }

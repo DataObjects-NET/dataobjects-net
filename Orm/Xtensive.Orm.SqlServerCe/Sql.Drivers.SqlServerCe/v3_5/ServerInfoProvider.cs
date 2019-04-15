@@ -10,6 +10,7 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
     private const int MaxIdentifierLength = 64;
+    private const int DoNotKnow = int.MaxValue;
 
     private readonly string databaseName;
     private readonly string defaultSchemaName;
@@ -173,6 +174,7 @@ namespace Xtensive.Sql.Drivers.SqlServerCe.v3_5
       queryInfo.MaxComparisonOperations = 1000;
       queryInfo.MaxNestedSubqueriesAmount = 32;
       queryInfo.ParameterPrefix = "@";
+      queryInfo.MaxQueryParameterCount = DoNotKnow;
       queryInfo.Features =
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |

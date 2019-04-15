@@ -28,10 +28,15 @@ namespace Xtensive.Orm.Providers
 
     public int Count { get { return statements.Count; } }
 
+    internal int ParametersCount
+    {
+      get { return underlyingCommand.Parameters.Count; }
+    }
+
     public void AddPart(CommandPart part)
     {
       if (prepared)
-        throw new InvalidOperationException("Unable to change command: it is already prepared");
+        throw new InvalidOperationException(Strings.ExUnableToChangeCommandItIsAlreadyPrepared);
 
       statements.Add(part.Statement);
 
@@ -95,7 +100,7 @@ namespace Xtensive.Orm.Providers
     public DbCommand Prepare()
     {
       if (statements.Count==0)
-        throw new InvalidOperationException("Unable to prepare command: no parts registered");
+        throw new InvalidOperationException(Strings.ExUnableToPrepareCommandNoPartsRegistered);
       if (prepared)
         return underlyingCommand;
       prepared = true;

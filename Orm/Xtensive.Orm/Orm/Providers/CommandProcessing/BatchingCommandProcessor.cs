@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -19,23 +20,16 @@ namespace Xtensive.Orm.Providers
     private int reenterCount;
     private Command activeCommand;
     private List<SqlLoadTask> activeTasks;
+    private bool isFitParametersCountRestrictions;
 
     void ISqlTaskProcessor.ProcessTask(SqlLoadTask task)
     {
-      var part = Factory.CreateQueryPart(task, GetParameterPrefix());
-      activeCommand.AddPart(part);
-      activeTasks.Add(task);
+      isFitParametersCountRestrictions = ProcessTask(task);
     }
 
     void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
     {
-      if (task.ValidateRowCount) {
-        ProcessUnbatchedTask(task);
-        return;
-      }
-      var sequence = Factory.CreatePersistParts(task, GetParameterPrefix());
-      foreach (var part in sequence)
-        activeCommand.AddPart(part);
+      isFitParametersCountRestrictions = ProcessTask(task);
     }
 
     public override void ExecuteTasks(bool allowPartialExecution)
@@ -43,7 +37,7 @@ namespace Xtensive.Orm.Providers
       while (tasks.Count >= batchSize)
         ExecuteBatch(batchSize, null);
 
-      if (!allowPartialExecution)
+      while (!allowPartialExecution && tasks.Count > 0)
         ExecuteBatch(tasks.Count, null);
     }
 
@@ -59,10 +53,16 @@ namespace Xtensive.Orm.Providers
 
     public override IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest request)
     {
+      ArgumentValidator.EnsureArgumentNotNull(request, "request");
+
       while (tasks.Count >= batchSize)
         ExecuteBatch(batchSize, null);
 
-      return ExecuteBatch(tasks.Count, request).AsReaderOf(request);
+      for (;;) {
+        var result = ExecuteBatch(tasks.Count, request);
+        if (result!=null && tasks.Count==0)
+          return result.AsReaderOf(request);
+      }
     }
 
     #region Private / internal methods
@@ -92,23 +92,26 @@ namespace Xtensive.Orm.Providers
 
     private Command ExecuteBatch(int numberOfTasks, QueryRequest lastRequest)
     {
-      var shouldReturnReader = lastRequest!=null;
-
-      if (numberOfTasks==0 && !shouldReturnReader)
+      if (numberOfTasks==0 && lastRequest==null)
         return null;
 
       AllocateCommand();
 
+      var shouldReturnReader = false;
       try {
-        while (numberOfTasks > 0 && tasks.Count > 0) {
+        while (numberOfTasks > 0 && tasks.Count > 0 && ProcessTask(tasks.Peek())) {
+          tasks.Dequeue();
           numberOfTasks--;
-          var task = tasks.Dequeue();
-          task.ProcessWith(this);
         }
-        if (shouldReturnReader) {
+
+        if (lastRequest!=null && tasks.Count==0) {
           var part = Factory.CreateQueryPart(lastRequest);
-          activeCommand.AddPart(part);
+          if (ValidateCommandParameterCount(activeCommand, part)) {
+            shouldReturnReader = true;
+            activeCommand.AddPart(part);
+          }
         }
+
         if (activeCommand.Count==0)
           return null;
         var hasQueryTasks = activeTasks.Count > 0;
@@ -116,6 +119,7 @@ namespace Xtensive.Orm.Providers
           activeCommand.ExecuteNonQuery();
           return null;
         }
+
         activeCommand.ExecuteReader();
         if (hasQueryTasks) {
           int currentQueryTask = 0;
@@ -129,6 +133,7 @@ namespace Xtensive.Orm.Providers
             currentQueryTask++;
           }
         }
+
         return shouldReturnReader ? activeCommand : null;
       }
       finally {
@@ -145,6 +150,7 @@ namespace Xtensive.Orm.Providers
         ReleaseCommand();
         AllocateCommand();
       }
+
       ExecuteUnbatchedTask(task);
     }
 
@@ -152,12 +158,15 @@ namespace Xtensive.Orm.Providers
     {
       var sequence = Factory.CreatePersistParts(task);
       foreach (var part in sequence) {
+        ValidateCommandParameterCount(null, part);
         using (var command = Factory.CreateCommand()) {
           command.AddPart(part);
           var affectedRowsCount = command.ExecuteNonQuery();
           if (affectedRowsCount==0)
-            throw new VersionConflictException(string.Format(
-              Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
+            throw new VersionConflictException(
+              string.Format(
+                Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne,
+                task.EntityKey));
         }
       }
     }
@@ -167,12 +176,49 @@ namespace Xtensive.Orm.Providers
       return string.Format("p{0}_", activeCommand.Count + 1);
     }
 
+    private bool ProcessTask(SqlLoadTask task)
+    {
+      var part = Factory.CreateQueryPart(task, GetParameterPrefix());
+      if (!ValidateCommandParameterCount(activeCommand, part))
+        return false;
+      activeCommand.AddPart(part);
+      activeTasks.Add(task);
+      return true;
+    }
+
+    private bool ProcessTask(SqlPersistTask task)
+    {
+      if (task.ValidateRowCount) {
+        ProcessUnbatchedTask(task);
+        return true;
+      }
+
+      var sequence = Factory.CreatePersistParts(task, GetParameterPrefix()).ToChainedBuffer();
+      var executionBehavior = GetCommandExecutionBehavior(sequence, activeCommand.ParametersCount);
+      if (executionBehavior==ExecutionBehavior.AsOneCommand) {
+        foreach (var part in sequence)
+          activeCommand.AddPart(part);
+        return true;
+      }
+
+      if (executionBehavior==ExecutionBehavior.AsTwoCommands)
+        return false;
+      throw new ParametersLimitExceededException(activeCommand.ParametersCount + sequence.Sum(x=>x.Parameters.Count), MaxQueryParameterCount);
+    }
+
+    private bool ProcessTask(SqlTask task)
+    {
+      isFitParametersCountRestrictions = true;
+      task.ProcessWith(this);
+      return isFitParametersCountRestrictions;
+    }
+
     #endregion
 
     // Constructors
 
-    public BatchingCommandProcessor(CommandFactory factory, int batchSize)
-      : base(factory)
+    public BatchingCommandProcessor(CommandFactory factory, int batchSize, int maxQueryParameterCount)
+      : base(factory, maxQueryParameterCount)
     {
       ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, "batchSize");
       this.batchSize = batchSize;
