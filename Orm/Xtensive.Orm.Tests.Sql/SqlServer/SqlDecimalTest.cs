@@ -28,6 +28,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
     public byte[][] TestValuesParametersFull { get { return GetTestCases(false).ToArray(); } }
 
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+    }
+
     [Test]
     public void SqlDecimalUtilsTest()
     {
