@@ -22,12 +22,18 @@ namespace Xtensive.Orm.Providers
   [CompilerContainer(typeof(SqlExpression))]
   internal static class StringCompilers
   {
+    private const string leftSquareBracket = "[";
+    private const string rightSquareBracket = "]";
+    private const string escapeLeftSquareBracket = "^[";
+    private const string escapeRightSquareBracket = "^]";
+
     private static SqlExpression GenericLike(SqlExpression _this,
       SqlExpression patternExpression, bool percentAtStart, bool percentAtEnd)
     {
       const string percent = "%";
       const string ground = "_";
       const string escape = "^";
+
       const string escapeEscape = "^^";
       const string escapeGround = "^_";
       const string escapePercent = "^%";
@@ -38,6 +44,9 @@ namespace Xtensive.Orm.Providers
         SqlExpression result = SqlDml.Replace(patternExpression, SqlDml.Literal(escape), SqlDml.Literal(escapeEscape));
         result = SqlDml.Replace(result, SqlDml.Literal(ground), SqlDml.Literal(escapeGround));
         result = SqlDml.Replace(result, SqlDml.Literal(percent), SqlDml.Literal(escapePercent));
+
+        result = TryReplaceExtraSymbols(result);
+
         if (percentAtStart)
           result = SqlDml.Concat(SqlDml.Literal(percent), result);
         if (percentAtEnd)
@@ -54,6 +63,9 @@ namespace Xtensive.Orm.Providers
         .Replace(escape, escapeEscape)
         .Replace(percent, escapePercent)
         .Replace(ground, escapeGround);
+
+      TryEscapeExtraSymbols(escapedPattern);
+
       bool escaped = escapedPattern.Length > originalPattern.Length;
       if (percentAtStart)
         escapedPattern.Insert(0, percent);
@@ -503,6 +515,29 @@ namespace Xtensive.Orm.Providers
       [Type(typeof (char))] SqlExpression escapeChar)
     {
       return SqlDml.Like(_this, pattern, escapeChar);
+    }
+
+    private static void TryEscapeExtraSymbols(StringBuilder builder)
+    {
+      var context = ExpressionTranslationContext.Current;
+      var provider = context.ProviderInfo.ProviderName;
+      if (provider!=WellKnown.Provider.SqlServer && provider!=WellKnown.Provider.SqlServerCe)
+        return;
+      builder.Replace(leftSquareBracket, escapeLeftSquareBracket);
+      builder.Replace(rightSquareBracket, escapeRightSquareBracket);
+    }
+
+    private static SqlExpression TryReplaceExtraSymbols(SqlExpression expression)
+    {
+      var context = ExpressionTranslationContext.Current;
+      var provider = context.ProviderInfo.ProviderName;
+      if (provider!=WellKnown.Provider.SqlServer && provider!=WellKnown.Provider.SqlServerCe)
+        return expression;
+
+      SqlExpression result = expression;
+      result = SqlDml.Replace(result, SqlDml.Literal(leftSquareBracket), SqlDml.Literal(escapeLeftSquareBracket));
+      result = SqlDml.Replace(result, SqlDml.Literal(rightSquareBracket), SqlDml.Literal(escapeRightSquareBracket));
+      return result;
     }
   }
 }
