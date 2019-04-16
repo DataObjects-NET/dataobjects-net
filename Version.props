@@ -3,7 +3,7 @@
 
 <PropertyGroup>
   <Version>5.0.19</Version>
-  <Modifier>Nightly</Modifier>
+  <Modifier>Beta 2</Modifier>
   <BuildNumberBase>9700</BuildNumberBase>
 </PropertyGroup>
 
