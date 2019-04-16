@@ -176,8 +176,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
       RequireLimit();
 
       using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
+      using (var transaction = session.OpenTransaction()) {
         int[] fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray();
         int[] idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray();
 
@@ -199,7 +198,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         new ALotOfFieldsEntityValid();
-        Assert.DoesNotThrow(() =>session.SaveChanges());
+        Assert.DoesNotThrow(() => session.SaveChanges());
       }
     }
 
@@ -220,10 +219,12 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
     [Test]
     public void InsertTest03()
     {
+      RequireLimit();
+
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         new ALotOfFieldsEntityInvalid();
-        Assert.Throws<ParametersLimitExceededException>(()=>session.SaveChanges());
+        Assert.Throws<ParametersLimitExceededException>(() => session.SaveChanges());
       }
     }
 
