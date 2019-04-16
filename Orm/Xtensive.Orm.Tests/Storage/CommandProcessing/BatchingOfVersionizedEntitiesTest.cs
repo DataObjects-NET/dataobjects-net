@@ -103,6 +103,7 @@ namespace Xtensive.Orm.Tests.Storage.BatchingOfVersionizedEntitiesTestModel
     private void EventsOnDbCommandExecuting(object sender, DbCommandEventArgs dbCommandEventArgs)
     {
       count++;
+      Console.WriteLine(dbCommandEventArgs.Command.CommandText);
     }
 
     public CommandCounter(Session session)
@@ -239,7 +240,10 @@ namespace Xtensive.Orm.Tests.Storage
         using (counter.Attach())
           session.Query.All<Author>().Run();
 
-        Assert.That(counter.Count, Is.EqualTo(4));
+        if (IsUpdatesFirst())
+          Assert.That(counter.Count, Is.EqualTo(3));
+        else
+          Assert.That(counter.Count, Is.EqualTo(4));
         counter.Reset();
 
         new Store {Name = "NewStore3"};
@@ -355,6 +359,14 @@ namespace Xtensive.Orm.Tests.Storage
 
         Assert.That(counter.Count, Is.EqualTo(1));
       }
+    }
+
+    // updatest
+    private bool IsUpdatesFirst()
+    {
+      return !(Domain.Configuration.Supports(ForeignKeyMode.Reference)
+        && ProviderInfo.Supports(ProviderFeatures.ForeignKeyConstraints)
+        && !ProviderInfo.Supports(ProviderFeatures.DeferrableConstraints));
     }
   }
 }
