@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Security;
-
+using System.Threading;
 
 
 namespace Xtensive.Core
@@ -22,8 +22,8 @@ namespace Xtensive.Core
   {
     internal readonly static object @lock = new object();
     internal volatile static Type allowedType = null;
-    [ThreadStatic]
-    private static Scope<TContext> currentScope;
+
+    private static AsyncLocal<Scope<TContext>> currentScope;
 
     private TContext context;
     private Scope<TContext> outerScope;
@@ -34,7 +34,11 @@ namespace Xtensive.Core
     protected internal static TContext CurrentContext
     {
       [DebuggerStepThrough]
-      get { return currentScope != null ? currentScope.context : default(TContext); }
+      get
+      {
+        var currentValue = currentScope.Value;
+        return currentValue?.context;
+      }
     }
 
     /// <summary>
@@ -43,7 +47,7 @@ namespace Xtensive.Core
     protected internal static Scope<TContext> CurrentScope
     {
       [DebuggerStepThrough]
-      get { return currentScope; }
+      get { return currentScope.Value; }
     }
 
     /// <summary>
@@ -86,8 +90,8 @@ namespace Xtensive.Core
       if (context!=null)
         throw Exceptions.AlreadyInitialized("Context");
       context = newContext;
-      outerScope = currentScope;
-      currentScope = this;
+      outerScope = currentScope.Value;
+      currentScope.Value = this;
     }
 
 
@@ -146,12 +150,13 @@ namespace Xtensive.Core
             bStop = true;
             throw new InvalidOperationException(Strings.ExScopeCantBeDisposed);
           }
-          else if (currentScope==this) {
+          else if (currentScope.Value==this) {
             bStop = true;
-            currentScope.Dispose(true);
+            currentScope.Value.Dispose(true);
           }
-          else
-            currentScope.Dispose();
+          else {
+            currentScope.Value.Dispose();
+          }
         }
         catch (Exception e) {
           if (error==null)
@@ -162,7 +167,7 @@ namespace Xtensive.Core
           catch {}
         }
       }
-      currentScope = outerScope;
+      currentScope.Value = outerScope;
       context = null;
       outerScope = null;
       if (error!=null)
