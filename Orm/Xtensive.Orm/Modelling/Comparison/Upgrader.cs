@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
@@ -44,9 +45,9 @@ namespace Xtensive.Modelling.Comparison
     /// Temporary name format string.
     /// </summary>
     public readonly static string TemporaryNameFormat        = "Temp_{0}";
+    
+    private static readonly AsyncLocal<Upgrader> currentAsync = new AsyncLocal<Upgrader>();
 
-    [ThreadStatic]
-    private static Upgrader current;
 
     #region Properties: Current, Context, Difference, Hints, Stage, XxxModel, ...
 
@@ -54,7 +55,7 @@ namespace Xtensive.Modelling.Comparison
     /// Gets the current comparer.
     /// </summary>
     public static Upgrader Current {
-      get { return current; }
+      get { return currentAsync.Value; }
     }
 
     /// <summary>
@@ -135,8 +136,8 @@ namespace Xtensive.Modelling.Comparison
 
       CurrentModel = (IModel)SourceModel.Clone(null, SourceModel.Name);
       Difference = difference;
-      var previous = current;
-      current = this;
+      var previous = currentAsync.Value;
+      currentAsync.Value = this;
       using (NullActionHandler.Instance.Activate()) {
         try {
           var actions = new GroupingNodeAction();
@@ -168,7 +169,7 @@ namespace Xtensive.Modelling.Comparison
           return new ReadOnlyList<NodeAction>(actions.Actions, true);
         }
         finally {
-          current = previous;
+          currentAsync.Value = previous;
         }
       }
     }

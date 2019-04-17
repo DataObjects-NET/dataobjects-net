@@ -27,8 +27,20 @@ namespace Xtensive.Core
   public abstract class AssociateProvider :
     IDeserializationCallback
   {
-    [ThreadStatic]
-    private static SetSlim<TypePair> inProgress = new SetSlim<TypePair>();
+    private static readonly AsyncLocal<SetSlim<TypePair>> inProgressAsync = new AsyncLocal<SetSlim<TypePair>>();
+
+    private static SetSlim<TypePair> InProgress
+    {
+      get
+      {
+        if (inProgressAsync.Value==null)
+          inProgressAsync.Value = new SetSlim<TypePair>();
+        return inProgressAsync.Value;
+      }
+      set { inProgressAsync.Value = value; }
+
+    }
+
     [NonSerialized]
     private object _lock;
     [NonSerialized]
@@ -219,19 +231,19 @@ namespace Xtensive.Core
     protected virtual TAssociate CreateAssociate<TKey, TAssociate>(out Type foundFor)
       where TAssociate : class
     {
-      if (inProgress == null)
-        inProgress = new SetSlim<TypePair>();
+      if (InProgress==null)
+        InProgress = new SetSlim<TypePair>();
       var progressionMark = new TypePair(typeof (TKey), typeof (TAssociate));
-      if (inProgress.Contains(progressionMark))
+      if (InProgress.Contains(progressionMark))
         throw new InvalidOperationException(Strings.ExRecursiveAssociateLookupDetected);
-      inProgress.Add(progressionMark);
+      InProgress.Add(progressionMark);
       try {
         var associate = TypeHelper.CreateAssociate<TAssociate>(
           typeof (TKey), out foundFor, TypeSuffixes, constructorParams, highPriorityLocations);
         return associate;
       }
       finally {
-        inProgress.Remove(progressionMark);
+        InProgress.Remove(progressionMark);
       }
     }
 

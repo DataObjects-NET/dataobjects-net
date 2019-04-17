@@ -20,10 +20,10 @@ namespace Xtensive.Core
   public class Scope<TContext> : IDisposable
     where TContext: class
   {
-    internal readonly static object @lock = new object();
-    internal volatile static Type allowedType = null;
+    internal static readonly object @lock = new object();
+    internal static volatile Type allowedType = null;
 
-    private static AsyncLocal<Scope<TContext>> currentScope;
+    private static readonly AsyncLocal<Scope<TContext>> currentScopeAsync = new AsyncLocal<Scope<TContext>>();
 
     private TContext context;
     private Scope<TContext> outerScope;
@@ -36,7 +36,7 @@ namespace Xtensive.Core
       [DebuggerStepThrough]
       get
       {
-        var currentValue = currentScope.Value;
+        var currentValue = currentScopeAsync.Value;
         return currentValue?.context;
       }
     }
@@ -47,7 +47,7 @@ namespace Xtensive.Core
     protected internal static Scope<TContext> CurrentScope
     {
       [DebuggerStepThrough]
-      get { return currentScope.Value; }
+      get { return currentScopeAsync.Value; }
     }
 
     /// <summary>
@@ -90,8 +90,8 @@ namespace Xtensive.Core
       if (context!=null)
         throw Exceptions.AlreadyInitialized("Context");
       context = newContext;
-      outerScope = currentScope.Value;
-      currentScope.Value = this;
+      outerScope = currentScopeAsync.Value;
+      currentScopeAsync.Value = this;
     }
 
 
@@ -146,16 +146,16 @@ namespace Xtensive.Core
       Exception error = null;
       while (!bStop) {
         try {
-          if (currentScope==null) {
+          if (currentScopeAsync==null) {
             bStop = true;
             throw new InvalidOperationException(Strings.ExScopeCantBeDisposed);
           }
-          else if (currentScope.Value==this) {
+          else if (currentScopeAsync.Value==this) {
             bStop = true;
-            currentScope.Value.Dispose(true);
+            currentScopeAsync.Value.Dispose(true);
           }
           else {
-            currentScope.Value.Dispose();
+            currentScopeAsync.Value.Dispose();
           }
         }
         catch (Exception e) {
@@ -167,7 +167,7 @@ namespace Xtensive.Core
           catch {}
         }
       }
-      currentScope.Value = outerScope;
+      currentScopeAsync.Value = outerScope;
       context = null;
       outerScope = null;
       if (error!=null)

@@ -7,9 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 using Xtensive.Core;
-
-using Xtensive.IoC;
 
 
 namespace Xtensive.Conversion
@@ -26,8 +25,19 @@ namespace Xtensive.Conversion
     /// </summary>
     public  static readonly DateTime ZeroTime = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
     private static readonly AdvancedConverterProvider @default = new AdvancedConverterProvider();
-    [ThreadStatic]
-    private static readonly Dictionary<Pair<Type>, bool> inProgress = new Dictionary<Pair<Type>, bool>();
+
+    private static readonly AsyncLocal<Dictionary<Pair<Type>, bool>> inProgressAsync = new AsyncLocal<Dictionary<Pair<Type>, bool>>();
+
+    private static Dictionary<Pair<Type>, bool> InProgress
+    {
+      get
+      {
+        var returnedValue = inProgressAsync.Value;
+        if (returnedValue==null)
+          inProgressAsync.Value = returnedValue = new Dictionary<Pair<Type>, bool>();
+        return returnedValue;
+      }
+    }
 
     /// <summary>
     /// Gets default instance of this type.
@@ -68,9 +78,9 @@ namespace Xtensive.Conversion
     protected override TAssociate CreateCustomAssociate<TKey1, TKey2, TAssociate>()
     {
       Pair<Type> keyTypePair = new Pair<Type>(typeof (TKey1), typeof(TKey2));
-      if (inProgress.ContainsKey(keyTypePair))
+      if (InProgress.ContainsKey(keyTypePair))
         throw new InvalidOperationException(Strings.ExRecursiveAssociateLookupDetected);
-      inProgress.Add(keyTypePair, true);
+      InProgress.Add(keyTypePair, true);
       try {
         TAssociate associate = base.CreateCustomAssociate<TKey1, TKey2, TAssociate>();
         if (associate!=null)
@@ -90,7 +100,7 @@ namespace Xtensive.Conversion
         return null;
       }
       finally {
-        inProgress.Remove(keyTypePair);
+        InProgress.Remove(keyTypePair);
       }
     }
 

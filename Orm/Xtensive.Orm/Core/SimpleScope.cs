@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Security;
-
+using System.Threading;
 
 
 namespace Xtensive.Core
@@ -21,8 +21,8 @@ namespace Xtensive.Core
   {
     private readonly static object @lock = new object();
     private volatile static Type allowedType = null;
-    [ThreadStatic]
-    private static SimpleScope<TVariator> current;
+
+    private static readonly AsyncLocal<SimpleScope<TVariator>> currentAsync = new AsyncLocal<SimpleScope<TVariator>>();
     private SimpleScope<TVariator> outer;
 
     /// <summary>
@@ -31,7 +31,7 @@ namespace Xtensive.Core
     protected internal static SimpleScope<TVariator> Current
     {
       [DebuggerStepThrough]
-      get { return current; }
+      get { return currentAsync.Value; }
     }
 
     /// <summary>
@@ -67,8 +67,8 @@ namespace Xtensive.Core
       if (allowedType!=GetType())
         throw new SecurityException(
           Strings.ExOnlyOneAncestorOfEachInstanceOfThisGenericTypeIsAllowed);
-      outer = current;
-      current = this;
+      outer = currentAsync.Value;
+      currentAsync.Value = this;
     }
 
 
@@ -91,16 +91,16 @@ namespace Xtensive.Core
       Exception error = null;
       while (!bStop) {
         try {
-          if (current==null) {
+          if (currentAsync==null) {
             bStop = true;
             throw new InvalidOperationException(Strings.ExScopeCantBeDisposed);
           }
-          else if (current==this) {
+          else if (currentAsync.Value==this) {
             bStop = true;
-            current.Dispose(true);
+            currentAsync.Value.Dispose(true);
           }
           else
-            current.Dispose();
+            currentAsync.Value.Dispose();
         }
         catch (Exception e) {
           if (error==null)
@@ -111,7 +111,7 @@ namespace Xtensive.Core
           catch {}
         }
       }
-      current = outer;
+      currentAsync.Value = outer;
       outer = null;
       if (error!=null)
         throw error;
