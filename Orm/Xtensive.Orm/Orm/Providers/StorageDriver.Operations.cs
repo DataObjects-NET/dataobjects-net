@@ -7,6 +7,8 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm.Configuration;
 using Xtensive.Sql;
 
@@ -65,9 +67,35 @@ namespace Xtensive.Orm.Providers
       }
 
       var extension = connection.Extensions.Get<InitializationSqlExtension>();
-      if (extension!=null && !string.IsNullOrEmpty(extension.Script))
+      if (!string.IsNullOrEmpty(extension?.Script))
         using (var command = connection.CreateCommand(extension.Script))
           ExecuteNonQuery(session, command);
+    }
+
+    public async Task OpenConnectionAsync(Session session, SqlConnection connection)
+    {
+      await OpenConnectionAsync(session, connection, CancellationToken.None);
+    }
+
+    public async Task OpenConnectionAsync(Session session, SqlConnection connection, CancellationToken cancellationToken)
+    {
+      if (isLoggingEnabled)
+        SqlLog.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
+
+      var extension = connection.Extensions.Get<InitializationSqlExtension>();
+
+      try {
+        if (!string.IsNullOrEmpty(extension?.Script))
+          await connection.OpenAndInitializeAsync(extension.Script, cancellationToken);
+        else
+          await connection.OpenAsync(cancellationToken);
+      }
+      catch (OperationCanceledException) {
+        throw;
+      }
+      catch (Exception exception) {
+        throw ExceptionBuilder.BuildException(exception);
+      }
     }
 
     public void EnsureConnectionIsOpen(Session session, SqlConnection connection)
@@ -192,6 +220,8 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    #region Sync Execute methods
+
     public int ExecuteNonQuery(Session session, DbCommand command)
     {
       return ExecuteCommand(session, command, c => c.ExecuteNonQuery());
@@ -207,13 +237,54 @@ namespace Xtensive.Orm.Providers
       return ExecuteCommand(session, command, c => c.ExecuteReader());
     }
 
+    #endregion
+
+    #region Async Execute methods
+
+    public async Task<int> ExecuteNonQueryAsync(Session session, DbCommand command)
+    {
+      return await ExecuteCommandAsync(session, command, CancellationToken.None,
+        async (c, ct) => await c.ExecuteNonQueryAsync(ct));
+    }
+
+    public async Task<int> ExecuteNonQueryAsync(Session session, DbCommand command, CancellationToken cancellationToken)
+    {
+      return await ExecuteCommandAsync(session, command, cancellationToken,
+        async (c, ct) => await c.ExecuteNonQueryAsync(ct));
+    }
+
+    public async Task<object> ExecuteScalarAsync(Session session, DbCommand command)
+    {
+      return await ExecuteCommandAsync(session, command, CancellationToken.None,
+        async (c, ct) => await c.ExecuteScalarAsync(ct));
+    }
+
+    public async Task<object> ExecuteScalarAsync(Session session, DbCommand command, CancellationToken cancellationToken)
+    {
+      return await ExecuteCommandAsync(session, command, cancellationToken,
+        async (c, ct) => await c.ExecuteScalarAsync(ct));
+    }
+
+    public async Task<DbDataReader> ExecuteReaderAsync(Session session, DbCommand command)
+    {
+      return await ExecuteCommandAsync(session, command, CancellationToken.None,
+        async (c, ct) => await c.ExecuteReaderAsync(ct));
+    }
+
+    public async Task<DbDataReader> ExecuteReaderAsync(Session session, DbCommand command, CancellationToken cancellationToken)
+    {
+      return await ExecuteCommandAsync(session, command, cancellationToken, 
+        async (c, ct) => await c.ExecuteReaderAsync(ct));
+    }
+
+    #endregion
+
     private TResult ExecuteCommand<TResult>(Session session, DbCommand command, Func<DbCommand, TResult> action)
     {
       if (isLoggingEnabled)
         SqlLog.Info(Strings.LogSessionXQueryY, session.ToStringSafely(), command.ToHumanReadableString());
 
-      if (session!=null)
-        session.Events.NotifyDbCommandExecuting(command);
+      session?.Events.NotifyDbCommandExecuting(command);
 
       TResult result;
       try {
@@ -221,13 +292,37 @@ namespace Xtensive.Orm.Providers
       }
       catch (Exception exception) {
         var wrapped = ExceptionBuilder.BuildException(exception, command.ToHumanReadableString());
-        if (session != null)
-          session.Events.NotifyDbCommandExecuted(command, wrapped);
+        session?.Events.NotifyDbCommandExecuted(command, wrapped);
         throw wrapped;
       }
 
-      if (session!=null)
-        session.Events.NotifyDbCommandExecuted(command);
+      session?.Events.NotifyDbCommandExecuted(command);
+
+      return result;
+    }
+
+    private async Task<TResult> ExecuteCommandAsync<TResult>(Session session, DbCommand command, CancellationToken cancellationToken, Func<DbCommand, CancellationToken, Task<TResult>> action)
+    {
+      if (isLoggingEnabled)
+        SqlLog.Info(Strings.LogSessionXQueryY, session.ToStringSafely(), command.ToHumanReadableString());
+
+      cancellationToken.ThrowIfCancellationRequested();
+      session?.Events.NotifyDbCommandExecuting(command);
+
+      TResult result;
+      try {
+        result = await action(command, cancellationToken);
+      }
+      catch (OperationCanceledException) {
+        throw;
+      }
+      catch (Exception exception) {
+        var wrapped = ExceptionBuilder.BuildException(exception, command.ToHumanReadableString());
+        session?.Events.NotifyDbCommandExecuted(command, wrapped);
+        throw wrapped;
+      }
+
+      session?.Events.NotifyDbCommandExecuted(command);
 
       return result;
     }
