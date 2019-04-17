@@ -5,6 +5,8 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm;
@@ -160,6 +162,10 @@ namespace Xtensive.Sql
       UnderlyingConnection.Open();
     }
 
+    /// <summary>
+    /// Opens the connection and initialize it with given script.
+    /// </summary>
+    /// <param name="initializationScript">Initialization script.</param>
     public virtual void OpenAndInitialize(string initializationScript)
     {
       UnderlyingConnection.Open();
@@ -171,6 +177,40 @@ namespace Xtensive.Sql
       }
     }
 
+    /// <summary>
+    /// Opens the connection asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">Token to control cancellation.</param>
+    /// <returns>Awaitable task.</returns>
+    public virtual async Task OpenAsync(CancellationToken cancellationToken)
+    {
+      cancellationToken.ThrowIfCancellationRequested();
+      await UnderlyingConnection.OpenAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Opens the connection and initialize it with given script asynchronously.
+    /// </summary>
+    /// <param name="initializationScript">Initialization script.</param>
+    /// <param name="cancellationToken">Token to control cancellation.</param>
+    /// <returns>Awaitable task.</returns>
+    public virtual async Task OpenAndInitializeAsync(string initializationScript, CancellationToken cancellationToken)
+    {
+      cancellationToken.ThrowIfCancellationRequested();
+      await UnderlyingConnection.OpenAsync(cancellationToken);
+      if (string.IsNullOrEmpty(initializationScript))
+        return;
+      try {
+        using (var command = UnderlyingConnection.CreateCommand()) {
+          command.CommandText = initializationScript;
+          await command.ExecuteNonQueryAsync(cancellationToken);
+        }
+      }
+      catch (OperationCanceledException exception) {
+        UnderlyingConnection.Close();
+        throw;
+      }
+    }
 
     /// <summary>
     /// Closes the connection.
