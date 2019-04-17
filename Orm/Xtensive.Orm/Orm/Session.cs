@@ -10,6 +10,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -82,6 +83,7 @@ namespace Xtensive.Orm
 
     private int? commandTimeout;
     private volatile bool isDisposed;
+    private volatile bool isActivatedInternally;
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -227,6 +229,13 @@ namespace Xtensive.Orm
     {
       if (isDisposed)
         throw new ObjectDisposedException(Strings.ExSessionIsAlreadyDisposed);
+    }
+
+    internal void ActivateInternally()
+    {
+      if(isActivatedInternally)
+        return;
+      disposableSet.Add(new SessionScope(this));
     }
 
     internal EnumerationContext CreateEnumerationContext()
@@ -540,7 +549,7 @@ namespace Xtensive.Orm
 
       // Perform activation
       if (activate)
-        disposableSet.Add(new SessionScope(this));
+        ActivateInternally();
 
       // Query endpoint
       SystemQuery = Query = new QueryEndpoint(new QueryProvider(this));
