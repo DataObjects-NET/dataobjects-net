@@ -8,6 +8,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Caching;
 using Xtensive.Collections;
@@ -254,6 +256,158 @@ namespace Xtensive.Orm
       }
       else
         session = new Session(this, configuration, activate);
+
+      NotifySessionOpen(session);
+      return session;
+    }
+
+    /// <summary>
+    /// Opens new <see cref="Session"/> with default <see cref="SessionConfiguration"/> asynchronously.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <sample><code>
+    /// using (var session = await Domain.OpenSessionAsync()) {
+    /// // work with persistent objects here.
+    /// }
+    /// </code></sample>
+    /// <seealso cref="Session"/>
+    public async Task<Session> OpenSessionAsync()
+    {
+      var configuration = Configuration.Sessions.Default;
+      return await OpenSessionAsync(configuration, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Opens new <see cref="Session"/> with default <see cref="SessionConfiguration"/> asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <sample><code>
+    /// var ctSource = new CancellationTokenSource();
+    /// using (var session = await Domain.OpenSessionAsync(ctSource.Token)) {
+    /// // work with persistent objects here.
+    /// }
+    /// </code></sample>
+    /// <seealso cref="Session"/>
+    public async Task<Session> OpenSessionAsync(CancellationToken cancellationToken)
+    {
+      var configuration = Configuration.Sessions.Default;
+      return await OpenSessionAsync(configuration, cancellationToken);
+    }
+
+    /// <summary>
+    /// Opens new <see cref="Session"/> of specified <see cref="SessionType"/> asynchronously.
+    /// </summary>
+    /// <param name="type">The type of session.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <sample><code>
+    /// using (var session = await domain.OpenSessionAsync(sessionType)) {
+    /// // work with persistent objects here.
+    /// }
+    /// </code></sample>
+    public async Task<Session> OpenSessionAsync(SessionType type)
+    {
+      return await OpenSessionAsync(type, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Opens new <see cref="Session"/> of specified <see cref="SessionType"/> asynchronously.
+    /// </summary>
+    /// <param name="type">The type of session.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <sample><code>
+    /// var ctSource = new CancellationTokenSource();
+    /// using (var session = await domain.OpenSessionAsync(sessionType, ctSource.Token)) {
+    /// // work with persistent objects here.
+    /// }
+    /// </code></sample>
+    public async Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken)
+    {
+      cancellationToken.ThrowIfCancellationRequested();
+      switch (type) {
+        case SessionType.User:
+          return await OpenSessionAsync(Configuration.Sessions.Default, cancellationToken);
+        case SessionType.System:
+          return await OpenSessionAsync(Configuration.Sessions.System, cancellationToken);
+        case SessionType.KeyGenerator:
+          return await OpenSessionAsync(Configuration.Sessions.KeyGenerator, cancellationToken);
+        case SessionType.Service:
+          return await OpenSessionAsync(Configuration.Sessions.Service, cancellationToken);
+        default:
+          throw new ArgumentOutOfRangeException("type");
+      }
+    }
+
+    /// <summary>
+    /// Opens new <see cref="Session"/> with specified <see cref="SessionConfiguration"/> asynchronously.
+    /// </summary>
+    /// <param name="configuration">The session configuration.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <sample><code>
+    /// using (var session = await domain.OpenSessionAsync(configuration)) {
+    /// // work with persistent objects here
+    /// }
+    /// </code></sample>
+    /// <seealso cref="Session"/>
+    public async Task<Session> OpenSessionAsync(SessionConfiguration configuration)
+    {
+      return await OpenSessionAsync(configuration, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Opens new <see cref="Session"/> with specified <see cref="SessionConfiguration"/> asynchronously.
+    /// </summary>
+    /// <param name="configuration">The session configuration.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <sample><code>
+    /// var ctSource = new CancellationTokenSource();
+    /// using (var session = await domain.OpenSessionAsync(configuration, ctSource.Token)) {
+    /// // work with persistent objects here
+    /// }
+    /// </code></sample>
+    /// <seealso cref="Session"/>
+    public async Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken)
+    {
+      return await OpenSessionAsync(configuration, configuration.Supports(SessionOptions.AutoActivation), cancellationToken);
+    }
+
+    internal async Task<Session> OpenSessionAsync(SessionConfiguration configuration, bool activate, CancellationToken cancellationToken)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      configuration.Lock(true);
+
+      OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
+
+      Session session;
+      if (SingleConnection!=null) {
+        // Ensure that we check shared connection availability
+        // and acquire connection atomically.
+        lock (singleConnectionGuard) {
+          if (singleConnectionOwner!=null)
+            throw new InvalidOperationException(string.Format(
+              Strings.ExSessionXStillUsesSingleAvailableConnection, singleConnectionOwner));
+          session = new Session(this, configuration, activate);
+          singleConnectionOwner = session;
+        }
+      }
+      else {
+        // DO NOT make session active right from constructor.
+        // That would make session accessible for user before
+        // connection become opened.
+        session = new Session(this, configuration, false);
+        try {
+          await ((SqlSessionHandler)session.Handler).OpenConnectionAsync(cancellationToken);
+        }
+        catch (OperationCanceledException) {
+          session.DisposeSafely();
+          throw;
+        }
+
+        if (activate)
+          session.ActivateInternally();
+      }
 
       NotifySessionOpen(session);
       return session;

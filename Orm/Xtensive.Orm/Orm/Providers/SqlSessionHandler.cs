@@ -4,8 +4,11 @@
 // Created by: Alexey Gamzov
 // Created:    2008.05.20
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
@@ -129,6 +132,11 @@ namespace Xtensive.Orm.Providers
     
     #region Private / internal members
 
+    internal async Task OpenConnectionAsync(CancellationToken cancellationToken)
+    {
+      await PrepareAsync(cancellationToken);
+    }
+
     private void RegisterQueryTask(QueryTask task, QueryRequest request)
     {
       task.Result = new List<Tuple>();
@@ -143,6 +151,29 @@ namespace Xtensive.Orm.Providers
         using (var command = connection.CreateCommand(script))
           driver.ExecuteNonQuery(Session, command);
       initializationSqlScripts.Clear();
+      if (pendingTransaction==null)
+        return;
+      var transaction = pendingTransaction;
+      pendingTransaction = null;
+      if (connection.ActiveTransaction==null) // Handle external transactions
+        driver.BeginTransaction(Session, connection, IsolationLevelConverter.Convert(transaction.IsolationLevel));
+    }
+
+    private async Task PrepareAsync(CancellationToken cancellationToken)
+    {
+      Session.EnsureNotDisposed();
+      await driver.OpenConnectionAsync(Session, connection, cancellationToken);
+
+      try {
+        foreach (var initializationSqlScript in initializationSqlScripts)
+          using (var command = connection.CreateCommand(initializationSqlScript))
+            await driver.ExecuteNonQueryAsync(Session, command, cancellationToken);
+      }
+      catch (OperationCanceledException) {
+        connection.Close();
+        throw;
+      }
+
       if (pendingTransaction==null)
         return;
       var transaction = pendingTransaction;
