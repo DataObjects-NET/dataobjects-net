@@ -72,9 +72,9 @@ namespace Xtensive.Orm.Providers
           ExecuteNonQuery(session, command);
     }
 
-    public async Task OpenConnectionAsync(Session session, SqlConnection connection)
+    public Task OpenConnectionAsync(Session session, SqlConnection connection)
     {
-      await OpenConnectionAsync(session, connection, CancellationToken.None);
+      return OpenConnectionAsync(session, connection, CancellationToken.None);
     }
 
     public async Task OpenConnectionAsync(Session session, SqlConnection connection, CancellationToken cancellationToken)
@@ -86,9 +86,9 @@ namespace Xtensive.Orm.Providers
 
       try {
         if (!string.IsNullOrEmpty(extension?.Script))
-          await connection.OpenAndInitializeAsync(extension.Script, cancellationToken);
+          await connection.OpenAndInitializeAsync(extension.Script, cancellationToken).ConfigureAwait(false);
         else
-          await connection.OpenAsync(cancellationToken);
+          await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
       }
       catch (OperationCanceledException) {
         throw;
@@ -241,40 +241,40 @@ namespace Xtensive.Orm.Providers
 
     #region Async Execute methods
 
-    public async Task<int> ExecuteNonQueryAsync(Session session, DbCommand command)
+    public Task<int> ExecuteNonQueryAsync(Session session, DbCommand command)
     {
-      return await ExecuteCommandAsync(session, command, CancellationToken.None,
-        async (c, ct) => await c.ExecuteNonQueryAsync(ct));
+      return ExecuteCommandAsync(session, command, CancellationToken.None,
+        (c, ct) => c.ExecuteNonQueryAsync(ct));
     }
 
-    public async Task<int> ExecuteNonQueryAsync(Session session, DbCommand command, CancellationToken cancellationToken)
+    public Task<int> ExecuteNonQueryAsync(Session session, DbCommand command, CancellationToken cancellationToken)
     {
-      return await ExecuteCommandAsync(session, command, cancellationToken,
-        async (c, ct) => await c.ExecuteNonQueryAsync(ct));
+      return ExecuteCommandAsync(session, command, cancellationToken,
+        (c, ct) => c.ExecuteNonQueryAsync(ct));
     }
 
-    public async Task<object> ExecuteScalarAsync(Session session, DbCommand command)
+    public Task<object> ExecuteScalarAsync(Session session, DbCommand command)
     {
-      return await ExecuteCommandAsync(session, command, CancellationToken.None,
-        async (c, ct) => await c.ExecuteScalarAsync(ct));
+      return ExecuteCommandAsync(session, command, CancellationToken.None,
+        (c, ct) => c.ExecuteScalarAsync(ct));
     }
 
-    public async Task<object> ExecuteScalarAsync(Session session, DbCommand command, CancellationToken cancellationToken)
+    public Task<object> ExecuteScalarAsync(Session session, DbCommand command, CancellationToken cancellationToken)
     {
-      return await ExecuteCommandAsync(session, command, cancellationToken,
-        async (c, ct) => await c.ExecuteScalarAsync(ct));
+      return ExecuteCommandAsync(session, command, cancellationToken,
+        (c, ct) => c.ExecuteScalarAsync(ct));
     }
 
-    public async Task<DbDataReader> ExecuteReaderAsync(Session session, DbCommand command)
+    public Task<DbDataReader> ExecuteReaderAsync(Session session, DbCommand command)
     {
-      return await ExecuteCommandAsync(session, command, CancellationToken.None,
-        async (c, ct) => await c.ExecuteReaderAsync(ct));
+      return ExecuteCommandAsync(session, command, CancellationToken.None,
+        (c, ct) => c.ExecuteReaderAsync(ct));
     }
 
-    public async Task<DbDataReader> ExecuteReaderAsync(Session session, DbCommand command, CancellationToken cancellationToken)
+    public Task<DbDataReader> ExecuteReaderAsync(Session session, DbCommand command, CancellationToken cancellationToken)
     {
-      return await ExecuteCommandAsync(session, command, cancellationToken, 
-        async (c, ct) => await c.ExecuteReaderAsync(ct));
+      return ExecuteCommandAsync(session, command, cancellationToken, 
+        (c, ct) => c.ExecuteReaderAsync(ct));
     }
 
     #endregion
@@ -311,7 +311,7 @@ namespace Xtensive.Orm.Providers
 
       TResult result;
       try {
-        result = await action(command, cancellationToken);
+        result = await action(command, cancellationToken).ConfigureAwait(false);
       }
       catch (OperationCanceledException) {
         throw;

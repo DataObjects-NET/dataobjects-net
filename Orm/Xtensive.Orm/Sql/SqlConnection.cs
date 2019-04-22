@@ -182,10 +182,10 @@ namespace Xtensive.Sql
     /// </summary>
     /// <param name="cancellationToken">Token to control cancellation.</param>
     /// <returns>Awaitable task.</returns>
-    public virtual async Task OpenAsync(CancellationToken cancellationToken)
+    public virtual Task OpenAsync(CancellationToken cancellationToken)
     {
       cancellationToken.ThrowIfCancellationRequested();
-      await UnderlyingConnection.OpenAsync(cancellationToken);
+      return UnderlyingConnection.OpenAsync(cancellationToken);
     }
 
     /// <summary>
@@ -197,13 +197,13 @@ namespace Xtensive.Sql
     public virtual async Task OpenAndInitializeAsync(string initializationScript, CancellationToken cancellationToken)
     {
       cancellationToken.ThrowIfCancellationRequested();
-      await UnderlyingConnection.OpenAsync(cancellationToken);
+      await UnderlyingConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
       if (string.IsNullOrEmpty(initializationScript))
         return;
       try {
         using (var command = UnderlyingConnection.CreateCommand()) {
           command.CommandText = initializationScript;
-          await command.ExecuteNonQueryAsync(cancellationToken);
+          await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
       }
       catch (OperationCanceledException exception) {

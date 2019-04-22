@@ -271,10 +271,10 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public async Task<Session> OpenSessionAsync()
+    public Task<Session> OpenSessionAsync()
     {
       var configuration = Configuration.Sessions.Default;
-      return await OpenSessionAsync(configuration, CancellationToken.None);
+      return OpenSessionAsync(configuration, CancellationToken.None);
     }
 
     /// <summary>
@@ -289,10 +289,10 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public async Task<Session> OpenSessionAsync(CancellationToken cancellationToken)
+    public Task<Session> OpenSessionAsync(CancellationToken cancellationToken)
     {
       var configuration = Configuration.Sessions.Default;
-      return await OpenSessionAsync(configuration, cancellationToken);
+      return OpenSessionAsync(configuration, cancellationToken);
     }
 
     /// <summary>
@@ -305,9 +305,9 @@ namespace Xtensive.Orm
     /// // work with persistent objects here.
     /// }
     /// </code></sample>
-    public async Task<Session> OpenSessionAsync(SessionType type)
+    public Task<Session> OpenSessionAsync(SessionType type)
     {
-      return await OpenSessionAsync(type, CancellationToken.None);
+      return OpenSessionAsync(type, CancellationToken.None);
     }
 
     /// <summary>
@@ -322,18 +322,18 @@ namespace Xtensive.Orm
     /// // work with persistent objects here.
     /// }
     /// </code></sample>
-    public async Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken)
+    public Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken)
     {
       cancellationToken.ThrowIfCancellationRequested();
       switch (type) {
         case SessionType.User:
-          return await OpenSessionAsync(Configuration.Sessions.Default, cancellationToken);
+          return OpenSessionAsync(Configuration.Sessions.Default, cancellationToken);
         case SessionType.System:
-          return await OpenSessionAsync(Configuration.Sessions.System, cancellationToken);
+          return OpenSessionAsync(Configuration.Sessions.System, cancellationToken);
         case SessionType.KeyGenerator:
-          return await OpenSessionAsync(Configuration.Sessions.KeyGenerator, cancellationToken);
+          return OpenSessionAsync(Configuration.Sessions.KeyGenerator, cancellationToken);
         case SessionType.Service:
-          return await OpenSessionAsync(Configuration.Sessions.Service, cancellationToken);
+          return OpenSessionAsync(Configuration.Sessions.Service, cancellationToken);
         default:
           throw new ArgumentOutOfRangeException("type");
       }
@@ -350,9 +350,9 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public async Task<Session> OpenSessionAsync(SessionConfiguration configuration)
+    public Task<Session> OpenSessionAsync(SessionConfiguration configuration)
     {
-      return await OpenSessionAsync(configuration, CancellationToken.None);
+      return OpenSessionAsync(configuration, CancellationToken.None);
     }
 
     /// <summary>
@@ -368,12 +368,12 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public async Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken)
+    public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken)
     {
-      return await OpenSessionAsync(configuration, configuration.Supports(SessionOptions.AutoActivation), cancellationToken);
+      return OpenSessionInternalAsync(configuration, configuration.Supports(SessionOptions.AutoActivation), cancellationToken);
     }
 
-    internal async Task<Session> OpenSessionAsync(SessionConfiguration configuration, bool activate, CancellationToken cancellationToken)
+    internal async Task<Session> OpenSessionInternalAsync(SessionConfiguration configuration, bool activate, CancellationToken cancellationToken)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       configuration.Lock(true);
@@ -388,7 +388,7 @@ namespace Xtensive.Orm
           if (singleConnectionOwner!=null)
             throw new InvalidOperationException(string.Format(
               Strings.ExSessionXStillUsesSingleAvailableConnection, singleConnectionOwner));
-          session = new Session(this, configuration, activate);
+          session = new Session(this, configuration, false);
           singleConnectionOwner = session;
         }
       }
@@ -398,17 +398,16 @@ namespace Xtensive.Orm
         // connection become opened.
         session = new Session(this, configuration, false);
         try {
-          await ((SqlSessionHandler)session.Handler).OpenConnectionAsync(cancellationToken);
+          await ((SqlSessionHandler)session.Handler).OpenConnectionAsync(cancellationToken).ContinueWith((t) => {
+            if (activate)
+              session.ActivateInternally();
+          }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously).ConfigureAwait(false);
         }
         catch (OperationCanceledException) {
           session.DisposeSafely();
           throw;
         }
-
-        if (activate)
-          session.ActivateInternally();
       }
-
       NotifySessionOpen(session);
       return session;
     }

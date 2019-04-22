@@ -132,9 +132,9 @@ namespace Xtensive.Orm.Providers
     
     #region Private / internal members
 
-    internal async Task OpenConnectionAsync(CancellationToken cancellationToken)
+    internal Task OpenConnectionAsync(CancellationToken cancellationToken)
     {
-      await PrepareAsync(cancellationToken);
+      return PrepareAsync(cancellationToken);
     }
 
     private void RegisterQueryTask(QueryTask task, QueryRequest request)
@@ -162,12 +162,12 @@ namespace Xtensive.Orm.Providers
     private async Task PrepareAsync(CancellationToken cancellationToken)
     {
       Session.EnsureNotDisposed();
-      await driver.OpenConnectionAsync(Session, connection, cancellationToken);
+      await driver.OpenConnectionAsync(Session, connection, cancellationToken).ConfigureAwait(false);
 
       try {
         foreach (var initializationSqlScript in initializationSqlScripts)
           using (var command = connection.CreateCommand(initializationSqlScript))
-            await driver.ExecuteNonQueryAsync(Session, command, cancellationToken);
+            await driver.ExecuteNonQueryAsync(Session, command, cancellationToken).ConfigureAwait(false);
       }
       catch (OperationCanceledException) {
         connection.Close();

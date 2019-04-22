@@ -8,6 +8,7 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Orm;
@@ -45,13 +46,13 @@ namespace Xtensive.Sql.Drivers.SqlServer
     }
 
     /// <inheritdoc/>
-    public override async Task OpenAsync(CancellationToken cancellationToken)
+    public override Task OpenAsync(CancellationToken cancellationToken)
     {
       cancellationToken.ThrowIfCancellationRequested();
       if (!checkConnectionIsAlive)
-        await base.OpenAsync(cancellationToken);
+        return base.OpenAsync(cancellationToken);
       else
-        await OpenWithCheckAsync(DefaultCheckConnectionQuery, cancellationToken);
+        return OpenWithCheckAsync(DefaultCheckConnectionQuery, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -69,17 +70,15 @@ namespace Xtensive.Sql.Drivers.SqlServer
     }
 
     /// <inheritdoc/>
-    public override async Task OpenAndInitializeAsync(string initializationScript, CancellationToken cancellationToken)
+    public override Task OpenAndInitializeAsync(string initializationScript, CancellationToken cancellationToken)
     {
-      if (!checkConnectionIsAlive) {
-        await base.OpenAndInitializeAsync(initializationScript, cancellationToken);
-        return;
-      }
+      if (!checkConnectionIsAlive)
+        return base.OpenAndInitializeAsync(initializationScript, cancellationToken);
 
       var script = string.IsNullOrEmpty(initializationScript.Trim())
         ? DefaultCheckConnectionQuery
         : initializationScript;
-      await OpenWithCheckAsync(script, cancellationToken);
+      return OpenWithCheckAsync(script, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -240,6 +239,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
     }
 
+    [MethodImpl(MethodImplOptions.NoInlining)]
     private async Task OpenWithCheckAsync(string checkQueryString, CancellationToken cancellationToken)
     {
       bool connectionChecked = false;
@@ -247,11 +247,11 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
       while (!connectionChecked) {
         cancellationToken.ThrowIfCancellationRequested();
-        await base.OpenAsync(cancellationToken);
+        await base.OpenAsync(cancellationToken).ConfigureAwait(false);
         try {
           using (var command = underlyingConnection.CreateCommand()) {
             command.CommandText = checkQueryString;
-            await command.ExecuteNonQueryAsync(cancellationToken);
+            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
           }
           connectionChecked = true;
         }
