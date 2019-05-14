@@ -86,9 +86,15 @@ namespace Xtensive.Orm
     /// <exception cref="NotSupportedException">Unable to cancel changes for non-disconnected session. Use transaction boundaries to control the state.</exception>
     public void CancelChanges()
     {
+      SystemEvents.NotifyChangesCanceling();
+      Events.NotifyChangesCanceling();
+
       CancelEntitySetsChanges();
       CancelEntitiesChanges();
       NonPairedReferencesRegistry.Clear();
+
+      SystemEvents.NotifyChangesCanceled();
+      Events.NotifyChangesCanceled();
     }
 
     internal void Persist(PersistReason reason)

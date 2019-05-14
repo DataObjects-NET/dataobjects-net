@@ -68,6 +68,16 @@ namespace Xtensive.Orm
     public event EventHandler Persisted;
 
     /// <summary>
+    /// Occurs when <see cref="Session"/> is about to <see cref="Orm.Session.CancelChanges()"/> changes.
+    /// </summary>
+    public event EventHandler ChangesCanceling;
+
+    /// <summary>
+    /// Occurs when changes are canceled.
+    /// </summary>
+    public event EventHandler ChangesCanceled;
+
+    /// <summary>
     /// Occurs when local <see cref="Key"/> created.
     /// </summary>
     public event EventHandler<KeyEventArgs> KeyGenerated;
@@ -281,6 +291,18 @@ namespace Xtensive.Orm
     {
       if (Persisted!=null && AreNotificationsEnabled())
         Persisted(this, EventArgs.Empty);
+    }
+
+    internal void NotifyChangesCanceling()
+    {
+      if (ChangesCanceling != null && AreNotificationsEnabled())
+        ChangesCanceling(this, EventArgs.Empty);
+    }
+
+    internal void NotifyChangesCanceled()
+    {
+      if(ChangesCanceled!=null && AreNotificationsEnabled())
+        ChangesCanceled(this,EventArgs.Empty);
     }
 
     internal void NotifyKeyGenerated(Key key)

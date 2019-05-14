@@ -45,6 +45,9 @@ namespace Xtensive.Orm.Tests.Storage
     private EventArgs persistingArgs;
     private EventArgs persistedArgs;
 
+    private EventArgs changesCancelingArgs;
+    private EventArgs changesCanceledArgs;
+
     private EntityEventArgs entityCreatedArgs;
     private EntityEventArgs entityRemoving;
     private EntityEventArgs entityRemoved;
@@ -100,6 +103,9 @@ namespace Xtensive.Orm.Tests.Storage
         session.Events.Persisting += (sender, e) => persistingArgs = e;
         session.Events.Persisted += (sender, e) => persistedArgs = e;
 
+        session.Events.ChangesCanceling += (sender, e) => changesCancelingArgs = e;
+        session.Events.ChangesCanceled += (sender, e) => changesCanceledArgs = e;
+
         session.Events.EntityCreated += (sender, e) => entityCreatedArgs = e;
         session.Events.EntityRemoving += (sender, e) => entityRemoving = e;
         session.Events.EntityRemove += (sender, e) => entityRemoved = e;
@@ -113,6 +119,7 @@ namespace Xtensive.Orm.Tests.Storage
         RollbackTransaction();
         ErrorOnCommit();
         EditEntity();
+        CancelChanges();
       }
     }
 
@@ -136,6 +143,8 @@ namespace Xtensive.Orm.Tests.Storage
       Assert.IsNotNull(transactionCommitingArgs);
       Assert.IsNotNull(persistingArgs);
       Assert.IsNotNull(persistedArgs);
+      Assert.IsNull(changesCancelingArgs);
+      Assert.IsNull(changesCanceledArgs);
       Assert.IsNull(transactionCommitedArgs);
     }
 
@@ -156,6 +165,8 @@ namespace Xtensive.Orm.Tests.Storage
       Assert.IsNotNull(persistedArgs);
       Assert.IsNotNull(transactionCommitingArgs);
       Assert.IsNotNull(transactionCommitedArgs);
+      Assert.IsNull(changesCancelingArgs);
+      Assert.IsNull(changesCanceledArgs);
     }
 
     private void RollbackTransaction()
@@ -172,6 +183,8 @@ namespace Xtensive.Orm.Tests.Storage
       Assert.IsNotNull(transactionRollbackedArgs);
       Assert.IsNull(persistingArgs);
       Assert.IsNull(persistedArgs);
+      Assert.IsNull(changesCancelingArgs);
+      Assert.IsNull(changesCanceledArgs);
       Assert.IsNull(transactionCommitingArgs);
       Assert.IsNull(transactionCommitedArgs);
     }
@@ -220,6 +233,27 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNotNull(entityRemoved);
         Assert.AreEqual(entity, entityRemoved.Entity);
       }
+    }
+
+    private void CancelChanges()
+    {
+      var session = Session.Demand();
+      using (var transactionScope = session.OpenTransaction()) {
+        ClearEvents();
+
+        var megaEntity = new MegaEntity {Value = 1};
+
+        session.CancelChanges();
+      }
+
+      Assert.IsNotNull(transactionRollbackingArgs);
+      Assert.IsNotNull(transactionRollbackedArgs);
+      Assert.IsNotNull(changesCancelingArgs);
+      Assert.IsNotNull(changesCanceledArgs);
+      Assert.IsNull(persistingArgs);
+      Assert.IsNull(persistedArgs);
+      Assert.IsNull(transactionCommitingArgs);
+      Assert.IsNull(transactionCommitedArgs);
     }
   }
 }
