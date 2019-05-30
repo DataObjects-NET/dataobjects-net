@@ -1,0 +1,1 @@
+[main] Added ChangesCancelling and ChangesCancelled events to SessionEventAccessor
