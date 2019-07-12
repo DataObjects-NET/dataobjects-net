@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
@@ -260,6 +262,32 @@ namespace Xtensive.Orm
           return;
         items[0].Session.Remove(items);
       }
+    }
+
+    /// <summary>
+    /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of elements in sequence.</typeparam>
+    /// <param name="source">Query to run asynchronous.</param>
+    /// <returns>A task which runs query.</returns>
+    public static Task<IEnumerable<T>> AsAsyncTask<T>(this IQueryable<T> source)
+    {
+      return AsAsyncTask(source, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of elements in sequence.</typeparam>
+    /// <param name="source">Query to run asynchronous.</param>
+    /// <param name="cancellationToken">Token to cancel operation.</param>
+    /// <returns>A task which runs query.</returns>
+    public static Task<IEnumerable<T>> AsAsyncTask<T>(this IQueryable<T> source, CancellationToken cancellationToken)
+    {
+      var doProvider = source.Provider as QueryProvider;
+      if (doProvider!=null)
+        return doProvider.ExecuteAsync<IEnumerable<T>>(source.Expression, cancellationToken);
+      return Task<IEnumerable<T>>.FromResult(source.AsEnumerable());
     }
 
     #region Private / internal members

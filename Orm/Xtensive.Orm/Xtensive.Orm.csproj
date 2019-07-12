@@ -259,6 +259,7 @@
     <Compile Include="Core\DisposableSet.cs" />
     <Compile Include="Core\Disposable{T1,T2}.cs" />
     <Compile Include="Core\Disposable{T}.cs" />
+    <Compile Include="Core\EnumeratorExtensions.cs" />
     <Compile Include="Core\ExceptionAggregator.cs" />
     <Compile Include="Core\Exceptions.cs" />
     <Compile Include="Core\Exceptions\ActivationException.cs" />

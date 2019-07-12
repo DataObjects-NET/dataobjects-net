@@ -9,9 +9,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Collections;
 using Xtensive.Collections.Graphs;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
+using Xtensive.Orm.Linq;
 
 
 namespace Xtensive.Core
@@ -493,6 +497,74 @@ namespace Xtensive.Core
             new Edge(left, right);
       var result = TopologicalSorter.Sort(graph);
       return result.HasLoops ? null : result.SortedNodes.Select(node => node.Value).ToList();
+    }
+
+    /// <summary>
+    /// Runs delayed query as async operation or returns enumerable as a task.
+    /// </summary>
+    /// <typeparam name="T">Type of items in sequence.</typeparam>
+    /// <param name="source">Delayed query sequence or regular enumerable.</param>
+    /// <returns>Task that runs delayed query or completed task with source.</returns>
+    public static  Task<IEnumerable<T>> AsAsyncTask<T>(this IEnumerable<T> source)
+    {
+      return AsAsyncTask(source, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Runs delayed query as async operation or returns enumerable as a task.
+    /// </summary>
+    /// <typeparam name="T">Type of items in sequence.</typeparam>
+    /// <param name="source">Delayed query sequence or regular enumerable.</param>
+    /// <param name="token">A token to cancel operation.</param>
+    /// <returns>Task that runs delayed query or completed task with source.</returns>
+    public static async Task<IEnumerable<T>> AsAsyncTask<T>(this IEnumerable<T> source, CancellationToken token)
+    {
+      var delayedSequence = source as DelayedSequence<T>;
+      if (delayedSequence!=null) {
+        if (!delayedSequence.LifetimeToken.IsActive)
+          throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
+        if (delayedSequence.Task.Result==null)
+          await delayedSequence.Session.ExecuteDelayedUserQueriesAsync(false, token).ConfigureAwait(false);
+        return delayedSequence;
+      }
+      return await Task.FromResult(source);
+    }
+
+    /// <summary>
+    /// Converts IEnumerable of <typeparamref name="TItem"/> to IEnumerator of <typeparamref name="TItem"/>.
+    /// </summary>
+    /// <typeparam name="TItem">Type of elements.</typeparam>
+    /// <param name="enumerable">Enumerable to convert</param>
+    /// <param name="afterEnumerationAction">Action which invoked after enumeration even if enumreation fails.</param>
+    /// <param name="parameterForAction">Object parameter for <paramref name="afterEnumerationAction"/> action.</param>
+    /// <returns>IEnumerator of <typeparamref name="TItem"/>.</returns>
+    internal static IEnumerator<TItem> ToEnumerator<TItem>(this IEnumerable<TItem> enumerable, Action<object> afterEnumerationAction, object parameterForAction)
+    {
+      try {
+        foreach (var item in enumerable) 
+          yield return item;
+      }
+      finally {
+        afterEnumerationAction.Invoke(parameterForAction);
+      }
+    }
+
+    /// <summary>
+    /// Converts IEnumerable of <typeparamref name="TItem"/> to IEnumerator of <typeparamref name="TItem"/>.
+    /// </summary>
+    /// <typeparam name="TItem">Type of elements.</typeparam>
+    /// <param name="enumerable">Enumerable to convert</param>
+    /// <param name="afterEnumerationAction">Action which invoked after enumeration even if enumreation fails.</param>
+    /// <returns>IEnumerator of <typeparamref name="TItem"/>.</returns>
+    internal static IEnumerator<TItem> ToEnumerator<TItem>(this IEnumerable<TItem> enumerable, Action afterEnumerationAction)
+    {
+      try {
+        foreach (var item in enumerable)
+          yield return item;
+      }
+      finally {
+        afterEnumerationAction.Invoke();
+      }
     }
   }
 }

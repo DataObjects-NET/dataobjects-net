@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm.Internals;
 
 
@@ -55,6 +57,13 @@ namespace Xtensive.Orm
       return ProcessInternalDelayedQueries(false);
     }
 
+    internal async Task<bool> ExecuteDelayedUserQueriesAsync(bool skipPersist, CancellationToken token)
+    {
+      if (!skipPersist)
+        Persist(PersistReason.Query);
+      return await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
+    }
+
     private bool ProcessUserDefinedDelayedQueries(bool allowPartialExecution)
     {
       if (isDelayedQueryRunning || userDefinedQueryTasks.Count==0)
@@ -83,6 +92,16 @@ namespace Xtensive.Orm
         internalQueryTasks.Clear();
         isInternalDelayedQueryRunning = false;
       }
+    }
+
+    private async Task<bool> ProcessUserDefinedDelayedQueriesAsync(CancellationToken token)
+    {
+      if (userDefinedQueryTasks.Count==0)
+        return false;
+      var aliveTasks = userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive).ToList();
+      userDefinedQueryTasks.Clear();
+      await Handler.ExecuteQueryTasksAsync(aliveTasks, false, token).ConfigureAwait(false);
+      return true;
     }
   }
 }
