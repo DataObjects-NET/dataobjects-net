@@ -1090,7 +1090,7 @@ namespace Xtensive.Orm.Tests.Issues
               Id = gr.Select(a => a.Posting).First().Id
             };
  
-          Assert.DoesNotThrow(result.Run);
+          Assert.DoesNotThrow(() => result.Run());
       }
     }
 

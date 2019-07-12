@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Tests.Issues
         var aTuple = testA.Tuple;
         var aKey = testA.Key;
 
-        Assert.DoesNotThrow(session.SaveChanges);
+        Assert.DoesNotThrow(() => session.SaveChanges());
         testA = session.Query.Single<TestA>(aKey);
         Assert.That(testA.TestB, Is.Null);
       }
@@ -102,14 +102,14 @@ namespace Xtensive.Orm.Tests.Issues
         var testB = new TestB { Text = "B" };
         var testA = new TestA { Text = "A", TestB = testB };
         
-        Assert.DoesNotThrow(session.SaveChanges);
+        Assert.DoesNotThrow(() => session.SaveChanges());
 
         keyA = testA.Key;
         var newTestB = new TestB { Text = "B2" };
         testA.TestB = newTestB;
         testB.Remove();
         newTestB.Remove();
-        Assert.DoesNotThrow(session.SaveChanges);
+        Assert.DoesNotThrow(() => session.SaveChanges());
         Assert.That(testA.TestB, Is.Null);
       }
       using (var session = Domain.OpenSession(clientProfile)) {
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Tests.Issues
         testA.TestB = TestB;
         testA.TestB = TestB;
 
-        Assert.DoesNotThrow(session.SaveChanges);
+        Assert.DoesNotThrow(() => session.SaveChanges());
         Assert.That(testA.TestB, Is.Not.Null);
       }
     }
@@ -161,7 +161,7 @@ namespace Xtensive.Orm.Tests.Issues
         anotherTestBTemporaryId = newTestB.Id;
         nullReferenceEntity.TestB = newTestB;
 
-        Assert.DoesNotThrow(session.SaveChanges);
+        Assert.DoesNotThrow(() => session.SaveChanges());
         Assert.That(nullReferenceEntity.TestB, Is.Not.Null);
         Assert.That(nullReferenceEntity.TestB.Key.IsTemporary(Domain), Is.False);
         anotherTestBRealId = nullReferenceEntity.TestB.Id;
@@ -203,7 +203,7 @@ namespace Xtensive.Orm.Tests.Issues
         temporaryId = testA.Id;
         testA.TestB = testB;
         Assert.That(testA.Key.IsTemporary(Domain), Is.True);
-        Assert.DoesNotThrow(session.SaveChanges);
+        Assert.DoesNotThrow(() => session.SaveChanges());
 
         Assert.That(testA.Key.IsTemporary(Domain), Is.False);
         realId = testA.Id;
@@ -232,7 +232,7 @@ namespace Xtensive.Orm.Tests.Issues
         var testC = new TestC { Text = "C" };
         session.SaveChanges();
         var testB = new TestD { Text = "B", TestC = testC };
-        Assert.DoesNotThrow(session.SaveChanges);
+        Assert.DoesNotThrow(() => session.SaveChanges());
       }
     }
 

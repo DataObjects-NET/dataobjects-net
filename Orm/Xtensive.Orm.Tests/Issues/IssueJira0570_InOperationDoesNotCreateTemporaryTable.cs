@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Tests.Issues
           group payment.Amount by invoice.Id
             into amounts
             select new { Id = amounts.Key, Amount = amounts.Sum(e => e) };
-        Assert.DoesNotThrow(paymentsQuery.Run);
+        Assert.DoesNotThrow(() => paymentsQuery.Run());
       }
     }
 
@@ -175,7 +175,7 @@ namespace Xtensive.Orm.Tests.Issues
           group payment.Amount by invoice.Id
             into amounts
             select new { Id = amounts.Key, Amount = amounts.Sum(e => e) };
-        Assert.DoesNotThrow(paymentsQuery.Run);
+        Assert.DoesNotThrow(() => paymentsQuery.Run());
       }
     }
 
@@ -206,7 +206,7 @@ namespace Xtensive.Orm.Tests.Issues
           group payment.Amount by invoice.Id
             into amounts
             select new { Id = amounts.Key, Amount = amounts.Sum(e => e) };
-        Assert.DoesNotThrow(paymentsQuery.Run);
+        Assert.DoesNotThrow(() => paymentsQuery.Run());
       }
     }
 
@@ -237,7 +237,7 @@ namespace Xtensive.Orm.Tests.Issues
           group payment.Amount by invoice.Id
             into amounts
             select new { Id = amounts.Key, Amount = amounts.Sum(e => e) };
-        Assert.DoesNotThrow(paymentsQuery.Run);
+        Assert.DoesNotThrow(() => paymentsQuery.Run());
       }
     }
 
@@ -268,7 +268,7 @@ namespace Xtensive.Orm.Tests.Issues
           group payment.Amount by invoice.Id
             into amounts
             select new { Id = amounts.Key, Amount = amounts.Sum(e => e) };
-        Assert.DoesNotThrow(paymentsQuery.Run);
+        Assert.DoesNotThrow(() => paymentsQuery.Run());
       }
     }
 
@@ -299,7 +299,7 @@ namespace Xtensive.Orm.Tests.Issues
           group payment.Amount by invoice.Id
             into amounts
             select new { Id = amounts.Key, Amount = amounts.Sum(e => e) };
-        Assert.DoesNotThrow(paymentsQuery.Run);
+        Assert.DoesNotThrow(() => paymentsQuery.Run());
       }
     }
 
@@ -330,7 +330,7 @@ namespace Xtensive.Orm.Tests.Issues
           group payment.Amount by invoice.Id
             into amounts
             select new { Id = amounts.Key, Amount = amounts.Sum(e => e) };
-        Assert.DoesNotThrow(paymentsQuery.Run);
+        Assert.DoesNotThrow(() => paymentsQuery.Run());
       }
     }
 
@@ -361,7 +361,7 @@ namespace Xtensive.Orm.Tests.Issues
           group payment.Amount by invoice.Id
             into amounts
             select new { Id = amounts.Key, Amount = amounts.Sum(e => e) };
-        Assert.DoesNotThrow(paymentsQuery.Run);
+        Assert.DoesNotThrow(() => paymentsQuery.Run());
       }
     }
 

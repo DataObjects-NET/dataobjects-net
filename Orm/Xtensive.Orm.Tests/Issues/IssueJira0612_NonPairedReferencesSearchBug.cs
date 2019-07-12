@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Issues
         // Wrong ReferencingEntity "TestB" instead of "TestC" with Association "TestC-TestA-TestA"
         var references = ReferenceFinder.GetReferencesTo(NewTestA).ToList();
         // Exception
-        Assert.DoesNotThrow(NewTestA.Remove);
+        Assert.DoesNotThrow(() => NewTestA.Remove());
       }
     }
 
