@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions.Visitors;
@@ -46,6 +48,28 @@ namespace Xtensive.Orm.Internals
       TResult result;
       GetScalarQuery(query, true, out result);
       return result;
+    }
+
+    public Task<IEnumerable<TElement>> ExecuteCompiledAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query, CancellationToken token)
+    {
+      var parameterizedQuery = GetSequenceQuery(query);
+      return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), token);
+    }
+
+    public Task<IEnumerable<TElement>> ExecuteCompiledAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query, CancellationToken token)
+    {
+      var parameterizedQuery = GetSequenceQuery(query);
+      return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), token);
+    }
+
+    public Task<TResult> ExecuteCompiledAsync<TResult>(Func<QueryEndpoint, TResult> query, CancellationToken token)
+    {
+      var parameterizedQuery = GetCachedQuery<TResult>();
+      if (parameterizedQuery != null)
+        return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), token);
+      TResult result;
+      parameterizedQuery = GetScalarQuery(query, false, out result);
+      return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), token); ;
     }
 
     public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)

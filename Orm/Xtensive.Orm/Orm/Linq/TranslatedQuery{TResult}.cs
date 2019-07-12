@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Rse;
@@ -52,6 +54,14 @@ namespace Xtensive.Orm.Linq
     public TResult Execute(Session session, ParameterContext parameterContext)
     {
       return Materializer.Invoke(DataSource.GetRecordSet(session), session, TupleParameterBindings, parameterContext);
+    }
+
+    public async Task<TResult> ExecuteAsync(Session session, ParameterContext parameterContext, CancellationToken token)
+    {
+      var recordSet = DataSource.GetRecordSet(session);
+      var enumerable = (await recordSet.GetEnumeratorAsync(token).ConfigureAwait(false)).ToEnumerable();
+      enumerable.GetEnumerator().Dispose();
+      return Materializer.Invoke(enumerable, session, TupleParameterBindings, parameterContext);
     }
 
 

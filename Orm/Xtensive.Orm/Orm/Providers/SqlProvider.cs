@@ -16,6 +16,8 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Rse.Providers;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Providers
 {
@@ -62,6 +64,14 @@ namespace Xtensive.Orm.Providers
           yield return enumerator.Current;
         }
       }
+    }
+
+    protected async override Task<IEnumerable<Tuple>> OnEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
+    {
+      var storageContext = (EnumerationContext)context;
+      var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
+      var enumerator = await executor.ExecuteTupleReaderAsync(Request, token).ConfigureAwait(false);
+      return enumerator.ToEnumerable();
     }
 
     #region ToString related methods

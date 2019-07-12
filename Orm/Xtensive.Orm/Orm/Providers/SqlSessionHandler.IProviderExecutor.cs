@@ -5,6 +5,8 @@
 // Created:    2010.02.09
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers

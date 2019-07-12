@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;
 using Xtensive.Orm.FullTextSearchCondition.Nodes;
@@ -375,6 +376,40 @@ namespace Xtensive.Orm
       var endpoint = Session.Demand().Query;
       return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteCompiled(WrapQuery(query));
     }
+
+    #region Async
+
+    public static async Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<IQueryable<TElement>> query)
+    {
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteCompiled(WrapQuery(query));
+    }
+
+    public static async Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<IQueryable<TElement>> query)
+    {
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteCompiled(WrapQuery(query));
+    }
+
+    public static async Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<IOrderedQueryable<TElement>> query)
+    {
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteCompiled(WrapQuery(query));
+    }
+
+    public static async Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<IOrderedQueryable<TElement>> query)
+    {
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteCompiled(WrapQuery(query));
+    }
+
+    public static async Task<TResult> ExecuteAsync<TResult>(Func<TResult> query)
+    {
+      var endpoint = Session.Demand().Query;
+      return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteCompiled(WrapQuery(query));
+    }
+
+    #endregion
 
     #endregion
 

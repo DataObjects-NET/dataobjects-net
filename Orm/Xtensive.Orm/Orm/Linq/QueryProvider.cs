@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Providers;
@@ -75,6 +77,32 @@ namespace Xtensive.Orm.Linq
       else {
         try {
           result = query.Execute(session, new ParameterContext());
+        }
+        catch (Exception exception) {
+          session.Events.NotifyQueryExecuted(expression, exception);
+          throw;
+        }
+      }
+      session.Events.NotifyQueryExecuted(expression);
+      return result;
+    }
+
+    public Task<TResult> ExecuteAsync<TResult>(Expression expression)
+    {
+      return ExecuteAsync<TResult>(expression, CancellationToken.None);
+    }
+
+    public async Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken token)
+    {
+      expression = session.Events.NotifyQueryExecuting(expression);
+      var query = Translate<TResult>(expression);
+      var cachingScope = QueryCachingScope.Current;
+      TResult result;
+      if (cachingScope != null && !cachingScope.Execute)
+        result = default(TResult);
+      else {
+        try {
+          result = await query.ExecuteAsync(session, new ParameterContext(), token).ConfigureAwait(false);
         }
         catch (Exception exception) {
           session.Events.NotifyQueryExecuted(expression, exception);

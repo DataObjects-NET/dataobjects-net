@@ -199,7 +199,37 @@ namespace Xtensive.Orm.Providers
       }
 
       if (nonBatchedTasks.Count==0) {
-        commandProcessor.ExecuteTasks(allowPartialExecution);
+          using (var context = Session.CommandProcessorContextProvider.ProvideContext(allowPartialExecution))
+            commandProcessor.ExecuteTasks(context);
+          return;
+      }
+
+      using (var context = Session.CommandProcessorContextProvider.ProvideContext())
+        commandProcessor.ExecuteTasks(context);
+
+      foreach (var task in nonBatchedTasks) {
+        using (new EnumerationContext(Session).Activate())
+        using (task.ParameterContext.ActivateSafely())
+          task.Result = task.DataSource.ToList();
+      }
+    }
+
+    public override async Task ExecuteQueryTasksAsync(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution, CancellationToken token)
+    {
+      Prepare();
+
+      var nonBatchedTasks = new List<QueryTask>();
+      foreach (var task in queryTasks) {
+        var sqlProvider = task.DataSource as SqlProvider;
+        if (sqlProvider != null && sqlProvider.Request.CheckOptions(QueryRequestOptions.AllowOptimization))
+          RegisterQueryTask(task, sqlProvider.Request);
+        else
+          nonBatchedTasks.Add(task);
+      }
+
+      if (nonBatchedTasks.Count==0){
+        using (var context = Session.CommandProcessorContextProvider.ProvideContext(allowPartialExecution))
+          await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
         return;
       }
 

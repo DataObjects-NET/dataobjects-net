@@ -250,6 +250,13 @@ namespace Xtensive.Orm
       return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
     }
 
+    internal EnumerationContext CreateEnumerationContextForAsyncQuery()
+    {
+      Persist(PersistReason.Other);
+      ProcessUserDefinedDelayedQueries(true);
+      return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
+    }
+
     private EnumerationContextOptions GetEnumerationContextOptions()
     {
       var options = EnumerationContextOptions.None;
