@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Copyright (C) 2019 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
+// Created by: Alexey Kulakov
+// Created:    2019.07.12
+
+using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Tests;
 using Xtensive.Orm.Tests.Storage.AsyncSession.TestSessionOpentingModel;
 
 namespace Xtensive.Orm.Tests.Storage.AsyncSession.TestSessionOpentingModel
@@ -32,7 +33,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession.TestSessionOpentingModel
 
 namespace Xtensive.Orm.Tests.Storage.AsyncSession
 {
-  public class TestSessionOpenting : AutoBuildTest
+  public class AsyncSessionOpeningTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -126,7 +127,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
       ctSource.Cancel();
 
       Session session = null;
-      Assert.ThrowsAsync<TaskCanceledException>(async () => session = await Domain.OpenSessionAsync(SessionType.Default, ctSource.Token));
+      Assert.ThrowsAsync<OperationCanceledException>(async () => session = await Domain.OpenSessionAsync(SessionType.Default, ctSource.Token));
       Assert.That(session, Is.Null);
     }
 
@@ -137,7 +138,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
       ctSource.Cancel();
 
       Session session = null;
-      Assert.ThrowsAsync<TaskCanceledException>(async () => session = await Domain.OpenSessionAsync(SessionType.KeyGenerator, ctSource.Token));
+      Assert.ThrowsAsync<OperationCanceledException>(async () => session = await Domain.OpenSessionAsync(SessionType.KeyGenerator, ctSource.Token));
       Assert.That(session, Is.Null);
     }
 
@@ -148,7 +149,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
       ctSource.Cancel();
 
       Session session = null;
-      Assert.ThrowsAsync<TaskCanceledException>(async () => session = await Domain.OpenSessionAsync(SessionType.System, ctSource.Token));
+      Assert.ThrowsAsync<OperationCanceledException>(async () => session = await Domain.OpenSessionAsync(SessionType.System, ctSource.Token));
       Assert.That(session, Is.Null);
     }
 
@@ -159,7 +160,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
       ctSource.Cancel();
 
       Session session = null;
-      Assert.ThrowsAsync<TaskCanceledException>(async () => session = await Domain.OpenSessionAsync(SessionType.Service, ctSource.Token));
+      Assert.ThrowsAsync<OperationCanceledException>(async () => session = await Domain.OpenSessionAsync(SessionType.Service, ctSource.Token));
       Assert.That(session, Is.Null);
     }
 
@@ -176,9 +177,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
     public async Task Test13()
     {
       var sessionConfiguration = new SessionConfiguration(SessionOptions.Default | SessionOptions.AutoActivation);
-      var session = await Domain.OpenSessionAsync(sessionConfiguration).ConfigureAwait(false);
+      var session = await Domain.OpenSessionAsync(sessionConfiguration, CancellationToken.None).ConfigureAwait(false);
       Assert.That(session, Is.Not.Null);
-      Assert.That(Session.Current, Is.Null);
+      Assert.That(Session.Current, Is.Not.Null);
+
       await TestSession(session).ConfigureAwait(false);
     }
 
@@ -202,10 +204,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
       Assert.ThrowsAsync<TaskCanceledException>(async () => session = await Domain.OpenSessionAsync(sessionConfiguration, ctSource.Token));
       Assert.That(session, Is.Null);
     }
-
-
-
-
 
     [Test]
     public async Task Test28()
