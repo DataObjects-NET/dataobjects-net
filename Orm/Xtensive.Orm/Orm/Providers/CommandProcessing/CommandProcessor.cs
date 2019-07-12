@@ -5,8 +5,9 @@
 // Created:    2009.08.20
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
-
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
@@ -38,25 +39,68 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="request">The request to execute.</param>
     /// <returns>A <see cref="IEnumerator{Tuple}"/> for the specified request.</returns>
-    public abstract IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest request);
+    public abstract IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest request, CommandProcessorContext context);
+
+    /// <summary>
+    /// Asynchronously executes all registred requests plus the specified one query.
+    /// Default implementation is synchronous and returns complete task.
+    /// </summary>
+    /// <param name="request">The request to execute.</param>
+    /// <param name="context">The context in which the requests are executed.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>A task performing this operation.</returns>
+    public virtual Task<IEnumerator<Tuple>> ExecuteTasksWithReaderAsync(QueryRequest request,
+      CommandProcessorContext context, CancellationToken token)
+    {
+      token.ThrowIfCancellationRequested();
+      return Task.FromResult(ExecuteTasksWithReader(request, context));
+    }
 
     /// <summary>
     /// Executes all registred requests,
     /// optionally skipping the last requests according to 
-    /// <paramref name="allowPartialExecution"/> argument.
+    /// <paramref name="context.AllowPartialExecution"/> argument.
     /// </summary>
-    /// <param name="allowPartialExecution">
-    /// if set to <see langword="true"/> command processor is allowed to skip last request,
-    /// if it decides to.</param>
-    public abstract void ExecuteTasks(bool allowPartialExecution);
+    /// <param name="context">The context in which the requests are executed.</param>
+    public abstract void ExecuteTasks(CommandProcessorContext context);
 
     /// <summary>
-    /// Executes the all registered requests.
-    /// Calling this method is equivalent to calling <see cref="ExecuteTasks(bool)"/> with <see langword="false"/>.
+    /// Asyncronously executes all registered requests,
+    /// optionally skipping the last requests according to
+    /// <paramref name="context.AllowPartialExecution"/> argument.
+    /// Default implementation executes requests synchronously and returns completed task.
     /// </summary>
-    public void ExecuteTasks()
+    /// <param name="context">The context in which the requests are executed.</param>
+    /// <param name="token">Token to cancel this operation</param>
+    /// <returns>A task preforming this operation.</returns>
+    public virtual async Task ExecuteTasksAsync(CommandProcessorContext context, CancellationToken token)
     {
-      ExecuteTasks(false);
+      token.ThrowIfCancellationRequested();
+      ExecuteTasks(context);
+      await Task.Yield();
+    }
+
+    protected void AllocateCommand(CommandProcessorContext context)
+    {
+      if (context.ActiveCommand!=null)
+        context.ReenterCount++;
+      else {
+        context.ActiveTasks = new List<SqlLoadTask>();
+        context.ActiveCommand = Factory.CreateCommand();
+      }
+    }
+
+    protected void ReleaseCommand(CommandProcessorContext context)
+    {
+      if (context.ReenterCount > 0) {
+        context.ReenterCount--;
+        context.ActiveTasks = new List<SqlLoadTask>();
+        context.ActiveCommand = Factory.CreateCommand();
+      }
+      else {
+        context.ActiveCommand = null;
+        context.ActiveTasks = null;
+      }
     }
 
     // Constructors

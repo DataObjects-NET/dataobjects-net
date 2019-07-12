@@ -5,68 +5,127 @@
 // Created:    2009.08.20
 
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
 {
   internal sealed class SimpleCommandProcessor : CommandProcessor, ISqlTaskProcessor
   {
-    public override void RegisterTask(SqlTask task)
+    private readonly Queue<SqlTask> tasks;
+
+    void ISqlTaskProcessor.ProcessTask(SqlLoadTask task, CommandProcessorContext context)
     {
-      task.ProcessWith(this);
+      //var part = Factory.CreateQueryPart(task);
+      //context.ActiveCommand.AddPart(part);
+      //context.ActiveCommand.ExecuteReader();
+      //var enumerator = context.ActiveCommand.AsReaderOf(task.Request);
+      //using (enumerator) {
+      //  while (enumerator.MoveNext())
+      //    task.Output.Add(enumerator.Current);
+      //}
+      var part = Factory.CreateQueryPart(task);
+      context.ActiveCommand.AddPart(part);
+      context.ActiveTasks.Add(task);
     }
 
-    public override void ClearTasks()
-    {
-    }
-
-    public override void ExecuteTasks(bool allowPartialExecution)
-    {
-      // All tasks are already executed in RegisterTask method.
-    }
-
-    public override IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest lastRequest)
-    {
-      var command = Factory.CreateCommand();
-      var part = Factory.CreateQueryPart(lastRequest);
-      command.AddPart(part);
-      command.ExecuteReader();
-      return command.AsReaderOf(lastRequest);
-    }
-
-    void ISqlTaskProcessor.ProcessTask(SqlLoadTask task)
-    {
-      using (var command = Factory.CreateCommand()) {
-        var part = Factory.CreateQueryPart(task);
-        command.AddPart(part);
-        command.ExecuteReader();
-        var enumerator = command.AsReaderOf(task.Request);
-        using (enumerator) {
-          while (enumerator.MoveNext())
-            task.Output.Add(enumerator.Current);
-        }
-      }
-    }
-
-    void ISqlTaskProcessor.ProcessTask(SqlPersistTask task)
+    void ISqlTaskProcessor.ProcessTask(SqlPersistTask task, CommandProcessorContext context)
     {
       var sequence = Factory.CreatePersistParts(task);
       foreach (var part in sequence) {
-        using (var command = Factory.CreateCommand()) {
-          command.AddPart(part);
-          var affectedRowsCount = command.ExecuteNonQuery();
+        try {
+          context.ActiveCommand.AddPart(part);
+          var affectedRowsCount = context.ActiveCommand.ExecuteNonQuery();
           if (task.ValidateRowCount && affectedRowsCount==0)
             throw new VersionConflictException(string.Format(
               Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
         }
+        finally {
+          context.ActiveCommand.DisposeSafely();
+          ReleaseCommand(context);
+        }
+        AllocateCommand(context);
       }
+    }
+
+    public override void RegisterTask(SqlTask task)
+    {
+      tasks.Enqueue(task);
+    }
+
+    public override void ClearTasks()
+    {
+      tasks.Clear();
+    }
+
+    public override void ExecuteTasks(CommandProcessorContext context)
+    {
+      context.ProcessingTasks = new Queue<SqlTask>(tasks);
+      tasks.Clear();
+
+      while (context.ProcessingTasks.Count > 0) {
+        AllocateCommand(context);
+        try {
+          context.ProcessingTasks.Dequeue().ProcessWith(this, context);
+        }
+        finally {
+          context.ActiveCommand.Dispose();
+          ReleaseCommand(context);
+        }
+      }
+    }
+
+    public override async Task ExecuteTasksAsync(CommandProcessorContext context, CancellationToken token)
+    {
+      context.ProcessingTasks = new Queue<SqlTask>(tasks);
+      tasks.Clear();
+
+      while (context.ProcessingTasks.Count > 0) {
+        AllocateCommand(context);
+        try {
+          var task = context.ProcessingTasks.Dequeue();
+          task.ProcessWith(this, context);
+          var loadTask = context.ActiveTasks.FirstOrDefault();
+          if (loadTask != null) {
+            await context.ActiveCommand.ExecuteReaderAsync(token).ConfigureAwait(false);
+            var enumerator = context.ActiveCommand.AsReaderOf(context.ActiveTasks.First().Request);
+            using (enumerator) {
+              while (enumerator.MoveNext())
+                loadTask.Output.Add(enumerator.Current);
+            }
+            context.ActiveTasks.Clear();
+          }
+        }
+        finally {
+          context.ActiveCommand.Dispose();
+          ReleaseCommand(context);
+        }
+      }
+    }
+
+    public override IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest lastRequest, CommandProcessorContext context)
+    {
+      var oldValue = context.AllowPartialExecution;
+      context.AllowPartialExecution = false;
+      ExecuteTasks(context);
+      context.AllowPartialExecution = oldValue;
+
+      var lastRequestCommand = Factory.CreateCommand();
+      var commandPart = Factory.CreateQueryPart(lastRequest);
+      lastRequestCommand.AddPart(commandPart);
+      lastRequestCommand.ExecuteReader();
+      return lastRequestCommand.AsReaderOf(lastRequest);
     }
 
     // Constructors
 
-    public SimpleCommandProcessor(CommandFactory factory)
+      public SimpleCommandProcessor(CommandFactory factory)
       : base(factory)
     {
+      tasks = new Queue<SqlTask>();
     }
   }
 }

@@ -203,7 +203,9 @@ namespace Xtensive.Orm.Providers
         return;
       }
 
-      commandProcessor.ExecuteTasks();
+      using (var context = Session.CommandProcessorContextProvider.ProvideContext())
+        await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
+
       foreach (var task in nonBatchedTasks) {
         using (new EnumerationContext(Session).Activate())
         using (task.ParameterContext.ActivateSafely())
@@ -224,7 +226,9 @@ namespace Xtensive.Orm.Providers
     {
       Prepare();
       domainHandler.Persister.Persist(registry, commandProcessor);
-      commandProcessor.ExecuteTasks(allowPartialExecution);
+
+      using (var context = Session.CommandProcessorContextProvider.ProvideContext(allowPartialExecution))
+        commandProcessor.ExecuteTasks(context);
     }
 
     /// <inheritdoc/>

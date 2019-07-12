@@ -12,12 +12,12 @@ namespace Xtensive.Orm.Providers
     /// Processes the specified task.
     /// </summary>
     /// <param name="task">The task to process.</param>
-    void ProcessTask(SqlLoadTask task);
+    void ProcessTask(SqlLoadTask task, CommandProcessorContext context);
 
     /// <summary>
     /// Processes the specified task.
     /// </summary>
     /// <param name="task">The task to process.</param>
-    void ProcessTask(SqlPersistTask task);
+    void ProcessTask(SqlPersistTask task, CommandProcessorContext context);
   }
 }
