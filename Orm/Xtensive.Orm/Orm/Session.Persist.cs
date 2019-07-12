@@ -96,6 +96,7 @@ namespace Xtensive.Orm
       EnsureNotDisposed();
       if (IsPersisting || EntityChangeRegistry.Count==0)
         return;
+      EnsureAllAsyncQueriesFinished();
 
       var performPinning = pinner.RootCount > 0;
       if (performPinning || (disableAutoSaveChanges && !Configuration.Supports(SessionOptions.NonTransactionalEntityStates))) 
@@ -295,6 +296,12 @@ namespace Xtensive.Orm
       var itemsToProcess = EntitySetChangeRegistry.GetItems();
       foreach (var entitySet in itemsToProcess)
         action.Invoke(entitySet);
+    }
+
+    private void EnsureAllAsyncQueriesFinished()
+    {
+      if (CommandProcessorContextProvider.AliveContextCount > 0)
+        throw new InvalidOperationException("Unable to save modified entites because of incomplete asynchronous queries. Make sure you await asyncronous queries before persisting changes.");
     }
   }
 }

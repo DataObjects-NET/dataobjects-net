@@ -213,6 +213,11 @@ namespace Xtensive.Orm
     /// </summary>
     public Guid Guid { get; private set; }
 
+    /// <summary>
+    /// Provides context for <see cref="CommandProcessor"/>.
+    /// </summary>
+    public CommandProcessorContextProvider CommandProcessorContextProvider { get; private set; }
+
     #region Private / internal members
 
     internal SessionHandler Handler { get; set; }
@@ -533,6 +538,7 @@ namespace Xtensive.Orm
       pinner = new Pinner(this);
       Operations = new OperationRegistry(this);
       NonPairedReferencesRegistry = new NonPairedReferenceChangesRegistry(this);
+      CommandProcessorContextProvider = new CommandProcessorContextProvider(this);
 
       // Validation context
       ValidationContext = Configuration.Supports(SessionOptions.ValidateEntities)
@@ -572,6 +578,7 @@ namespace Xtensive.Orm
 
         Services.DisposeSafely();
         Handler.DisposeSafely();
+        CommandProcessorContextProvider.DisposeSafely();
 
         Domain.ReleaseSingleConnection();
 
