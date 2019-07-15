@@ -52,6 +52,14 @@ namespace Xtensive.Orm.Providers
     /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
     public abstract void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution);
 
+    /// <summary>
+    /// Asynchrously executes the specified query tasks.
+    /// Default implementation executest query task synchronously.
+    /// </summary>
+    /// <param name="queryTasks">The query tasks to execute.</param>
+    /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task performing operation.</returns>
     public virtual async Task ExecuteQueryTasksAsync(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution, CancellationToken token)
     {
       ExecuteQueryTasks(queryTasks, allowPartialExecution);

@@ -21,42 +21,43 @@ namespace Xtensive.Modelling.Comparison
   /// </summary>
   public class Upgrader : IUpgrader
   {
+    #region String patterns 
+
     /// <summary>
     /// Node group comment (in action sequence).
     /// </summary>
-    public readonly static string NodeGroupComment           = "{0}";
+    public static readonly string NodeGroupComment           = "{0}";
     /// <summary>
     /// Node collection group comment (in action sequence).
     /// </summary>
-    public readonly static string NodeCollectionGroupComment = "{0}[]";
+    public static readonly string NodeCollectionGroupComment = "{0}[]";
     /// <summary>
     /// Preconditions group comment (in action sequence).
     /// </summary>
-    public readonly static string PreConditionsGroupComment  = "<PreConditions>";
+    public static readonly string PreConditionsGroupComment  = "<PreConditions>";
     /// <summary>
     /// Renames group comment (in action sequence).
     /// </summary>
-    public readonly static string RenamesGroupComment        = "<Renames>";
+    public static readonly string RenamesGroupComment        = "<Renames>";
     /// <summary>
     /// Postconditions group comment (in action sequence).
     /// </summary>
-    public readonly static string PostConditionsGroupComment = "<PostConditions>";
+    public static readonly string PostConditionsGroupComment = "<PostConditions>";
     /// <summary>
     /// Temporary name format string.
     /// </summary>
-    public readonly static string TemporaryNameFormat        = "Temp_{0}";
-    
-    private static readonly AsyncLocal<Upgrader> currentAsync = new AsyncLocal<Upgrader>();
+    public static readonly string TemporaryNameFormat        = "Temp_{0}";
 
+    #endregion
+
+    private static readonly AsyncLocal<Upgrader> currentAsync = new AsyncLocal<Upgrader>();
 
     #region Properties: Current, Context, Difference, Hints, Stage, XxxModel, ...
 
     /// <summary>
     /// Gets the current comparer.
     /// </summary>
-    public static Upgrader Current {
-      get { return currentAsync.Value; }
-    }
+    public static Upgrader Current { get { return currentAsync.Value; }}
 
     /// <summary>
     /// Gets the current upgrade context.

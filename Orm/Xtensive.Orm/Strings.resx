@@ -3418,5 +3418,7 @@ Error: {1}</value>
     <data name="LogConnectionSuccessfullyRestored" xml:space="preserve">
     <value>Connection successfully restored.</value>
   </data>
-
+  <data name="ExUnableToSaveModifiedEntitesBecauseOfIncompleteAsynchronousQueries" xml:space="preserve">
+    <value>Unable to save modified entites because some asynchronous query is incomplete. Make sure you awaited started asynchronous queries before persisting any changes.</value>
+  </data>
 </root>

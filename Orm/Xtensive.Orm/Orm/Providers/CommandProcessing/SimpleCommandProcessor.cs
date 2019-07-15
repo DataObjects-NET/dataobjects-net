@@ -19,14 +19,6 @@ namespace Xtensive.Orm.Providers
 
     void ISqlTaskProcessor.ProcessTask(SqlLoadTask task, CommandProcessorContext context)
     {
-      //var part = Factory.CreateQueryPart(task);
-      //context.ActiveCommand.AddPart(part);
-      //context.ActiveCommand.ExecuteReader();
-      //var enumerator = context.ActiveCommand.AsReaderOf(task.Request);
-      //using (enumerator) {
-      //  while (enumerator.MoveNext())
-      //    task.Output.Add(enumerator.Current);
-      //}
       var part = Factory.CreateQueryPart(task);
       context.ActiveCommand.AddPart(part);
       context.ActiveTasks.Add(task);

@@ -31,9 +31,7 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// Gets the current comparer.
     /// </summary>
-    public static Comparer Current {
-      get { return currentAsync.Value; }
-    }
+    public static Comparer Current { get { return currentAsync.Value; } }
 
     /// <summary>
     /// Gets the current comparison context.

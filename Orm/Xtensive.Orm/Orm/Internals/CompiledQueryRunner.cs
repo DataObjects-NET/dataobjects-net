@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Internals
     public Task<TResult> ExecuteCompiledAsync<TResult>(Func<QueryEndpoint, TResult> query, CancellationToken token)
     {
       var parameterizedQuery = GetCachedQuery<TResult>();
-      if (parameterizedQuery != null)
+      if (parameterizedQuery!=null)
         return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), token);
       TResult result;
       parameterizedQuery = GetScalarQuery(query, false, out result);

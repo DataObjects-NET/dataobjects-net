@@ -272,7 +272,7 @@ namespace Xtensive.Orm
     private void EnsureAllAsyncQueriesFinished()
     {
       if (CommandProcessorContextProvider.AliveContextCount > 0)
-        throw new InvalidOperationException("Unable to save modified entites because of incomplete asynchronous queries. Make sure you await asyncronous queries before persisting changes.");
+        throw new InvalidOperationException(Strings.ExUnableToSaveModifiedEntitesBecauseSomeAsynchronousQueryIsIncomplete);
     }
   }
 }

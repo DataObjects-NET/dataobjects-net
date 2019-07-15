@@ -30,8 +30,7 @@ namespace Xtensive.Conversion
 
     private static Dictionary<Pair<Type>, bool> InProgress
     {
-      get
-      {
+      get {
         var returnedValue = inProgressAsync.Value;
         if (returnedValue==null)
           inProgressAsync.Value = returnedValue = new Dictionary<Pair<Type>, bool>();

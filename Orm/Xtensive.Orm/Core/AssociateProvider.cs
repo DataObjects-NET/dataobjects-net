@@ -31,14 +31,12 @@ namespace Xtensive.Core
 
     private static SetSlim<TypePair> InProgress
     {
-      get
-      {
+      get {
         if (inProgressAsync.Value==null)
           inProgressAsync.Value = new SetSlim<TypePair>();
         return inProgressAsync.Value;
       }
       set { inProgressAsync.Value = value; }
-
     }
 
     [NonSerialized]

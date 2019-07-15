@@ -2399,8 +2399,8 @@ namespace Xtensive {
                 return ResourceManager.GetString("ExExpressionXIsNotASequence", resourceCulture);
             }
         }
-		
-		/// <summary>
+        
+        /// <summary>
         ///   Looks up a localized string similar to Extracted and target schemas are equal but there are changes in type identifiers set..
         /// </summary>
         internal static string ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet {
@@ -2408,7 +2408,6 @@ namespace Xtensive {
                 return ResourceManager.GetString("ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet", resourceCulture);
             }
         }
-
         
         /// <summary>
         ///   Looks up a localized string similar to Extracted schema is not compatible with the target schema. Details:
@@ -7162,6 +7161,24 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to save modified entites because some asynchronous query is incomplete. Make sure you awaited started asynchronous queries before persisting any changes..
+        /// </summary>
+        internal static string ExUnableToSaveModifiedEntitesBecauseOfIncompleteAsynchronousQueries {
+            get {
+                return ResourceManager.GetString("ExUnableToSaveModifiedEntitesBecauseOfIncompleteAsynchronousQueries", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to save modified entites because some asynchronous query is incomplete. Make sure you awaited asyncronous queries before persisting any changes..
+        /// </summary>
+        internal static string ExUnableToSaveModifiedEntitesBecauseSomeAsynchronousQueryIsIncomplete {
+            get {
+                return ResourceManager.GetString("ExUnableToSaveModifiedEntitesBecauseSomeAsynchronousQueryIsIncomplete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to set &apos;Indexed&apos; flag on EntitySet field {0}..
         /// </summary>
         internal static string ExUnableToSetIndexedFlagOnEntitySetFieldX {
@@ -8198,8 +8215,8 @@ namespace Xtensive {
                 return ResourceManager.GetString("LogComparisonResultX", resourceCulture);
             }
         }
-		
-		/// <summary>
+        
+        /// <summary>
         ///   Looks up a localized string similar to Connection restore failed..
         /// </summary>
         internal static string LogConnectionRestoreFailed {
@@ -8216,7 +8233,6 @@ namespace Xtensive {
                 return ResourceManager.GetString("LogConnectionSuccessfullyRestored", resourceCulture);
             }
         }
-
         
         /// <summary>
         ///   Looks up a localized string similar to Creating {0}.
@@ -8408,8 +8424,8 @@ namespace Xtensive {
                 return ResourceManager.GetString("LogGenericAssociateIsUsedFor", resourceCulture);
             }
         }
-		
-		/// <summary>
+        
+        /// <summary>
         ///   Looks up a localized string similar to Given connection is corrupted. Trying to restore the connection..
         /// </summary>
         internal static string LogGivenConnectionIsCorruptedTryingToRestoreTheConnection {

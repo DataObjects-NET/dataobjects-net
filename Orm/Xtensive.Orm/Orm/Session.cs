@@ -81,7 +81,6 @@ namespace Xtensive.Orm
 
     private int? commandTimeout;
     private volatile bool isDisposed;
-    private volatile bool isActivatedInternally;
 
     /// <summary>
     /// Gets the configuration of the <see cref="Session"/>.
@@ -236,8 +235,6 @@ namespace Xtensive.Orm
 
     internal void ActivateInternally()
     {
-      if(isActivatedInternally)
-        return;
       disposableSet.Add(new SessionScope(this));
     }
 

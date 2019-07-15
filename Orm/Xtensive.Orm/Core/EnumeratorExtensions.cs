@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace Xtensive.Core
 {
-  public static class EnumeratorExtensions
+  internal static class EnumeratorExtensions
   {
     public static IEnumerable<TItem> ToEnumerable<TItem>(this IEnumerator<TItem> enumerator)
     {

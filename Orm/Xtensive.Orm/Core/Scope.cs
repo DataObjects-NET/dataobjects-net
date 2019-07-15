@@ -34,8 +34,7 @@ namespace Xtensive.Core
     protected internal static TContext CurrentContext
     {
       [DebuggerStepThrough]
-      get
-      {
+      get {
         var currentValue = currentScopeAsync.Value;
         return currentValue?.context;
       }
@@ -116,8 +115,10 @@ namespace Xtensive.Core
     protected internal Scope()
     {
       var type = GetType();
-      if (allowedType==null) lock (@lock) if (allowedType==null)
-        allowedType = type;
+      if (allowedType==null)
+        lock (@lock)
+          if (allowedType==null)
+            allowedType = type;
       if (allowedType!=type)
         throw new SecurityException(
           Strings.ExOnlyOneAncestorOfEachInstanceOfThisGenericTypeIsAllowed);

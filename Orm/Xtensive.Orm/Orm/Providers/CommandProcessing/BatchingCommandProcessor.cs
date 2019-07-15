@@ -19,10 +19,6 @@ namespace Xtensive.Orm.Providers
     private readonly int batchSize;
     private readonly Queue<SqlTask> tasks;
 
-    //private int reenterCount;
-    //private Command activeCommand;
-    //private List<SqlLoadTask> activeTasks;
-
     void ISqlTaskProcessor.ProcessTask(SqlLoadTask task, CommandProcessorContext context)
     {
       var part = Factory.CreateQueryPart(task, GetParameterPrefix(context));
