@@ -394,8 +394,9 @@
     <Compile Include="Storage\AsyncQueries\AsyncQueryBaseTest.cs" />
     <Compile Include="Storage\AsyncQueries\Compiled\ClientProfileTest.cs" />
     <Compile Include="Storage\AsyncQueries\Compiled\ServerProfileTest.cs" />
-    <Compile Include="Storage\AsyncQueries\Delayed\ClientProfileTest.cs" />
-    <Compile Include="Storage\AsyncQueries\Delayed\ServerProfileTest.cs" />
+    <Compile Include="Storage\AsyncQueries\DelayedQueryClientProfileTest.cs" />
+    <Compile Include="Storage\AsyncQueries\DelayedQueryServerProfileTest.cs" />
+    <Compile Include="Storage\AsyncQueries\DelayedQueryTestBase.cs" />
     <Compile Include="Storage\AsyncQueries\Model.cs" />
     <Compile Include="Storage\AsyncSession\AsyncSessionOpeningTest.cs" />
     <Compile Include="Storage\CommandProcessorContextProviderTest.cs" />
