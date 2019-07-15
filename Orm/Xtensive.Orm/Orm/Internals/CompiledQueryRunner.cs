@@ -52,23 +52,30 @@ namespace Xtensive.Orm.Internals
 
     public Task<IEnumerable<TElement>> ExecuteCompiledAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query, CancellationToken token)
     {
+      token.ThrowIfCancellationRequested();
       var parameterizedQuery = GetSequenceQuery(query);
+      token.ThrowIfCancellationRequested();
       return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), token);
     }
 
     public Task<IEnumerable<TElement>> ExecuteCompiledAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query, CancellationToken token)
     {
+      token.ThrowIfCancellationRequested();
       var parameterizedQuery = GetSequenceQuery(query);
+      token.ThrowIfCancellationRequested();
       return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), token);
     }
 
     public Task<TResult> ExecuteCompiledAsync<TResult>(Func<QueryEndpoint, TResult> query, CancellationToken token)
     {
       var parameterizedQuery = GetCachedQuery<TResult>();
-      if (parameterizedQuery!=null)
+      if (parameterizedQuery!=null) {
+        token.ThrowIfCancellationRequested();
         return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), token);
+      }
       TResult result;
       parameterizedQuery = GetScalarQuery(query, false, out result);
+      token.ThrowIfCancellationRequested();
       return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), token); ;
     }
 

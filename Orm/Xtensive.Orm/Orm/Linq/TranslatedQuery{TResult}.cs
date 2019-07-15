@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Linq
     /// <returns><see cref="Task{TResult}"/> performing this operation.</returns>
     public async Task<TResult> ExecuteAsync(Session session, ParameterContext parameterContext, CancellationToken token)
     {
-      var recordSet = DataSource.GetRecordSet(session);
+      var recordSet = await DataSource.GetRecordSetForAsyncQuery(session, token).ConfigureAwait(false);
       var enumerable = (await recordSet.GetEnumeratorAsync(token).ConfigureAwait(false)).ToEnumerable();
       enumerable.GetEnumerator().Dispose();
       return Materializer.Invoke(enumerable, session, TupleParameterBindings, parameterContext);

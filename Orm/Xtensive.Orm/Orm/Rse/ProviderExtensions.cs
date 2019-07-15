@@ -5,6 +5,8 @@
 // Created:    2010.09.13
 
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
 
@@ -41,6 +43,20 @@ namespace Xtensive.Orm.Rse
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       return new RecordSet(session.CreateEnumerationContext(), provider);
+    }
+
+    /// <summary>
+    /// Asynchrously gets <see cref="RecordSet"/> bound to the specified <paramref name="provider"/>.
+    /// </summary>
+    /// <param name="provider">Provider to get <see cref="RecordSet"/> for.</param>
+    /// <param name="session">Session to bind.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task performing this operation.</returns>
+    public static async Task<RecordSet> GetRecordSetForAsyncQuery(this ExecutableProvider provider, Session session, CancellationToken token)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
+      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      return new RecordSet(await session.CreateEnumerationContextForAsyncQuery(token).ConfigureAwait(false), provider);
     }
 
     /// <summary>

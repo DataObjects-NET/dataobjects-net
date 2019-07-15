@@ -10,6 +10,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -245,10 +246,11 @@ namespace Xtensive.Orm
       return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
     }
 
-    internal EnumerationContext CreateEnumerationContextForAsyncQuery()
+    internal async Task<EnumerationContext> CreateEnumerationContextForAsyncQuery(CancellationToken token)
     {
       Persist(PersistReason.Other);
-      ProcessUserDefinedDelayedQueries(true);
+      token.ThrowIfCancellationRequested();
+      await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
       return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
     }
 

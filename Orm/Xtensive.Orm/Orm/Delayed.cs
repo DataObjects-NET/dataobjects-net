@@ -47,8 +47,10 @@ namespace Xtensive.Orm
     {
       if (!LifetimeToken.IsActive)
         throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
-      if (Task.Result==null)
+      if (Task.Result==null) {
+        token.ThrowIfCancellationRequested();
         await Session.ExecuteDelayedUserQueriesAsync(false, token).ConfigureAwait(false);
+      }
       return Materialize(Session);
     }
 

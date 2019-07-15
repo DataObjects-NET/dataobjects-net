@@ -51,8 +51,10 @@ namespace Xtensive.Orm
 
     internal async Task<bool> ExecuteDelayedUserQueriesAsync(bool skipPersist, CancellationToken token)
     {
+      token.ThrowIfCancellationRequested();
       if (!skipPersist)
-        Persist(PersistReason.Query);
+        Persist(PersistReason.Other);
+      token.ThrowIfCancellationRequested();
       return await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
     }
 
