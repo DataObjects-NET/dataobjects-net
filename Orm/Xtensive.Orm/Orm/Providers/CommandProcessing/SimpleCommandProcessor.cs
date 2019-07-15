@@ -112,6 +112,24 @@ namespace Xtensive.Orm.Providers
       return lastRequestCommand.AsReaderOf(lastRequest);
     }
 
+    public override async Task<IEnumerator<Tuple>> ExecuteTasksWithReaderAsync(QueryRequest lastRequest, CommandProcessorContext context, CancellationToken token)
+    {
+      var oldValue = context.AllowPartialExecution;
+      context.AllowPartialExecution = false;
+
+      token.ThrowIfCancellationRequested();
+
+      await ExecuteTasksAsync(context, token);
+      context.AllowPartialExecution = oldValue;
+
+      var lastRequestCommand = Factory.CreateCommand();
+      var commandPart = Factory.CreateQueryPart(lastRequest);
+      lastRequestCommand.AddPart(commandPart);
+      token.ThrowIfCancellationRequested();
+      await lastRequestCommand.ExecuteReaderAsync(token);
+      return lastRequestCommand.AsReaderOf(lastRequest);
+    }
+
     // Constructors
 
       public SimpleCommandProcessor(CommandFactory factory)
