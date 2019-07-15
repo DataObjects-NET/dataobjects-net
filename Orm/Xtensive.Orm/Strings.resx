@@ -3421,4 +3421,7 @@ Error: {1}</value>
   <data name="ExUnableToSaveModifiedEntitesBecauseOfIncompleteAsynchronousQueries" xml:space="preserve">
     <value>Unable to save modified entites because some asynchronous query is incomplete. Make sure you awaited started asynchronous queries before persisting any changes.</value>
   </data>
+  <data name="ExUnableToSaveModifiedEntitesBecauseSomeAsynchronousQueryIsIncomplete" xml:space="preserve">
+    <value>Unable to save modified entites because some asynchronous query is incomplete. Make sure you awaited asyncronous queries before persisting any changes.</value>
+  </data>
 </root>
