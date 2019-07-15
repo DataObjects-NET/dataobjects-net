@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     protected abstract SessionConfiguration SessionConfiguration { get; }
 
     [Test]
-    public async void GetScalarResultUsingSessionDirectly()
+    public async Task GetScalarResultUsingSessionDirectly()
     {
       using (var session = Domain.OpenSession(SessionConfiguration)) {
         var task = session.Query.ExecuteDelayed(
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test]
-    public async void GetIEnumerableOfResultsUsingSessionDirectly()
+    public async Task GetIEnumerableOfResultsUsingSessionDirectly()
     {
       using (var session = Domain.OpenSession(SessionConfiguration)) {
         var task = session.Query.ExecuteDelayed(
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test]
-    public async void GetOrderedIEnumerableOfResultsUsingSessionDirectly()
+    public async Task GetOrderedIEnumerableOfResultsUsingSessionDirectly()
     {
       using (var session = Domain.OpenSession(SessionConfiguration)) {
         var task = session.Query.ExecuteDelayed(endpoint =>
