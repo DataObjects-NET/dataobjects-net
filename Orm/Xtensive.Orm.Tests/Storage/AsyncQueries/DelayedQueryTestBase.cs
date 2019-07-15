@@ -22,9 +22,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async Task GetScalarResultUsingSessionDirectly()
     {
-      using (var session = Domain.OpenSession(SessionConfiguration)) {
+      using (var session = Domain.OpenSession(SessionConfiguration))
+      using (var tx = GetTransactionScope(session)) {
         var task = session.Query.ExecuteDelayed(
-          endpoint => endpoint.All<DisceplinesOfCourse>().Where(el => el.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline).First()).AsAsyncTask();
+          endpoint => endpoint.All<DisceplinesOfCourse>().Where(el => el.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First()).AsAsyncTask();
         Assert.IsInstanceOf<Task<Discepline>>(task);
         var result = await task;
         Assert.IsInstanceOf<Discepline>(result);
@@ -35,9 +36,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async Task GetIEnumerableOfResultsUsingSessionDirectly()
     {
-      using (var session = Domain.OpenSession(SessionConfiguration)) {
+      using (var session = Domain.OpenSession(SessionConfiguration))
+      using (var tx = GetTransactionScope(session)) {
         var task = session.Query.ExecuteDelayed(
-          endpoint => endpoint.All<DisceplinesOfCourse>().Where(el => el.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline)).AsAsyncTask();
+          endpoint => endpoint.All<DisceplinesOfCourse>().Where(el => el.Course.Year==DateTime.Now.Year - 1).Select(d => d.Discepline)).AsAsyncTask();
         Assert.IsInstanceOf<Task<IEnumerable<Discepline>>>(task);
         var result = await task;
         Assert.IsInstanceOf<IEnumerable<Discepline>>(result);
@@ -51,7 +53,8 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async Task GetOrderedIEnumerableOfResultsUsingSessionDirectly()
     {
-      using (var session = Domain.OpenSession(SessionConfiguration)) {
+      using (var session = Domain.OpenSession(SessionConfiguration))
+      using (var tx = GetTransactionScope(session)) {
         var task = session.Query.ExecuteDelayed(endpoint =>
             endpoint.All<DisceplinesOfCourse>().Where(el => el.Course.Year==DateTime.Now.Year - 1)
               .Select(d => d.Discepline).OrderBy(d => d.Name))
@@ -64,6 +67,13 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         Assert.AreNotEqual(0, orderedDisceplines.Count);
         Assert.AreEqual(20, orderedDisceplines.Count);
       }
+    }
+
+    private TransactionScope GetTransactionScope(Session session)
+    {
+      if (SessionConfiguration.Supports(SessionOptions.ServerProfile))
+        return session.OpenTransaction();
+      return null;
     }
   }
 }
