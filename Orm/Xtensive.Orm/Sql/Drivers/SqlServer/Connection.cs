@@ -161,7 +161,6 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
     }
 
-    [MethodImpl(MethodImplOptions.NoInlining)]
     private async Task OpenWithCheckAsync(string checkQueryString, CancellationToken cancellationToken)
     {
       bool connectionChecked = false;
