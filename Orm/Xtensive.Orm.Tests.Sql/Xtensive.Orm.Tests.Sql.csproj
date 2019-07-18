@@ -126,9 +126,11 @@
     <None Include="..\Xtensive.Orm1.Tests.Framework\Orm.config">
       <Link>Orm.config</Link>
     </None>
-    <None Include="MySQL\SakilaDb\CreateTestUser.sql" />
-    <None Include="MySQL\SakilaDb\sakila-data.sql" />
-    <None Include="MySQL\SakilaDb\sakila-schema.sql" />
+    <Content Include="MySQL\SakilaDb\CreateTestUser.sql" />
+    <Content Include="MySQL\SakilaDb\sakila-data.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="MySQL\SakilaDb\sakila-schema.sql" />
     <None Include="Sqlite\history.sql" />
     <None Include="Sqlite\Northwind.sl3" />
     <None Include="Sqlite\Northwind.Sqlite3.sql" />
