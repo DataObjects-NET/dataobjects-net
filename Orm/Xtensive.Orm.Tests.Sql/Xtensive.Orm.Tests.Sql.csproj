@@ -83,7 +83,6 @@
     <Compile Include="Oracle\UberTest.cs" />
     <Compile Include="PostgreSql\CatalogComparer.cs" />
     <Compile Include="PostgreSql\DateTimeIntervalTest.cs" />
-    <Compile Include="PostgreSql\DateTimeOffsetTest.cs" />
     <Compile Include="PostgreSql\ExceptionTypesTest.cs" />
     <Compile Include="PostgreSql\ExtractorTest.cs" />
     <Compile Include="PostgreSql\IndexTest.cs" />
