@@ -15,8 +15,6 @@ namespace Xtensive.Orm.Tests.Sql
 {
   public abstract class ExceptionTypesTest : SqlTest
   {
-    private SqlConnection connectionOne;
-
     private class EvilThreadArgument
     {
       public SqlConnection Connection;
@@ -45,7 +43,6 @@ namespace Xtensive.Orm.Tests.Sql
       EnsureTableNotExists(schema, MasterTableName);
       EnsureTableNotExists(schema, UniqueTableName);
       EnsureTableNotExists(schema, CheckedTableName);
-      connectionOne = Connection;
     }
 
     public override void TearDown()
@@ -57,7 +54,7 @@ namespace Xtensive.Orm.Tests.Sql
     [Test]
     public virtual void SyntaxErrorTest()
     {
-      AssertExceptionType("select lolwut??!", SqlExceptionType.SyntaxError);
+      AssertExceptionType(Connection, "select lolwut??!", SqlExceptionType.SyntaxError);
     }
 
     [Test]
@@ -184,36 +181,41 @@ namespace Xtensive.Orm.Tests.Sql
       var update2To2 = SqlDml.Update(tableRef);
       update2To2.Where = tableRef[IdColumnName]==2;
       update2To2.Values.Add(tableRef[column.Name], 2);
-      
-      connectionOne.BeginTransaction(IsolationLevel.ReadCommitted);
-      using (var connectionTwo = Driver.CreateConnection()) {
-        connectionTwo.Open();
-        connectionTwo.BeginTransaction(IsolationLevel.ReadCommitted);
+      using (var connectionOne = this.Driver.CreateConnection()) {
+        connectionOne.Open();
+        connectionOne.BeginTransaction(IsolationLevel.ReadCommitted);
 
-        using (var command = connectionOne.CreateCommand(update1To1))
-          command.ExecuteNonQuery();
-        using (var command = connectionTwo.CreateCommand(update2To2))
-          command.ExecuteNonQuery();
+        using (var connectionTwo = Driver.CreateConnection()) {
+          connectionTwo.Open();
+          connectionTwo.BeginTransaction(IsolationLevel.ReadCommitted);
 
-        var startEvent = new EventWaitHandle(false, EventResetMode.ManualReset);
-        var arg1 = new EvilThreadArgument {
-          Connection = connectionOne,
-          StartEvent = startEvent,
-          Statement = update2To1
-        };
-        var arg2 = new EvilThreadArgument {
-          Connection = connectionTwo,
-          StartEvent = startEvent,
-          Statement = update1To2
-        };
-        var thread1 = StartEvilThread(arg1);
-        var thread2 = StartEvilThread(arg2);
-        startEvent.Set();
-        thread1.Join();
-        thread2.Join();
-        startEvent.Close();
-        var actual = arg1.ExceptionType ?? arg2.ExceptionType ?? SqlExceptionType.Unknown;
-        AssertExceptionType(SqlExceptionType.Deadlock, actual);
+          using (var command = connectionOne.CreateCommand(update1To1))
+            command.ExecuteNonQuery();
+          using (var command = connectionTwo.CreateCommand(update2To2))
+            command.ExecuteNonQuery();
+
+          var startEvent = new EventWaitHandle(false, EventResetMode.ManualReset);
+          var arg1 = new EvilThreadArgument
+          {
+            Connection = connectionOne,
+            StartEvent = startEvent,
+            Statement = update2To1
+          };
+          var arg2 = new EvilThreadArgument
+          {
+            Connection = connectionTwo,
+            StartEvent = startEvent,
+            Statement = update1To2
+          };
+          var thread1 = StartEvilThread(arg1);
+          var thread2 = StartEvilThread(arg2);
+          startEvent.Set();
+          thread1.Join();
+          thread2.Join();
+          startEvent.Close();
+          var actual = arg1.ExceptionType ?? arg2.ExceptionType ?? SqlExceptionType.Unknown;
+          AssertExceptionType(SqlExceptionType.Deadlock, actual);
+        }
       }
     }
 
@@ -227,14 +229,16 @@ namespace Xtensive.Orm.Tests.Sql
       var tableRef = SqlDml.TableRef(table);
       var insert = SqlDml.Insert(tableRef);
       insert.Values.Add(tableRef[IdColumnName], 1);
-
-      connectionOne.BeginTransaction();
-      using (var connectionTwo = Driver.CreateConnection()) {
-        connectionTwo.Open();
-        connectionTwo.BeginTransaction(IsolationLevel.ReadCommitted);
-        using (var command = connectionTwo.CreateCommand(insert))
-          command.ExecuteNonQuery();
-        AssertExceptionType(insert, SqlExceptionType.OperationTimeout);
+      using (var connectionOne = Driver.CreateConnection()) {
+        connectionOne.Open();
+        connectionOne.BeginTransaction();
+        using (var connectionTwo = Driver.CreateConnection()) {
+          connectionTwo.Open();
+          connectionTwo.BeginTransaction(IsolationLevel.ReadCommitted);
+          using (var command = connectionTwo.CreateCommand(insert))
+            command.ExecuteNonQuery();
+          AssertExceptionType(connectionOne, insert, SqlExceptionType.OperationTimeout);
+        }
       }
     }
 
@@ -271,14 +275,19 @@ namespace Xtensive.Orm.Tests.Sql
 
     private void AssertExceptionType(ISqlCompileUnit statement, SqlExceptionType expectedExceptionType)
     {
-      var commandText = Driver.Compile(statement).GetCommandText();
-      AssertExceptionType(commandText, expectedExceptionType);
+      AssertExceptionType(Connection, statement, expectedExceptionType);
     }
 
-    private void AssertExceptionType(string commandText, SqlExceptionType expectedExceptionType)
+    private void AssertExceptionType(SqlConnection connection, ISqlCompileUnit statement, SqlExceptionType expectedExceptionType)
+    {
+      var commandText = Driver.Compile(statement).GetCommandText();
+      AssertExceptionType(connection, commandText, expectedExceptionType);
+    }
+
+    private void AssertExceptionType(SqlConnection connection, string commandText, SqlExceptionType expectedExceptionType)
     {
       try {
-        ExecuteNonQuery(commandText);
+        ExecuteNonQuery(connection, commandText);
       }
       catch (Exception exception) {
         AssertExceptionType(expectedExceptionType, Driver.GetExceptionType(exception));

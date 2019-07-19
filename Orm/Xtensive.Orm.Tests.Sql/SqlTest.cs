@@ -117,9 +117,21 @@ namespace Xtensive.Orm.Tests.Sql
         return command.ExecuteNonQuery();
     }
 
+    protected int ExecuteNonQuery(SqlConnection connection, string commandText)
+    {
+      using (var command = connection.CreateCommand(commandText))
+        return command.ExecuteNonQuery();
+    }
+
     protected int ExecuteNonQuery(ISqlCompileUnit statement)
     {
       using (var command = Connection.CreateCommand(statement))
+        return command.ExecuteNonQuery();
+    }
+
+    protected int ExecuteNonQuery(SqlConnection connection, ISqlCompileUnit statement)
+    {
+      using (var command = connection.CreateCommand(statement))
         return command.ExecuteNonQuery();
     }
 
@@ -129,9 +141,21 @@ namespace Xtensive.Orm.Tests.Sql
         return command.ExecuteScalar();
     }
 
+    protected object ExecuteScalar(SqlConnection connection, string commandText)
+    {
+      using (var command = connection.CreateCommand(commandText))
+        return command.ExecuteScalar();
+    }
+
     protected object ExecuteScalar(ISqlCompileUnit statement)
     {
       using (var command = Connection.CreateCommand(statement))
+        return command.ExecuteScalar();
+    }
+
+    protected object ExecuteScalar(SqlConnection connection, ISqlCompileUnit statement)
+    {
+      using (var command = connection.CreateCommand(statement))
         return command.ExecuteScalar();
     }
 
