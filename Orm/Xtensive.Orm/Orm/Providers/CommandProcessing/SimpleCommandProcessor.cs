@@ -38,8 +38,8 @@ namespace Xtensive.Orm.Providers
         finally {
           context.ActiveCommand.DisposeSafely();
           ReleaseCommand(context);
+          AllocateCommand(context);
         }
-        AllocateCommand(context);
       }
     }
 
@@ -61,10 +61,19 @@ namespace Xtensive.Orm.Providers
       while (context.ProcessingTasks.Count > 0) {
         AllocateCommand(context);
         try {
-          context.ProcessingTasks.Dequeue().ProcessWith(this, context);
+          var task = context.ProcessingTasks.Dequeue();
+          task.ProcessWith(this, context);
+          var loadTask = context.ActiveTasks.FirstOrDefault();
+          if (loadTask!=null) {
+            context.ActiveCommand.ExecuteReader();
+            var enumerator = context.ActiveCommand.AsReaderOf(loadTask.Request);
+            using (enumerator)
+              while (enumerator.MoveNext())
+                loadTask.Output.Add(enumerator.Current);
+          }
         }
         finally {
-          context.ActiveCommand.Dispose();
+          context.ActiveCommand.DisposeSafely();
           ReleaseCommand(context);
         }
       }
@@ -81,9 +90,9 @@ namespace Xtensive.Orm.Providers
           var task = context.ProcessingTasks.Dequeue();
           task.ProcessWith(this, context);
           var loadTask = context.ActiveTasks.FirstOrDefault();
-          if (loadTask != null) {
+          if (loadTask!=null) {
             await context.ActiveCommand.ExecuteReaderAsync(token).ConfigureAwait(false);
-            var enumerator = context.ActiveCommand.AsReaderOf(context.ActiveTasks.First().Request);
+            var enumerator = context.ActiveCommand.AsReaderOf(loadTask.Request);
             using (enumerator) {
               while (enumerator.MoveNext())
                 loadTask.Output.Add(enumerator.Current);
