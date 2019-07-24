@@ -39,28 +39,72 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return false;
     }
 
+    public override void BindByte(DbParameter parameter, object value)
+    {
+      if(value==null)
+        base.BindByte(parameter, value);
+      else
+        base.BindByte(parameter, Convert.ToByte(value));
+    }
+
+    public override void BindShort(DbParameter parameter, object value)
+    {
+      if (value==null)
+        base.BindShort(parameter, value);
+      else
+        base.BindShort(parameter, Convert.ToInt16(value));
+    }
+
+    public override void BindInt(DbParameter parameter, object value)
+    {
+      if (value==null)
+        base.BindInt(parameter, value);
+      else
+        base.BindInt(parameter, Convert.ToInt32(value));
+    }
+
+    public override void BindLong(DbParameter parameter, object value)
+    {
+      if (value==null)
+        base.BindLong(parameter, value);
+      else
+        base.BindLong(parameter, Convert.ToInt64(value));
+    }
+
     public override void BindSByte(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int16;
-      parameter.Value = value ?? DBNull.Value;
+      if (value==null)
+        parameter.Value = DBNull.Value;
+      else
+        parameter.Value = Convert.ToInt16(value);
     }
 
     public override void BindUShort(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int32;
-      parameter.Value = value ?? DBNull.Value;
+      if (value==null)
+        parameter.Value = DBNull.Value;
+      else
+        parameter.Value = Convert.ToInt32(value);
     }
     
     public override void BindUInt(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
-      parameter.Value = value ?? DBNull.Value;
+      if (value==null)
+        parameter.Value = DBNull.Value;
+      else
+        parameter.Value = Convert.ToInt64(value);
     }
 
     public override void BindULong(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
-      parameter.Value = value ?? DBNull.Value;
+      if (value == null)
+        parameter.Value = DBNull.Value;
+      else
+        parameter.Value = Convert.ToDecimal(value);
     }
 
     [SecuritySafeCritical]
@@ -126,17 +170,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return new SqlValueType(SqlType.Interval);
     }
 
-    public override SqlValueType MapDecimal(int? length, int? precision, int? scale)
-    {
-      //this is workaround for Npgsql library bug with reading numerics with scale more than 27
-      if (precision.HasValue)
-        return base.MapDecimal(length, precision, scale);
-      var sqlType = base.MapDecimal(length, precision, scale);
-      if (sqlType.Precision / 2==sqlType.Scale || sqlType.Scale > 28)
-        return ReduceDecimalScale(sqlType, 27);
-      return sqlType;
-    }
-
     public override object ReadByte(DbDataReader reader, int index)
     {
       return Convert.ToByte(reader[index]);
@@ -152,6 +185,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var nativeReader = (NpgsqlDataReader) reader;
       return (TimeSpan) nativeReader.GetInterval(index);
+    }
+
+    public override object ReadDecimal(DbDataReader reader, int index)
+    {
+      var nativeReader = (NpgsqlDataReader) reader;
+      return nativeReader.GetDecimal(index);
     }
 
     /*
