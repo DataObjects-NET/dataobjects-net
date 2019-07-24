@@ -8,7 +8,6 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
-using Npgsql;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
@@ -587,7 +586,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
             var table = tableMap[tableIdentifier];
 
-            var fullTextRegex = @"(?<=CREATE INDEX \S+ ON \S+ USING (?:gist|gin)(?:\s|\S)*)to_tsvector\('(\w+)'::regconfig, \(*(?:(?:\s|\)|\(|\|)*(?:\(""(\w+)""\)|'\s')::text)+\)";
+            var fullTextRegex = @"(?<=CREATE INDEX \S+ ON \S+ USING (?:gist|gin)(?:\s|\S)*)to_tsvector\('(\w+)'::regconfig, \(*(?:(?:\s|\)|\(|\|)*(?:\(""(\S+)""\)|'\s')::text)+\)";
             var indexScript = dataReader["inddef"].ToString();
             var matches = Regex.Matches(indexScript, fullTextRegex, RegexOptions.Compiled);
             if (matches.Count > 0) {
@@ -613,28 +612,26 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
                 index.Where = SqlDml.Native(filterExpression);
 
               // Expression-based index
-                try {
-                //todo: dataReader should return DbNull instead of exception on empty read, cause must be investigated
-                  var some = dataReader["indexprs"];
-                  //index columns
-                  for (int j = 0; j < indexKey.Length; j++) {
-                    int colIndex = indexKey[j];
-                    if (colIndex > 0)
-                      index.CreateIndexColumn(tableColumns[tableIdentifier][colIndex], true);
-                    else {
-                      int z = 7;
-                      //column index is 0
-                      //this means that this index column is an expression
-                      //which is not possible with SqlDom tables
-                    }
+              var some = dataReader["indexprs"];
+              if (some!=DBNull.Value) {
+                expressionIndexeMap[indexIdentifier] = new ExpressionIndexInfo(index, indexKey);
+                int columnNumber = dataReader.GetInt16(dataReader.GetOrdinal("indnatts"));
+                if (columnNumber > maxColumnNumber)
+                  maxColumnNumber = columnNumber;
+              }
+              else {
+                for (int j = 0; j < indexKey.Length; j++) {
+                  int colIndex = indexKey[j];
+                  if (colIndex > 0)
+                    index.CreateIndexColumn(tableColumns[tableIdentifier][colIndex], true);
+                  else {
+                    int z = 7;
+                    //column index is 0
+                    //this means that this index column is an expression
+                    //which is not possible with SqlDom tables
                   }
                 }
-                catch (NotSupportedException ex) {
-                  expressionIndexeMap[indexIdentifier] = new ExpressionIndexInfo(index, indexKey);
-                  int columnNumber = dataReader.GetInt16(dataReader.GetOrdinal("indnatts"));
-                  if (columnNumber > maxColumnNumber)
-                    maxColumnNumber = columnNumber;
-                }
+              }
               ReadSpecialIndexProperties(dataReader, index);
             }
           }

@@ -182,8 +182,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         ValueRange.Int64, "bigint", "int8");
 
       dtc.Decimal = DataTypeInfo.Fractional(SqlType.Decimal, commonFeatures,
-        ValueRange.Decimal, 1000, "numeric", "decimal");
-      
+        ValueRange.Decimal, 49, "numeric", "decimal");
+
       dtc.Float = DataTypeInfo.Range(SqlType.Float, commonFeatures,
         ValueRange.Float, "real", "float4");
       
@@ -195,7 +195,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       dtc.Interval = DataTypeInfo.Range(SqlType.Interval, commonFeatures,
         ValueRange.TimeSpan, "interval");
-      
+
       dtc.Char = DataTypeInfo.Stream(SqlType.Char, commonFeatures, MaxCharLength, "character", "char", "bpchar");
       dtc.VarChar = DataTypeInfo.Stream(SqlType.VarChar, commonFeatures, MaxCharLength, "character varying", "varchar");
       dtc.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, commonFeatures, "text");
