@@ -186,7 +186,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
           transactionScope.Complete();
         }
       }
-      Assert.AreEqual(1, validationCallsCountAsync);
+      Assert.AreEqual(1, validationCallsCountAsync.Value);
 
       validationCallsCountAsync.Value = 0;
       using (var session = Domain.OpenSession()) {
@@ -195,7 +195,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
         }
       }
       // No validation calls on meterialization
-      Assert.AreEqual(0, validationCallsCountAsync); 
+      Assert.AreEqual(0, validationCallsCountAsync.Value); 
     }
 
     [Test]
@@ -215,7 +215,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
           mouse.Led.Brightness = 4.3;
 
           session.Validate();
-          Assert.AreEqual(1, validationCallsCountAsync);
+          Assert.AreEqual(1, validationCallsCountAsync.Value);
 
           mouse.Led.Brightness = 2.3;
 
