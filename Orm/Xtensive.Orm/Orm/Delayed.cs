@@ -5,6 +5,8 @@
 // Created:    2009.08.19
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
@@ -25,6 +27,31 @@ namespace Xtensive.Orm
       get {
         return Materialize(Session);
       }
+    }
+
+    /// <summary>
+    /// Asynchrously gets value.
+    /// </summary>
+    /// <returns>Task running this operation</returns>
+    public Task<T> AsAsyncTask()
+    {
+      return AsAsyncTask(CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Asynchrously gets value.
+    /// </summary>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task running this operation.</returns>
+    public async Task<T> AsAsyncTask(CancellationToken token)
+    {
+      if (!LifetimeToken.IsActive)
+        throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
+      if (Task.Result==null) {
+        token.ThrowIfCancellationRequested();
+        await Session.ExecuteDelayedUserQueriesAsync(false, token).ConfigureAwait(false);
+      }
+      return Materialize(Session);
     }
 
 

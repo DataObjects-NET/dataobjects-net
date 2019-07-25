@@ -10,7 +10,7 @@
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <RuntimeFrameworkVersion>2.0.3</RuntimeFrameworkVersion>
     <OutputType>Library</OutputType>
-    <RootNamespace>Xtensive</RootNamespace>
+    <RootNamespace>Xtensive.Orm.Tests</RootNamespace>
     <AssemblyName>Xtensive.Orm.Tests</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <SignAssembly>true</SignAssembly>
@@ -37,8 +37,8 @@
     <!-- <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" /> -->
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
     <PackageReference Include="Npgsql" Version="3.2.5" />
-    <PackageReference Include="NUnit" Version="3.9.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.9.0" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.12.0" />
     <PackageReference Include="System.CodeDom" Version="4.4.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
     <PackageReference Include="System.Runtime.Serialization.Xml" Version="4.3.0" />
@@ -390,6 +390,18 @@
     <Compile Include="Issues\Issue_OfTypeMissesImplementors.cs" />
     <Compile Include="Issues\KeyFormatBug.cs" />
     <Compile Include="Issues\LocalCollectionsTest.cs" />
+    <Compile Include="Storage\AsyncQueries\AsAsyncTaskExtensionTest.cs" />
+    <Compile Include="Storage\AsyncQueries\AsyncQueryBaseTest.cs" />
+    <Compile Include="Storage\AsyncQueries\Compiled\ClientProfileTest.cs" />
+    <Compile Include="Storage\AsyncQueries\Compiled\ServerProfileTest.cs" />
+    <Compile Include="Storage\AsyncQueries\DelayedQueryClientProfileTest.cs" />
+    <Compile Include="Storage\AsyncQueries\DelayedQueryServerProfileTest.cs" />
+    <Compile Include="Storage\AsyncQueries\DelayedQueryTestBase.cs" />
+    <Compile Include="Storage\AsyncQueries\Model.cs" />
+    <Compile Include="Storage\AsyncSession\AsyncSessionOpeningTest.cs" />
+    <Compile Include="Storage\CommandProcessorContextProviderTest.cs" />
+    <Compile Include="Storage\ConcurrentCommandProcessorExecution.cs" />
+    <Compile Include="Storage\AsyncQueries\PersistWithAsyncQueriesTest.cs" />
     <Compile Include="Storage\SchemaSharing\DomainConfigurationExtensions.cs" />
     <Compile Include="Storage\SchemaSharing\EntityManipulation\SimpleEntityManipulationTest.cs" />
     <Compile Include="Storage\SchemaSharing\EntityManipulation\Model.cs" />

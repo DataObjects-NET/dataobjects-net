@@ -8,6 +8,9 @@ using System;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
@@ -33,18 +36,29 @@ namespace Xtensive.Sql.Drivers.SqlServer
       return new SqlParameter();
     }
 
+    /// <inheritdoc/>
     public override void Open()
     {
-      base.Open();
       if (!checkConnectionIsAlive)
-        return;
-      EnsureConnectionIsAlive(DefaultCheckConnectionQuery);
+        base.Open();
+      else
+        OpenWithCheck(DefaultCheckConnectionQuery);
     }
 
+    /// <inheritdoc/>
+    public override Task OpenAsync(CancellationToken cancellationToken)
+    {
+      cancellationToken.ThrowIfCancellationRequested();
+      if (!checkConnectionIsAlive)
+        return base.OpenAsync(cancellationToken);
+      else
+        return OpenWithCheckAsync(DefaultCheckConnectionQuery, cancellationToken);
+    }
+
+    /// <inheritdoc/>
     public override void OpenAndInitialize(string initializationScript)
     {
-      if (!checkConnectionIsAlive)
-      {
+      if (!checkConnectionIsAlive) {
         base.OpenAndInitialize(initializationScript);
         return;
       }
@@ -52,11 +66,20 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var script = string.IsNullOrEmpty(initializationScript.Trim())
         ? DefaultCheckConnectionQuery
         : initializationScript;
-
-      base.Open();
-      EnsureConnectionIsAlive(script);
+      OpenWithCheck(script);
     }
 
+    /// <inheritdoc/>
+    public override Task OpenAndInitializeAsync(string initializationScript, CancellationToken cancellationToken)
+    {
+      if (!checkConnectionIsAlive)
+        return base.OpenAndInitializeAsync(initializationScript, cancellationToken);
+
+      var script = string.IsNullOrEmpty(initializationScript.Trim())
+        ? DefaultCheckConnectionQuery
+        : initializationScript;
+      return OpenWithCheckAsync(script, cancellationToken);
+    }
 
     /// <inheritdoc/>
     public override void BeginTransaction()
@@ -99,58 +122,110 @@ namespace Xtensive.Sql.Drivers.SqlServer
       activeTransaction = null;
     }
 
-    private void EnsureConnectionIsAlive(string checkConnectionQuery)
+    private void OpenWithCheck(string checkQueryString)
     {
-      try
-      {
-        using (var command = underlyingConnection.CreateCommand())
-        {
-          command.CommandText = checkConnectionQuery;
-          command.ExecuteNonQuery();
-        }
-      }
-      catch (Exception exception)
-      {
-        if (SqlHelper.ShouldRetryOn(exception))
-        {
-          SqlLog.Warning(exception, Strings.LogGivenConnectionIsCorruptedTryingToRestoreTheConnection);
-          if (!TryReconnect(ref underlyingConnection, checkConnectionQuery))
-          {
-            SqlLog.Error(exception, Strings.LogConnectionRestoreFailed);
-            throw;
-          }
-
-          SqlLog.Info(Strings.LogConnectionSuccessfullyRestored);
-        }
-        else
-          throw;
-      }
-    }
-
-    private static bool TryReconnect(ref SqlServerConnection connection, string checkConnectionQuery)
-    {
-      try {
-        var newConnection = new SqlServerConnection(connection.ConnectionString);
+      bool connectionChecked = false;
+      bool restoreTriggered = false;
+      while (!connectionChecked) {
+        base.Open();
         try {
-          connection.Close();
-          connection.Dispose();
+          using (var command = underlyingConnection.CreateCommand()) {
+            command.CommandText = checkQueryString;
+            command.ExecuteNonQuery();
+          }
+          connectionChecked = true;
         }
-        catch { }
+        catch (Exception exception) {
+          if (SqlHelper.ShouldRetryOn(exception)) {
+            if (restoreTriggered){
+              SqlLog.Error(exception, Strings.LogConnectionRestoreFailed);
+              throw;
+            }
+            SqlLog.Warning(exception, Strings.LogGivenConnectionIsCorruptedTryingToRestoreTheConnection);
 
-        connection = newConnection;
-        connection.Open();
+            var newConnection = new SqlServerConnection(underlyingConnection.ConnectionString);
+            try
+            {
+              underlyingConnection.Close();
+              underlyingConnection.Dispose();
+            }
+            catch { }
 
-        using (var command = connection.CreateCommand()) {
-          command.CommandText = checkConnectionQuery;
-          command.ExecuteNonQuery();
+            underlyingConnection = newConnection;
+            restoreTriggered = true;
+            continue;
+          }
+          else
+            throw;
         }
-        return true;
-      }
-      catch (Exception) {
-        return false;
       }
     }
 
+    private async Task OpenWithCheckAsync(string checkQueryString, CancellationToken cancellationToken)
+    {
+      bool connectionChecked = false;
+      bool restoreTriggered = false;
+
+      while (!connectionChecked) {
+        cancellationToken.ThrowIfCancellationRequested();
+        await base.OpenAsync(cancellationToken).ConfigureAwait(false);
+        try {
+          using (var command = underlyingConnection.CreateCommand()) {
+            command.CommandText = checkQueryString;
+            await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+          }
+          connectionChecked = true;
+        }
+        catch (Exception exception)
+        {
+          if (SqlHelper.ShouldRetryOn(exception)) {
+            if (restoreTriggered) {
+              SqlLog.Error(exception, Strings.LogConnectionRestoreFailed);
+              throw;
+            }
+            SqlLog.Warning(exception, Strings.LogGivenConnectionIsCorruptedTryingToRestoreTheConnection);
+
+            var newConnection = new SqlServerConnection(underlyingConnection.ConnectionString);
+            try
+            {
+              underlyingConnection.Close();
+              underlyingConnection.Dispose();
+            }
+            catch { }
+
+            underlyingConnection = newConnection;
+            restoreTriggered = true;
+            continue;
+          }
+          else
+            throw;
+        }
+      }
+    }
+
+    //private static bool TryReconnect(ref SqlServerConnection connection, string checkConnectionQuery)
+    //{
+    //  try {
+    //    var newConnection = new SqlServerConnection(connection.ConnectionString);
+    //    try {
+    //      connection.Close();
+    //      connection.Dispose();
+    //    }
+    //    catch { }
+
+    //    connection = newConnection;
+    //    connection.Open();
+
+    //    using (var command = connection.CreateCommand()) {
+    //      command.CommandText = checkConnectionQuery;
+    //      command.ExecuteNonQuery();
+    //    }
+    //    return true;
+    //  }
+    //  catch (Exception) {
+    //    return false;
+    //  }
+    //}
 
 
     // Constructors

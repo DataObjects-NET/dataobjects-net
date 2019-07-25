@@ -5,6 +5,8 @@
 // Created:    2010.02.09
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
@@ -17,11 +19,20 @@ namespace Xtensive.Orm.Providers
     IEnumerator<Tuple> IProviderExecutor.ExecuteTupleReader(QueryRequest request)
     {
       Prepare();
-      var enumerator = commandProcessor.ExecuteTasksWithReader(request);
+      var context = new CommandProcessorContext();
+      var enumerator = commandProcessor.ExecuteTasksWithReader(request, context);
+      context.Dispose();
       using (enumerator) {
         while (enumerator.MoveNext())
           yield return enumerator.Current;
       }
+    }
+
+    async Task<IEnumerator<Tuple>> IProviderExecutor.ExecuteTupleReaderAsync(QueryRequest request, CancellationToken token)
+    {
+      Prepare();
+      using (var context = new CommandProcessorContext())
+        return await commandProcessor.ExecuteTasksWithReaderAsync(request, context, token).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -30,7 +41,8 @@ namespace Xtensive.Orm.Providers
       Prepare();
       foreach (var tuple in tuples)
         commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
-      commandProcessor.ExecuteTasks();
+      using (var context = new CommandProcessorContext())
+        commandProcessor.ExecuteTasks(context);
     }
 
     /// <inheritdoc/>
@@ -38,7 +50,8 @@ namespace Xtensive.Orm.Providers
     {
       Prepare();
       commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
-      commandProcessor.ExecuteTasks();
+      using (var context = new CommandProcessorContext())
+        commandProcessor.ExecuteTasks(context);
     }
 
     /// <inheritdoc/>
@@ -48,7 +61,8 @@ namespace Xtensive.Orm.Providers
       commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
       foreach (var tuple in tuples)
         commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
-      commandProcessor.ExecuteTasks();
+      using (var context = new CommandProcessorContext())
+        commandProcessor.ExecuteTasks(context);
     }
   }
 }

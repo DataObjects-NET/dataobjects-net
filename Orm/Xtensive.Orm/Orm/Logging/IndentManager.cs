@@ -5,6 +5,7 @@
 // Created:    2013.11.11
 
 using System;
+using System.Threading;
 
 namespace Xtensive.Orm.Logging
 {
@@ -24,7 +25,7 @@ namespace Xtensive.Orm.Logging
         if (disposed)
           return;
         disposed = true;
-        CurrentIndentValue = oldIndent;
+        CurrentIndentValueAsync.Value = oldIndent;
         if (endAction!=null)
           endAction.Invoke();
       }
@@ -37,14 +38,13 @@ namespace Xtensive.Orm.Logging
     }
 
     private const string SingleIndent = "  ";
-
-    [ThreadStatic]
-    private static string CurrentIndentValue;
+    
+    private static readonly AsyncLocal<string> CurrentIndentValueAsync = new AsyncLocal<string>();
 
     /// <summary>
     /// Gets indentation for current thread.
     /// </summary>
-    public static string CurrentIdent { get { return CurrentIndentValue ?? string.Empty; } }
+    public static string CurrentIdent { get { return CurrentIndentValueAsync.Value ?? string.Empty; } }
 
     /// <summary>
     /// Increases indentation for current thread.
@@ -52,8 +52,8 @@ namespace Xtensive.Orm.Logging
     /// <returns>Indentation scope.</returns>
     public static IDisposable IncreaseIndent(Action endAction = null)
     {
-      var oldIndent = CurrentIndentValue;
-      CurrentIndentValue = oldIndent==null ? SingleIndent : oldIndent + SingleIndent;
+      var oldIndent = CurrentIndentValueAsync.Value;
+      CurrentIndentValueAsync.Value = oldIndent==null ? SingleIndent : oldIndent + SingleIndent;
       return new IndentScope(oldIndent, endAction);
     }
   }

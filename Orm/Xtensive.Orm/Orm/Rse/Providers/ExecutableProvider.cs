@@ -7,6 +7,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -52,6 +56,13 @@ namespace Xtensive.Orm.Rse.Providers
 
     protected abstract IEnumerable<Tuple> OnEnumerate(EnumerationContext context);
 
+    protected virtual Task<IEnumerable<Tuple>> OnEnumerateAsync(EnumerationContext context, CancellationToken token)
+    {
+      //Default version is synchronous
+      token.ThrowIfCancellationRequested();
+      return Task.FromResult(OnEnumerate(context));
+    }
+
     #endregion
 
     #region Caching related methods
@@ -96,6 +107,31 @@ namespace Xtensive.Orm.Rse.Providers
       }
       finally {
         if (!enumerated)
+          OnAfterEnumerate(context);
+      }
+    }
+
+    public async Task<IEnumerator<Tuple>> GetEnumeratorAsync(EnumerationContext context, CancellationToken token)
+    {
+      const string enumerationMarker = "Enumerated";
+      var enumerated = context.GetValue<bool>(this, enumerationMarker);
+      bool onEnumerationExecuted = false;
+      if (!enumerated)
+        OnBeforeEnumerate(context);
+      try {
+        context.SetValue(this, enumerationMarker, true);
+        var enumerator = (await OnEnumerateAsync(context, token).ConfigureAwait(false))
+          .ToEnumerator(
+            () => {
+              if (!enumerated) {
+                OnAfterEnumerate(context);
+              }
+            });
+        onEnumerationExecuted = true;
+        return enumerator;
+      }
+      finally {
+        if (!enumerated && !onEnumerationExecuted)
           OnAfterEnumerate(context);
       }
     }

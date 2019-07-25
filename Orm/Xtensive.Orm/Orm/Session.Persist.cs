@@ -5,14 +5,11 @@
 // Created:    2007.08.10
 
 using System;
-using System.Collections.Generic;
 using System.Transactions;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
-using Xtensive.Orm.Validation;
-using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Orm
 {
@@ -25,32 +22,6 @@ namespace Xtensive.Orm
     internal bool DisableAutoSaveChanges { get { return disableAutoSaveChanges; } }
     internal NonPairedReferenceChangesRegistry NonPairedReferencesRegistry { get; private set; }
     internal ReferenceFieldsChangesRegistry ReferenceFieldsChangesRegistry { get; private set; }
-
-    /// <summary>
-    /// Saves all modified instances immediately to the database.
-    /// Obsolete, use <see cref="SaveChanges"/> method instead.
-    /// </summary>
-    /// <remarks>
-    /// <para>
-    /// This method should be called to ensure that all delayed
-    /// updates are flushed to the storage.
-    /// </para>
-    /// <para>
-    /// For session with auto saving (with <see cref="SessionOptions.AutoSaveChanges"/> this method is called automatically when it's necessary,
-    /// e.g. before beginning, committing and rolling back a transaction, performing a
-    /// query and so further. So generally you should not worry
-    /// about calling this method.
-    /// </para>
-    /// <para>
-    /// For session without auto saving (without <see cref="SessionOptions.AutoSaveChanges"/> option) you should call this method manually.
-    /// </para>
-    /// </remarks>
-    /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
-    [Obsolete("Use Session.SaveChanges() method instead")]
-    public void Persist()
-    {
-      SaveChanges();
-    }
 
     /// <summary>
     /// Saves all modified instances immediately to the database.
@@ -96,6 +67,7 @@ namespace Xtensive.Orm
       EnsureNotDisposed();
       if (IsPersisting || EntityChangeRegistry.Count==0)
         return;
+      EnsureAllAsyncQueriesFinished();
 
       var performPinning = pinner.RootCount > 0;
       if (performPinning || (disableAutoSaveChanges && !Configuration.Supports(SessionOptions.NonTransactionalEntityStates))) 
@@ -295,6 +267,12 @@ namespace Xtensive.Orm
       var itemsToProcess = EntitySetChangeRegistry.GetItems();
       foreach (var entitySet in itemsToProcess)
         action.Invoke(entitySet);
+    }
+
+    private void EnsureAllAsyncQueriesFinished()
+    {
+      if (CommandProcessorContextProvider.AliveContextCount > 0)
+        throw new InvalidOperationException(Strings.ExUnableToSaveModifiedEntitesBecauseSomeAsynchronousQueryIsIncomplete);
     }
   }
 }

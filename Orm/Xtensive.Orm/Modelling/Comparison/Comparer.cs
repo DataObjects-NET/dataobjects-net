@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -23,17 +24,14 @@ namespace Xtensive.Modelling.Comparison
   /// </summary>
   public class Comparer : IComparer
   {
-    [ThreadStatic]
-    private static Comparer current;
+    private static readonly AsyncLocal<Comparer> currentAsync = new AsyncLocal<Comparer>();
 
     #region Properties: Current, Context, Source, Target, Hints
 
     /// <summary>
     /// Gets the current comparer.
     /// </summary>
-    public static Comparer Current {
-      get { return current; }
-    }
+    public static Comparer Current { get { return currentAsync.Value; } }
 
     /// <summary>
     /// Gets the current comparison context.
@@ -88,8 +86,8 @@ namespace Xtensive.Modelling.Comparison
         throw new ArgumentOutOfRangeException("hints.SourceModel");
       if (Hints.TargetModel!=Target)
         throw new ArgumentOutOfRangeException("hints.TargetModel");
-      var previous = current;
-      current = this;
+      var previous = currentAsync.Value;
+      currentAsync.Value = this;
       Results = new Dictionary<object, Difference>();
       try {
         Stage = ComparisonStage.BaseComparison;
@@ -99,7 +97,7 @@ namespace Xtensive.Modelling.Comparison
         return Visit(Source, Target);
       }
       finally {
-        current = previous;
+        currentAsync.Value = previous;
         Results = null;
       }
     }

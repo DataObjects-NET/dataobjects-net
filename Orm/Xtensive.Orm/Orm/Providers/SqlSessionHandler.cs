@@ -4,8 +4,11 @@
 // Created by: Alexey Gamzov
 // Created:    2008.05.20
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
@@ -129,6 +132,11 @@ namespace Xtensive.Orm.Providers
     
     #region Private / internal members
 
+    internal Task OpenConnectionAsync(CancellationToken cancellationToken)
+    {
+      return PrepareAsync(cancellationToken);
+    }
+
     private void RegisterQueryTask(QueryTask task, QueryRequest request)
     {
       task.Result = new List<Tuple>();
@@ -143,6 +151,29 @@ namespace Xtensive.Orm.Providers
         using (var command = connection.CreateCommand(script))
           driver.ExecuteNonQuery(Session, command);
       initializationSqlScripts.Clear();
+      if (pendingTransaction==null)
+        return;
+      var transaction = pendingTransaction;
+      pendingTransaction = null;
+      if (connection.ActiveTransaction==null) // Handle external transactions
+        driver.BeginTransaction(Session, connection, IsolationLevelConverter.Convert(transaction.IsolationLevel));
+    }
+
+    private async Task PrepareAsync(CancellationToken cancellationToken)
+    {
+      Session.EnsureNotDisposed();
+      await driver.OpenConnectionAsync(Session, connection, cancellationToken).ConfigureAwait(false);
+
+      try {
+        foreach (var initializationSqlScript in initializationSqlScripts)
+          using (var command = connection.CreateCommand(initializationSqlScript))
+            await driver.ExecuteNonQueryAsync(Session, command, cancellationToken).ConfigureAwait(false);
+      }
+      catch (OperationCanceledException) {
+        connection.Close();
+        throw;
+      }
+
       if (pendingTransaction==null)
         return;
       var transaction = pendingTransaction;
@@ -168,11 +199,43 @@ namespace Xtensive.Orm.Providers
       }
 
       if (nonBatchedTasks.Count==0) {
-        commandProcessor.ExecuteTasks(allowPartialExecution);
+          using (var context = Session.CommandProcessorContextProvider.ProvideContext(allowPartialExecution))
+            commandProcessor.ExecuteTasks(context);
+          return;
+      }
+
+      using (var context = Session.CommandProcessorContextProvider.ProvideContext())
+        commandProcessor.ExecuteTasks(context);
+
+      foreach (var task in nonBatchedTasks) {
+        using (new EnumerationContext(Session).Activate())
+        using (task.ParameterContext.ActivateSafely())
+          task.Result = task.DataSource.ToList();
+      }
+    }
+
+    public override async Task ExecuteQueryTasksAsync(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution, CancellationToken token)
+    {
+      Prepare();
+
+      var nonBatchedTasks = new List<QueryTask>();
+      foreach (var task in queryTasks) {
+        var sqlProvider = task.DataSource as SqlProvider;
+        if (sqlProvider != null && sqlProvider.Request.CheckOptions(QueryRequestOptions.AllowOptimization))
+          RegisterQueryTask(task, sqlProvider.Request);
+        else
+          nonBatchedTasks.Add(task);
+      }
+
+      if (nonBatchedTasks.Count==0){
+        using (var context = Session.CommandProcessorContextProvider.ProvideContext(allowPartialExecution))
+          await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
         return;
       }
 
-      commandProcessor.ExecuteTasks();
+      using (var context = Session.CommandProcessorContextProvider.ProvideContext())
+        await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
+
       foreach (var task in nonBatchedTasks) {
         using (new EnumerationContext(Session).Activate())
         using (task.ParameterContext.ActivateSafely())
@@ -193,7 +256,9 @@ namespace Xtensive.Orm.Providers
     {
       Prepare();
       domainHandler.Persister.Persist(registry, commandProcessor);
-      commandProcessor.ExecuteTasks(allowPartialExecution);
+
+      using (var context = Session.CommandProcessorContextProvider.ProvideContext(allowPartialExecution))
+        commandProcessor.ExecuteTasks(context);
     }
 
     /// <inheritdoc/>

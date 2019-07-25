@@ -10,6 +10,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -22,7 +23,6 @@ using Xtensive.Orm.Operations;
 using Xtensive.Orm.PairIntegrity;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.ReferentialIntegrity;
-using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Validation;
@@ -211,6 +211,11 @@ namespace Xtensive.Orm
     /// </summary>
     public Guid Guid { get; private set; }
 
+    /// <summary>
+    /// Provides context for <see cref="CommandProcessor"/>.
+    /// </summary>
+    public CommandProcessorContextProvider CommandProcessorContextProvider { get; private set; }
+
     #region Private / internal members
 
     internal SessionHandler Handler { get; set; }
@@ -229,10 +234,23 @@ namespace Xtensive.Orm
         throw new ObjectDisposedException(Strings.ExSessionIsAlreadyDisposed);
     }
 
+    internal void ActivateInternally()
+    {
+      disposableSet.Add(new SessionScope(this));
+    }
+
     internal EnumerationContext CreateEnumerationContext()
     {
       Persist(PersistReason.Query);
       ProcessUserDefinedDelayedQueries(true);
+      return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
+    }
+
+    internal async Task<EnumerationContext> CreateEnumerationContextForAsyncQuery(CancellationToken token)
+    {
+      Persist(PersistReason.Other);
+      token.ThrowIfCancellationRequested();
+      await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
       return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
     }
 
@@ -524,6 +542,7 @@ namespace Xtensive.Orm
       pinner = new Pinner(this);
       Operations = new OperationRegistry(this);
       NonPairedReferencesRegistry = new NonPairedReferenceChangesRegistry(this);
+      CommandProcessorContextProvider = new CommandProcessorContextProvider(this);
 
       // Validation context
       ValidationContext = Configuration.Supports(SessionOptions.ValidateEntities)
@@ -540,7 +559,7 @@ namespace Xtensive.Orm
 
       // Perform activation
       if (activate)
-        disposableSet.Add(new SessionScope(this));
+        ActivateInternally();
 
       // Query endpoint
       SystemQuery = Query = new QueryEndpoint(new QueryProvider(this));
@@ -563,6 +582,7 @@ namespace Xtensive.Orm
 
         Services.DisposeSafely();
         Handler.DisposeSafely();
+        CommandProcessorContextProvider.DisposeSafely();
 
         Domain.ReleaseSingleConnection();
 

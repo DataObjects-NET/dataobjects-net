@@ -92,8 +92,8 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
     public object InstanceField;
     public object VolatileInstanceField;
     public static object StaticField;
-    [ThreadStatic]
-    public static object ThreadStaticField;
+
+    public static AsyncLocal<object> ThreadStaticFieldAsync = new AsyncLocal<object>();
 
     public class Host
     {
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
       ic /= 100;
       using (new Measurement("ThreadStatic field", MeasurementOptions.Log, ic))
         for (int i = 0; i<ic; i++)
-          o = ThreadStaticField;
+          o = ThreadStaticFieldAsync.Value;
       
       ThreadData<FieldTypeTest>.Initiialize();
       ThreadData<FieldTypeTest>.Set(this);

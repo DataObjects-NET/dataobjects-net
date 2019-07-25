@@ -4,9 +4,10 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.10.09
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm.Internals;
 
 
@@ -24,20 +25,13 @@ namespace Xtensive.Orm
     /// </summary>
     private readonly IList<QueryTask> internalQueryTasks = new List<QueryTask>();
 
-    private bool isInternalDelayedQueryRunning;
-    private bool isDelayedQueryRunning;
-
     internal void RegisterUserDefinedDelayedQuery(QueryTask task)
     {
-      if (isDelayedQueryRunning)
-        throw new InvalidOperationException();
       userDefinedQueryTasks.Add(task);
     }
 
     internal void RegisterInternalDelayedQuery(QueryTask task)
     {
-      if(isInternalDelayedQueryRunning)
-        throw new InvalidOperationException();
       internalQueryTasks.Add(task);
     }
 
@@ -55,34 +49,49 @@ namespace Xtensive.Orm
       return ProcessInternalDelayedQueries(false);
     }
 
+    internal async Task<bool> ExecuteDelayedUserQueriesAsync(bool skipPersist, CancellationToken token)
+    {
+      token.ThrowIfCancellationRequested();
+      if (!skipPersist)
+        Persist(PersistReason.Other);
+      token.ThrowIfCancellationRequested();
+      return await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
+    }
+
     private bool ProcessUserDefinedDelayedQueries(bool allowPartialExecution)
     {
-      if (isDelayedQueryRunning || userDefinedQueryTasks.Count==0)
+      if (userDefinedQueryTasks.Count==0)
         return false;
       try {
-        isDelayedQueryRunning = true;
         Handler.ExecuteQueryTasks(userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive), allowPartialExecution);
         return true;
       }
       finally {
         userDefinedQueryTasks.Clear();
-        isDelayedQueryRunning = false;
       }
     }
 
     private bool ProcessInternalDelayedQueries(bool allowPartialExecution)
     {
-      if (isInternalDelayedQueryRunning || internalQueryTasks.Count == 0)
+      if (internalQueryTasks.Count==0)
         return false;
       try {
-        isInternalDelayedQueryRunning = true;
         Handler.ExecuteQueryTasks(internalQueryTasks.Where(t=>t.LifetimeToken.IsActive), allowPartialExecution);
         return true;
       }
       finally {
         internalQueryTasks.Clear();
-        isInternalDelayedQueryRunning = false;
       }
+    }
+
+    private async Task<bool> ProcessUserDefinedDelayedQueriesAsync(CancellationToken token)
+    {
+      if (userDefinedQueryTasks.Count==0)
+        return false;
+      var aliveTasks = userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive).ToList();
+      userDefinedQueryTasks.Clear();
+      await Handler.ExecuteQueryTasksAsync(aliveTasks, false, token).ConfigureAwait(false);
+      return true;
     }
   }
 }

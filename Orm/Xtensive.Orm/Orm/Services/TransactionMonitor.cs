@@ -10,7 +10,6 @@ using Xtensive.Collections;
 
 using Xtensive.IoC;
 using Xtensive.Core;
-using Xtensive.Orm;
 
 namespace Xtensive.Orm.Services
 {

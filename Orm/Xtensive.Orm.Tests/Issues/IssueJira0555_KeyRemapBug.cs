@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(entityWithEntityKey.Key.IsTemporary(Domain), Is.False);
         Assert.That(entityWithEntityKey.Key.Value.GetValue(0), Is.LessThan(0));
 
-        Assert.DoesNotThrow(session.SaveChanges);
+        Assert.DoesNotThrow(() => session.SaveChanges());
 
         Assert.That(testEntity.Key.IsTemporary(Domain), Is.False);
         Assert.That(entityWithEntityKey.Key.IsTemporary(Domain), Is.False);
@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(entityWithEntityKey1.Key.Value.GetValue(0), Is.LessThan(0));
         Assert.That(entityWithEntityKey1.Key.Value.GetValue(1), Is.LessThan(0));
 
-        Assert.DoesNotThrow(session.SaveChanges);
+        Assert.DoesNotThrow(() => session.SaveChanges());
 
         Assert.That(testEntity.Key.IsTemporary(Domain), Is.False);
         Assert.That(entityWithEntityKey.Key.IsTemporary(Domain), Is.False);
@@ -140,7 +140,7 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(testEntity2.Key.IsTemporary(Domain), Is.False);
         Assert.That(testEntity2.Key.Value.GetValue(1), Is.LessThan(0));
 
-        Assert.DoesNotThrow(session.SaveChanges);
+        Assert.DoesNotThrow(() => session.SaveChanges());
 
         Assert.That(testEntity.Key.IsTemporary(Domain), Is.False);
         Assert.That(testEntity2.Key.IsTemporary(Domain), Is.False);

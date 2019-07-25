@@ -5,6 +5,8 @@
 // Created:    2009.10.30
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
@@ -20,6 +22,14 @@ namespace Xtensive.Orm.Providers
     /// <param name="request">The request to execute.</param>
     /// <returns><see cref="IEnumerator{Tuple}"/> that contains result of execution.</returns>
     IEnumerator<Tuple> ExecuteTupleReader(QueryRequest request);
+
+    /// <summary>
+    /// Asynchronously executes the specified request.
+    /// </summary>
+    /// <param name="request">The request to execute.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task performing the operation.</returns>
+    Task<IEnumerator<Tuple>> ExecuteTupleReaderAsync(QueryRequest request, CancellationToken token);
 
     /// <summary>
     /// Stores the specified tuples in specified table.

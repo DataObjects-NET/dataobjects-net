@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using NUnit.Framework;
 using Xtensive.Orm.Validation;
 using Xtensive.Orm.Tests;
@@ -16,8 +17,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
 { 
   public class ValidationTest : AutoBuildTest
   {
-    [ThreadStatic]
-    private static int validationCallsCount;
+    private static AsyncLocal<int> validationCallsCountAsync = new AsyncLocal<int>();
 
     [Serializable]
     [HierarchyRoot]
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
 
       protected override void OnValidate()
       {
-        validationCallsCount++;
+        validationCallsCountAsync.Value++;
 
         base.OnValidate();
         
@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
     public void ValidationCallsCountTest()
     { 
       int mouseId;
-      validationCallsCount = 0;
+      validationCallsCountAsync.Value = 0;
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {
           var mouse = new Mouse {
@@ -186,22 +186,22 @@ namespace Xtensive.Orm.Tests.Storage.Validation
           transactionScope.Complete();
         }
       }
-      Assert.AreEqual(1, validationCallsCount);
+      Assert.AreEqual(1, validationCallsCountAsync.Value);
 
-      validationCallsCount = 0;
+      validationCallsCountAsync.Value = 0;
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction()) {
           var mouse = session.Query.All<Mouse>().Where(m => m.ID==mouseId).First();
         }
       }
       // No validation calls on meterialization
-      Assert.AreEqual(0, validationCallsCount); 
+      Assert.AreEqual(0, validationCallsCountAsync.Value); 
     }
 
     [Test]
     public void ValidateAllTest()
     {
-      validationCallsCount = 0;
+      validationCallsCountAsync.Value = 0;
 
       using (var session = Domain.OpenSession()) {
         Mouse mouse;
@@ -215,7 +215,7 @@ namespace Xtensive.Orm.Tests.Storage.Validation
           mouse.Led.Brightness = 4.3;
 
           session.Validate();
-          Assert.AreEqual(1, validationCallsCount);
+          Assert.AreEqual(1, validationCallsCountAsync.Value);
 
           mouse.Led.Brightness = 2.3;
 

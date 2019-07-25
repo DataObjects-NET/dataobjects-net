@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
@@ -20,42 +21,43 @@ namespace Xtensive.Modelling.Comparison
   /// </summary>
   public class Upgrader : IUpgrader
   {
+    #region String patterns 
+
     /// <summary>
     /// Node group comment (in action sequence).
     /// </summary>
-    public readonly static string NodeGroupComment           = "{0}";
+    public static readonly string NodeGroupComment           = "{0}";
     /// <summary>
     /// Node collection group comment (in action sequence).
     /// </summary>
-    public readonly static string NodeCollectionGroupComment = "{0}[]";
+    public static readonly string NodeCollectionGroupComment = "{0}[]";
     /// <summary>
     /// Preconditions group comment (in action sequence).
     /// </summary>
-    public readonly static string PreConditionsGroupComment  = "<PreConditions>";
+    public static readonly string PreConditionsGroupComment  = "<PreConditions>";
     /// <summary>
     /// Renames group comment (in action sequence).
     /// </summary>
-    public readonly static string RenamesGroupComment        = "<Renames>";
+    public static readonly string RenamesGroupComment        = "<Renames>";
     /// <summary>
     /// Postconditions group comment (in action sequence).
     /// </summary>
-    public readonly static string PostConditionsGroupComment = "<PostConditions>";
+    public static readonly string PostConditionsGroupComment = "<PostConditions>";
     /// <summary>
     /// Temporary name format string.
     /// </summary>
-    public readonly static string TemporaryNameFormat        = "Temp_{0}";
+    public static readonly string TemporaryNameFormat        = "Temp_{0}";
 
-    [ThreadStatic]
-    private static Upgrader current;
+    #endregion
+
+    private static readonly AsyncLocal<Upgrader> currentAsync = new AsyncLocal<Upgrader>();
 
     #region Properties: Current, Context, Difference, Hints, Stage, XxxModel, ...
 
     /// <summary>
     /// Gets the current comparer.
     /// </summary>
-    public static Upgrader Current {
-      get { return current; }
-    }
+    public static Upgrader Current { get { return currentAsync.Value; }}
 
     /// <summary>
     /// Gets the current upgrade context.
@@ -135,8 +137,8 @@ namespace Xtensive.Modelling.Comparison
 
       CurrentModel = (IModel)SourceModel.Clone(null, SourceModel.Name);
       Difference = difference;
-      var previous = current;
-      current = this;
+      var previous = currentAsync.Value;
+      currentAsync.Value = this;
       using (NullActionHandler.Instance.Activate()) {
         try {
           var actions = new GroupingNodeAction();
@@ -168,7 +170,7 @@ namespace Xtensive.Modelling.Comparison
           return new ReadOnlyList<NodeAction>(actions.Actions, true);
         }
         finally {
-          current = previous;
+          currentAsync.Value = previous;
         }
       }
     }

@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Security;
-
+using System.Threading;
 
 
 namespace Xtensive.Core
@@ -20,10 +20,10 @@ namespace Xtensive.Core
   public class Scope<TContext> : IDisposable
     where TContext: class
   {
-    internal readonly static object @lock = new object();
-    internal volatile static Type allowedType = null;
-    [ThreadStatic]
-    private static Scope<TContext> currentScope;
+    internal static readonly object @lock = new object();
+    internal static volatile Type allowedType = null;
+
+    private static readonly AsyncLocal<Scope<TContext>> currentScopeAsync = new AsyncLocal<Scope<TContext>>();
 
     private TContext context;
     private Scope<TContext> outerScope;
@@ -34,7 +34,10 @@ namespace Xtensive.Core
     protected internal static TContext CurrentContext
     {
       [DebuggerStepThrough]
-      get { return currentScope != null ? currentScope.context : default(TContext); }
+      get {
+        var currentValue = currentScopeAsync.Value;
+        return currentValue?.context;
+      }
     }
 
     /// <summary>
@@ -43,7 +46,7 @@ namespace Xtensive.Core
     protected internal static Scope<TContext> CurrentScope
     {
       [DebuggerStepThrough]
-      get { return currentScope; }
+      get { return currentScopeAsync.Value; }
     }
 
     /// <summary>
@@ -86,8 +89,8 @@ namespace Xtensive.Core
       if (context!=null)
         throw Exceptions.AlreadyInitialized("Context");
       context = newContext;
-      outerScope = currentScope;
-      currentScope = this;
+      outerScope = currentScopeAsync.Value;
+      currentScopeAsync.Value = this;
     }
 
 
@@ -112,8 +115,10 @@ namespace Xtensive.Core
     protected internal Scope()
     {
       var type = GetType();
-      if (allowedType==null) lock (@lock) if (allowedType==null)
-        allowedType = type;
+      if (allowedType==null)
+        lock (@lock)
+          if (allowedType==null)
+            allowedType = type;
       if (allowedType!=type)
         throw new SecurityException(
           Strings.ExOnlyOneAncestorOfEachInstanceOfThisGenericTypeIsAllowed);
@@ -142,16 +147,17 @@ namespace Xtensive.Core
       Exception error = null;
       while (!bStop) {
         try {
-          if (currentScope==null) {
+          if (currentScopeAsync==null) {
             bStop = true;
             throw new InvalidOperationException(Strings.ExScopeCantBeDisposed);
           }
-          else if (currentScope==this) {
+          else if (currentScopeAsync.Value==this) {
             bStop = true;
-            currentScope.Dispose(true);
+            currentScopeAsync.Value.Dispose(true);
           }
-          else
-            currentScope.Dispose();
+          else {
+            currentScopeAsync.Value.Dispose();
+          }
         }
         catch (Exception e) {
           if (error==null)
@@ -162,7 +168,7 @@ namespace Xtensive.Core
           catch {}
         }
       }
-      currentScope = outerScope;
+      currentScopeAsync.Value = outerScope;
       context = null;
       outerScope = null;
       if (error!=null)

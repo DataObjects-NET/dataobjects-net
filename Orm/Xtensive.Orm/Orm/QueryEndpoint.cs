@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;
@@ -493,7 +495,193 @@ namespace Xtensive.Orm
       return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query);
     }
 
-#endregion
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="query"/> delegate
+    /// (in fact, by its <see cref="MethodInfo"/> instance)
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
+    {
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="query"/> delegate
+    /// (in fact, by its <see cref="MethodInfo"/> instance)
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query, CancellationToken token)
+    {
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, token);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
+    {
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query, CancellationToken token)
+    {
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, token);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="query"/> delegate
+    /// (in fact, by its <see cref="MethodInfo"/> instance)
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="query"/> delegate
+    /// (in fact, by its <see cref="MethodInfo"/> instance)
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query, CancellationToken token)
+    {
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, token);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    {
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query, CancellationToken token)
+    {
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, token);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="query"/> delegate
+    /// (in fact, by its <see cref="MethodInfo"/> instance)
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<TResult> ExecuteAsync<TResult>(Func<QueryEndpoint, TResult> query)
+    {
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="query"/> delegate
+    /// (in fact, by its <see cref="MethodInfo"/> instance)
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<TResult> ExecuteAsync<TResult>(Func<QueryEndpoint, TResult> query, CancellationToken token)
+    {
+      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, token);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<TResult> ExecuteAsync<TResult>(object key, Func<QueryEndpoint, TResult> query)
+    {
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<TResult> ExecuteAsync<TResult>(object key, Func<QueryEndpoint, TResult> query, CancellationToken token)
+    {
+      return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, token);
+    }
+
+    #endregion
 
     #region Delayed Queries
 

@@ -15,6 +15,6 @@ namespace Xtensive.Orm.Providers
     /// Processes this command with the specified <see cref="CommandProcessor"/>.
     /// </summary>
     /// <param name="processor">The processor to use.</param>
-    public abstract void ProcessWith(ISqlTaskProcessor processor);
+    public abstract void ProcessWith(ISqlTaskProcessor processor, CommandProcessorContext context);
   }
 }

@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 
 using Tuple = Xtensive.Tuples.Tuple;
@@ -57,6 +59,26 @@ namespace Xtensive.Orm.Providers
     {
       Prepare();
       reader = origin.Driver.ExecuteReader(origin.Session, underlyingCommand);
+    }
+
+    public async Task<int> ExecuteNonQueryAsync(CancellationToken token)
+    {
+      Prepare();
+      return await origin.Driver.ExecuteNonQueryAsync(origin.Session, underlyingCommand, token).ConfigureAwait(false);
+    }
+
+    public async Task ExecuteReaderAsync(CancellationToken token)
+    {
+      Prepare();
+      reader = await origin.Driver.ExecuteReaderAsync(origin.Session, underlyingCommand, token).ConfigureAwait(false);
+    }
+
+    public IEnumerator<Tuple> AsReaderOfAsync(QueryRequest request, CancellationToken token)
+    {
+      var accessor = request.GetAccessor();
+      using (this)
+        while (NextRow())
+          yield return ReadTupleWith(accessor);
     }
 
     public bool NextResult()
