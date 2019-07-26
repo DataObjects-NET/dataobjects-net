@@ -1,0 +1,7 @@
+[main] Introduced asynchronous session opening
+[main] Introduced bunch of QueryEndpoint.ExecuteAsync() methods
+[main] Add .AsAsyncTask() extensions for running queries asynchronously
+[postgresql] Fixed extraction of full-text indexes for certain scenarios
+[postgresql] Set upper limit for precision of decimals to 49 to handle problems in Npgsql
+[postgresql] Fields of unsigned types no longer cause exception on saving them to database
+[postgresql] Enum fields no longer cause exception on saving them to database
