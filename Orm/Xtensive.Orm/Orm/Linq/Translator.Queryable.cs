@@ -85,7 +85,17 @@ namespace Xtensive.Orm.Linq
             return VisitAll(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
           break;
         case QueryableMethodKind.OfType:
-          return VisitOfType(mc.Arguments[0], mc.Method.GetGenericArguments()[0], mc.Arguments[0].Type.GetGenericArguments()[0]);
+          var source = mc.Arguments[0];
+          var targetType = mc.Method.GetGenericArguments()[0];
+          var sourceType = source.Type;
+          if (sourceType.IsGenericType)
+            return VisitOfType(source, targetType, sourceType.GetGenericArguments()[0]);
+          else {
+            var asQueryable = sourceType.GetInterface(typeof (IQueryable<>).Name);
+            if (asQueryable!=null)
+              return VisitOfType(source, targetType, asQueryable.GetGenericArguments()[0]);
+            throw new NotSupportedException();
+          }
         case QueryableMethodKind.Any:
           if (mc.Arguments.Count==1)
             return VisitAny(mc.Arguments[0], null, context.IsRoot(mc));
