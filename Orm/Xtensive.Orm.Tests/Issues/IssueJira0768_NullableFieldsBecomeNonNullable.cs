@@ -139,13 +139,6 @@ namespace Xtensive.Orm.Tests.Issues
           .Count();
 
         Assert.AreEqual(2, resultCount);
-
-        var clientSide = session.Query.All<TestEntity1>().AsEnumerable()
-          .Select(e => new {e, e.Id, Test = e.TestEntity1LinkToTestEntity2.TestEntity2LinkToTestEntity3.Name})
-          .Where(it => true || it.e.TestEntity1LinkToTestEntity2.TestEntity2LinkToTestEntity3==item)
-          .Count();
-
-        Assert.AreEqual(2, clientSide);
       }
     }
 
