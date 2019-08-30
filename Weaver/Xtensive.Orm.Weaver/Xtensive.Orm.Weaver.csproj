@@ -8,11 +8,11 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-      <OutputPath>..\..\_Build\Binaries\Debug\Tools\</OutputPath>
+        <OutputPath>..\..\_Build\Binaries\Debug\Tools\Weaver\</OutputPath>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <OutputPath>..\..\_Build\Binaries\Release\Tools\</OutputPath>
+        <OutputPath>..\..\_Build\Binaries\Release\Tools\Weaver\</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Mono.Cecil" Version="0.11.0" />
+        <PackageReference Include="Mono.Cecil" Version="0.11.0" />
     </ItemGroup>
 
 </Project>

@@ -12,7 +12,7 @@
   <CompileDependsOn>$(CompileDependsOn);XtensiveOrmBuild</CompileDependsOn>
   <XtensiveOrmPath Condition="'$(XtensiveOrmPath)'==''">$(MSBuildThisFileDirectory)</XtensiveOrmPath>
   <XtensiveOrmPath Condition="!HasTrailingSlash('$(XtensiveOrmPath)')">$(XtensiveOrmPath)\</XtensiveOrmPath>
-  <XtensiveOrmWeaver Condition="'$(XtensiveOrmWeaver)'==''">$(XtensiveOrmPath)Tools\Xtensive.Orm.Weaver.dll</XtensiveOrmWeaver>
+  <XtensiveOrmWeaver Condition="'$(XtensiveOrmWeaver)'==''">$(XtensiveOrmPath)Tools\Weaver\Xtensive.Orm.Weaver.dll</XtensiveOrmWeaver>
   <XtensiveOrmBuildDependsOn>$(XtensiveOrmBuildDependsOn)</XtensiveOrmBuildDependsOn>
 </PropertyGroup>
 
