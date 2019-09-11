@@ -12,7 +12,7 @@
   <CompileDependsOn>$(CompileDependsOn);XtensiveOrmBuild</CompileDependsOn>
   <XtensiveOrmPath Condition="'$(XtensiveOrmPath)'==''">$(MSBuildThisFileDirectory)</XtensiveOrmPath>
   <XtensiveOrmPath Condition="!HasTrailingSlash('$(XtensiveOrmPath)')">$(XtensiveOrmPath)\</XtensiveOrmPath>
-  <XtensiveOrmWeaver Condition="'$(XtensiveOrmWeaver)'==''">$(XtensiveOrmPath)Tools\Weaver.exe</XtensiveOrmWeaver>
+  <XtensiveOrmWeaver Condition="'$(XtensiveOrmWeaver)'==''">$(XtensiveOrmPath)Tools\Weaver\Xtensive.Orm.Weaver.dll</XtensiveOrmWeaver>
   <XtensiveOrmBuildDependsOn>$(XtensiveOrmBuildDependsOn)</XtensiveOrmBuildDependsOn>
 </PropertyGroup>
 
@@ -27,7 +27,7 @@
   <Message Importance="low" Text="Using weaver at '$(XtensiveOrmWeaver)'" />
   <PropertyGroup>
     <XtensiveOrmWeaverResponseFile>@(IntermediateAssembly -> '%(FullPath).weaver-cmd')</XtensiveOrmWeaverResponseFile>
-    <XtensiveOrmWeaverCommandLine>"$(XtensiveOrmWeaver)" @"$(XtensiveOrmWeaverResponseFile)"</XtensiveOrmWeaverCommandLine>
+    <XtensiveOrmWeaverCommandLine>dotnet "$(XtensiveOrmWeaver)" @"$(XtensiveOrmWeaverResponseFile)"</XtensiveOrmWeaverCommandLine>
   </PropertyGroup>
   <ItemGroup>
     <XtensiveOrmWeaverParameters Include="/type:$(MSBuildProjectExtension)" />

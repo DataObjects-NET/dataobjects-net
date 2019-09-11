@@ -2,9 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0">
 
 <PropertyGroup>
-  <XtensiveOrmWeaverExe>Weaver.exe</XtensiveOrmWeaverExe>
-  <XtensiveOrmWeaverExe Condition="'$(DO_WEAVER_DEBUG)'!=''">NoProtection\Weaver.exe</XtensiveOrmWeaverExe>
-  <XtensiveOrmWeaver>$(MSBuildProjectDirectory)\$(OutputPath)..\Tools\$(XtensiveOrmWeaverExe)</XtensiveOrmWeaver>
+  <XtensiveOrmWeaver>$(MSBuildProjectDirectory)\$(OutputPath)..\Tools\Weaver\Xtensive.Orm.Weaver.dll</XtensiveOrmWeaver>
 </PropertyGroup>
 
 <Import Project="$(MSBuildThisFileDirectory)\DataObjects.Net.targets" />

@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Weaver
 
     public static readonly string OrmAssemblyShortName = "Xtensive.Orm";
     public static readonly string OrmAssemblyFullName;
-    public static readonly string TasksAssemblyFullName;
 
     public static readonly string EntityType = "Xtensive.Orm.Entity";
     public static readonly string EntityInterfaceType = "Xtensive.Orm.IEntity";
@@ -47,7 +46,6 @@ namespace Xtensive.Orm.Weaver
     static WellKnown()
     {
       OrmAssemblyFullName = GetFullAssemblyName(OrmAssemblyShortName);
-      TasksAssemblyFullName = GetFullAssemblyName("WeaverTasks");
       XtensivePublicKeyToken = new ReadOnlyCollection<byte>(WeavingHelper.ParsePublicKeyToken(ThisAssembly.PublicKeyToken));
     }
   }

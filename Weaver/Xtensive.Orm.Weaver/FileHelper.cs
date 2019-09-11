@@ -11,6 +11,8 @@ namespace Xtensive.Orm.Weaver
 {
   internal static class FileHelper
   {
+    private static readonly byte[] StampFileData = {(byte) 'X'};
+
     public static string GetDebugSymbolsFile(string file)
     {
       return Path.ChangeExtension(file, ".pdb");
@@ -55,9 +57,11 @@ namespace Xtensive.Orm.Weaver
 
     public static void Touch(string file)
     {
-      if (!File.Exists(file))
-        File.OpenWrite(file).Dispose();
-      File.SetLastWriteTimeUtc(file, DateTime.UtcNow);
+      // File.SetLastWriteTimeUtc does not have right precision on Linux before .NET Core 3
+      // https://github.com/dotnet/corefx/issues/31379
+
+      using (var stream = File.OpenWrite(file))
+        stream.Write(StampFileData);
     }
   }
 }

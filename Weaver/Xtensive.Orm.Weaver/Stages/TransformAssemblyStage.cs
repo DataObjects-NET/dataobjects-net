@@ -1,5 +1,4 @@
 using System.IO;
-using System.Reflection;
 using Mono.Cecil;
 
 namespace Xtensive.Orm.Weaver.Stages
@@ -54,7 +53,7 @@ namespace Xtensive.Orm.Weaver.Stages
       var strongNameKey = configuration.StrongNameKey;
       if (!string.IsNullOrEmpty(strongNameKey)) {
         if (File.Exists(strongNameKey))
-          writerParameters.StrongNameKeyPair = LoadStrongNameKey(strongNameKey);
+          writerParameters.StrongNameKeyBlob = File.ReadAllBytes(strongNameKey);
         else {
           context.Logger.Write(MessageCode.ErrorStrongNameKeyIsNotFound);
           return ActionResult.Failure;
@@ -64,12 +63,6 @@ namespace Xtensive.Orm.Weaver.Stages
 
       context.TranformationPerformed = true;
       return ActionResult.Success;
-    }
-
-    private StrongNameKeyPair LoadStrongNameKey(string fileName)
-    {
-      using (var file = File.OpenRead(fileName))
-        return new StrongNameKeyPair(file);
     }
   }
 }
