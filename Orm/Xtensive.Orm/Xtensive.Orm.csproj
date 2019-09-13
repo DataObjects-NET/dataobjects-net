@@ -1884,5 +1884,5 @@
     <Folder Include="Orm\Upgrade\Model\Stored\" />
   </ItemGroup>
   
-  <Import Project="NuGetContent.props" />
+  <Import Project="NuGetContent.targets" />
 </Project>
