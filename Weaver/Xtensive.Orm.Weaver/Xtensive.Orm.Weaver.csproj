@@ -3,7 +3,6 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp2.1</TargetFramework>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     </PropertyGroup>
 
@@ -14,12 +13,6 @@
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <OutputPath>..\..\_Build\Binaries\Release\Tools\Weaver\</OutputPath>
     </PropertyGroup>
-
-    <ItemGroup>
-        <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
-            <Link>Properties\ProductInfo.cs</Link>
-        </Compile>
-    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Mono.Cecil" Version="0.11.0" />

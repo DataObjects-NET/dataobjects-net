@@ -12,7 +12,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.Tests</RootNamespace>
     <AssemblyName>Xtensive.Orm.Tests</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -53,9 +52,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
-      <Link>Properties\ProductInfo.cs</Link>
-    </Compile>
     <Compile Include="Configuration\AppConfigTest.cs" />
     <Compile Include="Configuration\SchemaTest.cs" />
     <Compile Include="Configuration\SessionInitializationTest.cs" />

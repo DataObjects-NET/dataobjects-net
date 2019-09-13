@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+<Import Project="$(MSBuildThisFileDirectory)\Version.props" />
+
+<!-- Compute intermetidate values. To avoid conflicts name all custom variables with Do prefix. -->
+<PropertyGroup>
+    <DoBuildNumber>$(BUILD_NUMBER)</DoBuildNumber>
+    <DoBuildNumber Condition="'$(DoBuildNumber)'==''">0</DoBuildNumber>
+    <DoBuildYear>$([System.DateTime]::Today.Year)</DoBuildYear>
+    <DoProductName>DataObjects.Net Core</DoProductName>
+    <DoProductCompany>Xtensive LLC</DoProductCompany>
+    <DoProductCopyright>2003-$(DoBuildYear) $(DoProductCompany)</DoProductCopyright>
+    <DoVersionSuffix Condition="'$(DoVersionSuffix)'=='dev'">dev-$(BuildNumber)</DoVersionSuffix>
+    <DoMajor>$([System.Version]::new($(DoVersion)).Major)</DoMajor>
+    <DoMinor>$([System.Version]::new($(DoVersion)).Minor)</DoMinor>
+    <DoPatch>$([System.Version]::new($(DoVersion)).Build)</DoPatch>
+    <DoVersionName>$(DoMajor).$(DoMinor).$(DoPatch)</DoVersionName>
+    <DoVersionName Condition="'$(DoVersionSuffix)'!=''">$(DoVersionName)-$(DoVersionSuffix)</DoVersionName>
+</PropertyGroup>
+
+<!-- Populate standard properties. -->
+<PropertyGroup>
+    <Product>$(DoProductName)</Product>
+    <Company>$(DoProductCompany)</Company>
+    <Authors>$(DoProductCompany)</Authors>
+    <Version>$(DoVersionName)</Version>
+    <AssemblyVersion>$(DoMajor).$(DoMinor).0.0</AssemblyVersion>
+    <FileVersion>$(DoMajor).$(DoMinor).$(DoPatch).$(DoBuildNumber)</FileVersion>
+    <Copyright>$(DoProductCopyright)</Copyright>
+    <PackageProjectUrl>https://dataobjects.net/</PackageProjectUrl>
+    <PackageIconUrl>https://dataobjects.net/img/do-nuget.png</PackageIconUrl>
+    <PackageLicenseUrl>https://github.com/xtensive/dataobjects.net/LICENSE</PackageLicenseUrl>
+    <PackageTags>DataObjects.Net ORM BLL Persistence</PackageTags>
+    <RepositoryUrl>https://github.com/xtensive/dataobjects.net</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+</PropertyGroup>
+
+</Project>

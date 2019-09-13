@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 
@@ -24,6 +25,14 @@ namespace Xtensive.Orm.Weaver
         result.Add(Convert.ToByte(itemValue, 16));
       }
       return result.ToArray();
+    }
+
+    public static string FormatPublicKeyToken(byte[] value)
+    {
+      var result = new StringBuilder();
+      for (var i = 0; i < value.Length; i++)
+        result.Append(value[i].ToString("x2"));
+      return result.ToString();
     }
 
     public static string GetPropertyName(string accessorName)
