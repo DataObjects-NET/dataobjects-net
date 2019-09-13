@@ -71,12 +71,6 @@
   
   
   <ItemGroup>
-    <Content Include="Sql.Drivers.Firebird\progression.txt" />
-    <Content Include="Sql.Drivers.Firebird\questions.txt" />
-  </ItemGroup>
-  
-  
-  <ItemGroup>
     <EmbeddedResource Include="Sql.Drivers.Firebird\Resources\Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>

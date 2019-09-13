@@ -35,7 +35,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-    <PackageReference Include="MySql.Data" Version="6.10.4" />
+    <PackageReference Include="MySql.Data" Version="6.10.4" ExcludeAssets="contentFiles" />
   </ItemGroup>
 
   <ItemGroup>
@@ -82,12 +82,6 @@
     <Compile Include="Sql.Drivers.MySql\v5_6\ServerInfoProvider.cs" />
     <Compile Include="Sql.Drivers.MySql\v5_6\Translator.cs" />
     <Compile Include="Sql.Drivers.MySql\v5_6\TypeMapper.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Sql.Drivers.MySql\Issues.txt" />
-    <Content Include="Sql.Drivers.MySql\Notes.txt" />
-    <Content Include="Sql.Drivers.MySql\progression.txt" />
-    <Content Include="Sql.Drivers.MySql\Readme.txt" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Sql.Drivers.MySql\Resources\Strings.resx">
