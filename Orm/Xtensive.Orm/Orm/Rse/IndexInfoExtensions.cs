@@ -18,11 +18,10 @@ namespace Xtensive.Orm.Rse
     /// Creates the <see cref="IndexProvider"/> allowing to query the specified <paramref name="index"/>.
     /// </summary>
     /// <param name="index">The index to create the <see cref="IndexProvider"/> for.</param>
-    /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
     /// <returns>Newly created <see cref="IndexProvider"/> object.</returns>
-    public static IndexProvider GetQuery(this IndexInfo index, RecordSetHeader header = null)
+    public static IndexProvider GetQuery(this IndexInfo index)
     {
-      return new IndexProvider(index, header);
+      return new IndexProvider(index);
     }
   }
 }
