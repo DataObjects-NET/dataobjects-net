@@ -91,6 +91,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
       var keyExpression = (KeyExpression) Key.BindParameter(parameter, processedExpressions);
       var result = new EntityExpression(PersistentType, keyExpression, parameter, DefaultIfEmpty);
+      result.IsNullable = IsNullable;
       processedExpressions.Add(this, result);
       result.Fields = Fields
         .Select(f => f.BindParameter(parameter, processedExpressions))
@@ -107,6 +108,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
       var keyExpression = (KeyExpression) Key.RemoveOuterParameter(processedExpressions);
       var result = new EntityExpression(PersistentType, keyExpression, null, DefaultIfEmpty);
+      result.IsNullable = IsNullable;
       processedExpressions.Add(this, result);
       result.Fields = Fields
         .Select(f => f.RemoveOuterParameter(processedExpressions))

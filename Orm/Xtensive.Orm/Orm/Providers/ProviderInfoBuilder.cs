@@ -168,7 +168,8 @@ namespace Xtensive.Orm.Providers
         serverInfo.PrimaryKey.ConstantName,
         coreServerInfo.DatabaseName, 
         coreServerInfo.DefaultSchemaName,
-        supportedTypes);
+        supportedTypes, 
+        serverInfo.Query.MaxQueryParameterCount);
     }
   }
 }

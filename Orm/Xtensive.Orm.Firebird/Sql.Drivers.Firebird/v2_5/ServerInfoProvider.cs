@@ -179,6 +179,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       queryInfo.ParameterPrefix = "@";
       queryInfo.MaxLength = MaxCharLength;
       queryInfo.MaxComparisonOperations = DoNotKnow;
+      queryInfo.MaxQueryParameterCount = DoNotKnow;
       queryInfo.Features =
         QueryFeatures.NamedParameters |
           QueryFeatures.ParameterPrefix |

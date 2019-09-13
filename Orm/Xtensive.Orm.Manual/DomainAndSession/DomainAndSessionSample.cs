@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Manual.DomainAndSession
       }
 
       // New session configuration with actiovation option enabled.
-      var sessionConfiguration = new SessionConfiguration(SessionOptions.AutoActivation);
+      var sessionConfiguration = new SessionConfiguration(SessionOptions.AutoActivation | SessionOptions.AutoSaveChanges);
       using (var session = domain.OpenSession(sessionConfiguration)) {
         using (var transactionScope = session.OpenTransaction()) {
 

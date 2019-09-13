@@ -164,5 +164,48 @@ namespace Xtensive.Orm.Tests.Core.Collections
       Assert.AreEqual(false, new[] {1, 2}.AtMost(0));
       Assert.AreEqual(false, new int[0].AtMost(-1));
     }
+
+    [Test]
+    public void ToArrayCountTest()
+    {
+      var iList = Enumerable.Repeat(1, 10).ToArray(10);
+      Assert.That(iList.Length, Is.EqualTo(10));
+      Assert.That(iList.All(x => x==1));
+
+      Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Repeat(1, 10).ToArray(11));
+      Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Repeat(1, 10).ToArray(9));
+    }
+
+    [Test]
+    public void ToListCountTest()
+    {
+      var source = Enumerable.Repeat(1, 10);
+      Assert.That(source.SequenceEqual(source.ToList(10)));
+      Assert.That(source.ToList(9).Capacity, Is.EqualTo(18));
+      Assert.That(source.ToList(11).Capacity, Is.EqualTo(11));
+    }
+
+    [Test]
+    public void OrderByTest()
+    {
+      var numbers = Enumerable.Range(0, 10).ToArray();
+      var source = numbers.Reverse().Select(x => new {value = x}).ToArray();
+
+      var orderBy = source.OrderBy(x => x, (a, b) => a.value - b.value);
+      Assert.That(orderBy.Select(x => x.value).SequenceEqual(numbers));
+
+      var orderByDescending = source.OrderByDescending(x => x, (a, b) => b.value - a.value);
+      Assert.That(orderByDescending.Select(x => x.value).SequenceEqual(numbers));
+    }
+
+    [Test]
+    public void DistinctByTest()
+    {
+      var numbers = Enumerable.Range(0, 10).ToArray();
+      var source = numbers.Concat(Enumerable.Range(0, 10).Reverse()).Select(x => new {value = x}).ToArray();
+
+      var distinctBy = source.DistinctBy(x => x.value).Select(x => x.value);
+      Assert.That(distinctBy.SequenceEqual(numbers));
+    }
   }
 }

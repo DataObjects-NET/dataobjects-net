@@ -431,6 +431,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Active transaction is no longer usable..
+        /// </summary>
+        internal static string ExActiveTransactionIsNoLongerUsable {
+            get {
+                return ResourceManager.GetString("ExActiveTransactionIsNoLongerUsable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Active Transaction is required for this operation. Use Session.OpenTransaction(...) to open it..
         /// </summary>
         internal static string ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt {
@@ -5214,6 +5223,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The SQL query has too many parameters. The server supports a maximum of {0} parameters..
+        /// </summary>
+        internal static string ExQueryHasTooManyParametersMaxCountOfParametersIsX {
+            get {
+                return ResourceManager.GetString("ExQueryHasTooManyParametersMaxCountOfParametersIsX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Query task is not executed yet..
         /// </summary>
         internal static string ExQueryTaskIsNotExecutedYet {
@@ -6909,6 +6927,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to change command: it is already prepared..
+        /// </summary>
+        internal static string ExUnableToChangeCommandItIsAlreadyPrepared {
+            get {
+                return ResourceManager.GetString("ExUnableToChangeCommandItIsAlreadyPrepared", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to clone non-user session configuration..
         /// </summary>
         internal static string ExUnableToCloneNonUserSessionConfiguration {
@@ -7067,6 +7094,15 @@ namespace Xtensive {
         internal static string ExUnableToPersistTypeXBecauseOfLoopReference {
             get {
                 return ResourceManager.GetString("ExUnableToPersistTypeXBecauseOfLoopReference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unable to prepare command: no parts registered.
+        /// </summary>
+        internal static string ExUnableToPrepareCommandNoPartsRegistered {
+            get {
+                return ResourceManager.GetString("ExUnableToPrepareCommandNoPartsRegistered", resourceCulture);
             }
         }
         

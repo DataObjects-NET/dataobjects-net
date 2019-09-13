@@ -3409,13 +3409,25 @@ Error: {1}</value>
   <data name="ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet" xml:space="preserve">
     <value>Extracted and target schemas are equal but there are changes in type identifiers set.</value>
   </data>
-    <data name="LogGivenConnectionIsCorruptedTryingToRestoreTheConnection" xml:space="preserve">
+  <data name="ExQueryHasTooManyParametersMaxCountOfParametersIsX" xml:space="preserve">
+    <value>The SQL query has too many parameters. The server supports a maximum of {0} parameters.</value>
+  </data>
+  <data name="ExUnableToChangeCommandItIsAlreadyPrepared" xml:space="preserve">
+    <value>Unable to change command: it is already prepared.</value>
+  </data>
+  <data name="ExUnableToPrepareCommandNoPartsRegistered" xml:space="preserve">
+    <value>Unable to prepare command: no parts registered</value>
+  </data>
+  <data name="LogGivenConnectionIsCorruptedTryingToRestoreTheConnection" xml:space="preserve">
     <value>Given connection is corrupted. Trying to restore the connection.</value>
   </data>
-    <data name="LogConnectionRestoreFailed" xml:space="preserve">
+  <data name="LogConnectionRestoreFailed" xml:space="preserve">
     <value>Connection restore failed.</value>
   </data>
-    <data name="LogConnectionSuccessfullyRestored" xml:space="preserve">
+  <data name="LogConnectionSuccessfullyRestored" xml:space="preserve">
     <value>Connection successfully restored.</value>
+  </data>
+  <data name="ExActiveTransactionIsNoLongerUsable" xml:space="preserve">
+    <value>Active transaction is no longer usable.</value>
   </data>
 </root>

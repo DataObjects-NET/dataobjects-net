@@ -185,7 +185,7 @@ namespace Xtensive.Orm.Providers
         throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, member.GetFullName(true)));
       return memberCompiler.Invoke(instance, arguments);
     }
-    
+
     private static bool IsCharToIntConvert(Expression e)
     {
       return

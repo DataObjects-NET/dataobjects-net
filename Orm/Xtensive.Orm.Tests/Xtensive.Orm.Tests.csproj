@@ -80,6 +80,8 @@
     <Compile Include="DomainConfigurationFactoryTest.cs" />
     <Compile Include="Interfaces\DoubleIndexedInterfaceTest.cs" />
     <Compile Include="Interfaces\InterfaceImplementationTest.cs" />
+    <Compile Include="Issues\IssueJira0742_QueryPreprocessorClosureExpressionSupport.cs" />
+    <Compile Include="Issues\IssueJira0746_LikeBehaviorDifferentOnClientSide.cs" />
     <Compile Include="Issues\IssueJira0718_EntitySetEnumerationBug.cs" />
     <Compile Include="Issues\IssueJira0712_IncorrectDefaultEnumValueTranslation.cs" />
     <Compile Include="Issues\IssueJira0674_ReferenceFinderBug.cs" />
@@ -283,6 +285,10 @@
     <Compile Include="Issues\IssueJira0728_NullGroupHasNoElementsTest.cs" />
     <Compile Include="Issues\IssueJira0752_RecycledAttributeDontWorkForPersistentGenericInterface.cs" />
     <Compile Include="Issues\IssueJira0759_UnableToTranslateOfTypeSelectExpression.cs" />
+    <Compile Include="Issues\IssueJira0760_OverrideFieldNameAttributeRuinsFieldMappingOnUpgrade.cs" />
+    <Compile Include="Issues\IssueJira0761_ReadingAverageByDecimalField.cs" />
+    <Compile Include="Issues\IssueJira0767_OfTypeForNonGenericSources.cs" />
+    <Compile Include="Issues\IssueJira0768_NullableFieldsBecomeNonNullable.cs" />
     <Compile Include="Issues\IssueJira_0530_LowSpeedDecimalMaterializationCouseSqlDecimalInternalException.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
@@ -332,6 +338,9 @@
     <Compile Include="Linq\OfType\OfTypeTest.cs" />
     <Compile Include="Linq\OfType\OfTypeTestModels.cs" />
     <Compile Include="Storage\RemoveReasonOnEntityRemovingEventTest.cs" />
+    <Compile Include="Storage\CommandProcessing\BatchingCommandProcessorParametersManagement.cs" />
+    <Compile Include="Storage\CommandProcessing\ParametersManagementModel.cs" />
+    <Compile Include="Storage\CommandProcessing\SimpleCommandProcessorParametersManagement.cs" />
     <Compile Include="Storage\SchemaSharing\DomainConfigurationExtensions.cs" />
     <Compile Include="Storage\SchemaSharing\EntityManipulation\SimpleEntityManipulationTest.cs" />
     <Compile Include="Storage\SchemaSharing\EntityManipulation\Model.cs" />
@@ -430,7 +439,7 @@
     <Compile Include="Model\RemoveDotsAndHypensTest.cs" />
     <Compile Include="Model\StructureWithCustomConstructorTest.cs" />
     <Compile Include="Storage\AbstractGenericsTest.cs" />
-    <Compile Include="Storage\BatchingWhenValidateEntityVersionsIsEnabledTest.cs" />
+    <Compile Include="Storage\CommandProcessing\BatchingOfVersionizedEntitiesTest.cs" />
     <Compile Include="Storage\AnotherValidationTest.cs" />
     <Compile Include="Storage\ByteFieldStorageTest.cs" />
     <Compile Include="Storage\CascadeRemoveTest.cs" />
@@ -970,7 +979,10 @@
       <LastGenOutput>TwoPartsModel.cs</LastGenOutput>
     </Content>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Storage\CommandParametersManagement\" />
+    <Folder Include="Storage\Prefetch\Sql\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
 </Project>

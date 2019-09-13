@@ -59,6 +59,7 @@
     <Compile Include="AutoBuildTest.cs" />
     <Compile Include="DebugInfo.cs" />
     <Compile Include="DomainConfigurationFactory.cs" />
+    <Compile Include="DomainExtensions.cs" />
     <Compile Include="DomainModelExtensions.cs" />
     <Compile Include="Dynamic.cs" />
     <Compile Include="HighResolutionTime.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Internals\UInt16InstanceGenerator.cs" />
     <Compile Include="Internals\UInt32InstanceGenerator.cs" />
     <Compile Include="Internals\UInt64InstanceGenerator.cs" />
+    <Compile Include="Interfaces\ITestSessionAccessor.cs" />
     <Compile Include="Measurement.cs" />
     <Compile Include="MeasurementOptions.cs" />
     <Compile Include="ModelBuildingTest.cs" />
@@ -110,6 +112,7 @@
     <Compile Include="TestHelper.cs" />
     <Compile Include="TestInfo.cs" />
     <Compile Include="TestSqlDriver.cs" />
+    <Compile Include="Internals\TestSessionAccessor.cs" />
     <Compile Include="TypeIdBehavior.cs" />
     <Compile Include="TypeIdModifier.cs" />
     <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">

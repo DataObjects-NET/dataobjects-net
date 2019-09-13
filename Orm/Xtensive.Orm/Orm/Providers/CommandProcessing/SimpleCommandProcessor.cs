@@ -5,6 +5,7 @@
 // Created:    2009.08.20
 
 using System.Collections.Generic;
+using System.Linq;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
@@ -29,6 +30,7 @@ namespace Xtensive.Orm.Providers
     {
       var command = Factory.CreateCommand();
       var part = Factory.CreateQueryPart(lastRequest);
+      ValidateCommandParameterCount(null, part);
       command.AddPart(part);
       command.ExecuteReader();
       return command.AsReaderOf(lastRequest);
@@ -36,8 +38,10 @@ namespace Xtensive.Orm.Providers
 
     void ISqlTaskProcessor.ProcessTask(SqlLoadTask task)
     {
+      var part = Factory.CreateQueryPart(task);
+      ValidateCommandParameterCount(null, part);
+
       using (var command = Factory.CreateCommand()) {
-        var part = Factory.CreateQueryPart(task);
         command.AddPart(part);
         command.ExecuteReader();
         var enumerator = command.AsReaderOf(task.Request);
@@ -53,6 +57,8 @@ namespace Xtensive.Orm.Providers
       var sequence = Factory.CreatePersistParts(task);
       foreach (var part in sequence) {
         using (var command = Factory.CreateCommand()) {
+          ValidateCommandParameterCount(command, part);
+
           command.AddPart(part);
           var affectedRowsCount = command.ExecuteNonQuery();
           if (task.ValidateRowCount && affectedRowsCount==0)
@@ -64,8 +70,8 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    public SimpleCommandProcessor(CommandFactory factory)
-      : base(factory)
+    public SimpleCommandProcessor(CommandFactory factory, int maxQueryParameterCount)
+      : base(factory, maxQueryParameterCount)
     {
     }
   }

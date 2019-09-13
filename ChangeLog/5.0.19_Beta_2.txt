@@ -1,0 +1,10 @@
+[main] Added ClosureQueryPreprocessor
+[main] String.Contains(), String.StartsWith() and String.EndsWith() compilers escape chars more provider-specificly
+[main] Fixed cases when after some error the active transaction of connection was broken but used
+[main] SessionOptions.AllowSwitching now works mainly as before in 4.6
+[main] StringExtensions.Like() behaves locally as its SQL analogue
+[main] Fixed rare cases of incorrect treat of fields with name intersected with non-public properties of Entity class during upgrade
+[main] Fixed more cases when GroupBy() by nullable field or column lead to incorrect results
+[main] Fixed GroupJoin() broken in 5.0.18 Beta 2
+[main] BatchingCommandProcessor creates batches with parameters count within storage limits if any exist
+[sqlserver] Improved reading of decimal values
