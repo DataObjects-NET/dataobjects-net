@@ -5,90 +5,129 @@
 // Created:    2019.01.31
 
 using System;
-using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
-using Xtensive.Core;
-using Xtensive.Orm.Building;
-using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Model;
+using Xtensive.Orm.Tests.Issues.IssueJira0759_UnableToTranslateOfTypeSelectExpressionModel;
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  using IssueJira0759_UnableToTranslateOfTypeSelectExpressionModels;
-
   public class IssueJira0759_UnableToTranslateOfTypeSelectExpression : AutoBuildTest
   {
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      var config = base.BuildConfiguration();
+      config.Types.Register(typeof (TestEntity1).Assembly, typeof (TestEntity1).Namespace);
+      return config;
+    }
+
+    protected override void PopulateData()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var a = new TestEntity1 {CreationDate = DateTime.UtcNow.AddDays(-10)};
+        var b = new TestEntity1 {CreationDate = DateTime.UtcNow.AddDays(-9)};
+        var c = new TestEntity1 {CreationDate = DateTime.UtcNow.AddDays(-8)};
+
+        var d = new TestEntity2 {CreationDate = DateTime.UtcNow.AddDays(-6), DirectlyDeclaredField = 10, Value = 100, Comment = "100"};
+        var e = new TestEntity2 {CreationDate = DateTime.UtcNow.AddDays(-5), DirectlyDeclaredField = 11, Value = 101, Comment = "101"};
+        var f = new TestEntity2 {CreationDate = DateTime.UtcNow.AddDays(-4), DirectlyDeclaredField = 12, Value = 102, Comment = "102"};
+
+        var g = new TestEntity3 {CreationDate = DateTime.UtcNow.AddDays(-3), DirectlyDeclaredField = 20, Value = 200, Comment = "200", Field4 = 1.1f};
+        var h = new TestEntity3 {CreationDate = DateTime.UtcNow.AddDays(-2), DirectlyDeclaredField = 21, Value = 201, Comment = "201", Field4 = 1.2f};
+        var i = new TestEntity3 {CreationDate = DateTime.UtcNow.AddDays(-1), DirectlyDeclaredField = 22, Value = 202, Comment = "202", Field4 = 1.3f};
+        var j = new TestEntity3 {CreationDate = DateTime.UtcNow.AddDays(-1), DirectlyDeclaredField = 22, Value = 202, Comment = "202", Field4 = 1.4f};
+
+        g.Field5.Add(d);
+        g.Field5.Add(h);
+        h.Field5.Add(e);
+        h.Field5.Add(i);
+        i.Field5.Add(j);
+
+        var status = new Status {Name = "test"};
+        new TestEntity4 {TestField = "Test", Status = status};
+
+        transaction.Complete();
+      }
+    }
+
     [Test]
     public void Test1()
     {
-      using (var sto = OpenSessionTransaction()) {
-        sto.Query.All<TestEntity1>().OfType<ITestEntity2>().Select(x => x.Field2 + x.Field3).ToArray();
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var serverSide = session.Query.All<TestEntity3>()
+          .OfType<IHasValue>()
+          .Select(x => x.Value + x.Comment).ToArray();
+        var clientSide = session.Query.All<TestEntity3>()
+          .OfType<IHasValue>().ToArray();
+
+        Assert.That(serverSide.Length, Is.EqualTo(4));
+
+        foreach (var item in clientSide)
+          Assert.That(serverSide.Contains(item.Value + item.Comment));
+
+        serverSide = session.Query.All<TestEntity2>()
+          .OfType<IHasValue>()
+          .Select(x => x.Value + x.Comment).ToArray();
+        clientSide = session.Query.All<TestEntity2>()
+          .OfType<IHasValue>().ToArray();
+        Assert.That(serverSide.Length, Is.EqualTo(7));
+
+        foreach (var item in clientSide)
+          Assert.That(serverSide.Contains(item.Value + item.Comment));
+
+        serverSide = session.Query.All<TestEntity1>()
+          .OfType<IHasValue>()
+          .Select(x => x.Value + x.Comment).ToArray();
+        clientSide = session.Query.All<TestEntity3>()
+          .OfType<IHasValue>().ToArray();
+
+        Assert.That(serverSide.Length, Is.EqualTo(7));
+        foreach (var item in clientSide) 
+          Assert.That(serverSide.Contains(item.Value + item.Comment));
       }
     }
 
     [Test]
     public void Test2()
     {
-      using (var sto = OpenSessionTransaction()) {
-        sto.Query.All<TestEntity>()
-          .OfType<IWithStatus>()
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var anyQuery = session.Query.All<TestEntity4>()
+          .OfType<IHasStatus>()
           .Select(e => e.Status)
-          .Any(); // OK
-
-        sto.Query.All<TestEntity>()
-          .OfType<IWithStatus>()
-          .Select(e => e.Status)
-          .ToArray(); // Exception
+          .Any();
+        Assert.That(anyQuery, Is.True);
       }
     }
 
-    protected override void PopulateData()
+    [Test]
+    public void Test3()
     {
-      using (var s = Domain.OpenSession())
-      using (s.Activate())
-      using (var t = s.OpenTransaction()) {
-        new TestEntity3() {
-          Field1 = DateTime.FromBinary(100000),
-          Field2 = 1000,
-          Field3 = "String1",
-          Field4 = 2.5,
-        }.Field5.Add(
-          new TestEntity3 {
-            Field1 = DateTime.FromBinary(200000),
-            Field2 = 2000,
-            Field3 = "String2",
-            Field4 = 3.5,
-          });
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var results = session.Query.All<TestEntity4>()
+          .OfType<IHasStatus>()
+          .Select(e => e.Status)
+          .ToArray();
 
-        var status = new Status { Name = "test" };
-        new TestEntity { TestField = "Test", Status = status };
-
-        t.Complete();
+        Assert.That(results.Length, Is.EqualTo(1));
+        Assert.That(results[0].Name, Is.EqualTo("test"));
       }
-    }
-
-    protected override DomainConfiguration BuildConfiguration()
-    {
-      var config = base.BuildConfiguration();
-      config.Types.Register(typeof(TestEntity1).Assembly, typeof(TestEntity1).Namespace);
-      return config;
     }
   }
 }
 
-namespace Xtensive.Orm.Tests.Issues.IssueJira0759_UnableToTranslateOfTypeSelectExpressionModels
+namespace Xtensive.Orm.Tests.Issues.IssueJira0759_UnableToTranslateOfTypeSelectExpressionModel
 {
-  public interface ITestEntity2 : IEntity
+  public interface IHasValue : IEntity
   {
     [Field]
-    long Field2 { get; set; }
+    long Value { get; set; }
 
     [Field]
-    string Field3 { get; set; }
+    string Comment { get; set; }
   }
 
   [HierarchyRoot]
@@ -98,14 +137,17 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0759_UnableToTranslateOfTypeSelectE
     public int Id { get; private set; }
 
     [Field]
-    public DateTime Field1 { get; set; }
+    public DateTime CreationDate { get; set; }
   }
 
-  public class TestEntity2 : TestEntity1, ITestEntity2
+  public class TestEntity2 : TestEntity1, IHasValue
   {
-    public long Field2 { get; set; }
+    [Field]
+    public int DirectlyDeclaredField { get; set; } 
 
-    public string Field3 { get; set; }
+    public long Value { get; set; }
+
+    public string Comment { get; set; }
   }
 
   public class TestEntity3 : TestEntity2
@@ -117,10 +159,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0759_UnableToTranslateOfTypeSelectE
     public EntitySet<TestEntity2> Field5 { get; set; }
   }
 
-
-
-
-  public interface IWithStatus : IEntity
+  public interface IHasStatus : IEntity
   {
     [Field]
     Status Status { get; set; }
@@ -128,7 +167,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0759_UnableToTranslateOfTypeSelectE
 
   [HierarchyRoot]
   [Serializable]
-  public partial class Status : Entity
+  public class Status : Entity
   {
     [Key]
     [Field(Nullable = false)]
@@ -143,7 +182,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0759_UnableToTranslateOfTypeSelectE
 
   [HierarchyRoot]
   [Serializable]
-  public class TestEntity : Entity, IWithStatus
+  public class TestEntity4 : Entity, IHasStatus
   {
     [Key]
     [Field(Nullable = false)]

@@ -5,12 +5,9 @@
 // Created:    2019.02.08
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Orm.Tests.Linq.OfType.Models
+namespace Xtensive.Orm.Tests.Linq.OfTypeTestModel
 {
   public interface IBaseEntity : IEntity
   {

@@ -5,21 +5,14 @@
 // Created:    2019.01.31
 
 using System;
-using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Orm.Building;
-using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Model;
+using Xtensive.Orm.Tests.Linq.OfType.Models;
 
-namespace Xtensive.Orm.Tests.Linq.OfType
+namespace Xtensive.Orm.Tests.Linq
 {
-  using Models;
-
   public class OfTypeTest : AutoBuildTest
   {
     [Test]
