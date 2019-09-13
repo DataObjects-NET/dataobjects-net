@@ -909,7 +909,7 @@
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\Static\Content\Xtensive.Orm.xsd">
+    <None Include="..\Xtensive.Orm.xsd">
       <Link>Xtensive.Orm.xsd</Link>
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
