@@ -9,7 +9,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Linq.OfType.Models;
+using Xtensive.Orm.Tests.Linq.OfTypeTestModel;
 
 namespace Xtensive.Orm.Tests.Linq
 {

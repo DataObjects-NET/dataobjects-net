@@ -335,8 +335,8 @@
     <Compile Include="Issues\IssueJira0537_DropDefaultConstraintBugTest.cs" />
     <Compile Include="Issues\IssueJira0627_PocoClassPropertyRenitialization.cs" />
     <Compile Include="Issues\IssueJira0627_FieldInitializationTest.cs" />
-    <Compile Include="Linq\OfType\OfTypeTest.cs" />
-    <Compile Include="Linq\OfType\OfTypeTestModels.cs" />
+    <Compile Include="Linq\OfTypeTest.cs" />
+    <Compile Include="Linq\OfTypeTestModel\OfTypeTestModel.cs" />
     <Compile Include="Storage\RemoveReasonOnEntityRemovingEventTest.cs" />
     <Compile Include="Storage\CommandProcessing\BatchingCommandProcessorParametersManagement.cs" />
     <Compile Include="Storage\CommandProcessing\ParametersManagementModel.cs" />
