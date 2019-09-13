@@ -9,11 +9,11 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <OutputPath>..\..\_Build\Binaries\Debug\Tools\Weaver\</OutputPath>
+        <OutputPath>..\..\_Build\Debug\tools\weaver\</OutputPath>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <OutputPath>..\..\_Build\Binaries\Release\Tools\Weaver\</OutputPath>
+        <OutputPath>..\..\_Build\Release\tools\weaver\</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>
