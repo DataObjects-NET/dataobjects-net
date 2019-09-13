@@ -11,6 +11,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.Oracle</AssemblyName>
+    <PackageId>Xtensive.Orm.Oracle.Core</PackageId>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

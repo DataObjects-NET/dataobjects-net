@@ -10,6 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.Firebird</AssemblyName>
+    <PackageId>Xtensive.Orm.Firebird.Core</PackageId>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

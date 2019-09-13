@@ -10,6 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.PostgreSql</AssemblyName>
+    <PackageId>Xtensive.Orm.PostgreSql.Core</PackageId>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
