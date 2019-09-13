@@ -4,6 +4,7 @@
     <EnableDefaultItems>false</EnableDefaultItems>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>

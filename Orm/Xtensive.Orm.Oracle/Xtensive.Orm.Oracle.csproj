@@ -3,6 +3,7 @@
   <PropertyGroup>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultItems>false</EnableDefaultItems>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
