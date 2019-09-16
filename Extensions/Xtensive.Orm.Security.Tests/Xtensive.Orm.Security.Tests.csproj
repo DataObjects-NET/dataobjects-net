@@ -17,16 +17,16 @@
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\_Build\Binaries\Debug\Lib\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <OutputPath>..\..\_Build\Debug\lib\</OutputPath>
+    <DocumentationFile></DocumentationFile>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
     <Optimize>false</Optimize>
     <DebugType>pdbonly</DebugType>
-    <OutputPath>..\..\_Build\Binaries\Release\Lib\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <OutputPath>..\..\_Build\Release\lib\</OutputPath>
+    <DocumentationFile></DocumentationFile>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
@@ -50,9 +50,6 @@
     <Compile Include="Roles\SalesPersonRole.cs" />
     <Compile Include="Tests\ImpersonationContextTests.cs" />
     <Compile Include="Tests\PermissionSetTests.cs" />
-    <Compile Include="..\..\_Build\ProductInfo.cs">
-      <Link>Properties\ProductInfo.cs</Link>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -69,7 +66,8 @@
     <ProjectReference Include="..\Xtensive.Orm.Security\Xtensive.Orm.Security.csproj" />
   </ItemGroup>
 
-  <!-- Reference to Xtensive.Orm.Core package is in external file-->
-  <Import Project="..\..\OrmReference.props"/>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
+  </ItemGroup>
 
 </Project>
