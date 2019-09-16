@@ -34,12 +34,17 @@
   <Error Text="Environment variable DO_SECURE_DIR is not set or points to invalid directory." />
 </Target>
 
-<Target Name="Build" DependsOnTargets="ExportRev">
+<Target Name="Restore">
+  <MSBuild Projects="@(WeaverSolution)" Targets="Restore" />
+  <MSBuild Projects="@(OrmSolution)" Targets="Restore" />
+</Target>
+
+<Target Name="Build" DependsOnTargets="ExportRev;Restore">
   <MSBuild Projects="@(WeaverSolution)" Targets="Build;Publish" />
   <MSBuild Projects="@(OrmSolution)" Targets="Build;Pack" />
 </Target>
 
-<Target Name="Rebuild" DependsOnTargets="ExportRev">
+<Target Name="Rebuild" DependsOnTargets="ExportRev;Restore">
   <MSBuild Projects="@(WeaverSolution)" Targets="Rebuild;Publish" />
   <MSBuild Projects="@(OrmSolution)" Targets="Rebuild;Pack" />
 </Target>
