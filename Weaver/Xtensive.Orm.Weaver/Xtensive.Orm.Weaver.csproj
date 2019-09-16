@@ -5,7 +5,7 @@
         <TargetFramework>netcoreapp2.1</TargetFramework>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <SignAssembly>true</SignAssembly>
-        <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
+        <AssemblyOriginatorKeyFile>..\..\Orm\Orm.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

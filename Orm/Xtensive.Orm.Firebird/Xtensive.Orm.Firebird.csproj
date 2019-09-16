@@ -15,7 +15,7 @@
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds support for Firebird to $(DoProductName)</PackageDescription>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
