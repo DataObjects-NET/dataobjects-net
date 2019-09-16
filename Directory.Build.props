@@ -3,7 +3,7 @@
 
 <Import Project="$(MSBuildThisFileDirectory)\Version.props" />
 
-<!-- Compute intermetidate values. To avoid conflicts name all custom variables with Do prefix. -->
+<!-- Compute intermediate values. To avoid conflicts name all custom variables with Do prefix. -->
 <PropertyGroup>
     <DoBuildNumber>$(BUILD_NUMBER)</DoBuildNumber>
     <DoBuildNumber Condition="'$(DoBuildNumber)'==''">0</DoBuildNumber>
@@ -17,6 +17,7 @@
     <DoPatch>$([System.Version]::new($(DoVersion)).Build)</DoPatch>
     <DoVersionName>$(DoMajor).$(DoMinor).$(DoPatch)</DoVersionName>
     <DoVersionName Condition="'$(DoVersionSuffix)'!=''">$(DoVersionName)-$(DoVersionSuffix)</DoVersionName>
+    <DoPackageIcon>$(MSBuildThisFileDirectory)\do-nuget.png</DoPackageIcon>
 </PropertyGroup>
 
 <!-- Populate standard properties. -->
@@ -29,11 +30,15 @@
     <FileVersion>$(DoMajor).$(DoMinor).$(DoPatch).$(DoBuildNumber)</FileVersion>
     <Copyright>$(DoProductCopyright)</Copyright>
     <PackageProjectUrl>https://dataobjects.net/</PackageProjectUrl>
-    <PackageIconUrl>https://dataobjects.net/img/do-nuget.png</PackageIconUrl>
-    <PackageLicenseUrl>https://github.com/xtensive/dataobjects.net/LICENSE</PackageLicenseUrl>
+    <PackageIcon>do-nuget.png</PackageIcon>
+    <PackageLicense>Apache-2.0</PackageLicense>
     <PackageTags>DataObjects.Net ORM BLL Persistence</PackageTags>
     <RepositoryUrl>https://github.com/xtensive/dataobjects.net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 </PropertyGroup>
+
+<ItemGroup>
+  <None Include="$(DoPackageIcon)" Pack="true" PackagePath="." Visible="false" />
+</ItemGroup>
 
 </Project>

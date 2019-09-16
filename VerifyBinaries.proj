@@ -5,7 +5,7 @@
 <PropertyGroup>
   <Framework Condition="'$(Framework)'==''">netcoreapp2.0</Framework>
   <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
-  <LibPath>_Build\Binaries\$(Configuration)\Lib\$(Framework)\</LibPath>
+  <LibPath>_Build\$(Configuration)\lib\$(Framework)\</LibPath>
   <ToolsPath>$(registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.1\WinSDK-NetFx40Tools@InstallationFolder)</ToolsPath>
   <ToolsPath Condition="'$(ToolsPath)'==''">$(registry:HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Microsoft SDKs\Windows\v7.0A\WinSDK-NetFx40Tools@InstallationFolder)</ToolsPath>
 </PropertyGroup>
