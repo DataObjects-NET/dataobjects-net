@@ -9,7 +9,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.Localization.Tests</RootNamespace>
     <AssemblyName>Xtensive.Orm.Localization.Tests</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 

@@ -9,7 +9,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.Logging.NLog.Tests</RootNamespace>
     <AssemblyName>Xtensive.Orm.Logging.NLog.Tests</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 

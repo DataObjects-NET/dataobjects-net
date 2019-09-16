@@ -9,7 +9,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>TestCommon</RootNamespace>
     <AssemblyName>TestCommon</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Extensions.snk</AssemblyOriginatorKeyFile>
     <WarningLevel>4</WarningLevel>

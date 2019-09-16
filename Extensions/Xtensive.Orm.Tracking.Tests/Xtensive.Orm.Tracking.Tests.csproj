@@ -9,7 +9,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.Tracking.Tests</RootNamespace>
     <AssemblyName>Xtensive.Orm.Tracking.Tests</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 

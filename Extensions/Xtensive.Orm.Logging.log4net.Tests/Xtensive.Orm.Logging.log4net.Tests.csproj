@@ -9,7 +9,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.Logging.log4net.Tests</RootNamespace>
     <AssemblyName>Xtensive.Orm.Logging.log4net.Tests</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 

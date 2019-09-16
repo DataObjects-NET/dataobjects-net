@@ -9,7 +9,6 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.Security.Tests</RootNamespace>
     <AssemblyName>Xtensive.Orm.Security.Tests</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
