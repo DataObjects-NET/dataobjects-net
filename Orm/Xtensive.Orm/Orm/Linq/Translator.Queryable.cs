@@ -5,7 +5,6 @@
 // Created:    2009.02.27
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -233,27 +232,35 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="NotSupportedException">OfType supports only 'Entity' conversion.</exception>
     private ProjectionExpression VisitOfType(Expression source, Type targetType, Type sourceType)
     {
-      if (!typeof(IEntity).IsAssignableFrom(sourceType))
+      if (!typeof (IEntity).IsAssignableFrom(sourceType) || !context.Model.Types.Contains(sourceType))
+        throw new NotSupportedException(Strings.ExOfTypeSupportsOnlyEntityConversion);
+      if (!typeof (IEntity).IsAssignableFrom(targetType) || !context.Model.Types.Contains(targetType))
         throw new NotSupportedException(Strings.ExOfTypeSupportsOnlyEntityConversion);
 
       var visitedSource = VisitSequence(source);
-      if (targetType==sourceType)
+      if (sourceType==targetType)
         return visitedSource;
 
-      int offset = 0;
-      var recordSet = visitedSource.ItemProjector.DataSource;
+      var targetTypeInfo = context.Model.Types[targetType];
 
-      if (sourceType.IsAssignableFrom(targetType)) {
-        var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
-        var joinedRs = joinedIndex.GetQuery().Alias(context.GetNextAlias());
-        offset = recordSet.Header.Columns.Count;
-        var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
-        var keyPairs = keySegment
-          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-          .ToArray();
-        recordSet = recordSet.Join(joinedRs, keyPairs);
-      }
-      var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset, false);
+      var currentColumnIndexes = targetTypeInfo.Indexes.PrimaryIndex.Columns
+        .Select((column, index) => new { column, index })
+        .Where(c=> targetTypeInfo.Columns.Contains(c.column))
+        .Select(c=>c.index)
+        .ToArray();
+      CompilableProvider recordSet = targetTypeInfo.Indexes.PrimaryIndex.GetQuery().Alias(context.GetNextAlias()).Select(currentColumnIndexes);
+
+      var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+      var keyPairs = keySegment
+        .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+        .ToArray();
+
+      var dataSource = visitedSource.ItemProjector.DataSource;
+      var offset = dataSource.Header.Columns.Count;
+      recordSet = recordSet.Alias(context.GetNextAlias());
+      recordSet = dataSource.Join(recordSet, keyPairs);
+
+      var entityExpression = EntityExpression.Create(targetTypeInfo, offset, false);
       var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);
       return new ProjectionExpression(sourceType, itemProjectorExpression, visitedSource.TupleParameterBindings);
     }

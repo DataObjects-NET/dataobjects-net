@@ -284,6 +284,7 @@
     <Compile Include="Issues\IssueJira0723_ContainsOverLocalCollectionError.cs" />
     <Compile Include="Issues\IssueJira0728_NullGroupHasNoElementsTest.cs" />
     <Compile Include="Issues\IssueJira0752_RecycledAttributeDontWorkForPersistentGenericInterface.cs" />
+    <Compile Include="Issues\IssueJira0759_UnableToTranslateOfTypeSelectExpression.cs" />
     <Compile Include="Issues\IssueJira0760_OverrideFieldNameAttributeRuinsFieldMappingOnUpgrade.cs" />
     <Compile Include="Issues\IssueJira0761_ReadingAverageByDecimalField.cs" />
     <Compile Include="Issues\IssueJira0767_OfTypeForNonGenericSources.cs" />
@@ -334,6 +335,8 @@
     <Compile Include="Issues\IssueJira0537_DropDefaultConstraintBugTest.cs" />
     <Compile Include="Issues\IssueJira0627_PocoClassPropertyRenitialization.cs" />
     <Compile Include="Issues\IssueJira0627_FieldInitializationTest.cs" />
+    <Compile Include="Linq\OfTypeTest.cs" />
+    <Compile Include="Linq\OfTypeTestModel\OfTypeTestModel.cs" />
     <Compile Include="Storage\RemoveReasonOnEntityRemovingEventTest.cs" />
     <Compile Include="Storage\CommandProcessing\BatchingCommandProcessorParametersManagement.cs" />
     <Compile Include="Storage\CommandProcessing\ParametersManagementModel.cs" />

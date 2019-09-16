@@ -99,6 +99,7 @@
     <Compile Include="RandomManager.cs" />
     <Compile Include="RuntimeInfo.cs" />
     <Compile Include="SeedVariatorType.cs" />
+    <Compile Include="SessionTransactionOpener.cs" />
     <Compile Include="StorageProviderInfo.cs" />
     <Compile Include="TestConfiguration.cs" />
     <Compile Include="IndexInfoExtensions.cs" />
