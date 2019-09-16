@@ -9,15 +9,6 @@
   <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
 </PropertyGroup>
 
-<ItemGroup>
-  <WeaverSolution Include="Weaver.sln">
-    <Properties>Configuration=$(Configuration)</Properties>
-  </WeaverSolution>
-  <OrmSolution Include="Orm.sln">
-    <Properties>Configuration=$(Configuration)</Properties>
-  </OrmSolution>
-</ItemGroup>
-
 <Target Name="ExportHgRev" Condition="Exists('.hg\dirstate')">
   <MakeDir Directories="_Build" />
   <Exec Command="hg id -i > rev.txt" WorkingDirectory="_Build" />
@@ -34,24 +25,19 @@
   <Error Text="Environment variable DO_SECURE_DIR is not set or points to invalid directory." />
 </Target>
 
-<Target Name="Restore">
-  <MSBuild Projects="@(WeaverSolution)" Targets="Restore" />
-  <MSBuild Projects="@(OrmSolution)" Targets="Restore" />
+<Target Name="Build" DependsOnTargets="ExportRev">
+  <Exec Command="dotnet msbuild Weaver.sln &quot;-t:Build;Publish&quot; -p:Configuration=$(Configuration)" />
+  <Exec Command="dotnet msbuild Orm.sln &quot;-t:Build;Pack&quot; -p:Configuration=$(Configuration)" />
 </Target>
 
-<Target Name="Build" DependsOnTargets="ExportRev;Restore">
-  <MSBuild Projects="@(WeaverSolution)" Targets="Build;Publish" />
-  <MSBuild Projects="@(OrmSolution)" Targets="Build;Pack" />
-</Target>
-
-<Target Name="Rebuild" DependsOnTargets="ExportRev;Restore">
-  <MSBuild Projects="@(WeaverSolution)" Targets="Rebuild;Publish" />
-  <MSBuild Projects="@(OrmSolution)" Targets="Rebuild;Pack" />
+<Target Name="Rebuild" DependsOnTargets="ExportRev">
+  <Exec Command="dotnet msbuild Weaver.sln &quot;-t:Rebuild;Publish&quot; -p:Configuration=$(Configuration)" />
+  <Exec Command="dotnet msbuild Orm.sln &quot;-t:Rebuild;Pack&quot; -p:Configuration=$(Configuration)" />
 </Target>
 
 <Target Name="Clean">
-  <MSBuild Projects="@(WeaverSolution)" Targets="Clean" />
-  <MSBuild Projects="@(OrmSolution)" Targets="Clean" />
+  <Exec Command="dotnet msbuild Weaver.sln &quot;-t:Clean&quot; -p:Configuration=$(Configuration)" />
+  <Exec Command="dotnet msbuild Orm.sln &quot;-t:Clean&quot; -p:Configuration=$(Configuration)" />
 </Target>
 
 </Project>
