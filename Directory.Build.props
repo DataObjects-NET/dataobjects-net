@@ -34,6 +34,7 @@
     <PackageIcon>do-nuget.png</PackageIcon>
     <PackageLicense>Apache-2.0</PackageLicense>
     <PackageTags>DataObjects.Net ORM BLL Persistence</PackageTags>
+    <PackageOutputPath>../../_Build/$(Configuration)/packages</PackageOutputPath>
     <RepositoryUrl>https://github.com/xtensive/dataobjects.net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 </PropertyGroup>
