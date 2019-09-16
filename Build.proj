@@ -11,12 +11,12 @@
 
 <Target Name="ExportHgRev" Condition="Exists('$(MSBuildThisFileDirectory)\.hg\dirstate')">
   <MakeDir Directories="_Build" />
-  <Exec Command="hg id -i > _Build\rev.txt" />
+  <Exec Command="hg id -i > rev.txt" WorkingDirectory="_Build" />
 </Target>
 
 <Target Name="ExportGitRev" Condition="Exists('$(MSBuildThisFileDirectory)\.git\index')">
   <MakeDir Directories="_Build" />
-  <Exec Command="git rev-parse HEAD > _Build\rev.txt" />
+  <Exec Command="git rev-parse HEAD > rev.txt" WorkingDirectory="_Build" />
 </Target>
 
 <Target Name="ExportRev" DependsOnTargets="ExportHgRev;ExportGitRev" />
