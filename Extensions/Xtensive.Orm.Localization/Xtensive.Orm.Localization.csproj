@@ -2,6 +2,7 @@
   <PropertyGroup>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultItems>false</EnableDefaultItems>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -9,7 +10,10 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.Localization</RootNamespace>
     <AssemblyName>Xtensive.Orm.Localization</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PackageId>Xtensive.Orm.Localization.Core</PackageId>
+    <Title>Localization extension for $(DoProductName)</Title>
+    <AssemblyTitle>$(Title)</AssemblyTitle>
+    <PackageDescription>Adds support for easy localization for $(DoProductName)-powered domain models</PackageDescription>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Extensions.snk</AssemblyOriginatorKeyFile>
     <WarningLevel>4</WarningLevel>

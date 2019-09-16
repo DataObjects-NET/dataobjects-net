@@ -2,6 +2,7 @@
   <PropertyGroup>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultItems>false</EnableDefaultItems>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -9,7 +10,10 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.BulkOperations</RootNamespace>
     <AssemblyName>Xtensive.Orm.BulkOperations</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PackageId>Xtensive.Orm.BulkOperations.Core</PackageId>
+    <Title>Bulk operations extension for $(DoProductName)</Title>
+    <AssemblyTitle>$(Title)</AssemblyTitle>
+    <PackageDescription>Adds support for bulk insert, update and delete operations for $(DoProductName)-powered domain models</PackageDescription>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Extensions.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

@@ -2,6 +2,7 @@
   <PropertyGroup>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultItems>false</EnableDefaultItems>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -9,7 +10,10 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.Logging.NLog</RootNamespace>
     <AssemblyName>Xtensive.Orm.Logging.NLog</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PackageId>Xtensive.Orm.Logging.NLog.Core</PackageId>
+    <Title>$(DoProductName) logging provider for NLog</Title>
+    <AssemblyTitle>$(Title)</AssemblyTitle>
+    <PackageDescription>Adds support for logging via NLog for $(DoProductName)</PackageDescription>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Extensions.snk</AssemblyOriginatorKeyFile>
     <WarningLevel>4</WarningLevel>

@@ -2,6 +2,7 @@
   <PropertyGroup>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultItems>false</EnableDefaultItems>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -9,7 +10,10 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.Reprocessing</RootNamespace>
     <AssemblyName>Xtensive.Orm.Reprocessing</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PackageId>Xtensive.Orm.Reprocessing.Core</PackageId>
+    <Title>Operation reprocessing extension for $(DoProductName)</Title>
+    <AssemblyTitle>$(Title)</AssemblyTitle>
+    <PackageDescription>Adds support for reprocessable operations for $(DoProductName)-powered projects</PackageDescription>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Extensions.snk</AssemblyOriginatorKeyFile>
     <WarningLevel>4</WarningLevel>
