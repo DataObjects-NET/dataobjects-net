@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
+         InitialTargets="EnsureSecureDirExists"
+         DefaultTargets="Build"
+         ToolsVersion="15.0">
+
+<!-- initialize default values for framework and configuration -->
+<PropertyGroup>
+  <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
+</PropertyGroup>
+
+<Target Name="EnsureSecureDirExists" Condition="!Exists('$(DO_SECURE_DIR)\Key.snk')">
+  <Error Text="Environment variable DO_SECURE_DIR is not set or points to invalid directory." />
+</Target>
+
+<Target Name="Build">
+  <Exec Command="dotnet msbuild Weaver.sln /t:Build;Publish /p:Configuration=$(Configuration)" />
+  <Exec Command="dotnet msbuild Orm.sln /t:Build;Pack /p:Configuration=$(Configuration)" />
+</Target>
+
+<Target Name="Rebuild">
+  <Exec Command="dotnet msbuild Weaver.sln /t:Rebuild;Publish /p:Configuration=$(Configuration)" />
+  <Exec Command="dotnet msbuild Orm.sln /t:Rebuild;Pack /p:Configuration=$(Configuration)" />
+</Target>
+
+<Target Name="Clean">
+  <Exec Command="dotnet msbuild Weaver.sln /t:Clean /p:Configuration=$(Configuration)" />
+  <Exec Command="dotnet msbuild Orm.sln /t:Clean /p:Configuration=$(Configuration)" />
+</Target>
+
+</Project>
