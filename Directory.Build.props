@@ -11,7 +11,7 @@
     <DoProductName>DataObjects.Net Core</DoProductName>
     <DoProductCompany>Xtensive LLC</DoProductCompany>
     <DoProductCopyright>2003-$(DoBuildYear) $(DoProductCompany)</DoProductCopyright>
-    <DoVersionSuffix Condition="'$(DoVersionSuffix)'=='dev'">dev-$(BuildNumber)</DoVersionSuffix>
+    <DoVersionSuffix Condition="'$(DoVersionSuffix)'=='dev'">dev-$(DoBuildNumber)</DoVersionSuffix>
     <DoMajor>$([System.Version]::new($(DoVersion)).Major)</DoMajor>
     <DoMinor>$([System.Version]::new($(DoVersion)).Minor)</DoMinor>
     <DoPatch>$([System.Version]::new($(DoVersion)).Build)</DoPatch>
