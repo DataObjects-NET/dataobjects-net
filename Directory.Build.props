@@ -34,14 +34,14 @@
     <PackageIcon>do-nuget.png</PackageIcon>
     <PackageLicense>Apache-2.0</PackageLicense>
     <PackageTags>DataObjects.Net ORM BLL Persistence</PackageTags>
-    <PackageOutputPath>../../_Build/$(Configuration)/packages</PackageOutputPath>
+    <PackageOutputPath>..\..\_Build\$(Configuration)\packages</PackageOutputPath>
     <RepositoryUrl>https://github.com/xtensive/dataobjects.net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 </PropertyGroup>
 
 <ItemGroup>
-  <None Include="$(DoPackageIcon)" Pack="true" PackagePath="." Visible="false" />
-  <None Include="$(DoRevFile)" Pack="true" PackagePath="." Visible="false" Condition="Exists('$(DoRevFile)')" />
+    <None Include="$(DoPackageIcon)" Pack="true" PackagePath="." Visible="false" />
+    <None Include="$(DoRevFile)" Pack="true" PackagePath="." Visible="false" Condition="Exists('$(DoRevFile)')" />
 </ItemGroup>
 
 </Project>
