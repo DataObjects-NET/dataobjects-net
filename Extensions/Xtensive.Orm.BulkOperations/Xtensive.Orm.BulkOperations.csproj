@@ -1,0 +1,70 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultItems>false</EnableDefaultItems>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Xtensive.Orm.BulkOperations</RootNamespace>
+    <AssemblyName>Xtensive.Orm.BulkOperations</AssemblyName>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\Extensions.snk</AssemblyOriginatorKeyFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Debug" Condition="'$(Configuration)'=='Debug'">
+    <Optimize>false</Optimize>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\_Build\Binaries\Debug\Lib\</OutputPath>
+    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
+    <Optimize>false</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <OutputPath>..\..\_Build\Binaries\Release\Lib\</OutputPath>
+    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="BulkExtensions.cs" />
+    <Compile Include="Internals\BaseSqlVisitor.cs" />
+    <Compile Include="Internals\BulkDeleteOperation.cs" />
+    <Compile Include="Internals\BulkUpdateOperation.cs" />
+    <Compile Include="Internals\ComputedExpressionSqlVisitor.cs" />
+    <Compile Include="Internals\AddValueContext.cs" />
+    <Compile Include="Internals\InsertOperation.cs" />
+    <Compile Include="Internals\Operation.cs" />
+    <Compile Include="Internals\ExpressionExtensions.cs" />
+    <Compile Include="Internals\ExpressionVisitor.cs" />
+    <Compile Include="Internals\Extensions.cs" />
+    <Compile Include="Internals\PrimaryIndexMapping.cs" />
+    <Compile Include="Internals\QueryOperation.cs" />
+    <Compile Include="Internals\SetDescriptor.cs" />
+    <Compile Include="Internals\SetStatement.cs" />
+    <Compile Include="Internals\Updatable.cs" />
+    <Compile Include="Internals\SetOperation.cs" />
+    <Compile Include="IUpdatable.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="..\..\_Build\ProductInfo.cs">
+      <Link>Properties\ProductInfo.cs</Link>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Readme.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- Reference to Xtensive.Orm.Core package is in external file-->
+  <Import Project="..\..\OrmReference.props" />
+
+</Project>
