@@ -9,16 +9,28 @@
   <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
 </PropertyGroup>
 
+<Target Name="ExportHgRev" Condition="Exists('$(MSBuildThisFileDirectory)\.hg\dirstate')">
+  <MakeDir Directories="_Build" />
+  <Exec Command="hg id -i > _Build\rev.txt" />
+</Target>
+
+<Target Name="ExportGitRev" Condition="Exists('$(MSBuildThisFileDirectory)\.git\index')">
+  <MakeDir Directories="_Build" />
+  <Exec Command="git rev-parse HEAD > _Build\rev.txt" />
+</Target>
+
+<Target Name="ExportRev" DependsOnTargets="ExportHgRev;ExportGitRev" />
+
 <Target Name="EnsureSecureDirExists" Condition="!Exists('$(DO_SECURE_DIR)\Key.snk')">
   <Error Text="Environment variable DO_SECURE_DIR is not set or points to invalid directory." />
 </Target>
 
-<Target Name="Build">
+<Target Name="Build" DependsOnTargets="ExportRev">
   <Exec Command="dotnet msbuild Weaver.sln /t:Build;Publish /p:Configuration=$(Configuration)" />
   <Exec Command="dotnet msbuild Orm.sln /t:Build;Pack /p:Configuration=$(Configuration)" />
 </Target>
 
-<Target Name="Rebuild">
+<Target Name="Rebuild" DependsOnTargets="ExportRev">
   <Exec Command="dotnet msbuild Weaver.sln /t:Rebuild;Publish /p:Configuration=$(Configuration)" />
   <Exec Command="dotnet msbuild Orm.sln /t:Rebuild;Pack /p:Configuration=$(Configuration)" />
 </Target>

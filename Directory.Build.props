@@ -18,6 +18,7 @@
     <DoVersionName>$(DoMajor).$(DoMinor).$(DoPatch)</DoVersionName>
     <DoVersionName Condition="'$(DoVersionSuffix)'!=''">$(DoVersionName)-$(DoVersionSuffix)</DoVersionName>
     <DoPackageIcon>$(MSBuildThisFileDirectory)\do-nuget.png</DoPackageIcon>
+    <DoRevFile>$(MSBuildThisFileDirectory)\_Build\rev.txt</DoRevFile>
 </PropertyGroup>
 
 <!-- Populate standard properties. -->
@@ -39,6 +40,7 @@
 
 <ItemGroup>
   <None Include="$(DoPackageIcon)" Pack="true" PackagePath="." Visible="false" />
+  <None Include="$(DoRevFile)" Pack="true" PackagePath="." Visible="false" Condition="Exists('$(DoRevFile)')" />
 </ItemGroup>
 
 </Project>
