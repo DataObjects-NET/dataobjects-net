@@ -9,6 +9,15 @@
   <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
 </PropertyGroup>
 
+<ItemGroup>
+  <WeaverSolution Include="Weaver.sln">
+    <Properties>Configuration=$(Configuration)</Properties>
+  </WeaverSolution>
+  <OrmSolution Include="Orm.sln">
+    <Properties>Configuration=$(Configuration)</Properties>
+  </OrmSolution>
+</ItemGroup>
+
 <Target Name="ExportHgRev" Condition="Exists('$(MSBuildThisFileDirectory)\.hg\dirstate')">
   <MakeDir Directories="_Build" />
   <Exec Command="hg id -i > rev.txt" WorkingDirectory="_Build" />
@@ -26,18 +35,18 @@
 </Target>
 
 <Target Name="Build" DependsOnTargets="ExportRev">
-  <Exec Command="dotnet msbuild Weaver.sln /t:Build;Publish /p:Configuration=$(Configuration)" />
-  <Exec Command="dotnet msbuild Orm.sln /t:Build;Pack /p:Configuration=$(Configuration)" />
+  <MSBuild Projects="@(WeaverSolution)" Targets="Build;Publish" />
+  <MSBuild Projects="@(OrmSolution)" Targets="Build;Pack" />
 </Target>
 
 <Target Name="Rebuild" DependsOnTargets="ExportRev">
-  <Exec Command="dotnet msbuild Weaver.sln /t:Rebuild;Publish /p:Configuration=$(Configuration)" />
-  <Exec Command="dotnet msbuild Orm.sln /t:Rebuild;Pack /p:Configuration=$(Configuration)" />
+  <MSBuild Projects="@(WeaverSolution)" Targets="Rebuild;Publish" />
+  <MSBuild Projects="@(OrmSolution)" Targets="Rebuild;Pack" />
 </Target>
 
 <Target Name="Clean">
-  <Exec Command="dotnet msbuild Weaver.sln /t:Clean /p:Configuration=$(Configuration)" />
-  <Exec Command="dotnet msbuild Orm.sln /t:Clean /p:Configuration=$(Configuration)" />
+  <MSBuild Projects="@(WeaverSolution)" Targets="Clean" />
+  <MSBuild Projects="@(OrmSolution)" Targets="Clean" />
 </Target>
 
 </Project>
