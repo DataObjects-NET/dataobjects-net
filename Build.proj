@@ -43,7 +43,7 @@
   <Exec Command="dotnet msbuild Orm.sln &quot;-t:Rebuild;Pack&quot; -p:Configuration=$(Configuration)" />
 </Target>
 
-<Target Name="Clean" DependsOnTargets="CleanPackages">
+<Target Name="Clean" DependsOnTargets="CleanPackages;CleanWeaver">
   <Exec Command="dotnet msbuild Weaver.sln &quot;-t:Clean&quot; -p:Configuration=$(Configuration)" />
   <Exec Command="dotnet msbuild Orm.sln &quot;-t:Clean&quot; -p:Configuration=$(Configuration)" />
 </Target>
