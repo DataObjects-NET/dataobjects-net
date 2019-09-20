@@ -72,4 +72,5 @@
     <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
 
+  <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
 </Project>
