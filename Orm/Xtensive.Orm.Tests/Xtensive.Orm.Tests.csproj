@@ -390,6 +390,9 @@
     <Compile Include="Issues\Issue_OfTypeMissesImplementors.cs" />
     <Compile Include="Issues\KeyFormatBug.cs" />
     <Compile Include="Issues\LocalCollectionsTest.cs" />
+    <Compile Include="ObjectModel\Chinook.cs" />
+    <Compile Include="ObjectModel\ChinookDO.cs" />
+    <Compile Include="ObjectModel\ChinookDOModelTest.cs" />
     <Compile Include="Storage\AsyncQueries\AsAsyncTaskExtensionTest.cs" />
     <Compile Include="Storage\AsyncQueries\AsyncQueryBaseTest.cs" />
     <Compile Include="Storage\AsyncQueries\Compiled\ClientProfileTest.cs" />
@@ -890,6 +893,10 @@
     <Content Include="Northwind.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <ContentWithTargetPath Include="ObjectModel\Chinook.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>Chinook.json</TargetPath>
+    </ContentWithTargetPath>
   </ItemGroup>
   <ItemGroup>
     <None Update="Model\InterfaceAssociationsModelGenerator.tt">
