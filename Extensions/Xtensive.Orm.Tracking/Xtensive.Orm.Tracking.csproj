@@ -61,4 +61,8 @@
     <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Readme.txt" />
+  </ItemGroup>
+
 </Project>
