@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Xtensive.Orm.Tests.ObjectModel.Chinook
+namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 {
   [HierarchyRoot]
   [DebuggerDisplay("{Title} (AlbumId = {AlbumId})")]
@@ -94,6 +94,9 @@ namespace Xtensive.Orm.Tests.ObjectModel.Chinook
 
     [Field]
     public Employee SupportRep { get; set; }
+
+    [Field, Association(PairTo = "Customer")]
+    public EntitySet<Invoice> Invoices { get; private set; }
 
     public Customer()
     {
@@ -211,6 +214,9 @@ namespace Xtensive.Orm.Tests.ObjectModel.Chinook
 
     [Field(Nullable = false)]
     public decimal Total { get; set; }
+
+    [Field]
+    public decimal? Commission { get; set; }
 
     [Field, Association(PairTo = "Invoice")]
     public EntitySet<InvoiceLine> InvoiceLines { get; private set; }

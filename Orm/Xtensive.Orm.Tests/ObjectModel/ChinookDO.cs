@@ -11,7 +11,6 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.ObjectModel.Chinook;
 using IdEntity = System.ValueTuple<int,Xtensive.Orm.Entity>;
 
 namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
@@ -211,6 +210,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
         BillingCountry = data.BillingCountry,
         BillingPostalCode = data.BillingPostalCode,
         Total = data.Total,
+        Commission = data.Commission,
         Customer = context.GetEntity<Customer>((int) data.CustomerId),
       });
     }

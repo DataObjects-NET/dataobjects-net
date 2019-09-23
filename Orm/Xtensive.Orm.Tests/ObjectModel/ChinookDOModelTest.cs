@@ -11,7 +11,6 @@ using System.Linq;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.ObjectModel.Chinook;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.ObjectModel
@@ -80,7 +79,7 @@ namespace Xtensive.Orm.Tests.ObjectModel
     {
       Domain domain;
       try {
-        throw new ApplicationException("Don't validate, just recreate ;)");
+        //throw new ApplicationException("Don't validate, just recreate ;)");
         var validateConfig = configuration.Clone();
         validateConfig.UpgradeMode = DomainUpgradeMode.Validate;
         domain = Domain.Build(validateConfig);
