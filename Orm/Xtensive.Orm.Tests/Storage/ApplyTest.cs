@@ -12,37 +12,36 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
-using Xtensive.Orm;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Storage
 {
   [TestFixture]
-  public class ApplyTest : NorthwindDOModelTest
+  public class ApplyTest : ChinookDOModelTest
   {
     private List<Customer> allCustomers;
-    private List<Order> allOrders;
+    private List<Invoice> allInvoices;
     private CompilableProvider customerPrimary;
     private CompilableProvider orderPrimary;
     private int customerIdIndex;
-    private int orderCustomerIndex;
+    private int invoiceCustomerIndex;
 
-    private void LoadData()
+    private void LoadData(Session session)
     {
       var customerType = Domain.Model.Types[typeof(Customer)];
-      var orderType = Domain.Model.Types[typeof(Order)];
+      var invoiceType = Domain.Model.Types[typeof(Invoice)];
 
-      var customerIdColumn = customerType.Fields["Id"].Column.Name;
-      var orderCustomerColumn = orderType.Fields["Customer"].Fields[0].Column.Name;
+      var customerIdColumn = customerType.Fields["CustomerId"].Column.Name;
+      var invoiceCustomerColumn = invoiceType.Fields["Customer"].Fields[0].Column.Name;
 
       customerPrimary = customerType.Indexes.PrimaryIndex.GetQuery();
-      orderPrimary = orderType.Indexes.PrimaryIndex.GetQuery();
+      orderPrimary = invoiceType.Indexes.PrimaryIndex.GetQuery();
 
       customerIdIndex = customerPrimary.Header.IndexOf(customerIdColumn);
-      orderCustomerIndex = orderPrimary.Header.IndexOf(orderCustomerColumn);
+      invoiceCustomerIndex = orderPrimary.Header.IndexOf(invoiceCustomerColumn);
 
-      allCustomers = customerPrimary.GetRecordSet(Session.Current).ToEntities<Customer>(0).ToList();
-      allOrders = orderPrimary.GetRecordSet(Session.Current).ToEntities<Order>(0).ToList();      
+      allCustomers = customerPrimary.GetRecordSet(session).ToEntities<Customer>(0).ToList();
+      allInvoices = orderPrimary.GetRecordSet(session).ToEntities<Invoice>(0).ToList();      
     }
 
     [Test]
@@ -50,13 +49,13 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          LoadData();
+          LoadData(session);
           long total = 0;
           foreach (var customer in allCustomers)
-            total += allOrders.Count(o => o.Customer==customer);
+            total += allInvoices.Count(o => o.Customer==customer);
           var parameter = new ApplyParameter();
           var subquery = orderPrimary
-            .Filter(t => t.GetValue(orderCustomerIndex)==parameter.Value.GetValue(customerIdIndex))
+            .Filter(t => t.GetValue(invoiceCustomerIndex)==parameter.Value.GetValue(customerIdIndex))
             .Alias("XYZ");
           var result = customerPrimary
             .Apply(parameter, subquery)
@@ -71,13 +70,13 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          LoadData();
+          LoadData(session);
           long total = 0;
           foreach (var customer in allCustomers)
-            total += Math.Max(1, allOrders.Count(o => o.Customer == customer));
+            total += Math.Max(1, allInvoices.Count(o => o.Customer == customer));
           var parameter = new ApplyParameter();
           var subquery = orderPrimary
-            .Filter(t => t.GetValue(orderCustomerIndex) == parameter.Value.GetValue(customerIdIndex))
+            .Filter(t => t.GetValue(invoiceCustomerIndex) == parameter.Value.GetValue(customerIdIndex))
             .Alias("XYZ");
           var result = customerPrimary
             .Apply(parameter, subquery, false, ApplySequenceType.All, JoinType.LeftOuter)
@@ -93,14 +92,14 @@ namespace Xtensive.Orm.Tests.Storage
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          LoadData();
+          LoadData(session);
           long total = 0;
           foreach (var customer in allCustomers)
-            if (allOrders.Any(o => o.Customer == customer))
+            if (allInvoices.Any(o => o.Customer == customer))
               total++;
           var parameter = new ApplyParameter();
           var subquery = orderPrimary
-            .Filter(t => t.GetValue(orderCustomerIndex)==parameter.Value.GetValue(customerIdIndex))
+            .Filter(t => t.GetValue(invoiceCustomerIndex)==parameter.Value.GetValue(customerIdIndex))
             .Existence("LALALA");
           var result = customerPrimary
             .Apply(parameter, subquery, false, ApplySequenceType.Single, JoinType.Inner)

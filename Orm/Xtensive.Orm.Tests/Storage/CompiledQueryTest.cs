@@ -8,68 +8,70 @@ using System;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 using System.Linq;
 
 namespace Xtensive.Orm.Tests.Storage
 {
   [Serializable]
-  public class CompiledQueryTest : NorthwindDOModelTest
+  public class CompiledQueryTest : ChinookDOModelTest
   {
     [Test]
     public void CachedSequenceTest()
     {
-      var productName = "Chai";
-      var unitPrice = 10;
-      var result = Session.Query.Execute(
-        qe => qe.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice));
+      var trackName = "Babylon";
+      var unitPrice = 0.9m;
+      var result = Session.Query.Execute(qe => qe.All<Track>().Where(p => p.Name==trackName && p.UnitPrice > unitPrice));
     }
 
     [Test]
     public void CachedSubquerySequenceTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
-      var categoryNames = Session.Query.All<Category>()
-        .Select(c => c.CategoryName)
+      var addresses = Session.Query.All<Customer>()
+        .Select(c => c.Address)
         .ToList();
-      var expectedItems = Session.Query.All<Category>()
-        .Select(c => new {Category = c, ProductsCount = c.Products.Count})
-        .ToDictionary(a => a.Category.CategoryName);
-      foreach (var categoryName in categoryNames) {
-        var result = Session.Query.Execute(qe => qe.All<Category>()
-          .Where(c => c.CategoryName == categoryName)
-          .Select(c => new {
-            Category = c, 
-            Products = Session.Query.All<Product>().Where(p => p.Category.CategoryName == categoryName)})
-          ).ToList();
-        var expected = expectedItems[categoryName];
-        Assert.AreSame(expected.Category, result.Single().Category);          
-        Assert.AreEqual(expected.ProductsCount, result.Single().Products.ToList().Count);          
+      var expectedItems = Session.Query.All<Customer>()
+        .Select(c => new {Customer = c, ProductsCount = c.Invoices.Count})
+        .ToDictionary(a => a.Customer.Address);
+      foreach (var address in addresses) {
+        var result = Session.Query.Execute(
+          qe => qe.All<Customer>()
+            .Where(c => c.Address==address)
+            .Select(
+              c => new {
+                Customer = c,
+                Products = Session.Query.All<Invoice>().Where(p => p.Customer.Address==address)
+              })
+        ).ToList();
+        var expected = expectedItems[address];
+        Assert.AreSame(expected.Customer, result.Single().Customer);
+        Assert.AreEqual(expected.ProductsCount, result.Single().Products.ToList().Count);
       }
     }
 
     [Test]
     public void ScalarLongTest()
     {
-      var productName = "Chai";
-      var unitPrice = 10;
-      var result = Session.Query.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).LongCount();
+      var trackName = "Babylon";
+      var unitPrice = 0.9m;
+      var result = Session.Query.All<Track>().Where(p => p.Name==trackName && p.UnitPrice > unitPrice).LongCount();
     }
 
     [Test]
     public void CachedScalarLongTest()
     {
-      var productName = "Chai";
-      var unitPrice = 10;
-      var result = Session.Query.Execute(qe => qe.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).LongCount());
+      var trackName = "Babylon";
+      var unitPrice = 0.9m;
+      var result = Session.Query.Execute(qe => qe.All<Track>().Where(p => p.Name==trackName && p.UnitPrice > unitPrice).LongCount());
     }
 
     [Test]
     public void CachedScalarTest()
     {
-      var productName = "Chai";
-      var unitPrice = 10;
-      var result = Session.Query.Execute(qe => qe.All<Product>().Where(p => p.ProductName == productName && p.UnitPrice > unitPrice).Count());
+      var trackName = "Babylon";
+      var unitPrice = 0.9m;
+      var result = Session.Query.Execute(qe => qe.All<Track>().Where(p => p.Name==trackName && p.UnitPrice > unitPrice).Count());
     }
   }
 }
