@@ -218,6 +218,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
         Total = data.Total,
         Commission = data.Commission,
         Customer = context.GetEntity<Customer>((int) data.CustomerId),
+        Employee = context.GetEntity<Employee>((int) data.EmployeeId),
       });
     }
 

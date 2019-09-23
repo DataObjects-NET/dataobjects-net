@@ -96,24 +96,6 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     }
   }
 
-  public class Address : Structure
-  {
-    [Field(Length = 70)]
-    public string StreetAddress { get; set; }
-
-    [Field(Length = 40)]
-    public string City { get; set; }
-
-    [Field(Length = 40)]
-    public string State { get; set; }
-
-    [Field(Length = 40)]
-    public string Country { get; set; }
-
-    [Field(Length = 10)]
-    public string PostalCode { get; set; }
-  }
-
   [HierarchyRoot]
   [DebuggerDisplay("{FirstName} {LastName} (EmployeeId = {EmployeeId})")]
   public class Employee : Entity
@@ -205,6 +187,9 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field(Nullable = false)]
     public Customer Customer { get; set; }
+
+    [Field(Nullable = false)]
+    public Employee Employee { get; set; }
 
     public Invoice()
     {
@@ -327,5 +312,23 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
       : base(trackId)
     {
     }
+  }
+
+  public class Address : Structure
+  {
+    [Field(Length = 70)]
+    public string StreetAddress { get; set; }
+
+    [Field(Length = 40)]
+    public string City { get; set; }
+
+    [Field(Length = 40)]
+    public string State { get; set; }
+
+    [Field(Length = 40)]
+    public string Country { get; set; }
+
+    [Field(Length = 10)]
+    public string PostalCode { get; set; }
   }
 }
