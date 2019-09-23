@@ -68,20 +68,8 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     [Field(Length = 80)]
     public string Company { get; set; }
 
-    [Field(Length = 70)]
-    public string Address { get; set; }
-
-    [Field(Length = 40)]
-    public string City { get; set; }
-
-    [Field(Length = 40)]
-    public string State { get; set; }
-
-    [Field(Length = 40)]
-    public string Country { get; set; }
-
-    [Field(Length = 10)]
-    public string PostalCode { get; set; }
+    [Field]
+    public Address Address { get; set; }
 
     [Field(Length = 24)]
     public string Phone { get; set; }
@@ -108,6 +96,24 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     }
   }
 
+  public class Address : Structure
+  {
+    [Field(Length = 70)]
+    public string StreetAddress { get; set; }
+
+    [Field(Length = 40)]
+    public string City { get; set; }
+
+    [Field(Length = 40)]
+    public string State { get; set; }
+
+    [Field(Length = 40)]
+    public string Country { get; set; }
+
+    [Field(Length = 10)]
+    public string PostalCode { get; set; }
+  }
+
   [HierarchyRoot]
   [DebuggerDisplay("{FirstName} {LastName} (EmployeeId = {EmployeeId})")]
   public class Employee : Entity
@@ -130,20 +136,8 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     [Field]
     public DateTime HireDate { get; set; }
 
-    [Field(Length = 70)]
-    public string Address { get; set; }
-
-    [Field(Length = 40)]
-    public string City { get; set; }
-
-    [Field(Length = 40)]
-    public new string State { get; set; }
-
-    [Field(Length = 40)]
-    public string Country { get; set; }
-
-    [Field(Length = 10)]
-    public string PostalCode { get; set; }
+    [Field]
+    public Address Address { get; set; }
 
     [Field(Length = 24)]
     public string Phone { get; set; }
@@ -197,20 +191,8 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     [Field(Nullable = false)]
     public DateTime InvoiceDate { get; set; }
 
-    [Field(Length = 70)]
-    public string BillingAddress { get; set; }
-
-    [Field(Length = 40)]
-    public string BillingCity { get; set; }
-
-    [Field(Length = 40)]
-    public string BillingState { get; set; }
-
-    [Field(Length = 40)]
-    public string BillingCountry { get; set; }
-
-    [Field(Length = 10)]
-    public string BillingPostalCode { get; set; }
+    [Field]
+    public Address BillingAddress { get; set; }
 
     [Field(Nullable = false)]
     public decimal Total { get; set; }

@@ -49,13 +49,13 @@ namespace Xtensive.Orm.Tests.Linq
       var result = Session.Query.All<Customer>()
         .Select(customer => new[] {
           customer.Company,
-          customer.City
+          customer.LastName
         });
       var expected = Session.Query.All<Customer>()
         .ToList()
         .Select(customer => new[] {
           customer.Company,
-          customer.City
+          customer.LastName
         });
       var comparer = AdvancedComparer<string[]>.Default.EqualityComparerImplementation;
       Assert.AreEqual(0, expected.Except(result, comparer).Count());
@@ -134,14 +134,14 @@ namespace Xtensive.Orm.Tests.Linq
       var result = Session.Query.All<Customer>()
         .Select(customer => new[] {
           customer.Company,
-          customer.City
+          customer.LastName
         })
         .Select(a => a[0]);
       var expected = Session.Query.All<Customer>()
         .ToList()
         .Select(customer => new[] {
           customer.Company,
-          customer.City
+          customer.LastName
         })
         .Select(a => a[0]);
       Assert.AreEqual(0, expected.Except(result).Count());

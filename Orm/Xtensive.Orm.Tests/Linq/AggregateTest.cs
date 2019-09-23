@@ -22,9 +22,9 @@ namespace Xtensive.Orm.Tests.Linq
     public void EntitySetWithGroupingAggregateTest()
     {
       var query =
-        Session.Query.All<Invoice>()
-          .GroupBy(invoice => invoice.Customer.City)
-          .Select(grouping => grouping.Max(g => g.InvoiceLines));
+        Session.Query.All<Customer>()
+          .GroupBy(customer => customer.Address.City)
+          .Select(grouping => grouping.Max(g => g.Invoices));
 
       Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(query));
     }
