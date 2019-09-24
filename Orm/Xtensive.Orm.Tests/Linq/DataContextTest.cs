@@ -12,11 +12,11 @@ using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Linq
 {
-  public class DataContextTest : NorthwindDOModelTest
+  public class DataContextTest : ChinookDOModelTest
   {
 
     private class UserException : Exception
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Linq
 
     private class DataContext
     {
-      public IQueryable<Order> Orders { get; private set; }
+      public IQueryable<Invoice> Invoices { get; private set; }
       public IQueryable<Customer> Customers { get; private set; }
 
       public IQueryable<Customer> CustomersException
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Tests.Linq
 
       public DataContext(Session session)
       {
-        Orders = session.Query.All<Order>();
+        Invoices = session.Query.All<Invoice>();
         Customers = session.Query.All<Customer>();
       }
     }
@@ -61,10 +61,10 @@ namespace Xtensive.Orm.Tests.Linq
       var context = new DataContext(Session.Current);
       var result = 
         from c in context.Customers
-        from o in context.Orders
+        from o in context.Invoices
         select new {c, o};
       var expected = from c in Session.Query.All<Customer>().AsEnumerable()
-      from o in Session.Query.All<Order>().AsEnumerable()
+      from o in Session.Query.All<Invoice>().AsEnumerable()
       select new {c, o};
       Assert.AreEqual(0, expected.Except(result).Count());
     }
@@ -73,14 +73,14 @@ namespace Xtensive.Orm.Tests.Linq
     public void NullTest()
     {
       var context = new DataContext(Session.Current);
-      AssertEx.Throws<ArgumentNullException>(()=>context.CustomersNull.SelectMany(c => context.Orders, (c, o) => new {c, o}));
+      AssertEx.Throws<ArgumentNullException>(()=>context.CustomersNull.SelectMany(c => context.Invoices, (c, o) => new {c, o}));
     }
 
     [Test]
     public void ExceptionTest()
     {
       var context = new DataContext(Session.Current);
-      AssertEx.Throws<UserException>(()=>context.CustomersException.SelectMany(c => context.Orders, (c, o) => new {c, o}));
+      AssertEx.Throws<UserException>(()=>context.CustomersException.SelectMany(c => context.Invoices, (c, o) => new {c, o}));
     }
   }
 }

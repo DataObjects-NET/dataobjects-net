@@ -9,22 +9,21 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Linq
 {
   [Category("Linq")]
   [TestFixture]
-  public class ComplexTest : NorthwindDOModelTest
+  public class ComplexTest : ChinookDOModelTest
   {
     private static IQueryable<Customer> GetQuery(QueryEndpoint qe, string filter)
     {
-      var customers = qe.All<Customer>().Where(cn => cn.CompanyName.StartsWith(filter));
+      var customers = qe.All<Customer>().Where(cn => cn.Company.StartsWith(filter));
       return customers;
     }
 
     [Test]
-
     public void CachedQueryTest()
     {
       Assert.Throws<QueryTranslationException>(() => {
@@ -32,12 +31,12 @@ namespace Xtensive.Orm.Tests.Linq
           string firstChar = c.ToString();
           var builtQuery = GetQuery(Session.Query, firstChar);
           var query = builtQuery
-            .Select(customer => customer.ContactName);
+            .Select(customer => customer.Email);
           var cachedQuery = Session.Query
-            .Execute(qe => GetQuery(Session.Query, firstChar).Select(customer => customer.ContactName));
+            .Execute(qe => GetQuery(Session.Query, firstChar).Select(customer => customer.Email));
           var fullQuery = Session.Query.All<Customer>()
-            .Where(cn => cn.CompanyName.StartsWith(firstChar))
-            .Select(customer => customer.ContactName);
+            .Where(cn => cn.Company.StartsWith(firstChar))
+            .Select(customer => customer.Company);
           Assert.IsTrue(query.ToList().SequenceEqual(fullQuery.ToList()));
           var cachedQueryList = cachedQuery.ToList();
           var fullQueryList = fullQuery.ToList();
@@ -47,45 +46,44 @@ namespace Xtensive.Orm.Tests.Linq
       });
     }
 
-
     [Test]
     public void SubquerySimpleTest()
     {
-      var result = Session.Query.All<Product>()
-        .Select(p => Session.Query.All<Supplier>());
+      var result = Session.Query.All<Track>()
+        .Select(p => Session.Query.All<Album>());
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void SubqueryMutiple1Test()
     {
-      var result = Session.Query.All<Supplier>()
-        .Select(supplier => 
-          Session.Query.All<Product>()
-          .Select(product=> Session.Query.All<Product>()
-            .Where(p=>p==product)));
+      var result = Session.Query.All<Customer>()
+        .Select(customer =>
+          Session.Query.All<Invoice>()
+            .Select(invoice => Session.Query.All<Invoice>()
+              .Where(i => i==invoice)));
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void SubqueryMultiple2Test()
     {
-      var result = Session.Query.All<Supplier>()
-        .Select(supplier => 
-          Session.Query.All<Product>()
-          .Select(product=> Session.Query.All<Product>()
-            .Where(p=>p.Supplier==supplier)));
+      var result = Session.Query.All<Customer>()
+        .Select(custumer =>
+          Session.Query.All<Invoice>()
+            .Select(i => Session.Query.All<Invoice>()
+              .Where(y => y.Customer==custumer)));
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void SubqueryMultiple3Test()
     {
-      var result = Session.Query.All<Supplier>()
-        .Select(supplier => 
-          Session.Query.All<Product>()
-          .Select(product=> Session.Query.All<Product>()
-            .Where(p=>p==product && p.Supplier==supplier)));
+      var result = Session.Query.All<Customer>()
+        .Select(customer =>
+          Session.Query.All<Invoice>()
+            .Select(i => Session.Query.All<Invoice>()
+              .Where(y => y==i && y.Customer==customer)));
       QueryDumper.Dump(result);
     }
 
@@ -93,9 +91,9 @@ namespace Xtensive.Orm.Tests.Linq
     public void SubqueryCalculableFieldTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var result = Session.Query.All<Supplier>()
-        .Select(supplier => Session.Query.All<Product>()
-          .Where(p=>p.Supplier == supplier)
+      var result = Session.Query.All<Invoice>()
+        .Select(invoice => Session.Query.All<InvoiceLine>()
+          .Where(p=>p.Invoice == invoice)
           .First()
           .UnitPrice);
       QueryDumper.Dump(result);
@@ -105,15 +103,15 @@ namespace Xtensive.Orm.Tests.Linq
     public void SubqueryCalculableColumnTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var result = Session.Query.All<Supplier>()
-        .Select(supplier => Session.Query.All<Product>()
-          .Where(p=>p.Supplier == supplier)
+      var result = Session.Query.All<Invoice>()
+        .Select(invoice => Session.Query.All<InvoiceLine>()
+          .Where(p=>p.Invoice==invoice)
           .Count());
-      var expectedResult = Session.Query.All<Supplier>()
+      var expectedResult = Session.Query.All<Invoice>()
         .ToList()
-        .Select(supplier => Session.Query.All<Product>()
+        .Select(invoice => Session.Query.All<InvoiceLine>()
           .ToList()
-          .Where(p=>p.Supplier == supplier)
+          .Where(p=>p.Invoice==invoice)
           .Count());
       Assert.AreEqual(0, expectedResult.Except(result).Count());
       QueryDumper.Dump(result);
@@ -122,20 +120,20 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void CorrelatedQueryTest()
     {
-      var products = Session.Query.All<Product>();
-      var suppliers = Session.Query.All<Supplier>();
-      var result = from p in products
+      var invoiceLines = Session.Query.All<InvoiceLine>();
+      var invoices = Session.Query.All<Invoice>();
+      var result = from l in invoiceLines
       select new {
-        Product = p,
-        Suppliers = suppliers
-          .Where(s => s.Id==p.Supplier.Id)
-          .Select(s => s.CompanyName)
+        InvoiceLine = l,
+        Addresses = invoices
+          .Where(s => s.InvoiceId==l.Invoice.InvoiceId)
+          .Select(s => s.BillingAddress.StreetAddress)
       };
       var list = result.ToList();
       Assert.Greater(list.Count, 0);
       foreach (var p in list)
-        foreach (var companyName in p.Suppliers)
-          Assert.IsNotNull(companyName);
+        foreach (var address in p.Addresses)
+          Assert.IsNotNull(address);
     }
 
     [Test]
@@ -144,11 +142,11 @@ namespace Xtensive.Orm.Tests.Linq
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result =
         from c in Session.Query.All<Customer>()
-        orderby Session.Query.All<Order>().Where(o => o.Customer==c).Count() , c.Id
+        orderby Session.Query.All<Invoice>().Where(o => o.Customer==c).Count() , c.CustomerId
         select c;
       var expected =
         from c in Session.Query.All<Customer>().ToList()
-        orderby Session.Query.All<Order>().ToList().Where(o => o.Customer==c).Count() , c.Id
+        orderby Session.Query.All<Invoice>().ToList().Where(o => o.Customer==c).Count() , c.CustomerId
         select c;
       var resultList = result.ToList();
       var expectedList = expected.ToList();
@@ -163,27 +161,27 @@ namespace Xtensive.Orm.Tests.Linq
       Require.ProviderIsNot(StorageProvider.Oracle);
       var result =
         from c in Session.Query.All<Customer>()
-        where Session.Query.All<Order>()
+        where Session.Query.All<Invoice>()
           .Where(o => o.Customer==c)
           .All(o => Session.Query.All<Employee>()
-            .Where(e => o.Employee==e
-            ).Any(e => e.FirstName.StartsWith("A")))
+              .Where(e => o.DesignatedEmployee==e)
+              .Any(e => e.FirstName.StartsWith("A")))
         select c;
       var list = result.ToList();
-      Assert.AreEqual(list.Count, 2);
+      Assert.AreEqual(1, list.Count);
     }
 
     [Test]
     public void GroupByWithSelectorSelectManyTest()
     {
-      var result = Session.Query.All<Customer>()
-        .GroupBy(c => c.Address.Country,
-          (country, customers) => customers.Where(k => k.CompanyName.Substring(0, 1)==country.Substring(0, 1)))
+      var result = Session.Query.All<InvoiceLine>()
+        .GroupBy(c => c.Track.Name,
+          (trackName, invoiceLines) => invoiceLines.Where(k => k.Invoice.Customer.FirstName.Substring(0, 1)==trackName.Substring(0, 1)))
         .SelectMany(k => k);
-      var expected = Session.Query.All<Customer>()
+      var expected = Session.Query.All<InvoiceLine>()
         .ToList()
-        .GroupBy(c => c.Address.Country,
-          (country, customers) => customers.Where(k => k.CompanyName.Substring(0, 1)==country.Substring(0, 1)))
+        .GroupBy(c => c.Track.Name,
+          (trackName, invoiceLines) => invoiceLines.Where(k => k.Invoice.Customer.FirstName.Substring(0, 1)==trackName.Substring(0, 1)))
         .SelectMany(k => k);
       Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
@@ -200,20 +198,20 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void AsEnumerableSelectDistinctTest()
     {
-      var result = Session.Query.All<Order>().ToList().Select(o => o.Employee).Distinct();
+      var result = Session.Query.All<Invoice>().ToList().Select(o => o.Customer).Distinct();
       Assert.IsNotNull(result.First());
-      Assert.Greater(result.Count(), 2);
+      Assert.GreaterOrEqual(result.Count(), 59);
     }
 
     [Test]
     public void ModifiedClosuresTest()
     {
-      var result = from order in Session.Query.All<Order>()
+      var result = from order in Session.Query.All<Invoice>()
                       join customer in Session.Query.All<Customer>() on order.Customer equals customer into oc
                       from joinedCustomer in oc.DefaultIfEmpty()
                       select new {
-                        CustomerId = joinedCustomer.Id, 
-                        joinedCustomer.CompanyName, 
+                        joinedCustomer.CustomerId, 
+                        joinedCustomer.Company,
                         joinedCustomer.Address.Country
                       };
       var t = result.ToList();

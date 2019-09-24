@@ -8,19 +8,19 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Linq
 {
   [Category("Linq")]
   [TestFixture]
-  public class DistinctTest : NorthwindDOModelTest
+  public class DistinctTest : ChinookDOModelTest
   {
     [Test]
     public void BlobTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var result = Session.Query.All<Category>().Select(c => c.Picture).Distinct();
+      var result = Session.Query.All<Track>().Select(c => c.Bytes).Distinct();
       var list = result.ToList();
     }
 
@@ -28,13 +28,13 @@ namespace Xtensive.Orm.Tests.Linq
     public void OrderBy2Test()
     {
       var result = Session.Query.All<Customer>()
-        .OrderBy(c => c.CompanyName)
+        .OrderBy(c => c.Company)
         .Select(c => c.Address.City)
         .Distinct()
         .OrderBy(c => c);
       var expected = Session.Query.All<Customer>()
         .ToList()
-        .OrderBy(c => c.CompanyName)
+        .OrderBy(c => c.Company)
         .Select(c => c.Address.City)
         .Distinct()
         .OrderBy(c => c);
@@ -69,13 +69,13 @@ namespace Xtensive.Orm.Tests.Linq
     public void OrderByTest()
     {
       var result = Session.Query.All<Customer>()
-        .OrderBy(c => c.Id)
+        .OrderBy(c => c.CustomerId)
         .Select(c => c.Address.City)
         .Distinct()
         .ToList();
       var expected = Session.Query.All<Customer>()
         .ToList()
-        .OrderBy(c => c.Id)
+        .OrderBy(c => c.CustomerId)
         .Select(c => c.Address.City)
         .Distinct();
       Assert.AreEqual(0, expected.Except(result).Count());
@@ -151,11 +151,11 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = Session.Query.All<Customer>()
         .Distinct()
-        .Count(c => c.Id=="ALFKI");
+        .Count(c => c.FirstName=="Leonie");
       var expected = Session.Query.All<Customer>()
         .ToList()
         .Distinct()
-        .Count(c => c.Id=="ALFKI");
+        .Count(c => c.FirstName=="Leonie");
       Assert.AreEqual(expected, result);
       Assert.Greater(result, 0);
     }
@@ -163,13 +163,13 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SumWithArgTest()
     {
-      var result = Session.Query.All<Order>()
+      var result = Session.Query.All<Invoice>()
         .Distinct()
-        .Sum(o => o.Id);
-      var expected = Session.Query.All<Order>()
+        .Sum(o => o.InvoiceId);
+      var expected = Session.Query.All<Invoice>()
         .ToList()
         .Distinct()
-        .Sum(o => o.Id);
+        .Sum(o => o.InvoiceId);
       Assert.AreEqual(expected, result);
       Assert.Greater(result, 0);
     }
@@ -177,13 +177,13 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SumTest()
     {
-      var result = Session.Query.All<Order>()
-        .Select(o => o.Id)
+      var result = Session.Query.All<Invoice>()
+        .Select(o => o.InvoiceId)
         .Distinct()
         .Sum();
-      var expected = Session.Query.All<Order>()
+      var expected = Session.Query.All<Invoice>()
         .ToList()
-        .Select(o => o.Id)
+        .Select(o => o.InvoiceId)
         .Distinct()
         .Sum();
       Assert.AreEqual(expected, result);
@@ -194,16 +194,18 @@ namespace Xtensive.Orm.Tests.Linq
     public void TakeTest()
     {
       // NOTE: Distinct must be forced to apply after top has been computed
-      var result = Session.Query.All<Order>()
-        .OrderBy(o => o.Id)
+      var result = Session.Query.All<Invoice>()
+        .OrderBy(o => o.InvoiceId)
         .Take(5)
-        .Distinct().OrderBy(o => o.Id)
+        .Distinct()
+        .OrderBy(o => o.InvoiceId)
         .ToList();
-      var expected = Session.Query.All<Order>()
+      var expected = Session.Query.All<Invoice>()
         .ToList()
-        .OrderBy(o => o.Id)
+        .OrderBy(o => o.InvoiceId)
         .Take(5)
-        .Distinct().OrderBy(o => o.Id);
+        .Distinct()
+        .OrderBy(o => o.InvoiceId);
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -211,13 +213,13 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TakeTakeTest()
     {
-      var result = Session.Query.All<Order>()
-        .OrderBy(o => o.Id)
+      var result = Session.Query.All<Invoice>()
+        .OrderBy(o => o.InvoiceId)
         .Take(2)
         .Take(1);
-      var expected = Session.Query.All<Order>()
+      var expected = Session.Query.All<Invoice>()
         .ToList()
-        .OrderBy(o => o.Id)
+        .OrderBy(o => o.InvoiceId)
         .Take(2)
         .Take(1);
       var list = result.ToList();
@@ -237,12 +239,14 @@ namespace Xtensive.Orm.Tests.Linq
     public void DistinctTakeTest()
     {
       // NOTE: Top must be forced to apply after distinct has been computed
-      var result = Session.Query.All<Order>()
-        .Distinct().OrderBy(o => o.Id)
+      var result = Session.Query.All<Invoice>()
+        .Distinct()
+        .OrderBy(o => o.InvoiceId)
         .Take(5);
-      var expected = Session.Query.All<Order>()
+      var expected = Session.Query.All<Invoice>()
         .ToList()
-        .Distinct().OrderBy(o => o.Id)
+        .Distinct()
+        .OrderBy(o => o.InvoiceId)
         .Take(5);
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
@@ -251,11 +255,11 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TakeCountTest()
     {
-      var result = Session.Query.All<Order>()
+      var result = Session.Query.All<Invoice>()
         .Distinct()
         .Take(5)
         .Count();
-      var expected = Session.Query.All<Order>()
+      var expected = Session.Query.All<Invoice>()
         .ToList()
         .Distinct()
         .Take(5)
@@ -267,11 +271,11 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TakeDistinctCountTest()
     {
-      var result = Session.Query.All<Order>()
+      var result = Session.Query.All<Invoice>()
         .Take(5)
         .Distinct()
         .Count();
-      var expected = Session.Query.All<Order>()
+      var expected = Session.Query.All<Invoice>()
         .ToList()
         .Take(5)
         .Distinct()
@@ -284,16 +288,16 @@ namespace Xtensive.Orm.Tests.Linq
     public void SkipTest()
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
-      var result = Session.Query.All<Order>()
-        .OrderBy(o => o.OrderDate)
+      var result = Session.Query.All<Invoice>()
+        .OrderBy(o => o.InvoiceDate)
         .Skip(5)
-        .Select(o => o.OrderDate)
+        .Select(o => o.InvoiceDate)
         .Distinct().OrderBy(d => d);
-      var expected = Session.Query.All<Order>()
+      var expected = Session.Query.All<Invoice>()
         .ToList()
-        .OrderBy(o => o.OrderDate)
+        .OrderBy(o => o.InvoiceDate)
         .Skip(5)
-        .Select(o => o.OrderDate)
+        .Select(o => o.InvoiceDate)
         .Distinct().OrderBy(d => d);
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
@@ -305,12 +309,12 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var result = Session.Query.All<Customer>()
         .Distinct()
-        .OrderBy(c => c.ContactName)
+        .OrderBy(c => c.LastName)
         .Skip(5);
       var expected = Session.Query.All<Customer>()
         .ToList()
         .Distinct()
-        .OrderBy(c => c.ContactName)
+        .OrderBy(c => c.LastName)
         .Skip(5);
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
@@ -320,19 +324,21 @@ namespace Xtensive.Orm.Tests.Linq
     public void SkipTakeTest()
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
-      var result = Session.Query.All<Order>()
-        .OrderBy(o => o.OrderDate)
+      var result = Session.Query.All<Invoice>()
+        .OrderBy(o => o.InvoiceDate)
         .Skip(5)
         .Take(10)
-        .Select(o => o.OrderDate)
-        .Distinct().OrderBy(d => d);
-      var expected = Session.Query.All<Order>()
+        .Select(o => o.InvoiceDate)
+        .Distinct()
+        .OrderBy(d => d);
+      var expected = Session.Query.All<Invoice>()
         .ToList()
-        .OrderBy(o => o.OrderDate)
+        .OrderBy(o => o.InvoiceDate)
         .Skip(5)
         .Take(10)
-        .Select(o => o.OrderDate)
-        .Distinct().OrderBy(d => d);
+        .Select(o => o.InvoiceDate)
+        .Distinct()
+        .OrderBy(d => d);
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -341,19 +347,21 @@ namespace Xtensive.Orm.Tests.Linq
     public void TakeSkipTest()
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
-      var result = Session.Query.All<Order>()
-        .OrderBy(o => o.OrderDate)
+      var result = Session.Query.All<Invoice>()
+        .OrderBy(o => o.InvoiceDate)
         .Take(10)
         .Skip(5)
-        .Select(o => o.OrderDate)
-        .Distinct().OrderBy(d => d);
-      var expected = Session.Query.All<Order>()
+        .Select(o => o.InvoiceDate)
+        .Distinct()
+        .OrderBy(d => d);
+      var expected = Session.Query.All<Invoice>()
         .ToList()
-        .OrderBy(o => o.OrderDate)
+        .OrderBy(o => o.InvoiceDate)
         .Take(10)
         .Skip(5)
-        .Select(o => o.OrderDate)
-        .Distinct().OrderBy(d => d);
+        .Select(o => o.InvoiceDate)
+        .Distinct()
+        .OrderBy(d => d);
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
     }
@@ -363,14 +371,14 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var result = Session.Query.All<Customer>()
-        .Select(c => c.ContactName)
+        .Select(c => c.FirstName)
         .Distinct()
         .OrderBy(c => c)
         .Skip(5)
         .Take(10);
       var expected = Session.Query.All<Customer>()
         .ToList()
-        .Select(c => c.ContactName)
+        .Select(c => c.FirstName)
         .Distinct()
         .OrderBy(c => c)
         .Skip(5)

@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Tests.Linq
         select c;
       var expected =
         from c in Customers
-        where Invoices
+        where c.Invoices.Any() && Invoices
           .Where(o => o.Customer==c)
           .Max(o => o.InvoiceDate) < new DateTime(2019, 1, 1)
         select c;
