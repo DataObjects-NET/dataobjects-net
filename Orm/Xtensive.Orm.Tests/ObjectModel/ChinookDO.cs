@@ -40,8 +40,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
   {
     protected override IdEntity ImportEntry(dynamic data)
     {
-      var artistId = (int) data.ArtistId;
-      return (artistId, new Artist(artistId) {
+      return ((int) data.ArtistId, new Artist {
         Name = data.Name
       });
     }
@@ -56,8 +55,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
   {
     protected override IdEntity ImportEntry(dynamic data)
     {
-      var genreId = (int) data.GenreId;
-      return (genreId, new Genre(genreId) {
+      return ((int) data.GenreId, new Genre {
         Name = data.Name
       });
     }
@@ -72,8 +70,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
   {
     protected override IdEntity ImportEntry(dynamic data)
     {
-      var mediaTypeId = (int) data.MediaTypeId;
-      return (mediaTypeId, new MediaType(mediaTypeId) {
+      return ((int) data.MediaTypeId, new MediaType {
         Name = data.Name
       });
     }
@@ -88,8 +85,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
   {
     protected override IdEntity ImportEntry(dynamic data)
     {
-      var playlistId = (int) data.PlaylistId;
-      return (playlistId, new Playlist(playlistId) {
+      return ((int) data.PlaylistId, new Playlist {
         Name = data.Name
       });
     }
@@ -104,8 +100,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
   {
     protected override IdEntity ImportEntry(dynamic data)
     {
-      var albumId = (int) data.AlbumId;
-      return (albumId, new Album(albumId) {
+      return ((int) data.AlbumId, new Album {
         Title = data.Title,
         Artist = context.GetEntity<Artist>((int) data.ArtistId)
       });
@@ -121,8 +116,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
   {
     protected override IdEntity ImportEntry(dynamic data)
     {
-      var trackId = (int) data.TrackId;
-      return (trackId, new Track(trackId) {
+      return ((int) data.TrackId, new Track {
         Name = data.Name,
         Composer = data.Composer,
         Milliseconds = data.Milliseconds,
@@ -144,9 +138,8 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
   {
     protected override IdEntity ImportEntry(dynamic data)
     {
-      var employeeId = (int) data.EmployeeId;
       var reportsTo = (int?) data.ReportsTo;
-      return (employeeId, new Employee(employeeId) {
+      return ((int) data.EmployeeId, new Employee {
         LastName = data.LastName,
         FirstName = data.FirstName,
         Title = data.Title,
@@ -176,8 +169,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
   {
     protected override IdEntity ImportEntry(dynamic data)
     {
-      var customerId = (int) data.CustomerId;
-      return (customerId, new Customer(customerId) {
+      return ((int) data.CustomerId, new Customer {
         FirstName = data.FirstName,
         LastName = data.LastName,
         Company = data.Company,
@@ -205,8 +197,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
   {
     protected override IdEntity ImportEntry(dynamic data)
     {
-      var invoiceId = (int) data.InvoiceId;
-      return (invoiceId, new Invoice(invoiceId) {
+      return ((int) data.InvoiceId, new Invoice() {
         InvoiceDate = data.InvoiceDate,
         BillingAddress = new Address {
           StreetAddress = data.BillingAddress,
@@ -218,7 +209,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
         Total = data.Total,
         Commission = data.Commission,
         Customer = context.GetEntity<Customer>((int) data.CustomerId),
-        Employee = context.GetEntity<Employee>((int) data.EmployeeId),
+        DesignatedEmployee = context.GetEntity<Employee>((int) data.EmployeeId),
       });
     }
 
@@ -232,8 +223,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
   {
     protected override IdEntity ImportEntry(dynamic data)
     {
-      var invoiceLineId = (int) data.InvoiceLineId;
-      return (invoiceLineId, new InvoiceLine(invoiceLineId) {
+      return ((int) data.InvoiceLineId, new InvoiceLine {
         UnitPrice = data.UnitPrice,
         Quantity = data.Quantity,
         Invoice = context.GetEntity<Invoice>((int) data.InvoiceId),

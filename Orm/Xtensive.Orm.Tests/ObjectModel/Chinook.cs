@@ -21,15 +21,6 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field(Nullable = false)]
     public Artist Artist { get; set; }
-
-    public Album()
-    {
-    }
-
-    public Album(int albumId)
-      : base(albumId)
-    {
-    }
   }
 
   [HierarchyRoot]
@@ -41,15 +32,6 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field(Nullable = false, Length = 120)]
     public string Name { get; set; }
-
-    public Artist()
-    {
-    }
-
-    public Artist(int artistId)
-      : base(artistId)
-    {
-    }
   }
 
   [HierarchyRoot]
@@ -85,15 +67,6 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field, Association(PairTo = "Customer")]
     public EntitySet<Invoice> Invoices { get; private set; }
-
-    public Customer()
-    {
-    }
-
-    public Customer(int customerId)
-      : base(customerId)
-    {
-    }
   }
 
   [HierarchyRoot]
@@ -132,15 +105,6 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field]
     public Employee ReportsToManager { get; set; }
-
-    public Employee()
-    {
-    }
-
-    public Employee(int employeeId)
-      : base(employeeId)
-    {
-    }
   }
 
   [HierarchyRoot]
@@ -152,15 +116,6 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field(Nullable = false, Length = 120)]
     public string Name { get; set; }
-
-    public Genre()
-    {
-    }
-
-    public Genre(int genreId)
-      : base(genreId)
-    {
-    }
   }
 
   [HierarchyRoot]
@@ -185,20 +140,11 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     [Field, Association(PairTo = "Invoice")]
     public EntitySet<InvoiceLine> InvoiceLines { get; private set; }
 
-    [Field(Nullable = false)]
+    [Field]
     public Customer Customer { get; set; }
 
-    [Field(Nullable = false)]
-    public Employee Employee { get; set; }
-
-    public Invoice()
-    {
-    }
-
-    public Invoice(int invoiceId)
-      : base(invoiceId)
-    {
-    }
+    [Field]
+    public Employee DesignatedEmployee { get; set; }
   }
 
   [HierarchyRoot]
@@ -219,15 +165,6 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field(Nullable = false)]
     public Track Track { get; set; }
-
-    public InvoiceLine()
-    {
-    }
-
-    public InvoiceLine(int invoiceLineId)
-      : base(invoiceLineId)
-    {
-    }
   }
 
   [HierarchyRoot]
@@ -239,15 +176,6 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field(Nullable = false, Length = 120)]
     public string Name { get; set; }
-
-    public MediaType()
-    {
-    }
-
-    public MediaType(int mediaTypeId)
-      : base(mediaTypeId)
-    {
-    }
   }
 
   [HierarchyRoot]
@@ -262,15 +190,6 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field]
     public EntitySet<Track> Tracks { get; private set; }
-
-    public Playlist()
-    {
-    }
-
-    public Playlist(int playlistId)
-      : base(playlistId)
-    {
-    }
   }
 
   [HierarchyRoot]
@@ -280,6 +199,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     [Field, Key]
     public int TrackId { get; private set; }
 
+    [FullText("English")]
     [Field(Nullable = false, Length = 200)]
     public string Name { get; set; }
 
@@ -289,8 +209,8 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     [Field]
     public int Milliseconds { get; set; }
 
-    [Field]
-    public int Bytes { get; set; }
+    [Field(Nullable = false)]
+    public byte[] Bytes { get; set; }
 
     [Field]
     public decimal UnitPrice { get; set; }
@@ -304,14 +224,8 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     [Field]
     public Genre Genre { get; set; }
 
-    public Track()
-    {
-    }
-
-    public Track(int trackId)
-      : base(trackId)
-    {
-    }
+    [Field, Association(PairTo = "Tracks")]
+    public EntitySet<Playlist> Playlists { get; private set; }
   }
 
   public class Address : Structure
