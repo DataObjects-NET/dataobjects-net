@@ -155,8 +155,8 @@ namespace Xtensive.Sql.Drivers.SqlServer
     {
       var connection = new SqlServerConnection(connectionString);
       if (!configuration.EnsureConnectionIsAlive) {
-        SqlHelper.ExecuteInitializationSql(connection, configuration);
         connection.Open();
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
         return connection;
       }
 
