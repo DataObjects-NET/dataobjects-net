@@ -10,19 +10,19 @@ using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Linq
 {
   [Category("Linq")]
   [TestFixture]
-  public class FirstSingleTest : NorthwindDOModelTest
+  public class FirstSingleTest : ChinookDOModelTest
   {
     [Test]
     public void LengthTest()
     {
       var length = Session.Query.All<Customer>()
-        .Select(customer => customer.ContactName)
+        .Select(customer => customer.FirstName)
         .FirstOrDefault()
         .Length;
     }
@@ -34,8 +34,8 @@ namespace Xtensive.Orm.Tests.Linq
       var customers = Session.Query.All<Customer>()
         .Where(cutomer =>
           cutomer
-            .Orders
-            .Select(order => order.ShipName)
+            .Invoices
+            .Select(order => order.BillingAddress.City)
             .FirstOrDefault()
             .Length > 0);
       QueryDumper.Dump(customers);
@@ -47,8 +47,8 @@ namespace Xtensive.Orm.Tests.Linq
       var customers = Session.Query.All<Customer>()
         .Where(cutomer =>
           cutomer
-            .Orders
-            .Select(order => order.ShipName)
+            .Invoices
+            .Select(order => order.BillingAddress.City)
             .SingleOrDefault()
             .Length > 0);
       Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(customers));
@@ -64,14 +64,14 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void FirstPredicateTest()
     {
-      var customer = Session.Query.All<Customer>().First(c => c.Id=="ALFKI");
+      var customer = Session.Query.All<Customer>().First(c => c.FirstName=="Luis");
       Assert.IsNotNull(customer);
     }
 
     [Test]
     public void WhereFirstTest()
     {
-      var customer = Session.Query.All<Customer>().Where(c => c.Id=="ALFKI").First();
+      var customer = Session.Query.All<Customer>().Where(c => c.FirstName=="Luis").First();
       Assert.IsNotNull(customer);
     }
 
@@ -85,13 +85,13 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void FirstOrDefaultPredicateTest()
     {
-      Session.Query.All<Customer>().FirstOrDefault(c => c.Id=="ALFKI");
+      Session.Query.All<Customer>().FirstOrDefault(c => c.FirstName=="Luis");
     }
 
     [Test]
     public void WhereFirstOrDefaultTest()
     {
-      var customer = Session.Query.All<Customer>().Where(c => c.Id=="ALFKI").FirstOrDefault();
+      var customer = Session.Query.All<Customer>().Where(c => c.FirstName=="Luis").FirstOrDefault();
       Assert.IsNotNull(customer);
     }
 
@@ -104,14 +104,14 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SinglePredicateTest()
     {
-      var customer = Session.Query.All<Customer>().Single(c => c.Id=="ALFKI");
+      var customer = Session.Query.All<Customer>().Single(c => c.FirstName=="Luis");
       Assert.IsNotNull(customer);
     }
 
     [Test]
     public void WhereSingleTest()
     {
-      var customer = Session.Query.All<Customer>().Where(c => c.Id=="ALFKI").Single();
+      var customer = Session.Query.All<Customer>().Where(c => c.FirstName=="Luis").Single();
       Assert.IsNotNull(customer);
     }
 
@@ -124,14 +124,14 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SingleOrDefaultPredicateTest()
     {
-      var customer = Session.Query.All<Customer>().SingleOrDefault(c => c.Id=="ALFKI");
+      var customer = Session.Query.All<Customer>().SingleOrDefault(c => c.FirstName=="Luis");
       Assert.IsNotNull(customer);
     }
 
     [Test]
     public void WhereSingleOrDefaultTest()
     {
-      var customer = Session.Query.All<Customer>().Where(c => c.Id=="ALFKI").SingleOrDefault();
+      var customer = Session.Query.All<Customer>().Where(c => c.FirstName=="Luis").SingleOrDefault();
       Assert.IsNotNull(customer);
     }
 
@@ -139,17 +139,17 @@ namespace Xtensive.Orm.Tests.Linq
     public void SelectFirstTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var products = Session.Query.All<Product>();
-      var orderDetails = Session.Query.All<OrderDetails>();
-      var result = from p in products
-      select new {
-        Product = p,
-        MaxOrder = orderDetails
-          .Where(od => od.Product==p)
-          .OrderByDescending(od => od.UnitPrice * od.Quantity)
-          .First()
-          .Order
-      };
+      var invoices = Session.Query.All<Invoice>();
+      var invoiceLines = Session.Query.All<InvoiceLine>();
+      var result = from i in invoices
+        select new {
+          Invoice = i,
+          MaxOrder = invoiceLines
+            .Where(il => il.Invoice==i)
+            .OrderByDescending(il => il.UnitPrice * il.Quantity)
+            .First()
+            .Invoice
+        };
       var list = result.ToList();
       Assert.Greater(list.Count, 0);
       QueryDumper.Dump(list, true);
@@ -159,8 +159,8 @@ namespace Xtensive.Orm.Tests.Linq
     public void SubqueryFirstTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var customersCount = Session.Query.All<Customer>().Count(c => c.Orders.Count > 0);
-      var result = Session.Query.All<Customer>().Where(c => c.Orders.Count > 0).Select(c => c.Orders.First());
+      var customersCount = Session.Query.All<Customer>().Count(c => c.Invoices.Count > 0);
+      var result = Session.Query.All<Customer>().Where(c => c.Invoices.Count > 0).Select(c => c.Invoices.First());
       var list = result.ToList();
       Assert.AreEqual(customersCount, list.Count);
       QueryDumper.Dump(list, true);
@@ -170,7 +170,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SubqueryFirstExpectedExceptionTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var result = Session.Query.All<Customer>().Select(c => c.Orders.First());
+      var result = Session.Query.All<Customer>().Select(c => c.Invoices.First());
       AssertEx.ThrowsInvalidOperationException(() => result.ToList());
     }
 
@@ -179,7 +179,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var customersCount = Session.Query.All<Customer>().Count();
-      var result = Session.Query.All<Customer>().Select(c => c.Orders.FirstOrDefault());
+      var result = Session.Query.All<Customer>().Select(c => c.Invoices.FirstOrDefault());
       var list = result.ToList();
       Assert.AreEqual(customersCount, list.Count);
     }
@@ -188,8 +188,8 @@ namespace Xtensive.Orm.Tests.Linq
     public void SubquerySingleTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var customersCount = Session.Query.All<Customer>().Count(c => c.Orders.Count > 0);
-      var result = Session.Query.All<Customer>().Where(c => c.Orders.Count > 0).Select(c => c.Orders.Take(1).Single());
+      var customersCount = Session.Query.All<Customer>().Count(c => c.Invoices.Count > 0);
+      var result = Session.Query.All<Customer>().Where(c => c.Invoices.Count > 0).Select(c => c.Invoices.Take(1).Single());
       var list = result.ToList();
       Assert.AreEqual(customersCount, list.Count);
     }
@@ -198,7 +198,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SubquerySingleExpectedException1Test()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var result = Session.Query.All<Customer>().Select(c => c.Orders.Take(1).Single());
+      var result = Session.Query.All<Customer>().Select(c => c.Invoices.Take(1).Single());
       AssertEx.ThrowsInvalidOperationException(() => result.ToList());
     }
 
@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       bool exceptionThrown = false;
-      var result = Session.Query.All<Customer>().Where(c => c.Orders.Count > 0).Select(c => c.Orders.Single());
+      var result = Session.Query.All<Customer>().Where(c => c.Invoices.Count > 0).Select(c => c.Invoices.Single());
       try {
         result.ToList();
       }
@@ -218,13 +218,12 @@ namespace Xtensive.Orm.Tests.Linq
         Assert.Fail("Exception was not thrown.");
     }
 
-
     [Test]
     public void SubquerySingleOrDefaultTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var customersCount = Session.Query.All<Customer>().Count();
-      var result = Session.Query.All<Customer>().Select(c => c.Orders.Take(1).SingleOrDefault());
+      var result = Session.Query.All<Customer>().Select(c => c.Invoices.Take(1).SingleOrDefault());
       var list = result.ToList();
       Assert.AreEqual(customersCount, list.Count);
     }
@@ -233,56 +232,58 @@ namespace Xtensive.Orm.Tests.Linq
     public void ComplexSubquerySingleOrDefaultTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var categoriesCount = Session.Query.All<Category>().Count();
-      var result = Session.Query.All<Category>().Select(
-        c => new {
-          Product = c.Products.Take(1).SingleOrDefault(),
-          c.Products.Take(1).SingleOrDefault().ProductName,
-          c.Products.Take(1).SingleOrDefault().Supplier
+      var playlistCount = Session.Query.All<Playlist>().Count();
+      var result = Session.Query.All<Playlist>().Select(
+        p => new {
+          Track = p.Tracks.Take(1).SingleOrDefault(),
+          p.Tracks.Take(1).SingleOrDefault().Name,
+          p.Tracks.Take(1).SingleOrDefault().Album
         });
       var list = result.ToList();
-      Assert.AreEqual(categoriesCount, list.Count);
+      Assert.AreEqual(playlistCount, list.Count);
     }
 
     [Test]
     public void ComplexSubquerySelectSingleOrDefaultTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var categoriesCount = Session.Query.All<Category>().Count();
-      var result = Session.Query.All<Category>().Select(c => c.Products.Take(1).SingleOrDefault()).Select(
-        p => new {
-          Product = p,
-          p.ProductName,
-          p.Supplier
+      var playlistCount = Session.Query.All<Playlist>().Count();
+      var result = Session.Query.All<Playlist>().Select(c => c.Tracks.Take(1).SingleOrDefault()).Select(
+        t => new {
+          Track = t,
+          t.Name,
+          t.Album
         });
       var list = result.ToList();
-      Assert.AreEqual(categoriesCount, list.Count);
+      Assert.AreEqual(playlistCount, list.Count);
     }
-
 
     [Test]
     public void ComplexSubqueryFirstTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var categoriesCount = Session.Query.All<Category>().Count();
-      var result = Session.Query.All<Category>().Select(
-        c => new {
-          Product = c.Products.First(),
-          c.Products.First().ProductName,
-          c.Products.First().Supplier
+      var playlistCount = Session.Query.All<Playlist>().Count(p => p.Tracks.Any());
+      var result = Session.Query.All<Playlist>().Where(p => p.Tracks.Any()).Select(
+        p => new {
+          Track = p.Tracks.First(),
+          p.Tracks.First().Name,
+          p.Tracks.First().Album
         });
       var list = result.ToList();
-      Assert.AreEqual(categoriesCount, list.Count);
+      Assert.AreEqual(playlistCount, list.Count);
     }
 
     [Test]
     public void ComplexSubquerySelectFirstTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var categoriesCount = Session.Query.All<Category>().Count();
-      var result = Session.Query.All<Category>().Select(c => c.Products.First()).Select(p => new { Product = p, p.ProductName, p.Supplier });
+      var playlistCount = Session.Query.All<Playlist>().Count(x => x.Tracks.Any());
+      var result = Session.Query.All<Playlist>()
+        .Where(p => p.Tracks.Any())
+        .Select(p => p.Tracks.First())
+        .Select(t => new {Track = t, t.Name, t.Album});
       var list = result.ToList();
-      Assert.AreEqual(categoriesCount, list.Count);
+      Assert.AreEqual(playlistCount, list.Count);
     }
   }
 }

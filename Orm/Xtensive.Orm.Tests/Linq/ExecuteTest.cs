@@ -9,29 +9,30 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Linq
 {
-  public class ExecuteTest : NorthwindDOModelTest
+  public class ExecuteTest : ChinookDOModelTest
   {
     [Test]
     public void NonGenericTest()
     {
-      var query = Session.Query.All<Order>().Where(o => o.Freight > 5);
+      var query = Session.Query.All<Invoice>().Where(i => i.Commission > 0.3m);
+      Assert.That(query, Is.Not.Empty);
       var nonGenericQuery = (IQueryable) query;
       foreach (var item in nonGenericQuery) {
         Assert.IsNotNull(item);
-        var order = item as Order;
-        Assert.IsNotNull(order);
+        var invoice = item as Invoice;
+        Assert.IsNotNull(invoice);
       }
 
-      query = Session.Query.All<Order>();
+      query = Session.Query.All<Invoice>();
       nonGenericQuery = query;
       foreach (var item in nonGenericQuery) {
         Assert.IsNotNull(item);
-        var order = item as Order;
-        Assert.IsNotNull(order);
+        var invoice = item as Invoice;
+        Assert.IsNotNull(invoice);
       }
 
       var provider = query.Provider;
@@ -39,18 +40,19 @@ namespace Xtensive.Orm.Tests.Linq
       var enumerable = (IEnumerable) result;
       foreach (var item in enumerable) {
         Assert.IsNotNull(item);
-        var order = item as Order;
-        Assert.IsNotNull(order);
+        var invoice = item as Invoice;
+        Assert.IsNotNull(invoice);
       }
 
-      query = Session.Query.All<Order>().Where(o => o.Freight > 5);
+      query = Session.Query.All<Invoice>().Where(i => i.Commission > 0.3m);
+      Assert.That(query, Is.Not.Empty);
       nonGenericQuery = (IQueryable) query;
       result = provider.Execute(nonGenericQuery.Expression);
       enumerable = (IEnumerable) result;
       foreach (var item in enumerable) {
         Assert.IsNotNull(item);
-        var order = item as Order;
-        Assert.IsNotNull(order);
+        var invoice = item as Invoice;
+        Assert.IsNotNull(invoice);
       }
     }
   }
