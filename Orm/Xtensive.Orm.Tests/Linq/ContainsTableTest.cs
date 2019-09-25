@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void LimitResultsByRankTest()
     {
       var actualRanks = Session.Query.ContainsTable<Track>(e => e.PrefixTerm("Com")).Select(p => p.Rank).ToList();
-      Assert.That(actualRanks.Count, Is.EqualTo(52));
+      Assert.That(actualRanks.Count, Is.EqualTo(65));
 
       var limitedResults = Session.Query.ContainsTable<Track>(e => e.PrefixTerm("Com"), 2).Select(p => p.Rank).ToList();
       Assert.That(limitedResults.Count, Is.EqualTo(2));
@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.That(limitedResults.All(r => topTwoRanks.Contains(r)), Is.True);
 
       actualRanks = Query.ContainsTable<Track>(e => e.PrefixTerm("Com")).Select(p => p.Rank).ToList();
-      Assert.That(actualRanks.Count, Is.EqualTo(52));
+      Assert.That(actualRanks.Count, Is.EqualTo(65));
 
       limitedResults = Query.ContainsTable<Track>(e => e.PrefixTerm("Com"), 2).Select(p => p.Rank).ToList();
       Assert.That(limitedResults.Count, Is.EqualTo(2));

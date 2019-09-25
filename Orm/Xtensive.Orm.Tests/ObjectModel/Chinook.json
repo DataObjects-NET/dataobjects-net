@@ -93167,7 +93167,9 @@
          "BillingPostalCode": "70174",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 2,
@@ -93180,7 +93182,9 @@
          "BillingPostalCode": "0171",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "00:25:20"
       },
       {
          "InvoiceId": 3,
@@ -93193,7 +93197,9 @@
          "BillingPostalCode": "1000",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "9.08:38:21"
       },
       {
          "InvoiceId": 4,
@@ -93206,7 +93212,9 @@
          "BillingPostalCode": "T6G 2C7",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 5,
@@ -93219,7 +93227,9 @@
          "BillingPostalCode": "2113",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "10:17:49"
       },
       {
          "InvoiceId": 6,
@@ -93232,7 +93242,9 @@
          "BillingPostalCode": "60316",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 7,
@@ -93245,7 +93257,9 @@
          "BillingPostalCode": "10779",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "2.14:47:54"
       },
       {
          "InvoiceId": 8,
@@ -93258,7 +93272,9 @@
          "BillingPostalCode": "75002",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "00:35:22"
       },
       {
          "InvoiceId": 9,
@@ -93271,7 +93287,9 @@
          "BillingPostalCode": "33000",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "00:08:17"
       },
       {
          "InvoiceId": 10,
@@ -93284,7 +93302,9 @@
          "BillingPostalCode": null,
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 11,
@@ -93297,7 +93317,9 @@
          "BillingPostalCode": "N1 5LH",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "3.20:38:20"
       },
       {
          "InvoiceId": 12,
@@ -93310,7 +93332,9 @@
          "BillingPostalCode": "70174",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 13,
@@ -93323,7 +93347,9 @@
          "BillingPostalCode": "94043-1351",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:01:04"
       },
       {
          "InvoiceId": 14,
@@ -93336,7 +93362,9 @@
          "BillingPostalCode": "98052-8300",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 15,
@@ -93349,7 +93377,9 @@
          "BillingPostalCode": "95014",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 16,
@@ -93362,7 +93392,9 @@
          "BillingPostalCode": "89503",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "00:15:38"
       },
       {
          "InvoiceId": 17,
@@ -93375,7 +93407,9 @@
          "BillingPostalCode": "53703",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 18,
@@ -93388,7 +93422,9 @@
          "BillingPostalCode": "B3S 1C5",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 19,
@@ -93401,7 +93437,9 @@
          "BillingPostalCode": "75002",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "00:04:39"
       },
       {
          "InvoiceId": 20,
@@ -93414,7 +93452,9 @@
          "BillingPostalCode": "EH4 1HH",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "2.19:10:28"
       },
       {
          "InvoiceId": 21,
@@ -93427,7 +93467,9 @@
          "BillingPostalCode": "2010",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "3.14:28:37"
       },
       {
          "InvoiceId": 22,
@@ -93440,7 +93482,9 @@
          "BillingPostalCode": null,
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "00:08:20"
       },
       {
          "InvoiceId": 23,
@@ -93453,7 +93497,9 @@
          "BillingPostalCode": "560001",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "6.03:58:01"
       },
       {
          "InvoiceId": 24,
@@ -93466,7 +93512,9 @@
          "BillingPostalCode": "0171",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 25,
@@ -93479,7 +93527,9 @@
          "BillingPostalCode": "01007-010",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "6.05:47:47"
       },
       {
          "InvoiceId": 26,
@@ -93492,7 +93542,9 @@
          "BillingPostalCode": "95014",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 27,
@@ -93505,7 +93557,9 @@
          "BillingPostalCode": "X1A 1N6",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "3.12:16:27"
       },
       {
          "InvoiceId": 28,
@@ -93518,7 +93572,9 @@
          "BillingPostalCode": null,
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "1.03:28:40"
       },
       {
          "InvoiceId": 29,
@@ -93531,7 +93587,9 @@
          "BillingPostalCode": "10789",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "7.04:23:58"
       },
       {
          "InvoiceId": 30,
@@ -93544,7 +93602,9 @@
          "BillingPostalCode": "10779",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:10:33"
       },
       {
          "InvoiceId": 31,
@@ -93557,7 +93617,9 @@
          "BillingPostalCode": "33000",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "18:33:34"
       },
       {
          "InvoiceId": 32,
@@ -93570,7 +93632,9 @@
          "BillingPostalCode": "1016",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "5.18:57:30"
       },
       {
          "InvoiceId": 33,
@@ -93583,7 +93647,9 @@
          "BillingPostalCode": null,
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "09:30:00"
       },
       {
          "InvoiceId": 34,
@@ -93596,7 +93662,9 @@
          "BillingPostalCode": "20040-020",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "07:46:19"
       },
       {
          "InvoiceId": 35,
@@ -93609,7 +93677,9 @@
          "BillingPostalCode": "71020-677",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "00:01:54"
       },
       {
          "InvoiceId": 36,
@@ -93622,7 +93692,9 @@
          "BillingPostalCode": "V6C 1G8",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "00:51:59"
       },
       {
          "InvoiceId": 37,
@@ -93635,7 +93707,9 @@
          "BillingPostalCode": "98052-8300",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "00:24:46"
       },
       {
          "InvoiceId": 38,
@@ -93648,7 +93722,9 @@
          "BillingPostalCode": "89503",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "7.14:28:40"
       },
       {
          "InvoiceId": 39,
@@ -93661,7 +93737,9 @@
          "BillingPostalCode": "85719",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "7.23:49:46"
       },
       {
          "InvoiceId": 40,
@@ -93674,7 +93752,9 @@
          "BillingPostalCode": "10789",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 41,
@@ -93687,7 +93767,9 @@
          "BillingPostalCode": "28015",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 42,
@@ -93700,7 +93782,9 @@
          "BillingPostalCode": "11230",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 43,
@@ -93713,7 +93797,9 @@
          "BillingPostalCode": "SW1V 3EN",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "6.17:28:17"
       },
       {
          "InvoiceId": 44,
@@ -93726,7 +93812,9 @@
          "BillingPostalCode": "2010",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 45,
@@ -93739,7 +93827,9 @@
          "BillingPostalCode": "560001",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 46,
@@ -93752,7 +93842,9 @@
          "BillingPostalCode": "14300",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 47,
@@ -93765,7 +93857,9 @@
          "BillingPostalCode": "V6C 1G8",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "00:40:15"
       },
       {
          "InvoiceId": 48,
@@ -93778,7 +93872,9 @@
          "BillingPostalCode": "M6J 1V1",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 49,
@@ -93791,7 +93887,9 @@
          "BillingPostalCode": "K2P 1L7",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "3.02:45:42"
       },
       {
          "InvoiceId": 50,
@@ -93804,7 +93902,9 @@
          "BillingPostalCode": "R3L 2B9",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "4.02:59:18"
       },
       {
          "InvoiceId": 51,
@@ -93817,7 +93917,9 @@
          "BillingPostalCode": null,
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 52,
@@ -93830,7 +93932,9 @@
          "BillingPostalCode": "10779",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 53,
@@ -93843,7 +93947,9 @@
          "BillingPostalCode": "00530",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "6.02:15:29"
       },
       {
          "InvoiceId": 54,
@@ -93856,7 +93962,9 @@
          "BillingPostalCode": "SW1V 3EN",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "00:31:53"
       },
       {
          "InvoiceId": 55,
@@ -93869,7 +93977,9 @@
          "BillingPostalCode": "1000",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "3.08:16:17"
       },
       {
          "InvoiceId": 56,
@@ -93882,7 +93992,9 @@
          "BillingPostalCode": "1720",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "6.05:42:01"
       },
       {
          "InvoiceId": 57,
@@ -93895,7 +94007,9 @@
          "BillingPostalCode": "01310-200",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "08:37:08"
       },
       {
          "InvoiceId": 58,
@@ -93908,7 +94022,9 @@
          "BillingPostalCode": "71020-677",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "00:37:12"
       },
       {
          "InvoiceId": 59,
@@ -93921,7 +94037,9 @@
          "BillingPostalCode": "98052-8300",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "00:12:24"
       },
       {
          "InvoiceId": 60,
@@ -93934,7 +94052,9 @@
          "BillingPostalCode": "2113",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 61,
@@ -93947,7 +94067,9 @@
          "BillingPostalCode": "R3L 2B9",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 62,
@@ -93960,7 +94082,9 @@
          "BillingPostalCode": null,
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "8.21:55:36"
       },
       {
          "InvoiceId": 63,
@@ -93973,7 +94097,9 @@
          "BillingPostalCode": "00192",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 64,
@@ -93986,7 +94112,9 @@
          "BillingPostalCode": "00-358",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "2.00:08:22"
       },
       {
          "InvoiceId": 65,
@@ -93999,7 +94127,9 @@
          "BillingPostalCode": "11230",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "00:12:00"
       },
       {
          "InvoiceId": 66,
@@ -94012,7 +94142,9 @@
          "BillingPostalCode": "2010",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 67,
@@ -94025,7 +94157,9 @@
          "BillingPostalCode": "70174",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "3.21:16:22"
       },
       {
          "InvoiceId": 68,
@@ -94038,7 +94172,9 @@
          "BillingPostalCode": "01310-200",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 69,
@@ -94051,7 +94187,9 @@
          "BillingPostalCode": "53703",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 70,
@@ -94064,7 +94202,9 @@
          "BillingPostalCode": "76110",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 71,
@@ -94077,7 +94217,9 @@
          "BillingPostalCode": "84102",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "9.13:03:37"
       },
       {
          "InvoiceId": 72,
@@ -94090,7 +94232,9 @@
          "BillingPostalCode": "K2P 1L7",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "00:08:19"
       },
       {
          "InvoiceId": 73,
@@ -94103,7 +94247,9 @@
          "BillingPostalCode": null,
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "8.15:00:24"
       },
       {
          "InvoiceId": 74,
@@ -94116,7 +94262,9 @@
          "BillingPostalCode": "75002",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "4.02:22:15"
       },
       {
          "InvoiceId": 75,
@@ -94129,7 +94277,9 @@
          "BillingPostalCode": "00-358",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 76,
@@ -94142,7 +94292,9 @@
          "BillingPostalCode": "0171",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "00:55:58"
       },
       {
          "InvoiceId": 77,
@@ -94155,7 +94307,9 @@
          "BillingPostalCode": "14700",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "9.00:46:44"
       },
       {
          "InvoiceId": 78,
@@ -94168,7 +94322,9 @@
          "BillingPostalCode": "1010",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 79,
@@ -94181,7 +94337,9 @@
          "BillingPostalCode": "1720",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "00:08:18"
       },
       {
          "InvoiceId": 80,
@@ -94194,7 +94352,9 @@
          "BillingPostalCode": "71020-677",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 81,
@@ -94207,7 +94367,9 @@
          "BillingPostalCode": "95014",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "1.11:00:02"
       },
       {
          "InvoiceId": 82,
@@ -94220,7 +94382,9 @@
          "BillingPostalCode": "84102",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 83,
@@ -94233,7 +94397,9 @@
          "BillingPostalCode": "33000",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 84,
@@ -94246,7 +94412,9 @@
          "BillingPostalCode": "21000",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 85,
@@ -94259,7 +94427,9 @@
          "BillingPostalCode": "H-1073",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 86,
@@ -94272,7 +94442,9 @@
          "BillingPostalCode": "00192",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 87,
@@ -94285,7 +94457,9 @@
          "BillingPostalCode": "11230",
          "Total": 6.94,
          "Commission": 0.3147186,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 88,
@@ -94298,7 +94472,9 @@
          "BillingPostalCode": null,
          "Total": 17.91,
          "Commission": 0.8121916,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "5.00:26:04"
       },
       {
          "InvoiceId": 89,
@@ -94311,7 +94487,9 @@
          "BillingPostalCode": "1010",
          "Total": 18.86,
          "Commission": 0.8552727,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 90,
@@ -94324,7 +94502,9 @@
          "BillingPostalCode": "89503",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 91,
@@ -94337,7 +94517,9 @@
          "BillingPostalCode": "32801",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 92,
@@ -94350,7 +94532,9 @@
          "BillingPostalCode": "60611",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "00:11:37"
       },
       {
          "InvoiceId": 93,
@@ -94363,7 +94547,9 @@
          "BillingPostalCode": "76110",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 94,
@@ -94376,7 +94562,9 @@
          "BillingPostalCode": "K2P 1L7",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "5.14:02:50"
       },
       {
          "InvoiceId": 95,
@@ -94389,7 +94577,9 @@
          "BillingPostalCode": "10789",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "3.23:20:34"
       },
       {
          "InvoiceId": 96,
@@ -94402,7 +94592,9 @@
          "BillingPostalCode": "H-1073",
          "Total": 21.86,
          "Commission": 0.9913182,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 97,
@@ -94415,7 +94607,9 @@
          "BillingPostalCode": "560001",
          "Total": 1.99,
          "Commission": 0.09024352,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "2.22:27:03"
       },
       {
          "InvoiceId": 98,
@@ -94428,7 +94622,9 @@
          "BillingPostalCode": "12227-000",
          "Total": 3.98,
          "Commission": 0.18048704,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "4.19:26:06"
       },
       {
          "InvoiceId": 99,
@@ -94441,7 +94637,9 @@
          "BillingPostalCode": "H2G 1A7",
          "Total": 3.98,
          "Commission": 0.18048704,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "00:56:23"
       },
       {
          "InvoiceId": 100,
@@ -94454,7 +94652,9 @@
          "BillingPostalCode": "14700",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "00:20:40"
       },
       {
          "InvoiceId": 101,
@@ -94467,7 +94667,9 @@
          "BillingPostalCode": "1720",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 102,
@@ -94480,7 +94682,9 @@
          "BillingPostalCode": "V6C 1G8",
          "Total": 9.91,
          "Commission": 0.44940364,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "2.04:31:46"
       },
       {
          "InvoiceId": 103,
@@ -94493,7 +94697,9 @@
          "BillingPostalCode": "60611",
          "Total": 15.86,
          "Commission": 0.7192272,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "10:25:44"
       },
       {
          "InvoiceId": 104,
@@ -94506,7 +94712,9 @@
          "BillingPostalCode": "10779",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 105,
@@ -94519,7 +94727,9 @@
          "BillingPostalCode": "75009",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "5.19:33:49"
       },
       {
          "InvoiceId": 106,
@@ -94532,7 +94742,9 @@
          "BillingPostalCode": "69002",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "4.04:08:23"
       },
       {
          "InvoiceId": 107,
@@ -94545,7 +94757,9 @@
          "BillingPostalCode": "21000",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 108,
@@ -94558,7 +94772,9 @@
          "BillingPostalCode": "00192",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "00:40:22"
       },
       {
          "InvoiceId": 109,
@@ -94571,7 +94787,9 @@
          "BillingPostalCode": "SW1V 3EN",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "00:40:22"
       },
       {
          "InvoiceId": 110,
@@ -94584,7 +94802,9 @@
          "BillingPostalCode": "H2G 1A7",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "2.00:30:53"
       },
       {
          "InvoiceId": 111,
@@ -94597,7 +94817,9 @@
          "BillingPostalCode": "98052-8300",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "4.02:23:25"
       },
       {
          "InvoiceId": 112,
@@ -94610,7 +94832,9 @@
          "BillingPostalCode": "10012-2612",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 113,
@@ -94623,7 +94847,9 @@
          "BillingPostalCode": "94040-111",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 114,
@@ -94636,7 +94862,9 @@
          "BillingPostalCode": "32801",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 115,
@@ -94649,7 +94877,9 @@
          "BillingPostalCode": "76110",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "00:37:50"
       },
       {
          "InvoiceId": 116,
@@ -94662,7 +94892,9 @@
          "BillingPostalCode": "R3L 2B9",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "4.21:16:31"
       },
       {
          "InvoiceId": 117,
@@ -94675,7 +94907,9 @@
          "BillingPostalCode": "69002",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "00:47:35"
       },
       {
          "InvoiceId": 118,
@@ -94688,7 +94922,9 @@
          "BillingPostalCode": "2010",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:31:32"
       },
       {
          "InvoiceId": 119,
@@ -94701,7 +94937,9 @@
          "BillingPostalCode": "1106",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 120,
@@ -94714,7 +94952,9 @@
          "BillingPostalCode": "110017",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 121,
@@ -94727,7 +94967,9 @@
          "BillingPostalCode": "12227-000",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "1.13:43:37"
       },
       {
          "InvoiceId": 122,
@@ -94740,7 +94982,9 @@
          "BillingPostalCode": "14700",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 123,
@@ -94753,7 +94997,9 @@
          "BillingPostalCode": "01310-200",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:42:28"
       },
       {
          "InvoiceId": 124,
@@ -94766,7 +95012,9 @@
          "BillingPostalCode": "94040-111",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "1.08:27:25"
       },
       {
          "InvoiceId": 125,
@@ -94779,7 +95027,9 @@
          "BillingPostalCode": null,
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:35:18"
       },
       {
          "InvoiceId": 126,
@@ -94792,7 +95042,9 @@
          "BillingPostalCode": null,
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "00:22:06"
       },
       {
          "InvoiceId": 127,
@@ -94805,7 +95057,9 @@
          "BillingPostalCode": "60316",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "2.23:16:23"
       },
       {
          "InvoiceId": 128,
@@ -94818,7 +95072,9 @@
          "BillingPostalCode": "75009",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 129,
@@ -94831,7 +95087,9 @@
          "BillingPostalCode": "21000",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "4.10:21:22"
       },
       {
          "InvoiceId": 130,
@@ -94844,7 +95102,9 @@
          "BillingPostalCode": "00-358",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 131,
@@ -94857,7 +95117,9 @@
          "BillingPostalCode": "110017",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "1.21:16:14"
       },
       {
          "InvoiceId": 132,
@@ -94870,7 +95132,9 @@
          "BillingPostalCode": "71020-677",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "00:17:13"
       },
       {
          "InvoiceId": 133,
@@ -94883,7 +95147,9 @@
          "BillingPostalCode": "T6G 2C7",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "1.23:53:48"
       },
       {
          "InvoiceId": 134,
@@ -94896,7 +95162,9 @@
          "BillingPostalCode": "94043-1351",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 135,
@@ -94909,7 +95177,9 @@
          "BillingPostalCode": "10012-2612",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "00:41:37"
       },
       {
          "InvoiceId": 136,
@@ -94922,7 +95192,9 @@
          "BillingPostalCode": "32801",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 137,
@@ -94935,7 +95207,9 @@
          "BillingPostalCode": "84102",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 138,
@@ -94948,7 +95222,9 @@
          "BillingPostalCode": "60316",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "00:09:42"
       },
       {
          "InvoiceId": 139,
@@ -94961,7 +95237,9 @@
          "BillingPostalCode": "11230",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "2.04:18:19"
       },
       {
          "InvoiceId": 140,
@@ -94974,7 +95252,9 @@
          "BillingPostalCode": "N1 5LH",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 141,
@@ -94987,7 +95267,9 @@
          "BillingPostalCode": "EH4 1HH",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "00:45:15"
       },
       {
          "InvoiceId": 142,
@@ -95000,7 +95282,9 @@
          "BillingPostalCode": "1106",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "00:09:12"
       },
       {
          "InvoiceId": 143,
@@ -95013,7 +95297,9 @@
          "BillingPostalCode": "12227-000",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 144,
@@ -95026,7 +95312,9 @@
          "BillingPostalCode": "1010",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "00:32:54"
       },
       {
          "InvoiceId": 145,
@@ -95039,7 +95327,9 @@
          "BillingPostalCode": "94043-1351",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "1.22:09:39"
       },
       {
          "InvoiceId": 146,
@@ -95052,7 +95342,9 @@
          "BillingPostalCode": "K2P 1L7",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "00:13:04"
       },
       {
          "InvoiceId": 147,
@@ -95065,7 +95357,9 @@
          "BillingPostalCode": "B3S 1C5",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "4.18:48:48"
       },
       {
          "InvoiceId": 148,
@@ -95078,7 +95372,9 @@
          "BillingPostalCode": "X1A 1N6",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "5.02:43:55"
       },
       {
          "InvoiceId": 149,
@@ -95091,7 +95387,9 @@
          "BillingPostalCode": null,
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 150,
@@ -95104,7 +95402,9 @@
          "BillingPostalCode": "75009",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "22:49:30"
       },
       {
          "InvoiceId": 151,
@@ -95117,7 +95417,9 @@
          "BillingPostalCode": "H-1073",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 152,
@@ -95130,7 +95432,9 @@
          "BillingPostalCode": "EH4 1HH",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 153,
@@ -95143,7 +95447,9 @@
          "BillingPostalCode": "1720",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 154,
@@ -95156,7 +95462,9 @@
          "BillingPostalCode": "01007-010",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 155,
@@ -95169,7 +95477,9 @@
          "BillingPostalCode": "20040-020",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 156,
@@ -95182,7 +95492,9 @@
          "BillingPostalCode": "T6G 2C7",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "1.19:08:43"
       },
       {
          "InvoiceId": 157,
@@ -95195,7 +95507,9 @@
          "BillingPostalCode": "10012-2612",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "6.08:00:02"
       },
       {
          "InvoiceId": 158,
@@ -95208,7 +95522,9 @@
          "BillingPostalCode": "60611",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "00:04:05"
       },
       {
          "InvoiceId": 159,
@@ -95221,7 +95537,9 @@
          "BillingPostalCode": "X1A 1N6",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 160,
@@ -95234,7 +95552,9 @@
          "BillingPostalCode": "00192",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 161,
@@ -95247,7 +95567,9 @@
          "BillingPostalCode": "1016",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:29:56"
       },
       {
          "InvoiceId": 162,
@@ -95260,7 +95582,9 @@
          "BillingPostalCode": "28015",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 163,
@@ -95273,7 +95597,9 @@
          "BillingPostalCode": "N1 5LH",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "11:48:32"
       },
       {
          "InvoiceId": 164,
@@ -95286,7 +95612,9 @@
          "BillingPostalCode": "1106",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 165,
@@ -95299,7 +95627,9 @@
          "BillingPostalCode": "H2G 1A7",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 166,
@@ -95312,7 +95642,9 @@
          "BillingPostalCode": "20040-020",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "3.10:14:59"
       },
       {
          "InvoiceId": 167,
@@ -95325,7 +95657,9 @@
          "BillingPostalCode": "76110",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "3.08:51:18"
       },
       {
          "InvoiceId": 168,
@@ -95338,7 +95672,9 @@
          "BillingPostalCode": "85719",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 169,
@@ -95351,7 +95687,9 @@
          "BillingPostalCode": "M6J 1V1",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 170,
@@ -95364,7 +95702,9 @@
          "BillingPostalCode": "B3S 1C5",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:48:50"
       },
       {
          "InvoiceId": 171,
@@ -95377,7 +95717,9 @@
          "BillingPostalCode": null,
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 172,
@@ -95390,7 +95732,9 @@
          "BillingPostalCode": "69002",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 173,
@@ -95403,7 +95747,9 @@
          "BillingPostalCode": "28015",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 174,
@@ -95416,7 +95762,9 @@
          "BillingPostalCode": "14700",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "5.00:05:58"
       },
       {
          "InvoiceId": 175,
@@ -95429,7 +95777,9 @@
          "BillingPostalCode": "14300",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "4.17:03:17"
       },
       {
          "InvoiceId": 176,
@@ -95442,7 +95792,9 @@
          "BillingPostalCode": "1000",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 177,
@@ -95455,7 +95807,9 @@
          "BillingPostalCode": "01007-010",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "00:22:16"
       },
       {
          "InvoiceId": 178,
@@ -95468,7 +95822,9 @@
          "BillingPostalCode": "T6G 2C7",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "00:54:12"
       },
       {
          "InvoiceId": 179,
@@ -95481,7 +95837,9 @@
          "BillingPostalCode": "94040-111",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "9.18:03:39"
       },
       {
          "InvoiceId": 180,
@@ -95494,7 +95852,9 @@
          "BillingPostalCode": "M6J 1V1",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 181,
@@ -95507,7 +95867,9 @@
          "BillingPostalCode": "21000",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 182,
@@ -95520,7 +95882,9 @@
          "BillingPostalCode": "00530",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 183,
@@ -95533,7 +95897,9 @@
          "BillingPostalCode": null,
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "19:51:01"
       },
       {
          "InvoiceId": 184,
@@ -95546,7 +95912,9 @@
          "BillingPostalCode": "1016",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 185,
@@ -95559,7 +95927,9 @@
          "BillingPostalCode": "N1 5LH",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:46:55"
       },
       {
          "InvoiceId": 186,
@@ -95572,7 +95942,9 @@
          "BillingPostalCode": "110017",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 187,
@@ -95585,7 +95957,9 @@
          "BillingPostalCode": "1000",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "8.08:22:56"
       },
       {
          "InvoiceId": 188,
@@ -95598,7 +95972,9 @@
          "BillingPostalCode": "32801",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 189,
@@ -95611,7 +95987,9 @@
          "BillingPostalCode": "2113",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "00:24:02"
       },
       {
          "InvoiceId": 190,
@@ -95624,7 +96002,9 @@
          "BillingPostalCode": "53703",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 191,
@@ -95637,7 +96017,9 @@
          "BillingPostalCode": "85719",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 192,
@@ -95650,7 +96032,9 @@
          "BillingPostalCode": "B3S 1C5",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 193,
@@ -95663,7 +96047,9 @@
          "BillingPostalCode": "60316",
          "Total": 14.91,
          "Commission": 0.67614615,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 194,
@@ -95676,7 +96062,9 @@
          "BillingPostalCode": null,
          "Total": 21.86,
          "Commission": 0.9913182,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "1.14:30:50"
       },
       {
          "InvoiceId": 195,
@@ -95689,7 +96077,9 @@
          "BillingPostalCode": "12227-000",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 196,
@@ -95702,7 +96092,9 @@
          "BillingPostalCode": "70174",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 197,
@@ -95715,7 +96107,9 @@
          "BillingPostalCode": "0171",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 198,
@@ -95728,7 +96122,9 @@
          "BillingPostalCode": "14300",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 199,
@@ -95741,7 +96137,9 @@
          "BillingPostalCode": "01007-010",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "00:06:24"
       },
       {
          "InvoiceId": 200,
@@ -95754,7 +96152,9 @@
          "BillingPostalCode": "94043-1351",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "6.21:02:32"
       },
       {
          "InvoiceId": 201,
@@ -95767,7 +96167,9 @@
          "BillingPostalCode": "53703",
          "Total": 18.86,
          "Commission": 0.8552727,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "3.10:21:45"
       },
       {
          "InvoiceId": 202,
@@ -95780,7 +96182,9 @@
          "BillingPostalCode": "75009",
          "Total": 1.99,
          "Commission": 0.09024352,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "00:52:57"
       },
       {
          "InvoiceId": 203,
@@ -95793,7 +96197,9 @@
          "BillingPostalCode": "75002",
          "Total": 2.98,
          "Commission": 0.13513853,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 204,
@@ -95806,7 +96212,9 @@
          "BillingPostalCode": "33000",
          "Total": 3.98,
          "Commission": 0.18048704,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 205,
@@ -95819,7 +96227,9 @@
          "BillingPostalCode": "00530",
          "Total": 7.96,
          "Commission": 0.36097407,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 206,
@@ -95832,7 +96242,9 @@
          "BillingPostalCode": "1016",
          "Total": 8.94,
          "Commission": 0.4054156,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "00:42:04"
       },
       {
          "InvoiceId": 207,
@@ -95845,7 +96257,9 @@
          "BillingPostalCode": "EH4 1HH",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:37:21"
       },
       {
          "InvoiceId": 208,
@@ -95858,7 +96272,9 @@
          "BillingPostalCode": "0171",
          "Total": 15.86,
          "Commission": 0.7192272,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "6.10:14:28"
       },
       {
          "InvoiceId": 209,
@@ -95871,7 +96287,9 @@
          "BillingPostalCode": "10012-2612",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 210,
@@ -95884,7 +96302,9 @@
          "BillingPostalCode": "95014",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "00:57:39"
       },
       {
          "InvoiceId": 211,
@@ -95897,7 +96317,9 @@
          "BillingPostalCode": "89503",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "2.22:30:12"
       },
       {
          "InvoiceId": 212,
@@ -95910,7 +96332,9 @@
          "BillingPostalCode": "2113",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "3.11:19:25"
       },
       {
          "InvoiceId": 213,
@@ -95923,7 +96347,9 @@
          "BillingPostalCode": "85719",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "3.17:04:43"
       },
       {
          "InvoiceId": 214,
@@ -95936,7 +96362,9 @@
          "BillingPostalCode": "X1A 1N6",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "8.23:01:41"
       },
       {
          "InvoiceId": 215,
@@ -95949,7 +96377,9 @@
          "BillingPostalCode": "33000",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "00:10:52"
       },
       {
          "InvoiceId": 216,
@@ -95962,7 +96392,9 @@
          "BillingPostalCode": "1106",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 217,
@@ -95975,7 +96407,9 @@
          "BillingPostalCode": null,
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "00:16:12"
       },
       {
          "InvoiceId": 218,
@@ -95988,7 +96422,9 @@
          "BillingPostalCode": "560001",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "2.20:30:20"
       },
       {
          "InvoiceId": 219,
@@ -96001,7 +96437,9 @@
          "BillingPostalCode": "70174",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "13:37:00"
       },
       {
          "InvoiceId": 220,
@@ -96014,7 +96452,9 @@
          "BillingPostalCode": "14300",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "7.10:53:12"
       },
       {
          "InvoiceId": 221,
@@ -96027,7 +96467,9 @@
          "BillingPostalCode": "20040-020",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 222,
@@ -96040,7 +96482,9 @@
          "BillingPostalCode": "89503",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 223,
@@ -96053,7 +96497,9 @@
          "BillingPostalCode": null,
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:01:36"
       },
       {
          "InvoiceId": 224,
@@ -96066,7 +96512,9 @@
          "BillingPostalCode": "10789",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "6.16:35:50"
       },
       {
          "InvoiceId": 225,
@@ -96079,7 +96527,9 @@
          "BillingPostalCode": "10779",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:15:36"
       },
       {
          "InvoiceId": 226,
@@ -96092,7 +96542,9 @@
          "BillingPostalCode": "75002",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "3.03:25:55"
       },
       {
          "InvoiceId": 227,
@@ -96105,7 +96557,9 @@
          "BillingPostalCode": "00530",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "00:45:11"
       },
       {
          "InvoiceId": 228,
@@ -96118,7 +96572,9 @@
          "BillingPostalCode": "28015",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "9.03:56:38"
       },
       {
          "InvoiceId": 229,
@@ -96131,7 +96587,9 @@
          "BillingPostalCode": "560001",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "12:26:13"
       },
       {
          "InvoiceId": 230,
@@ -96144,7 +96602,9 @@
          "BillingPostalCode": "T6G 2C7",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "8.20:25:04"
       },
       {
          "InvoiceId": 231,
@@ -96157,7 +96617,9 @@
          "BillingPostalCode": "V6C 1G8",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 232,
@@ -96170,7 +96632,9 @@
          "BillingPostalCode": "98052-8300",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "00:40:35"
       },
       {
          "InvoiceId": 233,
@@ -96183,7 +96647,9 @@
          "BillingPostalCode": "95014",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 234,
@@ -96196,7 +96662,9 @@
          "BillingPostalCode": "2113",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "2.15:16:07"
       },
       {
          "InvoiceId": 235,
@@ -96209,7 +96677,9 @@
          "BillingPostalCode": "M6J 1V1",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "1.06:51:01"
       },
       {
          "InvoiceId": 236,
@@ -96222,7 +96692,9 @@
          "BillingPostalCode": "10779",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 237,
@@ -96235,7 +96707,9 @@
          "BillingPostalCode": "N1 5LH",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "00:07:01"
       },
       {
          "InvoiceId": 238,
@@ -96248,7 +96722,9 @@
          "BillingPostalCode": "SW1V 3EN",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "00:53:59"
       },
       {
          "InvoiceId": 239,
@@ -96261,7 +96737,9 @@
          "BillingPostalCode": "2010",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "00:57:05"
       },
       {
          "InvoiceId": 240,
@@ -96274,7 +96752,9 @@
          "BillingPostalCode": null,
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "1.03:36:28"
       },
       {
          "InvoiceId": 241,
@@ -96287,7 +96767,9 @@
          "BillingPostalCode": "70174",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "7.23:16:29"
       },
       {
          "InvoiceId": 242,
@@ -96300,7 +96782,9 @@
          "BillingPostalCode": "1000",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "2.14:50:36"
       },
       {
          "InvoiceId": 243,
@@ -96313,7 +96797,9 @@
          "BillingPostalCode": "98052-8300",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:15:52"
       },
       {
          "InvoiceId": 244,
@@ -96326,7 +96812,9 @@
          "BillingPostalCode": "B3S 1C5",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 245,
@@ -96339,7 +96827,9 @@
          "BillingPostalCode": "R3L 2B9",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:20:49"
       },
       {
          "InvoiceId": 246,
@@ -96352,7 +96842,9 @@
          "BillingPostalCode": null,
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 247,
@@ -96365,7 +96857,9 @@
          "BillingPostalCode": "10789",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "4.08:41:49"
       },
       {
          "InvoiceId": 248,
@@ -96378,7 +96872,9 @@
          "BillingPostalCode": "75002",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "00:11:41"
       },
       {
          "InvoiceId": 249,
@@ -96391,7 +96887,9 @@
          "BillingPostalCode": null,
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 250,
@@ -96404,7 +96902,9 @@
          "BillingPostalCode": "2010",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 251,
@@ -96417,7 +96917,9 @@
          "BillingPostalCode": "01007-010",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "3.09:07:02"
       },
       {
          "InvoiceId": 252,
@@ -96430,7 +96932,9 @@
          "BillingPostalCode": "01310-200",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 253,
@@ -96443,7 +96947,9 @@
          "BillingPostalCode": "71020-677",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 254,
@@ -96456,7 +96962,9 @@
          "BillingPostalCode": "V6C 1G8",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 255,
@@ -96469,7 +96977,9 @@
          "BillingPostalCode": "95014",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "00:59:22"
       },
       {
          "InvoiceId": 256,
@@ -96482,7 +96992,9 @@
          "BillingPostalCode": "53703",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "5.15:16:25"
       },
       {
          "InvoiceId": 257,
@@ -96495,7 +97007,9 @@
          "BillingPostalCode": null,
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:37:06"
       },
       {
          "InvoiceId": 258,
@@ -96508,7 +97022,9 @@
          "BillingPostalCode": "1016",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "00:47:45"
       },
       {
          "InvoiceId": 259,
@@ -96521,7 +97037,9 @@
          "BillingPostalCode": "00-358",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 260,
@@ -96534,7 +97052,9 @@
          "BillingPostalCode": "11230",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "7.04:07:45"
       },
       {
          "InvoiceId": 261,
@@ -96547,7 +97067,9 @@
          "BillingPostalCode": "SW1V 3EN",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 262,
@@ -96560,7 +97082,9 @@
          "BillingPostalCode": null,
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 263,
@@ -96573,7 +97097,9 @@
          "BillingPostalCode": "0171",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "00:47:23"
       },
       {
          "InvoiceId": 264,
@@ -96586,7 +97112,9 @@
          "BillingPostalCode": "71020-677",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "12:11:03"
       },
       {
          "InvoiceId": 265,
@@ -96599,7 +97127,9 @@
          "BillingPostalCode": "85719",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "00:05:08"
       },
       {
          "InvoiceId": 266,
@@ -96612,7 +97142,9 @@
          "BillingPostalCode": "84102",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "1.19:17:45"
       },
       {
          "InvoiceId": 267,
@@ -96625,7 +97157,9 @@
          "BillingPostalCode": "K2P 1L7",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 268,
@@ -96638,7 +97172,9 @@
          "BillingPostalCode": "R3L 2B9",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 269,
@@ -96651,7 +97187,9 @@
          "BillingPostalCode": "10789",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "4.00:33:34"
       },
       {
          "InvoiceId": 270,
@@ -96664,7 +97202,9 @@
          "BillingPostalCode": "33000",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 271,
@@ -96677,7 +97217,9 @@
          "BillingPostalCode": "11230",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 272,
@@ -96690,7 +97232,9 @@
          "BillingPostalCode": "14300",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 273,
@@ -96703,7 +97247,9 @@
          "BillingPostalCode": "1010",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "9.09:50:40"
       },
       {
          "InvoiceId": 274,
@@ -96716,7 +97262,9 @@
          "BillingPostalCode": "1720",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 275,
@@ -96729,7 +97277,9 @@
          "BillingPostalCode": "01310-200",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 276,
@@ -96742,7 +97292,9 @@
          "BillingPostalCode": "V6C 1G8",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "8.13:16:02"
       },
       {
          "InvoiceId": 277,
@@ -96755,7 +97307,9 @@
          "BillingPostalCode": "89503",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "7.05:03:25"
       },
       {
          "InvoiceId": 278,
@@ -96768,7 +97322,9 @@
          "BillingPostalCode": "K2P 1L7",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "00:06:21"
       },
       {
          "InvoiceId": 279,
@@ -96781,7 +97337,9 @@
          "BillingPostalCode": "00530",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "9.04:59:22"
       },
       {
          "InvoiceId": 280,
@@ -96794,7 +97352,9 @@
          "BillingPostalCode": "H-1073",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "3.12:49:32"
       },
       {
          "InvoiceId": 281,
@@ -96807,7 +97367,9 @@
          "BillingPostalCode": "00192",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "00:39:36"
       },
       {
          "InvoiceId": 282,
@@ -96820,7 +97382,9 @@
          "BillingPostalCode": "00-358",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "9.06:40:21"
       },
       {
          "InvoiceId": 283,
@@ -96833,7 +97397,9 @@
          "BillingPostalCode": "SW1V 3EN",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "2.15:44:56"
       },
       {
          "InvoiceId": 284,
@@ -96846,7 +97412,9 @@
          "BillingPostalCode": "560001",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 285,
@@ -96859,7 +97427,9 @@
          "BillingPostalCode": "1720",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "7.03:39:10"
       },
       {
          "InvoiceId": 286,
@@ -96872,7 +97442,9 @@
          "BillingPostalCode": "2113",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 287,
@@ -96885,7 +97457,9 @@
          "BillingPostalCode": "60611",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "00:33:37"
       },
       {
          "InvoiceId": 288,
@@ -96898,7 +97472,9 @@
          "BillingPostalCode": "76110",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "1.14:41:23"
       },
       {
          "InvoiceId": 289,
@@ -96911,7 +97487,9 @@
          "BillingPostalCode": "84102",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "2.13:17:33"
       },
       {
          "InvoiceId": 290,
@@ -96924,7 +97502,9 @@
          "BillingPostalCode": "R3L 2B9",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "3.14:26:14"
       },
       {
          "InvoiceId": 291,
@@ -96937,7 +97517,9 @@
          "BillingPostalCode": "10779",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 292,
@@ -96950,7 +97532,9 @@
          "BillingPostalCode": "00192",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 293,
@@ -96963,7 +97547,9 @@
          "BillingPostalCode": "70174",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "14:52:43"
       },
       {
          "InvoiceId": 294,
@@ -96976,7 +97562,9 @@
          "BillingPostalCode": "H2G 1A7",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 295,
@@ -96989,7 +97577,9 @@
          "BillingPostalCode": "14700",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "00:28:30"
       },
       {
          "InvoiceId": 296,
@@ -97002,7 +97592,9 @@
          "BillingPostalCode": "1010",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "2.16:19:52"
       },
       {
          "InvoiceId": 297,
@@ -97015,7 +97607,9 @@
          "BillingPostalCode": "01310-200",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "6.01:01:13"
       },
       {
          "InvoiceId": 298,
@@ -97028,7 +97622,9 @@
          "BillingPostalCode": "98052-8300",
          "Total": 10.91,
          "Commission": 0.49475214,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "5.06:53:09"
       },
       {
          "InvoiceId": 299,
@@ -97041,7 +97637,9 @@
          "BillingPostalCode": "76110",
          "Total": 23.86,
          "Commission": 1.0820152,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "3.04:34:22"
       },
       {
          "InvoiceId": 300,
@@ -97054,7 +97652,9 @@
          "BillingPostalCode": "75002",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 301,
@@ -97067,7 +97667,9 @@
          "BillingPostalCode": "69002",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "8.21:14:34"
       },
       {
          "InvoiceId": 302,
@@ -97080,7 +97682,9 @@
          "BillingPostalCode": "21000",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:57:44"
       },
       {
          "InvoiceId": 303,
@@ -97093,7 +97697,9 @@
          "BillingPostalCode": "H-1073",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 304,
@@ -97106,7 +97712,9 @@
          "BillingPostalCode": "00-358",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "00:35:12"
       },
       {
          "InvoiceId": 305,
@@ -97119,7 +97727,9 @@
          "BillingPostalCode": "2010",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 306,
@@ -97132,7 +97742,9 @@
          "BillingPostalCode": "14700",
          "Total": 16.86,
          "Commission": 0.7645757,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 307,
@@ -97145,7 +97757,9 @@
          "BillingPostalCode": "95014",
          "Total": 1.99,
          "Commission": 0.09024352,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 308,
@@ -97158,7 +97772,9 @@
          "BillingPostalCode": "94040-111",
          "Total": 3.98,
          "Commission": 0.18048704,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 309,
@@ -97171,7 +97787,9 @@
          "BillingPostalCode": "32801",
          "Total": 3.98,
          "Commission": 0.18048704,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 310,
@@ -97184,7 +97802,9 @@
          "BillingPostalCode": "60611",
          "Total": 7.96,
          "Commission": 0.36097407,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 311,
@@ -97197,7 +97817,9 @@
          "BillingPostalCode": "84102",
          "Total": 11.94,
          "Commission": 0.5414611,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 312,
@@ -97210,7 +97832,9 @@
          "BillingPostalCode": null,
          "Total": 10.91,
          "Commission": 0.49475214,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 313,
@@ -97223,7 +97847,9 @@
          "BillingPostalCode": "21000",
          "Total": 16.86,
          "Commission": 0.7645757,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "4.00:23:21"
       },
       {
          "InvoiceId": 314,
@@ -97236,7 +97862,9 @@
          "BillingPostalCode": null,
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:10:26"
       },
       {
          "InvoiceId": 315,
@@ -97249,7 +97877,9 @@
          "BillingPostalCode": "110017",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "00:22:41"
       },
       {
          "InvoiceId": 316,
@@ -97262,7 +97892,9 @@
          "BillingPostalCode": "12227-000",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "1.15:12:23"
       },
       {
          "InvoiceId": 317,
@@ -97275,7 +97907,9 @@
          "BillingPostalCode": "H2G 1A7",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 318,
@@ -97288,7 +97922,9 @@
          "BillingPostalCode": "1010",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:18:20"
       },
       {
          "InvoiceId": 319,
@@ -97301,7 +97937,9 @@
          "BillingPostalCode": "71020-677",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 320,
@@ -97314,7 +97952,9 @@
          "BillingPostalCode": "32801",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "00:09:59"
       },
       {
          "InvoiceId": 321,
@@ -97327,7 +97967,9 @@
          "BillingPostalCode": "10789",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 322,
@@ -97340,7 +97982,9 @@
          "BillingPostalCode": "60316",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "3.23:11:45"
       },
       {
          "InvoiceId": 323,
@@ -97353,7 +97997,9 @@
          "BillingPostalCode": "75009",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "4.14:40:19"
       },
       {
          "InvoiceId": 324,
@@ -97366,7 +98012,9 @@
          "BillingPostalCode": "69002",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 325,
@@ -97379,7 +98027,9 @@
          "BillingPostalCode": "H-1073",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 326,
@@ -97392,7 +98042,9 @@
          "BillingPostalCode": "11230",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "8.11:53:30"
       },
       {
          "InvoiceId": 327,
@@ -97405,7 +98057,9 @@
          "BillingPostalCode": "12227-000",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "4.12:09:06"
       },
       {
          "InvoiceId": 328,
@@ -97418,7 +98072,9 @@
          "BillingPostalCode": "V6C 1G8",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:41:34"
       },
       {
          "InvoiceId": 329,
@@ -97431,7 +98087,9 @@
          "BillingPostalCode": "94043-1351",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "00:51:23"
       },
       {
          "InvoiceId": 330,
@@ -97444,7 +98102,9 @@
          "BillingPostalCode": "10012-2612",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "9.05:14:01"
       },
       {
          "InvoiceId": 331,
@@ -97457,7 +98117,9 @@
          "BillingPostalCode": "94040-111",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "9.17:11:15"
       },
       {
          "InvoiceId": 332,
@@ -97470,7 +98132,9 @@
          "BillingPostalCode": "60611",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "9.04:49:26"
       },
       {
          "InvoiceId": 333,
@@ -97483,7 +98147,9 @@
          "BillingPostalCode": "K2P 1L7",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "00:15:30"
       },
       {
          "InvoiceId": 334,
@@ -97496,7 +98162,9 @@
          "BillingPostalCode": "75009",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "00:13:50"
       },
       {
          "InvoiceId": 335,
@@ -97509,7 +98177,9 @@
          "BillingPostalCode": "SW1V 3EN",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "1.18:41:26"
       },
       {
          "InvoiceId": 336,
@@ -97522,7 +98192,9 @@
          "BillingPostalCode": "EH4 1HH",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "2.03:17:36"
       },
       {
          "InvoiceId": 337,
@@ -97535,7 +98207,9 @@
          "BillingPostalCode": "1106",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "5.02:00:40"
       },
       {
          "InvoiceId": 338,
@@ -97548,7 +98222,9 @@
          "BillingPostalCode": "110017",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:42:50"
       },
       {
          "InvoiceId": 339,
@@ -97561,7 +98237,9 @@
          "BillingPostalCode": "H2G 1A7",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 340,
@@ -97574,7 +98252,9 @@
          "BillingPostalCode": "1720",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 341,
@@ -97587,7 +98267,9 @@
          "BillingPostalCode": "10012-2612",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 342,
@@ -97600,7 +98282,9 @@
          "BillingPostalCode": "R3L 2B9",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 343,
@@ -97613,7 +98297,9 @@
          "BillingPostalCode": "X1A 1N6",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "00:02:28"
       },
       {
          "InvoiceId": 344,
@@ -97626,7 +98312,9 @@
          "BillingPostalCode": null,
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "3.15:57:26"
       },
       {
          "InvoiceId": 345,
@@ -97639,7 +98327,9 @@
          "BillingPostalCode": "60316",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "00:51:38"
       },
       {
          "InvoiceId": 346,
@@ -97652,7 +98342,9 @@
          "BillingPostalCode": "69002",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "1.19:27:33"
       },
       {
          "InvoiceId": 347,
@@ -97665,7 +98357,9 @@
          "BillingPostalCode": "00192",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "9.17:34:53"
       },
       {
          "InvoiceId": 348,
@@ -97678,7 +98372,9 @@
          "BillingPostalCode": "1106",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "8.11:05:48"
       },
       {
          "InvoiceId": 349,
@@ -97691,7 +98387,9 @@
          "BillingPostalCode": "01310-200",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 350,
@@ -97704,7 +98402,9 @@
          "BillingPostalCode": "20040-020",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "00:32:39"
       },
       {
          "InvoiceId": 351,
@@ -97717,7 +98417,9 @@
          "BillingPostalCode": "T6G 2C7",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "3.02:44:57"
       },
       {
          "InvoiceId": 352,
@@ -97730,7 +98432,9 @@
          "BillingPostalCode": "94043-1351",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 353,
@@ -97743,7 +98447,9 @@
          "BillingPostalCode": "94040-111",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "00:05:17"
       },
       {
          "InvoiceId": 354,
@@ -97756,7 +98462,9 @@
          "BillingPostalCode": "76110",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "1.20:32:46"
       },
       {
          "InvoiceId": 355,
@@ -97769,7 +98477,9 @@
          "BillingPostalCode": null,
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 356,
@@ -97782,7 +98492,9 @@
          "BillingPostalCode": "00-358",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "8.21:37:09"
       },
       {
          "InvoiceId": 357,
@@ -97795,7 +98507,9 @@
          "BillingPostalCode": "28015",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "00:56:09"
       },
       {
          "InvoiceId": 358,
@@ -97808,7 +98522,9 @@
          "BillingPostalCode": "N1 5LH",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "00:48:34"
       },
       {
          "InvoiceId": 359,
@@ -97821,7 +98537,9 @@
          "BillingPostalCode": "EH4 1HH",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:00:15"
       },
       {
          "InvoiceId": 360,
@@ -97834,7 +98552,9 @@
          "BillingPostalCode": "110017",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "8.17:54:23"
       },
       {
          "InvoiceId": 361,
@@ -97847,7 +98567,9 @@
          "BillingPostalCode": "14700",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "3.11:24:50"
       },
       {
          "InvoiceId": 362,
@@ -97860,7 +98582,9 @@
          "BillingPostalCode": "T6G 2C7",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 363,
@@ -97873,7 +98597,9 @@
          "BillingPostalCode": "84102",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "4.16:07:23"
       },
       {
          "InvoiceId": 364,
@@ -97886,7 +98612,9 @@
          "BillingPostalCode": "M6J 1V1",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:06:03"
       },
       {
          "InvoiceId": 365,
@@ -97899,7 +98627,9 @@
          "BillingPostalCode": "B3S 1C5",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "5.23:53:36"
       },
       {
          "InvoiceId": 366,
@@ -97912,7 +98642,9 @@
          "BillingPostalCode": "X1A 1N6",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "4.09:10:54"
       },
       {
          "InvoiceId": 367,
@@ -97925,7 +98657,9 @@
          "BillingPostalCode": "60316",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 368,
@@ -97938,7 +98672,9 @@
          "BillingPostalCode": "21000",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "5.04:50:45"
       },
       {
          "InvoiceId": 369,
@@ -97951,7 +98687,9 @@
          "BillingPostalCode": "N1 5LH",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 370,
@@ -97964,7 +98702,9 @@
          "BillingPostalCode": "1010",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": "9.03:16:34"
       },
       {
          "InvoiceId": 371,
@@ -97977,7 +98717,9 @@
          "BillingPostalCode": "1000",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:25:02"
       },
       {
          "InvoiceId": 372,
@@ -97990,7 +98732,9 @@
          "BillingPostalCode": "01007-010",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 373,
@@ -98003,7 +98747,9 @@
          "BillingPostalCode": "20040-020",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 374,
@@ -98016,7 +98762,9 @@
          "BillingPostalCode": "94043-1351",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 375,
@@ -98029,7 +98777,9 @@
          "BillingPostalCode": "32801",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:02:47"
       },
       {
          "InvoiceId": 376,
@@ -98042,7 +98792,9 @@
          "BillingPostalCode": "B3S 1C5",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 377,
@@ -98055,7 +98807,9 @@
          "BillingPostalCode": "H-1073",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "1.09:43:33"
       },
       {
          "InvoiceId": 378,
@@ -98068,7 +98822,9 @@
          "BillingPostalCode": null,
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:08:30"
       },
       {
          "InvoiceId": 379,
@@ -98081,7 +98837,9 @@
          "BillingPostalCode": "1016",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 380,
@@ -98094,7 +98852,9 @@
          "BillingPostalCode": "28015",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "00:07:33"
       },
       {
          "InvoiceId": 381,
@@ -98107,7 +98867,9 @@
          "BillingPostalCode": "EH4 1HH",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "4.04:08:38"
       },
       {
          "InvoiceId": 382,
@@ -98120,7 +98882,9 @@
          "BillingPostalCode": "12227-000",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 383,
@@ -98133,7 +98897,9 @@
          "BillingPostalCode": "01007-010",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "9.02:57:47"
       },
       {
          "InvoiceId": 384,
@@ -98146,7 +98912,9 @@
          "BillingPostalCode": "60611",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "00:26:32"
       },
       {
          "InvoiceId": 385,
@@ -98159,7 +98927,9 @@
          "BillingPostalCode": "53703",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 386,
@@ -98172,7 +98942,9 @@
          "BillingPostalCode": "85719",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 387,
@@ -98185,7 +98957,9 @@
          "BillingPostalCode": "M6J 1V1",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "6.03:08:07"
       },
       {
          "InvoiceId": 388,
@@ -98198,7 +98972,9 @@
          "BillingPostalCode": "X1A 1N6",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "00:54:23"
       },
       {
          "InvoiceId": 389,
@@ -98211,7 +98987,9 @@
          "BillingPostalCode": "75009",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 390,
@@ -98224,7 +99002,9 @@
          "BillingPostalCode": "1016",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "00:12:42"
       },
       {
          "InvoiceId": 391,
@@ -98237,7 +99017,9 @@
          "BillingPostalCode": "H2G 1A7",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "00:25:09"
       },
       {
          "InvoiceId": 392,
@@ -98250,7 +99032,9 @@
          "BillingPostalCode": "0171",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "00:26:32"
       },
       {
          "InvoiceId": 393,
@@ -98263,7 +99047,9 @@
          "BillingPostalCode": "14300",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 394,
@@ -98276,7 +99062,9 @@
          "BillingPostalCode": "1000",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "7.15:08:21"
       },
       {
          "InvoiceId": 395,
@@ -98289,7 +99077,9 @@
          "BillingPostalCode": "20040-020",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "8.16:30:21"
       },
       {
          "InvoiceId": 396,
@@ -98302,7 +99092,9 @@
          "BillingPostalCode": "10012-2612",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": "2.00:09:26"
       },
       {
          "InvoiceId": 397,
@@ -98315,7 +99107,9 @@
          "BillingPostalCode": "85719",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 1
+         "EmployeeId": 1,
+         "Status": 0,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 398,
@@ -98328,7 +99122,9 @@
          "BillingPostalCode": "69002",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": "9.23:26:19"
       },
       {
          "InvoiceId": 399,
@@ -98341,7 +99137,9 @@
          "BillingPostalCode": "33000",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 5
+         "EmployeeId": 5,
+         "Status": 2,
+         "ProcessingTime": "7.08:30:42"
       },
       {
          "InvoiceId": 400,
@@ -98354,7 +99152,9 @@
          "BillingPostalCode": "00530",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 8
+         "EmployeeId": 8,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 401,
@@ -98367,7 +99167,9 @@
          "BillingPostalCode": null,
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "6.19:38:34"
       },
       {
          "InvoiceId": 402,
@@ -98380,7 +99182,9 @@
          "BillingPostalCode": "28015",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 403,
@@ -98393,7 +99197,9 @@
          "BillingPostalCode": "1106",
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "2.23:56:29"
       },
       {
          "InvoiceId": 404,
@@ -98406,7 +99212,9 @@
          "BillingPostalCode": "14300",
          "Total": 25.86,
          "Commission": 1.1727122,
-         "EmployeeId": 6
+         "EmployeeId": 6,
+         "Status": 2,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 405,
@@ -98419,7 +99227,9 @@
          "BillingPostalCode": "94040-111",
          "Total": 0.99,
          "Commission": 0.044895016,
-         "EmployeeId": 4
+         "EmployeeId": 4,
+         "Status": 1,
+         "ProcessingTime": "2.11:24:02"
       },
       {
          "InvoiceId": 406,
@@ -98432,7 +99242,9 @@
          "BillingPostalCode": "89503",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "8.04:33:52"
       },
       {
          "InvoiceId": 407,
@@ -98445,7 +99257,9 @@
          "BillingPostalCode": "2113",
          "Total": 1.98,
          "Commission": 0.08979003,
-         "EmployeeId": 2
+         "EmployeeId": 2,
+         "Status": 0,
+         "ProcessingTime": "7.04:27:05"
       },
       {
          "InvoiceId": 408,
@@ -98458,7 +99272,9 @@
          "BillingPostalCode": "53703",
          "Total": 3.96,
          "Commission": 0.17958006,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "22:17:37"
       },
       {
          "InvoiceId": 409,
@@ -98471,7 +99287,9 @@
          "BillingPostalCode": "M6J 1V1",
          "Total": 5.94,
          "Commission": 0.26937008,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": "9.04:00:41"
       },
       {
          "InvoiceId": 410,
@@ -98484,7 +99302,9 @@
          "BillingPostalCode": null,
          "Total": 8.91,
          "Commission": 0.40405515,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 411,
@@ -98497,7 +99317,9 @@
          "BillingPostalCode": "00530",
          "Total": 13.86,
          "Commission": 0.6285302,
-         "EmployeeId": 3
+         "EmployeeId": 3,
+         "Status": 1,
+         "ProcessingTime": null
       },
       {
          "InvoiceId": 412,
@@ -98510,7 +99332,9 @@
          "BillingPostalCode": "110017",
          "Total": 1.99,
          "Commission": 0.09024352,
-         "EmployeeId": 7
+         "EmployeeId": 7,
+         "Status": 3,
+         "ProcessingTime": "4.21:27:59"
       }
    ]
 }

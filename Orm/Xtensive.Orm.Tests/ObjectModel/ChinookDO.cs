@@ -199,6 +199,8 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     {
       return ((int) data.InvoiceId, new Invoice() {
         InvoiceDate = data.InvoiceDate,
+        Status = (InvoiceStatus)data.Status,
+        ProcessingTime = (TimeSpan?)data.ProcessingTime,
         BillingAddress = new Address {
           StreetAddress = data.BillingAddress,
           City = data.BillingCity,

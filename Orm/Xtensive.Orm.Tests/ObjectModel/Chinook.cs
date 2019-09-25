@@ -16,6 +16,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     [Field, Key]
     public int AlbumId { get; private set; }
 
+    [FullText("English")]
     [Field(Nullable = false, Length = 160)]
     public string Title { get; set; }
 
@@ -86,10 +87,10 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     public string Title { get; set; }
 
     [Field]
-    public DateTime BirthDate { get; set; }
+    public DateTime? BirthDate { get; set; }
 
     [Field]
-    public DateTime HireDate { get; set; }
+    public DateTime? HireDate { get; set; }
 
     [Field]
     public Address Address { get; set; }
@@ -105,6 +106,8 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field]
     public Employee ReportsToManager { get; set; }
+
+    public int? GetAge() => BirthDate.HasValue ? DateTime.Now.Year - BirthDate.Value.Year : default;
   }
 
   [HierarchyRoot]
@@ -127,6 +130,12 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field(Nullable = false)]
     public DateTime InvoiceDate { get; set; }
+
+    [Field(Nullable = false)]
+    public InvoiceStatus Status { get; set; }
+
+    [Field]
+    public TimeSpan? ProcessingTime { get; set; }
 
     [Field]
     public Address BillingAddress { get; set; }
@@ -203,6 +212,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     [Field(Nullable = false, Length = 200)]
     public string Name { get; set; }
 
+    [FullText("English")]
     [Field(Length = 220)]
     public string Composer { get; set; }
 
@@ -230,6 +240,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
   public class Address : Structure
   {
+    [FullText("English")]
     [Field(Length = 70)]
     public string StreetAddress { get; set; }
 
@@ -244,5 +255,15 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field(Length = 10)]
     public string PostalCode { get; set; }
+
+    public string JustAProperty { get; set; }
+  }
+
+  public enum InvoiceStatus
+  {
+    Created = 0,
+    Unpaid = 1,
+    Paid = 2,
+    Completed = 3
   }
 }
