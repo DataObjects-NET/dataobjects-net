@@ -2,6 +2,7 @@
   <PropertyGroup>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultItems>false</EnableDefaultItems>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -9,9 +10,12 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.MySql</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PackageId>Xtensive.Orm.MySql.Core</PackageId>
+    <Title>$(DoProductName) provider for MySQL</Title>
+    <AssemblyTitle>$(Title)</AssemblyTitle>
+    <PackageDescription>Adds support for MySQL to $(DoProductName)</PackageDescription>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
@@ -20,21 +24,21 @@
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\_Build\Binaries\Debug\Lib\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\$(TargetFramework)\Xtensive.Orm.MySql.xml</DocumentationFile>
+    <OutputPath>..\..\_Build\Debug\lib\</OutputPath>
+    <DocumentationFile>..\..\_Build\Debug\lib\$(TargetFramework)\Xtensive.Orm.MySql.xml</DocumentationFile>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
     <Optimize>false</Optimize>
     <DebugType>pdbonly</DebugType>
-    <OutputPath>..\..\_Build\Binaries\Release\Lib\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\$(TargetFramework)\Xtensive.Orm.MySql.xml</DocumentationFile>
+    <OutputPath>..\..\_Build\Release\lib\</OutputPath>
+    <DocumentationFile>..\..\_Build\Release\lib\$(TargetFramework)\Xtensive.Orm.MySql.xml</DocumentationFile>
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0'">
-    <PackageReference Include="MySql.Data" Version="6.10.4" />
+    <PackageReference Include="MySql.Data" Version="6.10.4" ExcludeAssets="contentFiles" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,9 +47,6 @@
   <ItemGroup>
     <Compile Include="..\Xtensive.Orm\Properties\Visibility.cs">
       <Link>Properties\Visibility.cs</Link>
-    </Compile>
-    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
-      <Link>Properties\ProductInfo.cs</Link>
     </Compile>
     <Compile Include="Orm.Providers.MySql\DomainHandler.cs" />
     <Compile Include="Orm.Providers.MySql\HandlerFactory.cs" />
@@ -84,12 +85,6 @@
     <Compile Include="Sql.Drivers.MySql\v5_6\ServerInfoProvider.cs" />
     <Compile Include="Sql.Drivers.MySql\v5_6\Translator.cs" />
     <Compile Include="Sql.Drivers.MySql\v5_6\TypeMapper.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Sql.Drivers.MySql\Issues.txt" />
-    <Content Include="Sql.Drivers.MySql\Notes.txt" />
-    <Content Include="Sql.Drivers.MySql\progression.txt" />
-    <Content Include="Sql.Drivers.MySql\Readme.txt" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Sql.Drivers.MySql\Resources\Strings.resx">

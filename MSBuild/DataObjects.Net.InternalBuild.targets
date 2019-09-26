@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0">
 
 <PropertyGroup>
-  <XtensiveOrmWeaver>$(MSBuildProjectDirectory)\$(OutputPath)..\Tools\Weaver\Xtensive.Orm.Weaver.dll</XtensiveOrmWeaver>
+  <XtensiveOrmPath>$(MSBuildThisFileDirectory)\..\_Build\$(Configuration)\</XtensiveOrmPath>
 </PropertyGroup>
 
 <Import Project="$(MSBuildThisFileDirectory)\DataObjects.Net.targets" />

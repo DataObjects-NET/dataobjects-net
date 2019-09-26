@@ -3,5 +3,3 @@
 // For conditions of distribution and use, see license.
 
 using System.Reflection;
-
-[assembly: AssemblyTitle(ThisAssembly.ProductName + " - main library")]

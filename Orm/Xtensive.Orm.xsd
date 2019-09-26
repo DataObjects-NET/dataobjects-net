@@ -1,0 +1,329 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  Copyright (C) 2013 Xtensive LLC.
+  All rights reserved.
+  For conditions of distribution and use, see license.
+-->
+
+<xs:schema id="Xtensive.Orm"
+    targetNamespace="http://dataobjects.net/schemas/appconfig/"
+    elementFormDefault="qualified"
+    xmlns="http://dataobjects.net/schemas/appconfig/"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="Xtensive.Orm">
+    <xs:complexType>
+      <xs:all>
+        <xs:element name="domains" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="domain" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:all>
+                    <xs:element name="types" type="typeCollection" minOccurs="0"/>
+                    <xs:element name="sessions" type="sessionCollection" minOccurs="0"/>
+                    <xs:element name="mappingRules" type="mappingRuleCollection" minOccurs="0"/>
+                    <xs:element name="databases" type="databaseCollection" minOccurs="0"/>
+                    <xs:element name="keyGenerators" type="keyGeneratorCollection" minOccurs="0"/>
+                    <xs:element name="namingConvention" type="namingConvention" minOccurs="0"/>
+                    <xs:element name="ignoreRules" type="ignoreRulesCollection" minOccurs="0"/>
+                    <xs:element name="versioningConvention" type="versioningConvention" minOccurs="0"/>
+                  </xs:all>
+                  <xs:attribute name="upgradeMode" type="domainUpgradeMode" default="Default" use="optional"/>
+                  <xs:attribute name="foreignKeyMode" type="foreignKeyMode" default="Default" use="optional"/>
+				  <xs:attribute name="fullTextChangeTrackingMode" type="fullTextChangeTrackingMode" default="Default" use="optional"/>
+                  <xs:attribute name="name" type="xs:string" default="" use="optional"/>
+                  <xs:attribute name="provider" type="providerEnumeration" default="sqlserver" use="optional"/>
+                  <xs:attribute name="connectionString" type="xs:string" default="null" use="optional"/>
+                  <xs:attribute name="connectionUrl" type="xs:string" default="null" use="optional"/>
+                  <xs:attribute name="keyCacheSize" type="minMax" default="16384" use="optional"/>
+                  <xs:attribute name="generatorCacheSize"  type="minMax" default="128" use ="optional"/>
+                  <xs:attribute name="queryCacheSize" type="minMax" default="256" use="optional"/>
+                  <xs:attribute name="recordSetMappingCacheSizeSize" type="minMax" default="1024" use="optional"/>
+                  <xs:attribute name="defaultSchema" type="xs:string" use="optional"/>
+                  <xs:attribute name="defaultDatabase" type="xs:string" use="optional"/>
+                  <xs:attribute name="collation" type="xs:string" use="optional"/>
+                  <xs:attribute name="serviceContainerType" type="xs:string" default="null" use="optional"/>
+                  <xs:attribute name="includeSqlInExceptions" type="xs:boolean" default="true" use="optional"/>
+                  <xs:attribute name="buildInParallel" type="xs:boolean" default="true" use="optional"/>
+                  <xs:attribute name="allowCyclicDatabaseDependencies" type="xs:boolean" default="false" use="optional"/>
+                  <xs:attribute name="multidatabaseKeys" type="xs:boolean" default="false" use="optional"/>
+                  <xs:attribute name="forcedServerVersion" type="xs:string" use="optional"/>
+                  <xs:attribute name="schemaSyncExceptionFormat" type="schemaSyncExceptionFormat" default="Default" use="optional"/>
+                  <xs:attribute name="options" type="domainOptions" default="Default" use="optional"/>
+                  <xs:attribute name="nativeLibraryCacheFolder" type="xs:string" use="optional"/>
+                  <xs:attribute name="connectionInitializationSql" type="xs:string" use="optional"/>
+                  <xs:attribute name="shareStorageSchemaOverNodes" type="xs:boolean" default="false" use="optional"/>
+                  <xs:attribute name="ensureConnectionIsAlive" type="xs:boolean" default="true" use="optional"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="logging" minOccurs="0">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="log" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="source" type="xs:string" use="required"/>
+                  <xs:attribute name="target" type="xs:string" use="required"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="provider" type="xs:string" use="optional"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:all>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="typeCollection">
+    <xs:sequence>
+      <xs:element name="add" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="type" type="xs:string" use="optional" default="null"/>
+          <xs:attribute name="assembly" type="xs:string" use="optional" default="null"/>
+          <xs:attribute name="namespace" type="xs:string" use="optional" default="null"/>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="remove" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="type" type="xs:string" use="optional" default="null"/>
+          <xs:attribute name="assembly" type="xs:string" use="optional" default="null"/>
+          <xs:attribute name="namespace" type="xs:string" use="optional" default="null"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="sessionCollection">
+    <xs:sequence>
+      <xs:element name="session" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="name" type="xs:string" default="Default" use="optional"/>
+          <xs:attribute name="userName" type="xs:string" use="optional"/>
+          <xs:attribute name="password" type="xs:string" use="optional"/>
+          <xs:attribute name="cacheSize" type="xs:int" default="16384" use="optional"/>
+          <xs:attribute name="cacheType" type="sessionCacheType" default="Default" use="optional"/>
+          <xs:attribute name="options" type="sessionOptions" default="Default" use="optional"/>
+          <xs:attribute name="isolationLevel" type="isolationLevel" default="RepeatableRead" use="optional"/>
+          <xs:attribute name="commandTimeout" type="xs:int" use="optional"/>
+          <xs:attribute name="batchSize" type="xs:int" default="25" use="optional"/>
+          <xs:attribute name="readerPreloading" type="readerPreloadingPolicy" default="Default" use="optional"/>
+          <xs:attribute name="serviceContainerType" type="xs:string" default="null" use="optional"/>
+          <xs:attribute name="entityChangeRegistrySize" type="xs:string" default="250" use="optional"/>
+          <xs:attribute name="connectionString" type="xs:string" default="null" use="optional"/>
+          <xs:attribute name="connectionUrl" type="xs:string" default="null" use="optional"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="mappingRuleCollection">
+    <xs:sequence>
+      <xs:element name="rule" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="assembly" type="xs:string" use="optional"/>
+          <xs:attribute name="namespace" type="xs:string" use="optional"/>
+          <xs:attribute name="database" type="xs:string" use="optional"/>
+          <xs:attribute name="schema" type="xs:string" use="optional"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="databaseCollection">
+    <xs:sequence>
+      <xs:element name="database" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="name" type="xs:string" use="optional"/>
+          <xs:attribute name="realName" type="xs:string" use="optional"/>
+          <xs:attribute name="minTypeId" type="xs:int" default="100" use="optional"/>
+          <xs:attribute name="maxTypeId" type="xs:int" default="2147483647" use="optional"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="keyGeneratorCollection">
+    <xs:sequence>
+      <xs:element name="keyGenerator" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="name" type="xs:string" use="optional"/>
+          <xs:attribute name="seed" type="xs:long" default="0" use="optional"/>
+          <xs:attribute name="cacheSize" type="xs:long" default="128" use="optional"/>
+          <xs:attribute name="database" type="xs:string" use="optional"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ignoreRulesCollection">
+    <xs:sequence>
+      <xs:element name="rule" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="database" type="xs:string" use="optional"/>
+          <xs:attribute name="schema" type="xs:string" use="optional"/>
+          <xs:attribute name="table" type="xs:string" use="optional"/>
+          <xs:attribute name="column" type="xs:string" use="optional"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+	
+  <xs:complexType name="namingConvention">
+    <xs:all>
+      <xs:element name="namespaceSynonyms" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:element name="synonym" maxOccurs="unbounded">
+              <xs:complexType>
+                <xs:attribute name="namespace" type="xs:string" use="required" />
+                <xs:attribute name="synonym" type="xs:string" use="required" />
+              </xs:complexType>
+            </xs:element>
+          </xs:sequence>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+    <xs:attribute name="letterCasePolicy" type="letterCasePolicy" default="Default" use="optional"/>
+    <xs:attribute name="namespacePolicy" type="namespacePolicy" default="Default" use="optional"/>
+    <xs:attribute name="namingRules" type="namingRules" default="Default" use="optional"/>
+  </xs:complexType>
+
+  <xs:complexType name="versioningConvention">
+    <xs:attribute name="entityVersioningPolicy" type="entityVersioningPolicy" default="Default" use="optional"/>
+    <xs:attribute name="denyEntitySetOwnerVersionChange" type="xs:boolean" default="true" use="optional"/>
+  </xs:complexType>
+
+  <xs:simpleType name="minMax">
+    <xs:restriction base="xs:int">
+      <xs:minInclusive value="1"/>
+      <xs:maxExclusive value="2147483647"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="sessionCacheType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Default"/>
+      <xs:enumeration value="LruWeak" />
+      <xs:enumeration value="Infinite"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="sessionOptions">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(None|AllowSwitching|AutoActivation|Disconnected|AutoTransactionSuppressMode|AutoTransactionOpenMode|ReadRemovedObjects|SuppressRollbackExceptions|ValidateEntityVersions|ValidateEntities|ServerProfile|ClientProfile|LegacyProfile|Default)( *, *(None|AllowSwitching|AutoActivation|Disconnected|AutoTransactionSuppressMode|AutoTransactionOpenMode|ReadRemovedObjects|SuppressRollbackExceptions|ValidateEntityVersions|ValidateEntities|ServerProfile|ClientProfile|LegacyProfile|Default))*" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="domainOptions">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(None|DynamicMapping|Default)( *, *(None|DynamicMapping|Default))*" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="isolationLevel">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Serializable"/>
+      <xs:enumeration value="RepeatableRead" />
+      <xs:enumeration value="ReadCommitted"/>
+      <xs:enumeration value="ReadUncommitted"/>
+      <xs:enumeration value="Snapshot"/>
+      <xs:enumeration value="Chaos"/>
+      <xs:enumeration value="Unspecified"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="readerPreloadingPolicy">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Default"/>
+      <xs:enumeration value="Auto" />
+      <xs:enumeration value="Always"/>
+      <xs:enumeration value="Never"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="letterCasePolicy">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Default"/>
+      <xs:enumeration value="AsIs" />
+      <xs:enumeration value="Uppercase"/>
+      <xs:enumeration value="Lowercase"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="namespacePolicy">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Default"/>
+      <xs:enumeration value="Omit" />
+      <xs:enumeration value="Synonymize"/>
+      <xs:enumeration value="AsIs"/>
+      <xs:enumeration value="Hash"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="namingRules">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(None|UnderscoreHyphens|UnderscoreDots|RemoveHyphens|RemoveDots|Default)( *, *(None|UnderscoreHyphens|UnderscoreDots|RemoveHyphens|RemoveDots|Default))*" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="domainUpgradeMode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Skip"/>
+      <xs:enumeration value="Validate" />
+      <xs:enumeration value="Recreate"/>
+      <xs:enumeration value="Perform"/>
+      <xs:enumeration value="PerformSafely"/>
+      <xs:enumeration value="LegacySkip"/>
+      <xs:enumeration value="LegacyValidate"/>
+      <xs:enumeration value="Default"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="providerEnumeration">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="sqlserver"/>
+      <xs:enumeration value="sqlserverce" />
+      <xs:enumeration value="postgresql"/>
+      <xs:enumeration value="oracle"/>
+      <xs:enumeration value="mysql"/>
+      <xs:enumeration value="firebird"/>
+      <xs:enumeration value="sqlite"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="foreignKeyMode">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="(None|Hierarchy|Reference|All|Default)( *, *(None|Hierarchy|Reference|All|Default))*" />
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="fullTextChangeTrackingMode">
+    <xs:restriction base="xs:string">
+	  <xs:enumeration value="Auto"/>
+      <xs:enumeration value="Manual" />
+      <xs:enumeration value="Off"/>
+      <xs:enumeration value="OffWithNoPopulation"/>
+      <xs:enumeration value="Default"/>
+	</xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="schemaSyncExceptionFormat">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Detailed"/>
+      <xs:enumeration value="Brief" />
+      <xs:enumeration value="Default"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="entityVersioningPolicy">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Optimistic"/>
+      <xs:enumeration value="Pessimistic"/>
+      <xs:enumeration value="Default"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>

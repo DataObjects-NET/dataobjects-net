@@ -18,6 +18,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
 {
   internal static class ProviderInitializer
   {
+    private const string ProductName = "DataObjects.Net";
     private const string LibraryDirectory = "Native";
     private const string LibraryFileName = "SQLite.Interop.dll";
     private const string LibraryResourceNameFormat = @"Xtensive.Sql.Drivers.Sqlite.NativeModules.{0}_{1}.SQLite.Interop.dll";
@@ -72,7 +73,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
         var localApplicationData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         if (string.IsNullOrEmpty(localApplicationData))
           throw new InvalidOperationException(Strings.ExLocalApplicationDataIsNotAvailableSetDomainConfiguratioNativeLibraryCacheFolder);
-        basePath = Path.Combine(Path.Combine(localApplicationData, ThisAssembly.ProductName), LibraryDirectory);
+        basePath = Path.Combine(Path.Combine(localApplicationData, ProductName), LibraryDirectory);
       }
 
       return Path.Combine(Path.Combine(basePath, moduleHash), LibraryFileName);
@@ -107,7 +108,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
     {
       var hash = GetLibraryHash();
       var moduleFileName = GetLibraryFileName(nativeLibraryCacheFolder, hash);
-      var mutexName = string.Format(LibraryMutexFormat, ThisAssembly.ProductName, hash);
+      var mutexName = string.Format(LibraryMutexFormat, ProductName, hash);
 
       using (var mutex = new Mutex(false, mutexName)) {
         mutex.WaitOne();

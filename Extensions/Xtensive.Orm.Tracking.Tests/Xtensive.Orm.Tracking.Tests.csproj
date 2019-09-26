@@ -1,0 +1,68 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultItems>false</EnableDefaultItems>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Xtensive.Orm.Tracking.Tests</RootNamespace>
+    <AssemblyName>Xtensive.Orm.Tracking.Tests</AssemblyName>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Debug" Condition="'$(Configuration)'=='Debug'">
+    <Optimize>false</Optimize>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\_Build\Debug\lib\</OutputPath>
+    <DocumentationFile></DocumentationFile>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
+    <Optimize>false</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <OutputPath>..\..\_Build\Release\lib\</OutputPath>
+    <DocumentationFile></DocumentationFile>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="AutoBuildTest.cs" />
+    <Compile Include="Model\MyChildEntity.cs" />
+    <Compile Include="ServiceRegistrationTest.cs" />
+    <Compile Include="Model\MyEntity.cs" />
+    <Compile Include="Model\MyEnum.cs" />
+    <Compile Include="Model\MyEntitySetItem.cs" />
+    <Compile Include="Model\MyReferenceProperty.cs" />
+    <Compile Include="Model\MyStructure.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestHelper.cs" />
+    <Compile Include="TrackingItemTests.cs" />
+    <Compile Include="TrackingMonitorTests.cs" />
+    <Compile Include="TrackingStackFrameTests.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.12.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj" />
+    <ProjectReference Include="..\TestCommon\TestCommon.csproj" />
+    <ProjectReference Include="..\Xtensive.Orm.Tracking\Xtensive.Orm.Tracking.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
+  </ItemGroup>
+
+  <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
+</Project>

@@ -2,9 +2,8 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 <PropertyGroup>
-  <Version>0.1.0</Version>
-  <Modifier>Beta 4</Modifier>
-  <BuildNumberBase>12000</BuildNumberBase>
+    <DoVersion>0.1.0</DoVersion>
+    <DoVersionSuffix>beta-4</DoVersionSuffix>
 </PropertyGroup>
 
 </Project>
