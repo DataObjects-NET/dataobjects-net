@@ -93166,10 +93166,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "70174",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2009-01-01T11:21:00"
       },
       {
          "InvoiceId": 2,
@@ -93181,10 +93182,11 @@
          "BillingCountry": "Norway",
          "BillingPostalCode": "0171",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "00:25:20"
+         "ProcessingTime": "00:25:20",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 3,
@@ -93196,10 +93198,11 @@
          "BillingCountry": "Belgium",
          "BillingPostalCode": "1000",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "9.08:38:21"
+         "ProcessingTime": "9.08:38:21",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 4,
@@ -93211,10 +93214,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "T6G 2C7",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 5,
@@ -93226,10 +93230,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "2113",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "10:17:49"
+         "ProcessingTime": "10:17:49",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 6,
@@ -93241,10 +93246,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "60316",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2009-01-19T03:54:00"
       },
       {
          "InvoiceId": 7,
@@ -93256,10 +93262,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "10779",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "2.14:47:54"
+         "ProcessingTime": "2.14:47:54",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 8,
@@ -93271,10 +93278,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "75002",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "00:35:22"
+         "ProcessingTime": "00:35:22",
+         "PaymentDate": "2009-02-01T00:14:00"
       },
       {
          "InvoiceId": 9,
@@ -93286,10 +93294,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "33000",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "00:08:17"
+         "ProcessingTime": "00:08:17",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 10,
@@ -93301,10 +93310,11 @@
          "BillingCountry": "Ireland",
          "BillingPostalCode": null,
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2009-02-03T05:47:00"
       },
       {
          "InvoiceId": 11,
@@ -93316,10 +93326,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "N1 5LH",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "3.20:38:20"
+         "ProcessingTime": "3.20:38:20",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 12,
@@ -93331,10 +93342,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "70174",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 13,
@@ -93346,10 +93358,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "94043-1351",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:01:04"
+         "ProcessingTime": "00:01:04",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 14,
@@ -93361,10 +93374,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "98052-8300",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 15,
@@ -93376,10 +93390,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "95014",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2009-03-04T07:52:00"
       },
       {
          "InvoiceId": 16,
@@ -93391,10 +93406,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "89503",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "00:15:38"
+         "ProcessingTime": "00:15:38",
+         "PaymentDate": "2009-03-05T00:13:00"
       },
       {
          "InvoiceId": 17,
@@ -93406,10 +93422,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "53703",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2009-03-06T06:08:00"
       },
       {
          "InvoiceId": 18,
@@ -93421,10 +93438,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "B3S 1C5",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 19,
@@ -93436,10 +93454,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "75002",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "00:04:39"
+         "ProcessingTime": "00:04:39",
+         "PaymentDate": "2009-03-14T00:02:00"
       },
       {
          "InvoiceId": 20,
@@ -93451,10 +93470,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "EH4 1HH",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "2.19:10:28"
+         "ProcessingTime": "2.19:10:28",
+         "PaymentDate": "2009-03-23T00:17:00"
       },
       {
          "InvoiceId": 21,
@@ -93466,10 +93486,11 @@
          "BillingCountry": "Australia",
          "BillingPostalCode": "2010",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "3.14:28:37"
+         "ProcessingTime": "3.14:28:37",
+         "PaymentDate": "2009-04-07T05:13:00"
       },
       {
          "InvoiceId": 22,
@@ -93481,10 +93502,11 @@
          "BillingCountry": "Chile",
          "BillingPostalCode": null,
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "00:08:20"
+         "ProcessingTime": "00:08:20",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 23,
@@ -93496,10 +93518,11 @@
          "BillingCountry": "India",
          "BillingPostalCode": "560001",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "6.03:58:01"
+         "ProcessingTime": "6.03:58:01",
+         "PaymentDate": "2009-04-07T03:19:00"
       },
       {
          "InvoiceId": 24,
@@ -93511,10 +93534,11 @@
          "BillingCountry": "Norway",
          "BillingPostalCode": "0171",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 25,
@@ -93526,10 +93550,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "01007-010",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "6.05:47:47"
+         "ProcessingTime": "6.05:47:47",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 26,
@@ -93541,10 +93566,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "95014",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 27,
@@ -93556,10 +93582,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "X1A 1N6",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "3.12:16:27"
+         "ProcessingTime": "3.12:16:27",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 28,
@@ -93571,10 +93598,11 @@
          "BillingCountry": "Portugal",
          "BillingPostalCode": null,
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "1.03:28:40"
+         "ProcessingTime": "1.03:28:40",
+         "PaymentDate": "2009-05-05T00:06:00"
       },
       {
          "InvoiceId": 29,
@@ -93586,10 +93614,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "10789",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "7.04:23:58"
+         "ProcessingTime": "7.04:23:58",
+         "PaymentDate": "2009-05-07T23:51:00"
       },
       {
          "InvoiceId": 30,
@@ -93601,10 +93630,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "10779",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:10:33"
+         "ProcessingTime": "00:10:33",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 31,
@@ -93616,10 +93646,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "33000",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "18:33:34"
+         "ProcessingTime": "18:33:34",
+         "PaymentDate": "2009-05-07T05:17:00"
       },
       {
          "InvoiceId": 32,
@@ -93631,10 +93662,11 @@
          "BillingCountry": "Netherlands",
          "BillingPostalCode": "1016",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "5.18:57:30"
+         "ProcessingTime": "5.18:57:30",
+         "PaymentDate": "2009-05-14T17:48:00"
       },
       {
          "InvoiceId": 33,
@@ -93646,10 +93678,11 @@
          "BillingCountry": "Chile",
          "BillingPostalCode": null,
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "09:30:00"
+         "ProcessingTime": "09:30:00",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 34,
@@ -93661,10 +93694,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "20040-020",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "07:46:19"
+         "ProcessingTime": "07:46:19",
+         "PaymentDate": "2009-05-23T06:42:00"
       },
       {
          "InvoiceId": 35,
@@ -93676,10 +93710,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "71020-677",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "00:01:54"
+         "ProcessingTime": "00:01:54",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 36,
@@ -93691,10 +93726,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "V6C 1G8",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "00:51:59"
+         "ProcessingTime": "00:51:59",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 37,
@@ -93706,10 +93742,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "98052-8300",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "00:24:46"
+         "ProcessingTime": "00:24:46",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 38,
@@ -93721,10 +93758,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "89503",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "7.14:28:40"
+         "ProcessingTime": "7.14:28:40",
+         "PaymentDate": "2009-06-11T17:49:00"
       },
       {
          "InvoiceId": 39,
@@ -93736,10 +93774,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "85719",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "7.23:49:46"
+         "ProcessingTime": "7.23:49:46",
+         "PaymentDate": "2009-06-12T05:37:00"
       },
       {
          "InvoiceId": 40,
@@ -93751,10 +93790,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "10789",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 41,
@@ -93766,10 +93806,11 @@
          "BillingCountry": "Spain",
          "BillingPostalCode": "28015",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 42,
@@ -93781,10 +93822,11 @@
          "BillingCountry": "Sweden",
          "BillingPostalCode": "11230",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2009-07-06T09:54:00"
       },
       {
          "InvoiceId": 43,
@@ -93796,10 +93838,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "SW1V 3EN",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "6.17:28:17"
+         "ProcessingTime": "6.17:28:17",
+         "PaymentDate": "2009-07-11T08:46:00"
       },
       {
          "InvoiceId": 44,
@@ -93811,10 +93854,11 @@
          "BillingCountry": "Australia",
          "BillingPostalCode": "2010",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2009-07-07T15:12:00"
       },
       {
          "InvoiceId": 45,
@@ -93826,10 +93870,11 @@
          "BillingCountry": "India",
          "BillingPostalCode": "560001",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 46,
@@ -93841,10 +93886,11 @@
          "BillingCountry": "Czech Republic",
          "BillingPostalCode": "14300",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 47,
@@ -93856,10 +93902,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "V6C 1G8",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "00:40:15"
+         "ProcessingTime": "00:40:15",
+         "PaymentDate": "2009-07-16T00:08:00"
       },
       {
          "InvoiceId": 48,
@@ -93871,10 +93918,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "M6J 1V1",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2009-07-24T09:59:00"
       },
       {
          "InvoiceId": 49,
@@ -93886,10 +93934,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "K2P 1L7",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "3.02:45:42"
+         "ProcessingTime": "3.02:45:42",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 50,
@@ -93901,10 +93950,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "R3L 2B9",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "4.02:59:18"
+         "ProcessingTime": "4.02:59:18",
+         "PaymentDate": "2009-08-07T12:27:00"
       },
       {
          "InvoiceId": 51,
@@ -93916,10 +93966,11 @@
          "BillingCountry": "Portugal",
          "BillingPostalCode": null,
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 52,
@@ -93931,10 +93982,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "10779",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 53,
@@ -93946,10 +93998,11 @@
          "BillingCountry": "Finland",
          "BillingPostalCode": "00530",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "6.02:15:29"
+         "ProcessingTime": "6.02:15:29",
+         "PaymentDate": "2009-08-12T05:55:00"
       },
       {
          "InvoiceId": 54,
@@ -93961,10 +94014,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "SW1V 3EN",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "00:31:53"
+         "ProcessingTime": "00:31:53",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 55,
@@ -93976,10 +94030,11 @@
          "BillingCountry": "Belgium",
          "BillingPostalCode": "1000",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "3.08:16:17"
+         "ProcessingTime": "3.08:16:17",
+         "PaymentDate": "2009-08-24T10:45:00"
       },
       {
          "InvoiceId": 56,
@@ -93991,10 +94046,11 @@
          "BillingCountry": "Denmark",
          "BillingPostalCode": "1720",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "6.05:42:01"
+         "ProcessingTime": "6.05:42:01",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 57,
@@ -94006,10 +94062,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "01310-200",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "08:37:08"
+         "ProcessingTime": "08:37:08",
+         "PaymentDate": "2009-09-06T02:33:00"
       },
       {
          "InvoiceId": 58,
@@ -94021,10 +94078,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "71020-677",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "00:37:12"
+         "ProcessingTime": "00:37:12",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 59,
@@ -94036,10 +94094,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "98052-8300",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "00:12:24"
+         "ProcessingTime": "00:12:24",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 60,
@@ -94051,10 +94110,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "2113",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 61,
@@ -94066,10 +94126,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "R3L 2B9",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2009-09-16T12:31:00"
       },
       {
          "InvoiceId": 62,
@@ -94081,10 +94142,11 @@
          "BillingCountry": "Ireland",
          "BillingPostalCode": null,
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "8.21:55:36"
+         "ProcessingTime": "8.21:55:36",
+         "PaymentDate": "2009-09-28T12:15:00"
       },
       {
          "InvoiceId": 63,
@@ -94096,10 +94158,11 @@
          "BillingCountry": "Italy",
          "BillingPostalCode": "00192",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 64,
@@ -94111,10 +94174,11 @@
          "BillingCountry": "Poland",
          "BillingPostalCode": "00-358",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "2.00:08:22"
+         "ProcessingTime": "2.00:08:22",
+         "PaymentDate": "2009-10-07T18:17:00"
       },
       {
          "InvoiceId": 65,
@@ -94126,10 +94190,11 @@
          "BillingCountry": "Sweden",
          "BillingPostalCode": "11230",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "00:12:00"
+         "ProcessingTime": "00:12:00",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 66,
@@ -94141,10 +94206,11 @@
          "BillingCountry": "Australia",
          "BillingPostalCode": "2010",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2009-10-09T14:22:00"
       },
       {
          "InvoiceId": 67,
@@ -94156,10 +94222,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "70174",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "3.21:16:22"
+         "ProcessingTime": "3.21:16:22",
+         "PaymentDate": "2009-10-14T11:13:00"
       },
       {
          "InvoiceId": 68,
@@ -94171,10 +94238,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "01310-200",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2009-10-17T05:54:00"
       },
       {
          "InvoiceId": 69,
@@ -94186,10 +94254,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "53703",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 70,
@@ -94201,10 +94270,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "76110",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2009-11-07T13:00:00"
       },
       {
          "InvoiceId": 71,
@@ -94216,10 +94286,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "84102",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "9.13:03:37"
+         "ProcessingTime": "9.13:03:37",
+         "PaymentDate": "2009-11-07T08:28:00"
       },
       {
          "InvoiceId": 72,
@@ -94231,10 +94302,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "K2P 1L7",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "00:08:19"
+         "ProcessingTime": "00:08:19",
+         "PaymentDate": "2009-11-08T00:01:00"
       },
       {
          "InvoiceId": 73,
@@ -94246,10 +94318,11 @@
          "BillingCountry": "Portugal",
          "BillingPostalCode": null,
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "8.15:00:24"
+         "ProcessingTime": "8.15:00:24",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 74,
@@ -94261,10 +94334,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "75002",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "4.02:22:15"
+         "ProcessingTime": "4.02:22:15",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 75,
@@ -94276,10 +94350,11 @@
          "BillingCountry": "Poland",
          "BillingPostalCode": "00-358",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2009-11-17T01:30:00"
       },
       {
          "InvoiceId": 76,
@@ -94291,10 +94366,11 @@
          "BillingCountry": "Norway",
          "BillingPostalCode": "0171",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "00:55:58"
+         "ProcessingTime": "00:55:58",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 77,
@@ -94306,10 +94382,11 @@
          "BillingCountry": "Czech Republic",
          "BillingPostalCode": "14700",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "9.00:46:44"
+         "ProcessingTime": "9.00:46:44",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 78,
@@ -94321,10 +94398,11 @@
          "BillingCountry": "Austria",
          "BillingPostalCode": "1010",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2009-12-08T15:01:00"
       },
       {
          "InvoiceId": 79,
@@ -94336,10 +94414,11 @@
          "BillingCountry": "Denmark",
          "BillingPostalCode": "1720",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "00:08:18"
+         "ProcessingTime": "00:08:18",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 80,
@@ -94351,10 +94430,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "71020-677",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 81,
@@ -94366,10 +94446,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "95014",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "1.11:00:02"
+         "ProcessingTime": "1.11:00:02",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 82,
@@ -94381,10 +94462,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "84102",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2009-12-18T14:55:00"
       },
       {
          "InvoiceId": 83,
@@ -94396,10 +94478,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "33000",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 84,
@@ -94411,10 +94494,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "21000",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-01-08T04:04:00"
       },
       {
          "InvoiceId": 85,
@@ -94426,10 +94510,11 @@
          "BillingCountry": "Hungary",
          "BillingPostalCode": "H-1073",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 86,
@@ -94441,10 +94526,11 @@
          "BillingCountry": "Italy",
          "BillingPostalCode": "00192",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 87,
@@ -94456,10 +94542,11 @@
          "BillingCountry": "Sweden",
          "BillingPostalCode": "11230",
          "Total": 6.94,
-         "Commission": 0.3147186,
+         "Commission": 0.32,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-01-10T04:27:00"
       },
       {
          "InvoiceId": 88,
@@ -94471,10 +94558,11 @@
          "BillingCountry": "Chile",
          "BillingPostalCode": null,
          "Total": 17.91,
-         "Commission": 0.8121916,
+         "Commission": 0.82,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "5.00:26:04"
+         "ProcessingTime": "5.00:26:04",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 89,
@@ -94486,10 +94574,11 @@
          "BillingCountry": "Austria",
          "BillingPostalCode": "1010",
          "Total": 18.86,
-         "Commission": 0.8552727,
+         "Commission": 0.86,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 90,
@@ -94501,10 +94590,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "89503",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-01-26T10:38:00"
       },
       {
          "InvoiceId": 91,
@@ -94516,10 +94606,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "32801",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 92,
@@ -94531,10 +94622,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "60611",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "00:11:37"
+         "ProcessingTime": "00:11:37",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 93,
@@ -94546,10 +94638,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "76110",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-02-09T12:38:00"
       },
       {
          "InvoiceId": 94,
@@ -94561,10 +94654,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "K2P 1L7",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "5.14:02:50"
+         "ProcessingTime": "5.14:02:50",
+         "PaymentDate": "2010-02-15T11:45:00"
       },
       {
          "InvoiceId": 95,
@@ -94576,10 +94670,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "10789",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "3.23:20:34"
+         "ProcessingTime": "3.23:20:34",
+         "PaymentDate": "2010-02-13T21:15:00"
       },
       {
          "InvoiceId": 96,
@@ -94591,10 +94686,11 @@
          "BillingCountry": "Hungary",
          "BillingPostalCode": "H-1073",
          "Total": 21.86,
-         "Commission": 0.9913182,
+         "Commission": 1,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-02-18T01:24:00"
       },
       {
          "InvoiceId": 97,
@@ -94606,10 +94702,11 @@
          "BillingCountry": "India",
          "BillingPostalCode": "560001",
          "Total": 1.99,
-         "Commission": 0.09024352,
+         "Commission": 0.1,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "2.22:27:03"
+         "ProcessingTime": "2.22:27:03",
+         "PaymentDate": "2010-02-27T21:59:00"
       },
       {
          "InvoiceId": 98,
@@ -94621,10 +94718,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "12227-000",
          "Total": 3.98,
-         "Commission": 0.18048704,
+         "Commission": 0.19,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "4.19:26:06"
+         "ProcessingTime": "4.19:26:06",
+         "PaymentDate": "2010-03-14T00:01:00"
       },
       {
          "InvoiceId": 99,
@@ -94636,10 +94734,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "H2G 1A7",
          "Total": 3.98,
-         "Commission": 0.18048704,
+         "Commission": 0.19,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "00:56:23"
+         "ProcessingTime": "00:56:23",
+         "PaymentDate": "2010-03-11T00:17:00"
       },
       {
          "InvoiceId": 100,
@@ -94651,10 +94750,11 @@
          "BillingCountry": "Czech Republic",
          "BillingPostalCode": "14700",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "00:20:40"
+         "ProcessingTime": "00:20:40",
+         "PaymentDate": "2010-03-12T00:15:00"
       },
       {
          "InvoiceId": 101,
@@ -94666,10 +94766,11 @@
          "BillingCountry": "Denmark",
          "BillingPostalCode": "1720",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 102,
@@ -94681,10 +94782,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "V6C 1G8",
          "Total": 9.91,
-         "Commission": 0.44940364,
+         "Commission": 0.45,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "2.04:31:46"
+         "ProcessingTime": "2.04:31:46",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 103,
@@ -94696,10 +94798,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "60611",
          "Total": 15.86,
-         "Commission": 0.7192272,
+         "Commission": 0.72,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "10:25:44"
+         "ProcessingTime": "10:25:44",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 104,
@@ -94711,10 +94814,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "10779",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-03-29T03:05:00"
       },
       {
          "InvoiceId": 105,
@@ -94726,10 +94830,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "75009",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "5.19:33:49"
+         "ProcessingTime": "5.19:33:49",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 106,
@@ -94741,10 +94846,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "69002",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "4.04:08:23"
+         "ProcessingTime": "4.04:08:23",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 107,
@@ -94756,10 +94862,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "21000",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 108,
@@ -94771,10 +94878,11 @@
          "BillingCountry": "Italy",
          "BillingPostalCode": "00192",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "00:40:22"
+         "ProcessingTime": "00:40:22",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 109,
@@ -94786,10 +94894,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "SW1V 3EN",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "00:40:22"
+         "ProcessingTime": "00:40:22",
+         "PaymentDate": "2010-04-16T00:19:00"
       },
       {
          "InvoiceId": 110,
@@ -94801,10 +94910,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "H2G 1A7",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "2.00:30:53"
+         "ProcessingTime": "2.00:30:53",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 111,
@@ -94816,10 +94926,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "98052-8300",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "4.02:23:25"
+         "ProcessingTime": "4.02:23:25",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 112,
@@ -94831,10 +94942,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "10012-2612",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 113,
@@ -94846,10 +94958,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "94040-111",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-05-12T11:04:00"
       },
       {
          "InvoiceId": 114,
@@ -94861,10 +94974,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "32801",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 115,
@@ -94876,10 +94990,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "76110",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "00:37:50"
+         "ProcessingTime": "00:37:50",
+         "PaymentDate": "2010-05-14T00:11:00"
       },
       {
          "InvoiceId": 116,
@@ -94891,10 +95006,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "R3L 2B9",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "4.21:16:31"
+         "ProcessingTime": "4.21:16:31",
+         "PaymentDate": "2010-05-19T23:10:00"
       },
       {
          "InvoiceId": 117,
@@ -94906,10 +95022,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "69002",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "00:47:35"
+         "ProcessingTime": "00:47:35",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 118,
@@ -94921,10 +95038,11 @@
          "BillingCountry": "Australia",
          "BillingPostalCode": "2010",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:31:32"
+         "ProcessingTime": "00:31:32",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 119,
@@ -94936,10 +95054,11 @@
          "BillingCountry": "Argentina",
          "BillingPostalCode": "1106",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-06-12T07:56:00"
       },
       {
          "InvoiceId": 120,
@@ -94951,10 +95070,11 @@
          "BillingCountry": "India",
          "BillingPostalCode": "110017",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-06-12T10:35:00"
       },
       {
          "InvoiceId": 121,
@@ -94966,10 +95086,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "12227-000",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "1.13:43:37"
+         "ProcessingTime": "1.13:43:37",
+         "PaymentDate": "2010-06-13T01:57:00"
       },
       {
          "InvoiceId": 122,
@@ -94981,10 +95102,11 @@
          "BillingCountry": "Czech Republic",
          "BillingPostalCode": "14700",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-06-14T02:24:00"
       },
       {
          "InvoiceId": 123,
@@ -94996,10 +95118,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "01310-200",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:42:28"
+         "ProcessingTime": "00:42:28",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 124,
@@ -95011,10 +95134,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "94040-111",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "1.08:27:25"
+         "ProcessingTime": "1.08:27:25",
+         "PaymentDate": "2010-06-22T10:49:00"
       },
       {
          "InvoiceId": 125,
@@ -95026,10 +95150,11 @@
          "BillingCountry": "Portugal",
          "BillingPostalCode": null,
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:35:18"
+         "ProcessingTime": "00:35:18",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 126,
@@ -95041,10 +95166,11 @@
          "BillingCountry": "Portugal",
          "BillingPostalCode": null,
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "00:22:06"
+         "ProcessingTime": "00:22:06",
+         "PaymentDate": "2010-07-13T00:14:00"
       },
       {
          "InvoiceId": 127,
@@ -95056,10 +95182,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "60316",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "2.23:16:23"
+         "ProcessingTime": "2.23:16:23",
+         "PaymentDate": "2010-07-14T19:40:00"
       },
       {
          "InvoiceId": 128,
@@ -95071,10 +95198,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "75009",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-07-14T02:17:00"
       },
       {
          "InvoiceId": 129,
@@ -95086,10 +95214,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "21000",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "4.10:21:22"
+         "ProcessingTime": "4.10:21:22",
+         "PaymentDate": "2010-07-19T08:23:00"
       },
       {
          "InvoiceId": 130,
@@ -95101,10 +95230,11 @@
          "BillingCountry": "Poland",
          "BillingPostalCode": "00-358",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-07-18T00:42:00"
       },
       {
          "InvoiceId": 131,
@@ -95116,10 +95246,11 @@
          "BillingCountry": "India",
          "BillingPostalCode": "110017",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "1.21:16:14"
+         "ProcessingTime": "1.21:16:14",
+         "PaymentDate": "2010-07-24T08:12:00"
       },
       {
          "InvoiceId": 132,
@@ -95131,10 +95262,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "71020-677",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "00:17:13"
+         "ProcessingTime": "00:17:13",
+         "PaymentDate": "2010-07-31T00:10:00"
       },
       {
          "InvoiceId": 133,
@@ -95146,10 +95278,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "T6G 2C7",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "1.23:53:48"
+         "ProcessingTime": "1.23:53:48",
+         "PaymentDate": "2010-08-14T06:35:00"
       },
       {
          "InvoiceId": 134,
@@ -95161,10 +95294,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "94043-1351",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-08-13T04:15:00"
       },
       {
          "InvoiceId": 135,
@@ -95176,10 +95310,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "10012-2612",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "00:41:37"
+         "ProcessingTime": "00:41:37",
+         "PaymentDate": "2010-08-14T00:32:00"
       },
       {
          "InvoiceId": 136,
@@ -95191,10 +95326,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "32801",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 137,
@@ -95206,10 +95342,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "84102",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 138,
@@ -95221,10 +95358,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "60316",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "00:09:42"
+         "ProcessingTime": "00:09:42",
+         "PaymentDate": "2010-08-23T00:06:00"
       },
       {
          "InvoiceId": 139,
@@ -95236,10 +95374,11 @@
          "BillingCountry": "Sweden",
          "BillingPostalCode": "11230",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "2.04:18:19"
+         "ProcessingTime": "2.04:18:19",
+         "PaymentDate": "2010-09-01T13:48:00"
       },
       {
          "InvoiceId": 140,
@@ -95251,10 +95390,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "N1 5LH",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-09-13T06:31:00"
       },
       {
          "InvoiceId": 141,
@@ -95266,10 +95406,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "EH4 1HH",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "00:45:15"
+         "ProcessingTime": "00:45:15",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 142,
@@ -95281,10 +95422,11 @@
          "BillingCountry": "Argentina",
          "BillingPostalCode": "1106",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "00:09:12"
+         "ProcessingTime": "00:09:12",
+         "PaymentDate": "2010-09-14T00:03:00"
       },
       {
          "InvoiceId": 143,
@@ -95296,10 +95438,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "12227-000",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 144,
@@ -95311,10 +95454,11 @@
          "BillingCountry": "Austria",
          "BillingPostalCode": "1010",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "00:32:54"
+         "ProcessingTime": "00:32:54",
+         "PaymentDate": "2010-09-18T00:17:00"
       },
       {
          "InvoiceId": 145,
@@ -95326,10 +95470,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "94043-1351",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "1.22:09:39"
+         "ProcessingTime": "1.22:09:39",
+         "PaymentDate": "2010-09-23T12:45:00"
       },
       {
          "InvoiceId": 146,
@@ -95341,10 +95486,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "K2P 1L7",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "00:13:04"
+         "ProcessingTime": "00:13:04",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 147,
@@ -95356,10 +95502,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "B3S 1C5",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "4.18:48:48"
+         "ProcessingTime": "4.18:48:48",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 148,
@@ -95371,10 +95518,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "X1A 1N6",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "5.02:43:55"
+         "ProcessingTime": "5.02:43:55",
+         "PaymentDate": "2010-10-16T07:23:00"
       },
       {
          "InvoiceId": 149,
@@ -95386,10 +95534,11 @@
          "BillingCountry": "Portugal",
          "BillingPostalCode": null,
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-10-15T10:15:00"
       },
       {
          "InvoiceId": 150,
@@ -95401,10 +95550,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "75009",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "22:49:30"
+         "ProcessingTime": "22:49:30",
+         "PaymentDate": "2010-10-16T03:19:00"
       },
       {
          "InvoiceId": 151,
@@ -95416,10 +95566,11 @@
          "BillingCountry": "Hungary",
          "BillingPostalCode": "H-1073",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 152,
@@ -95431,10 +95582,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "EH4 1HH",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 153,
@@ -95446,10 +95598,11 @@
          "BillingCountry": "Denmark",
          "BillingPostalCode": "1720",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-11-01T02:18:00"
       },
       {
          "InvoiceId": 154,
@@ -95461,10 +95614,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "01007-010",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 155,
@@ -95476,10 +95630,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "20040-020",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-11-14T08:06:00"
       },
       {
          "InvoiceId": 156,
@@ -95491,10 +95646,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "T6G 2C7",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "1.19:08:43"
+         "ProcessingTime": "1.19:08:43",
+         "PaymentDate": "2010-11-16T04:57:00"
       },
       {
          "InvoiceId": 157,
@@ -95506,10 +95662,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "10012-2612",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "6.08:00:02"
+         "ProcessingTime": "6.08:00:02",
+         "PaymentDate": "2010-11-18T20:25:00"
       },
       {
          "InvoiceId": 158,
@@ -95521,10 +95678,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "60611",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "00:04:05"
+         "ProcessingTime": "00:04:05",
+         "PaymentDate": "2010-11-19T00:02:00"
       },
       {
          "InvoiceId": 159,
@@ -95536,10 +95694,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "X1A 1N6",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 160,
@@ -95551,10 +95710,11 @@
          "BillingCountry": "Italy",
          "BillingPostalCode": "00192",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 161,
@@ -95566,10 +95726,11 @@
          "BillingCountry": "Netherlands",
          "BillingPostalCode": "1016",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:29:56"
+         "ProcessingTime": "00:29:56",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 162,
@@ -95581,10 +95742,11 @@
          "BillingCountry": "Spain",
          "BillingPostalCode": "28015",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 163,
@@ -95596,10 +95758,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "N1 5LH",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "11:48:32"
+         "ProcessingTime": "11:48:32",
+         "PaymentDate": "2010-12-16T02:24:00"
       },
       {
          "InvoiceId": 164,
@@ -95611,10 +95774,11 @@
          "BillingCountry": "Argentina",
          "BillingPostalCode": "1106",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-12-17T06:31:00"
       },
       {
          "InvoiceId": 165,
@@ -95626,10 +95790,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "H2G 1A7",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2010-12-20T16:14:00"
       },
       {
          "InvoiceId": 166,
@@ -95641,10 +95806,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "20040-020",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "3.10:14:59"
+         "ProcessingTime": "3.10:14:59",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 167,
@@ -95656,10 +95822,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "76110",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "3.08:51:18"
+         "ProcessingTime": "3.08:51:18",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 168,
@@ -95671,10 +95838,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "85719",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 169,
@@ -95686,10 +95854,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "M6J 1V1",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 170,
@@ -95701,10 +95870,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "B3S 1C5",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:48:50"
+         "ProcessingTime": "00:48:50",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 171,
@@ -95716,10 +95886,11 @@
          "BillingCountry": "Portugal",
          "BillingPostalCode": null,
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2011-01-17T00:45:00"
       },
       {
          "InvoiceId": 172,
@@ -95731,10 +95902,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "69002",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 173,
@@ -95746,10 +95918,11 @@
          "BillingCountry": "Spain",
          "BillingPostalCode": "28015",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2011-01-25T02:59:00"
       },
       {
          "InvoiceId": 174,
@@ -95761,10 +95934,11 @@
          "BillingCountry": "Czech Republic",
          "BillingPostalCode": "14700",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "5.00:05:58"
+         "ProcessingTime": "5.00:05:58",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 175,
@@ -95776,10 +95950,11 @@
          "BillingCountry": "Czech Republic",
          "BillingPostalCode": "14300",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "4.17:03:17"
+         "ProcessingTime": "4.17:03:17",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 176,
@@ -95791,10 +95966,11 @@
          "BillingCountry": "Belgium",
          "BillingPostalCode": "1000",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 177,
@@ -95806,10 +95982,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "01007-010",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "00:22:16"
+         "ProcessingTime": "00:22:16",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 178,
@@ -95821,10 +95998,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "T6G 2C7",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "00:54:12"
+         "ProcessingTime": "00:54:12",
+         "PaymentDate": "2011-02-17T00:30:00"
       },
       {
          "InvoiceId": 179,
@@ -95836,10 +96014,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "94040-111",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "9.18:03:39"
+         "ProcessingTime": "9.18:03:39",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 180,
@@ -95851,10 +96030,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "M6J 1V1",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 181,
@@ -95866,10 +96046,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "21000",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2011-03-05T06:37:00"
       },
       {
          "InvoiceId": 182,
@@ -95881,10 +96062,11 @@
          "BillingCountry": "Finland",
          "BillingPostalCode": "00530",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 183,
@@ -95896,10 +96078,11 @@
          "BillingCountry": "Ireland",
          "BillingPostalCode": null,
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "19:51:01"
+         "ProcessingTime": "19:51:01",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 184,
@@ -95911,10 +96094,11 @@
          "BillingCountry": "Netherlands",
          "BillingPostalCode": "1016",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 185,
@@ -95926,10 +96110,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "N1 5LH",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:46:55"
+         "ProcessingTime": "00:46:55",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 186,
@@ -95941,10 +96126,11 @@
          "BillingCountry": "India",
          "BillingPostalCode": "110017",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2011-03-23T00:39:00"
       },
       {
          "InvoiceId": 187,
@@ -95956,10 +96142,11 @@
          "BillingCountry": "Belgium",
          "BillingPostalCode": "1000",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "8.08:22:56"
+         "ProcessingTime": "8.08:22:56",
+         "PaymentDate": "2011-04-03T09:09:00"
       },
       {
          "InvoiceId": 188,
@@ -95971,10 +96158,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "32801",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 189,
@@ -95986,10 +96174,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "2113",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "00:24:02"
+         "ProcessingTime": "00:24:02",
+         "PaymentDate": "2011-04-18T00:13:00"
       },
       {
          "InvoiceId": 190,
@@ -96001,10 +96190,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "53703",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2011-04-18T09:35:00"
       },
       {
          "InvoiceId": 191,
@@ -96016,10 +96206,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "85719",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2011-04-19T10:50:00"
       },
       {
          "InvoiceId": 192,
@@ -96031,10 +96222,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "B3S 1C5",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2011-04-20T08:30:00"
       },
       {
          "InvoiceId": 193,
@@ -96046,10 +96238,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "60316",
          "Total": 14.91,
-         "Commission": 0.67614615,
+         "Commission": 0.68,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2011-04-23T12:56:00"
       },
       {
          "InvoiceId": 194,
@@ -96061,10 +96254,11 @@
          "BillingCountry": "Ireland",
          "BillingPostalCode": null,
          "Total": 21.86,
-         "Commission": 0.9913182,
+         "Commission": 1,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "1.14:30:50"
+         "ProcessingTime": "1.14:30:50",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 195,
@@ -96076,10 +96270,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "12227-000",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 196,
@@ -96091,10 +96286,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "70174",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 197,
@@ -96106,10 +96302,11 @@
          "BillingCountry": "Norway",
          "BillingPostalCode": "0171",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 198,
@@ -96121,10 +96318,11 @@
          "BillingCountry": "Czech Republic",
          "BillingPostalCode": "14300",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 199,
@@ -96136,10 +96334,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "01007-010",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "00:06:24"
+         "ProcessingTime": "00:06:24",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 200,
@@ -96151,10 +96350,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "94043-1351",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "6.21:02:32"
+         "ProcessingTime": "6.21:02:32",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 201,
@@ -96166,10 +96366,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "53703",
          "Total": 18.86,
-         "Commission": 0.8552727,
+         "Commission": 0.86,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "3.10:21:45"
+         "ProcessingTime": "3.10:21:45",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 202,
@@ -96181,10 +96382,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "75009",
          "Total": 1.99,
-         "Commission": 0.09024352,
+         "Commission": 0.1,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "00:52:57"
+         "ProcessingTime": "00:52:57",
+         "PaymentDate": "2011-06-06T00:48:00"
       },
       {
          "InvoiceId": 203,
@@ -96196,10 +96398,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "75002",
          "Total": 2.98,
-         "Commission": 0.13513853,
+         "Commission": 0.14,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 204,
@@ -96211,10 +96414,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "33000",
          "Total": 3.98,
-         "Commission": 0.18048704,
+         "Commission": 0.19,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 205,
@@ -96226,10 +96430,11 @@
          "BillingCountry": "Finland",
          "BillingPostalCode": "00530",
          "Total": 7.96,
-         "Commission": 0.36097407,
+         "Commission": 0.37,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2011-06-20T08:36:00"
       },
       {
          "InvoiceId": 206,
@@ -96241,10 +96446,11 @@
          "BillingCountry": "Netherlands",
          "BillingPostalCode": "1016",
          "Total": 8.94,
-         "Commission": 0.4054156,
+         "Commission": 0.41,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "00:42:04"
+         "ProcessingTime": "00:42:04",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 207,
@@ -96256,10 +96462,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "EH4 1HH",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:37:21"
+         "ProcessingTime": "00:37:21",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 208,
@@ -96271,10 +96478,11 @@
          "BillingCountry": "Norway",
          "BillingPostalCode": "0171",
          "Total": 15.86,
-         "Commission": 0.7192272,
+         "Commission": 0.72,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "6.10:14:28"
+         "ProcessingTime": "6.10:14:28",
+         "PaymentDate": "2011-07-01T16:47:00"
       },
       {
          "InvoiceId": 209,
@@ -96286,10 +96494,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "10012-2612",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2011-07-07T00:23:00"
       },
       {
          "InvoiceId": 210,
@@ -96301,10 +96510,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "95014",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "00:57:39"
+         "ProcessingTime": "00:57:39",
+         "PaymentDate": "2011-07-20T00:21:00"
       },
       {
          "InvoiceId": 211,
@@ -96316,10 +96526,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "89503",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "2.22:30:12"
+         "ProcessingTime": "2.22:30:12",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 212,
@@ -96331,10 +96542,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "2113",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "3.11:19:25"
+         "ProcessingTime": "3.11:19:25",
+         "PaymentDate": "2011-07-22T17:55:00"
       },
       {
          "InvoiceId": 213,
@@ -96346,10 +96558,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "85719",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "3.17:04:43"
+         "ProcessingTime": "3.17:04:43",
+         "PaymentDate": "2011-07-22T00:49:00"
       },
       {
          "InvoiceId": 214,
@@ -96361,10 +96574,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "X1A 1N6",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "8.23:01:41"
+         "ProcessingTime": "8.23:01:41",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 215,
@@ -96376,10 +96590,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "33000",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "00:10:52"
+         "ProcessingTime": "00:10:52",
+         "PaymentDate": "2011-07-30T00:04:00"
       },
       {
          "InvoiceId": 216,
@@ -96391,10 +96606,11 @@
          "BillingCountry": "Argentina",
          "BillingPostalCode": "1106",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 217,
@@ -96406,10 +96622,11 @@
          "BillingCountry": "Chile",
          "BillingPostalCode": null,
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "00:16:12"
+         "ProcessingTime": "00:16:12",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 218,
@@ -96421,10 +96638,11 @@
          "BillingCountry": "India",
          "BillingPostalCode": "560001",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "2.20:30:20"
+         "ProcessingTime": "2.20:30:20",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 219,
@@ -96436,10 +96654,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "70174",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "13:37:00"
+         "ProcessingTime": "13:37:00",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 220,
@@ -96451,10 +96670,11 @@
          "BillingCountry": "Czech Republic",
          "BillingPostalCode": "14300",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "7.10:53:12"
+         "ProcessingTime": "7.10:53:12",
+         "PaymentDate": "2011-08-22T16:04:00"
       },
       {
          "InvoiceId": 221,
@@ -96466,10 +96686,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "20040-020",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2011-08-25T05:14:00"
       },
       {
          "InvoiceId": 222,
@@ -96481,10 +96702,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "89503",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 223,
@@ -96496,10 +96718,11 @@
          "BillingCountry": "Portugal",
          "BillingPostalCode": null,
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:01:36"
+         "ProcessingTime": "00:01:36",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 224,
@@ -96511,10 +96734,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "10789",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "6.16:35:50"
+         "ProcessingTime": "6.16:35:50",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 225,
@@ -96526,10 +96750,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "10779",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:15:36"
+         "ProcessingTime": "00:15:36",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 226,
@@ -96541,10 +96766,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "75002",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "3.03:25:55"
+         "ProcessingTime": "3.03:25:55",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 227,
@@ -96556,10 +96782,11 @@
          "BillingCountry": "Finland",
          "BillingPostalCode": "00530",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "00:45:11"
+         "ProcessingTime": "00:45:11",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 228,
@@ -96571,10 +96798,11 @@
          "BillingCountry": "Spain",
          "BillingPostalCode": "28015",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "9.03:56:38"
+         "ProcessingTime": "9.03:56:38",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 229,
@@ -96586,10 +96814,11 @@
          "BillingCountry": "India",
          "BillingPostalCode": "560001",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "12:26:13"
+         "ProcessingTime": "12:26:13",
+         "PaymentDate": "2011-09-30T09:37:00"
       },
       {
          "InvoiceId": 230,
@@ -96601,10 +96830,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "T6G 2C7",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "8.20:25:04"
+         "ProcessingTime": "8.20:25:04",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 231,
@@ -96616,10 +96846,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "V6C 1G8",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2011-10-21T05:37:00"
       },
       {
          "InvoiceId": 232,
@@ -96631,10 +96862,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "98052-8300",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "00:40:35"
+         "ProcessingTime": "00:40:35",
+         "PaymentDate": "2011-10-21T00:01:00"
       },
       {
          "InvoiceId": 233,
@@ -96646,10 +96878,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "95014",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 234,
@@ -96661,10 +96894,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "2113",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "2.15:16:07"
+         "ProcessingTime": "2.15:16:07",
+         "PaymentDate": "2011-10-23T01:17:00"
       },
       {
          "InvoiceId": 235,
@@ -96676,10 +96910,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "M6J 1V1",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "1.06:51:01"
+         "ProcessingTime": "1.06:51:01",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 236,
@@ -96691,10 +96926,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "10779",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2011-10-31T15:07:00"
       },
       {
          "InvoiceId": 237,
@@ -96706,10 +96942,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "N1 5LH",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "00:07:01"
+         "ProcessingTime": "00:07:01",
+         "PaymentDate": "2011-11-08T00:01:00"
       },
       {
          "InvoiceId": 238,
@@ -96721,10 +96958,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "SW1V 3EN",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "00:53:59"
+         "ProcessingTime": "00:53:59",
+         "PaymentDate": "2011-11-21T00:44:00"
       },
       {
          "InvoiceId": 239,
@@ -96736,10 +96974,11 @@
          "BillingCountry": "Australia",
          "BillingPostalCode": "2010",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "00:57:05"
+         "ProcessingTime": "00:57:05",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 240,
@@ -96751,10 +96990,11 @@
          "BillingCountry": "Chile",
          "BillingPostalCode": null,
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "1.03:36:28"
+         "ProcessingTime": "1.03:36:28",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 241,
@@ -96766,10 +97006,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "70174",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "7.23:16:29"
+         "ProcessingTime": "7.23:16:29",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 242,
@@ -96781,10 +97022,11 @@
          "BillingCountry": "Belgium",
          "BillingPostalCode": "1000",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "2.14:50:36"
+         "ProcessingTime": "2.14:50:36",
+         "PaymentDate": "2011-11-28T14:26:00"
       },
       {
          "InvoiceId": 243,
@@ -96796,10 +97038,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "98052-8300",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:15:52"
+         "ProcessingTime": "00:15:52",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 244,
@@ -96811,10 +97054,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "B3S 1C5",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 245,
@@ -96826,10 +97070,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "R3L 2B9",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:20:49"
+         "ProcessingTime": "00:20:49",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 246,
@@ -96841,10 +97086,11 @@
          "BillingCountry": "Portugal",
          "BillingPostalCode": null,
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 247,
@@ -96856,10 +97102,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "10789",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "4.08:41:49"
+         "ProcessingTime": "4.08:41:49",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 248,
@@ -96871,10 +97118,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "75002",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "00:11:41"
+         "ProcessingTime": "00:11:41",
+         "PaymentDate": "2011-12-24T00:02:00"
       },
       {
          "InvoiceId": 249,
@@ -96886,10 +97134,11 @@
          "BillingCountry": "Ireland",
          "BillingPostalCode": null,
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2011-12-27T07:01:00"
       },
       {
          "InvoiceId": 250,
@@ -96901,10 +97150,11 @@
          "BillingCountry": "Australia",
          "BillingPostalCode": "2010",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-01-01T13:00:00"
       },
       {
          "InvoiceId": 251,
@@ -96916,10 +97166,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "01007-010",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "3.09:07:02"
+         "ProcessingTime": "3.09:07:02",
+         "PaymentDate": "2012-01-11T04:28:00"
       },
       {
          "InvoiceId": 252,
@@ -96931,10 +97182,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "01310-200",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-01-22T12:20:00"
       },
       {
          "InvoiceId": 253,
@@ -96946,10 +97198,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "71020-677",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-01-22T10:22:00"
       },
       {
          "InvoiceId": 254,
@@ -96961,10 +97214,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "V6C 1G8",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 255,
@@ -96976,10 +97230,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "95014",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "00:59:22"
+         "ProcessingTime": "00:59:22",
+         "PaymentDate": "2012-01-24T00:27:00"
       },
       {
          "InvoiceId": 256,
@@ -96991,10 +97246,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "53703",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "5.15:16:25"
+         "ProcessingTime": "5.15:16:25",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 257,
@@ -97006,10 +97262,11 @@
          "BillingCountry": "Portugal",
          "BillingPostalCode": null,
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:37:06"
+         "ProcessingTime": "00:37:06",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 258,
@@ -97021,10 +97278,11 @@
          "BillingCountry": "Netherlands",
          "BillingPostalCode": "1016",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "00:47:45"
+         "ProcessingTime": "00:47:45",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 259,
@@ -97036,10 +97294,11 @@
          "BillingCountry": "Poland",
          "BillingPostalCode": "00-358",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-02-22T11:25:00"
       },
       {
          "InvoiceId": 260,
@@ -97051,10 +97310,11 @@
          "BillingCountry": "Sweden",
          "BillingPostalCode": "11230",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "7.04:07:45"
+         "ProcessingTime": "7.04:07:45",
+         "PaymentDate": "2012-02-24T21:38:00"
       },
       {
          "InvoiceId": 261,
@@ -97066,10 +97326,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "SW1V 3EN",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-02-23T12:35:00"
       },
       {
          "InvoiceId": 262,
@@ -97081,10 +97342,11 @@
          "BillingCountry": "Chile",
          "BillingPostalCode": null,
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 263,
@@ -97096,10 +97358,11 @@
          "BillingCountry": "Norway",
          "BillingPostalCode": "0171",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "00:47:23"
+         "ProcessingTime": "00:47:23",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 264,
@@ -97111,10 +97374,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "71020-677",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "12:11:03"
+         "ProcessingTime": "12:11:03",
+         "PaymentDate": "2012-03-03T11:39:00"
       },
       {
          "InvoiceId": 265,
@@ -97126,10 +97390,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "85719",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "00:05:08"
+         "ProcessingTime": "00:05:08",
+         "PaymentDate": "2012-03-11T00:03:00"
       },
       {
          "InvoiceId": 266,
@@ -97141,10 +97406,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "84102",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "1.19:17:45"
+         "ProcessingTime": "1.19:17:45",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 267,
@@ -97156,10 +97422,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "K2P 1L7",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-03-24T13:04:00"
       },
       {
          "InvoiceId": 268,
@@ -97171,10 +97438,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "R3L 2B9",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-03-25T14:51:00"
       },
       {
          "InvoiceId": 269,
@@ -97186,10 +97454,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "10789",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "4.00:33:34"
+         "ProcessingTime": "4.00:33:34",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 270,
@@ -97201,10 +97470,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "33000",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-03-29T12:53:00"
       },
       {
          "InvoiceId": 271,
@@ -97216,10 +97486,11 @@
          "BillingCountry": "Sweden",
          "BillingPostalCode": "11230",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-04-03T11:20:00"
       },
       {
          "InvoiceId": 272,
@@ -97231,10 +97502,11 @@
          "BillingCountry": "Czech Republic",
          "BillingPostalCode": "14300",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 273,
@@ -97246,10 +97518,11 @@
          "BillingCountry": "Austria",
          "BillingPostalCode": "1010",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "9.09:50:40"
+         "ProcessingTime": "9.09:50:40",
+         "PaymentDate": "2012-04-30T05:22:00"
       },
       {
          "InvoiceId": 274,
@@ -97261,10 +97534,11 @@
          "BillingCountry": "Denmark",
          "BillingPostalCode": "1720",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 275,
@@ -97276,10 +97550,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "01310-200",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-04-25T10:37:00"
       },
       {
          "InvoiceId": 276,
@@ -97291,10 +97566,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "V6C 1G8",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "8.13:16:02"
+         "ProcessingTime": "8.13:16:02",
+         "PaymentDate": "2012-05-02T01:39:00"
       },
       {
          "InvoiceId": 277,
@@ -97306,10 +97582,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "89503",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "7.05:03:25"
+         "ProcessingTime": "7.05:03:25",
+         "PaymentDate": "2012-05-02T08:50:00"
       },
       {
          "InvoiceId": 278,
@@ -97321,10 +97598,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "K2P 1L7",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "00:06:21"
+         "ProcessingTime": "00:06:21",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 279,
@@ -97336,10 +97614,11 @@
          "BillingCountry": "Finland",
          "BillingPostalCode": "00530",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "9.04:59:22"
+         "ProcessingTime": "9.04:59:22",
+         "PaymentDate": "2012-05-14T17:16:00"
       },
       {
          "InvoiceId": 280,
@@ -97351,10 +97630,11 @@
          "BillingCountry": "Hungary",
          "BillingPostalCode": "H-1073",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "3.12:49:32"
+         "ProcessingTime": "3.12:49:32",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 281,
@@ -97366,10 +97646,11 @@
          "BillingCountry": "Italy",
          "BillingPostalCode": "00192",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "00:39:36"
+         "ProcessingTime": "00:39:36",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 282,
@@ -97381,10 +97662,11 @@
          "BillingCountry": "Poland",
          "BillingPostalCode": "00-358",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "9.06:40:21"
+         "ProcessingTime": "9.06:40:21",
+         "PaymentDate": "2012-06-03T18:49:00"
       },
       {
          "InvoiceId": 283,
@@ -97396,10 +97678,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "SW1V 3EN",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "2.15:44:56"
+         "ProcessingTime": "2.15:44:56",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 284,
@@ -97411,10 +97694,11 @@
          "BillingCountry": "India",
          "BillingPostalCode": "560001",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-05-30T11:47:00"
       },
       {
          "InvoiceId": 285,
@@ -97426,10 +97710,11 @@
          "BillingCountry": "Denmark",
          "BillingPostalCode": "1720",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "7.03:39:10"
+         "ProcessingTime": "7.03:39:10",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 286,
@@ -97441,10 +97726,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "2113",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 287,
@@ -97456,10 +97742,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "60611",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "00:33:37"
+         "ProcessingTime": "00:33:37",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 288,
@@ -97471,10 +97758,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "76110",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "1.14:41:23"
+         "ProcessingTime": "1.14:41:23",
+         "PaymentDate": "2012-06-26T04:58:00"
       },
       {
          "InvoiceId": 289,
@@ -97486,10 +97774,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "84102",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "2.13:17:33"
+         "ProcessingTime": "2.13:17:33",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 290,
@@ -97501,10 +97790,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "R3L 2B9",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "3.14:26:14"
+         "ProcessingTime": "3.14:26:14",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 291,
@@ -97516,10 +97806,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "10779",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 292,
@@ -97531,10 +97822,11 @@
          "BillingCountry": "Italy",
          "BillingPostalCode": "00192",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-07-05T05:02:00"
       },
       {
          "InvoiceId": 293,
@@ -97546,10 +97838,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "70174",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "14:52:43"
+         "ProcessingTime": "14:52:43",
+         "PaymentDate": "2012-07-13T09:54:00"
       },
       {
          "InvoiceId": 294,
@@ -97561,10 +97854,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "H2G 1A7",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-07-26T04:28:00"
       },
       {
          "InvoiceId": 295,
@@ -97576,10 +97870,11 @@
          "BillingCountry": "Czech Republic",
          "BillingPostalCode": "14700",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "00:28:30"
+         "ProcessingTime": "00:28:30",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 296,
@@ -97591,10 +97886,11 @@
          "BillingCountry": "Austria",
          "BillingPostalCode": "1010",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "2.16:19:52"
+         "ProcessingTime": "2.16:19:52",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 297,
@@ -97606,10 +97902,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "01310-200",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "6.01:01:13"
+         "ProcessingTime": "6.01:01:13",
+         "PaymentDate": "2012-08-02T01:51:00"
       },
       {
          "InvoiceId": 298,
@@ -97621,10 +97918,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "98052-8300",
          "Total": 10.91,
-         "Commission": 0.49475214,
+         "Commission": 0.5,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "5.06:53:09"
+         "ProcessingTime": "5.06:53:09",
+         "PaymentDate": "2012-08-02T21:12:00"
       },
       {
          "InvoiceId": 299,
@@ -97636,10 +97934,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "76110",
          "Total": 23.86,
-         "Commission": 1.0820152,
+         "Commission": 1.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "3.04:34:22"
+         "ProcessingTime": "3.04:34:22",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 300,
@@ -97651,10 +97950,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "75002",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 301,
@@ -97666,10 +97966,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "69002",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "8.21:14:34"
+         "ProcessingTime": "8.21:14:34",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 302,
@@ -97681,10 +97982,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "21000",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:57:44"
+         "ProcessingTime": "00:57:44",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 303,
@@ -97696,10 +97998,11 @@
          "BillingCountry": "Hungary",
          "BillingPostalCode": "H-1073",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-08-27T06:17:00"
       },
       {
          "InvoiceId": 304,
@@ -97711,10 +98014,11 @@
          "BillingCountry": "Poland",
          "BillingPostalCode": "00-358",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "00:35:12"
+         "ProcessingTime": "00:35:12",
+         "PaymentDate": "2012-08-28T00:05:00"
       },
       {
          "InvoiceId": 305,
@@ -97726,10 +98030,11 @@
          "BillingCountry": "Australia",
          "BillingPostalCode": "2010",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 306,
@@ -97741,10 +98046,11 @@
          "BillingCountry": "Czech Republic",
          "BillingPostalCode": "14700",
          "Total": 16.86,
-         "Commission": 0.7645757,
+         "Commission": 0.77,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-09-05T12:40:00"
       },
       {
          "InvoiceId": 307,
@@ -97756,10 +98062,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "95014",
          "Total": 1.99,
-         "Commission": 0.09024352,
+         "Commission": 0.1,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-09-13T11:51:00"
       },
       {
          "InvoiceId": 308,
@@ -97771,10 +98078,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "94040-111",
          "Total": 3.98,
-         "Commission": 0.18048704,
+         "Commission": 0.19,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-09-26T09:41:00"
       },
       {
          "InvoiceId": 309,
@@ -97786,10 +98094,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "32801",
          "Total": 3.98,
-         "Commission": 0.18048704,
+         "Commission": 0.19,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-09-26T08:09:00"
       },
       {
          "InvoiceId": 310,
@@ -97801,10 +98110,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "60611",
          "Total": 7.96,
-         "Commission": 0.36097407,
+         "Commission": 0.37,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-09-27T01:39:00"
       },
       {
          "InvoiceId": 311,
@@ -97816,10 +98126,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "84102",
          "Total": 11.94,
-         "Commission": 0.5414611,
+         "Commission": 0.55,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 312,
@@ -97831,10 +98142,11 @@
          "BillingCountry": "Portugal",
          "BillingPostalCode": null,
          "Total": 10.91,
-         "Commission": 0.49475214,
+         "Commission": 0.5,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 313,
@@ -97846,10 +98158,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "21000",
          "Total": 16.86,
-         "Commission": 0.7645757,
+         "Commission": 0.77,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "4.00:23:21"
+         "ProcessingTime": "4.00:23:21",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 314,
@@ -97861,10 +98174,11 @@
          "BillingCountry": "Chile",
          "BillingPostalCode": null,
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:10:26"
+         "ProcessingTime": "00:10:26",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 315,
@@ -97876,10 +98190,11 @@
          "BillingCountry": "India",
          "BillingPostalCode": "110017",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "00:22:41"
+         "ProcessingTime": "00:22:41",
+         "PaymentDate": "2012-10-27T00:20:00"
       },
       {
          "InvoiceId": 316,
@@ -97891,10 +98206,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "12227-000",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "1.15:12:23"
+         "ProcessingTime": "1.15:12:23",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 317,
@@ -97906,10 +98222,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "H2G 1A7",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-10-28T05:10:00"
       },
       {
          "InvoiceId": 318,
@@ -97921,10 +98238,11 @@
          "BillingCountry": "Austria",
          "BillingPostalCode": "1010",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:18:20"
+         "ProcessingTime": "00:18:20",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 319,
@@ -97936,10 +98254,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "71020-677",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 320,
@@ -97951,10 +98270,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "32801",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "00:09:59"
+         "ProcessingTime": "00:09:59",
+         "PaymentDate": "2012-11-06T00:06:00"
       },
       {
          "InvoiceId": 321,
@@ -97966,10 +98286,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "10789",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 322,
@@ -97981,10 +98302,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "60316",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "3.23:11:45"
+         "ProcessingTime": "3.23:11:45",
+         "PaymentDate": "2012-11-30T04:14:00"
       },
       {
          "InvoiceId": 323,
@@ -97996,10 +98318,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "75009",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "4.14:40:19"
+         "ProcessingTime": "4.14:40:19",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 324,
@@ -98011,10 +98334,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "69002",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 325,
@@ -98026,10 +98350,11 @@
          "BillingCountry": "Hungary",
          "BillingPostalCode": "H-1073",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2012-11-29T09:10:00"
       },
       {
          "InvoiceId": 326,
@@ -98041,10 +98366,11 @@
          "BillingCountry": "Sweden",
          "BillingPostalCode": "11230",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "8.11:53:30"
+         "ProcessingTime": "8.11:53:30",
+         "PaymentDate": "2012-12-07T21:24:00"
       },
       {
          "InvoiceId": 327,
@@ -98056,10 +98382,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "12227-000",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "4.12:09:06"
+         "ProcessingTime": "4.12:09:06",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 328,
@@ -98071,10 +98398,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "V6C 1G8",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:41:34"
+         "ProcessingTime": "00:41:34",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 329,
@@ -98086,10 +98414,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "94043-1351",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "00:51:23"
+         "ProcessingTime": "00:51:23",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 330,
@@ -98101,10 +98430,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "10012-2612",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "9.05:14:01"
+         "ProcessingTime": "9.05:14:01",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 331,
@@ -98116,10 +98446,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "94040-111",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "9.17:11:15"
+         "ProcessingTime": "9.17:11:15",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 332,
@@ -98131,10 +98462,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "60611",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "9.04:49:26"
+         "ProcessingTime": "9.04:49:26",
+         "PaymentDate": "2012-12-30T21:47:00"
       },
       {
          "InvoiceId": 333,
@@ -98146,10 +98478,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "K2P 1L7",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "00:15:30"
+         "ProcessingTime": "00:15:30",
+         "PaymentDate": "2013-01-02T00:04:00"
       },
       {
          "InvoiceId": 334,
@@ -98161,10 +98494,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "75009",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "00:13:50"
+         "ProcessingTime": "00:13:50",
+         "PaymentDate": "2013-01-07T00:06:00"
       },
       {
          "InvoiceId": 335,
@@ -98176,10 +98510,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "SW1V 3EN",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "1.18:41:26"
+         "ProcessingTime": "1.18:41:26",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 336,
@@ -98191,10 +98526,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "EH4 1HH",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "2.03:17:36"
+         "ProcessingTime": "2.03:17:36",
+         "PaymentDate": "2013-01-28T13:37:00"
       },
       {
          "InvoiceId": 337,
@@ -98206,10 +98542,11 @@
          "BillingCountry": "Argentina",
          "BillingPostalCode": "1106",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "5.02:00:40"
+         "ProcessingTime": "5.02:00:40",
+         "PaymentDate": "2013-01-30T16:03:00"
       },
       {
          "InvoiceId": 338,
@@ -98221,10 +98558,11 @@
          "BillingCountry": "India",
          "BillingPostalCode": "110017",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:42:50"
+         "ProcessingTime": "00:42:50",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 339,
@@ -98236,10 +98574,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "H2G 1A7",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 340,
@@ -98251,10 +98590,11 @@
          "BillingCountry": "Denmark",
          "BillingPostalCode": "1720",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2013-02-02T14:45:00"
       },
       {
          "InvoiceId": 341,
@@ -98266,10 +98606,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "10012-2612",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 342,
@@ -98281,10 +98622,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "R3L 2B9",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2013-02-15T09:24:00"
       },
       {
          "InvoiceId": 343,
@@ -98296,10 +98638,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "X1A 1N6",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "00:02:28"
+         "ProcessingTime": "00:02:28",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 344,
@@ -98311,10 +98654,11 @@
          "BillingCountry": "Portugal",
          "BillingPostalCode": null,
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "3.15:57:26"
+         "ProcessingTime": "3.15:57:26",
+         "PaymentDate": "2013-03-01T06:09:00"
       },
       {
          "InvoiceId": 345,
@@ -98326,10 +98670,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "60316",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "00:51:38"
+         "ProcessingTime": "00:51:38",
+         "PaymentDate": "2013-03-01T00:18:00"
       },
       {
          "InvoiceId": 346,
@@ -98341,10 +98686,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "69002",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "1.19:27:33"
+         "ProcessingTime": "1.19:27:33",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 347,
@@ -98356,10 +98702,11 @@
          "BillingCountry": "Italy",
          "BillingPostalCode": "00192",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "9.17:34:53"
+         "ProcessingTime": "9.17:34:53",
+         "PaymentDate": "2013-03-07T15:35:00"
       },
       {
          "InvoiceId": 348,
@@ -98371,10 +98718,11 @@
          "BillingCountry": "Argentina",
          "BillingPostalCode": "1106",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "8.11:05:48"
+         "ProcessingTime": "8.11:05:48",
+         "PaymentDate": "2013-03-12T12:18:00"
       },
       {
          "InvoiceId": 349,
@@ -98386,10 +98734,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "01310-200",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2013-03-18T06:31:00"
       },
       {
          "InvoiceId": 350,
@@ -98401,10 +98750,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "20040-020",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "00:32:39"
+         "ProcessingTime": "00:32:39",
+         "PaymentDate": "2013-03-31T00:21:00"
       },
       {
          "InvoiceId": 351,
@@ -98416,10 +98766,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "T6G 2C7",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "3.02:44:57"
+         "ProcessingTime": "3.02:44:57",
+         "PaymentDate": "2013-03-31T16:08:00"
       },
       {
          "InvoiceId": 352,
@@ -98431,10 +98782,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "94043-1351",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 353,
@@ -98446,10 +98798,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "94040-111",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "00:05:17"
+         "ProcessingTime": "00:05:17",
+         "PaymentDate": "2013-04-02T00:03:00"
       },
       {
          "InvoiceId": 354,
@@ -98461,10 +98814,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "76110",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "1.20:32:46"
+         "ProcessingTime": "1.20:32:46",
+         "PaymentDate": "2013-04-05T01:19:00"
       },
       {
          "InvoiceId": 355,
@@ -98476,10 +98830,11 @@
          "BillingCountry": "Portugal",
          "BillingPostalCode": null,
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2013-04-10T05:57:00"
       },
       {
          "InvoiceId": 356,
@@ -98491,10 +98846,11 @@
          "BillingCountry": "Poland",
          "BillingPostalCode": "00-358",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "8.21:37:09"
+         "ProcessingTime": "8.21:37:09",
+         "PaymentDate": "2013-04-18T15:06:00"
       },
       {
          "InvoiceId": 357,
@@ -98506,10 +98862,11 @@
          "BillingCountry": "Spain",
          "BillingPostalCode": "28015",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "00:56:09"
+         "ProcessingTime": "00:56:09",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 358,
@@ -98521,10 +98878,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "N1 5LH",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "00:48:34"
+         "ProcessingTime": "00:48:34",
+         "PaymentDate": "2013-05-01T00:17:00"
       },
       {
          "InvoiceId": 359,
@@ -98536,10 +98894,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "EH4 1HH",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:00:15"
+         "ProcessingTime": "00:00:15",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 360,
@@ -98551,10 +98910,11 @@
          "BillingCountry": "India",
          "BillingPostalCode": "110017",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "8.17:54:23"
+         "ProcessingTime": "8.17:54:23",
+         "PaymentDate": "2013-05-08T11:46:00"
       },
       {
          "InvoiceId": 361,
@@ -98566,10 +98926,11 @@
          "BillingCountry": "Czech Republic",
          "BillingPostalCode": "14700",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "3.11:24:50"
+         "ProcessingTime": "3.11:24:50",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 362,
@@ -98581,10 +98942,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "T6G 2C7",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 363,
@@ -98596,10 +98958,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "84102",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "4.16:07:23"
+         "ProcessingTime": "4.16:07:23",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 364,
@@ -98611,10 +98974,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "M6J 1V1",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:06:03"
+         "ProcessingTime": "00:06:03",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 365,
@@ -98626,10 +98990,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "B3S 1C5",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "5.23:53:36"
+         "ProcessingTime": "5.23:53:36",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 366,
@@ -98641,10 +99006,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "X1A 1N6",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "4.09:10:54"
+         "ProcessingTime": "4.09:10:54",
+         "PaymentDate": "2013-06-02T14:24:00"
       },
       {
          "InvoiceId": 367,
@@ -98656,10 +99022,11 @@
          "BillingCountry": "Germany",
          "BillingPostalCode": "60316",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 368,
@@ -98671,10 +99038,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "21000",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "5.04:50:45"
+         "ProcessingTime": "5.04:50:45",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 369,
@@ -98686,10 +99054,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "N1 5LH",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 370,
@@ -98701,10 +99070,11 @@
          "BillingCountry": "Austria",
          "BillingPostalCode": "1010",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": "9.03:16:34"
+         "ProcessingTime": "9.03:16:34",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 371,
@@ -98716,10 +99086,11 @@
          "BillingCountry": "Belgium",
          "BillingPostalCode": "1000",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:25:02"
+         "ProcessingTime": "00:25:02",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 372,
@@ -98731,10 +99102,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "01007-010",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 373,
@@ -98746,10 +99118,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "20040-020",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2013-07-03T00:43:00"
       },
       {
          "InvoiceId": 374,
@@ -98761,10 +99134,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "94043-1351",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 375,
@@ -98776,10 +99150,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "32801",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:02:47"
+         "ProcessingTime": "00:02:47",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 376,
@@ -98791,10 +99166,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "B3S 1C5",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2013-07-12T10:33:00"
       },
       {
          "InvoiceId": 377,
@@ -98806,10 +99182,11 @@
          "BillingCountry": "Hungary",
          "BillingPostalCode": "H-1073",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "1.09:43:33"
+         "ProcessingTime": "1.09:43:33",
+         "PaymentDate": "2013-07-20T06:47:00"
       },
       {
          "InvoiceId": 378,
@@ -98821,10 +99198,11 @@
          "BillingCountry": "Ireland",
          "BillingPostalCode": null,
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:08:30"
+         "ProcessingTime": "00:08:30",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 379,
@@ -98836,10 +99214,11 @@
          "BillingCountry": "Netherlands",
          "BillingPostalCode": "1016",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 380,
@@ -98851,10 +99230,11 @@
          "BillingCountry": "Spain",
          "BillingPostalCode": "28015",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "00:07:33"
+         "ProcessingTime": "00:07:33",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 381,
@@ -98866,10 +99246,11 @@
          "BillingCountry": "United Kingdom",
          "BillingPostalCode": "EH4 1HH",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "4.04:08:38"
+         "ProcessingTime": "4.04:08:38",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 382,
@@ -98881,10 +99262,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "12227-000",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2013-08-07T02:04:00"
       },
       {
          "InvoiceId": 383,
@@ -98896,10 +99278,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "01007-010",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "9.02:57:47"
+         "ProcessingTime": "9.02:57:47",
+         "PaymentDate": "2013-08-13T20:45:00"
       },
       {
          "InvoiceId": 384,
@@ -98911,10 +99294,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "60611",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "00:26:32"
+         "ProcessingTime": "00:26:32",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 385,
@@ -98926,10 +99310,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "53703",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2013-09-02T06:51:00"
       },
       {
          "InvoiceId": 386,
@@ -98941,10 +99326,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "85719",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 387,
@@ -98956,10 +99342,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "M6J 1V1",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "6.03:08:07"
+         "ProcessingTime": "6.03:08:07",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 388,
@@ -98971,10 +99358,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "X1A 1N6",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "00:54:23"
+         "ProcessingTime": "00:54:23",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 389,
@@ -98986,10 +99374,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "75009",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 390,
@@ -99001,10 +99390,11 @@
          "BillingCountry": "Netherlands",
          "BillingPostalCode": "1016",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "00:12:42"
+         "ProcessingTime": "00:12:42",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 391,
@@ -99016,10 +99406,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "H2G 1A7",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "00:25:09"
+         "ProcessingTime": "00:25:09",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 392,
@@ -99031,10 +99422,11 @@
          "BillingCountry": "Norway",
          "BillingPostalCode": "0171",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "00:26:32"
+         "ProcessingTime": "00:26:32",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 393,
@@ -99046,10 +99438,11 @@
          "BillingCountry": "Czech Republic",
          "BillingPostalCode": "14300",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2013-10-03T11:23:00"
       },
       {
          "InvoiceId": 394,
@@ -99061,10 +99454,11 @@
          "BillingCountry": "Belgium",
          "BillingPostalCode": "1000",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "7.15:08:21"
+         "ProcessingTime": "7.15:08:21",
+         "PaymentDate": "2013-10-09T04:50:00"
       },
       {
          "InvoiceId": 395,
@@ -99076,10 +99470,11 @@
          "BillingCountry": "Brazil",
          "BillingPostalCode": "20040-020",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "8.16:30:21"
+         "ProcessingTime": "8.16:30:21",
+         "PaymentDate": "2013-10-08T02:39:00"
       },
       {
          "InvoiceId": 396,
@@ -99091,10 +99486,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "10012-2612",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": "2.00:09:26"
+         "ProcessingTime": "2.00:09:26",
+         "PaymentDate": "2013-10-09T17:25:00"
       },
       {
          "InvoiceId": 397,
@@ -99106,10 +99502,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "85719",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 1,
          "Status": 0,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 398,
@@ -99121,10 +99518,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "69002",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": "9.23:26:19"
+         "ProcessingTime": "9.23:26:19",
+         "PaymentDate": "2013-10-30T01:30:00"
       },
       {
          "InvoiceId": 399,
@@ -99136,10 +99534,11 @@
          "BillingCountry": "France",
          "BillingPostalCode": "33000",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 5,
          "Status": 2,
-         "ProcessingTime": "7.08:30:42"
+         "ProcessingTime": "7.08:30:42",
+         "PaymentDate": "2013-11-09T18:38:00"
       },
       {
          "InvoiceId": 400,
@@ -99151,10 +99550,11 @@
          "BillingCountry": "Finland",
          "BillingPostalCode": "00530",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 8,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2013-11-03T10:05:00"
       },
       {
          "InvoiceId": 401,
@@ -99166,10 +99566,11 @@
          "BillingCountry": "Ireland",
          "BillingPostalCode": null,
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "6.19:38:34"
+         "ProcessingTime": "6.19:38:34",
+         "PaymentDate": "2013-11-09T18:47:00"
       },
       {
          "InvoiceId": 402,
@@ -99181,10 +99582,11 @@
          "BillingCountry": "Spain",
          "BillingPostalCode": "28015",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 403,
@@ -99196,10 +99598,11 @@
          "BillingCountry": "Argentina",
          "BillingPostalCode": "1106",
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "2.23:56:29"
+         "ProcessingTime": "2.23:56:29",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 404,
@@ -99211,10 +99614,11 @@
          "BillingCountry": "Czech Republic",
          "BillingPostalCode": "14300",
          "Total": 25.86,
-         "Commission": 1.1727122,
+         "Commission": 1.18,
          "EmployeeId": 6,
          "Status": 2,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2013-11-13T07:34:00"
       },
       {
          "InvoiceId": 405,
@@ -99226,10 +99630,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "94040-111",
          "Total": 0.99,
-         "Commission": 0.044895016,
+         "Commission": 0.05,
          "EmployeeId": 4,
          "Status": 1,
-         "ProcessingTime": "2.11:24:02"
+         "ProcessingTime": "2.11:24:02",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 406,
@@ -99241,10 +99646,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "89503",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "8.04:33:52"
+         "ProcessingTime": "8.04:33:52",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 407,
@@ -99256,10 +99662,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "2113",
          "Total": 1.98,
-         "Commission": 0.08979003,
+         "Commission": 0.09,
          "EmployeeId": 2,
          "Status": 0,
-         "ProcessingTime": "7.04:27:05"
+         "ProcessingTime": "7.04:27:05",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 408,
@@ -99271,10 +99678,11 @@
          "BillingCountry": "USA",
          "BillingPostalCode": "53703",
          "Total": 3.96,
-         "Commission": 0.17958006,
+         "Commission": 0.18,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "22:17:37"
+         "ProcessingTime": "22:17:37",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 409,
@@ -99286,10 +99694,11 @@
          "BillingCountry": "Canada",
          "BillingPostalCode": "M6J 1V1",
          "Total": 5.94,
-         "Commission": 0.26937008,
+         "Commission": 0.27,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": "9.04:00:41"
+         "ProcessingTime": "9.04:00:41",
+         "PaymentDate": null
       },
       {
          "InvoiceId": 410,
@@ -99301,10 +99710,11 @@
          "BillingCountry": "Portugal",
          "BillingPostalCode": null,
          "Total": 8.91,
-         "Commission": 0.40405515,
+         "Commission": 0.41,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": "2013-12-09T04:21:00"
       },
       {
          "InvoiceId": 411,
@@ -99316,10 +99726,11 @@
          "BillingCountry": "Finland",
          "BillingPostalCode": "00530",
          "Total": 13.86,
-         "Commission": 0.6285302,
+         "Commission": 0.63,
          "EmployeeId": 3,
          "Status": 1,
-         "ProcessingTime": null
+         "ProcessingTime": null,
+         "PaymentDate": null
       },
       {
          "InvoiceId": 412,
@@ -99331,10 +99742,11 @@
          "BillingCountry": "India",
          "BillingPostalCode": "110017",
          "Total": 1.99,
-         "Commission": 0.09024352,
+         "Commission": 0.1,
          "EmployeeId": 7,
          "Status": 3,
-         "ProcessingTime": "4.21:27:59"
+         "ProcessingTime": "4.21:27:59",
+         "PaymentDate": "2013-12-22T03:34:00"
       }
    ]
 }

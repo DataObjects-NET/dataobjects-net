@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 {
@@ -35,21 +36,13 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     public string Name { get; set; }
   }
 
-  [HierarchyRoot]
-  [DebuggerDisplay("{FirstName} {LastName} (CustomerId = {CustomerId})")]
-  public class Customer : Entity
+  public abstract class Person : Entity
   {
-    [Field, Key]
-    public int CustomerId { get; private set; }
-
-    [Field(Nullable = false, Length = 20)]
-    public string FirstName { get; set; }
-
     [Field(Nullable = false, Length = 20)]
     public string LastName { get; set; }
 
-    [Field(Length = 80)]
-    public string Company { get; set; }
+    [Field(Nullable = false, Length = 20)]
+    public string FirstName { get; set; }
 
     [Field]
     public Address Address { get; set; }
@@ -62,26 +55,36 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field(Length = 60)]
     public string Email { get; set; }
+  }
+
+  [HierarchyRoot]
+  [DebuggerDisplay("{FirstName} {LastName} (CustomerId = {CustomerId})")]
+  public class Customer : Person
+  {
+    [Field, Key]
+    public int CustomerId { get; private set; }
+
+    [Field(Length = 80)]
+    public string Company { get; set; }
 
     [Field]
     public Employee SupportRep { get; set; }
 
     [Field, Association(PairTo = "Customer")]
     public EntitySet<Invoice> Invoices { get; private set; }
+
+    /// <summary>
+    /// Tests subqery with 'this' scenario.
+    /// </summary>
+    public Invoice FirstInvoice => Session.Query.All<Invoice>().Where(o => o.Customer==this).FirstOrDefault();
   }
 
   [HierarchyRoot]
   [DebuggerDisplay("{FirstName} {LastName} (EmployeeId = {EmployeeId})")]
-  public class Employee : Entity
+  public class Employee : Person
   {
     [Field, Key]
     public int EmployeeId { get; private set; }
-
-    [Field(Nullable = false, Length = 20)]
-    public string LastName { get; set; }
-
-    [Field(Nullable = false, Length = 20)]
-    public string FirstName { get; set; }
 
     [Field(Length = 30)]
     public string Title { get; set; }
@@ -93,19 +96,10 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     public DateTime? HireDate { get; set; }
 
     [Field]
-    public Address Address { get; set; }
-
-    [Field(Length = 24)]
-    public string Phone { get; set; }
-
-    [Field(Length = 24)]
-    public string Fax { get; set; }
-
-    [Field(Length = 60)]
-    public string Email { get; set; }
-
-    [Field]
     public Employee ReportsToManager { get; set; }
+
+    [Field, Association(PairTo = "DesignatedEmployee")]
+    public EntitySet<Invoice> Invoices { get; private set; }
 
     public int? GetAge() => BirthDate.HasValue ? DateTime.Now.Year - BirthDate.Value.Year : default;
   }
@@ -130,6 +124,9 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field(Nullable = false)]
     public DateTime InvoiceDate { get; set; }
+
+    [Field]
+    public DateTime? PaymentDate { get; set; }
 
     [Field(Nullable = false)]
     public InvoiceStatus Status { get; set; }
@@ -203,7 +200,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
   [HierarchyRoot]
   [DebuggerDisplay("{Name} (TrackId = {TrackId})")]
-  public class Track : Entity
+  public abstract class Track : Entity
   {
     [Field, Key]
     public int TrackId { get; private set; }
@@ -219,7 +216,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     [Field]
     public int Milliseconds { get; set; }
 
-    [Field(Nullable = false)]
+    [Field(LazyLoad = true)]
     public byte[] Bytes { get; set; }
 
     [Field]
@@ -236,6 +233,36 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field, Association(PairTo = "Tracks")]
     public EntitySet<Playlist> Playlists { get; private set; }
+  }
+
+  /// <summary>
+  /// Just for Linq type inheritance tests.
+  /// </summary>
+  public abstract class IntermediateTrack : Track
+  {
+    [Field]
+    public MediaFormat MediaFormat { get; private set; }
+
+    protected IntermediateTrack(MediaFormat mediaFormat)
+    {
+      MediaFormat = mediaFormat;
+    }
+  }
+
+  public class AudioTrack : IntermediateTrack
+  {
+    public AudioTrack()
+      : base(MediaFormat.Audio)
+    {
+    }
+  }
+
+  public class VideoTrack : IntermediateTrack
+  {
+    public VideoTrack()
+      : base(MediaFormat.Video)
+    {
+    }
   }
 
   public class Address : Structure
@@ -265,5 +292,12 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     Unpaid = 1,
     Paid = 2,
     Completed = 3
+  }
+
+  public enum MediaFormat
+  {
+    Unknown = 0,
+    Audio = 1,
+    Video = 2,
   }
 }

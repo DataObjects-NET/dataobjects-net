@@ -116,16 +116,25 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
   {
     protected override IdEntity ImportEntry(dynamic data)
     {
-      return ((int) data.TrackId, new Track {
-        Name = data.Name,
-        Composer = data.Composer,
-        Milliseconds = data.Milliseconds,
-        Bytes = data.Bytes,
-        UnitPrice = data.UnitPrice,
-        Album = context.GetEntity<Album>((int) data.AlbumId),
-        MediaType = context.GetEntity<MediaType>((int) data.MediaTypeId),
-        Genre = context.GetEntity<Genre>((int) data.GenreId)
-      });
+      var mediaType = context.GetEntity<MediaType>((int) data.MediaTypeId);
+      var track = CreateTrack(mediaType);
+      track.Name = data.Name;
+      track.Composer = data.Composer;
+      track.Milliseconds = data.Milliseconds;
+      track.Bytes = data.Bytes;
+      track.UnitPrice = data.UnitPrice;
+      track.Album = context.GetEntity<Album>((int) data.AlbumId);
+      track.MediaType = mediaType;
+      track.Genre = context.GetEntity<Genre>((int) data.GenreId);
+      return ((int) data.TrackId, track);
+    }
+
+    private Track CreateTrack(MediaType mediaType)
+    {
+      if (mediaType.Name=="Protected MPEG-4 video file")
+        return new VideoTrack();
+      else
+        return new AudioTrack();
     }
 
     public TrackImporter(ImportContext context)
@@ -199,6 +208,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     {
       return ((int) data.InvoiceId, new Invoice() {
         InvoiceDate = data.InvoiceDate,
+        PaymentDate = (DateTime?)data.PaymentDate,
         Status = (InvoiceStatus)data.Status,
         ProcessingTime = (TimeSpan?)data.ProcessingTime,
         BillingAddress = new Address {
@@ -263,10 +273,26 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     public void AddEntity(int id, Entity entity)
     {
-      var entityType = entity.GetType();
-      if (!entities.TryGetValue(entityType, out var values))
-        entities.Add(entityType, values = new Dictionary<int, Entity>());
-      values.Add(id, entity);
+      using (var enumerator = GetAllEntityTypes(entity.GetType()).Reverse().GetEnumerator()) {
+        enumerator.MoveNext();
+        if (!entities.TryGetValue(enumerator.Current, out var values)) {
+          entities.Add(enumerator.Current, values = new Dictionary<int, Entity>());
+          while (enumerator.MoveNext())
+            entities.Add(enumerator.Current, values);
+        }
+
+        values.Add(id, entity);
+      }
+    }
+
+    private IEnumerable<Type> GetAllEntityTypes(Type type)
+    {
+      while (type!=typeof (Entity)) {
+        yield return type;
+        if(Attribute.IsDefined(type, typeof(HierarchyRootAttribute)))
+          yield break;
+        type = type.BaseType;
+      }
     }
   }
 

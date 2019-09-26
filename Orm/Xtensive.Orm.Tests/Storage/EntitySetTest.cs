@@ -260,7 +260,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (var t = session.OpenTransaction()) {
           var playlist = session.Query.All<Playlist>().First();
           var trackCount = playlist.Tracks.Count;
-          var track = new Track {Name = "Temp1", Bytes = new byte[0]};
+          var track = new AudioTrack {Name = "Temp1"};
           playlist.Tracks.Add(track);
           Assert.AreEqual(playlist.Tracks.Count, trackCount + 1);
           playlist.Tracks.Contains(track);
@@ -280,7 +280,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (var t = session.OpenTransaction()) {
           var category = session.Query.All<Playlist>().First();
           Assert.AreEqual(category.Tracks.Count, 0);
-          var track = new Track() {Name = "Temp2", Bytes = new byte[0]};
+          var track = new VideoTrack() {Name = "Temp2"};
           category.Tracks.Add(track);
           Session.Current.SaveChanges();
           t.Complete();
