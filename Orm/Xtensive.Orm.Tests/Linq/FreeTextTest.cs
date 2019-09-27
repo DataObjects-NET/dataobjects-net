@@ -438,7 +438,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TopNByRankOrderByAndTakeSequenceTest()
     {
-      var keywords = "best greatestHits";
+      var keywords = "black babbath back";
       var topNByRank = Session.Query.FreeText<Album>(keywords, 3).ToList();
       Assert.IsTrue(topNByRank.Count()==3);
       var topNByrankOrderByAndTake = Session.Query.FreeText<Album>(keywords, 3)
