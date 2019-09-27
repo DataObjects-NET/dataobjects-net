@@ -6,35 +6,35 @@
 
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Linq;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Linq
 {
   [TestFixture]
   [Serializable]
-  public class MiscTest : NorthwindDOModelTest
+  public class MiscTest : ChinookDOModelTest
   {
     [Test]
     public void MainTest()
     {
       var query =
         (from customer in Session.Query.All<Customer>()
-        join order in Session.Query.All<Order>() on customer equals order.Customer into orderJoins
-        from orderJoin in orderJoins.DefaultIfEmpty()
-        select new {customer.Address, Order = orderJoin})
+        join invoice in Session.Query.All<Invoice>() on customer equals invoice.Customer into invoiceJoins
+        from invoiceJoin in invoiceJoins.DefaultIfEmpty()
+        select new {customer.Address, Invoice = invoiceJoin})
           .GroupBy(x => x.Address.City)
-          .Select(g => new {City = g.Key, MaxFreight = g.Max(o => o.Order.Freight)});
+          .Select(g => new {City = g.Key, MaxCommission = g.Max(i => i.Invoice.Commission)});
+
+      Assert.That(query, Is.Not.Empty);
       foreach (var queryable in query) {
         var city = queryable.City;
-        var maxFreight = queryable.MaxFreight;
+        var maxCommission = queryable.MaxCommission;
       }
     }
 
@@ -43,23 +43,24 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var query =
         from grouping in
-          from customerOrderJoin in
+          from customerInvoiceJoin in
             from customer in Session.Query.All<Customer>()
-            join order in Session.Query.All<Order>()
-              on customer equals order.Customer into orderJoins
-            from orderJoin in orderJoins.DefaultIfEmpty()
-            select new {customer.Address, Order = orderJoin}
-          group customerOrderJoin by customerOrderJoin.Address.City
+            join invoice in Session.Query.All<Invoice>()
+              on customer equals invoice.Customer into invoiceJoins
+            from invoiceJoin in invoiceJoins.DefaultIfEmpty()
+            select new {customer.Address, Invoice = invoiceJoin}
+          group customerInvoiceJoin by customerInvoiceJoin.Address.City
         select new {
-          City = grouping.Key
-          , MaxFreight = grouping.Max(o => o.Order.Freight)
-          , MinFreight = grouping.Min(o => o.Order.Freight)
-          , AverageFreight = grouping.Average(o => o.Order.Freight)
+          City = grouping.Key,
+          MaxCommission = grouping.Max(i => i.Invoice.Commission),
+          MinCommission = grouping.Min(i => i.Invoice.Commission),
+          AverageCommission = grouping.Average(i => i.Invoice.Commission)
         };
 
+      Assert.That(query, Is.Not.Empty);
       foreach (var queryable in query) {
         var city = queryable.City;
-        var maxFreight = queryable.MaxFreight;
+        var maxCommission = queryable.MaxCommission;
       }
     }
 
@@ -67,9 +68,12 @@ namespace Xtensive.Orm.Tests.Linq
     public void MakePropertyAccessSwitchingToGeneric()
     {
       IQueryable queryable = Session.Query.All<Customer>();
-      var expected = Session.Query.All<Customer>().Select(c => c.ContactName).ToList();
-      var result1 = ((IQueryable<string>)SelectPropertySwitchingToGeneric(queryable, "ContactName")).ToList();
-      var result2 = ((IQueryable<string>)SelectPropertyBuildingExpression(queryable, "ContactName")).ToList();
+      var expected = Session.Query.All<Customer>().Select(c => c.FirstName).ToList();
+      var result1 = ((IQueryable<string>)SelectPropertySwitchingToGeneric(queryable, "FirstName")).ToList();
+      var result2 = ((IQueryable<string>)SelectPropertyBuildingExpression(queryable, "FirstName")).ToList();
+
+      Assert.That(result1, Is.Not.Empty);
+      Assert.That(result2, Is.Not.Empty);
       Assert.AreEqual(expected.Count, result1.Count);
       Assert.AreEqual(expected.Count, result2.Count);
       Assert.AreEqual(0, expected.Except(result1).Count());
@@ -84,7 +88,7 @@ namespace Xtensive.Orm.Tests.Linq
       var parameter = Expression.Parameter(entityType, "paramName");
       var body = Expression.MakeMemberAccess(parameter, propertyInfo);
       var lambda = FastExpression.Lambda(body, parameter); // paramName=>paramName.Name
-      
+
       var getPropertyValuesMethodInfo = typeof (MiscTest).GetMethod("SelectPropertyGeneric");
       var genericMethod = getPropertyValuesMethodInfo.MakeGenericMethod(entityType, propertyInfo.PropertyType);
       return (IQueryable) genericMethod.Invoke(null, new object[] {queryable, lambda});

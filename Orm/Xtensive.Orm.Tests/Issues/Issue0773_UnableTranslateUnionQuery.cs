@@ -9,38 +9,38 @@ using System.Diagnostics;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Issues
 {
   [Serializable]
-  public class Issue0773_UnableTranslateUnionQuery : NorthwindDOModelTest
+  public class Issue0773_UnableTranslateUnionQuery : ChinookDOModelTest
   {
     private class DTO
     {
-      public int Id { get; set; }
-      public int ProductId { get; set; }
+      public int InvoiceId { get; set; }
+      public int TrackId { get; set; }
       public decimal Amount { get; set; }
-      public decimal? Freight;
+      public decimal? Commission;
     }
 
     [Test]
     public void MainTest()
     {
       var query =
-        from o in Session.Query.All<Order>()
-        join od in Session.Query.All<OrderDetails>() on o equals od.Order
-        where o.Freight > 0.1m
-        select new DTO {Id = o.Id, Freight = o.Freight, ProductId = od.Product.Id, Amount = od.UnitPrice*od.Quantity};
+        from i in Session.Query.All<Invoice>()
+        join il in Session.Query.All<InvoiceLine>() on i equals il.Invoice
+        where i.Commission > 0.1m
+        select new DTO {InvoiceId = i.InvoiceId, Commission = i.Commission, TrackId = il.Track.TrackId, Amount = il.UnitPrice*il.Quantity};
       var list = query.ToList();
       var secondQuery =
-        from od in Session.Query.All<OrderDetails>()
-        select new DTO() {Id = od.Order.Id, Freight = null, ProductId = od.Product.Id, Amount = 1234};
+        from il in Session.Query.All<InvoiceLine>()
+        select new DTO() {InvoiceId = il.Invoice.InvoiceId, Commission = null, TrackId = il.Track.TrackId, Amount = 1234};
       var secondList = secondQuery.ToList();
       var result = query
         .Union(secondQuery)
         .OrderByDescending(dto => dto.Amount)
-        .ThenBy(dto=>dto.Id);
+        .ThenBy(dto=>dto.InvoiceId);
       var resultList = result.ToList();
 
     }

@@ -4,36 +4,37 @@
 // Created by: Dmitri Maximov
 // Created:    2009.01.29
 
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Linq
 {
   [Category("Linq")]
   [TestFixture]
-  public class OrderByTest : NorthwindDOModelTest
+  public class OrderByTest : ChinookDOModelTest
   {
     [Test]
     public void OrderByEnumTest()
     {
-      var result = Session.Query.All<Product>().OrderBy(product => product.ProductType).ThenBy(p=>p.Id);
+      var result = Session.Query.All<Invoice>().OrderBy(i => i.Status).ThenBy(i => i.InvoiceId);
       var list = result.ToList();
-      var expected = Products.OrderBy(product => product.ProductType).ThenBy(p=>p.Id);
-      Assert.AreEqual(Products.Count(), list.Count);
+      var expected = Invoices.OrderBy(i => i.Status).ThenBy(i => i.InvoiceId);
+      Assert.That(list, Is.Not.Empty);
+      Assert.AreEqual(Invoices.Count(), list.Count);
       Assert.IsTrue(expected.SequenceEqual(list));
     }
 
     [Test]
     public void OrderByTakeTest()
     {
-      var result = Session.Query.All<Order>().OrderBy(o => o.Id).Take(10);
+      var result = Session.Query.All<Invoice>().OrderBy(i => i.InvoiceId).Take(10);
       var list = result.ToList();
-      var expected = Orders.OrderBy(o => o.Id).Take(10);
+      var expected = Invoices.OrderBy(i => i.InvoiceId).Take(10);
+      Assert.That(list, Is.Not.Empty);
       Assert.AreEqual(10, list.Count);
       Assert.IsTrue(expected.SequenceEqual(list));
     }
@@ -41,37 +42,41 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void EntityFieldTest()
     {
-      var result = Session.Query.All<Product>().Select(p => p).OrderBy(g => g.Id);
+      var result = Session.Query.All<Invoice>().Select(i => i).OrderBy(g => g.InvoiceId);
+      Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void OrderByAnonymousEntityTest()
     {
-      var result = Session.Query.All<OrderDetails>()
-        .Select(od => new {Details = od, Order = od.Order})
-        .OrderBy(x => new {x, x.Order.Customer})
-        .Select(x => new {x, x.Order.Customer});
-      var expected = Session.Query.All<OrderDetails>().ToList()
-        .Select(od => new {Details = od, Order = od.Order})
-        .OrderBy(x => x.Details.Order.Id)
-        .ThenBy(x => x.Details.Product.Id)
-        .ThenBy(x => x.Details.Order.Id)
-        .ThenBy(x => x.Order.Customer.Id)
-        .Select(x => new {x, x.Order.Customer});
+      var result = Session.Query.All<InvoiceLine>()
+        .Select(il => new {InvoiceLine = il, Invoice = il.Invoice})
+        .OrderBy(x => new {x, x.Invoice.Customer})
+        .Select(x => new {x, x.Invoice.Customer});
+
+      var expected = Session.Query.All<InvoiceLine>().ToList()
+        .Select(il => new {InvoiceLine = il, Invoice = il.Invoice})
+        .OrderBy(x => x.InvoiceLine.InvoiceLineId)
+        .ThenBy(x => x.Invoice.InvoiceId)
+        .ThenBy(x => x.Invoice.Customer.CustomerId)
+        .Select(x => new {x, x.Invoice.Customer});
+
+      Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
     [Test]
     public void OrderByAnonymousTest()
     {
-      var result = Session.Query.All<Order>()
-        .OrderBy(o => new {o.OrderDate, o.Freight})
-        .Select(o => new {o.OrderDate, o.Freight});
-      var expected = Orders
-        .OrderBy(o => o.OrderDate)
-        .ThenBy(o => o.Freight)
-        .Select(o => new {o.OrderDate, o.Freight});
+      var result = Session.Query.All<Invoice>()
+        .OrderBy(i => new {i.InvoiceDate, i.Commission})
+        .Select(i => new {i.InvoiceDate, i.Commission});
+      var expected = Invoices
+        .OrderBy(i => i.InvoiceDate)
+        .ThenBy(i => i.Commission)
+        .Select(i => new {i.InvoiceDate, i.Commission});
+      Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
@@ -85,7 +90,8 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = customers.ToList()
         .Select(c => new {c.Address.Country, c})
         .OrderBy(x => x.Country)
-        .ThenBy(x => x.c.Id);
+        .ThenBy(x => x.c.CustomerId);
+      Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
@@ -93,9 +99,10 @@ namespace Xtensive.Orm.Tests.Linq
     public void OrderByDescendingTest()
     {
       var result = Session.Query.All<Customer>().OrderByDescending(c => c.Address.Country)
-        .ThenByDescending(c => c.Id).Select(c => c.Address.City);
+        .ThenByDescending(c => c.CustomerId).Select(c => c.Address.City);
       var expected = Customers.OrderByDescending(c => c.Address.Country)
-        .ThenByDescending(c => c.Id).Select(c => c.Address.City);
+        .ThenByDescending(c => c.CustomerId).Select(c => c.Address.City);
+      Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
@@ -104,7 +111,8 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customers = Session.Query.All<Customer>();
       var result = customers.OrderBy(c => c);
-      var expected = customers.ToList().OrderBy(c => c.Id);
+      var expected = customers.ToList().OrderBy(c => c.CustomerId);
+      Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
@@ -112,26 +120,28 @@ namespace Xtensive.Orm.Tests.Linq
     public void OrderByExpressionTest()
     {
       IQueryable<Customer> customers = Session.Query.All<Customer>();
-      List<string> original = customers.Select(c => c.ContactName).ToList().Select(s => s.ToUpper()).ToList();
+      List<string> original = customers.Select(c => c.LastName).ToList().Select(n => n.ToUpper()).ToList();
       original.Sort();
+      Assert.That(customers, Is.Not.Empty);
       Assert.IsTrue(original.SequenceEqual(
         customers
-          .OrderBy(c => c.ContactName.ToUpper())
+          .OrderBy(c => c.LastName.ToUpper())
           .ToList()
-          .Select(c => c.ContactName.ToUpper())));
+          .Select(c => c.LastName.ToUpper())));
     }
 
     [Test]
     public void OrderByJoinTest()
     {
       var result =
-        from c in Session.Query.All<Customer>().OrderBy(c => c.ContactName)
-        join o in Session.Query.All<Order>().OrderBy(o => o.OrderDate) on c equals o.Customer
-        select new {c.ContactName, o.OrderDate};
+        from c in Session.Query.All<Customer>().OrderBy(c => c.LastName)
+        join i in Session.Query.All<Invoice>().OrderBy(i => i.InvoiceDate) on c equals i.Customer
+        select new {c.LastName, i.InvoiceDate};
       var expected =
-        from c in Session.Query.All<Customer>().ToList().OrderBy(c => c.ContactName)
-        join o in Session.Query.All<Order>().ToList().OrderBy(o => o.OrderDate) on c equals o.Customer
-        select new {c.ContactName, o.OrderDate};
+        from c in Session.Query.All<Customer>().ToList().OrderBy(c => c.LastName)
+        join i in Session.Query.All<Invoice>().ToList().OrderBy(i => i.InvoiceDate) on c equals i.Customer
+        select new {c.LastName, i.InvoiceDate};
+      Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
@@ -139,11 +149,12 @@ namespace Xtensive.Orm.Tests.Linq
     public void OrderByJoin1Test()
     {
       var result = Session.Query.All<Customer>()
-        .OrderBy(c => c.ContactName)
-        .Join(Session.Query.All<Order>()
-            .Select(o => new {CustomerID = o.Customer.Id, o.OrderDate})
-            .Take(1000), c => c.Id, x => x.CustomerID, (c, o) => new {c.ContactName, o.OrderDate});
+        .OrderBy(c => c.LastName)
+        .Join(Session.Query.All<Invoice>()
+            .Select(i => new {CustomerID = i.Customer.CustomerId, i.InvoiceDate})
+            .Take(1000), c => c.CustomerId, x => x.CustomerID, (c, i) => new {c.LastName, i.InvoiceDate});
       var list = result.ToList();
+      Assert.That(result, Is.Not.Empty);
       Assert.Greater(list.Count, 0);
     }
 
@@ -151,25 +162,26 @@ namespace Xtensive.Orm.Tests.Linq
     public void OrderByPersistentPropertyTest()
     {
       IQueryable<Customer> customers = Session.Query.All<Customer>();
-      List<string> original = customers.Select(c => c.ContactName).ToList();
+      List<string> original = customers.Select(c => c.LastName).ToList();
       original.Sort();
-
+      Assert.That(customers, Is.Not.Empty);
       Assert.IsTrue(original.SequenceEqual(
         customers
-          .OrderBy(c => c.ContactName)
+          .OrderBy(c => c.LastName)
           .ToList()
-          .Select(c => c.ContactName)));
+          .Select(c => c.LastName)));
     }
 
     [Test]
     public void OrderBySelectAnonymousTest()
     {
       var result = Session.Query.All<Customer>()
-        .OrderBy(c => c.Id)
+        .OrderBy(c => c.CustomerId)
         .Select(c => new {c.Fax, c.Phone});
       var expected = Customers.ToList()
-        .OrderBy(c => c.Id)
+        .OrderBy(c => c.CustomerId)
         .Select(c => new {c.Fax, c.Phone});
+      Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
@@ -177,25 +189,27 @@ namespace Xtensive.Orm.Tests.Linq
     public void OrderBySelectManyTest()
     {
       var result =
-        from c in Session.Query.All<Customer>().OrderBy(c => c.ContactName)
-        from o in Session.Query.All<Order>().OrderBy(o => o.OrderDate)
-        where c==o.Customer
-        select new {c.ContactName, o.OrderDate};
+        from c in Session.Query.All<Customer>().OrderBy(c => c.LastName)
+        from i in Session.Query.All<Invoice>().OrderBy(i => i.InvoiceDate)
+        where c==i.Customer
+        select new {c.LastName, i.InvoiceDate};
       var expected =
-        from c in Session.Query.All<Customer>().ToList().OrderBy(c => c.ContactName)
-        from o in Session.Query.All<Order>().ToList().OrderBy(o => o.OrderDate)
-        where c==o.Customer
-        select new {c.ContactName, o.OrderDate};
+        from c in Session.Query.All<Customer>().ToList().OrderBy(c => c.LastName)
+        from i in Session.Query.All<Invoice>().ToList().OrderBy(i => i.InvoiceDate)
+        where c==i.Customer
+        select new {c.LastName, i.InvoiceDate};
+      Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
     [Test]
     public void OrderBySelectTest()
     {
-      IQueryable<string> result = Session.Query.All<Customer>().OrderBy(c => c.CompanyName)
+      IQueryable<string> result = Session.Query.All<Customer>().OrderBy(c => c.Company)
         .OrderBy(c => c.Address.Country).Select(c => c.Address.City);
-      var expected = Session.Query.All<Customer>().ToList().OrderBy(c => c.CompanyName)
+      var expected = Session.Query.All<Customer>().ToList().OrderBy(c => c.Company)
         .OrderBy(c => c.Address.Country).Select(c => c.Address.City);
+      Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(result).Count());
     }
 
@@ -203,7 +217,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SequentialOrderByTest()
     {
       IQueryable<string> result = Session.Query.All<Customer>()
-        .OrderBy(c => c.CompanyName)
+        .OrderBy(c => c.Company)
         .Select(c => c.Address.City)
         .Distinct()
         .OrderBy(c => c)
@@ -214,6 +228,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Distinct()
         .OrderBy(c => c)
         .Select(c => c);
+      Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
@@ -221,8 +236,9 @@ namespace Xtensive.Orm.Tests.Linq
     public void DistinctTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var result = Session.Query.All<Order>().Select(o => o.Employee).Distinct();
-      var expected = Session.Query.All<Order>().ToList().Select(o => o.Employee).Distinct();
+      var result = Session.Query.All<Invoice>().Select(i => i.DesignatedEmployee).Distinct();
+      var expected = Session.Query.All<Invoice>().ToList().Select(i => i.DesignatedEmployee).Distinct();
+      Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(0, result.ToList().Except(expected).Count());
     }
 
@@ -230,26 +246,27 @@ namespace Xtensive.Orm.Tests.Linq
     public void OrderByTakeSkipTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
-      var original = Session.Query.All<Order>().ToList()
-        .OrderBy(o => o.OrderDate)
+      var original = Session.Query.All<Invoice>().ToList()
+        .OrderBy(i => i.InvoiceDate)
         .Skip(100)
         .Take(50)
-        .OrderBy(o => o.RequiredDate)
-        .Where(o => o.OrderDate!=null)
-        .Select(o => o.RequiredDate)
+        .OrderBy(i => i.InvoiceDate)
+        .Where(i => i.PaymentDate!=null)
+        .Select(i => i.InvoiceDate)
         .Distinct()
         .Skip(10);
-      var result = Session.Query.All<Order>()
-        .OrderBy(o => o.OrderDate)
+      var result = Session.Query.All<Invoice>()
+        .OrderBy(i => i.InvoiceDate)
         .Skip(100)
         .Take(50)
-        .OrderBy(o => o.RequiredDate)
-        .Where(o => o.OrderDate!=null)
-        .Select(o => o.RequiredDate)
+        .OrderBy(i => i.InvoiceDate)
+        .Where(i => i.PaymentDate!=null)
+        .Select(i => i.InvoiceDate)
         .Distinct()
         .Skip(10);
       var originalList = original.ToList();
       var resultList = result.ToList();
+      Assert.That(resultList, Is.Not.Empty);
       QueryDumper.Dump(originalList);
       QueryDumper.Dump(resultList);
       Assert.AreEqual(originalList.Count, resultList.Count);
@@ -259,25 +276,32 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void PredicateTest()
     {
-      IQueryable<int> result = Session.Query.All<Order>().OrderBy(o => o.Freight > 100).ThenBy(o => o.Id).Select(o => o.Id);
+      IQueryable<int> result = Session.Query.All<Invoice>()
+        .OrderBy(i => i.Commission > 0.5m)
+        .ThenBy(i => i.InvoiceId).Select(i => i.InvoiceId);
       List<int> list = result.ToList();
-      var queryNullDate = Session.Query.All<Order>().Where(o => o.ShippedDate == null).ToList();
-      var order = queryNullDate[0];
-      var dateTime = order.ShippedDate;
+      var queryNullDate = Session.Query.All<Invoice>().Where(i => i.PaymentDate==null).ToList();
+      var invoice = queryNullDate[0];
+      var dateTime = invoice.PaymentDate;
       Assert.IsFalse(dateTime.HasValue);
-      var listNullDate = queryNullDate.Where(o => o.ShippedDate == null).ToList();
+      var listNullDate = queryNullDate.Where(i => i.PaymentDate==null).ToList();
+      Assert.That(listNullDate, Is.Not.Empty);
       Assert.AreEqual(queryNullDate.Count, listNullDate.Count);
-      List<int> original = Session.Query.All<Order>().ToList().OrderBy(o => o.Freight > 100).ThenBy(o => o.Id).Select(o => o.Id).ToList();
+      List<int> original = Session.Query.All<Invoice>().ToList()
+        .OrderBy(i => i.Commission > 0.5m)
+        .ThenBy(i => i.InvoiceId).Select(i => i.InvoiceId)
+        .ToList();
       Assert.IsTrue(list.SequenceEqual(original));
     }
 
     [Test]
     public void SelectTest()
     {
-      var result = Session.Query.All<Customer>().OrderBy(c => c.Id)
-        .Select(c => c.ContactName);
-      var expected = Customers.OrderBy(c => c.Id)
-        .Select(c => c.ContactName);
+      var result = Session.Query.All<Customer>().OrderBy(c => c.Phone)
+        .Select(c => c.LastName);
+      var expected = Customers.OrderBy(c => c.Phone)
+        .Select(c => c.LastName);
+      Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
 
@@ -285,9 +309,10 @@ namespace Xtensive.Orm.Tests.Linq
     public void ThenByTest()
     {
       var result = Session.Query.All<Customer>().OrderBy(c => c.Address.Country)
-        .ThenBy(c => c.Id).Select(c => c.Address.City);
+        .ThenBy(c => c.Phone).Select(c => c.Address.City);
       var expected = Customers.OrderBy(c => c.Address.Country)
-        .ThenBy(c => c.Id).Select(c => c.Address.City);
+        .ThenBy(c => c.Phone).Select(c => c.Address.City);
+      Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
   }
