@@ -17,6 +17,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
+using Xtensive.Orm.Logging;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
 using Xtensive.Orm.Rse;
@@ -623,7 +624,12 @@ namespace Xtensive.Orm
     {
       if (!Session.Configuration.Supports(SessionOptions.ReadRemovedObjects))
         EnsureNotRemoved();
-      OrmLog.Debug(Strings.LogSessionXGettingValueKeyYFieldZ, Session, Key, field);
+
+      // getting of field value is frequent operation and access to resources
+      // will slow down execution significantly
+      if (OrmLog.IsLogged(LogLevel.Debug))
+        OrmLog.Debug(Strings.LogSessionXGettingValueKeyYFieldZ, Session, Key, field);
+
       EnsureIsFetched(field);
 
       Session.CheckForSwitching();
