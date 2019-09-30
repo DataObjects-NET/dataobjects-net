@@ -44,6 +44,11 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     [Field(Nullable = false, Length = 20)]
     public string FirstName { get; set; }
 
+    public string FullName
+    {
+      get { return FirstName + " " + LastName; }
+    }
+
     [Field]
     public Address Address { get; set; }
 
