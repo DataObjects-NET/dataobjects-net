@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
+using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 {
@@ -106,7 +107,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     [Field, Association(PairTo = "DesignatedEmployee")]
     public EntitySet<Invoice> Invoices { get; private set; }
 
-    public int? GetAge() => BirthDate.HasValue ? DateTime.Now.Year - BirthDate.Value.Year : default;
+    public int? GetAge() => BirthDate.HasValue ? DateTime.Now.Year - BirthDate.Value.Year : (int?) null;
   }
 
   [HierarchyRoot]
@@ -203,7 +204,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     public EntitySet<Track> Tracks { get; private set; }
   }
 
-  [HierarchyRoot]
+  [HierarchyRoot(InheritanceSchema.SingleTable)]
   [DebuggerDisplay("{Name} (TrackId = {TrackId})")]
   public abstract class Track : Entity
   {
