@@ -284,11 +284,11 @@ namespace Xtensive.Orm.Linq
       var sourceTypeInfo = context.Model.Types[sourceType];
       var map = Enumerable.Repeat(-1, recordSet.Header.Columns.Count).ToArray();
       var targetFieldIndex = 0;
-      foreach (var targetField in targetTypeInfo.Fields.Where(f => f.Parent == null)) {
+      foreach (var targetField in targetTypeInfo.Fields.Where(f => f.Parent==null && !f.IsEntitySet)) {
         var sourceFieldInfo =  targetType.IsInterface && sourceType.IsClass
           ? sourceTypeInfo.FieldMap[targetField]
           : sourceTypeInfo.Fields[targetField.Name];
-        var sourceField = sourceEntity.Fields.Single(f => f.Name == sourceFieldInfo.Name);
+        var sourceField = sourceEntity.Fields.Single(f => f.Name==sourceFieldInfo.Name);
         var sourceFieldIndex = sourceField.Mapping.Offset;
         map[sourceFieldIndex] = targetFieldIndex++;
       }
