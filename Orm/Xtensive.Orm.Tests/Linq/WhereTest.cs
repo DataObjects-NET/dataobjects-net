@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void IndexerNullTest()
     {
       var query = Session.Query.All<Invoice>();
-      var parameters = Session.Query.All<Customer>().Take(1).Select(c => new TargetField("Customer", (Customer)null)).ToList();
+      var parameters = Session.Query.All<Customer>().Take(1).Select(c => new TargetField("Customer", (Customer) null)).ToList();
       foreach (var item in parameters) {
         var field = item; // This is important to use local variable
         query = query.Where(invoice => invoice[field.Name]==field.Value);
@@ -629,7 +629,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void DateTimeTest()
     {
       var invoices = Session.Query.All<Invoice>();
-      var invoice = invoices.Where(i => ((DateTime?)i.InvoiceDate) < ((DateTime?)new DateTime(2010, 12, 31))).FirstOrDefault();
+      var invoice = invoices.Where(i => ((DateTime?) i.InvoiceDate) < ((DateTime?) new DateTime(2010, 12, 31))).FirstOrDefault();
       Assert.IsNotNull(invoice);
     }
 
