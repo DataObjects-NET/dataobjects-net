@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.ObjectModel
       }
 
       if (shouldFill)
-        DatabaseFiller.Fill(domain);
+        DataBaseFiller.Fill(domain);
       return domain;
     }
 

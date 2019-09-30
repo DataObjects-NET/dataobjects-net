@@ -210,7 +210,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void MultipleConditionTest()
     {
-      var customerCompanies = Session.Query.All<Customer>().Select(c => c.Company).Where(cn => cn.StartsWith("A") || cn.StartsWith("B")).ToList();
+      var customerCompanies = Session.Query.All<Customer>().Select(c => c.CompanyName).Where(cn => cn.StartsWith("A") || cn.StartsWith("B")).ToList();
       Assert.That(customerCompanies.Count, Is.EqualTo(2));
       Assert.That(customerCompanies.All(c => c.StartsWith("A") || c.StartsWith("B")));
     }
@@ -219,8 +219,8 @@ namespace Xtensive.Orm.Tests.Linq
     public void AnonymousTest()
     {
       Customer first = Session.Query.All<Customer>().First();
-      var p = new {first.Company, first.LastName};
-      var result = Session.Query.All<Customer>().Select(c => new {c.Company, c.LastName}).Take(10).Where(x => x==p).ToList();
+      var p = new {Company = first.CompanyName, first.LastName};
+      var result = Session.Query.All<Customer>().Select(c => new {Company = c.CompanyName, c.LastName}).Take(10).Where(x => x==p).ToList();
       Assert.That(result.Count, Is.EqualTo(1));
       Assert.That(result[0].Company, Is.EqualTo(p.Company));
       Assert.That(result[0].LastName, Is.EqualTo(p.LastName));
@@ -231,8 +231,8 @@ namespace Xtensive.Orm.Tests.Linq
     public void AnonymousTest2()
     {
       Customer first = Session.Query.All<Customer>().First();
-      var p = new {first.Company, first.LastName};
-      var result = Session.Query.All<Customer>().Select(c => new {c.Company, c.LastName}).Take(10).Where(x => p==x).ToList();
+      var p = new {Company = first.CompanyName, first.LastName};
+      var result = Session.Query.All<Customer>().Select(c => new {Company = c.CompanyName, c.LastName}).Take(10).Where(x => p==x).ToList();
       Assert.That(result.Count, Is.EqualTo(1));
       Assert.That(result[0].Company, Is.EqualTo(p.Company));
       Assert.That(result[0].LastName, Is.EqualTo(p.LastName));
@@ -242,10 +242,10 @@ namespace Xtensive.Orm.Tests.Linq
     public void AnonymousWithParameterTest()
     {
       Customer first = Session.Query.All<Customer>().First();
-      var p = new {first.Company, first.LastName};
-      var result = Session.Query.All<Customer>().Where(c => new {c.Company, c.LastName}==p).ToList();
+      var p = new {Company = first.CompanyName, first.LastName};
+      var result = Session.Query.All<Customer>().Where(c => new {Company = c.CompanyName, c.LastName}==p).ToList();
       Assert.That(result.Count, Is.EqualTo(1));
-      Assert.That(result[0].Company, Is.EqualTo(p.Company));
+      Assert.That(result[0].CompanyName, Is.EqualTo(p.Company));
       Assert.That(result[0].LastName, Is.EqualTo(p.LastName));
     }
 
@@ -253,11 +253,11 @@ namespace Xtensive.Orm.Tests.Linq
     public void AnonymousWithParameter2Test()
     {
       Customer first = Session.Query.All<Customer>().First();
-      var p = new {first.Company, first.LastName};
+      var p = new {Company = first.CompanyName, first.LastName};
       var k = new {InternalFiled = p};
-      var result = Session.Query.All<Customer>().Where(c => new {c.Company, c.LastName}==k.InternalFiled).ToList();
+      var result = Session.Query.All<Customer>().Where(c => new {Company = c.CompanyName, c.LastName}==k.InternalFiled).ToList();
       Assert.That(result.Count, Is.EqualTo(1));
-      Assert.That(result[0].Company, Is.EqualTo(p.Company));
+      Assert.That(result[0].CompanyName, Is.EqualTo(p.Company));
       Assert.That(result[0].LastName, Is.EqualTo(p.LastName));
     }
 
@@ -266,20 +266,20 @@ namespace Xtensive.Orm.Tests.Linq
     public void AnonymousWithParameter3Test()
     {
       Customer first = Session.Query.All<Customer>().First();
-      var p = new {first.Company, first.LastName};
+      var p = new {Company = first.CompanyName, first.LastName};
       var k = new {InternalFiled = p};
-      var result = Session.Query.All<Customer>().Where(c => new {X = new {c.Company, c.LastName}}.X==k.InternalFiled).ToList();
+      var result = Session.Query.All<Customer>().Where(c => new {X = new {Company = c.CompanyName, c.LastName}}.X==k.InternalFiled).ToList();
       Assert.That(result.Count, Is.EqualTo(1));
-      Assert.That(result[0].Company, Is.EqualTo(p.Company));
+      Assert.That(result[0].CompanyName, Is.EqualTo(p.Company));
       Assert.That(result[0].LastName, Is.EqualTo(p.LastName));
     }
 
     [Test]
     public void Anonymous2Test2()
     {
-      var result = Session.Query.All<Customer>().Where(c => new {c.Company}.Company== "JetBrains s.r.o.").ToList();
+      var result = Session.Query.All<Customer>().Where(c => new {Company = c.CompanyName}.Company== "JetBrains s.r.o.").ToList();
       Assert.That(result.Count, Is.EqualTo(1));
-      Assert.That(result[0].Company, Is.EqualTo("JetBrains s.r.o."));
+      Assert.That(result[0].CompanyName, Is.EqualTo("JetBrains s.r.o."));
     }
 
     [Test]

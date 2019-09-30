@@ -11,6 +11,12 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 {
+  public interface IHasCommission : IEntity
+  {
+    [Field]
+    decimal? Commission { get; set; }
+  }
+
   [HierarchyRoot]
   [DebuggerDisplay("{Title} (AlbumId = {AlbumId})")]
   public class Album : Entity
@@ -71,7 +77,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     public int CustomerId { get; private set; }
 
     [Field(Length = 80)]
-    public string Company { get; set; }
+    public string CompanyName { get; set; }
 
     [Field]
     public Employee SupportRep { get; set; }
@@ -123,7 +129,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
   [HierarchyRoot]
   [DebuggerDisplay("InvoiceId = {InvoiceId}")]
-  public class Invoice : Entity
+  public class Invoice : Entity, IHasCommission
   {
     [Field, Key]
     public int InvoiceId { get; private set; }

@@ -483,12 +483,12 @@ namespace Xtensive.Orm.Tests.Linq
     public void ImplicitNumericTest()
     {
       long value = 0;
-      var customer = Session.Query.All<Customer>().Where(c=>c.Company!=null).OrderBy(c => c.Company).First();
+      var customer = Session.Query.All<Customer>().Where(c=>c.CompanyName!=null).OrderBy(c => c.CompanyName).First();
       var result = Session.Query.All<Customer>()
         .Where(c => c==customer)
-        .Select(c => c.Company.Length + value)
+        .Select(c => c.CompanyName.Length + value)
         .First();
-      Assert.AreEqual(customer.Company.Length, result);
+      Assert.AreEqual(customer.CompanyName.Length, result);
     }
   }
 }

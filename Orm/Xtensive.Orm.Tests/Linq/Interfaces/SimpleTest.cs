@@ -11,57 +11,57 @@ using System.Linq.Expressions;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 using Xtensive.Core;
 using System.Linq.Dynamic;
 
 namespace Xtensive.Orm.Tests.Linq.Interfaces
 {
   [TestFixture, Category("Linq")]
-  public sealed class SimpleTest : NorthwindDOModelTest
+  public sealed class SimpleTest : ChinookDOModelTest
   {
     public class DTO
     {
-      public decimal? Freight;
+      public decimal? Commission;
     }
 
     [Test]
     public void QueryTest()
     {
-      var result = Session.Query.All<IHasFreight>();
-      var list = result.ToList();
-      Assert.AreEqual(830, list.Count);
-      Assert.IsTrue(list.All(i => i != null));
+      var expected = Session.Query.All<Invoice>().Count();
+      var result = Session.Query.All<IHasCommission>().ToList();
+      Assert.AreEqual(expected, result.Count);
+      Assert.IsTrue(result.All(i => i!=null));
     }
 
     [Test]
     public void QueryUnknownTypeDynamicTest()
     {
-      var type = typeof (Order);
+      var type = typeof (Invoice);
       var queryable = Session.Query.All(type);
       var result = new List<DTO>();
-      var anonyms = queryable.Select("new(Freight as Freight)");
+      var anonyms = queryable.Select("new(Commission as Commission)");
       foreach (dynamic anonym in anonyms)
-        result.Add(new DTO() {Freight = anonym.Freight});
+        result.Add(new DTO() {Commission = anonym.Commission});
       Assert.Greater(result.Count, 0);
     }
 
     [Test]
     public void QueryOfUnknownTypeCastTest()
     {
-      var type = typeof(Order);
+      var type = typeof (Invoice);
       var queryable = Session.Query.All(type);
-      var result = queryable.Cast<IHasFreight>()
-        .Select(i => new DTO() {Freight = i.Freight})
+      var result = queryable.Cast<IHasCommission>()
+        .Select(i => new DTO() {Commission = i.Commission})
         .ToList();
     }
 
     [Test]
     public void ComplexQueryOfUnknownTypeTest()
     {
-      var type = typeof(Order);
+      var type = typeof (Invoice);
       var queryable = Session.Query.All(type);
-      var result = queryable.Cast<IHasFreight>()
+      var result = queryable.Cast<IHasCommission>()
         .Select(i => new {
           i, 
           c1 = queryable.Count(),
@@ -80,9 +80,9 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
     [Test]
     public void QueryByInterfaceTest()
     {
-      var actual = Session.Query.All<IHasFreight>().ToList();
-      var expected = Session.Query.All<Order>().ToList();
-      Assert.AreEqual(0, expected.Except(actual.Cast<Order>()).Count());
+      var actual = Session.Query.All<IHasCommission>().ToList();
+      var expected = Session.Query.All<Invoice>().ToList();
+      Assert.AreEqual(0, expected.Except(actual.Cast<Invoice>()).Count());
     }
   }
 }

@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Linq
   {
     private static IQueryable<Customer> GetQuery(QueryEndpoint qe, string filter)
     {
-      var customers = qe.All<Customer>().Where(cn => cn.Company.StartsWith(filter));
+      var customers = qe.All<Customer>().Where(cn => cn.CompanyName.StartsWith(filter));
       return customers;
     }
 
@@ -35,8 +35,8 @@ namespace Xtensive.Orm.Tests.Linq
           var cachedQuery = Session.Query
             .Execute(qe => GetQuery(Session.Query, firstChar).Select(customer => customer.Email));
           var fullQuery = Session.Query.All<Customer>()
-            .Where(cn => cn.Company.StartsWith(firstChar))
-            .Select(customer => customer.Company);
+            .Where(cn => cn.CompanyName.StartsWith(firstChar))
+            .Select(customer => customer.CompanyName);
           Assert.IsTrue(query.ToList().SequenceEqual(fullQuery.ToList()));
           var cachedQueryList = cachedQuery.ToList();
           var fullQueryList = fullQuery.ToList();
@@ -211,7 +211,7 @@ namespace Xtensive.Orm.Tests.Linq
                       from joinedCustomer in oc.DefaultIfEmpty()
                       select new {
                         joinedCustomer.CustomerId, 
-                        joinedCustomer.Company,
+                        Company = joinedCustomer.CompanyName,
                         joinedCustomer.Address.Country
                       };
       var t = result.ToList();

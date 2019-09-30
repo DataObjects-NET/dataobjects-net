@@ -785,7 +785,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = Session.Query.All<Invoice>()
         .GroupBy(i => i.Customer)
-        .Select(g => g.Key.Company);
+        .Select(g => g.Key.CompanyName);
       Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
     }
@@ -796,7 +796,7 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var result = Session.Query.All<Invoice>()
         .GroupBy(i => i.Customer)
-        .Select(g => new {Count = g.Count(), Customer = g.Key.Company});
+        .Select(g => new {Count = g.Count(), Customer = g.Key.CompanyName});
       Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
     }
@@ -808,7 +808,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = Session.Query.All<Invoice>()
         .GroupBy(i => i.Customer)
         .Select(g => new {Count = g.Count(), Customer = g.Key})
-        .Where(g => g.Customer.Company!=null);
+        .Where(g => g.Customer.CompanyName!=null);
       Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
     }
@@ -820,7 +820,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = Session.Query.All<Invoice>()
         .GroupBy(i => i.Customer)
         .Select(g => new {Count = g.Count(), Customer = g.Key})
-        .OrderBy(g => g.Customer.Company);
+        .OrderBy(g => g.Customer.CompanyName);
       Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
     }

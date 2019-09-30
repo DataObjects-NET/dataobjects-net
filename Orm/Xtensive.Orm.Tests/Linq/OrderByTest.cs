@@ -205,9 +205,9 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void OrderBySelectTest()
     {
-      IQueryable<string> result = Session.Query.All<Customer>().OrderBy(c => c.Company)
+      IQueryable<string> result = Session.Query.All<Customer>().OrderBy(c => c.CompanyName)
         .OrderBy(c => c.Address.Country).Select(c => c.Address.City);
-      var expected = Session.Query.All<Customer>().ToList().OrderBy(c => c.Company)
+      var expected = Session.Query.All<Customer>().ToList().OrderBy(c => c.CompanyName)
         .OrderBy(c => c.Address.Country).Select(c => c.Address.City);
       Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(result).Count());
@@ -217,7 +217,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SequentialOrderByTest()
     {
       IQueryable<string> result = Session.Query.All<Customer>()
-        .OrderBy(c => c.Company)
+        .OrderBy(c => c.CompanyName)
         .Select(c => c.Address.City)
         .Distinct()
         .OrderBy(c => c)

@@ -9,12 +9,12 @@ using System.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Storage
 {
   [TestFixture]
-  public sealed class TransactionModesTest : NorthwindDOModelTest
+  public sealed class TransactionModesTest : ChinookDOModelTest
   {
     protected override void CheckRequirements()
     {
@@ -26,30 +26,30 @@ namespace Xtensive.Orm.Tests.Storage
     public void DefaultTransactionsTest()
     {
       var sessionConfiguration = new SessionConfiguration();
-      short reorderLevel;
-      Key productKey;
+      int milliseconds;
+      Key trackKey;
       using (var session = Domain.OpenSession(sessionConfiguration))
       using (var tx = session.OpenTransaction()) {
         Assert.IsFalse(session.Handler.TransactionIsStarted);
-        var product = session.Query.All<Product>().First();
-        product.ReorderLevel++;
+        var track = session.Query.All<Track>().First();
+        track.Milliseconds++;
         Session.Current.SaveChanges();
         Assert.IsTrue(session.Handler.TransactionIsStarted);
         var dbTransaction = StorageTestHelper.GetNativeTransaction();
-        product.ReorderLevel++;
+        track.Milliseconds++;
         Session.Current.SaveChanges();
         Assert.AreSame(dbTransaction, StorageTestHelper.GetNativeTransaction());
-        product.ReorderLevel++;
-        reorderLevel = product.ReorderLevel;
-        productKey = product.Key;
+        track.Milliseconds++;
+        milliseconds = track.Milliseconds;
+        trackKey = track.Key;
         tx.Complete();
       }
 
       using (var session = Domain.OpenSession(sessionConfiguration))
       using (var tx = session.OpenTransaction()) {
         Assert.IsFalse(session.Handler.TransactionIsStarted);
-        var product = session.Query.Single<Product>(productKey);
-        Assert.AreEqual(reorderLevel, product.ReorderLevel);
+        var track = session.Query.Single<Track>(trackKey);
+        Assert.AreEqual(milliseconds, track.Milliseconds);
       }
     }
     
@@ -68,8 +68,8 @@ namespace Xtensive.Orm.Tests.Storage
     public void RollBackedTransactionTest()
     {
       var sessionConfiguration = new SessionConfiguration();
-      short reorderLevel;
-      Key productKey;
+      int milliseconds;
+      Key trackKey;
       using (var session = Domain.OpenSession(sessionConfiguration))
       using (var tx = session.OpenTransaction()) {
         Assert.IsFalse(session.Handler.TransactionIsStarted);
@@ -78,17 +78,17 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession(sessionConfiguration))
       using (var tx = session.OpenTransaction()) {
         Assert.IsFalse(session.Handler.TransactionIsStarted);
-        var product = session.Query.All<Product>().First();
-        reorderLevel = product.ReorderLevel;
-        product.ReorderLevel++;
-        productKey = product.Key;
+        var product = session.Query.All<Track>().First();
+        milliseconds = product.Milliseconds;
+        product.Milliseconds++;
+        trackKey = product.Key;
       }
 
       using (var session = Domain.OpenSession(sessionConfiguration))
       using (var tx = session.OpenTransaction()) {
         Assert.IsFalse(session.Handler.TransactionIsStarted);
-        var product = session.Query.Single<Product>(productKey);
-        Assert.AreEqual(reorderLevel, product.ReorderLevel);
+        var product = session.Query.Single<Track>(trackKey);
+        Assert.AreEqual(milliseconds, product.Milliseconds);
       }
     }
     
@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Tests.Storage
         using (var outer = session.OpenTransaction(TransactionOpenMode.New)) {
           Assert.IsFalse(session.Handler.TransactionIsStarted);
           using (var inner = session.OpenTransaction(TransactionOpenMode.New)) {
-            var lacor = session.Query.Single<Customer>("LACOR");
+            var lacor = session.Query.All<Customer>().First();
             Assert.IsTrue(session.Handler.TransactionIsStarted);
           }
         }

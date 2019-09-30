@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
       return ((int) data.CustomerId, new Customer {
         FirstName = data.FirstName,
         LastName = data.LastName,
-        Company = data.Company,
+        CompanyName = data.Company,
         Address = new Address {
           StreetAddress = data.Address,
           City = data.City,
@@ -296,7 +296,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     }
   }
 
-  public class DatabaseFiller
+  public class DataBaseFiller
   {
     public static void Fill(Domain domain)
     {

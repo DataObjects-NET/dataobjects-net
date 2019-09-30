@@ -28,13 +28,13 @@ namespace Xtensive.Orm.Tests.Linq
     public void OrderBy2Test()
     {
       var result = Session.Query.All<Customer>()
-        .OrderBy(c => c.Company)
+        .OrderBy(c => c.CompanyName)
         .Select(c => c.Address.City)
         .Distinct()
         .OrderBy(c => c);
       var expected = Session.Query.All<Customer>()
         .ToList()
-        .OrderBy(c => c.Company)
+        .OrderBy(c => c.CompanyName)
         .Select(c => c.Address.City)
         .Distinct()
         .OrderBy(c => c);
