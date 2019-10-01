@@ -1,24 +1,15 @@
-//Copyright (C) Microsoft Corporation.  All rights reserved.
-
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
-using System.Data.SqlClient;
-using System.Linq.Expressions;
-using System.Reflection;
 using NUnit.Framework;
-
-using Xtensive.Orm.Tests;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
-using Xtensive.Orm.Linq;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
-namespace Xtensive.Orm.Tests.Linq.MsSamples
+namespace Xtensive.Orm.Tests.Linq.Samples
 {
   [Category("Linq")]
-  public class LinqToSqlSamples : NorthwindDOModelTest
+  public class LinqToSqlSamples : ChinookDOModelTest
   {
     [Category("WHERE")]
     [Test(Description = "Where - 1")]
@@ -35,12 +26,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("WHERE")]
     [Test(Description = "Where - 2")]
     [Description("This sample uses WHERE to filter for Employees hired " +
-      "during or after 1994.")]
+      "during or after 2006.")]
     public void DLinq2()
     {
       var q =
         from e in Session.Query.All<Employee>()
-        where e.HireDate >= new DateTime(1994, 1, 1)
+        where e.HireDate >= new DateTime(2006, 1, 1)
         select e;
 
       QueryDumper.Dump(q);
@@ -48,14 +39,14 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("WHERE")]
     [Test(Description = "Where - 3")]
-    [Description("This sample uses WHERE to filter for Products that have stock below their " +
-      "reorder level and are not discontinued.")]
+    [Description("This sample uses WHERE to filter for tracks that not longer than 3 minutes " +
+      "and are not videos.")]
     public void DLinq3()
     {
       var q =
-        from p in Session.Query.All<Product>()
-        where p.UnitsInStock <= p.ReorderLevel && !(p is DiscontinuedProduct)
-        select p;
+        from t in Session.Query.All<Track>()
+        where t.Milliseconds <= 180000 && !(t is VideoTrack)
+        select t;
 
       QueryDumper.Dump(q);
     }
@@ -63,13 +54,13 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("WHERE")]
     [Test(Description = "Where - 4")]
     [Description("This sample uses WHERE to filter out Products that are either " +
-      "UnitPrice is greater than 10 or is discontinued.")]
+      "UnitPrice is greater than 10 or is video.")]
     public void DLinq4()
     {
       var q =
-        from p in Session.Query.All<Product>()
-        where p.UnitPrice > 10m || (p is DiscontinuedProduct)
-        select p;
+        from t in Session.Query.All<Track>()
+        where t.UnitPrice > 10m || (t is VideoTrack)
+        select t;
 
       QueryDumper.Dump(q);
     }
@@ -77,51 +68,51 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("WHERE")]
     [Test(Description = "Where - 5")]
     [Description("This sample calls WHERE twice to filter out Products that UnitPrice is greater than 10" +
-      " and is discontinued.")]
+      " and is video.")]
     public void DLinq5()
     {
       var q =
-        Session.Query.All<Product>().Where(p => p.UnitPrice > 10m).Where(p => (p is DiscontinuedProduct));
+        Session.Query.All<Track>().Where(t => t.UnitPrice > 10m).Where(t => (t is VideoTrack));
 
       QueryDumper.Dump(q);
     }
 
     [Category("WHERE")]
     [Test(Description = "First - Simple")]
-    [Description("This sample uses First to select the first Shipper in the table.")]
+    [Description("This sample uses First to select the first Playlist in the table.")]
     public void DLinq6()
     {
-      Shipper shipper = Session.Query.All<Shipper>().First();
-      QueryDumper.Dump(shipper);
+      Playlist playlist = Session.Query.All<Playlist>().First();
+      QueryDumper.Dump(playlist);
     }
 
     [Category("WHERE")]
     [Test(Description = "First - Element")]
-    [Description("This sample uses First to select the single Customer with Id 'BONAP'.")]
+    [Description("This sample uses First to select the single Customer with Id '4200'.")]
     public void DLinq7()
     {
-      Customer cust = Session.Query.All<Customer>().First(c => c.Id=="BONAP");
+      Customer cust = Session.Query.All<Customer>().First(c => c.CustomerId==4200);
       QueryDumper.Dump(cust);
     }
 
     [Category("WHERE")]
     [Test(Description = "First - Condition")]
-    [Description("This sample uses First to select an Order with freight greater than 10.00.")]
+    [Description("This sample uses First to select an Order with Commission greater than 0.10.")]
     public void DLinq8()
     {
-      Order ord = Session.Query.All<Order>().First(o => o.Freight > 10.00M);
-      QueryDumper.Dump(ord);
+      Invoice inv = Session.Query.All<Invoice>().First(i => i.Commission > 0.10M);
+      QueryDumper.Dump(inv);
     }
 
     [Category("SELECT/DISTINCT")]
     [Test(Description = "Select - Simple")]
     [Description("This sample uses SELECT to return a sequence of just the " +
-      "Customers' contact names.")]
+      "Customers' company names.")]
     public void DLinq9()
     {
       var q =
         from c in Session.Query.All<Customer>()
-        select c.ContactName;
+        select c.CompanyName;
 
       QueryDumper.Dump(q);
     }
@@ -129,12 +120,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("SELECT/DISTINCT")]
     [Test(Description = "Select - Anonymous Type 1")]
     [Description("This sample uses SELECT and anonymous types to return " +
-      "a sequence of just the Customers' contact names and phone numbers.")]
+      "a sequence of just the Customers' last names and phone numbers.")]
     public void DLinq10()
     {
       var q =
         from c in Session.Query.All<Customer>()
-        select new {c.ContactName, c.Phone};
+        select new {c.LastName, c.Phone};
 
       QueryDumper.Dump(q);
     }
@@ -149,7 +140,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       var q =
         from e in Session.Query.All<Employee>()
-        select new {Name = e.FirstName + " " + e.LastName, Phone = e.HomePhone};
+        select new {Name = e.FirstName + " " + e.LastName, Phone = e.Phone};
 
       QueryDumper.Dump(q);
     }
@@ -157,26 +148,26 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("SELECT/DISTINCT")]
     [Test(Description = "Select - Anonymous Type 3")]
     [Description("This sample uses SELECT and anonymous types to return " +
-      "a sequence of all Products' IDs and a calculated value " +
-        "called HalfPrice which is set to the Product's UnitPrice " +
+      "a sequence of all Tracks' IDs and a calculated value " +
+        "called HalfPrice which is set to the Trask's UnitPrice " +
           "divided by 2.")]
     public void DLinq12()
     {
       var q =
-        from p in Session.Query.All<Product>()
-        select new {p.Id, HalfPrice = p.UnitPrice / 2};
+        from t in Session.Query.All<Track>()
+        select new {t.TrackId, HalfPrice = t.UnitPrice / 2};
       QueryDumper.Dump(q);
     }
 
     [Category("SELECT/DISTINCT")]
     [Test(Description = "Select - Conditional ")]
-    [Description("This sample uses SELECT and a conditional statment to return a sequence of product " +
-      " name and product availability.")]
+    [Description("This sample uses SELECT and a conditional statment to return a sequence of invoices " +
+      " Id and payment status.")]
     public void DLinq13()
     {
       var q =
-        from p in Session.Query.All<Product>()
-        select new {p.ProductName, Availability = p.UnitsInStock - p.UnitsOnOrder < 0 ? "Out Of Stock" : "In Stock"};
+        from i in Session.Query.All<Invoice>()
+        select new {i.InvoiceId, PaymentStatus = i.PaymentDate.HasValue && i.PaymentDate.Value < DateTime.UtcNow ? "Paid" : "Not yet paid"};
 
       QueryDumper.Dump(q);
     }
@@ -202,13 +193,13 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("SELECT/DISTINCT")]
     [Test(Description = "Select - Filtered")]
     [Description("This sample uses SELECT and WHERE to return a sequence of " +
-      "just the London Customers' contact names.")]
+      "just the London Customers' last names.")]
     public void DLinq15()
     {
       var q =
         from c in Session.Query.All<Customer>()
         where c.Address.City=="London"
-        select c.ContactName;
+        select c.LastName;
 
       QueryDumper.Dump(q);
     }
@@ -222,9 +213,9 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
       var q =
         from c in Session.Query.All<Customer>()
         select new {
-          c.Id,
-          CompanyInfo = new {c.CompanyName, c.Address.City, c.Address.Country},
-          ContactInfo = new {c.ContactName, c.ContactTitle}
+          c.CustomerId,
+          CustomerInfo = new {c.CompanyName, c.Address.City, c.Address.Country},
+          ContactInfo = new {c.Phone, c.Email, c.Fax}
         };
 
       QueryDumper.Dump(q);
@@ -233,20 +224,19 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("SELECT/DISTINCT")]
     [Test(Description = "Select - Nested ")]
     [Description("This sample uses nested queries to return a sequence of " +
-      "all orders containing their OrderID, a subsequence of the " +
-        "items in the order where there is a discount, and the money " +
-          "saved if shipping is not included.")]
+      "all Invoices containing their InvoiceID, a subsequence of the " +
+        "items in the invoice with cost less than 1 dollar, and commission.")]
     public void DLinq17()
     {
       var q =
-        from o in Session.Query.All<Order>()
+        from i in Session.Query.All<Invoice>()
         select new {
-          o.Id,
+          i.InvoiceId,
           DiscountedProducts =
-            from od in o.OrderDetails
-            where od.Discount > 0.0
-            select od,
-          FreeShippingDiscount = o.Freight
+            from il in i.InvoiceLines
+            where il.UnitPrice < 1.0m
+            select il,
+          i.Commission
         };
 
       QueryDumper.Dump(q);
@@ -277,66 +267,66 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("COUNT/SUM/MIN/MAX/AVG")]
     [Test(Description = "Count - Conditional")]
-    [Description("This sample uses Count to find the number of Products in the database " +
-      "that are not discontinued.")]
+    [Description("This sample uses Count to find the number of Track in the database " +
+      "that are not videos.")]
     public void DLinq20()
     {
-      var q = Session.Query.All<Product>().Count(p => !(p is DiscontinuedProduct));
+      var q = Session.Query.All<Track>().Count(t => !(t is VideoTrack));
       Console.WriteLine(q);
     }
 
     [Category("COUNT/SUM/MIN/MAX/AVG")]
     [Test(Description = "Sum - Simple")]
-    [Description("This sample uses Sum to find the total freight over all Orders.")]
+    [Description("This sample uses Sum to find the Commission over all Orders.")]
     public void DLinq21()
     {
-      var q = Session.Query.All<Order>().Select(o => o.Freight).Sum();
+      var q = Session.Query.All<Invoice>().Select(o => o.Commission).Sum();
       Console.WriteLine(q);
     }
 
     [Category("COUNT/SUM/MIN/MAX/AVG")]
     [Test(Description = "Sum - Mapped")]
-    [Description("This sample uses Sum to find the total number of units on order over all Products.")]
+    [Description("This sample uses Sum to find the total number of milliseconds over all Tracks.")]
     public void DLinq22()
     {
-      var q = Session.Query.All<Product>().Sum(p => p.UnitsOnOrder);
+      var q = Session.Query.All<Track>().Sum(t => t.Milliseconds);
       Console.WriteLine(q);
     }
 
     [Category("COUNT/SUM/MIN/MAX/AVG")]
     [Test(Description = "Min - Simple")]
-    [Description("This sample uses Min to find the lowest unit price of any Product.")]
+    [Description("This sample uses Min to find the lowest unit price of any Track.")]
     public void DLinq23()
     {
-      var q = Session.Query.All<Product>().Select(p => p.UnitPrice).Min();
+      var q = Session.Query.All<Track>().Select(t => t.UnitPrice).Min();
       Console.WriteLine(q);
     }
 
     [Category("COUNT/SUM/MIN/MAX/AVG")]
     [Test(Description = "Min - Mapped")]
-    [Description("This sample uses Min to find the lowest freight of any Order.")]
+    [Description("This sample uses Min to find the lowest Commission of any Invoice.")]
     public void DLinq24()
     {
-      var q = Session.Query.All<Order>().Min(o => o.Freight);
+      var q = Session.Query.All<Invoice>().Min(i => i.Commission);
       Console.WriteLine(q);
     }
 
     [Category("COUNT/SUM/MIN/MAX/AVG")]
     [Test(Description = "Min - Elements")]
-    [Description("This sample uses Min to find the Products that have the lowest unit price " +
+    [Description("This sample uses Min to find the Tracks that have the lowest unit price " +
       "in each category.")]
     public void DLinq25()
     {
       var categories =
-        from p in Session.Query.All<Product>()
-        group p by p.Id
+        from t in Session.Query.All<Track>()
+        group t by t.TrackId
         into g
           select new {
             Id = g.Key,
-            CheapestProducts =
-              from p2 in g
-              where p2.UnitPrice==g.Min(p3 => p3.UnitPrice)
-              select p2
+            CheapestTracks =
+              from t2 in g
+              where t2.UnitPrice==g.Min(t3 => t3.UnitPrice)
+              select t2
           };
 
       QueryDumper.Dump(categories);
@@ -353,25 +343,25 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("COUNT/SUM/MIN/MAX/AVG")]
     [Test(Description = "Max - Mapped")]
-    [Description("This sample uses Max to find the most units in stock of any Product.")]
+    [Description("This sample uses Max to find the longest duration of Tracks.")]
     public void DLinq27()
     {
-      var q = Session.Query.All<Product>().Max(p => p.UnitsInStock);
+      var q = Session.Query.All<Track>().Max(t => t.Milliseconds);
       Console.WriteLine(q);
     }
 
     [Category("COUNT/SUM/MIN/MAX/AVG")]
     [Test(Description = "Max - Elements")]
-    [Description("This sample uses Max to find the Products that have the highest unit price " +
+    [Description("This sample uses Max to find the Tracks that have the highest unit price " +
       "in each category.")]
     public void DLinq28()
     {
       var categories =
-        Session.Query.All<Product>()
-          .GroupBy(p => p.Id)
+        Session.Query.All<Track>()
+          .GroupBy(t => t.TrackId)
           .Select(g => new {
             g.Key,
-            MostExpensiveProducts = g.Where(p2 => p2.UnitPrice==g.Max(p3 => p3.UnitPrice))
+            MostExpensiveTracks = g.Where(p2 => p2.UnitPrice==g.Max(p3 => p3.UnitPrice))
           });
 
       QueryDumper.Dump(categories);
@@ -379,38 +369,38 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("COUNT/SUM/MIN/MAX/AVG")]
     [Test(Description = "Average - Simple")]
-    [Description("This sample uses Average to find the average freight of all Orders.")]
+    [Description("This sample uses Average to find the average Commission of all Invoices.")]
     public void DLinq29()
     {
-      var q = Session.Query.All<Order>().Select(o => o.Freight).Average();
+      var q = Session.Query.All<Invoice>().Select(i => i.Commission).Average();
       Console.WriteLine(q);
     }
 
     [Category("COUNT/SUM/MIN/MAX/AVG")]
     [Test(Description = "Average - Mapped")]
-    [Description("This sample uses Average to find the average unit price of all Products.")]
+    [Description("This sample uses Average to find the average unit price of all Tracks.")]
     public void DLinq30()
     {
-      var q = Session.Query.All<Product>().Average(p => p.UnitPrice);
+      var q = Session.Query.All<Track>().Average(t => t.UnitPrice);
       Console.WriteLine(q);
     }
 
     [Category("COUNT/SUM/MIN/MAX/AVG")]
     [Test(Description = "Average - Elements")]
-    [Description("This sample uses Average to find the Products that have unit price higher than " +
+    [Description("This sample uses Average to find the Tracjs that have unit price higher than " +
       "the average unit price of the category for each category.")]
     public void DLinq31()
     {
       var categories =
-        from p in Session.Query.All<Product>()
-        group p by p.Id
+        from t in Session.Query.All<Track>()
+        group t by t.TrackId
         into g
           select new {
             g.Key,
-            ExpensiveProducts =
-              from p2 in g
-              where p2.UnitPrice > g.Average(p3 => p3.UnitPrice)
-              select p2
+            ExpensiveTracks =
+              from t2 in g
+              where t2.UnitPrice > g.Average(t3 => t3.UnitPrice)
+              select t2
           };
 
       QueryDumper.Dump(categories);
@@ -420,14 +410,14 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("JOIN")]
     [Test(Description = "SelectMany - 1 to Many - 1")]
     [Description("This sample uses foreign key navigation in the " +
-      "from clause to select all orders for customers in London.")]
+      "from clause to select all Invoices for Customers in London.")]
     public void DLinqJoin1()
     {
       var q =
         from c in Session.Query.All<Customer>()
-        from o in c.Orders
+        from i in c.Invoices
         where c.Address.City=="London"
-        select o;
+        select i;
 
       QueryDumper.Dump(q);
     }
@@ -435,14 +425,14 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("JOIN")]
     [Test(Description = "SelectMany - 1 to Many - 2")]
     [Description("This sample uses foreign key navigation in the " +
-      "where clause to filter for Products whose Supplier is in the USA " +
-        "that are out of stock.")]
+      "where clause to filter for Invoices whose Customer is in the USA " +
+        "that are paid.")]
     public void DLinqJoin2()
     {
       var q =
-        from p in Session.Query.All<Product>()
-        where p.Supplier.Address.Country=="USA" && p.UnitsInStock==0
-        select p;
+        from i in Session.Query.All<Invoice>()
+        where i.Customer.Address.Country=="USA" && i.Status==InvoiceStatus.Paid
+        select i;
 
       QueryDumper.Dump(q);
     }
@@ -450,15 +440,15 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("JOIN")]
     [Test(Description = "SelectMany - Many to Many")]
     [Description("This sample uses foreign key navigation in the " +
-      "from clause to filter for employees in Seattle, " +
-        "and also list their territories.")]
+      "from clause to filter for Tracks by Jon Bon Jovi, " +
+        "and also list their price and prlaylist which includes them.")]
     public void DLinqJoin3()
     {
       var q =
-        from e in Session.Query.All<Employee>()
-        from et in e.Territories
-        where e.Address.City=="Seattle"
-        select new {e.FirstName, e.LastName, et.TerritoryDescription};
+        from t in Session.Query.All<Track>()
+        from pl in t.Playlists
+        where t.Composer=="Jon Bon Jovi"
+        select new {TrackName = t.Name, t.UnitPrice, Playlist = pl.Name};
 
       QueryDumper.Dump(q);
     }
@@ -492,8 +482,8 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var q =
         from c in Session.Query.All<Customer>()
-        join o in Session.Query.All<Order>() on c.Id equals o.Customer.Id into orders
-        select new {c.ContactName, OrderCount = orders.Count()};
+        join i in Session.Query.All<Invoice>() on c.CustomerId equals i.Customer.CustomerId into invoices
+        select new {c.LastName, OrderCount = invoices.Count()};
 
       QueryDumper.Dump(q);
     }
@@ -506,23 +496,23 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var q =
         from c in Session.Query.All<Customer>()
-        join o in Session.Query.All<Order>() on c.Id equals o.Customer.Id into ords
+        join i in Session.Query.All<Invoice>() on c.CustomerId equals i.Customer.CustomerId into invoices
         join e in Session.Query.All<Employee>() on c.Address.City equals e.Address.City into emps
-        select new {c.ContactName, ords = ords.Count(), emps = emps.Count()};
+        select new {c.LastName, invoices = invoices.Count(), emps = emps.Count()};
 
       QueryDumper.Dump(q);
     }
 
     [Category("JOIN")]
     [Test(Description = "GroupJoin - LEFT OUTER JOIN")]
-    [Description("This sample shows how to get LEFT OUTER JOIN by using DefaultIfEmpty(). The DefaultIfEmpty() method returns null when there is no Order for the Employee.")]
+    [Description("This sample shows how to get LEFT OUTER JOIN by using DefaultIfEmpty(). The DefaultIfEmpty() method returns null when there is no Invoice for the Employee.")]
     public void DLinqJoin7()
     {
       var query =
         from employee in Session.Query.All<Employee>()
-        join order in Session.Query.All<Order>() on employee equals order.Employee into orderJoins
-        from orderJoin in orderJoins.DefaultIfEmpty()
-        select new {employee.FirstName, employee.LastName, Order = orderJoin};
+        join invoice in Session.Query.All<Invoice>() on employee equals invoice.DesignatedEmployee into invoiceJoins
+        from invoiceJoin in invoiceJoins.DefaultIfEmpty()
+        select new {employee.FirstName, employee.LastName, Order = invoiceJoin};
 
       QueryDumper.Dump(query);
     }
@@ -534,10 +524,10 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       var q =
         from c in Session.Query.All<Customer>()
-        join o in Session.Query.All<Order>() on c.Id equals o.Customer.Id into ords
+        join i in Session.Query.All<Invoice>() on c.CustomerId equals i.Customer.CustomerId into invoices
         let z = c.Address.City + c.Address.Country
-        from o in ords
-        select new {c.ContactName, o.Id, z};
+        from i in invoices
+        select new {c.LastName, i.InvoiceId, z};
 
       QueryDumper.Dump(q);
     }
@@ -549,13 +539,13 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void DLinqJoin9()
     {
       var q =
-        from o in Session.Query.All<Order>()
-        from p in Session.Query.All<Product>()
-        join d in Session.Query.All<OrderDetails>()
-          on new {OrderId = o.Id, ProductId = p.Id} equals new {OrderId = d.Order.Id, ProductId = d.Product.Id}
+        from i in Session.Query.All<Invoice>()
+        from t in Session.Query.All<Track>()
+        join il in Session.Query.All<InvoiceLine>()
+          on new {InvoiceId = i.InvoiceId, TrackId = t.TrackId} equals new {InvoiceId = il.Invoice.InvoiceId, TrackId = il.Track.TrackId}
           into details
         from d in details
-        select new {OrderId = o.Id, ProductId = p.Id, d.UnitPrice};
+        select new {InvoiceId = i.InvoiceId, ProductId = t.TrackId, d.UnitPrice};
 
       QueryDumper.Dump(q);
     }
@@ -566,11 +556,11 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void DLinqJoin10()
     {
       var q =
-        from o in Session.Query.All<Order>()
+        from i in Session.Query.All<Invoice>()
         join e in Session.Query.All<Employee>()
-          on o.Id equals (int?) e.Id into emps
+          on i.DesignatedEmployee.EmployeeId equals (int?) e.EmployeeId into emps
         from e in emps
-        select new {o.Id, e.FirstName};
+        select new {i.InvoiceId, e.FirstName};
 
       QueryDumper.Dump(q);
     }
@@ -592,28 +582,28 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("ORDER BY")]
     [Test(Description = "OrderBy - With Where")]
     [Description("This sample uses where and orderby to sort Orders " +
-      "shipped to London by freight.")]
+      "billed to London by Commission.")]
     public void DLinq37()
     {
       var q =
-        from o in Session.Query.All<Order>()
-        where o.ShippingAddress.City=="London"
-        orderby o.Freight
-        select o;
+        from i in Session.Query.All<Invoice>()
+        where i.BillingAddress.City=="London"
+        orderby i.Commission
+        select i;
 
       QueryDumper.Dump(q);
     }
 
     [Category("ORDER BY")]
     [Test(Description = "OrderByDescending")]
-    [Description("This sample uses orderby to sort Products " +
+    [Description("This sample uses orderby to sort Tracks " +
       "by unit price from highest to lowest.")]
     public void DLinq38()
     {
       var q =
-        from p in Session.Query.All<Product>()
-        orderby p.UnitPrice descending
-        select p;
+        from t in Session.Query.All<Track>()
+        orderby t.UnitPrice descending
+        select t;
 
       QueryDumper.Dump(q);
     }
@@ -621,12 +611,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("ORDER BY")]
     [Test(Description = "ThenBy")]
     [Description("This sample uses a compound orderby to sort Customers " +
-      "by city and then contact name.")]
+      "by city and then last name.")]
     public void DLinq39()
     {
       var q =
         from c in Session.Query.All<Customer>()
-        orderby c.Address.City , c.ContactName
+        orderby c.Address.City , c.LastName
         select c;
 
       QueryDumper.Dump(q);
@@ -634,15 +624,15 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("ORDER BY")]
     [Test(Description = "ThenByDescending")]
-    [Description("This sample uses orderby to sort Orders from Id 1 " +
-      "by ship-to country, and then by freight from highest to lowest.")]
+    [Description("This sample uses orderby to sort Invoices from Id 1 " +
+      "by billing country, and then by Commission from highest to lowest.")]
     public void DLinq40()
     {
       var q =
-        from o in Session.Query.All<Order>()
-        where o.Id==1
-        orderby o.ShippingAddress.Country , o.Freight descending
-        select o;
+        from i in Session.Query.All<Invoice>()
+        where i.InvoiceId==1
+        orderby i.BillingAddress.Country , i.Commission descending
+        select i;
 
       QueryDumper.Dump(q);
     }
@@ -650,19 +640,19 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("ORDER BY")]
     [Test(Description = "OrderBy - Group By")]
-    [Description("This sample uses Orderby, Max and Group By to find the Products that have " +
+    [Description("This sample uses Orderby, Max and Group By to find the Tracks that have " +
       "the highest unit price in each category, and sorts the group by category id.")]
     public void DLinq41()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var categories =
-        Session.Query.All<Product>()
-          .GroupBy(p => p.Id)
+        Session.Query.All<Track>()
+          .GroupBy(t => t.TrackId)
           .OrderBy(g => g.Key)
           .Select(g => new {
             g.Key,
-            MostExpensiveProducts =
-              g.Where(p2 => p2.UnitPrice==g.Max(p3 => p3.UnitPrice))
+            MostExpensiveTrack =
+              g.Where(t2 => t2.UnitPrice==g.Max(t3 => t3.UnitPrice))
           });
 
       QueryDumper.Dump(categories);
@@ -670,13 +660,13 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("GROUP BY/HAVING")]
     [Test(Description = "GroupBy - Simple")]
-    [Description("This sample uses group by to partition Products by " +
+    [Description("This sample uses group by to partition Tracks by " +
       "Id.")]
     public void DLinq42()
     {
       var q =
-        from p in Session.Query.All<Product>()
-        group p by p.Id
+        from t in Session.Query.All<Track>()
+        group t by t.TrackId
         into g
           select g;
 
@@ -690,12 +680,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void DLinq43()
     {
       var q =
-        from p in Session.Query.All<Product>()
-        group p by p.Id
+        from t in Session.Query.All<Track>()
+        group t by t.TrackId
         into g
           select new {
             g.Key,
-            MaxPrice = g.Max(p => p.UnitPrice)
+            MaxPrice = g.Max(t => t.UnitPrice)
           };
 
       QueryDumper.Dump(q);
@@ -708,12 +698,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void DLinq44()
     {
       var q =
-        from p in Session.Query.All<Product>()
-        group p by p.Id
+        from t in Session.Query.All<Track>()
+        group t by t.TrackId
         into g
           select new {
             g.Key,
-            MinPrice = g.Min(p => p.UnitPrice)
+            MinPrice = g.Min(t => t.UnitPrice)
           };
 
       QueryDumper.Dump(q);
@@ -726,12 +716,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void DLinq45()
     {
       var q =
-        from p in Session.Query.All<Product>()
-        group p by p.Id
+        from t in Session.Query.All<Track>()
+        group t by t.TrackId
         into g
           select new {
             g.Key,
-            AveragePrice = g.Average(p => p.UnitPrice)
+            AveragePrice = g.Average(t => t.UnitPrice)
           };
 
       QueryDumper.Dump(q);
@@ -744,12 +734,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void DLinq46()
     {
       var q =
-        from p in Session.Query.All<Product>()
-        group p by p.Id
+        from t in Session.Query.All<Track>()
+        group t by t.TrackId
         into g
           select new {
             g.Key,
-            TotalPrice = g.Sum(p => p.UnitPrice)
+            TotalPrice = g.Sum(t => t.UnitPrice)
           };
 
       QueryDumper.Dump(q);
@@ -758,16 +748,16 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("GROUP BY/HAVING")]
     [Test(Description = "GroupBy - Count")]
     [Description("This sample uses group by and Count " +
-      "to find the number of Products in each Id.")]
+      "to find the number of Tracks in each Id.")]
     public void DLinq47()
     {
       var q =
-        from p in Session.Query.All<Product>()
-        group p by p.Id
+        from t in Session.Query.All<Track>()
+        group t by t.TrackId
         into g
           select new {
             g.Key,
-            NumProducts = g.Count()
+            NumTracks = g.Count()
           };
 
       QueryDumper.Dump(q);
@@ -776,18 +766,18 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("GROUP BY/HAVING")]
     [Test(Description = "GroupBy - Count - Conditional")]
     [Description("This sample uses group by and Count " +
-      "to find the number of Products in each Id " +
-        "that are discontinued.")]
+      "to find the number of Track in each Id " +
+        "that are VideoTracks.")]
     public void DLinq48()
     {
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var q =
-        from p in Session.Query.All<Product>()
-        group p by p.Id
+        from t in Session.Query.All<Track>()
+        group t by t.TrackId
         into g
           select new {
             g.Key,
-            NumProducts = g.Count(p => (p is DiscontinuedProduct))
+            NumTracks = g.Count(t => (t is VideoTrack))
           };
 
       QueryDumper.Dump(q);
@@ -796,18 +786,18 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("GROUP BY/HAVING")]
     [Test(Description = "GroupBy - followed by Where")]
     [Description("This sample uses a where clause after a group by clause " +
-      "to find all categories that have at least 10 products.")]
+      "to find all categories that have at least 10 track.")]
     public void DLinq49()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var q =
-        from p in Session.Query.All<Product>()
-        group p by p.Id
+        from t in Session.Query.All<Track>()
+        group t by t.TrackId
         into g
           where g.Count() >= 10
           select new {
             g.Key,
-            ProductCount = g.Count()
+            TrackCount = g.Count()
           };
 
       QueryDumper.Dump(q);
@@ -815,12 +805,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("GROUP BY/HAVING")]
     [Test(Description = "GroupBy - Multiple Columns")]
-    [Description("This sample uses Group By to group products by Id and SupplierID.")]
+    [Description("This sample uses Group By to group tracks by TrackId and MediaTypeId.")]
     public void DLinq50()
     {
       var categories =
-        from p in Session.Query.All<Product>()
-        group p by new {p.Id, SupplierId = p.Supplier.Id}
+        from t in Session.Query.All<Track>()
+        group t by new {t.TrackId, SupplierId = t.MediaType.MediaTypeId}
         into g
           select new {g.Key, g};
 
@@ -829,15 +819,15 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("GROUP BY/HAVING")]
     [Test(Description = "GroupBy - Expression")]
-    [Description("This sample uses Group By to return two sequences of products. " +
-      "The first sequence contains products with unit price " +
-        "greater than 10. The second sequence contains products " +
+    [Description("This sample uses Group By to return two sequences of tracks. " +
+      "The first sequence contains tracks with unit price " +
+        "greater than 10. The second sequence contains tracks " +
           "with unit price less than or equal to 10.")]
     public void DLinq51()
     {
       var categories =
-        from p in Session.Query.All<Product>()
-        group p by new {Criterion = p.UnitPrice > 10}
+        from t in Session.Query.All<Track>()
+        group t by new {Criterion = t.UnitPrice > 10}
         into g
           select g;
 
@@ -846,12 +836,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("EXISTS/IN/ANY/ALL")]
     [Test(Description = "Any - Simple")]
-    [Description("This sample uses Any to return only Customers that have no Orders.")]
+    [Description("This sample uses Any to return only Customers that have no Invoices.")]
     public void DLinq52()
     {
       var q =
         from c in Session.Query.All<Customer>()
-        where !c.Orders.Any()
+        where !c.Invoices.Any()
         select c;
 
       QueryDumper.Dump(q);
@@ -859,14 +849,14 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("EXISTS/IN/ANY/ALL")]
     [Test(Description = "Any - Conditional")]
-    [Description("This sample uses Any to return only Categories that have " +
-      "at least one Discontinued product.")]
+    [Description("This sample uses Any to return only Playlists that have " +
+      "at least one VideoTrack.")]
     public void DLinq53()
     {
       var q =
-        from c in Session.Query.All<Category>()
-        where c.Products.Any(p => (p is DiscontinuedProduct))
-        select c;
+        from p in Session.Query.All<Playlist>()
+        where p.Tracks.Any(t => (t is VideoTrack))
+        select p;
 
       QueryDumper.Dump(q);
     }
@@ -879,7 +869,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       var q =
         from c in Session.Query.All<Customer>()
-        where c.Orders.All(o => o.ShippingAddress.City==c.Address.City)
+        where c.Invoices.All(i => i.BillingAddress.City==c.Address.City)
         select c;
 
       QueryDumper.Dump(q);
@@ -899,7 +889,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
         select c.Fax
         ).Concat(
         from e in Session.Query.All<Employee>()
-        select e.HomePhone
+        select e.Phone
         );
 
       QueryDumper.Dump(q);
@@ -916,7 +906,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
         select new {Name = c.CompanyName, c.Phone}
         ).Concat(
         from e in Session.Query.All<Employee>()
-        select new {Name = e.FirstName + " " + e.LastName, Phone = e.HomePhone}
+        select new {Name = e.FirstName + " " + e.LastName, Phone = e.Phone}
         );
 
       QueryDumper.Dump(q);
@@ -995,14 +985,14 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("TOP/BOTTOM")]
     [Test(Description = "Skip")]
-    [Description("This sample uses Skip to select all but the 10 most expensive Products.")]
+    [Description("This sample uses Skip to select all but the 10 most expensive Tracks.")]
     public void DLinq61()
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var q = (
-        from p in Session.Query.All<Product>()
-        orderby p.UnitPrice descending
-        select p)
+        from t in Session.Query.All<Track>()
+        orderby t.UnitPrice descending
+        select t)
         .Skip(10);
 
       QueryDumper.Dump(q);
@@ -1012,13 +1002,13 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Test(Description = "Paging - Index")]
     [Description("This sample uses the Skip and Take operators to do paging by " +
       "skipping the first 50 records and then returning the next 10, thereby " +
-        "providing the data for page 6 of the Products table.")]
+        "providing the data for page 6 of the Customers table.")]
     public void DLinq62()
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
       var q = (
         from c in Session.Query.All<Customer>()
-        orderby c.ContactName
+        orderby c.LastName
         select c)
         .Skip(50)
         .Take(10);
@@ -1031,15 +1021,15 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("This sample uses a where clause and the Take operator to do paging by, " +
       "first filtering to get only the Ids above 50 (the last Id " +
         "from page 5), then ordering by Id, and finally taking the first 10 results, " +
-          "thereby providing the data for page 6 of the Products table.  " +
+          "thereby providing the data for page 6 of the Tracks table.  " +
             "Note that this method only works when ordering by a unique key.")]
     public void DLinq63()
     {
       var q = (
-        from p in Session.Query.All<Product>()
-        where p.Id > 50
-        orderby p.Id
-        select p)
+        from t in Session.Query.All<Track>()
+        where t.TrackId > 50
+        orderby t.TrackId
+        select t)
         .Take(10);
 
       QueryDumper.Dump(q);
@@ -1054,7 +1044,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       var q =
         from e in Session.Query.All<Employee>()
-        where e.ReportsTo==null
+        where e.ReportsToManager==null
         select e;
 
       QueryDumper.Dump(q);
@@ -1099,21 +1089,21 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       var q =
         from c in Session.Query.All<Customer>()
-        select new {c.Id, Location = c.Address.City + ", " + c.Address.Country};
+        select new {c.CustomerId, Location = c.Address.City + ", " + c.Address.Country};
 
       QueryDumper.Dump(q);
     }
 
     [Category("String/Date Functions")]
     [Test(Description = "String.Length")]
-    [Description("This sample uses the Length property to find all Products whose " +
+    [Description("This sample uses the Length property to find all Tracks whose " +
       "name is shorter than 10 characters.")]
     public void DLinq79()
     {
       var q =
-        from p in Session.Query.All<Product>()
-        where p.ProductName.Length < 10
-        select p;
+        from t in Session.Query.All<Track>()
+        where t.Name.Length < 10
+        select t;
 
       QueryDumper.Dump(q);
     }
@@ -1126,7 +1116,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       var q =
         from c in Session.Query.All<Customer>()
-        where c.ContactName.Contains("Anders")
+        where c.LastName.Contains("Anders")
         select c;
 
       QueryDumper.Dump(q);
@@ -1135,12 +1125,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("String/Date Functions")]
     [Test(Description = "String.IndexOf(substring)")]
     [Description("This sample uses the IndexOf method to find the first instance of " +
-      "a space in each Customer's contact name.")]
+      " '@' in each Customer's e-mail.")]
     public void DLinq81()
     {
       var q =
         from c in Session.Query.All<Customer>()
-        select new {c.ContactName, SpacePos = c.ContactName.IndexOf(" ")};
+        select new {c.Email, AtPos = c.Email.IndexOf("@")};
 
       QueryDumper.Dump(q);
     }
@@ -1148,12 +1138,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("String/Date Functions")]
     [Test(Description = "String.StartsWith(prefix)")]
     [Description("This sample uses the StartsWith method to find Customers whose " +
-      "contact name starts with 'Maria'.")]
+      "first name starts with 'Maria'.")]
     public void DLinq82()
     {
       var q =
         from c in Session.Query.All<Customer>()
-        where c.ContactName.StartsWith("Maria")
+        where c.FirstName.StartsWith("Maria")
         select c;
 
       QueryDumper.Dump(q);
@@ -1162,12 +1152,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("String/Date Functions")]
     [Test(Description = "String.EndsWith(suffix)")]
     [Description("This sample uses the StartsWith method to find Customers whose " +
-      "contact name ends with 'Anders'.")]
+      "last name ends with 'Anders'.")]
     public void DLinq83()
     {
       var q =
         from c in Session.Query.All<Customer>()
-        where c.ContactName.EndsWith("Anders")
+        where c.LastName.EndsWith("Anders")
         select c;
 
       QueryDumper.Dump(q);
@@ -1175,13 +1165,13 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("String/Date Functions")]
     [Test(Description = "String.Substring(start)")]
-    [Description("This sample uses the Substring method to return Product names starting " +
-      "from the fourth letter.")]
+    [Description("This sample uses the Substring method to return track names starting " +
+      "from the third letter.")]
     public void DLinq84()
     {
       var q =
-        from p in Session.Query.All<Product>()
-        select p.ProductName.Substring(3);
+        from t in Session.Query.All<Track>()
+        select t.Name.Substring(2);
 
       QueryDumper.Dump(q);
     }
@@ -1194,7 +1184,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       var q =
         from e in Session.Query.All<Employee>()
-        where e.HomePhone.Substring(6, 3)=="555"
+        where e.Phone.Substring(6, 3)=="555"
         select e;
 
       QueryDumper.Dump(q);
@@ -1215,13 +1205,13 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("String/Date Functions")]
     [Test(Description = "String.ToLower()")]
-    [Description("This sample uses the ToLower method to return Category names " +
+    [Description("This sample uses the ToLower method to return MediaType names " +
       "that have been converted to lowercase.")]
     public void DLinq87()
     {
       var q =
-        from c in Session.Query.All<Category>()
-        select c.CategoryName.ToLower();
+        from c in Session.Query.All<MediaType>()
+        select c.Name.ToLower();
 
       QueryDumper.Dump(q);
     }
@@ -1235,7 +1225,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       var q =
         from e in Session.Query.All<Employee>()
-        select e.HomePhone.Substring(0, 5).Trim();
+        select e.Phone.Substring(0, 5).Trim();
 
       QueryDumper.Dump(q);
     }
@@ -1249,8 +1239,8 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       var q =
         from e in Session.Query.All<Employee>()
-        where e.HomePhone.Substring(4, 1)==")"
-        select e.HomePhone.Insert(5, ":");
+        where e.Phone.Substring(4, 1)==")"
+        select e.Phone.Insert(5, ":");
 
       QueryDumper.Dump(q);
     }
@@ -1264,8 +1254,8 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       var q =
         from e in Session.Query.All<Employee>()
-        where e.HomePhone.Substring(4, 1)==")"
-        select e.HomePhone.Remove(9);
+        where e.Phone.Substring(4, 1)==")"
+        select e.Phone.Remove(9);
 
       QueryDumper.Dump(q);
     }
@@ -1279,8 +1269,8 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       var q =
         from e in Session.Query.All<Employee>()
-        where e.HomePhone.Substring(4, 1)==")"
-        select e.HomePhone.Remove(0, 6);
+        where e.Phone.Substring(4, 1)==")"
+        select e.Phone.Remove(0, 6);
 
       QueryDumper.Dump(q);
     }
@@ -1294,7 +1284,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void DLinq92()
     {
       var q =
-        from s in Session.Query.All<Supplier>()
+        from s in Session.Query.All<Customer>()
         select new {
           s.CompanyName,
           Country = s.Address.Country.Replace("UK", "United Kingdom")
@@ -1307,13 +1297,13 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("String/Date Functions")]
     [Test(Description = "DateTime.Year")]
     [Description("This sample uses the DateTime's Year property to " +
-      "find Orders placed in 1997.")]
+      "find Orders placed in 2005.")]
     public void DLinq93()
     {
       var q =
-        from o in Session.Query.All<Order>()
-        where o.OrderDate.Value.Year==1997
-        select o;
+        from i in Session.Query.All<Invoice>()
+        where i.InvoiceDate.Year==2005
+        select i;
 
       QueryDumper.Dump(q);
     }
@@ -1321,13 +1311,13 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("String/Date Functions")]
     [Test(Description = "DateTime.Month")]
     [Description("This sample uses the DateTime's Month property to " +
-      "find Orders placed in December.")]
+      "find Invoices placed in December.")]
     public void DLinq94()
     {
       var q =
-        from o in Session.Query.All<Order>()
-        where o.OrderDate.Value.Month==12
-        select o;
+        from i in Session.Query.All<Invoice>()
+        where i.InvoiceDate.Month==12
+        select i;
 
       QueryDumper.Dump(q);
     }
@@ -1335,13 +1325,13 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("String/Date Functions")]
     [Test(Description = "DateTime.Day")]
     [Description("This sample uses the DateTime's Day property to " +
-      "find Orders placed on the 31st day of the month.")]
+      "find Invoices placed on the 31st day of the month.")]
     public void DLinq95()
     {
       var q =
-        from o in Session.Query.All<Order>()
-        where o.OrderDate.Value.Day==31
-        select o;
+        from i in Session.Query.All<Invoice>()
+        where i.InvoiceDate.Day==31
+        select i;
 
       QueryDumper.Dump(q);
     }
@@ -1352,8 +1342,8 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
       "you will receive a reference to the same object in memory each time.")]
     public void DLinq96()
     {
-      Customer cust1 = Session.Query.All<Customer>().First(c => c.Id=="BONAP");
-      Customer cust2 = Session.Query.All<Customer>().First(c => c.Id=="BONAP");
+      Customer cust1 = Session.Query.All<Customer>().First(c => c.CustomerId==4200);
+      Customer cust2 = Session.Query.All<Customer>().First(c => c.CustomerId==4200);
 
       Console.WriteLine("cust1 and cust2 refer to the same object in memory: {0}",
         Object.ReferenceEquals(cust1, cust2));
@@ -1366,11 +1356,11 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
         "reference to the same object in memory each time.")]
     public void DLinq97()
     {
-      Customer cust1 = Session.Query.All<Customer>().First(c => c.Id=="BONAP");
+      Customer cust1 = Session.Query.All<Customer>().First(c => c.CustomerId==4200);
       Customer cust2 = (
-        from o in Session.Query.All<Order>()
-        where o.Customer.Id=="BONAP"
-        select o)
+        from i in Session.Query.All<Invoice>()
+        where i.Customer.CustomerId==4200
+        select i)
         .First()
         .Customer;
 
@@ -1391,15 +1381,15 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
         select c;
 
       foreach (var cust in custs) {
-        foreach (var ord in cust.Orders) {
-          Console.WriteLine("Id {0} has an OrderID {1}.", cust.Id, ord.Id);
+        foreach (var inv in cust.Invoices) {
+          Console.WriteLine("Id {0} has an InvoiceID {1}.", cust.CustomerId, inv.InvoiceId);
         }
       }
     }
 
-    private bool isValidProduct(Product p)
+    private bool isValidTrack(Track t)
     {
-      return p.ProductName.LastIndexOf('C')==0;
+      return t.Name.LastIndexOf('C')==0;
     }
 
     [Category("Object Loading")]
@@ -1413,8 +1403,8 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
       select e;
 
       foreach (var emp in emps) {
-        foreach (var man in emp.ReportingEmployees) {
-          Console.WriteLine("Employee {0} reported to Manager {1}.", emp.FirstName, man.FirstName);
+        foreach (var inv in emp.Invoices) {
+          Console.WriteLine("Employee {0} is responsible for invoice #{1}.", emp.FirstName, inv.InvoiceId);
         }
       }
     }
@@ -1452,7 +1442,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
       select c;
 
       foreach (Employee emp in emps) {
-        Console.WriteLine("{0}", emp.Notes);
+        Console.WriteLine("{0}", emp.LastName);
       }
     }
 
@@ -1468,9 +1458,9 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void DLinq105()
     {
       var q =
-        from p in Session.Query.All<Product>().ToList()
-        where isValidProduct(p)
-        select p;
+        from t in Session.Query.All<Track>().ToList()
+        where isValidTrack(t)
+        select t;
 
       QueryDumper.Dump(q);
     }
@@ -1478,7 +1468,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("Conversion Operators")]
     [Test(Description = "ToArray")]
     [Description("This sample uses ToArray to immediately evaluate a query into an array " +
-      "and get the 3rd element.")]
+      "and get the 2nd element.")]
     public void DLinq106()
     {
       var q =
@@ -1487,7 +1477,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
         select c;
 
       Customer[] qArray = q.ToArray();
-      QueryDumper.Dump(qArray[3]);
+      QueryDumper.Dump(qArray[1]);
     }
 
     [Category("Conversion Operators")]
@@ -1511,11 +1501,11 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void DLinq108()
     {
       var q =
-        from p in Session.Query.All<Product>()
-        where p.UnitsInStock <= p.ReorderLevel && !(p is DiscontinuedProduct)
+        from p in Session.Query.All<Track>()
+        where p.UnitPrice <= 10 && !(p is VideoTrack)
         select p;
 
-      Dictionary<int, Product> qDictionary = q.ToDictionary(p => p.Id);
+      Dictionary<int, Track> qDictionary = q.ToDictionary(t => t.TrackId);
 
       foreach (int key in qDictionary.Keys) {
         Console.WriteLine("Key {0}:", key);
@@ -1645,14 +1635,14 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Category("Advanced")]
     [Test(Description = "Nested in FROM")]
     [Description("This sample uses orderbyDescending and Take to return the " +
-      "discontinued products of the top 10 most expensive products.")]
+      "video tracks of the top 10 most expensive tracks.")]
     public void DLinq131()
     {
-      var prods = from p in Session.Query.All<Product>().OrderByDescending(p => p.UnitPrice).Take(10)
-      where p is DiscontinuedProduct
-      select p;
+      var tracks = from t in Session.Query.All<Track>().OrderByDescending(t => t.UnitPrice).Take(10)
+      where t is VideoTrack
+      select t;
 
-      QueryDumper.Dump(prods);
+      QueryDumper.Dump(tracks);
     }
 
     [Category("Inheritance")]
@@ -1670,7 +1660,6 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
           Console.WriteLine();
         }
       });
-
     }
 
     [Category("Inheritance")]
@@ -1686,7 +1675,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Inheritance")]
     [Test(Description = "IS")]
-    [Description("This sample uses IS to return all shipper contacts.")]
+    [Description("This sample uses IS to return all Customers.")]
     public void DLinq137()
     {
       var cons = from c in Session.Query.All<Person>()
