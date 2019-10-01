@@ -256,7 +256,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
       var playlist = context.GetEntity<Playlist>((int) data.PlaylistId);
       var track = context.GetEntity<Track>((int) data.TrackId);
       playlist.Tracks.Add(track);
-      return default;
+      return default(IdEntity);
     }
 
     public PlaylistTrackImporter(ImportContext context)
