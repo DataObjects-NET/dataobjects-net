@@ -69,15 +69,18 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     public string Email { get; set; }
   }
 
+  public abstract class BusinessContact : Person
+  {
+    [Field(Length = 80)]
+    public string CompanyName { get; set; }
+  }
+
   [HierarchyRoot]
   [DebuggerDisplay("{FirstName} {LastName} (CustomerId = {CustomerId})")]
-  public class Customer : Person
+  public class Customer : BusinessContact
   {
     [Field, Key]
     public int CustomerId { get; private set; }
-
-    [Field(Length = 80)]
-    public string CompanyName { get; set; }
 
     [Field]
     public Employee SupportRep { get; set; }
@@ -109,6 +112,9 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 
     [Field]
     public Employee ReportsToManager { get; set; }
+
+    [Field, Association(PairTo = "ReportsToManager")]
+    public EntitySet<Employee> ReportingEmployees { get; set; }
 
     [Field, Association(PairTo = "DesignatedEmployee")]
     public EntitySet<Invoice> Invoices { get; private set; }
