@@ -131,8 +131,5 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="MySQL\SakilaDb\sakila-schema.sql" />
-    <None Include="Sqlite\history.sql" />
-    <None Include="Sqlite\Northwind.sl3" />
-    <None Include="Sqlite\Northwind.Sqlite3.sql" />
   </ItemGroup>
 </Project>
