@@ -890,6 +890,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Chinook.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Northwind.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

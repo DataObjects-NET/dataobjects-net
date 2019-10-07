@@ -6,323 +6,306 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Globalization;
 using System.Linq;
-using System.Text;
-using Newtonsoft.Json;
+using System.Xml.Linq;
 using Xtensive.Orm.Configuration;
 using IdEntity = System.ValueTuple<int,Xtensive.Orm.Entity>;
 
 namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
 {
-  internal abstract class Importer
-  {
-    protected readonly ImportContext context;
-
-    public void Import(dynamic data)
-    {
-      foreach (object entryData in data) {
-        var (id, entity) = ImportEntry(entryData);
-        if (entity!=null)
-          context.AddEntity(id, entity);
-      }
-    }
-
-    protected abstract IdEntity ImportEntry(dynamic data);
-
-    protected Importer(ImportContext context)
-    {
-      this.context = context;
-    }
-  }
-
-  internal class ArtistImporter : Importer
-  {
-    protected override IdEntity ImportEntry(dynamic data)
-    {
-      return ((int) data.ArtistId, new Artist {
-        Name = data.Name
-      });
-    }
-
-    public ArtistImporter(ImportContext context)
-      : base(context)
-    {
-    }
-  }
-
-  internal class GenreImporter : Importer
-  {
-    protected override IdEntity ImportEntry(dynamic data)
-    {
-      return ((int) data.GenreId, new Genre {
-        Name = data.Name
-      });
-    }
-
-    public GenreImporter(ImportContext context)
-      : base(context)
-    {
-    }
-  }
-
-  internal class MediaTypeImporter : Importer
-  {
-    protected override IdEntity ImportEntry(dynamic data)
-    {
-      return ((int) data.MediaTypeId, new MediaType {
-        Name = data.Name
-      });
-    }
-
-    public MediaTypeImporter(ImportContext context)
-      : base(context)
-    {
-    }
-  }
-
-  internal class PlaylistImporter : Importer
-  {
-    protected override IdEntity ImportEntry(dynamic data)
-    {
-      return ((int) data.PlaylistId, new Playlist {
-        Name = data.Name
-      });
-    }
-
-    public PlaylistImporter(ImportContext context)
-      : base(context)
-    {
-    }
-  }
-
-  internal class AlbumImporter : Importer
-  {
-    protected override IdEntity ImportEntry(dynamic data)
-    {
-      return ((int) data.AlbumId, new Album {
-        Title = data.Title,
-        Artist = context.GetEntity<Artist>((int) data.ArtistId)
-      });
-    }
-
-    public AlbumImporter(ImportContext context)
-      : base(context)
-    {
-    }
-  }
-
-  internal class TrackImporter : Importer
-  {
-    protected override IdEntity ImportEntry(dynamic data)
-    {
-      var mediaType = context.GetEntity<MediaType>((int) data.MediaTypeId);
-      var track = CreateTrack(mediaType);
-      track.Name = data.Name;
-      track.Composer = data.Composer;
-      track.Milliseconds = data.Milliseconds;
-      track.Bytes = data.Bytes;
-      track.UnitPrice = data.UnitPrice;
-      track.Album = context.GetEntity<Album>((int) data.AlbumId);
-      track.MediaType = mediaType;
-      track.Genre = context.GetEntity<Genre>((int) data.GenreId);
-      return ((int) data.TrackId, track);
-    }
-
-    private Track CreateTrack(MediaType mediaType)
-    {
-      if (mediaType.Name=="Protected MPEG-4 video file")
-        return new VideoTrack();
-      else
-        return new AudioTrack();
-    }
-
-    public TrackImporter(ImportContext context)
-      : base(context)
-    {
-    }
-  }
-
-  internal class EmployeeImporter : Importer
-  {
-    protected override IdEntity ImportEntry(dynamic data)
-    {
-      var reportsTo = (int?) data.ReportsTo;
-      return ((int) data.EmployeeId, new Employee {
-        LastName = data.LastName,
-        FirstName = data.FirstName,
-        Title = data.Title,
-        BirthDate = data.BirthDate,
-        HireDate = data.HireDate,
-        Address = new Address {
-          StreetAddress = data.Address,
-          City = data.City,
-          State = data.State,
-          Country = data.Country,
-          PostalCode = data.PostalCode,
-        },
-        Phone = data.Phone,
-        Fax = data.Fax,
-        Email = data.Email,
-        ReportsToManager = reportsTo.HasValue ? context.GetEntity<Employee>(reportsTo.Value) : null
-      });
-    }
-
-    public EmployeeImporter(ImportContext context)
-      : base(context)
-    {
-    }
-  }
-
-  internal class CustomerImporter : Importer
-  {
-    protected override IdEntity ImportEntry(dynamic data)
-    {
-      return ((int) data.CustomerId, new Customer {
-        FirstName = data.FirstName,
-        LastName = data.LastName,
-        CompanyName = data.Company,
-        Address = new Address {
-          StreetAddress = data.Address,
-          City = data.City,
-          State = data.State,
-          Country = data.Country,
-          PostalCode = data.PostalCode,
-        },
-        Phone = data.Phone,
-        Fax = data.Fax,
-        Email = data.Email,
-        SupportRep = context.GetEntity<Employee>((int) data.SupportRepId),
-      });
-    }
-
-    public CustomerImporter(ImportContext context)
-      : base(context)
-    {
-    }
-  }
-
-  internal class InvoiceImporter : Importer
-  {
-    protected override IdEntity ImportEntry(dynamic data)
-    {
-      return ((int) data.InvoiceId, new Invoice() {
-        InvoiceDate = data.InvoiceDate,
-        PaymentDate = (DateTime?)data.PaymentDate,
-        Status = (InvoiceStatus)data.Status,
-        ProcessingTime = (TimeSpan?)data.ProcessingTime,
-        BillingAddress = new Address {
-          StreetAddress = data.BillingAddress,
-          City = data.BillingCity,
-          State = data.BillingState,
-          Country = data.BillingCountry,
-          PostalCode = data.BillingPostalCode,
-        },
-        Total = data.Total,
-        Commission = data.Commission,
-        Customer = context.GetEntity<Customer>((int) data.CustomerId),
-        DesignatedEmployee = context.GetEntity<Employee>((int) data.EmployeeId),
-      });
-    }
-
-    public InvoiceImporter(ImportContext context)
-      : base(context)
-    {
-    }
-  }
-
-  internal class InvoiceLineImporter : Importer
-  {
-    protected override IdEntity ImportEntry(dynamic data)
-    {
-      return ((int) data.InvoiceLineId, new InvoiceLine {
-        UnitPrice = data.UnitPrice,
-        Quantity = data.Quantity,
-        Invoice = context.GetEntity<Invoice>((int) data.InvoiceId),
-        Track = context.GetEntity<Track>((int) data.TrackId),
-      });
-    }
-
-    public InvoiceLineImporter(ImportContext context)
-      : base(context)
-    {
-    }
-  }
-
-  internal class PlaylistTrackImporter : Importer
-  {
-    protected override IdEntity ImportEntry(dynamic data)
-    {
-      var playlist = context.GetEntity<Playlist>((int) data.PlaylistId);
-      var track = context.GetEntity<Track>((int) data.TrackId);
-      playlist.Tracks.Add(track);
-      return default(IdEntity);
-    }
-
-    public PlaylistTrackImporter(ImportContext context)
-      : base(context)
-    {
-    }
-  }
-
   public sealed class ImportContext
   {
     private readonly Dictionary<Type, Dictionary<int, Entity>> entities = new Dictionary<Type, Dictionary<int, Entity>>();
 
     public T GetEntity<T>(int id) where T : Entity => (T) entities[typeof (T)][id];
 
-    public void AddEntity(int id, Entity entity)
+    public void AddEntity<T>(int id, T entity)
+      where T: Entity
     {
-      using (var enumerator = GetAllEntityTypes(entity.GetType()).Reverse().GetEnumerator()) {
-        enumerator.MoveNext();
-        if (!entities.TryGetValue(enumerator.Current, out var values)) {
-          entities.Add(enumerator.Current, values = new Dictionary<int, Entity>());
-          while (enumerator.MoveNext())
-            entities.Add(enumerator.Current, values);
-        }
-
-        values.Add(id, entity);
+      Dictionary<int, Entity> values;
+      if (!entities.TryGetValue(typeof (T), out values)) {
+        values = new Dictionary<int, Entity>();
+        entities.Add(typeof (T), values);
       }
-    }
 
-    private IEnumerable<Type> GetAllEntityTypes(Type type)
-    {
-      while (type!=typeof (Entity)) {
-        yield return type;
-        if(Attribute.IsDefined(type, typeof(HierarchyRootAttribute)))
-          yield break;
-        type = type.BaseType;
-      }
+      values[id] = entity;
     }
   }
 
   public class DataBaseFiller
   {
+    private abstract class Importer
+    {
+      public abstract void Import(Dictionary<string, object> fields, ImportContext context);
+    }
+
+    private class ArtistImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext context)
+      {
+        var entity = new Artist {Name = (string) fields["Name"]};
+        context.AddEntity((int) fields["ArtistId"], entity);
+      }
+    }
+
+    private class GenreImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext context)
+      {
+        var entity = new Genre {Name = (string) fields["Name"]};
+        context.AddEntity((int) fields["GenreId"], entity);
+      }
+    }
+
+    private class MediaTypeImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext context)
+      {
+        var entity = new MediaType {Name = (string) fields["Name"]};
+        context.AddEntity((int) fields["MediaTypeId"], entity);
+      }
+    }
+
+    private class PlaylistImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext context)
+      {
+        var entity = new Playlist {Name = (string) fields["Name"]};
+        context.AddEntity((int) fields["PlaylistId"], entity);
+      }
+    }
+
+    private class AlbumImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext context)
+      {
+        var entity = new Album {
+          Title = (string) fields["Title"],
+          Artist = context.GetEntity<Artist>((int) fields["ArtistId"])
+        };
+        context.AddEntity((int) fields["AlbumId"], entity);
+      }
+    }
+
+    private class TrackImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext context)
+      {
+        var mediaType = context.GetEntity<MediaType>((int) fields["MediaTypeId"]);
+        var entity = CreateTrack(mediaType);
+        entity.Name = (string) fields["Name"];
+        entity.Composer = (string) fields["Composer"];
+        entity.Milliseconds = (int) fields["Milliseconds"];
+        entity.Bytes = (byte[]) fields["Bytes"];
+        entity.UnitPrice = (decimal) fields["UnitPrice"];
+        entity.Album = context.GetEntity<Album>((int) fields["AlbumId"]);
+        entity.Genre = context.GetEntity<Genre>((int) fields["GenreId"]);
+
+        context.AddEntity((int) fields["TrackId"], entity);
+      }
+
+      private Track CreateTrack(MediaType mediaType)
+      {
+        if (mediaType.Name=="Protected MPEG-4 video file")
+          return new VideoTrack {MediaType = mediaType};
+        return new AudioTrack {MediaType = mediaType};
+      }
+    }
+
+    private class EmployeeImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext context)
+      {
+        var reportsTo = (int?) fields["ReportsTo"];
+        var entity = new Employee{
+          LastName = (string) fields["LastName"],
+          FirstName = (string) fields["FirstName"],
+          Title = (string) fields["Title"],
+          BirthDate = (DateTime?) fields["BirthDate"],
+          HireDate = (DateTime?) fields["HireDate"],
+          Address = new Address {
+            StreetAddress = (string) fields["StreetAddress"],
+            City = (string) fields["City"],
+            State = (string) fields["State"],
+            Country = (string) fields["Country"],
+            PostalCode = (string) fields["PostalCode"],
+          },
+          Phone = (string) fields["Phone"],
+          Fax = (string) fields["Fax"],
+          Email = (string) fields["Email"],
+          ReportsToManager = reportsTo.HasValue ? context.GetEntity<Employee>(reportsTo.Value) : null
+        };
+
+        context.AddEntity((int) fields["EmployeeId"], entity);
+      }
+    }
+
+    private class CustomerImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext context)
+      {
+        var entity = new Customer {
+          FirstName = (string) fields["FirstName"],
+          LastName = (string) fields["LastName"],
+          CompanyName = (string) fields["CompanyName"],
+          Address = new Address {
+            StreetAddress = (string) fields["StreetAddress"],
+            City = (string) fields["City"],
+            State = (string) fields["State"],
+            Country = (string) fields["Country"],
+            PostalCode = (string) fields["PostalCode"],
+          },
+          Phone = (string) fields["Phone"],
+          Fax = (string) fields["Fax"],
+          Email = (string) fields["Email"],
+          SupportRep = context.GetEntity<Employee>((int) fields["SupportRepId"]),
+        };
+
+        context.AddEntity((int) fields["CustomerId"], entity);
+      }
+    }
+
+    private class InvoiceImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext context)
+      {
+        var entity = new Invoice {
+          InvoiceDate = (DateTime) fields["InvoiceDate"],
+          PaymentDate = (DateTime?) fields["PaymentDate"],
+          Status = (InvoiceStatus) fields["Status"],
+          ProcessingTime = (TimeSpan?) fields["ProcessingTime"],
+          BillingAddress = new Address {
+            StreetAddress = (string) fields["BillingStreetAddress"],
+            City = (string) fields["BillingCity"],
+            State = (string) fields["BillingState"],
+            Country = (string) fields["BillingCountry"],
+            PostalCode = (string) fields["BillingPostalCode"],
+          },
+          Total = (decimal) fields["Total"],
+          Commission = (decimal) fields["Commission"],
+          Customer = context.GetEntity<Customer>((int) fields["CustomerId"]),
+          DesignatedEmployee = context.GetEntity<Employee>((int) fields["DesignatedEmployeeId"]),
+        };
+        context.AddEntity((int) fields["InvoiceId"], entity);
+      }
+    }
+
+    private class InvoiceLineImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext context)
+      {
+        var invoiceLine = new InvoiceLine {
+          UnitPrice = (decimal) fields["UnitPrice"],
+          Quantity = (int) fields["Quantity"],
+          Invoice = context.GetEntity<Invoice>((int) fields["InvoiceId"]),
+          Track = context.GetEntity<Track>((int) fields["TrackId"])
+        };
+        context.AddEntity((int) fields["InvoiceLineId"], invoiceLine);
+      }
+    }
+
+    private class PlaylistTrackImporter : Importer
+    {
+      public override void Import(Dictionary<string, object> fields, ImportContext context)
+      {
+        var playlist = context.GetEntity<Playlist>((int) fields["PlaylistId"]);
+        var track = context.GetEntity<Track>((int) fields["TrackId"]);
+        playlist.Tracks.Add(track);
+      }
+    }
+
     public static void Fill(Domain domain)
     {
-      const string chinookJsonFileName = "Chinook.json";
+      var path = @"Chinook.xml";
+      var xmlTables = ReadXml(path);
+
+      var importContext = new ImportContext();
 
       using (var session = domain.OpenSession(new SessionConfiguration("Legacy", SessionOptions.ServerProfile | SessionOptions.AutoActivation)))
       using (var tr = session.OpenTransaction(System.Transactions.IsolationLevel.ReadCommitted)) {
-        var context = new ImportContext();
-        var json = File.ReadAllText(chinookJsonFileName);
-        dynamic data = JsonConvert.DeserializeObject(json);
+        Import(xmlTables["Artist"], importContext, new ArtistImporter());
+        Import(xmlTables["Genre"], importContext, new GenreImporter());
+        Import(xmlTables["MediaType"], importContext, new MediaTypeImporter());
+        Import(xmlTables["Playlist"], importContext, new PlaylistImporter());
+        Import(xmlTables["Album"], importContext, new AlbumImporter());
+        Import(xmlTables["Track"], importContext, new TrackImporter());
+        Import(xmlTables["Employee"], importContext, new EmployeeImporter());
+        Import(xmlTables["Customer"], importContext, new CustomerImporter());
+        Import(xmlTables["Invoice"], importContext, new InvoiceImporter());
+        Import(xmlTables["InvoiceLine"], importContext, new InvoiceLineImporter());
+        Import(xmlTables["PlaylistTrack"], importContext, new PlaylistTrackImporter());
 
-        new ArtistImporter(context).Import(data.Artist);
-        new GenreImporter(context).Import(data.Genre);
-        new MediaTypeImporter(context).Import(data.MediaType);
-        new PlaylistImporter(context).Import(data.Playlist);
-        new AlbumImporter(context).Import(data.Album);
-        new TrackImporter(context).Import(data.Track);
-        new EmployeeImporter(context).Import(data.Employee);
-        new CustomerImporter(context).Import(data.Customer);
-        new InvoiceImporter(context).Import(data.Invoice);
-        new InvoiceLineImporter(context).Import(data.InvoiceLine);
-        new PlaylistTrackImporter(context).Import(data.PlaylistTrack);
-
-        Session.Current.SaveChanges();
+        session.SaveChanges();
         tr.Complete();
       }
+    }
+
+    private static void Import(XmlTable node, ImportContext importContext, Importer importer)
+    {
+      foreach (var row in node.Rows) {
+        var fields = GetFields(row, node.ColumnTypes);
+        importer.Import(fields, importContext);
+      }
+    }
+
+    private static Dictionary<string, object> GetFields(XElement row, Dictionary<string, string> columnTypes)
+    {
+      var fields = new Dictionary<string, object>();
+      var elements = row.Elements().ToList();
+      for (int i = 0; i < elements.Count(); i++) {
+        var value = elements[i].Value;
+        object obj = null;
+        if (!string.IsNullOrEmpty(value))
+          obj = ConvertFieldType(columnTypes[elements[i].Name.LocalName], elements[i].Value);
+        fields.Add(elements[i].Name.LocalName, obj);
+      }
+      return fields;
+    }
+
+    private static object ConvertFieldType(string columnType, string text)
+    {
+      var type = Type.GetType(columnType);
+      switch (columnType) {
+        case "System.Byte[]":
+          return Convert.FromBase64String(text);
+        case "System.Decimal":
+          return Decimal.Parse(text, CultureInfo.InvariantCulture);
+        case "System.Single":
+          return Single.Parse(text, CultureInfo.InvariantCulture);
+        case "System.DateTime":
+          return DateTime.Parse(text);
+        case "System.TimeSpan":
+          return TimeSpan.FromTicks(Int64.Parse(text, CultureInfo.InvariantCulture));
+        default:
+          return Convert.ChangeType(text, type, CultureInfo.InvariantCulture);
+      }
+    }
+
+    private static Dictionary<string, XmlTable> ReadXml(string path)
+    {
+      var doc = XDocument.Load(path);
+      var root = doc.Element("root");
+      if (root == null)
+        throw new Exception("Read xml error");
+      var tables = root.Elements();
+      var tableMap = new Dictionary<string, XmlTable>();
+
+      foreach (var table in tables) {
+        var xmlTable = new XmlTable();
+        xmlTable.Name = table.Name.LocalName;
+        xmlTable.ColumnTypes = table.Element("Columns").Elements().ToDictionary(key => key.Name.LocalName, value => value.Value);
+        xmlTable.Rows = table.Element("Rows").Elements();
+        tableMap.Add(xmlTable.Name, xmlTable);
+      }
+      return tableMap;
+    }
+
+    private class XmlTable
+    {
+      public string Name { get; set; }
+      public Dictionary<string, string> ColumnTypes { get; set; }
+      public IEnumerable<XElement> Rows { get; set; }
     }
   }
 }
