@@ -5,7 +5,7 @@
 // Created:    2012.06.08
 
 using NUnit.Framework;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Storage
 {
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = mode;
-      configuration.Types.Register(typeof (Supplier).Assembly, typeof (Supplier).Namespace);
+      configuration.Types.Register(typeof (Customer).Assembly, typeof (Customer).Namespace);
       return Domain.Build(configuration);
     }
   }
