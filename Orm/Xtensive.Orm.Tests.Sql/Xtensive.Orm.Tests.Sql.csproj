@@ -98,8 +98,8 @@
     <Compile Include="Sqlite\DateTimeOffsetTest.cs" />
     <Compile Include="Sqlite\ExtractorTest.cs" />
     <Compile Include="Sqlite\MiscTests.cs" />
-    <Compile Include="Sqlite\Northwind.cs" />
-    <Compile Include="Sqlite\NorthwindTest.cs" />
+    <Compile Include="Sqlite\Chinook.cs" />
+    <Compile Include="Sqlite\ChinookTest.cs" />
     <Compile Include="Sqlite\TypeMappingTests.cs" />
     <Compile Include="SqlServer\AdventureWorks.cs" />
     <Compile Include="SqlServer\CompilerTest.cs" />
