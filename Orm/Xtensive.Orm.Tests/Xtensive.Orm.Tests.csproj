@@ -562,9 +562,6 @@
     <Compile Include="ObjectModel\GraphModel.cs" />
     <Compile Include="ObjectModel\Interfaces\Alphabet.cs" />
     <Compile Include="ObjectModel\Interfaces\Slavery.cs" />
-    <Compile Include="ObjectModel\Northwind.cs" />
-    <Compile Include="ObjectModel\NorthwindDO.cs" />
-    <Compile Include="ObjectModel\NorthwindDOModelTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rse\HeaderParseTest.cs" />
     <Compile Include="Rse\IncludeProviderTest.cs" />
@@ -893,9 +890,6 @@
     <Content Include="Chinook.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Northwind.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <ContentWithTargetPath Include="ObjectModel\Chinook.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <TargetPath>Chinook.json</TargetPath>
@@ -934,8 +928,6 @@
     </None>
     <None Include="ObjectModel\Interfaces\Alphabet.cd" />
     <None Include="ObjectModel\Interfaces\Slavery.cd" />
-    <None Include="ObjectModel\Northwind.cd" />
-    <None Include="ObjectModel\NorthwindDO.cd" />
     <None Include="Upgrade\HugeModelUpgrade\Models\ModelWithMappedTypes.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ModelWithMappedTypes.cs</LastGenOutput>
