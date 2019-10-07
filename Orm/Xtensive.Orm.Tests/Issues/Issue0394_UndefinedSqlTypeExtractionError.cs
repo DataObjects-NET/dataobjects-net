@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var config = DomainConfigurationFactory.Create();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof (Customer));
+      config.Types.Register(typeof (Genre));
       return config;
     }
 
