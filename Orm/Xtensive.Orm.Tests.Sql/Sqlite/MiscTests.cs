@@ -20,8 +20,6 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 {
   public class MiscTests : Chinook
   {
-    private SqlDriver sqlDriver;
-    private SqlConnection sqlConnection;
     private DbCommand dbCommand;
     private DbCommand sqlCommand;
 
@@ -99,39 +97,6 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();
-      try {
-        sqlConnection.Open();
-      }
-      catch (SystemException e) {
-        Console.WriteLine(e);
-      }
-
-      var stopWatch = new Stopwatch();
-      stopWatch.Start();
-      try {
-        sqlConnection.BeginTransaction();
-        Catalog = sqlDriver.ExtractCatalog(sqlConnection);
-        schema = sqlDriver.ExtractDefaultSchema(sqlConnection);
-        sqlConnection.Commit();
-      }
-      catch {
-        sqlConnection.Rollback();
-        throw;
-      }
-      stopWatch.Stop();
-      Console.WriteLine(stopWatch.Elapsed);
-    }
-
-    [OneTimeTearDown]
-    public void TearDown()
-    {
-      try {
-        if (sqlConnection!=null && sqlConnection.State!=ConnectionState.Closed)
-          sqlConnection.Close();
-      }
-      catch (Exception ex) {
-        Console.WriteLine(ex.Message);
-      }
     }
 
     #endregion
