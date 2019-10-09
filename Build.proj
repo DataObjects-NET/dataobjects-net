@@ -1,96 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build" ToolsVersion="15.0">
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003"
+         DefaultTargets="Build"
+         ToolsVersion="15.0">
 
+<!-- initialize default values for framework and configuration -->
 <PropertyGroup>
   <Configuration Condition="'$(Configuration)'==''">Release</Configuration>
-  <EnableBinariesZip Condition="'$(EnableBinariesZip)'==''">true</EnableBinariesZip>
 </PropertyGroup>
 
-<PropertyGroup Condition="'$(EnableAllDist)'=='true'">
-  <!--
-  <EnableBinariesZip>true</EnableBinariesZip>
-  -->
-  <EnableSourcesZip>true</EnableSourcesZip>
-  <EnableDebugSymbolsZip>true</EnableDebugSymbolsZip>
-</PropertyGroup>
-
-<PropertyGroup>
-  <PowerShellExe Condition=" '$(PowerShellExe)'=='' "> %WINDIR%\System32\WindowsPowerShell\v1.0\powershell.exe</PowerShellExe>
-  <ScriptLocation Condition=" '$(ScriptLocation)'=='' ">$(MSBuildProjectDirectory)\ChangeLog\mkchangelog.ps1</ScriptLocation>
-</PropertyGroup>
-
-<PropertyGroup Condition="'$(EnableAllDist)'=='true' and '$(Configuration)'=='Release'">
-  <EnableNuGet>true</EnableNuGet>
-</PropertyGroup>
-
-<ItemGroup>
-  <!-- ProductInfo (works) -->
-  <ProductInfo Include="ProductInfo\ProductInfo.proj" />
-  
-  <!-- Binaries -->
-  <BinariesNetStandard Include="BuildBinaries.proj">
-    <Properties>Configuration=$(Configuration)</Properties>
-  </BinariesNetStandard>
-  
-  <!-- Distribution -->
-  <!--
-  <Distributions Include="Dist\Zip.Binaries.proj" Condition="'$(EnableBinariesZip)'=='true'">
-    <Properties>Configuration=$(Configuration)</Properties>
-  </Distributions>
-  -->
-  <Distributions Include="Dist\Zip.Sources.proj" Condition="'$(EnableSourcesZip)'=='true'">
-    <Properties>Configuration=$(Configuration)</Properties>
-  </Distributions>
-  <Distributions Include="Dist\Zip.DebugSymbols.proj" Condition="'$(EnableDebugSymbolsZip)'=='true'">
-    <Properties>Configuration=$(Configuration)</Properties>
-  </Distributions>
-  <Distributions Include="Dist\NuGet.All.proj" Condition="'$(EnableNuGet)'=='true'">
-    <Properties>Configuration=$(Configuration)</Properties>
-  </Distributions>
-</ItemGroup>
-
-<!-- ProductInfo -->
-<Target Name="BuildProductInfo">
-  <MSBuild Projects="@(ProductInfo)" />
+<Target Name="ExportHgRev" Condition="Exists('.hg\dirstate')">
+  <MakeDir Directories="_Build" />
+  <Exec Command="hg id -i > rev.txt" WorkingDirectory="_Build" />
 </Target>
 
-<!-- ChangeLog -->
-<Target Name="BuildChangeLog">
-  <Exec Command="powershell.exe –NonInteractive –ExecutionPolicy Unrestricted –command &quot;&amp; { &amp;&apos;$(ScriptLocation)&apos;} &quot;" WorkingDirectory="ChangeLog" />
+<Target Name="ExportGitRev" Condition="Exists('.git\index')">
+  <MakeDir Directories="_Build" />
+  <Exec Command="git rev-parse HEAD > rev.txt" WorkingDirectory="_Build" />
 </Target>
 
-<!-- DataObjects.Net.targets -->
-<Target Name="CopyTargetsFile">
-  <Copy SourceFiles="MSBuild\DataObjects.Net.targets"
-        DestinationFolder="_Build\Binaries\$(Configuration)"
-        SkipUnchangedFiles="true" />
+<Target Name="ExportRev" DependsOnTargets="ExportHgRev;ExportGitRev" />
+
+<Target Name="Restore">
+  <Exec Command="dotnet restore Weaver.sln" />
+  <Exec Command="dotnet restore Orm.sln" />
 </Target>
 
-<!-- Binaries -->
-<Target Name="BuildBinaries" DependsOnTargets="BuildProductInfo">
-  <MSBuild Projects="@(BinariesNetStandard)" Targets="Build" />
-</Target>
-<Target Name="CleanBinaries">
-  <MSBuild Projects="@(BinariesNetStandard)" Targets="Clean" />
-  <RemoveDir Directories="_Build\Binaries\$(Configuration)" />
+<Target Name="CleanPackages">
+  <RemoveDir Directories="_Build\$(Configuration)\packages" />
 </Target>
 
-<!-- Distribution -->
-<Target Name="BuildDist"
-        DependsOnTargets="CopyTargetsFile;BuildProductInfo;BuildChangeLog;BuildBinaries">
-  <MSBuild Projects="@(Distributions)" Targets="Build" />
-</Target>
-<Target Name="CleanDist" DependsOnTargets="BuildProductInfo">
-  <MSBuild Projects="@(Distributions)" Targets="Clean" />
-  <RemoveDir Directories="_Build\Dist\$(Configuration)" />
+<Target Name="CleanWeaver">
+  <RemoveDir Directories="_Build\$(Configuration)\tools\weaver\publish" />
 </Target>
 
-<!-- All-in-one targets -->
-<Target Name="Build" DependsOnTargets="BuildDist" />
-<Target Name="Clean" DependsOnTargets="CleanBinaries;CleanDist" />
-<Target Name="Rebuild">
-  <CallTarget Targets="Clean" />
-  <CallTarget Targets="Build" />
+<Target Name="Build" DependsOnTargets="ExportRev;Restore;CleanPackages;CleanWeaver">
+  <Exec Command="dotnet msbuild Weaver.sln &quot;-t:Build;Publish&quot; -p:Configuration=$(Configuration)" />
+  <Exec Command="dotnet msbuild Orm.sln &quot;-t:Build;Pack&quot; -p:Configuration=$(Configuration)" />
+</Target>
+
+<Target Name="BuildBinaries" DependsOnTargets="ExportRev;Restore;CleanWeaver">
+  <Exec Command="dotnet msbuild Weaver.sln &quot;-t:Build;Publish&quot; -p:Configuration=$(Configuration)" />
+  <Exec Command="dotnet msbuild Orm.sln &quot;-t:Build&quot; -p:Configuration=$(Configuration)" />
+</Target>
+
+<Target Name="Rebuild" DependsOnTargets="ExportRev;Restore;CleanPackages;CleanWeaver">
+  <Exec Command="dotnet msbuild Weaver.sln &quot;-t:Rebuild;Publish&quot; -p:Configuration=$(Configuration)" />
+  <Exec Command="dotnet msbuild Orm.sln &quot;-t:Rebuild;Pack&quot; -p:Configuration=$(Configuration)" />
+</Target>
+
+<Target Name="Clean" DependsOnTargets="CleanPackages;CleanWeaver">
+  <Exec Command="dotnet msbuild Weaver.sln &quot;-t:Clean&quot; -p:Configuration=$(Configuration)" />
+  <Exec Command="dotnet msbuild Orm.sln &quot;-t:Clean&quot; -p:Configuration=$(Configuration)" />
 </Target>
 
 </Project>

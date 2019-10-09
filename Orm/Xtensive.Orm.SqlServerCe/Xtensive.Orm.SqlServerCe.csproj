@@ -12,14 +12,14 @@
     <AssemblyName>Xtensive.Orm.SqlServerCe</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\_Build\Binaries\Debug\Lib\Net40\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\Net40\Xtensive.Orm.SqlServerCe.xml</DocumentationFile>
+    <OutputPath>..\..\_Build\Debug\lib\Net40\</OutputPath>
+    <DocumentationFile>..\..\_Build\Debug\lib\Net40\Xtensive.Orm.SqlServerCe.xml</DocumentationFile>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>2</WarningLevel>
@@ -28,8 +28,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Net40-Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\_Build\Binaries\Release\Lib\Net40\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\Net40\Xtensive.Orm.SqlServerCe.xml</DocumentationFile>
+    <OutputPath>..\..\_Build\Release\lib\Net40\</OutputPath>
+    <DocumentationFile>..\..\_Build\Release\lib\Net40\Xtensive.Orm.SqlServerCe.xml</DocumentationFile>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>2</WarningLevel>

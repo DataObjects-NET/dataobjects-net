@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2013.08.20
 
+using System;
 using System.Collections.ObjectModel;
 
 namespace Xtensive.Orm.Weaver
@@ -36,17 +37,16 @@ namespace Xtensive.Orm.Weaver
     public static readonly string Constructor = ".ctor";
     public static readonly string FactoryMethod = "~Xtensive.Orm.CreateObject";
 
-    private static string GetFullAssemblyName(string shortName)
-    {
-      return string.Format(
-        "{0}, Version={1}, Culture=neutral, PublicKeyToken={2}",
-        shortName, ThisAssembly.Version, ThisAssembly.PublicKeyToken);
-    }
-
     static WellKnown()
     {
-      OrmAssemblyFullName = GetFullAssemblyName(OrmAssemblyShortName);
-      XtensivePublicKeyToken = new ReadOnlyCollection<byte>(WeavingHelper.ParsePublicKeyToken(ThisAssembly.PublicKeyToken));
+      var thisAssembly = typeof(WellKnown).Assembly.GetName();
+      var publicKeyToken = thisAssembly.GetPublicKeyToken();
+
+      OrmAssemblyFullName = string.Format(
+        "{0}, Version={1}, Culture=neutral, PublicKeyToken={2}",
+        OrmAssemblyShortName, thisAssembly.Version, WeavingHelper.FormatPublicKeyToken(publicKeyToken));
+
+      XtensivePublicKeyToken = new ReadOnlyCollection<byte>(publicKeyToken);
     }
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+ï»¿// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Kofman
@@ -20,16 +20,16 @@ namespace Xtensive.Orm.Tests._Manual.Validation
     [Field]
     [LengthConstraint(Min = 2, Max = 128)]
     [NotNullOrEmptyConstraint]
-    public string FirstName { get; set;} 
+    public string FirstName { get; set; }
 
     [Field]
     [LengthConstraint(Min = 2, Max = 128)]
     [NotNullOrEmptyConstraint]
-    public string LastName { get; set;} 
+    public string LastName { get; set; }
     
     [Field]
     [PastConstraint(IsImmediate = true)]
-    public DateTime BirthDay { get; set; } 
+    public DateTime BirthDay { get; set; }
 
     [Field]
     public bool IsSubscribedOnNews { get; set;}

@@ -2,6 +2,7 @@
   <PropertyGroup>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultItems>false</EnableDefaultItems>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -9,9 +10,12 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.PostgreSql</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PackageId>Xtensive.Orm.PostgreSql.Core</PackageId>
+    <Title>$(DoProductName) provider for PostgreSQL</Title>
+    <AssemblyTitle>$(Title)</AssemblyTitle>
+    <PackageDescription>Adds support for PostgreSQL to $(DoProductName)</PackageDescription>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
@@ -20,16 +24,16 @@
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\_Build\Binaries\Debug\Lib\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\$(TargetFramework)\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
+    <OutputPath>..\..\_Build\Debug\lib\</OutputPath>
+    <DocumentationFile>..\..\_Build\Debug\lib\$(TargetFramework)\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
     <DefineConstants>TRACE;DEBUG;NETSTANDARD</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
     <Optimize>false</Optimize>
     <DebugType>pdbonly</DebugType>
-    <OutputPath>..\..\_Build\Binaries\Release\Lib\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\$(TargetFramework)\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
+    <OutputPath>..\..\_Build\Release\lib\</OutputPath>
+    <DocumentationFile>..\..\_Build\Release\lib\$(TargetFramework)\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
     <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
   </PropertyGroup>
 
@@ -43,9 +47,6 @@
   <ItemGroup>
     <Compile Include="..\Xtensive.Orm\Properties\Visibility.cs">
       <Link>Properties\Visibility.cs</Link>
-    </Compile>
-    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
-      <Link>Properties\ProductInfo.cs</Link>
     </Compile>
     <Compile Include="Orm.Providers.PostgreSql\DomainHandler.cs" />
     <Compile Include="Orm.Providers.PostgreSql\HandlerFactory.cs" />
