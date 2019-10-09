@@ -38,6 +38,11 @@
   <Exec Command="dotnet msbuild Orm.sln &quot;-t:Build;Pack&quot; -p:Configuration=$(Configuration)" />
 </Target>
 
+<Target Name="BuildBinaries" DependsOnTargets="ExportRev;Restore;CleanWeaver">
+  <Exec Command="dotnet msbuild Weaver.sln &quot;-t:Build;Publish&quot; -p:Configuration=$(Configuration)" />
+  <Exec Command="dotnet msbuild Orm.sln &quot;-t:Build&quot; -p:Configuration=$(Configuration)" />
+</Target>
+
 <Target Name="Rebuild" DependsOnTargets="ExportRev;Restore;CleanPackages;CleanWeaver">
   <Exec Command="dotnet msbuild Weaver.sln &quot;-t:Rebuild;Publish&quot; -p:Configuration=$(Configuration)" />
   <Exec Command="dotnet msbuild Orm.sln &quot;-t:Rebuild;Pack&quot; -p:Configuration=$(Configuration)" />
