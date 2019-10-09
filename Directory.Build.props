@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+<Import Project="$(MSBuildThisFileDirectory)\Version.props" />
+
+<!-- Compute intermediate values. To avoid conflicts name all custom variables with Do prefix. -->
+<PropertyGroup>
+    <DoBuildNumber>$(BUILD_NUMBER)</DoBuildNumber>
+    <DoBuildNumber Condition="'$(DoBuildNumber)'==''">0</DoBuildNumber>
+    <DoBuildYear>$([System.DateTime]::Today.Year)</DoBuildYear>
+    <DoProductName>DataObjects.Net Core</DoProductName>
+    <DoProductAuthors>Xtensive LLC and contributors</DoProductAuthors>
+    <DoProductCopyright>2003-$(DoBuildYear) $(DoProductAuthors)</DoProductCopyright>
+    <DoVersionSuffix Condition="'$(DoVersionSuffix)'=='dev'">dev-$(DoBuildNumber)</DoVersionSuffix>
+    <DoMajor>$([System.Version]::new($(DoVersion)).Major)</DoMajor>
+    <DoMinor>$([System.Version]::new($(DoVersion)).Minor)</DoMinor>
+    <DoPatch>$([System.Version]::new($(DoVersion)).Build)</DoPatch>
+    <DoVersionName>$(DoMajor).$(DoMinor).$(DoPatch)</DoVersionName>
+    <DoVersionName Condition="'$(DoVersionSuffix)'!=''">$(DoVersionName)-$(DoVersionSuffix)</DoVersionName>
+    <DoPackageIcon>$(MSBuildThisFileDirectory)\do-nuget.png</DoPackageIcon>
+    <DoRevFile>$(MSBuildThisFileDirectory)\_Build\rev.txt</DoRevFile>
+</PropertyGroup>
+
+<!-- Populate standard properties. -->
+<PropertyGroup>
+    <Product>$(DoProductName)</Product>
+    <Company>$(DoProductAuthors)</Company>
+    <Authors>$(DoProductAuthors)</Authors>
+    <Version>$(DoVersionName)</Version>
+    <AssemblyVersion>$(DoMajor).$(DoMinor).0.0</AssemblyVersion>
+    <FileVersion>$(DoMajor).$(DoMinor).$(DoPatch).$(DoBuildNumber)</FileVersion>
+    <Copyright>$(DoProductCopyright)</Copyright>
+    <PackageProjectUrl>https://dataobjects.net/</PackageProjectUrl>
+    <PackageIcon>do-nuget.png</PackageIcon>
+    <PackageLicense>Apache-2.0</PackageLicense>
+    <PackageTags>DataObjects.Net ORM BLL Persistence</PackageTags>
+    <PackageOutputPath>..\..\_Build\$(Configuration)\packages</PackageOutputPath>
+    <RepositoryUrl>https://github.com/xtensive/dataobjects.net</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+</PropertyGroup>
+
+<ItemGroup>
+    <None Include="$(DoPackageIcon)" Pack="true" PackagePath="." Visible="false" />
+    <None Include="$(DoRevFile)" Pack="true" PackagePath="." Visible="false" Condition="Exists('$(DoRevFile)')" />
+</ItemGroup>
+
+</Project>

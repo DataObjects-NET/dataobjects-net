@@ -152,10 +152,9 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private SqlServerConnection CreateAndOpenConnection(string connectionString, SqlDriverConfiguration configuration)
     {
       var connection = new SqlServerConnection(connectionString);
-      if (!configuration.EnsureConnectionIsAlive)
-      {
-        SqlHelper.ExecuteInitializationSql(connection, configuration);
+      if (!configuration.EnsureConnectionIsAlive) {
         connection.Open();
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
         return connection;
       }
 

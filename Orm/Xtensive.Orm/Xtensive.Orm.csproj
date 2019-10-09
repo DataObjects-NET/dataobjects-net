@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultItems>false</EnableDefaultItems>
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -10,9 +10,12 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <PackageId>Xtensive.Orm.Core</PackageId>
+    <Title>$(DoProductName)</Title>
+    <AssemblyTitle>$(Title)</AssemblyTitle>
+    <PackageDescription>$(DoProductName) is the object-relational mapper (ORM) and business logic layer (BLL) framework</PackageDescription>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
@@ -22,16 +25,16 @@
     <Optimize>false</Optimize>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\_Build\Binaries\Debug\Lib\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Debug\Lib\$(TargetFramework)\Xtensive.Orm.xml</DocumentationFile>
+    <OutputPath>..\..\_Build\Debug\lib\</OutputPath>
+    <DocumentationFile>..\..\_Build\Debug\lib\$(TargetFramework)\Xtensive.Orm.xml</DocumentationFile>
     <DefineConstants>TRACE;DEBUG;NETSTANDARD</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
     <Optimize>false</Optimize>
     <DebugType>pdbonly</DebugType>
-    <OutputPath>..\..\_Build\Binaries\Release\Lib\</OutputPath>
-    <DocumentationFile>..\..\_Build\Binaries\Release\Lib\$(TargetFramework)\Xtensive.Orm.xml</DocumentationFile>
+    <OutputPath>..\..\_Build\Release\lib\</OutputPath>
+    <DocumentationFile>..\..\_Build\Release\lib\$(TargetFramework)\Xtensive.Orm.xml</DocumentationFile>
     <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
   </PropertyGroup>
 
@@ -1848,11 +1851,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
-      <Link>Properties\ProductInfo.cs</Link>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
@@ -1887,4 +1885,6 @@
   <ItemGroup>
     <Folder Include="Orm\Upgrade\Model\Stored\" />
   </ItemGroup>
+  
+  <Import Project="NuGetContent.targets" />
 </Project>

@@ -25,25 +25,13 @@ _ReSharper.*
 *.orig
 
 *.log
-H2Reg_Log.txt
 
-bin\*
-Bin\*
-obj\*
-TestResults\*
-ProxyAssemblyCache\*
-
-Help\*.Hx?
-Help\*.chm
-Manual\Temp\*
-Release.Files\*
-
-Lib/DotNetReactor/*.license
-Lib/DotNetReactor/*.v3lic
-Lib/DotNetReactor/*.nrcfg
+bin
+Bin
+obj
 
 _Build
 _Work
-Secure
+
 .vs
 .idea

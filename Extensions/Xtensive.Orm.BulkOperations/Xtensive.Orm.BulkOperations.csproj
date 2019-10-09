@@ -1,0 +1,70 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <IsPackable>true</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Xtensive.Orm.BulkOperations</RootNamespace>
+    <AssemblyName>Xtensive.Orm.BulkOperations</AssemblyName>
+    <PackageId>Xtensive.Orm.BulkOperations.Core</PackageId>
+    <Title>Bulk operations extension for $(DoProductName)</Title>
+    <AssemblyTitle>$(Title)</AssemblyTitle>
+    <PackageDescription>Adds support for bulk insert, update and delete operations for $(DoProductName)-powered domain models</PackageDescription>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\Extensions.snk</AssemblyOriginatorKeyFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Debug" Condition="'$(Configuration)'=='Debug'">
+    <Optimize>false</Optimize>
+    <DebugType>full</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\_Build\Debug\lib\</OutputPath>
+    <DocumentationFile>..\..\_Build\Debug\lib\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
+    <Optimize>false</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <OutputPath>..\..\_Build\Release\lib\</OutputPath>
+    <DocumentationFile>..\..\_Build\Release\lib\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="BulkExtensions.cs" />
+    <Compile Include="Internals\BaseSqlVisitor.cs" />
+    <Compile Include="Internals\BulkDeleteOperation.cs" />
+    <Compile Include="Internals\BulkUpdateOperation.cs" />
+    <Compile Include="Internals\ComputedExpressionSqlVisitor.cs" />
+    <Compile Include="Internals\AddValueContext.cs" />
+    <Compile Include="Internals\InsertOperation.cs" />
+    <Compile Include="Internals\Operation.cs" />
+    <Compile Include="Internals\ExpressionExtensions.cs" />
+    <Compile Include="Internals\ExpressionVisitor.cs" />
+    <Compile Include="Internals\Extensions.cs" />
+    <Compile Include="Internals\PrimaryIndexMapping.cs" />
+    <Compile Include="Internals\QueryOperation.cs" />
+    <Compile Include="Internals\SetDescriptor.cs" />
+    <Compile Include="Internals\SetStatement.cs" />
+    <Compile Include="Internals\Updatable.cs" />
+    <Compile Include="Internals\SetOperation.cs" />
+    <Compile Include="IUpdatable.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Readme.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
+  </ItemGroup>
+
+</Project>

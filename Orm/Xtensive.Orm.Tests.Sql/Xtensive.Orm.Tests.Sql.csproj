@@ -3,6 +3,7 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultItems>false</EnableDefaultItems>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -11,9 +12,8 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.Tests.Sql</AssemblyName>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>$(DO_SECURE_DIR)\Key.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
@@ -21,14 +21,14 @@
   <PropertyGroup Label="Debug" Condition="'$(Configuration)'=='Debug'">
     <Optimize>false</Optimize>
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\_Build\Binaries\Debug\Lib\</OutputPath>
+    <OutputPath>..\..\_Build\Debug\lib\</OutputPath>
     <DefineConstants>TRACE;DEBUG;NETCOREAPP</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
     <Optimize>false</Optimize>
     <DebugType>pdbonly</DebugType>
-    <OutputPath>..\..\_Build\Binaries\Release\Lib\</OutputPath>
+    <OutputPath>..\..\_Build\Release\lib\</OutputPath>
     <DefineConstants>TRACE;NETCOREAPP</DefineConstants>
   </PropertyGroup>
 
@@ -47,9 +47,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Include="..\..\_Build\ProductInfo\ProductInfo.cs">
-      <Link>Properties\ProductInfo.cs</Link>
-    </Compile>
     <Compile Include="CloneTests.cs" />
     <Compile Include="CollectionTest.cs" />
     <Compile Include="CompilerTest.cs" />

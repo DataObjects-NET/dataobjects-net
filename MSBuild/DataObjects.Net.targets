@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  Copyright (C) 2011-2014 Xtensive LLC.
+  Copyright (C) 2011-2019 Xtensive LLC.
   All rights reserved.
   For conditions of distribution and use, see license.
 -->
@@ -12,7 +12,7 @@
   <CompileDependsOn>$(CompileDependsOn);XtensiveOrmBuild</CompileDependsOn>
   <XtensiveOrmPath Condition="'$(XtensiveOrmPath)'==''">$(MSBuildThisFileDirectory)</XtensiveOrmPath>
   <XtensiveOrmPath Condition="!HasTrailingSlash('$(XtensiveOrmPath)')">$(XtensiveOrmPath)\</XtensiveOrmPath>
-  <XtensiveOrmWeaver Condition="'$(XtensiveOrmWeaver)'==''">$(XtensiveOrmPath)Tools\Weaver\Xtensive.Orm.Weaver.dll</XtensiveOrmWeaver>
+  <XtensiveOrmWeaver Condition="'$(XtensiveOrmWeaver)'==''">$(XtensiveOrmPath)tools\weaver\Xtensive.Orm.Weaver.dll</XtensiveOrmWeaver>
   <XtensiveOrmBuildDependsOn>$(XtensiveOrmBuildDependsOn)</XtensiveOrmBuildDependsOn>
 </PropertyGroup>
 
@@ -46,9 +46,9 @@
     Command="$(XtensiveOrmWeaverCommandLine)"
     WorkingDirectory="$(MSBuildProjectDirectory)"
     IgnoreExitCode="true" >
-	 <Output TaskParameter="ExitCode" PropertyName="ErrorCode"/>
+    <Output TaskParameter="ExitCode" PropertyName="ErrorCode"/>
   </Exec>
-   <Error Condition="$(ErrorCode)!=0" Text="Weaving of persistent types ended up with an error."/>
+  <Error Condition="$(ErrorCode)!=0" Text="Weaving of persistent types ended up with an error."/>
 </Target>
 
 </Project>
