@@ -355,9 +355,16 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         return base.Translate(context, node, section);
       switch (section) {
       case ExtractSection.Entry:
+        if (isSecond)
+          return "(trunc(extract(";
         return "(extract(";
       case ExtractSection.Exit:
-        return isMillisecond ? ")::int8 % 1000)" : ")::int8)";
+        if (isMillisecond)
+          return ")::int8 % 1000)";
+        if (isSecond)
+          return ")))";
+        return ")::int8)";
+        //return isMillisecond ? ")::int8 % 1000)" : ")::int8)";
       default:
         return base.Translate(context, node, section);
       }
