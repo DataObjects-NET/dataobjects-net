@@ -136,7 +136,9 @@ namespace Xtensive.Orm.Tests.Sql
           var mapping = typeMappings[columnIndex];
           var valueExpression = value==null
             ? (SqlExpression) SqlDml.Null
-            : SqlDml.Literal(value);
+            : mapping.ParameterCastRequired 
+              ? (SqlExpression) SqlDml.Cast(SqlDml.Literal(value), mapping.MapType())
+              : SqlDml.Literal(value);
           query.Columns.Add(valueExpression, columnName);
         }
       }
