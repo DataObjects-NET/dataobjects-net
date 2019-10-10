@@ -88,7 +88,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql
           return new v8_4.Driver(coreServerInfo);
         }
 
-        return new v9_0.Driver(coreServerInfo);
+        if (version.Major==9) {
+          if (version.Minor==0)
+            return new v9_0.Driver(coreServerInfo);
+          return new v9_1.Driver(coreServerInfo);
+        }
+
+        return new v10_0.Driver(coreServerInfo);
       }
     }
 

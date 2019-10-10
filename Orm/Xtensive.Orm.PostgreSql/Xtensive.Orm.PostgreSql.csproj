@@ -70,6 +70,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
+    <Compile Include="Sql.Drivers.PostgreSql\v10_0\Compiler.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v10_0\Driver.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v10_0\Extractor.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v10_0\ServerInfoProvider.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v10_0\Translator.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v10_0\TypeMapper.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\v8_0\BoxMapper.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\v8_0\CircleMapper.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\v8_0\Compiler.cs" />
@@ -113,6 +119,12 @@
     <Compile Include="Sql.Drivers.PostgreSql\v9_0\ServerInfoProvider.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\v9_0\Translator.cs" />
     <Compile Include="Sql.Drivers.PostgreSql\v9_0\TypeMapper.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v9_1\Compiler.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v9_1\Driver.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v9_1\Extractor.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v9_1\ServerInfoProvider.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v9_1\Translator.cs" />
+    <Compile Include="Sql.Drivers.PostgreSql\v9_1\TypeMapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Sql.Drivers.PostgreSql\Resources\Strings.resx">
