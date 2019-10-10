@@ -14,9 +14,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0768_NullableFieldsBecomeNonNullabl
   [HierarchyRoot]
   public class TestEntity1 : Entity
   {
-    [Key]
-    [Field(Nullable = false)]
-    public int Id { get; set; }
+    [Field, Key]
+    public int Id { get; private set; }
 
     [Field]
     public TestEntity2 TestEntity1LinkToTestEntity2 { get; set; }
@@ -30,9 +29,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0768_NullableFieldsBecomeNonNullabl
   [HierarchyRoot]
   public class TestEntity2 : Entity
   {
-    [Key]
-    [Field(Nullable = false)]
-    public int Id { get; set; }
+    [Field, Key]
+    public int Id { get; private set; }
 
     [Field(Nullable = false)]
     public string Name { get; set; }
@@ -49,9 +47,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0768_NullableFieldsBecomeNonNullabl
   [HierarchyRoot]
   public class TestEntity3 : Entity
   {
-    [Key]
-    [Field(Nullable = false)]
-    public int Id { get; set; }
+    [Field,Key]
+    public int Id { get; private set; }
 
     [Field(Nullable = false)]
     public string Name { get; set; }
@@ -65,9 +62,8 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0768_NullableFieldsBecomeNonNullabl
   [HierarchyRoot]
   public class TestEntity4 : Entity
   {
-    [Key]
-    [Field(Nullable = false)]
-    public int Id { get; set; }
+    [Field, Key]
+    public int Id { get; private set; }
 
     [Field(Nullable = false)]
     public string Name { get; set; }
@@ -76,6 +72,17 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0768_NullableFieldsBecomeNonNullabl
     public string Description { get; set; }
 
     public TestEntity4(Session session)
+      : base(session)
+    {
+    }
+  }
+
+  public class TestEntity2Impl : TestEntity2
+  {
+    [Field(Nullable = false)]
+    public string Description { get; set; }
+
+    public TestEntity2Impl(Session session)
       : base(session)
     {
     }
@@ -93,6 +100,7 @@ namespace Xtensive.Orm.Tests.Issues
       configuration.Types.Register(typeof (TestEntity2));
       configuration.Types.Register(typeof (TestEntity3));
       configuration.Types.Register(typeof (TestEntity4));
+      configuration.Types.Register(typeof (TestEntity2Impl));
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
@@ -239,6 +247,86 @@ namespace Xtensive.Orm.Tests.Issues
           .Count();
 
         Assert.AreEqual(2, resultCount);
+      }
+    }
+
+    [Test]
+    public void SelectTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (session.Activate())
+      using (session.OpenTransaction()) {
+        var select = session.Query.All<TestEntity1>()
+          .Select(a => new {
+            Test = session.Query.All<TestEntity4>()
+                     .SingleOrDefault(it => it.Name==a.TestEntity1LinkToTestEntity2.TestEntity2LinkToTestEntity3.Name)
+                     .Description
+                   ?? a.TestEntity1LinkToTestEntity2.TestEntity2LinkToTestEntity3.Name
+          })
+          .Count();
+
+        Assert.AreEqual(2, select);
+      }
+    }
+
+    [Test]
+    public void SelectWithOrderByIdTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (session.Activate())
+      using (session.OpenTransaction()) {
+        var result = session.Query.All<TestEntity1>()
+          .OrderBy(a => a.TestEntity1LinkToTestEntity2.Id)
+          .Select(a => new {
+            Test = session.Query.All<TestEntity4>()
+                     .SingleOrDefault(it => it.Name==a.TestEntity1LinkToTestEntity2.TestEntity2LinkToTestEntity3.Name)
+                     .Description
+                   ?? a.TestEntity1LinkToTestEntity2.TestEntity2LinkToTestEntity3.Name
+          })
+          .Count();
+
+        Assert.AreEqual(2, result);
+      }
+    }
+
+    [Test]
+    public void SelectWithOrderByNameAddCastTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (session.Activate())
+      using (session.OpenTransaction()) {
+        var selectWithOrderByNameAddCast = session.Query.All<TestEntity1>()
+          .OrderBy(a => a.TestEntity1LinkToTestEntity2.Name)
+          .Select(a => new {
+            Cast = (a.TestEntity1LinkToTestEntity2 as TestEntity2Impl).Id,
+            Test = session.Query.All<TestEntity4>()
+                     .SingleOrDefault(it => it.Name==a.TestEntity1LinkToTestEntity2.TestEntity2LinkToTestEntity3.Name)
+                     .Description
+                   ?? a.TestEntity1LinkToTestEntity2.TestEntity2LinkToTestEntity3.Name
+          })
+          .Count();
+
+        Assert.AreEqual(2, selectWithOrderByNameAddCast);
+      }
+    }
+
+    [Test]
+    public void SelectWithOrderByNameTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (session.Activate())
+      using (session.OpenTransaction()) {
+        var selectWithOrderByName = session.Query.All<TestEntity1>()
+          .OrderBy(a => a.TestEntity1LinkToTestEntity2.Name)
+          .Select(a => new {
+            Test = session.Query.All<TestEntity4>()
+                     .SingleOrDefault(it => it.Name==a.TestEntity1LinkToTestEntity2.TestEntity2LinkToTestEntity3.Name)
+                     .Description
+                   ?? a.TestEntity1LinkToTestEntity2.TestEntity2LinkToTestEntity3.Name
+          })
+          .Count();
+
+        Assert.AreEqual(2, selectWithOrderByName);
       }
     }
   }
