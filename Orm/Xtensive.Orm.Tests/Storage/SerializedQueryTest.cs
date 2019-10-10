@@ -13,22 +13,22 @@ using Xtensive.Orm.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Serialization;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 using System.Linq;
 using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Storage
 {
   [TestFixture]
-  public class SerializedQueryTest : NorthwindDOModelTest
+  public class SerializedQueryTest : ChinookDOModelTest
   {
     [Test]
     public void CombinedTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.RowNumber);
-      var query = Session.Query.All<Category>()
-        .Where(c => c.CategoryName == "Beverages")
-        .Where(c => c.Id > 0)
+      var query = Session.Query.All<MediaType>()
+        .Where(c => c.Name=="MPEG audio file")
+        .Where(c => c.MediaTypeId > 0)
         .Take(5)
         .Skip(0);
 
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Tests.Storage
       var serializedExpression = Cloner.Clone(serializableExpression);
 
       var deserializedExpression = serializedExpression.ToExpression();
-      var deserializedQuery = new Queryable<Category>((QueryProvider) query.Provider, deserializedExpression);
+      var deserializedQuery = new Queryable<MediaType>((QueryProvider) query.Provider, deserializedExpression);
       var result = deserializedQuery.ToList();
     }
   }

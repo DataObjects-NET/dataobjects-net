@@ -12,13 +12,13 @@ using Xtensive.Orm.Tests;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Linq
 {
   [Category("Linq")]
   [TestFixture]
-  public class SkipTakeElementAtTest : NorthwindDOModelTest
+  public class SkipTakeElementAtTest : ChinookDOModelTest
   {
     [Test]
     public void ReuseTake1Test()
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void TakeTest()
     {
       var query = Session.Query.All<Customer>()
-        .Where(c => c.Address.Country == "Germany")
+        .Where(c => c.Address.Country=="Germany")
         .Select(c => c.Key)
         .Take(10);
       var list = query.ToList();
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void MultipleTakeSkipRandomTest()
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
-      IQueryable<Customer> query = Session.Query.All<Customer>().OrderBy(customer=>customer.Id);
+      IQueryable<Customer> query = Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId);
       int count = query.Count();
       var expected = query.AsEnumerable();
       var randomManager = RandomManager.CreateRandom();
@@ -124,7 +124,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void ReuseElementAtTest()
     {
       Assert.Throws<QueryTranslationException>(() => {
-        var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+        var customers = Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ToList();
         Assert.IsTrue(customers.Count > 0);
         for (int i = 0; i < customers.Count; i++)
           Assert.AreEqual(customers[i], ElementAtIncorrect(i));
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void ReuseElementAt2Test()
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
-      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++)
         if (i < 0) {
@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void ReuseElementAtOrDefaultTest()
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
-      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
         if (i < 0 || i >= customers.Count)
@@ -169,7 +169,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void ReuseElementAtOrDefault2Test()
     {
       Assert.Throws<QueryTranslationException>(() => {
-        var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+        var customers = Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ToList();
         Assert.IsTrue(customers.Count > 0);
         for (int i = -100; i < customers.Count + 100; i++) {
           if (i < 0 || i >= customers.Count)
@@ -184,13 +184,13 @@ namespace Xtensive.Orm.Tests.Linq
     public void ElementAtOrDefaultIsNotRootTest()
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
-      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
         if (i < 0 || i >= customers.Count)
-          Assert.IsNull(Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(i));
+          Assert.IsNull(Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAtOrDefault(i));
         else
-          Assert.AreEqual(customers[i], Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(i));
+          Assert.AreEqual(customers[i], Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAtOrDefault(i));
       }
     }
 
@@ -212,19 +212,19 @@ namespace Xtensive.Orm.Tests.Linq
     public void ElementAtIsNotRootTest()
     {
       Require.AnyFeatureSupported(ProviderFeatures.RowNumber | ProviderFeatures.NativePaging);
-      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.Id).ToList();
+      var customers = Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ToList();
       Assert.IsTrue(customers.Count > 0);
       for (int i = -100; i < customers.Count + 100; i++) {
         if (i < 0) {
           int index = i;
-          AssertEx.ThrowsArgumentOutOfRangeException(() => Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
+          AssertEx.ThrowsArgumentOutOfRangeException(() => Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAt(index));
         }
         else if (i >= customers.Count) {
           int index = i;
-          AssertEx.ThrowsInvalidOperationException(() => Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
+          AssertEx.ThrowsInvalidOperationException(() => Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAt(index));
         }
         else
-          Assert.AreEqual(customers[i], Session.Query.All<Customer>().OrderBy(customer => customer.Id).ElementAt(i));
+          Assert.AreEqual(customers[i], Session.Query.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAt(i));
       }
     }
 
@@ -270,22 +270,22 @@ namespace Xtensive.Orm.Tests.Linq
 
     private Customer ElementAtIncorrect(int index)
     {
-      return Session.Query.Execute(qe => qe.All<Customer>().OrderBy(customer => customer.Id).ElementAt(index));
+      return Session.Query.Execute(qe => qe.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAt(index));
     }
 
     private Customer ElementAtCorrect(int index)
     {
-      return Session.Query.Execute(qe => qe.All<Customer>().OrderBy(customer => customer.Id).ElementAt(() => index));
+      return Session.Query.Execute(qe => qe.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAt(() => index));
     }
 
     private Customer ElementAtOrDefaultIncorrect(int index)
     {
-      return Session.Query.Execute(qe => qe.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(index));
+      return Session.Query.Execute(qe => qe.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAtOrDefault(index));
     }
 
     private Customer ElementAtOrDefaultCorrect(int index)
     {
-      return Session.Query.Execute(qe => qe.All<Customer>().OrderBy(customer => customer.Id).ElementAtOrDefault(() => index));
+      return Session.Query.Execute(qe => qe.All<Customer>().OrderBy(customer => customer.CustomerId).ElementAtOrDefault(() => index));
     }
   }
 }

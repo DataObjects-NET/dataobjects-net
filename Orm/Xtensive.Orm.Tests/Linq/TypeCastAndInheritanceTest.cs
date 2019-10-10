@@ -10,29 +10,29 @@ using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Linq
 {
   [TestFixture, Category("Linq")]
-  public class TypeCastAndInheritanceTest : NorthwindDOModelTest
+  public class TypeCastAndInheritanceTest : ChinookDOModelTest
   {
     [Test]
     public void InheritanceCountTest()
     {
-      var productCount = Session.Query.All<Product>().Count();
-      var discontinuedProductCount = Session.Query.All<DiscontinuedProduct>().Count();
-      var activeProductCount = Session.Query.All<ActiveProduct>().Count();
-      Assert.IsTrue(productCount > 0);
-      Assert.IsTrue(discontinuedProductCount > 0);
-      Assert.IsTrue(activeProductCount > 0);
-      Assert.AreEqual(productCount, discontinuedProductCount, activeProductCount);
+      var trackCount = Session.Query.All<Track>().Count();
+      var videoTrackCount = Session.Query.All<VideoTrack>().Count();
+      var audionTrack = Session.Query.All<AudioTrack>().Count();
+      Assert.IsTrue(trackCount > 0);
+      Assert.IsTrue(videoTrackCount > 0);
+      Assert.IsTrue(audionTrack > 0);
+      Assert.AreEqual(trackCount, videoTrackCount, audionTrack);
     }
 
     [Test]
     public void IsSimpleTest()
     {
-      var result = Session.Query.All<Product>().Where(p => p is DiscontinuedProduct);
+      var result = Session.Query.All<Track>().Where(t => t is VideoTrack);
       QueryDumper.Dump(result);
     }
 
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void IsSameTypeTest()
     {
 #pragma warning disable 183
-      var result = Session.Query.All<Product>().Where(p => p is Product);
+      var result = Session.Query.All<Track>().Where(t => t is Track);
 #pragma warning restore 183
       QueryDumper.Dump(result);
     }
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void IsSubTypeTest()
     {
 #pragma warning disable 183
-      var result = Session.Query.All<DiscontinuedProduct>().Where(p => p is Product);
+      var result = Session.Query.All<VideoTrack>().Where(t => t is Track);
 #pragma warning restore 183
       QueryDumper.Dump(result);
     }
@@ -58,9 +58,9 @@ namespace Xtensive.Orm.Tests.Linq
     public void IsIntermediateTest()
     {
       Assert.Throws<QueryTranslationException>( () => {
-        Session.Query.All<Product>()
-          .Where(p => p is IntermediateProduct)
-          .Select(product => (IntermediateProduct)product)
+        Session.Query.All<Track>()
+          .Where(t => t is IntermediateTrack)
+          .Select(track => (IntermediateTrack) track)
           .Count();
       });
     }
@@ -68,138 +68,141 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void IsCountTest()
     {
+      int trackCount = Session.Query.All<Track>().Count();
+      int intermediateTrackCount = Session.Query.All<IntermediateTrack>().Count();
+      int videoTrackCount = Session.Query.All<VideoTrack>().Count();
+      int audionTrackCount = Session.Query.All<AudioTrack>().Count();
+
+      Assert.Greater(trackCount, 0);
+      Assert.Greater(intermediateTrackCount, 0);
+      Assert.Greater(videoTrackCount, 0);
+      Assert.Greater(audionTrackCount, 0);
+
+      Assert.AreEqual(
+        trackCount,
+        intermediateTrackCount);
+
       Assert.Throws<QueryTranslationException>(
         () => {
-          int productCount = Session.Query.All<Product>().Count();
-          int intermediateProductCount = Session.Query.All<IntermediateProduct>().Count();
-          int discontinuedProductCount = Session.Query.All<DiscontinuedProduct>().Count();
-          int activeProductCount = Session.Query.All<ActiveProduct>().Count();
-
-          Assert.Greater(productCount, 0);
-          Assert.Greater(intermediateProductCount, 0);
-          Assert.Greater(discontinuedProductCount, 0);
-          Assert.Greater(activeProductCount, 0);
-
           Assert.AreEqual(
-            productCount,
-            intermediateProductCount);
-
-          Assert.AreEqual(
-            intermediateProductCount,
-            Session.Query.All<Product>()
-              .Where(p => p is IntermediateProduct)
-              .Select(product => (IntermediateProduct) product)
+            intermediateTrackCount,
+            Session.Query.All<Track>()
+              .Where(t => t is IntermediateTrack)
+              .Select(track => (IntermediateTrack) track)
               .Count());
-
-          Assert.AreEqual(
-            discontinuedProductCount,
-            Session.Query.All<Product>()
-              .Where(p => p is DiscontinuedProduct)
-              .Select(product => (DiscontinuedProduct) product)
+        });
+      Assert.Throws<QueryTranslationException>(
+        () => {
+         Assert.AreEqual(
+            videoTrackCount,
+            Session.Query.All<Track>()
+              .Where(t => t is VideoTrack)
+              .Select(track => (VideoTrack) track)
               .Count());
+        });
 
+      Assert.Throws<QueryTranslationException>(
+        () => {
           Assert.AreEqual(
-            activeProductCount,
-            Session.Query.All<Product>()
-              .Where(p => p is ActiveProduct)
-              .Select(product => (ActiveProduct) product)
+            audionTrackCount,
+            Session.Query.All<Track>()
+              .Where(t => t is AudioTrack)
+              .Select(track => (AudioTrack) track)
               .Count());
+        });
 
 #pragma warning disable 183
-          Assert.AreEqual(
-            productCount,
-            Session.Query.All<Product>()
-              .Where(p => p is Product)
-              .Count());
+      Assert.AreEqual(
+        trackCount,
+        Session.Query.All<Track>()
+          .Where(t => t is Track)
+          .Count());
 #pragma warning restore 183
-        });
     }
 
     [Test]
     public void OfTypeSimpleTest()
     {
-      var result = Session.Query.All<Product>().OfType<DiscontinuedProduct>();
+      var result = Session.Query.All<Track>().OfType<VideoTrack>();
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void OfTypeSameTypeTest()
     {
-      var result = Session.Query.All<Product>().OfType<Product>();
+      var result = Session.Query.All<Track>().OfType<Track>();
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void OfTypeSubTypeTest()
     {
-      var result = Session.Query.All<DiscontinuedProduct>().OfType<Product>();
+      var result = Session.Query.All<VideoTrack>().OfType<Track>();
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void OfTypeIntermediateTest()
     {
-      Session.Query.All<Product>()
-        .OfType<IntermediateProduct>()
+      Session.Query.All<Track>()
+        .OfType<IntermediateTrack>()
         .Count();
     }
 
     [Test]
     public void OfTypeWithFieldAccessTest()
     {
-      var result = Session.Query.All<Product>()
-        .OfType<ActiveProduct>()
-        .Select(ip=>ip.QuantityPerUnit);
+      var result = Session.Query.All<Track>()
+        .OfType<AudioTrack>()
+        .Select(at => at.Genre);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void OfTypeCountTest()
     {
-      int productCount = Session.Query.All<Product>().Count();
-      int intermediateProductCount = Session.Query.All<IntermediateProduct>().Count();
-      int discontinuedProductCount = Session.Query.All<DiscontinuedProduct>().Count();
-      int activeProductCount = Session.Query.All<ActiveProduct>().Count();
+      int trackCount = Session.Query.All<Track>().Count();
+      int intermediateTrackCount = Session.Query.All<IntermediateTrack>().Count();
+      int videoTrackCount = Session.Query.All<VideoTrack>().Count();
+      int audioTrackCount = Session.Query.All<AudioTrack>().Count();
 
-      Assert.Greater(productCount, 0);
-      Assert.Greater(intermediateProductCount, 0);
-      Assert.Greater(discontinuedProductCount, 0);
-      Assert.Greater(activeProductCount, 0);
+      Assert.Greater(trackCount, 0);
+      Assert.Greater(intermediateTrackCount, 0);
+      Assert.Greater(videoTrackCount, 0);
+      Assert.Greater(audioTrackCount, 0);
 
-      Assert.AreEqual(
-        productCount,
-        intermediateProductCount);
+      Assert.AreEqual(trackCount, intermediateTrackCount);
 
       Assert.AreEqual(
-        intermediateProductCount,
-        Session.Query.All<Product>()
-          .OfType<IntermediateProduct>()
+        intermediateTrackCount,
+        Session.Query.All<Track>()
+          .OfType<IntermediateTrack>()
           .Count());
 
       Assert.AreEqual(
-        discontinuedProductCount,
-        Session.Query.All<Product>()
-          .OfType<DiscontinuedProduct>()
+        videoTrackCount,
+        Session.Query.All<Track>()
+          .OfType<VideoTrack>()
           .Count());
 
       Assert.AreEqual(
-        activeProductCount,
-        Session.Query.All<Product>()
-          .OfType<ActiveProduct>()
+        audioTrackCount,
+        Session.Query.All<Track>()
+          .OfType<AudioTrack>()
           .Count());
 
       Assert.AreEqual(
-        productCount,
-        Session.Query.All<Product>()
-          .OfType<Product>()
+        trackCount,
+        Session.Query.All<Track>()
+          .OfType<Track>()
           .Count());
     }
 
     [Test]
     public void CastSimpleTest()
     {
-      var discontinuedProducts = Session.Query.All<DiscontinuedProduct>().Cast<Product>();
-      var list = discontinuedProducts.ToList();
+      var videoTracks = Session.Query.All<VideoTrack>().Cast<Track>();
+      var list = videoTracks.ToList();
       Assert.Greater(list.Count, 0);
     }
 
@@ -207,53 +210,53 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void CastCountTest()
     {
-      var discontinuedProductCount1 = Session.Query.All<DiscontinuedProduct>().Count();
-      var discontinuedProductCount2 = Session.Query.All<DiscontinuedProduct>().Cast<Product>().Where(product => product!=null).Count();
-      Assert.AreEqual(discontinuedProductCount1, discontinuedProductCount2);
+      var videoTrackCount1 = Session.Query.All<VideoTrack>().Count();
+      var videoTrackCount2 = Session.Query.All<VideoTrack>().Cast<Track>().Where(track => track!=null).Count();
+      Assert.AreEqual(videoTrackCount1, videoTrackCount2);
 
-      var activeProductCount1 = Session.Query.All<ActiveProduct>().Count();
-      var activeProductCount2 = Session.Query.All<ActiveProduct>().Cast<Product>().Where(product => product!=null).Count();
-      Assert.AreEqual(activeProductCount1, activeProductCount2);
+      var audioTrackCount1 = Session.Query.All<AudioTrack>().Count();
+      var audioTrackCount2 = Session.Query.All<AudioTrack>().Cast<Track>().Where(track => track!=null).Count();
+      Assert.AreEqual(audioTrackCount1, audioTrackCount2);
 
-      var productCount1 = Session.Query.All<Product>().Count();
-      var productCount2 = Session.Query.All<Product>().Cast<Product>().Count();
-      Assert.AreEqual(productCount1, productCount2);
+      var trackCount1 = Session.Query.All<Track>().Count();
+      var trackCount2 = Session.Query.All<Track>().Cast<Track>().Count();
+      Assert.AreEqual(trackCount1, trackCount2);
     }
 
     [Test]
     public void OfTypeGetFieldTest()
     {
-      var result = Session.Query.All<Product>()
-        .OfType<DiscontinuedProduct>()
-        .Select(dp => dp.QuantityPerUnit);
+      var result = Session.Query.All<Track>()
+        .OfType<VideoTrack>()
+        .Select(vt => vt.Name);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void IsGetParentFieldTest()
     {
-      var result = Session.Query.All<Product>()
-        .Where(p => p is DiscontinuedProduct)
-        .Select(x => (DiscontinuedProduct) x)
-        .Select(dp => dp.ProductName);
+      var result = Session.Query.All<Track>()
+        .Where(t => t is VideoTrack)
+        .Select(x => (VideoTrack) x)
+        .Select(vt => vt.Name);
       Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(result));
     }
 
     [Test]
     public void IsGetChildFieldTest()
     {
-      var result = Session.Query.All<Product>()
-        .Where(p => p is DiscontinuedProduct)
-        .Select(x => (DiscontinuedProduct) x)
-        .Select(dp => dp.QuantityPerUnit);
+      var result = Session.Query.All<Track>()
+        .Where(t => t is VideoTrack)
+        .Select(x => (VideoTrack) x)
+        .Select(vt => vt.Name);
       Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(result));
     }
 
     [Test]
     public void CastToBaseTest()
     {
-      var result = Session.Query.All<DiscontinuedProduct>()
-        .Select(x => (Product) x);
+      var result = Session.Query.All<VideoTrack>()
+        .Select(x => (Track) x);
       QueryDumper.Dump(result);
     }
 
@@ -261,8 +264,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void IsBoolResultTest()
     {
-      var result = Session.Query.All<Product>()
-        .Select(x => x is DiscontinuedProduct
+      var result = Session.Query.All<Track>()
+        .Select(x => x is VideoTrack
           ? x
           : null);
       QueryDumper.Dump(result);
@@ -271,24 +274,19 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void AnonymousCastTest()
     {
-      var result = Session.Query.All<Product>()
-        .Select(x =>
-          new
-          {
-            DiscontinuedProduct = x as DiscontinuedProduct,
-          });
+      var result = Session.Query.All<Track>()
+        .Select(x => new {VideoTrack = x as VideoTrack});
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void TwoChildrenCastTest()
     {
-      var result = Session.Query.All<Product>()
+      var result = Session.Query.All<Track>()
         .Select(x =>
-          new
-          {
-            DiscontinuedProduct = x as DiscontinuedProduct,
-            ActiveProduct = x as ActiveProduct
+          new {
+            VideoTrack = x as VideoTrack,
+            AudioTrack = x as AudioTrack
           });
       QueryDumper.Dump(result);
     }
@@ -297,26 +295,24 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ComplexIsCastTest()
     {
-      var result = Session.Query.All<Product>()
+      var result = Session.Query.All<Track>()
         .Select(x =>
-          new
-          {
-            DiscontinuedProduct = x is DiscontinuedProduct
-              ? (DiscontinuedProduct) x
+          new {
+            VideoTrack = x is VideoTrack
+              ? (VideoTrack) x
               : null,
-            ActiveProduct = x is ActiveProduct
-              ? (ActiveProduct) x
+            AudioTrack = x is AudioTrack
+              ? (AudioTrack) x
               : null
           })
         .Select(x =>
-          new
-          {
-            AQ = x.ActiveProduct==null
+          new {
+            AQ = x.AudioTrack==null
               ? "NULL"
-              : x.ActiveProduct.QuantityPerUnit,
-            DQ = x.DiscontinuedProduct==null
+              : x.AudioTrack.Name,
+            DQ = x.VideoTrack==null
               ? "NULL"
-              : x.DiscontinuedProduct.QuantityPerUnit
+              : x.VideoTrack.Name
           });
 
       Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(result));
@@ -325,21 +321,19 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ComplexAsCastTest()
     {
-      var result = Session.Query.All<Product>()
-        .Select(product =>
-          new
-          {
-            DiscontinuedProduct = product as DiscontinuedProduct,
-            ActiveProduct = product as ActiveProduct})
-        .Select(anonymousArgument =>
-          new
-          {
-            AQ = anonymousArgument.ActiveProduct == null
+      var result = Session.Query.All<Track>()
+        .Select(track => 
+          new {
+            VideoTrack = track as VideoTrack,
+            AudioTrack = track as AudioTrack
+          })
+        .Select(anonymousArgument => new {
+            AQ = anonymousArgument.AudioTrack==null
               ? "NULL"
-              : anonymousArgument.ActiveProduct.QuantityPerUnit,
-            DQ = anonymousArgument.DiscontinuedProduct == null
+              : anonymousArgument.AudioTrack.Name,
+            DQ = anonymousArgument.VideoTrack==null
               ? "NULL"
-              : anonymousArgument.DiscontinuedProduct.QuantityPerUnit
+              : anonymousArgument.VideoTrack.Name
           });
       QueryDumper.Dump(result);
     }
@@ -347,17 +341,16 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ComplexAsCast2Test()
     {
-      var result = Session.Query.All<Product>()
-        .Select(product =>
-          new
-          {
-            DiscontinuedProduct = product,
-            ActiveProduct = product})
+      var result = Session.Query.All<Track>()
+        .Select(track =>
+          new {
+            VideoTrack = track,
+            AudioTrack = track
+          })
         .Select(anonymousArgument =>
-          new
-          {
-            AQ = anonymousArgument.ActiveProduct as ActiveProduct,
-            DQ = anonymousArgument.DiscontinuedProduct as DiscontinuedProduct
+          new {
+            AQ = anonymousArgument.AudioTrack as AudioTrack,
+            DQ = anonymousArgument.VideoTrack as VideoTrack
           });
       QueryDumper.Dump(result);
     }
@@ -365,133 +358,124 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void AsDowncastTest()
     {
-      var result = Session.Query.All<Product>()
-        .Select(product => product as DiscontinuedProduct);
+      var result = Session.Query.All<Track>()
+        .Select(track => track as VideoTrack);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void AsDowncastWithFieldSelectTest()
     {
-      var result = Session.Query.All<Product>()
-        .Select(product => product as DiscontinuedProduct)
-        .Select(discontinuedProduct => 
-          discontinuedProduct == null 
-          ? "NULL" 
-          : discontinuedProduct.QuantityPerUnit);
+      var result = Session.Query.All<Track>()
+        .Select(track => track as VideoTrack)
+        .Select(videoTrack => videoTrack==null ? "NULL" : videoTrack.Name);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void AsUpcastTest()
     {
-      var result = Session.Query.All<DiscontinuedProduct>()
-        .Select(discontinuedProduct => discontinuedProduct as Product);
+      var result = Session.Query.All<VideoTrack>()
+        .Select(videoTrack => videoTrack as Track);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void AsUpcastWithFieldSelectTest()
     {
-      var result = Session.Query.All<DiscontinuedProduct>()
-        .Select(discontinuedProduct => discontinuedProduct as Product)
-        .Select(product => 
-          product == null 
-          ? "NULL" 
-          : product.ProductName);
+      var result = Session.Query.All<VideoTrack>()
+        .Select(videoTrack => videoTrack as Track)
+        .Select(track => track==null ? "NULL" : track.Name);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void AsUpcastWithConditionalTest()
     {
-      var result = Session.Query.All<DiscontinuedProduct>()
-        .Select(discontinuedProduct => discontinuedProduct as Product)
-        .Select(product => 
-          product == null 
-          ? null 
-          : product);
+      var result = Session.Query.All<VideoTrack>()
+        .Select(videoTrack => videoTrack as Track)
+        .Select(track => track==null ? null : track);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void WrongCastTest()
     {
-      var result = Session.Query.All<DiscontinuedProduct>()
-        .Select(discontinuedProduct => discontinuedProduct as Product)
-        .Select(product => product as ActiveProduct);
+      var result = Session.Query.All<VideoTrack>()
+        .Select(videoTrack => videoTrack as Track)
+        .Select(track => track as AudioTrack);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void ReferenceAsSimpleTest()
     {
-      var result = Session.Query.All<OrderDetails>()
-        .Select(orderDetails => orderDetails.Product as ActiveProduct);
+      var result = Session.Query.All<InvoiceLine>()
+        .Select(invoiceLine => invoiceLine.Track as AudioTrack);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void ReferenceIsSimpleTest()
     {
-      var result = Session.Query.All<OrderDetails>()
-        .Where(orderDetails => orderDetails.Product is ActiveProduct);
+      var result = Session.Query.All<InvoiceLine>()
+        .Where(invoiceLine => invoiceLine.Track is AudioTrack);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void ReferenceOfTypeSimpleTest()
     {
-      var result = Session.Query.All<OrderDetails>()
-        .Select(orderDetails => orderDetails.Product)
-        .OfType<DiscontinuedProduct>();
+      var result = Session.Query.All<InvoiceLine>()
+        .Select(invoiceLine => invoiceLine.Track)
+        .OfType<VideoTrack>();
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void ReferenceOfTypeWithFieldTest()
     {
-      var result = Session.Query.All<OrderDetails>()
-        .Select(orderDetails => orderDetails.Product)
-        .OfType<DiscontinuedProduct>()
-        .Select(dp=>dp.QuantityPerUnit);
+      var result = Session.Query.All<InvoiceLine>()
+        .Select(invoiceLine => invoiceLine.Track)
+        .OfType<VideoTrack>()
+        .Select(vt => vt.Name);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void ReferenceAsAnonymousTest()
     {
-      var result = Session.Query.All<OrderDetails>()
-        .Select(orderDetails => new {Product = orderDetails.Product as ActiveProduct});
+      var result = Session.Query.All<InvoiceLine>()
+        .Select(invoiceLine => new {Track = invoiceLine.Track as AudioTrack});
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void ReferenceIsAnonymousTest()
     {
-      var result = Session.Query.All<OrderDetails>()
-        .Where(orderDetails => orderDetails.Product is ActiveProduct);
+      var result = Session.Query.All<InvoiceLine>()
+        .Where(invoiceLine => invoiceLine.Track is AudioTrack);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void ReferenceOfTypeAnonymousTest()
     {
-      var result = Session.Query.All<OrderDetails>()
-        .Select(orderDetails => new{orderDetails.Product})
-        .Select(p=>p.Product)
-        .OfType<ActiveProduct>();
+      var result = Session.Query.All<InvoiceLine>()
+        .Select(invoiceLine => new {invoiceLine.Track})
+        .Select(t => t.Track)
+        .OfType<AudioTrack>();
       QueryDumper.Dump(result);
     }
     
     [Test]
     public void ReferenceOfTypeAnonymousWithFieldAccessTest()
     {
-      var result = Session.Query.All<OrderDetails>()
-        .Select(orderDetails => new{orderDetails.Product})
-        .Select(p=>p.Product)
-        .OfType<ActiveProduct>()
-        .Select(ap=>ap.QuantityPerUnit);
+      var result = Session.Query.All<InvoiceLine>()
+        .Select(invoiceLine => new {invoiceLine.Track})
+        .Select(t => t.Track)
+        .OfType<AudioTrack>()
+        .Select(ap => ap.Name);
       QueryDumper.Dump(result);
     }
 
@@ -499,7 +483,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void ImplicitNumericTest()
     {
       long value = 0;
-      var customer = Session.Query.All<Customer>().OrderBy(c => c.CompanyName).First();
+      var customer = Session.Query.All<Customer>().Where(c=>c.CompanyName!=null).OrderBy(c => c.CompanyName).First();
       var result = Session.Query.All<Customer>()
         .Where(c => c==customer)
         .Select(c => c.CompanyName.Length + value)

@@ -5,16 +5,12 @@
 // Created:    2011.05.13
 
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
 using NUnit.Framework;
-using Xtensive.Collections;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
@@ -22,10 +18,8 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql.Sqlite
 {
-  public class MiscTests : Northwind
+  public class MiscTests : Chinook
   {
-    private SqlDriver sqlDriver;
-    private SqlConnection sqlConnection;
     private DbCommand dbCommand;
     private DbCommand sqlCommand;
 
@@ -103,39 +97,6 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();
-      try {
-        sqlConnection.Open();
-      }
-      catch (SystemException e) {
-        Console.WriteLine(e);
-      }
-
-      var stopWatch = new Stopwatch();
-      stopWatch.Start();
-      try {
-        sqlConnection.BeginTransaction();
-        Catalog = sqlDriver.ExtractCatalog(sqlConnection);
-        schema = sqlDriver.ExtractDefaultSchema(sqlConnection);
-        sqlConnection.Commit();
-      }
-      catch {
-        sqlConnection.Rollback();
-        throw;
-      }
-      stopWatch.Stop();
-      Console.WriteLine(stopWatch.Elapsed);
-    }
-
-    [OneTimeTearDown]
-    public void TearDown()
-    {
-      try {
-        if (sqlConnection!=null && sqlConnection.State!=ConnectionState.Closed)
-          sqlConnection.Close();
-      }
-      catch (Exception ex) {
-        Console.WriteLine(ex.Message);
-      }
     }
 
     #endregion
@@ -278,13 +239,10 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    [Ignore("Ask Dmitri about RawConcat of 'a' + SqlDml.Trim('   b')")]
     public void ConcatTest()
     {
       SqlSelect select = SqlDml.Select();
-      //select.Columns.Add(SqlDml.Concat("a", "b"));
-      //select.Columns.Add("User: " + SqlDml.SessionUser()); 
-      select.Columns.Add("a" + SqlDml.Trim("           b"));
+      select.Columns.Add(SqlDml.Concat("a", SqlDml.Trim("           b")));
       Console.WriteLine(sqlDriver.Compile(select).GetCommandText());
     }
 
@@ -297,9 +255,9 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     [Test]
     public void JoinTest()
     {
-      SqlTableRef tr1 = SqlDml.TableRef(Catalog.Schemas["main"].Tables["region"]);
-      SqlTableRef tr2 = SqlDml.TableRef(Catalog.Schemas["main"].Tables["region"]);
-      SqlTableRef tr3 = SqlDml.TableRef(Catalog.Schemas["main"].Tables["region"]);
+      SqlTableRef tr1 = SqlDml.TableRef(Catalog.Schemas["main"].Tables["track"]);
+      SqlTableRef tr2 = SqlDml.TableRef(Catalog.Schemas["main"].Tables["track"]);
+      SqlTableRef tr3 = SqlDml.TableRef(Catalog.Schemas["main"].Tables["track"]);
 
       SqlSelect select = SqlDml.Select(tr1.InnerJoin(tr2, tr1[0]==tr2[0]).InnerJoin(tr3, tr2[0]==tr3[0]));
       select.Columns.Add(SqlDml.Asterisk);
@@ -313,7 +271,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     public void UniqueTest()
     {
       SqlSelect s1 = SqlDml.Select();
-      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["customers"]));
+      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["customer"]));
       s2.Columns.Add(SqlDml.Asterisk);
       s1.Columns.Add(SqlDml.Unique(s2)==true);
       Console.WriteLine(sqlDriver.Compile(s1).GetCommandText());
@@ -331,12 +289,12 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     [Test]
     public void UnionTest()
     {
-      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["region"]));
-      s1.Columns.Add(s1.From["RegionID"]);
-      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["region"]));
-      s2.Columns.Add(s2.From["RegionID"]);
-      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["region"]));
-      s3.Columns.Add(s3.From["RegionID"]);
+      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["track"]));
+      s1.Columns.Add(s1.From["TrackId"]);
+      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["track"]));
+      s2.Columns.Add(s2.From["TrackId"]);
+      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["track"]));
+      s3.Columns.Add(s3.From["TrackId"]);
 
       Console.WriteLine(sqlDriver.Compile(s1.Union(s2)).GetCommandText());
       Console.WriteLine(sqlDriver.Compile(s1.Union(s2).Union(s3)).GetCommandText());
@@ -354,11 +312,11 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     [Test]
     public void UnionAllTest()
     {
-      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["region"]));
+      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["track"]));
       s1.Columns.Add(SqlDml.Asterisk);
-      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["region"]));
+      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["track"]));
       s2.Columns.Add(SqlDml.Asterisk);
-      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["region"]));
+      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["track"]));
       s3.Columns.Add(SqlDml.Asterisk);
 
       Console.WriteLine(sqlDriver.Compile(s1.UnionAll(s2)).GetCommandText());
@@ -373,11 +331,11 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     [Test]
     public void IntersectTest()
     {
-      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["region"]));
+      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["track"]));
       s1.Columns.Add(SqlDml.Asterisk);
-      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["region"]));
+      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["track"]));
       s2.Columns.Add(SqlDml.Asterisk);
-      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["region"]));
+      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["track"]));
       s3.Columns.Add(SqlDml.Asterisk);
 
       Console.WriteLine(sqlDriver.Compile(s1.Intersect(s2)).GetCommandText());
@@ -392,11 +350,11 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     [Test]
     public void ExceptTest()
     {
-      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["region"]));
+      SqlSelect s1 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["track"]));
       s1.Columns.Add(SqlDml.Asterisk);
-      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["region"]));
+      SqlSelect s2 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["track"]));
       s2.Columns.Add(SqlDml.Asterisk);
-      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["region"]));
+      SqlSelect s3 = SqlDml.Select(SqlDml.TableRef(Catalog.Schemas["main"].Tables["track"]));
       s3.Columns.Add(SqlDml.Asterisk);
 
       Console.WriteLine(sqlDriver.Compile(s1.Except(s2)).GetCommandText());

@@ -90,12 +90,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReplaceTests.cs" />
     <Compile Include="SavepointsTest.cs" />
+    <Compile Include="Sqlite\ChinookSchemaCreator.cs" />
     <Compile Include="Sqlite\DateTimeIntervalTest.cs" />
     <Compile Include="Sqlite\DateTimeOffsetTest.cs" />
     <Compile Include="Sqlite\ExtractorTest.cs" />
     <Compile Include="Sqlite\MiscTests.cs" />
-    <Compile Include="Sqlite\Northwind.cs" />
-    <Compile Include="Sqlite\NorthwindTest.cs" />
+    <Compile Include="Sqlite\Chinook.cs" />
+    <Compile Include="Sqlite\ChinookTest.cs" />
     <Compile Include="Sqlite\TypeMappingTests.cs" />
     <Compile Include="SqlServer\AdventureWorks.cs" />
     <Compile Include="SqlServer\CompilerTest.cs" />
@@ -127,8 +128,5 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="MySQL\SakilaDb\sakila-schema.sql" />
-    <None Include="Sqlite\history.sql" />
-    <None Include="Sqlite\Northwind.sl3" />
-    <None Include="Sqlite\Northwind.Sqlite3.sql" />
   </ItemGroup>
 </Project>

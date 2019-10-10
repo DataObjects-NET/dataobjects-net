@@ -8,9 +8,8 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Tests.ObjectModel.Northwind;
 using System.Linq;
-using System;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -27,7 +26,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var config = DomainConfigurationFactory.Create();
       config.UpgradeMode = DomainUpgradeMode.Recreate;
-      config.Types.Register(typeof (Customer));
+      config.Types.Register(typeof (Genre));
       return config;
     }
 

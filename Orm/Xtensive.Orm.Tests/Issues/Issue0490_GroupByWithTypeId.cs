@@ -11,19 +11,19 @@ using Xtensive.Linq;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 using System.Reflection;
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  public class Issue0490_GroupByWithTypeId : NorthwindDOModelTest
+  public class Issue0490_GroupByWithTypeId : ChinookDOModelTest
   {
     [Test]
     public void MainTest()
     {
       var groupQuery =
-        from order in Session.Query.All<Order>()
-        group order by order.Customer.Key
+        from invoice in Session.Query.All<Invoice>()
+        group invoice by invoice.Customer.Key
         into siteGroup
           select new {
             Enterprise = siteGroup.Key,

@@ -16,7 +16,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 using Xtensive.Orm.Tests.Storage.EntitySetModel;
 
 namespace Xtensive.Orm.Tests.Storage.EntitySetModel
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Tests.Storage.EntitySetModel
 
 namespace Xtensive.Orm.Tests.Storage
 {
-  public class EntitySetTest : NorthwindDOModelTest
+  public class EntitySetTest : ChinookDOModelTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -197,13 +197,13 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var categories = session.Query.All<Category>();
-        Assert.AreSame(categories.First().Products, categories.First().Products);
-        var resultCount = categories.First().Products.Count();
-        var set = categories.First().Products;
+        var categories = session.Query.All<Playlist>();
+        Assert.AreSame(categories.First().Tracks, categories.First().Tracks);
+        var resultCount = categories.First().Tracks.Count();
+        var set = categories.First().Tracks;
         var list = set.ToList();
         var queryResult = list.Count;
-        var setCount = categories.First().Products.Count;
+        var setCount = categories.First().Tracks.Count;
         Assert.AreEqual(setCount, queryResult);
         Assert.AreEqual(queryResult, resultCount);
         t.Complete();
@@ -215,13 +215,13 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var employees = session.Query.All<Employee>();
-        var territories = session.Query.All<Territory>();
-        var resultCount = employees.First().Territories.Count();
-        var queryResult = employees.First().Territories.ToList().Count();
+        var playlists = session.Query.All<Playlist>();
+        var tracks = session.Query.All<Track>();
+        var resultCount = playlists.First().Tracks.Count();
+        var queryResult = playlists.First().Tracks.ToList().Count();
         Assert.AreEqual(queryResult, resultCount);
-        resultCount = territories.First().Employees.Count();
-        queryResult = territories.First().Employees.ToList().Count();
+        resultCount = tracks.First().Playlists.Count();
+        queryResult = tracks.First().Playlists.ToList().Count();
         Assert.AreEqual(queryResult, resultCount);
         t.Complete();
       }
@@ -258,37 +258,37 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
-          var category = session.Query.All<Category>().First();
-          var prodsuctCount = category.Products.Count;
-          var product = new ActiveProduct();
-          category.Products.Add(product);
-          Assert.AreEqual(category.Products.Count, prodsuctCount + 1);
-          category.Products.Contains(product);
-          category.Products.Remove(product);
-          Assert.AreEqual(category.Products.Count, prodsuctCount);
-          var enumerator = category.Products.GetEnumerator();
-          var list = new List<Product>();
+          var playlist = session.Query.All<Playlist>().First();
+          var trackCount = playlist.Tracks.Count;
+          var track = new AudioTrack {Name = "Temp1"};
+          playlist.Tracks.Add(track);
+          Assert.AreEqual(playlist.Tracks.Count, trackCount + 1);
+          playlist.Tracks.Contains(track);
+          playlist.Tracks.Remove(track);
+          Assert.AreEqual(playlist.Tracks.Count, trackCount);
+          var enumerator = playlist.Tracks.GetEnumerator();
+          var list = new List<Track>();
           while (enumerator.MoveNext()) 
             list.Add(enumerator.Current);
-          Assert.AreEqual(list.Count, category.Products.Count);
-          category.Products.Clear();
-          Assert.AreEqual(category.Products.Count, 0);
+          Assert.AreEqual(list.Count, playlist.Tracks.Count);
+          playlist.Tracks.Clear();
+          Assert.AreEqual(playlist.Tracks.Count, 0);
           Session.Current.SaveChanges();
           t.Complete();
         }
 
         using (var t = session.OpenTransaction()) {
-          var category = session.Query.All<Category>().First();
-          Assert.AreEqual(category.Products.Count, 0);
-          var product = new ActiveProduct();
-          category.Products.Add(product);
+          var category = session.Query.All<Playlist>().First();
+          Assert.AreEqual(category.Tracks.Count, 0);
+          var track = new VideoTrack() {Name = "Temp2"};
+          category.Tracks.Add(track);
           Session.Current.SaveChanges();
           t.Complete();
         }
 
         using (var t = session.OpenTransaction()) {
-          var category = session.Query.All<Category>().First();
-          Assert.AreEqual(category.Products.Count, 1);
+          var playlist = session.Query.All<Playlist>().First();
+          Assert.AreEqual(playlist.Tracks.Count, 1);
           t.Complete();
         }
       }
@@ -299,31 +299,31 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        var customer = new Customer("QQQ77");
-        var orders1 = GenerateOrders(2);
-        var orders2 = GenerateOrders(3);
-        var orders3 = GenerateOrders(4);
+        var customer = new Customer{FirstName = "test", LastName = "test2"};
+        var invoices1 = GenerateInvoices(2);
+        var invoices2 = GenerateInvoices(3);
+        var invoices3 = GenerateInvoices(4);
         // UnionWith
-        customer.Orders.UnionWith(orders1);
-        customer.Orders.UnionWith(orders2);
-        var orders = customer.Orders.ToList();
-        Assert.IsTrue(orders.ContainsAll(orders1));
-        Assert.IsTrue(orders.ContainsAll(orders2));
+        customer.Invoices.UnionWith(invoices1);
+        customer.Invoices.UnionWith(invoices2);
+        var invoices = customer.Invoices.ToList();
+        Assert.IsTrue(invoices.ContainsAll(invoices1));
+        Assert.IsTrue(invoices.ContainsAll(invoices2));
         // IntersectWith
-        customer.Orders.IntersectWith(orders1);
-        orders = customer.Orders.ToList();
-        Assert.IsTrue(orders.ContainsAll(orders1));
-        Assert.IsFalse(orders.ContainsAny(orders2));
+        customer.Invoices.IntersectWith(invoices1);
+        invoices = customer.Invoices.ToList();
+        Assert.IsTrue(invoices.ContainsAll(invoices1));
+        Assert.IsFalse(invoices.ContainsAny(invoices2));
         // ExceptWith
-        customer.Orders.ExceptWith(orders1);
-        orders = customer.Orders.ToList();
-        Assert.AreEqual(0, orders.Count);
+        customer.Invoices.ExceptWith(invoices1);
+        invoices = customer.Invoices.ToList();
+        Assert.AreEqual(0, invoices.Count);
         // Check all operations with self.
-        customer.Orders.UnionWith(orders3);
-        customer.Orders.UnionWith(customer.Orders);
-        customer.Orders.IntersectWith(customer.Orders);
-        customer.Orders.ExceptWith(customer.Orders);
-        Assert.AreEqual(0, customer.Orders.Count);
+        customer.Invoices.UnionWith(invoices3);
+        customer.Invoices.UnionWith(customer.Invoices);
+        customer.Invoices.IntersectWith(customer.Invoices);
+        customer.Invoices.ExceptWith(customer.Invoices);
+        Assert.AreEqual(0, customer.Invoices.Count);
         // rolling back
       }
     }
@@ -407,7 +407,7 @@ namespace Xtensive.Orm.Tests.Storage
       TestSmallEntitySet(smallKey, itemCountOfSmallEntitySet, booksField);
     }
 
-    private void TestAdd(Key key, int itemCount, Xtensive.Orm.Model.FieldInfo booksField)
+    private void TestAdd(Key key, int itemCount, Orm.Model.FieldInfo booksField)
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
@@ -490,12 +490,12 @@ namespace Xtensive.Orm.Tests.Storage
         t.Complete();
       }
     }
-    
-    private List<Order> GenerateOrders(int count)
+
+    private List<Invoice> GenerateInvoices(int count)
     {
-      var result = new List<Order>();
-      for (int i = 0; i < count; i++)
-        result.Add(new Order());
+      var result = new List<Invoice>();
+      for (var i = 0; i < count; i++)
+        result.Add(new Invoice());
       return result;
     }
 

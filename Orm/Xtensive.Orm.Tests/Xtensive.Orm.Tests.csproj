@@ -387,6 +387,9 @@
     <Compile Include="Issues\Issue_OfTypeMissesImplementors.cs" />
     <Compile Include="Issues\KeyFormatBug.cs" />
     <Compile Include="Issues\LocalCollectionsTest.cs" />
+    <Compile Include="ObjectModel\Chinook.cs" />
+    <Compile Include="ObjectModel\ChinookDO.cs" />
+    <Compile Include="ObjectModel\ChinookDOModelTest.cs" />
     <Compile Include="Storage\AsyncQueries\AsAsyncTaskExtensionTest.cs" />
     <Compile Include="Storage\AsyncQueries\AsyncQueryBaseTest.cs" />
     <Compile Include="Storage\AsyncQueries\Compiled\ClientProfileTest.cs" />
@@ -556,9 +559,6 @@
     <Compile Include="ObjectModel\GraphModel.cs" />
     <Compile Include="ObjectModel\Interfaces\Alphabet.cs" />
     <Compile Include="ObjectModel\Interfaces\Slavery.cs" />
-    <Compile Include="ObjectModel\Northwind.cs" />
-    <Compile Include="ObjectModel\NorthwindDO.cs" />
-    <Compile Include="ObjectModel\NorthwindDOModelTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rse\HeaderParseTest.cs" />
     <Compile Include="Rse\IncludeProviderTest.cs" />
@@ -884,9 +884,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Northwind.xml">
+    <Content Include="Chinook.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <ContentWithTargetPath Include="ObjectModel\Chinook.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <TargetPath>Chinook.json</TargetPath>
+    </ContentWithTargetPath>
   </ItemGroup>
   <ItemGroup>
     <None Update="Model\InterfaceAssociationsModelGenerator.tt">
@@ -921,8 +925,6 @@
     </None>
     <None Include="ObjectModel\Interfaces\Alphabet.cd" />
     <None Include="ObjectModel\Interfaces\Slavery.cd" />
-    <None Include="ObjectModel\Northwind.cd" />
-    <None Include="ObjectModel\NorthwindDO.cd" />
     <None Include="Upgrade\HugeModelUpgrade\Models\ModelWithMappedTypes.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ModelWithMappedTypes.cs</LastGenOutput>

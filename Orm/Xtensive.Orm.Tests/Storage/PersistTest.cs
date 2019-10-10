@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using NUnit.Framework;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Storage
 {
@@ -27,12 +27,12 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession()) {
         Customer customer;
         using (var t = session.OpenTransaction()) {
-          customer = new Customer("AAAAA");
+          customer = new Customer();
           t.Complete();
         }
         using (var t = session.OpenTransaction()) {
           customer.Remove();
-          new Customer("AAAAA");
+          new Customer();
           t.Complete();
         }
       }
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession()) {
         Customer customer;
         using (var t = session.OpenTransaction()) {
-          customer = new Customer("BBBBB");
+          customer = new Customer();
           t.Complete();
         }
         using (var t = session.OpenTransaction()) {
@@ -61,11 +61,11 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession()) {
         Customer customer;
         using (var t = session.OpenTransaction()) {
-          customer = new Customer("CCCCC");
+          customer = new Customer();
           customer.Remove();
           t.Complete();
         }
-      }      
+      }
     }
   }
 }

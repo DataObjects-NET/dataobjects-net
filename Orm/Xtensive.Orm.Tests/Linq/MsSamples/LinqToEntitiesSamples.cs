@@ -1,20 +1,16 @@
-//Copyright (C) Microsoft Corporation.  All rights reserved.
-
 using System;
 using System.Linq;
 using NUnit.Framework;
-
-using Xtensive.Orm.Linq;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 
-namespace Xtensive.Orm.Tests.Linq.MsSamples
+namespace Xtensive.Orm.Tests.Linq.Samples
 {
   [Category("Linq")]
   [TestFixture]
-  public class LinqToEntitiesSamples : NorthwindDOModelTest
+  public class LinqToEntitiesSamples : ChinookDOModelTest
   {
     #region Restriction Operators
 
@@ -32,25 +28,25 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Restriction Operators")]
     [Test(Description = "Where - Simple 2")]
-    [Description("This sample uses WHERE to find all orders placed in 1994.")]
+    [Description("This sample uses WHERE to find all orders placed in 2005.")]
     public void LinqToEntities2()
     {
-      DateTime dt = new DateTime(1994, 1, 1);
-      var query = from order in Session.Query.All<Order>()
-      where order.OrderDate > dt
-      select order;
+      DateTime dt = new DateTime(2005, 1, 1);
+      var query = from invoice in Session.Query.All<Invoice>()
+      where invoice.InvoiceDate > dt
+      select invoice;
 
       QueryDumper.Dump(query);
     }
 
     [Category("Restriction Operators")]
     [Test(Description = "Where - Simple 3")]
-    [Description("This sample uses WHERE to filter for Products that have stock below their reorder level and have a units on order of zero.")]
+    [Description("This sample uses WHERE to filter for Tracks that have duration less that 3 minutes and which Genre is Latin.")]
     public void LinqToEntities3()
     {
-      var query = from p in Session.Query.All<Product>()
-      where p.UnitsInStock < p.ReorderLevel && p.UnitsOnOrder==0
-      select p;
+      var query = from t in Session.Query.All<Track>()
+      where t.Milliseconds < 180000 && t.Genre.GenreId==282
+      select t;
 
       QueryDumper.Dump(query);
     }
@@ -58,11 +54,11 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Restriction Operators")]
     [Test(Description = "Where - Simple 4")]
-    [Description("This sample uses WHERE to filter out Products that have a UnitPrice less than 10.")]
+    [Description("This sample uses WHERE to filter out Tracks that have a UnitPrice less than 1.")]
     public void LinqToEntities4()
     {
-      var query = from p in Session.Query.All<Product>()
-      where p.UnitPrice < 10
+      var query = from p in Session.Query.All<Track>()
+      where p.UnitPrice < 1
       select p;
 
       QueryDumper.Dump(query);
@@ -70,35 +66,35 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Restriction Operators")]
     [Test(Description = "Where - Related Entities 1")]
-    [Description("This sample uses WHERE to get orders for Customers in Mexico.")]
+    [Description("This sample uses WHERE to get invoices for Customers in Mexico.")]
     public void LinqToEntities5()
     {
-      var query = from o in Session.Query.All<Order>()
-      where o.Customer.Address.Country=="Mexico"
-      select o;
+      var query = from i in Session.Query.All<Invoice>()
+      where i.Customer.Address.Country=="Mexico"
+      select i;
 
       QueryDumper.Dump(query);
     }
 
     [Category("Restriction Operators")]
     [Test(Description = "Where - Related Entities 2")]
-    [Description("This sample uses WHERE to get orders sold by employees in the UK.")]
+    [Description("This sample uses WHERE to get invoices which is tracked by employees in the UK.")]
     public void LinqToEntities6()
     {
-      var query = from o in Session.Query.All<Order>()
-      where o.Employee.Address.Country=="UK"
-      select o;
+      var query = from i in Session.Query.All<Invoice>()
+      where i.DesignatedEmployee.Address.Country=="UK"
+      select i;
 
       QueryDumper.Dump(query);
     }
 
     [Category("Restriction Operators")]
     [Test(Description = "Any - 1")]
-    [Description("This sample uses ANY to get employees have sold an order.")]
+    [Description("This sample uses ANY to get employees have any invoices to track.")]
     public void LinqToEntities7()
     {
       var query = from e in Session.Query.All<Employee>()
-      where e.Orders.Any(o => o!=null)
+      where e.Invoices.Any(i => i!=null)
       select e;
 
       QueryDumper.Dump(query);
@@ -106,12 +102,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Restriction Operators")]
     [Test(Description = "Any - 2")]
-    [Description("This sample uses ANY to check for any out-of-stock products.")]
+    [Description("This sample uses ANY to check for any playlists which have any Pop tracks.")]
     public void LinqToEntities8()
     {
-      var query = Session.Query.All<Supplier>()
-        .Where(s => s.Products
-          .Any(p => p.UnitsInStock==0))
+      var query = Session.Query.All<Playlist>()
+        .Where(s => s.Tracks
+          .Any(p => p.MediaType.MediaTypeId==284))
         .Select(s => s);
 
       QueryDumper.Dump(query);
@@ -120,12 +116,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Restriction Operators")]
     [Test(Description = "Any - Related Entities")]
-    [Description("This sample uses WHERE and ANY to get employees who sold an order to any customer in Mexico.")]
+    [Description("This sample uses WHERE and ANY to get employees who invoiced any customer in Mexico.")]
     public void LinqToEntities9()
     {
       Require.ProviderIsNot(StorageProvider.Oracle);
       var query = from e in Session.Query.All<Employee>()
-      where e.Orders.Any(o => o.Customer.Address.Country=="Mexico")
+      where e.Invoices.Any(i => i.Customer.Address.Country=="Mexico")
       select e;
 
       QueryDumper.Dump(query);
@@ -133,12 +129,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Restriction Operators")]
     [Test(Description = "All - Simple")]
-    [Description("This sample uses ALL to get employees who sold orders only to customers not in Canada.")]
+    [Description("This sample uses ALL to get employees who invoiced customers not in Canada.")]
     public void LinqToEntities10()
     {
       Require.ProviderIsNot(StorageProvider.Oracle);
       var query = from e in Session.Query.All<Employee>()
-      where e.Orders.All(o => o.Customer.Address.Country!="Canada")
+      where e.Invoices.All(i => i.Customer.Address.Country!="Canada")
       select e;
 
       QueryDumper.Dump(query);
@@ -161,22 +157,22 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Projection Operators")]
     [Test(Description = "Select - Simple 2")]
-    [Description("This samples uses SELECT to get all Customer Contact Names as Strings.")]
+    [Description("This samples uses SELECT to get all Customer Company Names as Strings.")]
     public void LinqToEntities12()
     {
       var query = from c in Session.Query.All<Customer>()
-      select c.ContactName;
+      select c.CompanyName;
 
       QueryDumper.Dump(query);
     }
 
     [Category("Projection Operators")]
     [Test(Description = "Select - Anonymous 1")]
-    [Description("This samples uses SELECT to get all Customer Contact Names as an anonoymous type.")]
+    [Description("This samples uses SELECT to get all Customer Company Names as an anonoymous type.")]
     public void LinqToEntities13()
     {
       var query = from c in Session.Query.All<Customer>()
-      select new {c.ContactName};
+      select new {c.CompanyName};
 
       QueryDumper.Dump(query);
     }
@@ -184,32 +180,32 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Projection Operators")]
     [Test(Description = "Select - Anonymous 2")]
-    [Description("This sample uses SELECT to get all Orders as anonymous type")]
+    [Description("This sample uses SELECT to get all Invoices as anonymous type")]
     public void LinqToEntities14()
     {
-      var query = from o in Session.Query.All<Order>()
-      select new {o};
+      var query = from i in Session.Query.All<Invoice>()
+      select new {i};
 
       QueryDumper.Dump(query);
     }
 
     [Category("Projection Operators")]
     [Test(Description = "Select - Anonymous 3")]
-    [Description("This sample uses SELECT to get all Orders and associated Employees as anonymous type")]
+    [Description("This sample uses SELECT to get all Invoices and associated Employees as anonymous type")]
     public void LinqToEntities15()
     {
-      var query = from o in Session.Query.All<Order>()
-      select new {o, o.Employee};
+      var query = from i in Session.Query.All<Invoice>()
+      select new {i, i.DesignatedEmployee};
 
       QueryDumper.Dump(query);
     }
 
     [Category("Projection Operators")]
     [Test(Description = "Select - Nested Collection ")]
-    [Description("This sample uses SELECT to get all Customers, and those Orders for each customer with a freight > 5")]
+    [Description("This sample uses SELECT to get all Customers, and those Invoiices for each customer with a commission > 0.05")]
     public void LinqToEntities15a()
     {
-      var query = Session.Query.All<Customer>().Select(c => new {Customer = c, Orders = c.Orders.Where(o => o.Freight > 5)});
+      var query = Session.Query.All<Customer>().Select(c => new {Customer = c, Invoices = c.Invoices.Where(i => i.Commission > 0.05m)});
 
       QueryDumper.Dump(query);
     }
@@ -217,48 +213,48 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Projection Operators")]
     [Test(Description = "SelectMany - Simple 1")]
-    [Description("This sample uses SELECTMANY to get all Orders for a Customer as a flat result")]
+    [Description("This sample uses SELECTMANY to get all Invoices for a Customer as a flat result")]
     public void LinqToEntities16()
     {
       var query = from c in Session.Query.All<Customer>()
-      where c.Id=="ALFKI"
-      from o in c.Orders
-      select o;
+      where c.CustomerId==4200
+      from i in c.Invoices
+      select i;
 
       QueryDumper.Dump(query);
     }
 
     [Category("Projection Operators")]
     [Test(Description = "SelectMany - Simple 2")]
-    [Description("This sample uses SELECTMANY to get all Orders for a Customer as a flat result using LINQ operators")]
+    [Description("This sample uses SELECTMANY to get all Invoices for a Customer as a flat result using LINQ operators")]
     public void LinqToEntities17()
     {
-      var query = Session.Query.All<Customer>().Where(cust => cust.Id=="ALFKI")
-        .SelectMany(cust => cust.Orders);
+      var query = Session.Query.All<Customer>().Where(cust => cust.CustomerId==4200)
+        .SelectMany(cust => cust.Invoices);
 
       QueryDumper.Dump(query);
     }
 
     [Category("Projection Operators")]
     [Test(Description = "SelectMany - Simple 3")]
-    [Description("This sample uses SELECTMANY to get all Orders for Customers in Denmark as a flat result")]
+    [Description("This sample uses SELECTMANY to get all Invoices for Customers in Denmark as a flat result")]
     public void LinqToEntities18()
     {
       var query = from c in Session.Query.All<Customer>()
       where c.Address.Country=="Denmark"
-      from o in c.Orders
-      select o;
+      from i in c.Invoices
+      select i;
 
       QueryDumper.Dump(query);
     }
 
     [Category("Projection Operators")]
     [Test(Description = "SelectMany - Simple 4")]
-    [Description("This sample uses SELECTMANY to get all Orders for Customers in Denmark as a flat result using LINQ operators")]
+    [Description("This sample uses SELECTMANY to get all Invoices for Customers in Denmark as a flat result using LINQ operators")]
     public void LinqToEntities19()
     {
       var query = Session.Query.All<Customer>().Where(cust => cust.Address.Country=="Denmark")
-        .SelectMany(cust => cust.Orders);
+        .SelectMany(cust => cust.Invoices);
 
       QueryDumper.Dump(query);
     }
@@ -266,39 +262,39 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Projection Operators")]
     [Test(Description = "SelectMany - Predicate 1")]
-    [Description("This sample uses SELECTMANY to get all Orders for Customers in Denmark as a flat result")]
+    [Description("This sample uses SELECTMANY to get all Invoices for Customers in Denmark as a flat result")]
     public void LinqToEntities20()
     {
       var query = from c in Session.Query.All<Customer>()
       where c.Address.Country=="Denmark"
-      from o in c.Orders
-      where o.Freight > 5
-      select o;
+      from i in c.Invoices
+      where i.Commission > 0.05m
+      select i;
 
       QueryDumper.Dump(query);
     }
 
     [Category("Projection Operators")]
     [Test(Description = "SelectMany - Predicate 2")]
-    [Description("This sample uses SELECTMANY to get all Orders for Customers in Denmark as an anonymous type containing the Orders and Customer flat result")]
+    [Description("This sample uses SELECTMANY to get all Invoices for Customers in Denmark as an anonymous type containing the Invoice and Customer flat result")]
     public void LinqToEntities21()
     {
       var query = from c in Session.Query.All<Customer>()
       where c.Address.Country=="Denmark"
-      from o in c.Orders
-      where o.Freight > 5
-      select new {c, o};
+      from i in c.Invoices
+      where i.Commission > 0.05m
+      select new {c, i};
 
       QueryDumper.Dump(query);
     }
 
     [Category("Projection Operators")]
     [Test(Description = "SelectMany - Predicate 3")]
-    [Description("This sample uses SELECTMANY to get all Orders for Customers in Denmark as a flat result using LINQ opeartors")]
+    [Description("This sample uses SELECTMANY to get all Invoices for Customers in Denmark as a flat result using LINQ opeartors")]
     public void LinqToEntities22()
     {
       var query = Session.Query.All<Customer>().Where(cust => cust.Address.Country=="Denmark")
-        .SelectMany(cust => cust.Orders.Where(o => o.Freight > 5));
+        .SelectMany(cust => cust.Invoices.Where(i => i.Commission > 0.05m));
 
       QueryDumper.Dump(query);
     }
@@ -309,10 +305,10 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Aggregate Operators")]
     [Test(Description = "Count - Simple")]
-    [Description("This sample uses COUNT to get the number of Orders.")]
+    [Description("This sample uses COUNT to get the number of Invoices.")]
     public void LinqToEntities23()
     {
-      var query = Session.Query.All<Order>().Count();
+      var query = Session.Query.All<Invoice>().Count();
 
       QueryDumper.Dump(query);
     }
@@ -320,51 +316,51 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Aggregate Operators")]
     [Test(Description = "Count - Predicate 1")]
-    [Description("This sample uses COUNT to get the number of Orders placed by Customers in Mexico.")]
+    [Description("This sample uses COUNT to get the number of Invoices placed by Customers in Mexico.")]
     public void LinqToEntities24()
     {
-      var query = Session.Query.All<Order>().Where(o => o.Customer.Address.Country=="Mexico").Count();
+      var query = Session.Query.All<Invoice>().Where(i => i.Customer.Address.Country=="Mexico").Count();
 
       QueryDumper.Dump(query);
     }
 
     [Category("Aggregate Operators")]
     [Test(Description = "Count - Predicate 2")]
-    [Description("This sample uses COUNT to get the number of Orders shipped to Mexico.")]
+    [Description("This sample uses COUNT to get the number of Invoices shipped to Mexico.")]
     public void LinqToEntities25()
     {
-      var query = Session.Query.All<Order>()
-        .Where(o => o.ShippingAddress.Country=="Mexico").Count();
+      var query = Session.Query.All<Invoice>()
+        .Where(i => i.BillingAddress.Country=="Mexico").Count();
 
       QueryDumper.Dump(query);
     }
 
     [Category("Aggregate Operators")]
     [Test(Description = "Sum - Simple 1")]
-    [Description("This sample uses SUM to find the total freight over all Orders.")]
+    [Description("This sample uses SUM to find the total Commission over all Invoices.")]
     public void LinqToEntities26()
     {
-      var query = Session.Query.All<Order>().Select(o => o.Freight).Sum();
+      var query = Session.Query.All<Invoice>().Select(i => i.Commission).Sum();
 
       QueryDumper.Dump(query);
     }
 
     [Category("Aggregate Operators")]
     [Test(Description = "Sum - Simple 2")]
-    [Description("This sample uses SUM to find the total number of units on order over all Products.")]
+    [Description("This sample uses SUM to find the total duration of units on order over all Tracks.")]
     public void LinqToEntities27()
     {
-      var query = Session.Query.All<Product>().Sum(p => p.UnitsOnOrder);
+      var query = Session.Query.All<Track>().Sum(p => p.Milliseconds);
 
       QueryDumper.Dump(query);
     }
 
     [Category("Aggregate Operators")]
     [Test(Description = "Sum - Simple 3")]
-    [Description("This sample uses SUM to find the total number of units on order over all Products out-of-stock.")]
+    [Description("This sample uses SUM to find the total duration of units on order over all Tracks which are Classic.")]
     public void LinqToEntities28()
     {
-      var query = Session.Query.All<Product>().Where(p => p.UnitsInStock==0).Sum(p => p.UnitsOnOrder);
+      var query = Session.Query.All<Track>().Where(p => p.Genre.GenreId==299).Sum(p => p.Milliseconds);
 
       QueryDumper.Dump(query);
     }
@@ -372,30 +368,30 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Aggregate Operators")]
     [Test(Description = "Min - Simple 1")]
-    [Description("This sample uses MIN to find the lowest unit price of any Product.")]
+    [Description("This sample uses MIN to find the lowest unit price of any Tracks.")]
     public void LinqToEntities29()
     {
-      var query = Session.Query.All<Product>().Select(p => p.UnitPrice).Min();
+      var query = Session.Query.All<Track>().Select(p => p.UnitPrice).Min();
 
       QueryDumper.Dump(query);
     }
 
     [Category("Aggregate Operators")]
     [Test(Description = "Min - Simple 2")]
-    [Description("This sample uses MIN to find the lowest freight of any Order.")]
+    [Description("This sample uses MIN to find the lowest commission of any Invoice.")]
     public void LinqToEntities30()
     {
-      var query = Session.Query.All<Order>().Min(o => o.Freight);
+      var query = Session.Query.All<Invoice>().Min(i => i.Commission);
 
       QueryDumper.Dump(query);
     }
 
     [Category("Aggregate Operators")]
     [Test(Description = "Min - Predicate")]
-    [Description("This sample uses MIN to find the lowest freight of any Order shipped to Mexico.")]
+    [Description("This sample uses MIN to find the lowest commission of any invoice billed from Mexico.")]
     public void LinqToEntities31()
     {
-      var query = Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Min(o => o.Freight);
+      var query = Session.Query.All<Invoice>().Where(i => i.BillingAddress.Country=="Mexico").Min(i => i.Commission);
 
       QueryDumper.Dump(query);
     }
@@ -403,15 +399,15 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Aggregate Operators")]
     [Test(Description = "Min - Grouping")]
-    [Description("This sample uses Min to find the Products that have the lowest unit price in each category, and returns the result as an anonoymous type.")]
+    [Description("This sample uses Min to find the Tracks that have the lowest unit price for each media type, and returns the result as an anonoymous type.")]
     public void LinqToEntities32()
     {
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
-      var query = Session.Query.All<Product>()
-        .GroupBy(p => p.Category)
+      var query = Session.Query.All<Track>()
+        .GroupBy(p => p.MediaType)
         .Select(g => new {
-        CategoryID = g.Key,
-        CheapestProducts =
+        MediaTypeId = g.Key,
+        CheapestTracks =
           g.Where(p2 => p2.UnitPrice==g.Min(p3 => p3.UnitPrice))
       });
 
@@ -430,38 +426,38 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Aggregate Operators")]
     [Test(Description = "Max - Simple 2")]
-    [Description("This sample uses MAX to find the most units in stock of any Product.")]
+    [Description("This sample uses MAX to find the longest units of any Tracks.")]
     public void LinqToEntities34()
     {
-      var query = Session.Query.All<Product>().Max(p => p.UnitsInStock);
+      var query = Session.Query.All<Track>().Max(p => p.Milliseconds);
 
       QueryDumper.Dump(query);
     }
 
     [Category("Aggregate Operators")]
     [Test(Description = "Max - Predicate")]
-    [Description("This sample uses MAX to find the most units in stock of any Product with CategoryID = 1.")]
+    [Description("This sample uses MAX to find the longes units of any Track with MediaTypeId = 305.")]
     public void LinqToEntities35()
     {
-      var query = Session.Query.All<Product>().Where(p => p.Category.Id==1).Max(p => p.UnitsInStock);
+      var query = Session.Query.All<Track>().Where(p => p.MediaType.MediaTypeId==305).Max(p => p.Milliseconds);
       QueryDumper.Dump(query);
     }
 
     [Category("Aggregate Operators")]
     [Test(Description = "Max - Grouping")]
-    [Description("This sample uses MAX to find the Products that have the highest unit price in each category, and returns the result as an anonoymous type.")]
+    [Description("This sample uses MAX to find the Tracks that have the highest unit price for each media type, and returns the result as an anonoymous type.")]
     public void LinqToEntities36()
     {
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
-      var query = from p in Session.Query.All<Product>()
-      group p by p.Category
+      var query = from p in Session.Query.All<Track>()
+      group p by p.MediaType
       into g
         select new {
           g.Key,
-          MostExpensiveProducts =
-            from p2 in g
-            where p2.UnitPrice==g.Max(p3 => p3.UnitPrice)
-            select p2
+          MostExpensiveTracks =
+            from t2 in g
+            where t2.UnitPrice==g.Max(t3 => t3.UnitPrice)
+            select t2
         };
 
       QueryDumper.Dump(query);
@@ -469,30 +465,30 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Aggregate Operators")]
     [Test(Description = "Average - Simple 1")]
-    [Description("This sample uses AVERAGE to find the average freight of all Orders.")]
+    [Description("This sample uses AVERAGE to find the average commission of all Invoices.")]
     public void LinqToEntities37()
     {
-      var query = Session.Query.All<Order>().Select(o => o.Freight).Average();
+      var query = Session.Query.All<Invoice>().Select(i => i.Commission).Average();
 
       QueryDumper.Dump(query);
     }
 
     [Category("Aggregate Operators")]
     [Test(Description = "Average - Simple 2")]
-    [Description("This sample uses AVERAGE to find the average unit price of all Products.")]
+    [Description("This sample uses AVERAGE to find the average unit price of all Tracks.")]
     public void LinqToEntities38()
     {
-      var query = Session.Query.All<Product>().Average(p => p.UnitPrice);
+      var query = Session.Query.All<Track>().Average(p => p.UnitPrice);
 
       QueryDumper.Dump(query);
     }
 
     [Category("Aggregate Operators")]
     [Test(Description = "Average - Predicate")]
-    [Description("This sample uses AVERAGE to find the average unit price of all Products with CategoryID = 1.")]
+    [Description("This sample uses AVERAGE to find the average unit price of all Tracks with MediaTypeId = 305.")]
     public void LinqToEntities39()
     {
-      var query = Session.Query.All<Product>().Where(p => p.Category.Id==1).Average(p => p.UnitPrice);
+      var query = Session.Query.All<Track>().Where(p => p.MediaType.MediaTypeId==305).Average(p => p.UnitPrice);
 
       QueryDumper.Dump(query);
     }
@@ -503,15 +499,15 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void LinqToEntities40()
     {
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
-      var query = from p in Session.Query.All<Product>()
-      group p by p.Category
+      var query = from p in Session.Query.All<Track>()
+      group p by p.MediaType
       into g
         select new {
           g.Key,
           ExpensiveProducts =
-            from p2 in g
-            where p2.UnitPrice > g.Average(p3 => p3.UnitPrice)
-            select p2
+            from t2 in g
+            where t2.UnitPrice > g.Average(t3 => t3.UnitPrice)
+            select t2
         };
 
       QueryDumper.Dump(query);
@@ -519,15 +515,15 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Aggregate Operators")]
     [Test(Description = "Average - Grouping 2")]
-    [Description("This sample uses AVERAGE to find the average unit price of each category.")]
+    [Description("This sample uses AVERAGE to find the average unit price of each media type.")]
     public void LinqToEntities41()
     {
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
-      var query = Session.Query.All<Product>()
-        .GroupBy(p => p.Category)
+      var query = Session.Query.All<Track>()
+        .GroupBy(t => t.MediaType)
         .Select(g => new {
           g.Key,
-          Average = g.Average(p => p.UnitPrice)
+          Average = g.Average(t => t.UnitPrice)
         });
 
       QueryDumper.Dump(query);
@@ -539,12 +535,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Set And Element Operators")]
     [Test(Description = "First - Simple")]
-    [Description("This sample uses FIRST and WHERE to get the first (database order) order that is shipped to Seattle. The WHERE predicate is evaluated on the server.")]
+    [Description("This sample uses FIRST and WHERE to get the first (database order) order that is ordered from Paris. The WHERE predicate is evaluated on the server.")]
     public void LinqToEntities42()
     {
-      var query = from o in Session.Query.All<Order>()
-      where o.ShippingAddress.City=="Seattle"
-      select o;
+      var query = from i in Session.Query.All<Invoice>()
+      where i.BillingAddress.City=="Paris"
+      select i;
 
       // Feb CTP requires AsEnumerable()
       var result = query.ToList().First();
@@ -554,29 +550,29 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Set And Element Operators")]
     [Test(Description = "First - Predicate")]
-    [Description("This sample uses FIRST to get the first (database order) order that is shipped to Seattle. The predicate is evaluated on the client.")]
+    [Description("This sample uses FIRST to get the first (database order) order that is ordered from Dublin. The predicate is evaluated on the client.")]
     public void LinqToEntities43()
     {
-      var query = from o in Session.Query.All<Order>()
+      var query = from o in Session.Query.All<Invoice>()
       select o;
 
       // Feb CTP requires AsEnumerable()
       var result = query
         .ToList()
-        .First(x => x.ShippingAddress.City=="Seattle");
+        .First(x => x.BillingAddress.City=="Dublin");
 
       QueryDumper.Dump(result);
     }
 
     [Category("Set And Element Operators")]
     [Test(Description = "First - Ordered")]
-    [Description("This sample uses FIRST, WHERE and ORDER BY to get the first order that is shipped to Seattle, ordered by date. The predicate is evaluated on the server.")]
+    [Description("This sample uses FIRST, WHERE and ORDER BY to get the first order that is ordered from Oslo, ordered by date. The predicate is evaluated on the server.")]
     public void LinqToEntities44()
     {
-      var query = from o in Session.Query.All<Order>()
-      where o.ShippingAddress.City=="Seattle"
-      orderby o.OrderDate
-      select o;
+      var query = from i in Session.Query.All<Invoice>()
+      where i.BillingAddress.City=="Oslo"
+      orderby i.InvoiceDate
+      select i;
 
       // Feb CTP requires AsEnumerable()
       var result = query.ToList().First();
@@ -587,22 +583,22 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Set And Element Operators")]
     [Test(Description = "Distinct - Simple")]
-    [Description("This sample uses DISTINCT to get all the categories of products.")]
+    [Description("This sample uses DISTINCT to get all the media types of tracks.")]
     public void LinqToEntities45()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var query = Session.Query.All<Product>().Select(o => o.Category).Distinct();
+      var query = Session.Query.All<Track>().Select(i => i.MediaType).Distinct();
 
       QueryDumper.Dump(query);
     }
 
     [Category("Set And Element Operators")]
     [Test(Description = "Union - Simple")]
-    [Description("This sample uses UNION to get all the orders where the shipping country was Mexico or Canada.")]
+    [Description("This sample uses UNION to get all the invoices where the order country was Mexico or Canada.")]
     public void LinqToEntities46()
     {
-      var mexico = Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o);
-      var canada = Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Canada").Select(o => o);
+      var mexico = Session.Query.All<Invoice>().Where(i => i.BillingAddress.Country=="Mexico").Select(i => i);
+      var canada = Session.Query.All<Invoice>().Where(i => i.BillingAddress.Country=="Canada").Select(i => i);
       var query = mexico.Union(canada);
 
       QueryDumper.Dump(query);
@@ -610,36 +606,36 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Set And Element Operators")]
     [Test(Description = "Union - With Distinct")]
-    [Description("This sample uses UNION and DISTINCT to get all the employees from orders where the shipping country was Mexico or Canada.")]
+    [Description("This sample uses UNION and DISTINCT to get all the employees from invoices where the order country was Mexico or Canada.")]
     public void LinqToEntities47()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var mexico = Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o);
-      var canada = Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Canada").Select(o => o);
-      var union = mexico.Union(canada).Select(o => o.Employee);
+      var mexico = Session.Query.All<Invoice>().Where(i => i.BillingAddress.Country=="Mexico").Select(i => i);
+      var canada = Session.Query.All<Invoice>().Where(i => i.BillingAddress.Country=="Canada").Select(i => i);
+      var union = mexico.Union(canada).Select(i => i.DesignatedEmployee);
 
       var query = union.Distinct();
 
-      var actualMexico = Session.Query.All<Order>().ToList()
-        .Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o);
-      var actualCanada = Session.Query.All<Order>().ToList()
-        .Where(o => o.ShippingAddress.Country=="Canada").Select(o => o);
-      var actualUnion = actualMexico.Union(actualCanada).Select(o => o.Employee);
+      var actualMexico = Session.Query.All<Invoice>().ToList()
+        .Where(i => i.BillingAddress.Country=="Mexico").Select(i => i);
+      var actualCanada = Session.Query.All<Invoice>().ToList()
+        .Where(i => i.BillingAddress.Country=="Canada").Select(i => i);
+      var actualUnion = actualMexico.Union(actualCanada).Select(i => i.DesignatedEmployee);
 
       var actual = actualUnion.Distinct();
 
-      Assert.AreEqual(0, actual.Select(o => o.Id).Except(query.ToList().Select(o => o.Id)).Count());
+      Assert.AreEqual(0, actual.Select(e => e.EmployeeId).Except(query.ToList().Select(e => e.EmployeeId)).Count());
 
       QueryDumper.Dump(query);
     }
 
     [Category("Set And Element Operators")]
     [Test(Description = "Concat - Simple")]
-    [Description("This sample uses CONCAT to get all orders where the shipping country was Mexico or Canada.")]
+    [Description("This sample uses CONCAT to get all invoices where the shipping country was Mexico or Canada.")]
     public void LinqToEntities48()
     {
-      var mexico = Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o);
-      var canada = Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Canada").Select(o => o);
+      var mexico = Session.Query.All<Invoice>().Where(i => i.BillingAddress.Country=="Mexico").Select(i => i);
+      var canada = Session.Query.All<Invoice>().Where(i => i.BillingAddress.Country=="Canada").Select(i => i);
 
       var query = mexico.Concat(canada);
 
@@ -648,14 +644,14 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Set And Element Operators")]
     [Test(Description = "Intersect - Simple 1")]
-    [Description("This sample uses INTERSECT to get common employees where an order was shipped to Mexico or Canada.")]
+    [Description("This sample uses INTERSECT to get common employees where an invoices was ordered from Mexico or Canada.")]
     public void LinqToEntities49()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       Require.ProviderIsNot(StorageProvider.Firebird);
       Require.ProviderIsNot(StorageProvider.MySql);
-      var mexico = Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o.Employee);
-      var canada = Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Canada").Select(o => o.Employee);
+      var mexico = Session.Query.All<Invoice>().Where(i => i.BillingAddress.Country=="Mexico").Select(i => i.DesignatedEmployee);
+      var canada = Session.Query.All<Invoice>().Where(i => i.BillingAddress.Country=="Canada").Select(i => i.DesignatedEmployee);
 
       var query = mexico.Intersect(canada);
 
@@ -664,50 +660,50 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Set And Element Operators")]
     [Test(Description = "Intersect - Simple 2")]
-    [Description("This sample uses INTERSECT to get common employees where an order was shipped to Mexico or Canada in one consolidated query.")]
+    [Description("This sample uses INTERSECT to get common employees where an invoice was ordered from Mexico or Canada in one consolidated query.")]
     public void LinqToEntities50()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       Require.ProviderIsNot(StorageProvider.Firebird);
       Require.ProviderIsNot(StorageProvider.MySql);
-      var query = Session.Query.All<Order>()
-        .Where(o => o.ShippingAddress.Country=="Mexico")
-        .Select(o => o.Employee)
-        .Intersect(Session.Query.All<Order>()
-          .Where(o => o.ShippingAddress.Country=="Canada")
-          .Select(o => o.Employee));
+      var query = Session.Query.All<Invoice>()
+        .Where(i => i.BillingAddress.Country=="Mexico")
+        .Select(i => i.DesignatedEmployee)
+        .Intersect(Session.Query.All<Invoice>()
+          .Where(i => i.BillingAddress.Country=="Canada")
+          .Select(i => i.DesignatedEmployee));
 
       QueryDumper.Dump(query);
     }
 
     [Category("Set And Element Operators")]
     [Test(Description = "Except - Simple 1")]
-    [Description("This sample uses EXCEPT to get employees who shipped orders to Mexico but not Canada.")]
+    [Description("This sample uses EXCEPT to get employees who manages invoices to Mexico but not Canada.")]
     public void LinqToEntities51()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       Require.ProviderIsNot(StorageProvider.Firebird);
       Require.ProviderIsNot(StorageProvider.MySql);
-      var query = Session.Query.All<Order>()
-        .Where(o => o.ShippingAddress.Country=="Mexico")
-        .Select(o => o.Employee)
-        .Except(Session.Query.All<Order>()
-          .Where(o => o.ShippingAddress.Country=="Canada")
-          .Select(o => o.Employee));
+      var query = Session.Query.All<Invoice>()
+        .Where(i => i.BillingAddress.Country=="Mexico")
+        .Select(i => i.DesignatedEmployee)
+        .Except(Session.Query.All<Invoice>()
+          .Where(i => i.BillingAddress.Country=="Canada")
+          .Select(i => i.DesignatedEmployee));
 
       QueryDumper.Dump(query);
     }
 
     [Category("Set And Element Operators")]
     [Test(Description = "Except - Simple 2")]
-    [Description("This sample uses EXCEPT to get employees with no orders sent to Mexico.")]
+    [Description("This sample uses EXCEPT to get employees with no invoices sent to Mexico.")]
     public void LinqToEntities52()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       Require.ProviderIsNot(StorageProvider.Firebird);
       Require.ProviderIsNot(StorageProvider.MySql);
       var query = Session.Query.All<Employee>().Select(e => e)
-        .Except(Session.Query.All<Order>().Where(o => o.ShippingAddress.Country=="Mexico").Select(o => o.Employee));
+        .Except(Session.Query.All<Invoice>().Where(i => i.BillingAddress.Country=="Mexico").Select(i => i.DesignatedEmployee));
 
       QueryDumper.Dump(query);
     }
@@ -718,11 +714,11 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Ordering and Grouping")]
     [Test(Description = "OrderBy - Simple 1")]
-    [Description("Select all customers ordered by ContactName.")]
+    [Description("Select all customers ordered by CompanyName.")]
     public void LinqToEntities53()
     {
       var query = from c in Session.Query.All<Customer>()
-      orderby c.ContactName
+      orderby c.CompanyName
       select c;
 
       QueryDumper.Dump(query);
@@ -730,7 +726,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Ordering and Grouping")]
     [Test(Description = "OrderBy - Simple 2")]
-    [Description("Select all customers ordered by ContactName descending.")]
+    [Description("Select all customers ordered by CompanyName descending.")]
     public void LinqToEntities54()
     {
       var query = from c in Session.Query.All<Customer>()
@@ -742,23 +738,23 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Ordering and Grouping")]
     [Test(Description = "OrderBy - Simple 3")]
-    [Description("Select an anonoymous type with all product IDs ordered by UnitInStock.")]
+    [Description("Select an anonoymous type with all track Ids ordered by Milliseconds.")]
     public void LinqToEntities55()
     {
-      var query = from p in Session.Query.All<Product>()
-      orderby p.UnitsInStock
-      select new {p.Id};
+      var query = from p in Session.Query.All<Track>()
+      orderby p.Milliseconds
+      select new {p.TrackId};
 
       QueryDumper.Dump(query);
     }
 
     [Category("Ordering and Grouping")]
     [Test(Description = "OrderBy - Simple 4")]
-    [Description("Select an anonoymous type with all product IDs ordered by UnitInStock using LINQ operators.")]
+    [Description("Select an anonoymous type with all track Ids ordered by Milliseconds using LINQ operators.")]
     public void LinqToEntities56()
     {
-      var query = Session.Query.All<Product>().OrderBy(p => p.UnitsInStock)
-        .Select(p2 => new {p2.Id});
+      var query = Session.Query.All<Track>().OrderBy(p => p.Milliseconds)
+        .Select(p2 => new {p2.TrackId});
 
       QueryDumper.Dump(query);
     }
@@ -766,11 +762,11 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Ordering and Grouping")]
     [Test(Description = "OrderByDescending - Simple 1")]
-    [Description("Select all customers ordered by the descending region.")]
+    [Description("Select all customers ordered by the descending state.")]
     public void LinqToEntities57()
     {
       var query = from c in Session.Query.All<Customer>()
-      orderby c.Address.Region descending
+      orderby c.Address.State descending
       select c;
 
       QueryDumper.Dump(query);
@@ -778,40 +774,40 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Ordering and Grouping")]
     [Test(Description = "OrderByDescending - Simple 2")]
-    [Description("Select all customers ordered by the descending region using LINQ operators.")]
+    [Description("Select all customers ordered by the descending state using LINQ operators.")]
     public void LinqToEntities58()
     {
-      var query = Session.Query.All<Customer>().Select(c => c).OrderByDescending(c2 => c2.Address.Region);
+      var query = Session.Query.All<Customer>().Select(c => c).OrderByDescending(c2 => c2.Address.State);
 
       QueryDumper.Dump(query);
     }
 
     [Category("Ordering and Grouping")]
     [Test(Description = "OrderBy with ThenBy")]
-    [Description("Select all customers ordered by the region, then the contact name.")]
+    [Description("Select all customers ordered by the region, then the last name.")]
     public void LinqToEntities59()
     {
-      var query = Session.Query.All<Customer>().Select(c => c).OrderBy(c => c.Address.Region).ThenBy(c => c.ContactName);
+      var query = Session.Query.All<Customer>().Select(c => c).OrderBy(c => c.Address.State).ThenBy(c => c.LastName);
 
       QueryDumper.Dump(query);
     }
 
     [Category("Ordering and Grouping")]
     [Test(Description = "OrderByDescending with ThenBy")]
-    [Description("Select all customers ordered by the region in descending order, then the contact name.")]
+    [Description("Select all customers ordered by the state in descending order, then the last name.")]
     public void LinqToEntities60()
     {
-      var query = Session.Query.All<Customer>().Select(c => c).OrderByDescending(c => c.Address.Region).ThenBy(c => c.ContactName);
+      var query = Session.Query.All<Customer>().Select(c => c).OrderByDescending(c => c.Address.State).ThenBy(c => c.LastName);
 
       QueryDumper.Dump(query);
     }
 
     [Category("Ordering and Grouping")]
     [Test(Description = "OrderBy with ThenByDescending")]
-    [Description("Select all customers ordered by the region then the contact name in descending order.")]
+    [Description("Select all customers ordered by the state then the last name in descending order.")]
     public void LinqToEntities61()
     {
-      var query = Session.Query.All<Customer>().Select(c => c).OrderBy(c => c.Address.Region).ThenByDescending(c => c.ContactName);
+      var query = Session.Query.All<Customer>().Select(c => c).OrderBy(c => c.Address.State).ThenByDescending(c => c.LastName);
 
       QueryDumper.Dump(query);
     }
@@ -819,10 +815,10 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Ordering and Grouping")]
     [Test(Description = "OrderByDescending - Simple 3")]
-    [Description("Select all products ordered by the descending unit price.")]
+    [Description("Select all tracks ordered by the descending unit price.")]
     public void LinqToEntities62()
     {
-      var query = from p in Session.Query.All<Product>()
+      var query = from p in Session.Query.All<Track>()
       orderby p.UnitPrice descending
       select p;
 
@@ -832,12 +828,12 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Ordering and Grouping")]
     [Test(Description = "OrderBy - FK Collection")]
-    [Description("Select all orders for a customer ordered by date that the order was placed.")]
+    [Description("Select all orders for a customer ordered by date that the invoice was placed.")]
     public void LinqToEntities63()
     {
-      var query = Session.Query.All<Customer>().Where(cust => cust.Id=="ALFKI")
-        .SelectMany(c => c.Orders.Select(o => o))
-        .OrderBy(o2 => o2.OrderDate);
+      var query = Session.Query.All<Customer>().Where(cust => cust.CustomerId==4233)
+        .SelectMany(c => c.Invoices.Select(i => i))
+        .OrderBy(i2 => i2.InvoiceDate);
 
       foreach (var order in query) {
         QueryDumper.Dump(order);
@@ -846,13 +842,13 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Ordering and Grouping")]
     [Test(Description = "Grouping - Simple 1")]
-    [Description("Select all Regions with a customer.")]
+    [Description("Select all states with a customer.")]
     public void LinqToEntities64()
     {
       var query = from c in Session.Query.All<Customer>()
-      group c by c.Address.Region
-      into regions
-        select new {regions.Key};
+      group c by c.Address.State
+      into states
+        select new {states.Key};
 
       QueryDumper.Dump(query);
     }
@@ -862,8 +858,8 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     [Description("Select all dates with orders placed.")]
     public void LinqToEntities65()
     {
-      var query = from o in Session.Query.All<Order>()
-      group o by o.OrderDate
+      var query = from i in Session.Query.All<Invoice>()
+      group i by i.InvoiceDate
       into dates
         select new {dates.Key};
 
@@ -872,53 +868,53 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Ordering and Grouping")]
     [Test(Description = "Grouping - Join 1")]
-    [Description("Select all Regions and customer count for each region.")]
+    [Description("Select all States and customer count for each state.")]
     public void LinqToEntities66()
     {
       var query = from c in Session.Query.All<Customer>()
-      group c by c.Address.Region
-      into regions
-        select new {Region = regions.Key, Count = regions.Count()};
+      group c by c.Address.State
+      into states
+        select new {State = states.Key, Count = states.Count()};
 
       QueryDumper.Dump(query);
     }
 
     [Category("Ordering and Grouping")]
     [Test(Description = "Grouping on Key")]
-    [Description("Select all Regions and customer count for each region using LINQ operator.")]
+    [Description("Select all States and customer count for each state using LINQ operator.")]
     public void LinqToEntities67()
     {
-      var query = Session.Query.All<Customer>().GroupBy(c => c.Address.Region).Select(r => new {region = r.Key, count = r.Count()});
+      var query = Session.Query.All<Customer>().GroupBy(c => c.Address.State).Select(r => new {state = r.Key, count = r.Count()});
 
       QueryDumper.Dump(query);
     }
 
     [Category("Ordering and Grouping")]
     [Test(Description = "Grouping with a join on Key 1")]
-    [Description("Select all Customer Regions with the total Freight on all orders for Customers in that Region.")]
+    [Description("Select all Customer states with the total on all invoices for Customers in that state.")]
     public void LinqToEntities68()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var query = from c in Session.Query.All<Customer>()
-      group c by c.Address.Region
-      into regions
-        join c2 in Session.Query.All<Customer>() on regions.Key equals c2.Address.Region
-        select new {region = regions.Key, total = c2.Orders.Sum(o => o.Freight)};
+      group c by c.Address.State
+      into states
+        join c2 in Session.Query.All<Customer>() on states.Key equals c2.Address.State
+        select new {state = states.Key, total = c2.Invoices.Sum(i => i.Total)};
 
       QueryDumper.Dump(query);
     }
 
     [Category("Ordering and Grouping")]
     [Test(Description = "Grouping with a Key 2")]
-    [Description("Select all Customer Regions with the total Freight on all orders for Customers in that Region using LINQ operators.")]
+    [Description("Select all Customer State with the total Commission on all orders for Customers in that State using LINQ operators.")]
     public void LinqToEntities69()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var query = Session.Query.All<Customer>().GroupBy(c => c.Address.Region)
+      var query = Session.Query.All<Customer>().GroupBy(c => c.Address.State)
         .Select(g => new {
-          Region = g.Key, FreightTotal = g
-            .SelectMany(c2 => c2.Orders)
-            .Sum(o => o.Freight)
+          Region = g.Key, CommissionTotal = g
+            .SelectMany(c2 => c2.Invoices)
+            .Sum(i => i.Commission)
         });
 
       QueryDumper.Dump(query);
@@ -930,11 +926,11 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Relationship Navigation")]
     [Test(Description = "Select - FK Collection 1")]
-    [Description("Select a sequence of all the orders for a customer using Select.")]
+    [Description("Select a sequence of all the invoices for a customer using Select.")]
     public void LinqToEntities70()
     {
-      var query = Session.Query.All<Customer>().Where(cust => cust.Id=="ALFKI")
-        .Select(c => c.Orders.Select(o => o));
+      var query = Session.Query.All<Customer>().Where(cust => cust.CustomerId==4200)
+        .Select(c => c.Invoices.Select(i => i));
 
       foreach (var order in query) {
         QueryDumper.Dump(order);
@@ -943,21 +939,21 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Relationship Navigation")]
     [Test(Description = "Select - FK Collection 2")]
-    [Description("Select all the orders for a customer using SelectMany.")]
+    [Description("Select all the invoices for a customer using SelectMany.")]
     public void LinqToEntities71()
     {
-      var query = Session.Query.All<Customer>().Where(cust => cust.Id=="ALFKI").SelectMany(c => c.Orders);
+      var query = Session.Query.All<Customer>().Where(cust => cust.CustomerId==4200).SelectMany(c => c.Invoices);
 
       QueryDumper.Dump(query);
     }
 
     [Category("Relationship Navigation")]
     [Test(Description = "Select - FK Collection property")]
-    [Description("Select all Employee IDs, and the count of the their orders.")]
+    [Description("Select all Employee Ids, and the count of the their invoices.")]
     public void LinqToEntities72()
     {
       var query = from e in Session.Query.All<Employee>()
-      select new {e, orders = e.Orders.Select(o => o)};
+      select new {e, orders = e.Invoices.Select(i => i)};
 
       QueryDumper.Dump(query);
     }
@@ -971,7 +967,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
             var query = Session.Query.All<Customer>()
                 .Where(cust => cust.CustomerID == "ALFKI")
                 .SelectMany(c => c.Orders)
-                .Where(o => o.OrderDate.Year == 2002);
+                .Where(i => i.OrderDate.Year == 2002);
 
             QueryDumper.Dump(query);
         }
@@ -979,38 +975,38 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Relationship Navigation")]
     [Test(Description = "Select - FK Collection Aggregate property")]
-    [Description("Select a customer and the sum of the freight of thier orders.")]
+    [Description("Select a customer and the sum of the commission of thier invoices.")]
     public void LinqToEntities73()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var query = Session.Query.All<Customer>().Where(cust => cust.Id=="ALFKI")
-        .Select(c => c.Orders.Sum(o => o.Freight));
+      var query = Session.Query.All<Customer>().Where(cust => cust.CustomerId==4233)
+        .Select(c => c.Invoices.Sum(i => i.Commission));
 
       QueryDumper.Dump(query);
     }
 
     [Category("Relationship Navigation")]
     [Test(Description = "Select - FK collection predicate")]
-    [Description("Select customers with an order where the shipping address is the same as the customers.")]
+    [Description("Select customers with an invoice where the billing address is the same as the customers.")]
     public void LinqToEntities75()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var query = Session.Query.All<Customer>().Where(cust => cust.Orders.Any(o => o.ShippingAddress==cust.Address)).Select(c2 => c2);
+      var query = Session.Query.All<Customer>().Where(cust => cust.Invoices.Any(i => i.BillingAddress==cust.Address)).Select(c2 => c2);
 
       QueryDumper.Dump(query);
     }
 
     [Category("Relationship Navigation")]
     [Test(Description = "Select - FK collection Grouping")]
-    [Description("Selects all regions with a customer, and shows the sum of orders for customers for each region.")]
+    [Description("Selects all states with a customer, and shows the sum of invoices for customers for each state.")]
     public void LinqToEntities76()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var query = from c in Session.Query.All<Customer>()
-      group c by c.Address.Region
-      into regions
-        join c2 in Session.Query.All<Customer>() on regions.Key equals c2.Address.Region
-        select new {region = regions.Key, total = c2.Orders.Sum(o => o.Freight)};
+      group c by c.Address.State
+      into states
+        join c2 in Session.Query.All<Customer>() on states.Key equals c2.Address.State
+        select new {state = states.Key, total = c2.Invoices.Sum(i => i.Total)};
 
       QueryDumper.Dump(query);
     }
@@ -1021,10 +1017,10 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "One Level Hierarchy - Simple")]
-    [Description("Select all products, both active and discontinued products, and shows the type.")]
+    [Description("Select all tracks, both audio and video trackss, and shows the type.")]
     public void LinqToEntities77()
     {
-      var query = Session.Query.All<Product>()
+      var query = Session.Query.All<Track>()
         .Select(p => p);
 
       // we need AsEnumerable to force execution, as GetType is not defined in store
@@ -1038,10 +1034,10 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "One Level Hierarchy - OfType - Simple 1")]
-    [Description("Select only discontinued products.")]
+    [Description("Select only video tracks.")]
     public void LinqToEntities78()
     {
-      var query = Session.Query.All<Product>().OfType<DiscontinuedProduct>().Select(p => p);
+      var query = Session.Query.All<Track>().OfType<VideoTrack>().Select(p => p);
 
       QueryDumper.Dump(query);
     }
@@ -1049,30 +1045,30 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
 
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "One Level Hierarchy - OfType - Simple 2")]
-    [Description("Select only products, which will reutrn all Products and subtypes of Products (DiscontinuedProducts and ActiveProducts).")]
+    [Description("Select only products, which will reutrn all Tracks and subtypes of Tracks (video and audio tracks).")]
     public void LinqToEntities79()
     {
-      var query = Session.Query.All<Product>().OfType<Product>().Select(p => p);
+      var query = Session.Query.All<Track>().OfType<Track>().Select(p => p);
 
       QueryDumper.Dump(query);
     }
 
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "One Level Hierarchy - Getting Supertype - OfType")]
-    [Description("Select only active products.")]
+    [Description("Select only audio tracks.")]
     public void LinqToEntities80()
     {
-      var query = Session.Query.All<Product>().OfType<ActiveProduct>();
+      var query = Session.Query.All<Track>().OfType<AudioTrack>();
 
       QueryDumper.Dump(query);
     }
 
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "One Level Hierarchy - Getting Supertype - Local")]
-    [Description("Select only discontinued products.")]
+    [Description("Select only video tracks.")]
     public void LinqToEntities81()
     {
-      var query = Session.Query.All<Product>().Where(p => p is DiscontinuedProduct);
+      var query = Session.Query.All<Track>().Where(p => p is VideoTrack);
 
       QueryDumper.Dump(query);
     }
@@ -1100,7 +1096,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     // Modified according to DO model.
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "Complex Hierarchy - OfType 1")]
-    [Description("Select all Shipper contacts.")]
+    [Description("Select all Customer contacts.")]
     public void LinqToEntities83()
     {
       var query = Session.Query.All<Person>().OfType<Customer>().Select(c => c);
@@ -1111,7 +1107,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     // Modified according to DO model.
     [Category("Table per Hierarchy Inheritance")]
     [Test(Description = "Complex Hierarchy - OfType 2")]
-    [Description("Select all Full contacts, which includes suppliers, customers, and employees.")]
+    [Description("Select all Full contacts, which includes customers and employees.")]
     public void LinqToEntities84()
     {
       var query = Session.Query.All<Person>().OfType<BusinessContact>().Select(c => c);
@@ -1224,7 +1220,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     public void LinqToEntities91()
     {
       MyClass c = new MyClass();
-      var query = Session.Query.All<Order>().Where(o => o.Freight > MyClass.Val).Select(o => new {o.Freight, o});
+      var query = Session.Query.All<Invoice>().Where(i => i.Commission > MyClass.Val).Select(i => new {i.Commission, i});
 
       QueryDumper.Dump(query);
     }
@@ -1236,7 +1232,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       decimal x = 50;
 
-      var query = Session.Query.All<Order>().Where(o => o.Freight > x).Select(o => new {o.Freight, o});
+      var query = Session.Query.All<Invoice>().Where(i => i.Commission > x).Select(i => new {i.Commission, i});
 
       x = 100;
 
@@ -1250,7 +1246,7 @@ namespace Xtensive.Orm.Tests.Linq.MsSamples
     {
       decimal x = 100;
 
-      var query = Session.Query.All<Order>().Where(o => o.Freight > x).Select(o => new {o.Freight, o});
+      var query = Session.Query.All<Invoice>().Where(i => i.Commission > x).Select(i => new {i.Commission, i});
 
       QueryDumper.Dump(x);
       QueryDumper.Dump(query);

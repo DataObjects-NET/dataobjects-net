@@ -7,38 +7,29 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Tests.Rse
 {
   [Serializable]
   [TestFixture, Category("Rse")]
-  public class IncludeProviderTest: NorthwindDOModelTest
+  public class IncludeProviderTest: ChinookDOModelTest
   {
-    protected override DomainConfiguration BuildConfiguration()
-    {
-      var config = base.BuildConfiguration();
-      config.Types.Register(typeof(Supplier).Assembly, typeof(Supplier).Namespace);
-      return config;
-    }
-
     [Test]
     public void SimpleTest()
     {
-      var suppliers = Session.Demand().Query.All<Supplier>().Take(10).ToList();
-      var ids = suppliers.Select(supplier => (Tuple)Tuple.Create(supplier.Id));
+      var tracks = Session.Demand().Query.All<Track>().Take(10).ToList();
+      var ids = tracks.Select(supplier => (Tuple)Tuple.Create(supplier.TrackId));
 
-      var supplierRs = Domain.Model.Types[typeof (Supplier)].Indexes.PrimaryIndex.GetQuery();
-      var inRs = supplierRs.Include(() => ids, "columnName", new[] {0});
+      var trackRs = Domain.Model.Types[typeof (Track)].Indexes.PrimaryIndex.GetQuery();
+      var inRs = trackRs.Include(() => ids, "columnName", new[] {0});
       var inIndex = inRs.Header.Columns.Count-1;
       var whereRs = inRs.Filter(tuple => tuple.GetValueOrDefault<bool>(inIndex));
       var result = whereRs.GetRecordSet(Session.Current).ToList();
-      Assert.AreEqual(0, whereRs.GetRecordSet(Session.Current).Select(t => t.GetValue<int>(0)).Except(suppliers.Select(s => s.Id)).Count());
+      Assert.AreEqual(0, whereRs.GetRecordSet(Session.Current).Select(t => t.GetValue<int>(0)).Except(tracks.Select(s => s.TrackId)).Count());
     }
   }
 }

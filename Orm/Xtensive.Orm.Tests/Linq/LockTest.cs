@@ -7,23 +7,19 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Transactions;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Orm.Tests;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Rse;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Linq
 {
   [TestFixture]
-  public class LockTest : NorthwindDOModelTest
+  public class LockTest : ChinookDOModelTest
   {
     protected override void CheckRequirements()
     {
@@ -41,46 +37,46 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void CachingTest()
     {
-      List<int> productIds = new List<int>(32);
+      List<int> trackIds = new List<int>(32);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        for (int i = 0; i < productIds.Capacity; i++)
-          productIds.Add(new ActiveProduct().Id);
+        for (var i = 0; i < trackIds.Capacity; i++)
+          trackIds.Add(new AudioTrack() {Name = "SomeTrack"}.TrackId);
 
         transaction.Complete();
       }
 
       ConcurrentBag<Pair<int>> results = new ConcurrentBag<Pair<int>>();
-      var source = productIds.Select(p => new { PId = p, Bag = results });
+      var source = trackIds.Select(t => new {PId = t, Bag = results});
 
       Parallel.ForEach(
         source,
-        new ParallelOptions { MaxDegreeOfParallelism = 4 },
+        new ParallelOptions {MaxDegreeOfParallelism = 4},
         (sourceItem, state, currentItteration) => {
           using (var session = Domain.OpenSession())
           using (var transaction = session.OpenTransaction()) {
-            var productToLock = session.Query.All<ActiveProduct>().FirstOrDefault(p => p.Id==sourceItem.PId);
+            var trackToLock = session.Query.All<AudioTrack>().FirstOrDefault(t => t.TrackId==sourceItem.PId);
 
             EventHandler<DbCommandEventArgs> handler = (sender, args) => {
               sourceItem.Bag.Add(new Pair<int>(sourceItem.PId, (int)args.Command.Parameters[0].Value));
             };
             session.Events.DbCommandExecuting += handler;
 
-            if (productToLock!=null)
-              productToLock.Lock(LockMode.Update, LockBehavior.Wait);
+            if (trackToLock!=null)
+              trackToLock.Lock(LockMode.Update, LockBehavior.Wait);
 
             session.Events.DbCommandExecuting -= handler;
           }
         });
 
       try {
-        Assert.That(results.Count, Is.EqualTo(productIds.Capacity));
-        Assert.That(results.All(p => p.First==p.Second), Is.True);
+        Assert.That(results.Count, Is.EqualTo(trackIds.Capacity));
+        Assert.That(results.All(t => t.First==t.Second), Is.True);
       }
       finally {
         using (var session = Domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
-          session.Remove(session.Query.All<ActiveProduct>().Where(p => p.Id.In(productIds)));
+          session.Remove(session.Query.All<AudioTrack>().Where(t => t.TrackId.In(trackIds)));
           transaction.Complete();
         }
       }
@@ -90,9 +86,9 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void LockNewlyCreatedEntity()
     {
-      var product = new ActiveProduct();
+      var track = new AudioTrack() {Name = "SomeTrack"};
       using (Session.DisableSaveChanges())
-        product.Lock(LockMode.Exclusive, LockBehavior.ThrowIfLocked);
+        track.Lock(LockMode.Exclusive, LockBehavior.ThrowIfLocked);
     }
 
     [Test]
@@ -132,7 +128,7 @@ namespace Xtensive.Orm.Tests.Linq
         LockMode.Shared, LockBehavior.ThrowIfLocked);
       Assert.AreEqual(typeof(StorageException), catchedException.GetType());
     }
-    
+
     [Test]
     public void ExclusiveLockThrowTest()
     {
@@ -150,13 +146,13 @@ namespace Xtensive.Orm.Tests.Linq
         LockMode.Shared, LockBehavior.ThrowIfLocked);
       Assert.IsNull(catchedException);
     }
-    
+
     [Test]
     public void LockAfterJoinTest()
     {
       Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.PostgreSql);
       var customerKey = Session.Query.All<Customer>().First().Key;
-      var orderKey = Session.Query.All<Order>().Where(o => o.Customer.Key==customerKey).First().Key;
+      var invoiceKey = Session.Query.All<Invoice>().Where(i => i.Customer.Key==customerKey).First().Key;
       Exception firstThreadException = null;
       Exception result = null;
       var firstEvent = new ManualResetEvent(false);
@@ -166,7 +162,7 @@ namespace Xtensive.Orm.Tests.Linq
           using (var session = Domain.OpenSession())
           using (session.OpenTransaction()) {
             session.Query.All<Customer>().Where(c => c.Key == customerKey)
-              .Join(session.Query.All<Order>().Where(o => o.Key == orderKey), c => c, o => o.Customer, (c, o) => c)
+              .Join(session.Query.All<Invoice>().Where(i => i.Key == invoiceKey), c => c, i => i.Customer, (c, i) => c)
               .Lock(LockMode.Update, LockBehavior.Wait).ToList();
             secondEvent.Set();
             firstEvent.WaitOne();
@@ -183,8 +179,8 @@ namespace Xtensive.Orm.Tests.Linq
       var secondException = ExecuteQueryAtSeparateThread(s => s.Query.All<Customer>()
         .Where(c => c.Key==customerKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
       Assert.AreEqual(typeof(StorageException), secondException.GetType());
-      var thirdException = ExecuteQueryAtSeparateThread(s => s.Query.All<Order>()
-        .Where(o => o.Key==orderKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
+      var thirdException = ExecuteQueryAtSeparateThread(s => s.Query.All<Invoice>()
+        .Where(i => i.Key==invoiceKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
       Assert.AreEqual(typeof(StorageException), thirdException.GetType());
       firstEvent.Set();
       firstThread.Join();
@@ -207,7 +203,7 @@ namespace Xtensive.Orm.Tests.Linq
         AssertEx.Throws<StorageException>(() =>
           session.Query.Single<Customer>(customerKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
     }
-    
+
     private Exception ExecuteConcurrentQueries(LockMode lockMode0, LockBehavior lockBehavior0,
       LockMode lockMode1, LockBehavior lockBehavior1)
     {

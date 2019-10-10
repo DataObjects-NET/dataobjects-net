@@ -10,22 +10,22 @@ using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Linq
 {
   [Category("Linq")]
   [TestFixture]
-  public class EntitySetTest : NorthwindDOModelTest
+  public class EntitySetTest : ChinookDOModelTest
   {
     [Test]
     public void EntitySetAnonymousTest()
     {
       var result = Session.Query.All<Customer>()
-        .Select(c => new {OrdersFiled = c.Orders});
+        .Select(c => new {InvoicesFiled = c.Invoices});
       var expected = Session.Query.All<Customer>()
         .ToList()
-        .Select(c => new {OrdersFiled = c.Orders});
+        .Select(c => new {InvoicesFiled = c.Invoices });
       Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
     }
@@ -34,12 +34,12 @@ namespace Xtensive.Orm.Tests.Linq
     public void EntitySetSelectManyAnonymousTest()
     {
       var result = Session.Query.All<Customer>()
-        .Select(c => new {OrdersFiled = c.Orders})
-        .SelectMany(i => i.OrdersFiled);
+        .Select(c => new {InvoicesFiled = c.Invoices })
+        .SelectMany(i => i.InvoicesFiled);
       var expected = Session.Query.All<Customer>()
         .ToList()
-        .Select(c => new {OrdersFiled = c.Orders})
-        .SelectMany(i => i.OrdersFiled);
+        .Select(c => new {InvoicesFiled = c.Invoices })
+        .SelectMany(i => i.InvoicesFiled);
       Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
     }
@@ -47,8 +47,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void EntitySetSelectTest()
     {
-      var result = Session.Query.All<Customer>().OrderBy(c=>c.Id).Select(c => c.Orders).ToList();
-      var expected = Session.Query.All<Customer>().AsEnumerable().OrderBy(c=>c.Id).Select(c => c.Orders).ToList();
+      var result = Session.Query.All<Customer>().OrderBy(c=>c.CustomerId).Select(c => c.Invoices).ToList();
+      var expected = Session.Query.All<Customer>().AsEnumerable().OrderBy(c=>c.CustomerId).Select(c => c.Invoices).ToList();
       Assert.Greater(result.Count, 0);
       Assert.AreEqual(expected.Count, result.Count);
       for (int i = 0; i < result.Count; i++)
@@ -60,15 +60,15 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customer = GetCustomer();
       var expected = customer
-        .Orders
+        .Invoices
         .ToList()
-        .OrderBy(o => o.Id)
-        .Select(o => o.Id)
+        .OrderBy(i => i.InvoiceId)
+        .Select(i => i.InvoiceId)
         .ToList();
       var actual = customer
-        .Orders
-        .OrderBy(o => o.Id)
-        .Select(o => o.Id)
+        .Invoices
+        .OrderBy(i => i.InvoiceId)
+        .Select(i => i.InvoiceId)
         .ToList();
       Assert.IsTrue(expected.SequenceEqual(actual));
     }
@@ -76,17 +76,17 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void UnsupportedMethodsTest()
     {
-      AssertEx.Throws<QueryTranslationException>(() => Session.Query.All<Customer>().Where(c => c.Orders.Add(null)).ToList());
-      AssertEx.Throws<QueryTranslationException>(() => Session.Query.All<Customer>().Where(c => c.Orders.Remove(null)).ToList());
+      AssertEx.Throws<QueryTranslationException>(() => Session.Query.All<Customer>().Where(c => c.Invoices.Add(null)).ToList());
+      AssertEx.Throws<QueryTranslationException>(() => Session.Query.All<Customer>().Where(c => c.Invoices.Remove(null)).ToList());
     }
 
     [Test]
     public void CountTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var expected = Session.Query.All<Order>().Count();
+      var expected = Session.Query.All<Invoice>().Count();
       var count = Session.Query.All<Customer>()
-        .Select(c => c.Orders.Count)
+        .Select(c => c.Invoices.Count)
         .ToList()
         .Sum();
       Assert.AreEqual(expected, count);
@@ -95,20 +95,20 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ContainsTest()
     {
-      var bestOrder = Session.Query.All<Order>()
-        .OrderBy(o => o.Freight)
+      var bestInvoice = Session.Query.All<Invoice>()
+        .OrderBy(i => i.Commission)
         .First();
       var result = Session.Query.All<Customer>()
-        .Where(c => c.Orders.Contains(bestOrder));
-      Assert.AreEqual(bestOrder.Customer.Id, result.ToList().Single().Id);
+        .Where(c => c.Invoices.Contains(bestInvoice));
+      Assert.AreEqual(bestInvoice.Customer.CustomerId, result.ToList().Single().CustomerId);
     }
 
     [Test]
     public void OuterEntitySetTest()
     {
       var customer = GetCustomer();
-      var result = Session.Query.All<Order>().Where(o => customer.Orders.Contains(o));
-      Assert.AreEqual(customer.Orders.Count, result.ToList().Count);
+      var result = Session.Query.All<Invoice>().Where(i => customer.Invoices.Contains(i));
+      Assert.AreEqual(customer.Invoices.Count, result.ToList().Count);
     }
 
     [Test]
@@ -116,15 +116,15 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var customer = GetCustomer();
       var result =
-        from o in customer.Orders
-        join e in Session.Query.All<Employee>() on o.Employee equals e
+        from i in customer.Invoices
+        join e in Session.Query.All<Employee>() on i.DesignatedEmployee equals e
         select e;
-      Assert.AreEqual(customer.Orders.Count, result.ToList().Count);
+      Assert.AreEqual(customer.Invoices.Count, result.ToList().Count);
     }
 
     private static Customer GetCustomer()
     {
-      return Session.Demand().Query.All<Customer>().Where(c => c.Id=="LACOR").Single();
+      return Session.Demand().Query.All<Customer>().Where(c => c.FirstName=="Luis").Single();
     }
   }
 }

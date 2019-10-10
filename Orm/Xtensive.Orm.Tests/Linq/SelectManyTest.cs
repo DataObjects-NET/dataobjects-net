@@ -8,58 +8,60 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Linq
 {
   [Category("Linq")]
   [TestFixture]
-  public class SelectManyTest : NorthwindDOModelTest
+  public class SelectManyTest : ChinookDOModelTest
   {
     [Test]
     public void GroupJoinTest()
     {
-      var result = Session.Query.All<Order>()
+      var result = Session.Query.All<Invoice>()
         .GroupJoin(Session.Query.All<Customer>(),
-          o => o.Customer,
+          i => i.Customer,
           c => c,
-          (o, oc) => new {o, oc})
-        .SelectMany(@t => @t.oc.DefaultIfEmpty(),
+          (i, ic) => new {i, ic})
+        .SelectMany(@t => @t.ic.DefaultIfEmpty(),
           (@t, x) => new {
-            CustomerId = x.Id,
-            CompanyName = x.CompanyName,
+            CustomerId = x.CustomerId,
+            Phone = x.Phone,
             Country = x.Address.Country
           })
           ;
-      var expected = Session.Query.All<Order>().AsEnumerable()
+      var expected = Session.Query.All<Invoice>().AsEnumerable()
         .GroupJoin(Session.Query.All<Customer>().AsEnumerable(),
-          o => o.Customer,
+          i => i.Customer,
           c => c,
-          (o, oc) => new {o, oc})
-        .SelectMany(@t => @t.oc.DefaultIfEmpty(),
+          (i, ic) => new {i, ic})
+        .SelectMany(@t => @t.ic.DefaultIfEmpty(),
           (@t, x) => new {
-            CustomerId = x.Id,
-            CompanyName = x.CompanyName,
+            CustomerId = x.CustomerId,
+            Phone = x.Phone,
             Country = x.Address.Country
-          }).OrderBy(t => t.CompanyName).ThenBy(t => t.Country).ThenBy(t => t.CustomerId)
-          ;
-      Assert.IsTrue(expected.SequenceEqual(
-        result.ToList().OrderBy(t => t.CompanyName).ThenBy(t => t.Country).ThenBy(t => t.CustomerId)));
+          }).OrderBy(t => t.Phone).ThenBy(t => t.Country).ThenBy(t => t.CustomerId);
+
+      var list = result.ToList().OrderBy(t => t.Phone).ThenBy(t => t.Country).ThenBy(t => t.CustomerId).ToList();
+
+      Assert.That(list, Is.Not.Empty);
+      Assert.IsTrue(expected.SequenceEqual(list));
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void GroupByTest()
     {
-      var result = Session.Query.All<Order>()
-        .GroupBy(o => o.Customer)
+      var result = Session.Query.All<Invoice>()
+        .GroupBy(i => i.Customer)
         .SelectMany(g => g);
       var list = result.ToList();
-      var expected = Session.Query.All<Order>().ToList();
+      var expected = Session.Query.All<Invoice>().ToList();
+      Assert.That(list, Is.Not.Empty);
       Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
     }
 
@@ -69,24 +71,28 @@ namespace Xtensive.Orm.Tests.Linq
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       Require.ProviderIsNot(StorageProvider.Firebird);
       Require.ProviderIsNot(StorageProvider.MySql);
-      var result = Session.Query.All<Order>()
-        .GroupBy(o => o.Customer)
-        .SelectMany(g => g, (grouping, order)=>new {Count = grouping.Count(), order});
-      var expected = Session.Query.All<Order>()
-        .GroupBy(o => o.Customer)
-        .SelectMany(g => g, (grouping, order)=>new {Count = grouping.Count(), order});
-      Assert.IsTrue(expected.Except(result).IsNullOrEmpty());
+      var result = Session.Query.All<Invoice>()
+        .GroupBy(i => i.Customer)
+        .SelectMany(g => g, (grouping, invoice)=>new {Count = grouping.Count(), Invoice = invoice});
+      var expected = Session.Query.All<Invoice>().ToList()
+        .GroupBy(i => i.Customer)
+        .SelectMany(g => g, (grouping, invoice)=>new {Count = grouping.Count(), Invoice = invoice});
+      var list = result.ToList();
+
+      Assert.That(list, Is.Not.Empty);
+      Assert.IsTrue(expected.Except(list).IsNullOrEmpty());
     }
 
     [Test]
     public void GroupBySelectorTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
-      var result = Session.Query.All<Order>()
-        .GroupBy(o => o.Customer)
-        .SelectMany(g => g.Select(o => o.Customer));
+      var result = Session.Query.All<Invoice>()
+        .GroupBy(i => i.Customer)
+        .SelectMany(g => g.Select(i => i.Customer));
       var list = result.ToList();
-      var expected = Session.Query.All<Order>().Select(o => o.Customer).ToList();
+      Assert.That(list, Is.Not.Empty);
+      var expected = Session.Query.All<Invoice>().Select(i => i.Customer).ToList();
       Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
     }
 
@@ -94,14 +100,16 @@ namespace Xtensive.Orm.Tests.Linq
     public void GroupByCountTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
-      var result = Session.Query.All<Order>()
-        .GroupBy(o => o.Customer)
-        .SelectMany(g => g.Select(o => o.Customer).Where(c => g.Count() > 2));
+      var result = Session.Query.All<Invoice>()
+        .GroupBy(i => i.Customer)
+        .SelectMany(g => g.Select(i => i.Customer).Where(c => g.Count() > 2));
       var list = result.ToList();
-      var expected = Session.Query.All<Order>().ToList()
-        .GroupBy(o => o.Customer)
-        .SelectMany(g => g.Select(o => o.Customer).Where(c => g.Count() > 2))
+      var expected = Session.Query.All<Invoice>().ToList()
+        .GroupBy(i => i.Customer)
+        .SelectMany(g => g.Select(i => i.Customer).Where(c => g.Count() > 2))
         .ToList();
+
+      Assert.That(list, Is.Not.Empty);
       Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
     }
 
@@ -109,24 +117,28 @@ namespace Xtensive.Orm.Tests.Linq
     public void GroupByCount2Test()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
-      var result = Session.Query.All<Order>()
-        .GroupBy(o => o.Customer)
+      var result = Session.Query.All<Invoice>()
+        .GroupBy(i => i.Customer)
         .Where(g => g.Count() > 2)
-        .SelectMany(g => g.Select(o => o.Customer));
+        .SelectMany(g => g.Select(i => i.Customer));
       var list = result.ToList();
-      var expected = Session.Query.All<Order>().ToList()
-        .GroupBy(o => o.Customer)
-        .SelectMany(g => g.Select(o => o.Customer).Where(c => g.Count() > 2))
+      var expected = Session.Query.All<Invoice>().ToList()
+        .GroupBy(i => i.Customer)
+        .SelectMany(g => g.Select(i => i.Customer).Where(c => g.Count() > 2))
         .ToList();
+
+      Assert.That(list, Is.Not.Empty);
       Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
     }
 
     [Test]
     public void ParameterTest()
     {
-      var expectedCount = Session.Query.All<Order>().Count();
+      var expectedCount = Session.Query.All<Invoice>().Count();
       var result = Session.Query.All<Customer>()
-        .SelectMany(i => i.Orders.Select(t => i));
+        .SelectMany(i => i.Invoices.Select(t => i));
+
+      Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(expectedCount, result.Count());
       foreach (var customer in result)
         Assert.IsNotNull(customer);
@@ -136,9 +148,11 @@ namespace Xtensive.Orm.Tests.Linq
     public void EntitySetDefaultIfEmptyTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
-      int expectedCount =
-        Session.Query.All<Order>().Count() + Session.Query.All<Customer>().Count(c => !Session.Query.All<Order>().Any(o => o.Customer==c));
-      IQueryable<Order> result = Session.Query.All<Customer>().SelectMany(c => c.Orders.DefaultIfEmpty());
+      var expectedCount =
+        Session.Query.All<Invoice>().Count() + Session.Query.All<Customer>().Count(c => !Session.Query.All<Invoice>().Any(i => i.Customer==c));
+      IQueryable<Invoice> result = Session.Query.All<Customer>().SelectMany(c => c.Invoices.DefaultIfEmpty());
+
+      Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(expectedCount, result.ToList().Count);
     }
 
@@ -146,9 +160,11 @@ namespace Xtensive.Orm.Tests.Linq
     public void EntitySetSubqueryTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
-      int expectedCount = Session.Query.All<Order>().Count(o => o.Employee.FirstName.StartsWith("A"));
-      IQueryable<Order> result = Session.Query.All<Customer>()
-        .SelectMany(c => c.Orders.Where(o => o.Employee.FirstName.StartsWith("A")));
+      int expectedCount = Session.Query.All<Invoice>().Count(i => i.DesignatedEmployee.FirstName.StartsWith("A"));
+      IQueryable<Invoice> result = Session.Query.All<Customer>()
+        .SelectMany(c => c.Invoices.Where(i => i.DesignatedEmployee.FirstName.StartsWith("A")));
+
+      Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(expectedCount, result.ToList().Count);
     }
 
@@ -156,82 +172,96 @@ namespace Xtensive.Orm.Tests.Linq
     public void EntitySetSubqueryWithResultSelectorTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
-      int expected = Session.Query.All<Order>()
-        .Count(o => o.Employee.FirstName.StartsWith("A"));
+      var expected = Session.Query.All<Invoice>()
+        .Count(i => i.DesignatedEmployee.FirstName.StartsWith("A"));
 
       IQueryable<DateTime?> result = Session.Query.All<Customer>()
-        .SelectMany(c => c.Orders.Where(o => o.Employee.FirstName.StartsWith("A")), (c, o) => o.OrderDate);
+        .SelectMany(c => c.Invoices.Where(i => i.DesignatedEmployee.FirstName.StartsWith("A")), (c, i) => i.PaymentDate);
+
+      Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(expected, result.ToList().Count);
     }
 
     [Test]
     public void EntitySetTest()
     {
-      int expected = Session.Query.All<Order>().Count();
-      IQueryable<Order> result = Session.Query.All<Customer>()
-        .SelectMany(c => c.Orders);
+      int expected = Session.Query.All<Invoice>().Count();
+      IQueryable<Invoice> result = Session.Query.All<Customer>()
+        .SelectMany(c => c.Invoices);
+
+      Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(expected, result.ToList().Count);
     }
 
     [Test]
     public void EntitySetWithCastTest()
     {
-      var result = Session.Query.All<Customer>().SelectMany(c => (IEnumerable<Order>) c.Orders).ToList();
-      var expected = Session.Query.All<Order>().ToList();
+      var result = Session.Query.All<Customer>().SelectMany(c => (IEnumerable<Invoice>) c.Invoices).ToList();
+      var expected = Session.Query.All<Invoice>().ToList();
+
+      Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(result.Except(expected).IsNullOrEmpty());
     }
 
     [Test]
     public void SelectManyWithCastTest()
     {
-      var result = Session.Query.All<Customer>().SelectMany(c => (IEnumerable<Order>) Session.Query.All<Order>().Where(o => o.Customer==c)).ToList();
-      var expected = Session.Query.All<Order>().ToList();
+      var result = Session.Query.All<Customer>().SelectMany(c => (IEnumerable<Invoice>) Session.Query.All<Invoice>().Where(i => i.Customer==c)).ToList();
+      var expected = Session.Query.All<Invoice>().ToList();
+
+      Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(result.Except(expected).IsNullOrEmpty());
     }
 
     [Test]
     public void InnerJoinTest()
     {
-      int ordersCount = Session.Query.All<Order>().Count();
+      var invoicesCount = Session.Query.All<Invoice>().Count();
       var result = from c in Session.Query.All<Customer>()
-      from o in Session.Query.All<Order>().Where(o => o.Customer==c)
-      select new {c.ContactName, o.OrderDate};
+      from i in Session.Query.All<Invoice>().Where(i => i.Customer==c)
+      select new {c.FirstName, i.PaymentDate};
       var list = result.ToList();
-      Assert.AreEqual(ordersCount, list.Count);
+
+      Assert.That(list, Is.Not.Empty);
+      Assert.AreEqual(invoicesCount, list.Count);
     }
 
     [Test]
     public void NestedTest()
     {
-      IQueryable<Product> products = Session.Query.All<Product>();
-      int productsCount = products.Count();
-      IQueryable<Supplier> suppliers = Session.Query.All<Supplier>();
-      IQueryable<Category> categories = Session.Query.All<Category>();
-      var result = from p in products
-      from s in suppliers
-      from c in categories
-      where p.Supplier==s && p.Category==c
-      select new {p, s, c.CategoryName};
+      IQueryable<Track> tracks = Session.Query.All<Track>();
+      var tracksCount = tracks.Count();
+      IQueryable<Album> albums = Session.Query.All<Album>();
+      IQueryable<MediaType> mediaTypes = Session.Query.All<MediaType>();
+      var result = from t in tracks
+      from a in albums
+      from c in mediaTypes
+      where t.Album==a && t.MediaType==c
+      select new {t, a, c.Name};
       var list = result.ToList();
-      Assert.AreEqual(productsCount, list.Count);
+
+      Assert.That(list, Is.Not.Empty);
+      Assert.AreEqual(tracksCount, list.Count);
     }
 
     [Test]
     public void OuterJoinAnonymousTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
-      int assertCount =
-        Session.Query.All<Order>().Count() +
-          Session.Query.All<Customer>().Count(c => !Session.Query.All<Order>().Any(o => o.Customer==c));
+      var assertCount =
+        Session.Query.All<Invoice>().Count() +
+          Session.Query.All<Customer>().Count(c => !Session.Query.All<Invoice>().Any(i => i.Customer==c));
       var result = from c in Session.Query.All<Customer>()
-      from o in Session.Query.All<Order>().Where(o => o.Customer==c).Select(o => new {o.Id, c.CompanyName}).DefaultIfEmpty()
-      select new {c.ContactName, o};
+      from i in Session.Query.All<Invoice>().Where(i => i.Customer==c).Select(i => new {i.InvoiceId, c.Phone}).DefaultIfEmpty()
+      select new {c.LastName, i};
       var list = result.ToList();
+
+      Assert.That(list, Is.Not.Empty);
       Assert.AreEqual(assertCount, list.Count);
       foreach (var item in result) {
         Assert.IsNotNull(item);
-        Assert.IsNotNull(item.ContactName);
-        Assert.IsNotNull(item.o);
+        Assert.IsNotNull(item.LastName);
+        Assert.IsNotNull(item.i);
       }
       QueryDumper.Dump(list);
     }
@@ -240,13 +270,15 @@ namespace Xtensive.Orm.Tests.Linq
     public void OuterJoinAnonymousFieldTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
-      int assertCount =
-        Session.Query.All<Order>().Count() +
-          Session.Query.All<Customer>().Count(c => !Session.Query.All<Order>().Any(o => o.Customer==c));
+      var assertCount =
+        Session.Query.All<Invoice>().Count() +
+          Session.Query.All<Customer>().Count(c => !Session.Query.All<Invoice>().Any(i => i.Customer==c));
       var result = from c in Session.Query.All<Customer>()
-      from o in Session.Query.All<Order>().Where(o => o.Customer==c).Select(o => new {o.Id, c.CompanyName}).DefaultIfEmpty()
-      select new {c.ContactName, o.Id};
+      from i in Session.Query.All<Invoice>().Where(i => i.Customer==c).Select(i => new {i.InvoiceId, c.Phone}).DefaultIfEmpty()
+      select new {c.LastName, i.InvoiceId};
       var list = result.ToList();
+
+      Assert.That(list, Is.Not.Empty);
       Assert.AreEqual(assertCount, list.Count);
       QueryDumper.Dump(list);
     }
@@ -256,14 +288,16 @@ namespace Xtensive.Orm.Tests.Linq
     public void OuterJoinEntityTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
-      int assertCount =
-        Session.Query.All<Order>().Count() +
-          Session.Query.All<Customer>().Count(c => !Session.Query.All<Order>().Any(o => o.Customer==c));
+      var assertCount =
+        Session.Query.All<Invoice>().Count() +
+          Session.Query.All<Customer>().Count(c => !Session.Query.All<Invoice>().Any(i => i.Customer==c));
       var result = 
         from c in Session.Query.All<Customer>()
-        from o in Session.Query.All<Order>().Where(o => o.Customer==c).DefaultIfEmpty()
-        select new {c.ContactName, o.OrderDate};
+        from i in Session.Query.All<Invoice>().Where(i => i.Customer==c).DefaultIfEmpty()
+        select new {c.LastName, i.PaymentDate};
       var list = result.ToList();
+
+      Assert.That(list, Is.Not.Empty);
       Assert.AreEqual(assertCount, list.Count);
       QueryDumper.Dump(list);
     }
@@ -272,13 +306,15 @@ namespace Xtensive.Orm.Tests.Linq
     public void OuterJoinValueTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
-      int assertCount =
-        Session.Query.All<Order>().Count() +
-          Session.Query.All<Customer>().Count(c => !Session.Query.All<Order>().Any(o => o.Customer==c));
+      var assertCount =
+        Session.Query.All<Invoice>().Count() +
+          Session.Query.All<Customer>().Count(c => !Session.Query.All<Invoice>().Any(i => i.Customer==c));
       var result = from c in Session.Query.All<Customer>()
-      from o in Session.Query.All<Order>().Where(o => o.Customer==c).Select(o => o.OrderDate).DefaultIfEmpty()
-      select new {c.ContactName, o};
+      from i in Session.Query.All<Invoice>().Where(i => i.Customer==c).Select(i => i.PaymentDate).DefaultIfEmpty()
+      select new {c.LastName, i};
       var list = result.ToList();
+
+      Assert.That(list, Is.Not.Empty);
       Assert.AreEqual(assertCount, list.Count);
       QueryDumper.Dump(list);
     }
@@ -287,36 +323,44 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SelectManyAfterSelect1Test()
     {
-      IQueryable<string> result = Session.Query.All<Customer>()
-        .Select(c => c.Orders.Select(o => o.ShipName))
-        .SelectMany(orders => orders);
+      IQueryable<string> result = Session.Query.All<Track>()
+        .Select(t => t.Playlists.Select(p => p.Name))
+        .SelectMany(p => p);
+
+      Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void SelectManyAfterSelect2Test()
     {
-      int expected = Session.Query.All<Order>().Count();
-      IQueryable<Order> result = Session.Query.All<Customer>()
-        .Select(c => Session.Query.All<Order>().Where(o => o.Customer==c)).SelectMany(o => o);
+      int expected = Session.Query.All<Invoice>().Count();
+      IQueryable<Invoice> result = Session.Query.All<Customer>()
+        .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer==c)).SelectMany(i => i);
+
+      Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(expected, result.ToList().Count);
     }
 
     [Test]
     public void SimpleTest()
     {
-      int expected = Session.Query.All<Order>().Count();
-      IQueryable<Order> result = Session.Query.All<Customer>()
-        .SelectMany(c => Session.Query.All<Order>().Where(o => o.Customer==c));
+      int expected = Session.Query.All<Invoice>().Count();
+      IQueryable<Invoice> result = Session.Query.All<Customer>()
+        .SelectMany(c => Session.Query.All<Invoice>().Where(i => i.Customer==c));
+
+      Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(expected, result.ToList().Count);
     }
 
     [Test]
     public void SimpleWithResultSelectorTest()
     {
-      int expected = Session.Query.All<Order>().Count();
+      var expected = Session.Query.All<Invoice>().Count();
       var result = Session.Query.All<Customer>()
-        .SelectMany(c => Session.Query.All<Order>().Where(o => o.Customer==c), (c, o) => new {c, o});
+        .SelectMany(c => Session.Query.All<Invoice>().Where(i => i.Customer==c), (c, i) => new {c, i});
+
+      Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(expected, result.ToList().Count);
     }
 
@@ -324,10 +368,12 @@ namespace Xtensive.Orm.Tests.Linq
     public void SubqueryWithEntityReferenceTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
-      int expected = Session.Query.All<Order>().Count(o => o.Employee.FirstName.StartsWith("A"));
-      IQueryable<Order> result = Session.Query.All<Customer>()
-        .SelectMany(c => Session.Query.All<Order>().Where(o => o.Customer==c)
-          .Where(o => o.Employee.FirstName.StartsWith("A")));
+      int expected = Session.Query.All<Invoice>().Count(i => i.DesignatedEmployee.FirstName.StartsWith("A"));
+      IQueryable<Invoice> result = Session.Query.All<Customer>()
+        .SelectMany(c => Session.Query.All<Invoice>().Where(i => i.Customer==c)
+          .Where(i => i.DesignatedEmployee.FirstName.StartsWith("A")));
+
+      Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(expected, result.ToList().Count);
     }
 
@@ -339,17 +385,21 @@ namespace Xtensive.Orm.Tests.Linq
         from c2 in Session.Query.All<Customer>()
         where c1.Address.City==c2.Address.City
         select new {c1, c2};
-      result.ToList();
+
+      var list = result.ToList();
+      Assert.That(list, Is.Not.Empty);
     }
 
     [Test]
     public void IntersectBetweenFilterAndApplyTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
-      int expected = Session.Query.All<Order>().Count(o => o.Employee.FirstName.StartsWith("A"));
-      IQueryable<Order> result = Session.Query.All<Customer>()
-        .SelectMany(c => Session.Query.All<Order>().Where(o => o.Customer==c).Intersect(Session.Query.All<Order>())
-          .Where(o => o.Employee.FirstName.StartsWith("A")));
+      var expected = Session.Query.All<Invoice>().Count(i => i.DesignatedEmployee.FirstName.StartsWith("A"));
+      IQueryable<Invoice> result = Session.Query.All<Customer>()
+        .SelectMany(c => Session.Query.All<Invoice>().Where(i => i.Customer==c).Intersect(Session.Query.All<Invoice>())
+          .Where(i => i.DesignatedEmployee.FirstName.StartsWith("A")));
+
+      Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(expected, result.ToList().Count);
     }
 
@@ -357,10 +407,11 @@ namespace Xtensive.Orm.Tests.Linq
     public void DistinctBetweenFilterAndApplyTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
-      int expected = Session.Query.All<Order>().Distinct().Count(o => o.Employee.FirstName.StartsWith("A"));
-      IQueryable<Order> result = Session.Query.All<Customer>()
-        .SelectMany(c => Session.Query.All<Order>().Where(o => o.Customer==c).Distinct()
-          .Where(o => o.Employee.FirstName.StartsWith("A")));
+      var expected = Session.Query.All<Invoice>().Distinct().Count(i => i.DesignatedEmployee.FirstName.StartsWith("A"));
+      IQueryable<Invoice> result = Session.Query.All<Customer>()
+        .SelectMany(c => Session.Query.All<Invoice>().Where(i => i.Customer==c).Distinct()
+          .Where(i => i.DesignatedEmployee.FirstName.StartsWith("A")));
+      Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(expected, result.ToList().Count);
     }
 
@@ -368,8 +419,10 @@ namespace Xtensive.Orm.Tests.Linq
     public void TakeBetweenFilterAndApplyTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
-      IQueryable<Order> result = Session.Query.All<Customer>()
-        .SelectMany(c => Session.Query.All<Order>().Where(o => o.Customer==c).Take(10));
+      IQueryable<Invoice> result = Session.Query.All<Customer>()
+        .SelectMany(c => Session.Query.All<Invoice>().Where(i => i.Customer==c).Take(5));
+
+      Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
     }
 
@@ -377,22 +430,27 @@ namespace Xtensive.Orm.Tests.Linq
     public void SkipBetweenFilterAndApplyTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
-      IQueryable<Order> result = Session.Query.All<Customer>()
-        .SelectMany(c => Session.Query.All<Order>().Where(o => o.Customer==c).Skip(10));
+      IQueryable<Invoice> result = Session.Query.All<Customer>()
+        .SelectMany(c => Session.Query.All<Invoice>().Where(i => i.Customer==c).Skip(5));
+
+      Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
     }
 
     [Test]
     public void CalculateWithApply()
     {
-      var expected = from c in Session.Query.All<Customer>().ToList()
-      from r in (c.Orders.Select(o => c.ContactName + o.ShipName).Where(x => x.StartsWith("a")))
-      orderby r
-      select r;
       var actual = from c in Session.Query.All<Customer>()
-      from r in (c.Orders.Select(o => c.ContactName + o.ShipName).Where(x => x.StartsWith("a")))
-      orderby r
-      select r;
+        from i in (c.Invoices.Select(x => c.FirstName + x.BillingAddress.StreetAddress).Where(x => x.StartsWith("M")))
+        orderby i
+        select i;
+
+      var expected = from c in Session.Query.All<Customer>().ToList()
+        from i in (c.Invoices.Select(x => c.FirstName + x.BillingAddress.StreetAddress).Where(x => x.StartsWith("M")))
+        orderby i
+        select i;
+
+      Assert.That(actual, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(actual));
     }
 
@@ -400,16 +458,20 @@ namespace Xtensive.Orm.Tests.Linq
     public void TwoCalculateWithApplyTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
+
       var actual = from c in Session.Query.All<Customer>()
-      from r in (c.Orders.Select(o => c.ContactName + o.ShipName))
-        .Union(c.Orders.Select(o => c.ContactName + o.ShipName))
-      orderby r
-      select r;
+        from n in (c.Invoices.Select(i => c.FirstName + i.BillingAddress.StreetAddress))
+          .Union(c.Invoices.Select(i => c.FirstName + i.BillingAddress.StreetAddress))
+        orderby n
+        select n;
+
       var expected = from c in Session.Query.All<Customer>().ToList()
-      from r in (c.Orders.Select(o => c.ContactName + o.ShipName))
-        .Union(c.Orders.Select(o => c.ContactName + o.ShipName))
-      orderby r
-      select r;
+        from n in (c.Invoices.Select(i => c.FirstName + i.BillingAddress.StreetAddress))
+          .Union(c.Invoices.Select(i => c.FirstName + i.BillingAddress.StreetAddress))
+        orderby n
+        select n;
+
+      Assert.That(actual, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(actual));
     }
 
@@ -418,29 +480,31 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
       var actual = from c in Session.Query.All<Customer>()
-      from r in (c.Orders.Where(x => x.ShipName.StartsWith("a"))
-        .Intersect(c.Orders.Where(x => x.ShipName.StartsWith("a"))))
-      orderby r.Id
-      select r.Id;
+        from i in (c.Invoices.Where(x => x.BillingAddress.StreetAddress.StartsWith("A"))
+          .Intersect(c.Invoices.Where(x => x.BillingAddress.StreetAddress.StartsWith("A"))))
+        orderby i.InvoiceId
+        select i.InvoiceId;
       var expected = from c in Session.Query.All<Customer>().ToList()
-      from r in (c.Orders.Where(x => x.ShipName.StartsWith("a"))
-        .Intersect(c.Orders))
-      orderby r.Id
-      select r.Id;
+        from i in (c.Invoices.Where(x => x.BillingAddress.StreetAddress.StartsWith("A")).Intersect(c.Invoices))
+        orderby i.InvoiceId
+        select i.InvoiceId;
+
+      Assert.That(actual, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(actual));
     }
 
     [Test]
     public void TwoSelectManyTest()
     {
-      var q =
-        from o in Session.Query.All<Order>().Take(10)
-        from d in Session.Query.All<OrderDetails>().Take(10)
-        select new {OrderId = o.Id, d.UnitPrice};
+      var query =
+        from i in Session.Query.All<Invoice>().Take(10)
+        from il in Session.Query.All<InvoiceLine>().Take(10)
+        select new {InvoiceId = i.InvoiceId, il.UnitPrice};
 
-      var count = q.Count();
+      Assert.That(query, Is.Not.Empty);
+      var count = query.Count();
       TestLog.Info("Records count: {0}", count);
-      QueryDumper.Dump(q);
+      QueryDumper.Dump(query);
     }
   }
 }

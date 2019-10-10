@@ -6,11 +6,11 @@ using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Tests.ObjectModel;
-using Xtensive.Orm.Tests.ObjectModel.NorthwindDO;
+using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
 namespace Xtensive.Orm.Tests.Linq
 {
-  public class FullTextColumnsDeclarationTest : NorthwindDOModelTest
+  public class FullTextColumnsDeclarationTest : ChinookDOModelTest
   {
     protected override void CheckRequirements()
     {
@@ -20,14 +20,14 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void CorrectDirectFulltextFieldTest()
     {
-      var columns = MakeUpColumns<Category>(t => t.CategoryName);
+      var columns = MakeUpColumns<Track>(t => t.Name);
       RunQuery(columns);
     }
 
     [Test]
     public void CorrectDirectFulltextFieldsSetTest()
     {
-      var columns = MakeUpColumns<Category>(t => t.CategoryName, t=>t.Description);
+      var columns = MakeUpColumns<Track>(t => t.Name, t=>t.Composer);
       RunQuery(columns);
     }
 
@@ -41,14 +41,14 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void StructureNonFulltextFieldTest()
     {
-      var columns = MakeUpColumns<Employee>(t => t.Address.Region);
+      var columns = MakeUpColumns<Employee>(t => t.Address.Country);
       Assert.Throws<QueryTranslationException>(() => RunQuery(columns));
     }
 
     [Test]
     public void NonPersistentFieldTest()
     {
-      var columns = MakeUpColumns<Employee>(t => t.FullName);
+      var columns = MakeUpColumns<Employee>(t => t.FirstName);
       Assert.Throws<QueryTranslationException>(() => RunQuery(columns));
     }
 
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void EntitySetFieldTest()
     {
-      var columns = MakeUpColumns<Employee>(t => t.Orders);
+      var columns = MakeUpColumns<Customer>(t => t.Invoices);
       Assert.Throws<QueryTranslationException>(() => RunQuery(columns));
     }
 
@@ -76,22 +76,22 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ReferencedEntityFieldTest()
     {
-      var columns = MakeUpColumns<Product>(t => t.Category.Description);
+      var columns = MakeUpColumns<Track>(t => t.Album.Title);
       Assert.Throws<QueryTranslationException>(() => RunQuery(columns));
     }
 
     [Test]
     public void EmptyColumnsArrayTest()
     {
-      var columns = new Expression<Func<Category, object>>[0];
-      Session.Query.ContainsTable<Category>(e => e.SimpleTerm("abc"), columns).Run();
+      var columns = new Expression<Func<Track, object>>[0];
+      Session.Query.ContainsTable(e => e.SimpleTerm("abc"), columns).Run();
     }
 
     [Test]
     public void NullColumnsArray()
     {
-      Expression<Func<Category, object>>[] columns = null;
-      Assert.Throws<ArgumentNullException>(() => Session.Query.ContainsTable<Category>(e => e.SimpleTerm("abc"), columns).Run());
+      Expression<Func<Track, object>>[] columns = null;
+      Assert.Throws<ArgumentNullException>(() => Session.Query.ContainsTable(e => e.SimpleTerm("abc"), columns).Run());
     }
 
     private void RunQuery<T>(Expression<Func<T, object>>[] columns)
