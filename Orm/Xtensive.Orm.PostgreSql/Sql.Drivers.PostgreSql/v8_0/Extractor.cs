@@ -588,7 +588,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         select.Columns.Add(tableSpacesTable["spcname"]);
         select.Columns.Add(indexTable["indnatts"]);
         select.Columns.Add(indexTable["indexprs"]);
-        select.Columns.Add(SqlDml.FunctionCall("pg_get_expr", indexTable["indpred"], indexTable["indrelid"], true), "indpredtext");
+        select.Columns.Add(indexTable["indpred"]);
         select.Columns.Add(SqlDml.FunctionCall("pg_get_indexdef", indexTable["indexrelid"]), "inddef");
         AddSpecialIndexQueryColumns(select, tableSpacesTable, relationsTable, indexTable, dependencyTable);
 
@@ -604,7 +604,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             var indexKey = (short[])dataReader["indkey"];
 
             var tablespaceName = (dataReader["spcname"]!=DBNull.Value) ? dataReader["spcname"].ToString() : (string)null;
-            var filterExpression = (dataReader["indpredtext"]!=DBNull.Value) ? dataReader["indpredtext"].ToString() : string.Empty;
+            var filterExpression = (dataReader["indpred"]!=DBNull.Value) ? dataReader["indpred"].ToString() : string.Empty;
 
             var table = tableMap[tableIdentifier];
 
@@ -991,6 +991,18 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
     }
 
+    protected SqlRow CreateOidRow(IEnumerable<long> oids)
+    {
+      var result = SqlDml.Row();
+      foreach (var oid in oids)
+        result.Add(oid);
+      // make sure it is not empty, so that "IN" expression always works
+      // add an invalid OID value 
+      if (result.Count==0)
+        result.Add(-1000);
+      return result;
+    }
+
     private int[] ReadIntArray(object value)
     {
       var shortArray = value as short[];
@@ -1015,18 +1027,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         using (var cmd = Connection.CreateCommand("SELECT usesysid FROM pg_user WHERE usename = user"))
           return Convert.ToInt64(cmd.ExecuteScalar());
       return mUserSysId;
-    }
-
-    private SqlRow CreateOidRow(IEnumerable<long> oids)
-    {
-      var result = SqlDml.Row();
-      foreach (var oid in oids)
-        result.Add(oid);
-      // make sure it is not empty, so that "IN" expression always works
-      // add an invalid OID value 
-      if (result.Count==0)
-        result.Add(-1000);
-      return result;
     }
 
     // Constructor

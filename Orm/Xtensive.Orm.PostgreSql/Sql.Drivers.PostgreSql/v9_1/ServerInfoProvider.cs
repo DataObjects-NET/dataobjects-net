@@ -2,15 +2,17 @@
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
-// Created:    2019.09.25
+// Created:    2019.10.10
 
-namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
+using Xtensive.Sql.Info;
+
+namespace Xtensive.Sql.Drivers.PostgreSql.v9_1
 {
-  internal class Translator : v9_1.Translator
+  internal class ServerInfoProvider : v9_0.ServerInfoProvider
   {
     // Constructors
 
-    public Translator(SqlDriver driver)
+    public ServerInfoProvider(SqlDriver driver)
       : base(driver)
     {
     }

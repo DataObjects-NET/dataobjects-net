@@ -12,7 +12,7 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
 {
-  internal class Extractor : v9_0.Extractor
+  internal class Extractor : v9_1.Extractor
   {
     /// <summary>
     /// <see cref="SqlTableRef">Reference</see> to system table pg_sequence.

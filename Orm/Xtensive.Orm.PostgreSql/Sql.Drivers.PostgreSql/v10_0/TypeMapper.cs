@@ -6,7 +6,7 @@
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
 {
-  internal class TypeMapper : v9_0.TypeMapper
+  internal class TypeMapper : v9_1.TypeMapper
   {
     // Constructors
 
