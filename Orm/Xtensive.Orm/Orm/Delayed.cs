@@ -33,9 +33,10 @@ namespace Xtensive.Orm
     /// Asynchrously gets value.
     /// </summary>
     /// <returns>Task running this operation</returns>
+    [Obsolete("Use AsAsync() method instead.")]
     public Task<T> AsAsyncTask()
     {
-      return AsAsyncTask(CancellationToken.None);
+      return AsAsync(CancellationToken.None);
     }
 
     /// <summary>
@@ -43,7 +44,27 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task running this operation.</returns>
-    public async Task<T> AsAsyncTask(CancellationToken token)
+    [Obsolete("Use AsAsync(CancellationToken) method instead.")]
+    public Task<T> AsAsyncTask(CancellationToken token)
+    {
+      return AsAsync(token);
+    }
+
+    /// <summary>
+    /// Asynchrously gets value.
+    /// </summary>
+    /// <returns>Task running this operation</returns>
+    public Task<T> AsAsync()
+    {
+      return AsAsync(CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Asynchrously gets value.
+    /// </summary>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task running this operation.</returns>
+    public async Task<T> AsAsync(CancellationToken token)
     {
       if (!LifetimeToken.IsActive)
         throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);

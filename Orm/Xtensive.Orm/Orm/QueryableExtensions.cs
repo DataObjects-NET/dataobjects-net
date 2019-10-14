@@ -270,9 +270,10 @@ namespace Xtensive.Orm
     /// <typeparam name="T">Type of elements in sequence.</typeparam>
     /// <param name="source">Query to run asynchronous.</param>
     /// <returns>A task which runs query.</returns>
+    [Obsolete("Use AsAsync(IQueryable<t>) method instead.")]
     public static Task<IEnumerable<T>> AsAsyncTask<T>(this IQueryable<T> source)
     {
-      return AsAsyncTask(source, CancellationToken.None);
+      return AsAsync(source, CancellationToken.None);
     }
 
     /// <summary>
@@ -282,7 +283,31 @@ namespace Xtensive.Orm
     /// <param name="source">Query to run asynchronous.</param>
     /// <param name="cancellationToken">Token to cancel operation.</param>
     /// <returns>A task which runs query.</returns>
+    [Obsolete("Use AsAsync(IQueryable<t>, CancellationToken) method instead.")]
     public static Task<IEnumerable<T>> AsAsyncTask<T>(this IQueryable<T> source, CancellationToken cancellationToken)
+    {
+      return AsAsync(source, cancellationToken);
+    }
+
+    /// <summary>
+    /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of elements in sequence.</typeparam>
+    /// <param name="source">Query to run asynchronous.</param>
+    /// <returns>A task which runs query.</returns>
+    public static Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source)
+    {
+      return AsAsync(source, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of elements in sequence.</typeparam>
+    /// <param name="source">Query to run asynchronous.</param>
+    /// <param name="cancellationToken">Token to cancel operation.</param>
+    /// <returns>A task which runs query.</returns>
+    public static Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source, CancellationToken cancellationToken)
     {
       var doProvider = source.Provider as QueryProvider;
       if (doProvider!=null)
