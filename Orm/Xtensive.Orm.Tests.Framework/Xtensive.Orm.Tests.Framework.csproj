@@ -122,7 +122,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.2" />
   </ItemGroup>
   <ItemGroup>
     <None Update="Orm.config">
