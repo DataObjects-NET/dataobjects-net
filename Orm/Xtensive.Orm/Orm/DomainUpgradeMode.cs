@@ -24,7 +24,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Validation only mode.
-    /// <see cref="DomainBuilderException"/> will be 
+    /// <see cref="SchemaSynchronizationException"/> will be 
     /// thrown if storage schema differs from the expected one.
     /// </summary>
     Validate = 1,
