@@ -337,6 +337,7 @@
     <Compile Include="Issues\IssueJira0627_FieldInitializationTest.cs" />
     <Compile Include="Linq\OfTypeTest.cs" />
     <Compile Include="Linq\OfTypeTestModel\OfTypeTestModel.cs" />
+    <Compile Include="Storage\ClosureParametersCachingTest.cs" />
     <Compile Include="Storage\RemoveReasonOnEntityRemovingEventTest.cs" />
     <Compile Include="Storage\CommandProcessing\BatchingCommandProcessorParametersManagement.cs" />
     <Compile Include="Storage\CommandProcessing\ParametersManagementModel.cs" />
