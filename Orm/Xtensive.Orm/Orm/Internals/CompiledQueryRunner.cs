@@ -130,7 +130,9 @@ namespace Xtensive.Orm.Internals
             if (expression.Type==closureType)
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           }
-          else
+          else {
+            if (expression.Type==closureType)
+              return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
             if (expression.Type==closureType.DeclaringType) {
               var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
               if (memberInfo!=null)
@@ -138,6 +140,8 @@ namespace Xtensive.Orm.Internals
                   Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
                   memberInfo);
             }
+
+          }
         }
         return null;
       });
