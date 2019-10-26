@@ -285,6 +285,7 @@
     <Compile Include="Issues\IssueJira0728_NullGroupHasNoElementsTest.cs" />
     <Compile Include="Issues\IssueJira0752_RecycledAttributeDontWorkForPersistentGenericInterface.cs" />
     <Compile Include="Issues\IssueJira0759_UnableToTranslateOfTypeSelectExpression.cs" />
+    <Compile Include="Issues\IssueJira0779_SetOperationsWithOrderAndTakeWrongQuery.cs" />
     <Compile Include="Issues\IssueJira0760_OverrideFieldNameAttributeRuinsFieldMappingOnUpgrade.cs" />
     <Compile Include="Issues\IssueJira0761_ReadingAverageByDecimalField.cs" />
     <Compile Include="Issues\IssueJira0767_OfTypeForNonGenericSources.cs" />
