@@ -394,9 +394,15 @@ namespace Xtensive.Orm.Providers
       var right = Compile(provider.Right);
 
       var leftSelect = left.Request.Statement;
+      var keepOrderForLeft = (leftSelect.HasLimit || leftSelect.HasOffset) && providerInfo.Supports(ProviderFeatures.PagingRequiresOrderBy);
+      if(!keepOrderForLeft)
+        leftSelect.OrderBy.Clear();
+
       var rightSelect = right.Request.Statement;
-      leftSelect.OrderBy.Clear();
-      rightSelect.OrderBy.Clear();
+      var keepOrderForRight = (leftSelect.HasLimit || leftSelect.HasOffset) && providerInfo.Supports(ProviderFeatures.PagingRequiresOrderBy);
+      if(!keepOrderForRight)
+        rightSelect.OrderBy.Clear();
+
       var result = SqlDml.Intersect(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
 
@@ -413,9 +419,15 @@ namespace Xtensive.Orm.Providers
       var right = Compile(provider.Right);
 
       var leftSelect = left.Request.Statement;
+      var keepOrderForLeft = (leftSelect.HasLimit || leftSelect.HasOffset) && providerInfo.Supports(ProviderFeatures.PagingRequiresOrderBy);
+      if (!keepOrderForLeft)
+        leftSelect.OrderBy.Clear();
+
       var rightSelect = right.Request.Statement;
-      leftSelect.OrderBy.Clear();
-      rightSelect.OrderBy.Clear();
+      var keepOrderForRight = (leftSelect.HasLimit || leftSelect.HasOffset) && providerInfo.Supports(ProviderFeatures.PagingRequiresOrderBy);
+      if (!keepOrderForRight)
+        rightSelect.OrderBy.Clear();
+
       var result = SqlDml.Except(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
@@ -431,9 +443,15 @@ namespace Xtensive.Orm.Providers
       var right = Compile(provider.Right);
 
       var leftSelect = left.Request.Statement;
+      var keepOrderForLeft = (leftSelect.HasLimit || leftSelect.HasOffset) && providerInfo.Supports(ProviderFeatures.PagingRequiresOrderBy);
+      if (!keepOrderForLeft)
+        leftSelect.OrderBy.Clear();
+
       var rightSelect = right.Request.Statement;
-      leftSelect.OrderBy.Clear();
-      rightSelect.OrderBy.Clear();
+      var keepOrderForRight = (leftSelect.HasLimit || leftSelect.HasOffset) && providerInfo.Supports(ProviderFeatures.PagingRequiresOrderBy);
+      if (!keepOrderForRight)
+        rightSelect.OrderBy.Clear();
+
       var result = SqlDml.UnionAll(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
@@ -449,9 +467,15 @@ namespace Xtensive.Orm.Providers
       var right = Compile(provider.Right);
 
       var leftSelect = left.Request.Statement;
+      var keepOrderForLeft = (leftSelect.HasLimit || leftSelect.HasOffset) && providerInfo.Supports(ProviderFeatures.PagingRequiresOrderBy);
+      if (!keepOrderForLeft)
+        leftSelect.OrderBy.Clear();
+
       var rightSelect = right.Request.Statement;
-      leftSelect.OrderBy.Clear();
-      rightSelect.OrderBy.Clear();
+      var keepOrderForRight = (leftSelect.HasLimit || leftSelect.HasOffset) && providerInfo.Supports(ProviderFeatures.PagingRequiresOrderBy);
+      if (!keepOrderForRight)
+        rightSelect.OrderBy.Clear();
+
       var result = SqlDml.Union(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
