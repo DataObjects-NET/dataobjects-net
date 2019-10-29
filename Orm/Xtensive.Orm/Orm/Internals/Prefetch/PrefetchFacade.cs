@@ -85,8 +85,6 @@ namespace Xtensive.Orm.Internals.Prefetch
           fieldDescriptorCache.Add(cacheKey, fieldDescriptors);
         }
         container.JoinIfPossible(sessionHandler.Prefetch(key, type, fieldDescriptors));
-        if (taskCount != sessionHandler.PrefetchTaskExecutionCount)
-          container.JoinIfPossible(ProcessFetchedElements());
       }
       var nestedContainers = fieldContainer.NestedNodes.OfType<IHasNestedNodes>();
       foreach (var nestedContainer in nestedContainers)
