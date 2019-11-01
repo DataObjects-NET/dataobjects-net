@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession()) {
         Customer customer;
         using (var t = session.OpenTransaction()) {
-          customer = new Customer();
+          customer = new Customer(){FirstName = "Anton", LastName = "Chehov"};
           t.Complete();
         }
         using (var t = session.OpenTransaction()) {
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession()) {
         Customer customer;
         using (var t = session.OpenTransaction()) {
-          customer = new Customer();
+          customer = new Customer() {FirstName = "Ivan", LastName = "Ivanov"};
           t.Complete();
         }
         using (var t = session.OpenTransaction()) {
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession()) {
         Customer customer;
         using (var t = session.OpenTransaction()) {
-          customer = new Customer();
+          customer = new Customer() {FirstName = "Arthur", LastName = "Clarke" };
           customer.Remove();
           t.Complete();
         }
