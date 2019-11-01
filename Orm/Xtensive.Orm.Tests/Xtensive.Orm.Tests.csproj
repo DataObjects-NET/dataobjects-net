@@ -393,6 +393,7 @@
     <Compile Include="Storage\AsyncQueries\AsAsyncTaskExtensionTest.cs" />
     <Compile Include="Storage\AsyncQueries\AsyncQueryBaseTest.cs" />
     <Compile Include="Storage\AsyncQueries\Compiled\ClientProfileTest.cs" />
+    <Compile Include="Storage\ClosureParametersCachingTest.cs" />
     <Compile Include="Storage\AsyncQueries\Compiled\ServerProfileTest.cs" />
     <Compile Include="Storage\AsyncQueries\DelayedQueryClientProfileTest.cs" />
     <Compile Include="Storage\AsyncQueries\DelayedQueryServerProfileTest.cs" />
