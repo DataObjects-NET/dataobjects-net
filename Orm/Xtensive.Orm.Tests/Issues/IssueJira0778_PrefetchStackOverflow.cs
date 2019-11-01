@@ -192,6 +192,37 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+    [Test]
+    public void CyclicReferenceTest()
+    {
+      using (var populateSession = Domain.OpenSession())
+      using (var tx = populateSession.OpenTransaction()) {
+        var firstOperation = new IssueJira0778_PrefetchStackOverflowModel.Operation();
+        var secondOperation = new IssueJira0778_PrefetchStackOverflowModel.Operation();
+        firstOperation.PreviousOperation = secondOperation;
+        firstOperation.NextOperation = secondOperation;
+        secondOperation.PreviousOperation = firstOperation;
+        secondOperation.NextOperation = firstOperation;
+
+        tx.Complete();
+      }
+
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var result = session.Query.All<IssueJira0778_PrefetchStackOverflowModel.Operation>()
+          .Prefetch(o => o.PreviousOperation)
+          .Prefetch(o => o.NextOperation)
+          .ToList();
+
+        int count = 0;
+        session.Events.DbCommandExecuted += (sender, args) => count++;
+        foreach (var op in result) {
+          Console.WriteLine("Prevoius operation {0}", op.PreviousOperation);
+        }
+        Assert.That(count, Is.EqualTo(0));
+      }
+    }
+
     private void ExecuteAsync(Session session)
     {
       var recipients = session.Query.All<Recipient>()
@@ -920,6 +951,20 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0778_PrefetchStackOverflowModel
     [Field]
     public string Name { get; set; }
   }
+
+  [HierarchyRoot]
+  public class Operation : Entity
+  {
+    [Field, Key]
+    public long Id { get; set; }
+
+    [Field]
+    public Operation PreviousOperation { get; set; }
+
+    [Field]
+    public Operation NextOperation { get; set; }
+  }
+
 
   public class Address : Structure
   {
