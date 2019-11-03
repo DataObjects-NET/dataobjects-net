@@ -345,6 +345,7 @@
     <Compile Include="Issues\IssueJira0710_IndirectStructureChildFKAbsence.cs" />
     <Compile Include="Issues\IssueJira0723_ContainsOverLocalCollectionError.cs" />
     <Compile Include="Issues\IssueJira0728_NullGroupHasNoElementsTest.cs" />
+    <Compile Include="Issues\IssueJira0778_PrefetchStackOverflow.cs" />
     <Compile Include="Issues\IssueJira0735_WrongTypeIdsInValidateMode.cs" />
     <Compile Include="Issues\IssueJira0779_SetOperationsWithOrderAndTakeWrongQuery.cs" />
     <Compile Include="Issues\IssueJira_0530_LowSpeedDecimalMaterializationCouseSqlDecimalInternalException.cs" />
