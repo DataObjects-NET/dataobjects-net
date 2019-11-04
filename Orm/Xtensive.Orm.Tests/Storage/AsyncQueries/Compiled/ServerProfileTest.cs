@@ -182,16 +182,12 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
     public async Task AsyncQueryResultsEnumeration()
     {
       Session session = null;
-      try
-      {
+      try {
         session = Domain.OpenSession();
         using (var transaction = session.OpenTransaction())
-          foreach (var item in (await session.Query.All<Discepline>().AsAsyncTask()))
-          {
-          }
+          foreach (var item in (await session.Query.All<Discepline>().AsAsync())) { }
       }
-      finally
-      {
+      finally {
         session.DisposeSafely();
       }
     }
@@ -200,17 +196,13 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
     public async Task AsyncQueryResultsInterruptedEnumeration()
     {
       Session session = null;
-      try
-      {
+      try {
         session = Domain.OpenSession();
         using (var transaction = session.OpenTransaction())
-          foreach (var item in await session.Query.All<Discepline>().AsAsyncTask())
-          {
+          foreach (var item in await session.Query.All<Discepline>().AsAsync())
             break;
-          }
       }
-      finally
-      {
+      finally {
         session.DisposeSafely();
       }
     }
@@ -223,7 +215,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
         session = Domain.OpenSession();
         IEnumerator<Discepline> enumerator;
         using (var transaction = session.OpenTransaction()) {
-          enumerator = (await session.Query.All<Discepline>().AsAsyncTask()).GetEnumerator();
+          enumerator = (await session.Query.All<Discepline>().AsAsync()).GetEnumerator();
           enumerator.MoveNext();
           var a = enumerator.Current;
         }

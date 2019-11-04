@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task PureEnumerableTest()
     {
-      var task = AsEnumerable(1, 2, 3, 4).AsAsyncTask();
+      var task = AsEnumerable(1, 2, 3, 4).AsAsync();
       Assert.That(task.IsCompleted, Is.True);
 
       int before = 1;
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Storage
     public async Task CollectionAsEnumerableTest()
     {
       var list = new List<int> {1, 2, 3, 4};
-      var task = list.AsAsyncTask();
+      var task = list.AsAsync();
       Assert.That(task.IsCompleted, Is.True);
 
       int before = 1;
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Tests.Storage
     public async Task QueryableAsEnumearbleTest()
     {
       IQueryable<int> queryableEnumeable = new EnumerableQuery<int>(Enumerable.Range(-100, 200).ToArray()).Where(v => v < 5 && v > 0);
-      var task = queryableEnumeable.AsEnumerable().AsAsyncTask();
+      var task = queryableEnumeable.AsEnumerable().AsAsync();
       Assert.That(task.IsCompleted, Is.True);
 
       int before = 1;
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Tests.Storage
     public async Task QueryableTest()
     {
       IQueryable<int> queryableEnumeable = new EnumerableQuery<int>(Enumerable.Range(-100, 200).ToArray()).Where(v => v < 5 && v > 0);
-      var task = queryableEnumeable.AsAsyncTask();
+      var task = queryableEnumeable.AsAsync();
       Assert.That(task.IsCompleted, Is.True);
 
       int before = 1;
@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var task = session.Query.All<TestEntity>().Where(e => e.Value < 5 && e.Value > 0).AsEnumerable().AsAsyncTask();
+        var task = session.Query.All<TestEntity>().Where(e => e.Value < 5 && e.Value > 0).AsEnumerable().AsAsync();
         Assert.That(task.IsCompleted, Is.True);
 
         int before = 1;
@@ -114,7 +114,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var container = session.Query.All<EntitySetContainer>().First();
-        var task = container.EntitySet.Where(e => e.Value < 5 && e.Value > 0).AsEnumerable().AsAsyncTask();
+        var task = container.EntitySet.Where(e => e.Value < 5 && e.Value > 0).AsEnumerable().AsAsync();
         Assert.That(task.IsCompleted, Is.True);
 
         int before = 1;
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var task = session.Query.All<TestEntity>().Where(e => e.Value < 5 && e.Value > 0).AsAsyncTask();
+        var task = session.Query.All<TestEntity>().Where(e => e.Value < 5 && e.Value > 0).AsAsync();
         Assert.That(task.IsCompleted, Is.False);
 
         int before = 1;
@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var container = session.Query.All<EntitySetContainer>().First();
-        var task = container.EntitySet.Where(e => e.Value < 5 && e.Value > 0).AsAsyncTask();
+        var task = container.EntitySet.Where(e => e.Value < 5 && e.Value > 0).AsAsync();
         Assert.That(task.IsCompleted, Is.False);
 
         int before = 1;
@@ -164,7 +164,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var delayed = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < 5 && e.Value > 0));
-        var task = delayed.AsAsyncTask();
+        var task = delayed.AsAsync();
         Assert.That(task.IsCompleted, Is.False);
 
         int before = 1;

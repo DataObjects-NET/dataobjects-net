@@ -89,8 +89,8 @@ namespace Xtensive.Orm.Tests.Storage
           value += 1;
         }
 
-        var task = longListOfQueries.First().AsAsyncTask();
-        var fastBatch = await session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsyncTask();
+        var task = longListOfQueries.First().AsAsync();
+        var fastBatch = await session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
         await task;
 
         int countBefore = 1;
@@ -117,8 +117,8 @@ namespace Xtensive.Orm.Tests.Storage
           value += 1;
         }
 
-        var task = longListOfQueries.First().AsAsyncTask();
-        var fastBatch = await session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsyncTask();
+        var task = longListOfQueries.First().AsAsync();
+        var fastBatch = await session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
         await task;
 
         int countBefore = 1;
@@ -145,8 +145,8 @@ namespace Xtensive.Orm.Tests.Storage
           value += 1;
         }
 
-        var task = longListOfQueries.First().AsAsyncTask();
-        var fastBatch = await session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsyncTask();
+        var task = longListOfQueries.First().AsAsync();
+        var fastBatch = await session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
         await task;
 
         int countBefore = 1;
@@ -173,11 +173,11 @@ namespace Xtensive.Orm.Tests.Storage
           value++;
         }
 
-        var task = looooongListOfQueries.First().AsAsyncTask();
+        var task = looooongListOfQueries.First().AsAsync();
         new TestEntity(session) {Value = 0};
         new TestEntity(session) {Value = 0};
         var result1 = await task;
-        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsyncTask();
+        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
         var result2 = await anotherTask;
 
         int countBefore = 1;
@@ -204,11 +204,11 @@ namespace Xtensive.Orm.Tests.Storage
           value++;
         }
 
-        var task = looooongListOfQueries.First().AsAsyncTask();
+        var task = looooongListOfQueries.First().AsAsync();
         new TestEntity(session) {Value = 0};
         new TestEntity(session) {Value = 0};
         var result1 = await task;
-        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsyncTask();
+        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
 
         var result2 = await anotherTask;
 
@@ -236,10 +236,10 @@ namespace Xtensive.Orm.Tests.Storage
           value += 1;
         }
 
-        var task = longListOfQueries.First().AsAsyncTask();
+        var task = longListOfQueries.First().AsAsync();
         new TestEntity(session) {Value = 0};
         new TestEntity(session) {Value = 0};
-        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsyncTask();
+        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
         var result1 = await task;
         Assert.ThrowsAsync<InvalidOperationException>(async () => await anotherTask); 
       }
@@ -258,10 +258,10 @@ namespace Xtensive.Orm.Tests.Storage
           value += 1;
         }
 
-        var task = longListOfQueries.First().AsAsyncTask();
+        var task = longListOfQueries.First().AsAsync();
         new TestEntity(session) {Value = 0};
         new TestEntity(session) {Value = 0};
-        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsyncTask();
+        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
         try {
           Assert.ThrowsAsync<InvalidOperationException>(async () => await anotherTask);
         }
@@ -284,10 +284,10 @@ namespace Xtensive.Orm.Tests.Storage
           value += 1;
         }
 
-        var task = longListOfQueries.First().AsAsyncTask();
+        var task = longListOfQueries.First().AsAsync();
         new TestEntity(session) { Value = 0 };
         new TestEntity(session) { Value = 0 };
-        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsyncTask();
+        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
         var result1 = await task;
         Assert.ThrowsAsync<InvalidOperationException>(async () => await anotherTask);
       }
@@ -306,10 +306,10 @@ namespace Xtensive.Orm.Tests.Storage
           value += 1;
         }
 
-        var task = longListOfQueries.First().AsAsyncTask();
+        var task = longListOfQueries.First().AsAsync();
         new TestEntity(session) {Value = 0};
         new TestEntity(session) {Value = 0};
-        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsyncTask();
+        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
         try {
           Assert.ThrowsAsync<InvalidOperationException>(async () => await anotherTask);
         }
