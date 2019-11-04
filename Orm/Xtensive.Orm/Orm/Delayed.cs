@@ -30,7 +30,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Asynchrously gets value.
+    /// Asynchronously gets value.
     /// </summary>
     /// <returns>Task running this operation</returns>
     [Obsolete("Use AsAsync() method instead.")]
@@ -40,7 +40,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Asynchrously gets value.
+    /// Asynchronously gets value.
     /// </summary>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task running this operation.</returns>
@@ -51,7 +51,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Asynchrously gets value.
+    /// Asynchronously gets value.
     /// </summary>
     /// <returns>Task running this operation</returns>
     public Task<T> AsAsync()
@@ -60,7 +60,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Asynchrously gets value.
+    /// Asynchronously gets value.
     /// </summary>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task running this operation.</returns>
