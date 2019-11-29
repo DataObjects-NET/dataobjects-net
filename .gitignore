@@ -1,5 +1,3 @@
-syntax: glob
-
 *.suo
 *.user
 *.csproj.user
@@ -11,27 +9,20 @@ syntax: glob
 _ReSharper.*
 *.vs10x
 *.DotSettings
-
 *.exe
 *.dll
 *.obj
 *.pdb
-
 *.HxS
 *.chm
 *.xml
 *.mshc
-
 *.orig
-
 *.log
-
 bin
 Bin
 obj
-
 _Build
 _Work
-
 .vs
 .idea
