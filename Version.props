@@ -3,7 +3,7 @@
 
 <PropertyGroup>
     <DoVersion>0.1.0</DoVersion>
-    <DoVersionSuffix>rc</DoVersionSuffix>
+    <DoVersionSuffix></DoVersionSuffix>
 </PropertyGroup>
 
 </Project>
