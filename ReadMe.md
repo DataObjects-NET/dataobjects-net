@@ -1,4 +1,4 @@
-﻿# DataObjects.Net 
+﻿# DataObjects.Net
 
 DataObjects.Net is a persistence and object-relational mapping framework for the Microsoft .NET. It allows developers to define persistent objects as well as business logic directly in C#, Visual Basic or F#. The persistent objects can be retrieved by LINQ queries. Persistent data can be stored in SQL Servers. In contrast to many other ORM frameworks the database model is generated and maintained automatically.
 
@@ -35,13 +35,11 @@ DataObjects.Net extensions are available on Nuget as well (more about extensions
     dotnet add package Xtensive.Orm.Tracking.Core
     dotnet add package Xtensive.Orm.Web.Core
 
-
-
 Use the --version option to specify preview version to install
 
 ### Usage 
 
-The following  code demonstrates  basic usage of DataObjects.Net. For full tutorial configuring Domain, defining the model and querying data see our [documentation](https://duckduckgo.com).
+The following  code demonstrates  basic usage of DataObjects.Net. For full tutorial configuring Domain, defining the model and querying data see our [documentation](http://help.dataobjects.net).
 
     // create configuration with connection to Tests database on local instance of MS SQL Server
     var domainConfiguration = new DomainConfiguration(@"sqlserver://localhost/Tests");
@@ -61,7 +59,7 @@ The following  code demonstrates  basic usage of DataObjects.Net. For full tutor
           .Where(author => author.FirstName=="Anton" && author.LastName=="Chekhov")
           .FirstOrDefault();
 
-        //if Anton Pavlovish isn't in database yet then and him
+        //if Anton Pavlovich isn't in database yet then and him
         if (existingAuthor==null) {
           existingAuthor = new new Author(session) {
             FirstName = "Anton",
@@ -84,9 +82,27 @@ The following  code demonstrates  basic usage of DataObjects.Net. For full tutor
 
 ### Getting support
 
-If you have a specific question about using DataObjects.Net you can ask [on our support forum](http://support.x-tensive.com).
+If you have a specific question about using DataObjects.Net you can ask [on our support forum](http://support.x-tensive.com) or send your question to [support@dataobjects.net](mailto:support@dataobjects.net).
 
+### How To Build
 
-### Contributing
+Repository contains two solutions - `Orm` and `Weaver`.
 
-If you are intrested in congributing to this project, see [contributing](https://github.com/DataObjects-NET/dataobjects-net/blob/master/Documentation/Contributing.md).
+The `Orm` solution contains DataObjects.Net projects and the extensions we develop and maintain (including tests).
+The `Weaver` solution contains projects which are responsible for post-build processing of assemblies containing inheritors of `Xtensive.Orm.Persistent` class.
+
+Simpliest way to build binaries of both solutions is to run
+
+    dotnet build Build.proj
+
+It builds binaries and pack them to Nuget packages. Results of build are available in `_Build` directory.
+
+If packages aren't needed consider running
+
+    dotnet build Build.proj /t:BuildBinaries
+
+Version.props file declares version is building. `<DoVersion>` tag defiles version in `<Major version>.<Minor version>.<Revision>` format. Do not define Build number, it is defined while building. `<DoVersionSuffix>` should be defined for pre-release versions like Alphas, Betas, and RCs.
+
+### License
+
+DataObjects.Net and its extensions published here are licensed under the [MIT](https://github.com/DataObjects-NET/dataobjects-net/blob/master/License.txt) license.
