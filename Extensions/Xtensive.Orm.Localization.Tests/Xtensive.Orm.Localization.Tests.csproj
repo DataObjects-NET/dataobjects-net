@@ -36,6 +36,7 @@
     <Compile Include="LocalizationScopeTest.cs" />
     <Compile Include="Model\Page.cs" />
     <Compile Include="Model\PageLocalization.cs" />
+    <Compile Include="MultipleNodesTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryTests.cs" />
     <Compile Include="AutoBuildTest.cs" />

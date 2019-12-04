@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Localization
     {
       get
       {
-        var key = Key.Create(Session.Domain, typeof (TItem), culture.Name, Owner.Key);
+        var key = Key.Create(Session.Domain, Session.StorageNode.Id, typeof (TItem), TypeReferenceAccuracy.BaseType, culture.Name, Owner.Key);
         var result = Session.Query.SingleOrDefault<TItem>(key);
         if (result!=null)
           return result;
