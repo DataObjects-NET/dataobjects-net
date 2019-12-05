@@ -1,0 +1,6 @@
+[main] Fixed StackOverflowException while prefetching
+[main] Added .AsAsync() methods instead of .AsAsyncTask(). The old marked as obsolete
+[main] Optimized logging for perfomance critical regions
+[sqlserver] Fixed .OrderBy() translation in combination with paging and set operations
+[postgresql] Added support for PostgreSQL v10 and v11
+[postgresql] Improved index extraction for versions 9.1 and newer
