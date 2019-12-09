@@ -4,7 +4,7 @@
 
 The extension is available on Nuget
 
-    dotnet add package Xtensive.Orm.Reprocessing.Core
+    dotnet add package Xtensive.Orm.Reprocessing
 
 ### Usage
 
@@ -52,5 +52,5 @@ To omit settings up the strategy each time consider configuring it in applicatio
       defaultExecuteStrategy="Xtensive.Orm.Reprocessing.HandleReprocessableExceptionStrategy, Xtensive.Orm.Reprocessing">
     </Xtensive.Orm.Reprocessing>
 
-Having that done, in scenarious with no strategy specified, the extension will automatically use the strategy from the configuration
+Having that done, in scenarious with no strategy specified, the extension will automatically use the strategy from the configuration.
 

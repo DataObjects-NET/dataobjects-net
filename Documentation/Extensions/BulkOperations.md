@@ -6,7 +6,7 @@ The extension provides a set of `IQueriable` extension methods that are translat
 
 The extension is available on Nuget
 
-    dotnet add package Xtensive.Orm.BulkOperations.Core
+    dotnet add package Xtensive.Orm.BulkOperations
 
 ### Usage
 

@@ -6,7 +6,7 @@ The extension provides security layer (authentication services, principals, role
 
 The extension is available on Nuget
 
-    dotnet add package Xtensive.Orm.Security.Core
+    dotnet add package Xtensive.Orm.Security
 
 ### Usage
 

@@ -15,13 +15,13 @@ Official extensions:
 
 Each extension has a corresponding Nuget package so they can be installed separately or in any combination
 
-    dotnet add package Xtensive.Orm.BulkOperations.Core
-    dotnet add package Xtensive.Orm.Localization.Core
-    dotnet add package Xtensive.Orm.Logging.log4net.Core
-    dotnet add package Xtensive.Orm.Logging.NLog.Core
-    dotnet add package Xtensive.Orm.Reprocessing.Core
-    dotnet add package Xtensive.Orm.Security.Core
-    dotnet add package Xtensive.Orm.Tracking.Core
-    dotnet add package Xtensive.Orm.Web.Core
+    dotnet add package Xtensive.Orm.BulkOperations
+    dotnet add package Xtensive.Orm.Localization
+    dotnet add package Xtensive.Orm.Logging.log4net
+    dotnet add package Xtensive.Orm.Logging.NLog
+    dotnet add package Xtensive.Orm.Reprocessing
+    dotnet add package Xtensive.Orm.Security
+    dotnet add package Xtensive.Orm.Tracking
+    dotnet add package Xtensive.Orm.Web
 
 Use the --version option to specify preview version to install.

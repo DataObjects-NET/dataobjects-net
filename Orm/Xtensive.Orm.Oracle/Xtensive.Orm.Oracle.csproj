@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.Oracle</AssemblyName>
-    <PackageId>Xtensive.Orm.Oracle.Core</PackageId>
+    <PackageId>Xtensive.Orm.Oracle</PackageId>
     <Title>$(DoProductName) provider for Oracle</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds support for Oracle database to $(DoProductName)</PackageDescription>

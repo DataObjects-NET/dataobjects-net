@@ -6,7 +6,7 @@ The extension transparently solves a task of application or service localization
 
 The extension is available on Nuget
 
-    dotnet add package Xtensive.Orm.Localization.Core
+    dotnet add package Xtensive.Orm.Localization
 
 ### Usage
 

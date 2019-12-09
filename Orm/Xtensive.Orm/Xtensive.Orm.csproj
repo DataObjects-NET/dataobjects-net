@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm</AssemblyName>
-    <PackageId>Xtensive.Orm.Core</PackageId>
+    <PackageId>Xtensive.Orm</PackageId>
     <Title>$(DoProductName)</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>$(DoProductName) is the object-relational mapper (ORM) and business logic layer (BLL) framework</PackageDescription>

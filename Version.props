@@ -2,7 +2,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
 <PropertyGroup>
-    <DoVersion>0.1.0</DoVersion>
+    <DoVersion>6.0.0</DoVersion>
     <DoVersionSuffix></DoVersionSuffix>
 </PropertyGroup>
 

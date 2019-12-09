@@ -6,7 +6,7 @@ The extension provides tracking/auditing funtionality on Session/Domain level.
 
 The extension is available on Nuget
 
-    dotnet add package Xtensive.Orm.Tracking.Core
+    dotnet add package Xtensive.Orm.Tracking
 
 ### Usage
 

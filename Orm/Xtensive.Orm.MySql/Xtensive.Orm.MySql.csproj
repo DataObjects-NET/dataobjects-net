@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.MySql</AssemblyName>
-    <PackageId>Xtensive.Orm.MySql.Core</PackageId>
+    <PackageId>Xtensive.Orm.MySql</PackageId>
     <Title>$(DoProductName) provider for MySQL</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds support for MySQL to $(DoProductName)</PackageDescription>

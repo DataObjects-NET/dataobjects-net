@@ -6,7 +6,7 @@ The extension provides integration points between DataObjects.Net internal loggi
 
 The extension is available on Nuget
 
-    dotnet add package Xtensive.Orm.Logging.log4net.Core
+    dotnet add package Xtensive.Orm.Logging.log4net
 
 ### Usage
 

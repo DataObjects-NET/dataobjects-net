@@ -15,7 +15,7 @@ Finally, no automatic `Session` + `TransactionScope` will be provided, if you do
 
 The extension is available on Nuget
 
-    dotnet add package Xtensive.Orm.Tracking.Core
+    dotnet add package Xtensive.Orm.Web
 
 ### Usage
 

@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.Firebird</AssemblyName>
-    <PackageId>Xtensive.Orm.Firebird.Core</PackageId>
+    <PackageId>Xtensive.Orm.Firebird</PackageId>
     <Title>$(DoProductName) provider for Firebird</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds support for Firebird to $(DoProductName)</PackageDescription>

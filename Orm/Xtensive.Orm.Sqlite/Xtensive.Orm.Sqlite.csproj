@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.Sqlite</AssemblyName>
-    <PackageId>Xtensive.Orm.Sqlite.Core</PackageId>
+    <PackageId>Xtensive.Orm.Sqlite</PackageId>
     <Title>$(DoProductName) provider for SQLite</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds support for SQLite to $(DoProductName)</PackageDescription>

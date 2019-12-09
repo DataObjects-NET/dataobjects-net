@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.PostgreSql</AssemblyName>
-    <PackageId>Xtensive.Orm.PostgreSql.Core</PackageId>
+    <PackageId>Xtensive.Orm.PostgreSql</PackageId>
     <Title>$(DoProductName) provider for PostgreSQL</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds support for PostgreSQL to $(DoProductName)</PackageDescription>
