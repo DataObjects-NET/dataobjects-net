@@ -185,8 +185,8 @@ namespace Xtensive.Orm.BulkOperations.Tests
           var bar1 = new Bar(session) {Name = "Test"};
           var bar2 = new Bar(session);
           Assert.Throws<NotSupportedException>(()=>session.Query.All<Foo>().Set(a => a.Bar, a => session.Query.All<Bar>().First(b => b.Name==a.Name)).Update());
-          Assert.That(foo1.Bar, Is.EqualTo(bar1));
-          Assert.That(foo2.Bar, Is.EqualTo(bar2));
+          Assert.That(foo1.Bar, Is.Null);
+          Assert.That(foo2.Bar, Is.Null);
           Assert.That(foo3.Bar, Is.Null);
           trx.Complete();
         }
