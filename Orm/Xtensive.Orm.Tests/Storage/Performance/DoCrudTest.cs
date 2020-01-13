@@ -10,26 +10,43 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Tests.Storage.Performance
 {
-  public abstract class DoCrudTest : AutoBuildTest
+  [Explicit]
+  public sealed class DoCrudTest : AutoBuildTest
   {
     private const int BaseCount = 50000;
     private const int InsertCount = BaseCount;
     private const int EntitySetItemCount = 10;
 
     private bool warmup;
+    private bool firstTestRun = true;
     private int instanceCount;
     private int collectionCount;
 
-    protected abstract DomainConfiguration CreateConfiguration();
 
     protected override sealed DomainConfiguration BuildConfiguration()
     {
-      var config = CreateConfiguration();
+      var config = DomainConfigurationFactory.CreateForCrudTest(TestConfiguration.Instance.Storage);
       config.Sessions.Add(new SessionConfiguration("Default"));
       // config.Sessions.Default.CacheSize = BaseCount;
       config.Sessions.Default.CacheType = SessionCacheType.Infinite;
       config.Types.Register(typeof (Simplest).Assembly, typeof (Simplest).Namespace);
       return config;
+    }
+
+    public override void TestFixtureSetUp()
+    {
+      firstTestRun = true;
+      base.TestFixtureSetUp();
+    }
+
+    [SetUp]
+    public void TestSetup()
+    {
+      if (!firstTestRun) {
+        firstTestRun = false;
+        return;
+      }
+      RebuildDomain();
     }
 
     [Test]
@@ -42,7 +59,6 @@ namespace Xtensive.Orm.Tests.Storage.Performance
     }
 
     [Test]
-    [Explicit]
     [Category("Profile")]
     public void ProfileTest()
     {
@@ -62,7 +78,6 @@ namespace Xtensive.Orm.Tests.Storage.Performance
     }
 
     [Test]
-    [Explicit]
     [Category("Profile")]
     public void UpdatePerformanceTest()
     {
@@ -424,23 +439,22 @@ namespace Xtensive.Orm.Tests.Storage.Performance
     private void CachedRseQueryTest(int count)
     {
       using (var session = Domain.OpenSession())
-      using (session.Activate()) {
-        using (var ts = session.OpenTransaction()) {
-          TestHelper.CollectGarbage();
-          var pKey = new Parameter<Tuple>();
-          var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery().Seek(() => pKey.Value);
-          using (new ParameterContext().Activate()) {
-            using (warmup ? null : new Measurement("Cached RSE query", count)) {
-              for (int i = 0; i < count; i++) {
-                pKey.Value = Tuple.Create((long) (i%instanceCount));
-                var es = rs.GetRecordSet(session).ToEntities<Simplest>(0);
-                foreach (var o in es) {
-                  // Doing nothing, just enumerate
-                }
+      using (session.Activate())
+      using (var ts = session.OpenTransaction()) {
+        TestHelper.CollectGarbage();
+        var pKey = new Parameter<Tuple>();
+        var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery().Seek(() => pKey.Value);
+        using (new ParameterContext().Activate()) {
+          using (warmup ? null : new Measurement("Cached RSE query", count)) {
+            for (int i = 0; i < count; i++) {
+              pKey.Value = Tuple.Create((long) (i%instanceCount));
+              var es = rs.GetRecordSet(session).ToEntities<Simplest>(0);
+              foreach (var o in es) {
+                // Doing nothing, just enumerate
               }
             }
-            ts.Complete();
           }
+          ts.Complete();
         }
       }
     }

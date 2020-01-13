@@ -20,16 +20,37 @@ namespace Xtensive.Orm.Tests.Storage.Performance
     public const int BaseCount = 10000;
     public const int InsertCount = BaseCount;
     private bool warmup = false;
+    private bool firstTestRun = true;
     private int instanceCount;
 
-    private readonly SqlConnection con = new SqlConnection("Data Source=localhost;"
-      + "Initial Catalog = DO40-Tests;"
-      + "Integrated Security=SSPI;");
+    private SqlConnection connection;
+
+    public override void TestFixtureSetUp()
+    {
+      firstTestRun = true;
+      base.TestFixtureSetUp();
+      connection = (SqlConnection) Domain.Handlers.StorageDriver.CreateConnection(null).UnderlyingConnection;
+    }
+
+    [SetUp]
+    public void TestSetup()
+    {
+      if (!firstTestRun) {
+        firstTestRun = false;
+        return;
+      }
+      RebuildDomain();
+    }
+
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+    }
 
     protected override DomainConfiguration BuildConfiguration()
     {
       // Just to ensure schema is ready
-      var config = DomainConfigurationFactory.CreateForCrudTest("mssql2005");
+      var config = DomainConfigurationFactory.CreateForCrudTest(TestConfiguration.Instance.Storage);
       config.Types.Register(
         typeof (CrudModel.Simplest).Assembly, typeof (CrudModel.Simplest).Namespace);
       return config;
@@ -46,7 +67,6 @@ namespace Xtensive.Orm.Tests.Storage.Performance
     }
 
     [Test]
-    [Explicit]
     [Category("Profile")]
     public void ProfileTest()
     {
@@ -56,7 +76,6 @@ namespace Xtensive.Orm.Tests.Storage.Performance
     }
 
     [Test]
-    [Explicit]
     [Category("Profile")]
     public void UpdatePerformanceTest()
     {
@@ -75,14 +94,14 @@ namespace Xtensive.Orm.Tests.Storage.Performance
       SingleStatementUpdateTest();
       RemoveTest();
     }
-    
+
     private void InsertTest(int insertCount)
     {
-      con.Open();
+      connection.Open();
       TestHelper.CollectGarbage();
       using (warmup ? null : new Measurement("Insert", insertCount)) {
-        SqlTransaction transaction = con.BeginTransaction();
-        SqlCommand cmd = con.CreateCommand();
+        SqlTransaction transaction = connection.BeginTransaction();
+        SqlCommand cmd = connection.CreateCommand();
         cmd.Transaction = transaction;
         cmd.Parameters.AddWithValue("@pId", (long) 0);
         cmd.Parameters.AddWithValue("@pTypeId", (long) 0);
@@ -99,20 +118,20 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         transaction.Commit();
       }
       instanceCount = insertCount;
-      con.Close();
+      connection.Close();
     }
 
     private void MaterializeTest(int count)
     {
       long sum = 0;
       int i = 0;
-      con.Open();
-      SqlTransaction transaction = con.BeginTransaction();
+      connection.Open();
+      SqlTransaction transaction = connection.BeginTransaction();
 
       TestHelper.CollectGarbage();
       using (warmup ? null : new Measurement("Materialize & GetField", count)) {
         while (i < count) {
-          SqlCommand cmd = con.CreateCommand();
+          SqlCommand cmd = connection.CreateCommand();
           cmd.Transaction = transaction;
           cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " +
             "FROM [dbo].[Simplest]";
@@ -132,16 +151,16 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         transaction.Commit();
       }
       Assert.AreEqual((long)count * (count - 1) / 2, sum);
-      con.Close();
+      connection.Close();
     }
 
     private void FetchTest(int count)
     {
       long sum = (long) count * (count - 1) / 2;
 
-      con.Open();
-      SqlTransaction transaction = con.BeginTransaction();
-      SqlCommand cmd = con.CreateCommand();
+      connection.Open();
+      SqlTransaction transaction = connection.BeginTransaction();
+      SqlCommand cmd = connection.CreateCommand();
       cmd.Transaction = transaction;
       cmd.Parameters.AddWithValue("@pId", 0);
       cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
@@ -168,14 +187,14 @@ namespace Xtensive.Orm.Tests.Storage.Performance
       }
       if (count <= instanceCount)
         Assert.AreEqual(0, sum);
-      con.Close();
+      connection.Close();
     }
 
     private void QueryTest(int count)
     {
-      con.Open();
-      SqlTransaction transaction = con.BeginTransaction();
-      SqlCommand cmd = con.CreateCommand();
+      connection.Open();
+      SqlTransaction transaction = connection.BeginTransaction();
+      SqlCommand cmd = connection.CreateCommand();
       cmd.Transaction = transaction;
       cmd.Parameters.AddWithValue("@pId", 0);
       cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
@@ -199,16 +218,16 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         }
         transaction.Commit();
       }
-      con.Close();
+      connection.Close();
     }
 
     private void UpdateTest()
     {
-      con.Open();
+      connection.Open();
       TestHelper.CollectGarbage();
       using (warmup ? null : new Measurement("Update", instanceCount)) {
-        SqlTransaction transaction = con.BeginTransaction();
-        SqlCommand cmd = con.CreateCommand();
+        SqlTransaction transaction = connection.BeginTransaction();
+        SqlCommand cmd = connection.CreateCommand();
         cmd.Transaction = transaction;
         cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
           "FROM [dbo].[Simplest]";
@@ -231,16 +250,16 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         }
         transaction.Commit();
       }
-      con.Close();
+      connection.Close();
     }
 
     private void SingleStatementUpdateTest()
     {
-      con.Open();
+      connection.Open();
       TestHelper.CollectGarbage();
       using (warmup ? null : new Measurement("SingleStatementUpdate", instanceCount)) {
-        SqlTransaction transaction = con.BeginTransaction();
-        SqlCommand cmd = con.CreateCommand();
+        SqlTransaction transaction = connection.BeginTransaction();
+        SqlCommand cmd = connection.CreateCommand();
         cmd.Transaction = transaction;
         cmd.CommandText = 
           "UPDATE [dbo].[Simplest] " + 
@@ -249,16 +268,16 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         cmd.ExecuteNonQuery();
         transaction.Commit();
       }
-      con.Close();
+      connection.Close();
     }
 
     private void RemoveTest()
     {
-      con.Open();
+      connection.Open();
       TestHelper.CollectGarbage();
       using (warmup ? null : new Measurement("Remove", instanceCount)) {
-        SqlTransaction transaction = con.BeginTransaction();
-        SqlCommand cmd = con.CreateCommand();
+        SqlTransaction transaction = connection.BeginTransaction();
+        SqlCommand cmd = connection.CreateCommand();
         cmd.Transaction = transaction;
         cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
           "FROM [dbo].[Simplest]";
@@ -268,7 +287,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         var list = new List<Simplest>();
         while (dr.Read()) {
           if (!dr.IsDBNull(0) && !dr.IsDBNull(2))
-            list.Add(new Simplest((long)dr.GetValue(0), (long)dr.GetValue(2)));
+            list.Add(new Simplest((long) dr.GetValue(0), (long) dr.GetValue(2)));
         }
         dr.Close();
 
@@ -279,7 +298,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         }
         transaction.Commit();
       }
-      con.Close();
+      connection.Close();
     }
   }
 }
