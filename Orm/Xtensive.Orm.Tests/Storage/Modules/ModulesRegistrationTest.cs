@@ -14,7 +14,7 @@ using NUnit.Framework;
 namespace Xtensive.Orm.Tests.Storage.Modules
 {
   [TestFixture, Category("Upgrade")]
-  [Explicit("Requires specific file path.")]
+  [Ignore(".Net Core 2 has no working CodeDomProvider. It appeared only in .Net Core 3")]
   public sealed class ModulesRegistrationTest
   {
     [OneTimeSetUp]
@@ -79,8 +79,7 @@ namespace Xtensive.Orm.Tests.Storage.Modules
       foreach (var reference in references)
         compilerParameters.ReferencedAssemblies.Add(GetModelAssemblyName(reference));
       compilerParameters.ReferencedAssemblies.Add("System.dll");
-      compilerParameters.ReferencedAssemblies
-        .Add(@"C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll");
+      compilerParameters.ReferencedAssemblies.Add(@"System.Core.dll");
       compilerParameters.ReferencedAssemblies.Add(@"C:\Program Files\PostSharp 1.0\PostSharp.Laos.dll");
       compilerParameters.ReferencedAssemblies.Add(@"C:\Program Files\PostSharp 1.0\PostSharp.Public.dll");
       compilerParameters.ReferencedAssemblies.Add("..\\..\\..\\Lib\\Xtensive.Core.dll");
