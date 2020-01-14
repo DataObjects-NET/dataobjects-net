@@ -10,9 +10,10 @@ using Xtensive.Orm.Configuration;
 namespace Xtensive.Orm.Tests.Storage
 {
   [TestFixture]
+  [Ignore("No such domain configuration for now")]
   public class EncryptedConnectionStringTest : HasConfigurationAccessTest
   {
-    [Test, Explicit]
+    [Test]
     public void MainTest()
     {
       var config = LoadDomainConfiguration("encrypted");

@@ -29,6 +29,7 @@ namespace Xtensive.Orm.Tests.Storage
   }
 
   [TestFixture]
+  [Ignore("No support for transaction integration for .Net Core 2")]
   public class TransactionScopeIntegrationTest : AutoBuildTest
   {
     protected override void CheckRequirements()
