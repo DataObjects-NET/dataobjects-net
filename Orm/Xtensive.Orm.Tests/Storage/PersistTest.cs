@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Tests.Storage
         }
         using (var t = session.OpenTransaction()) {
           customer.Remove();
-          new Customer();
+          new Customer() {FirstName = "Peter", LastName = "Petrov" };
           t.Complete();
         }
       }
