@@ -106,12 +106,11 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         cmd.Parameters.AddWithValue("@pId", (long) 0);
         cmd.Parameters.AddWithValue("@pTypeId", (long) 0);
         cmd.CommandText = "INSERT INTO " + 
-          "[dbo].[Simplest] ([Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value]) " + 
-          "VALUES (@pId, @pTypeId, @pId)";
+          "[dbo].[Simplest] ([Simplest].[Id], [Simplest].[Value]) " + 
+          "VALUES (@pId, @pId)";
 
         for (int i = 0; i < insertCount; i++) {
           cmd.Parameters["@pId"].SqlValue = (long) i;
-          cmd.Parameters["@pTypeId"].SqlValue = (long) 0;
           cmd.ExecuteNonQuery();
         }
         
@@ -133,15 +132,15 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         while (i < count) {
           SqlCommand cmd = connection.CreateCommand();
           cmd.Transaction = transaction;
-          cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " +
+          cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[Value] " +
             "FROM [dbo].[Simplest]";
           SqlDataReader dr = cmd.ExecuteReader();
           while (dr.Read()) {
             var s = new Simplest();
             if (!dr.IsDBNull(0))
               s.Id = (long) dr.GetValue(0);
-            if (!dr.IsDBNull(2))
-              s.Value = (long) dr.GetValue(2);
+            if (!dr.IsDBNull(1))
+              s.Value = (long) dr.GetValue(1);
             sum += s.Id;
             if (++i >= count)
               break;
@@ -163,7 +162,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
       SqlCommand cmd = connection.CreateCommand();
       cmd.Transaction = transaction;
       cmd.Parameters.AddWithValue("@pId", 0);
-      cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
+      cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[Value] " + 
         "FROM [dbo].[Simplest] WHERE [Simplest].[Id] = @pId";
       SqlDataReader dr;
 
@@ -177,8 +176,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
           while (dr.Read()) {
             if (!dr.IsDBNull(0))
               s.Id = (long) dr.GetValue(0);
-            if (!dr.IsDBNull(2))
-              s.Value = (long) dr.GetValue(2);
+            if (!dr.IsDBNull(1))
+              s.Value = (long) dr.GetValue(1);
           }
           sum -= s.Id;
           dr.Close();
@@ -197,7 +196,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
       SqlCommand cmd = connection.CreateCommand();
       cmd.Transaction = transaction;
       cmd.Parameters.AddWithValue("@pId", 0);
-      cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
+      cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[Value] " + 
         "FROM [dbo].[Simplest] WHERE [Simplest].[id] = @pId";
       SqlDataReader dr;
 
@@ -211,8 +210,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
           while (dr.Read()) {
             if (!dr.IsDBNull(0))
               s.Id = (long) dr.GetValue(0);
-            if (!dr.IsDBNull(2))
-              s.Value = (long) dr.GetValue(2);
+            if (!dr.IsDBNull(1))
+              s.Value = (long) dr.GetValue(1);
           }
           dr.Close();
         }
@@ -229,7 +228,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         SqlTransaction transaction = connection.BeginTransaction();
         SqlCommand cmd = connection.CreateCommand();
         cmd.Transaction = transaction;
-        cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
+        cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[Value] " + 
           "FROM [dbo].[Simplest]";
         cmd.Parameters.AddWithValue("@pId", 0);
         cmd.Parameters.AddWithValue("@pValue", 0);
@@ -237,8 +236,8 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         SqlDataReader dr = cmd.ExecuteReader();
         var list = new List<Simplest>();
         while (dr.Read()) {
-          if (!dr.IsDBNull(0) && !dr.IsDBNull(2))
-            list.Add(new Simplest((long)dr.GetValue(0), (long)dr.GetValue(2)));
+          if (!dr.IsDBNull(0) && !dr.IsDBNull(1))
+            list.Add(new Simplest((long) dr.GetValue(0), (long) dr.GetValue(1)));
         }
         dr.Close();
 
@@ -279,15 +278,15 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         SqlTransaction transaction = connection.BeginTransaction();
         SqlCommand cmd = connection.CreateCommand();
         cmd.Transaction = transaction;
-        cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[TypeId], [Simplest].[Value] " + 
+        cmd.CommandText = "SELECT [Simplest].[Id], [Simplest].[Value] " + 
           "FROM [dbo].[Simplest]";
         cmd.Parameters.AddWithValue("@pId", 0);
         
         SqlDataReader dr = cmd.ExecuteReader();
         var list = new List<Simplest>();
         while (dr.Read()) {
-          if (!dr.IsDBNull(0) && !dr.IsDBNull(2))
-            list.Add(new Simplest((long) dr.GetValue(0), (long) dr.GetValue(2)));
+          if (!dr.IsDBNull(0) && !dr.IsDBNull(1))
+            list.Add(new Simplest((long) dr.GetValue(0), (long) dr.GetValue(1)));
         }
         dr.Close();
 
