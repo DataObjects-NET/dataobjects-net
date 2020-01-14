@@ -667,10 +667,6 @@
     <Compile Include="Storage\Performance\CrudModel\Simplest.cs" />
     <Compile Include="Storage\Performance\CrudModel\SimplestContainer.cs" />
     <Compile Include="Storage\Performance\DoCrudTest.cs" />
-    <Compile Include="Storage\Performance\DoMemoryCrudTest.cs" />
-    <Compile Include="Storage\Performance\DoOracleCrudTest.cs" />
-    <Compile Include="Storage\Performance\DoPostgreSqlCrudTest.cs" />
-    <Compile Include="Storage\Performance\DoSqlServerCrudTest.cs" />
     <Compile Include="Storage\Performance\SqlClientCrudModel\Simplest.cs" />
     <Compile Include="Storage\Performance\SqlClientCrudTest.cs" />
     <Compile Include="Storage\PersistTest.cs" />

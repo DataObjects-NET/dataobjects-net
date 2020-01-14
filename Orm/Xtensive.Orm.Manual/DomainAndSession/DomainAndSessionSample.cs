@@ -94,12 +94,13 @@ namespace Xtensive.Orm.Manual.DomainAndSession
     }
 
     [Test]
+    [Explicit("Needs MS SQL 2016 to be installed locally and also be available by localhost")]
     public void ConnectionStringInAppConfigTest()
     {
       #region Connection string in App.config sample
 
       // Creating new Domain configuration
-      var config = LoadDomainConfiguration("mssql2005cs");
+      var config = LoadDomainConfiguration("mssql2016cs");
       // Registering all types in the specified assembly and namespace
       config.Types.Register(typeof (Person).Assembly, typeof(Person).Namespace);
       // And finally building the domain

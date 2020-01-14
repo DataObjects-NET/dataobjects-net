@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   internal class IssueJira0171_DateTimeOffset : AutoBuildTest
   {
-    private DateTimeOffset today = new DateTimeOffset(2013, 11, 28, 16, 53, 0, 0, new TimeSpan(4, 10, 0));
+    private DateTimeOffset today = new DateTimeOffset(2018, 11, 28, 16, 53, 0, 0, new TimeSpan(4, 10, 0));
 
     protected override DomainConfiguration BuildConfiguration()
     {
