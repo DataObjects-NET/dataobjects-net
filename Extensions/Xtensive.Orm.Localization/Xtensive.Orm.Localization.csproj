@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.Localization</RootNamespace>
     <AssemblyName>Xtensive.Orm.Localization</AssemblyName>
-    <PackageId>Xtensive.Orm.Localization.Core</PackageId>
+    <PackageId>Xtensive.Orm.Localization</PackageId>
     <Title>Localization extension for $(DoProductName)</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds support for easy localization for $(DoProductName)-powered domain models</PackageDescription>

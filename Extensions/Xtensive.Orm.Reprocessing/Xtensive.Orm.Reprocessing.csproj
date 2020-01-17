@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.Reprocessing</RootNamespace>
     <AssemblyName>Xtensive.Orm.Reprocessing</AssemblyName>
-    <PackageId>Xtensive.Orm.Reprocessing.Core</PackageId>
+    <PackageId>Xtensive.Orm.Reprocessing</PackageId>
     <Title>Operation reprocessing extension for $(DoProductName)</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds support for reprocessable operations for $(DoProductName)-powered projects</PackageDescription>

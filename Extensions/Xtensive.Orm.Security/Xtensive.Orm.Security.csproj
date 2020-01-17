@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.Security</RootNamespace>
     <AssemblyName>Xtensive.Orm.Security</AssemblyName>
-    <PackageId>Xtensive.Orm.Security.Core</PackageId>
+    <PackageId>Xtensive.Orm.Security</PackageId>
     <Title>Security extension for $(DoProductName)</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds security layer for $(DoProductName)-powered projects</PackageDescription>

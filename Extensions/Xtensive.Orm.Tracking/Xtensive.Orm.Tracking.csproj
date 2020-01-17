@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.Tracking</RootNamespace>
     <AssemblyName>Xtensive.Orm.Tracking</AssemblyName>
-    <PackageId>Xtensive.Orm.Tracking.Core</PackageId>
+    <PackageId>Xtensive.Orm.Tracking</PackageId>
     <Title>Change tracking extension for $(DoProductName)</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds tracking functionality for $(DoProductName)-powered projects</PackageDescription>
