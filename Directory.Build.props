@@ -8,7 +8,7 @@
     <DoBuildNumber>$(BUILD_NUMBER)</DoBuildNumber>
     <DoBuildNumber Condition="'$(DoBuildNumber)'==''">0</DoBuildNumber>
     <DoBuildYear>$([System.DateTime]::Today.Year)</DoBuildYear>
-    <DoProductName>DataObjects.Net Core</DoProductName>
+    <DoProductName>DataObjects.Net</DoProductName>
     <DoProductAuthors>Xtensive LLC and contributors</DoProductAuthors>
     <DoProductCopyright>2003-$(DoBuildYear) $(DoProductAuthors)</DoProductCopyright>
     <DoVersionSuffix Condition="'$(DoVersionSuffix)'=='dev'">dev-$(DoBuildNumber)</DoVersionSuffix>

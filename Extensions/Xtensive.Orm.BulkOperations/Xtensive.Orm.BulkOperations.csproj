@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.BulkOperations</RootNamespace>
     <AssemblyName>Xtensive.Orm.BulkOperations</AssemblyName>
-    <PackageId>Xtensive.Orm.BulkOperations.Core</PackageId>
+    <PackageId>Xtensive.Orm.BulkOperations</PackageId>
     <Title>Bulk operations extension for $(DoProductName)</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds support for bulk insert, update and delete operations for $(DoProductName)-powered domain models</PackageDescription>

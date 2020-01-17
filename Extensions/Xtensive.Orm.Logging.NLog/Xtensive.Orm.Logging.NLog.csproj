@@ -10,7 +10,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xtensive.Orm.Logging.NLog</RootNamespace>
     <AssemblyName>Xtensive.Orm.Logging.NLog</AssemblyName>
-    <PackageId>Xtensive.Orm.Logging.NLog.Core</PackageId>
+    <PackageId>Xtensive.Orm.Logging.NLog</PackageId>
     <Title>$(DoProductName) logging provider for NLog</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds support for logging via NLog for $(DoProductName)</PackageDescription>
