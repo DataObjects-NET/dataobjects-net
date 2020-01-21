@@ -68,7 +68,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DA490A4E-F9D1-474B-82C5-A1C5930F3C91}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		Directory.Build.props = Directory.Build.props
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Weaver", "Weaver\Xtensive.Orm.Weaver\Xtensive.Orm.Weaver.csproj", "{75B3DB45-3055-4A22-854A-BD271D5E4218}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -184,6 +187,10 @@ Global
 		{15CC7358-3A5B-4146-A5CB-78DAE75E88E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15CC7358-3A5B-4146-A5CB-78DAE75E88E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15CC7358-3A5B-4146-A5CB-78DAE75E88E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75B3DB45-3055-4A22-854A-BD271D5E4218}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75B3DB45-3055-4A22-854A-BD271D5E4218}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75B3DB45-3055-4A22-854A-BD271D5E4218}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75B3DB45-3055-4A22-854A-BD271D5E4218}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

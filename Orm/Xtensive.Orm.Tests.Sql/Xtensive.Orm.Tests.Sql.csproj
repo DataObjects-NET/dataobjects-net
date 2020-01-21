@@ -1,123 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <EnableDefaultItems>false</EnableDefaultItems>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <IsPackable>false</IsPackable>
+    <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
   </PropertyGroup>
-
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <RuntimeFrameworkVersion>2.0.3</RuntimeFrameworkVersion>
-    <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
-    <AssemblyName>Xtensive.Orm.Tests.Sql</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
-
   <PropertyGroup Label="Debug" Condition="'$(Configuration)'=='Debug'">
-    <Optimize>false</Optimize>
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\_Build\Debug\lib\</OutputPath>
     <DefineConstants>TRACE;DEBUG;NETCOREAPP</DefineConstants>
   </PropertyGroup>
-
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <OutputPath>..\..\_Build\Release\lib\</OutputPath>
     <DefineConstants>TRACE;NETCOREAPP</DefineConstants>
   </PropertyGroup>
-
   <ItemGroup>
     <!-- <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" /> -->
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.2" />
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.0" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm.PostgreSql\Xtensive.Orm.PostgreSql.csproj" />
     <!-- <ProjectReference Include="..\Xtensive.Orm1.SqlServerCe\Xtensive.Orm1.SqlServerCe.csproj" /> -->
     <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj" />
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="CloneTests.cs" />
-    <Compile Include="CollectionTest.cs" />
-    <Compile Include="CompilerTest.cs" />
-    <Compile Include="DateTimeIntervalTest.cs" />
-    <Compile Include="DateTimeOffsetTest.cs" />
-    <Compile Include="DriverFactoryTest.cs" />
-    <Compile Include="ExceptionTypesTest.cs" />
-    <Compile Include="Firebird\CompilerTest.cs" />
-    <Compile Include="Firebird\DateTimeIntervalTest.cs" />
-    <Compile Include="Firebird\ExceptionTypesTest.cs" />
-    <Compile Include="Firebird\ExtractorTest.cs" />
-    <Compile Include="Firebird\IndexTest.cs" />
-    <Compile Include="Firebird\SavepointTest.cs" />
-    <Compile Include="Firebird\TestHelpers.cs" />
-    <Compile Include="Firebird\TypeMappingTest.cs" />
-    <Compile Include="IndexTest.cs" />
-    <Compile Include="MakeNamesUnreadableTest.cs" />
-    <Compile Include="MySQL\CompilerTest.cs" />
-    <Compile Include="MySQL\DateTimeIntervalTests.cs" />
-    <Compile Include="MySQL\ExtractorTest.cs" />
-    <Compile Include="MySQL\MiscTests.cs" />
-    <Compile Include="MySQL\Sakila.cs" />
-    <Compile Include="MySQL\SakilaExtractorTest.cs" />
-    <Compile Include="MySQL\TypeMappingTests.cs" />
-    <Compile Include="Oracle\DateTimeIntervalTest.cs" />
-    <Compile Include="Oracle\DateTimeOffsetTest.cs" />
-    <Compile Include="Oracle\ExceptionTypesTest.cs" />
-    <Compile Include="Oracle\ExtractorTest.cs" />
-    <Compile Include="Oracle\SavepointsTest.cs" />
-    <Compile Include="Oracle\TypeMappingTest.cs" />
-    <Compile Include="Oracle\UberTest.cs" />
-    <Compile Include="PostgreSql\CatalogComparer.cs" />
-    <Compile Include="PostgreSql\DateTimeIntervalTest.cs" />
-    <Compile Include="PostgreSql\ExceptionTypesTest.cs" />
-    <Compile Include="PostgreSql\ExtractorTest.cs" />
-    <Compile Include="PostgreSql\IndexTest.cs" />
-    <Compile Include="PostgreSql\NpgsqlTypeConstructorTest.cs" />
-    <Compile Include="PostgreSql\SavepointsTest.cs" />
-    <Compile Include="PostgreSql\SqlDomTests.cs" />
-    <Compile Include="PostgreSql\TypeMappingTest.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReplaceTests.cs" />
-    <Compile Include="SavepointsTest.cs" />
-    <Compile Include="Sqlite\ChinookSchemaCreator.cs" />
-    <Compile Include="Sqlite\DateTimeIntervalTest.cs" />
-    <Compile Include="Sqlite\DateTimeOffsetTest.cs" />
-    <Compile Include="Sqlite\ExtractorTest.cs" />
-    <Compile Include="Sqlite\MiscTests.cs" />
-    <Compile Include="Sqlite\Chinook.cs" />
-    <Compile Include="Sqlite\ChinookTest.cs" />
-    <Compile Include="Sqlite\TypeMappingTests.cs" />
-    <Compile Include="SqlServer\AdventureWorks.cs" />
-    <Compile Include="SqlServer\CompilerTest.cs" />
-    <Compile Include="SqlServer\CompilerTests.cs" />
-    <Compile Include="SqlServer\ConnectionTest.cs" />
-    <Compile Include="SqlServer\DateTimeIntervalTest.cs" />
-    <Compile Include="SqlServer\DateTimeOffsetTest.cs" />
-    <Compile Include="SqlServer\ErrorMessageParserTest.cs" />
-    <Compile Include="SqlServer\ExceptionTypesTest.cs" />
-    <Compile Include="SqlServer\ExtractorTest.cs" />
-    <Compile Include="SqlServer\IndexTest.cs" />
-    <Compile Include="SqlServer\MiscTests.cs" />
-    <Compile Include="SqlServer\MSSQLExtractorTests.cs" />
-    <Compile Include="SqlServer\MSSQLTests.cs" />
-    <Compile Include="SqlServer\SavepointsTest.cs" />
-    <Compile Include="SqlServer\TypeMappingTest.cs" />
-    <Compile Include="SqlTest.cs" />
-    <Compile Include="TestConnectionInfoProvider.cs" />
-    <Compile Include="TypeMappingTest.cs" />
-  </ItemGroup>
-
   <ItemGroup>
     <None Include="App.config" />
     <None Include="..\Xtensive.Orm1.Tests.Framework\Orm.config">
