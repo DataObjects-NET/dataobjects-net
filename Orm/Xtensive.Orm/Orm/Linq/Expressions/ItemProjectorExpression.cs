@@ -117,8 +117,25 @@ namespace Xtensive.Orm.Linq.Expressions
         if (e is EntityExpression) {
           var entityExpression = (EntityExpression) e;
           var typeInfo = entityExpression.PersistentType;
-          if (typeInfo.Fields.All(fieldInfo => entityExpression.Fields.Any(entityField => entityField.Name==fieldInfo.Name)))
+
+          // Converted from LINQ to get rid of 2 closure allocations 
+          var all = true;
+          foreach (var fieldInfo in typeInfo.Fields) {
+            var isUsedInEntityExpression = false;
+            foreach (var entityField in entityExpression.Fields) {
+              if (entityField.Name == fieldInfo.Name) {
+                isUsedInEntityExpression = true;
+                break;
+              }
+            }
+            if (!isUsedInEntityExpression) {
+              all = false;
+              break;
+            }
+          }
+          if (all)
             return entityExpression;
+
           var joinedIndex = typeInfo.Indexes.PrimaryIndex;
           var joinedRs = joinedIndex.GetQuery().Alias(Context.GetNextAlias());
           var keySegment = entityExpression.Key.Mapping;
