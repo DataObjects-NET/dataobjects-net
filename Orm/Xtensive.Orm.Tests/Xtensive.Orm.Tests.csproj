@@ -405,6 +405,7 @@
     <Compile Include="Storage\CommandProcessorContextProviderTest.cs" />
     <Compile Include="Storage\ConcurrentCommandProcessorExecution.cs" />
     <Compile Include="Storage\AsyncQueries\PersistWithAsyncQueriesTest.cs" />
+    <Compile Include="Storage\Multinode\QueryCachingTest.cs" />
     <Compile Include="Storage\SchemaSharing\DomainConfigurationExtensions.cs" />
     <Compile Include="Storage\SchemaSharing\EntityManipulation\SimpleEntityManipulationTest.cs" />
     <Compile Include="Storage\SchemaSharing\EntityManipulation\Model.cs" />
