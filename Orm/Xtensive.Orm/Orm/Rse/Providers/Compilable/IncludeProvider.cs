@@ -66,9 +66,12 @@ namespace Xtensive.Orm.Rse.Providers
     protected override RecordSetHeader BuildHeader()
     {
       var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, 0, typeof(bool)));
-      var types = FilteredColumns.Select(m => newHeader.Columns[m].Type);
-      FilteredColumnsExtractionTransform = new MapTransform(true, TupleDescriptor.Create(types), FilteredColumns);
-      ResultTransform = new CombineTransform(true, Source.Header.TupleDescriptor, TupleDescriptor.Create(new []{typeof(bool)}));
+      var fieldTypes = FilteredColumns
+        .Select(m => newHeader.Columns[m].Type)
+        .ToArray(FilteredColumns.Length);
+      var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
+      FilteredColumnsExtractionTransform = new MapTransform(true, tupleDescriptor, FilteredColumns);
+      ResultTransform = new CombineTransform(true, Source.Header.TupleDescriptor, TupleDescriptor.Create<bool>());
       return newHeader;
     }
 

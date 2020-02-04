@@ -751,7 +751,8 @@ namespace Xtensive.Orm.Model
       var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset).ToList();
       columns = new ColumnInfoCollection(this, "Columns");
       columns.AddRange(orderedColumns);
-      TupleDescriptor = TupleDescriptor.Create(Columns.Select(c => c.ValueType));
+      TupleDescriptor = TupleDescriptor.Create(
+        Columns.Select(c => c.ValueType).ToArray(Columns.Count));
     }
 
     private void BuildTuplePrototype()

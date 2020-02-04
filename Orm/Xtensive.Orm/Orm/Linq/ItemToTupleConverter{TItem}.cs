@@ -218,12 +218,12 @@ namespace Xtensive.Orm.Linq
       IEnumerable<Type> types = EnumerableUtils<Type>.Empty;
       if (IsPersistableType(itemType)) {
         Expression = (Expression) BuildField(itemType, ref index, ref types);
-        TupleDescriptor = TupleDescriptor.Create(types);
+        TupleDescriptor = TupleDescriptor.Create(types.ToArray());
       }
       else {
-        Xtensive.Collections.ISet<Type> processedTypes = new Set<Type>();
+        Collections.ISet<Type> processedTypes = new Set<Type>();
         LocalCollectionExpression itemExpression = BuildLocalCollectionExpression(itemType, processedTypes, ref index, null, ref types);
-        TupleDescriptor = TupleDescriptor.Create(types);
+        TupleDescriptor = TupleDescriptor.Create(types.ToArray());
         Expression = itemExpression;
       }
       Func<TItem, Tuple> converter = delegate(TItem item) {

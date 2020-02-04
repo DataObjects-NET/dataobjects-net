@@ -200,22 +200,17 @@ namespace Xtensive.Tuples
     /// <returns></returns>
     public static Tuple GetSegment(this Tuple tuple, Segment<int> segment)
     {
-      var map = new int[segment.Length];
-      for (int i = 0; i < segment.Length; i++)
-        map[i] = segment.Offset + i;
-
-      var types = new ArraySegment<Type>(tuple.Descriptor.FieldTypes, segment.Offset, segment.Length);
-      var descriptor = TupleDescriptor.Create(types.AsEnumerable());
+      var length = segment.Length;
+      var map = new int[length];
+      var fieldTypes = new Type[length];
+      for (var index = 0; index < map.Length; index++) {
+        var sourceIndex = segment.Offset + index;
+        map[index] = sourceIndex;
+        fieldTypes[index] = tuple.Descriptor.FieldTypes[sourceIndex];
+      }
+      var descriptor = TupleDescriptor.Create(fieldTypes);
       var transform = new MapTransform(false, descriptor, map);
       return transform.Apply(TupleTransformType.TransformedTuple, tuple);
-    }
-
-    private static IEnumerable<T> AsEnumerable<T>(this ArraySegment<T> segment)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(segment, "segment");
-      int lastPosition = segment.Offset + segment.Count;
-      for (int i = segment.Offset; i < lastPosition; i++)
-        yield return segment.Array[i];
     }
 
     #endregion

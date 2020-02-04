@@ -55,17 +55,15 @@ namespace Xtensive.Orm.Rse.Providers
         indexHeader = primaryIndexRecordsetHeader.Add(rankColumn);
       }
       else {
-        if (index.PrimaryIndex.KeyColumns.Count!=1)
+        var primaryIndexKeyColumns = index.PrimaryIndex.KeyColumns;
+        if (primaryIndexKeyColumns.Count!=1)
           throw new InvalidOperationException(Strings.ExOnlySingleColumnKeySupported);
-        var fieldTypes = index
-          .PrimaryIndex 
-          .KeyColumns
+        var fieldTypes = primaryIndexKeyColumns
           .Select(columnInfo => columnInfo.Key.ValueType)
-          .AddOne(typeof (double));
-        TupleDescriptor tupleDescriptor = TupleDescriptor.Create(fieldTypes);
-        var columns = index
-          .PrimaryIndex
-          .KeyColumns
+          .AddOne(typeof (double))
+          .ToArray(primaryIndexKeyColumns.Count + 1);
+        var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
+        var columns = primaryIndexKeyColumns
           .Select((c, i) => (Column) new MappedColumn("KEY", i, c.Key.ValueType))
           .AddOne(new MappedColumn("RANK", tupleDescriptor.Count, typeof (double)));
         indexHeader = new RecordSetHeader(tupleDescriptor, columns);

@@ -71,7 +71,17 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="collection">Collection of items to add.</param>
     public ColumnCollection(IEnumerable<Column> collection)
-      : base (collection.ToList())
+      : base(collection.ToList())
+    {
+      Initialize();
+    }
+
+    /// <summary>
+    /// Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="collection">Collection of items to add.</param>
+    public ColumnCollection(List<Column> collection)
+      : base(collection)
     {
       Initialize();
     }

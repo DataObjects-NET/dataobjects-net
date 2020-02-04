@@ -14,14 +14,13 @@ namespace Xtensive.Tuples.Packed
     private static readonly PackedFieldAccessor ObjectAccessor;
     private static readonly Dictionary<Type, ValueFieldAccessor> ValueAccessors;
 
-    public static IEnumerable<Type> KnownTypes { get { return ValueAccessors.Keys; } }
+    public static IEnumerable<Type> KnownTypes => ValueAccessors.Keys;
 
-    public static void ProvideAccessor(Type valueType, PackedFieldDescriptor descriptor)
+    public static void ConfigureDescriptor(PackedFieldDescriptor descriptor, Type accessorType)
     {
-      ValueFieldAccessor valueAccessor;
-      if (ValueAccessors.TryGetValue(valueType, out valueAccessor)) {
-        descriptor.PackingType = FieldPackingType.Value;
+      if (ValueAccessors.TryGetValue(accessorType, out var valueAccessor)) {
         descriptor.Accessor = valueAccessor;
+        descriptor.PackingType = FieldPackingType.Value;
         descriptor.ValueBitCount = valueAccessor.BitCount;
         descriptor.ValueBitMask = valueAccessor.BitMask;
       }
@@ -40,9 +39,7 @@ namespace Xtensive.Tuples.Packed
     static PackedFieldAccessorFactory()
     {
       ObjectAccessor = new ObjectFieldAccessor();
-
       ValueAccessors = new Dictionary<Type, ValueFieldAccessor>();
-
       RegisterAccessor(new BooleanFieldAccessor());
       RegisterAccessor(new ByteFieldAccessor());
       RegisterAccessor(new SByteFieldAccessor());
