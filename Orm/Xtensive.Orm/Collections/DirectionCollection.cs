@@ -22,6 +22,13 @@ namespace Xtensive.Collections
   [DebuggerDisplay("Count = {Count}")]
   public sealed class DirectionCollection<T>: FlagCollection<T, Direction>
   {
+    private static readonly Biconverter<Direction, bool> DirectionToBoolBiconverter = 
+      new Biconverter<Direction, bool>(
+        value => value == Direction.None
+          ? throw Exceptions.InvalidArgument(value, nameof(value))
+          : value == Direction.Positive,
+        value => value ? Direction.Positive : Direction.Negative);
+
     /// <inheritdoc/>
     public override void Add(T key)
     {
@@ -33,13 +40,7 @@ namespace Xtensive.Collections
     /// </summary>
     /// <param name="enumerable">Initial content of collection.</param>
     public DirectionCollection(IEnumerable<KeyValuePair<T, Direction>> enumerable)
-      : base(new Biconverter<Direction, bool>(
-      delegate (Direction value) {
-        if (value==Direction.None)
-          throw Exceptions.InvalidArgument(value, "value");
-        return value == Direction.Positive;
-      },
-      delegate(bool value) { return value ? Direction.Positive : Direction.Negative; }),
+      : base(DirectionToBoolBiconverter,
       enumerable)
     {
     }
@@ -49,13 +50,7 @@ namespace Xtensive.Collections
     /// </summary>
     /// <param name="items">Initial content of collection.</param>
     public DirectionCollection(params T[] items)
-      : base(new Biconverter<Direction, bool>(
-        value => {
-          if (value==Direction.None)
-            throw Exceptions.InvalidArgument(value, "value");
-          return value==Direction.Positive;
-        },
-        value => value ? Direction.Positive : Direction.Negative))
+      : base(DirectionToBoolBiconverter)
     {
       foreach (T item in items)
         Add(item, Direction.Positive);
@@ -65,13 +60,7 @@ namespace Xtensive.Collections
     /// Initializes a new instance of this type.
     /// </summary>
     public DirectionCollection()
-      : base(new Biconverter<Direction, bool>(
-        value => {
-          if (value==Direction.None)
-            throw Exceptions.InvalidArgument(value, "value");
-          return value==Direction.Positive;
-        },
-        value => value ? Direction.Positive : Direction.Negative))
+      : base(DirectionToBoolBiconverter)
     {
     }
   }

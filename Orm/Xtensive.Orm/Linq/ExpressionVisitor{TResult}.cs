@@ -141,9 +141,9 @@ namespace Xtensive.Linq
     /// <returns>Visit result.</returns>
     protected virtual ReadOnlyCollection<TResult> VisitExpressionList(ReadOnlyCollection<Expression> expressions)
     {
-      var results = new List<TResult>();
+      var results = new List<TResult>(expressions.Count);
       for (int i = 0, n = expressions.Count; i < n; i++) {
-        TResult p = Visit(expressions[i]);
+        var p = Visit(expressions[i]);
         results.Add(p);
       }
       return results.AsReadOnly();

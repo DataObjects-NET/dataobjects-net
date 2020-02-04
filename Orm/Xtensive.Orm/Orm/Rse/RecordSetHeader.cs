@@ -232,7 +232,7 @@ namespace Xtensive.Orm.Rse
         var pkKeys = indexInfo.ReflectedType.Indexes.PrimaryIndex.KeyColumns;
         keyOrder.AddRange(
           indexInfo.ValueColumns
-            .Select((c, i) => new Pair<Orm.Model.ColumnInfo, int>(c, i + indexInfoKeyColumns.Count))
+            .Select((c, i) => new Pair<ColumnInfo, int>(c, i + indexInfoKeyColumns.Count))
             .Where(pair => pair.First.IsPrimaryKey)
             .Select(pair => new KeyValuePair<int, Direction>(pair.Second, pkKeys[pair.First])));
       }

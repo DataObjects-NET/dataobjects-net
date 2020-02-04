@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Rse
   [Serializable]
   public sealed class ColumnCollection : ReadOnlyList<Column>
   {
-    private readonly Dictionary<string, int> nameIndex = new Dictionary<string, int>();
+    private readonly Dictionary<string, int> nameIndex;
 
     /// <summary>
     /// Gets <see cref="Column"/> by provided <paramref name="fullName"/>.
@@ -37,9 +37,9 @@ namespace Xtensive.Orm.Rse
       }
     }
 
-    private void Initialize()
+    private void BuildNameIndex()
     {
-      for (int index = 0; index < Count; index++) 
+      for (var index = 0; index < Count; index++) 
         nameIndex.Add(this[index].Name, index);
     }
 
@@ -73,7 +73,8 @@ namespace Xtensive.Orm.Rse
     public ColumnCollection(IEnumerable<Column> collection)
       : base(collection.ToList())
     {
-      Initialize();
+      nameIndex = new Dictionary<string, int>(Count);
+      BuildNameIndex();
     }
 
     /// <summary>
@@ -83,7 +84,8 @@ namespace Xtensive.Orm.Rse
     public ColumnCollection(List<Column> collection)
       : base(collection)
     {
-      Initialize();
+      nameIndex = new Dictionary<string, int>(Count);
+      BuildNameIndex();
     }
   }
 }
