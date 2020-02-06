@@ -206,13 +206,8 @@ namespace Xtensive.Orm.Providers
     /// <param name="propertyInfo">The property info.</param>
     public string BuildFieldName(PropertyInfo propertyInfo)
     {
-      lock (fieldNameCache) {
-        var key = new Pair<Type, string>(propertyInfo.ReflectedType, propertyInfo.Name);
-        string result;
-        return fieldNameCache.TryGetValue(key, out result)
-          ? result
-          : propertyInfo.Name;
-      }
+      ArgumentValidator.EnsureArgumentNotNull(propertyInfo, "propertyInfo");
+      return BuildFieldNameInternal(propertyInfo);
     }
 
     /// <summary>
