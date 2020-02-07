@@ -194,7 +194,10 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="propertyInfo">The property info.</param>
     public string BuildFieldName(PropertyInfo propertyInfo)
-      => fieldNameCache.TryGetValue(propertyInfo, out string result) ? result : propertyInfo.Name;
+    {
+      ArgumentValidator.EnsureArgumentNotNull(propertyInfo, nameof(propertyInfo));
+      return BuildFieldNameInternal(propertyInfo);
+    }
 
     /// <summary>
     /// Builds the name of the explicitly implemented field.
