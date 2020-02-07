@@ -5,9 +5,11 @@
 // Created:    2007.08.27
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using Xtensive.Core;
@@ -36,12 +38,15 @@ namespace Xtensive.Orm.Providers
     private const string ReferenceForeignKeyFormat = "FK_{0}_{1}_{2}";
     private const string HierarchyForeignKeyFormat = "FK_{0}_{1}";
 
-    private readonly Dictionary<Pair<Type, string>, string> fieldNameCache = new Dictionary<Pair<Type, string>, string>();
-    private readonly object _lock = new object();
+    private static readonly Func<PropertyInfo, string> fieldNameCacheValueFactory =
+      field => field.GetAttribute<OverrideFieldNameAttribute>()?.Name ?? field.Name;
+
     private readonly int maxIdentifierLength;
     private readonly NamingConvention namingConvention;
     private readonly bool isMultidatabase;
     private readonly string defaultDatabase;
+    private readonly ConcurrentDictionary<PropertyInfo, string> fieldNameCache =
+      new ConcurrentDictionary<PropertyInfo, string>();
 
     /// <summary>
     /// Gets the <see cref="Entity.TypeId"/> column name.
@@ -181,24 +186,9 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private string BuildFieldNameInternal(PropertyInfo propertyInfo)
-    {
-      var key = new Pair<Type, string>(propertyInfo.ReflectedType, propertyInfo.Name);
-
-      lock (fieldNameCache) {
-        string result;
-        if (fieldNameCache.TryGetValue(key, out result))
-          return result;
-        var attribute = propertyInfo.GetAttribute<OverrideFieldNameAttribute>();
-        if (attribute!=null) {
-          result = attribute.Name;
-          fieldNameCache.Add(key, result);
-          return result;
-        }
-      }
-
-      return propertyInfo.Name;
-    }
+      => fieldNameCache.GetOrAdd(propertyInfo, fieldNameCacheValueFactory);
 
     /// <summary>
     /// Builds the name of the field.
