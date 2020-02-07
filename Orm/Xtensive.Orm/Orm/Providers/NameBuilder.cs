@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using Xtensive.Core;
@@ -20,7 +21,6 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Weaving;
 using Xtensive.Reflection;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
-using Module = System.Reflection.Module;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Providers
@@ -38,15 +38,15 @@ namespace Xtensive.Orm.Providers
     private const string ReferenceForeignKeyFormat = "FK_{0}_{1}_{2}";
     private const string HierarchyForeignKeyFormat = "FK_{0}_{1}";
 
-    private readonly ConcurrentDictionary<PropertyInfo, string> fieldNameCache =
-      new ConcurrentDictionary<PropertyInfo, string>();
-    private static readonly Func<PropertyInfo, string> _fieldNameCacheValueFactory =
+    private static readonly Func<PropertyInfo, string> fieldNameCacheValueFactory =
       field => field.GetAttribute<OverrideFieldNameAttribute>()?.Name ?? field.Name;
 
     private readonly int maxIdentifierLength;
     private readonly NamingConvention namingConvention;
     private readonly bool isMultidatabase;
     private readonly string defaultDatabase;
+    private readonly ConcurrentDictionary<PropertyInfo, string> fieldNameCache =
+      new ConcurrentDictionary<PropertyInfo, string>();
 
     /// <summary>
     /// Gets the <see cref="Entity.TypeId"/> column name.
@@ -186,8 +186,9 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private string BuildFieldNameInternal(PropertyInfo propertyInfo)
-      => fieldNameCache.GetOrAdd(propertyInfo, _fieldNameCacheValueFactory);
+      => fieldNameCache.GetOrAdd(propertyInfo, fieldNameCacheValueFactory);
 
     /// <summary>
     /// Builds the name of the field.
@@ -195,7 +196,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="propertyInfo">The property info.</param>
     public string BuildFieldName(PropertyInfo propertyInfo)
     {
-      ArgumentValidator.EnsureArgumentNotNull(propertyInfo, nameof(propertyInfo));
+      ArgumentValidator.EnsureArgumentNotNull(propertyInfo, "propertyInfo");
       return BuildFieldNameInternal(propertyInfo);
     }
 
