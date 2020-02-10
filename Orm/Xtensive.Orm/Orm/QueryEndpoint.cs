@@ -287,7 +287,10 @@ namespace Xtensive.Orm
       using (var tx = session.OpenAutoTransaction()) {
         EntityState state;
         if (!session.LookupStateInCache(key, out state)) {
-          OrmLog.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsZ, session, key, key.HasExactType ? Strings.Known : Strings.Unknown);
+          if (session.IsDebugEventLoggingEnabled) {
+            OrmLog.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsZ, session, key, key.HasExactType ? Strings.Known : Strings.Unknown);
+          }
+
           state = session.Handler.FetchEntityState(key);
         }
         else if (state.Tuple==null) {

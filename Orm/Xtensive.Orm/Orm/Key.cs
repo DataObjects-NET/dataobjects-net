@@ -119,7 +119,9 @@ namespace Xtensive.Orm
       if (IsTemporary(domain))
         return TypeReference.Type;
 
-      OrmLog.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsUnknownFetchIsRequired, session, this);
+      if (session.IsDebugEventLoggingEnabled) {
+        OrmLog.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsUnknownFetchIsRequired, session, this);
+      }
 
       var entityState = session.Handler.FetchEntityState(this);
       if (entityState==null || entityState.IsNotAvailableOrMarkedAsRemoved)
