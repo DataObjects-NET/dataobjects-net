@@ -19,6 +19,7 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Linq;
+using Xtensive.Orm.Logging;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse.Providers;
@@ -43,6 +44,8 @@ namespace Xtensive.Orm
     
     private bool isDisposed;
     private Session singleConnectionOwner;
+
+    private bool IsDebugEventLoggingEnabled { get; set; }
 
     /// <summary>
     /// Occurs when new <see cref="Session"/> is open and activated.
@@ -239,7 +242,9 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       configuration.Lock(true);
 
-      OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
+      if (IsDebugEventLoggingEnabled) {
+        OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
+      }
 
       Session session;
 
@@ -449,6 +454,7 @@ namespace Xtensive.Orm
       UpgradeContextCookie = upgradeContextCookie;
       SingleConnection = singleConnection;
       StorageNodeManager = new StorageNodeManager(Handlers);
+      IsDebugEventLoggingEnabled = OrmLog.IsLogged(LogLevel.Debug); // Just to cache this value
     }
 
     /// <inheritdoc/>
@@ -459,7 +465,9 @@ namespace Xtensive.Orm
           return;
         isDisposed = true;
 
-        OrmLog.Debug(Strings.LogDomainIsDisposing);
+        if (IsDebugEventLoggingEnabled) {
+          OrmLog.Debug(Strings.LogDomainIsDisposing);
+        }
 
         NotifyDisposing();
         Services.Dispose();
