@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.12
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29521.150
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm", "Orm\Xtensive.Orm\Xtensive.Orm.csproj", "{064D5B81-8D54-4F2F-9649-952F71E27E14}"
 EndProject
@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Tests", "Orm\X
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Tests.Core", "Orm\Xtensive.Orm.Tests.Core\Xtensive.Orm.Tests.Core.csproj", "{411F1ECB-053D-470A-9B75-49D715B440D6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtenisve.Orm.Manual", "Orm\Xtensive.Orm.Manual\Xtensive.Orm.Manual.csproj", "{36F889C0-F5D9-43DF-9E6E-D18C97673973}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Manual", "Orm\Xtensive.Orm.Manual\Xtensive.Orm.Manual.csproj", "{36F889C0-F5D9-43DF-9E6E-D18C97673973}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Tests.Sql", "Orm\Xtensive.Orm.Tests.Sql\Xtensive.Orm.Tests.Sql.csproj", "{E6268FB3-D38A-4849-A43D-CB0FF7B67E60}"
 EndProject
@@ -33,37 +33,42 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions.Libs", "Extensio
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions.Tests", "Extensions.Tests", "{DC441957-AF79-423D-AA60-2F102926F6D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xtensive.Orm.BulkOperations", "Extensions\Xtensive.Orm.BulkOperations\Xtensive.Orm.BulkOperations.csproj", "{DC44D096-DF24-41EC-9841-07F33E0A8EA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.BulkOperations", "Extensions\Xtensive.Orm.BulkOperations\Xtensive.Orm.BulkOperations.csproj", "{DC44D096-DF24-41EC-9841-07F33E0A8EA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xtensive.Orm.Localization", "Extensions\Xtensive.Orm.Localization\Xtensive.Orm.Localization.csproj", "{1E0545D6-D979-48E0-A311-064BEDCE5A62}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Localization", "Extensions\Xtensive.Orm.Localization\Xtensive.Orm.Localization.csproj", "{1E0545D6-D979-48E0-A311-064BEDCE5A62}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xtensive.Orm.Logging.log4net", "Extensions\Xtensive.Orm.Logging.log4net\Xtensive.Orm.Logging.log4net.csproj", "{BA58CD9C-139B-41AB-915D-962765DFADBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Logging.log4net", "Extensions\Xtensive.Orm.Logging.log4net\Xtensive.Orm.Logging.log4net.csproj", "{BA58CD9C-139B-41AB-915D-962765DFADBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xtensive.Orm.Logging.NLog", "Extensions\Xtensive.Orm.Logging.NLog\Xtensive.Orm.Logging.NLog.csproj", "{6E052601-9E0C-473D-A617-AD74DED24DC0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Logging.NLog", "Extensions\Xtensive.Orm.Logging.NLog\Xtensive.Orm.Logging.NLog.csproj", "{6E052601-9E0C-473D-A617-AD74DED24DC0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xtensive.Orm.Reprocessing", "Extensions\Xtensive.Orm.Reprocessing\Xtensive.Orm.Reprocessing.csproj", "{CE6BC11C-E785-4F10-A945-2416FD001689}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Reprocessing", "Extensions\Xtensive.Orm.Reprocessing\Xtensive.Orm.Reprocessing.csproj", "{CE6BC11C-E785-4F10-A945-2416FD001689}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xtensive.Orm.Security", "Extensions\Xtensive.Orm.Security\Xtensive.Orm.Security.csproj", "{48827567-3991-4767-BED5-C76CAD47628E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Security", "Extensions\Xtensive.Orm.Security\Xtensive.Orm.Security.csproj", "{48827567-3991-4767-BED5-C76CAD47628E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xtensive.Orm.Tracking", "Extensions\Xtensive.Orm.Tracking\Xtensive.Orm.Tracking.csproj", "{9CB81088-CF8A-400C-B80A-2D9782ED5B10}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Tracking", "Extensions\Xtensive.Orm.Tracking\Xtensive.Orm.Tracking.csproj", "{9CB81088-CF8A-400C-B80A-2D9782ED5B10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xtensive.Orm.Web", "Extensions\Xtensive.Orm.Web\Xtensive.Orm.Web.csproj", "{5E809296-02AA-4657-9FC1-CE0E0828B2B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Web", "Extensions\Xtensive.Orm.Web\Xtensive.Orm.Web.csproj", "{5E809296-02AA-4657-9FC1-CE0E0828B2B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestCommon", "Extensions\TestCommon\TestCommon.csproj", "{0AB4E2E3-9F74-4CB9-A25D-5C8FD38D9291}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestCommon", "Extensions\TestCommon\TestCommon.csproj", "{0AB4E2E3-9F74-4CB9-A25D-5C8FD38D9291}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xtensive.Orm.BulkOperations.Tests", "Extensions\Xtensive.Orm.BulkOperations.Tests\Xtensive.Orm.BulkOperations.Tests.csproj", "{23550452-235D-4413-952B-BB8A45CAF8B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.BulkOperations.Tests", "Extensions\Xtensive.Orm.BulkOperations.Tests\Xtensive.Orm.BulkOperations.Tests.csproj", "{23550452-235D-4413-952B-BB8A45CAF8B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xtensive.Orm.Localization.Tests", "Extensions\Xtensive.Orm.Localization.Tests\Xtensive.Orm.Localization.Tests.csproj", "{643D0EC3-D15E-4061-A3B7-EBB54EEB3069}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Localization.Tests", "Extensions\Xtensive.Orm.Localization.Tests\Xtensive.Orm.Localization.Tests.csproj", "{643D0EC3-D15E-4061-A3B7-EBB54EEB3069}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xtensive.Orm.Logging.log4net.Tests", "Extensions\Xtensive.Orm.Logging.log4net.Tests\Xtensive.Orm.Logging.log4net.Tests.csproj", "{2481997F-AC95-43B2-8A4E-0210E50387D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Logging.log4net.Tests", "Extensions\Xtensive.Orm.Logging.log4net.Tests\Xtensive.Orm.Logging.log4net.Tests.csproj", "{2481997F-AC95-43B2-8A4E-0210E50387D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xtensive.Orm.Logging.NLog.Tests", "Extensions\Xtensive.Orm.Logging.NLog.Tests\Xtensive.Orm.Logging.NLog.Tests.csproj", "{04580B17-B4FC-41A8-8ABC-336822F4ADB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Logging.NLog.Tests", "Extensions\Xtensive.Orm.Logging.NLog.Tests\Xtensive.Orm.Logging.NLog.Tests.csproj", "{04580B17-B4FC-41A8-8ABC-336822F4ADB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xtensive.Orm.Reprocessing.Tests", "Extensions\Xtensive.Orm.Reprocessing.Tests\Xtensive.Orm.Reprocessing.Tests.csproj", "{6CBBB146-851F-49A6-88EC-01FFE455815B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Reprocessing.Tests", "Extensions\Xtensive.Orm.Reprocessing.Tests\Xtensive.Orm.Reprocessing.Tests.csproj", "{6CBBB146-851F-49A6-88EC-01FFE455815B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xtensive.Orm.Security.Tests", "Extensions\Xtensive.Orm.Security.Tests\Xtensive.Orm.Security.Tests.csproj", "{3AC7C076-26BA-4185-A0FC-2B97D7AF48D9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Security.Tests", "Extensions\Xtensive.Orm.Security.Tests\Xtensive.Orm.Security.Tests.csproj", "{3AC7C076-26BA-4185-A0FC-2B97D7AF48D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xtensive.Orm.Tracking.Tests", "Extensions\Xtensive.Orm.Tracking.Tests\Xtensive.Orm.Tracking.Tests.csproj", "{15CC7358-3A5B-4146-A5CB-78DAE75E88E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Xtensive.Orm.Tracking.Tests", "Extensions\Xtensive.Orm.Tracking.Tests\Xtensive.Orm.Tracking.Tests.csproj", "{15CC7358-3A5B-4146-A5CB-78DAE75E88E6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DA490A4E-F9D1-474B-82C5-A1C5930F3C91}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -185,11 +190,16 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{064D5B81-8D54-4F2F-9649-952F71E27E14} = {2302847B-292A-4650-A852-BDED40E1BB1C}
-		{36F889C0-F5D9-43DF-9E6E-D18C97673973} = {8AAB1719-253A-47D2-970F-1911CFEE84B7}
+		{4E5C9208-426B-4536-AF7C-994C07E83FFA} = {8AAB1719-253A-47D2-970F-1911CFEE84B7}
 		{4A985241-6698-47AA-A9DD-F3847600D542} = {8AAB1719-253A-47D2-970F-1911CFEE84B7}
 		{411F1ECB-053D-470A-9B75-49D715B440D6} = {8AAB1719-253A-47D2-970F-1911CFEE84B7}
-		{4E5C9208-426B-4536-AF7C-994C07E83FFA} = {8AAB1719-253A-47D2-970F-1911CFEE84B7}
+		{36F889C0-F5D9-43DF-9E6E-D18C97673973} = {8AAB1719-253A-47D2-970F-1911CFEE84B7}
 		{E6268FB3-D38A-4849-A43D-CB0FF7B67E60} = {8AAB1719-253A-47D2-970F-1911CFEE84B7}
+		{C9B5BFED-85BC-47AE-8872-0BA97AF7B8B9} = {2302847B-292A-4650-A852-BDED40E1BB1C}
+		{CB5E5E27-C723-494D-B288-036267823D28} = {2302847B-292A-4650-A852-BDED40E1BB1C}
+		{38F31CBB-034B-4231-91BE-D7D24C8A20F9} = {2302847B-292A-4650-A852-BDED40E1BB1C}
+		{53CB563A-BE93-4061-BDB3-AC3B69093A90} = {2302847B-292A-4650-A852-BDED40E1BB1C}
+		{6CA1FDE2-ECBA-4580-97C3-A00B707558DB} = {2302847B-292A-4650-A852-BDED40E1BB1C}
 		{DC44D096-DF24-41EC-9841-07F33E0A8EA3} = {C4AA9FB1-2A47-4E3A-A78C-BBE20EDCB3E1}
 		{1E0545D6-D979-48E0-A311-064BEDCE5A62} = {C4AA9FB1-2A47-4E3A-A78C-BBE20EDCB3E1}
 		{BA58CD9C-139B-41AB-915D-962765DFADBA} = {C4AA9FB1-2A47-4E3A-A78C-BBE20EDCB3E1}
@@ -198,11 +208,6 @@ Global
 		{48827567-3991-4767-BED5-C76CAD47628E} = {C4AA9FB1-2A47-4E3A-A78C-BBE20EDCB3E1}
 		{9CB81088-CF8A-400C-B80A-2D9782ED5B10} = {C4AA9FB1-2A47-4E3A-A78C-BBE20EDCB3E1}
 		{5E809296-02AA-4657-9FC1-CE0E0828B2B5} = {C4AA9FB1-2A47-4E3A-A78C-BBE20EDCB3E1}
-		{CB5E5E27-C723-494D-B288-036267823D28} = {2302847B-292A-4650-A852-BDED40E1BB1C}
-		{53CB563A-BE93-4061-BDB3-AC3B69093A90} = {2302847B-292A-4650-A852-BDED40E1BB1C}
-		{38F31CBB-034B-4231-91BE-D7D24C8A20F9} = {2302847B-292A-4650-A852-BDED40E1BB1C}
-		{C9B5BFED-85BC-47AE-8872-0BA97AF7B8B9} = {2302847B-292A-4650-A852-BDED40E1BB1C}
-		{6CA1FDE2-ECBA-4580-97C3-A00B707558DB} = {2302847B-292A-4650-A852-BDED40E1BB1C}
 		{0AB4E2E3-9F74-4CB9-A25D-5C8FD38D9291} = {DC441957-AF79-423D-AA60-2F102926F6D2}
 		{23550452-235D-4413-952B-BB8A45CAF8B1} = {DC441957-AF79-423D-AA60-2F102926F6D2}
 		{643D0EC3-D15E-4061-A3B7-EBB54EEB3069} = {DC441957-AF79-423D-AA60-2F102926F6D2}
