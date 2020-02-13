@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -984,6 +984,139 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNotNull(session.Query.All<Author>().FirstOrDefault(author => author.Name=="Mathew"));
         Assert.AreEqual(2, session.Query.All<Author>().First(author=>author.Name=="Peter").Books.Count);
         Assert.AreEqual(0, session.Query.All<Author>().First(author => author.Name=="Mathew").Books.Count);
+      }
+    }
+
+    [Test]
+    public void ClientProfileEntitySetCountTest01()
+    {
+      long bookId = 0;
+      using (var session = Domain.OpenSession(serverProfile))
+      using (var transactionScope = session.OpenTransaction()) {
+        var book = new Book() { Title = "First book" };
+
+        var comment1 = new Comment();
+        var comment2 = new Comment();
+
+        book.Comments.Add(comment1);
+        book.Comments.Add(comment2);
+
+        bookId = book.Id;
+        transactionScope.Complete();
+      }
+
+      using (var session = Domain.OpenSession(clientProfile)) {
+        var book = session.Query.All<Book>().FirstOrDefault(b => b.Id == bookId);
+
+        var dummyCount = book.Comments.Count;
+        book.Comments.Add(new Comment());
+
+        Assert.That(book.Comments.Count, Is.EqualTo(3));
+      }
+    }
+
+    [Test]
+    public void ClientProfileEntitySetCount02()
+    {
+      long bookId = 0;
+      using (var session = Domain.OpenSession(serverProfile))
+      using (var transactionScope = session.OpenTransaction()) {
+        var book = new Book() { Title = "First book" };
+
+        var comment1 = new Comment();
+        var comment2 = new Comment();
+
+        book.Comments.Add(comment1);
+        book.Comments.Add(comment2);
+
+        bookId = book.Id;
+        transactionScope.Complete();
+      }
+
+      using (var session = Domain.OpenSession(clientProfile)) {
+        var book = session.Query.All<Book>().FirstOrDefault(b => b.Id == bookId);
+
+        book.Comments.Add(new Comment());
+
+        var enumerableCount = 0;
+        foreach(var comment in book.Comments)
+          enumerableCount++;
+        Assert.That(enumerableCount, Is.EqualTo(3));
+
+        Assert.That(book.Comments.Count, Is.EqualTo(3));
+      }
+    }
+
+    [Test]
+    public void ClientProfileEntitySetCount03()
+    {
+      long bookId = 0;
+      long removingCommentId = 0;
+      using (var session = Domain.OpenSession(serverProfile))
+      using (var transactionScope = session.OpenTransaction()) {
+        var book = new Book() { Title = "First book" };
+
+        var comment1 = new Comment();
+        var comment2 = new Comment();
+        var comment3 = new Comment();
+        var comment4 = new Comment();
+
+        book.Comments.Add(comment1);
+        book.Comments.Add(comment2);
+        book.Comments.Add(comment3);
+        book.Comments.Add(comment4);
+
+        bookId = book.Id;
+        removingCommentId = comment3.Id;
+        transactionScope.Complete();
+      }
+
+      using (var session = Domain.OpenSession(clientProfile)) {
+        var book = session.Query.All<Book>().First(b => b.Id == bookId);
+        var removingComment = session.Query.All<Comment>().First(c => c.Id == removingCommentId);
+
+        var dummyCount = book.Comments.Count;
+        book.Comments.Remove(removingComment);
+
+        Assert.That(book.Comments.Count, Is.EqualTo(3));
+      }
+    }
+
+    [Test]
+    public void ClientProfileEntitySetCount04()
+    {
+      long bookId = 0;
+      long removingCommentId = 0;
+      using (var session = Domain.OpenSession(serverProfile))
+      using (var transactionScope = session.OpenTransaction()) {
+        var book = new Book() { Title = "First book" };
+
+        var comment1 = new Comment();
+        var comment2 = new Comment();
+        var comment3 = new Comment();
+        var comment4 = new Comment();
+
+        book.Comments.Add(comment1);
+        book.Comments.Add(comment2);
+        book.Comments.Add(comment3);
+        book.Comments.Add(comment4);
+
+        bookId = book.Id;
+        removingCommentId = comment3.Id;
+        transactionScope.Complete();
+      }
+
+      using (var session = Domain.OpenSession(clientProfile)) {
+        var book = session.Query.All<Book>().First(b => b.Id == bookId);
+        var removingComment = session.Query.All<Comment>().First(c => c.Id==removingCommentId);
+
+        book.Comments.Remove(removingComment);
+
+        var enumerableCount = 0;
+        foreach (var comment in book.Comments)
+          enumerableCount++;
+        Assert.That(enumerableCount, Is.EqualTo(3));
+        Assert.That(book.Comments.Count, Is.EqualTo(3));
       }
     }
   }

@@ -38,8 +38,10 @@ namespace Xtensive.Orm.Internals
     }
 
     private readonly EntitySetBase owner;
+    private readonly bool isDisconnected;
 
     private bool isLoaded;
+    
     private long? totalItemCount;
     private int version;
     private IDictionary<Key, Key> addedKeys;
@@ -132,11 +134,10 @@ namespace Xtensive.Orm.Internals
     /// <param name="keys">The keys.</param>
     public void Update(IEnumerable<Key> keys, long? count)
     {
-      FetchedKeys.Clear();
-      TotalItemCount = count;
-      foreach (var key in keys)
-        FetchedKeys.Add(key);
-      Rebind();
+      if (!isDisconnected)
+        UpdateStateRegular(keys, count);
+      else
+        UpdateStateDisconnected(keys, count);
     }
 
     /// <summary>
@@ -321,6 +322,31 @@ namespace Xtensive.Orm.Internals
 
     #endregion
 
+
+    private void UpdateStateRegular(IEnumerable<Key> keys, long? count)
+    {
+      FetchedKeys.Clear();
+      TotalItemCount = count;
+      foreach (var key in keys)
+        FetchedKeys.Add(key);
+      Rebind();
+    }
+
+    private void UpdateStateDisconnected(IEnumerable<Key> syncronizedKeys, long? count)
+    {
+      FetchedKeys.Clear();
+      var countExceptRemoved = 0;
+      foreach (var key in syncronizedKeys) {
+        FetchedKeys.Add(key);
+        if (!removedKeys.ContainsKey(key))
+          countExceptRemoved++;
+      }
+      TotalItemCount = count.HasValue
+        ? countExceptRemoved + AddedItemsCount
+        : count;
+      Rebind();
+    }
+
     private void EnsureFetchedKeysIsNotNull()
     {
       if (FetchedKeys==null)
@@ -331,12 +357,6 @@ namespace Xtensive.Orm.Internals
     {
       previousState = new BackupedState(this);
     }
-
-    //private void InitializeFetchedKeysAndClearChanges()
-    //{
-    //  InitializeFetchedKeys();
-    //  InitializeDifferenceCollections();
-    //}
 
     private void InitializeFetchedKeys()
     {
@@ -358,6 +378,7 @@ namespace Xtensive.Orm.Internals
       InitializeDifferenceCollections();
       owner = entitySet;
       version = int.MinValue;
+      isDisconnected = entitySet.Session.IsDisconnected;
     }
   }
 }
