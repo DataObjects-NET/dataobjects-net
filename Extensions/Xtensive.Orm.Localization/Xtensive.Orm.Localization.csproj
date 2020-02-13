@@ -1,69 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <EnableDefaultItems>false</EnableDefaultItems>
     <IsPackable>true</IsPackable>
+    <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
+    <DocumentationFile>..\..\_Build\$(Configuration)\lib\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <OutputType>Library</OutputType>
-    <RootNamespace>Xtensive.Orm.Localization</RootNamespace>
-    <AssemblyName>Xtensive.Orm.Localization</AssemblyName>
     <PackageId>Xtensive.Orm.Localization</PackageId>
     <Title>Localization extension for $(DoProductName)</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds support for easy localization for $(DoProductName)-powered domain models</PackageDescription>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Extensions.snk</AssemblyOriginatorKeyFile>
-    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-
-  <PropertyGroup Label="Debug" Condition="'$(Configuration)'=='Debug'">
-    <Optimize>false</Optimize>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\_Build\Debug\lib\</OutputPath>
-    <DocumentationFile>..\..\_Build\Debug\lib\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <OutputPath>..\..\_Build\Release\lib\</OutputPath>
-    <DocumentationFile>..\..\_Build\Release\lib\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
-    <DefineConstants>TRACE</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <Compile Include="Configuration\Elements\DefaultCultureConfigurationElement.cs" />
-    <Compile Include="Configuration\Elements\ConfigurationSection.cs" />
-    <Compile Include="Configuration\LocalizationConfiguration.cs" />
-    <Compile Include="Internals\LocalizationExpressionBuilder.cs" />
-    <Compile Include="Internals\LocalizationExpressionVisitor.cs" />
-    <Compile Include="Internals\TypeLocalizationInfo.cs" />
-    <Compile Include="Internals\TypeLocalizationMap.cs" />
-    <Compile Include="Internals\QueryPreprocessor.cs" />
-    <Compile Include="ILocalizable.cs" />
-    <Compile Include="LocalizationModule.cs" />
-    <Compile Include="QueryExtensions.cs" />
-    <Compile Include="LocalizationContext.cs" />
-    <Compile Include="Internals\LocalizationPair.cs" />
-    <Compile Include="LocalizationPolicy.cs" />
-    <Compile Include="Internals\LocalizationScope.cs" />
-    <Compile Include="Localization.cs" />
-    <Compile Include="LocalizationSet.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-
+  <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
   <ItemGroup>
     <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <None Include="Readme.txt" />
   </ItemGroup>
-
-  <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
 </Project>

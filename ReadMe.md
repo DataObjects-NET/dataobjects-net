@@ -86,20 +86,25 @@ If you have a specific question about using DataObjects.Net you can ask [on our 
 
 ### How To Build
 
-Repository contains two solutions - `Orm` and `Weaver`.
+Repository contains one solution file - `Orm`
 
-The `Orm` solution contains DataObjects.Net projects and the extensions we develop and maintain (including tests).
-The `Weaver` solution contains projects which are responsible for post-build processing of assemblies containing inheritors of `Xtensive.Orm.Persistent` class.
+This solution contains `Weaver` project responsible for post-build processing of assemblies containing inheritors of `Xtensive.Orm.Persistent` class. `Weaver` project is first in build sequence. Other projects in the solution include DataObjects.Net itself as well as its extensions and tests.
 
-Simpliest way to build binaries of both solutions is to run
+In order to build project binaries one need to execute the `dotnet build` command in the solution folder. It will build everything in `Debug` configuration. In case `Release` binaries are needed just specify configuration parameter as following
 
-    dotnet build Build.proj
+    dotnet build -c Release
 
-It builds binaries and pack them to Nuget packages. Results of build are available in `_Build` directory.
+By defuault `Debug` configuration build doesn't generate Nuget packages but `Release` configuration build does. It is possible to change this default behavior by specifying `GeneratePackageOnBuild` parameter explicitly.
+So in case Nuget packages aren't needed for release build consider to run 
 
-If packages aren't needed consider running
+    dotnet build -c Release /p:GeneratePackageOnBuild=false
 
-    dotnet build Build.proj /t:BuildBinaries
+alternatively the following command will generate packages for `Debug` build
+
+    dotnet build /p:GeneratePackageOnBuild=true
+
+Build results are available in the `_Build` subdirectory of solution folder.
+
 
 Version.props file declares version is building. `<DoVersion>` tag defiles version in `<Major version>.<Minor version>.<Revision>` format. Do not define Build number, it is defined while building. `<DoVersionSuffix>` should be defined for pre-release versions like Alphas, Betas, and RCs.
 

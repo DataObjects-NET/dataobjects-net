@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Localization
         TypeLocalizationMap.Initialize(Domain);
 
       var map = Domain.Extensions.Get<TypeLocalizationMap>();
-      if (map!=null)
+      if (map != null)
         visitor = new LocalizationExpressionVisitor(map);
     }
 

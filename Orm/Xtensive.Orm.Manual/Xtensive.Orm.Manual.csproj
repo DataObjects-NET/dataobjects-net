@@ -1,15 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <EnableDefaultItems>false</EnableDefaultItems>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <IsPackable>false</IsPackable>
+    <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
   </PropertyGroup>
-
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.Tests.Manual</AssemblyName>
     <SignAssembly>true</SignAssembly>
@@ -17,71 +13,23 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <DebugSymbols>true</DebugSymbols>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\_Build\Debug\lib\</OutputPath>
     <DefineConstants>TRACE;DEBUG;NETCOREAPP</DefineConstants>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\_Build\Release\lib\</OutputPath>
     <DefineConstants>TRACE;NETCOREAPP</DefineConstants>
   </PropertyGroup>
-
+  <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj" />
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
-  
   <ItemGroup>
     <!-- <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" /> -->
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.2" />
     <PackageReference Include="NUnit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.15.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="Advanced\CustomLinqCompilerTest.cs" />
-    <Compile Include="Advanced\CustomSqlCompilerTest.cs" />
-    <Compile Include="Advanced\JoinsAndSubqueriesTest.cs" />
-    <Compile Include="Attributes\AttributesTest.cs" />
-    <Compile Include="Caching\CalculatedValueCachingTest.cs" />
-    <Compile Include="Concurrency\LockingTest.cs" />
-    <Compile Include="Concurrency\VersionsTest.cs" />
-    <Compile Include="DomainAndSession\DomainAndSessionSample.cs" />
-    <Compile Include="Entities\TestFixture.cs" />
-    <Compile Include="EntitySets\EntitySetsTest.cs" />
-    <Compile Include="FutureQueries\FutureQueriesTest.cs" />
-    <Compile Include="Indexes\TestFixture.cs" />
-    <Compile Include="Intro\CheatSheetTest.cs" />
-    <Compile Include="Intro\HelloWorldTest.cs" />
-    <Compile Include="Legacy\CustomKeyGenerators\CustomKeyGeneratorsTest.cs" />
-    <Compile Include="ModellingDomain\AuditAndOpenGenericsTest.cs" />
-    <Compile Include="ModellingDomain\IndexAttributeTest.cs" />
-    <Compile Include="Persistent\TestFixture.cs" />
-    <Compile Include="Prefetch\PrefetchTest.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\DirectSqlAccessorTest.cs" />
-    <Compile Include="Services\DirectStateAccessorTest.cs" />
-    <Compile Include="Structures\TestFixture.cs" />
-    <Compile Include="Transactions\NestedTransactionsTest.cs" />
-    <Compile Include="Transactions\SessionSwitchingTest.cs" />
-    <Compile Include="Upgrade\Model_1\Model.cs" />
-    <Compile Include="Upgrade\Model_2\Model.cs" />
-    <Compile Include="Upgrade\Model_2\Upgrader.cs" />
-    <Compile Include="Upgrade\Model_3\Model.cs" />
-    <Compile Include="Upgrade\Model_3\Upgrader.cs" />
-    <Compile Include="Upgrade\Model_4\Model.cs" />
-    <Compile Include="Upgrade\Model_4\Upgrader.cs" />
-    <Compile Include="Upgrade\UpgradeHandlerEnabler.cs" />
-    <Compile Include="Upgrade\UpgradeTest.cs" />
-  </ItemGroup>
-  
-  
   <ItemGroup>
     <Content Include="EntitySets\DatabaseSchema.gif" />
     <Content Include="EntitySets\ManyToManySchema.gif" />
@@ -90,14 +38,9 @@
     <Content Include="Structures\InheritanceMappingSchema.png" />
     <Content Include="Structures\MappingSchema.png" />
   </ItemGroup>
-  
-  <ItemGroup>
-    <Folder Include="LazyLoading\" />
-  </ItemGroup>
   <ItemGroup>
     <None Include="FutureQueries\FutureQueries.sql" />
     <None Include="Prefetch\Prefetch.sql" />
     <None Include="Structures\Diagrams.pptx" />
   </ItemGroup>
-  <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
 </Project>

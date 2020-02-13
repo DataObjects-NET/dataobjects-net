@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-<Import Project="$(MSBuildThisFileDirectory)\Version.props" />
+  <Import Project="$(MSBuildThisFileDirectory)Version.props" />
 
-<!-- Compute intermediate values. To avoid conflicts name all custom variables with Do prefix. -->
-<PropertyGroup>
+  <!-- Compute intermediate values. To avoid conflicts name all custom variables with Do prefix. -->
+  <PropertyGroup>
     <DoBuildNumber>$(BUILD_NUMBER)</DoBuildNumber>
     <DoBuildNumber Condition="'$(DoBuildNumber)'==''">0</DoBuildNumber>
     <DoBuildYear>$([System.DateTime]::Today.Year)</DoBuildYear>
@@ -17,12 +17,33 @@
     <DoPatch>$([System.Version]::new($(DoVersion)).Build)</DoPatch>
     <DoVersionName>$(DoMajor).$(DoMinor).$(DoPatch)</DoVersionName>
     <DoVersionName Condition="'$(DoVersionSuffix)'!=''">$(DoVersionName)-$(DoVersionSuffix)</DoVersionName>
-    <DoPackageIcon>$(MSBuildThisFileDirectory)\do-nuget.png</DoPackageIcon>
-    <DoRevFile>$(MSBuildThisFileDirectory)\_Build\rev.txt</DoRevFile>
-</PropertyGroup>
+    <DoPackageIcon>$(MSBuildThisFileDirectory)do-nuget.png</DoPackageIcon>
+    <DoRevFile>$(MSBuildThisFileDirectory)_Build\rev.txt</DoRevFile>
+  </PropertyGroup>
 
-<!-- Populate standard properties. -->
-<PropertyGroup>
+  <PropertyGroup>
+    <SolutionDir Condition="$(SolutionDir) == ''">$(MSBuildThisFileDirectory.TrimEnd('\').TrimEnd('/'))\</SolutionDir>
+    <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <NoLogo>true</NoLogo>
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+    <ArtifactsDir Condition="'$(ArtifactsDir)'==''">$(SolutionDir)_Build\</ArtifactsDir>
+    <BaseIntermediateOutputPath>$([System.IO.Path]::GetFullPath('$(ArtifactsDir)obj\$(Configuration)\$(MSBuildProjectName)'))\</BaseIntermediateOutputPath>
+    <BaseOutputPath >$([System.IO.Path]::GetFullPath('$(ArtifactsDir)bin\$(Configuration)'))\</BaseOutputPath>
+    <BaseOutputPath Condition="$(MSBuildProjectName.Contains('Tests'))">$([System.IO.Path]::GetFullPath('$(ArtifactsDir)tests'))\</BaseOutputPath>
+    <OutputPath>$(BaseOutputPath)</OutputPath>
+    <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
+    <ProjectAssetsFile>$(MSBuildProjectExtensionsPath)project.assets.json</ProjectAssetsFile>
+    <ProjectAssetsCacheFile>$(MSBuildProjectExtensionsPath)$(MSBuildProjectName).assets.cache</ProjectAssetsCacheFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <GeneratePackageOnBuild Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition="$(GeneratePackageOnBuild)=='' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <!-- Populate standard properties. -->
+  <PropertyGroup>
     <Product>$(DoProductName)</Product>
     <Company>$(DoProductAuthors)</Company>
     <Authors>$(DoProductAuthors)</Authors>
@@ -34,14 +55,19 @@
     <PackageIcon>do-nuget.png</PackageIcon>
     <PackageLicense>Apache-2.0</PackageLicense>
     <PackageTags>DataObjects.Net ORM BLL Persistence</PackageTags>
-    <PackageOutputPath>..\..\_Build\$(Configuration)\packages</PackageOutputPath>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)_Build\$(Configuration)\packages</PackageOutputPath>
     <RepositoryUrl>https://github.com/DataObjects-NET/dataobjects-net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-</PropertyGroup>
+  </PropertyGroup>
 
-<ItemGroup>
+  <ItemGroup>
     <None Include="$(DoPackageIcon)" Pack="true" PackagePath="." Visible="false" />
     <None Include="$(DoRevFile)" Pack="true" PackagePath="." Visible="false" Condition="Exists('$(DoRevFile)')" />
-</ItemGroup>
+  </ItemGroup>
+  <Target Name="ExportRev" Condition="Exists('.git\index') AND '$(Configuration)' == 'Release'">
+    <MakeDir Directories="_Build" />
+    <Exec Command="git rev-parse HEAD > rev.txt" WorkingDirectory="_Build" />
+  </Target>
+
 
 </Project>
