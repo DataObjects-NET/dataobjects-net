@@ -348,6 +348,7 @@
     <Compile Include="Issues\IssueJira0778_PrefetchStackOverflow.cs" />
     <Compile Include="Issues\IssueJira0735_WrongTypeIdsInValidateMode.cs" />
     <Compile Include="Issues\IssueJira0779_SetOperationsWithOrderAndTakeWrongQuery.cs" />
+    <Compile Include="Issues\IssueJira0792_UnableToRemoveAssignedEntityWithNonNullableAssociationField.cs" />
     <Compile Include="Issues\IssueJira_0530_LowSpeedDecimalMaterializationCouseSqlDecimalInternalException.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion1.cs" />
     <Compile Include="Issues\Issue_0694_SchemaUpgradeBug\ModelVersion2.cs" />
