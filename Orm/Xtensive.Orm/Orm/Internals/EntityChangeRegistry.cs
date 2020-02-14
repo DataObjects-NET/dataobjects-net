@@ -49,11 +49,12 @@ namespace Xtensive.Orm.Internals
       }
       else if (item.PersistenceState == PersistenceState.Removed && modified.Contains(item)) {
         modified.Remove(item);
+        count--;
       }
 
       var container = GetContainer(item.PersistenceState);
-      container.Add(item);
-      count++;
+      if (container.Add(item))
+        count++;
     }
 
     /// <summary>
