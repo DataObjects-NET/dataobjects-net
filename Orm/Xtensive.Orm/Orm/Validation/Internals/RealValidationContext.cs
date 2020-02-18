@@ -148,7 +148,10 @@ namespace Xtensive.Orm.Validation
     private void GetValidationErrors(Entity target, List<ValidationResult> output, ValidationReason? validationReason = null)
     {
       foreach (var field in target.TypeInfo.Fields) {
-        var value = target.GetFieldValue(field);
+        if (field.Validators.Count == 0)
+          continue;
+        var value = default(object);
+        var wasValueRetrieved = false;
         foreach (var validator in field.Validators) {
           if (validationReason.HasValue && validationReason.Value==ValidationReason.Commit && validator.SkipOnTransactionCommit)
             continue;
@@ -160,6 +163,10 @@ namespace Xtensive.Orm.Validation
               continue;
             if(!fieldSet.Contains(field))
               continue;
+          }
+          if (!wasValueRetrieved) {
+            value = target.GetFieldValue(field);
+            wasValueRetrieved = true;
           }
           var result = validator.Validate(target, value);
           if (result.IsError)
