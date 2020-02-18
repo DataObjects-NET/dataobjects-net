@@ -12,6 +12,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Linq;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -62,7 +63,7 @@ namespace Xtensive.Orm.Linq
       var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method);
       MethodInfo selectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof (TItem), typeof (Tuple));
       var select = Expression.Call(selectMethod, call, Expression.Constant(converter));
-      return Expression.Lambda<Func<IEnumerable<Tuple>>>(select);
+      return FastExpression.Lambda<Func<IEnumerable<Tuple>>>(select);
     }
 
 

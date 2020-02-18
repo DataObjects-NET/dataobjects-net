@@ -242,7 +242,7 @@ namespace Xtensive.Core
         if (!typeof (LambdaExpression).IsAssignableFrom(expression.Type))
           throw new InvalidOperationException(string.Format("Unable to process expression '{0}'", expression));
         var typeAs = Expression.TypeAs(expression, typeof (LambdaExpression));
-        return Expression.Lambda<Func<LambdaExpression>>(typeAs).CachingCompile()();
+        return FastExpression.Lambda<Func<LambdaExpression>>(typeAs).CachingCompile()();
       }
       return lambda;
     }

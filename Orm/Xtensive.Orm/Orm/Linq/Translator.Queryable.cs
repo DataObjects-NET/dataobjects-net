@@ -443,7 +443,7 @@ namespace Xtensive.Orm.Linq
         compiledParameter = elementAtIndex.CachingCompile();
         var skipComparison = Expression.LessThan(elementAtIndex.Body, Expression.Constant(0));
         var condition = Expression.Condition(skipComparison, Expression.Constant(0), Expression.Constant(1));
-        var takeParameter = Expression.Lambda<Func<int>>(condition);
+        var takeParameter = FastExpression.Lambda<Func<int>>(condition);
         rs = projection.ItemProjector.DataSource.Skip(compiledParameter).Take(takeParameter.CachingCompile());
       }
       else {
