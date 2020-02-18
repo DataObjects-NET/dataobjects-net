@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Linq;
 using Xtensive.Orm.Rse;
 using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
@@ -50,7 +51,7 @@ namespace Xtensive.Orm.Linq
       Type type = e.Type;
       if (type.IsValueType)
         e = Expression.Convert(e, typeof (object));
-      var lambda = Expression.Lambda<Func<object>>(e);
+      var lambda = FastExpression.Lambda<Func<object>>(e);
       var func = lambda.CachingCompile();
       return Expression.Constant(func(), type);
     }

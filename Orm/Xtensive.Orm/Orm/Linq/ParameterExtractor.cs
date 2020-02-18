@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
+using Xtensive.Linq;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq
@@ -45,7 +46,7 @@ namespace Xtensive.Orm.Linq
       Type type = expression.Type;
       if (type.IsValueType)
         expression = Expression.Convert(expression, typeof (T));
-      var lambda = Expression.Lambda<Func<T>>(expression);
+      var lambda = FastExpression.Lambda<Func<T>>(expression);
       return lambda;
     }
 

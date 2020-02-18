@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Linq;
 using Tuple = Xtensive.Tuples.Tuple;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
@@ -25,7 +26,7 @@ namespace Xtensive.Orm.Rse.Transformation
       Initialize(predicate, predicateColumns, currentColumns);
       leftTupleParameter = Expression.Parameter(typeof (Tuple), "leftTuple");
       var visited = Visit(predicate.Body);
-      return (Expression<Func<Tuple, Tuple, bool>>) Expression
+      return (Expression<Func<Tuple, Tuple, bool>>) FastExpression
         .Lambda(visited, leftTupleParameter, predicate.Parameters[0]);
     }
 

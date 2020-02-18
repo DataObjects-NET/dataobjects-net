@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Linq
         ? body
         : Expression.Convert(body, typeof (TResult));
 
-      var projectorExpression = Expression.Lambda<Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult>>(body, rs, session, tupleParameterBindings, parameterContext);
+      var projectorExpression = FastExpression.Lambda<Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult>>(body, rs, session, tupleParameterBindings, parameterContext);
       return projectorExpression.CachingCompile();
     }
 

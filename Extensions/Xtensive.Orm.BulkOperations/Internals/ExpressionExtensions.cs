@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Linq;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.BulkOperations
@@ -23,7 +24,7 @@ namespace Xtensive.Orm.BulkOperations
 
     internal static object Invoke(this Expression expression)
     {
-      return Expression.Lambda(typeof (Func<>).MakeGenericType(expression.Type), expression).Compile().DynamicInvoke();
+      return FastExpression.Lambda(typeof (Func<>).MakeGenericType(expression.Type), expression).Compile().DynamicInvoke();
     }
 
     internal static Expression Visit<T>(this Expression exp, Func<T, Expression> visitor) where T : Expression
