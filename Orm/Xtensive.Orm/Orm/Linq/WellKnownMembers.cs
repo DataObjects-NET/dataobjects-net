@@ -26,6 +26,7 @@ namespace Xtensive.Orm.Linq
     public static class Query
     {
       public static readonly MethodInfo All;
+      public static readonly MethodInfo AllNew;
       public static readonly MethodInfo FreeTextString;
       public static readonly MethodInfo FreeTextStringTopNByRank;
       public static readonly MethodInfo FreeTextExpression;
@@ -43,6 +44,7 @@ namespace Xtensive.Orm.Linq
       {
 #pragma warning disable 612,618
         All = typeof(Orm.Query).GetMethod("All", ArrayUtils<Type>.EmptyArray);
+        AllNew = typeof(Orm.Query).GetMethod("AllNew", new[] {typeof(string)});
 
         var freetextMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name=="FreeText").ToArray();
         FreeTextString = freetextMethods
@@ -83,6 +85,7 @@ namespace Xtensive.Orm.Linq
     public static class QueryEndpoint
     {
       public static readonly MethodInfo All;
+      public static readonly MethodInfo AllNew;
       public static readonly MethodInfo FreeTextString;
       public static readonly MethodInfo FreeTextStringTopNByRank;
       public static readonly MethodInfo FreeTextExpression;
@@ -101,6 +104,7 @@ namespace Xtensive.Orm.Linq
       {
 #pragma warning disable 612,618
         All = typeof(Orm.QueryEndpoint).GetMethod("All", ArrayUtils<Type>.EmptyArray);
+        AllNew = typeof(Orm.QueryEndpoint).GetMethod("AllNew", new[] {typeof(string)});
 
         var freetextMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name=="FreeText").ToArray();
         FreeTextString = freetextMethods

@@ -335,7 +335,8 @@ namespace Xtensive.Orm.Linq
 #pragma warning disable 612,618
         if (mc.Method.DeclaringType==typeof (Query)) {
           // Query.All<T>
-          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()==WellKnownMembers.Query.All)
+          if (mc.Method.IsGenericMethod && (mc.Method.GetGenericMethodDefinition()==WellKnownMembers.Query.All ||
+                                            mc.Method.GetGenericMethodDefinition()==WellKnownMembers.Query.AllNew))
             return ConstructQueryable(mc);
           // Query.FreeText<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()
@@ -361,7 +362,8 @@ namespace Xtensive.Orm.Linq
         // Visit QueryEndpoint.
         if (mc.Method.DeclaringType == typeof(QueryEndpoint)) {
           // Query.All<T>
-          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition() == WellKnownMembers.QueryEndpoint.All)
+          if (mc.Method.IsGenericMethod && (mc.Method.GetGenericMethodDefinition() == WellKnownMembers.QueryEndpoint.All
+            || mc.Method.GetGenericMethodDefinition()== WellKnownMembers.QueryEndpoint.AllNew))
             return ConstructQueryable(mc);
           // Query.FreeText<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()
@@ -1134,7 +1136,16 @@ namespace Xtensive.Orm.Linq
         throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
       var index = type.Indexes.PrimaryIndex;
       var entityExpression = EntityExpression.Create(type, 0, false);
-      var itemProjector = new ItemProjectorExpression(entityExpression, index.GetQuery(), context);
+
+      var indexProvider = index.GetQuery();
+
+      if (mc.Arguments.FirstOrDefault() is ConstantExpression arg) {
+        var caller = (string)arg.Value;
+        var queryContext = new QueryContext { Caller = caller };
+        indexProvider.QueryContext = queryContext;
+      }
+
+      var itemProjector = new ItemProjectorExpression(entityExpression, indexProvider, context);
       return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
     }
 

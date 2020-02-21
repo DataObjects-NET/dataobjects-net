@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Upgrade.RecycledDefinitionTestModel;
 using Xtensive.Orm.Upgrade;
 using V1 = Xtensive.Orm.Tests.Upgrade.RecycledDefinitionTestModel.Version1;
@@ -170,7 +171,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var domain = BuildUpgradedDomain())
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var entityV1 = session.Query.All<V2.MyEntity>().Single(t => t.Name=="OldMyName1");
+        var entityV1 = session.Query.AllNew<V2.MyEntity>().Single(t => t.Name=="OldMyName1");
         Assert.That(entityV1.Person.Age, Is.EqualTo(20));
         Assert.That(entityV1.Shape.Growth, Is.EqualTo(200));
         Assert.That(entityV1.Shape.Weight, Is.EqualTo(100));
@@ -195,7 +196,11 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     private Domain BuildDomain(DomainUpgradeMode upgradeMode, Type sampleType)
     {
-      var configuration = DomainConfigurationFactory.Create();
+      var configuration = new DomainConfiguration(@"sqlserver://sa:Qwerty1$@localhost/Tests");
+      var defaultConfiguration = new SessionConfiguration(
+        WellKnown.Sessions.Default, SessionOptions.ServerProfile | SessionOptions.AutoActivation);
+      configuration.Sessions.Add(defaultConfiguration);
+
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
       return Domain.Build(configuration);

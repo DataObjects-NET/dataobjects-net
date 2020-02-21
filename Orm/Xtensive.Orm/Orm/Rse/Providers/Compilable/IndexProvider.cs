@@ -25,6 +25,8 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     public IndexInfoRef Index { get; private set; }
 
+    public QueryContext QueryContext { get; set; }
+
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {

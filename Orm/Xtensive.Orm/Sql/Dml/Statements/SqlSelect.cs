@@ -28,6 +28,8 @@ namespace Xtensive.Sql.Dml
     private SqlExpression limit;
     private SqlExpression offset;
 
+    public string Comment { get; set; }
+
     /// <summary>
     /// Gets the collection of columns to select.
     /// </summary>
@@ -239,6 +241,7 @@ namespace Xtensive.Sql.Dml
         result.Hints.Add(hint);
       result.Where = Where;
       result.Lock = Lock;
+      result.Comment = Comment;
       return result;
     }
 
