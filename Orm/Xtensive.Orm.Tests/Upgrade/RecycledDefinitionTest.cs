@@ -7,6 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Upgrade.RecycledDefinitionTestModel;
@@ -171,7 +174,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var domain = BuildUpgradedDomain())
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var entityV1 = session.Query.AllNew<V2.MyEntity>().Single(t => t.Name=="OldMyName1");
+        var entityV1 = session.Query.All<V2.MyEntity>().Trace().Single(t => t.Name=="OldMyName1");
         Assert.That(entityV1.Person.Age, Is.EqualTo(20));
         Assert.That(entityV1.Shape.Growth, Is.EqualTo(200));
         Assert.That(entityV1.Shape.Weight, Is.EqualTo(100));
@@ -205,5 +208,30 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
       return Domain.Build(configuration);
     }
+  }
+
+  public static class IQueryableExtensions
+  {
+    public static IQueryable<T> Trace<T>(this IQueryable<T> source, [CallerMemberName] string callerMemberName = "")
+    {
+      if (source == null)
+        throw new ArgumentNullException("source");
+      return source.Provider.CreateQuery<T>(
+        Expression.Call(
+          null,
+          CachedReflectionInfo.Distinct_TSource_1(typeof(T)), source.Expression,
+          Expression.Constant(callerMemberName)));
+    }
+  }
+
+  public static class CachedReflectionInfo
+  {
+    private static MethodInfo s_Distinct_TSource_1;
+
+    public static MethodInfo Distinct_TSource_1(Type TSource) =>
+      (s_Distinct_TSource_1 ??
+       (s_Distinct_TSource_1 = new Func<IQueryable<object>, string, IQueryable<object>>(IQueryableExtensions.Trace)
+         .GetMethodInfo().GetGenericMethodDefinition()))
+      .MakeGenericMethod(TSource);
   }
 }
