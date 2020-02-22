@@ -2448,7 +2448,7 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Field with index &apos;{0}&apos; is infinitу..
+        ///   Looks up a localized string similar to Field with index &apos;{0}&apos; is infinity..
         /// </summary>
         internal static string ExFieldIsInfinite {
             get {
