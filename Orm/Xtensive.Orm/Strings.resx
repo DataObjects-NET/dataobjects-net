@@ -333,7 +333,7 @@
     <value>Type '{0}' must implement '{1}', or must be its descendant.</value>
   </data>
   <data name="ExFieldIsInfinite" xml:space="preserve">
-    <value>Field with index '{0}' is infinity.</value>
+    <value>Field with index '{0}' is infinite.</value>
   </data>
   <data name="ExCultureOfAppliedRuleShouldBeEitherNullOrTheSameAsOnTarget" xml:space="preserve">
     <value>Culture of the applied rule should either be undefined (null), or be the same as on target rule.</value>
