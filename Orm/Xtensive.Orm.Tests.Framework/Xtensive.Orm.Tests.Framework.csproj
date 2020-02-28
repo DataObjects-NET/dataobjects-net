@@ -19,6 +19,7 @@
     <ProjectReference Include="..\Xtensive.Orm.Oracle\Xtensive.Orm.Oracle.csproj" />
     <ProjectReference Include="..\Xtensive.Orm.PostgreSql\Xtensive.Orm.PostgreSql.csproj" />
     <ProjectReference Include="..\Xtensive.Orm.Sqlite\Xtensive.Orm.Sqlite.csproj" />
+    <ProjectReference Include="..\Xtensive.Orm.SqlServer\Xtensive.Orm.SqlServer.csproj" />
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">

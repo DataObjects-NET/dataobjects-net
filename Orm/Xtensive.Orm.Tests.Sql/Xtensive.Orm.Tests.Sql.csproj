@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm.PostgreSql\Xtensive.Orm.PostgreSql.csproj" />
+    <ProjectReference Include="..\Xtensive.Orm.SqlServer\Xtensive.Orm.SqlServer.csproj" />
     <!-- <ProjectReference Include="..\Xtensive.Orm1.SqlServerCe\Xtensive.Orm1.SqlServerCe.csproj" /> -->
     <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj" />
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
