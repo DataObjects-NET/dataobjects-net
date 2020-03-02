@@ -7,8 +7,6 @@ namespace Xtensive.Orm.Tests.Sql.Firebird
   [TestFixture, Explicit]
   public class QueryTest : SqlTest
   {
-    protected override string Url { get { return TestUrl.Firebird25_AgentThompson; } }
-
     public override void SetUp()
     {
       base.SetUp();

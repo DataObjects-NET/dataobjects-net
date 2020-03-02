@@ -1,38 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <EnableDefaultItems>false</EnableDefaultItems>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <IsPackable>false</IsPackable>
+    <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
+    <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
   </PropertyGroup>
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <OutputType>Library</OutputType>
     <RootNamespace>Xtensive</RootNamespace>
-    <AssemblyName>Xtensive.Orm.Tests.Framework</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\..\_Build\Debug\lib\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\_Build\Release\lib\</OutputPath>
-    <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm.Firebird\Xtensive.Orm.Firebird.csproj" />
     <ProjectReference Include="..\Xtensive.Orm.MySql\Xtensive.Orm.MySql.csproj" />
@@ -41,86 +21,20 @@
     <ProjectReference Include="..\Xtensive.Orm.Sqlite\Xtensive.Orm.Sqlite.csproj" />
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <!--<PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />-->
     <PackageReference Include="NUnit" Version="3.12.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.5.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="AssemblyExtensions.cs" />
-    <Compile Include="AssertEx.cs" />
-    <Compile Include="AutoBuildTest.cs" />
-    <Compile Include="DebugInfo.cs" />
-    <Compile Include="DomainConfigurationFactory.cs" />
-    <Compile Include="DomainModelExtensions.cs" />
-    <Compile Include="Dynamic.cs" />
-    <Compile Include="HasConfigurationAccessTest.cs" />
-    <Compile Include="HighResolutionTime.cs" />
-    <Compile Include="IndexInfoExtensions.cs" />
-    <Compile Include="InheritanceSchemaModifier.cs" />
-    <Compile Include="InstanceGenerationUtils.cs" />
-    <Compile Include="InstanceGeneratorProvider.cs" />
-    <Compile Include="Interfaces\IInstanceGenerator.cs" />
-    <Compile Include="Interfaces\IInstanceGeneratorBase.cs" />
-    <Compile Include="Interfaces\IInstanceGeneratorProvider.cs" />
-    <Compile Include="Internals\ArrayInstanceGenerator.cs" />
-    <Compile Include="Internals\BooleanInstanceGenerator.cs" />
-    <Compile Include="Internals\ByteInstanceGenerator.cs" />
-    <Compile Include="Internals\CharInstanceGenerator.cs" />
-    <Compile Include="Internals\DateTimeInstanceGenerator.cs" />
-    <Compile Include="Internals\DecimalInstanceGenerator.cs" />
-    <Compile Include="Internals\DoubleInstanceGenerator.cs" />
-    <Compile Include="Internals\EnumInstanceGenerator.cs" />
-    <Compile Include="Internals\GuidInstanceGenerator.cs" />
-    <Compile Include="Internals\InstanceGeneratorBase.cs" />
-    <Compile Include="Internals\Int16InstanceGenerator.cs" />
-    <Compile Include="Internals\Int32InstanceGenerator.cs" />
-    <Compile Include="Internals\Int64InstanceGenerator.cs" />
-    <Compile Include="Internals\KeyValuePairInstanceGenerator.cs" />
-    <Compile Include="Internals\NullableInstanceGenerator.cs" />
-    <Compile Include="Internals\PairInstanceGenerator.cs" />
-    <Compile Include="Internals\SByteInstanceGenerator.cs" />
-    <Compile Include="Internals\SingleInstanceGenerator.cs" />
-    <Compile Include="Internals\StringInstanceGenerator.cs" />
-    <Compile Include="Internals\TripletInstanceGenerator.cs" />
-    <Compile Include="Internals\TupleInstanceGenerator.cs" />
-    <Compile Include="Internals\UInt16InstanceGenerator.cs" />
-    <Compile Include="Internals\UInt32InstanceGenerator.cs" />
-    <Compile Include="Internals\UInt64InstanceGenerator.cs" />
-    <Compile Include="Measurement.cs" />
-    <Compile Include="MeasurementOptions.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RandomManager.cs" />
-    <Compile Include="Require.cs" />
-    <Compile Include="RuntimeInfo.cs" />
-    <Compile Include="SeedVariatorType.cs" />
-    <Compile Include="StorageProvider.cs" />
-    <Compile Include="StorageProviderInfo.cs" />
-    <Compile Include="StorageProviderVersion.cs" />
-    <Compile Include="StorageTestHelper.cs" />
-    <Compile Include="TestConfiguration.cs" />
-    <Compile Include="TestHelper.cs" />
-    <Compile Include="TestInfo.cs" />
-    <Compile Include="TestSqlDriver.cs" />
-    <Compile Include="TypeIdBehavior.cs" />
-    <Compile Include="TypeIdModifier.cs" />
-    <Compile Include="WrappingInstanceGenerator{T,TBase1,TBase2, TBase3}.cs" />
-    <Compile Include="WrappingInstanceGenerator{T,TBase1,TBase2}.cs" />
-    <Compile Include="WrappingInstanceGenerator{T,TBase}.cs" />
-  </ItemGroup>
-
   <ItemGroup>
     <None Include="App.config" />
     <None Include="DO-Tests-Plus.sql" />
     <None Include="DO-Tests.sdf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="DO-Tests.sql" />
     <None Include="Orm.config" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.2" />
   </ItemGroup>
@@ -130,4 +44,3 @@
     </None>
   </ItemGroup>
 </Project>
-

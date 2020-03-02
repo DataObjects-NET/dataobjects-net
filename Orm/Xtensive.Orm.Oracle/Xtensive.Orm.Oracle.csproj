@@ -1,15 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
-    <EnableDefaultItems>false</EnableDefaultItems>
     <IsPackable>true</IsPackable>
+    <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
+    <DocumentationFile>..\..\_Build\$(Configuration)\lib\$(TargetFramework)\Xtensive.Orm.Oracle.xml</DocumentationFile>
   </PropertyGroup>
-
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <OutputType>Library</OutputType>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Xtensive</RootNamespace>
-    <AssemblyName>Xtensive.Orm.Oracle</AssemblyName>
     <PackageId>Xtensive.Orm.Oracle</PackageId>
     <Title>$(DoProductName) provider for Oracle</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
@@ -19,28 +16,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
-
-  <PropertyGroup Label="Debug" Condition="'$(Configuration)'=='Debug'">
-    <Optimize>false</Optimize>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\_Build\Debug\lib\</OutputPath>
-    <DocumentationFile>..\..\_Build\Debug\lib\$(TargetFramework)\Xtensive.Orm.Oracle.xml</DocumentationFile>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <OutputPath>..\..\_Build\Release\lib\</OutputPath>
-    <DocumentationFile>..\..\_Build\Release\lib\$(TargetFramework)\Xtensive.Orm.Oracle.xml</DocumentationFile>
-    <DefineConstants>TRACE</DefineConstants>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Oracle.ManagedDataAccess.Core" Version="2.18.3" />
   </ItemGroup>
-  
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
@@ -48,44 +26,5 @@
     <Compile Include="..\Xtensive.Orm\Properties\Visibility.cs">
       <Link>Properties\Visibility.cs</Link>
     </Compile>
-    <Compile Include="Orm.Providers.Oracle\DomainHandler.cs" />
-    <Compile Include="Orm.Providers.Oracle\HandlerFactory.cs" />
-    <Compile Include="Orm.Providers.Oracle\SqlCompiler.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Sql.Drivers.Oracle\BinaryLargeObject.cs" />
-    <Compile Include="Sql.Drivers.Oracle\CharacterLargeObject.cs" />
-    <Compile Include="Sql.Drivers.Oracle\Connection.cs" />
-    <Compile Include="Sql.Drivers.Oracle\Driver.cs" />
-    <Compile Include="Sql.Drivers.Oracle\DriverFactory.cs" />
-    <Compile Include="Sql.Drivers.Oracle\Resources\Strings.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Strings.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Sql.Drivers.Oracle\v09\Compiler.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v09\Driver.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v09\Extractor.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v09\Extractor.Queries.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v09\ServerInfoProvider.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v09\Translator.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v09\TypeMapper.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v10\Compiler.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v10\Driver.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v10\Extractor.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v10\ServerInfoProvider.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v10\Translator.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v10\TypeMapper.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v11\Compiler.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v11\Driver.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v11\Extractor.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v11\ServerInfoProvider.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v11\Translator.cs" />
-    <Compile Include="Sql.Drivers.Oracle\v11\TypeMapper.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Sql.Drivers.Oracle\Resources\Strings.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
   </ItemGroup>
 </Project>

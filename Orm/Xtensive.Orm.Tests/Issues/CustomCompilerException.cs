@@ -29,8 +29,8 @@ namespace Xtensive.Orm.Tests.Issues
                 obj =>
                 (obj is MutualFund)
                     ? (obj as MutualFund).ManagementCompany
-                    : (obj is MilitaryIpoteka)
-                          ? (obj as MilitaryIpoteka).JuridicalPerson
+                    : (obj is MilitaryMortgage)
+                          ? (obj as MilitaryMortgage).JuridicalPerson
                           : (obj is SelfRegulatoryOrganization)
                                 ? (obj as SelfRegulatoryOrganization).Organization
                                 : (obj is PrivatePensionFund)
@@ -39,20 +39,20 @@ namespace Xtensive.Orm.Tests.Issues
                                             ? (obj as ShareholderInvestmentFund).JuridicalPerson
                                             : null;
 
-            private static readonly Func<FundBase, JuridicalPerson> VirtualJuridicalPersoCompiled =
+            private static readonly Func<FundBase, JuridicalPerson> VirtualJuridicalPersonCompiled =
                 VirtualJuridicalPersonExpression.Compile();
 
             public JuridicalPerson VirtualJuridicalPerson
             {
-                get { return VirtualJuridicalPersoCompiled(this); }
+                get { return VirtualJuridicalPersonCompiled(this); }
             }
 
             [CompilerContainer(typeof(Expression))]
             public static class CustomLinqCompilerContainer
             {
-                /// <summary>Необхдим для использования виртуального поля</summary>
+                /// <summary>Required to use a virtual field</summary>
                 /// <param name="assignmentExpression"> The assignment expression. </param>
-                /// <returns>Выражение с привязанными параметрами</returns>
+                /// <returns>Expression with bound parameters</returns>
                 [Compiler(typeof(FundBase), "VirtualJuridicalPerson", TargetKind.PropertyGet)]
                 public static Expression Depositary(Expression assignmentExpression)
                 {
@@ -65,15 +65,14 @@ namespace Xtensive.Orm.Tests.Issues
         public class MutualFund : FundBase
         {
             /// <summary>
-            /// Управляющая компания
-            /// Управляющая компания фонда
+            /// Fund's management company
             /// </summary>
             [Field(Nullable = false)]
             public JuridicalPerson ManagementCompany { get; set; }
         }
 
         [Serializable]
-        public class MilitaryIpoteka : FundBase
+        public class MilitaryMortgage : FundBase
         {
             [Field(Nullable = false)]
             public JuridicalPerson JuridicalPerson { get; set; }
