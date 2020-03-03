@@ -203,6 +203,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       var defaultConfiguration = new SessionConfiguration(
         WellKnown.Sessions.Default, SessionOptions.ServerProfile | SessionOptions.AutoActivation);
       configuration.Sessions.Add(defaultConfiguration);
+      //configuration.Types.Register(typeof (CustomLinqCompilerContainer));
 
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
@@ -219,7 +220,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       return source.Provider.CreateQuery<T>(
         Expression.Call(
           null,
-          CachedReflectionInfo.Distinct_TSource_1(typeof(T)), source.Expression,
+          CachedReflectionInfo.Trace_T_1(typeof(T)), source.Expression,
           Expression.Constant(callerMemberName)));
     }
   }
@@ -228,10 +229,20 @@ namespace Xtensive.Orm.Tests.Upgrade
   {
     private static MethodInfo s_Distinct_TSource_1;
 
-    public static MethodInfo Distinct_TSource_1(Type TSource) =>
+    public static MethodInfo Trace_T_1(Type TSource) =>
       (s_Distinct_TSource_1 ??
        (s_Distinct_TSource_1 = new Func<IQueryable<object>, string, IQueryable<object>>(IQueryableExtensions.Trace)
          .GetMethodInfo().GetGenericMethodDefinition()))
       .MakeGenericMethod(TSource);
+  }
+
+  [CompilerContainer(typeof (Expression))]
+  public static class CustomLinqCompilerContainer
+  {
+    [Compiler(typeof (IQueryableExtensions), nameof(IQueryableExtensions.Trace), TargetKind.Method | TargetKind.Static)]
+    public static Expression PersonRegionName(Expression assignmentExpression)
+    {
+      throw new NotImplementedException();
+    }
   }
 }
