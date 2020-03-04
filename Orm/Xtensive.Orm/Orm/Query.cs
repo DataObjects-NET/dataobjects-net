@@ -42,12 +42,6 @@ namespace Xtensive.Orm
       return Session.Demand().Query.All<T>();
     }
 
-    public static IQueryable<T> AllNew<T>(string callerMemberName)
-      where T: class, IEntity
-    {
-      return Session.Demand().Query.All<T>();
-    }
-
     /// <summary>
     /// The "starting point" for dynamic LINQ query -
     /// a <see cref="IQueryable"/> enumerating all the instances

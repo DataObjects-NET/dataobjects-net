@@ -530,6 +530,18 @@ namespace Xtensive.Orm.Providers
       return CreateProvider(query, provider, source);
     }
 
+    protected override SqlProvider VisitTrace(TraceProvider provider)
+    {
+      var source = Compile(provider.Source);
+
+      var data = provider.Data;
+
+      var query = source.Request.Statement.ShallowClone();
+      query.Comment = $"{data.CallerMemberName} at {data.CallerFilePath}, line {data.CallerLineNumber}";
+
+      return CreateProvider(query, provider, source);
+    }
+
     protected override void Initialize()
     {
       foreach (var column in RootProvider.Header.Columns)

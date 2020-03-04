@@ -32,11 +32,6 @@ namespace Xtensive.Orm.Providers
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);
       SqlSelect query = BuildProviderQuery(index);
-
-      if (provider.QueryContext != null) {
-        query.Comment = provider.QueryContext.Caller;
-      }
-
       return CreateProvider(query, provider);
     }
 

@@ -148,5 +148,15 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
     }
+
+    [Test]
+    public void TraceTest()
+    {
+      var subquery = Session.Query.All<Customer>().Trace();
+      var query = Session.Query.All<Customer>().Trace()
+        .Where(c => c==Session.Query.Single<Customer>(subquery.FirstOrDefault().Key));
+
+      Assert.IsNotEmpty(query.ToArray());
+    }
   }
 }

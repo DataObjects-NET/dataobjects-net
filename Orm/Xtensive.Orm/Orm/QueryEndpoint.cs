@@ -850,14 +850,6 @@ namespace Xtensive.Orm
       session = outerEndpoint.session;
       RootBuilder = queryRootBuilder;
     }
-
-    public IQueryable<T> AllNew<T>([CallerMemberName] string callerMemberName = "")
-      where T : class, IEntity
-    {
-      var rootExp = Expression.Call(null, WellKnownMembers.Query.AllNew.MakeGenericMethod(typeof(T)),
-        new [] { Expression.Constant(callerMemberName) });
-      return Provider.CreateQuery<T>(rootExp);
-    }
   }
 
   public class QueryContext

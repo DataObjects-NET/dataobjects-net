@@ -341,7 +341,15 @@ namespace Xtensive.Orm.Rse.Providers
       return new IncludeProvider(source, provider.Algorithm, provider.IsInlined,
         provider.FilterDataSource, provider.ResultColumnName, provider.FilteredColumns);
     }
-    
+
+    protected override Provider VisitTrace(TraceProvider provider)
+    {
+      OnRecursionEntrance(provider);
+      var source = VisitCompilable(provider.Source);
+      OnRecursionExit(provider);
+      return source == provider.Source ? provider : new TraceProvider(source, provider.Data);
+    }
+
     private static Expression DefaultExpressionTranslator(Provider p, Expression e)
     {
       return e;

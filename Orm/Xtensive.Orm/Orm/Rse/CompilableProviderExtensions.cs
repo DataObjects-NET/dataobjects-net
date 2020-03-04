@@ -212,5 +212,8 @@ namespace Xtensive.Orm.Rse
     {
       return new VoidProvider(source.Header);
     }
+
+    public static CompilableProvider Trace(this CompilableProvider source, TraceData traceData)
+      => new TraceProvider(source, traceData);
   }
 }

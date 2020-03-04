@@ -1573,5 +1573,31 @@ namespace Xtensive.Orm.Linq
         return VisitAll(setB, lambda, isRoot);
       }
     }
+
+    private Expression VisitTrace(MethodCallExpression expression)
+    {
+      var source = expression.Arguments[0];
+
+      var traceData = new TraceData {
+        CallerMemberName = GetConstantArgumentValue<string>(expression, 1),
+        CallerFilePath = GetConstantArgumentValue<string>(expression, 2),
+        CallerLineNumber = GetConstantArgumentValue<int>(expression, 3)
+      };
+
+      var visitedSource = (ProjectionExpression) Visit(source);
+      var newDataSource = visitedSource.ItemProjector.DataSource.Trace(traceData);
+
+      var newItemProjector = new ItemProjectorExpression(visitedSource.ItemProjector.Item, newDataSource,
+        visitedSource.ItemProjector.Context);
+      var projectionExpression = new ProjectionExpression(
+        visitedSource.Type,
+        newItemProjector,
+        visitedSource.TupleParameterBindings,
+        visitedSource.ResultType);
+      return projectionExpression;
+    }
+
+    private static T GetConstantArgumentValue<T>(MethodCallExpression expression, int argumentIndex)
+      => (T) ((ConstantExpression) expression.Arguments[argumentIndex]).Value;
   }
 }

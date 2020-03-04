@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -315,6 +316,24 @@ namespace Xtensive.Orm
       return Task<IEnumerable<T>>.FromResult(source.AsEnumerable());
     }
 
+    public static IQueryable<T> Trace<T>(this IQueryable<T> source,
+      [CallerMemberName] string callerMemberName = "",
+      [CallerFilePath] string callerFilePath = "",
+      [CallerLineNumber] int callerLineNumber = 0)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
+      EnsureQueryProvider(source);
+
+      var genericMethod = WellKnownMembers.Queryable.ExtensionTrace.MakeGenericMethod(typeof(T));
+
+      var expression = Expression.Call(null, genericMethod, source.Expression,
+        Expression.Constant(callerMemberName),
+        Expression.Constant(callerFilePath),
+        Expression.Constant(callerLineNumber));
+
+      return source.Provider.CreateQuery<T>(expression);
+    }
+
     #region Private / internal members
 
     // ReSharper disable UnusedMember.Local
@@ -339,6 +358,14 @@ namespace Xtensive.Orm
       if (queryable!=null)
         return queryable.Expression;
       return Expression.Constant(source, typeof (IEnumerable<TSource>));
+    }
+
+    private static void EnsureQueryProvider<TSource>(IQueryable<TSource> source)
+    {
+      var errorMessage = Strings.ExSkipDoesNotSupportQueryProviderOfTypeX;
+      var providerType = source.Provider.GetType();
+      if (providerType!=typeof (QueryProvider))
+        throw new NotSupportedException(string.Format(errorMessage, providerType));
     }
 
     #endregion

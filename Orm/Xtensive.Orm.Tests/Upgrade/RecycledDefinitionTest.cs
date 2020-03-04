@@ -210,39 +210,4 @@ namespace Xtensive.Orm.Tests.Upgrade
       return Domain.Build(configuration);
     }
   }
-
-  public static class IQueryableExtensions
-  {
-    public static IQueryable<T> Trace<T>(this IQueryable<T> source, [CallerMemberName] string callerMemberName = "")
-    {
-      if (source == null)
-        throw new ArgumentNullException("source");
-      return source.Provider.CreateQuery<T>(
-        Expression.Call(
-          null,
-          CachedReflectionInfo.Trace_T_1(typeof(T)), source.Expression,
-          Expression.Constant(callerMemberName)));
-    }
-  }
-
-  public static class CachedReflectionInfo
-  {
-    private static MethodInfo s_Distinct_TSource_1;
-
-    public static MethodInfo Trace_T_1(Type TSource) =>
-      (s_Distinct_TSource_1 ??
-       (s_Distinct_TSource_1 = new Func<IQueryable<object>, string, IQueryable<object>>(IQueryableExtensions.Trace)
-         .GetMethodInfo().GetGenericMethodDefinition()))
-      .MakeGenericMethod(TSource);
-  }
-
-  [CompilerContainer(typeof (Expression))]
-  public static class CustomLinqCompilerContainer
-  {
-    [Compiler(typeof (IQueryableExtensions), nameof(IQueryableExtensions.Trace), TargetKind.Method | TargetKind.Static)]
-    public static Expression PersonRegionName(Expression assignmentExpression)
-    {
-      throw new NotImplementedException();
-    }
-  }
 }

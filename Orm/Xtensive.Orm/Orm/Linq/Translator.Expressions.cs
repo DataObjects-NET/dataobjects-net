@@ -335,8 +335,7 @@ namespace Xtensive.Orm.Linq
 #pragma warning disable 612,618
         if (mc.Method.DeclaringType==typeof (Query)) {
           // Query.All<T>
-          if (mc.Method.IsGenericMethod && (mc.Method.GetGenericMethodDefinition()==WellKnownMembers.Query.All ||
-                                            mc.Method.GetGenericMethodDefinition()==WellKnownMembers.Query.AllNew))
+          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()==WellKnownMembers.Query.All)
             return ConstructQueryable(mc);
           // Query.FreeText<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()
@@ -362,8 +361,7 @@ namespace Xtensive.Orm.Linq
         // Visit QueryEndpoint.
         if (mc.Method.DeclaringType == typeof(QueryEndpoint)) {
           // Query.All<T>
-          if (mc.Method.IsGenericMethod && (mc.Method.GetGenericMethodDefinition() == WellKnownMembers.QueryEndpoint.All
-            || mc.Method.GetGenericMethodDefinition()== WellKnownMembers.QueryEndpoint.AllNew))
+          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition() == WellKnownMembers.QueryEndpoint.All)
             return ConstructQueryable(mc);
           // Query.FreeText<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()
@@ -408,6 +406,8 @@ namespace Xtensive.Orm.Linq
             return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, true);
           else if (mc.Method.Name == WellKnownMembers.Queryable.ExtensionCount.Name)
             return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc), mc);
+          else if (mc.Method.Name == WellKnownMembers.Queryable.ExtensionTrace.Name)
+            return VisitTrace(mc);
           else
             throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         // Visit Collection extensions
@@ -1138,12 +1138,6 @@ namespace Xtensive.Orm.Linq
       var entityExpression = EntityExpression.Create(type, 0, false);
 
       var indexProvider = index.GetQuery();
-
-      if (mc.Arguments.FirstOrDefault() is ConstantExpression arg) {
-        var caller = (string)arg.Value;
-        var queryContext = new QueryContext { Caller = caller };
-        indexProvider.QueryContext = queryContext;
-      }
 
       var itemProjector = new ItemProjectorExpression(entityExpression, indexProvider, context);
       return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());

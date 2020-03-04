@@ -110,6 +110,9 @@ namespace Xtensive.Orm.Rse.Providers
           break;
         case ProviderType.Void:
           throw new NotSupportedException(Strings.ExProcessingOfVoidProviderIsNotSupported);
+        case ProviderType.Trace:
+          result = VisitTrace((TraceProvider) cp);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -286,5 +289,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="provider">SearchCondition provider.</param>
     /// <returns></returns>
     protected abstract Provider VisitContainsTable(ContainsTableProvider provider);
+
+    protected abstract Provider VisitTrace(TraceProvider provider);
   }
 }

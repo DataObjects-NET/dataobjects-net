@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Xtensive.Orm.Rse.Providers;
 
@@ -140,6 +141,9 @@ namespace Xtensive.Orm.Rse.Compilation
           break;
         case ProviderType.Void:
           throw new NotSupportedException(Strings.ExProcessingOfVoidProviderIsNotSupported);
+        case ProviderType.Trace:
+          result = VisitTrace((TraceProvider) cp);
+          break;
         default:
           throw new ArgumentOutOfRangeException();
       }
@@ -310,6 +314,8 @@ namespace Xtensive.Orm.Rse.Compilation
     /// </summary>
     /// <param name="provider">ContainsTable provider.</param>
     protected abstract TResult VisitContainsTable(ContainsTableProvider provider);
+
+    protected abstract TResult VisitTrace(TraceProvider provider);
 
     /// <summary>
     /// Initializes this instance just before first VisitXxx() is called.

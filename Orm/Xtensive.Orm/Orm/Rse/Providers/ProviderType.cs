@@ -39,5 +39,6 @@ namespace Xtensive.Orm.Rse.Providers
     ContainsTable,
     Paging,
     Void,
+    Trace,
   }
 }

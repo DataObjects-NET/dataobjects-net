@@ -32,7 +32,7 @@
     <Content Include="$(SolutionDir)MSBuild\DataObjects.Net.targets" Visible="false" Pack="true" PackagePath="." />
     <Content Include="NuGetContent\**" Visible="false" Pack="true" PackagePath="." />
     <Content Include="$(SolutionDir)_Build\$(Configuration)\tools\weaver\**" Visible="false" Pack="true" PackagePath="tools\weaver\" />
-    <TfmSpecificPackageFile Include="$(SolutionDir)_Build\$(Configuration)\tools\weaver\**" Visible="false" Pack="true" PackagePath="tools\weaver\"  />
+    <TfmSpecificPackageFile Include="$(SolutionDir)_Build\$(Configuration)\tools\weaver\**" Visible="false" Pack="true" PackagePath="tools\weaver\" />
   </ItemGroup>
   <ItemGroup Label="Packages" Condition=" '$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
