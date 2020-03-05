@@ -1136,7 +1136,6 @@ namespace Xtensive.Orm.Linq
         throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, elementType.FullName));
       var index = type.Indexes.PrimaryIndex;
       var entityExpression = EntityExpression.Create(type, 0, false);
-
       var itemProjector = new ItemProjectorExpression(entityExpression, index.GetQuery(), context);
       return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
     }
