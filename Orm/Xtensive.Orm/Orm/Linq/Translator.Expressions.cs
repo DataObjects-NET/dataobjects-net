@@ -1137,9 +1137,7 @@ namespace Xtensive.Orm.Linq
       var index = type.Indexes.PrimaryIndex;
       var entityExpression = EntityExpression.Create(type, 0, false);
 
-      var indexProvider = index.GetQuery();
-
-      var itemProjector = new ItemProjectorExpression(entityExpression, indexProvider, context);
+      var itemProjector = new ItemProjectorExpression(entityExpression, index.GetQuery(), context);
       return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
     }
 

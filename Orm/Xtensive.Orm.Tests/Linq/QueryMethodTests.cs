@@ -152,11 +152,15 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TraceTest()
     {
-      var subquery = Session.Query.All<Customer>().Trace();
-      var query = Session.Query.All<Customer>().Trace()
+      var subquery = CreateQuery1();
+      var query = CreateQuery2()
         .Where(c => c==Session.Query.Single<Customer>(subquery.FirstOrDefault().Key));
 
       Assert.IsNotEmpty(query.ToArray());
     }
+
+    private IQueryable<Customer> CreateQuery1() => Session.Query.All<Customer>().Trace();
+
+    private IQueryable<Customer> CreateQuery2() => Session.Query.All<Customer>().Trace();
   }
 }

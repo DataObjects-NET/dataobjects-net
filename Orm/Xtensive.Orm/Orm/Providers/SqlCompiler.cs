@@ -313,6 +313,11 @@ namespace Xtensive.Orm.Providers
       query.Columns.Clear();
       query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
 
+      var data = provider.TraceData;
+      if (data != null) {
+        query.Comment = $"{data.CallerMemberName} at {data.CallerFilePath}, line {data.CallerLineNumber}";
+      }
+
       return CreateProvider(query, provider, compiledSource);
     }
 
@@ -534,12 +539,11 @@ namespace Xtensive.Orm.Providers
     {
       var source = Compile(provider.Source);
 
-      var data = provider.Data;
+      if (RootProvider is SelectProvider rootSelectProvider && rootSelectProvider.TraceData == null) {
+        rootSelectProvider.TraceData = provider.Data;
+      }
 
-      var query = source.Request.Statement.ShallowClone();
-      query.Comment = $"{data.CallerMemberName} at {data.CallerFilePath}, line {data.CallerLineNumber}";
-
-      return CreateProvider(query, provider, source);
+      return source;
     }
 
     protected override void Initialize()

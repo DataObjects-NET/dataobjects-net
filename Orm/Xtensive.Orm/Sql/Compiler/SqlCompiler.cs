@@ -1166,8 +1166,8 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
 
-        context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
         VisitSelectComment(node);
+        context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
         VisitSelectHints(node);
         VisitSelectColumns(node);
         VisitSelectFrom(node);

@@ -31,6 +31,8 @@ namespace Xtensive.Orm.Rse.Providers
       get { return columnIndexes.Copy(); }
     }
 
+    public TraceData TraceData { get; set; }
+
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {

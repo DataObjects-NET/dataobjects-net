@@ -345,9 +345,8 @@ namespace Xtensive.Orm.Rse.Providers
     protected override Provider VisitTrace(TraceProvider provider)
     {
       OnRecursionEntrance(provider);
-      var source = VisitCompilable(provider.Source);
       OnRecursionExit(provider);
-      return source == provider.Source ? provider : new TraceProvider(source, provider.Data);
+      return provider;
     }
 
     private static Expression DefaultExpressionTranslator(Provider p, Expression e)
