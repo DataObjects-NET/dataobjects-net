@@ -244,7 +244,7 @@ namespace Xtensive.Sql
 
     public virtual object ReadDateTimeOffset(DbDataReader reader, int index)
     {
-      return ((SqlDataReader) reader).GetDateTimeOffset(index);
+      return (DateTimeOffset) reader.GetValue(index);
     }
 
     public virtual object ReadTimeSpan(DbDataReader reader, int index)

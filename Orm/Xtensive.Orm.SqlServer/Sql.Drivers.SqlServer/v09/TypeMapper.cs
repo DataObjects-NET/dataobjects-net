@@ -104,6 +104,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return reduced2.Value;
     }
 
+    public override object ReadDateTimeOffset(DbDataReader reader, int index)
+    {
+      return ((SqlDataReader) reader).GetDateTimeOffset(index);
+    }
+
     public override void Initialize()
     {
       base.Initialize();
