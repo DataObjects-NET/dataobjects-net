@@ -14,6 +14,7 @@ using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Sql.Info;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
+using JetBrains.Annotations;
 
 namespace Xtensive.Sql.Drivers.SqlServer
 {
@@ -175,7 +176,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
         }
       }
       catch (Exception exception) {
-        if (SqlHelper.ShouldRetryOn(exception)) {
+        if (InternalHelpers.ShouldRetryOn(exception)) {
           if (!TryReconnect(ref connection, query))
             throw;
         }
@@ -202,8 +203,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
         }
         return true;
       }
-      catch (Exception)
-      {
+      catch (Exception) {
         return false;
       }
     }

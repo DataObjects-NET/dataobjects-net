@@ -136,7 +136,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
           connectionChecked = true;
         }
         catch (Exception exception) {
-          if (SqlHelper.ShouldRetryOn(exception)) {
+          if (InternalHelpers.ShouldRetryOn(exception)) {
             if (restoreTriggered)
               throw;
 
@@ -173,7 +173,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
           connectionChecked = true;
         }
         catch (Exception exception) {
-          if (SqlHelper.ShouldRetryOn(exception)) {
+          if (InternalHelpers.ShouldRetryOn(exception)) {
             if (restoreTriggered) {
               throw;
             }
