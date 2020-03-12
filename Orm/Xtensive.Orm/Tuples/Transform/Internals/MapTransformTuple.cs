@@ -5,7 +5,8 @@
 // Created:    2008.05.07
 
 using System;
-using Xtensive.Collections;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Xtensive.Core;
 
 
@@ -20,10 +21,10 @@ namespace Xtensive.Tuples.Transform.Internals
     private readonly Tuple[] tuples;
 
     /// <inheritdoc/>
-    public override object[] Arguments {
-      get {
-        return tuples.Copy();
-      }
+    public override IReadOnlyList<object> Arguments
+    {
+      [DebuggerStepThrough]
+      get => Array.AsReadOnly(tuples);
     }
 
     #region GetFieldState, GetValue, SetValue methods

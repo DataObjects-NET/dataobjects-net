@@ -7,10 +7,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Reflection;
 
 using Xtensive.Tuples.Packed;
 using Xtensive.Tuples.Transform;
@@ -97,7 +95,7 @@ namespace Xtensive.Tuples
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="map">Target-to-source field index map.
     /// Negative value in this map means "skip this element".</param>
-    public static void CopyTo(this Tuple source, Tuple target, int[] map)
+    public static void CopyTo(this Tuple source, Tuple target, IReadOnlyList<int> map)
     {
       var packedSource = source as PackedTuple;
       var packedTarget = target as PackedTuple;
@@ -477,18 +475,18 @@ namespace Xtensive.Tuples
         CopyPackedValue(source, sourceStartIndex + i, target, targetStartIndex + i);
     }
 
-    private static void CopyTupleWithMappingSlow(Tuple source, Tuple target, int[] map)
+    private static void CopyTupleWithMappingSlow(Tuple source, Tuple target, IReadOnlyList<int> map)
     {
-      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+      for (int targetIndex = 0; targetIndex < map.Count; targetIndex++) {
         var sourceIndex = map[targetIndex];
         if (sourceIndex >= 0)
           CopyValue(source, sourceIndex, target, targetIndex);
       }
     }
 
-    private static void CopyTupleWithMappingFast(PackedTuple source, PackedTuple target, int[] map)
+    private static void CopyTupleWithMappingFast(PackedTuple source, PackedTuple target, IReadOnlyList<int> map)
     {
-      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+      for (int targetIndex = 0; targetIndex < map.Count; targetIndex++) {
         var sourceIndex = map[targetIndex];
         if (sourceIndex >= 0)
           CopyPackedValue(source, sourceIndex, target, targetIndex);

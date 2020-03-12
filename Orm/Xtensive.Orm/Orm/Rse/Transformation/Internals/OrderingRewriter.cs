@@ -71,8 +71,9 @@ namespace Xtensive.Orm.Rse.Transformation
 
       if (sortOrder.Count > 0) {
         var selectOrdering = new DirectionCollection<int>();
+        var columnIndexes = result.ColumnIndexes;
         foreach (var pair in sortOrder) {
-          var columnIndex = result.ColumnIndexes.IndexOf(pair.Key);
+          var columnIndex = columnIndexes.IndexOf(pair.Key);
           if (columnIndex < 0) {
             if (selectOrdering.Count > 0)
               selectOrdering.Clear();

@@ -5,9 +5,9 @@
 // Created:    2008.02.04
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 
@@ -142,10 +142,9 @@ namespace Xtensive.Comparison
     /// Gets a copy of internal array of composite rules
     /// that are used to order composite values.
     /// </summary>
-    public ComparisonRules[] Composite {
-      get {
-        return composite.Copy();
-      }
+    public IReadOnlyList<ComparisonRules> Composite {
+      [DebuggerStepThrough]
+      get => Array.AsReadOnly(composite);
     }
     
     /// <summary>

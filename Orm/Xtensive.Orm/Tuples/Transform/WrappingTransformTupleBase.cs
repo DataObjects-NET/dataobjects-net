@@ -5,6 +5,7 @@
 // Created:    2008.06.02
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 
@@ -23,19 +24,19 @@ namespace Xtensive.Tuples.Transform
     public override TupleDescriptor Descriptor
     {
       [DebuggerStepThrough]
-      get { return origin.Descriptor; }
+      get => origin.Descriptor;
     }
 
     /// <inheritdoc />
     public override int Count {
       [DebuggerStepThrough]
-      get { return origin.Count; }
+      get => origin.Count;
     }
 
     /// <inheritdoc/>
-    public override object[] Arguments {
+    public override IReadOnlyList<object> Arguments {
       [DebuggerStepThrough]
-      get { return new object[] {origin}; }
+      get => new object[] {origin};
     }
 
     #region GetFieldState, GetValueOrDefault, SetValue methods
