@@ -437,10 +437,10 @@ namespace Xtensive.Tuples
 
     private static void CopyPackedValue(PackedTuple source, int sourceIndex, PackedTuple target, int targetIndex)
     {
-      var sourceDescriptor = source.PackedDescriptor.FieldDescriptors[sourceIndex];
-      var targetDescriptor = target.PackedDescriptor.FieldDescriptors[targetIndex];
+      var sourceDescriptors = source.PackedDescriptor.FieldDescriptors;
+      var targetDescriptors = target.PackedDescriptor.FieldDescriptors;
 
-      var fieldState = source.GetFieldState(sourceDescriptor);
+      var fieldState = source.GetFieldState(ref sourceDescriptors[sourceIndex]);
       if (!fieldState.IsAvailable())
         return;
 
@@ -449,15 +449,15 @@ namespace Xtensive.Tuples
         return;
       }
 
-      var accessor = sourceDescriptor.Accessor;
-      if (accessor!=targetDescriptor.Accessor)
+      var accessor = sourceDescriptors[sourceIndex].Accessor;
+      if (accessor!=targetDescriptors[targetIndex].Accessor)
         throw new InvalidOperationException(string.Format(
           Strings.ExInvalidCast,
           source.PackedDescriptor[sourceIndex],
           target.PackedDescriptor[targetIndex]));
 
       target.SetFieldState(targetIndex, TupleFieldState.Available);
-      accessor.CopyValue(source, sourceDescriptor, target, targetDescriptor);
+      accessor.CopyValue(source, ref sourceDescriptors[sourceIndex], target, ref targetDescriptors[targetIndex]);
     }
 
     private static void PartiallyCopyTupleSlow(Tuple source, Tuple target, int sourceStartIndex, int targetStartIndex, int length)

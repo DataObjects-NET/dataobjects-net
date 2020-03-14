@@ -43,16 +43,17 @@ namespace Xtensive.Tuples.Packed
       if (Descriptor!=packedOther.Descriptor)
         return false;
 
+      var fieldDescriptors = PackedDescriptor.FieldDescriptors;
       var count = Count;
       for (int i = 0; i < count; i++) {
-        var descriptor = PackedDescriptor.FieldDescriptors[i];
-        var thisState = GetFieldState(descriptor);
-        var otherState = packedOther.GetFieldState(descriptor);
+        var thisState = GetFieldState(ref fieldDescriptors[i]);
+        var otherState = packedOther.GetFieldState(ref fieldDescriptors[i]);
         if (thisState!=otherState)
           return false;
         if (thisState!=TupleFieldState.Available)
           continue;
-        if (!descriptor.Accessor.ValueEquals(this, descriptor, packedOther, descriptor))
+        var accessor = fieldDescriptors[i].Accessor;
+        if (!accessor.ValueEquals(this, ref fieldDescriptors[i], packedOther, ref fieldDescriptors[i]))
           return false;
       }
 
@@ -62,12 +63,13 @@ namespace Xtensive.Tuples.Packed
     public override int GetHashCode()
     {
       var count = Count;
+      var fieldDescriptors = PackedDescriptor.FieldDescriptors;
       int result = 0;
       for (int i = 0; i < count; i++) {
-        var descriptor = PackedDescriptor.FieldDescriptors[i];
-        var state = GetFieldState(descriptor);
+        var accessor = fieldDescriptors[i].Accessor;
+        var state = GetFieldState(ref fieldDescriptors[i]);
         var fieldHash = state==TupleFieldState.Available
-          ? descriptor.Accessor.GetValueHashCode(this, descriptor)
+          ? accessor.GetValueHashCode(this, ref fieldDescriptors[i])
           : 0;
         result = HashCodeMultiplier * result ^ fieldHash;
       }
@@ -76,8 +78,7 @@ namespace Xtensive.Tuples.Packed
 
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
-      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
-      return GetFieldState(descriptor);
+      return GetFieldState(ref PackedDescriptor.FieldDescriptors[fieldIndex]);
     }
 
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
@@ -85,33 +86,34 @@ namespace Xtensive.Tuples.Packed
       if (fieldState==TupleFieldState.Null)
         throw new ArgumentOutOfRangeException("fieldState");
 
-      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
-      SetFieldState(descriptor, fieldState);
-
-      if (fieldState!=TupleFieldState.Available && descriptor.PackingType==FieldPackingType.Object)
-        Objects[descriptor.ValueIndex] = null;
+      var fieldDescriptors = PackedDescriptor.FieldDescriptors;
+      SetFieldState(ref fieldDescriptors[fieldIndex], fieldState);
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
-      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
-      return descriptor.Accessor.GetUntypedValue(this, descriptor, out fieldState);
+      var fieldDescriptors = PackedDescriptor.FieldDescriptors;
+      return fieldDescriptors[fieldIndex].Accessor.GetUntypedValue(this, ref fieldDescriptors[fieldIndex], out fieldState);
     }
 
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      var descriptor = PackedDescriptor.FieldDescriptors[fieldIndex];
-      descriptor.Accessor.SetUntypedValue(this, descriptor, fieldValue);
+      var fieldDescriptors = PackedDescriptor.FieldDescriptors;
+      fieldDescriptors[fieldIndex].Accessor.SetUntypedValue(this, ref fieldDescriptors[fieldIndex], fieldValue);
     }
 
-    public void SetFieldState(PackedFieldDescriptor d, TupleFieldState fieldState)
+    public void SetFieldState(ref PackedFieldDescriptor d, TupleFieldState fieldState)
     {
       var bits = (long) fieldState;
       var block = Values[d.StateIndex];
       Values[d.StateIndex] = (block & ~(3L << d.StateBitOffset)) | (bits << d.StateBitOffset);
+
+      if (fieldState!=TupleFieldState.Available && d.PackingType==FieldPackingType.Object) {
+        Objects[d.ValueIndex] = null;
+      }
     }
 
-    public TupleFieldState GetFieldState(PackedFieldDescriptor d)
+    public TupleFieldState GetFieldState(ref PackedFieldDescriptor d)
     {
       var block = Values[d.StateIndex];
       return (TupleFieldState) ((block >> d.StateBitOffset) & 3);

@@ -424,10 +424,8 @@ namespace Xtensive.Tuples
 
       for (var i = 0; i < fieldTypes.Length; i++) {
         var fieldType = fieldTypes[i].StripNullable();
-        var descriptor = new PackedFieldDescriptor { FieldIndex = i };
-        PackedFieldAccessorFactory.ConfigureDescriptor(descriptor, fieldType);
+        PackedFieldAccessorFactory.ConfigureDescriptor(ref FieldDescriptors[i], i, fieldType);
         _fieldTypes[i] = fieldType;
-        FieldDescriptors[i] = descriptor;
       }
 
       var orderedDescriptors = (PackedFieldDescriptor[]) FieldDescriptors.Clone();
@@ -435,11 +433,11 @@ namespace Xtensive.Tuples
 
       foreach (var d in orderedDescriptors) {
         var fieldIndex = d.FieldIndex;
-        d.StateIndex = fieldIndex >> 5; // d.FieldIndex / 32
-        d.StateBitOffset = (fieldIndex & 31) << 1;
+        FieldDescriptors[fieldIndex].StateIndex = fieldIndex >> 5; // d.FieldIndex / 32
+        FieldDescriptors[fieldIndex].StateBitOffset = (fieldIndex & 31) << 1;
 
         if (d.PackingType == FieldPackingType.Object) {
-          d.ValueIndex = objectIndex++;
+          FieldDescriptors[fieldIndex].ValueIndex = objectIndex++;
           continue;
         }
         
@@ -449,16 +447,16 @@ namespace Xtensive.Tuples
             valueIndex++;
             valueBitOffset = 0;
           }
-          d.ValueIndex = valueIndex;
+          FieldDescriptors[fieldIndex].ValueIndex = valueIndex;
           valueIndex += (d.ValueBitCount + longBitCount - 1) / longBitCount;
         }
         else {
-          d.ValueIndex = valueIndex;
-          d.ValueBitOffset = valueBitOffset;
+          FieldDescriptors[fieldIndex].ValueIndex = valueIndex;
+          FieldDescriptors[fieldIndex].ValueBitOffset = valueBitOffset;
           valueBitOffset += d.ValueBitCount;
           if (valueBitOffset > longBitCount) {
-            d.ValueIndex = ++valueIndex;
-            d.ValueBitOffset = 0;
+            FieldDescriptors[fieldIndex].ValueIndex = ++valueIndex;
+            FieldDescriptors[fieldIndex].ValueBitOffset = 0;
             valueBitOffset = d.ValueBitCount;
           }
         }
@@ -479,10 +477,13 @@ namespace Xtensive.Tuples
         "FieldDescriptors", typeof(PackedFieldDescriptor[]));
 
       _fieldTypes = new Type[typeNames.Length];
-      for (var i = 0; i < typeNames.Length; i++)
+      for (var i = 0; i < typeNames.Length; i++) {
         _fieldTypes[i] = typeNames[i].GetTypeFromSerializableForm();
-      for (var i = 0; i < _fieldTypes.Length; i++)
-        PackedFieldAccessorFactory.ConfigureDescriptor(FieldDescriptors[i], _fieldTypes[i]);
+      }
+
+      for (var i = 0; i < _fieldTypes.Length; i++) {
+        PackedFieldAccessorFactory.ConfigureDescriptor(ref FieldDescriptors[i], i, _fieldTypes[i]);
+      }
     }
 
 

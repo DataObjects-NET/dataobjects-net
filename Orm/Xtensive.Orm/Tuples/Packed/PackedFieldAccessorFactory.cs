@@ -16,8 +16,9 @@ namespace Xtensive.Tuples.Packed
 
     public static IEnumerable<Type> KnownTypes => ValueAccessors.Keys;
 
-    public static void ConfigureDescriptor(PackedFieldDescriptor descriptor, Type accessorType)
+    public static void ConfigureDescriptor(ref PackedFieldDescriptor descriptor, int fieldIndex, Type accessorType)
     {
+      descriptor.FieldIndex = fieldIndex;
       if (ValueAccessors.TryGetValue(accessorType, out var valueAccessor)) {
         descriptor.Accessor = valueAccessor;
         descriptor.PackingType = FieldPackingType.Value;

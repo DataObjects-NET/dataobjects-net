@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Tuples.Packed
 {
   [Serializable]
-  internal sealed class PackedFieldDescriptor
+  internal struct PackedFieldDescriptor
   {
     public FieldPackingType PackingType;
 
