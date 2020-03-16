@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Model
     /// <summary>
     /// Gets or sets value indicates that name of constraint is stale.
     /// </summary>
-    internal bool NameIsStale { get; set; }
+    public bool NameIsStale { get; internal set; }
 
     // Constructors
 

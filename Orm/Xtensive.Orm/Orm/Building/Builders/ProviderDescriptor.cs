@@ -57,7 +57,6 @@ namespace Xtensive.Orm.Building.Builders
 
       switch (providerName) {
       case WellKnown.Provider.SqlServer:
-        return typeof (Providers.SqlServer.HandlerFactory).Assembly;
       case WellKnown.Provider.SqlServerCe:
       case WellKnown.Provider.PostgreSql:
       case WellKnown.Provider.Oracle:

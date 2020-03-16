@@ -17,12 +17,12 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Readme.txt" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm.SqlServer\Xtensive.Orm.SqlServer.csproj" />
   </ItemGroup>
 </Project>
