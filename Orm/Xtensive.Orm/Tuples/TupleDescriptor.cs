@@ -422,19 +422,20 @@ namespace Xtensive.Tuples
       var valueIndex = (FieldCount + statesPerLong - 1) / statesPerLong;
       var valueBitOffset = 0;
 
-      for (var i = 0; i < fieldTypes.Length; i++) {
-        var fieldType = fieldTypes[i].StripNullable();
-        PackedFieldAccessorFactory.ConfigureDescriptor(ref FieldDescriptors[i], i, fieldType);
-        _fieldTypes[i] = fieldType;
+      var packingOrderInfos = new PackingOrderInfo[fieldTypes.Length];
+      for (var fieldIndex = 0; fieldIndex < fieldTypes.Length; fieldIndex++) {
+        var fieldType = fieldTypes[fieldIndex];
+        PackedFieldAccessorFactory.ConfigureDescriptor(ref FieldDescriptors[fieldIndex], fieldIndex, fieldType);
+        packingOrderInfos[fieldIndex].FieldIndex = fieldIndex;
+        packingOrderInfos[fieldIndex].ValueBitCount = FieldDescriptors[fieldIndex].ValueBitCount;
+        _fieldTypes[fieldIndex] = FieldDescriptors[fieldIndex].Accessor.FieldType ?? fieldType;
       }
 
-      var orderedDescriptors = (PackedFieldDescriptor[]) FieldDescriptors.Clone();
-      Array.Sort(orderedDescriptors, PackedFieldDescriptorComparer.Instance);
+      Array.Sort(packingOrderInfos, PackingOrderInfoComparer.Instance);
 
-      foreach (var d in orderedDescriptors) {
-        var fieldIndex = d.FieldIndex;
-        FieldDescriptors[fieldIndex].StateIndex = fieldIndex >> 5; // d.FieldIndex / 32
-        FieldDescriptors[fieldIndex].StateBitOffset = (fieldIndex & 31) << 1;
+      foreach (var info in packingOrderInfos) {
+        var fieldIndex = info.FieldIndex;
+        var d = FieldDescriptors[fieldIndex];
 
         if (d.PackingType == FieldPackingType.Object) {
           FieldDescriptors[fieldIndex].ValueIndex = objectIndex++;

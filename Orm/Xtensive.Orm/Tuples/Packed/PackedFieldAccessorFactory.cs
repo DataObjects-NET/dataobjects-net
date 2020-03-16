@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Xtensive.Tuples.Packed
 {
@@ -14,12 +15,12 @@ namespace Xtensive.Tuples.Packed
     private static readonly PackedFieldAccessor ObjectAccessor;
     private static readonly Dictionary<Type, ValueFieldAccessor> ValueAccessors;
 
-    public static IEnumerable<Type> KnownTypes => ValueAccessors.Keys;
+    public static IEnumerable<Type> KnownTypes => ValueAccessors.Keys.Where(t => !t.IsGenericType);
 
-    public static void ConfigureDescriptor(ref PackedFieldDescriptor descriptor, int fieldIndex, Type accessorType)
+    public static void ConfigureDescriptor(ref PackedFieldDescriptor descriptor, int fieldIndex, Type fieldType)
     {
       descriptor.FieldIndex = fieldIndex;
-      if (ValueAccessors.TryGetValue(accessorType, out var valueAccessor)) {
+      if (ValueAccessors.TryGetValue(fieldType, out var valueAccessor)) {
         descriptor.Accessor = valueAccessor;
         descriptor.PackingType = FieldPackingType.Value;
         descriptor.ValueBitCount = valueAccessor.BitCount;
@@ -29,12 +30,16 @@ namespace Xtensive.Tuples.Packed
         descriptor.Accessor = ObjectAccessor;
         descriptor.PackingType = FieldPackingType.Object;
       }
+
+      descriptor.StateIndex = fieldIndex >> 5; // d.FieldIndex / 32
+      descriptor.StateBitOffset = (fieldIndex & 31) << 1;
     }
 
     private static void RegisterAccessor<T>(ValueFieldAccessor<T> accessor)
       where T : struct, IEquatable<T>
     {
       ValueAccessors.Add(typeof (T), accessor);
+      ValueAccessors.Add(typeof (T?), accessor);
     }
 
     static PackedFieldAccessorFactory()

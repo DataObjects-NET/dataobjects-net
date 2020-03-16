@@ -30,6 +30,8 @@ namespace Xtensive.Tuples.Packed
     /// </summary>
     protected Delegate NullableSetter;
 
+    public abstract Type FieldType { get; }
+
     public void SetValue<T>(PackedTuple tuple, ref PackedFieldDescriptor descriptor, bool isNullable, T value)
     {
       var setter = (isNullable ? NullableSetter : Setter) as SetValueDelegate<T>;
@@ -69,6 +71,8 @@ namespace Xtensive.Tuples.Packed
 
   internal sealed class ObjectFieldAccessor : PackedFieldAccessor
   {
+    public override Type FieldType => null;
+
     public override object GetUntypedValue(PackedTuple tuple, ref PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
       var state = tuple.GetFieldState(ref descriptor);
@@ -136,6 +140,8 @@ namespace Xtensive.Tuples.Packed
   {
     private static readonly T DefaultValue = default(T);
     private static readonly T? NullValue = null;
+
+    public override Type FieldType => typeof(T);
 
     protected virtual long Encode(T value)
     {
