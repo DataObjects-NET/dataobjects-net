@@ -4,12 +4,10 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.05
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
@@ -18,23 +16,24 @@ namespace Xtensive.Orm.Linq.Expressions
 {
   internal class KeyExpression : PersistentFieldExpression
   {
-    public TypeInfo EntityType { get; private set; }
-    public System.Collections.ObjectModel.ReadOnlyCollection<FieldExpression> KeyFields { get; private set; }
+    public TypeInfo EntityType { get; }
+    public IReadOnlyList<FieldExpression> KeyFields { get; }
 
     public override Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap)
+      if (!CanRemap) {
         return this;
+      }
 
-      Expression value;
-      if (processedExpressions.TryGetValue(this, out value))
+      if (processedExpressions.TryGetValue(this, out var value)) {
         return value;
+      }
 
       var mapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
-      var fields = KeyFields
-        .Select(f => (FieldExpression)f.Remap(offset, processedExpressions))
-        .ToList()
-        .AsReadOnly();
+
+      FieldExpression Remap(FieldExpression f) => (FieldExpression) f.Remap(offset, processedExpressions);
+
+      var fields = KeyFields.Select(Remap).ToArray(KeyFields.Count);
       var result = new KeyExpression(EntityType, fields, mapping, UnderlyingProperty, OuterParameter, DefaultIfEmpty);
 
       processedExpressions.Add(this, result);
@@ -43,29 +42,29 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap)
+      if (!CanRemap) {
         return this;
+      }
 
-      Expression value;
-      if (processedExpressions.TryGetValue(this, out value))
+      if (processedExpressions.TryGetValue(this, out var value)) {
         return value;
+      }
 
       var segment = new Segment<int>(map.IndexOf(Mapping.Offset), Mapping.Length);
-      System.Collections.ObjectModel.ReadOnlyCollection<FieldExpression> fields;
+      var fields = new FieldExpression[KeyFields.Count];
       using (new SkipOwnerCheckScope()) {
-        fields = KeyFields
-          .Select(f => f.Remap(map, processedExpressions))
-          .Where(f => f != null)
-          .Cast<FieldExpression>()
-          .ToList()
-          .AsReadOnly();
-      }
-      if (fields.Count != KeyFields.Count) {
-        if (SkipOwnerCheckScope.IsActive) {
-          processedExpressions.Add(this, null);
-          return null;
+        for (var index = 0; index < fields.Length; index++) {
+          var field = (FieldExpression)KeyFields[index].Remap(map, processedExpressions);
+          if (field == null) {
+            if (SkipOwnerCheckScope.IsActive) {
+              processedExpressions.Add(this, null);
+              return null;
+            }
+            throw Exceptions.InternalError(Strings.ExUnableToRemapKeyExpression, OrmLog.Instance);
+          }
+
+          fields[index] = field;
         }
-        throw Exceptions.InternalError(Strings.ExUnableToRemapKeyExpression, OrmLog.Instance);
       }
       var result = new KeyExpression(EntityType, fields, segment, UnderlyingProperty, OuterParameter, DefaultIfEmpty);
 
@@ -75,14 +74,14 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression value;
-      if (processedExpressions.TryGetValue(this, out value))
+      if (processedExpressions.TryGetValue(this, out var value)) {
         return value;
+      }
 
-      var fields = KeyFields
-        .Select(f => (FieldExpression)f.BindParameter(parameter, processedExpressions))
-        .ToList()
-        .AsReadOnly();
+      FieldExpression BindParameter(FieldExpression f)
+        => (FieldExpression) f.BindParameter(parameter, processedExpressions);
+
+      var fields = KeyFields.Select(BindParameter).ToArray(KeyFields.Count);
       var result = new KeyExpression(EntityType, fields, Mapping, UnderlyingProperty, parameter, DefaultIfEmpty);
 
       processedExpressions.Add(this, result);
@@ -91,14 +90,14 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression value;
-      if (processedExpressions.TryGetValue(this, out value))
+      if (processedExpressions.TryGetValue(this, out var value)) {
         return value;
+      }
 
-      var fields = KeyFields
-        .Select(f => (FieldExpression)f.RemoveOuterParameter(processedExpressions))
-        .ToList()
-        .AsReadOnly();
+      FieldExpression RemoveOuterParameter(FieldExpression f)
+        => (FieldExpression) f.RemoveOuterParameter(processedExpressions);
+
+      var fields = KeyFields.Select(RemoveOuterParameter).ToArray(KeyFields.Count);
       var result = new KeyExpression(EntityType, fields, Mapping, UnderlyingProperty, null, DefaultIfEmpty);
 
       processedExpressions.Add(this, result);
@@ -108,13 +107,17 @@ namespace Xtensive.Orm.Linq.Expressions
     public static KeyExpression Create(TypeInfo entityType, int offset)
     {
       var mapping = new Segment<int>(offset, entityType.Key.TupleDescriptor.Count);
-      var fields = entityType.Columns
-        .Where(c => c.IsPrimaryKey)
-        .OrderBy(c => c.Field.MappingInfo.Offset)
-        .Select(c => FieldExpression.CreateField(c.Field, offset))
-        .ToList()
-        .AsReadOnly();
-      return new KeyExpression(entityType, fields, mapping,WellKnownMembers.IEntityKey, null, false);
+
+      FieldExpression CreateField(ColumnInfo c) => FieldExpression.CreateField(c.Field, offset);
+
+      var fields = entityType.IsLocked
+        ? entityType.Key.Columns.Select(CreateField).ToArray(entityType.Key.Columns.Count)
+        : entityType.Columns
+          .Where(c => c.IsPrimaryKey)
+          .OrderBy(c => c.Field.MappingInfo.Offset)
+          .Select(CreateField)
+          .ToArray();
+      return new KeyExpression(entityType, fields, mapping, WellKnownMembers.IEntityKey, null, false);
     }
 
 
@@ -122,7 +125,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     private KeyExpression(
       TypeInfo entityType, 
-      System.Collections.ObjectModel.ReadOnlyCollection<FieldExpression> keyFields, 
+      IReadOnlyList<FieldExpression> keyFields,
       Segment<int> segment, 
       PropertyInfo underlyingProperty, 
       ParameterExpression parameterExpression, 
