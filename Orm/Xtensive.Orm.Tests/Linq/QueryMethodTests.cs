@@ -148,32 +148,5 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
     }
-
-    [Test]
-    public void TraceTest()
-    {
-      Session.Events.DbCommandExecuting += EventsOnDbCommandExecuting;
-      var subquery = CreateQuery1();
-      var query = CreateQuery2()
-        .Where(c => c==Session.Query.Single<Customer>(subquery.FirstOrDefault().Key));
-
-      Assert.IsNotEmpty(query.ToArray());
-    }
-
-    private void EventsOnDbCommandExecuting(object sender, DbCommandEventArgs e)
-    {
-      var data = e.TraceData;
-      if (data == null) {
-        return;
-      }
-      var comment = $"-- {data.CallerMemberName} at {data.CallerFilePath}, line {data.CallerLineNumber}\n";
-
-      var command = e.Command;
-      command.CommandText = comment + command.CommandText;
-    }
-
-    private IQueryable<Customer> CreateQuery1() => Session.Query.All<Customer>().Trace();
-
-    private IQueryable<Customer> CreateQuery2() => Session.Query.All<Customer>().Trace();
   }
 }
