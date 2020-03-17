@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Providers
     {
       DbDataReader reader;
       try {
-        reader = driver.ExecuteReader(session, command);
+        reader = driver.ExecuteReader(session, command, null);
       }
       catch {
         command.Dispose();

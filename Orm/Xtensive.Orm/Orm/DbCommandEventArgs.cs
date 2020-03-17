@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
-
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm
 {
@@ -22,6 +22,8 @@ namespace Xtensive.Orm
     /// Gets exception, thrown during command execution. <see langword="null" /> if command executed successfully.
     /// </summary>
     public Exception Exception { get; private set; }
+
+    public TraceData TraceData { get; set; }
 
     /// <summary>
     /// Initializes a new instance of this class.

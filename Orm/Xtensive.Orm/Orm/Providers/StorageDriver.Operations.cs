@@ -224,17 +224,17 @@ namespace Xtensive.Orm.Providers
 
     public int ExecuteNonQuery(Session session, DbCommand command)
     {
-      return ExecuteCommand(session, command, c => c.ExecuteNonQuery());
+      return ExecuteCommand(session, command, null, c => c.ExecuteNonQuery());
     }
 
     public object ExecuteScalar(Session session, DbCommand command)
     {
-      return ExecuteCommand(session, command, c => c.ExecuteScalar());
+      return ExecuteCommand(session, command, null, c => c.ExecuteScalar());
     }
 
-    public DbDataReader ExecuteReader(Session session, DbCommand command)
+    public DbDataReader ExecuteReader(Session session, DbCommand command, CommandProcessorContext context)
     {
-      return ExecuteCommand(session, command, c => c.ExecuteReader());
+      return ExecuteCommand(session, command, context, c => c.ExecuteReader());
     }
 
     #endregion
@@ -279,12 +279,13 @@ namespace Xtensive.Orm.Providers
 
     #endregion
 
-    private TResult ExecuteCommand<TResult>(Session session, DbCommand command, Func<DbCommand, TResult> action)
+    private TResult ExecuteCommand<TResult>(Session session, DbCommand command, CommandProcessorContext context,
+      Func<DbCommand, TResult> action)
     {
       if (isLoggingEnabled)
         SqlLog.Info(Strings.LogSessionXQueryY, session.ToStringSafely(), command.ToHumanReadableString());
 
-      session?.Events.NotifyDbCommandExecuting(command);
+      session?.Events.NotifyDbCommandExecuting(command, context?.TraceData);
 
       TResult result;
       try {

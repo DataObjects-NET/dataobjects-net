@@ -209,7 +209,6 @@ namespace Xtensive.Sql.Compiler
     Offset = 11,
     LimitEnd = 12,
     OffsetEnd = 13,
-    Comment = 14
   }
 
   public enum TableSection

@@ -1171,8 +1171,6 @@ namespace Xtensive.Sql.Compiler
         return "LIMIT";
       case SelectSection.Offset:
         return "OFFSET";
-      case SelectSection.Comment:
-        return $"-- {node.Comment}\n";
       }
       return string.Empty;
     }

@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Services
     /// <returns><see cref="DbDataReader"/> to use.</returns>
     public DbDataReader ExecuteReader()
     {
-      return driver.ExecuteReader(session, realCommand);
+      return driver.ExecuteReader(session, realCommand, null);
     }
 
     /// <summary>

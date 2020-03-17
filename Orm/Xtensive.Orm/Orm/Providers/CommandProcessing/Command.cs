@@ -10,7 +10,7 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
-
+using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
@@ -55,10 +55,10 @@ namespace Xtensive.Orm.Providers
       return origin.Driver.ExecuteNonQuery(origin.Session, underlyingCommand);
     }
 
-    public void ExecuteReader()
+    public void ExecuteReader(CommandProcessorContext context)
     {
       Prepare();
-      reader = origin.Driver.ExecuteReader(origin.Session, underlyingCommand);
+      reader = origin.Driver.ExecuteReader(origin.Session, underlyingCommand, context);
     }
 
     public async Task<int> ExecuteNonQueryAsync(CancellationToken token)

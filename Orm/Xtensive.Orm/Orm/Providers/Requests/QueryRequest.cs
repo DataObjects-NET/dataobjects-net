@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using Xtensive.Tuples;
@@ -32,6 +33,7 @@ namespace Xtensive.Orm.Providers
     public QueryRequestOptions Options { get; private set; }
 
     public NodeConfiguration NodeConfiguration { get; private set; }
+    public TraceData TraceData { get; set; }
 
     public bool CheckOptions(QueryRequestOptions requiredOptions)
     {

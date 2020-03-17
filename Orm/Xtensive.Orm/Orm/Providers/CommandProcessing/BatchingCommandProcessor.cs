@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Providers
           context.ActiveCommand.ExecuteNonQuery();
           return null;
         }
-        context.ActiveCommand.ExecuteReader();
+        context.ActiveCommand.ExecuteReader(context);
         if (hasQueryTasks) {
           int currentQueryTask = 0;
           while (currentQueryTask < context.ActiveTasks.Count) {

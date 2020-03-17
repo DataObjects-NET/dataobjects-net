@@ -12,6 +12,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm
 {
@@ -238,10 +239,10 @@ namespace Xtensive.Orm
 
     #region NotifyXxx methods
 
-    internal void NotifyDbCommandExecuting(DbCommand command)
+    internal void NotifyDbCommandExecuting(DbCommand command, TraceData traceData = null)
     {
       if (DbCommandExecuting!=null)
-        DbCommandExecuting(this, new DbCommandEventArgs(command));
+        DbCommandExecuting(this, new DbCommandEventArgs(command) { TraceData = traceData });
     }
 
     internal void NotifyDbCommandExecuted(DbCommand command, Exception exception = null)

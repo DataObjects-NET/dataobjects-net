@@ -1165,8 +1165,6 @@ namespace Xtensive.Sql.Compiler
     public void VisitSelectDefault(SqlSelect node)
     {
       using (context.EnterScope(node)) {
-
-        VisitSelectComment(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
         VisitSelectHints(node);
         VisitSelectColumns(node);
@@ -1322,12 +1320,6 @@ namespace Xtensive.Sql.Compiler
     {
       if (node.Lock!=SqlLockType.Empty)
         context.Output.AppendText(translator.Translate(node.Lock));
-    }
-
-    public virtual void VisitSelectComment(SqlSelect node)
-    {
-      if (node.Comment != null)
-        context.Output.AppendText(translator.Translate(context, node, SelectSection.Comment));
     }
 
     public virtual void Visit(SqlStatementBlock node)

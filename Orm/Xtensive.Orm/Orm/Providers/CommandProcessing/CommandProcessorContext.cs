@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers
 {
@@ -38,6 +39,8 @@ namespace Xtensive.Orm.Providers
     /// Counts how many times command allocation got hit.
     /// </summary>
     public int ReenterCount { get; internal set; }
+    
+    public TraceData TraceData { get; set; }
 
     internal event EventHandler Disposed;
 

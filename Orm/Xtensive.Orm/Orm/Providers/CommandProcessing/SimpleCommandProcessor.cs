@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Providers
           task.ProcessWith(this, context);
           var loadTask = context.ActiveTasks.FirstOrDefault();
           if (loadTask!=null) {
-            context.ActiveCommand.ExecuteReader();
+            context.ActiveCommand.ExecuteReader(context);
             var enumerator = context.ActiveCommand.AsReaderOf(loadTask.Request);
             using (enumerator)
               while (enumerator.MoveNext())
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Providers
       var lastRequestCommand = Factory.CreateCommand();
       var commandPart = Factory.CreateQueryPart(lastRequest);
       lastRequestCommand.AddPart(commandPart);
-      lastRequestCommand.ExecuteReader();
+      lastRequestCommand.ExecuteReader(context);
       return lastRequestCommand.AsReaderOf(lastRequest);
     }
 

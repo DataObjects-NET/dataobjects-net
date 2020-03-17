@@ -313,12 +313,9 @@ namespace Xtensive.Orm.Providers
       query.Columns.Clear();
       query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
 
-      var data = provider.TraceData;
-      if (data != null) {
-        query.Comment = $"{data.CallerMemberName} at {data.CallerFilePath}, line {data.CallerLineNumber}";
-      }
-
-      return CreateProvider(query, provider, compiledSource);
+      var sqlProvider = CreateProvider(query, provider, compiledSource);
+      sqlProvider.Request.TraceData = provider.TraceData;
+      return sqlProvider;
     }
 
     /// <inheritdoc/>
