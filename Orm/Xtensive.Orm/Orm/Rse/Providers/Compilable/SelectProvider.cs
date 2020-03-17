@@ -30,6 +30,9 @@ namespace Xtensive.Orm.Rse.Providers
       get { return columnIndexes.Copy(); }
     }
 
+    /// <summary>
+    /// Tracing information. It's supposed to be set only for root node in the providers tree.
+    /// </summary>
     public TraceInfo TraceInfo { get; set; }
 
     /// <inheritdoc/>

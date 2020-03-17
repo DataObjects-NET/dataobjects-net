@@ -315,6 +315,10 @@ namespace Xtensive.Orm.Rse.Compilation
     /// <param name="provider">ContainsTable provider.</param>
     protected abstract TResult VisitContainsTable(ContainsTableProvider provider);
 
+    /// <summary>
+    /// Compiles <see cref="TraceProvider"/>.
+    /// </summary>
+    /// <param name="provider">TraceProvider provider.</param>
     protected abstract TResult VisitTrace(TraceProvider provider);
 
     /// <summary>

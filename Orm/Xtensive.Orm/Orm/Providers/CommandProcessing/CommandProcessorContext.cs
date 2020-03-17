@@ -39,8 +39,11 @@ namespace Xtensive.Orm.Providers
     /// Counts how many times command allocation got hit.
     /// </summary>
     public int ReenterCount { get; internal set; }
-    
-    public TraceInfo TraceInfo { get; set; }
+
+    /// <summary>
+    /// LINQ query tracing information.
+    /// </summary>
+    public TraceInfo TraceInfo { get; internal set; }
 
     internal event EventHandler Disposed;
 

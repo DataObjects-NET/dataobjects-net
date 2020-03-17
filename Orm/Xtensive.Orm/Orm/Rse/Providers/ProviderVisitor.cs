@@ -290,6 +290,11 @@ namespace Xtensive.Orm.Rse.Providers
     /// <returns></returns>
     protected abstract Provider VisitContainsTable(ContainsTableProvider provider);
 
+    /// <summary>
+    /// Visits the <see cref="TraceProvider"/>.
+    /// </summary>
+    /// <param name="provider">TraceProvider provider.</param>
+    /// <returns></returns>
     protected abstract Provider VisitTrace(TraceProvider provider);
   }
 }
