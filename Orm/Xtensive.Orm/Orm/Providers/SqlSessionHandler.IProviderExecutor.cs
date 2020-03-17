@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Providers
     {
       Prepare();
       var context = new CommandProcessorContext {
-        TraceData = request.TraceData
+        TraceInfo = request.TraceInfo
       };
       var enumerator = commandProcessor.ExecuteTasksWithReader(request, context);
       context.Dispose();

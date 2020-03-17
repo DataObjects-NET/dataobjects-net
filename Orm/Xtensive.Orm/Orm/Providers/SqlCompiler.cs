@@ -314,7 +314,8 @@ namespace Xtensive.Orm.Providers
       query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
 
       var sqlProvider = CreateProvider(query, provider, compiledSource);
-      sqlProvider.Request.TraceData = provider.TraceData;
+      sqlProvider.Request.TraceInfo = provider.TraceInfo;
+
       return sqlProvider;
     }
 
@@ -536,8 +537,9 @@ namespace Xtensive.Orm.Providers
     {
       var source = Compile(provider.Source);
 
-      if (RootProvider is SelectProvider rootSelectProvider && rootSelectProvider.TraceData == null) {
-        rootSelectProvider.TraceData = provider.Data;
+      // Set trace information to the root provider (topmost Select)
+      if (RootProvider is SelectProvider rootSelectProvider && rootSelectProvider.TraceInfo == null) {
+        rootSelectProvider.TraceInfo = provider.TraceInfo;
       }
 
       return source;

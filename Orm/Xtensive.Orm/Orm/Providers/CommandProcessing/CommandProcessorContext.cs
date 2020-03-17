@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Tracing;
 
 namespace Xtensive.Orm.Providers
 {
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     public int ReenterCount { get; internal set; }
     
-    public TraceData TraceData { get; set; }
+    public TraceInfo TraceInfo { get; set; }
 
     internal event EventHandler Disposed;
 

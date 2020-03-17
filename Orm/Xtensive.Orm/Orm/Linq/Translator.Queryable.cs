@@ -20,6 +20,7 @@ using Xtensive.Orm.Linq.Model;
 using Xtensive.Orm.Linq.Rewriters;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Tracing;
 using Xtensive.Reflection;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -1578,23 +1579,23 @@ namespace Xtensive.Orm.Linq
     {
       var source = expression.Arguments[0];
 
-      var traceData = new TraceData {
-        CallerMemberName = GetConstantArgumentValue<string>(expression, 1),
-        CallerFilePath = GetConstantArgumentValue<string>(expression, 2),
-        CallerLineNumber = GetConstantArgumentValue<int>(expression, 3)
-      };
+      var traceInfo = new TraceInfo(
+        GetConstantArgumentValue<string>(expression, 1),
+        GetConstantArgumentValue<string>(expression, 2),
+        GetConstantArgumentValue<int>(expression, 3)
+      );
 
       var visitedSource = (ProjectionExpression) Visit(source);
-      var newDataSource = visitedSource.ItemProjector.DataSource.Trace(traceData);
+
+      var newDataSource = new TraceProvider(visitedSource.ItemProjector.DataSource, traceInfo);
 
       var newItemProjector = new ItemProjectorExpression(visitedSource.ItemProjector.Item, newDataSource,
         visitedSource.ItemProjector.Context);
-      var projectionExpression = new ProjectionExpression(
+      return new ProjectionExpression(
         visitedSource.Type,
         newItemProjector,
         visitedSource.TupleParameterBindings,
         visitedSource.ResultType);
-      return projectionExpression;
     }
 
     private static T GetConstantArgumentValue<T>(MethodCallExpression expression, int argumentIndex)

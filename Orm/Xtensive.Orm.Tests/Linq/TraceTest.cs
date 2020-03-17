@@ -1,8 +1,8 @@
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
+using Xtensive.Orm.Tracing;
 
 namespace Xtensive.Orm.Tests.Linq
 {
@@ -15,9 +15,9 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TraceMethodDataIsUsedInDbCommandExecutingEvent()
     {
-      TraceData traceData = null;
+      TraceInfo traceInfo = null;
       Session.Events.DbCommandExecuting += (sender, args) => {
-        traceData = args.TraceData;
+        traceInfo = args.TraceInfo;
       };
 
       var subquery = CreateQuery1();
@@ -25,9 +25,9 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(c => c==Session.Query.Single<Customer>(subquery.FirstOrDefault().Key));
 
       Assert.IsNotEmpty(query.ToArray());
-      Assert.AreEqual(nameof(CreateQuery2), traceData.CallerMemberName);
-      Assert.IsNotEmpty(traceData.CallerFilePath);
-      Assert.True(traceData.CallerLineNumber > 0);
+      Assert.AreEqual(nameof(CreateQuery2), traceInfo.CallerMemberName);
+      Assert.IsNotEmpty(traceInfo.CallerFilePath);
+      Assert.True(traceInfo.CallerLineNumber > 0);
     }
   }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Text;
-using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Tracing;
 
 namespace Xtensive.Orm
 {
@@ -23,17 +23,22 @@ namespace Xtensive.Orm
     /// </summary>
     public Exception Exception { get; private set; }
 
-    public TraceData TraceData { get; set; }
+    /// <summary>
+    /// Gets LINQ query tracing information.
+    /// </summary>
+    public TraceInfo TraceInfo { get; private set; }
 
     /// <summary>
     /// Initializes a new instance of this class.
     /// <param name="command">Executed command.</param>
     /// <param name="exception" >Exception, appeared during <paramref name="command"/> execution or <see langword="null" />.</param>
+    /// <param name="traceInfo">Tracing information.</param>
     /// </summary>
-    public DbCommandEventArgs(DbCommand command, Exception exception = null)
+    public DbCommandEventArgs(DbCommand command, Exception exception = null, TraceInfo traceInfo = null)
     {
       Command = command;
       Exception = exception;
+      TraceInfo = traceInfo;
     }
   }
 }

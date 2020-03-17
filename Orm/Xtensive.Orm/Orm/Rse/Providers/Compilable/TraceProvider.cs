@@ -1,23 +1,17 @@
 using System;
+using Xtensive.Orm.Tracing;
 
 namespace Xtensive.Orm.Rse.Providers
 {
   [Serializable]
-  public sealed class TraceProvider: UnaryProvider
+  public sealed class TraceProvider : UnaryProvider
   {
-    public TraceData Data { get; }
+    public TraceInfo TraceInfo { get; }
 
-    public TraceProvider(CompilableProvider source, TraceData data) : base(ProviderType.Trace, source)
+    public TraceProvider(CompilableProvider source, TraceInfo traceInfo) : base(ProviderType.Trace, source)
     {
-      Data = data;
+      TraceInfo = traceInfo;
       Initialize();
     }
-  }
-
-  public class TraceData
-  {
-    public string CallerMemberName { get; set; }
-    public string CallerFilePath { get; set; }
-    public int CallerLineNumber { get; set; }
   }
 }

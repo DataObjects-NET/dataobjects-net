@@ -10,8 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
-
-using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Tracing;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -31,7 +30,7 @@ namespace Xtensive.Orm.Rse.Providers
       get { return columnIndexes.Copy(); }
     }
 
-    public TraceData TraceData { get; set; }
+    public TraceInfo TraceInfo { get; set; }
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
