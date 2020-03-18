@@ -428,16 +428,13 @@ namespace Xtensive.Tuples
       FieldTypes = new Type[typeNames.Length];
       for (var i = 0; i < typeNames.Length; i++) {
         FieldTypes[i] = typeNames[i].GetTypeFromSerializableForm();
-        TupleLayout.ConfigureAccessor(ref FieldDescriptors[i], FieldTypes[i]);
+        TupleLayout.ConfigureFieldAccessor(ref FieldDescriptors[i], FieldTypes[i]);
       }
     }
 
     static TupleDescriptor()
     {
-      var types = TupleLayout.KnownTypes.Concat(new [] {
-        typeof(string),
-        typeof(byte[]),
-      });
+      var types = TupleLayout.KnownTypes;
       foreach (var type1 in types) {
         CachedDescriptors1.Add(type1, new TupleDescriptor(new[] {type1}));
         foreach (var type2 in types) {

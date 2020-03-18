@@ -109,7 +109,7 @@ namespace Xtensive.Tuples.Packed
   {
     public readonly int Rank;
 
-    public abstract Type FieldType { get; }
+    public Type FieldType { get; protected set; }
 
     private static int GetRank(int bitSize)
     {
@@ -132,8 +132,6 @@ namespace Xtensive.Tuples.Packed
   {
     private static readonly T DefaultValue = default;
     private static readonly T? NullValue = null;
-
-    public override Type FieldType { get; } = typeof(T);
 
     protected virtual long Encode(T value) => throw new NotSupportedException();
 
@@ -236,6 +234,7 @@ namespace Xtensive.Tuples.Packed
     protected ValueFieldAccessor(int bits)
       : base(bits)
     {
+      FieldType = typeof(T);
       Getter = (GetValueDelegate<T>) GetValue;
       Setter = (SetValueDelegate<T>) SetValue;
 
