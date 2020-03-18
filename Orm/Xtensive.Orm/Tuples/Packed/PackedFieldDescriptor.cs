@@ -15,8 +15,10 @@ namespace Xtensive.Tuples.Packed
     private const int IndexMask = (1 << IndexBitCount) - 1;
     private const int OffsetBitCount = 7;
     private const int OffsetMask = ((1 << OffsetBitCount) - 1) << IndexBitCount;
+
     private const int MaskBitCount = (sizeof(int) * 8) - (IndexBitCount + OffsetBitCount);
-    private const int Mask = ((1 << MaskBitCount) - 1) << (IndexBitCount + OffsetBitCount);
+    private const int GetValueMask = (1 << MaskBitCount) - 1;
+    private const int SetValueMask = GetValueMask << (IndexBitCount + OffsetBitCount);
 
     private int data1;
     private int data2;
@@ -38,8 +40,8 @@ namespace Xtensive.Tuples.Packed
 
     public int Rank
     {
-      get => (data1 & Mask) >> (IndexBitCount + OffsetBitCount);
-      set => data1 = (data1 & ~Mask) | ((value << (IndexBitCount + OffsetBitCount)) & Mask);
+      get => (data1 >> (IndexBitCount + OffsetBitCount)) & GetValueMask;
+      set => data1 = (data1 & ~SetValueMask) | ((value << (IndexBitCount + OffsetBitCount)) & SetValueMask);
     }
 
     public int ValueBitCount => 1 << Rank;
@@ -60,8 +62,8 @@ namespace Xtensive.Tuples.Packed
 
     public FieldPackingType PackingType
     {
-      get => (FieldPackingType)((data2 & Mask) >> (IndexBitCount + OffsetBitCount));
-      set => data2 = (data2 & ~Mask) | (((int)value << (IndexBitCount + OffsetBitCount)) & Mask);
+      get => (FieldPackingType)((data2 >> (IndexBitCount + OffsetBitCount)) & GetValueMask);
+      set => data2 = (data2 & ~SetValueMask) | (((int)value << (IndexBitCount + OffsetBitCount)) & SetValueMask);
     }
   }
 }
