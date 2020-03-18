@@ -46,6 +46,17 @@ namespace Xtensive.Tuples.Packed
 
     public int ValueBitCount => 1 << Rank;
 
+    // What we want here is to shift 1L by ValueBitCount to left and then subtract 1
+    // This gives us a mask. For example if bit count = 4 then
+    // 0000_0001 << 4 = 0001_0000
+    // 0001_000 - 1 = 0000_1111
+    // However in case bit count equal to data type size left shift doesn't work as we want
+    // e.g. for Int8 : 0000_0001 << 8 = 0000_0001 but we would like it to be 0000_0000
+    // because 0000_0000 - 1 = 1111_1111 and this is exactly what we need.
+    // As a workaround we do left shift in two steps. In the example above
+    // 0000_0001 << 7 = 1000_0000
+    // and then
+    // 1000_0000 << 1 = 0000_0000
     public long ValueBitMask => (1L << (ValueBitCount - 1) << 1) - 1;
 
     public int StateIndex
