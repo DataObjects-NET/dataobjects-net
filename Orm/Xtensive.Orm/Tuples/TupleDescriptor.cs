@@ -10,7 +10,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text;
 using Xtensive.Core;
@@ -44,9 +43,6 @@ namespace Xtensive.Tuples
     private static readonly ConcurrentDictionary<(Type, Type, Type, Type), TupleDescriptor> CachedDescriptors4 = 
       new ConcurrentDictionary<(Type, Type, Type, Type), TupleDescriptor>();
 
-    [NonSerialized]
-    private Type[] _fieldTypes;
-
     internal readonly int FieldCount;
     internal readonly int ValuesLength;
     internal readonly int ObjectsLength;
@@ -54,7 +50,8 @@ namespace Xtensive.Tuples
     [NonSerialized]
     internal readonly PackedFieldDescriptor[] FieldDescriptors;
     
-    internal Type[] FieldTypes => _fieldTypes;
+    [field: NonSerialized]
+    internal Type[] FieldTypes { get; }
 
     /// <summary>
     /// Gets the empty tuple descriptor.
@@ -407,62 +404,15 @@ namespace Xtensive.Tuples
 
     // Constructors
 
-    private const int Val128Rank = 7;
-    private const int Val064Rank = 6;
-    private const int Val032Rank = 5;
-    private const int Val016Rank = 4;
-    private const int Val008Rank = 3;
-    private const int Val001Rank = 0;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void InitValPointer(
-      ref ValPointer pointer, ref ValPointer prevPointer, int prevValueCount, int prevRank)
-    {
-      const int remainderBitMask = (1 << Val064Rank) - 1;
-      var prevBitCountWithOffset = (prevValueCount << prevRank) + prevPointer.Offset;
-
-      pointer.Index = prevPointer.Index + (prevBitCountWithOffset >> Val064Rank);
-      pointer.Offset = prevBitCountWithOffset & remainderBitMask;
-    }
-
     private TupleDescriptor(Type[] fieldTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(fieldTypes, nameof(fieldTypes));
 
-      _fieldTypes = fieldTypes;
+      FieldTypes = fieldTypes;
       FieldCount = fieldTypes.Length;
       FieldDescriptors = new PackedFieldDescriptor[FieldCount];
 
-      var valCounters = new ValCounters();
-      for (var fieldIndex = 0; fieldIndex < FieldCount; fieldIndex++) {
-        _fieldTypes[fieldIndex] = PackedFieldAccessorFactory.ConfigureDescriptorPhase1(
-          ref valCounters, ref FieldDescriptors[fieldIndex], fieldIndex, fieldTypes[fieldIndex]);
-      }
-
-      const int longBitCount = 1 << Val064Rank;
-      const int stateBitCount = 2;
-      const int statesPerLong = longBitCount / stateBitCount;
-
-      var valueIndex = (FieldCount + (statesPerLong - 1)) / statesPerLong;
-
-      var valPointers = new ValPointers {
-        Val128Pointer = new ValPointer {Index = valueIndex, Offset = 0}
-      };
-      InitValPointer(ref valPointers.Val064Pointer, ref valPointers.Val128Pointer, valCounters.Val128Counter, Val128Rank);
-      InitValPointer(ref valPointers.Val032Pointer, ref valPointers.Val064Pointer, valCounters.Val064Counter, Val064Rank);
-      InitValPointer(ref valPointers.Val016Pointer, ref valPointers.Val032Pointer, valCounters.Val032Counter, Val032Rank);
-      InitValPointer(ref valPointers.Val008Pointer, ref valPointers.Val016Pointer, valCounters.Val016Counter, Val016Rank);
-      InitValPointer(ref valPointers.Val001Pointer, ref valPointers.Val008Pointer, valCounters.Val008Counter, Val008Rank);
-
-      var valuesEndPointer = new ValPointer();
-      InitValPointer(ref valuesEndPointer, ref valPointers.Val001Pointer, valCounters.Val001Counter, Val001Rank);
-      ValuesLength = valuesEndPointer.Index + ((valuesEndPointer.Offset - 1) >> 31) + 1;
-
-      ObjectsLength = valCounters.ObjectCounter;
-
-      for (var fieldIndex = 0; fieldIndex < FieldCount; fieldIndex++) {
-        PackedFieldAccessorFactory.ConfigureDescriptorPhase2(ref FieldDescriptors[fieldIndex], ref valPointers);
-      }
+      TupleLayout.Configure(fieldTypes, FieldDescriptors, out ValuesLength, out ObjectsLength);
     }
 
     public TupleDescriptor(SerializationInfo info, StreamingContext context)
@@ -475,20 +425,16 @@ namespace Xtensive.Tuples
       FieldDescriptors = (PackedFieldDescriptor[])info.GetValue(
         "FieldDescriptors", typeof(PackedFieldDescriptor[]));
 
-      _fieldTypes = new Type[typeNames.Length];
+      FieldTypes = new Type[typeNames.Length];
       for (var i = 0; i < typeNames.Length; i++) {
-        _fieldTypes[i] = typeNames[i].GetTypeFromSerializableForm();
-      }
-
-      for (var i = 0; i < _fieldTypes.Length; i++) {
-        PackedFieldAccessorFactory.SetAccessor(ref FieldDescriptors[i], _fieldTypes[i]);
+        FieldTypes[i] = typeNames[i].GetTypeFromSerializableForm();
+        TupleLayout.ConfigureAccessor(ref FieldDescriptors[i], FieldTypes[i]);
       }
     }
 
-
     static TupleDescriptor()
     {
-      var types = PackedFieldAccessorFactory.KnownTypes.Concat(new [] {
+      var types = TupleLayout.KnownTypes.Concat(new [] {
         typeof(string),
         typeof(byte[]),
       });
