@@ -412,6 +412,7 @@ namespace Xtensive.Tuples
     private const int Val032Rank = 5;
     private const int Val016Rank = 4;
     private const int Val008Rank = 3;
+    private const int Val001Rank = 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void InitValPointer(
@@ -442,7 +443,7 @@ namespace Xtensive.Tuples
       const int stateBitCount = 2;
       const int statesPerLong = longBitCount / stateBitCount;
 
-      var valueIndex = (FieldCount + statesPerLong - 1) / statesPerLong;
+      var valueIndex = (FieldCount + (statesPerLong - 1)) / statesPerLong;
 
       var valPointers = new ValPointers {
         Val128Pointer = new ValPointer {Index = valueIndex, Offset = 0}
@@ -453,8 +454,10 @@ namespace Xtensive.Tuples
       InitValPointer(ref valPointers.Val008Pointer, ref valPointers.Val016Pointer, valCounters.Val016Counter, Val016Rank);
       InitValPointer(ref valPointers.Val001Pointer, ref valPointers.Val008Pointer, valCounters.Val008Counter, Val008Rank);
 
-      ValuesLength = valPointers.Val001Pointer.Index
-        + ((valCounters.Val001Counter + valPointers.Val001Pointer.Offset) >> Val064Rank) + 1;
+      var valuesEndPointer = new ValPointer();
+      InitValPointer(ref valuesEndPointer, ref valPointers.Val001Pointer, valCounters.Val001Counter, Val001Rank);
+      ValuesLength = valuesEndPointer.Index + ((valuesEndPointer.Offset - 1) >> 31) + 1;
+
       ObjectsLength = valCounters.ObjectCounter;
 
       for (var fieldIndex = 0; fieldIndex < FieldCount; fieldIndex++) {
