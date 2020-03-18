@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text;
 using Xtensive.Core;
@@ -406,6 +407,23 @@ namespace Xtensive.Tuples
 
     // Constructors
 
+    private const int Val128Rank = 7;
+    private const int Val064Rank = 6;
+    private const int Val032Rank = 5;
+    private const int Val016Rank = 4;
+    private const int Val008Rank = 3;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void InitValPointer(
+      ref ValPointer pointer, ref ValPointer prevPointer, int prevValueCount, int prevRank)
+    {
+      const int remainderBitMask = (1 << Val064Rank) - 1;
+      var prevBitCountWithOffset = (prevValueCount << prevRank) + prevPointer.Offset;
+
+      pointer.Index = prevPointer.Index + (prevBitCountWithOffset >> Val064Rank);
+      pointer.Offset = prevBitCountWithOffset & remainderBitMask;
+    }
+
     private TupleDescriptor(Type[] fieldTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(fieldTypes, nameof(fieldTypes));
@@ -414,57 +432,34 @@ namespace Xtensive.Tuples
       FieldCount = fieldTypes.Length;
       FieldDescriptors = new PackedFieldDescriptor[FieldCount];
 
-      const int longBitCount = 64;
+      var valCounters = new ValCounters();
+      for (var fieldIndex = 0; fieldIndex < FieldCount; fieldIndex++) {
+        _fieldTypes[fieldIndex] = PackedFieldAccessorFactory.ConfigureDescriptorPhase1(
+          ref valCounters, ref FieldDescriptors[fieldIndex], fieldIndex, fieldTypes[fieldIndex]);
+      }
+
+      const int longBitCount = 1 << Val064Rank;
       const int stateBitCount = 2;
       const int statesPerLong = longBitCount / stateBitCount;
 
-      var objectIndex = 0;
       var valueIndex = (FieldCount + statesPerLong - 1) / statesPerLong;
-      var valueBitOffset = 0;
 
-      var packingOrderInfos = new PackingOrderInfo[fieldTypes.Length];
-      for (var fieldIndex = 0; fieldIndex < fieldTypes.Length; fieldIndex++) {
-        var fieldType = fieldTypes[fieldIndex];
-        PackedFieldAccessorFactory.ConfigureDescriptor(ref FieldDescriptors[fieldIndex], fieldIndex, fieldType);
-        packingOrderInfos[fieldIndex].FieldIndex = fieldIndex;
-        packingOrderInfos[fieldIndex].ValueBitCount = FieldDescriptors[fieldIndex].ValueBitCount;
-        _fieldTypes[fieldIndex] = FieldDescriptors[fieldIndex].Accessor.FieldType ?? fieldType;
+      var valPointers = new ValPointers {
+        Val128Pointer = new ValPointer {Index = valueIndex, Offset = 0}
+      };
+      InitValPointer(ref valPointers.Val064Pointer, ref valPointers.Val128Pointer, valCounters.Val128Counter, Val128Rank);
+      InitValPointer(ref valPointers.Val032Pointer, ref valPointers.Val064Pointer, valCounters.Val064Counter, Val064Rank);
+      InitValPointer(ref valPointers.Val016Pointer, ref valPointers.Val032Pointer, valCounters.Val032Counter, Val032Rank);
+      InitValPointer(ref valPointers.Val008Pointer, ref valPointers.Val016Pointer, valCounters.Val016Counter, Val016Rank);
+      InitValPointer(ref valPointers.Val001Pointer, ref valPointers.Val008Pointer, valCounters.Val008Counter, Val008Rank);
+
+      ValuesLength = valPointers.Val001Pointer.Index
+        + ((valCounters.Val001Counter + valPointers.Val001Pointer.Offset) >> Val064Rank) + 1;
+      ObjectsLength = valCounters.ObjectCounter;
+
+      for (var fieldIndex = 0; fieldIndex < FieldCount; fieldIndex++) {
+        PackedFieldAccessorFactory.ConfigureDescriptorPhase2(ref FieldDescriptors[fieldIndex], ref valPointers);
       }
-
-      Array.Sort(packingOrderInfos, PackingOrderInfoComparer.Instance);
-
-      foreach (var info in packingOrderInfos) {
-        var fieldIndex = info.FieldIndex;
-        var d = FieldDescriptors[fieldIndex];
-
-        if (d.PackingType == FieldPackingType.Object) {
-          FieldDescriptors[fieldIndex].ValueIndex = objectIndex++;
-          continue;
-        }
-        
-        // d.PackingType == FieldPackingType.Value
-        if (d.ValueBitCount >= longBitCount) {
-          if (valueBitOffset != 0) {
-            valueIndex++;
-            valueBitOffset = 0;
-          }
-          FieldDescriptors[fieldIndex].ValueIndex = valueIndex;
-          valueIndex += (d.ValueBitCount + longBitCount - 1) / longBitCount;
-        }
-        else {
-          FieldDescriptors[fieldIndex].ValueIndex = valueIndex;
-          FieldDescriptors[fieldIndex].ValueBitOffset = valueBitOffset;
-          valueBitOffset += d.ValueBitCount;
-          if (valueBitOffset > longBitCount) {
-            FieldDescriptors[fieldIndex].ValueIndex = ++valueIndex;
-            FieldDescriptors[fieldIndex].ValueBitOffset = 0;
-            valueBitOffset = d.ValueBitCount;
-          }
-        }
-      }
-
-      ValuesLength = valueIndex + Math.Min(1, valueBitOffset);
-      ObjectsLength = objectIndex;
     }
 
     public TupleDescriptor(SerializationInfo info, StreamingContext context)
@@ -483,7 +478,7 @@ namespace Xtensive.Tuples
       }
 
       for (var i = 0; i < _fieldTypes.Length; i++) {
-        PackedFieldAccessorFactory.ConfigureDescriptor(ref FieldDescriptors[i], i, _fieldTypes[i]);
+        PackedFieldAccessorFactory.SetAccessor(ref FieldDescriptors[i], _fieldTypes[i]);
       }
     }
 

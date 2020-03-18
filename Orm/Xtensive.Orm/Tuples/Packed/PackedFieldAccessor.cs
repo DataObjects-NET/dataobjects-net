@@ -30,8 +30,6 @@ namespace Xtensive.Tuples.Packed
     /// </summary>
     protected Delegate NullableSetter;
 
-    public abstract Type FieldType { get; }
-
     public void SetValue<T>(PackedTuple tuple, ref PackedFieldDescriptor descriptor, bool isNullable, T value)
     {
       var setter = (isNullable ? NullableSetter : Setter) as SetValueDelegate<T>;
@@ -71,8 +69,6 @@ namespace Xtensive.Tuples.Packed
 
   internal sealed class ObjectFieldAccessor : PackedFieldAccessor
   {
-    public override Type FieldType => null;
-
     public override object GetUntypedValue(PackedTuple tuple, ref PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
       var state = tuple.GetFieldState(ref descriptor);
@@ -111,57 +107,41 @@ namespace Xtensive.Tuples.Packed
 
   internal abstract class ValueFieldAccessor : PackedFieldAccessor
   {
-    public readonly int BitCount;
-    public readonly long BitMask;
+    public readonly int Rank;
 
-    private static long GetMask(int bits)
+    public abstract Type FieldType { get; }
+
+    private static int GetRank(int bitSize)
     {
-      long result = 0;
-
-      for (int i = 0; i < bits; i++) {
-        result <<= 1;
-        result |= 1;
+      var rank = 0;
+      while ((bitSize >>= 1) > 0) {
+        rank++;
       }
 
-      return result;
+      return rank;
     }
 
-    protected ValueFieldAccessor(int bits)
+    protected ValueFieldAccessor(int bitCount)
     {
-      BitCount = bits;
-
-      if (bits <= 64)
-        BitMask = GetMask(bits);
+      Rank = GetRank(bitCount);
     }
   }
 
   internal abstract class ValueFieldAccessor<T> : ValueFieldAccessor
     where T : struct, IEquatable<T>
   {
-    private static readonly T DefaultValue = default(T);
+    private static readonly T DefaultValue = default;
     private static readonly T? NullValue = null;
 
-    public override Type FieldType => typeof(T);
+    public override Type FieldType { get; } = typeof(T);
 
-    protected virtual long Encode(T value)
-    {
-      throw new NotSupportedException();
-    }
+    protected virtual long Encode(T value) => throw new NotSupportedException();
 
-    protected virtual void Encode(T value, long[] values, int offset)
-    {
-      throw new NotSupportedException();
-    }
+    protected virtual void Encode(T value, long[] values, int offset) => throw new NotSupportedException();
 
-    protected virtual T Decode(long value)
-    {
-      throw new NotSupportedException();
-    }
+    protected virtual T Decode(long value) => throw new NotSupportedException();
 
-    protected virtual T Decode(long[] values, int offset)
-    {
-      throw new NotSupportedException();
-    }
+    protected virtual T Decode(long[] values, int offset) => throw new NotSupportedException();
 
     public override object GetUntypedValue(PackedTuple tuple, ref PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
@@ -176,8 +156,9 @@ namespace Xtensive.Tuples.Packed
         Store(tuple, ref descriptor, (T) value);
         tuple.SetFieldState(ref descriptor, TupleFieldState.Available);
       }
-      else
+      else {
         tuple.SetFieldState(ref descriptor, TupleFieldState.Available | TupleFieldState.Null);
+      }
     }
 
     public override void CopyValue(PackedTuple source, ref PackedFieldDescriptor sourceDescriptor,
@@ -231,7 +212,7 @@ namespace Xtensive.Tuples.Packed
 
     private void Store(PackedTuple tuple, ref PackedFieldDescriptor d, T value)
     {
-      if (d.ValueBitCount > 64) {
+      if (Rank > 6) {
         Encode(value, tuple.Values, d.ValueIndex);
         return;
       }
@@ -244,8 +225,9 @@ namespace Xtensive.Tuples.Packed
 
     private T Load(PackedTuple tuple, ref PackedFieldDescriptor d)
     {
-      if (d.ValueBitCount > 64)
+      if (Rank > 6) {
         return Decode(tuple.Values, d.ValueIndex);
+      }
 
       var encoded = (tuple.Values[d.ValueIndex] >> d.ValueBitOffset) & d.ValueBitMask;
       return Decode(encoded);
