@@ -25,10 +25,15 @@ namespace Xtensive.Orm.Linq.Expressions
         return this;
       }
 
-      if (processedExpressions.TryGetValue(this, out var value)) {
-        return value;
-      }
+      return processedExpressions.TryGetValue(this, out var value)
+        ? value
+        : RemapWithNoCheck(offset, processedExpressions);
+    }
 
+    // Having this code as a separate method helps to avoid closure allocation during Remap call
+    // in case processedExpressions dictionary already contains a result.
+    private Expression RemapWithNoCheck(int offset, Dictionary<Expression, Expression> processedExpressions)
+    {
       var mapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
 
       FieldExpression Remap(FieldExpression f) => (FieldExpression) f.Remap(offset, processedExpressions);
@@ -72,12 +77,21 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression BindParameter(
+      ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       if (processedExpressions.TryGetValue(this, out var value)) {
         return value;
       }
 
+      return BindParameterWithNoCheck(parameter, processedExpressions);
+    }
+
+    // Having this code as a separate method helps to avoid closure allocation during BindParameter call
+    // in case processedExpressions dictionary already contains a result.
+    private Expression BindParameterWithNoCheck(
+      ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    {
       FieldExpression BindParameter(FieldExpression f)
         => (FieldExpression) f.BindParameter(parameter, processedExpressions);
 
@@ -94,6 +108,13 @@ namespace Xtensive.Orm.Linq.Expressions
         return value;
       }
 
+      return RemoveOuterParameterWithNoCheck(processedExpressions);
+    }
+
+    // Having this code as a separate method helps to avoid closure allocation during RemoveOuterParameter call
+    // in case processedExpressions dictionary already contains a result.
+    private Expression RemoveOuterParameterWithNoCheck(Dictionary<Expression, Expression> processedExpressions)
+    {
       FieldExpression RemoveOuterParameter(FieldExpression f)
         => (FieldExpression) f.RemoveOuterParameter(processedExpressions);
 
