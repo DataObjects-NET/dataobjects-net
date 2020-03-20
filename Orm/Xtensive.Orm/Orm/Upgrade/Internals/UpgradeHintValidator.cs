@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2015 Xtensive LLC.
+// Copyright (C) 2015 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Upgrade.Internals
           throw TypeNotFound(sourceTypeName);
 
         // Handling structure field
-        if (hint.Field.Contains(".")) {
+        if (hint.Field.Contains(".", StringComparison.Ordinal)) {
           StoredFieldInfo storedField;
           string[] path = hint.Field.Split('.');
           var fields = sourceType.AllFields;

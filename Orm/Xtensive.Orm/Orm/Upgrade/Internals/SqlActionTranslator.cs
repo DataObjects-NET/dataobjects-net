@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly List<Table> createdTables = new List<Table>();
     private readonly List<Sequence> createdSequences = new List<Sequence>();
     private readonly List<DataAction> clearDataActions = new List<DataAction>();
-    private readonly HashSet<TableColumn> recreatedColumns = new HashSet<TableColumn>(); 
+    private readonly HashSet<TableColumn> recreatedColumns = new HashSet<TableColumn>();
 
 
     private UpgradeActionSequenceBuilder currentOutput;
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Upgrade
       ProcessActions(Modelling.Comparison.UpgradeStage.CleanupData, SqlUpgradeStage.CleanupData);
       ProcessClearDataActions(false);
 
-      // Prepairing (aka запаривание :-)
+      // Prepairing (aka Р·Р°РїР°СЂРёРІР°РЅРёРµ :-)
       ProcessActions(Modelling.Comparison.UpgradeStage.Prepare, SqlUpgradeStage.PreUpgrade);
 
       // Mutual renaming
@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Upgrade
       else if (node.GetType()==typeof (ForeignKeyInfo))
         VisitAlterForeignKeyAction(moveNodeAction);
     }
-    
+
     private void VisitDataAction(DataAction dataAction)
     {
       var hint = dataAction.DataHint;
@@ -210,7 +210,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    /// <exception cref="InvalidOperationException">Can not create copy command 
+    /// <exception cref="InvalidOperationException">Can not create copy command
     /// with specific hint parameters.</exception>
     private void VisitCopyDataAction(DataAction action)
     {
@@ -375,11 +375,11 @@ namespace Xtensive.Orm.Upgrade
     {
       var columnInfo = (StorageColumnInfo) createColumnAction.Difference.Target;
       var table = FindTable(columnInfo.Parent);
-      
+
       // Ensure table is not newly created
       if (createdTables.Contains(table))
         return;
-      
+
       var column = CreateColumn(columnInfo, table);
       if (columnInfo.DefaultValue != null)
         column.DefaultValue = SqlDml.Literal(columnInfo.DefaultValue);
@@ -455,7 +455,7 @@ namespace Xtensive.Orm.Upgrade
       if (!action.Properties.ContainsKey(ColumnTypePropertyName))
         if (!action.Properties.ContainsKey(ColumnDefaultPropertyName))
           return;
- 
+
       ChangeColumnType(action);
     }
 
@@ -524,7 +524,7 @@ namespace Xtensive.Orm.Upgrade
       // Ensure table is not removed
       if (table==null)
         return;
-      
+
       var primaryKey = table.TableConstraints[primaryIndexInfo.Name];
 
       currentOutput.RegisterCommand(SqlDdl.Alter(table, SqlDdl.DropConstraint(primaryKey)));
@@ -535,7 +535,7 @@ namespace Xtensive.Orm.Upgrade
     {
       throw new NotSupportedException();
     }
-    
+
     private void VisitCreateSecondaryIndexAction(CreateNodeAction action)
     {
       var secondaryIndexInfo = (SecondaryIndexInfo) action.Difference.Target;
@@ -552,11 +552,11 @@ namespace Xtensive.Orm.Upgrade
 
       var secondaryIndexInfo = (SecondaryIndexInfo) action.Difference.Source;
       var table = FindTable(secondaryIndexInfo.Parent);
-      
+
       // Ensure table is not removed
       if (table==null)
         return;
-      
+
       var index = table.Indexes[secondaryIndexInfo.Name];
       preCleanupDataOutput.RegisterCommand(SqlDdl.Drop(index));
       table.Indexes.Remove(index);
@@ -566,7 +566,7 @@ namespace Xtensive.Orm.Upgrade
     {
       throw new NotSupportedException();
     }
-    
+
     private void VisitCreateForeignKeyAction(CreateNodeAction action)
     {
       if (!allowCreateConstraints)
@@ -738,7 +738,7 @@ namespace Xtensive.Orm.Upgrade
       deleteFromConnectorTableActions.ForEach(
         a => ProcessDeleteDataAction(a, postCopy));
       ProcessClearAncestorsActions(deleteFromAncestorTableActions, postCopy);
-      
+
       // Necessary, since this method is called twice on upgrade
       clearDataActions.Clear();
     }
@@ -757,7 +757,7 @@ namespace Xtensive.Orm.Upgrade
       deleteOutput.RegisterCommand(delete);
     }
 
-    /// <exception cref="InvalidOperationException">Can not create update command 
+    /// <exception cref="InvalidOperationException">Can not create update command
     /// with specific hint parameters.</exception>
     private void ProcessUpdateDataAction(DataAction action, bool postCopy)
     {
@@ -770,10 +770,10 @@ namespace Xtensive.Orm.Upgrade
         .Select(pair => new Pair<StorageColumnInfo, object>(
           sourceModel.Resolve(pair.First, true) as StorageColumnInfo,
           pair.Second)).ToArray();
-      
+
       if (updatedColumns.Length==0)
         throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
-      
+
       foreach (var pair in updatedColumns) {
         var column = pair.First;
         var value = pair.Second;
@@ -834,7 +834,7 @@ namespace Xtensive.Orm.Upgrade
       var sortedTables = TopologicalSorter.Sort(nodes, out edges);
       sortedTables.Reverse();
       // TODO: Process removed edges
-      
+
       // Build DML commands
       foreach (var table in sortedTables) {
         var tableRef = SqlDml.TableRef(FindTable(table));
@@ -874,7 +874,7 @@ namespace Xtensive.Orm.Upgrade
       var newTypeInfo = targetColumn.Type;
       var newSqlType = (SqlValueType) newTypeInfo.NativeType;
       var newColumn = table.CreateColumn(originalName, newSqlType);
-      
+
       newColumn.IsNullable = newTypeInfo.IsNullable;
       if (!newColumn.IsNullable)
         newColumn.DefaultValue = GetDefaultValueExpression(targetColumn);
@@ -1123,7 +1123,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    /// <exception cref="InvalidOperationException">Can not create expression 
+    /// <exception cref="InvalidOperationException">Can not create expression
     /// with specific hint parameters.</exception>
     private SqlExpression CreateConditionalExpression(DataHint hint, SqlTableRef table)
     {
@@ -1144,7 +1144,7 @@ namespace Xtensive.Orm.Upgrade
           throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
 
         var identifiedTable = FindTable(selectColumns[0].Parent);
-        var identifiedTableRef = SqlDml.TableRef(identifiedTable, 
+        var identifiedTableRef = SqlDml.TableRef(identifiedTable,
           string.Format(SubqueryTableAliasNameFormat, identifiedTable.Name));
         var select = SqlDml.Select(identifiedTableRef);
         selectColumns.ForEach(column => select.Columns.Add(identifiedTableRef[column.Name]));
@@ -1163,7 +1163,7 @@ namespace Xtensive.Orm.Upgrade
         if (!identityConstantPairs.Any())
           throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
         SqlExpression expression = null;
-        identityConstantPairs.ForEach(pair => 
+        identityConstantPairs.ForEach(pair =>
           expression &= table[pair.First.Name]==SqlDml.Literal(pair.Second));
         return expression;
       }
@@ -1181,7 +1181,7 @@ namespace Xtensive.Orm.Upgrade
 
     private string TryUnquoteLiteral(string stringToUnquote)
     {
-      if (stringToUnquote.StartsWith("N")) {
+      if (stringToUnquote.StartsWith("N", StringComparison.Ordinal)) {
         var unquotedSting = stringToUnquote.Remove(0, 1).Trim(new[] {'\''}).Replace("''", "'");
         return unquotedSting;
       }

@@ -156,7 +156,7 @@ namespace Xtensive.Orm.Building.Builders
         var action = actionContainer.BuildPrefetchAction();
         domain.PrefetchActionMap.Add(type, action);
       }
-    } 
+    }
 
     private void BuildTypes(IEnumerable<TypeDef> typeDefs)
     {
@@ -177,7 +177,7 @@ namespace Xtensive.Orm.Building.Builders
     private void PreprocessAssociations()
     {
       foreach (var typeInfo in context.Model.Types.Where(t => t.IsEntity && !t.IsAuxiliary)) {
-        
+
         // pair integrity escalation and consistency check
         typesWithProcessedInheritedAssociations.Add(typeInfo);
         var refFields = typeInfo.Fields.Where(f => f.IsEntity || f.IsEntitySet).ToList();
@@ -368,12 +368,12 @@ namespace Xtensive.Orm.Building.Builders
         // Updating fields names only if types differ.
         if (masterType != slaveType) {
           try {
-            if (!masterType.Name.Contains("."))
+            if (!masterType.Name.Contains(".", StringComparison.Ordinal))
               masterFieldDef.MappingName = context.NameBuilder.ApplyNamingRules(masterType.Name);
           }
           catch(DomainBuilderException){}
           try {
-            if (!slaveType.Name.Contains("."))
+            if (!slaveType.Name.Contains(".", StringComparison.Ordinal))
               slaveFieldDef.MappingName = context.NameBuilder.ApplyNamingRules(slaveType.Name);
           }
           catch (DomainBuilderException){}

@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Upgrade
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return base.Equals(other) 
+      return base.Equals(other)
         && other.NewType==NewType
         && other.OldType==OldType;
     }
@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Upgrade
       ArgumentValidator.EnsureArgumentNotNull(newType, "newType");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(oldType, "oldType");
 
-      if (!oldType.Contains("."))
+      if (!oldType.Contains(".", StringComparison.Ordinal))
         oldType = newType.Namespace + "." + oldType;
       OldType = oldType;
       NewType = newType;

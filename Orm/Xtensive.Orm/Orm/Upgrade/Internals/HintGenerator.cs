@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping;
     private readonly Dictionary<StoredTypeInfo, StoredFieldInfo[]> extractedModelFields;
 
-    private readonly NativeTypeClassifier<UpgradeHint> hints; 
+    private readonly NativeTypeClassifier<UpgradeHint> hints;
 
     private readonly List<Hint> schemaHints = new List<Hint>();
 
@@ -49,10 +49,10 @@ namespace Xtensive.Orm.Upgrade
 
       var removedTypes = GetRemovedTypes(extractedModel);
       GenerateRecordCleanupHints(removedTypes, false);
-      
+
       var movedTypes = GetMovedTypes(extractedModel);
       GenerateRecordCleanupHints(movedTypes, true);
-      
+
       // Adding useful info
 
       CalculateAffectedTablesAndColumns(hints);
@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Upgrade
         RegisterRenameFieldHint(oldTargetType, newTargetType, oldField.MappingName, newField.MappingName);
       }
     }
-    
+
     private void GenerateCopyColumnHints(IEnumerable<CopyFieldHint> hints)
     {
       foreach (var hint in hints)
@@ -150,13 +150,13 @@ namespace Xtensive.Orm.Upgrade
       if (sourceField==null)
         throw new InvalidOperationException(String.Format(Strings.ExUpgradeHintSourceFieldNotFound, hint.SourceField));
       var sourceHierarchy = sourceType.Hierarchy;
-      
+
       // checking that types have hierarchies
       if (sourceHierarchy==null)
         throw TypeIsNotInHierarchy(hint.SourceType);
       if (targetHierarchy == null)
         throw TypeIsNotInHierarchy(targetTypeName);
-      
+
       // building set of key columns
       var pairedKeyColumns = AssociateMappedKeyFields(sourceHierarchy, targetHierarchy);
       if (pairedKeyColumns==null)
@@ -228,13 +228,13 @@ namespace Xtensive.Orm.Upgrade
           new DeleteDataHint(sourceTablePath, identities, isMovedToAnotherHierarchy));
       }
     }
-    
+
     private void GenerateCleanupByForegnKeyHints(StoredTypeInfo removedType)
     {
       var removedTypeAndAncestors = removedType.AllAncestors.AddOne(removedType).ToHashSet();
       var affectedAssociations = (
         from association in extractedModel.Associations
-        let requiresInverseCleanup = 
+        let requiresInverseCleanup =
           association.IsMaster &&
           association.ConnectorType!=null &&
           removedTypeAndAncestors.Contains(association.ReferencingField.DeclaringType)
@@ -261,7 +261,7 @@ namespace Xtensive.Orm.Upgrade
               foreach (var candidate in candidates) {
                   var inheritanceSchema = candidate.Hierarchy.InheritanceSchema;
                   GenerateClearReferenceHints(
-                    removedType, 
+                    removedType,
                     GetAffectedMappedTypes(candidate, inheritanceSchema==InheritanceSchema.ConcreteTable).ToArray(),
                     association,
                     requiresInverseCleanup);
@@ -270,7 +270,7 @@ namespace Xtensive.Orm.Upgrade
           else {
             var inheritanceSchema = declaringType.Hierarchy.InheritanceSchema;
             GenerateClearReferenceHints(
-              removedType, 
+              removedType,
               GetAffectedMappedTypes(declaringType, inheritanceSchema==InheritanceSchema.ConcreteTable).ToArray(),
               association,
               requiresInverseCleanup);
@@ -279,7 +279,7 @@ namespace Xtensive.Orm.Upgrade
         else
           // This is EntitySet
           GenerateClearReferenceHints(
-            removedType, 
+            removedType,
             new [] {association.ConnectorType},
             association,
             requiresInverseCleanup);
@@ -287,7 +287,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     private void GenerateClearReferenceHints(
-      StoredTypeInfo removedType, 
+      StoredTypeInfo removedType,
       StoredTypeInfo[] updatedTypes,
       StoredAssociationInfo association,
       bool inverse)
@@ -301,7 +301,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     private void GenerateClearReferenceHint(
-      StoredTypeInfo removedType, 
+      StoredTypeInfo removedType,
       StoredTypeInfo updatedType,
       StoredAssociationInfo association,
       bool inverse)
@@ -416,7 +416,7 @@ namespace Xtensive.Orm.Upgrade
 
       StoredFieldInfo storedField = null;
       // Nested field, looks like a field of a structure
-      if (hint.Field.Contains(".")) {
+      if (hint.Field.Contains(".", StringComparison.Ordinal)) {
         string[] path = hint.Field.Split('.');
         var fields = storedType.AllFields;
         string fieldName = string.Empty;
