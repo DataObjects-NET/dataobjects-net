@@ -811,12 +811,13 @@ namespace Xtensive.Orm.Model
     {
       // Building version tuple extractor
       var versionColumns = GetVersionColumns();
-      if (versionColumns==null || versionColumns.Count==0) {
+      var versionColumnsCount = versionColumns?.Count ?? 0;
+      if (versionColumns==null || versionColumnsCount==0) {
         VersionExtractor = null;
         return;
       }
-      var types = versionColumns.Select(c => c.ValueType).ToArray();
-      var map = versionColumns.Select(c => c.Field.MappingInfo.Offset).ToArray();
+      var types = versionColumns.Select(c => c.ValueType).ToArray(versionColumnsCount);
+      var map = versionColumns.Select(c => c.Field.MappingInfo.Offset).ToArray(versionColumnsCount);
       var versionTupleDescriptor = TupleDescriptor.Create(types);
       VersionExtractor = new MapTransform(true, versionTupleDescriptor, map);
     }
