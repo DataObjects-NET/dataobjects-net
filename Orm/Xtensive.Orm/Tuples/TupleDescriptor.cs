@@ -25,7 +25,7 @@ namespace Xtensive.Tuples
   /// Provides information about <see cref="Tuple"/> structure.
   /// </summary>
   [Serializable]
-  public sealed class TupleDescriptor : IEquatable<TupleDescriptor>, IList<Type>, ISerializable
+  public sealed class TupleDescriptor : IEquatable<TupleDescriptor>, IList<Type>, IReadOnlyList<Type>, ISerializable
   {
     [NonSerialized]
     private static readonly TupleDescriptor EmptyDescriptor =
