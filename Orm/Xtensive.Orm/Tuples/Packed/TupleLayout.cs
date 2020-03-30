@@ -100,6 +100,8 @@ namespace Xtensive.Tuples.Packed
       private static readonly ValueFieldAccessor DecimalAccessor = new DecimalFieldAccessor();
       private static readonly ValueFieldAccessor GuidAccessor = new GuidFieldAccessor();
 
+      private static readonly int NullableTypeMetadataToken = typeof(Nullable<>).MetadataToken;
+
       public static ValueFieldAccessor GetValue(Type probeType)
       {
         ValueFieldAccessor ResolveByType(Type type) =>
@@ -136,7 +138,9 @@ namespace Xtensive.Tuples.Packed
           ReferenceEquals(type, NullableDecimalType) ? DecimalAccessor :
           ReferenceEquals(type, NullableGuidType) ? GuidAccessor : null;
 
-        return probeType.IsGenericType ? ResolveByNullableType(probeType) : ResolveByType(probeType);
+        return (probeType.MetadataToken ^ NullableTypeMetadataToken)==0
+          ? ResolveByNullableType(probeType)
+          : ResolveByType(probeType);
       }
     }
 
