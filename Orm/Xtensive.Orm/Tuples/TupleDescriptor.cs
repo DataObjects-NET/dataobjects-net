@@ -340,9 +340,10 @@ namespace Xtensive.Tuples
     /// describing the specified set of fields.</returns>
     public TupleDescriptor Head(int fieldCount)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(fieldCount, 1, Count, "fieldCount");
-      var fieldTypes = FieldTypes.ToArray(fieldCount);
-      return Create(fieldTypes);
+      ArgumentValidator.EnsureArgumentIsInRange(fieldCount, 1, Count, nameof(fieldCount));
+      var fieldTypes = new Type[fieldCount];
+      Array.Copy(FieldTypes, 0, fieldTypes, 0, fieldCount);
+      return new TupleDescriptor(fieldTypes);
     }
 
     /// <summary>
@@ -353,9 +354,10 @@ namespace Xtensive.Tuples
     /// describing the specified set of fields.</returns>
     public TupleDescriptor Tail(int tailFieldCount)
     {
-      ArgumentValidator.EnsureArgumentIsInRange(tailFieldCount, 1, Count, "tailFieldCount");
-      var fieldTypes = FieldTypes.Skip(Count - tailFieldCount).ToArray(tailFieldCount);
-      return Create(fieldTypes);
+      ArgumentValidator.EnsureArgumentIsInRange(tailFieldCount, 1, Count, nameof(tailFieldCount));
+      var fieldTypes = new Type[tailFieldCount];
+      Array.Copy(FieldTypes, Count - tailFieldCount, fieldTypes, 0, tailFieldCount);
+      return new TupleDescriptor(fieldTypes);
     }
 
     #endregion
