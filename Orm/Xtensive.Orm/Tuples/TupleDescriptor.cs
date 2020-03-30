@@ -27,9 +27,7 @@ namespace Xtensive.Tuples
   [Serializable]
   public sealed class TupleDescriptor : IEquatable<TupleDescriptor>, IList<Type>, IReadOnlyList<Type>, ISerializable
   {
-    [NonSerialized]
-    private static readonly TupleDescriptor EmptyDescriptor =
-        new TupleDescriptor(new Type[0]);
+    private static readonly TupleDescriptor EmptyDescriptor = new TupleDescriptor(Array.Empty<Type>());
     [NonSerialized]
     private static readonly Dictionary<Type, TupleDescriptor> CachedDescriptors1 = 
         new Dictionary<Type, TupleDescriptor>();
