@@ -5,7 +5,6 @@
 // Created:    2012.12.29
 
 using System;
-using System.Runtime.CompilerServices;
 
 namespace Xtensive.Tuples.Packed
 {
@@ -15,32 +14,20 @@ namespace Xtensive.Tuples.Packed
     private const int OffsetBitCount = 6;
     private const int OffsetMask = (1 << OffsetBitCount) - 1;
 
-    private int indexField;
-    private int stateField;
+    internal int DataPosition;
+    internal int StatePosition;
 
     [NonSerialized]
     public PackedFieldAccessor Accessor;
 
     public bool IsObjectField => Accessor.Rank < 0;
 
-    public int ObjectIndex
-    {
-      get => indexField;
-      set => indexField = value;
-    }
+    public int ObjectIndex => DataPosition;
 
-    public int ValueIndex => indexField >> OffsetBitCount;
-    public int ValueBitOffset => indexField & OffsetMask;
+    public int ValueIndex => DataPosition >> OffsetBitCount;
+    public int ValueBitOffset => DataPosition & OffsetMask;
 
-    public int StateIndex => stateField >> OffsetBitCount;
-    public int StateBitOffset => stateField & OffsetMask;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetValueBitOffset(int totalBitOffset)
-      => indexField = totalBitOffset;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetStateTotalBitOffset(int stateBitOffset)
-      => stateField = stateBitOffset;
+    public int StateIndex => StatePosition >> OffsetBitCount;
+    public int StateBitOffset => StatePosition & OffsetMask;
   }
 }

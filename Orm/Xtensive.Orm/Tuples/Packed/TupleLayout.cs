@@ -19,7 +19,7 @@ namespace Xtensive.Tuples.Packed
 
     private const int Val064BitCount = 1 << Val064Rank;
 
-    private ref struct ValCounters
+    private ref struct Counters
     {
       public int ObjectCounter;
 
@@ -118,15 +118,15 @@ namespace Xtensive.Tuples.Packed
           ReferenceEquals(type, NullableDecimalType) ? DecimalAccessor :
           ReferenceEquals(type, NullableGuidType) ? GuidAccessor : null;
 
-        return (probeType.MetadataToken ^ NullableTypeMetadataToken)==0
+        return (probeType.MetadataToken ^ NullableTypeMetadataToken) == 0
           ? ResolveByNullableType(probeType)
           : ResolveByType(probeType);
       }
     }
 
-    private delegate void CounterIncrementer(ref ValCounters valCounters);
+    private delegate void CounterIncrementer(ref Counters counters);
 
-    private delegate void PositionUpdater(ref PackedFieldDescriptor descriptor, ref ValCounters valCounters);
+    private delegate void PositionUpdater(ref PackedFieldDescriptor descriptor, ref Counters counters);
 
     private static readonly ObjectFieldAccessor ObjectAccessor = new ObjectFieldAccessor();
     private static readonly CounterIncrementer[] IncrementerByRank;
@@ -143,9 +143,9 @@ namespace Xtensive.Tuples.Packed
       var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldTypes[0]);
       if (valueAccessor != null) {
         descriptor.Accessor = valueAccessor;
-        descriptor.SetValueBitOffset(Val064BitCount);
+        descriptor.DataPosition = Val064BitCount;
 
-        valuesLength = ((1 << valueAccessor.Rank)  + ((Val064BitCount * 2) - 1)) >> Val064Rank;
+        valuesLength = (valueAccessor.ValueBitCount  + ((Val064BitCount * 2) - 1)) >> Val064Rank;
         objectsLength = 0;
         fieldTypes[0] = valueAccessor.FieldType;
         return;
@@ -159,10 +159,10 @@ namespace Xtensive.Tuples.Packed
     public static void ConfigureLen2(Type[] fieldTypes, ref PackedFieldDescriptor descriptor1,
       ref PackedFieldDescriptor descriptor2, out int valuesLength, out int objectsLength)
     {
-      var valCounters = new ValCounters();
-      ConfigureFieldPhase1(ref descriptor1, ref valCounters, fieldTypes, 0);
-      ConfigureFieldPhase1(ref descriptor2, ref valCounters, fieldTypes, 1);
-      objectsLength = valCounters.ObjectCounter;
+      var counters = new Counters();
+      ConfigureFieldPhase1(ref descriptor1, ref counters, fieldTypes, 0);
+      ConfigureFieldPhase1(ref descriptor2, ref counters, fieldTypes, 1);
+      objectsLength = counters.ObjectCounter;
       int val1BitCount, val2BitCount;
       switch (objectsLength) {
         case 2:
@@ -170,11 +170,11 @@ namespace Xtensive.Tuples.Packed
           return;
         case 1: {
           if (descriptor1.IsObjectField) {
-            descriptor2.SetValueBitOffset(Val064BitCount);
+            descriptor2.DataPosition = Val064BitCount;
             val1BitCount = descriptor2.Accessor.ValueBitCount;
           }
           else {
-            descriptor1.SetValueBitOffset(Val064BitCount);
+            descriptor1.DataPosition = Val064BitCount;
             val1BitCount = descriptor1.Accessor.ValueBitCount;
           }
           valuesLength = (val1BitCount  + ((Val064BitCount * 2) - 1)) >> Val064Rank;
@@ -185,12 +185,12 @@ namespace Xtensive.Tuples.Packed
       val1BitCount = descriptor1.Accessor.ValueBitCount;
       val2BitCount = descriptor2.Accessor.ValueBitCount;
       if (val2BitCount > val1BitCount) {
-        descriptor2.SetValueBitOffset(Val064BitCount);
-        descriptor1.SetValueBitOffset(Val064BitCount + val2BitCount);
+        descriptor2.DataPosition = Val064BitCount;
+        descriptor1.DataPosition = Val064BitCount + val2BitCount;
       }
       else {
-        descriptor1.SetValueBitOffset(Val064BitCount);
-        descriptor2.SetValueBitOffset(Val064BitCount + val1BitCount);
+        descriptor1.DataPosition = Val064BitCount;
+        descriptor2.DataPosition = Val064BitCount + val1BitCount;
       }
       valuesLength = (val1BitCount + val2BitCount  + ((Val064BitCount * 2) - 1)) >> Val064Rank;
     }
@@ -200,59 +200,59 @@ namespace Xtensive.Tuples.Packed
       out int objectsLength)
     {
       var fieldCount = fieldTypes.Length;
-      var valCounters = new ValCounters();
+      var counters = new Counters();
       for (var fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
-        ConfigureFieldPhase1(ref fieldDescriptors[fieldIndex], ref valCounters, fieldTypes, fieldIndex);
+        ConfigureFieldPhase1(ref fieldDescriptors[fieldIndex], ref counters, fieldTypes, fieldIndex);
       }
 
       const int statesPerLong = Val064BitCount / 2;
 
       var totalBitCount = ((fieldCount + (statesPerLong - 1)) >> Val032Rank) << Val064Rank;
-      var prevCount = valCounters.Val128Counter;
-      valCounters.Val128Counter = totalBitCount;
+      var prevCount = counters.Val128Counter;
+      counters.Val128Counter = totalBitCount;
 
       totalBitCount += prevCount << Val128Rank;
-      prevCount = valCounters.Val064Counter;
-      valCounters.Val064Counter = totalBitCount;
+      prevCount = counters.Val064Counter;
+      counters.Val064Counter = totalBitCount;
 
       totalBitCount += prevCount << Val064Rank;
-      prevCount = valCounters.Val032Counter;
-      valCounters.Val032Counter = totalBitCount;
+      prevCount = counters.Val032Counter;
+      counters.Val032Counter = totalBitCount;
 
       totalBitCount += prevCount << Val032Rank;
-      prevCount = valCounters.Val016Counter;
-      valCounters.Val016Counter = totalBitCount;
+      prevCount = counters.Val016Counter;
+      counters.Val016Counter = totalBitCount;
 
       totalBitCount += prevCount << Val016Rank;
-      prevCount = valCounters.Val008Counter;
-      valCounters.Val008Counter = totalBitCount;
+      prevCount = counters.Val008Counter;
+      counters.Val008Counter = totalBitCount;
 
       totalBitCount += prevCount << Val008Rank;
-      prevCount = valCounters.Val001Counter;
-      valCounters.Val001Counter = totalBitCount;
+      prevCount = counters.Val001Counter;
+      counters.Val001Counter = totalBitCount;
 
       totalBitCount += prevCount;
 
       for (var fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
-        ConfigureFieldPhase2(ref fieldDescriptors[fieldIndex], ref valCounters);
+        ConfigureFieldPhase2(ref fieldDescriptors[fieldIndex], ref counters);
       }
 
       valuesLength = (totalBitCount + (Val064BitCount - 1)) >> Val064Rank;
-      objectsLength = valCounters.ObjectCounter;
+      objectsLength = counters.ObjectCounter;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void UpdateDescriptorPosition(ref PackedFieldDescriptor descriptor, ref int valPointer)
+    private static void UpdateDescriptorPosition(ref PackedFieldDescriptor descriptor, ref int bitCounter)
     {
-      descriptor.SetValueBitOffset(valPointer);
-      valPointer += descriptor.Accessor.ValueBitCount;
+      descriptor.DataPosition = bitCounter;
+      bitCounter += descriptor.Accessor.ValueBitCount;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ConfigureFieldPhase1(ref PackedFieldDescriptor descriptor, ref ValCounters counters,
+    private static void ConfigureFieldPhase1(ref PackedFieldDescriptor descriptor, ref Counters counters,
       Type[] fieldTypes, int fieldIndex)
     {
-      descriptor.SetStateTotalBitOffset(fieldIndex << 1);
+      descriptor.StatePosition = fieldIndex << 1;
 
       var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldTypes[fieldIndex]);
       if (valueAccessor != null) {
@@ -265,50 +265,49 @@ namespace Xtensive.Tuples.Packed
       }
 
       descriptor.Accessor = ObjectAccessor;
-      descriptor.ObjectIndex = counters.ObjectCounter++;
+      descriptor.DataPosition = counters.ObjectCounter++;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ConfigureFieldPhase2(ref PackedFieldDescriptor descriptor, ref ValCounters valCounters)
+    private static void ConfigureFieldPhase2(ref PackedFieldDescriptor descriptor, ref Counters counters)
     {
       if (descriptor.IsObjectField) {
         return;
       }
 
-      // d.PackingType == FieldPackingType.Value
-      PositionUpdaterByRank[descriptor.Accessor.Rank].Invoke(ref descriptor, ref valCounters);
+      PositionUpdaterByRank[descriptor.Accessor.Rank].Invoke(ref descriptor, ref counters);
     }
 
     static TupleLayout()
     {
       IncrementerByRank = new CounterIncrementer[] {
-        (ref ValCounters valueCounters) => valueCounters.Val001Counter++,
-        (ref ValCounters valueCounters) => throw new NotSupportedException(),
-        (ref ValCounters valueCounters) => throw new NotSupportedException(),
-        (ref ValCounters valueCounters) => valueCounters.Val008Counter++,
-        (ref ValCounters valueCounters) => valueCounters.Val016Counter++,
-        (ref ValCounters valueCounters) => valueCounters.Val032Counter++,
-        (ref ValCounters valueCounters) => valueCounters.Val064Counter++,
-        (ref ValCounters valueCounters) => valueCounters.Val128Counter++
+        (ref Counters counters) => counters.Val001Counter++,
+        (ref Counters counters) => throw new NotSupportedException(),
+        (ref Counters counters) => throw new NotSupportedException(),
+        (ref Counters counters) => counters.Val008Counter++,
+        (ref Counters counters) => counters.Val016Counter++,
+        (ref Counters counters) => counters.Val032Counter++,
+        (ref Counters counters) => counters.Val064Counter++,
+        (ref Counters counters) => counters.Val128Counter++
       };
 
       PositionUpdaterByRank = new PositionUpdater[] {
-        (ref PackedFieldDescriptor descriptor, ref ValCounters valCounters)
-          => UpdateDescriptorPosition(ref descriptor, ref valCounters.Val001Counter),
-        (ref PackedFieldDescriptor descriptor, ref ValCounters valCounters)
+        (ref PackedFieldDescriptor descriptor, ref Counters counters)
+          => UpdateDescriptorPosition(ref descriptor, ref counters.Val001Counter),
+        (ref PackedFieldDescriptor descriptor, ref Counters counters)
           => throw new NotSupportedException(),
-        (ref PackedFieldDescriptor descriptor, ref ValCounters valCounters)
+        (ref PackedFieldDescriptor descriptor, ref Counters counters)
           => throw new NotSupportedException(),
-        (ref PackedFieldDescriptor descriptor, ref ValCounters valCounters)
-          => UpdateDescriptorPosition(ref descriptor, ref valCounters.Val008Counter),
-        (ref PackedFieldDescriptor descriptor, ref ValCounters valCounters)
-          => UpdateDescriptorPosition(ref descriptor, ref valCounters.Val016Counter),
-        (ref PackedFieldDescriptor descriptor, ref ValCounters valCounters)
-          => UpdateDescriptorPosition(ref descriptor, ref valCounters.Val032Counter),
-        (ref PackedFieldDescriptor descriptor, ref ValCounters valCounters)
-          => UpdateDescriptorPosition(ref descriptor, ref valCounters.Val064Counter),
-        (ref PackedFieldDescriptor descriptor, ref ValCounters valCounters)
-          => UpdateDescriptorPosition(ref descriptor, ref valCounters.Val128Counter)
+        (ref PackedFieldDescriptor descriptor, ref Counters counters)
+          => UpdateDescriptorPosition(ref descriptor, ref counters.Val008Counter),
+        (ref PackedFieldDescriptor descriptor, ref Counters counters)
+          => UpdateDescriptorPosition(ref descriptor, ref counters.Val016Counter),
+        (ref PackedFieldDescriptor descriptor, ref Counters counters)
+          => UpdateDescriptorPosition(ref descriptor, ref counters.Val032Counter),
+        (ref PackedFieldDescriptor descriptor, ref Counters counters)
+          => UpdateDescriptorPosition(ref descriptor, ref counters.Val064Counter),
+        (ref PackedFieldDescriptor descriptor, ref Counters counters)
+          => UpdateDescriptorPosition(ref descriptor, ref counters.Val128Counter)
       };
     }
   }
