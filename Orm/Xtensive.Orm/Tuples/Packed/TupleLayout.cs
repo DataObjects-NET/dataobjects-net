@@ -5,8 +5,6 @@
 // Created:    2012.12.29
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace Xtensive.Tuples.Packed
@@ -53,19 +51,106 @@ namespace Xtensive.Tuples.Packed
       public int Val128Counter;
     }
 
+    private static class ValueFieldAccessorResolver
+    {
+      private static readonly Type BoolType = typeof(bool);
+      private static readonly Type NullableBoolType = typeof(bool?);
+      private static readonly Type ByteType = typeof(byte);
+      private static readonly Type NullableByteType = typeof(byte?);
+      private static readonly Type SByteType = typeof(sbyte);
+      private static readonly Type NullableSByteType = typeof(sbyte?);
+      private static readonly Type Int16Type = typeof(short);
+      private static readonly Type NullableInt16Type = typeof(short?);
+      private static readonly Type UInt16Type = typeof(ushort);
+      private static readonly Type NullableUInt16Type = typeof(ushort?);
+      private static readonly Type Int32Type = typeof(int);
+      private static readonly Type NullableInt32Type = typeof(int?);
+      private static readonly Type UInt32Type = typeof(uint);
+      private static readonly Type NullableUInt32Type = typeof(uint?);
+      private static readonly Type Int64Type = typeof(long);
+      private static readonly Type NullableInt64Type = typeof(long?);
+      private static readonly Type UInt64Type = typeof(ulong);
+      private static readonly Type NullableUInt64Type = typeof(ulong?);
+      private static readonly Type SingleType = typeof(float);
+      private static readonly Type NullableSingleType = typeof(float?);
+      private static readonly Type DoubleType = typeof(double);
+      private static readonly Type NullableDoubleType = typeof(double?);
+      private static readonly Type DateTimeType = typeof(DateTime);
+      private static readonly Type NullableDateTimeType = typeof(DateTime?);
+      private static readonly Type TimeSpanType = typeof(TimeSpan);
+      private static readonly Type NullableTimeSpanType = typeof(TimeSpan?);
+      private static readonly Type DecimalType = typeof(decimal);
+      private static readonly Type NullableDecimalType = typeof(decimal?);
+      private static readonly Type GuidType = typeof(Guid);
+      private static readonly Type NullableGuidType = typeof(Guid?);
+
+      private static readonly ValueFieldAccessor BoolAccessor = new BooleanFieldAccessor();
+      private static readonly ValueFieldAccessor ByteAccessor = new ByteFieldAccessor();
+      private static readonly ValueFieldAccessor SByteAccessor = new SByteFieldAccessor();
+      private static readonly ValueFieldAccessor Int16Accessor = new ShortFieldAccessor();
+      private static readonly ValueFieldAccessor UInt16Accessor = new UShortFieldAccessor();
+      private static readonly ValueFieldAccessor Int32Accessor = new IntFieldAccessor();
+      private static readonly ValueFieldAccessor UInt32Accessor = new UIntFieldAccessor();
+      private static readonly ValueFieldAccessor Int64Accessor = new LongFieldAccessor();
+      private static readonly ValueFieldAccessor UInt64Accessor = new ULongFieldAccessor();
+      private static readonly ValueFieldAccessor SingleAccessor = new FloatFieldAccessor();
+      private static readonly ValueFieldAccessor DoubleAccessor = new DoubleFieldAccessor();
+      private static readonly ValueFieldAccessor DateTimeAccessor = new DateTimeFieldAccessor();
+      private static readonly ValueFieldAccessor TimeSpanAccessor = new TimeSpanFieldAccessor();
+      private static readonly ValueFieldAccessor DecimalAccessor = new DecimalFieldAccessor();
+      private static readonly ValueFieldAccessor GuidAccessor = new GuidFieldAccessor();
+
+      public static ValueFieldAccessor GetValue(Type probeType)
+      {
+        ValueFieldAccessor ResolveByType(Type type) =>
+          ReferenceEquals(type, BoolType) ? BoolAccessor :
+          ReferenceEquals(type, ByteType) ? ByteAccessor :
+          ReferenceEquals(type, SByteType) ? SByteAccessor :
+          ReferenceEquals(type, Int16Type) ? Int16Accessor :
+          ReferenceEquals(type, UInt16Type) ? UInt16Accessor :
+          ReferenceEquals(type, Int32Type) ? Int32Accessor :
+          ReferenceEquals(type, UInt32Type) ? UInt32Accessor :
+          ReferenceEquals(type, Int64Type) ? Int64Accessor :
+          ReferenceEquals(type, UInt64Type) ? UInt64Accessor :
+          ReferenceEquals(type, SingleType) ? SingleAccessor :
+          ReferenceEquals(type, DoubleType) ? DoubleAccessor :
+          ReferenceEquals(type, DateTimeType) ? DateTimeAccessor :
+          ReferenceEquals(type, TimeSpanType) ? TimeSpanAccessor :
+          ReferenceEquals(type, DecimalType) ? DecimalAccessor :
+          ReferenceEquals(type, GuidType) ? GuidAccessor : null;
+
+        ValueFieldAccessor ResolveByNullableType(Type type) =>
+          ReferenceEquals(type, NullableBoolType) ? BoolAccessor :
+          ReferenceEquals(type, NullableByteType) ? ByteAccessor :
+          ReferenceEquals(type, NullableSByteType) ? SByteAccessor :
+          ReferenceEquals(type, NullableInt16Type) ? Int16Accessor :
+          ReferenceEquals(type, NullableUInt16Type) ? UInt16Accessor :
+          ReferenceEquals(type, NullableInt32Type) ? Int32Accessor :
+          ReferenceEquals(type, NullableUInt32Type) ? UInt32Accessor :
+          ReferenceEquals(type, NullableInt64Type) ? Int64Accessor :
+          ReferenceEquals(type, NullableUInt64Type) ? UInt64Accessor :
+          ReferenceEquals(type, NullableSingleType) ? SingleAccessor :
+          ReferenceEquals(type, NullableDoubleType) ? DoubleAccessor :
+          ReferenceEquals(type, NullableDateTimeType) ? DateTimeAccessor :
+          ReferenceEquals(type, NullableTimeSpanType) ? TimeSpanAccessor :
+          ReferenceEquals(type, NullableDecimalType) ? DecimalAccessor :
+          ReferenceEquals(type, NullableGuidType) ? GuidAccessor : null;
+
+        return probeType.IsGenericType ? ResolveByNullableType(probeType) : ResolveByType(probeType);
+      }
+    }
+
     private delegate void CounterIncrementer(ref ValCounters valCounters);
+
     private delegate void PositionUpdater(ref PackedFieldDescriptor descriptor, ref ValPointers valPointers);
 
-    private static readonly ObjectFieldAccessor ObjectAccessor;
-    private static readonly Dictionary<Type, ValueFieldAccessor> ValueAccessors;
+    private static readonly ObjectFieldAccessor ObjectAccessor = new ObjectFieldAccessor();
     private static readonly CounterIncrementer[] IncrementerByRank;
     private static readonly PositionUpdater[] PositionUpdaterByRank;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ConfigureFieldAccessor(ref PackedFieldDescriptor descriptor, Type fieldType) =>
-      descriptor.Accessor = ValueAccessors.TryGetValue(fieldType, out var valueAccessor)
-        ? (PackedFieldAccessor) valueAccessor
-        : ObjectAccessor;
+      descriptor.Accessor = (PackedFieldAccessor) ValueFieldAccessorResolver.GetValue(fieldType) ?? ObjectAccessor;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Configure(Type[] fieldTypes, PackedFieldDescriptor[] fieldDescriptors, out int valuesLength,
@@ -129,13 +214,14 @@ namespace Xtensive.Tuples.Packed
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ConfigureFieldPhase1(
-      ref PackedFieldDescriptor descriptor, ref ValCounters counters, Type[] fieldTypes, int fieldIndex)
+    private static void ConfigureFieldPhase1(ref PackedFieldDescriptor descriptor, ref ValCounters counters,
+      Type[] fieldTypes, int fieldIndex)
     {
       descriptor.StateIndex = fieldIndex >> Val032Rank; // d.FieldIndex / 32
       descriptor.StateBitOffset = (fieldIndex & Modulo032RemainderMask) << 1;
 
-      if (ValueAccessors.TryGetValue(fieldTypes[fieldIndex], out var valueAccessor)) {
+      var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldTypes[fieldIndex]);
+      if (valueAccessor != null) {
         descriptor.Accessor = valueAccessor;
         descriptor.PackingType = FieldPackingType.Value;
         descriptor.Rank = valueAccessor.Rank;
@@ -164,31 +250,6 @@ namespace Xtensive.Tuples.Packed
 
     static TupleLayout()
     {
-      void RegisterAccessor<T>(ValueFieldAccessor<T> accessor)
-        where T : struct, IEquatable<T>
-      {
-        ValueAccessors.Add(typeof(T), accessor);
-        ValueAccessors.Add(typeof(T?), accessor);
-      }
-
-      ObjectAccessor = new ObjectFieldAccessor();
-      ValueAccessors = new Dictionary<Type, ValueFieldAccessor>();
-      RegisterAccessor(new BooleanFieldAccessor());
-      RegisterAccessor(new ByteFieldAccessor());
-      RegisterAccessor(new SByteFieldAccessor());
-      RegisterAccessor(new ShortFieldAccessor());
-      RegisterAccessor(new UShortFieldAccessor());
-      RegisterAccessor(new IntFieldAccessor());
-      RegisterAccessor(new UIntFieldAccessor());
-      RegisterAccessor(new LongFieldAccessor());
-      RegisterAccessor(new ULongFieldAccessor());
-      RegisterAccessor(new FloatFieldAccessor());
-      RegisterAccessor(new DoubleFieldAccessor());
-      RegisterAccessor(new DateTimeFieldAccessor());
-      RegisterAccessor(new TimeSpanFieldAccessor());
-      RegisterAccessor(new DecimalFieldAccessor());
-      RegisterAccessor(new GuidFieldAccessor());
-
       IncrementerByRank = new CounterIncrementer[] {
         (ref ValCounters valueCounters) => valueCounters.Val001Counter++,
         (ref ValCounters valueCounters) => throw new NotSupportedException(),
