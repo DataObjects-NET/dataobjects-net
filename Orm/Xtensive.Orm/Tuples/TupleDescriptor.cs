@@ -313,13 +313,28 @@ namespace Xtensive.Tuples
 
     private TupleDescriptor(Type[] fieldTypes)
     {
-      ArgumentValidator.EnsureArgumentNotNull(fieldTypes, nameof(fieldTypes));
-
       FieldTypes = fieldTypes;
       FieldCount = fieldTypes.Length;
       FieldDescriptors = new PackedFieldDescriptor[FieldCount];
 
-      TupleLayout.Configure(fieldTypes, FieldDescriptors, out ValuesLength, out ObjectsLength);
+      switch (FieldCount) {
+        case 0:
+          return;
+        case 1:
+          TupleLayout.ConfigureLen1(FieldTypes,
+            ref FieldDescriptors[0],
+            out ValuesLength, out ObjectsLength);
+          break;
+        case 2:
+          TupleLayout.ConfigureLen2(FieldTypes,
+            ref FieldDescriptors[0], ref FieldDescriptors[1],
+            out ValuesLength, out ObjectsLength);
+          break;
+        default:
+          TupleLayout.Configure(FieldTypes, FieldDescriptors, out ValuesLength, out ObjectsLength);
+          break;
+      }
+
     }
 
     public TupleDescriptor(SerializationInfo info, StreamingContext context)
