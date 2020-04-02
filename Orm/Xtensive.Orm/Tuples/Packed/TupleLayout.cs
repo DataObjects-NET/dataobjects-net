@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2012 Xtensive LLC.
+﻿// Copyright (C) 2003-2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -16,27 +16,20 @@ namespace Xtensive.Tuples.Packed
     private const int Val032Rank = 5;
     private const int Val016Rank = 4;
     private const int Val008Rank = 3;
-    private const int Val001Rank = 0;
 
     private const int Val064BitCount = 1 << Val064Rank;
     private const int Val032BitCount = 1 << Val032Rank;
     private const int Modulo064RemainderMask = Val064BitCount - 1;
     private const int Modulo032RemainderMask = Val032BitCount - 1;
 
-    private ref struct ValPointer
-    {
-      public int Index;
-      public int Offset;
-    }
-
     private ref struct ValPointers
     {
-      public ValPointer Val001Pointer;
-      public ValPointer Val008Pointer;
-      public ValPointer Val016Pointer;
-      public ValPointer Val032Pointer;
-      public ValPointer Val064Pointer;
-      public ValPointer Val128Pointer;
+      public int Val001Pointer;
+      public int Val008Pointer;
+      public int Val016Pointer;
+      public int Val032Pointer;
+      public int Val064Pointer;
+      public int Val128Pointer;
     }
 
     private ref struct ValCounters
@@ -197,7 +190,7 @@ namespace Xtensive.Tuples.Packed
             descriptor1.SetValueBitOffset(Val064BitCount);
             val1BitCount = descriptor1.Accessor.ValueBitCount;
           }
-          valuesLength = 1 + ((val1BitCount  + (Val064BitCount - 1)) >> Val064Rank);
+          valuesLength = (val1BitCount  + ((Val064BitCount * 2) - 1)) >> Val064Rank;
           return;
         }
       }
@@ -219,53 +212,56 @@ namespace Xtensive.Tuples.Packed
     public static void Configure(Type[] fieldTypes, PackedFieldDescriptor[] fieldDescriptors, out int valuesLength,
       out int objectsLength)
     {
-      var valCounters = new ValCounters();
       var fieldCount = fieldTypes.Length;
+      const int statesPerLong = Val064BitCount / 2;
+      var stateBitCount = ((fieldCount + (statesPerLong - 1)) >> Val032Rank) << Val064Rank;
+
+      var valCounters = new ValCounters();
       for (var fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
         ConfigureFieldPhase1(ref fieldDescriptors[fieldIndex], ref valCounters, fieldTypes, fieldIndex);
       }
 
-      const int stateBitCount = 2;
-      const int statesPerLong = Val064BitCount / stateBitCount;
-
-      var vPointers = new ValPointers {
-        Val128Pointer = new ValPointer {Index = (fieldCount + (statesPerLong - 1)) >> Val032Rank}
-      };
-      InitValPointer(ref vPointers.Val064Pointer, ref vPointers.Val128Pointer, valCounters.Val128Counter, Val128Rank);
-      InitValPointer(ref vPointers.Val032Pointer, ref vPointers.Val064Pointer, valCounters.Val064Counter, Val064Rank);
-      InitValPointer(ref vPointers.Val016Pointer, ref vPointers.Val032Pointer, valCounters.Val032Counter, Val032Rank);
-      InitValPointer(ref vPointers.Val008Pointer, ref vPointers.Val016Pointer, valCounters.Val016Counter, Val016Rank);
-      InitValPointer(ref vPointers.Val001Pointer, ref vPointers.Val008Pointer, valCounters.Val008Counter, Val008Rank);
-
-      var valuesEndPointer = new ValPointer();
-      InitValPointer(ref valuesEndPointer, ref vPointers.Val001Pointer, valCounters.Val001Counter, Val001Rank);
+      var vPointers = new ValPointers();
+      var totalBitCount = InitValPointers(stateBitCount, ref valCounters, ref vPointers);
 
       for (var fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
         ConfigureFieldPhase2(ref fieldDescriptors[fieldIndex], ref vPointers);
       }
 
-      valuesLength = valuesEndPointer.Index + ((valuesEndPointer.Offset + (Val064BitCount - 1)) >> Val064Rank);
+      valuesLength = (totalBitCount + (Val064BitCount - 1)) >> Val064Rank;
       objectsLength = valCounters.ObjectCounter;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void InitValPointer(ref ValPointer pointer, ref ValPointer prevPointer, int prevValueCount,
-      int prevRank)
+    private static int InitValPointers(int stateBitCount, ref ValCounters valCounters, ref ValPointers vPointers)
     {
-      var prevBitCountWithOffset = (prevValueCount << prevRank) + prevPointer.Offset;
+      var totalBitCount = stateBitCount;
+      vPointers.Val128Pointer = totalBitCount;
 
-      pointer.Index = prevPointer.Index + (prevBitCountWithOffset >> Val064Rank);
-      pointer.Offset = prevBitCountWithOffset & Modulo064RemainderMask;
+      totalBitCount += valCounters.Val128Counter << Val128Rank;
+      vPointers.Val064Pointer = totalBitCount;
+
+      totalBitCount += valCounters.Val064Counter << Val064Rank;
+      vPointers.Val032Pointer = totalBitCount;
+
+      totalBitCount += valCounters.Val032Counter << Val032Rank;
+      vPointers.Val016Pointer = totalBitCount;
+
+      totalBitCount += valCounters.Val016Counter << Val016Rank;
+      vPointers.Val008Pointer = totalBitCount;
+
+      totalBitCount += valCounters.Val008Counter << Val008Rank;
+      vPointers.Val001Pointer = totalBitCount;
+
+      totalBitCount += valCounters.Val001Counter;
+      return totalBitCount;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void UpdateDescriptorPosition(ref PackedFieldDescriptor descriptor, ref ValPointer valPointer)
+    private static void UpdateDescriptorPosition(ref PackedFieldDescriptor descriptor, ref int valPointer)
     {
-      var totalBitCount = (valPointer.Index << Val064Rank) + valPointer.Offset;
-      descriptor.SetValueBitOffset(totalBitCount);
-      totalBitCount += descriptor.Accessor.ValueBitCount;
-      valPointer.Index = totalBitCount >> Val064Rank;
-      valPointer.Offset = totalBitCount & Modulo064RemainderMask;
+      descriptor.SetValueBitOffset(valPointer);
+      valPointer += descriptor.Accessor.ValueBitCount;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
