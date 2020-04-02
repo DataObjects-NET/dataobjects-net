@@ -38,7 +38,7 @@ namespace Xtensive.Tuples
     public virtual int Count
     {
       [DebuggerStepThrough]
-      get { return Descriptor.FieldCount; }
+      get { return Descriptor.Count; }
     }
 
     /// <inheritdoc/>

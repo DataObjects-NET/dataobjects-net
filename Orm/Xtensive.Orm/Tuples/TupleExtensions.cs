@@ -206,7 +206,7 @@ namespace Xtensive.Tuples
       for (var index = 0; index < map.Length; index++) {
         var sourceIndex = segment.Offset + index;
         map[index] = sourceIndex;
-        fieldTypes[index] = tuple.Descriptor.FieldTypes[sourceIndex];
+        fieldTypes[index] = tuple.Descriptor[sourceIndex];
       }
       var descriptor = TupleDescriptor.Create(fieldTypes);
       var transform = new MapTransform(false, descriptor, map);

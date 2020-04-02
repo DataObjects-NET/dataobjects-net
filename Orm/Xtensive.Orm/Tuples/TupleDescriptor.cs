@@ -4,18 +4,16 @@
 // Created by: Nick Svetlov
 // Created:    2007.05.30
 
+
 using System;
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Linq.SerializableExpressions.Internals;
 using Xtensive.Reflection;
-
 using Xtensive.Tuples.Packed;
 
 namespace Xtensive.Tuples
@@ -25,11 +23,11 @@ namespace Xtensive.Tuples
   /// Provides information about <see cref="Tuple"/> structure.
   /// </summary>
   [Serializable]
-  public sealed class TupleDescriptor : IEquatable<TupleDescriptor>, IList<Type>, IReadOnlyList<Type>, ISerializable
+  public sealed class TupleDescriptor : IEquatable<TupleDescriptor>, IReadOnlyList<Type>, ISerializable
   {
     private static readonly TupleDescriptor EmptyDescriptor = new TupleDescriptor(Array.Empty<Type>());
 
-    internal readonly int FieldCount;
+    private readonly int FieldCount;
     internal readonly int ValuesLength;
     internal readonly int ObjectsLength;
 
@@ -37,7 +35,7 @@ namespace Xtensive.Tuples
     internal readonly PackedFieldDescriptor[] FieldDescriptors;
     
     [field: NonSerialized]
-    internal Type[] FieldTypes { get; }
+    private Type[] FieldTypes { get; }
 
     /// <summary>
     /// Gets the empty tuple descriptor.
@@ -92,62 +90,11 @@ namespace Xtensive.Tuples
     }
 
     /// <inheritdoc/>
-    public int IndexOf(Type item) 
-      => FieldTypes.IndexOf(item, true);
-
-    /// <inheritdoc/>
-    public void Insert(int index, Type item)
-    {
-      throw Exceptions.CollectionIsReadOnly(null);
-    }
-
-    /// <inheritdoc/>
-    public void RemoveAt(int index)
-    {
-      throw Exceptions.CollectionIsReadOnly(null);
-    }
-
-    /// <inheritdoc/>
-    public void Add(Type item)
-    {
-      throw Exceptions.CollectionIsReadOnly(null);
-    }
-
-    /// <inheritdoc/>
-    public void Clear()
-    {
-      throw Exceptions.CollectionIsReadOnly(null);
-    }
-
-    /// <inheritdoc/>
-    public bool Contains(Type item)
-    {
-      return FieldTypes.IndexOf(item, true) >= 0;
-    }
-
-    /// <inheritdoc/>
-    public void CopyTo(Type[] array, int arrayIndex)
-    {
-      FieldTypes.Copy(array, arrayIndex);
-    }
-
-    /// <inheritdoc/>
-    public bool Remove(Type item)
-    {
-      throw Exceptions.CollectionIsReadOnly(null);
-    }
-
-    /// <inheritdoc/>
-    public bool IsReadOnly
-    {
-      get { return true; }
-    }
-
-    /// <inheritdoc/>
     public IEnumerator<Type> GetEnumerator()
     {
-      for (int i = 0; i < FieldCount; i++)
-        yield return FieldTypes[i];
+      for (var index = 0; index < FieldCount; index++) {
+        yield return FieldTypes[index];
+      }
     }
 
     /// <inheritdoc/>
