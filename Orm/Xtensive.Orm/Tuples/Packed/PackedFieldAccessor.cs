@@ -30,6 +30,10 @@ namespace Xtensive.Tuples.Packed
     /// </summary>
     protected Delegate NullableSetter;
 
+    public readonly int Rank;
+    public readonly int ValueBitCount;
+    protected readonly long ValueBitMask;
+
     public void SetValue<T>(PackedTuple tuple, ref PackedFieldDescriptor descriptor, bool isNullable, T value)
     {
       var setter = (isNullable ? NullableSetter : Setter) as SetValueDelegate<T>;
@@ -65,6 +69,25 @@ namespace Xtensive.Tuples.Packed
       PackedTuple right, ref PackedFieldDescriptor rightDescriptor);
 
     public abstract int GetValueHashCode(PackedTuple tuple, ref PackedFieldDescriptor descriptor);
+
+    protected PackedFieldAccessor(int rank)
+    {
+      Rank = rank;
+      ValueBitCount = 1 << Rank;
+
+      // What we want here is to shift 1L by ValueBitCount to left and then subtract 1
+      // This gives us a mask. For example if bit count = 4 then
+      // 0000_0001 << 4 = 0001_0000
+      // 0001_000 - 1 = 0000_1111
+      // However in case bit count equal to data type size left shift doesn't work as we want
+      // e.g. for Int8 : 0000_0001 << 8 = 0000_0001 but we would like it to be 0000_0000
+      // because 0000_0000 - 1 = 1111_1111 and this is exactly what we need.
+      // As a workaround we do left shift in two steps. In the example above
+      // 0000_0001 << 7 = 1000_0000
+      // and then
+      // 1000_0000 << 1 = 0000_0000
+      ValueBitMask = (1L << (ValueBitCount - 1) << 1) - 1;
+    }
   }
 
   internal sealed class ObjectFieldAccessor : PackedFieldAccessor
@@ -73,12 +96,12 @@ namespace Xtensive.Tuples.Packed
     {
       var state = tuple.GetFieldState(ref descriptor);
       fieldState = state;
-      return state==TupleFieldState.Available ? tuple.Objects[descriptor.ValueIndex] : null;
+      return state==TupleFieldState.Available ? tuple.Objects[descriptor.ObjectIndex] : null;
     }
 
     public override void SetUntypedValue(PackedTuple tuple, ref PackedFieldDescriptor descriptor, object value)
     {
-      tuple.Objects[descriptor.ValueIndex] = value;
+      tuple.Objects[descriptor.ObjectIndex] = value;
       if (value!=null)
         tuple.SetFieldState(ref descriptor, TupleFieldState.Available);
       else
@@ -88,27 +111,29 @@ namespace Xtensive.Tuples.Packed
     public override void CopyValue(PackedTuple source, ref PackedFieldDescriptor sourceDescriptor,
       PackedTuple target, ref PackedFieldDescriptor targetDescriptor)
     {
-      target.Objects[targetDescriptor.ValueIndex] = source.Objects[sourceDescriptor.ValueIndex];
+      target.Objects[targetDescriptor.ObjectIndex] = source.Objects[sourceDescriptor.ObjectIndex];
     }
 
     public override bool ValueEquals(PackedTuple left, ref PackedFieldDescriptor leftDescriptor,
       PackedTuple right, ref PackedFieldDescriptor rightDescriptor)
     {
-      var leftValue = left.Objects[leftDescriptor.ValueIndex];
-      var rightValue = right.Objects[rightDescriptor.ValueIndex];
+      var leftValue = left.Objects[leftDescriptor.ObjectIndex];
+      var rightValue = right.Objects[rightDescriptor.ObjectIndex];
       return leftValue.Equals(rightValue);
     }
 
     public override int GetValueHashCode(PackedTuple tuple, ref PackedFieldDescriptor descriptor)
     {
-      return tuple.Objects[descriptor.ValueIndex].GetHashCode();
+      return tuple.Objects[descriptor.ObjectIndex].GetHashCode();
     }
+
+    public ObjectFieldAccessor()
+      : base(-1)
+    { }
   }
 
   internal abstract class ValueFieldAccessor : PackedFieldAccessor
   {
-    public readonly int Rank;
-
     public Type FieldType { get; protected set; }
 
     private static int GetRank(int bitSize)
@@ -122,9 +147,8 @@ namespace Xtensive.Tuples.Packed
     }
 
     protected ValueFieldAccessor(int bitCount)
-    {
-      Rank = GetRank(bitCount);
-    }
+      : base(GetRank(bitCount))
+    {}
   }
 
   internal abstract class ValueFieldAccessor<T> : ValueFieldAccessor
@@ -217,7 +241,7 @@ namespace Xtensive.Tuples.Packed
 
       var encoded = Encode(value);
       var block = tuple.Values[d.ValueIndex];
-      var mask = d.ValueBitMask << d.ValueBitOffset;
+      var mask = ValueBitMask << d.ValueBitOffset;
       tuple.Values[d.ValueIndex] = (block & ~mask) | ((encoded << d.ValueBitOffset) & mask);
     }
 
@@ -227,7 +251,7 @@ namespace Xtensive.Tuples.Packed
         return Decode(tuple.Values, d.ValueIndex);
       }
 
-      var encoded = (tuple.Values[d.ValueIndex] >> d.ValueBitOffset) & d.ValueBitMask;
+      var encoded = (tuple.Values[d.ValueIndex] >> d.ValueBitOffset) & ValueBitMask;
       return Decode(encoded);
     }
 

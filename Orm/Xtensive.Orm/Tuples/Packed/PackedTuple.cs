@@ -108,8 +108,8 @@ namespace Xtensive.Tuples.Packed
       var block = Values[d.StateIndex];
       Values[d.StateIndex] = (block & ~(3L << d.StateBitOffset)) | (bits << d.StateBitOffset);
 
-      if (fieldState!=TupleFieldState.Available && d.PackingType==FieldPackingType.Object) {
-        Objects[d.ValueIndex] = null;
+      if (fieldState!=TupleFieldState.Available && d.IsObjectField) {
+        Objects[d.ObjectIndex] = null;
       }
     }
 
