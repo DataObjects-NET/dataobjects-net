@@ -136,8 +136,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
 
     public void EmptyFieldsTest()
     {
-      var types = new Type[0];
-      var d = TupleDescriptor.Create(types);
+      var d = TupleDescriptor.Create(Array.Empty<Type>());
       var dummyTuple = new DummyTuple(d);
       var tuple = CreateTestTuple(d);
       Assert.AreEqual(0, tuple.Count);
