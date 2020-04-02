@@ -28,18 +28,6 @@ namespace Xtensive.Tuples
   public sealed class TupleDescriptor : IEquatable<TupleDescriptor>, IList<Type>, IReadOnlyList<Type>, ISerializable
   {
     private static readonly TupleDescriptor EmptyDescriptor = new TupleDescriptor(Array.Empty<Type>());
-    [NonSerialized]
-    private static readonly Dictionary<Type, TupleDescriptor> CachedDescriptors1 = 
-        new Dictionary<Type, TupleDescriptor>();
-    [NonSerialized]
-    private static readonly Dictionary<(Type, Type), TupleDescriptor> CachedDescriptors2 = 
-      new Dictionary<(Type, Type), TupleDescriptor>();
-    [NonSerialized]
-    private static readonly Dictionary<(Type, Type, Type), TupleDescriptor> CachedDescriptors3 = 
-      new Dictionary<(Type, Type, Type), TupleDescriptor>();
-    [NonSerialized]
-    private static readonly ConcurrentDictionary<(Type, Type, Type, Type), TupleDescriptor> CachedDescriptors4 = 
-      new ConcurrentDictionary<(Type, Type, Type, Type), TupleDescriptor>();
 
     internal readonly int FieldCount;
     internal readonly int ValuesLength;
@@ -267,32 +255,22 @@ namespace Xtensive.Tuples
 
     public static TupleDescriptor Create(Type t1)
     {
-      if (CachedDescriptors1.TryGetValue(t1, out var cachedDescriptor))
-        return cachedDescriptor;
       return new TupleDescriptor(new [] {t1});
     }
 
     public static TupleDescriptor Create(Type t1, Type t2)
     {
-      var key = (t1, t2);
-      if (CachedDescriptors2.TryGetValue(key, out var cachedDescriptor))
-        return cachedDescriptor;
       return new TupleDescriptor(new [] {t1, t2});
     }
 
     public static TupleDescriptor Create(Type t1, Type t2, Type t3)
     {
-      var key = (t1, t2, t3);
-      if (CachedDescriptors3.TryGetValue(key, out var cachedDescriptor))
-        return cachedDescriptor;
       return new TupleDescriptor(new [] {t1, t2, t3});
     }
 
     public static TupleDescriptor Create(Type t1, Type t2, Type t3, Type t4)
     {
-      var key = (t1, t2, t3, t4);
-      return CachedDescriptors4.GetOrAdd(key, k => 
-        new TupleDescriptor(new [] {k.Item1, k.Item2, k.Item3, k.Item4}));
+      return  new TupleDescriptor(new [] {t1, t2, t3, t4});
     }
 
     /// <summary>
@@ -308,24 +286,6 @@ namespace Xtensive.Tuples
       switch (fieldTypes.Length) {
       case 0:
         return EmptyDescriptor;
-      case 1: 
-        if (CachedDescriptors1.TryGetValue(fieldTypes[0], out var cachedDescriptor))
-          return cachedDescriptor;
-        break;
-      case 2:
-        var key2 = (fieldTypes[0], fieldTypes[1]);
-        if (CachedDescriptors2.TryGetValue(key2, out cachedDescriptor))
-          return cachedDescriptor;
-        break;
-      case 3:
-        var key3 = (fieldTypes[0], fieldTypes[1], fieldTypes[2]);
-        if (CachedDescriptors3.TryGetValue(key3, out cachedDescriptor))
-          return cachedDescriptor;
-        break;
-      case 4:
-        var key4 = (fieldTypes[0], fieldTypes[1], fieldTypes[2], fieldTypes[3]);
-        return CachedDescriptors4.GetOrAdd(key4, k => 
-          new TupleDescriptor(new [] {k.Item1, k.Item2, k.Item3, k.Item4}));
       }
       return new TupleDescriptor(fieldTypes);
     }
@@ -429,20 +389,6 @@ namespace Xtensive.Tuples
       for (var i = 0; i < typeNames.Length; i++) {
         FieldTypes[i] = typeNames[i].GetTypeFromSerializableForm();
         TupleLayout.ConfigureFieldAccessor(ref FieldDescriptors[i], FieldTypes[i]);
-      }
-    }
-
-    static TupleDescriptor()
-    {
-      var types = TupleLayout.KnownTypes;
-      foreach (var type1 in types) {
-        CachedDescriptors1.Add(type1, new TupleDescriptor(new[] {type1}));
-        foreach (var type2 in types) {
-          CachedDescriptors2.Add((type1, type2), new TupleDescriptor(new[] {type1, type2}));
-          foreach (var type3 in types) {
-            CachedDescriptors3.Add((type1, type2, type3), new TupleDescriptor(new[] {type1, type2, type3}));
-          }
-        }
       }
     }
   }

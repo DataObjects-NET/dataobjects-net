@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2012 Xtensive LLC.
+// Copyright (C) 2003-2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -60,10 +60,6 @@ namespace Xtensive.Tuples.Packed
     private static readonly Dictionary<Type, ValueFieldAccessor> ValueAccessors;
     private static readonly CounterIncrementer[] IncrementerByRank;
     private static readonly PositionUpdater[] PositionUpdaterByRank;
-
-    public static Type[] KnownTypes => ValueAccessors.Keys.Where(t => !t.IsGenericType)
-      .Concat(new[] {typeof(string), typeof(byte[])})
-      .ToArray();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ConfigureFieldAccessor(ref PackedFieldDescriptor descriptor, Type fieldType) =>
