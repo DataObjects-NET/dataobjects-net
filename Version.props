@@ -3,7 +3,7 @@
 
 <PropertyGroup>
     <DoVersion>6.0.3</DoVersion>
-    <DoVersionSuffix>tupledescriptor-nocache</DoVersionSuffix>
+    <DoVersionSuffix></DoVersionSuffix>
 </PropertyGroup>
 
 </Project>
