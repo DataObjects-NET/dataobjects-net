@@ -47,32 +47,6 @@ namespace Xtensive.Tuples
       get => EmptyDescriptor;
     }
 
-    /// <summary>
-    /// Gets the length of the common part.
-    /// </summary>
-    /// <param name="other">The other descriptor.</param>
-    public int GetCommonPartLength(TupleDescriptor other)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(other, "other");
-      var minCount = FieldCount < other.FieldCount ? FieldCount : other.FieldCount;
-      for (int i = 0; i < minCount; i++) {
-        if (FieldTypes[i] != other.FieldTypes[i])
-          return i;
-      }
-      return minCount;
-    }
-
-    /// <summary>
-    /// Determines whether the specified field is a value type field.
-    /// </summary>
-    /// <param name="fieldIndex">Index of the field to check.</param>
-    /// <returns>
-    /// <see langword="true"/> if specified field is a value type field; 
-    /// otherwise, <see langword="false"/>.
-    /// </returns>
-    public bool IsValueType(int fieldIndex) 
-      => FieldTypes[fieldIndex].IsValueType;
-
     #region IList members
 
     /// <inheritdoc/>
@@ -138,7 +112,7 @@ namespace Xtensive.Tuples
       return result;
     }
 
-    public static bool operator==(TupleDescriptor left, TupleDescriptor right)
+    public static bool operator ==(TupleDescriptor left, TupleDescriptor right)
     {
       if (ReferenceEquals(left, right))
         return true;
@@ -180,24 +154,6 @@ namespace Xtensive.Tuples
       return string.Format(Strings.TupleDescriptorFormat, sb);
     }
 
-    //[OnSerializing]
-    //private void OnSerializing(StreamingContext context)
-    //{
-    //  fieldTypeNames = new string[FieldTypes.Length];
-    //  for (var i = 0; i < fieldTypeNames.Length; i++)
-    //    fieldTypeNames[i] = FieldTypes[i].ToSerializableForm();
-    //}
-
-    //[OnDeserialized]
-    //private void OnDeserialized(StreamingContext context)
-    //{
-    //  fieldTypes = new Type[fieldTypeNames.Length];
-    //  for (int i = 0; i < fieldTypeNames.Length; i++)
-    //    FieldTypes[i] = fieldTypeNames[i].GetTypeFromSerializableForm();
-    //  for (int i = 0; i < FieldCount; i++)
-    //    PackedFieldAccessorFactory.ProvideAccessor(FieldTypes[i], FieldDescriptors[i]);
-    //}
-
     #region Create methods (base)
 
     public static TupleDescriptor Create(Type t1)
@@ -230,8 +186,7 @@ namespace Xtensive.Tuples
     public static TupleDescriptor Create(Type[] fieldTypes)
     {
       ArgumentValidator.EnsureArgumentNotNull(fieldTypes, nameof(fieldTypes));
-      switch (fieldTypes.Length) {
-      case 0:
+      if (fieldTypes.Length == 0) {
         return EmptyDescriptor;
       }
       return new TupleDescriptor(fieldTypes);
