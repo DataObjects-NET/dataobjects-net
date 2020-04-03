@@ -234,7 +234,12 @@ namespace Xtensive.Tuples.Packed
       totalBitCount += prevCount;
 
       for (var fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
-        ConfigureFieldPhase2(ref fieldDescriptors[fieldIndex], ref counters);
+        ref var descriptor = ref fieldDescriptors[fieldIndex];
+        if (descriptor.IsObjectField) {
+          continue;
+        }
+
+        PositionUpdaterByRank[descriptor.Accessor.Rank].Invoke(ref descriptor, ref counters);
       }
 
       valuesLength = (totalBitCount + (Val064BitCount - 1)) >> Val064Rank;
@@ -266,16 +271,6 @@ namespace Xtensive.Tuples.Packed
 
       descriptor.Accessor = ObjectAccessor;
       descriptor.DataPosition = counters.ObjectCounter++;
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ConfigureFieldPhase2(ref PackedFieldDescriptor descriptor, ref Counters counters)
-    {
-      if (descriptor.IsObjectField) {
-        return;
-      }
-
-      PositionUpdaterByRank[descriptor.Accessor.Rank].Invoke(ref descriptor, ref counters);
     }
 
     static TupleLayout()

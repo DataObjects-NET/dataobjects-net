@@ -46,14 +46,15 @@ namespace Xtensive.Tuples.Packed
       var fieldDescriptors = PackedDescriptor.FieldDescriptors;
       var count = Count;
       for (int i = 0; i < count; i++) {
-        var thisState = GetFieldState(ref fieldDescriptors[i]);
-        var otherState = packedOther.GetFieldState(ref fieldDescriptors[i]);
+        ref var descriptor = ref fieldDescriptors[i];
+        var thisState = GetFieldState(ref descriptor);
+        var otherState = packedOther.GetFieldState(ref descriptor);
         if (thisState!=otherState)
           return false;
         if (thisState!=TupleFieldState.Available)
           continue;
-        var accessor = fieldDescriptors[i].Accessor;
-        if (!accessor.ValueEquals(this, ref fieldDescriptors[i], packedOther, ref fieldDescriptors[i]))
+        var accessor = descriptor.Accessor;
+        if (!accessor.ValueEquals(this, ref descriptor, packedOther, ref descriptor))
           return false;
       }
 
@@ -66,10 +67,11 @@ namespace Xtensive.Tuples.Packed
       var fieldDescriptors = PackedDescriptor.FieldDescriptors;
       int result = 0;
       for (int i = 0; i < count; i++) {
-        var accessor = fieldDescriptors[i].Accessor;
+        ref var descriptor = ref fieldDescriptors[i];
+        var accessor = descriptor.Accessor;
         var state = GetFieldState(ref fieldDescriptors[i]);
         var fieldHash = state==TupleFieldState.Available
-          ? accessor.GetValueHashCode(this, ref fieldDescriptors[i])
+          ? accessor.GetValueHashCode(this, ref descriptor)
           : 0;
         result = HashCodeMultiplier * result ^ fieldHash;
       }
@@ -83,23 +85,23 @@ namespace Xtensive.Tuples.Packed
 
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
-      if (fieldState==TupleFieldState.Null)
-        throw new ArgumentOutOfRangeException("fieldState");
+      if (fieldState==TupleFieldState.Null) {
+        throw new ArgumentOutOfRangeException(nameof(fieldState));
+      }
 
-      var fieldDescriptors = PackedDescriptor.FieldDescriptors;
-      SetFieldState(ref fieldDescriptors[fieldIndex], fieldState);
+      SetFieldState(ref PackedDescriptor.FieldDescriptors[fieldIndex], fieldState);
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
-      var fieldDescriptors = PackedDescriptor.FieldDescriptors;
-      return fieldDescriptors[fieldIndex].Accessor.GetUntypedValue(this, ref fieldDescriptors[fieldIndex], out fieldState);
+      ref var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
+      return descriptor.Accessor.GetUntypedValue(this, ref descriptor, out fieldState);
     }
 
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      var fieldDescriptors = PackedDescriptor.FieldDescriptors;
-      fieldDescriptors[fieldIndex].Accessor.SetUntypedValue(this, ref fieldDescriptors[fieldIndex], fieldValue);
+      ref var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
+      descriptor.Accessor.SetUntypedValue(this, ref descriptor, fieldValue);
     }
 
     public void SetFieldState(ref PackedFieldDescriptor d, TupleFieldState fieldState)
