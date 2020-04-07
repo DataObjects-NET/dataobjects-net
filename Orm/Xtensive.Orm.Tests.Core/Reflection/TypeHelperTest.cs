@@ -421,11 +421,64 @@ namespace Xtensive.Orm.Tests.Core.Reflection
         this.GetType(),
       };
 
-      foreach (var numericType in numericTypes)
+      foreach (var numericType in numericTypes) {
         Assert.IsTrue(numericType.IsNumericType());
+      }
 
-      foreach (var nonNumericType in nonNumericTypes)
+      foreach (var nonNumericType in nonNumericTypes) {
         Assert.IsFalse(nonNumericType.IsNumericType());
+      }
+    }
+
+    [Test]
+    public void IsNullableTest()
+    {
+      var nullableTypes = new[] {
+        typeof (Nullable<>),
+        typeof (byte?),
+        typeof (sbyte?),
+        typeof (short?),
+        typeof (ushort?),
+        typeof (int?),
+        typeof (uint?),
+        typeof (long?),
+        typeof (ulong?),
+        typeof (float?),
+        typeof (double?),
+        typeof (decimal?),
+        typeof (Guid?)
+      };
+
+      var nonNullableTypes = new[] {
+        typeof (string),
+        typeof (char),
+        typeof (bool),
+        typeof (DateTime),
+        typeof (TimeSpan),
+        typeof (Guid),
+        typeof (TypeCode),
+        typeof (byte[]),
+        typeof (Key),
+        this.GetType()
+      };
+
+      foreach (var type in nullableTypes) {
+        Assert.IsTrue(type.IsNullable());
+      }
+
+      foreach (var type in nonNullableTypes) {
+        Assert.IsFalse(type.IsNullable());
+      }
+    }
+
+    [Test]
+    public void GenericIsNullableTest()
+    {
+      Assert.IsTrue(TypeHelper.IsNullable<Guid?>());
+      Assert.IsTrue(TypeHelper.IsNullable<int?>());
+
+      Assert.IsFalse(TypeHelper.IsNullable<int>());
+      Assert.IsFalse(TypeHelper.IsNullable<string>());
     }
   }
 }

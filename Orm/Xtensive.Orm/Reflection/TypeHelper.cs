@@ -5,8 +5,8 @@
 // Created:    2007.06.13
 
 using System;
-using System.CodeDom;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
@@ -15,7 +15,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using Xtensive.Collections;
-using Xtensive.Comparison;
 using System.Linq;
 using Xtensive.Core;
 
@@ -31,16 +30,26 @@ namespace Xtensive.Reflection
   {
     private const string invokeMethodName = "Invoke";
 
-    private static readonly object _lock = new object();
+    private static readonly object emitLock = new object();
+    private static readonly Type ObjectType = typeof(object);
+    private static readonly Type ArrayType = typeof(Array);
+    private static readonly Type EnumType = typeof(Enum);
+    private static readonly Type NullableType = typeof(Nullable<>);
+    private static readonly Type CompilerGeneratedAttributeType = typeof(CompilerGeneratedAttribute);
+    private static readonly string TypeHelperNamespace = typeof(TypeHelper).Namespace;
+
+    private static readonly ConcurrentDictionary<Type, Type[]> orderedInterfaces =
+      new ConcurrentDictionary<Type, Type[]>();
+
+    private static readonly ConcurrentDictionary<Type, Type[]> orderedCompatibles =
+      new ConcurrentDictionary<Type, Type[]>();
+
+    private static readonly ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps =
+      new ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping>();
+
     private static int createDummyTypeNumber = 0;
     private static AssemblyBuilder assemblyBuilder;
     private static ModuleBuilder moduleBuilder;
-    private static ThreadSafeDictionary<Type, Type[]> orderedInterfaces = 
-      ThreadSafeDictionary<Type, Type[]>.Create(new object());
-    private static ThreadSafeDictionary<Type, Type[]> orderedCompatibles = 
-      ThreadSafeDictionary<Type, Type[]>.Create(new object());
-    private static ThreadSafeDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps = 
-      ThreadSafeDictionary<Pair<Type, Type>, InterfaceMapping>.Create(new object());
 
     /// <summary>
     /// Searches for associated class for <paramref name="forType"/>, creates its instance, if found.
@@ -55,12 +64,9 @@ namespace Xtensive.Reflection
     /// otherwise, <see langword="null"/>.</returns>
     public static T CreateAssociate<T>(Type forType, out Type foundForType, string[] associateTypeSuffixes,
       object[] constructorParams)
-      where T : class
-    {
-      return
-        CreateAssociate<T>(forType, out foundForType, associateTypeSuffixes, constructorParams,
-          ArrayUtils<Pair<Assembly, string>>.EmptyArray);
-    }
+      where T : class =>
+      CreateAssociate<T>(forType, out foundForType, associateTypeSuffixes, constructorParams,
+        Array.Empty<Pair<Assembly, string>>());
 
     /// <summary>
     /// Searches for associated class for <paramref name="forType"/>, creates its instance, if found.
@@ -76,12 +82,9 @@ namespace Xtensive.Reflection
     /// otherwise, <see langword="null"/>.</returns>
     public static T CreateAssociate<T>(Type forType, out Type foundForType, string[] associateTypeSuffixes,
       object[] constructorParams, IEnumerable<Pair<Assembly, string>> highPriorityLocations)
-      where T : class
-    {
-      return
-        CreateAssociate<T>(forType, out foundForType, associateTypeSuffixes, constructorParams, highPriorityLocations,
-          false);
-    }
+      where T : class =>
+      CreateAssociate<T>(forType, out foundForType, associateTypeSuffixes, constructorParams, highPriorityLocations,
+        false);
 
     /// <summary>
     /// Searches for associated class for <paramref name="forType"/>, creates its instance, if found.
@@ -95,20 +98,23 @@ namespace Xtensive.Reflection
     /// <param name="constructorParams">Parameters to pass to associate constructor.</param>
     /// <returns>Newly created associate for <paramref name="forType"/>, if found;
     /// otherwise, <see langword="null"/>.</returns>
-    /// <param name="exactTypeMatch">If <see langword="false"/> tries to create associates for base class, interfaces, arrays and <see cref="Nullable{T}"/>(if struct) too.</param>
+    /// <param name="exactTypeMatch">If <see langword="false"/> tries to create associates for base class, interfaces,
+    /// arrays and <see cref="Nullable{T}"/>(if struct) too.</param>
     /// <exception cref="InvalidOperationException"><paramref name="forType"/> is generic type definition.</exception>
     public static T CreateAssociate<T>(Type forType, out Type foundForType, string[] associateTypeSuffixes,
       object[] constructorParams, IEnumerable<Pair<Assembly, string>> highPriorityLocations, bool exactTypeMatch)
       where T : class
     {
-      ArgumentValidator.EnsureArgumentNotNull(forType, "forType");
-      if (forType.IsGenericTypeDefinition)
+      ArgumentValidator.EnsureArgumentNotNull(forType, nameof(forType));
+      if (forType.IsGenericTypeDefinition) {
         throw new InvalidOperationException(string.Format(
           Strings.ExCantCreateAssociateForGenericTypeDefinitions, GetShortName(forType)));
+      }
 
-      List<Pair<Assembly, string>> locations = new List<Pair<Assembly, string>>(1);
-      if (highPriorityLocations!=null)
+      var locations = new List<Pair<Assembly, string>>(1);
+      if (highPriorityLocations != null) {
         locations.AddRange(highPriorityLocations);
+      }
 
       return
         CreateAssociateInternal<T>(forType, forType, out foundForType, associateTypeSuffixes, constructorParams,
@@ -120,7 +126,7 @@ namespace Xtensive.Reflection
       bool exactTypeMatch)
       where T : class
     {
-      if (currentForType==null) {
+      if (currentForType == null) {
         foundForType = null;
         return null;
       }
@@ -136,21 +142,19 @@ namespace Xtensive.Reflection
       }
       else if (currentForType.IsArray) {
         // Array type
-        Type elementType = currentForType.GetElementType();
-        int rank = currentForType.GetArrayRank();
-        if (rank==1)
-          associateTypePrefix = "Array`1";
-        else
-          associateTypePrefix = string.Format("Array{0}D`1", rank);
-        genericArguments = new Type[] {elementType};
+        var elementType = currentForType.GetElementType();
+        var rank = currentForType.GetArrayRank();
+        associateTypePrefix = rank == 1 ? "Array`1" : $"Array{rank}D`1";
+
+        genericArguments = new[] {elementType};
       }
-      else if (currentForType==typeof (Enum)) {
+      else if (currentForType == EnumType) {
         // Enum type
-        Type underlyingType = Enum.GetUnderlyingType(originalForType);
+        var underlyingType = Enum.GetUnderlyingType(originalForType);
         associateTypePrefix = "Enum`2";
-        genericArguments = new Type[] {originalForType, underlyingType};
+        genericArguments = new[] {originalForType, underlyingType};
       }
-      else if (currentForType==typeof (Array)) {
+      else if (currentForType == ArrayType) {
         // Untyped Array type
         foundForType = null;
         return null;
@@ -162,93 +166,107 @@ namespace Xtensive.Reflection
       }
 
       // Replacing 'I' at interface types
-      if (currentForType.IsInterface && associateTypePrefix.StartsWith("I"))
+      if (currentForType.IsInterface && associateTypePrefix.StartsWith("I", StringComparison.Ordinal)) {
         associateTypePrefix = AddSuffix(associateTypePrefix.Substring(1), "Interface");
+      }
 
       // Search for exact associate
-      T result =
-        CreateAssociateInternal<T>(originalForType, currentForType, out foundForType, associateTypePrefix,
-          associateTypeSuffixes,
-          locations, genericArguments, constructorParams);
-      if (result!=null)
+      var result = CreateAssociateInternal<T>(originalForType, currentForType, out foundForType, associateTypePrefix,
+        associateTypeSuffixes, locations, genericArguments, constructorParams);
+      if (result != null) {
         return result;
+      }
 
       if (exactTypeMatch) {
         foundForType = null;
         return null;
       }
 
-      // Nothing is found; tryng to find an associate for base type (except Object)
-      Type forTypeBase = currentForType.BaseType;
-      if (forTypeBase!=null)
-        while (forTypeBase!=typeof (object)) {
+      // Nothing is found; trying to find an associate for base type (except Object)
+      var forTypeBase = currentForType.BaseType;
+      if (forTypeBase != null) {
+        while (forTypeBase != null && forTypeBase != ObjectType) {
           result = CreateAssociateInternal<T>(originalForType, forTypeBase, out foundForType,
             associateTypeSuffixes, constructorParams, locations, true);
-          if (result!=null)
+          if (result != null) {
             return result;
+          }
+
           forTypeBase = forTypeBase.BaseType;
         }
+      }
 
-      // Nothing is found; tryng to find an associate for implemented interface
-      Type[] interfaces = currentForType.GetInterfaces();
-      int interfaceCount = interfaces.Length;
-      BitArray suppressed = new BitArray(interfaceCount);
+      // Nothing is found; trying to find an associate for implemented interface
+      var interfaces = currentForType.GetInterfaces();
+      var interfaceCount = interfaces.Length;
+      var suppressed = new BitArray(interfaceCount);
       while (interfaceCount > 0) {
         // Suppressing all the interfaces inherited from others
         // to allow their associates to not conflict with each other
-        for (int i = 0; i < interfaceCount; i++) {
-          for (int j = 0; j < interfaceCount; j++) {
-            if (i==j)
+        for (var i = 0; i < interfaceCount; i++) {
+          for (var j = 0; j < interfaceCount; j++) {
+            if (i == j || !interfaces[i].IsAssignableFrom(interfaces[j])) {
               continue;
-            if (interfaces[i].IsAssignableFrom(interfaces[j])) {
-              suppressed[i] = true;
-              break;
             }
+
+            suppressed[i] = true;
+            break;
           }
         }
+
         Type lastGoodInterfaceType = null;
         // Scanning non-suppressed interfaces
-        for (int i = 0; i < interfaceCount; i++) {
-          if (suppressed[i])
+        for (var i = 0; i < interfaceCount; i++) {
+          if (suppressed[i]) {
             continue;
-          T resultForInterface = CreateAssociateInternal<T>(originalForType, interfaces[i], out foundForType,
-            associateTypeSuffixes, constructorParams, locations, true);
-          if (resultForInterface!=null) {
-            if (result!=null)
-              throw new InvalidOperationException(string.Format(
-                Strings.ExMultipleAssociatesMatch,
-                GetShortName(currentForType),
-                GetShortName(result.GetType()),
-                GetShortName(resultForInterface.GetType())));
-            result = resultForInterface;
-            lastGoodInterfaceType = foundForType;
-            foundForType = null;
           }
+
+          var resultForInterface = CreateAssociateInternal<T>(originalForType, interfaces[i], out foundForType,
+            associateTypeSuffixes, constructorParams, locations, true);
+          if (resultForInterface == null) {
+            continue;
+          }
+
+          if (result != null) {
+            throw new InvalidOperationException(string.Format(
+              Strings.ExMultipleAssociatesMatch,
+              GetShortName(currentForType),
+              GetShortName(result.GetType()),
+              GetShortName(resultForInterface.GetType())));
+          }
+
+          result = resultForInterface;
+          lastGoodInterfaceType = foundForType;
+          foundForType = null;
         }
-        if (result!=null) {
+
+        if (result != null) {
           foundForType = lastGoodInterfaceType;
           return result;
         }
+
         // Moving suppressed interfaces to the beginning
         // to scan them on the next round
-        int k = 0;
-        for (int i = 0; i < interfaceCount; i++) {
+        var k = 0;
+        for (var i = 0; i < interfaceCount; i++) {
           if (suppressed[i]) {
             interfaces[k] = interfaces[i];
             suppressed[k] = false;
             k++;
           }
         }
+
         interfaceCount = k;
       }
 
-      // Nothing is found; tryng to find an associate for Object type
-      if (currentForType!=typeof (object)) {
-        result = CreateAssociateInternal<T>(originalForType, typeof (object), out foundForType,
+      // Nothing is found; trying to find an associate for Object type
+      if (currentForType != ObjectType) {
+        result = CreateAssociateInternal<T>(originalForType, ObjectType, out foundForType,
           "Object", associateTypeSuffixes,
           locations, null, constructorParams);
-        if (result!=null)
+        if (result != null) {
           return result;
+        }
       }
 
       // Nothing is found at all
@@ -256,79 +274,81 @@ namespace Xtensive.Reflection
       return null;
     }
 
-    private static T CreateAssociateInternal<T>(Type originalForType, 
-      Type currentForType, 
+    private static T CreateAssociateInternal<T>(Type originalForType,
+      Type currentForType,
       out Type foundForType,
-      string associateTypePrefix, 
+      string associateTypePrefix,
       string[] associateTypeSuffixes,
-      List<Pair<Assembly, string>> locations, 
-      Type[] genericArguments, 
+      List<Pair<Assembly, string>> locations,
+      Type[] genericArguments,
       object[] constructorParams)
-        where T : class
+      where T : class
     {
-      int newLocationCount = 0;
-      var pair = new Pair<Assembly, string>(typeof (T).Assembly, typeof (T).Namespace);
-      if (locations.FindIndex(p => p.First==pair.First && p.Second==pair.Second)<0) {
+      var newLocationCount = 0;
+      var pair = new Pair<Assembly, string>(typeof(T).Assembly, typeof(T).Namespace);
+      if (locations.FindIndex(p => p.First == pair.First && p.Second == pair.Second) < 0) {
         locations.Add(pair);
         newLocationCount++;
       }
+
       pair = new Pair<Assembly, string>(currentForType.Assembly, currentForType.Namespace);
-      if (locations.FindIndex(p => p.First==pair.First && p.Second==pair.Second)<0) {
+      if (locations.FindIndex(p => p.First == pair.First && p.Second == pair.Second) < 0) {
         locations.Add(pair);
         newLocationCount++;
       }
 
       try {
-        for (int i = 0; i < locations.Count; i++) {
-          Pair<Assembly, string> location = locations[i];
-          for (int currentSuffix = 0; currentSuffix < associateTypeSuffixes.Length; currentSuffix++) {
-            string associateTypeSuffix = associateTypeSuffixes[currentSuffix];
+        for (int i = 0, count = locations.Count; i < count; i++) {
+          var location = locations[i];
+          for (var currentSuffix = 0; currentSuffix < associateTypeSuffixes.Length; currentSuffix++) {
+            var associateTypeSuffix = associateTypeSuffixes[currentSuffix];
             // Trying exact type match (e.g. EnumerableInterfaceHandler`1<...>)
-            string associateTypeName = AddSuffix(
-              string.Format("{0}.{1}", location.Second, associateTypePrefix), associateTypeSuffix);
-            T result = Activate(location.First, CorrectGenericSuffix(associateTypeName, genericArguments==null ? 0 : genericArguments.Length), genericArguments, constructorParams) as T;
-            if (result!=null) {
+            var associateTypeName = AddSuffix($"{location.Second}.{associateTypePrefix}", associateTypeSuffix);
+            var suffix = CorrectGenericSuffix(associateTypeName, genericArguments?.Length ?? 0);
+            if (Activate(location.First, suffix, genericArguments, constructorParams) is T result) {
               foundForType = currentForType;
               return result;
             }
 
             // Trying to paste original type as generic parameter
-            result = Activate(location.First, CorrectGenericSuffix(associateTypeName, 1), new Type[] {originalForType}, constructorParams) as T;
-            if (result!=null) {
+            suffix = CorrectGenericSuffix(associateTypeName, 1);
+            result = Activate(location.First, suffix, new[] {originalForType}, constructorParams) as T;
+            if (result != null) {
               foundForType = currentForType;
               return result;
             }
 
             // Trying a generic one (e.g. EnumerableInterfaceHandler`2<T, ...>)
             Type[] newGenericArguments;
-            if (genericArguments==null || genericArguments.Length==0) {
-              newGenericArguments = new Type[] {originalForType};
-              associateTypeName = AddSuffix(
-                string.Format("{0}.{1}`1", location.Second, associateTypePrefix), associateTypeSuffix);
+            if (genericArguments == null || genericArguments.Length == 0) {
+              newGenericArguments = new[] {originalForType};
+              associateTypeName = AddSuffix($"{location.Second}.{associateTypePrefix}`1", associateTypeSuffix);
             }
             else {
               newGenericArguments = new Type[genericArguments.Length + 1];
               newGenericArguments[0] = originalForType;
               Array.Copy(genericArguments, 0, newGenericArguments, 1, genericArguments.Length);
-              associateTypeName = AddSuffix(string.Format("{0}.{1}`{2}",
-                location.Second,
-                TrimGenericSuffix(associateTypePrefix),
-                newGenericArguments.Length),
+              associateTypeName = AddSuffix(
+                $"{location.Second}.{TrimGenericSuffix(associateTypePrefix)}`{newGenericArguments.Length}",
                 associateTypeSuffix);
             }
-            result = Activate(location.First, CorrectGenericSuffix(associateTypeName, newGenericArguments.Length), newGenericArguments, constructorParams) as T;
-            if (result!=null) {
+
+            suffix = CorrectGenericSuffix(associateTypeName, newGenericArguments.Length);
+            result = Activate(location.First, suffix, newGenericArguments, constructorParams) as T;
+            if (result != null) {
               foundForType = currentForType;
               return result;
             }
           }
         }
+
         foundForType = null;
         return null;
       }
       finally {
-        for (int i = 0; i < newLocationCount; i++)
+        for (var i = 0; i < newLocationCount; i++) {
           locations.RemoveAt(locations.Count - 1);
+        }
       }
     }
 
@@ -339,16 +359,17 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="namePrefix">Prefix to include into type name.</param>
     /// <param name="inheritFrom">The type to inherit the dummy type from.</param>
-    /// <param name="implementProtectedConstructorAccessor">If <see langword="true"/>, static method with name <see cref="DelegateHelper.AspectedFactoryMethodName"/> will be created for each constructor.</param>
+    /// <param name="implementProtectedConstructorAccessor">If <see langword="true"/>, static method with name
+    /// <see cref="DelegateHelper.AspectedFactoryMethodName"/> will be created for each constructor.</param>
     /// <returns><see cref="Type"/> object of newly created type.</returns>
     public static Type CreateDummyType(string namePrefix, Type inheritFrom, bool implementProtectedConstructorAccessor)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(namePrefix, "namePrefix");
-      ArgumentValidator.EnsureArgumentNotNull(inheritFrom, "inheritFrom");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(namePrefix, nameof(namePrefix));
+      ArgumentValidator.EnsureArgumentNotNull(inheritFrom, nameof(inheritFrom));
 
 
-      int n = Interlocked.Increment(ref createDummyTypeNumber);
-      string typeName = string.Format("{0}.Internal.{1}{2}", typeof (TypeHelper).Namespace, namePrefix, n);
+      var n = Interlocked.Increment(ref createDummyTypeNumber);
+      var typeName = $"{TypeHelperNamespace}.Internal.{namePrefix}{n}";
 
       return CreateInheritedDummyType(typeName, inheritFrom, implementProtectedConstructorAccessor);
     }
@@ -358,60 +379,76 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="typeName">Type name.</param>
     /// <param name="inheritFrom">The type to inherit the dummy type from.</param>
-    /// <param name="implementProtectedConstructorAccessor">If <see langword="true"/>, static method with name <see cref="DelegateHelper.AspectedFactoryMethodName"/> will be created for each constructor.</param>
+    /// <param name="implementProtectedConstructorAccessor">If <see langword="true"/>, static method with name
+    /// <see cref="DelegateHelper.AspectedFactoryMethodName"/> will be created for each constructor.</param>
     /// <returns>New type.</returns>
-    public static Type CreateInheritedDummyType(string typeName, Type inheritFrom, bool implementProtectedConstructorAccessor)
+    public static Type CreateInheritedDummyType(string typeName, Type inheritFrom,
+      bool implementProtectedConstructorAccessor)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, "typeName");
-      ArgumentValidator.EnsureArgumentNotNull(inheritFrom, "inheritFrom");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, nameof(typeName));
+      ArgumentValidator.EnsureArgumentNotNull(inheritFrom, nameof(inheritFrom));
       EnsureEmitInitialized();
-      lock (_lock) {
-        TypeBuilder typeBuilder = moduleBuilder.DefineType(
+      lock (emitLock) {
+        var typeBuilder = moduleBuilder.DefineType(
           typeName,
           TypeAttributes.Public | TypeAttributes.Sealed,
           inheritFrom,
-          ArrayUtils<Type>.EmptyArray
-          );
-        foreach (ConstructorInfo baseConstructor in inheritFrom.GetConstructors(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)) {
-          Type[] parameterTypes = baseConstructor.GetParameters().Select(parameterInfo=>parameterInfo.ParameterType).ToArray();
-          ConstructorBuilder constructorBuilder = typeBuilder.DefineConstructor(
+          Array.Empty<Type>()
+        );
+        const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+        foreach (var baseConstructor in inheritFrom.GetConstructors(bindingFlags)) {
+          var parameters = baseConstructor.GetParameters();
+          var parameterTypes = new Type[parameters.Length];
+          for (var index = 0; index < parameters.Length; index++) {
+            parameterTypes[index] = parameters[index].ParameterType;
+          }
+          var constructorBuilder = typeBuilder.DefineConstructor(
             baseConstructor.Attributes,
             CallingConventions.Standard,
             parameterTypes
-            );
-          
+          );
+
           // Create constructor
-          ILGenerator methodIL = constructorBuilder.GetILGenerator();
-          methodIL.Emit(OpCodes.Ldarg_0);
-          int parametersCount = baseConstructor.GetParameters().Count();
-          for (short i = 1; i <= parametersCount; i++)
-            methodIL.Emit(OpCodes.Ldarg, i);
-          methodIL.Emit(OpCodes.Call, baseConstructor);
-          methodIL.Emit(OpCodes.Ret);
+          var constructorIlGenerator = constructorBuilder.GetILGenerator();
+          constructorIlGenerator.Emit(OpCodes.Ldarg_0);
+          var parametersCount = parameterTypes.Length;
+          for (short i = 1; i <= parametersCount; i++) {
+            constructorIlGenerator.Emit(OpCodes.Ldarg, i);
+          }
+
+          constructorIlGenerator.Emit(OpCodes.Call, baseConstructor);
+          constructorIlGenerator.Emit(OpCodes.Ret);
 
           // Create ProtectedConstructorAccessor
           if (implementProtectedConstructorAccessor) {
-            MethodBuilder methodBuilder = typeBuilder.DefineMethod(DelegateHelper.AspectedFactoryMethodName, 
-              MethodAttributes.Private | MethodAttributes.Static, 
+            var methodBuilder = typeBuilder.DefineMethod(DelegateHelper.AspectedFactoryMethodName,
+              MethodAttributes.Private | MethodAttributes.Static,
               CallingConventions.Standard, typeBuilder.UnderlyingSystemType, parameterTypes);
-            ILGenerator accessorIL = methodBuilder.GetILGenerator();
-            for (short i = 0; i < parameterTypes.Length; i++)
-              accessorIL.Emit(OpCodes.Ldarg, i);
-            accessorIL.Emit(OpCodes.Newobj, constructorBuilder);
-            accessorIL.Emit(OpCodes.Ret);
+            var accessorIlGenerator = methodBuilder.GetILGenerator();
+            for (short i = 0; i < parameterTypes.Length; i++) {
+              accessorIlGenerator.Emit(OpCodes.Ldarg, i);
+            }
+
+            accessorIlGenerator.Emit(OpCodes.Newobj, constructorBuilder);
+            accessorIlGenerator.Emit(OpCodes.Ret);
           }
         }
+
         return typeBuilder.CreateTypeInfo().AsType();
       }
     }
 
     private static void EnsureEmitInitialized()
     {
-      if (moduleBuilder!=null)
+      if (moduleBuilder != null) {
         return;
-      lock (_lock) {
-        if (moduleBuilder!=null)
+      }
+
+      lock (emitLock) {
+        if (moduleBuilder != null) {
           return;
+        }
+
         var assemblyName = new AssemblyName("Xtensive.TypeHelper.GeneratedTypes");
         assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
         var tmp = assemblyBuilder.DefineDynamicModule(assemblyName.Name);
@@ -428,12 +465,16 @@ namespace Xtensive.Reflection
     /// <returns>Specified generic type name with its suffix.</returns>
     public static string AddSuffix(string typeName, string suffix)
     {
-      int i = typeName.IndexOf("`");
-      if (i >= 0)
+      var i = typeName.IndexOf('`');
+      if (i >= 0) {
         return typeName.Substring(0, i) + suffix + typeName.Substring(i);
-      i = typeName.IndexOf("<");
-      if (i >= 0)
+      }
+
+      i = typeName.IndexOf('<');
+      if (i >= 0) {
         return typeName.Substring(0, i) + suffix + typeName.Substring(i);
+      }
+
       return typeName + suffix;
     }
 
@@ -448,14 +489,13 @@ namespace Xtensive.Reflection
     /// <param name="arguments">Arguments to pass to the type constructor.</param>
     /// <returns>An instance of specified type; <see langword="null"/>, if either no such a type,
     /// or an error has occurred.</returns>
-    public static object Activate(Assembly assembly, string typeName, Type[] genericArguments, params object[] arguments)
+    public static object Activate(Assembly assembly, string typeName, Type[] genericArguments,
+      params object[] arguments)
     {
-      ArgumentValidator.EnsureArgumentNotNull(assembly, "assembly");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, "typeName");
-      Type type = assembly.GetType(typeName, false);
-      if (type==null)
-        return null;
-      return Activate(type, genericArguments, arguments);
+      ArgumentValidator.EnsureArgumentNotNull(assembly, nameof(assembly));
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(typeName, nameof(typeName));
+      var type = assembly.GetType(typeName, false);
+      return type == null ? null : Activate(type, genericArguments, arguments);
     }
 
     /// <summary>
@@ -471,79 +511,84 @@ namespace Xtensive.Reflection
     [DebuggerStepThrough]
     public static object Activate(this Type type, Type[] genericArguments, params object[] arguments)
     {
-//      using (Log.DebugRegion("Activating {0} <{1}>", type.GetShortName(),
-//        genericArguments==null ? null : genericArguments.Select(t => t.GetShortName()).ToCommaDelimitedString()))
       try {
         if (type.IsAbstract) {
-//          Log.Debug("Rejected: type is abstract");
           return null;
         }
-        if (type.IsGenericTypeDefinition ^ genericArguments!=null) {
-//          Log.Debug("Rejected: wrong generic arguments");
+
+        if (type.IsGenericTypeDefinition ^ (genericArguments != null)) {
           return null;
         }
+
         if (type.IsGenericTypeDefinition) {
-          // Validating generic parameters & constraints
-          if (genericArguments==null)
-            genericArguments = ArrayUtils<Type>.EmptyArray;
+          if (genericArguments == null) {
+            genericArguments = Array.Empty<Type>();
+          }
+
           var genericParameters = type.GetGenericArguments();
-          if (genericParameters.Length!=genericArguments.Length) {
-//            Log.Debug("Rejected: wrong generic argument count");
+          if (genericParameters.Length != genericArguments.Length) {
             return null;
           }
+
           var genericParameterIndexes = genericParameters
-            .Select((p, i) => new {Parameter = p, Index = i})
-            .ToDictionary(a => a.Parameter, a => a.Index);
-          for (int i = 0; i < genericParameters.Length; i++) {
+            .Select((parameter, index) => (parameter, index))
+            .ToDictionary(a => a.parameter, a => a.index);
+          for (var i = 0; i < genericParameters.Length; i++) {
             var parameter = genericParameters[i];
             var constraints = parameter.GetGenericParameterConstraints();
             var argument = genericArguments[i];
             foreach (var constraint in constraints) {
               var projectedConstraint = constraint;
-              if (constraint.IsGenericParameter)
+              if (constraint.IsGenericParameter) {
                 projectedConstraint = genericArguments[genericParameterIndexes[constraint]];
+              }
               else if (constraint.IsGenericType) {
                 var constraintArguments = constraint.GetGenericArguments();
                 var projectedConstraintArguments = new Type[constraintArguments.Length];
-                for (int j = 0; j < constraintArguments.Length; j++)
+                for (var j = 0; j < constraintArguments.Length; j++) {
                   projectedConstraintArguments[j] =
                     genericParameterIndexes.ContainsKey(constraintArguments[j])
                       ? genericArguments[genericParameterIndexes[constraintArguments[j]]]
                       : constraintArguments[j];
+                }
+
                 projectedConstraint = constraint
                   .GetGenericTypeDefinition()
                   .MakeGenericType(projectedConstraintArguments);
               }
+
               if (!projectedConstraint.IsAssignableFrom(argument)) {
-//                Log.Debug("Rejected: generic constraint check failed.");
-//                Log.Debug("  Constraint: {0} (original: {1})", projectedConstraint.GetShortName(), constraint.GetShortName());
-//                Log.Debug("  Argument:   {0}", argument.GetShortName());
                 return null;
               }
             }
           }
+
           type = type.MakeGenericType(genericArguments);
         }
-        if (arguments==null)
-          arguments = ArrayUtils<object>.EmptyArray;
-        // This code is just for suppression of possible exception during debugging
-        if (arguments!=null) {
-          bool cancelSearch = false;
-          Type[] argumentTypes = new Type[arguments.Length];
-          for (int i = 0; i < arguments.Length; i++) {
-            object o = arguments[i];
-            if (o==null)
-              cancelSearch = true; // Actually a case when GetConstructor will fail, 
-            // so we should fall back to Activator.CreateInstance
-            argumentTypes[i] = o.GetType();
-          }
-          if (!cancelSearch && type.GetConstructor(BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, argumentTypes) == null)
-            return null;
+
+        if (arguments == null) {
+          arguments = Array.Empty<object>();
         }
-        return Activator.CreateInstance(type, BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, arguments, null);
+
+        const BindingFlags bindingFlags =
+          BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance;
+
+        var argumentTypes = new object[arguments.Length];
+        for (var i = 0; i < arguments.Length; i++) {
+          var o = arguments[i];
+          if (o == null) {
+            // Actually a case when GetConstructor will fail,
+            // so we should fall back to Activator.CreateInstance
+            return Activator.CreateInstance(type, bindingFlags, null, arguments, null);
+          }
+
+          argumentTypes[i] = o.GetType();
+        }
+
+        var constructor = type.GetConstructor(bindingFlags, argumentTypes);
+        return constructor == null ? null : constructor.Invoke(arguments);
       }
       catch (Exception error) {
-//        Log.Debug("Rejected: {0}", error);
         return null;
       }
     }
@@ -560,26 +605,26 @@ namespace Xtensive.Reflection
     /// </returns>
     public static ConstructorInfo GetConstructor(this Type type, object[] arguments)
     {
-      var ctors =
+      var constructors =
         from ctor in type.GetConstructors()
         let parameters = ctor.GetParameters()
-        where parameters.Length==arguments.Length
-        let zipped = parameters.Zip(arguments, (p, a) => new {Parameter = p, Argument = a})
+        where parameters.Length == arguments.Length
+        let zipped = parameters.Zip(arguments, (parameter, argument) => (parameter, argument))
         where (
           from pair in zipped
-          let parameter = pair.Parameter
+          let parameter = pair.parameter
           let parameterType = parameter.ParameterType
-          let argument = pair.Argument
-          let argumentType = argument==null ? typeof (object) : argument.GetType()
-          select 
+          let argument = pair.argument
+          let argumentType = argument == null ? ObjectType : argument.GetType()
+          select
             !parameter.IsOut && (
               parameterType.IsAssignableFrom(argumentType) ||
-              (!parameterType.IsValueType && argument==null) ||
-              (parameterType.IsNullable() && argument==null)
+              (!parameterType.IsValueType && argument == null) ||
+              (parameterType.IsNullable() && argument == null)
             )
-          ).All(passed => passed)
+        ).All(passed => passed)
         select ctor;
-      return ctors.SingleOrDefault();
+      return constructors.SingleOrDefault();
     }
 
     /// <summary>
@@ -588,10 +633,8 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="types">The types to sort.</param>
     /// <returns>The list of <paramref name="types"/> ordered by their inheritance.</returns>
-    public static List<Type> OrderByInheritance(this IEnumerable<Type> types)
-    {
-      return TopologicalSorter.Sort(types, (t1, t2) => t1.IsAssignableFrom(t2));
-    }
+    public static List<Type> OrderByInheritance(this IEnumerable<Type> types) =>
+      TopologicalSorter.Sort(types, (t1, t2) => t1.IsAssignableFrom(t2));
 
     /// <summary>
     /// Fast analogue of <see cref="Type.GetInterfaceMap"/>.
@@ -599,22 +642,17 @@ namespace Xtensive.Reflection
     /// <param name="type">The type.</param>
     /// <param name="targetInterface">The target interface.</param>
     /// <returns>Interface map for the specified interface.</returns>
-    public static InterfaceMapping GetInterfaceMapFast(this Type type, Type targetInterface)
-    {
-      return interfaceMaps.GetValue(new Pair<Type, Type>(type, targetInterface),
+    public static InterfaceMapping GetInterfaceMapFast(this Type type, Type targetInterface) =>
+      interfaceMaps.GetOrAdd(new Pair<Type, Type>(type, targetInterface),
         pair => new InterfaceMapping(pair.First.GetInterfaceMap(pair.Second)));
-    }
 
     /// <summary>
     /// Gets the interfaces of the specified type.
     /// Interfaces will be ordered from the very base ones to ancestors.
     /// </summary>
     /// <param name="type">The type to get the interfaces of.</param>
-    public static Type[] GetInterfaces(this Type type)
-    {
-      return orderedInterfaces.GetValue(type,
-        _type => _type.GetInterfaces().OrderByInheritance().ToArray());
-    }
+    public static Type[] GetInterfaces(this Type type) =>
+      orderedInterfaces.GetOrAdd(type, t => t.GetInterfaces().OrderByInheritance().ToArray());
 
     /// <summary>
     /// Gets the sequence of type itself, all its base types and interfaces.
@@ -622,19 +660,17 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="type">The type to get compatible types for.</param>
     /// <returns>The interfaces of the specified type.</returns>
-    public static Type[] GetCompatibles(this Type type)
-    {
-      return orderedCompatibles.GetValue(type,
-        _type => {
-          var interfaces = _type.GetInterfaces();
-          var bases = EnumerableUtils.Unfold(_type.BaseType, t => t.BaseType);
+    public static Type[] GetCompatibles(this Type type) =>
+      orderedCompatibles.GetOrAdd(type,
+        t => {
+          var interfaces = t.GetInterfaces();
+          var bases = EnumerableUtils.Unfold(t.BaseType, baseType => baseType.BaseType);
           return bases
             .Concat(interfaces)
             .OrderByInheritance()
-            .AddOne(_type)
+            .AddOne(t)
             .ToArray();
         });
-    }
 
     /// <summary>
     /// Builds correct full generic type name.
@@ -643,65 +679,85 @@ namespace Xtensive.Reflection
     /// <returns>Full type name.</returns>
     public static string GetFullName(this Type type)
     {
-      if (type==null)
+      if (type == null) {
         return null;
-      if (type.IsGenericParameter)
-        return type.Name;
-      var declaringType = type.DeclaringType;
-      if (declaringType!=null) {
-        if (declaringType.IsGenericTypeDefinition)
-          declaringType =
-            declaringType.MakeGenericType(
-              type.GetGenericArguments()
-                .Take(declaringType.GetGenericArguments().Length)
-                .ToArray());
-        return string.Format("{0}+{1}", declaringType.GetFullName(), type.GetFullNameBase());
       }
-      return type.GetFullNameBase();
+
+      if (type.IsGenericParameter) {
+        return type.Name;
+      }
+
+      var declaringType = type.DeclaringType;
+      if (declaringType == null) {
+        return type.GetFullNameBase();
+      }
+
+      if (declaringType.IsGenericTypeDefinition) {
+        declaringType =
+          declaringType.MakeGenericType(
+            type.GetGenericArguments()
+              .Take(declaringType.GetGenericArguments().Length)
+              .ToArray());
+      }
+
+      return $"{declaringType.GetFullName()}+{type.GetFullNameBase()}";
     }
 
     private static string GetFullNameBase(this Type type)
     {
-      string result = type.DeclaringType!=null // Is nested
+      var result = type.DeclaringType != null // Is nested
         ? type.Name
         : type.Namespace + "." + type.Name;
-      int arrayBracketPosition = result.IndexOf('[');
-      if (arrayBracketPosition > 0)
+      var arrayBracketPosition = result.IndexOf('[');
+      if (arrayBracketPosition > 0) {
         result = result.Substring(0, arrayBracketPosition);
-      Type[] arguments = type.GetGenericArguments();
-      if (arguments==null)
-        arguments = ArrayUtils<Type>.EmptyArray;
+      }
+
+      var arguments = type.GetGenericArguments();
       if (arguments.Length > 0) {
-        if (type.DeclaringType!=null)
+        if (type.DeclaringType != null) {
           arguments = arguments
             .Skip(type.DeclaringType.GetGenericArguments().Length)
             .ToArray();
+        }
+
         var sb = new StringBuilder();
         sb.Append(TrimGenericSuffix(result));
-        sb.Append("<");
-        string comma = "";
-        foreach (Type argument in arguments) {
-          sb.Append(comma);
-          if (!type.IsGenericTypeDefinition)
+        sb.Append('<');
+        char? comma = default;
+        foreach (var argument in arguments) {
+          if (comma.HasValue) {
+            sb.Append(comma.Value);
+          }
+
+          if (!type.IsGenericTypeDefinition) {
             sb.Append(GetFullNameBase(argument));
-          comma = ",";
+          }
+
+          comma = ',';
         }
-        sb.Append(">");
+
+        sb.Append('>');
         result = sb.ToString();
       }
+
       if (type.IsArray) {
         var sb = new StringBuilder(result);
-        Type elementType = type;
-        while (elementType.IsArray) {
-          sb.Append("[");
-          int commaCount = elementType.GetArrayRank() - 1;
-          for (int i = 0; i < commaCount; i++)
-            sb.Append(",");
-          sb.Append("]");
+        var elementType = type;
+        while (elementType?.IsArray == true) {
+          sb.Append('[');
+          var commaCount = elementType.GetArrayRank() - 1;
+          for (var i = 0; i < commaCount; i++) {
+            sb.Append(',');
+          }
+
+          sb.Append(']');
           elementType = elementType.GetElementType();
         }
+
         result = sb.ToString();
       }
+
       return result;
     }
 
@@ -712,67 +768,83 @@ namespace Xtensive.Reflection
     /// <returns>Short type name.</returns>
     public static string GetShortName(this Type type)
     {
-      if (type==null)
+      if (type == null) {
         return null;
-      if (type.IsGenericParameter)
-        return type.Name;
-      var declaringType = type.DeclaringType;
-      if (declaringType!=null) {
-        if (declaringType.IsGenericTypeDefinition)
-          declaringType =
-            declaringType.MakeGenericType(
-              type.GetGenericArguments()
-                .Take(declaringType.GetGenericArguments().Length)
-                .ToArray());
-        return string.Format("{0}+{1}", declaringType.GetShortName(), type.GetShortNameBase());
       }
-      return type.GetShortNameBase();
+
+      if (type.IsGenericParameter) {
+        return type.Name;
+      }
+
+      var declaringType = type.DeclaringType;
+      if (declaringType == null) {
+        return type.GetShortNameBase();
+      }
+
+      if (declaringType.IsGenericTypeDefinition) {
+        declaringType =
+          declaringType.MakeGenericType(
+            type.GetGenericArguments()
+              .Take(declaringType.GetGenericArguments().Length)
+              .ToArray());
+      }
+
+      return $"{declaringType.GetShortName()}+{type.GetShortNameBase()}";
     }
 
     private static string GetShortNameBase(this Type type)
     {
-      string result = type.Name;
-      int arrayBracketPosition = result.IndexOf('[');
-      if (arrayBracketPosition > 0)
+      var result = type.Name;
+      var arrayBracketPosition = result.IndexOf('[');
+      if (arrayBracketPosition > 0) {
         result = result.Substring(0, arrayBracketPosition);
+      }
+
       var arguments = type.GetGenericArguments();
-      if (arguments == null)
-        arguments = ArrayUtils<Type>.EmptyArray;
-      if (arguments.Length > 0)
-      {
-        if (type.DeclaringType != null)
+      if (arguments.Length > 0) {
+        if (type.DeclaringType != null) {
           arguments = arguments
             .Skip(type.DeclaringType.GetGenericArguments().Length)
             .ToArray();
+        }
+
         var sb = new StringBuilder();
         sb.Append(TrimGenericSuffix(result));
-        sb.Append("<");
-        string comma = "";
-        foreach (Type argument in arguments)
-        {
-          sb.Append(comma);
-          if (!type.IsGenericTypeDefinition)
+        sb.Append('<');
+        char? comma = default;
+        foreach (var argument in arguments) {
+          if (comma.HasValue) {
+            sb.Append(comma.Value);
+          }
+
+          if (!type.IsGenericTypeDefinition) {
             sb.Append(GetShortNameBase(argument));
-          comma = ",";
+          }
+
+          comma = ',';
         }
-        sb.Append(">");
+
+        sb.Append('>');
         result = sb.ToString();
       }
-      if (type.IsArray)
-      {
+
+      if (type.IsArray) {
         var sb = new StringBuilder(result);
-        Type elementType = type;
-        while (elementType.IsArray)
-        {
-          sb.Append("[");
-          int commaCount = elementType.GetArrayRank() - 1;
-          for (int i = 0; i < commaCount; i++)
-            sb.Append(",");
-          sb.Append("]");
+        var elementType = type;
+        while (elementType?.IsArray == true) {
+          sb.Append('[');
+          var commaCount = elementType.GetArrayRank() - 1;
+          for (var i = 0; i < commaCount; i++) {
+            sb.Append(',');
+          }
+
+          sb.Append(']');
           elementType = elementType.GetElementType();
         }
+
         result = sb.ToString();
       }
+
       return result;
     }
 
@@ -782,11 +854,8 @@ namespace Xtensive.Reflection
     /// <param name="type">Type to check.</param>
     /// <returns><see langword="True"/> if type is nullable type;
     /// otherwise, <see langword="false"/>.</returns>
-    public static bool IsNullable(this Type type)
-    {
-      return type.IsValueType && type.IsGenericType &&
-        type.GetGenericTypeDefinition()==typeof (Nullable<>);
-    }
+    public static bool IsNullable(this Type type) =>
+      type.IsGenericType && ReferenceEquals(type.GetGenericTypeDefinition(), NullableType);
 
     /// <summary>
     /// Indicates whether <typeparamref name="T"/> type is a <see cref="Nullable{T}"/> type.
@@ -794,10 +863,7 @@ namespace Xtensive.Reflection
     /// <typeparam name="T">Type to check.</typeparam>
     /// <returns><see langword="True"/> if type is nullable type;
     /// otherwise, <see langword="false"/>.</returns>
-    public static bool IsNullable<T>()
-    {
-      return ReferenceEquals(default(T), null) && typeof (T).IsValueType;
-    }
+    public static bool IsNullable<T>() => typeof(T).IsNullable();
 
     /// <summary>
     /// Indicates whether <paramref name="type"/> is a final type.
@@ -805,10 +871,7 @@ namespace Xtensive.Reflection
     /// <param name="type">Type to check.</param>
     /// <returns><see langword="True"/> if type is final type;
     /// otherwise, <see langword="false"/>.</returns>
-    public static bool IsFinal(this Type type)
-    {
-      return type.IsValueType || type.IsSealed;
-    }
+    public static bool IsFinal(this Type type) => type.IsValueType || type.IsSealed;
 
     /// <summary>
     /// Indicates whether <typeparamref name="T"/> type is a final type.
@@ -816,10 +879,7 @@ namespace Xtensive.Reflection
     /// <typeparam name="T">Type to check.</typeparam>
     /// <returns><see langword="True"/> if type is final type;
     /// otherwise, <see langword="false"/>.</returns>
-    public static bool IsFinal<T>()
-    {
-      return IsFinal(typeof (T));
-    }
+    public static bool IsFinal<T>() => IsFinal(typeof(T));
 
     /// <summary>
     /// Gets the delegate "Invoke" method (describing the delegate) for 
@@ -827,10 +887,7 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="delegateType">Type of the delegate to get the "Invoke" method of.</param>
     /// <returns><see cref="MethodInfo"/> object describing the delegate "Invoke" method.</returns>
-    public static MethodInfo GetInvokeMethod(this Type delegateType)
-    {
-      return delegateType.GetMethod(invokeMethodName);
-    }
+    public static MethodInfo GetInvokeMethod(this Type delegateType) => delegateType.GetMethod(invokeMethodName);
 
     /// <summary>
     /// Determines whether the specified <paramref name="type"/> inherits the generic <paramref name="baseType"/>.
@@ -838,63 +895,65 @@ namespace Xtensive.Reflection
     /// <param name="type">The type to check.</param>
     /// <param name="baseType">Type of the generic.</param>
     /// <returns>
-    /// <see langword="true"/> if the specified <paramref name="type"/> inherits the generic <paramref name="baseType"/>;
-    /// otherwise, <see langword="false"/>.
+    /// <see langword="true"/> if the specified <paramref name="type"/> inherits the
+    /// generic <paramref name="baseType"/>; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsOfGenericType(this Type type, Type baseType)
-    {
-      return GetGenericType(type, baseType)!=null;
-    }
+    public static bool IsOfGenericType(this Type type, Type baseType) => GetGenericType(type, baseType) != null;
 
     /// <summary>
     /// Determines whether the specified <paramref name="type"/> inherits 
-    /// the generic <paramref name="baseType"/> and returns direct inheritor of generic <paramref name="baseType"/> if any.
+    /// the generic <paramref name="baseType"/> and returns direct inheritor
+    /// of generic <paramref name="baseType"/> if any.
     /// </summary>
     /// <param name="type">The type to check.</param>
     /// <param name="baseType">Type of the generic.</param>
     /// <returns>
-    /// Generic <see cref="Type"/> that directly inherits <paramref name="baseType"/> if the specified <paramref name="type"/> inherits the generic <paramref name="baseType"/>;
+    /// Generic <see cref="Type"/> that directly inherits <paramref name="baseType"/> if the
+    /// specified <paramref name="type"/> inherits the generic <paramref name="baseType"/>;
     /// otherwise, <see langword="null"/>.
     /// </returns>
     public static Type GetGenericType(this Type type, Type baseType)
     {
-      Type t = type;
-      while (!(t == null || t == typeof(object))) {
-        if (t.IsGenericType && t.GetGenericTypeDefinition() == baseType)
+      var t = type;
+      while (!(t == null || t == ObjectType)) {
+        if (t.IsGenericType && t.GetGenericTypeDefinition() == baseType) {
           return t;
+        }
+
         t = t.BaseType;
       }
+
       return null;
     }
 
     /// <summary>
-    /// Determines whether <paramref name="type"/> implements the <paramref name="_interface"/>.
+    /// Determines whether <paramref name="type"/> implements the <paramref name="interface"/>.
     /// </summary>
     /// <param name="type">The type.</param>
-    /// <param name="_interface">The <see langword="interface"/>.</param>
+    /// <param name="interface">The <see langword="interface"/>.</param>
     /// <returns>
-    ///  <see langword="true"/> if the specified <paramref name="type"/> implements the <paramref name="_interface"/>;
+    ///  <see langword="true"/> if the specified <paramref name="type"/> implements the <paramref name="interface"/>;
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsOfGenericInterface(this Type type, Type _interface)
-    {
-      return type.IsOfGenericType(_interface) || type.GetInterfaces().Any(t => t.IsOfGenericType(_interface));
-    }
+    public static bool IsOfGenericInterface(this Type type, Type @interface) =>
+      type.IsOfGenericType(@interface) || type.GetInterfaces().Any(t => t.IsOfGenericType(@interface));
 
     /// <summary>
-    /// Converts <paramref name="type"/> to type that can assign both values of <paramref name="type"/> and <see landword="null"/>.
+    /// Converts <paramref name="type"/> to type that can assign both
+    /// values of <paramref name="type"/> and <see landword="null"/>.
     /// This method is a reverse for <see cref="StripNullable"/> method.
     /// </summary>
     /// <param name="type">A type to convert.</param>
     /// <returns>
-    /// If <paramref name="type"/> is a reference type or a <see cref="Nullable{T}"/> instance returns <paramref name="type"/>.
+    /// If <paramref name="type"/> is a reference type or a <see cref="Nullable{T}"/> instance
+    /// returns <paramref name="type"/>.
     /// Otherwise returns <see cref="Nullable{T}"/> of <paramref name="type"/>. 
     /// </returns>
     public static Type ToNullable(this Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
       return type.IsValueType && !type.IsNullable()
-        ? typeof(Nullable<>).MakeGenericType(type)
+        ? NullableType.MakeGenericType(type)
         : type;
     }
 
@@ -910,7 +969,7 @@ namespace Xtensive.Reflection
     /// </returns>
     public static Type StripNullable(this Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
       return type.IsNullable()
         ? type.GetGenericArguments()[0]
         : type;
@@ -925,11 +984,12 @@ namespace Xtensive.Reflection
     /// </returns>
     public static bool IsAnonymous(this Type type)
     {
-      return ((type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
-        && type.BaseType==typeof (object)
-          && Attribute.IsDefined(type, typeof (CompilerGeneratedAttribute), false)
-            && type.Name.Contains("AnonymousType")
-              && (type.Attributes & TypeAttributes.NotPublic)==TypeAttributes.NotPublic);
+      var typeName = type.Name;
+      return (type.Attributes & TypeAttributes.Public) == 0
+        && type.BaseType == ObjectType
+        && (typeName.StartsWith("<>", StringComparison.Ordinal) || typeName.StartsWith("VB$", StringComparison.Ordinal))
+        && typeName.IndexOf("AnonymousType", StringComparison.Ordinal) >= 0
+        && type.IsDefined(CompilerGeneratedAttributeType, false);
     }
 
     /// <summary>
@@ -941,11 +1001,11 @@ namespace Xtensive.Reflection
     /// </returns>
     public static bool IsClosure(this Type type)
     {
-      return ((type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
-        && type.BaseType == typeof(object)
-          && Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
-            && type.Name.Contains("DisplayClass")
-              && (type.Attributes & TypeAttributes.NotPublic) == TypeAttributes.NotPublic);
+      var typeName = type.Name;
+      return type.BaseType == ObjectType
+        && (typeName.StartsWith("<>", StringComparison.Ordinal) || typeName.StartsWith("VB$", StringComparison.Ordinal))
+        && typeName.IndexOf("DisplayClass", StringComparison.Ordinal) >= 0
+        && type.IsDefined(CompilerGeneratedAttributeType, false);
     }
 
     /// <summary>
@@ -959,8 +1019,8 @@ namespace Xtensive.Reflection
     /// </returns>
     public static bool IsPublicNonAbstractInheritorOf(this Type type, Type baseType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNull(baseType, "baseType");
+      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
+      ArgumentValidator.EnsureArgumentNotNull(baseType, nameof(baseType));
       return type.IsPublic && !type.IsAbstract && baseType.IsAssignableFrom(type);
     }
 
@@ -974,62 +1034,60 @@ namespace Xtensive.Reflection
     /// </returns>
     public static bool IsNumericType(this Type type)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
       var nonNullableType = type.StripNullable();
-      if (nonNullableType.IsEnum)
+      if (nonNullableType.IsEnum) {
         return false;
+      }
 
       switch (Type.GetTypeCode(nonNullableType)) {
-      case TypeCode.Byte:
-      case TypeCode.SByte:
-      case TypeCode.UInt16:
-      case TypeCode.UInt32:
-      case TypeCode.UInt64:
-      case TypeCode.Int16:
-      case TypeCode.Int32:
-      case TypeCode.Int64:
-      case TypeCode.Decimal:
-      case TypeCode.Double:
-      case TypeCode.Single:
-        return true;
-      default:
-        return false;
+        case TypeCode.Byte:
+        case TypeCode.SByte:
+        case TypeCode.UInt16:
+        case TypeCode.UInt32:
+        case TypeCode.UInt64:
+        case TypeCode.Int16:
+        case TypeCode.Int32:
+        case TypeCode.Int64:
+        case TypeCode.Decimal:
+        case TypeCode.Double:
+        case TypeCode.Single:
+          return true;
+        default:
+          return false;
       }
     }
 
-#region Private \ internal methods
+    #region Private \ internal methods
 
     /// <summary>
     /// Gets information about field in closure.
     /// </summary>
     /// <param name="closureType">Closure type.</param>
-    /// <param name="typeOfField">Type of field in closure.</param>
-    /// <returns>If field of <paramref name="typeOfField"/> is exist then return <see cref="MemberInfo"/> of field in closure, overwise, <see langword="null"/>.</returns>
-    internal static MemberInfo TryGetFieldInfoFromClosure(this Type closureType, Type typeOfField)
-    {
-      return closureType.IsClosure()
-        ? closureType.GetFields().FirstOrDefault(field => field.FieldType==typeOfField)
+    /// <param name="fieldType">Type of field in closure.</param>
+    /// <returns>If field of <paramref name="fieldType"/> exists in closure then returns
+    /// <see cref="MemberInfo"/> of that field, otherwise, <see langword="null"/>.</returns>
+    internal static MemberInfo TryGetFieldInfoFromClosure(this Type closureType, Type fieldType) =>
+      closureType.IsClosure()
+        ? closureType.GetFields().FirstOrDefault(field => field.FieldType == fieldType)
         : null;
-    }
 
     private static string TrimGenericSuffix(string @string)
     {
-      int i = @string.IndexOf('`');
-      return i<0 ? @string : @string.Substring(0, i);
+      var backtickPosition = @string.IndexOf('`');
+      return backtickPosition < 0 ? @string : @string.Substring(0, backtickPosition);
     }
 
     private static string CorrectGenericSuffix(string typeName, int argumentCount)
     {
-      int commaPosition = typeName.IndexOf('`');
-      if (commaPosition > 0) {
-        typeName = typeName.Substring(0, commaPosition);
+      var backtickPosition = typeName.IndexOf('`');
+      if (backtickPosition > 0) {
+        typeName = typeName.Substring(0, backtickPosition);
       }
-      if (argumentCount==0)
-        return typeName;
-      else
-        return string.Format("{0}`{1}", typeName, argumentCount);
+
+      return argumentCount == 0 ? typeName : $"{typeName}`{argumentCount}";
     }
 
-#endregion
+    #endregion
   }
 }

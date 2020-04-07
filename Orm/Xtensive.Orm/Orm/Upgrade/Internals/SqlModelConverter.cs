@@ -263,11 +263,10 @@ namespace Xtensive.Orm.Upgrade
         return StorageTypeInfo.Undefined;
       }
 
-      if (column.IsNullable 
-        && type.IsValueType 
-        && !type.IsNullable())
+      if (column.IsNullable) {
         type = type.ToNullable();
-        
+      }
+
       return new StorageTypeInfo(type, sqlValueType, column.IsNullable, sqlValueType.Length, sqlValueType.Precision, sqlValueType.Scale);
     }
 
