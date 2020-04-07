@@ -56,17 +56,20 @@ namespace Xtensive.Orm.Rse.Providers
 
     public CombineTransform ResultTransform { get; private set; }
 
+    private static readonly Type BoolType = typeof(bool);
+    private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] {BoolType});
+
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, 0, typeof(bool)));
+      var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, 0, BoolType));
       var fieldTypes = new Type[FilteredColumns.Count];
       for (var index = 0; index < fieldTypes.Length; index++) {
         fieldTypes[index] = newHeader.Columns[FilteredColumns[index]].Type;
       }
       var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
       FilteredColumnsExtractionTransform = new MapTransform(true, tupleDescriptor, FilteredColumns);
-      ResultTransform = new CombineTransform(true, Source.Header.TupleDescriptor, TupleDescriptor.Create<bool>());
+      ResultTransform = new CombineTransform(true, Source.Header.TupleDescriptor, BoolTupleDescriptor);
       return newHeader;
     }
 

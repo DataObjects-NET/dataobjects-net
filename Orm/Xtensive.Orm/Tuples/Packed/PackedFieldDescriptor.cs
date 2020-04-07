@@ -9,22 +9,25 @@ using System;
 namespace Xtensive.Tuples.Packed
 {
   [Serializable]
-  internal sealed class PackedFieldDescriptor
+  internal struct PackedFieldDescriptor
   {
-    public FieldPackingType PackingType;
+    private const int OffsetBitCount = 6;
+    private const int OffsetMask = (1 << OffsetBitCount) - 1;
+
+    internal int DataPosition;
+    internal int StatePosition;
 
     [NonSerialized]
     public PackedFieldAccessor Accessor;
 
-    public int FieldIndex;
+    public bool IsObjectField => Accessor.Rank < 0;
 
-    public int ValueIndex;
-    public int ValueBitOffset;
-    public int ValueBitCount;
+    public int ObjectIndex => DataPosition;
 
-    public long ValueBitMask;
+    public int ValueIndex => DataPosition >> OffsetBitCount;
+    public int ValueBitOffset => DataPosition & OffsetMask;
 
-    public int StateIndex;
-    public int StateBitOffset;
+    public int StateIndex => StatePosition >> OffsetBitCount;
+    public int StateBitOffset => StatePosition & OffsetMask;
   }
 }

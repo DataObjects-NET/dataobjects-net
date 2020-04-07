@@ -198,22 +198,17 @@ namespace Xtensive.Tuples
     /// <returns></returns>
     public static Tuple GetSegment(this Tuple tuple, Segment<int> segment)
     {
-      var map = new int[segment.Length];
-      for (int i = 0; i < segment.Length; i++)
-        map[i] = segment.Offset + i;
-
-      var types = new ArraySegment<Type>(tuple.Descriptor.FieldTypes, segment.Offset, segment.Length);
-      var descriptor = TupleDescriptor.Create(types.AsEnumerable());
+      var length = segment.Length;
+      var map = new int[length];
+      var fieldTypes = new Type[length];
+      for (var index = 0; index < map.Length; index++) {
+        var sourceIndex = segment.Offset + index;
+        map[index] = sourceIndex;
+        fieldTypes[index] = tuple.Descriptor[sourceIndex];
+      }
+      var descriptor = TupleDescriptor.Create(fieldTypes);
       var transform = new MapTransform(false, descriptor, map);
       return transform.Apply(TupleTransformType.TransformedTuple, tuple);
-    }
-
-    private static IEnumerable<T> AsEnumerable<T>(this ArraySegment<T> segment)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(segment, "segment");
-      int lastPosition = segment.Offset + segment.Count;
-      for (int i = segment.Offset; i < lastPosition; i++)
-        yield return segment.Array[i];
     }
 
     #endregion
@@ -440,12 +435,13 @@ namespace Xtensive.Tuples
 
     private static void CopyPackedValue(PackedTuple source, int sourceIndex, PackedTuple target, int targetIndex)
     {
-      var sourceDescriptor = source.PackedDescriptor.FieldDescriptors[sourceIndex];
-      var targetDescriptor = target.PackedDescriptor.FieldDescriptors[targetIndex];
+      ref var sourceDescriptor = ref source.PackedDescriptor.FieldDescriptors[sourceIndex];
+      ref var targetDescriptor = ref target.PackedDescriptor.FieldDescriptors[targetIndex];
 
-      var fieldState = source.GetFieldState(sourceDescriptor);
-      if (!fieldState.IsAvailable())
+      var fieldState = source.GetFieldState(ref sourceDescriptor);
+      if (!fieldState.IsAvailable()) {
         return;
+      }
 
       if (fieldState.IsAvailableAndNull()) {
         target.SetValue(targetIndex, null);
@@ -453,14 +449,15 @@ namespace Xtensive.Tuples
       }
 
       var accessor = sourceDescriptor.Accessor;
-      if (accessor!=targetDescriptor.Accessor)
+      if (accessor != targetDescriptor.Accessor) {
         throw new InvalidOperationException(string.Format(
           Strings.ExInvalidCast,
           source.PackedDescriptor[sourceIndex],
           target.PackedDescriptor[targetIndex]));
+      }
 
       target.SetFieldState(targetIndex, TupleFieldState.Available);
-      accessor.CopyValue(source, sourceDescriptor, target, targetDescriptor);
+      accessor.CopyValue(source, ref sourceDescriptor, target, ref targetDescriptor);
     }
 
     private static void PartiallyCopyTupleSlow(Tuple source, Tuple target, int sourceStartIndex, int targetStartIndex, int length)

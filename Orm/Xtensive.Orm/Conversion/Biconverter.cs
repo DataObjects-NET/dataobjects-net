@@ -15,7 +15,7 @@ namespace Xtensive.Conversion
   /// <typeparam name="TFrom">Type to convert from.</typeparam>
   /// <typeparam name="TTo">Type to convert to.</typeparam>
   [Serializable]
-  public struct Biconverter<TFrom, TTo> :
+  public readonly struct Biconverter<TFrom, TTo> :
     IEquatable<Biconverter<TFrom, TTo>>
   {
     /// <summary>

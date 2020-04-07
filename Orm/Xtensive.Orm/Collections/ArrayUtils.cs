@@ -6,6 +6,7 @@
 // Created:    2007.07.04
 
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Xtensive.Collections
 {
@@ -15,13 +16,12 @@ namespace Xtensive.Collections
   /// <typeparam name="TItem">Type of array item.</typeparam>
   public static class ArrayUtils<TItem>
   {
-    private static readonly TItem[] emptyArray = new TItem[] {};
-
     /// <summary>
     /// Gets empty array of items of <typeparamref name="TItem"/> type.
     /// </summary>
     public static TItem[] EmptyArray {
-      get { return emptyArray; }
+      [MethodImpl(MethodImplOptions.AggressiveInlining)]
+      get => Array.Empty<TItem>();
     }
   }
 }

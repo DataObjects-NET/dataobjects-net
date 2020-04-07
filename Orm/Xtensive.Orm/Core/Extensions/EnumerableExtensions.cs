@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -123,8 +124,6 @@ namespace Xtensive.Core
         action.Invoke(item);
     }
 
-    /// <summary>
-    /// Converts the sequence to the <see cref="HashSet{T}"/>.
     /// </summary>
     /// <typeparam name="T">The type of sequence item.</typeparam>
     /// <param name="source">The sequence to convert.</param>
@@ -280,11 +279,33 @@ namespace Xtensive.Core
     /// <param name="sequence">The sequence.</param>
     /// <returns>Array of elements of <paramref name="sequence"/>
     /// or empty array, if <paramref name="sequence"/> is <see langword="null"/>.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T[] ToArraySafely<T>(this IEnumerable<T> sequence)
     {
       if (sequence == null)
-        return ArrayUtils<T>.EmptyArray;
+        return Array.Empty<T>();
       return sequence.ToArray();
+    }
+
+    /// <summary>
+    /// Same as <code>sequence.ExtendWithDefaultsTo(length).Take(length).ToArray()</code>,
+    /// but with a single allocation (of a resulting array).
+    /// </summary>
+    /// <param name="sequence">Source sequence.</param>
+    /// <param name="length">The length of the resulting array.</param>
+    /// <typeparam name="T">The sequence element type.</typeparam>
+    /// <returns>The resulting array.</returns>
+    public static T[] ToArray<T>(this IEnumerable<T> sequence, int length)
+    {
+      if (length == 0)
+        return Array.Empty<T>();
+      
+      var result = new T[length];
+      using (var e = sequence.GetEnumerator()) {
+        for (var i = 0; i < length && e.MoveNext(); i++)
+            result[i] = e.Current;
+      }
+      return result;
     }
     
     /// <summary>

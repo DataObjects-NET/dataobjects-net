@@ -73,14 +73,15 @@ namespace Xtensive.Orm.Rse.Providers
     protected override void Initialize()
     {
       base.Initialize();
-      var types = new List<Type>();
-      int i = 0;
+      var fieldTypes = new Type[GroupColumnIndexes.Length];
       var columnIndexes = new int[GroupColumnIndexes.Length];
+      var i = 0;
       foreach (var index in GroupColumnIndexes) {
-        types.Add(Source.Header.Columns[index].Type);
-        columnIndexes[i++] = index;
+        fieldTypes[i] = Source.Header.Columns[index].Type;
+        columnIndexes[i] = index;
+        i++;
       }
-      Transform = new MapTransform(false, TupleDescriptor.Create(types), columnIndexes);
+      Transform = new MapTransform(false, TupleDescriptor.Create(fieldTypes), columnIndexes);
     }
 
     /// <summary>
