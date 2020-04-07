@@ -5,6 +5,7 @@
 // Created:    2008.06.04
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Core;
 
@@ -20,7 +21,7 @@ namespace Xtensive.Tuples.Transform.Internals
     private FixedList3<Tuple> tuples;
 
     /// <inheritdoc/>
-    public override object[] Arguments {
+    public override IReadOnlyList<object> Arguments {
       get {
         Tuple[] copy = new Tuple[tuples.Count];
         for (int i = 0; i < tuples.Count; i++)

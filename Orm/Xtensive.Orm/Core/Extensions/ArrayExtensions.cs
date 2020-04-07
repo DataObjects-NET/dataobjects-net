@@ -25,10 +25,11 @@ namespace Xtensive.Core
     /// <typeparam name="TItem">The type of array items.</typeparam>
     /// <param name="source">Array to clone.</param>
     /// <returns>An array containing all the items from the <paramref name="source"/>.</returns>
+    [Obsolete]
     public static TItem[] Copy<TItem>(this TItem[] source)
     {
       var items = new TItem[source.Length];
-      source.Copy(items, 0);
+      source.CopyTo(items, 0);
       return items;
     }
 
@@ -43,6 +44,7 @@ namespace Xtensive.Core
     /// <param name="targetIndex">Index in <paramref name="target"/> array to start from.</param>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="targetIndex"/> is out of range.</exception>
     /// <exception cref="ArgumentException"><paramref name="target"/> array is too small.</exception>
+    [Obsolete]
     public static void Copy<TItem>(this TItem[] source, TItem[] target, int targetIndex)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");

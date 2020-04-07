@@ -6,7 +6,6 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
 
@@ -85,7 +84,7 @@ namespace Xtensive.Tuples.Transform
       else 
         throw new InvalidOperationException(Strings.ExSegmentIsOutOfRange);
       Descriptor = TupleDescriptor.Create(fields);
-      SingleSourceMap = map;
+      SetSingleSourceMap(map);
     }
   }
 }

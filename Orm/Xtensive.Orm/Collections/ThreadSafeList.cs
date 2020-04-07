@@ -137,7 +137,7 @@ namespace Xtensive.Collections
           length *= 2;
         }
         TItem[] tmp = new TItem[length];
-        implementation.Copy(tmp, 0);
+        implementation.CopyTo(tmp, 0);
         tmp[index] = item;
         Thread.MemoryBarrier(); // Ensures item and tmp are fully written
         implementation = tmp;

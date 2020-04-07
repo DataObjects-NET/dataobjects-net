@@ -8,11 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
-using Xtensive.Tuples.Transform;
-
 
 
 namespace Xtensive.Tuples.Transform
@@ -28,10 +25,10 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Gets tuple descriptors this transform merges.
     /// </summary>
-    public TupleDescriptor[] Sources
+    public IReadOnlyList<TupleDescriptor> Sources
     {
       [DebuggerStepThrough]
-      get { return sources.Copy(); }
+      get => Array.AsReadOnly(sources);
     }
 
     /// <see cref="MapTransform.Apply(TupleTransformType,Tuple,Tuple)" copy="true" />
@@ -84,7 +81,7 @@ namespace Xtensive.Tuples.Transform
       }
       this.sources = sources;
       Descriptor = TupleDescriptor.Create(types);
-      Map = map;
+      SetMap(map);
     }
   }
 }

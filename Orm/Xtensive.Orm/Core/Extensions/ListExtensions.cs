@@ -8,7 +8,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core;
 
 
 namespace Xtensive.Core
@@ -18,6 +17,18 @@ namespace Xtensive.Core
   /// </summary>
   public static class ListExtensions
   {
+    public static int IndexOf<T>(this IReadOnlyList<T> list, T item)
+    {
+      var comparer = EqualityComparer<T>.Default;
+      for (int index = 0, count = list.Count; index < count; index++) {
+        if (comparer.Equals(list[index], item)) {
+          return index;
+        }
+      }
+
+      return -1;
+    }
+
     #region Copy methods
 
     /// <summary>
