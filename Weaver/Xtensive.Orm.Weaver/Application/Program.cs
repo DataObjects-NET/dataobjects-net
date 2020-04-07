@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Weaver.Application
 
     private void ProcessArgument(string argument)
     {
-      if (argument.StartsWith("@")) {
+      if (argument.StartsWith("@", StringComparison.Ordinal)) {
         foreach (var line in File.ReadLines(argument.Substring(1)))
           ProcessArgument(line);
         return;
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Weaver.Application
     private string StripOptionPrefix(string argument)
     {
       foreach (var prefix in OptionPrefixes)
-        if (argument.StartsWith(prefix))
+        if (argument.StartsWith(prefix, StringComparison.Ordinal))
           return argument.Substring(prefix.Length);
       return argument;
     }

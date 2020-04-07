@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Configuration
     {
       const string prefix = "#";
 
-      if (!connectionString.StartsWith(prefix))
+      if (!connectionString.StartsWith(prefix, StringComparison.Ordinal))
         return connectionString;
 
       string connectionStringName = connectionString.Substring(prefix.Length);
