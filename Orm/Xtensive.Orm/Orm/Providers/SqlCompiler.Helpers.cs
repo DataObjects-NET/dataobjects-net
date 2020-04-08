@@ -24,8 +24,7 @@ namespace Xtensive.Orm.Providers
     protected SqlProvider CreateProvider(SqlSelect statement,
       CompilableProvider origin, params ExecutableProvider[] sources)
     {
-      var extraBindings = (IEnumerable<QueryParameterBinding>) null;
-      return CreateProvider(statement, extraBindings, origin, sources);
+      return CreateProvider(statement, (IEnumerable<QueryParameterBinding>) null, origin, sources);
     }
 
     protected SqlProvider CreateProvider(SqlSelect statement, QueryParameterBinding extraBinding,
@@ -41,20 +40,23 @@ namespace Xtensive.Orm.Providers
       var sqlSources = sources.OfType<SqlProvider>();
 
       var parameterBindings = sqlSources.SelectMany(p => p.Request.ParameterBindings);
-      if (extraBindings!=null)
+      if (extraBindings!=null) {
         parameterBindings = parameterBindings.Concat(extraBindings);
+      }
 
-      bool allowBatching = sqlSources
+      var allowBatching = sqlSources
         .Aggregate(true, (current, provider) =>
           current && provider.Request.CheckOptions(QueryRequestOptions.AllowOptimization));
       var tupleDescriptor = origin.Header.TupleDescriptor;
 
       var options = QueryRequestOptions.Empty;
-      if (allowBatching)
+      if (allowBatching) {
         options |= QueryRequestOptions.AllowOptimization;
+      }
 
-      if (statement.Columns.Count < origin.Header.TupleDescriptor.Count)
+      if (statement.Columns.Count < origin.Header.TupleDescriptor.Count) {
         tupleDescriptor = origin.Header.TupleDescriptor.Head(statement.Columns.Count);
+      }
 
       var request = CreateQueryRequest(Driver, statement, parameterBindings, tupleDescriptor, options);
 
@@ -121,11 +123,15 @@ namespace Xtensive.Orm.Providers
           }
         }
       }
-      else
+      else {
         expression = column;
+      }
+
       var columnRef = expression as SqlColumnRef;
-      if (!columnRef.IsNullReference())
+      if (!columnRef.IsNullReference()) {
         expression = columnRef.SqlColumn;
+      }
+
       return expression;
     }
 
@@ -139,8 +145,9 @@ namespace Xtensive.Orm.Providers
         stubColumnMap.Add(columnStub, columnExpression);
         resultQuery.Columns.Add(columnStub);
       }
-      else
+      else {
         resultQuery.Columns.Add(columnRef);
+      }
     }
 
     protected SqlExpression GetBooleanColumnExpression(SqlExpression originalExpression)
@@ -150,187 +157,212 @@ namespace Xtensive.Orm.Providers
         : booleanExpressionConverter.BooleanToInt(originalExpression);
     }
 
-    protected QueryRequest CreateQueryRequest(StorageDriver driver, SqlSelect statement, IEnumerable<QueryParameterBinding> parameterBindings,
+    protected QueryRequest CreateQueryRequest(StorageDriver driver, SqlSelect statement,
+      IEnumerable<QueryParameterBinding> parameterBindings,
       TupleDescriptor tupleDescriptor, QueryRequestOptions options)
     {
-      if (Handlers.Domain.Configuration.ShareStorageSchemaOverNodes)
+      if (Handlers.Domain.Configuration.ShareStorageSchemaOverNodes) {
         return new QueryRequest(driver, statement, parameterBindings, tupleDescriptor, options, NodeConfiguration);
+      }
+
       return new QueryRequest(driver, statement, parameterBindings, tupleDescriptor, options);
     }
 
     private static bool IsCalculatedColumn(SqlColumn column)
     {
-      if (column is SqlUserColumn)
+      if (column is SqlUserColumn) {
         return true;
+      }
       var cRef = column as SqlColumnRef;
-      if (!ReferenceEquals(null, cRef))
-        return cRef.SqlColumn is SqlUserColumn;
-      return false;
+      return cRef?.SqlColumn is SqlUserColumn;
     }
 
     private static bool IsColumnStub(SqlColumn column)
     {
-      if (column is SqlColumnStub)
+      if (column is SqlColumnStub) {
         return true;
+      }
+
       var cRef = column as SqlColumnRef;
-      if (!ReferenceEquals(null, cRef))
-        return cRef.SqlColumn is SqlColumnStub;
-      return false;
+      return cRef?.SqlColumn is SqlColumnStub;
     }
 
     private static SqlColumnStub ExtractColumnStub(SqlColumn column)
     {
-      var columnStub = column as SqlColumnStub;
-      if (!ReferenceEquals(null, columnStub))
-        return columnStub;
-      var columnRef = column as SqlColumnRef;
-      if (!ReferenceEquals(null, columnRef))
-        return (SqlColumnStub) columnRef.SqlColumn;
-      return (SqlColumnStub) column;
+      switch (column) {
+        case SqlColumnStub columnStub:
+          return columnStub;
+        case SqlColumnRef columnRef:
+          return (SqlColumnStub) columnRef.SqlColumn;
+        default:
+          return (SqlColumnStub) column;
+      }
     }
 
     private static SqlUserColumn ExtractUserColumn(SqlColumn column)
     {
-      var userColumn = column as SqlUserColumn;
-      if (!ReferenceEquals(null, userColumn))
-        return userColumn;
-      var columnRef = column as SqlColumnRef;
-      if (!ReferenceEquals(null, columnRef))
-        return (SqlUserColumn) columnRef.SqlColumn;
-      return (SqlUserColumn) column;
+      switch (column) {
+        case SqlUserColumn userColumn:
+          return userColumn;
+        case SqlColumnRef columnRef:
+          return (SqlUserColumn) columnRef.SqlColumn;
+        default:
+          return (SqlUserColumn) column;
+      }
     }
 
     private static bool ShouldUseQueryReference(CompilableProvider origin, SqlProvider compiledSource)
     {
       var sourceSelect = compiledSource.Request.Statement;
-      if (sourceSelect.From==null)
+      if (sourceSelect.From==null) {
         return false;
+      }
 
-      var calculatedColumnIndexes = sourceSelect.Columns
-        .Select((c, i) => IsCalculatedColumn(c) ? i : -1)
-        .Where(i => i >= 0)
-        .ToList();
+      var columnIndex = 0;
+      var rowNumberIsUsed = false;
+      var calculatedColumnIndexes = new List<int>(8);
+      foreach (var column in sourceSelect.Columns) {
+        if (IsCalculatedColumn(column)) {
+          calculatedColumnIndexes.Add(columnIndex);
+          rowNumberIsUsed = rowNumberIsUsed || ExtractUserColumn(column).Expression is SqlRowNumber;
+        }
+        columnIndex++;
+      }
       var containsCalculatedColumns = calculatedColumnIndexes.Count > 0;
-      var rowNumberIsUsed = calculatedColumnIndexes.Count > 0 && sourceSelect.Columns
-        .Select((c, i) => new { c, i })
-        .Any(a => calculatedColumnIndexes.Contains(a.i) && ExtractUserColumn(a.c).Expression is SqlRowNumber);
-      var pagingIsUsed = !sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference() || rowNumberIsUsed;
+      var pagingIsUsed = rowNumberIsUsed
+        || !sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference();
       var groupByIsUsed = sourceSelect.GroupBy.Count > 0;
       var distinctIsUsed = sourceSelect.Distinct;
       var filterIsUsed = !sourceSelect.Where.IsNullReference();
 
-      if (origin.Type==ProviderType.Filter) {
-        var filterProvider = (FilterProvider) origin;
-        var usedColumnIndexes = new TupleAccessGatherer().Gather(filterProvider.Predicate.Body);
-        return pagingIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
-      }
+      switch (origin.Type) {
+        case ProviderType.Filter: {
+          var filterProvider = (FilterProvider) origin;
+          var usedColumnIndexes = new TupleAccessGatherer().Gather(filterProvider.Predicate.Body);
+          return pagingIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
+        }
+        case ProviderType.Select:
+          return distinctIsUsed;
+        case ProviderType.RowNumber: {
+          var usedColumnIndexes = origin.Header.Order.Select(o => o.Key);
+          return pagingIsUsed || groupByIsUsed || distinctIsUsed
+            || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
+        }
+        case ProviderType.Calculate: {
+          var calculateProvider = (CalculateProvider) origin;
+          var columnGatherer = new TupleAccessGatherer();
+          var usedColumnIndexes = new List<int>();
+          foreach (var column in calculateProvider.CalculatedColumns) {
+            usedColumnIndexes.AddRange(
+              columnGatherer.Gather(column.Expression.Body, column.Expression.Parameters[0]));
+          }
 
-      if (origin.Type==ProviderType.Select)
-        return distinctIsUsed;
+          return usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
+        }
+        case ProviderType.Aggregate: {
+          var aggregateProvider = (AggregateProvider)origin;
+          var usedColumnIndexes = (aggregateProvider.AggregateColumns ?? Enumerable.Empty<AggregateColumn>())
+            .Select(ac => ac.SourceIndex)
+            .Concat(aggregateProvider.GroupColumnIndexes);
 
-      if (origin.Type==ProviderType.RowNumber) {
-        var usedColumnIndexes = origin.Header.Order.Select(o => o.Key);
-        return pagingIsUsed || groupByIsUsed || distinctIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
-      }
+          return pagingIsUsed || distinctIsUsed || groupByIsUsed
+            || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
+        }
+        case ProviderType.Take:
+        case ProviderType.Skip:
+        case ProviderType.Paging: {
+          return distinctIsUsed || pagingIsUsed || groupByIsUsed
+            || (origin.Sources[0] is SortProvider sortProvider &&
+              sortProvider.Header.Order.Select(order => order.Key).Any(calculatedColumnIndexes.Contains));
+        }
+        case ProviderType.Apply:
+          return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
+        case ProviderType.Join: {
+          var shouldUseQueryReference = distinctIsUsed || pagingIsUsed || groupByIsUsed;
+          if (shouldUseQueryReference) {
+            return true;
+          }
 
-      if (origin.Type==ProviderType.Calculate) {
-        var calculateProvider = (CalculateProvider) origin;
-        var columnGatherer = new TupleAccessGatherer();
-        var usedColumnIndexes = new List<int>();
-        foreach (var column in calculateProvider.CalculatedColumns)
-          usedColumnIndexes.AddRange(
-            columnGatherer.Gather(column.Expression.Body, column.Expression.Parameters[0]));
+          var joinProvider = (JoinProvider) origin;
+          var isRight = joinProvider.Right == compiledSource.Origin;
+          var indexes = joinProvider.EqualIndexes.Select(p => isRight ? p.Second : p.First);
+          return (joinProvider.JoinType == JoinType.LeftOuter && filterIsUsed && isRight)
+            || (containsCalculatedColumns && indexes.Any(calculatedColumnIndexes.Contains));
+        }
+        case ProviderType.PredicateJoin: {
+          var shouldUseQueryReference = distinctIsUsed || pagingIsUsed || groupByIsUsed;
+          if (shouldUseQueryReference) {
+            return true;
+          }
 
-        return usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
-      }
-
-      if (origin.Type == ProviderType.Aggregate) {
-        var aggregateProvider = (AggregateProvider)origin;
-        var columnGatherer = new TupleAccessGatherer();
-        var usedColumnIndexes = (aggregateProvider.AggregateColumns ?? Enumerable.Empty<AggregateColumn>())
-          .Select(ac => ac.SourceIndex)
-          .Concat(aggregateProvider.GroupColumnIndexes)
-          .ToList();
-
-        return usedColumnIndexes.Any(calculatedColumnIndexes.Contains) || pagingIsUsed || distinctIsUsed || groupByIsUsed;
-      }
-
-      if (origin.Type.In(ProviderType.Take,ProviderType.Skip,ProviderType.Paging)) {
-        var sortProvider = origin.Sources[0] as SortProvider;
-        var orderingOverCalculatedColumn = sortProvider!=null &&
-          sortProvider.Header.Order
+          var joinProvider = (PredicateJoinProvider) origin;
+          var isRight = joinProvider.Right == compiledSource.Origin;
+          var indexes = new TupleAccessGatherer()
+            .Gather(joinProvider.Predicate.Body, joinProvider.Predicate.Parameters[isRight ? 1 : 0]);
+          return (joinProvider.JoinType == JoinType.LeftOuter && filterIsUsed && isRight)
+            || (containsCalculatedColumns && indexes.Any(calculatedColumnIndexes.Contains));
+        }
+        case ProviderType.Sort when distinctIsUsed:
+          return true;
+        case ProviderType.Sort: {
+          var orderingOverCalculatedColumn = origin.Header.Order
             .Select(order => order.Key)
             .Any(calculatedColumnIndexes.Contains);
-        return distinctIsUsed || pagingIsUsed || groupByIsUsed || orderingOverCalculatedColumn;
+          return orderingOverCalculatedColumn;
+        }
+        default:
+          return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
       }
-
-      if (origin.Type == ProviderType.Apply)
-        return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
-
-      if (origin.Type == ProviderType.Join) {
-        var shouldUseQueryReference = distinctIsUsed || pagingIsUsed || groupByIsUsed;
-        if (shouldUseQueryReference)
-          return true;
-        var joinProvider = (JoinProvider) origin;
-        var isRight = joinProvider.Right == compiledSource.Origin;
-        var indexes = joinProvider.EqualIndexes.Select(p => isRight ? p.Second : p.First);
-        return (joinProvider.JoinType == JoinType.LeftOuter && filterIsUsed && isRight)
-          || (containsCalculatedColumns && indexes.Any(calculatedColumnIndexes.Contains)); 
-      }
-
-      if (origin.Type == ProviderType.PredicateJoin) {
-        var shouldUseQueryReference = distinctIsUsed || pagingIsUsed || groupByIsUsed;
-        if (shouldUseQueryReference)
-          return true;
-        var joinProvider = (PredicateJoinProvider) origin;
-        var isRight = joinProvider.Right == compiledSource.Origin;
-        var indexes = new TupleAccessGatherer().Gather(joinProvider.Predicate.Body, joinProvider.Predicate.Parameters[isRight ? 1 : 0]);
-        return (joinProvider.JoinType == JoinType.LeftOuter && filterIsUsed && isRight)
-          || (containsCalculatedColumns && indexes.Any(calculatedColumnIndexes.Contains)); 
-      }
-
-      if (origin.Type == ProviderType.Sort) {
-        if (distinctIsUsed)
-          return true;
-        var orderingOverCalculatedColumn = origin.Header.Order
-          .Select(order => order.Key)
-          .Any(calculatedColumnIndexes.Contains);
-        return orderingOverCalculatedColumn;
-      }
-
-      return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
     }
 
     private SqlExpression GetOrderByExpression(SqlExpression expression, SortProvider provider, int index)
     {
-      if (provider.Header.Columns.Count <= index)
+      var columns = provider.Header.Columns;
+      if (columns.Count <= index) {
         return expression;
+      }
 
-      if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation) && provider.Header.Columns[index].Type == typeof(DateTime))
+      var columnType = columns[index].Type;
+      if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation) && columnType == typeof(DateTime)) {
         return SqlDml.Cast(expression, SqlType.DateTime);
-      if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation) && provider.Header.Columns[index].Type == typeof(DateTimeOffset))
+      }
+
+      if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation) && columnType == typeof(DateTimeOffset)) {
         return SqlDml.Cast(expression, SqlType.DateTimeOffset);
+      }
+
       return expression;
     }
 
-    private SqlExpression GetJoinExpression(SqlExpression leftExpression, SqlExpression rightExpression, JoinProvider provider, int index)
+    private SqlExpression GetJoinExpression(SqlExpression leftExpression, SqlExpression rightExpression,
+      JoinProvider provider, int index)
     {
       if (provider.EqualColumns.Length > index) {
-        if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation))
-        {
-          if (provider.EqualColumns[index].First.Type==typeof (DateTime))
+        Pair<Column> columnPair;
+        if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation)) {
+          columnPair = provider.EqualColumns[index];
+          if (columnPair.First.Type == typeof(DateTime)) {
             leftExpression = SqlDml.Cast(leftExpression, SqlType.DateTime);
-          if (provider.EqualColumns[index].Second.Type==typeof (DateTime))
+          }
+
+          if (columnPair.Second.Type == typeof(DateTime)) {
             rightExpression = SqlDml.Cast(rightExpression, SqlType.DateTime);
+          }
         }
+
         if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation)) {
-          if (provider.EqualColumns[index].First.Type==typeof (DateTimeOffset))
+          columnPair = provider.EqualColumns[index];
+          if (columnPair.First.Type == typeof(DateTimeOffset)) {
             leftExpression = SqlDml.Cast(leftExpression, SqlType.DateTimeOffset);
-          if (provider.EqualColumns[index].Second.Type==typeof (DateTimeOffset))
+          }
+
+          if (columnPair.Second.Type == typeof(DateTimeOffset)) {
             rightExpression = SqlDml.Cast(rightExpression, SqlType.DateTimeOffset);
+          }
         }
       }
-      return leftExpression==rightExpression;
+
+      return leftExpression == rightExpression;
     }
 
     public SqlExpression GetOuterExpression(ApplyParameter parameter, int columnIndex)
