@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+﻿// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Linq
       if (association.Multiplicity==Multiplicity.OneToMany) {
         var targetField = association.TargetType.Fields[association.Reversed.OwnerField.Name];
         var whereParameter = Expression.Parameter(elementType, "p");
-        var expression = BuildExpressionForFieldRecursivly(targetField, whereParameter);
+        var expression = BuildExpressionForFieldRecursively(targetField, whereParameter);
         var whereExpression = Expression.Equal(
           Expression.Property(
             expression,
@@ -188,10 +188,10 @@ namespace Xtensive.Orm.Linq
       return sequenceType!=null ? sequenceType.GetGenericArguments()[0] : null;
     }
 
-    private static Expression BuildExpressionForFieldRecursivly(FieldInfo field, Expression parameter)
+    private static Expression BuildExpressionForFieldRecursively(FieldInfo field, Expression parameter)
     {
       if (field.IsNested) {
-        var expression = BuildExpressionForFieldRecursivly(field.Parent, parameter);
+        var expression = BuildExpressionForFieldRecursively(field.Parent, parameter);
         return Expression.Property(expression, field.DeclaringField.UnderlyingProperty);
       }
       return Expression.Property(parameter, field.DeclaringField.UnderlyingProperty);
