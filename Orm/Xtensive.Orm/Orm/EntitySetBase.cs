@@ -882,14 +882,18 @@ namespace Xtensive.Orm
             .ToList()
         : Enumerable.Range(0, targetDescriptor.Count).ToList();
 
-      var keyDescriptor = TupleDescriptor.Create(ownerDescriptor
+      var keyFieldCount = ownerDescriptor.Count + itemColumnOffsets.Count;
+      var keyFieldTypes = ownerDescriptor
         .Concat(itemColumnOffsets.Select(i => targetDescriptor[i]))
-        .ToList());
+        .ToArray(keyFieldCount);
+      var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
+
       var map = Enumerable.Range(0, ownerDescriptor.Count)
         .Select(i => new Pair<int, int>(0, i))
         .Concat(itemColumnOffsets.Select(i => new Pair<int, int>(1, i)))
-        .ToArray();
+        .ToArray(keyFieldCount);
       var seekTransform = new MapTransform(true, keyDescriptor, map);
+
       Func<Tuple, Entity> itemCtor = null;
       if (association.AuxiliaryType!=null)
         itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,

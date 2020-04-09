@@ -6,13 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Collections;
-using Xtensive.Reflection;
-using Xtensive.Orm.Tests;
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using MethodInfo=System.Reflection.MethodInfo;
 
 namespace Xtensive.Orm.Tests.Core.Tuples
@@ -41,13 +38,10 @@ namespace Xtensive.Orm.Tests.Core.Tuples
 
     public void Test()
     {
-      IList<Type> types = new List<Type>();
-      for (int i = 0; i < 4; i++)
-        types.Add(typeof (short));
-
-      TupleDescriptor descriptor = TupleDescriptor.Create(types);
-      DummyTuple dummyTuple = new DummyTuple(descriptor);
-      ITuple tuple = CreateTestTuple(descriptor);
+      var types = Enumerable.Range(0, 4).Select(_ => typeof(short)).ToArray();
+      var d = TupleDescriptor.Create(types);
+      var dummyTuple = new DummyTuple(d);
+      var tuple = CreateTestTuple(d);
       PopulateData(types, dummyTuple, tuple);
       AssertAreSame(dummyTuple, tuple);
     }
@@ -78,10 +72,8 @@ namespace Xtensive.Orm.Tests.Core.Tuples
 
     public void BehaviorTest()
     {
-      List<Type> fields = new List<Type>(3);
-      fields.AddRange(new Type[] {typeof(int), typeof(bool), typeof(string)});
-
-      TupleDescriptor d = TupleDescriptor.Create(fields);
+      var types = new Type[] {typeof(int), typeof(bool), typeof(string)};
+      var d = TupleDescriptor.Create(types);
       TestTuple(CreateTestTuple(d));
       TestTuple(new DummyTuple(d));
     }
@@ -144,10 +136,9 @@ namespace Xtensive.Orm.Tests.Core.Tuples
 
     public void EmptyFieldsTest()
     {
-      List<Type> fields = new List<Type>();
-      TupleDescriptor descriptor = TupleDescriptor.Create(fields);
-      DummyTuple dummyTuple = new DummyTuple(descriptor);
-      ITuple tuple = CreateTestTuple(descriptor);
+      var d = TupleDescriptor.Create(Array.Empty<Type>());
+      var dummyTuple = new DummyTuple(d);
+      var tuple = CreateTestTuple(d);
       Assert.AreEqual(0, tuple.Count);
     }
 
@@ -162,25 +153,24 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       IList<TupleDescriptor> descriptorList = new List<TupleDescriptor>();
 
       while (iteration++ < IterationCount) {
-        int fieldCount = random.Next(0, MaxFieldCount);
-        List<Type> fields = new List<Type>(fieldCount);
+        var fieldCount = random.Next(0, MaxFieldCount);
+        var types = new List<Type>(fieldCount);
         for (int i = 0; i < fieldCount; i++)
-          fields.Add(fieldTypes[random.Next(0, fieldTypes.Length - 1)]);
-        TupleDescriptor descriptor = TupleDescriptor.Create(fields);
-        descriptorList.Add(descriptor);
+          types.Add(fieldTypes[random.Next(0, fieldTypes.Length - 1)]);
+        var d = TupleDescriptor.Create(types.ToArray());
+        descriptorList.Add(d);
       }
 
       foreach (TupleDescriptor descriptor in descriptorList) {
-        DummyTuple dummyTuple = new DummyTuple(descriptor);
-        ITuple tuple = CreateTestTuple(descriptor);
+        var dummyTuple = new DummyTuple(descriptor);
+        var tuple = CreateTestTuple(descriptor);
         for (int fieldIndex = 0; fieldIndex < tuple.Count / 2; fieldIndex++) {
-          Type type = descriptor[fieldIndex];
-          MethodInfo setValueMethod = setValueMethodGeneric.MakeGenericMethod(type);
+          var type = descriptor[fieldIndex];
+          var setValueMethod = setValueMethodGeneric.MakeGenericMethod(type);
           setValueMethod.Invoke(null, new object[] { dummyTuple, tuple, fieldIndex, random });
         }
         AssertAreSame(dummyTuple, tuple);  
       }
-      
     }
 
     protected void AssertAreSame(ITuple dummyTuple, ITuple tuple)

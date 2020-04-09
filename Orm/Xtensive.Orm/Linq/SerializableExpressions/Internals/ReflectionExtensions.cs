@@ -14,21 +14,11 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
 {
   internal static class ReflectionExtensions
   {
-    public static string ToSerializableForm(this Type type)
-    {
-      if (type == null)
-        return null;
+    public static string ToSerializableForm(this Type type) 
+      => type?.AssemblyQualifiedName;
 
-      return type.AssemblyQualifiedName;
-    }
-
-    public static Type GetTypeFromSerializableForm(this string serializedValue)
-    {
-      if (serializedValue == null)
-        return null;
-
-      return Type.GetType(serializedValue);
-    }
+    public static Type GetTypeFromSerializableForm(this string serializedValue) 
+      => serializedValue == null ? null : Type.GetType(serializedValue);
 
     public static string ToSerializableForm(this MethodInfo method)
     {

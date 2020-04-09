@@ -56,5 +56,14 @@ namespace Xtensive.Orm.Rse
       : base(items.ToList())
     {      
     }
+
+    /// <summary>
+    /// Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="items">The collection items.</param>
+    public ColumnGroupCollection(List<ColumnGroup> items)
+      : base(items)
+    {      
+    }
   }
 }

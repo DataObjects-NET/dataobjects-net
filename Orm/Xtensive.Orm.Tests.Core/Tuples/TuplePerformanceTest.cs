@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using NUnit.Framework;
 using Xtensive.Comparison;
+using Xtensive.Core;
 using Xtensive.Orm.Tests;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -45,7 +46,10 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     [Test]
     public void BasicTest()
     {
-      Xtensive.Tuples.Tuple t = Xtensive.Tuples.Tuple.Create(TupleDescriptor.Create<string, int, string, TimeSpan, string, string>());
+      var t = Tuple.Create(TupleDescriptor.Create(new [] {
+        typeof(string), typeof(int), typeof(string), 
+        typeof(TimeSpan), typeof(string), typeof(string)
+      }));
       t.SetValue(0, string.Empty);
       t.SetValue(2, "n\\a");
       t.SetValue(3, new TimeSpan());
@@ -69,11 +73,11 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       Random random = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
       using (new Measurement("Random Tuple generation", iterationCount)) {
         while (iteration++ < iterationCount) {
-          IList<Type> fieldTypesList = new List<Type>();
+          var fieldTypes = new List<Type>();
           for (int i = 0; i < fieldCount; i++)
-            fieldTypesList.Add(allFieldTypes[random.Next(allFieldTypes.Length)]);
-          TupleDescriptor descriptor = TupleDescriptor.Create(fieldTypesList);
-          Xtensive.Tuples.Tuple tuple = Xtensive.Tuples.Tuple.Create(descriptor);
+            fieldTypes.Add(allFieldTypes[random.Next(allFieldTypes.Length)]);
+          var d = TupleDescriptor.Create(fieldTypes.ToArray());
+          var tuple = Tuple.Create(d);
         }
       }
     }
@@ -414,7 +418,8 @@ namespace Xtensive.Orm.Tests.Core.Tuples
         for (int i = 0; i < runCount; i++) {
           var count = sizeRandomizer.Next(maxSize + 1);
           var tupleTypes = Enumerable.Repeat(0, count)
-            .Select(_ => types[typeRandomizer.Next(types.Length)]);
+            .Select(_ => types[typeRandomizer.Next(types.Length)])
+            .ToArray(count);
           var descriptor = TupleDescriptor.Create(tupleTypes);
           var tuple = Tuple.Create(descriptor);
         }

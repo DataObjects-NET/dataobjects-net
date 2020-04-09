@@ -206,7 +206,7 @@ namespace Xtensive.Orm.BulkOperations
     {
       List<Expression> list = null;
       for (int i = 0, n = original.Count; i < n; i++) {
-        Expression p = Visit(original[i]);
+        var p = Visit(original[i]);
         if (list!=null)
           list.Add(p);
         else if (p!=original[i]) {
