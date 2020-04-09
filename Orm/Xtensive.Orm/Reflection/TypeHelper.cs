@@ -35,6 +35,8 @@ namespace Xtensive.Reflection
     private static readonly Type ArrayType = typeof(Array);
     private static readonly Type EnumType = typeof(Enum);
     private static readonly Type NullableType = typeof(Nullable<>);
+    private static readonly int NullableTypeMetadataToken = NullableType.MetadataToken;
+    private static readonly Module NullableTypeModule = NullableType.Module;
     private static readonly Type CompilerGeneratedAttributeType = typeof(CompilerGeneratedAttribute);
     private static readonly string TypeHelperNamespace = typeof(TypeHelper).Namespace;
 
@@ -855,7 +857,7 @@ namespace Xtensive.Reflection
     /// <returns><see langword="True"/> if type is nullable type;
     /// otherwise, <see langword="false"/>.</returns>
     public static bool IsNullable(this Type type) =>
-      type.IsGenericType && ReferenceEquals(type.GetGenericTypeDefinition(), NullableType);
+      (type.MetadataToken ^ NullableTypeMetadataToken) == 0 && ReferenceEquals(type.Module, NullableTypeModule);
 
     /// <summary>
     /// Indicates whether <typeparamref name="T"/> type is a <see cref="Nullable{T}"/> type.
@@ -890,34 +892,36 @@ namespace Xtensive.Reflection
     public static MethodInfo GetInvokeMethod(this Type delegateType) => delegateType.GetMethod(invokeMethodName);
 
     /// <summary>
-    /// Determines whether the specified <paramref name="type"/> inherits the generic <paramref name="baseType"/>.
+    /// Determines whether the specified <paramref name="type"/> is an ancestor or an instance of the
+    /// provided <paramref name="openGenericBaseType"/>.
     /// </summary>
     /// <param name="type">The type to check.</param>
-    /// <param name="baseType">Type of the generic.</param>
+    /// <param name="openGenericBaseType">Type of the generic. It is supposed this is an open generic type.</param>
     /// <returns>
-    /// <see langword="true"/> if the specified <paramref name="type"/> inherits the
-    /// generic <paramref name="baseType"/>; otherwise, <see langword="false"/>.
+    /// <see langword="true"/> if the specified <paramref name="type"/>  is an ancestor or an instance of the
+    /// provided <paramref name="openGenericBaseType"/>; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsOfGenericType(this Type type, Type baseType) => GetGenericType(type, baseType) != null;
+    public static bool IsOfGenericType(this Type type, Type openGenericBaseType) =>
+      GetGenericType(type, openGenericBaseType) != null;
 
     /// <summary>
-    /// Determines whether the specified <paramref name="type"/> inherits 
-    /// the generic <paramref name="baseGenericTypeDefinition"/> and returns direct inheritor
-    /// of generic <paramref name="baseGenericTypeDefinition"/> if any.
+    /// Determines whether the specified <paramref name="type"/> is an ancestor or an instance of
+    /// the provided <paramref name="openGenericBaseType"/> and returns closed generic type with the
+    /// specified type arguments if found.
     /// </summary>
     /// <param name="type">The type to check.</param>
-    /// <param name="baseGenericTypeDefinition">Type of the generic.</param>
+    /// <param name="openGenericBaseType">Open generic type to be matched.</param>
     /// <returns>
-    /// Generic <see cref="Type"/> that directly inherits <paramref name="baseGenericTypeDefinition"/> if the
-    /// specified <paramref name="type"/> inherits the generic <paramref name="baseGenericTypeDefinition"/>;
+    /// A <see cref="Type"/> representing the closed generic version of <paramref name="openGenericBaseType"/>
+    /// where type parameters are bound in case it exists in <paramref name="type"/>'s inheritance hierarchy;
     /// otherwise, <see langword="null"/>.
     /// </returns>
-    public static Type GetGenericType(this Type type, Type baseGenericTypeDefinition)
+    public static Type GetGenericType(this Type type, Type openGenericBaseType)
     {
-      var definitionMetadataToken = baseGenericTypeDefinition.MetadataToken;
-      var definitionModule = baseGenericTypeDefinition.Module;
-      while (!(type == null || type == ObjectType)) {
-        if ((type.MetadataToken ^ definitionMetadataToken)==0 && ReferenceEquals(type.Module, definitionModule)) {
+      var definitionMetadataToken = openGenericBaseType.MetadataToken;
+      var definitionModule = openGenericBaseType.Module;
+      while (type != null && !ReferenceEquals(type, ObjectType)) {
+        if ((type.MetadataToken ^ definitionMetadataToken) == 0 && ReferenceEquals(type.Module, definitionModule)) {
           return type;
         }
 
@@ -928,31 +932,49 @@ namespace Xtensive.Reflection
     }
 
     /// <summary>
-    /// Determines whether <paramref name="type"/> implements the <paramref name="genericInterface"/>.
+    /// Determines whether specified <paramref name="type"/> is an implementation of the
+    /// provided <paramref name="openGenericInterface"/>.
     /// </summary>
-    /// <param name="type">The type.</param>
-    /// <param name="genericInterface">The <see langword="interface"/>.</param>
+    /// <param name="type">A <see cref="Type"/> instance to be checked.</param>
+    /// <param name="openGenericInterface">A <see cref="Type"/> of an open generic <see langword="interface"/>
+    /// to match the specified <paramref name="type"/> against.</param>
     /// <returns>
-    /// <see langword="true"/> if the specified <paramref name="type"/> implements the
-    /// <paramref name="genericInterface"/>; otherwise, <see langword="false"/>.
+    /// <see langword="true"/> if the specified <paramref name="type"/> is an implementation of the
+    /// provided <paramref name="openGenericInterface"/>;
+    /// otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsOfGenericInterface(this Type type, Type genericInterface)
+    public static bool IsOfGenericInterface(this Type type, Type openGenericInterface) =>
+      GetGenericInterface(type, openGenericInterface) != null;
+
+    /// <summary>
+    /// Determines whether the specified <paramref name="type"/> is an implementation of the
+    /// provided <paramref name="openGenericInterface"/> and returns a <see cref="Type"/> instance
+    /// for the closed generic interface where type arguments are specified if implementation is found.
+    /// </summary>
+    /// <param name="type">The type to be checked.</param>
+    /// <param name="openGenericInterface">Open generic <see langword="interface"/> to be matched.</param>
+    /// <returns>
+    /// A <see cref="Type"/> representing closed generic version of <paramref name="openGenericInterface"/>
+    /// where type parameters are bound in case it is implemented by the <paramref name="type"/>;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    public static Type GetGenericInterface(this Type type, Type openGenericInterface)
     {
-      var metadataToken = genericInterface.MetadataToken;
-      var module = genericInterface.Module;
-      if (type.MetadataToken == metadataToken && ReferenceEquals(type.Module, module)) {
-        return true;
+      var metadataToken = openGenericInterface.MetadataToken;
+      var module = openGenericInterface.Module;
+      if (type == null || ((type.MetadataToken ^ metadataToken) == 0 && ReferenceEquals(type.Module, module))) {
+        return type;
       }
 
       // We don't use LINQ as we don't want to create a closure here
       foreach (var implementedInterface in type.GetInterfaces()) {
         if ((implementedInterface.MetadataToken ^ metadataToken) == 0
           && ReferenceEquals(implementedInterface.Module, module)) {
-          return true;
+          return implementedInterface;
         }
       }
 
-      return false;
+      return null;
     }
 
     /// <summary>
