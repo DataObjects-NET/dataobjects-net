@@ -902,41 +902,58 @@ namespace Xtensive.Reflection
 
     /// <summary>
     /// Determines whether the specified <paramref name="type"/> inherits 
-    /// the generic <paramref name="baseType"/> and returns direct inheritor
-    /// of generic <paramref name="baseType"/> if any.
+    /// the generic <paramref name="baseGenericTypeDefinition"/> and returns direct inheritor
+    /// of generic <paramref name="baseGenericTypeDefinition"/> if any.
     /// </summary>
     /// <param name="type">The type to check.</param>
-    /// <param name="baseType">Type of the generic.</param>
+    /// <param name="baseGenericTypeDefinition">Type of the generic.</param>
     /// <returns>
-    /// Generic <see cref="Type"/> that directly inherits <paramref name="baseType"/> if the
-    /// specified <paramref name="type"/> inherits the generic <paramref name="baseType"/>;
+    /// Generic <see cref="Type"/> that directly inherits <paramref name="baseGenericTypeDefinition"/> if the
+    /// specified <paramref name="type"/> inherits the generic <paramref name="baseGenericTypeDefinition"/>;
     /// otherwise, <see langword="null"/>.
     /// </returns>
-    public static Type GetGenericType(this Type type, Type baseType)
+    public static Type GetGenericType(this Type type, Type baseGenericTypeDefinition)
     {
-      var t = type;
-      while (!(t == null || t == ObjectType)) {
-        if (t.IsGenericType && t.GetGenericTypeDefinition() == baseType) {
-          return t;
+      var definitionMetadataToken = baseGenericTypeDefinition.MetadataToken;
+      var definitionModule = baseGenericTypeDefinition.Module;
+      while (!(type == null || type == ObjectType)) {
+        if ((type.MetadataToken ^ definitionMetadataToken)==0 && ReferenceEquals(type.Module, definitionModule)) {
+          return type;
         }
 
-        t = t.BaseType;
+        type = type.BaseType;
       }
 
       return null;
     }
 
     /// <summary>
-    /// Determines whether <paramref name="type"/> implements the <paramref name="interface"/>.
+    /// Determines whether <paramref name="type"/> implements the <paramref name="genericInterface"/>.
     /// </summary>
     /// <param name="type">The type.</param>
-    /// <param name="interface">The <see langword="interface"/>.</param>
+    /// <param name="genericInterface">The <see langword="interface"/>.</param>
     /// <returns>
-    ///  <see langword="true"/> if the specified <paramref name="type"/> implements the <paramref name="interface"/>;
-    /// otherwise, <see langword="false"/>.
+    /// <see langword="true"/> if the specified <paramref name="type"/> implements the
+    /// <paramref name="genericInterface"/>; otherwise, <see langword="false"/>.
     /// </returns>
-    public static bool IsOfGenericInterface(this Type type, Type @interface) =>
-      type.IsOfGenericType(@interface) || type.GetInterfaces().Any(t => t.IsOfGenericType(@interface));
+    public static bool IsOfGenericInterface(this Type type, Type genericInterface)
+    {
+      var metadataToken = genericInterface.MetadataToken;
+      var module = genericInterface.Module;
+      if (type.MetadataToken == metadataToken && ReferenceEquals(type.Module, module)) {
+        return true;
+      }
+
+      // We don't use LINQ as we don't want to create a closure here
+      foreach (var implementedInterface in type.GetInterfaces()) {
+        if ((implementedInterface.MetadataToken ^ metadataToken) == 0
+          && ReferenceEquals(implementedInterface.Module, module)) {
+          return true;
+        }
+      }
+
+      return false;
+    }
 
     /// <summary>
     /// Converts <paramref name="type"/> to type that can assign both
