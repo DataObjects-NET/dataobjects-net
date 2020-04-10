@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Collections;
-using Xtensive.Core;
 using Xtensive.Orm.Linq.Expressions;
 
 namespace Xtensive.Orm.Linq
@@ -31,16 +30,18 @@ namespace Xtensive.Orm.Linq
 
     public override void PermanentAdd(ParameterExpression key, ProjectionExpression value)
     {
-      if (!key.Type.IsAssignableFrom(value.ItemProjector.Type))
-        throw new ArgumentException(Strings.ExParameterExpressionMustHaveSameTypeAsProjectionExpressionItemProjector, "key");
+      if (!key.Type.IsAssignableFrom(value.ItemProjector.Type)) {
+        throw new ArgumentException(
+          Strings.ExParameterExpressionMustHaveSameTypeAsProjectionExpressionItemProjector, nameof(key));
+      }
+
       base.PermanentAdd(key, value);
     }
 
     public override void ReplaceBound(ParameterExpression key, ProjectionExpression value)
     {
       base.ReplaceBound(key, value);
-      IEnumerable<ParameterExpression> parameters;
-      if (linkedParameters.TryGetValue(key, out parameters)) {
+      if (linkedParameters.TryGetValue(key, out var parameters)) {
         foreach (var parameter in parameters) {
           if (parameter!=key) {
             var projection = this[parameter];
@@ -55,16 +56,34 @@ namespace Xtensive.Orm.Linq
         }
       }
     }
-    
-    public Disposable LinkParameters(IEnumerable<ParameterExpression> parameters)
+
+    internal readonly ref struct ParameterScope
     {
-      foreach (var parameter in parameters)
-        linkedParameters.Add(parameter, parameters);
-      return new Disposable(isDisposing => {
+      private readonly LinqBindingCollection owner;
+      private readonly IReadOnlyCollection<ParameterExpression> parameters;
+
+      public void Dispose()
+      {
+        var linkedParameters = owner.linkedParameters;
         foreach (var parameter in parameters) {
           linkedParameters.Remove(parameter);
         }
-      });
+      }
+
+      public ParameterScope(LinqBindingCollection owner, IReadOnlyCollection<ParameterExpression> parameters)
+      {
+        this.owner = owner;
+        this.parameters = parameters;
+      }
+    }
+
+    public ParameterScope LinkParameters(IReadOnlyCollection<ParameterExpression> parameters)
+    {
+      foreach (var parameter in parameters) {
+        linkedParameters.Add(parameter, parameters);
+      }
+
+      return new ParameterScope(this, parameters);
     }
   }
 }
