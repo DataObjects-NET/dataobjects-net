@@ -1072,7 +1072,7 @@ namespace Xtensive.Orm.Linq
       var visitedSource = Visit(source);
       var sequence = VisitSequence(visitedSource);
 
-      IDisposable indexBinding = null;
+      var indexBinding = BindingCollection<ParameterExpression, ProjectionExpression>.BindingScope.Empty;
       if (collectionSelector.Parameters.Count==2) {
         var indexProjection = GetIndexBinding(collectionSelector, ref sequence);
         indexBinding = context.Bindings.Add(collectionSelector.Parameters[1], indexProjection);
@@ -1191,7 +1191,7 @@ namespace Xtensive.Orm.Linq
     {
       var parameter = le.Parameters[0];
       ProjectionExpression visitedSource = VisitSequence(expression);
-      IDisposable indexBinding = null;
+      var indexBinding = BindingCollection<ParameterExpression, ProjectionExpression>.BindingScope.Empty;
       if (le.Parameters.Count==2) {
         var indexProjection = GetIndexBinding(le, ref visitedSource);
         indexBinding = context.Bindings.Add(le.Parameters[1], indexProjection);

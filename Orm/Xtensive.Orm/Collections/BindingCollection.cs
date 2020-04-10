@@ -8,7 +8,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Xtensive.Core;
 
 
 namespace Xtensive.Collections
@@ -21,8 +20,50 @@ namespace Xtensive.Collections
   /// </summary>
   [Serializable]
   [DebuggerDisplay("Count = {Count}")]
-  public class BindingCollection<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
+  public class BindingCollection<TKey, TValue> : IReadOnlyCollection<KeyValuePair<TKey, TValue>>
   {
+    public readonly ref struct BindingScope
+    {
+      public static BindingScope Empty => new BindingScope();
+
+      private readonly BindingCollection<TKey, TValue> owner;
+      private readonly TKey key;
+      private readonly TValue prevValue;
+      private readonly bool prevValueExists;
+
+      public void Dispose()
+      {
+        if (owner == null) {
+          return;
+        }
+
+        if (prevValueExists) {
+          if (!owner.permanentBindings.Contains(key)) {
+            owner.bindings[key] = prevValue;
+          }
+        }
+        else {
+          if (!owner.permanentBindings.Contains(key)) {
+            owner.bindings.Remove(key);
+          }
+        }
+      }
+
+      public BindingScope(BindingCollection<TKey, TValue> owner, TKey key) : this()
+      {
+        this.owner = owner;
+        this.key = key;
+      }
+
+      public BindingScope(BindingCollection<TKey, TValue> owner, TKey key, TValue prevValue)
+      {
+        this.owner = owner;
+        this.key = key;
+        this.prevValue = prevValue;
+        prevValueExists = true;
+      }
+    }
+
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly Dictionary<TKey, TValue> bindings = new Dictionary<TKey, TValue>();
     private readonly HashSet<TKey> permanentBindings = new HashSet<TKey>();
@@ -32,7 +73,7 @@ namespace Xtensive.Collections
     /// </summary>
     public virtual int Count {
       [DebuggerStepThrough]
-      get { return bindings.Count; }
+      get => bindings.Count;
     }
 
     /// <summary>
@@ -41,7 +82,7 @@ namespace Xtensive.Collections
     /// <value></value>
     public virtual TValue this[TKey key] {
       [DebuggerStepThrough]
-      get { return bindings[key]; }
+      get => bindings[key];
     }
 
     /// <summary>
@@ -51,24 +92,15 @@ namespace Xtensive.Collections
     /// <param name="value">The value to bind.</param>
     /// <returns>Disposable object that will 
     /// destroy the binding on its disposal.</returns>
-    public virtual IDisposable Add(TKey key, TValue value)
+    public virtual BindingScope Add(TKey key, TValue value)
     {
-      TValue previous;
-
-      if (bindings.TryGetValue(key, out previous)) {
+      if (bindings.TryGetValue(key, out var previous)) {
         bindings[key] = value;
-        return new Disposable(isDisposing => {
-          if (!permanentBindings.Contains(key))
-            bindings[key] = previous;
-        });
+        return new BindingScope(this, key, previous);
       }
-      else {
-        bindings.Add(key, value);
-        return new Disposable(isDisposing => {
-          if (!permanentBindings.Contains(key))
-            bindings.Remove(key);
-        });
-      }
+
+      bindings.Add(key, value);
+      return new BindingScope(this, key);
     }
 
     /// <summary>
@@ -80,8 +112,9 @@ namespace Xtensive.Collections
     public virtual void PermanentAdd(TKey key, TValue value)
     {
       bindings[key] = value;
-      if (!permanentBindings.Contains(key))
+      if (!permanentBindings.Contains(key)) {
         permanentBindings.Add(key);
+      }
     }
 
     /// <summary>
@@ -92,8 +125,10 @@ namespace Xtensive.Collections
     /// <exception cref="KeyNotFoundException">Key isn't found.</exception>
     public virtual void ReplaceBound(TKey key, TValue value)
     {
-      if (!bindings.ContainsKey(key))
+      if (!bindings.ContainsKey(key)) {
         throw new KeyNotFoundException();
+      }
+
       bindings[key] = value;
     }
 
@@ -108,10 +143,7 @@ namespace Xtensive.Collections
     /// contains an element with the specified key;
     /// otherwise, <see langword="false" />.</returns>
     [DebuggerStepThrough]
-    public virtual bool TryGetValue(TKey key, out TValue value)
-    {
-      return bindings.TryGetValue(key, out value);
-    }
+    public virtual bool TryGetValue(TKey key, out TValue value) => bindings.TryGetValue(key, out value);
 
     /// <summary>
     /// Gets the sequence of bound keys.
@@ -119,34 +151,19 @@ namespace Xtensive.Collections
     /// <returns>The sequence of bound keys.</returns>
     public virtual IEnumerable GetKeys()
     {
-      foreach (var key in bindings.Keys)
+      foreach (var key in bindings.Keys) {
         yield return key;
+      }
     }
 
     #region IEnumerable<...> methods
 
     /// <inheritdoc/>
-    public virtual IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-    {
-      return bindings.GetEnumerator();
-    }
+    public virtual IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => bindings.GetEnumerator();
 
     /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     #endregion
-
-
-    // Constructors
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    public BindingCollection()
-    {
-    }
   }
 }
