@@ -310,10 +310,18 @@ namespace Xtensive.Orm.Providers
     {
       var compiledSource = Compile(provider.Source);
 
-      SqlSelect query = ExtractSqlSelect(provider, compiledSource);
-      var originalColumns = query.Columns.ToList();
-      query.Columns.Clear();
-      query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
+      var query = ExtractSqlSelect(provider, compiledSource);
+      var queryColumns = query.Columns;
+      var columnIndexes = provider.ColumnIndexes;
+
+      var newIndex = 0;
+      var newColumns = new SqlColumn[columnIndexes.Count];
+      foreach (var index in columnIndexes) {
+        newColumns[newIndex++] = queryColumns[index];
+      }
+
+      queryColumns.Clear();
+      queryColumns.AddRange(newColumns);
 
       return CreateProvider(query, provider, compiledSource);
     }
