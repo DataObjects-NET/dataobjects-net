@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Providers
 
       var unionRef = SqlDml.QueryRef(result);
       var query = SqlDml.Select(unionRef);
-      query.Columns.AddRange(unionRef.Columns.Cast<SqlColumn>());
+      query.Columns.AddRange(unionRef.Columns);
       return query;
     }
 

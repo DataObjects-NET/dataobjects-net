@@ -129,10 +129,12 @@ namespace Xtensive.Orm.Providers
       if (!sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference()) {
         var queryRef = SqlDml.QueryRef(sourceSelect);
         query = SqlDml.Select(queryRef);
-        query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+        query.Columns.AddRange(queryRef.Columns);
       }
-      else
+      else {
         query = sourceSelect.ShallowClone();
+      }
+
       query.Distinct = true;
       return CreateProvider(query, provider, source);
     }
@@ -407,7 +409,7 @@ namespace Xtensive.Orm.Providers
       var queryRef = SqlDml.QueryRef(result);
 
       SqlSelect query = SqlDml.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
     }
@@ -431,7 +433,7 @@ namespace Xtensive.Orm.Providers
       var result = SqlDml.Except(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
     }
@@ -455,7 +457,7 @@ namespace Xtensive.Orm.Providers
       var result = SqlDml.UnionAll(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
     }
@@ -479,7 +481,7 @@ namespace Xtensive.Orm.Providers
       var result = SqlDml.Union(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
     }

@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Providers
       if (ShouldUseQueryReference(origin, compiledSource)) {
         var queryRef = compiledSource.PermanentReference;
         var query = SqlDml.Select(queryRef);
-        query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+        query.Columns.AddRange(queryRef.Columns);
         return query;
       }
       return sourceSelect.ShallowClone();
