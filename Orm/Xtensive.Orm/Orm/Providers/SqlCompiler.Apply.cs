@@ -92,10 +92,11 @@ namespace Xtensive.Orm.Providers
       if (shouldUseQueryReference) {
         var leftTable = left.PermanentReference;
         query = SqlDml.Select(leftTable);
-        query.Columns.AddRange(leftTable.Columns.Cast<SqlColumn>());
+        query.Columns.AddRange(leftTable.Columns);
       }
-      else
+      else {
         query = left.Request.Statement.ShallowClone();
+      }
 
       var isApplyExistence =
         provider.Right.Type==ProviderType.Existence ||
