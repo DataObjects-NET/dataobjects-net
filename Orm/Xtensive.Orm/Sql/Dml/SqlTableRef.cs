@@ -17,75 +17,70 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlTableRef : SqlTable
   {
-    private DataTable dataTable;
-
     /// <summary>
     /// Gets the name of the instance.
     /// </summary>
     /// <value>The name.</value>
-    public override string Name
-    {
-      get { return string.IsNullOrEmpty(base.Name) ? dataTable.DbName : base.Name; }
-    }
+    public override string Name => string.IsNullOrEmpty(base.Name) ? DataTable.DbName : base.Name;
 
     /// <summary>
     /// Gets the referenced table.
     /// </summary>
     /// <value>The table.</value>
-    public DataTable DataTable
-    {
-      get { return dataTable; }
-    }
+    public DataTable DataTable { get; private set; }
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
+      if (context.NodeMapping.ContainsKey(this)) {
         return context.NodeMapping[this];
+      }
 
-      var clone = new SqlTableRef {Name = Name, dataTable = DataTable};
+      var clone = new SqlTableRef {Name = Name, DataTable = DataTable};
       context.NodeMapping[this] = clone;
-      var columnClones = new Collection<SqlTableColumn>();
-      foreach (var column in columns)
-        columnClones.Add((SqlTableColumn) column.Clone(context));
+      var index = 0;
+      var columnClones = new SqlTableColumn[columns.Count];
+      foreach (var column in columns) {
+        columnClones[index++] = (SqlTableColumn) column.Clone(context);
+      }
+
       clone.columns = new SqlTableColumnCollection(columnClones);
 
       return clone;
     }
 
-    public override void AcceptVisitor(ISqlVisitor visitor)
-    {
-      visitor.Visit(this);
-    }
-
+    public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
 
     // Constructors
 
     private SqlTableRef()
-    {
-    }
+    { }
 
     internal SqlTableRef(DataTable dataTable)
-      : this(dataTable, string.Empty)
-    {
-    }
+      : this(dataTable, string.Empty, Array.Empty<string>())
+    { }
 
     internal SqlTableRef(DataTable dataTable, string name)
-      : this(dataTable, name, ArrayUtils<string>.EmptyArray)
-    {
-      this.dataTable = dataTable;
-      var tableColumns = new List<SqlTableColumn>();
-      foreach (DataTableColumn c in dataTable.Columns)
-        tableColumns.Add(SqlDml.TableColumn(this, c.Name));
-      columns = new SqlTableColumnCollection(tableColumns);
-    }
+      : this(dataTable, name, Array.Empty<string>())
+    { }
 
     internal SqlTableRef(DataTable dataTable, string name, params string[] columnNames)
       : base(name)
     {
-      this.dataTable = dataTable;
-      var tableColumns = columnNames.Length == 0 
-        ? dataTable.Columns.Select(c => SqlDml.TableColumn(this, c.Name)).ToList() 
-        : columnNames.Select(cn => SqlDml.TableColumn(this, cn)).ToList();
+      DataTable = dataTable;
+      SqlTableColumn[] tableColumns;
+      if (columnNames.Length == 0) {
+        var index = 0;
+        tableColumns = new SqlTableColumn[dataTable.Columns.Count];
+        foreach (var column in dataTable.Columns) {
+          tableColumns[index++] = SqlDml.TableColumn(this, column.Name);
+        }
+      }
+      else {
+        tableColumns = new SqlTableColumn[columnNames.Length];
+        for (var index = 0; index < tableColumns.Length; index++) {
+          tableColumns[index] = SqlDml.TableColumn(this, columnNames[index]);
+        }
+      }
       columns = new SqlTableColumnCollection(tableColumns);
     }
   }
