@@ -19,10 +19,13 @@ namespace Xtensive.Orm.Linq
     private readonly Dictionary<ParameterExpression, IEnumerable<ParameterExpression>> linkedParameters
       = new Dictionary<ParameterExpression, IEnumerable<ParameterExpression>>();
 
-    public override IDisposable Add(ParameterExpression key, ProjectionExpression value)
+    public override BindingScope Add(ParameterExpression key, ProjectionExpression value)
     {
-      if (!key.Type.IsAssignableFrom(value.ItemProjector.Type))
-        throw new ArgumentException(Strings.ExParameterExpressionMustHaveSameTypeAsProjectionExpressionItemProjector, "key");
+      if (!key.Type.IsAssignableFrom(value.ItemProjector.Type)) {
+        throw new ArgumentException(
+          Strings.ExParameterExpressionMustHaveSameTypeAsProjectionExpressionItemProjector, nameof(key));
+      }
+
       return base.Add(key, value);
     }
 
