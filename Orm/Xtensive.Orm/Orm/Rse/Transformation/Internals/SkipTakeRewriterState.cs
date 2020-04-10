@@ -5,8 +5,6 @@
 // Created:    2010.01.21
 
 using System;
-using Xtensive.Core;
-
 
 namespace Xtensive.Orm.Rse.Transformation
 {
@@ -56,12 +54,25 @@ namespace Xtensive.Orm.Rse.Transformation
       };
     }
 
-    public IDisposable CreateScope()
+    internal readonly ref struct SkipTakeRewriterScope
+    {
+      private readonly SkipTakeRewriter rewriter;
+      private readonly SkipTakeRewriterState prevState;
+
+      public void Dispose() => rewriter.State = prevState;
+
+      public SkipTakeRewriterScope(SkipTakeRewriter rewriter, SkipTakeRewriterState prevState)
+      {
+        this.rewriter = rewriter;
+        this.prevState = prevState;
+      }
+    }
+
+    public SkipTakeRewriterScope CreateScope()
     {
       var currentState = rewriter.State;
-      var newState = new SkipTakeRewriterState(currentState);
-      rewriter.State = newState;
-      return new Disposable(_ => rewriter.State = currentState);
+      rewriter.State = new SkipTakeRewriterState(currentState);
+      return new SkipTakeRewriterScope(rewriter, currentState);
     }
 
 
