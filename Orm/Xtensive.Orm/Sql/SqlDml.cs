@@ -840,7 +840,8 @@ namespace Xtensive.Sql
       return Join(joinType, left, right, null);
     }
 
-    public static SqlJoinedTable Join(SqlJoinType joinType, SqlTable left, SqlTable right, IList<SqlColumn> leftColumns, IList<SqlColumn> rightColumns)
+    public static SqlJoinedTable Join(SqlJoinType joinType, SqlTable left, SqlTable right,
+      IReadOnlyList<SqlColumn> leftColumns, IReadOnlyList<SqlColumn> rightColumns)
     {
       return Join(joinType, left, right, leftColumns, rightColumns, null);
     }
@@ -854,7 +855,8 @@ namespace Xtensive.Sql
       return new SqlJoinedTable(new SqlJoinExpression(joinType, left, right, expression));
     }
 
-    public static SqlJoinedTable Join(SqlJoinType joinType, SqlTable left, SqlTable right, IList<SqlColumn> leftColumns, IList<SqlColumn> rightColumns, SqlExpression expression)
+    public static SqlJoinedTable Join(SqlJoinType joinType, SqlTable left, SqlTable right,
+      IReadOnlyList<SqlColumn> leftColumns, IReadOnlyList<SqlColumn> rightColumns, SqlExpression expression)
     {
       ArgumentValidator.EnsureArgumentNotNull(left, "left");
       ArgumentValidator.EnsureArgumentNotNull(right, "right");

@@ -71,35 +71,40 @@ namespace Xtensive.Sql.Dml
 
     // Constructors
 
-    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columnNames)
+    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, ICollection<string> columnNames)
       : this(dataTable, freeText, columnNames, ArrayUtils<string>.EmptyArray, null)
     {
     }
 
-    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columnNames, ICollection<string> targetColumnNames)
+    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, ICollection<string> columnNames, ICollection<string> targetColumnNames)
       : this(dataTable, freeText, columnNames, targetColumnNames, null)
     {
     }
 
-    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columNames, SqlExpression topN)
-      : this(dataTable, freeText, columNames, ArrayUtils<string>.EmptyArray, topN)
+    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, ICollection<string> columnNames, SqlExpression topN)
+      : this(dataTable, freeText, columnNames, ArrayUtils<string>.EmptyArray, topN)
     {
     }
 
-    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, IEnumerable<string> columnNames, ICollection<string> targetColumnNames, SqlExpression topNByRank)
+    internal SqlFreeTextTable(DataTable dataTable, SqlExpression freeText, ICollection<string> columnNames, ICollection<string> targetColumnNames, SqlExpression topNByRank)
       : base(string.Empty)
     {
       TargetTable = SqlDml.TableRef(dataTable);
       FreeText = freeText;
       TopNByRank = topNByRank;
-      var targetColumns = new List<SqlTableColumn>();
-      if (targetColumnNames.Count == 0)
-        targetColumns.Add(Asterisk);
-      else
-        targetColumns = targetColumnNames.Select(cn => SqlDml.TableColumn(this, cn)).ToList();
-      TargetColumns = new SqlTableColumnCollection(targetColumns);
+      var targetColumnCount = targetColumnNames.Count;
+      if (targetColumnCount == 0) {
+        TargetColumns = new SqlTableColumnCollection(new List<SqlTableColumn>(1) {Asterisk});
+      }
+      else {
+        var targetColumns = new List<SqlTableColumn>(targetColumnCount);
+        targetColumns.AddRange(targetColumnNames.Select(columnName => SqlDml.TableColumn(this, columnName)));
+        TargetColumns = new SqlTableColumnCollection(targetColumns);
+      }
 
-      columns = new SqlTableColumnCollection(columnNames.Select(column=>SqlDml.TableColumn(this, column)).ToList());
+      var columnList = new List<SqlTableColumn>(columnNames.Count);
+      columnList.AddRange(columnNames.Select(columnName => SqlDml.TableColumn(this, columnName)));
+      columns = new SqlTableColumnCollection(columnList);
     }
   }
 }

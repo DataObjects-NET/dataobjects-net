@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Dml
   {
     private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
     private readonly List<SqlTableColumn> columnList;
-    private readonly Dictionary<string, SqlTableColumn> columnLookup;
+    private Dictionary<string, SqlTableColumn> columnLookup;
 
     /// <summary>
     /// Gets the number of elements contained in the <see cref="SqlTableColumnCollection"/>.
@@ -50,13 +50,33 @@ namespace Xtensive.Sql.Dml
           return null;
         }
 
-        if (columnLookup == null) {
-          return columnList.Find(column => Comparer.Equals(column.Name, name));
-        }
-
-        {
+        if (columnLookup != null) {
           return columnLookup.TryGetValue(name, out var column) ? column : null;
         }
+
+        var count = columnList.Count;
+        if (count <= 16) {
+          foreach (var column in columnList) {
+            if (Comparer.Equals(column.Name, name)) {
+              return column;
+            }
+          }
+
+          return null;
+        }
+
+        SqlTableColumn result = null;
+        columnLookup = new Dictionary<string, SqlTableColumn>(count, Comparer);
+        for (var index = count - 1; index >= 0; index--) {
+          var column = columnList[index];
+          var columnName = column.Name;
+          columnLookup[columnName] = column;
+          if (Comparer.Equals(columnName, name)) {
+            result = column;
+          }
+        }
+
+        return result;
       }
     }
 
@@ -64,19 +84,18 @@ namespace Xtensive.Sql.Dml
     /// Initializes a new instance of the <see cref="SqlTableColumnCollection"/> class.
     /// </summary>
     /// <param name="columns">A collection of <see cref="SqlTableColumn"/>s to be wrapped.</param>
-    public SqlTableColumnCollection(IReadOnlyCollection<SqlTableColumn> columns)
+    public SqlTableColumnCollection(IEnumerable<SqlTableColumn> columns)
     {
-      if (columns.Count <= 8) {
-        columnList = new List<SqlTableColumn>(columns);
-      }
-      else {
-        columnList = new List<SqlTableColumn>(columns.Count);
-        columnLookup = new Dictionary<string, SqlTableColumn>(columns.Count, Comparer);
-        foreach (var column in columns) {
-          columnList.Add(column);
-          columnLookup.Add(column.Name, column);
-        }
-      }
+      columnList = new List<SqlTableColumn>(columns);
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SqlTableColumnCollection"/> class.
+    /// This is special version it uses provided list as is.
+    /// </summary>
+    internal SqlTableColumnCollection(List<SqlTableColumn> columns)
+    {
+      columnList = columns;
     }
   }
 }
