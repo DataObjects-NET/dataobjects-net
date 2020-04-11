@@ -7,7 +7,6 @@
 using System;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using Xtensive.Core;
 using Xtensive.Comparison;
 
 
@@ -28,7 +27,6 @@ namespace Xtensive.Core
     public static void EnsureArgumentNotNull(object value, [InvokerParameterName] string parameterName)
     {
       if (value==null) {
-        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
         throw new ArgumentNullException(parameterName);
       }
     }
@@ -45,13 +43,11 @@ namespace Xtensive.Core
     {
       if (default(T)==null) {
         if (value==null) {
-          EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
-          throw Exceptions.InvalidArgument(value, "parameterName");
+          throw Exceptions.InvalidArgument(value, parameterName);
         }
       }
-      else if (AdvancedComparerStruct<T>.System.Equals(value, default(T))) {
-        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
-        throw Exceptions.InvalidArgument(value, "parameterName");
+      else if (AdvancedComparerStruct<T>.System.Equals(value, default)) {
+        throw Exceptions.InvalidArgument(value, parameterName);
       }
     }
 
@@ -65,11 +61,9 @@ namespace Xtensive.Core
     public static void EnsureArgumentNotNullOrEmpty(string value, [InvokerParameterName] string parameterName)
     {
       if (value == null) {
-        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
         throw new ArgumentNullException(parameterName);
       }
       if (value.Length == 0) {
-        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
         throw new ArgumentException(Strings.ExArgumentCannotBeEmptyString, parameterName);
       }
     }
@@ -78,15 +72,14 @@ namespace Xtensive.Core
     public static void EnsureArgumentNotNullOrEmptyOrWhiteSpace(string value, [InvokerParameterName] string parameterName)
     {
       if (value==null) {
-        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
         throw new ArgumentNullException(parameterName);
       }
+
       if (value.Length==0) {
-        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
         throw new ArgumentException(Strings.ExArgumentCannotBeEmptyString, parameterName);
       }
+
       if (value.Trim().Length==0) {
-        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
         throw new ArgumentException(Strings.ExArgumentCannotBeWhiteSpacesOnlyString, parameterName);
       }
     }
@@ -103,7 +96,6 @@ namespace Xtensive.Core
     {
       EnsureArgumentNotNull(value, parameterName);
       if (!(value is T)) {
-        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
         throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, typeof(T)), parameterName);
       }
     }
@@ -119,8 +111,7 @@ namespace Xtensive.Core
     public static void EnsureArgumentIs(object value, Type type, [InvokerParameterName] string parameterName)
     {
       EnsureArgumentNotNull(value, parameterName);
-      if (!type.IsAssignableFrom(value.GetType())) {
-        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
+      if (!type.IsInstanceOfType(value)) {
         throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, type), parameterName);
       }
     }
@@ -138,7 +129,6 @@ namespace Xtensive.Core
       if (value==null)
         return;
       if (!(value is T)) {
-        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
         throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, typeof(T)), parameterName);
       }
     }
@@ -157,7 +147,6 @@ namespace Xtensive.Core
       where T: struct, IComparable<T>
     {
       if (value.CompareTo(lowerBoundary)<0 || value.CompareTo(upperBoundary)>0) {
-        EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
         throw new ArgumentOutOfRangeException(parameterName, value,
           string.Format(Strings.ExArgumentShouldBeInRange, lowerBoundary, upperBoundary));
       }
@@ -176,7 +165,6 @@ namespace Xtensive.Core
     {
       if (value.CompareTo(boundary) > 0)
         return;
-      EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
       throw new ArgumentOutOfRangeException(parameterName, value,
         string.Format(Strings.ExArgumentMustBeGreaterThanX, boundary));
     }
@@ -195,7 +183,6 @@ namespace Xtensive.Core
     {
       if (value.CompareTo(boundary) >= 0)
         return;
-      EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
       throw new ArgumentOutOfRangeException(parameterName, value,
         string.Format(Strings.ExArgumentMustBeGreaterThatOrEqualX, boundary));
     }
@@ -214,7 +201,6 @@ namespace Xtensive.Core
     {
       if (value.CompareTo(boundary) < 0)
         return;
-      EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
       throw new ArgumentOutOfRangeException(parameterName, value,
         string.Format(Strings.ExArgumentMustBeLessThanX, boundary));
     }
@@ -233,7 +219,6 @@ namespace Xtensive.Core
     {
       if (value.CompareTo(boundary) <= 0)
         return;
-      EnsureArgumentNotNullOrEmpty(parameterName, "parameterName");
       throw new ArgumentOutOfRangeException(parameterName, value,
         string.Format(Strings.ExArgumentMustBeLessThanOrEqualX, boundary));
     }
