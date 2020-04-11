@@ -45,7 +45,7 @@ namespace Xtensive.Sql.Dml
 
     /// <summary>
     /// Gets the column with the specified <paramref name="name"/>
-    /// or <c>null</c> if collection doesn't contain such a column.
+    /// or <see langword="null"/> if collection doesn't contain such a column.
     /// </summary>
     public SqlColumn this[string name] =>
       string.IsNullOrEmpty(name) ? null : columnList.Find(column => Comparer.Equals(column.Name, name));
@@ -77,7 +77,7 @@ namespace Xtensive.Sql.Dml
     /// Builds a <see cref="SqlColumnRef"/> by the specified <paramref name="expression"/> and
     /// <paramref name="alias"/>; then adds it to the end of the <see cref="SqlColumnCollection"/>.
     /// </summary>
-    /// <exception cref="ArgumentNullException"><paramref name="alias"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="alias"/> is <see langword="null"/>.</exception>
     public void Add(SqlExpression expression, string alias)
     {
       ArgumentValidator.EnsureArgumentNotNull(alias, nameof(alias));
@@ -88,7 +88,7 @@ namespace Xtensive.Sql.Dml
     /// Builds a <see cref="SqlColumnRef"/> by the specified <paramref name="expression"/> and <paramref name="alias"/>
     /// then inserts it into <see cref="SqlColumnCollection"/> at the specified <paramref name="index"/>.
     /// </summary>
-    /// <exception cref="ArgumentNullException"><paramref name="alias"/> is <c>null</c>.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="alias"/> is <see langword="null"/>.</exception>
     /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is less than <c>0</c>.
     /// -or- <paramref name="index"/> is greater than <see cref="Count"/>.</exception>
     public void Insert(int index, SqlExpression expression, string alias)
