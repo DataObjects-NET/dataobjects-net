@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Providers
     }
 
     protected Pair<SqlExpression, IEnumerable<QueryParameterBinding>> ProcessExpression(LambdaExpression le,
-      params List<SqlExpression>[] sourceColumns)
+      params IReadOnlyList<SqlExpression>[] sourceColumns)
     {
       var processor = new ExpressionProcessor(le, Handlers, this, sourceColumns);
       var result = new Pair<SqlExpression, IEnumerable<QueryParameterBinding>>(

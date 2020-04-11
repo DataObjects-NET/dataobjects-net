@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Xtensive.Sql.Dml
@@ -57,36 +56,36 @@ namespace Xtensive.Sql.Dml
       this.query = query;
       var queryColumns = new List<SqlTableColumn>();
       foreach (var queryExpression in query) {
-        
-        var select = queryExpression as SqlSelect;
-        if (select!=null) {
-          var selectColumns = select.Columns.ToList();
-          select.Columns.Clear();
-          foreach (var originalColumn in selectColumns) {
+        if (queryExpression is SqlSelect sqlSelect) {
+          var selectColumns = sqlSelect.Columns;
+          for (int index = 0, count = selectColumns.Count; index < count; index++) {
+            var originalColumn = selectColumns[index];
             var column = originalColumn;
-            var stubColumn = column as SqlColumnStub;
-            if (!ReferenceEquals(null, stubColumn))
+            if (column is SqlColumnStub stubColumn) {
               column = stubColumn.Column;
-            var columnRef = column as SqlColumnRef;
-            if (!ReferenceEquals(null, columnRef)) {
-              stubColumn = columnRef.SqlColumn as SqlColumnStub;
-              if (!ReferenceEquals(null, stubColumn))
-                column = stubColumn.Column;
             }
-            select.Columns.Add(column);
+
+            if (column is SqlColumnRef columnRef) {
+              stubColumn = columnRef.SqlColumn as SqlColumnStub;
+              if (!ReferenceEquals(null, stubColumn)) {
+                column = stubColumn.Column;
+              }
+            }
+
+            selectColumns[index] = column;
             queryColumns.Add(SqlDml.TableColumn(this, originalColumn.Name));
           }
         }
 
-        var freeTextTable = queryExpression as SqlFreeTextTable;
-        if (freeTextTable!=null )
-          foreach (var originalColumn in freeTextTable.Columns)
-            queryColumns.Add(SqlDml.TableColumn(this, originalColumn.Name));
+        if (queryExpression is SqlFreeTextTable freeTextTable ) {
+          queryColumns.AddRange(
+            freeTextTable.Columns.Select(originalColumn => SqlDml.TableColumn(this, originalColumn.Name)));
+        }
 
-        var containsTable = queryExpression as SqlContainsTable;
-        if (containsTable!=null )
-          foreach (var originalColumn in containsTable.Columns)
-            queryColumns.Add(SqlDml.TableColumn(this, originalColumn.Name));
+        if (queryExpression is SqlContainsTable containsTable ) {
+          queryColumns.AddRange(
+            containsTable.Columns.Select(originalColumn => SqlDml.TableColumn(this, originalColumn.Name)));
+        }
 
         break;
       }

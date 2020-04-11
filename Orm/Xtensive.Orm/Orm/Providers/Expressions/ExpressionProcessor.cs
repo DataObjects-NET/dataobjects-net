@@ -28,13 +28,13 @@ namespace Xtensive.Orm.Providers
     private readonly StorageDriver driver;
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly IMemberCompilerProvider<SqlExpression> memberCompilerProvider;
-    private readonly List<SqlExpression>[] sourceColumns;
+    private readonly IReadOnlyList<SqlExpression>[] sourceColumns;
     private readonly ExpressionEvaluator evaluator;
     private readonly ParameterExtractor parameterExtractor;
     private readonly LambdaExpression lambda;
     private readonly HashSet<QueryParameterBinding> bindings;
     private readonly List<ParameterExpression> activeParameters;
-    private readonly Dictionary<ParameterExpression, List<SqlExpression>> sourceMapping;
+    private readonly Dictionary<ParameterExpression, IReadOnlyList<SqlExpression>> sourceMapping;
     private readonly SqlCompiler compiler;
 
     private readonly Dictionary<QueryParameterIdentity, QueryParameterBinding> bindingsWithIdentity
@@ -448,7 +448,7 @@ namespace Xtensive.Orm.Providers
     // Constructors
 
     public ExpressionProcessor(
-      LambdaExpression lambda, HandlerAccessor handlers, SqlCompiler compiler, params List<SqlExpression>[] sourceColumns)
+      LambdaExpression lambda, HandlerAccessor handlers, SqlCompiler compiler, params IReadOnlyList<SqlExpression>[] sourceColumns)
     {
       ArgumentValidator.EnsureArgumentNotNull(lambda, "lambda");
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
@@ -478,7 +478,7 @@ namespace Xtensive.Orm.Providers
         throw Exceptions.InternalError(Strings.ExParametersCountIsNotSameAsSourceColumnListsCount, OrmLog.Instance);
       if (sourceColumns.Any(list => list.Any(c => c.IsNullReference())))
         throw Exceptions.InternalError(Strings.ExSourceColumnListContainsNullValues, OrmLog.Instance);
-      sourceMapping = new Dictionary<ParameterExpression, List<SqlExpression>>();
+      sourceMapping = new Dictionary<ParameterExpression, IReadOnlyList<SqlExpression>>();
     }
   }
 }

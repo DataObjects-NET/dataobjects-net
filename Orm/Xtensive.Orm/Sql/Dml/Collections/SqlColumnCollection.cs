@@ -39,9 +39,13 @@ namespace Xtensive.Sql.Dml
     public List<SqlColumn>.Enumerator GetEnumerator() => columnList.GetEnumerator();
 
     /// <summary>
-    /// Gets the column at the specified <paramref name="index"/>.
+    /// Gets or sets the column at the specified <paramref name="index"/>.
     /// </summary>
-    public SqlColumn this[int index] => columnList[index];
+    public SqlColumn this[int index]
+    {
+      get => columnList[index];
+      set => columnList[index] = value;
+    }
 
     /// <summary>
     /// Gets the column with the specified <paramref name="name"/>
@@ -141,9 +145,18 @@ namespace Xtensive.Sql.Dml
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
-    public SqlColumnCollection(IReadOnlyList<SqlColumn> list)
+    public SqlColumnCollection(IEnumerable<SqlColumn> columns)
     {
-      columnList = new List<SqlColumn>(list);
+      columnList = new List<SqlColumn>(columns);
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SqlColumnCollection"/> class.
+    /// This is special version it uses provided list as is.
+    /// </summary>
+    internal SqlColumnCollection(List<SqlColumn> columns)
+    {
+      columnList = columns;
     }
   }
 }

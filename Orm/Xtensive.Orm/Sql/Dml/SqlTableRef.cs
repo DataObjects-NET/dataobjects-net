@@ -35,17 +35,16 @@ namespace Xtensive.Sql.Dml
         return context.NodeMapping[this];
       }
 
-      var clone = new SqlTableRef {Name = Name, DataTable = DataTable};
-      context.NodeMapping[this] = clone;
-      var index = 0;
-      var columnClones = new SqlTableColumn[columns.Count];
-      foreach (var column in columns) {
-        columnClones[index++] = (SqlTableColumn) column.Clone(context);
+      {
+        var clone = new SqlTableRef {Name = Name, DataTable = DataTable};
+        context.NodeMapping[this] = clone;
+        var columnClones = new List<SqlTableColumn>(columns.Count);
+        columnClones.AddRange(columns.Select(column => (SqlTableColumn) column.Clone(context)));
+
+        clone.columns = new SqlTableColumnCollection(columnClones);
+
+        return clone;
       }
-
-      clone.columns = new SqlTableColumnCollection(columnClones);
-
-      return clone;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
@@ -67,19 +66,14 @@ namespace Xtensive.Sql.Dml
       : base(name)
     {
       DataTable = dataTable;
-      SqlTableColumn[] tableColumns;
+      List<SqlTableColumn> tableColumns;
       if (columnNames.Length == 0) {
-        var index = 0;
-        tableColumns = new SqlTableColumn[dataTable.Columns.Count];
-        foreach (var column in dataTable.Columns) {
-          tableColumns[index++] = SqlDml.TableColumn(this, column.Name);
-        }
+        tableColumns = new List<SqlTableColumn>(dataTable.Columns.Count);
+        tableColumns.AddRange(dataTable.Columns.Select(column => SqlDml.TableColumn(this, column.Name)));
       }
       else {
-        tableColumns = new SqlTableColumn[columnNames.Length];
-        for (var index = 0; index < tableColumns.Length; index++) {
-          tableColumns[index] = SqlDml.TableColumn(this, columnNames[index]);
-        }
+        tableColumns = new List<SqlTableColumn>(columnNames.Length);
+        tableColumns.AddRange(columnNames.Select(columnName => SqlDml.TableColumn(this, columnName)));
       }
       columns = new SqlTableColumnCollection(tableColumns);
     }

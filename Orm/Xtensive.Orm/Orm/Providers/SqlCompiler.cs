@@ -175,7 +175,7 @@ namespace Xtensive.Orm.Providers
         ? left.PermanentReference
         : left.Request.Statement.From;
       var leftColumns = leftShouldUseReference
-        ? leftTable.Columns.Cast<SqlColumn>()
+        ? (IReadOnlyList<SqlColumn>) leftTable.Columns
         : left.Request.Statement.Columns;
       var leftExpressions = leftShouldUseReference
         ? leftTable.Columns.Cast<SqlExpression>().ToList()
@@ -186,7 +186,7 @@ namespace Xtensive.Orm.Providers
         ? right.PermanentReference
         : right.Request.Statement.From;
       var rightColumns = rightShouldUseReference
-        ? rightTable.Columns.Cast<SqlColumn>()
+        ? (IReadOnlyList<SqlColumn>) rightTable.Columns
         : right.Request.Statement.Columns;
       var rightExpressions = rightShouldUseReference
         ? rightTable.Columns.Cast<SqlExpression>().ToList()
@@ -207,8 +207,8 @@ namespace Xtensive.Orm.Providers
         joinType,
         leftTable,
         rightTable,
-        leftColumns.ToList(),
-        rightColumns.ToList(),
+        leftColumns,
+        rightColumns,
         joinExpression);
 
       var query = SqlDml.Select(joinedTable);
@@ -231,10 +231,10 @@ namespace Xtensive.Orm.Providers
         ? left.PermanentReference
         : left.Request.Statement.From;
       var leftColumns = leftShouldUseReference
-        ? leftTable.Columns.Cast<SqlColumn>()
+        ? (IReadOnlyList<SqlColumn>) leftTable.Columns
         : left.Request.Statement.Columns;
       var leftExpressions = leftShouldUseReference
-        ? leftTable.Columns.Cast<SqlExpression>().ToList()
+        ? (IReadOnlyList<SqlExpression>) leftTable.Columns
         : ExtractColumnExpressions(left.Request.Statement);
 
       var rightShouldUseReference = ShouldUseQueryReference(provider, right);
@@ -242,10 +242,10 @@ namespace Xtensive.Orm.Providers
         ? right.PermanentReference
         : right.Request.Statement.From;
       var rightColumns = rightShouldUseReference
-        ? rightTable.Columns.Cast<SqlColumn>()
+        ? (IReadOnlyList<SqlColumn>) rightTable.Columns
         : right.Request.Statement.Columns;
       var rightExpressions = rightShouldUseReference
-        ? rightTable.Columns.Cast<SqlExpression>().ToList()
+        ? (IReadOnlyList<SqlExpression>) rightTable.Columns
         : ExtractColumnExpressions(right.Request.Statement);
 
 
@@ -259,8 +259,8 @@ namespace Xtensive.Orm.Providers
         joinType,
         leftTable,
         rightTable,
-        leftColumns.ToList(),
-        rightColumns.ToList(),
+        leftColumns,
+        rightColumns,
         joinExpression);
 
       var query = SqlDml.Select(joinedTable);

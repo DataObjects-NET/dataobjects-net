@@ -167,7 +167,7 @@ namespace Xtensive.Orm.Providers
         ? left.PermanentReference
         : left.Request.Statement.From;
       var leftColumns = leftShouldUseReference
-        ? leftTable.Columns.Cast<SqlColumn>()
+        ? (IReadOnlyList<SqlColumn>) leftTable.Columns
         : left.Request.Statement.Columns;
 
       var rightShouldUseReference = ShouldUseQueryReference(provider, right);
@@ -175,7 +175,7 @@ namespace Xtensive.Orm.Providers
         ? right.PermanentReference
         : right.Request.Statement.From;
       var rightColumns = rightShouldUseReference
-        ? rightTable.Columns.Cast<SqlColumn>()
+        ? (IReadOnlyList<SqlColumn>) rightTable.Columns
         : right.Request.Statement.Columns;
 
       var joinType = provider.ApplyType==JoinType.LeftOuter
@@ -186,8 +186,8 @@ namespace Xtensive.Orm.Providers
         joinType,
         leftTable,
         rightTable,
-        leftColumns.ToList(),
-        rightColumns.ToList());
+        leftColumns,
+        rightColumns);
 
       var query = SqlDml.Select(joinedTable);
       if (!leftShouldUseReference)
