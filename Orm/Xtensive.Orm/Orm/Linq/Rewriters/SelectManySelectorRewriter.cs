@@ -6,6 +6,7 @@
 
 using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Linq;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
@@ -42,7 +43,7 @@ namespace Xtensive.Orm.Linq.Rewriters
         result = null;
         return false;
       }
-      result = Expression.Lambda(body, parameters);
+      result = FastExpression.Lambda(body, parameters);
       return true;
     }
 

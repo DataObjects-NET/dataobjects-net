@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Linq;
 using Xtensive.Orm;
 
 namespace Xtensive.Orm.Security
@@ -54,7 +55,7 @@ namespace Xtensive.Orm.Security
             continue;
           }
           var p = Expression.Parameter(queryType, "p");
-          var where = (Expression<Func<T, bool>>) Expression.Lambda(Expression.Not(Expression.TypeIs(p, permissionType)), p);
+          var where = (Expression<Func<T, bool>>) FastExpression.Lambda(Expression.Not(Expression.TypeIs(p, permissionType)), p);
           candidates.Add(InsecureQuery.All<T>().Where(where).Concat(permission.Query(context, InsecureQuery).OfType<T>()));
         }
         // Query<Dog> && Permission<Animal>
