@@ -18,32 +18,36 @@ namespace Xtensive.Orm.Linq.Expressions
   {
     private IPersistentExpression owner;
 
-    public new FieldInfo Field { get; private set; }
+    public new FieldInfo Field { get; }
 
     public virtual IPersistentExpression Owner
     {
-      get { return owner; }
+      get => owner;
       internal set
       {
-        if (owner!=null)
+        if (owner!=null) {
           throw Exceptions.AlreadyInitialized("Owner");
+        }
+
         owner = value;
       }
     }
 
     public override Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap)
+      if (!CanRemap) {
         return this;
+      }
 
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
+      if (processedExpressions.TryGetValue(this, out var result)) {
         return result;
+      }
 
       var mapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
       result = new FieldExpression(ExtendedExpressionType.Field, Field, mapping, OuterParameter, DefaultIfEmpty);
-      if (owner == null)
+      if (owner == null) {
         return result;
+      }
 
       processedExpressions.Add(this, result);
       Owner.Remap(offset, processedExpressions);

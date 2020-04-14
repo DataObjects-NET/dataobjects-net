@@ -7,10 +7,7 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Collections;
-using Xtensive.Orm.Tests;
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Tests.Core.Tuples
 {
@@ -52,40 +49,38 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     [Category("Performance")]
     public void PerformanceTest()
     {
-      Random r = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
-      
-      int count = 100;
-      List<Type> types = new List<Type>();
-      List<TupleDescriptor> descriptors = new List<TupleDescriptor>();
+      var rnd = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
+      var count = 100;
+      var types = new List<Type>();
+      var descriptors = new List<TupleDescriptor>();
       using (new Measurement("Creating descriptors {T1}, {T1,T2}, ...", count)) {
-        for (int i = 0; i<count; i++) {
+        for (var i = 0; i<count; i++) {
           types.Add(typeof (bool));
-          descriptors.Add(TupleDescriptor.Create(types));
+          descriptors.Add(TupleDescriptor.Create(types.ToArray()));
         }
       }
 
       count = 1000;
-      int maxSize = 10;
+      var maxSize = 10;
       int size;
       using (new Measurement("Creating random descriptors", count)) {
-        for (int i = 0; i<count; i++) {
-          size = r.Next(maxSize);
+        for (var i = 0; i<count; i++) {
+          size = rnd.Next(maxSize);
           types = new List<Type>(size);
-          for (int j = 0; j < size; j++)
-            types.Add(FieldTypes[r.Next(FieldTypes.Length)]);
-          descriptors.Add(TupleDescriptor.Create(types));
+          for (var j = 0; j < size; j++)
+            types.Add(FieldTypes[rnd.Next(FieldTypes.Length)]);
+          descriptors.Add(TupleDescriptor.Create(types.ToArray()));
         }
       }
 
       count = 100000;
       size = 10;
       types = new List<Type>(size);
-      for (int j = 0; j < size; j++)
-        types.Add(FieldTypes[r.Next(FieldTypes.Length)]);
+      for (var j = 0; j < size; j++)
+        types.Add(FieldTypes[rnd.Next(FieldTypes.Length)]);
       using (new Measurement("Creating the same descriptor", count)) {
-        for (int i = 0; i<count; i++) {
-          descriptors.Add(TupleDescriptor.Create(types));
-        }
+        for (var i = 0; i<count; i++)
+          descriptors.Add(TupleDescriptor.Create(types.ToArray()));
       }
     }
     
@@ -122,10 +117,10 @@ namespace Xtensive.Orm.Tests.Core.Tuples
       desc = TestDescriptor(desc, new Type[] {typeof(bool?), typeof(bool), typeof(bool?)});
     }
 
-    private TupleDescriptor TestDescriptor(TupleDescriptor theSame, IList<Type> types)
+    private TupleDescriptor TestDescriptor(TupleDescriptor theSame, Type[] types)
     {
-      TupleDescriptor d1 = TupleDescriptor.Create(types);
-      TupleDescriptor d2 = TupleDescriptor.Create(types);
+      var d1 = TupleDescriptor.Create(types);
+      var d2 = TupleDescriptor.Create(types);
       Assert.IsNotNull(d1);
       Assert.IsNotNull(d2);
       Assert.AreEqual(d1, d2);

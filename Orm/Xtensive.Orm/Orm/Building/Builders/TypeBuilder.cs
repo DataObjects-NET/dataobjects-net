@@ -443,7 +443,8 @@ namespace Xtensive.Orm.Building.Builders
         .Select(field => field.Column)
         .ToList();
 
-      var keyTupleDescriptor = TupleDescriptor.Create(keyColumns.Select(c => c.ValueType));
+      var keyTupleDescriptor = TupleDescriptor.Create(
+        keyColumns.Select(c => c.ValueType).ToArray(keyColumns.Count));
       var typeIdColumnIndex = -1;
       if (hierarchyDef.IncludeTypeId)
         for (int i = 0; i < keyColumns.Count; i++)

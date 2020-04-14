@@ -8,7 +8,7 @@ namespace Xtensive.Tuples.Packed
 {
   internal enum FieldPackingType
   {
-     Object,
-     Value,
+     Object = 0,
+     Value = 1
   }
 }

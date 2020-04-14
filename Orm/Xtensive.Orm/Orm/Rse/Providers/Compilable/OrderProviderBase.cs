@@ -11,7 +11,7 @@ using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Comparison;
 using Xtensive.Core;
-
+using Xtensive.Orm.FullTextSearchCondition.Nodes;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
@@ -74,8 +74,15 @@ namespace Xtensive.Orm.Rse.Providers
         comparisonRules[i] = new ComparisonRule(orderItem.Value, culture);
       }
 
-      var orderKeyDescriptor = TupleDescriptor.Create(Order.Select(p => Header.Columns[p.Key].Type));
-      OrderKeyExtractorTransform = new MapTransform(true, orderKeyDescriptor, Order.Select(p => p.Key).ToArray());
+      var fieldTypes = new Type[Order.Count];
+      var map = new int[Order.Count];
+      for (var i = 0; i < Order.Count; i++) {
+        var p = Order[i];
+        fieldTypes[i] = Header.Columns[p.Key].Type;
+        map[i] = p.Key;
+      }
+      var orderKeyDescriptor = TupleDescriptor.Create(fieldTypes);
+      OrderKeyExtractorTransform = new MapTransform(true, orderKeyDescriptor, map);
     }
 
 

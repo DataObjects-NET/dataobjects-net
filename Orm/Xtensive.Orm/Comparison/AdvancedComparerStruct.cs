@@ -19,7 +19,7 @@ namespace Xtensive.Comparison
   /// </summary>
   /// <typeparam name="T">The type of <see cref="IAdvancedComparer{T}"/> generic argument.</typeparam>
   [Serializable]
-  public struct AdvancedComparerStruct<T>: ISerializable
+  public readonly struct AdvancedComparerStruct<T>: ISerializable
   {
     /// <summary>
     /// Gets <see cref="AdvancedComparerStruct{T}"/> for <see cref="AdvancedComparer{T}.Default"/> comparer.
@@ -29,7 +29,7 @@ namespace Xtensive.Comparison
     /// <summary>
     /// Gets <see cref="AdvancedComparerStruct{T}"/> for <see cref="AdvancedComparer{T}.System"/> comparer.
     /// </summary>
-    public readonly static AdvancedComparerStruct<T> System = new AdvancedComparerStruct<T>(AdvancedComparer<T>.System);
+    public static readonly AdvancedComparerStruct<T> System = new AdvancedComparerStruct<T>(AdvancedComparer<T>.System);
 
     /// <summary>
     /// Gets the underlying comparer for this cache.
@@ -44,12 +44,12 @@ namespace Xtensive.Comparison
     /// <summary>
     /// Gets <see cref="IEqualityComparer{T}.Equals(T,T)"/> method delegate.
     /// </summary>
-    public readonly new Predicate<T, T> Equals;
+    public new readonly Predicate<T, T> Equals;
 
     /// <summary>
     /// Gets <see cref="IEqualityComparer{T}.GetHashCode(T)"/> method delegate.
     /// </summary>
-    public readonly new Func<T, int> GetHashCode;
+    public new readonly Func<T, int> GetHashCode;
 
     /// <summary>
     /// Gets <see cref="INearestValueProvider{T}.GetNearestValue"/> method delegate.
@@ -92,11 +92,11 @@ namespace Xtensive.Comparison
     private AdvancedComparerStruct(AdvancedComparer<T> comparer)
     {
       Comparer = comparer;
-      Compare = Comparer==null ? null : Comparer.Compare;
-      Equals = Comparer==null ? null : Comparer.Equals;
-      GetHashCode = Comparer==null ? null : Comparer.GetHashCode;
-      GetNearestValue = Comparer==null ? null : Comparer.GetNearestValue;
-      ValueRangeInfo = Comparer==null ? null : Comparer.ValueRangeInfo;
+      Compare = Comparer?.Compare;
+      Equals = Comparer?.Equals;
+      GetHashCode = Comparer?.GetHashCode;
+      GetNearestValue = Comparer?.GetNearestValue;
+      ValueRangeInfo = Comparer?.ValueRangeInfo;
     }
 
     /// <summary>
@@ -107,11 +107,11 @@ namespace Xtensive.Comparison
     private AdvancedComparerStruct(SerializationInfo info, StreamingContext context)
     {
       Comparer = (AdvancedComparer<T>)info.GetValue("Comparer", typeof(AdvancedComparer<T>));
-      Compare = Comparer==null ? null : Comparer.Compare;
-      Equals = Comparer==null ? null : Comparer.Equals;
-      GetHashCode = Comparer==null ? null : Comparer.GetHashCode;
-      GetNearestValue = Comparer==null ? null : Comparer.GetNearestValue;
-      ValueRangeInfo = Comparer==null ? null : Comparer.ValueRangeInfo;
+      Compare = Comparer?.Compare;
+      Equals = Comparer?.Equals;
+      GetHashCode = Comparer?.GetHashCode;
+      GetNearestValue = Comparer?.GetNearestValue;
+      ValueRangeInfo = Comparer?.ValueRangeInfo;
     }
 
     /// <inheritdoc/>

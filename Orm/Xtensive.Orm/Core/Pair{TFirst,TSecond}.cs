@@ -8,8 +8,6 @@ using System;
 using System.Diagnostics;
 using Xtensive.Comparison;
 
-
-
 namespace Xtensive.Core
 {
   /// <summary>
@@ -19,7 +17,7 @@ namespace Xtensive.Core
   /// <typeparam name="TSecond">The <see cref="Type"/> of second value.</typeparam>
   [Serializable]
   [DebuggerDisplay("{First}, {Second}")]
-  public struct Pair<TFirst, TSecond> : 
+  public readonly struct Pair<TFirst, TSecond> : 
     IComparable<Pair<TFirst, TSecond>>,
     IEquatable<Pair<TFirst, TSecond>>
   {
@@ -67,9 +65,7 @@ namespace Xtensive.Core
     public override int GetHashCode()
     {
       unchecked {
-        int result = (First!=null ? First.GetHashCode() : 0);
-        result = (result * 397) ^ (Second!=null ? Second.GetHashCode() : 0);
-        return result;
+        return ((First?.GetHashCode() ?? 0) * 397) ^ (Second?.GetHashCode() ?? 0);
       }
     }
 

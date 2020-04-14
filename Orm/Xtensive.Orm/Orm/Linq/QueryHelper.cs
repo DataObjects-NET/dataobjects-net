@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    public static Expression<Func<Tuple, bool>> BuildFilterLambda(int startIndex, IList<Type> keyColumnTypes, Parameter<Tuple> keyParameter)
+    public static Expression<Func<Tuple, bool>> BuildFilterLambda(int startIndex, IReadOnlyList<Type> keyColumnTypes, Parameter<Tuple> keyParameter)
     {
       Expression filterExpression = null;
       var tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
