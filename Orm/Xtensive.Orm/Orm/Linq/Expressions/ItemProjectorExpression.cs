@@ -5,7 +5,6 @@
 // Created:    2009.05.06
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Linq.Expressions.Visitors;
@@ -139,9 +138,12 @@ namespace Xtensive.Orm.Linq.Expressions
           var joinedIndex = typeInfo.Indexes.PrimaryIndex;
           var joinedRs = joinedIndex.GetQuery().Alias(Context.GetNextAlias());
           var keySegment = entityExpression.Key.Mapping;
-          var keyPairs = keySegment.GetItems()
-            .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-            .ToArray();
+          var keyPairs = new Pair<int>[keySegment.Length];
+          var rightIndex = 0;
+          foreach (var leftIndex in keySegment.GetItems()) {
+            keyPairs[rightIndex] = new Pair<int>(leftIndex, rightIndex);
+            rightIndex++;
+          }
           var offset = dataSource.Header.Length;
           var dataSourceAsJoin = dataSource as JoinProvider;
           dataSource = entityExpression.IsNullable || (dataSourceAsJoin!=null && dataSourceAsJoin.JoinType==JoinType.LeftOuter)
@@ -158,9 +160,12 @@ namespace Xtensive.Orm.Linq.Expressions
           var joinedIndex = typeInfo.Indexes.PrimaryIndex;
           var joinedRs = joinedIndex.GetQuery().Alias(Context.GetNextAlias());
           var keySegment = entityFieldExpression.Mapping;
-          var keyPairs = keySegment.GetItems()
-            .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-            .ToArray();
+          var keyPairs = new Pair<int>[keySegment.Length];
+          var rightIndex = 0;
+          foreach (var leftIndex in keySegment.GetItems()) {
+            keyPairs[rightIndex] = new Pair<int>(leftIndex, rightIndex);
+            rightIndex++;
+          }
           var offset = dataSource.Header.Length;
           var dataSourceAsJoin = dataSource as JoinProvider;
           dataSource = entityFieldExpression.IsNullable || (dataSourceAsJoin!=null && dataSourceAsJoin.JoinType==JoinType.LeftOuter)
