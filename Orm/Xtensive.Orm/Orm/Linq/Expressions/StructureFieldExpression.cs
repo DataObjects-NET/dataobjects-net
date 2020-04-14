@@ -46,8 +46,8 @@ namespace Xtensive.Orm.Linq.Expressions
       if (processedExpressions.TryGetValue(this, out value))
         return value;
 
-      var mapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
-      var result = new StructureFieldExpression(PersistentType, Field, mapping, OuterParameter, DefaultIfEmpty);
+      var newMapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
+      var result = new StructureFieldExpression(PersistentType, Field, newMapping, OuterParameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
       var processedFields = Fields
         .Select(f => f.Remap(offset, processedExpressions))
@@ -183,7 +183,7 @@ namespace Xtensive.Orm.Linq.Expressions
     private StructureFieldExpression(
       TypeInfo persistentType, 
       FieldInfo structureField, 
-      Segment<int> mapping, 
+      in Segment<int> mapping,
       ParameterExpression parameterExpression, 
       bool defaultIfEmpty)
       : base(ExtendedExpressionType.StructureField, structureField, mapping, parameterExpression, defaultIfEmpty)

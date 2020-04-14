@@ -496,7 +496,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return result;
     }
 
-    private static Tuple GetTupleSegment(Tuple tuple, Segment<int> segment)
+    private static Tuple GetTupleSegment(Tuple tuple, in Segment<int> segment)
     {
       return tuple.GetSegment(segment).ToRegular();
     }

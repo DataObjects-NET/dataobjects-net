@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Internals
       return false;
     }
 
-    public static bool ContainsEmptyValues(this Tuple target, Segment<int> segment)
+    public static bool ContainsEmptyValues(this Tuple target, in Segment<int> segment)
     {
       for (int i = segment.Offset; i < segment.EndOffset; i++) {
         var state = target.GetFieldState(i);
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Internals
       return false;
     }
 
-    public static bool ContainsNonEmptyValues(this Tuple target, Segment<int> segment)
+    public static bool ContainsNonEmptyValues(this Tuple target, in Segment<int> segment)
     {
       for (int i = segment.Offset; i < segment.EndOffset; i++) {
         var state = target.GetFieldState(i);
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Internals
       return false;
     }
 
-    public static bool AreAllColumnsAvalilable(this Tuple target, Segment<int> segment)
+    public static bool AreAllColumnsAvalilable(this Tuple target, in Segment<int> segment)
     {
       for (int i = segment.Offset; i < segment.EndOffset; i++) {
         var state = target.GetFieldState(i);
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Internals
       return true;
     }
 
-    public static bool IsAtLeastOneColumAvailable(this Tuple target, Segment<int> segment)
+    public static bool IsAtLeastOneColumAvailable(this Tuple target, in Segment<int> segment)
     {
       for (int i = segment.Offset; i < segment.EndOffset; i++) {
         var state = target.GetFieldState(i);

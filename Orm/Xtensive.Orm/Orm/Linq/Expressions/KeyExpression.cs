@@ -34,12 +34,12 @@ namespace Xtensive.Orm.Linq.Expressions
     // in case processedExpressions dictionary already contains a result.
     private Expression RemapWithNoCheck(int offset, Dictionary<Expression, Expression> processedExpressions)
     {
-      var mapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
+      var newMapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
 
       FieldExpression Remap(FieldExpression f) => (FieldExpression) f.Remap(offset, processedExpressions);
 
       var fields = KeyFields.Select(Remap).ToArray(KeyFields.Count);
-      var result = new KeyExpression(EntityType, fields, mapping, UnderlyingProperty, OuterParameter, DefaultIfEmpty);
+      var result = new KeyExpression(EntityType, fields, newMapping, UnderlyingProperty, OuterParameter, DefaultIfEmpty);
 
       processedExpressions.Add(this, result);
       return result;
@@ -147,7 +147,7 @@ namespace Xtensive.Orm.Linq.Expressions
     private KeyExpression(
       TypeInfo entityType, 
       IReadOnlyList<FieldExpression> keyFields,
-      Segment<int> segment, 
+      in Segment<int> segment,
       PropertyInfo underlyingProperty, 
       ParameterExpression parameterExpression, 
       bool defaultIfEmpty)

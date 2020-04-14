@@ -19,6 +19,7 @@ namespace Xtensive.Orm.Linq.Expressions
     IPersistentExpression
   {
     private List<PersistentFieldExpression> fields;
+    internal Segment<int> Mapping;
     public TypeInfo PersistentType { get; private set; }
 
     public bool IsNullable { get; set; }
@@ -33,8 +34,6 @@ namespace Xtensive.Orm.Linq.Expressions
           fieldExpression.Owner = this;
       }
     }
-
-    public Segment<int> Mapping{ get; private set;}
 
     public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
     {
@@ -118,14 +117,18 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public static StructureExpression CreateLocalCollectionStructure(TypeInfo typeInfo, Segment<int> mapping)
+    public static StructureExpression CreateLocalCollectionStructure(TypeInfo typeInfo, in Segment<int> mapping)
     {
-      if (!typeInfo.IsStructure)
+      if (!typeInfo.IsStructure) {
         throw new ArgumentException(string.Format(Strings.ExTypeXIsNotStructure, typeInfo.Name));
-      var result = new StructureExpression(typeInfo, mapping);
-      result.Fields = typeInfo.Fields
-        .Select(f => BuildNestedFieldExpression(f, mapping.Offset))
-        .ToList();
+      }
+
+      var sourceFields = typeInfo.Fields;
+      var destinationFields = new List<PersistentFieldExpression>(sourceFields.Count);
+      var result = new StructureExpression(typeInfo, mapping) {Fields = destinationFields};
+      foreach (var field in sourceFields) {
+        destinationFields.Add(BuildNestedFieldExpression(field, mapping.Offset));
+      }
       return result;
     }
 
@@ -147,10 +150,10 @@ namespace Xtensive.Orm.Linq.Expressions
 
     private StructureExpression(
       TypeInfo persistentType, 
-      Segment<int> mapping)
+      in Segment<int> mapping)
       : base(ExtendedExpressionType.Structure, persistentType.UnderlyingType, null, false)
     {
-      Mapping = mapping;
+      this.Mapping = mapping;
       PersistentType = persistentType;
     }
   }

@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Linq.Expressions
@@ -15,22 +14,22 @@ namespace Xtensive.Orm.Linq.Expressions
   internal class ColumnExpression : ParameterizedExpression,
     IMappedExpression
   {
-    public Segment<int> Mapping { get; private set; }
+    internal readonly Segment<int> Mapping;
 
     public Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
-      var mapping = new Segment<int>(Mapping.Offset + offset, 1);
-      return new ColumnExpression(Type, mapping, OuterParameter, DefaultIfEmpty);
+      var newMapping = new Segment<int>(Mapping.Offset + offset, 1);
+      return new ColumnExpression(Type, newMapping, OuterParameter, DefaultIfEmpty);
     }
 
     public Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;
-      var mapping = new Segment<int>(map.IndexOf(Mapping.Offset), 1);
-      return new ColumnExpression(Type, mapping, OuterParameter, DefaultIfEmpty);
+      var newMapping = new Segment<int>(map.IndexOf(Mapping.Offset), 1);
+      return new ColumnExpression(Type, newMapping, OuterParameter, DefaultIfEmpty);
     }
 
     public Expression BindParameter(ParameterExpression parameter)
@@ -63,13 +62,13 @@ namespace Xtensive.Orm.Linq.Expressions
     // Constructors
 
     protected ColumnExpression(
-      Type type, 
-      Segment<int> mapping, 
-      ParameterExpression parameterExpression, 
+      Type type,
+      in Segment<int> mapping,
+      ParameterExpression parameterExpression,
       bool defaultIfEmpty)
       : base(ExtendedExpressionType.Column, type, parameterExpression, defaultIfEmpty)
     {
-      Mapping = mapping;
+      this.Mapping = mapping;
     }
   }
 }

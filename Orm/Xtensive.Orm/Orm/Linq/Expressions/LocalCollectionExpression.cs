@@ -18,11 +18,6 @@ namespace Xtensive.Orm.Linq.Expressions
   internal class LocalCollectionExpression : ParameterizedExpression,
     IMappedExpression
   {
-    public Segment<int> Mapping
-    {
-      get { return default(Segment<int>); }
-    }
-
     public Expression SourceExpression { get;private set; }
     public IDictionary<MemberInfo, IMappedExpression> Fields { get; set; }
     public Expression MaterializationExpression { get; private set; }

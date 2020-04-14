@@ -19,7 +19,7 @@ namespace Xtensive.Core
   /// <typeparam name="T">The type of segment boundaries.</typeparam>
   [Serializable]
   [DebuggerDisplay("Offset = {Offset}, Length = {Length}")]
-  public struct Segment<T>
+  public readonly struct Segment<T>
   {
     private static ArithmeticStruct<T> arithmetic = ArithmeticStruct<T>.Default;
 
@@ -87,7 +87,7 @@ namespace Xtensive.Core
     /// <param name="segment">The segment.</param>
     /// <param name="offsetShift">The offset shift.</param>
     /// <returns>The result of the operator.</returns>
-    public static Segment<T> operator +(Segment<T> segment, T offsetShift)
+    public static Segment<T> operator +(in Segment<T> segment, T offsetShift)
     {
       var newOffset = arithmetic.Add(segment.Offset, offsetShift);
       return new Segment<T>(newOffset, segment.Length);
@@ -99,7 +99,7 @@ namespace Xtensive.Core
     /// <param name="segment">The segment.</param>
     /// <param name="offsetShift">The offset shift.</param>
     /// <returns>The result of the operator.</returns>
-    public static Segment<T> operator -(Segment<T> segment, T offsetShift)
+    public static Segment<T> operator -(in Segment<T> segment, T offsetShift)
     {
       var newOffset = arithmetic.Subtract(segment.Offset, offsetShift);
       return new Segment<T>(newOffset, segment.Length);

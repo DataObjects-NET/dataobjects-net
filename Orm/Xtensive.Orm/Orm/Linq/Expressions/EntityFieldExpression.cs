@@ -176,7 +176,7 @@ namespace Xtensive.Orm.Linq.Expressions
       TypeInfo persistentType, 
       FieldInfo field, 
       List<PersistentFieldExpression> fields,
-      Segment<int> mapping, 
+      in Segment<int> mapping,
       KeyExpression key, 
       EntityExpression entity, 
       ParameterExpression parameterExpression, 

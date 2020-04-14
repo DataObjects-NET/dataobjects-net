@@ -22,12 +22,6 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public EntityExpression EntityExpression { get; private set; }
 
-    /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
-    public Segment<int> Mapping
-    {
-      get { throw new NotSupportedException(); }
-    }
-
     public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       Expression result;
