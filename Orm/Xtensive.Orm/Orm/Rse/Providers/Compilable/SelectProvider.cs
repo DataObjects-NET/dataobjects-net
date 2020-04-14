@@ -41,20 +41,21 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     ///   Initializes a new instance of this class.
     /// </summary>
-    public SelectProvider(CompilableProvider provider, int[] columnIndexes)
-      : base(ProviderType.Select, provider)
-    {
-      this.ColumnIndexes = Array.AsReadOnly(columnIndexes);
-      Initialize();
-    }
-
-    /// <summary>
-    ///   Initializes a new instance of this class.
-    /// </summary>
     public SelectProvider(CompilableProvider provider, IReadOnlyList<int> columnIndexes)
       : base(ProviderType.Select, provider)
     {
-      this.ColumnIndexes = columnIndexes is int[] indexes  ? indexes : columnIndexes;
+      switch (columnIndexes) {
+        case int[] indexArray:
+          ColumnIndexes = Array.AsReadOnly(indexArray);
+          break;
+        case List<int> indexList:
+          ColumnIndexes = indexList.AsReadOnly();
+          break;
+        default:
+          ColumnIndexes = columnIndexes;
+          break;
+      }
+
       Initialize();
     }
   }

@@ -93,7 +93,19 @@ namespace Xtensive.Orm.Rse.Providers
       IsInlined = isInlined;
       FilterDataSource = filterDataSource;
       ResultColumnName = resultColumnName;
-      FilteredColumns = filteredColumns is int[] columns ? Array.AsReadOnly(columns) : filteredColumns;
+
+      switch (filteredColumns) {
+        case int[] columnArray:
+          FilteredColumns = Array.AsReadOnly(columnArray);
+          break;
+        case List<int> columnList:
+          FilteredColumns = columnList.AsReadOnly();
+          break;
+        default:
+          FilteredColumns = filteredColumns;
+          break;
+      }
+
       Initialize();
     }
   }
