@@ -7,11 +7,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using System.Linq;
-
 
 namespace Xtensive.Orm.Linq.Expressions
 {
@@ -19,40 +17,39 @@ namespace Xtensive.Orm.Linq.Expressions
     IPersistentExpression
   {
     private List<PersistentFieldExpression> fields;
-    public TypeInfo PersistentType { get; private set; }
+    public TypeInfo PersistentType { get; }
 
-    public bool IsNullable
-    {
-      get { return Owner != null && Owner.IsNullable; }
-    }
+    public bool IsNullable => Owner != null && Owner.IsNullable;
 
     public List<PersistentFieldExpression> Fields
     {
-      get { return fields; }
-      private set
-      {
+      get => fields;
+      private set {
         fields = value;
-        foreach (var fieldExpression in fields.OfType<FieldExpression>())
+        foreach (var fieldExpression in fields.OfType<FieldExpression>()) {
           fieldExpression.Owner = this;
+        }
       }
     }
 
     public override Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap)
+      if (!CanRemap) {
         return this;
+      }
 
-      Expression value;
-      if (processedExpressions.TryGetValue(this, out value))
+      if (processedExpressions.TryGetValue(this, out var value)) {
         return value;
+      }
 
       var newMapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
       var result = new StructureFieldExpression(PersistentType, Field, newMapping, OuterParameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
-      var processedFields = Fields
-        .Select(f => f.Remap(offset, processedExpressions))
-        .Cast<PersistentFieldExpression>()
-        .ToList();
+      var processedFields = new List<PersistentFieldExpression>(fields.Count);
+      foreach (var field in fields) {
+        // Do not convert to LINQ. We want to avoid a closure creation here.
+        processedFields.Add((PersistentFieldExpression) field.Remap(offset, processedExpressions));
+      }
       if (Owner == null) {
         result.fields = processedFields;
         return result;
@@ -65,27 +62,38 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap)
+      if (!CanRemap) {
         return this;
+      }
 
-      Expression value;
-      if (processedExpressions.TryGetValue(this, out value))
+      if (processedExpressions.TryGetValue(this, out var value)) {
         return value;
+      }
 
-      var result = new StructureFieldExpression(PersistentType, Field, default(Segment<int>), OuterParameter, DefaultIfEmpty);
+      var result = new StructureFieldExpression(PersistentType, Field, default, OuterParameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
-      var processedFields = Fields
-        .Select(f => f.Remap(map, processedExpressions))
-        .Where(f => f != null)
-        .Cast<PersistentFieldExpression>()
-        .ToList();
+      var offset = int.MaxValue;
+      var processedFields = new List<PersistentFieldExpression>(fields.Count);
+      foreach (var field in fields) {
+        var mappedField = (PersistentFieldExpression) field.Remap(map, processedExpressions);
+        if (mappedField == null) {
+          continue;
+        }
+
+        var mappingOffset = mappedField.Mapping.Offset;
+        if (mappingOffset < offset) {
+          offset = mappingOffset;
+        }
+
+        processedFields.Add(mappedField);
+      }
+
       if (processedFields.Count == 0) {
         processedExpressions[this] = null;
         return null;
       }
-      var length = processedFields.Select(f => f.Mapping.Offset).Distinct().Count();
-      var offset = processedFields.Min(f => f.Mapping.Offset);
-      result.Mapping = new Segment<int>(offset, length);
+
+      result.Mapping = new Segment<int>(offset, processedFields.Count);
       if (Owner == null) {
         result.fields = processedFields;
         return result;
@@ -97,16 +105,18 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression value;
-      if (processedExpressions.TryGetValue(this, out value))
+      if (processedExpressions.TryGetValue(this, out var value)) {
         return value;
+      }
 
       var result = new StructureFieldExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
-      var processedFields = Fields
-        .Select(f => f.BindParameter(parameter, processedExpressions))
-        .Cast<PersistentFieldExpression>()
-        .ToList();
+      var processedFields = new List<PersistentFieldExpression>(fields.Count);
+      foreach (var field in fields) {
+        // Do not convert to LINQ. We want to avoid a closure creation here.
+        processedFields.Add((PersistentFieldExpression) field.BindParameter(parameter, processedExpressions));
+      }
+
       if (Owner == null) {
         result.fields = processedFields;
         return result;
@@ -119,16 +129,18 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression value;
-      if (processedExpressions.TryGetValue(this, out value))
+      if (processedExpressions.TryGetValue(this, out var value)) {
         return value;
+      }
 
       var result = new StructureFieldExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);
       processedExpressions.Add(this, result);
-      var processedFields = Fields
-        .Select(f => f.RemoveOuterParameter(processedExpressions))
-        .Cast<PersistentFieldExpression>()
-        .ToList();
+      var processedFields = new List<PersistentFieldExpression>(fields.Count);
+      foreach (var field in fields) {
+        // Do not convert to LINQ. We want to avoid a closure creation here.
+        processedFields.Add((PersistentFieldExpression) field.RemoveOuterParameter(processedExpressions));
+      }
+
       if (Owner == null) {
         result.fields = processedFields;
         return result;
@@ -141,26 +153,35 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override FieldExpression RemoveOwner()
     {
-      if (Owner==null)
+      if (Owner==null) {
         return this;
-      var result = new StructureFieldExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty);
-      result.fields = fields
-        .Cast<FieldExpression>()
-        .Select(f => (PersistentFieldExpression)f.RemoveOwner())
-        .ToList();
+      }
+
+      var result = new StructureFieldExpression(PersistentType, Field, Mapping, OuterParameter, DefaultIfEmpty) {
+        fields = new List<PersistentFieldExpression>(fields.Count)
+      };
+      foreach (var field in fields) {
+        result.fields.Add(((FieldExpression) field).RemoveOwner());
+      }
       return result;
     }
 
     public static StructureFieldExpression CreateStructure(FieldInfo structureField, int offset)
     {
-      if (!structureField.IsStructure)
+      if (!structureField.IsStructure) {
         throw new ArgumentException(string.Format(Strings.ExFieldIsNotStructure, structureField.Name));
+      }
+
       var persistentType = structureField.ReflectedType.Model.Types[structureField.ValueType];
       var mapping = new Segment<int>(offset + structureField.MappingInfo.Offset, structureField.MappingInfo.Length);
       var result = new StructureFieldExpression(persistentType, structureField, mapping, null, false);
-      result.Fields = persistentType.Fields
-        .Select(f => BuildNestedFieldExpression(f, offset + structureField.MappingInfo.Offset))
-        .ToList();
+      var processedFields = new List<PersistentFieldExpression>(persistentType.Fields.Count);
+      foreach (var field in persistentType.Fields) {
+        // Do not convert to LINQ. We want to avoid a closure creation here.
+        processedFields.Add(BuildNestedFieldExpression(field, offset + structureField.MappingInfo.Offset));
+      }
+
+      result.Fields = processedFields;
       return result;
     }
 
