@@ -16,15 +16,14 @@ namespace Xtensive.Orm.Linq.Expressions
   internal sealed class EntityFieldExpression : FieldExpression,
     IEntityExpression
   {
-    public TypeInfo PersistentType { get; private set; }
-    public List<PersistentFieldExpression> Fields { get; private set; }
-    public KeyExpression Key { get; private set; }
+    private readonly List<PersistentFieldExpression> fields;
+
+    public TypeInfo PersistentType { get; }
+    public List<PersistentFieldExpression> Fields => fields;
+    public KeyExpression Key { get; }
     public EntityExpression Entity { get; private set; }
 
-    public bool IsNullable 
-    { 
-      get { return Owner != null && Owner.IsNullable || Field.IsNullable; }
-    }
+    public bool IsNullable => (Owner != null && Owner.IsNullable) || Field.IsNullable;
 
     public void RegisterEntityExpression(int offset)
     {
@@ -34,24 +33,27 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap)
+      if (!CanRemap) {
         return this;
+      }
 
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
+      if (processedExpressions.TryGetValue(this, out var result)) {
         return result;
+      }
 
-      var fields = Fields
-        .Select(f => f.Remap(offset, processedExpressions))
-        .Cast<PersistentFieldExpression>()
-        .ToList();
+      var newFields = new List<PersistentFieldExpression>(fields.Count);
+      foreach (var field in fields) {
+        // Do not convert to LINQ. We want to avoid a closure creation here.
+        newFields.Add((PersistentFieldExpression) field.Remap(offset, processedExpressions));
+      }
+
       var keyExpression = (KeyExpression) Key.Remap(offset, processedExpressions);
-      var entity = Entity!=null
-        ? (EntityExpression) Entity.Remap(offset, processedExpressions)
-        : null;
-      result = new EntityFieldExpression(PersistentType, Field, fields, keyExpression.Mapping, keyExpression, entity, OuterParameter, DefaultIfEmpty);
-      if (Owner==null)
+      var entity = (EntityExpression) Entity?.Remap(offset, processedExpressions);
+      result = new EntityFieldExpression(
+        PersistentType, Field, newFields, keyExpression.Mapping, keyExpression, entity, OuterParameter, DefaultIfEmpty);
+      if (Owner==null) {
         return result;
+      }
 
       processedExpressions.Add(this, result);
       Owner.Remap(offset, processedExpressions);
@@ -60,57 +62,68 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
     {
-      if (!CanRemap)
+      if (!CanRemap) {
         return this;
-
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
-        return result;
-
-      List<PersistentFieldExpression> fields;
-      using (new SkipOwnerCheckScope()) {
-        fields = Fields
-          .Select(f => f.Remap(map, processedExpressions))
-          .Where(f => f!=null)
-          .Cast<PersistentFieldExpression>()
-          .ToList();
       }
-      if (fields.Count!=Fields.Count) {
+
+      if (processedExpressions.TryGetValue(this, out var result)) {
+        return result;
+      }
+
+      var newFields = new List<PersistentFieldExpression>(fields.Count);
+      using (new SkipOwnerCheckScope()) {
+        foreach (var field in fields) {
+          // Do not convert to LINQ. We want to avoid a closure creation here.
+          var mappedField = (PersistentFieldExpression) field.Remap(map, processedExpressions);
+          if (mappedField == null) {
+            continue;
+          }
+
+          newFields.Add(mappedField);
+        }
+      }
+
+      if (newFields.Count!=Fields.Count) {
         processedExpressions.Add(this, null);
         return null;
       }
+
       var keyExpression = (KeyExpression) Key.Remap(map, processedExpressions);
       EntityExpression entity;
-      using (new SkipOwnerCheckScope())
-        entity = Entity!=null
-          ? (EntityExpression) Entity.Remap(map, processedExpressions)
-          : null;
-      result = new EntityFieldExpression(PersistentType, Field, fields, keyExpression.Mapping, keyExpression, entity, OuterParameter, DefaultIfEmpty);
-      if (Owner==null)
+      using (new SkipOwnerCheckScope()) {
+        entity = (EntityExpression) Entity?.Remap(map, processedExpressions);
+      }
+
+      result = new EntityFieldExpression(
+        PersistentType, Field, newFields, keyExpression.Mapping, keyExpression, entity, OuterParameter, DefaultIfEmpty);
+      if (Owner==null) {
         return result;
+      }
 
       processedExpressions.Add(this, result);
       Owner.Remap(map, processedExpressions);
       return result;
     }
 
-    public override Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
+    public override Expression BindParameter(
+      ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
+      if (processedExpressions.TryGetValue(this, out var result)) {
         return result;
+      }
 
-      var fields = Fields
-        .Select(f => f.BindParameter(parameter, processedExpressions))
-        .Cast<PersistentFieldExpression>()
-        .ToList();
+      var newFields = new List<PersistentFieldExpression>(fields.Count);
+      foreach (var field in fields) {
+        // Do not convert to LINQ. We want to avoid a closure creation here.
+        newFields.Add((PersistentFieldExpression) field.BindParameter(parameter, processedExpressions));
+      }
       var keyExpression = (KeyExpression) Key.BindParameter(parameter, processedExpressions);
-      var entity = Entity!=null
-        ? (EntityExpression) Entity.BindParameter(parameter, processedExpressions)
-        : null;
-      result = new EntityFieldExpression(PersistentType, Field, fields, Mapping, keyExpression, entity, parameter, DefaultIfEmpty);
-      if (Owner==null)
+      var entity = (EntityExpression) Entity?.BindParameter(parameter, processedExpressions);
+      result = new EntityFieldExpression(
+        PersistentType, Field, newFields, Mapping, keyExpression, entity, parameter, DefaultIfEmpty);
+      if (Owner==null) {
         return result;
+      }
 
       processedExpressions.Add(this, result);
       Owner.BindParameter(parameter, processedExpressions);
@@ -119,21 +132,22 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions)
     {
-      Expression result;
-      if (processedExpressions.TryGetValue(this, out result))
+      if (processedExpressions.TryGetValue(this, out var result)) {
         return result;
+      }
 
-      var fields = Fields
-        .Select(f => f.RemoveOuterParameter(processedExpressions))
-        .Cast<PersistentFieldExpression>()
-        .ToList();
+      var newFields = new List<PersistentFieldExpression>(fields.Count);
+      foreach (var field in fields) {
+        // Do not convert to LINQ. We want to avoid a closure creation here.
+        newFields.Add((PersistentFieldExpression) field.RemoveOuterParameter(processedExpressions));
+      }
       var keyExpression = (KeyExpression) Key.RemoveOuterParameter(processedExpressions);
-      var entity = Entity!=null
-        ? (EntityExpression) Entity.RemoveOuterParameter(processedExpressions)
-        : null;
-      result = new EntityFieldExpression(PersistentType, Field, fields, Mapping, keyExpression, entity, null, DefaultIfEmpty);
-      if (Owner==null)
+      var entity = (EntityExpression) Entity?.RemoveOuterParameter(processedExpressions);
+      result = new EntityFieldExpression(
+        PersistentType, Field, newFields, Mapping, keyExpression, entity, null, DefaultIfEmpty);
+      if (Owner==null) {
         return result;
+      }
 
       processedExpressions.Add(this, result);
       Owner.RemoveOuterParameter(processedExpressions);
@@ -173,18 +187,18 @@ namespace Xtensive.Orm.Linq.Expressions
     // Constructors
 
     private EntityFieldExpression(
-      TypeInfo persistentType, 
-      FieldInfo field, 
+      TypeInfo persistentType,
+      FieldInfo field,
       List<PersistentFieldExpression> fields,
       in Segment<int> mapping,
-      KeyExpression key, 
-      EntityExpression entity, 
-      ParameterExpression parameterExpression, 
+      KeyExpression key,
+      EntityExpression entity,
+      ParameterExpression parameterExpression,
       bool defaultIfEmpty)
       : base(ExtendedExpressionType.EntityField, field, mapping, parameterExpression, defaultIfEmpty)
     {
       PersistentType = persistentType;
-      Fields = fields;
+      this.fields = fields;
       Key = key;
       Entity = entity;
     }
