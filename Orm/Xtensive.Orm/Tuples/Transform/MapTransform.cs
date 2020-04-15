@@ -5,7 +5,7 @@
 // Created:    2008.05.07
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -25,7 +25,7 @@ namespace Xtensive.Tuples.Transform
   {
     private readonly bool isReadOnly;
     private int sourceCount;
-    internal int[] singleSourceMap;
+    internal IReadOnlyList<int> singleSourceMap;
     internal Pair<int, int>[] map;
 
     /// <summary>
@@ -51,47 +51,54 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Gets or sets destination-to-source field map for the first source only.
     /// </summary>
-    public int[] SingleSourceMap {
+    public IReadOnlyList<int> SingleSourceMap {
       [DebuggerStepThrough]
-      get { return singleSourceMap.Copy(); }
-      protected set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        Pair<int, int>[] newMap = new Pair<int, int>[Descriptor.Count];
-        int index = 0;
-        foreach (int mappedIndex in value)
-          newMap[index++] = new Pair<int, int>(0, mappedIndex);
-        while (index < newMap.Length)
-          newMap[index++] = new Pair<int, int>(0, NoMapping);
-        map = newMap;
-        singleSourceMap = value;
-        sourceCount = 1;
+      get => singleSourceMap;
+    }
+
+    protected void SetSingleSourceMap(IReadOnlyList<int> singleSourceMap)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(singleSourceMap, nameof(singleSourceMap));
+      var newMap = new Pair<int, int>[Descriptor.Count];
+      var index = 0;
+      for (; index < newMap.Length && index < singleSourceMap.Count; index++) {
+        newMap[index] = new Pair<int, int>(0, singleSourceMap[index]);
       }
+      while (index < newMap.Length) {
+        newMap[index++] = new Pair<int, int>(0, NoMapping);
+      }
+
+      map = newMap;
+      this.singleSourceMap = singleSourceMap;
+      sourceCount = 1;
     }
 
     /// <summary>
     /// Gets or sets destination-to-source field map.
     /// </summary>
-    public Pair<int, int>[] Map {
+    public IReadOnlyList<Pair<int, int>> Map {
       [DebuggerStepThrough]
-      get { return map.Copy(); }
-      protected set {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        int[] newFirstSourceMap = new int[value.Length];
-        int index = 0;
-        int newSourceCount = -1;
-        foreach (var mappedTo in value) {
-          if (mappedTo.First>newSourceCount)
-            newSourceCount = mappedTo.First;
-          newFirstSourceMap[index++] = mappedTo.First==0 ? mappedTo.Second : -1;
-        }
-        newSourceCount++;
-        map = value;
-        if (newSourceCount==1)
-          singleSourceMap = newFirstSourceMap;
-        else
-          singleSourceMap = null;
-        sourceCount = newSourceCount;
+      get { return Array.AsReadOnly(map); }
+    }
+
+    protected void SetMap(Pair<int, int>[] map)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(map, nameof(map));
+      int[] newFirstSourceMap = new int[map.Length];
+      int index = 0;
+      int newSourceCount = -1;
+      foreach (var mappedTo in map) {
+        if (mappedTo.First>newSourceCount)
+          newSourceCount = mappedTo.First;
+        newFirstSourceMap[index++] = mappedTo.First==0 ? mappedTo.Second : -1;
       }
+      newSourceCount++;
+      this.map = map;
+      if (newSourceCount==1)
+        singleSourceMap = newFirstSourceMap;
+      else
+        singleSourceMap = null;
+      sourceCount = newSourceCount;
     }
 
     /// <inheritdoc/>
@@ -272,7 +279,7 @@ namespace Xtensive.Tuples.Transform
     public MapTransform(bool isReadOnly, TupleDescriptor descriptor, Pair<int, int>[] map)
       : this(isReadOnly, descriptor)
     {
-      Map = map;
+      SetMap(map);
     }
     
     /// <summary>
@@ -281,10 +288,10 @@ namespace Xtensive.Tuples.Transform
     /// <param name="isReadOnly"><see cref="IsReadOnly"/> property value.</param>
     /// <param name="descriptor">Initial <see cref="TupleTransformBase.Descriptor"/> property value.</param>
     /// <param name="map"><see cref="SingleSourceMap"/> property value.</param>
-    public MapTransform(bool isReadOnly, TupleDescriptor descriptor, int[] map)
+    public MapTransform(bool isReadOnly, TupleDescriptor descriptor, IReadOnlyList<int> map)
       : this(isReadOnly, descriptor)
     {
-      SingleSourceMap = map;
+      SetSingleSourceMap(map);
     }
     
     /// <summary>

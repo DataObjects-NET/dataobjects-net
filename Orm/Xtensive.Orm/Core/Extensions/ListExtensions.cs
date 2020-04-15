@@ -8,7 +8,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Core;
 
 
 namespace Xtensive.Core
@@ -18,6 +17,26 @@ namespace Xtensive.Core
   /// </summary>
   public static class ListExtensions
   {
+    /// <summary>
+    /// Searches for the specified <paramref name="item"/> and returns the zero-based index
+    /// of the first occurence within the entire <paramref name="list"/>.
+    /// </summary>
+    /// <param name="list">An instance implementing <see cref="IReadOnlyList{T}"/> to be searched.</param>
+    /// <param name="item">An item to be looked for.</param>
+    /// <returns>A zero based index of the specified <paramref name="item"/> if found;
+    /// otherwise <c>-1</c>.</returns>
+    public static int IndexOf<T>(this IReadOnlyList<T> list, T item)
+    {
+      var comparer = EqualityComparer<T>.Default;
+      for (int index = 0, count = list.Count; index < count; index++) {
+        if (comparer.Equals(list[index], item)) {
+          return index;
+        }
+      }
+
+      return -1;
+    }
+
     #region Copy methods
 
     /// <summary>

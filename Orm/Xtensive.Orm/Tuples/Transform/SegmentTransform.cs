@@ -6,7 +6,6 @@
 
 using System;
 using System.Diagnostics;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
 
@@ -67,7 +66,7 @@ namespace Xtensive.Tuples.Transform
         map[i] = j;
       }
       Descriptor = TupleDescriptor.Create(fields);
-      SingleSourceMap = map;
+      SetSingleSourceMap(map);
     }
   }
 }

@@ -5,6 +5,7 @@
 // Created:    2008.06.04
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
 
 
@@ -19,7 +20,7 @@ namespace Xtensive.Tuples.Transform.Internals
     private Tuple tuple;
 
     /// <inheritdoc/>
-    public override object[] Arguments {
+    public override IReadOnlyList<object> Arguments {
       get {
         Tuple[] copy = new Tuple[1];
         copy[0] = tuple;

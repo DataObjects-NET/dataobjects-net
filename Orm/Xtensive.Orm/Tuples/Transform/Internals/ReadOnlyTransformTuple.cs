@@ -5,9 +5,8 @@
 // Created:    2007.06.15
 
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using Xtensive.Collections;
-using Xtensive.Comparison;
 using Xtensive.Core;
 
 
@@ -31,9 +30,9 @@ namespace Xtensive.Tuples.Transform.Internals
     /// This method always returns <see cref="ArrayUtils{TItem}.EmptyArray"/> of <see cref="object"/>s
     /// to block any access to the original tuple.
     /// </remarks>
-    public override object[] Arguments {
+    public override IReadOnlyList<object> Arguments {
       get {
-        return ArrayUtils<object>.EmptyArray;
+        return Array.Empty<object>();
       }
     }
 

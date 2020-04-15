@@ -5,6 +5,7 @@
 // Created:    2008.05.07
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 
@@ -27,7 +28,7 @@ namespace Xtensive.Tuples.Transform
     /// to produce this tuple.
     /// <see langword="Null"/> means arguments are unknown an this stage.
     /// </summary>
-    public abstract object[] Arguments { get; }
+    public abstract IReadOnlyList<object> Arguments { get; }
 
     /// <inheritdoc/>
     public override TupleDescriptor Descriptor

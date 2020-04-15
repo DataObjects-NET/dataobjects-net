@@ -8,10 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
-
-using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -21,15 +18,10 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class SelectProvider : UnaryProvider
   {
-    private readonly int[] columnIndexes;
-
     /// <summary>
     /// Indexes of columns that should be selected from the <see cref="UnaryProvider.Source"/>.
     /// </summary>
-    public int[] ColumnIndexes {
-      [DebuggerStepThrough]
-      get { return columnIndexes.Copy(); }
-    }
+    public IReadOnlyList<int> ColumnIndexes { [DebuggerStepThrough] get; }
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
@@ -49,10 +41,21 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     ///   Initializes a new instance of this class.
     /// </summary>
-    public SelectProvider(CompilableProvider provider, int[] columnIndexes)
+    public SelectProvider(CompilableProvider provider, IReadOnlyList<int> columnIndexes)
       : base(ProviderType.Select, provider)
     {
-      this.columnIndexes = columnIndexes;
+      switch (columnIndexes) {
+        case int[] indexArray:
+          ColumnIndexes = Array.AsReadOnly(indexArray);
+          break;
+        case List<int> indexList:
+          ColumnIndexes = indexList.AsReadOnly();
+          break;
+        default:
+          ColumnIndexes = columnIndexes;
+          break;
+      }
+
       Initialize();
     }
   }

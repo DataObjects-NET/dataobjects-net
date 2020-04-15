@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
@@ -167,12 +166,15 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var pair = (Pair<object, CacheKey>) cachingKey;
       var selectedColumnIndexes = pair.Second.ColumnIndexes;
-      var keyColumnIndexes = EnumerableUtils.Unfold(0, i => i + 1)
-        .Take(pair.Second.Type.Indexes.PrimaryIndex.KeyColumns.Count).ToArray();
-      var columnCollectionLenght = pair.Second.Type.Indexes.PrimaryIndex.Columns.Count;
+      var keyColumnsCount = pair.Second.Type.Indexes.PrimaryIndex.KeyColumns.Count;
+      var keyColumnIndexes = new int[keyColumnsCount];
+      foreach (var index in Enumerable.Range(0, keyColumnsCount)) {
+        keyColumnIndexes[index] = index;
+      }
+      var columnCollectionLength = pair.Second.Type.Indexes.PrimaryIndex.Columns.Count;
       return pair.Second.Type.Indexes.PrimaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,
-        true, () => includeParameter.Value, String.Format("includeColumnName-{0}", Guid.NewGuid()),
-        keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLenght)).Select(selectedColumnIndexes);
+        true, () => includeParameter.Value, $"includeColumnName-{Guid.NewGuid()}",
+        keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLength)).Select(selectedColumnIndexes);
     }
 
     private void PutLoadedStatesInCache(IEnumerable<Tuple> queryResult, RecordSetReader reader,

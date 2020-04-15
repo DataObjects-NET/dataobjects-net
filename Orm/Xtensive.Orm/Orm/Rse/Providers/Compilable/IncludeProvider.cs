@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 using Xtensive.Tuples;
@@ -27,8 +26,6 @@ namespace Xtensive.Orm.Rse.Providers
   public sealed class IncludeProvider: UnaryProvider,
     IInlinableProvider
   {
-    private readonly int[] filteredColumns;
-
     /// <summary>
     /// Gets a value indicating whether result column should be inlined.
     /// </summary>
@@ -40,7 +37,7 @@ namespace Xtensive.Orm.Rse.Providers
     public string ResultColumnName { get; private set; }
 
     /// <summary>
-    /// Gets the algorithm that performes filtering.
+    /// Gets the algorithm that performs filtering.
     /// For non-SQL storages value of this field has no effect.
     /// </summary>
     public IncludeAlgorithm Algorithm { get; private set; }
@@ -48,10 +45,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets the filtered columns.
     /// </summary>
-    public int[] FilteredColumns {
-      [DebuggerStepThrough]
-      get { return filteredColumns.Copy(); }
-    }
+    public IReadOnlyList<int> FilteredColumns { [DebuggerStepThrough] get; }
 
     /// <summary>
     /// Gets filter data.
@@ -69,9 +63,10 @@ namespace Xtensive.Orm.Rse.Providers
     protected override RecordSetHeader BuildHeader()
     {
       var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, 0, BoolType));
-      var fieldTypes = FilteredColumns
-        .Select(m => newHeader.Columns[m].Type)
-        .ToArray(FilteredColumns.Length);
+      var fieldTypes = new Type[FilteredColumns.Count];
+      for (var index = 0; index < fieldTypes.Length; index++) {
+        fieldTypes[index] = newHeader.Columns[FilteredColumns[index]].Type;
+      }
       var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
       FilteredColumnsExtractionTransform = new MapTransform(true, tupleDescriptor, FilteredColumns);
       ResultTransform = new CombineTransform(true, Source.Header.TupleDescriptor, BoolTupleDescriptor);
@@ -91,7 +86,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="resultColumnName">A value for <see cref="ResultColumnName"/>.</param>
     /// <param name="filteredColumns">A value for <see cref="FilteredColumns"/>.</param>
     public IncludeProvider(CompilableProvider source, IncludeAlgorithm algorithm, bool isInlined,
-      Expression<Func<IEnumerable<Tuple>>> filterDataSource, string resultColumnName, int[] filteredColumns)
+      Expression<Func<IEnumerable<Tuple>>> filterDataSource, string resultColumnName, IReadOnlyList<int> filteredColumns)
       : base(ProviderType.Include, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(filterDataSource, "filterDataSource");
@@ -101,7 +96,19 @@ namespace Xtensive.Orm.Rse.Providers
       IsInlined = isInlined;
       FilterDataSource = filterDataSource;
       ResultColumnName = resultColumnName;
-      this.filteredColumns = filteredColumns.Copy();
+
+      switch (filteredColumns) {
+        case int[] columnArray:
+          FilteredColumns = Array.AsReadOnly(columnArray);
+          break;
+        case List<int> columnList:
+          FilteredColumns = columnList.AsReadOnly();
+          break;
+        default:
+          FilteredColumns = filteredColumns;
+          break;
+      }
+
       Initialize();
     }
   }
