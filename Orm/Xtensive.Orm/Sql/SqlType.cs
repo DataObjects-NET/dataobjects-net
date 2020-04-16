@@ -67,7 +67,7 @@ namespace Xtensive.Sql
     #region Real
 
     /// <summary>
-    /// Floating point number data from –3.40E + 38 through 3.40E + 38. 
+    /// Floating point number data from â€“3.40E + 38 through 3.40E + 38.
     /// Storage size is 4 bytes.
     /// </summary>
     public static readonly SqlType Float = new SqlType("Float");
@@ -82,18 +82,18 @@ namespace Xtensive.Sql
     #region DateTime
 
     /// <summary>
-    /// Date and time data from January 1, 1753 through December 31, 9999, 
-    /// to an accuracy of one three-hundredth of a second (equivalent to 3.33 
-    /// milliseconds or 0.00333 seconds). Values are rounded to increments 
+    /// Date and time data from January 1, 1753 through December 31, 9999,
+    /// to an accuracy of one three-hundredth of a second (equivalent to 3.33
+    /// milliseconds or 0.00333 seconds). Values are rounded to increments
     /// of .000, .003, or .007 seconds.
-    /// Storage size is 8 bytes. 
+    /// Storage size is 8 bytes.
     /// </summary>
     public static readonly SqlType DateTime = new SqlType("DateTime");
 
     /// <summary>
-    /// Date and time data from January 1,1 A.D. through December 31, 9999 A.D., 
+    /// Date and time data from January 1,1 A.D. through December 31, 9999 A.D.,
     /// to an accuracy of 100 nanoseconds.
-    /// Storage size is 8 to 10 bytes. 
+    /// Storage size is 8 to 10 bytes.
     /// </summary>
     public static readonly SqlType DateTimeOffset = new SqlType("DateTimeOffset");
 
@@ -107,22 +107,22 @@ namespace Xtensive.Sql
     #region String
 
     /// <summary>
-    /// Fixed-length Unicode character data of n characters. 
-    /// n must be a value from 1 through 4,000. Storage size is two times n bytes. 
+    /// Fixed-length Unicode character data of n characters.
+    /// n must be a value from 1 through 4,000. Storage size is two times n bytes.
     /// The SQL-92 synonyms for nchar are national char and national character.
     /// </summary>
     public static readonly SqlType Char = new SqlType("Char");
     /// <summary>
-    /// Variable-length Unicode character data of n characters. 
-    /// n must be a value from 1 through 4,000. Storage size, in bytes, is two times 
-    /// the number of characters entered. The data entered can be 0 characters in length. 
+    /// Variable-length Unicode character data of n characters.
+    /// n must be a value from 1 through 4,000. Storage size, in bytes, is two times
+    /// the number of characters entered. The data entered can be 0 characters in length.
     /// The SQL-92 synonyms for nvarchar are national char varying and national character varying.
     /// </summary>
     public static readonly SqlType VarChar = new SqlType("VarChar");
-   
+
     /// <summary>
-    /// Variable-length Unicode data with a maximum length of 2^30 - 1 (1,073,741,823) 
-    /// characters. Storage size, in bytes, is two times the number of characters entered. 
+    /// Variable-length Unicode data with a maximum length of 2^30 - 1 (1,073,741,823)
+    /// characters. Storage size, in bytes, is two times the number of characters entered.
     /// </summary>
     public static readonly SqlType VarCharMax = new SqlType("VarCharMax");
 
@@ -131,19 +131,19 @@ namespace Xtensive.Sql
     #region Binary
 
     /// <summary>
-    /// Fixed-length binary data of n bytes. n must be a value from 1 through 8,000. 
-    /// Storage size is n+4 bytes. 
+    /// Fixed-length binary data of n bytes. n must be a value from 1 through 8,000.
+    /// Storage size is n+4 bytes.
     /// </summary>
     public static readonly SqlType Binary = new SqlType("Binary");
 
     /// <summary>
-    /// Variable-length binary data of n bytes. n must be a value from 1 through 8,000. 
-    /// Storage size is the actual length of the data entered + 4 bytes, not n bytes. 
-    /// The data entered can be 0 bytes in length. 
+    /// Variable-length binary data of n bytes. n must be a value from 1 through 8,000.
+    /// Storage size is the actual length of the data entered + 4 bytes, not n bytes.
+    /// The data entered can be 0 bytes in length.
     /// The SQL-92 synonym for varbinary is binary varying.
     /// </summary>
     public static readonly SqlType VarBinary = new SqlType("VarBinary");
-    
+
     /// <summary>
     /// <para>Variable-length binary data from 0 through 2^31-1 (2,147,483,647) bytes.</para>
     /// </summary>
@@ -154,7 +154,7 @@ namespace Xtensive.Sql
     #region Other
 
     /// <summary>
-    /// A globally unique identifier (GUID). 
+    /// A globally unique identifier (GUID).
     /// </summary>
     public static readonly SqlType Guid = new SqlType("Guid");
 
@@ -186,7 +186,7 @@ namespace Xtensive.Sql
 
     public bool Equals(SqlType other)
     {
-      return string.Equals(Name, other.Name);
+      return string.Equals(Name, other.Name, StringComparison.Ordinal);
     }
 
     public override bool Equals(object obj)

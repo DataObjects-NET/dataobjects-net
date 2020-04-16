@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Building.Builders
 
       public bool Equals(MappingRequest other)
       {
-        return Equals(Assembly, other.Assembly) && string.Equals(Namespace, other.Namespace);
+        return Equals(Assembly, other.Assembly) && string.Equals(Namespace, other.Namespace, StringComparison.Ordinal);
       }
 
       public override bool Equals(object obj)
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Building.Builders
       var assemblyMatch =
         rule.Assembly==null || rule.Assembly==type.Assembly;
       var namespaceMatch =
-        string.IsNullOrEmpty(rule.Namespace) || type.FullName.StartsWith(rule.Namespace + ".");
+        string.IsNullOrEmpty(rule.Namespace) || type.FullName.StartsWith(rule.Namespace + ".", StringComparison.Ordinal);
       return assemblyMatch && namespaceMatch;
     }
 

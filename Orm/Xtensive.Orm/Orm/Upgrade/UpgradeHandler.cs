@@ -260,7 +260,7 @@ namespace Xtensive.Orm.Upgrade
         var oldName = r.Attribute.OriginalName;
         if (oldName.IsNullOrEmpty())
           oldName = GetOriginalName(r.Type);
-        else if (!oldName.Contains(".")) {
+        else if (!oldName.Contains(".", StringComparison.Ordinal)) {
           string ns = TryStripRecycledSuffix(r.Type.Namespace);
           oldName = ns + "." + oldName;
         }

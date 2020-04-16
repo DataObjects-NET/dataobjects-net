@@ -118,7 +118,7 @@ namespace Xtensive.Orm.Providers
         result.Catalogs
           .SelectMany(c => c.Schemas)
           .SelectMany(s => s.Tables)
-          .Where(t => t.Name.EndsWith("-Generator")
+          .Where(t => t.Name.EndsWith("-Generator", StringComparison.Ordinal)
             && t.TableColumns.Count==1
             && t.TableColumns[0].SequenceDescriptor==null);
 

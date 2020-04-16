@@ -26,7 +26,7 @@ using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 namespace Xtensive.Orm.Providers
 {
   /// <summary>
-  /// Name builder for <see cref="Orm.Model.DomainModel"/> nodes 
+  /// Name builder for <see cref="Orm.Model.DomainModel"/> nodes
   /// Provides names according to a set of naming rules contained in
   /// <see cref="NamingConvention"/>.
   /// </summary>
@@ -258,7 +258,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <summary>
-    /// Gets the name for <see cref="ColumnInfo"/> object concatenating 
+    /// Gets the name for <see cref="ColumnInfo"/> object concatenating
     /// <see cref="Node.Name"/> of its declaring type with the original column name.
     /// </summary>
     /// <param name="column">The <see cref="ColumnInfo"/> object.</param>
@@ -266,7 +266,7 @@ namespace Xtensive.Orm.Providers
     public string BuildColumnName(ColumnInfo column)
     {
       ArgumentValidator.EnsureArgumentNotNull(column, "column");
-      if (column.Name.StartsWith(column.Field.DeclaringType.Name + "."))
+      if (column.Name.StartsWith(column.Field.DeclaringType.Name + ".", StringComparison.Ordinal))
         throw new InvalidOperationException();
       string result = string.Concat(column.Field.DeclaringType.Name, ".", column.Name);
       return ApplyNamingRules(result);
@@ -426,9 +426,9 @@ namespace Xtensive.Orm.Providers
     /// <returns>Association name.</returns>
     public string BuildAssociationName(AssociationInfo target)
     {
-      return ApplyNamingRules(string.Format(AssociationPattern, 
-        target.OwnerType.Name, 
-        target.OwnerField.Name, 
+      return ApplyNamingRules(string.Format(AssociationPattern,
+        target.OwnerType.Name,
+        target.OwnerField.Name,
         target.TargetType.Name));
     }
 
@@ -441,9 +441,9 @@ namespace Xtensive.Orm.Providers
     /// <returns>Association name.</returns>
     public string BuildAssociationName(TypeInfo ownerType, FieldInfo ownerField, TypeInfo targetType)
     {
-      return ApplyNamingRules(string.Format(AssociationPattern, 
-        ownerType.Name, 
-        ownerField.Name, 
+      return ApplyNamingRules(string.Format(AssociationPattern,
+        ownerType.Name,
+        ownerField.Name,
         targetType.Name));
     }
 
@@ -455,9 +455,9 @@ namespace Xtensive.Orm.Providers
     /// <returns>Auxiliary type mapping name.</returns>
     public string BuildAuxiliaryTypeMappingName(AssociationInfo target)
     {
-      return ApplyNamingRules(string.Format(AssociationPattern, 
-        target.OwnerType.MappingName ?? target.OwnerType.Name, 
-        target.OwnerField.MappingName ?? target.OwnerField.Name, 
+      return ApplyNamingRules(string.Format(AssociationPattern,
+        target.OwnerType.MappingName ?? target.OwnerType.Name,
+        target.OwnerField.MappingName ?? target.OwnerField.Name,
         target.TargetType.MappingName ?? target.TargetType.Name));
     }
 

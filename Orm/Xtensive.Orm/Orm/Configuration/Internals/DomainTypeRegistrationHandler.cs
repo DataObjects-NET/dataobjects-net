@@ -11,11 +11,11 @@ using Xtensive.Core;
 namespace Xtensive.Orm.Configuration
 {
   /// <summary>
-  /// <see cref="ITypeRegistrationProcessor"/> for processing <see cref="SessionBound"/> 
-  /// and <see cref="IEntity"/> descendants registration in 
+  /// <see cref="ITypeRegistrationProcessor"/> for processing <see cref="SessionBound"/>
+  /// and <see cref="IEntity"/> descendants registration in
   /// <see cref="DomainConfiguration.Types"/> registry.
   /// </summary>
-  /// <remarks>This implementation provides topologically sorted list 
+  /// <remarks>This implementation provides topologically sorted list
   /// of <see cref="Type"/>s.</remarks>
   internal sealed class DomainTypeRegistrationHandler : TypeRegistrationProcessorBase
   {
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Configuration
     {
       // Disallow implicit (via assembly scan) registration of types in Orm.Providers namespace
       return base.IsAcceptable(registration, type)
-        && (registration.Type!=null || !type.FullName.StartsWith(providersNamespace));
+        && (registration.Type!=null || !type.FullName.StartsWith(providersNamespace, StringComparison.Ordinal));
     }
 
     /// <inheritdoc/>
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Configuration
         return;
       if (!DomainTypeRegistry.IsInterestingType(type))
         return;
-      // The type is interesting; 
+      // The type is interesting;
       // If it is a persistent type, let's register all its bases
       if (DomainTypeRegistry.IsPersistentType(type))
         Process(registry, registration, type.BaseType);

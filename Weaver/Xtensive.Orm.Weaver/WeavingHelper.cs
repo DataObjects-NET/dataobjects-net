@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -40,9 +40,9 @@ namespace Xtensive.Orm.Weaver
       const string getterPrefix = "get_";
       const string setterPrefix = "set_";
 
-      if (accessorName.StartsWith(getterPrefix))
+      if (accessorName.StartsWith(getterPrefix, StringComparison.Ordinal))
         return accessorName.Substring(getterPrefix.Length);
-      if (accessorName.StartsWith(setterPrefix))
+      if (accessorName.StartsWith(setterPrefix, StringComparison.Ordinal))
         return accessorName.Substring(setterPrefix.Length);
       throw new InvalidOperationException(String.Format("Invalid or unsupported accessor name '{0}'", accessorName));
     }
