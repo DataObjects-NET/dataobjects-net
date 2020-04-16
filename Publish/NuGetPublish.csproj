@@ -36,6 +36,7 @@
     <NugetPublishInput Include="$(SolutionDir)_Build\Release\packages\Xtensive.Orm.BulkOperations.$(Version).nupkg" />
     <NugetPublishInput Include="$(SolutionDir)_Build\Release\packages\Xtensive.Orm.Logging.NLog.$(Version).nupkg" />
     <NugetPublishInput Include="$(SolutionDir)_Build\Release\packages\Xtensive.Orm.Security.$(Version).nupkg" />
+    <NugetPublishInput Include="$(SolutionDir)_Build\Release\packages\Xtensive.Orm.SqlServer.$(Version).nupkg" />
     <NugetPublishInput Include="$(SolutionDir)_Build\Release\packages\Xtensive.Orm.Tracking.$(Version).nupkg" />
   </ItemGroup>
 
