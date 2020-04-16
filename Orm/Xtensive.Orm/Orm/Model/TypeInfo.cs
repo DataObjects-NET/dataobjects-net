@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -767,7 +767,7 @@ namespace Xtensive.Orm.Model
 
       // fixing reference fields that are marked as not nullable
       foreach (var field in Fields.Where(f => f.IsEntity && !f.IsPrimaryKey && f.IsNullable==false)) {
-        var segment = field.MappingInfo;
+        ref var segment = ref field.MappingInfo;
         for (int j = segment.Offset; j < segment.EndOffset; j++) {
           nullabilityMap[j] = true;
         }

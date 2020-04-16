@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
         throw new InvalidOperationException(string.Format(
           Strings.ExEntityXIsBoundToAnotherSession, entity.Key)); 
 
-      var mappingInfo = field.MappingInfo;
+      ref var mappingInfo = ref field.MappingInfo;
       int fieldIndex = mappingInfo.Offset;
       if (entity==null) {
         int nextFieldIndex = fieldIndex + mappingInfo.Length;

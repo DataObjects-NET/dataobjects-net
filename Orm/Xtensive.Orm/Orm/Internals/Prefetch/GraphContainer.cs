@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -138,8 +138,9 @@ namespace Xtensive.Orm.Internals.Prefetch
         return false;
       var tuple = state.Tuple;
       var fieldStateMap = tuple.GetFieldStateMap(TupleFieldState.Available);
-      for (var i = 0; i < field.MappingInfo.Length; i++)
-        if (!fieldStateMap[field.MappingInfo.Offset + i])
+      ref var fieldMappingInfo = ref field.MappingInfo;
+      for (var i = 0; i < fieldMappingInfo.Length; i++)
+        if (!fieldStateMap[fieldMappingInfo.Offset + i])
           return false;
       return true;
     }
