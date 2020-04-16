@@ -463,9 +463,7 @@ namespace Xtensive.Orm.Upgrade
 
     private static Type ToNullable(Type type, bool isNullable)
     {
-      return isNullable && type.IsValueType && !type.IsNullable()
-        ? type.ToNullable()
-        : type;
+      return isNullable ? type.ToNullable() : type;
     }
 
     private void ProcessDirectAssociation(TypeInfo ownerType, FieldInfo ownerField, TypeInfo targetType)
