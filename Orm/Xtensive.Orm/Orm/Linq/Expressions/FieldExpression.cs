@@ -119,9 +119,12 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public static FieldExpression CreateField(FieldInfo field, int offset)
     {
-      if (!field.IsPrimitive)
+      if (!field.IsPrimitive) {
         throw new ArgumentException(string.Format(Strings.ExFieldXIsNotPrimitive, field.Name), "field");
-      var mapping = new Segment<int>(field.MappingInfo.Offset + offset, field.MappingInfo.Length);
+      }
+
+      ref var mappingInfo = ref field.mappingInfo;
+      var mapping = new Segment<int>(mappingInfo.Offset + offset, mappingInfo.Length);
       return new FieldExpression(ExtendedExpressionType.Field, field, mapping, null, false);
     }
 

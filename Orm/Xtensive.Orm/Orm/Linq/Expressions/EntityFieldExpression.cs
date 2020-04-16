@@ -161,16 +161,22 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public static EntityFieldExpression CreateEntityField(FieldInfo entityField, int offset)
     {
-      if (!entityField.IsEntity)
-        throw new ArgumentException(string.Format(Strings.ExFieldXIsNotEntity, entityField.Name), "entityField");
+      if (!entityField.IsEntity) {
+        throw new ArgumentException(string.Format(Strings.ExFieldXIsNotEntity, entityField.Name), nameof(entityField));
+      }
+
       var entityType = entityField.ValueType;
       var persistentType = entityField.ReflectedType.Model.Types[entityType];
-      var mapping = new Segment<int>(entityField.MappingInfo.Offset + offset, entityField.MappingInfo.Length);
-      var fields = new List<PersistentFieldExpression>();
-      var keyExpression = KeyExpression.Create(persistentType, offset + entityField.MappingInfo.Offset);
-      fields.Add(keyExpression);
-      foreach (var keyField in persistentType.Fields.Where(f => f.IsPrimaryKey))
-        fields.Add(BuildNestedFieldExpression(keyField, offset + entityField.MappingInfo.Offset));
+
+      ref var mappingInfo = ref entityField.mappingInfo;
+      var mapping = new Segment<int>(mappingInfo.Offset + offset, mappingInfo.Length);
+      var keyFields = persistentType.Key.Fields;
+      var keyExpression = KeyExpression.Create(persistentType, offset + mappingInfo.Offset);
+      var fields = new List<PersistentFieldExpression>(keyFields.Count + 1) {keyExpression};
+      foreach (var field in keyFields) {
+        fields.Add(BuildNestedFieldExpression(field, offset + mappingInfo.Offset));
+      }
+
       return new EntityFieldExpression(persistentType, entityField, fields, mapping, keyExpression, null, null, false);
     }
 

@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Model
     private int? cachedHashCode;
 
     private IList<IPropertyValidator> validators;
-    private Segment<int> mappingInfo;
+    internal Segment<int> mappingInfo;
 
     #region IsXxx properties
 
@@ -720,14 +720,14 @@ namespace Xtensive.Orm.Model
           mappingInfo = new Segment<int>(primaryIndex.Columns.IndexOf(indexColumn), 1);
         }
       }
-      else 
-        if (Fields.Count > 0)
-          mappingInfo = new Segment<int>(
-            Fields.First().MappingInfo.Offset, Fields.Sum(f => f.IsPrimitive ? f.MappingInfo.Length : 0));
+      else if (Fields.Count > 0) {
+        mappingInfo = new Segment<int>(
+          Fields[0].mappingInfo.Offset, Fields.Sum(f => f.IsPrimitive ? f.mappingInfo.Length : 0));
+      }
 
       if (IsEntity || IsStructure) {
         valueExtractor = new SegmentTransform(
-          false, reflectedType.TupleDescriptor, new Segment<int>(MappingInfo.Offset, MappingInfo.Length));
+          false, reflectedType.TupleDescriptor, new Segment<int>(mappingInfo.Offset, mappingInfo.Length));
       }
     }
 
