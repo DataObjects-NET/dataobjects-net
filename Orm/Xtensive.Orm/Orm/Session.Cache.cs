@@ -24,6 +24,7 @@ namespace Xtensive.Orm
     // EntitySets with cached items that filled their cache
     // within DisableSaveChanges() scope.
     private HashSet<EntitySetBase> entitySetsWithInvalidState;
+    private static readonly Converter<EntityState, Key> keyExtractor = i => i.Key;
 
     internal ICache<Key, EntityState> EntityStateCache { get; private set; }
     internal EntityChangeRegistry EntityChangeRegistry { get; private set; }
@@ -285,11 +286,11 @@ namespace Xtensive.Orm
     {
       switch (configuration.CacheType) {
         case SessionCacheType.Infinite:
-          return new InfiniteCache<Key, EntityState>(configuration.CacheSize, i => i.Key);
+          return new InfiniteCache<Key, EntityState>(configuration.CacheSize, keyExtractor);
         default:
           return new LruCache<Key, EntityState>(
-            configuration.CacheSize, i => i.Key,
-            new WeakCache<Key, EntityState>(false, i => i.Key));
+            configuration.CacheSize, keyExtractor,
+            new WeakCache<Key, EntityState>(false, keyExtractor));
       }
     }
   }

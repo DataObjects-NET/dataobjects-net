@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Model
     private int? cachedHashCode;
 
     private IList<IPropertyValidator> validators;
-    internal Segment<int> mappingInfo;
+    private Segment<int> mappingInfo;
 
     #region IsXxx properties
 
@@ -444,7 +444,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets <see cref="MappingInfo"/> for current field.
     /// </summary>
-    public Segment<int> MappingInfo => mappingInfo;
+    public ref Segment<int> MappingInfo => ref mappingInfo;
 
     /// <summary>
     /// Gets the underlying system property.

@@ -292,15 +292,19 @@ namespace Xtensive.Orm
             string.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
         }
 
-        if (!isPersisting) { SystemBeforeTupleChange(); }
+        if (!isPersisting) {
+          SystemBeforeTupleChange();
+        }
 
-        var types = Session.Domain.Model.Types;
+        var fieldMappingInfo = field.MappingInfo;
         if (value == null) {
-          for (var i = 0; i < field.MappingInfo.Length; i++) {
-            Tuple.SetValue(field.MappingInfo.Offset + i, null);
+          for (var i = 0; i < fieldMappingInfo.Length; i++) {
+            Tuple.SetValue(fieldMappingInfo.Offset + i, null);
           }
 
-          if (!isPersisting) { SystemTupleChange(); }
+          if (!isPersisting) {
+            SystemTupleChange();
+          }
           return;
         }
         if (!field.ValueType.IsAssignableFrom(value.TypeInfo.UnderlyingType)) {
@@ -311,9 +315,9 @@ namespace Xtensive.Orm
           return;
         }
 
-        value.Value.CopyTo(Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+        value.Value.CopyTo(Tuple, 0, fieldMappingInfo.Offset, fieldMappingInfo.Length);
         if (field.IsPrimaryKey) {
-          value.Value.CopyTo(((Entity) this).Key.Value, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+          value.Value.CopyTo(((Entity)this).Key.Value, 0, fieldMappingInfo.Offset, fieldMappingInfo.Length);
         }
 
         if (!isPersisting) {

@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -176,12 +176,13 @@ namespace Xtensive.Orm.Linq.Expressions
       }
 
       var persistentType = structureField.ReflectedType.Model.Types[structureField.ValueType];
-      var mapping = new Segment<int>(offset + structureField.MappingInfo.Offset, structureField.MappingInfo.Length);
+      var fieldMappingInfo = structureField.MappingInfo;
+      var mapping = new Segment<int>(offset + fieldMappingInfo.Offset, fieldMappingInfo.Length);
       var result = new StructureFieldExpression(persistentType, structureField, mapping, null, false);
       var processedFields = new List<PersistentFieldExpression>(persistentType.Fields.Count);
       foreach (var field in persistentType.Fields) {
         // Do not convert to LINQ. We want to avoid a closure creation here.
-        processedFields.Add(BuildNestedFieldExpression(field, offset + structureField.MappingInfo.Offset));
+        processedFields.Add(BuildNestedFieldExpression(field, offset + fieldMappingInfo.Offset));
       }
 
       result.Fields = processedFields;

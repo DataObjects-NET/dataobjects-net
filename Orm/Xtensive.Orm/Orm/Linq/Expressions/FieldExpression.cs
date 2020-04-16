@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Linq.Expressions
         throw new ArgumentException(string.Format(Strings.ExFieldXIsNotPrimitive, field.Name), nameof(field));
       }
 
-      ref var mappingInfo = ref field.mappingInfo;
+      var mappingInfo = field.MappingInfo;
       var mapping = new Segment<int>(mappingInfo.Offset + offset, mappingInfo.Length);
       return new FieldExpression(ExtendedExpressionType.Field, field, mapping, null, false);
     }

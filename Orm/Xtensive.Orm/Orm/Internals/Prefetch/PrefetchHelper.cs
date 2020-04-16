@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.10.22
 
@@ -61,7 +61,6 @@ namespace Xtensive.Orm.Internals.Prefetch
       SortedDictionary<int, ColumnInfo> columns, TypeInfo type)
     {
       var result = false;
-      var primaryIndex = type.Indexes.PrimaryIndex;
       foreach (var column in candidateColumns) {
         result = true;
         if (type.IsInterface == column.Field.DeclaringType.IsInterface)
