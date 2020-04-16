@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.06
 
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
@@ -122,7 +123,7 @@ namespace Xtensive.Orm.Linq.Expressions
           foreach (var fieldInfo in typeInfo.Fields) {
             var isUsedInEntityExpression = false;
             foreach (var entityField in entityExpression.Fields) {
-              if (entityField.Name == fieldInfo.Name) {
+              if (string.Equals(entityField.Name, fieldInfo.Name, StringComparison.Ordinal)) {
                 isUsedInEntityExpression = true;
                 break;
               }
