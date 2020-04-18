@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -24,6 +24,7 @@ namespace Xtensive.Orm
     // EntitySets with cached items that filled their cache
     // within DisableSaveChanges() scope.
     private HashSet<EntitySetBase> entitySetsWithInvalidState;
+    private static readonly Converter<EntityState, Key> keyExtractor = i => i.Key;
 
     internal ICache<Key, EntityState> EntityStateCache { get; private set; }
     internal EntityChangeRegistry EntityChangeRegistry { get; private set; }
@@ -284,12 +285,12 @@ namespace Xtensive.Orm
     private static ICache<Key, EntityState> CreateSessionCache(SessionConfiguration configuration)
     {
       switch (configuration.CacheType) {
-      case SessionCacheType.Infinite:
-        return new InfiniteCache<Key, EntityState>(configuration.CacheSize, i => i.Key);
-      default:
-        return new LruCache<Key, EntityState>(
-          configuration.CacheSize, i => i.Key,
-          new WeakCache<Key, EntityState>(false, i => i.Key));
+        case SessionCacheType.Infinite:
+          return new InfiniteCache<Key, EntityState>(configuration.CacheSize, keyExtractor);
+        default:
+          return new LruCache<Key, EntityState>(
+            configuration.CacheSize, keyExtractor,
+            new WeakCache<Key, EntityState>(false, keyExtractor));
       }
     }
   }
