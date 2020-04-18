@@ -5,7 +5,7 @@
     <DocumentationFile>..\..\_Build\$(Configuration)\lib\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <PackageId>Xtensive.Orm.BulkOperations</PackageId>
     <Title>Bulk operations extension for $(DoProductName)</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>

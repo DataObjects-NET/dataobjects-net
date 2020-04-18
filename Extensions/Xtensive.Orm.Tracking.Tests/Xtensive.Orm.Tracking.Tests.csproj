@@ -5,7 +5,7 @@
     <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'" />
   <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />

@@ -5,7 +5,7 @@
     <DocumentationFile>..\..\_Build\$(Configuration)\lib\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <PackageId>Xtensive.Orm.Web</PackageId>
     <Title>$(DoProductName) integration with ASP.NET Core</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>

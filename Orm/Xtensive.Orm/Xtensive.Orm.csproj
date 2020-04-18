@@ -6,7 +6,7 @@
 
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <RootNamespace>Xtensive</RootNamespace>
     <PackageId>Xtensive.Orm</PackageId>
     <Title>$(DoProductName)</Title>
