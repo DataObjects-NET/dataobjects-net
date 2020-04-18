@@ -11,6 +11,7 @@ using System.Data.Common;
 using Xtensive.Sql.Drivers.MySql.Resources;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
+using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Sql.Drivers.MySql.v5_0
 {

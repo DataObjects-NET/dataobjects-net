@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Model;
+using Index = Xtensive.Sql.Model.Index;
 
 
 namespace Xtensive.Sql.Drivers.Firebird.v2_5

@@ -7,7 +7,6 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 namespace Xtensive.Linq
@@ -112,7 +111,7 @@ namespace Xtensive.Linq
       return VisitNew(x.NewExpression, y.NewExpression)
         && x.Initializers.Count==y.Initializers.Count
         && x.Initializers
-          .Zip(y.Initializers)
+          .Zip(y.Initializers, (first, second) => new Pair<ElementInit>(first, second))
           .All(p => VisitElementInit(p.First, p.Second));
     }
 
@@ -127,7 +126,7 @@ namespace Xtensive.Linq
       return VisitNew(x.NewExpression, y.NewExpression)
         && x.Bindings.Count==y.Bindings.Count
         && x.Bindings
-          .Zip(y.Bindings)
+          .Zip(y.Bindings, (first, second) => new Pair<MemberBinding>(first, second))
           .All(p => VisitMemberBinding(p.First, p.Second));
     }
 
@@ -146,14 +145,14 @@ namespace Xtensive.Linq
           var mby = (MemberMemberBinding)y;
           return mbx.Bindings.Count==mby.Bindings.Count
                  && mbx.Bindings
-                    .Zip(mby.Bindings)
+                    .Zip(mby.Bindings, (first, second) => new Pair<MemberBinding>(first, second))
                     .All(p => VisitMemberBinding(p.First, p.Second));
         case MemberBindingType.ListBinding:
           var mlx = (MemberListBinding)x;
           var mly = (MemberListBinding)y;
           return mlx.Initializers.Count==mly.Initializers.Count
                  && mlx.Initializers
-                    .Zip(mly.Initializers)
+                    .Zip(mly.Initializers, (first, second) => new Pair<ElementInit>(first, second))
                     .All(p => VisitElementInit(p.First, p.Second));
         default:
           throw new ArgumentOutOfRangeException();

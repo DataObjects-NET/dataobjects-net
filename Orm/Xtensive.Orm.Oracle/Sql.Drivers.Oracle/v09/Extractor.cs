@@ -15,6 +15,7 @@ using Xtensive.Core;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Drivers.Oracle.Resources;
 using Constraint=Xtensive.Sql.Model.Constraint;
+using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Sql.Drivers.Oracle.v09
 {

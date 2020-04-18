@@ -50,8 +50,9 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade.RegularModel
     [Field]
     public TestEntity<#= j #> TestEntity<#= j #>{get;set;}
 <# if (index > 9) break; #>
-<# if (0 - i < -1 )  #>
+<# if (0 - i < -1 ) { #>
 
+<# } #>
 <# } #>
 
   }

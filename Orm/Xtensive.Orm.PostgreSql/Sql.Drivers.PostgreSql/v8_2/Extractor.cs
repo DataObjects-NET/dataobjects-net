@@ -6,6 +6,7 @@ using System;
 using System.Data.Common;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
+using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
 {

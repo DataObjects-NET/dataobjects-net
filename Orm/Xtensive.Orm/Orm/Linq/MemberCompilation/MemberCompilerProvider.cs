@@ -113,8 +113,8 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       IEnumerable<Type> inputParameterTypes, IEnumerable<Type> candidateParameterTypes)
     {
       return inputParameterTypes
-        .Zip(candidateParameterTypes)
-        .All(pair => ParameterTypeMatches(pair.First, pair.Second));
+        .Zip(candidateParameterTypes, (first, second) => (first, second))
+        .All(pair => ParameterTypeMatches(pair.first, pair.second));
     }
 
     private static MethodBase GetCanonicalMethod(MethodBase inputMethod, MethodBase[] possibleCanonicalMethods)

@@ -13,6 +13,7 @@ using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using DataTable = Xtensive.Sql.Model.DataTable;
 using Domain = Xtensive.Sql.Model.Domain;
+using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v09
 {

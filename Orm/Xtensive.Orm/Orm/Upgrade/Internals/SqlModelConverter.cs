@@ -15,6 +15,7 @@ using Xtensive.Modelling;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Upgrade.Model;
+using Index = Xtensive.Sql.Model.Index;
 using Node = Xtensive.Sql.Model.Node;
 using ReferentialAction = Xtensive.Orm.Upgrade.Model.ReferentialAction;
 

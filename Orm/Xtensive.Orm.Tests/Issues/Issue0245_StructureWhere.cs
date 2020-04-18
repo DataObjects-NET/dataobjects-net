@@ -10,6 +10,7 @@ using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0245_Model;
+using Range = Xtensive.Orm.Tests.Issues.Issue0245_Model.Range;
 
 namespace Xtensive.Orm.Tests.Issues.Issue0245_Model
 {

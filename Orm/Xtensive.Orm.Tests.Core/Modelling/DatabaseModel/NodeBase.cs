@@ -52,8 +52,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.DatabaseModel
     protected override void OnPropertyChanged(string name)
     {
       base.OnPropertyChanged(name);
-      var accessor = PropertyAccessors.GetValueOrDefault(name);
-      if (accessor!=null) {
+      if (PropertyAccessors.TryGetValue(name, out var accessor) && accessor!=null) {
         if (!accessor.HasGetter)
           return;
         if (accessor.IsSystem)

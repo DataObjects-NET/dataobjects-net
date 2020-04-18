@@ -52,8 +52,9 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade.TwoPartsModel
       [Field]
       public TestEntityOne<#= j #> TestEntityOne<#= j #>{get;set;}
 <# if (index > 9) break; #>
-<# if (0 - i < -1 )  #>
+<# if (0 - i < -1 ) { #>
 
+<# } #>
 <# } #>
 
     }
@@ -106,8 +107,9 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade.TwoPartsModel
       [Field]
       public TestEntityTwo<#= j #> TestEntityTwo<#= j #>{get;set;}
 <# if (index > 9) break; #>
-<# if (0 - i < -1 )  #>
+<# if (0 - i < -1 ) { #>
 
+<# } #>
 <# } #>
 
     }

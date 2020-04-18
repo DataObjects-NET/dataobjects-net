@@ -13,6 +13,7 @@ using Xtensive.Sql.Model;
 using Constraint = Xtensive.Sql.Model.Constraint;
 using Xtensive.Sql.Dml;
 using Xtensive.Core;
+using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {

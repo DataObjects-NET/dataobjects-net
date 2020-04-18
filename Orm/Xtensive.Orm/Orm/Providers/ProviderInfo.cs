@@ -5,9 +5,8 @@
 // Created:    2009.06.01
 
 using System;
-using Xtensive.Core;
-using Xtensive.Sql.Info;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Collections;
 
 namespace Xtensive.Orm.Providers

@@ -4,6 +4,7 @@
 
 using System;
 using Xtensive.Sql.Model;
+using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Sql.Ddl
 {

@@ -22,6 +22,7 @@ using Xtensive.Sql.Dml;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Upgrade.Model;
+using Index = Xtensive.Sql.Model.Index;
 using ReferentialAction = Xtensive.Sql.ReferentialAction;
 using TableInfo = Xtensive.Orm.Upgrade.Model.TableInfo;
 

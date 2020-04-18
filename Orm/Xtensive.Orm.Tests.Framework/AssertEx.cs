@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using NUnit.Framework;
 using Xtensive.Collections;
-using Xtensive.Core;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Tests

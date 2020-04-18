@@ -35,7 +35,6 @@
     <TfmSpecificPackageFile Include="$(SolutionDir)_Build\$(Configuration)\tools\weaver\**" Visible="false" Pack="true" PackagePath="tools\weaver\" />
   </ItemGroup>
   <ItemGroup Label="Packages" Condition=" '$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
     <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
     <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
   </ItemGroup>
@@ -78,5 +77,8 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MemberCompilerProvider-CreateCompiler.cs</LastGenOutput>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>
 </Project>

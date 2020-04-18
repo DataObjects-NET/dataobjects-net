@@ -99,7 +99,9 @@ namespace Xtensive.Orm.Upgrade.Model
         var pkColumns = PrimaryKey.KeyColumns;
         var fkColumns = ForeignKeyColumns;
 
-        if (pkColumns.Count()!=pkColumns.Zip(fkColumns).Where(p => CompareKeyColumns(p.First, p.Second)).Count()) {
+        if (pkColumns.Count!=pkColumns
+          .Zip(fkColumns, (pkColumn, fkColumn) => new Pair<KeyColumnRef, ForeignKeyColumnRef>(pkColumn, fkColumn))
+          .Count(p => CompareKeyColumns(p.First, p.Second))) {
           ea.Execute(() => {
             throw new ValidationException(
               Strings.ExInvalidForeignKeyStructure, Path);

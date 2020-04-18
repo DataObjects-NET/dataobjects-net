@@ -828,8 +828,8 @@ namespace Xtensive.Orm.Model
       var structureFields = Fields.Where(f => f.IsStructure && f.Parent == null);
       foreach (var structureField in structureFields) {
         var structureTypeInfo = Model.Types[structureField.ValueType];
-        foreach (var pair in structureTypeInfo.Fields.Zip(structureField.Fields))
-          result.Add(new Pair<FieldInfo>(structureField, pair.First), pair.Second);
+        foreach (var pair in structureTypeInfo.Fields.Zip(structureField.Fields, (first, second) => (first, second)))
+          result.Add(new Pair<FieldInfo>(structureField, pair.first), pair.second);
       }
       return new ReadOnlyDictionary<Pair<FieldInfo>, FieldInfo>(result);
     }
