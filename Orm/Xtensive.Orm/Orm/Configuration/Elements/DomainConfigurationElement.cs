@@ -383,7 +383,7 @@ namespace Xtensive.Orm.Configuration.Elements
     }
 
     /// <summary>
-    /// <see cref="DomainConfiguration.EnsureConnectionisAlive" copy="true"/>
+    /// <see cref="DomainConfiguration.EnsureConnectionIsAlive" copy="true"/>
     /// </summary>
     [ConfigurationProperty(EnsureConnectionIsAliveElementName, DefaultValue = true)]
     public bool EnsureConnectionIsAlive

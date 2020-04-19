@@ -32,7 +32,6 @@ namespace Xtensive.Linq
     /// <summary>
     /// Generates <see cref="LambdaExpression"/> faster than <see cref="Expression.Lambda(Type,Expression,ParameterExpression[])"/>.
     /// </summary>
-    /// <param name="delegateType">A type that represents a delegate type.</param>
     /// <param name="body">The body of lambda expression.</param>
     /// <param name="parameters">The parameters of lambda expression.</param>
     /// <returns>Constructed lambda expression.</returns>
