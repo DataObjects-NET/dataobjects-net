@@ -79,11 +79,6 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       return true;
     }
 
-    private SqlCompilationResult Compile(ISqlCompileUnit statement)
-    {
-      return sqlDriver.Compile(statement);
-    }
-
     #endregion
 
     #region Setup and TearDown
