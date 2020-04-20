@@ -34,14 +34,13 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       return theCatalog;
     }
 
-    public override Schema ExtractSchema(string catalogName, string schemaName)
+    public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
       theCatalog = new Catalog(catalogName);
-      targetSchema = schemaName.ToUpperInvariant();
+      targetSchema = schemaNames[0].ToUpperInvariant();
       theCatalog.CreateSchema(targetSchema);
       ExtractCatalogContents();
-      return theCatalog.Schemas[0];
-      //            return theCatalog.Schemas[targetSchema];
+      return theCatalog;
     }
 
     private void ExtractCatalogContents()

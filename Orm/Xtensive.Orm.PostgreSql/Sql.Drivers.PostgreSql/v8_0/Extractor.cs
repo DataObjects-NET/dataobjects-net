@@ -301,17 +301,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return catalog;
     }
 
-    public override Schema ExtractSchema(string catalogName, string schemaName)
-    {
-      var catalog = new Catalog(catalogName);
-      var context = new ExtractionContext(catalog);
-      context.TargetSchemes.Add(schemaName, catalog.CreateSchema(schemaName));
-      ExtractUsers(context);
-      ExtractSchemas(context);
-      var result = context.TargetSchemes[schemaName];
-      return result;
-    }
-
     public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
       var catalog = new Catalog(catalogName);

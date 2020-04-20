@@ -35,12 +35,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     }
 
     /// <inheritdoc/>
-    public override Schema ExtractSchema(string catalogName, string schemaName)
+    public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
       catalog = new Catalog(catalogName);
-      schema = catalog.CreateSchema(schemaName);
+      schema = catalog.CreateSchema(schemaNames[0]);
       ExtractCatalogContents();
-      return catalog.Schemas.Single();
+      return catalog;
     }
 
     private void ExtractCatalogContents()

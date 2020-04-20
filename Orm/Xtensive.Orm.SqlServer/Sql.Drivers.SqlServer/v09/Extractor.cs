@@ -41,14 +41,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return catalog;
     }
 
-    public override Schema ExtractSchema(string catalogName, string schemaName)
-    {
-      catalog = new Catalog(catalogName);
-      catalog.CreateSchema(schemaName);
-      ExtractCatalogContents();
-      return catalog.Schemas[schemaName];
-    }
-
     public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
       catalog = new Catalog(catalogName);

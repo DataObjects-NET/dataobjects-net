@@ -42,20 +42,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return theCatalog;
     }
 
-    public override Schema ExtractSchema(string catalogName, string schemaName)
-    {
-      targetSchemes.Clear();
-      theCatalog = new Catalog(catalogName);
-      var targetSchema = schemaName.ToUpperInvariant();
-      targetSchemes.Add(targetSchema);
-
-      RegisterReplacements(replacementsRegistry);
-      ExtractSchemas();
-      EnsureShemasExists(theCatalog, new []{schemaName});
-      ExtractCatalogContents();
-      return theCatalog.Schemas[targetSchema];
-    }
-
     public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
       theCatalog = new Catalog(catalogName);
