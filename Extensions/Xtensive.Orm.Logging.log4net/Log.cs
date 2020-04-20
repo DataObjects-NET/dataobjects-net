@@ -11,6 +11,9 @@ using log4netLog = log4net.ILog;
 
 namespace Xtensive.Orm.Logging.log4net
 {
+  /// <summary>
+  /// Log implementation for log4net.
+  /// </summary>
   public class Log : BaseLog
   {
     private log4netLog target;
@@ -32,16 +35,25 @@ namespace Xtensive.Orm.Logging.log4net
         return Level.Info;
       }
     }
+
+    /// <inheritdoc />
     public override bool IsLogged(LogLevel level)
     {
       return target.Logger.IsEnabledFor(ConvertLevel(level));
     }
 
+    /// <inheritdoc />
     public override void Write(LogEventInfo info)
     {
       target.Logger.Log(target.Logger.GetType(), ConvertLevel(info.Level), info.FormattedMessage, info.Exception);
     }
 
+    /// <summary>
+    /// Creates instance of <see cref="Log"/> class.
+    /// </summary>
+    /// <param name="repositoryAssembly">An <see cref="Assembly"/> instance this <see cref="Log"/> instance
+    /// is related to.</param>
+    /// <param name="name">Log name.</param>
     public Log(Assembly repositoryAssembly, string name)
     {
       target = log4netLogManager.GetLogger(repositoryAssembly, name);

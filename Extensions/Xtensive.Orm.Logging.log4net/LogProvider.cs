@@ -9,8 +9,12 @@ using log4netManager = log4net.LogManager;
 
 namespace Xtensive.Orm.Logging.log4net
 {
+  /// <summary>
+  /// Provides log4net specific <see cref="BaseLog"/> descendant instances.
+  /// </summary>
   public class LogProvider : Logging.LogProvider
   {
+    /// <inheritdoc />
     public override BaseLog GetLog(string logName)
     {
       return new Log(Assembly.GetCallingAssembly(), logName);
