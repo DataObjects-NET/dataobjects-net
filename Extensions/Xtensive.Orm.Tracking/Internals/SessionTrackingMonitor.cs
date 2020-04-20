@@ -65,6 +65,9 @@ namespace Xtensive.Orm.Tracking
     /// </summary>
     /// <param name="session"><see cref="T:Xtensive.Orm.Session"/>, to which current instance
     /// is bound.</param>
+    /// <param name="accessor"><see cref="DirectSessionAccessor"/> instance to get access to
+    /// changed entities of each kind. See <see cref="DirectSessionAccessor.GetChangedEntities"/> method
+    /// for reference.</param>
     /// <exception cref="T:System.ArgumentNullException"><paramref name="session"/> is <see langword="null"/>.</exception>
     [ServiceConstructor]
     public SessionTrackingMonitor(Session session, DirectSessionAccessor accessor)
