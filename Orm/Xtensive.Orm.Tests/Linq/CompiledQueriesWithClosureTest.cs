@@ -24,7 +24,7 @@ namespace CompiledQueriesWithClosureTestModel
 
   public static class Extensions
   {
-    public static DateTime GetUserTime(this DateTime dateTime, TimeZone zone)
+    public static DateTime GetUserTime(this DateTime dateTime, TimeZoneInfo zone)
     {
       return dateTime;
     }
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var zone = TimeZone.CurrentTimeZone;
+        var zone = TimeZoneInfo.Local;
         var query = session.Query.Execute(
           q => q.All<TestEntity>().Select(e => e.Value.GetUserTime(zone)));
         var result = query.ToList();
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var zone = TimeZone.CurrentTimeZone;
+        var zone = TimeZoneInfo.Local;
         var query = session.Query.ExecuteDelayed(
           q => q.All<TestEntity>().Select(e => e.Value.GetUserTime(zone)));
         var result = query.ToList();
