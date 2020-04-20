@@ -6,8 +6,12 @@
 
 namespace Xtensive.Orm.Logging.NLog
 {
+  /// <summary>
+  /// Provides NLog specific <see cref="BaseLog"/> descendant instances.
+  /// </summary>
   public class LogProvider : Logging.LogProvider
   {
+    /// <inheritdoc />
     public override BaseLog GetLog(string logName)
     {
       return new Log(logName);
