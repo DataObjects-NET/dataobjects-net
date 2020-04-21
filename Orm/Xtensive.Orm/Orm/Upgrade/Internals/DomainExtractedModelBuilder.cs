@@ -276,12 +276,14 @@ namespace Xtensive.Orm.Upgrade.Internals
       ArgumentValidator.EnsureArgumentNotNull(services, "services");
       ArgumentValidator.EnsureArgumentNotNull(model, "model");
       this.model = model;
-      this.mappingResolver = services.MappingResolver;
-      this.provider = services.ProviderInfo;
-      this.driver = services.StorageDriver;
       this.makeSharedFinally = makeSharedFinally;
 
-      this.targetResult = new SchemaExtractionResult();
+      mappingResolver = services.MappingResolver;
+      provider = services.ProviderInfo;
+      driver = services.StorageDriver;
+      typeIdColumnName = services.NameBuilder.TypeIdColumnName;
+
+      targetResult = new SchemaExtractionResult();
 
       if (provider.Supports(ProviderFeatures.Collations)) {
         var collation = services.Configuration.Collation;
