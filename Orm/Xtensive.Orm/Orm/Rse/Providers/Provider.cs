@@ -25,7 +25,6 @@ namespace Xtensive.Orm.Rse.Providers
 
     private Provider[] sources;
     private RecordSetHeader header;
-    private bool isInitialized;
 
     /// <summary>
     /// Gets <see cref="ProviderType"/> of the current instance.
@@ -78,7 +77,6 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     protected virtual void Initialize()
     {
-      isInitialized = true;
       Header = BuildHeader();
     }
 

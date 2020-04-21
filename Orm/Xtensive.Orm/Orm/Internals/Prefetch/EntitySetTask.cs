@@ -78,7 +78,6 @@ namespace Xtensive.Orm.Internals.Prefetch
     private readonly bool isOwnerCached;
     private readonly PrefetchManager manager;
     private QueryTask itemsQueryTask;
-    private int? cachedHashCode;
     private readonly PrefetchFieldDescriptor referencingFieldDescriptor;
     private readonly CacheKey cacheKey;
 
@@ -189,7 +188,6 @@ namespace Xtensive.Orm.Internals.Prefetch
       var association = pair.Second.ReferencingField.Associations.Last();
       var primaryTargetIndex = association.TargetType.Indexes.PrimaryIndex;
       var resultColumns = new List<int>(primaryTargetIndex.Columns.Count);
-      ParameterExpression tupleParameter;
       CompilableProvider result;
       if (association.AuxiliaryType == null)
         result = CreateQueryForDirectAssociation(pair, primaryTargetIndex, resultColumns);

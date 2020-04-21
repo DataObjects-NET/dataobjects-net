@@ -65,8 +65,7 @@ namespace Xtensive.Orm
       
       var executionContext = new OperationExecutionContext(session);
       bool isSystemOperationLog = LogType==OperationLogType.SystemOperationLog;
-      KeyMapping keyMapping = null;
-      Transaction transaction = null;
+      KeyMapping keyMapping;
 
       using (session.Activate()) {
         using (isSystemOperationLog ? session.OpenSystemLogicOnlyRegion() : null) 
@@ -172,7 +171,7 @@ namespace Xtensive.Orm
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="logType">Type of the log.</param>
-    /// <param name="operations">The operations to add (using <see cref="Log"/> method).</param>
+    /// <param name="operations">The operations to add (using <see cref="Log(Xtensive.Orm.IOperation)"/> method).</param>
     public OperationLog(OperationLogType logType, IEnumerable<IOperation> operations)
       : this(logType)
     {

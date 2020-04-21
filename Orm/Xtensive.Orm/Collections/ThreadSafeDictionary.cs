@@ -23,7 +23,6 @@ namespace Xtensive.Collections
   [Serializable]
   public struct ThreadSafeDictionary<TKey, TItem>
   {
-    private readonly static TItem defaultItem = default(TItem);
     private Hashtable implementation;
     private object syncRoot;
     private static object nullObject = new object();

@@ -227,6 +227,10 @@ namespace Xtensive.Sql.Dml
 
     public abstract void ReplaceWith(SqlExpression expression);
 
+    public override int GetHashCode() => throw new NotSupportedException();
+
+    public override bool Equals(object obj) => throw new NotSupportedException();
+
     // Constructor
 
     protected SqlExpression(SqlNodeType nodeType) : base(nodeType)

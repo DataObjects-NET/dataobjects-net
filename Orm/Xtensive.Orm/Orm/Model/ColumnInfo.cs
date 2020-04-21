@@ -304,7 +304,6 @@ namespace Xtensive.Orm.Model
           defaultValue = Convert.ChangeType(field.DefaultValue, valueType);
       }
       else {
-        valueType = valueType;
         defaultValue = field.DefaultValue;
       }
       defaultSqlExpression = field.DefaultSqlExpression;

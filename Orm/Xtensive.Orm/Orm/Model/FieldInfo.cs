@@ -740,7 +740,6 @@ namespace Xtensive.Orm.Model
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      FieldInfo mappedField;
       return
         obj.declaringType == declaringType &&
         obj.valueType == valueType &&

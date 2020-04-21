@@ -36,7 +36,6 @@ namespace Xtensive.Orm
     INotifyCollectionChanged
   {
     private static readonly string presentationFrameworkAssemblyPrefix = "PresentationFramework,";
-    private static readonly string storageTestsAssemblyPrefix = "Xtensive.Orm.Tests";
     private static readonly object entitySetCachingRegion = new object();
     private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     internal static readonly Parameter<Entity> ownerParameter = new Parameter<Entity>("Owner");

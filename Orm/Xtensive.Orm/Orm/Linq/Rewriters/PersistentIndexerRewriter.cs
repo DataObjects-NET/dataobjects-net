@@ -31,7 +31,6 @@ namespace Xtensive.Orm.Linq.Rewriters
           throw new InvalidOperationException(String.Format(Strings.ExBothPartsOfBinaryExpressionXAreOfTheDifferentType, binaryExpression));
 
         if (leftExpression!=null) {
-          leftExpression = leftExpression;
           if (rightExpression==null)
             rightExpression = binaryExpression.Right;
           if (leftExpression.Type!=rightExpression.Type)

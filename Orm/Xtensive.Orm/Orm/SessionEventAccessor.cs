@@ -150,11 +150,6 @@ namespace Xtensive.Orm
     public event EventHandler<EntityRemoveCompletedEventArgs> EntityRemoveCompleted;
 
     /// <summary>
-    /// Occurs when <see cref="EntitySetBase"/> is about to change.
-    /// </summary>
-    public event EventHandler<EntitySetEventArgs> EntitySetChanging;
-
-    /// <summary>
     /// Occurs when <see cref="EntitySetBase"/> item is about to remove.
     /// </summary>
     public event EventHandler<EntitySetItemEventArgs> EntitySetItemRemoving;

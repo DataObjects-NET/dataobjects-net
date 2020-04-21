@@ -25,7 +25,6 @@ namespace Xtensive.Orm.Upgrade.Internals
   {
     private readonly string collationName;
     private readonly string typeIdColumnName;
-    private readonly DomainConfiguration domainConfiguration;
     private readonly StorageModel model;
     private readonly MappingResolver mappingResolver;
     private readonly ProviderInfo provider;

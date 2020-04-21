@@ -15,7 +15,6 @@ namespace Xtensive.Sql.Compiler
   {
     private readonly Dictionary<SqlTable, string> aliasMap = new Dictionary<SqlTable, string>(16);
     private readonly Set<string> aliasIndex = new Set<string>();
-    private int counter;
     private byte prefixIndex;
     private byte suffix;
     private readonly SqlCompilerContext context;

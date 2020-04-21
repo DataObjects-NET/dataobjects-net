@@ -39,9 +39,6 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     private readonly ApplyParameter filteredTuple;
     private readonly MappingEntry[] resultMapping;
 
-    private int tupleIndex = -1;
-    private int providerIndex = -1;
-
     public static MappingEntry[] Gather(Expression filterExpression, Expression filterDataTuple, ApplyParameter filteredTuple, int columnCount)
     {
       var mapping = Enumerable.Repeat((MappingEntry) null, columnCount).ToArray();

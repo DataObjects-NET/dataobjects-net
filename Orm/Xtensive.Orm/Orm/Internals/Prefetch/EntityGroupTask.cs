@@ -76,7 +76,6 @@ namespace Xtensive.Orm.Internals.Prefetch
     private readonly int[] columnIndexes;
     private Dictionary<Key, bool> keys;
     private readonly TypeInfo type;
-    private readonly int cachedHashCode;
     private readonly PrefetchManager manager;
     private List<QueryTask> queryTasks;
     private readonly CacheKey cacheKey;
@@ -95,7 +94,6 @@ namespace Xtensive.Orm.Internals.Prefetch
     public void RegisterQueryTasks()
     {
       queryTasks = new List<QueryTask>(keys.Count);
-      var skipCount = 0;
       var count = 0;
       var keyCount = keys.Count;
       var totalCount = 0;

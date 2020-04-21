@@ -18,16 +18,16 @@ namespace Xtensive.Collections
   /// <typeparam name="T">The type of collection items.</typeparam>
   public class ChainedBuffer<T> : ICollection<T>
   {
-    private sealed class Node<T>
+    private sealed class Node<TItem>
     {
-      public readonly T[] Items;
-      public Node<T> Next;
+      public readonly TItem[] Items;
+      public Node<TItem> Next;
 
       // Constructors
 
       public Node(int size)
       {
-        Items = new T[size];
+        Items = new TItem[size];
       }
     }
 

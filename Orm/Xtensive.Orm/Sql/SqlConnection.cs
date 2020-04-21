@@ -206,7 +206,7 @@ namespace Xtensive.Sql
           await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
         }
       }
-      catch (OperationCanceledException exception) {
+      catch (OperationCanceledException) {
         UnderlyingConnection.Close();
         throw;
       }

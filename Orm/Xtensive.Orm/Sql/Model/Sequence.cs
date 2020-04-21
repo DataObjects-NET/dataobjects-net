@@ -13,7 +13,6 @@ namespace Xtensive.Sql.Model
   [Serializable]
   public class Sequence : SchemaNode, ISequenceable
   {
-    private SqlValueType dataType;
     private SequenceDescriptor sequenceDescriptor;
 
     /// <summary>

@@ -53,7 +53,7 @@ namespace Xtensive.Arithmetic
     /// <inheritdoc/>
     public override int GetHashCode()
     {
-      return ((sbyte)overflowBehavior) << 8 | (sbyte)nullBehavior;
+      return ((byte)overflowBehavior << 7) | (byte)nullBehavior;
     }
 
 

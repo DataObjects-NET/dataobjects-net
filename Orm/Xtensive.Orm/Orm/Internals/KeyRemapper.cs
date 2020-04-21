@@ -12,8 +12,6 @@ namespace Xtensive.Orm.Internals
 {
   internal class KeyRemapper : SessionBound
   {
-    private RemapContext context;
-    
     /// <summary>
     /// Remap temporary (local) keys to real (will be saved to storage) keys.
     /// </summary>

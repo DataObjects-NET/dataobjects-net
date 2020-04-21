@@ -18,7 +18,6 @@ namespace Xtensive.Orm.Internals.Prefetch
     private Dictionary<FieldInfo, EntitySetTask> entitySetTasks;
     private readonly bool exactType;
     private int? cachedHashCode;
-    private bool isReferenceContainerCreated;
 
     public readonly Key Key;
     public readonly TypeInfo Type;

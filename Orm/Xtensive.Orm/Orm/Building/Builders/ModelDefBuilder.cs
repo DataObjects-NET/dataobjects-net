@@ -44,7 +44,6 @@ namespace Xtensive.Orm.Building.Builders
           ProcessType(type);
       }
       closedGenericTypes = closedGenericTypes.Where(t => !t.FullName.IsNullOrEmpty()).ToList();
-      List<Node<Type, object>> loops;
       closedGenericTypes = closedGenericTypes.SortTopologically(
         (first, second) => second.GetGenericArguments().Any(argument => argument.IsAssignableFrom(first)));
       if (closedGenericTypes==null)

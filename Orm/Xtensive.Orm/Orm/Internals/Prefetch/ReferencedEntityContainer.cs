@@ -19,7 +19,6 @@ namespace Xtensive.Orm.Internals.Prefetch
   [Serializable]
   internal sealed class ReferencedEntityContainer : EntityContainer
   {
-    private readonly MapTransform referencedEntityKeyTransform;
     private readonly Key ownerKey;
     private readonly bool isOwnerTypeKnown;
     private readonly PrefetchFieldDescriptor referencingFieldDescriptor;

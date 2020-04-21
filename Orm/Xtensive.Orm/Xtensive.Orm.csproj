@@ -14,7 +14,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <WarningLevel>2</WarningLevel>
+    <WarningLevel>3</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Label="Debug" Condition="'$(Configuration)'=='Debug'">
     <DefineConstants>TRACE;DEBUG;NETSTANDARD</DefineConstants>
