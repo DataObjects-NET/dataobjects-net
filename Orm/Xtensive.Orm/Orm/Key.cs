@@ -516,8 +516,9 @@ namespace Xtensive.Orm
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
+    /// <param name="nodeId">Identifier of a <see cref="StorageNode"/>.</param>
     /// <param name="type">The type.</param>
-    /// <param name="accuracy">The typre reference accuracy.</param>
+    /// <param name="accuracy">The type reference accuracy.</param>
     /// <param name="value">The value.</param>
     protected Key(string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, Tuple value)
     {

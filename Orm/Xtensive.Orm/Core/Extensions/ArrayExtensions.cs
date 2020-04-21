@@ -175,6 +175,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="TItem">The type of the item.</typeparam>
     /// <param name="items">The items to select from.</param>
+    /// <param name="comparer">A function that compares two items.</param>
     /// <param name="index">The offset of the item to select from the ordered sequence.</param>
     /// <returns>The specified item from the ordered sequence of items.</returns>
     public static TItem Select<TItem>(this TItem[] items, Func<TItem, TItem, int> comparer, int index)

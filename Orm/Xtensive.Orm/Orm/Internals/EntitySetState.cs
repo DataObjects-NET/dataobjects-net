@@ -132,6 +132,7 @@ namespace Xtensive.Orm.Internals
     /// Sets cached keys to <paramref name="keys"/>.
     /// </summary>
     /// <param name="keys">The keys.</param>
+    /// <param name="count">Total item count.</param>
     public void Update(IEnumerable<Key> keys, long? count)
     {
       if (!isDisconnected)

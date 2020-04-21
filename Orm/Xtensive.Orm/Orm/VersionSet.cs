@@ -111,6 +111,7 @@ namespace Xtensive.Orm
     /// Validates version of the specified <paramref name="entity"/>.
     /// </summary>
     /// <param name="entity">The entity to validate version for.</param>
+    /// <param name="throwOnFailure">Indicates if validation should immediately fail on failure.</param>
     /// <returns>
     /// <see langword="True"/>, if validation passes successfully;
     /// otherwise, <see langword="false"/>.

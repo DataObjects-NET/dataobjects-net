@@ -58,6 +58,8 @@ namespace Xtensive.Sql.Model
     /// Creates the index column.
     /// </summary>
     /// <param name="expression">The expression.</param>
+    /// <param name="ascending">Indicates whether the sorting order of the newly created <see cref="IndexColumn"/>
+    /// is ascending.</param>
     /// <returns><see cref="IndexColumn"/> instance.</returns>
     public IndexColumn CreateIndexColumn(SqlExpression expression, bool ascending)
     {

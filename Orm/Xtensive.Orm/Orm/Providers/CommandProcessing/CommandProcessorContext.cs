@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Providers
   public sealed class CommandProcessorContext : IDisposable
   {
     /// <summary>
-    /// Gets the value indicating that partial execution is preferered if it is possible.
+    /// Gets the value indicating that partial execution is preferred if it is possible.
     /// </summary>
     public bool AllowPartialExecution { get; internal set; }
 
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Providers
     public Queue<SqlTask> ProcessingTasks { get; internal set; }
 
     /// <summary>
-    /// Active command which executes current protion of requests.
+    /// Active command which executes current portion of requests.
     /// </summary>
     public Command ActiveCommand { get; internal set; }
 

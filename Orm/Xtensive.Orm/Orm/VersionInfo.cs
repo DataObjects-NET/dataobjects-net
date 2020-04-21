@@ -22,7 +22,7 @@ namespace Xtensive.Orm
   [Serializable]
   public struct VersionInfo : IEquatable<VersionInfo>
   {
-    private static VersionInfo @void;
+    private static VersionInfo @void = default;
 
     [NonSerialized]
     private int cachedHashCode;

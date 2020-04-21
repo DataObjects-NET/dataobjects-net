@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
 {
   internal class KeyFieldAccessor<T> : FieldAccessor<T> 
   {
-    private static readonly T @default;
+    private static readonly T @default = default;
 
     /// <inheritdoc/>
     public override bool AreSameValues(object oldValue, object newValue)

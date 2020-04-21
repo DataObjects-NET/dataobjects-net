@@ -61,6 +61,8 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="ownerKey">The owner key.</param>
     /// <param name="field">The field.</param>
+    /// <param name="itemCountLimit">A maximal number of items
+    /// to preload while fetching <see cref="EntitySet{TItem}"/>.</param>
     public override void FetchEntitySet(Key ownerKey, FieldInfo field, int? itemCountLimit)
     {
       var ownerType = ownerKey.TypeReference.Type;

@@ -50,6 +50,8 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
+    /// <param name="sourceTablePath">Source table path.</param>
+    /// <param name="identities">Identities for data operation.</param>
     /// <param name="postCopy"><see cref="PostCopy"/> property value.</param>
     public DeleteDataHint(string sourceTablePath,  IList<IdentityPair> identities, bool postCopy)
       : base(sourceTablePath, identities)

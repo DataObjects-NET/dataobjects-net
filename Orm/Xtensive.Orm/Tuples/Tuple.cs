@@ -206,6 +206,7 @@ namespace Xtensive.Tuples
     /// Gets the tuple containing actual value of the specified field.
     /// </summary>
     /// <param name="fieldIndex">Index of the field to get the value container for.</param>
+    /// <param name="isWriting">Indicates whether method caller has a writing intention.</param>
     /// <returns>Tuple container and remapped field index.</returns>
     protected internal virtual Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {

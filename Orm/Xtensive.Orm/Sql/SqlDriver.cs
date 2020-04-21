@@ -164,6 +164,7 @@ namespace Xtensive.Sql
     /// Extracts the specified schema from the database.
     /// </summary>
     /// <param name="connection">The connection.</param>
+    /// <param name="schemaName">A name of the schema to be extracted.</param>
     /// <returns>
     /// Extracted <see cref="Schema"/> instance.
     /// </returns>

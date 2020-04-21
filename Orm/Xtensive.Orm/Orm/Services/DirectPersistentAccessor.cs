@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Services
     }
 
     /// <summary>
-    /// Gets the key of the entity, that is referenced by specified field 
+    /// Sets the key of the entity, that is referenced by specified field
     /// of the target persistent object.
     /// </summary>
     /// <remarks>
@@ -184,7 +184,7 @@ namespace Xtensive.Orm.Services
     /// <param name="target">The target persistent object.</param>
     /// <param name="field">The reference field. Field value type must be 
     /// <see cref="Entity"/> descendant.</param>
-    /// <returns>Referenced entity key.</returns>
+    /// <param name="value"><see cref="Key"/> value to be assigned.</param>
     /// <exception cref="InvalidOperationException">Field is not a reference field.</exception>
     public void SetReferenceKey(Persistent target, FieldInfo field, Key value)
     {

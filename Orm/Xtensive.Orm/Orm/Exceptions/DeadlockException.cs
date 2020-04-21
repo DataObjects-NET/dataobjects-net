@@ -47,7 +47,7 @@ namespace Xtensive.Orm
     /// <exception cref="T:System.ArgumentNullException">The <paramref name="info"/> parameter is null. </exception>
     ///   
     /// <exception cref="T:System.Runtime.Serialization.SerializationException">The class name is null or <see cref="P:System.Exception.HResult"/> is zero (0). </exception>
-    protected DeadlockException(SerializationInfo info, StreamingContext context)
+    private DeadlockException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
     }    

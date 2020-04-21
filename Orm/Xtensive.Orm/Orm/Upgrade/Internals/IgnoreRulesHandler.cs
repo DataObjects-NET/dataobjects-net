@@ -115,6 +115,7 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     /// <param name="model">Extracted model</param>
     /// <param name="configuration">Configuration of domain</param>
+    /// <param name="resolver"><see cref="MappingResolver"/> to be used.</param>
     public IgnoreRulesHandler(SchemaExtractionResult model, DomainConfiguration configuration, MappingResolver resolver)
     {
       ArgumentValidator.EnsureArgumentNotNull(model, "model");
