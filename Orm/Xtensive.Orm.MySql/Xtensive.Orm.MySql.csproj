@@ -25,6 +25,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.11.4" />
     <PackageReference Include="MySql.Data" Version="8.0.19" />
+    <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
   </ItemGroup>
 </Project>

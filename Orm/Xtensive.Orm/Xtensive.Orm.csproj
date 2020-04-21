@@ -3,7 +3,6 @@
     <IsPackable>true</IsPackable>
     <DocumentationFile>$(SolutionDir)_Build\$(Configuration)\lib\$(TargetFramework)\Xtensive.Orm.xml</DocumentationFile>
     <OutputPath>$(SolutionDir)_Build\$(Configuration)\lib\</OutputPath>
-
   </PropertyGroup>
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
@@ -21,22 +20,28 @@
     <DefineConstants>TRACE;DEBUG;NETSTANDARD</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeWeaverFiles</TargetsForTfmSpecificContentInPackage>
     <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup Label="Build order">
-    <ProjectReference Include="$(SolutionDir)Weaver\Xtensive.Orm.Weaver\Xtensive.Orm.Weaver.csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" />
+    <ProjectReference Include="$(SolutionDir)Weaver\Xtensive.Orm.Weaver\Xtensive.Orm.Weaver.csproj" ReferenceOutputAssembly="false">
+      <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup Label="Nuget content">
-    <Content Include="$(SolutionDir)MSBuild\DataObjects.Net.targets" Visible="false" Pack="true" PackagePath="." />
-    <Content Include="NuGetContent\**" Visible="false" Pack="true" PackagePath="." />
-    <Content Include="$(SolutionDir)_Build\$(Configuration)\tools\weaver\**" Visible="false" Pack="true" PackagePath="tools\weaver\" />
-    <TfmSpecificPackageFile Include="$(SolutionDir)_Build\$(Configuration)\tools\weaver\**" Visible="false" Pack="true" PackagePath="tools\weaver\" />
+    <Content Include="$(SolutionDir)MSBuild\DataObjects.Net.targets">
+      <PackagePath>.</PackagePath>
+      <Visible>false</Visible>
+    </Content>
+    <Content Include="$(ProjectDir)NuGetContent\**">
+      <PackagePath>.</PackagePath>
+      <Visible>false</Visible>
+    </Content>
   </ItemGroup>
-  <ItemGroup Label="Packages" Condition=" '$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
-    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
+  <ItemGroup Label="Packages">
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup Label="T4GeneratorsUpdaters">
     <None Update="Arithmetic\Internal\PrimitiveArithmetics.tt">
@@ -78,7 +83,13 @@
       <LastGenOutput>MemberCompilerProvider-CreateCompiler.cs</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
-  </ItemGroup>
+
+  <Target Name="IncludeWeaverFiles">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(SolutionDir)_Build\$(Configuration)\tools\weaver\**">
+        <Pack>true</Pack>
+        <PackagePath>tools\weaver\</PackagePath>
+      </TfmSpecificPackageFile>
+    </ItemGroup>
+  </Target>
 </Project>

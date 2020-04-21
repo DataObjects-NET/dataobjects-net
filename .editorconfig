@@ -10,6 +10,14 @@ max_line_length = 120
 [*.md]
 trim_trailing_whitespace = false
 
+# csproj files
+[*.csproj]
+# Indentation options
+
+indent_size = 2
+indent_style = space
+tab_width = 2
+
 # C# files
 [*.cs]
 # Indentation options

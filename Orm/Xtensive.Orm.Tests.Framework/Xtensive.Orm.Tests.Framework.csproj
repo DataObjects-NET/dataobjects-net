@@ -22,10 +22,6 @@
     <ProjectReference Include="..\Xtensive.Orm.SqlServer\Xtensive.Orm.SqlServer.csproj" />
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <!--<PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />-->
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
-  </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="DO-Tests-Plus.sql" />
