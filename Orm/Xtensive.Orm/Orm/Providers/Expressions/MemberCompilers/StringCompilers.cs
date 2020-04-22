@@ -79,8 +79,15 @@ namespace Xtensive.Orm.Providers
     }
 
     [Compiler(typeof(string), nameof(string.Contains))]
-    public static SqlExpression StringContains(SqlExpression _this,
+    public static SqlExpression StringContainsStr(SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
+    {
+      return GenericLike(_this, value, true, true);
+    }
+
+    [Compiler(typeof(string), nameof(string.Contains))]
+    public static SqlExpression StringContainsCh(SqlExpression _this,
+      [Type(typeof(char))] SqlExpression value)
     {
       return GenericLike(_this, value, true, true);
     }
@@ -440,7 +447,7 @@ namespace Xtensive.Orm.Providers
       var method = (MethodInfo) member;
       // Try string.Contains first
       if (method.GetGenericArguments()[0]==typeof (char))
-        return StringContains(sequence, value);
+        return StringContainsCh(sequence, value);
       // Otherwise translate into general IN clause
       if (!(sequence is SqlContainer container))
         throw new NotSupportedException(Strings.ExTranslationOfInContainsIsNotSupportedInThisCase);
