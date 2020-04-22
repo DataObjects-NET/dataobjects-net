@@ -42,9 +42,9 @@ namespace Xtensive.Orm.Linq
       static Query()
       {
 #pragma warning disable 612,618
-        All = typeof(Orm.Query).GetMethod("All", ArrayUtils<Type>.EmptyArray);
+        All = typeof(Orm.Query).GetMethod(nameof(Orm.Query.All), ArrayUtils<Type>.EmptyArray);
 
-        var freetextMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name=="FreeText").ToArray();
+        var freetextMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name==nameof(Orm.Query.FreeText)).ToArray();
         FreeTextString = freetextMethods
           .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(string));
         FreeTextStringTopNByRank = freetextMethods
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Linq
         FreeTextExpressionTopNByRank = freetextMethods
           .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1]==typeof(int));
         var containsTableMethods = typeof (Orm.Query).GetMethods()
-          .Where(m => m.Name=="ContainsTable")
+          .Where(m => m.Name==nameof(Orm.Query.ContainsTable))
           .Select(m => new {Method = m, ParameterTypes = m.GetParameterTypes()}).ToArray();
         ContainsTableExpr = containsTableMethods
           .Single(g => g.ParameterTypes.Length==1 && g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>)).Method;
@@ -69,10 +69,10 @@ namespace Xtensive.Orm.Linq
                        g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>) &&
                        g.ParameterTypes[1].IsArray &&
                        g.ParameterTypes[2]==typeof(int)).Method;
-        var singleMethods = typeof (Orm.Query).GetMethods().Where(m => m.Name=="Single" && m.IsGenericMethod);
+        var singleMethods = typeof (Orm.Query).GetMethods().Where(m => m.Name==nameof(Orm.Query.Single) && m.IsGenericMethod);
         SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (Orm.Key));
         SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (object[]));
-        var singleOrDefaultMethods = typeof (Orm.Query).GetMethods().Where(m => m.Name=="SingleOrDefault" && m.IsGenericMethod);
+        var singleOrDefaultMethods = typeof (Orm.Query).GetMethods().Where(m => m.Name==nameof(Orm.Query.SingleOrDefault) && m.IsGenericMethod);
         SingleOrDefaultKey = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (Orm.Key));
         SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (object[]));
 
@@ -100,9 +100,9 @@ namespace Xtensive.Orm.Linq
       static QueryEndpoint()
       {
 #pragma warning disable 612,618
-        All = typeof(Orm.QueryEndpoint).GetMethod("All", ArrayUtils<Type>.EmptyArray);
+        All = typeof(Orm.QueryEndpoint).GetMethod(nameof(Orm.QueryEndpoint.All), ArrayUtils<Type>.EmptyArray);
 
-        var freetextMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name=="FreeText").ToArray();
+        var freetextMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name==nameof(Orm.QueryEndpoint.FreeText)).ToArray();
         FreeTextString = freetextMethods
           .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(string));
         FreeTextStringTopNByRank = freetextMethods
@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Linq
         FreeTextExpressionTopNByRank = freetextMethods
           .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1]==typeof(int));
         var containsTableMethods = typeof (Orm.QueryEndpoint).GetMethods()
-          .Where(m => m.Name=="ContainsTable")
+          .Where(m => m.Name==nameof(Orm.QueryEndpoint.ContainsTable))
           .Select(m=> new {Method = m, ParameterTypes = m.GetParameterTypes()}).ToArray();
         ContainsTableExpr = containsTableMethods
           .Single(g => g.ParameterTypes.Length==1 && g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>)).Method;
@@ -127,13 +127,13 @@ namespace Xtensive.Orm.Linq
                        g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>) &&
                        g.ParameterTypes[1].IsArray &&
                        g.ParameterTypes[2]==typeof (int)).Method;
-        var singleMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name=="Single" && m.IsGenericMethod);
+        var singleMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name==nameof(Orm.QueryEndpoint.Single) && m.IsGenericMethod);
         SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(Orm.Key));
         SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(object[]));
-        var singleOrDefaultMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name=="SingleOrDefault" && m.IsGenericMethod);
+        var singleOrDefaultMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name==nameof(Orm.QueryEndpoint.SingleOrDefault) && m.IsGenericMethod);
         SingleOrDefaultKey = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(Orm.Key));
         SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(object[]));
-        Items = typeof (Orm.QueryEndpoint).GetMethod("Items");
+        Items = typeof (Orm.QueryEndpoint).GetMethod(nameof(Orm.QueryEndpoint.Items));
 #pragma warning restore 612,618
       }
     }
@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Linq
       {
         Execute = typeof(Linq.QueryProvider)
           .GetMethods()
-          .Where(mi => mi.Name == "Execute" && mi.IsGenericMethod)
+          .Where(mi => mi.Name == nameof(Linq.QueryProvider.Execute) && mi.IsGenericMethod)
           .Single();
       }
     }
@@ -185,9 +185,9 @@ namespace Xtensive.Orm.Linq
       static Key()
       {
         // Key
-        Value = typeof (Orm.Key).GetProperty("Value");
+        Value = typeof (Orm.Key).GetProperty(nameof(Orm.Key.Value));
         Create = typeof (Orm.Key).GetMethod(
-          "Create",
+          nameof(Orm.Key.Create),
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
           null,
           new[] {typeof (Domain), typeof (string), typeof (TypeInfo), typeof (TypeReferenceAccuracy), typeof (Tuples.Tuple)}, null);
@@ -207,14 +207,14 @@ namespace Xtensive.Orm.Linq
       static Enumerable()
       {
         // Enumerable
-        Select = typeof (System.Linq.Enumerable).GetMethods().First(m => m.Name=="Select");
+        Select = typeof (System.Linq.Enumerable).GetMethods().First(m => m.Name==nameof(System.Linq.Enumerable.Select));
         First = typeof (System.Linq.Enumerable)
           .GetMethods(BindingFlags.Static | BindingFlags.Public)
           .First(m => m.Name==Xtensive.Reflection.WellKnown.Queryable.First && m.GetParameters().Length==1);
         OfTuple = typeof (IEnumerable<>).MakeGenericType(typeof (Xtensive.Tuples.Tuple));
-        DefaultIfEmpty = typeof (System.Linq.Enumerable).GetMethods().First(m => m.Name=="DefaultIfEmpty");
-        Contains = GetMethod(typeof(System.Linq.Enumerable), "Contains", 1, 2);
-        Cast = GetMethod(typeof (System.Linq.Enumerable), "Cast", 1, 1);
+        DefaultIfEmpty = typeof (System.Linq.Enumerable).GetMethods().First(m => m.Name==nameof(System.Linq.Enumerable.DefaultIfEmpty));
+        Contains = GetMethod(typeof(System.Linq.Enumerable), nameof(System.Linq.Enumerable.Contains), 1, 2);
+        Cast = GetMethod(typeof (System.Linq.Enumerable), nameof(System.Linq.Enumerable.Cast), 1, 1);
       }
     }
 
@@ -294,13 +294,13 @@ namespace Xtensive.Orm.Linq
 
 
         // Querable extensions
-        ExtensionCount = GetQueryableExtensionsMethod("Count", 0, 1);
-        ExtensionLeftJoin = GetQueryableExtensionsMethod("LeftJoin", 4, 5);
-        ExtensionLock = GetQueryableExtensionsMethod("Lock", 1, 3);
-        ExtensionTake = GetQueryableExtensionsMethod("Take", 1, 2);
-        ExtensionSkip = GetQueryableExtensionsMethod("Skip", 1, 2);
-        ExtensionElementAt = GetQueryableExtensionsMethod("ElementAt", 1, 2);
-        ExtensionElementAtOrDefault = GetQueryableExtensionsMethod("ElementAtOrDefault", 1, 2);
+        ExtensionCount = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Count), 0, 1);
+        ExtensionLeftJoin = GetQueryableExtensionsMethod(nameof(QueryableExtensions.LeftJoin), 4, 5);
+        ExtensionLock = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Lock), 1, 3);
+        ExtensionTake = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Take), 1, 2);
+        ExtensionSkip = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Skip), 1, 2);
+        ExtensionElementAt = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAt), 1, 2);
+        ExtensionElementAtOrDefault = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAtOrDefault), 1, 2);
       }
     }
 
