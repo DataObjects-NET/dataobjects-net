@@ -5,7 +5,6 @@
 // Created:    2009.02.24
 
 using System;
-using Xtensive.Linq;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Operator = Xtensive.Reflection.WellKnown.Operator;
@@ -15,16 +14,13 @@ namespace Xtensive.Orm.Providers
   [CompilerContainer(typeof(SqlExpression))]
   internal static class TimeSpanCompilers
   {
-    private static readonly long TicksPerMillisecond = TimeSpan.FromMilliseconds(1).Ticks;
+    private const long MillisecondsPerSecond = 1000;
+    private const long MillisecondsPerMinute = MillisecondsPerSecond * 60; //     60,000
+    private const long MillisecondsPerHour = MillisecondsPerMinute * 60;   //  3,600,000
+    private const long MillisecondsPerDay = MillisecondsPerHour * 24;      // 86,400,000
 
-    private static readonly double MillisecondsPerDay = TimeSpan.FromDays(1).TotalMilliseconds;
-    private static readonly double MillisecondsPerHour = TimeSpan.FromHours(1).TotalMilliseconds;
-    private static readonly double MillisecondsPerMinute = TimeSpan.FromMinutes(1).TotalMilliseconds;
-    private static readonly double MillisecondsPerSecond = TimeSpan.FromSeconds(1).TotalMilliseconds;
-    private static readonly double MillisecondsPerTick = TimeSpan.FromTicks(1).TotalMilliseconds;
-
-    private const int NanosecondsPerTick = 100;
-    private const int NanosecondsPerMillisecond = 1000000;
+    private const long NanosecondsPerTick = 100;
+    private const long NanosecondsPerMillisecond = 1000000;
 
     #region Constructors
 
@@ -72,9 +68,9 @@ namespace Xtensive.Orm.Providers
       [Type(typeof(int))] SqlExpression hours,
       [Type(typeof(int))] SqlExpression minutes,
       [Type(typeof(int))] SqlExpression seconds,
-      [Type(typeof(int))] SqlExpression millliseconds)
+      [Type(typeof(int))] SqlExpression milliseconds)
     {
-      return GenericIntervalConstruct(days, hours, minutes, seconds, millliseconds);
+      return GenericIntervalConstruct(days, hours, minutes, seconds, milliseconds);
     }
 
     [Compiler(typeof(TimeSpan), "FromDays", TargetKind.Method | TargetKind.Static)]
