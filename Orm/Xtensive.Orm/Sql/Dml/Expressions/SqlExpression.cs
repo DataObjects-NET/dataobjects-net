@@ -227,9 +227,9 @@ namespace Xtensive.Sql.Dml
 
     public abstract void ReplaceWith(SqlExpression expression);
 
-    public override int GetHashCode() => throw new NotSupportedException();
+    public sealed override int GetHashCode() => base.GetHashCode();
 
-    public override bool Equals(object obj) => throw new NotSupportedException();
+    public sealed override bool Equals(object obj) => ReferenceEquals(this, obj);
 
     // Constructor
 
