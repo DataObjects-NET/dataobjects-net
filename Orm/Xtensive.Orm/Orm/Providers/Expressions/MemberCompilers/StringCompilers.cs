@@ -11,7 +11,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Xtensive.Core;
-using Xtensive.Linq;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -65,35 +64,35 @@ namespace Xtensive.Orm.Providers
         : SqlDml.Like(_this, pattern);
     }
 
-    [Compiler(typeof(string), "StartsWith")]
+    [Compiler(typeof(string), nameof(string.StartsWith))]
     public static SqlExpression StringStartsWith(SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
       return GenericLike(_this, value, false, true);
     }
   
-    [Compiler(typeof(string), "EndsWith")]
+    [Compiler(typeof(string), nameof(string.EndsWith))]
     public static SqlExpression StringEndsWith(SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
       return GenericLike(_this, value, true, false);
     }
 
-    [Compiler(typeof(string), "Contains")]
+    [Compiler(typeof(string), nameof(string.Contains))]
     public static SqlExpression StringContains(SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
       return GenericLike(_this, value, true, true);
     }
 
-    [Compiler(typeof(string), "Substring")]
+    [Compiler(typeof(string), nameof(string.Substring))]
     public static SqlExpression StringSubstring(SqlExpression _this,
       [Type(typeof(int))] SqlExpression startIndex)
     {
       return SqlDml.Substring(_this, startIndex);
     }
 
-    [Compiler(typeof(string), "Substring")]
+    [Compiler(typeof(string), nameof(string.Substring))]
     public static SqlExpression StringSubstring(SqlExpression _this,
       [Type(typeof(int))] SqlExpression startIndex,
       [Type(typeof(int))] SqlExpression length)
@@ -101,19 +100,19 @@ namespace Xtensive.Orm.Providers
       return SqlDml.Substring(_this, startIndex, length);
     }
 
-    [Compiler(typeof(string), "ToUpper")]
+    [Compiler(typeof(string), nameof(string.ToUpper))]
     public static SqlExpression StringToUpper(SqlExpression _this)
     {
       return SqlDml.Upper(_this);
     }
 
-    [Compiler(typeof(string), "ToLower")]
+    [Compiler(typeof(string), nameof(string.ToLower))]
     public static SqlExpression StringToLower(SqlExpression _this)
     {
       return SqlDml.Lower(_this);
     }
 
-    [Compiler(typeof(string), "Trim")]
+    [Compiler(typeof(string), nameof(string.Trim))]
     public static SqlExpression StringTrim(SqlExpression _this)
     {
       return SqlDml.Trim(_this);
@@ -123,51 +122,49 @@ namespace Xtensive.Orm.Providers
     {
       if (trimChars is SqlNull)
         return SqlDml.Trim(_this, trimType);
-      var container = trimChars as SqlContainer;
-      if (container.IsNullReference())
+      if (!(trimChars is SqlContainer container))
         throw new NotSupportedException(Strings.ExStringTrimSupportedOnlyWithConstants);
-      var chars = container.Value as char[];
-      if (chars==null)
+      if (!(container.Value is char[] chars))
         throw new NotSupportedException(Strings.ExStringTrimSupportedOnlyWithConstants);
       return chars.Length==0
         ? SqlDml.Trim(_this, trimType)
         : SqlDml.Trim(_this, trimType, new string(chars));
     }
 
-    [Compiler(typeof(string), "Trim")]
+    [Compiler(typeof(string), nameof(string.Trim))]
     public static SqlExpression StringTrim(SqlExpression _this,
       [Type(typeof(char[]))] SqlExpression trimChars)
     {
       return GenericTrim(_this, trimChars, SqlTrimType.Both);
     }
 
-    [Compiler(typeof(string), "TrimStart")]
+    [Compiler(typeof(string), nameof(string.TrimStart))]
     public static SqlExpression StringTrimStart(SqlExpression _this,
       [Type(typeof(char[]))] SqlExpression trimChars)
     {
       return GenericTrim(_this, trimChars, SqlTrimType.Leading);
     }
 
-    [Compiler(typeof(string), "TrimEnd")]
+    [Compiler(typeof(string), nameof(string.TrimEnd))]
     public static SqlExpression StringTrimEnd(SqlExpression _this,
       [Type(typeof(char[]))] SqlExpression trimChars)
     {
       return GenericTrim(_this, trimChars, SqlTrimType.Trailing);
     }
 
-    [Compiler(typeof(string), "Length", TargetKind.PropertyGet)]
+    [Compiler(typeof(string), nameof(string.Length), TargetKind.PropertyGet)]
     public static SqlExpression StringLength(SqlExpression _this)
     {
       return SqlDml.CharLength(_this);
     }
 
-    [Compiler(typeof(string), "ToString")]
+    [Compiler(typeof(string), nameof(string.ToString))]
     public static SqlExpression StringToString(SqlExpression _this)
     {
       return _this;
     }
 
-    [Compiler(typeof(string), "Replace")]
+    [Compiler(typeof(string), nameof(string.Replace))]
     public static SqlExpression StringReplaceCh(SqlExpression _this,
       [Type(typeof(char))] SqlExpression oldChar,
       [Type(typeof(char))] SqlExpression newChar)
@@ -175,7 +172,7 @@ namespace Xtensive.Orm.Providers
       return SqlDml.Replace(_this, oldChar, newChar);
     }
 
-    [Compiler(typeof(string), "Replace")]
+    [Compiler(typeof(string), nameof(string.Replace))]
     public static SqlExpression StringReplaceStr(SqlExpression _this,
       [Type(typeof(string))] SqlExpression oldValue,
       [Type(typeof(string))] SqlExpression newValue)
@@ -183,7 +180,7 @@ namespace Xtensive.Orm.Providers
       return SqlDml.Replace(_this, oldValue, newValue);
     }
 
-    [Compiler(typeof(string), "Insert")]
+    [Compiler(typeof(string), nameof(string.Insert))]
     public static SqlExpression StringInsert(SqlExpression _this,
       [Type(typeof(int))] SqlExpression startIndex,
       [Type(typeof(string))] SqlExpression value)
@@ -193,14 +190,14 @@ namespace Xtensive.Orm.Providers
         SqlDml.Substring(_this, startIndex, SqlDml.CharLength(_this) - startIndex));
     }
 
-    [Compiler(typeof(string), "Remove")]
+    [Compiler(typeof(string), nameof(string.Remove))]
     public static SqlExpression StringRemove(SqlExpression _this,
       [Type(typeof(int))] SqlExpression startIndex)
     {
       return SqlDml.Substring(_this, SqlDml.Literal(0), startIndex);
     }
 
-    [Compiler(typeof(string), "Remove")]
+    [Compiler(typeof(string), nameof(string.Remove))]
     public static SqlExpression StringRemove(SqlExpression _this,
       [Type(typeof(int))] SqlExpression startIndex,
       [Type(typeof(int))] SqlExpression count)
@@ -210,7 +207,7 @@ namespace Xtensive.Orm.Providers
         SqlDml.Substring(_this, startIndex + count));
     }
 
-    [Compiler(typeof(string), "IsNullOrEmpty", TargetKind.Static | TargetKind.Method)]
+    [Compiler(typeof(string), nameof(string.IsNullOrEmpty), TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringIsNullOrEmpty(
       [Type(typeof(string))] SqlExpression value)
     {
@@ -220,7 +217,7 @@ namespace Xtensive.Orm.Providers
       return SqlDml.IsNull(value) || value==SqlDml.Literal(string.Empty);
     }
 
-    [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
+    [Compiler(typeof(string), nameof(string.Concat), TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringConcat(
       [Type(typeof(string))] SqlExpression str0,
       [Type(typeof(string))] SqlExpression str1)
@@ -228,7 +225,7 @@ namespace Xtensive.Orm.Providers
       return SqlDml.Concat(str0, str1);
     }
 
-    [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
+    [Compiler(typeof(string), nameof(string.Concat), TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringConcat(
       [Type(typeof(string))] SqlExpression str0,
       [Type(typeof(string))] SqlExpression str1,
@@ -237,7 +234,7 @@ namespace Xtensive.Orm.Providers
       return SqlDml.Concat(SqlDml.Concat(str0, str1), str2);
     }
 
-    [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
+    [Compiler(typeof(string), nameof(string.Concat), TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringConcat(
       [Type(typeof(string))] SqlExpression str0,
       [Type(typeof(string))] SqlExpression str1,
@@ -247,7 +244,7 @@ namespace Xtensive.Orm.Providers
       return SqlDml.Concat(SqlDml.Concat(SqlDml.Concat(str0, str1), str2), str3);
     }
 
-    [Compiler(typeof(string), "Concat", TargetKind.Static | TargetKind.Method)]
+    [Compiler(typeof(string), nameof(string.Concat), TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringConcat(
       [Type(typeof(string[]))] SqlExpression values)
     {
@@ -262,14 +259,14 @@ namespace Xtensive.Orm.Providers
       return expressions.Aggregate(SqlDml.Concat);
     }
 
-    [Compiler(typeof(string), "PadLeft")]
+    [Compiler(typeof(string), nameof(string.PadLeft))]
     public static SqlExpression StringPadLeft(SqlExpression _this,
       [Type(typeof(int))] SqlExpression totalWidth)
     {
       return SqlDml.PadLeft(_this, totalWidth);
     }
     
-    [Compiler(typeof(string), "PadLeft")]
+    [Compiler(typeof(string), nameof(string.PadLeft))]
     public static SqlExpression StringPadLeft(SqlExpression _this,
       [Type(typeof(int))] SqlExpression totalWidth,
       [Type(typeof(char))] SqlExpression paddingChar)
@@ -277,14 +274,14 @@ namespace Xtensive.Orm.Providers
       return SqlDml.PadLeft(_this, totalWidth, paddingChar);
     }
 
-    [Compiler(typeof(string), "PadRight")]
+    [Compiler(typeof(string), nameof(string.PadRight))]
     public static SqlExpression StringPadRight(SqlExpression _this,
       [Type(typeof(int))] SqlExpression totalWidth)
     {
       return SqlDml.PadRight(_this, totalWidth);
     }
 
-    [Compiler(typeof(string), "PadRight")]
+    [Compiler(typeof(string), nameof(string.PadRight))]
     public static SqlExpression StringPadRight(SqlExpression _this,
       [Type(typeof(int))] SqlExpression totalWidth,
       [Type(typeof(char))] SqlExpression paddingChar)
@@ -292,7 +289,7 @@ namespace Xtensive.Orm.Providers
       return SqlDml.PadRight(_this, totalWidth, paddingChar);
     }
 
-    [Compiler(typeof(string), "Compare", TargetKind.Static | TargetKind.Method)]
+    [Compiler(typeof(string), nameof(string.Compare), TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringCompare(
       [Type(typeof(string))] SqlExpression strA,
       [Type(typeof(string))] SqlExpression strB)
@@ -304,7 +301,7 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    [Compiler(typeof(string), "CompareTo")]
+    [Compiler(typeof(string), nameof(string.CompareTo))]
     public static SqlExpression StringCompareTo(SqlExpression _this,
       [Type(typeof(string))] SqlExpression strB)
     {
@@ -333,14 +330,14 @@ namespace Xtensive.Orm.Providers
         -1);
     }
 
-    [Compiler(typeof(string), "IndexOf")]
+    [Compiler(typeof(string), nameof(string.IndexOf))]
     public static SqlExpression StringIndexOfString(SqlExpression _this,
       [Type(typeof(string))] SqlExpression str)
     {
       return GenericStringIndexOf(_this, str);
     }
 
-    [Compiler(typeof(string), "IndexOf")]
+    [Compiler(typeof(string), nameof(string.IndexOf))]
     public static SqlExpression StringIndexOfString(SqlExpression _this,
       [Type(typeof(string))] SqlExpression str,
       [Type(typeof(int))] SqlExpression startIndex)
@@ -348,7 +345,7 @@ namespace Xtensive.Orm.Providers
       return GenericStringIndexOf(_this, str, startIndex);
     }
 
-    [Compiler(typeof(string), "IndexOf")]
+    [Compiler(typeof(string), nameof(string.IndexOf))]
     public static SqlExpression StringIndexOfString(SqlExpression _this,
       [Type(typeof(string))] SqlExpression str,
       [Type(typeof(int))] SqlExpression startIndex,
@@ -357,14 +354,14 @@ namespace Xtensive.Orm.Providers
       return GenericStringIndexOf(_this, str, startIndex, length);
     }
 
-    [Compiler(typeof(string), "IndexOf")]
+    [Compiler(typeof(string), nameof(string.IndexOf))]
     public static SqlExpression StringIndexOfChar(SqlExpression _this,
       [Type(typeof(char))] SqlExpression ch)
     {
       return GenericStringIndexOf(_this, ch);
     }
 
-    [Compiler(typeof(string), "IndexOf")]
+    [Compiler(typeof(string), nameof(string.IndexOf))]
     public static SqlExpression StringIndexOfChar(SqlExpression _this,
       [Type(typeof(char))] SqlExpression ch,
       [Type(typeof(int))] SqlExpression startIndex)
@@ -372,7 +369,7 @@ namespace Xtensive.Orm.Providers
       return GenericStringIndexOf(_this, ch, startIndex);
     }
 
-    [Compiler(typeof(string), "IndexOf")]
+    [Compiler(typeof(string), nameof(string.IndexOf))]
     public static SqlExpression StringIndexOfChar(SqlExpression _this,
       [Type(typeof(char))] SqlExpression ch,
       [Type(typeof(int))] SqlExpression startIndex,
@@ -387,14 +384,14 @@ namespace Xtensive.Orm.Providers
       return SqlDml.Substring(_this, index, 1);
     }
 
-    [Compiler(typeof(string), "Equals")]
+    [Compiler(typeof(string), nameof(string.Equals))]
     public static SqlExpression StringEquals(SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
     {
       return value is SqlNull ? (SqlExpression) SqlDml.IsNull(_this) : _this==value;
     }
 
-    [Compiler(typeof(StringExtensions), "LessThan", TargetKind.Static | TargetKind.Method)]
+    [Compiler(typeof(StringExtensions), nameof(StringExtensions.LessThan), TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringLessThan(
       [Type(typeof(string))] SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
@@ -402,7 +399,7 @@ namespace Xtensive.Orm.Providers
       return SqlDml.LessThan(_this, value);
     }
 
-    [Compiler(typeof(StringExtensions), "LessThanOrEqual", TargetKind.Static | TargetKind.Method)]
+    [Compiler(typeof(StringExtensions), nameof(StringExtensions.LessThanOrEqual), TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringLessThanOrEquals(
       [Type(typeof(string))] SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
@@ -410,7 +407,7 @@ namespace Xtensive.Orm.Providers
       return SqlDml.LessThanOrEquals(_this, value);
     }
 
-    [Compiler(typeof(StringExtensions), "GreaterThan", TargetKind.Static | TargetKind.Method)]
+    [Compiler(typeof(StringExtensions), nameof(StringExtensions.GreaterThan), TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringGreaterThan(
       [Type(typeof(string))] SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
@@ -418,7 +415,7 @@ namespace Xtensive.Orm.Providers
       return SqlDml.GreaterThan(_this, value);
     }
 
-    [Compiler(typeof(StringExtensions), "GreaterThanOrEqual", TargetKind.Static | TargetKind.Method)]
+    [Compiler(typeof(StringExtensions), nameof(StringExtensions.GreaterThanOrEqual), TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringGreaterThanOrEquals(
       [Type(typeof(string))] SqlExpression _this,
       [Type(typeof(string))] SqlExpression value)
@@ -426,7 +423,7 @@ namespace Xtensive.Orm.Providers
       return SqlDml.GreaterThanOrEquals(_this, value);
     }
 
-    [Compiler(typeof(EnumerableExtensions), "IsNullOrEmpty", TargetKind.Static | TargetKind.Method, 1)]
+    [Compiler(typeof(EnumerableExtensions), nameof(EnumerableExtensions.IsNullOrEmpty), TargetKind.Static | TargetKind.Method, 1)]
     public static SqlExpression EnumerableIsNullOrEmptyExtension(
       MemberInfo member, SqlExpression value)
     {
@@ -436,7 +433,7 @@ namespace Xtensive.Orm.Providers
       return StringIsNullOrEmpty(value);
     }
 
-    [Compiler(typeof(Enumerable), "Contains", TargetKind.Static | TargetKind.Method, 1)]
+    [Compiler(typeof(Enumerable), nameof(Enumerable.Contains), TargetKind.Static | TargetKind.Method, 1)]
     public static SqlExpression EnumerableContains(
       MemberInfo member, SqlExpression sequence, SqlExpression value)
     {
@@ -445,15 +442,13 @@ namespace Xtensive.Orm.Providers
       if (method.GetGenericArguments()[0]==typeof (char))
         return StringContains(sequence, value);
       // Otherwise translate into general IN clause
-      var container = sequence as SqlContainer;
-      if (container.IsNullReference())
+      if (!(sequence is SqlContainer container))
         throw new NotSupportedException(Strings.ExTranslationOfInContainsIsNotSupportedInThisCase);
-      var items = container.Value as IEnumerable;
-      if (items == null)
+      if (!(container.Value is IEnumerable items))
         throw new NotSupportedException(Strings.ExTranslationOfInContainsIsNotSupportedInThisCase);
       var expressions = new List<SqlExpression>();
       foreach (var item in items) {
-        object literal = null;
+        object literal;
         if (item.GetType().StripNullable().IsEnum)
           literal = Convert.ChangeType(item, Enum.GetUnderlyingType(item.GetType()));
         else
@@ -463,14 +458,14 @@ namespace Xtensive.Orm.Providers
       return SqlDml.In(value, SqlDml.Row(expressions));
     }
 
-    [Compiler(typeof (QueryableExtensions), "In", TargetKind.Static | TargetKind.Method, 1)]
+    [Compiler(typeof (QueryableExtensions), nameof(QueryableExtensions.In), TargetKind.Static | TargetKind.Method, 1)]
     public static SqlExpression EnumerableExtensionsInEnumerable(
       MemberInfo member, SqlExpression value, [Type(typeof(IEnumerable<>))] SqlExpression sequence)
     {
       return EnumerableContains(member, sequence, value);
     }
 
-    [Compiler(typeof(QueryableExtensions), "In", TargetKind.Static | TargetKind.Method, 1)]
+    [Compiler(typeof(QueryableExtensions), nameof(QueryableExtensions.In), TargetKind.Static | TargetKind.Method, 1)]
     public static SqlExpression EnumerableExtensionsInArray(
       MemberInfo member, SqlExpression value, [Type(typeof(MethodHelper.AnyArrayPlaceholder))] SqlExpression sequence)
     {
@@ -490,14 +485,14 @@ namespace Xtensive.Orm.Providers
       return SqlDml.NotEquals(left, right);
     }
 
-    [Compiler(typeof (StringExtensions), "Like", TargetKind.Static | TargetKind.Method)]
+    [Compiler(typeof (StringExtensions), nameof(StringExtensions.Like), TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringLike(SqlExpression _this,
       [Type(typeof (string))] SqlExpression pattern)
     {
       return SqlDml.Like(_this, pattern);
     }
 
-    [Compiler(typeof (StringExtensions), "Like", TargetKind.Static | TargetKind.Method)]
+    [Compiler(typeof (StringExtensions), nameof(StringExtensions.Like), TargetKind.Static | TargetKind.Method)]
     public static SqlExpression StringLike(SqlExpression _this,
       [Type(typeof (string))] SqlExpression pattern,
       [Type(typeof (char))] SqlExpression escapeChar)
