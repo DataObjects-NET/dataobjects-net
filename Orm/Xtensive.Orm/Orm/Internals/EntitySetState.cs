@@ -298,21 +298,37 @@ namespace Xtensive.Orm.Internals
     public IEnumerator<Key> GetEnumerator()
     {
       var versionSnapshot = version;
-      var fetchedKeysBeforePersist = FetchedKeys;
-      var addedKeysBeforePersist = addedKeys;
-      var removedKeysBeforePersist = removedKeys;
-      foreach (var fetchedKey in fetchedKeysBeforePersist) {
-        if (versionSnapshot!=version)
-          throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
-        if (!removedKeysBeforePersist.ContainsKey(fetchedKey))
-          yield return fetchedKey;
-      }
-      foreach (var addedKey in addedKeysBeforePersist) {
-        if (versionSnapshot!=version)
-          throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
-        yield return addedKey.Value;
+      using (var fetchedKeysEnumerator = FetchedKeys.GetEnumerator()) {
+        while (true) {
+          if (versionSnapshot != version) {
+            throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
+          }
+
+          if (!fetchedKeysEnumerator.MoveNext()) {
+            break;
+          }
+
+          var fetchedKey = fetchedKeysEnumerator.Current;
+          if (!removedKeys.ContainsKey(fetchedKey)) {
+            yield return fetchedKey;
+          }
+        }
       }
 
+      using (var addedKeysEnumerator = addedKeys.GetEnumerator()) {
+        while (true) {
+          if (versionSnapshot != version) {
+            throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
+          }
+
+          if (!addedKeysEnumerator.MoveNext()) {
+            break;
+          }
+
+          var addedKey = addedKeysEnumerator.Current;
+          yield return addedKey.Value;
+        }
+      }
     }
 
     /// <inheritdoc/>

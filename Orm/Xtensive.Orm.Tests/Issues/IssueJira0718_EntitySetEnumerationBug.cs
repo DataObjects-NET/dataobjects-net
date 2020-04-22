@@ -1024,7 +1024,7 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.Throws<InvalidOperationException>(
           () => {
             foreach (var orderItem in customerOrder.Items)
-              customerOrder.Remove();
+              customerOrderItem.Remove();
           });
         transaction.Complete();
       }
