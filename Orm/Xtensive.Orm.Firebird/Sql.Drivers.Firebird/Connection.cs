@@ -44,7 +44,9 @@ namespace Xtensive.Sql.Drivers.Firebird
     /// <inheritdoc/>
     public override void BeginTransaction(IsolationLevel isolationLevel)
     {
-      EnsureTrasactionIsNotActive();
+      EnsureIsNotDisposed();
+      EnsureTransactionIsNotActive();
+
       var transactionOptions = new FbTransactionOptions {WaitTimeout = TimeSpan.FromSeconds(10)};
       switch (SqlHelper.ReduceIsolationLevel(isolationLevel)) {
       case IsolationLevel.ReadCommitted:
@@ -66,6 +68,12 @@ namespace Xtensive.Sql.Drivers.Firebird
     protected override void ClearActiveTransaction()
     {
       activeTransaction = null;
+    }
+
+    /// <inheritdoc/>
+    protected override void ClearUnderlyingConnection()
+    {
+      underlyingConnection = null;
     }
 
     /// <inheritdoc/>
