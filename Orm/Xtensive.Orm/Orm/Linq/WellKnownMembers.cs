@@ -227,9 +227,10 @@ namespace Xtensive.Orm.Linq
 
       static Collection()
       {
-        ExtensionContainsAll = GetMethod(typeof (CollectionExtensions), "ContainsAll", 1, 2);
-        ExtensionContainsAny = GetMethod(typeof (CollectionExtensions), "ContainsAny", 1, 2);
-        ExtensionContainsNone = GetMethod(typeof (CollectionExtensions), "ContainsNone", 1, 2);
+        var collectionExType = typeof (CollectionExtensionsEx);
+        ExtensionContainsAll = GetMethod(collectionExType, nameof(CollectionExtensionsEx.ContainsAll), 1, 2);
+        ExtensionContainsAny = GetMethod(collectionExType, nameof(CollectionExtensionsEx.ContainsAny), 1, 2);
+        ExtensionContainsNone = GetMethod(collectionExType, nameof(CollectionExtensionsEx.ContainsNone), 1, 2);
       }
     }
 
