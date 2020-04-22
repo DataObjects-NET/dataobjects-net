@@ -41,32 +41,37 @@ namespace Xtensive.Sql.Drivers.Oracle
     /// <inheritdoc/>
     public override IBinaryLargeObject CreateBinaryLargeObject()
     {
+      EnsureIsNotDisposed();
       return new BinaryLargeObject(underlyingConnection);
     }
 
     /// <inheritdoc/>
     public override ICharacterLargeObject CreateCharacterLargeObject()
     {
+      EnsureIsNotDisposed();
       return new CharacterLargeObject(underlyingConnection);
     }
 
     /// <inheritdoc/>
     public override void BeginTransaction()
     {
- 	    EnsureTrasactionIsNotActive();
+      EnsureIsNotDisposed();
+      EnsureTransactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction();
     }
 
     /// <inheritdoc/>
     public override void BeginTransaction(IsolationLevel isolationLevel)
     {
-      EnsureTrasactionIsNotActive();
+      EnsureIsNotDisposed();
+      EnsureTransactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
     }
 
     /// <inheritdoc/>
     public override void MakeSavepoint(string name)
     {
+      EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       activeTransaction.Save(name);
     }
@@ -74,13 +79,15 @@ namespace Xtensive.Sql.Drivers.Oracle
     /// <inheritdoc/>
     public override void RollbackToSavepoint(string name)
     {
+      EnsureIsNotDisposed();
       EnsureTransactionIsActive();
- 	    activeTransaction.Rollback(name);
+      activeTransaction.Rollback(name);
     }
 
     /// <inheritdoc/>
     public override void ReleaseSavepoint(string name)
     {
+      EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       // nothing
     }
@@ -92,11 +99,16 @@ namespace Xtensive.Sql.Drivers.Oracle
     }
 
     /// <inheritdoc/>
+    protected override void ClearUnderlyingConnection()
+    {
+      underlyingConnection = null;
+    }
+
+    /// <inheritdoc/>
     protected override DbCommand CreateNativeCommand()
     {
       return new OracleCommand {Connection = underlyingConnection, BindByName = true};
     }
-
 
     // Constructors
 
