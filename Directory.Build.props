@@ -41,6 +41,9 @@
   <PropertyGroup>
     <GeneratePackageOnBuild Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</GeneratePackageOnBuild>
     <GeneratePackageOnBuild Condition="$(GeneratePackageOnBuild)=='' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+    <IncludeSymbols Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</IncludeSymbols>
+    <IncludeSymbols Condition="$(IncludeSymbols)=='' AND '$(Configuration)' == 'Release'">true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <!-- Populate standard properties. -->
