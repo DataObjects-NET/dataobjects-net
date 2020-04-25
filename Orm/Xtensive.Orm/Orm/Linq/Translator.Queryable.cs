@@ -1096,21 +1096,20 @@ namespace Xtensive.Orm.Linq
             .Concat(state.Parameters)
             .Concat(collectionSelector.Parameters)
             .AddOne(outerParameter).ToArray();
-          state.Parameters = ArrayUtils<ParameterExpression>.EmptyArray;
+          state.Parameters = Array.Empty<ParameterExpression>();
           state.RequestCalculateExpressionsOnce = true;
           var visitedCollectionSelector = Visit(collectionSelector.Body);
 
           if (visitedCollectionSelector.IsGroupingExpression()) {
             var selectManyInfo = ((GroupingExpression) visitedCollectionSelector).SelectManyInfo;
             if (selectManyInfo.GroupByProjection==null) {
-              LambdaExpression newResultSelector;
-              bool rewriteSucceeded = SelectManySelectorRewriter.TryRewrite(
+              var rewriteSucceeded = SelectManySelectorRewriter.TryRewrite(
                 resultSelector,
                 resultSelector.Parameters[0],
                 selectManyInfo.GroupJoinOuterKeySelector.Parameters[0],
-                out newResultSelector);
+                out var newResultSelector);
 
-              if (rewriteSucceeded)
+              if (rewriteSucceeded) {
                 return VisitJoin(
                   selectManyInfo.GroupJoinOuterProjection,
                   selectManyInfo.GroupJoinInnerProjection,
@@ -1119,9 +1118,15 @@ namespace Xtensive.Orm.Linq
                   newResultSelector, 
                   isOuter,
                   expressionPart);
+              }
             }
-            else
-              return selectManyInfo.GroupByProjection;
+            else {
+              if (resultSelector == null) {
+                return selectManyInfo.GroupByProjection;
+              }
+
+              throw new NotImplementedException();
+            }
           }
 
           var projection = VisitSequence(visitedCollectionSelector, collectionSelector);
