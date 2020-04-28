@@ -10,6 +10,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using JetBrains.Annotations;
 using Xtensive.Collections;
@@ -25,6 +26,31 @@ namespace Xtensive.Sql
   /// </summary>
   public static class SqlHelper
   {
+    public readonly struct EscapeSetup
+    {
+      public static readonly EscapeSetup WithQuotes = 
+        new EscapeSetup('.', '\"', '\"', '\"', '\"');
+      public static readonly EscapeSetup WithBrackets = 
+        new EscapeSetup('.', '[', ']', ']', ']');
+      public static readonly EscapeSetup WithBackTick = 
+        new EscapeSetup('.', '`', '`', '`', '`');
+
+      public readonly char Delimiter;
+      public readonly char Opener; 
+      public readonly char Closer;
+      public readonly char EscapeCloser1;
+      public readonly char EscapeCloser2;
+
+      public EscapeSetup(char delimiter, char opener, char closer, char escapeCloser1, char escapeCloser2)
+      {
+        Delimiter = delimiter;
+        Opener = opener;
+        Closer = closer;
+        EscapeCloser1 = escapeCloser1;
+        EscapeCloser2 = escapeCloser2;
+      }
+    }
+
     /// <summary>
     /// Validates the specified URL againts charactes that usually forbidden inside connection strings.
     /// </summary>
@@ -45,44 +71,73 @@ namespace Xtensive.Sql
     /// Quotes the specified identifier with quotes (i.e. "").
     /// </summary>
     /// <returns>Quoted identifier.</returns>
-    public static string QuoteIdentifierWithQuotes(string[] names)
-    {
-      return Quote("\"", "\"", ".", "\"\"", names);
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string QuoteIdentifierWithQuotes(string[] names) 
+      => Quote(EscapeSetup.WithQuotes, names);
 
     /// <summary>
     /// Quotes the specified identifier with square brackets (i.e. []).
     /// </summary>
     /// <returns>Quoted indentifier.</returns>
-    public static string QuoteIdentifierWithBrackets(string[] names)
-    {
-      return Quote("[", "]", ".", "]]", names);
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string QuoteIdentifierWithBrackets(string[] names) 
+      => Quote(EscapeSetup.WithBrackets, names);
 
     /// <summary>
     /// Quotes the specified identifier with square brackets (i.e. ``).
     /// </summary>
-    /// <returns>Quoted indentifier.</returns>
-    public static string QuoteIdentifierWithBackTick(string[] names)
-    {
-      return Quote("`", "`", ".", "``", names);
-    }
+    /// <returns>Quoted identifier.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static string QuoteIdentifierWithBackTick(string[] names) 
+      => Quote(EscapeSetup.WithBackTick, names);
 
-    private static string Quote(string openingBracket, string closingBracket, string delimiter,
-      string escapedClosingBracket, IEnumerable<string> names)
+    private static unsafe string Quote(in EscapeSetup setup, string[] names)
     {
-      var tokens = names.Where(name => !string.IsNullOrEmpty(name)).ToArray();
-      var builder = new StringBuilder();
-      for (int i = 0; i < tokens.Length - 1; i++) {
-        builder.Append(openingBracket);
-        builder.Append(tokens[i].Replace(closingBracket, escapedClosingBracket));
-        builder.Append(closingBracket);
-        builder.Append(delimiter);
+      // That's one of frequently called methods, so it's optimized for speed. 
+
+      // 1. Find resultLength
+      var resultLength = 0;
+      foreach (var name in names) {
+        if (string.IsNullOrEmpty(name))
+          continue;
+        if (resultLength != 0)
+          resultLength++;
+        resultLength += 2 + name.Length;
+        var start = 0;
+        while (true) {
+          start = 1 + name.IndexOf(setup.Closer, start);
+          if (start == 0)
+            break;
+          resultLength++;
+        }
       }
-      builder.Append(openingBracket);
-      builder.Append(tokens[tokens.Length - 1].Replace(closingBracket, escapedClosingBracket));
-      builder.Append(closingBracket);
-      return builder.ToString();
+
+      // 2. Create the resulting string at once
+      var result = new string(setup.Delimiter, resultLength);
+      fixed (char* pResult = result) {
+        var p = pResult;
+        foreach (var name in names) {
+          if (string.IsNullOrEmpty(name))
+            continue;
+          if (p != pResult)
+            p++; // Skip the delimiter (initial result value is a repeating delimiter)
+          *p++ = setup.Opener;
+          fixed (char* pName = name) {
+            var pNameEnd = pName + name.Length;
+            for (var pn = pName; pn < pNameEnd; pn++) {
+              var c = *pn;
+              if (c == setup.Closer) {
+                *p++ = setup.EscapeCloser1;
+                *p++ = setup.EscapeCloser2;
+                continue;
+              }
+              *p++ = c;
+            }
+          }
+          *p++ = setup.Closer;
+        }
+      }
+      return result;
     }
 
     /// <summary>
